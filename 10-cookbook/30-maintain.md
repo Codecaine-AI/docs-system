@@ -74,17 +74,6 @@ When making changes to existing code—bug fixes, refactors, chores—documentat
 | Weekly/sprint boundary | Audit on active sections |
 | Before release | Full audit on entire `docs/` |
 
----
-
-## Commands
-
-| Command | Purpose | Workflow |
-|---------|---------|----------|
-| `/docs:write <path> [notes]` | Update docs from notes | `30-workflows/50-write.md` |
-| `/docs:audit [quick\|deep]` | Validate structure and health | `30-workflows/70-audit.md` |
-
----
-
 ## Quick vs Deep Audit
 
 | Mode | Scope | Checks |

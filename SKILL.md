@@ -1,7 +1,6 @@
 ---
 name: docs-framework
 description: Three-layer documentation framework (Foundation, System Design, Implementation) for maintaining structured, navigable documentation. Use when reading docs/ to understand the codebase, or when writing/maintaining documentation.
-allowed-tools: Read, Write, Edit, Glob, Grep, Bash(eza:*), Bash(tree:*), Bash(mkdir:*), Bash(find:*)
 ---
 
 # Purpose
@@ -9,17 +8,10 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash(eza:*), Bash(tree:*), Bash(mk
 Maintain structured, layered documentation that is easy to navigate and update.
 Follow the `Instructions`, execute the `Workflow`, based on the `Cookbook`.
 
-## Variables
-
-DOCS_ROOT: docs/
-SKILL_ROOT: path where this repo is mounted (commonly `.claude/skills/docs-framework/` or `.codex/skills/docs-framework/`)
-
 ## Instructions
 
 - Based on your intent (navigate, produce, or maintain), follow the `Cookbook` to load the appropriate workflow.
-- When running inside Spectre's backend skill registry, use `skill_read({ skill: "docs-framework", file: "<path>" })` to load referenced files.
 - All documentation output goes to `docs/`
-- Use slash commands for common operations (see Commands section)
 
 ## Workflow
 
@@ -72,32 +64,15 @@ docs/
 
 ### This Skill
 
+Fetch sub-files via `skill_read({ skill: "docs-framework", file: "<key>" })`:
+
 ```
 docs-framework/
 ├── 00-reference/      # Philosophy and background
 ├── 10-cookbook/       # Intent-based entry points
 ├── 20-standards/      # Structure rules and schemas
-├── 30-workflows/      # Granular execution steps
-├── 40-templates/      # Document templates
-└── 99-appendix/       # Setup and configuration
+└── 40-templates/      # Document templates
 ```
-
----
-
-## Commands
-
-| Command | Purpose |
-|---------|---------|
-| `/docs:init` | Initialize `docs/` three-layer structure |
-| `/docs:scaffold <path>` | Map code structure to doc sections |
-| `/docs:interview-foundation` | Extract purpose and principles |
-| `/docs:interview-design` | Extract system-agnostic design knowledge |
-| `/docs:interview-codebase <path>` | Extract code knowledge |
-| `/docs:write <path> [notes]` | Write/update docs from notes |
-| `/docs:annotate <path>` | Add headers/docstrings to code |
-| `/docs:audit [quick|deep]` | Validate structure, frontmatter, and health |
-
----
 
 ## Reference
 
@@ -107,4 +82,3 @@ docs-framework/
 | Architecture | `00-reference/20-architecture.md` |
 | Standards | `20-standards/` |
 | Templates | `40-templates/` |
-| Setup | `99-appendix/10-setup-guide.md` |

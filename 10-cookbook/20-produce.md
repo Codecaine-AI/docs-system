@@ -56,7 +56,7 @@ depending on the target layer (Foundation, Design, or Implementation).
 - Design: New system behavior, data flow, or component interactions to document
 - Implementation: New code area needs documentation, existing code lacks context
 
-**Output:** Interview notes at the target layer, ready for `/docs:write`.
+**Output:** Interview notes at the target layer, ready for the docs-write agent.
 
 ### Step 3: Write
 
@@ -99,22 +99,6 @@ Not every production task needs all steps:
 | Missing architectural docs | Interview (design or codebase) → Write |
 | After implementing feature | Write (with implementation notes) → Annotate |
 | System redesign / new component interactions | Interview (design) → Write (design) → Interview (codebase) → Write |
-
----
-
-## Commands
-
-| Command | Purpose | Workflow |
-|---------|---------|----------|
-| `/docs:init` | Initialize `docs/` structure | `30-workflows/10-init.md` |
-| `/docs:scaffold <path>` | Map code to doc sections | `30-workflows/20-scaffold.md` |
-| `/docs:interview-foundation` | Extract intent/vision | `30-workflows/30-interview-foundation.md` |
-| `/docs:interview-design` | Extract system architecture | `30-workflows/35-interview-design.md` |
-| `/docs:interview-codebase <path>` | Extract code knowledge | `30-workflows/40-interview-codebase.md` |
-| `/docs:write <path> [notes]` | Write/update docs from notes | `30-workflows/50-write.md` |
-| `/docs:annotate <path>` | Add headers/docstrings | `30-workflows/60-annotate.md` |
-
----
 
 ## Quality Checklist
 
