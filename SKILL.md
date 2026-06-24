@@ -17,6 +17,7 @@ SKILL_ROOT: path where this repo is mounted (commonly `.claude/skills/docs-frame
 ## Instructions
 
 - Based on your intent (navigate, produce, or maintain), follow the `Cookbook` to load the appropriate workflow.
+- When running inside Spectre's backend skill registry, use `skill_read({ skill: "docs-framework", file: "<path>" })` to load referenced files.
 - All documentation output goes to `docs/`
 - Use slash commands for common operations (see Commands section)
 

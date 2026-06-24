@@ -131,6 +131,16 @@ docs/
 
 To update the framework, commit changes in the `docs-framework` repo and pull that repo in any project that symlinks to it.
 
+### Spectre Backend Snapshot
+
+Spectre also embeds this skill in its backend skill library so agents can use `skill_read`. After changing this repository, run this from the Spectre repo root:
+
+```
+bun run sync:docs-framework
+```
+
+That command copies markdown from the linked skill repo into `apps/backend/src/skill-library/skills/docs-framework/` and regenerates the backend `index.ts` wrapper.
+
 ## Available Commands
 
 ### Setup & Structure

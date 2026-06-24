@@ -81,7 +81,7 @@ When making changes to existing code—bug fixes, refactors, chores—documentat
 | Command | Purpose | Workflow |
 |---------|---------|----------|
 | `/docs:write <path> [notes]` | Update docs from notes | `30-workflows/50-write.md` |
-| `/docs:audit [quick\|deep]` | Validate structure and health | `30-workflows/80-audit.md` |
+| `/docs:audit [quick\|deep]` | Validate structure and health | `30-workflows/70-audit.md` |
 
 ---
 
