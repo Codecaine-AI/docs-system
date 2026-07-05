@@ -47,7 +47,9 @@ For semantic checks, consult these standards:
 ### Semantic Drift Detection
 Sample 2-3 L3 nodes and compare documentation claims to code reality:
 
-1. Pick a random L3 documentation node
+1. Pick a random L3 documentation node — read its content via `bun run docs render <path>`, not a
+   direct read of its `.md`/`.mdx` twin (retired post-migration, D20; the tree may still contain
+   twins mid-migration, but they aren't authoritative)
 2. Read the code files it references
 3. Compare:
    - Does the documented architecture match the code?

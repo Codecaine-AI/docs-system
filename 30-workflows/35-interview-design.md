@@ -53,9 +53,11 @@ Design lives in the middle: specific about system behavior, silent about how it'
 
 Read available context:
 
-- `docs/00-foundation/` — understand intent and vision
-- `docs/10-system-design/` — existing Design docs (you're supplementing/validating these)
+- `bun run docs render docs/00-foundation/00-overview` (or `docs grep <term> docs/00-foundation`) — understand intent and vision
+- `bun run docs grep <term> docs/10-system-design` (or `docs render` on a known path) — existing Design docs (you're supplementing/validating these)
 - Source code — to understand what the system actually does (but describe it in system terms)
+
+Use `docs render`/`docs grep` (M2, D20), not a direct read of a `.md`/`.mdx` twin — those are retired post-migration (the tree may still contain them mid-migration; they aren't authoritative).
 
 You need Foundation context to know *what* the system is trying to do, and source context to know *what it actually does* — but your output describes neither intent nor code. It describes the system's architecture.
 

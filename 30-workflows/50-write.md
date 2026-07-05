@@ -34,8 +34,10 @@ Write or update system-agnostic Design documentation. Input is typically a desig
 | Source | Location | Purpose |
 |--------|----------|---------|
 | Notes file | Interview report or design notes | System behaviors, flow, contracts to document |
-| Foundation docs | `docs/00-foundation/` | Intent and vision — Design must align with Foundation |
-| Existing Design docs | `docs/10-system-design/` | What's already documented at the Design level |
+| Foundation docs | `bun run docs render docs/00-foundation/00-overview` | Intent and vision — Design must align with Foundation |
+| Existing Design docs | `bun run docs grep "" docs/10-system-design` (or targeted `docs render` on a known path) | What's already documented at the Design level |
+
+Read docs via `bun run docs render <path>` / `bun run docs grep <term> [path-prefix]` (M2, D20) — never read a doc bundle's `.md`/`.mdx` twin directly. MDX/.md twins are retired post-migration; the tree may still contain them while the M2 migration is in flight, but they are not the source of truth and must not be read directly.
 
 **Do NOT read source code for Design docs.** If you find yourself referencing a file path, class name, or language feature, you've drifted into Implementation territory.
 
@@ -128,8 +130,10 @@ Read these sources:
 |--------|----------|---------|
 | Notes file | `[notes_file]` argument | Change context and domain insight to convert into current-state documentation |
 | Source code | `[source_path]/` | Current implementation |
-| Existing docs | `docs/20-implementation/[section]/` | What's already documented |
-| L1 overview | `docs/20-implementation/00-overview.md` | Parent context |
+| Existing docs | `bun run docs render docs/20-implementation/[section]/<node>` (or `bun run docs grep <term> docs/20-implementation/[section]`) | What's already documented |
+| L1 overview | `bun run docs render docs/20-implementation/00-overview` | Parent context |
+
+Use `bun run docs render <path>` / `bun run docs grep <term> [path-prefix]` (M2, D20) to read existing docs content — not a direct file read of a `.md`/`.mdx` twin. MDX/.md twins are retired post-migration; some may still exist on disk during the M2 migration, but they are not authoritative.
 
 ### B.4 Normalize Notes Into Present-State Facts
 

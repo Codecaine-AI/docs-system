@@ -13,12 +13,21 @@ When you need to understand something about the codebase, navigate the documenta
 
 | What You Need | Start Here |
 |---------------|------------|
-| Architecture, code structure, how things work | `docs/20-implementation/00-overview.md` |
-| Purpose, principles, boundaries, "why" | `docs/00-foundation/00-overview.md` |
+| Architecture, code structure, how things work | `bun run docs render docs/20-implementation/00-overview` |
+| Purpose, principles, boundaries, "why" | `bun run docs render docs/00-foundation/00-overview` |
+
+Every read below is a `docs render`/`docs grep` call (M2, D20), not a direct file read of a
+`.md`/`.mdx` twin — those are retired post-migration. The tree may still contain twins while the
+M2 migration is in flight; they are not the source of truth, so don't read them directly.
 
 ---
 
 ## The Three-Phase Algorithm: SCAN → SKIM → READ
+
+All three phases read via `bun run docs render <path>` (the projection includes frontmatter,
+opening paragraph, and full body in one markdown string — slice the phase you need from its
+output) or `bun run docs grep <term> [path-prefix]` for cross-file scans; never read a `.md`/
+`.mdx` twin directly (retired post-migration, D20).
 
 ### Phase 1: SCAN (Frontmatter Only)
 

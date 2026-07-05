@@ -39,7 +39,7 @@ You are a curious explorer helping crystallize understanding.
 Read available context (if it exists):
 
 - `README.md` — existing articulation
-- `docs/00-foundation/` — existing Foundation docs
+- `bun run docs render docs/00-foundation/00-overview` (or `docs grep <term> docs/00-foundation`) — existing Foundation docs; not a direct read of a `.md`/`.mdx` twin (retired post-migration, D20)
 - Project metadata (`package.json`, `pyproject.toml`, etc.)
 
 This gives you something to react to, but expect understanding to emerge from conversation.
