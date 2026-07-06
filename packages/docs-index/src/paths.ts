@@ -8,6 +8,7 @@ import { join, resolve, sep } from "node:path";
 
 export function isSafeRelativePath(path: string): boolean {
   if (!path || path.length === 0) return false;
+  if (path.includes("\0")) return false;
   if (path.startsWith("/") || path.startsWith("\\")) return false;
   return path.split(/[\\/]/).every((segment) => segment !== "" && segment !== "..");
 }

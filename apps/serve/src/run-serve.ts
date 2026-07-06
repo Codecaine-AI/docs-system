@@ -13,6 +13,8 @@ import { ensureSpaBuilt, webDir } from "./spa";
 export interface RunServeOptions {
   docsRoot: string;
   port: number;
+  /** Bind address. Defaults to loopback — the served docs tree may be private. */
+  hostname?: string;
   dev?: boolean;
   /** Rebuild the SPA even when a build already exists. */
   forceBuild?: boolean;
@@ -22,14 +24,16 @@ export interface RunServeOptions {
 export async function runServe(options: RunServeOptions): Promise<void> {
   const log = options.log ?? ((message: string) => console.error(message));
   const { docsRoot, port } = options;
+  const hostname = options.hostname ?? "127.0.0.1";
+  const displayHost = hostname === "0.0.0.0" ? "localhost" : hostname;
 
   if (!existsSync(join(docsRoot, "."))) {
     throw new Error(`Docs root does not exist: ${docsRoot}`);
   }
 
   if (options.dev) {
-    startDocsServe({ docsRoot, port, staticDir: null });
-    log(`[docs-serve] API listening on http://localhost:${port} (docs root: ${docsRoot})`);
+    startDocsServe({ docsRoot, port, hostname, staticDir: null });
+    log(`[docs-serve] API listening on http://${displayHost}:${port} (docs root: ${docsRoot})`);
     log(`[docs-serve] Starting vite dev server (proxying /api -> :${port})...`);
     const proc = Bun.spawn(["bun", "x", "vite"], {
       cwd: webDir(),
@@ -42,7 +46,7 @@ export async function runServe(options: RunServeOptions): Promise<void> {
   }
 
   const staticDir = await ensureSpaBuilt({ mode: "serve", force: options.forceBuild, log });
-  startDocsServe({ docsRoot, port, staticDir });
+  startDocsServe({ docsRoot, port, hostname, staticDir });
   log(`[docs-serve] Serving docs from ${docsRoot}`);
-  log(`[docs-serve] http://localhost:${port}`);
+  log(`[docs-serve] http://${displayHost}:${port}`);
 }

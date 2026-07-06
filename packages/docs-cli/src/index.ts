@@ -246,7 +246,7 @@ function usage(): string {
     "  docs-cli backlinks rescan [docsRoot]",
     "  docs-cli links check [docsRoot]",
     "  docs-cli migrate [repoRoot] [--drafts] [--dry-run]",
-    "  docs-cli serve [--root <path>] [--port <port>] [--dev] [--rebuild]",
+    "  docs-cli serve [--root <path>] [--port <port>] [--host <addr>] [--dev] [--rebuild]",
     "  docs-cli export [--root <path>] --out <dir> [--rebuild]",
     "",
     "migrate is NON-DESTRUCTIVE by default: it writes doc.json bundles",
@@ -379,9 +379,10 @@ async function main() {
 
     if (command === "serve") {
       // Standalone read-only docs server + viewer SPA (apps/serve).
-      //   docs-cli serve [--root <path>] [--port <port>] [--dev] [--rebuild]
+      //   docs-cli serve [--root <path>] [--port <port>] [--host <addr>] [--dev] [--rebuild]
       // Default mode vite-builds the SPA once (cached) and serves API + SPA
       // from one port; --dev spawns `vite dev` with an /api proxy instead.
+      // Binds loopback unless --host is given (the docs tree may be private).
       const root = path.resolve(flagValue(args, "--root") ?? "docs");
       const port = Number(flagValue(args, "--port") ?? "4800");
       if (!Number.isInteger(port) || port <= 0 || port > 65535) {
@@ -393,6 +394,7 @@ async function main() {
       await runServe({
         docsRoot: root,
         port,
+        hostname: flagValue(args, "--host"),
         dev: args.includes("--dev"),
         forceBuild: args.includes("--rebuild"),
       });

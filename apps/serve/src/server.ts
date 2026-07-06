@@ -259,10 +259,12 @@ export function createDocsServeApp(options: DocsServeAppOptions) {
 
 export interface StartDocsServeOptions extends DocsServeAppOptions {
   port: number;
+  /** Bind address. Defaults to loopback — the served docs tree may be private. */
+  hostname?: string;
 }
 
 export function startDocsServe(options: StartDocsServeOptions) {
   const app = createDocsServeApp(options);
-  app.listen(options.port);
+  app.listen({ hostname: options.hostname ?? "127.0.0.1", port: options.port });
   return app;
 }
