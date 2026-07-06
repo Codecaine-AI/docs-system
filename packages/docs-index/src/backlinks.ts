@@ -13,7 +13,7 @@ import { candidateStoredForms, normalizeDocRefPath } from "./ref-match";
  * handlers, docs-cli) are responsible for deciding WHEN to call these
  * functions (e.g. after a successful bundle write).
  *
- * Zero coupling to @spectre/database/Postgres/drizzle — this is a fully
+ * Zero coupling to the host app's database (Postgres/drizzle) — this is a fully
  * standalone sqlite file that lives at `<docsRoot>/.index/backlinks.db`.
  */
 
