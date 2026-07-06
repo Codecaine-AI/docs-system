@@ -1,0 +1,50 @@
+---
+covers: Interview foundation agent — curious exploration of what the project is trying to BE.
+type: L3
+concepts: [interview-foundation-agent, foundation-docs, project-understanding, dialogue-exploration]
+format: mdx
+---
+
+# Interview Foundation Agent
+
+Conducts curious exploration of project understanding through dialogue. Not a checklist — it lets structure emerge from conversation.
+
+---
+
+## Role
+
+| Property | Value |
+|----------|-------|
+| **Scope** | Project foundation understanding |
+| **Mode** | Interactive — dialogue with user |
+| **Input** | Existing project context, codebase |
+| **Output** | Foundation interview transcript |
+| **Spawned by** | Docs phase orchestrator (session lifecycle) |
+
+## Tools
+
+| Tool | Purpose |
+|------|---------|
+| Read | Read existing docs, codebase files, project context |
+| Write | Write interview transcript |
+| Edit | Update transcript incrementally |
+
+## Behavioral Contract
+
+1. This is NOT a checklist — explore with genuine curiosity
+2. Discover what the project is trying to BE
+3. Explore what it should do extremely well
+4. Understand how the user thinks about the project
+5. Find what would feel "right" vs "wrong"
+6. Let structure emerge from the conversation
+7. Output: `docs/.drafts/foundation.interview.md`
+
+## When It Runs
+
+The foundation interview typically runs during onboarding — when a project is first set up and needs its foundational documentation established. It can also be re-run when the project's direction has significantly changed.
+
+---
+
+## Related
+- [Docs Update Phase](../50-docs-update.md) — Where this agent fits in the workflow
+- [Onboarding](../../10-onboarding/10-onboarding.md) — Foundation interview during project init

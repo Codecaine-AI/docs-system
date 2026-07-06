@@ -1,0 +1,589 @@
+---
+covers: Plan pipeline execution — 3-tier agent sequence, oversight modes, review gates, task seeds, prior-task context
+type: L3
+concepts: [pipeline, sequence, oversight-modes, review-gates, task-seeds, prior-task-context, advance-pipeline]
+code-ref: apps/backend/src/services/plan/
+format: mdx
+---
+
+# Plan Pipeline Execution
+
+The plan pipeline generates a complete `plan.json` through a depth-first sequence of 3 sub-agent tiers.
+
+Each tier operates at a different scope:
+
+| Tier | Agent | Scope | Output |
+|------|-------|-------|--------|
+| 1 | Outline | Full codebase | Checkpoints (vertical slices) |
+| 2 | Task Group | Checkpoint subset | Task groups + task seeds + testing strategy |
+| 3 | Task | Single seed | Full task definition (file_context + actions) |
+
+Key property: **each tier only decides things it has the context to decide well.**
+- The outline agent crawls the full codebase
+  - It decides the strategic decomposition
+- The TG agent works with a checkpoint's scope
+  - It decides the flow and ordering of tasks, plus testing strategy
+- The task agent takes a single seed and explores the codebase to figure out exactly which files to change and how 
+  - It produces the detailed task with file_context and actions in one pass
+
+When every task has its actions, the session transitions to the build phase.
+
+---
+
+## Sequence
+
+```python
+outline_agent(spec_md, codebase)        # crawls everything
+review_gate("outline")
+
+for checkpoint in checkpoints:
+    tg_agent(checkpoint, spec_md, codebase)
+    # writes: task_groups[] with task_seeds[], testing_strategy
+    review_gate("checkpoint")
+
+    for task_group in checkpoint.task_groups:
+        prior_tasks = []
+
+        for seed in task_group.task_seeds:
+            # Task agent: seed -> full task (file_context + actions) in one pass
+            task = task_agent(
+                seed,                        # { title, intent }
+                task_group.objective,
+                checkpoint.goal,
+                prior_tasks=prior_tasks,
+            )
+            prior_tasks.append(task)
+
+        review_gate("task_group")
+
+# plan.json complete -> transition to build
+```
+
+Each `review_gate()` only pauses if the current oversight mode includes that level.
+
+In `no_oversight` mode, the entire loop runs without stopping.
+
+---
+
+## Oversight & Review Gates
+
+Oversight is a two-step decision:
+
+1. **At start**
+  - Binary: "Review" or "Auto-generate"
+2. **At outline approval**
+  - Pick ongoing review level for the rest of the pipeline
+
+### Oversight Modes
+
+Four modes control which pipeline levels trigger a pause:
+
+```
+                      outline  checkpoint  task_group
+no_oversight          -        -           -           fully autonomous
+outline_only          Y        -           -           review outline only
+outline_checkpoint    Y        Y           -           review outline + each checkpoint
+full_flow             Y        Y           Y           review everything
+```
+
+### User Flow
+
+```
+Start pipeline
+  |
+  |-- "Auto-generate" -> no_oversight -> runs to completion, no pauses
+  |
+  +-- "Review" -> outline_only -> outline agent runs -> PAUSE at outline gate
+                                                         |
+                    User reviews checkpoints, then picks: |
+                                                          |
+                    |-- "Review each checkpoint"  -> outline_checkpoint
+                    |-- "Review each task group"  -> full_flow
+                    +-- "Approve all remaining"   -> no_oversight (exit to auto)
+```
+
+At any subsequent gate, the user can:
+- **Approve** — continue with the current mode
+- **Send feedback** — revise, then re-pause at the same gate
+- **Exit to auto** — switch to `no_oversight` and finish autonomously
+
+### The Three Review Gates
+
+**Outline gate**
+- Outline Agent runs once — explores codebase, writes all checkpoints to plan.json
+- Gate fires when outline is complete — full checkpoint structure exists before detail work begins
+- At this gate, the user picks their ongoing review level
+
+**Checkpoint gate**
+- TG Agent runs once per checkpoint — writes task groups with task seeds and testing strategy
+- Gate fires after that checkpoint's task groups and seeds are written — validates decomposition AND task flow before detail work begins
+- The user sees both the task group structure and the planned task seeds
+- 3 checkpoints = 3 pauses at this gate
+
+**Task group gate**
+- Task Agents fill out each seed into a full task definition with actions
+- Gate fires after a task group is fully detailed (all tasks + all actions)
+- Only enabled in `full_flow` mode
+
+### User Actions at a Review Gate
+
+**Approve**
+- Accept the output and continue.
+- At the outline gate, the user selects an ongoing review mode (`outline_checkpoint` or `full_flow`).
+- At subsequent gates, approve continues with the current mode.
+
+**Send Feedback**
+- Provide specific guidance.
+- The same agent revises its output based on the feedback, then the gate re-fires.
+- Iterative refinement loop — no standalone "reject", feedback must explain what to change.
+
+**Exit to Auto**
+- Switch to `no_oversight` and run the rest of the pipeline autonomously.
+- Available at any gate — "I'm done reviewing, finish the rest."
+
+---
+
+## In-Depth Sequence
+
+```python
+# ---------------------------------------------------------------
+# 1. Outline Agent
+#    Reads the finalized spec, explores the full codebase,
+#    and decomposes the work into tracer-bullet checkpoints --
+#    vertical slices that each produce working, testable code.
+#
+#    Scope: entire codebase. This is the strategic agent.
+# ---------------------------------------------------------------
+outline_agent = spawn("plan_outline")
+outline_agent.read("spec.md")
+outline_agent.explore_codebase()             # Glob, Grep, Read — crawls everything
+outline_agent.plan_set_outline(              # MCP tool -> plan.json
+    checkpoints=[
+        { id: 1, title: "...", goal: "..." },
+        { id: 2, title: "...", goal: "...", prerequisites: [1] },
+    ]
+)
+review_gate("outline")
+
+# ---------------------------------------------------------------
+# 2-3. Depth-first: fully detail each checkpoint before
+#       moving to the next
+# ---------------------------------------------------------------
+for checkpoint in plan.checkpoints:
+
+    # -----------------------------------------------------------
+    # 2. Task Group Agent
+    #    Takes a single checkpoint and breaks it into objective-
+    #    based task groups. For each task group, also produces
+    #    minimal task seeds — title + intent — that establish
+    #    the flow and ordering of work.
+    #
+    #    Also defines testing strategy (how to verify the
+    #    checkpoint compiles and runs).
+    #
+    #    Does NOT produce file_context — that's pushed to
+    #    the task level where the agent has actually explored
+    #    the specific files.
+    #
+    #    Scope: checkpoint's portion of the codebase. This agent
+    #    decides WHAT tasks exist and in WHAT ORDER, but does NOT
+    #    figure out the specific files or implementation details.
+    # -----------------------------------------------------------
+    tg_agent = spawn("plan_task_group", checkpoint)
+    tg_agent.read("spec.md", checkpoint.goal)
+    tg_agent.explore_codebase()
+    tg_agent.plan_set_task_groups(           # MCP tool -> plan.json
+        checkpoint_id=checkpoint.id,
+        testing_strategy={
+            approach: "Integration tests with ...",
+            verification_steps: ["npm test", "curl ..."],
+        },
+        task_groups=[
+            {
+                id: 1,
+                title: "Database layer",
+                objective: "Set up models and migrations",
+                task_seeds: [
+                    { title: "Create User model",
+                      intent: "Define User with id, name, email fields" },
+                    { title: "Create migration",
+                      intent: "Alembic migration for users table" },
+                    { title: "Add repository pattern",
+                      intent: "CRUD operations for User model" },
+                ]
+            },
+            {
+                id: 2,
+                title: "API endpoints",
+                objective: "Expose user CRUD via REST",
+                task_seeds: [
+                    { title: "Create user router",
+                      intent: "POST/GET/PUT/DELETE endpoints for users" },
+                    { title: "Add input validation",
+                      intent: "Pydantic schemas for request/response" },
+                ]
+            },
+        ]
+    )
+    review_gate("checkpoint")
+
+    for task_group in checkpoint.task_groups:
+        prior_tasks = []
+
+        for seed in task_group.task_seeds:
+
+            # -------------------------------------------------------
+            # 3. Task Agent (one per seed)
+            #    Takes a minimal seed (title + intent) and produces
+            #    the full task definition AND its actions in one pass.
+            #
+            #    The agent explores the codebase to find the specific
+            #    files it needs to change, understands the interfaces,
+            #    then writes:
+            #      - The detailed task (description, context,
+            #        depends_on)
+            #      - file_context (beginning/ending file states
+            #        grounded in actual codebase exploration)
+            #      - The IDK-formatted actions (the atomic steps a
+            #        build agent will execute)
+            #
+            #    No file_path — tasks are multi-file logical units.
+            #    File scoping lives on individual actions.
+            #
+            #    Scope: single seed. This is the implementation
+            #    planning agent.
+            # -------------------------------------------------------
+            task_agent = spawn("plan_task", seed)
+            task_agent.read(
+                seed,                        # { title, intent }
+                task_group.objective,
+                checkpoint.goal,
+                prior_tasks=prior_tasks,     # all completed task definitions
+            )
+            task_agent.explore_codebase()    # read target files, understand interfaces
+            task_agent.plan_set_task(        # MCP tool -> plan.json
+                checkpoint_id=checkpoint.id,
+                task_group_id=task_group.id,
+                task={
+                    id: next_id,
+                    title: "Create User model",
+                    description: "Define SQLAlchemy User model with id (UUID), "
+                                 "name (str), email (str unique), created_at "
+                                 "(datetime). Import Base from database/base.py.",
+                    depends_on: [],
+                    context: {
+                        read_before: [
+                            { file: "src/database/base.py",
+                              lines: "1-20",
+                              purpose: "Understand Base class and metadata" }
+                        ],
+                        related_files: ["src/models/__init__.py"],
+                    },
+                    file_context: {
+                        beginning: {
+                            files: [
+                                { path: "src/models/__init__.py",
+                                  status: "exists",
+                                  description: "Model registry, no User import" },
+                            ],
+                            tree: null,
+                        },
+                        ending: {
+                            files: [
+                                { path: "src/models/user.py",
+                                  status: "new",
+                                  description: "User model with id, name, email, created_at" },
+                                { path: "src/models/__init__.py",
+                                  status: "modified",
+                                  description: "User import added to public API" },
+                            ],
+                            tree: null,
+                        },
+                    },
+                    actions: [
+                        { id: 1,
+                          command: "CREATE src/models/user.py",
+                          file: "src/models/user.py" },
+                        { id: 2,
+                          command: "ADD CLASS User(Base) with fields "
+                                   "id, name, email, created_at",
+                          file: "src/models/user.py" },
+                        { id: 3,
+                          command: "MODIFY src/models/__init__.py",
+                          file: "src/models/__init__.py" },
+                        { id: 4,
+                          command: "ADD IMPORT User to __init__.py "
+                                   "for public API",
+                          file: "src/models/__init__.py" },
+                    ],
+                }
+            )
+            prior_tasks.append(task)
+
+        review_gate("task_group")
+
+# All tasks have definitions + actions -> plan.json status = "complete"
+# -> transition to build phase
+```
+
+---
+
+## Task Seeds
+
+Task seeds are the lightweight task outlines produced by the TG agent. They establish the flow — what tasks exist and in what order — without getting into implementation details.
+
+### Seed Format
+
+```python
+task_seed = {
+    "title": "Create User model",
+    "intent": "Define User with id, name, email fields"
+}
+```
+
+Minimal by design:
+- **title** — what the task does (noun phrase)
+- **intent** — what needs to change and why (one sentence)
+- No `file_path`, no `context`, no `depends_on` — those are the task agent's job
+
+### Why Minimal Seeds
+
+The TG agent has the right scope to decide **what** tasks exist and their **ordering** within the group. 
+
+But it doesn't have the deep file-level context to decide **how** each task should be implemented.
+
+By keeping seeds minimal:
+- The TG agent stays focused on decomposition and flow
+- The task agent has freedom to explore the codebase and find the right files
+- Seeds are stable — they don't need to change if the codebase evolves between planning and execution
+- The user can validate the task flow at the checkpoint review gate without drowning in implementation detail
+
+### Where Seeds Live in plan.json
+
+Seeds are stored as a field on each task group:
+
+```json
+{
+  "task_groups": [
+    {
+      "id": 1,
+      "title": "Database layer",
+      "objective": "Set up models and migrations",
+      "task_seeds": [
+        { "title": "Create User model", "intent": "Define User with id, name, email fields" },
+        { "title": "Create migration", "intent": "Alembic migration for users table" }
+      ],
+      "tasks": []
+    }
+  ]
+}
+```
+
+As the task agent processes each seed, it writes the full task (with actions) into `tasks[]`. 
+
+The `task_seeds` array stays as a reference — the task agent's output in `tasks[]` is the enriched version.
+
+---
+
+## Prior-Task Context
+
+Each task agent receives the full picture of what came before it in the task group. 
+
+This enables natural flow — task 3 knows what tasks 1 and 2 already planned and can reference their outputs.
+
+### What Each Task Agent Receives
+
+| Context | Source |
+|---------|--------|
+| Seed | `{ title, intent }` from `task_group.task_seeds` |
+| Task group objective | `task_group.objective` |
+| Checkpoint goal | `checkpoint.goal` |
+| Spec reference | `spec.md` |
+| All prior tasks | Full definitions of every completed task in this TG |
+
+### Prior Task Summary Format
+
+Each prior task is passed as a summary containing:
+- **title** — what the task does
+- **description** — detailed description of the change
+- **file_context.ending** — what files this task expects to produce/modify
+- **actions** — IDK-formatted actions with file scoping
+
+Since each task includes both file_context and actions, the prior context is rich — the next task agent can see exactly what files were touched, what state they should be in afterward, and how the changes were structured.
+
+This gives the task agent enough context to:
+- Reference files created or modified by earlier tasks
+- Use prior `file_context.ending` to know the expected state of files it depends on
+- Avoid duplicating work
+- Build naturally on established patterns
+- Declare accurate `depends_on` relationships
+
+### Why Individual Spawns
+
+One agent per task (not one agent per task group) because:
+- **Customizable** — each spawn can be tuned via Agent SDK (model, tools, system prompt)
+- **Full context** — agent starts fresh with exactly the context it needs
+- **Fault isolation** — a failed task doesn't lose progress on other tasks
+- **Parallelizable** — independent tasks could theoretically run concurrently (future optimization)
+
+Each spawn creates its own Pi session and JSONL transcript. No two plan agents share a Pi session — context is built fresh from the spawn's variables, and the accumulation guard never fires on the default path. Session reuse is opt-in, reserved for the feedback path where a review-gate revision appends to an existing transcript.
+
+---
+
+## Pipeline Containers
+
+The pipeline emits `container_start` / `container_end` events at each structural boundary:
+
+| Container level | Brackets | Parent |
+|---|---|---|
+| `outline` | The single outline agent spawn | (none) |
+| `checkpoint` | All work for one checkpoint (TG agent + task agents) | (none) |
+| `task_group` | All task agent spawns within one task group | `checkpoint` |
+
+Containers are **non-agent grouping nodes** — they carry no Pi session, no run, no events of their own beyond start/end markers. Their purpose is to give the trace viewer and live viewer an authoritative structural hierarchy for nesting agent nodes.
+
+Each container carries:
+- `container_id` — deterministic: `"outline"`, `"checkpoint:{id}"`, `"task_group:{cpId}.{tgId}"`
+- `level` — `outline` | `checkpoint` | `task_group`
+- `label` — human-readable (e.g. "Checkpoint 2: Frontend wiring")
+- `producer_stage` — which pipeline tier runs inside (`outline` / `task_groups` / `tasks`)
+- `parent_container_id` — nesting link (task_group → checkpoint)
+
+Containers extend the existing phase event pattern (`phase_start`/`phase_end`) one level deeper. The pipeline already knows its structure; emitting at loop boundaries is trivial. The frontend renders containers as collapsible grouping headers in both the trace viewer tree and the live viewer timeline.
+
+---
+
+## Pipeline Advancement
+
+The pipeline walks plan.json depth-first to find the next incomplete item:
+
+```
+advance_pipeline(plan.json)
+|
+|-- No checkpoints?                  -> outline       (run outline agent)
+|-- Checkpoint with no TGs?          -> task_groups   (run TG agent for that CP)
+|-- TG with incomplete tasks?        -> task          (run task agent for next seed)
++-- Everything filled?               -> None          (pipeline complete)
+```
+
+A task is "complete" when it has both its full definition AND its actions (since the task agent writes both in one pass, this happens atomically).
+
+**Critical behavior**: When the last seed in a checkpoint's last task group is processed, advancement must return the next checkpoint's `task_groups` level — the pipeline continues seamlessly across checkpoint boundaries.
+
+---
+
+## Concrete Example: "Review" with `outline_checkpoint`
+
+User picks "Review" at start, then "Review each checkpoint" at outline approval. 2 checkpoints, each with 2 task groups:
+
+```
+1. Start pipeline (mode: outline_only)
+   |
+   |-- Outline agent runs
+   |   -> Reads spec, explores full codebase
+   |   -> Writes 2 checkpoints to plan.json
+   |
+   +-- REVIEW GATE: outline
+       User sees checkpoint structure, picks ongoing review level
+       ──────────────────────────────────────────────────────────
+
+2. User approves outline (mode -> outline_checkpoint)
+   |
+   |-- TG agent for checkpoint 1 runs
+   |   -> Writes task_groups[] + task_seeds[] + testing_strategy
+   |   -> User can see the planned task flow (seeds) at this gate
+   |
+   +-- REVIEW GATE: checkpoint
+       ──────────────────────────────────────────────────────────
+
+3. User approves CP1 task groups (and task seeds)
+   |
+   |   No more review gates until next checkpoint:
+   |
+   |   TG 1.1 (3 seeds):
+   |   |-- task_agent(seed 1) -> task (file_context + actions)   (no prior tasks)
+   |   |-- task_agent(seed 2) -> task (file_context + actions)   (prior: [task 1])
+   |   |-- task_agent(seed 3) -> task (file_context + actions)   (prior: [task 1, 2])
+   |   |
+   |   TG 1.2 (2 seeds):
+   |   |-- task_agent(seed 1) -> task (file_context + actions)
+   |   |-- task_agent(seed 2) -> task (file_context + actions)
+   |
+   |-- TG agent for checkpoint 2 runs
+   |
+   +-- REVIEW GATE: checkpoint
+       ──────────────────────────────────────────────────────────
+
+4. User approves CP2 task groups
+   |
+   |   ... task agents auto-run for all seeds in CP2 ...
+   |
+   +-- Pipeline complete
+       plan.json status = "complete"
+       Transition to build phase
+```
+
+Key observations:
+- Start sends `outline_only` — pauses only at outline
+- At outline approval, user sets mode to `outline_checkpoint` — enables checkpoint gates
+- At the checkpoint gate, user now sees task groups AND their seeds — validates the planned task flow
+- After approving, task agents sequentially enrich each seed (simple loop, no pipelining needed)
+- When CP1 is fully detailed, pipeline naturally advances to CP2's TGs
+- At any gate, the user can "Exit to auto" to skip all remaining gates
+
+---
+
+## Concrete Example: "Auto-generate"
+
+```
+Start pipeline (mode: no_oversight)
+  |
+  |-- Outline agent runs -> writes 2 checkpoints
+  |   No review gate -> continues automatically
+  |
+  |-- Checkpoint 1:
+  |   |-- TG agent -> writes 2 task groups with seeds + testing_strategy
+  |   |
+  |   |-- TG 1.1:
+  |   |   |-- task_agent(seed 1) -> task (file_context + actions)
+  |   |   |-- task_agent(seed 2) -> task (file_context + actions)
+  |   |   |-- task_agent(seed 3) -> task (file_context + actions)
+  |   |
+  |   |-- TG 1.2:
+  |   |   |-- task_agent(seed 1) -> task (file_context + actions)
+  |   |   |-- task_agent(seed 2) -> task (file_context + actions)
+  |
+  |-- Checkpoint 2:
+  |   |-- TG agent -> writes task groups with seeds + testing_strategy
+  |   |-- ... (same sequential pattern)
+  |
+  +-- Pipeline complete -> transition to build
+```
+
+Fully autonomous. No pauses. Task agents run sequentially within each task group, each producing both the detailed task (with file_context) and its actions in one pass.
+
+---
+
+## Why 3 Tiers (Not 4)
+
+The previous model had a separate actions agent that ran after the task agent. This was unnecessary because:
+
+1. **Same knowledge** — the task agent already explores the codebase to figure out which files to change. Once it knows the files, writing the actions is trivial — it's the same understanding.
+
+2. **No new information** — the actions agent added a handoff step without adding context. It just reformatted what the task agent already knew into IDK vocabulary.
+
+3. **Simpler execution** — no pipelined action generation, no async coordination, no waiting for parallel agents. Just a simple sequential loop: seed in, full task + actions out.
+
+4. **Cleaner boundaries** — each tier has one clear job:
+   - Outline: strategic decomposition (what checkpoints)
+   - TG: tactical decomposition (what tasks, in what order)
+   - Task: implementation planning (how, exactly)
+
+---
+
+## Related
+
+- [Plan Overview](10-overview.md) — High-level intro and document index
+- [plan.json Structure](15-plan-json.md) — Data model the pipeline writes to
+- [Plan Design Principles](16-plan-design.md) — Why checkpoints/task groups/tasks/actions are structured this way
+- [Backend State & Persistence](20-backend.md) — State machine, stop/resume, error recovery, event system
