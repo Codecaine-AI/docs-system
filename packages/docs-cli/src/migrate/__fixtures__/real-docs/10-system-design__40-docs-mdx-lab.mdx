@@ -1,0 +1,288 @@
+---
+covers: Interactive docs lab model for MDX-first documentation browsing, inline annotations, docs action events, custom blocks, and staged edit proposals.
+type: design
+concepts: [docs-lab, mdx, annotation, action-ledger, proposal-review, custom-blocks, agent-bridge]
+depends-on: [00-overview.md, 10-system-flow/20-session-phases/40-docs-update/50-docs-update.md]
+format: mdx
+---
+
+# Docs MDX Lab
+
+The docs lab is the project-level workspace where Spectre documentation is read, annotated, and prepared for agent-assisted edits. The main surface is the rendered document, not a chat box. The user starts from the doc itself, highlights the specific passage or block that needs attention, and turns that selection into an actionable cue.
+
+The lab keeps edits reviewable. A user cue becomes a queued action, the action can become a proposal, and the proposal is reviewed as both source diff and rendered preview before any file mutation is accepted.
+
+## Behavior
+
+The docs browser prefers MDX when an MDX sibling exists, while markdown files can remain in the corpus during migration. This lets the project move toward an MDX-native docs surface without losing the plain markdown comparison path.
+
+The primary interaction flow is target-first:
+
+```text
+Rendered document
+  -> hover or click a meaningful target
+  -> select a block, text range, visual point, or custom element
+  -> capture a stable anchor
+  -> write an inline cue with intent
+  -> queue a docs annotation
+  -> record a docs action event
+  -> propose an edit from queued context
+  -> review source diff and rendered preview
+```
+
+The inline composer is the default authoring path for precise cues. The action pane is the companion surface: it shows document context, the current target, queued annotations, recorded action events, freeform fallback prompts, and review output.
+
+## Data Shape
+
+The docs lab uses a small action model as the shared route between the UI and docs agents.
+
+| Concept | Shape | Purpose |
+|---|---|---|
+| Document | Project docs path, display path, source format, content hash, content | Identifies the editable artifact and protects proposals from stale reads. |
+| Target | Kind, label, block id, block type, optional source range, optional visual coordinates, optional custom element id | Identifies what the user is pointing at in the rendered document. |
+| Anchor | Document path, content hash, selected quote, optional source range, context before/after, optional block id, target kind, target metadata | Binds a user cue to a specific passage, structured block, visual point, or custom element. |
+| Annotation | Intent, body, anchor, status, resolution target, author, timestamps | Represents the user's requested change, question, deletion, or note. |
+| Action event | Event type, actor, document, related annotation or proposal, payload, timestamp | Records the user-agent interaction stream for the docs lab. |
+| Proposal | Source annotations, prompt, generated content, original hash, proposed hash, diff, rendered preview | Stages an edit for review before apply. |
+
+The action ledger is Spectre's docs-side equivalent of an agent-native action channel. It is not the session plan. `plan.json` remains the workflow execution primitive; docs action events are the document-editing primitive that lets the UI and future docs agents share intent, context, and review state.
+
+## Custom Blocks
+
+MDX blocks give the docs lab structured editing targets inside otherwise prose-heavy documentation. Each supported block type has a stable tag, semantic type, target kind, label, agent-facing description, and patch operation vocabulary.
+
+The initial block vocabulary is:
+
+| Block | Role |
+|---|---|
+| `Decision` | Captures accepted, proposed, or rejected project decisions with durable rationale. |
+| `Callout` | Highlights warnings, notes, tips, and other local guidance. |
+| `AgentContract` | Describes a boundary that an agent should obey or satisfy. |
+| `FileTree` | Renders a file hierarchy as a structured docs block. |
+
+The document/support slice adds read-only blocks for review checklists, structured tables, tabbed comparisons, compact column layouts, and code snippets with source metadata.
+
+<Checklist id="docs-lab-support-checklist" title="Support Block Review">
+- [x] Render support blocks through the allowlisted MDX registry :: covered by component tests
+- [x] Expose sample source in the Block Library
+- [ ] Complete browser QA for desktop and narrow viewports
+</Checklist>
+
+<StructuredTable id="docs-lab-support-status" title="Support Block Status" density="compact">
+| Block | Status | Notes |
+| --- | --- | --- |
+| Checklist | implemented | task rows stay inert and reviewable |
+| StructuredTable | implemented | markdown table source with metadata |
+| Tabs | implemented | section-delimited read-only panes |
+| Columns | implemented | responsive section columns |
+| Code | implemented | source snippet with filename/language metadata |
+</StructuredTable>
+
+<Tabs id="docs-lab-review-tabs" title="Proposal Review Views">
+--- Source Diff ---
+The user verifies file-level changes before accepting an edit.
+
+--- Rendered Preview ---
+The user checks that the resulting MDX still reads as safe, structured documentation.
+</Tabs>
+
+<Columns id="docs-lab-human-agent-columns" title="Human And Agent Responsibilities" columns="2">
+--- Human Reviewer ---
+Creates anchored cues, chooses which proposals land, and keeps the docs tree trustworthy.
+
+--- Docs Agent ---
+Reads queued annotations, follows the registered block vocabulary, and proposes reviewable source changes.
+</Columns>
+
+<Code id="docs-lab-proposal-status-code" filename="projects-api.ts" language="ts" caption="Proposal lifecycle clients send the original hash as the apply precondition.">
+export async function applyProjectDocProposal(projectId: string, proposalId: string, originalHash: string) {
+  return fetchDataApi(`/projects/${projectId}/docs/proposals/${proposalId}/apply`, {
+    method: "POST",
+    body: JSON.stringify({ original_hash: originalHash }),
+  });
+}
+</Code>
+
+The engineering slice gives source-aware docs reviews a shared vocabulary for implementation maps, API surfaces, data models, before/after diffs, JSON payloads, and annotated snippets. These blocks are still inert renderer targets: they describe source and protocol structure without executing arbitrary JSX.
+
+<ImplementationMap id="docs-lab-engineering-map" title="Docs Lab Engineering Surface">
+- [modified] apps/data-backend/src/index.ts (ts) :: docs proposal lifecycle and hash-guarded apply routes
+- [modified] apps/frontend/src/components/docs/DocsBlockLibrary.tsx (tsx) :: searchable block previews and source fixtures
+- [added] apps/frontend/src/components/docs/docs-blocks/engineering/EngineeringDocsBlocks.tsx (tsx) :: allowlisted engineering renderers
+</ImplementationMap>
+
+<ApiSurface id="docs-lab-review-api" title="Docs Lab Review API">
+- GET /projects/:id/docs/tree :: Load project documentation entries
+- GET /projects/:id/docs/file :: Load one document with content hash metadata
+- POST /projects/:id/docs/propose-edit :: Stage a reviewable docs proposal from queued context
+- POST /projects/:id/docs/proposals/:proposalId/apply :: Apply a proposal with hash preconditions
+- POST /projects/:id/docs/proposals/:proposalId/reject :: Reject a proposal and mark source annotations rejected
+</ApiSurface>
+
+<ApiEndpoint id="docs-lab-apply-proposal" method="POST" path="/projects/:id/docs/proposals/:proposalId/apply" summary="Apply a reviewed docs proposal" auth="project access" change="added">
+Applies proposed document content only when the submitted original hash and current document hash still match the proposal source.
+- param path id string required :: Project id
+- param path proposalId string required :: Proposal id
+- param body original_hash string required :: Hash captured when the proposal was created
+- response 200 :: Applied proposal with resolved source annotations
+- response 409 :: Stale source conflict with current hash metadata
+</ApiEndpoint>
+
+<DataModel id="docs-lab-review-model" title="Docs Lab Review State">
+--- DocsAnnotation ---
+- id: string pk :: Stable annotation id
+- status: queued|in_review|resolved|rejected :: Review lifecycle state
+- document_path: string :: Editable docs artifact
+
+--- DocsEditProposal ---
+- proposal_id: string pk :: Stable proposal id
+- original_hash: string :: Stale-write guard for source apply
+- proposed_hash: string :: Hash of generated content
+- status: pending|applied|rejected :: Proposal lifecycle state
+</DataModel>
+
+<Diff id="docs-lab-proposal-diff-sample" filename="docs/10-system-design/40-docs-mdx-lab.mdx" language="mdx">
+--- before ---
+The docs lab can request a proposal from queued annotations.
+--- after ---
+The docs lab can request, review, apply, and reject a proposal from queued annotations.
+</Diff>
+
+<JsonExplorer id="docs-lab-anchor-payload" title="Docs Anchor Payload" collapsedDepth="2">
+{
+  "document_path": "docs/10-system-design/40-docs-mdx-lab.mdx",
+  "content_hash": "sha256:example",
+  "target": {
+    "kind": "block",
+    "block_type": "api-endpoint",
+    "source_id": "docs-lab-apply-proposal"
+  }
+}
+</JsonExplorer>
+
+<AnnotatedCode id="docs-lab-apply-client" filename="projects-api.ts" language="ts">
+--- code ---
+export async function applyProjectDocProposal(projectId: string, proposalId: string, originalHash: string) {
+  return fetchDataApi(`/projects/${projectId}/docs/proposals/${proposalId}/apply`, {
+    method: "POST",
+    body: JSON.stringify({ original_hash: originalHash }),
+  });
+}
+--- annotations ---
+- 1 | Client boundary :: Carries project and proposal identity to the data backend.
+- 4 | Hash guard :: Sends the original hash precondition used to reject stale applies.
+</AnnotatedCode>
+
+The diagram slice keeps visual structure reviewable without opening the unsafe HTML path. Node/edge diagrams, ordered flows, and Mermaid source blocks can be selected as docs targets, but the renderer does not execute custom HTML, SVG fragments, or Mermaid-generated markup from MDX source.
+
+<Diagram id="docs-lab-review-lifecycle-diagram" title="Docs Review Lifecycle" caption="The diagram block renders typed nodes and edges, not arbitrary diagram HTML." layout="positioned">
+--- nodes ---
+- cue | Anchored Cue @ 12,32 :: The reviewer selects exact text or a rendered block.
+- queue | Action Queue @ 38,62 :: The cue becomes shared review state.
+- proposal | Proposal @ 66,32 :: The docs agent prepares source content for review.
+- decision | Apply Or Reject @ 88,62 :: The reviewer lands or rejects the proposal.
+--- edges ---
+- cue -> queue :: save
+- queue -> proposal :: request
+- proposal -> decision :: review
+--- notes ---
+- Hash guards keep apply operations from overwriting changed documents.
+- The block body remains plain text sections that agents can patch predictably.
+</Diagram>
+
+<Flow id="docs-lab-review-flow" title="Docs Review Flow">
+- [done] Select target :: Choose text, block, or future visual context.
+- [done] Queue annotation :: Preserve intent and source context in the action pane.
+- [current] Review proposal :: Compare source diff and rendered preview.
+- [queued] Apply or reject :: Update proposal status and source annotation state.
+</Flow>
+
+<Mermaid id="docs-lab-mermaid-source" title="Proposal Sequence Source" diagramType="sequenceDiagram" caption="Mermaid is intentionally source-backed until Spectre owns a sanitizer and generated SVG policy.">
+sequenceDiagram
+  participant Reviewer
+  participant DocsLab
+  Reviewer->>DocsLab: Queue anchored cue
+  DocsLab-->>Reviewer: Reviewable proposal
+</Mermaid>
+
+The visual surface slice brings Canvas, DesignBoard, Wireframe, Screen, and Prototype-style documents into the same allowlisted model. These blocks render spatial review surfaces and stamp stable visual subtargets for Pinpoint mode. They do not execute prototype HTML, custom CSS, embedded scripts, or external assets from MDX source.
+
+<Wireframe id="docs-lab-review-wireframe" title="Docs Review Workspace" surface="desktop" caption="Wireframe regions are targetable docs anchors.">
+--- regions ---
+- tree | Docs tree | nav @ 4,8 20x84 :: Project documentation files
+- document | Rendered document | content @ 28,8 44x84 :: MDX blocks and prose targets
+- actions | Action pane | panel @ 76,8 20x84 :: Queue, proposal, and events
+</Wireframe>
+
+<DesignBoard id="docs-lab-design-board" title="Docs Lab Visual Review" mode="design">
+--- artboards ---
+- browse | Browse Docs | desktop @ 5,14 28x34 :: Navigate real docs
+- annotate | Annotate Target | desktop @ 38,18 28x34 :: Pinpoint a rendered block
+- review | Review Proposal | desktop @ 70,14 25x38 :: Apply or reject edits
+--- connectors ---
+- browse -> annotate :: select
+- annotate -> review :: request proposal
+--- notes ---
+- visual-targets | Artboards are selectable docs targets.
+</DesignBoard>
+
+<Canvas id="docs-lab-canvas" title="Docs Lab Canvas">
+--- artboards ---
+- viewer | Viewer | desktop @ 8,16 32x36 :: Rendered MDX surface
+- pane | Action Pane | panel @ 54,18 28x34 :: Review and proposal controls
+--- flow ---
+- viewer -> pane :: queue action
+</Canvas>
+
+<Artboard id="docs-lab-action-artboard" title="Action Pane Artboard" surface="panel">
+--- regions ---
+- context | Selected Context | content @ 8,8 84x18 :: Current target summary
+- queue | Queue | list @ 8,32 84x30 :: Pending annotations
+- proposal | Proposal Review | content @ 8,68 84x22 :: Diff and preview
+</Artboard>
+
+<Screen id="docs-lab-proposal-screen" title="Proposal Review Screen" surface="desktop">
+--- regions ---
+- diff | Source Diff | content @ 6,10 42x78 :: Review file-level changes
+- preview | Rendered Preview | content @ 52,10 42x78 :: Verify safe MDX output
+</Screen>
+
+<Prototype id="docs-lab-prototype" title="Docs Proposal Prototype" initial="browse" surface="desktop">
+--- screens ---
+- browse | Browse Docs @ 6,12 28x72 :: User opens a real doc
+- annotate | Annotate Target @ 38,12 28x72 :: User adds an anchored cue
+- review | Review Proposal @ 70,12 24x72 :: User applies or rejects
+--- transitions ---
+- browse -> annotate :: select block
+- annotate -> review :: request proposal
+</Prototype>
+
+<PrototypeScreen id="docs-lab-prototype-screen" title="Review Proposal" surface="desktop" summary="Standalone prototype screen fixture.">
+--- regions ---
+- header | Review header | toolbar @ 6,6 88x12 :: Proposal metadata
+- diff | Diff pane | content @ 6,22 42x68 :: Source changes
+- rendered | Rendered pane | content @ 52,22 42x68 :: Preview output
+</PrototypeScreen>
+
+<PrototypeTransition id="docs-lab-transition" from="annotate" to="review" label="Request Proposal" trigger="click Request proposal">
+The transition is metadata only; runtime navigation stays inside allowlisted screen ids.
+</PrototypeTransition>
+
+Agents should treat registered blocks as addressable units. When a selected passage belongs to a block, the anchor carries the block identity and target kind so the proposal can reason about the right operation instead of treating every edit as raw prose replacement.
+
+## Contracts
+
+- A selected cue must preserve enough target context to be useful after the selection disappears from the screen.
+- Text selection and rendered target selection are both first-class. A user may drag across exact words or click a whole heading, paragraph, list item, code block, table, or custom MDX block.
+- A proposal must include both the textual source change and the rendered result.
+- A docs agent must stage proposals through the ledger instead of mutating docs files directly.
+- A block-aware proposal should prefer the block's declared patch operations over unstructured string rewrites.
+- The action pane may create freeform requests, but precise document edits should start from an inline anchor whenever possible.
+
+## Boundaries
+
+The docs lab owns project documentation browsing, annotations, action events, custom block previews, and staged docs proposals.
+
+The session workflow owns intake, spec, plan, build, docs update, and finalization phases. The docs lab can feed future docs agents with anchored context, but it does not replace session state, plan checkpoints, or end-of-session docs update decisions.
+
+Durable agent-kernel integration requires a persistent ledger and proposal lifecycle. The current model defines the UI-agent contract first: anchors and action events are the stable primitive, while autonomous proposal generation and apply/reject workflows can attach behind that contract.

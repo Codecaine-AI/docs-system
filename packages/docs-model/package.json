@@ -1,0 +1,23 @@
+{
+  "name": "@codecaine-ai/docs-model",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./doc-schema": "./src/doc-schema.ts",
+    "./doc-ops": "./src/doc-ops.ts",
+    "./comments-schema": "./src/comments-schema.ts",
+    "./delta-markdown": "./src/delta-markdown.ts",
+    "./project-markdown": "./src/project-markdown.ts",
+    "./markdown-to-delta": "./src/markdown-to-delta.ts",
+    "./spectre-ref": "./src/spectre-ref.ts",
+    "./fixtures/sample.doc.json": "./src/__fixtures__/sample.doc.json"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5"
+  }
+}

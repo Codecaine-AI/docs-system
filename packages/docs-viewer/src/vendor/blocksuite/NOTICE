@@ -1,0 +1,43 @@
+Vendored code notice
+====================
+
+The file in this directory is copied (as a labeled, non-verbatim port) from:
+
+  Upstream project: BlockSuite (https://github.com/toeverything/blocksuite)
+  License:          Mozilla Public License 2.0 (MPL-2.0)
+
+Upstream source path (as of the `blocksuite-main` reference checkout vendored
+into this repo at `reference/blocksuite-main`):
+
+  - packages/affine/widgets/slash-menu/src/{types.ts,utils.ts} and
+    packages/affine/shared/src/utils/string.ts
+      -> slash-menu-model.ts (NOT verbatim: ports the slash-menu DATA MODEL
+         only — `SlashMenuItem`/`SlashMenuActionItem`/`SlashMenuSubMenu`
+         types, `isActionItem`/`isSubMenuItem`, group-based sort
+         (`parseGroup`/`itemCompareFn`/`buildSlashMenuItems`), and the fuzzy
+         search + relevance scoring (`isFuzzyMatch`, `substringMatchScore`,
+         and the layered-search algorithm from
+         `slash-menu-popover.ts`'s `_updateFilteredItems`, extracted as the
+         pure function `filterSlashMenuItems`). All Lit, `@blocksuite/std`
+         (`BlockStdScope`), and `@blocksuite/store` (`BlockModel`) types were
+         removed — `SlashMenuContext` became a generic `TContext` type
+         parameter since this repo has no BlockSuite host/model. The
+         group-sort comparator, two-layer fuzzy search + submenu expansion,
+         and substring-match scoring math are unchanged from upstream.)
+
+Why MPL-2.0 compliance is satisfied:
+  - File-level copyleft: the vendored/ported file carries a header citing
+    its upstream source path and the MPL-2.0 license.
+  - No modifications hide upstream provenance: the port is explicitly
+    labeled as a port (not represented as verbatim).
+  - Source availability: the original files remain available in this
+    monorepo's `reference/blocksuite-main` checkout for comparison.
+
+Do not modify the copied algorithm bodies in slash-menu-model.ts without
+updating this NOTICE and its file header accordingly.
+
+Note: the a-star/graph/priority-queue/gfx-types/path-generator/
+snap-distribution vendor files that used to live alongside this one moved to
+the extracted canvas engine repo — see
+packages/canvas/packages/canvas/src/vendor/blocksuite/NOTICE (submodule at
+packages/canvas) for their provenance entries.

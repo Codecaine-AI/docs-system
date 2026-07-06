@@ -1,0 +1,35 @@
+{
+  "name": "@codecaine-ai/docs-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./store": "./src/store.ts",
+    "./routes": "./src/routes.ts",
+    "./agent-tools": "./src/agent-tools.ts",
+    "./draft-locks": "./src/draft-locks.ts",
+    "./docs-events": "./src/docs-events.ts",
+    "./path-mutex": "./src/path-mutex.ts",
+    "./atomic-write": "./src/atomic-write.ts",
+    "./content-hash": "./src/content-hash.ts",
+    "./bundle": "./src/bundle.ts",
+    "./confine": "./src/confine.ts",
+    "./docs-tree": "./src/docs-tree.ts"
+  },
+  "scripts": {
+    "test": "bun test src"
+  },
+  "dependencies": {
+    "@codecaine-ai/canvas": "workspace:*",
+    "@codecaine-ai/docs-index": "workspace:*",
+    "@codecaine-ai/docs-model": "workspace:*",
+    "elysia": "^1.2.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5"
+  }
+}

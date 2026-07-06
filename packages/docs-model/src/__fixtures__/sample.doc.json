@@ -1,0 +1,240 @@
+{
+  "schemaVersion": 1,
+  "id": "sample-doc",
+  "title": "Docs Model Sample",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "flavour": "paragraph",
+      "props": {},
+      "children": [
+        "h1",
+        "p-intro",
+        "divider-1",
+        "h2-structure",
+        "li-a",
+        "li-b",
+        "code-1",
+        "quote-1",
+        "callout-1",
+        "decision-1",
+        "canvas-1",
+        "image-1",
+        "attach-1",
+        "constraint-1",
+        "assumption-1",
+        "observation-1",
+        "outcome-1",
+        "requirement-1",
+        "impl-1",
+        "testing-1",
+        "contract-1",
+        "tree-1"
+      ]
+    },
+    "h1": {
+      "id": "h1",
+      "flavour": "heading",
+      "props": { "level": 1 },
+      "text": [{ "insert": "Docs Model Sample" }],
+      "children": []
+    },
+    "p-intro": {
+      "id": "p-intro",
+      "flavour": "paragraph",
+      "props": {},
+      "text": [
+        { "insert": "This paragraph mixes " },
+        { "insert": "bold", "attributes": { "bold": true } },
+        { "insert": ", " },
+        { "insert": "italic", "attributes": { "italic": true } },
+        { "insert": ", " },
+        { "insert": "struck", "attributes": { "strike": true } },
+        { "insert": ", " },
+        { "insert": "inline code", "attributes": { "code": true } },
+        { "insert": ", a " },
+        { "insert": "link", "attributes": { "link": "https://example.com" } },
+        { "insert": ", and a reference to " },
+        {
+          "insert": "doc-schema.ts",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "apps/frontend/src/lib/docs-model/doc-schema.ts",
+              "symbol": "validateDocDocument",
+              "label": "doc-schema.ts"
+            }
+          }
+        },
+        { "insert": "." }
+      ],
+      "children": []
+    },
+    "divider-1": {
+      "id": "divider-1",
+      "flavour": "divider",
+      "props": {},
+      "children": []
+    },
+    "h2-structure": {
+      "id": "h2-structure",
+      "flavour": "heading",
+      "props": { "level": 2 },
+      "text": [{ "insert": "Structure" }],
+      "children": []
+    },
+    "li-a": {
+      "id": "li-a",
+      "flavour": "list-item",
+      "props": {},
+      "text": [{ "insert": "First item" }],
+      "children": ["li-a-1"]
+    },
+    "li-a-1": {
+      "id": "li-a-1",
+      "flavour": "list-item",
+      "props": {},
+      "text": [{ "insert": "Nested item under the first" }],
+      "children": []
+    },
+    "li-b": {
+      "id": "li-b",
+      "flavour": "list-item",
+      "props": {},
+      "text": [{ "insert": "Second item" }],
+      "children": []
+    },
+    "code-1": {
+      "id": "code-1",
+      "flavour": "code",
+      "props": { "language": "typescript" },
+      "text": [{ "insert": "export const answer = 42;" }],
+      "children": []
+    },
+    "quote-1": {
+      "id": "quote-1",
+      "flavour": "quote",
+      "props": {},
+      "text": [{ "insert": "Stable ids are a system invariant." }],
+      "children": []
+    },
+    "callout-1": {
+      "id": "callout-1",
+      "flavour": "callout",
+      "props": { "tone": "info", "title": "Heads up" },
+      "text": [{ "insert": "Comments live in comments.json, never in doc.json." }],
+      "children": []
+    },
+    "decision-1": {
+      "id": "decision-1",
+      "flavour": "decision",
+      "props": { "status": "accepted", "title": "Normalized block tree" },
+      "text": [{ "insert": "Flat id-keyed blocks map with ordered children arrays." }],
+      "children": []
+    },
+    "canvas-1": {
+      "id": "canvas-1",
+      "flavour": "canvas",
+      "props": {
+        "src": "./assets/canvases/sample.canvas.json",
+        "view": "container-architecture",
+        "title": "Architecture overview"
+      },
+      "children": []
+    },
+    "image-1": {
+      "id": "image-1",
+      "flavour": "image",
+      "props": {
+        "src": "./assets/images/sample.png",
+        "alt": "Sample image",
+        "caption": "A bundled asset image (D30)."
+      },
+      "children": []
+    },
+    "attach-1": {
+      "id": "attach-1",
+      "flavour": "attachment",
+      "props": {
+        "src": "./assets/attachments/spec.pdf",
+        "name": "spec.pdf"
+      },
+      "children": []
+    },
+    "constraint-1": {
+      "id": "constraint-1",
+      "flavour": "constraint",
+      "props": { "severity": "hard", "title": "No MDX regressions", "owner": "ford" },
+      "text": [{ "insert": "The existing MDX pipeline keeps working untouched." }],
+      "children": []
+    },
+    "assumption-1": {
+      "id": "assumption-1",
+      "flavour": "assumption",
+      "props": { "confidence": "high", "title": "Delta spans suffice" },
+      "text": [{ "insert": "V1 marks cover the docs corpus." }],
+      "children": []
+    },
+    "observation-1": {
+      "id": "observation-1",
+      "flavour": "observation",
+      "props": { "title": "Renderer walk" },
+      "text": [{ "insert": "Depth-first walk matches serializer order." }],
+      "children": []
+    },
+    "outcome-1": {
+      "id": "outcome-1",
+      "flavour": "outcome",
+      "props": { "title": "Tracer complete" },
+      "text": [{ "insert": "Schema, ops, registry, and renderer connect end to end." }],
+      "children": []
+    },
+    "requirement-1": {
+      "id": "requirement-1",
+      "flavour": "requirement",
+      "props": { "title": "Id stability" },
+      "text": [{ "insert": "Update keeps ids; split and merge mint fresh ones." }],
+      "children": []
+    },
+    "impl-1": {
+      "id": "impl-1",
+      "flavour": "implementation",
+      "props": { "title": "docs-model module" },
+      "text": [{ "insert": "Lives under apps/frontend/src/lib/docs-model." }],
+      "children": []
+    },
+    "testing-1": {
+      "id": "testing-1",
+      "flavour": "testing",
+      "props": { "title": "Contract tests" },
+      "text": [{ "insert": "doc-ops.contract.test.ts locks the id-stability invariants." }],
+      "children": []
+    },
+    "contract-1": {
+      "id": "contract-1",
+      "flavour": "agent-contract",
+      "props": {
+        "agent": "doc-editor",
+        "title": "Doc editing agent",
+        "tools": "doc_get, doc_update_blocks",
+        "approvals": "Mutations require hash preconditions."
+      },
+      "text": [{ "insert": "Reads the doc projection, writes typed block ops." }],
+      "children": []
+    },
+    "tree-1": {
+      "id": "tree-1",
+      "flavour": "file-tree",
+      "props": {
+        "title": "Module layout",
+        "entries": [
+          { "path": "src/lib/docs-model/doc-schema.ts", "note": "types + validation", "change": "added" },
+          { "path": "src/lib/docs-model/doc-ops.ts", "note": "typed ops + inverses", "change": "added" },
+          { "path": "src/components/docs/DocBlockRenderer.tsx", "note": "tracer renderer", "change": "added" }
+        ]
+      },
+      "children": []
+    }
+  }
+}
