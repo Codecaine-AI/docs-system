@@ -246,8 +246,8 @@ function usage(): string {
     "  docs-cli backlinks rescan [docsRoot]",
     "  docs-cli links check [docsRoot]",
     "  docs-cli migrate [repoRoot] [--drafts] [--dry-run]",
-    "  docs-cli serve [--root <path>] [--port <port>]",
-    "  docs-cli export [--root <path>]",
+    "  docs-cli serve [--root <path>] [--port <port>] [--dev] [--rebuild]",
+    "  docs-cli export [--root <path>] --out <dir> [--rebuild]",
     "",
     "migrate is NON-DESTRUCTIVE by default: it writes doc.json bundles",
     "alongside the existing .mdx sources and never modifies or deletes them.",
@@ -378,20 +378,46 @@ async function main() {
     }
 
     if (command === "serve") {
-      // Argument parsing is wired ahead of the implementation (Worker C):
-      // --root <path> selects the docs root, --port the listen port.
+      // Standalone read-only docs server + viewer SPA (apps/serve).
+      //   docs-cli serve [--root <path>] [--port <port>] [--dev] [--rebuild]
+      // Default mode vite-builds the SPA once (cached) and serves API + SPA
+      // from one port; --dev spawns `vite dev` with an /api proxy instead.
       const root = path.resolve(flagValue(args, "--root") ?? "docs");
-      const port = Number(flagValue(args, "--port") ?? "4400");
-      console.error(`docs-cli serve is not yet wired (root=${root}, port=${port}).`);
-      process.exitCode = 1;
+      const port = Number(flagValue(args, "--port") ?? "4800");
+      if (!Number.isInteger(port) || port <= 0 || port > 65535) {
+        console.error(`Invalid --port: ${flagValue(args, "--port")}`);
+        process.exitCode = 1;
+        return;
+      }
+      const { runServe } = await import("@codecaine-ai/docs-serve");
+      await runServe({
+        docsRoot: root,
+        port,
+        dev: args.includes("--dev"),
+        forceBuild: args.includes("--rebuild"),
+      });
       return;
     }
 
     if (command === "export") {
-      // Same forward-wiring as serve: --root <path> selects the docs root.
+      // Static-site export (apps/serve/src/export.ts):
+      //   docs-cli export [--root <path>] --out <dir> [--rebuild]
       const root = path.resolve(flagValue(args, "--root") ?? "docs");
-      console.error(`docs-cli export is not yet wired (root=${root}).`);
-      process.exitCode = 1;
+      const out = flagValue(args, "--out");
+      if (!out) {
+        console.error("docs-cli export requires --out <dir>.");
+        process.exitCode = 1;
+        return;
+      }
+      const { runExport } = await import("@codecaine-ai/docs-serve");
+      const report = await runExport({
+        docsRoot: root,
+        outDir: path.resolve(out),
+        forceBuild: args.includes("--rebuild"),
+        log: (message) => console.error(message),
+      });
+      console.log(JSON.stringify(report, null, 2));
+      process.exitCode = report.failures.length > 0 ? 1 : 0;
       return;
     }
 

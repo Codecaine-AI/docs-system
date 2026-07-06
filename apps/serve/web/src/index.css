@@ -1,0 +1,210 @@
+@import "tailwindcss";
+
+/* Resolved Spectre theme variables (light/dark/figjam) — see file header. */
+@import "./spectre-theme.css";
+
+@plugin "@tailwindcss/typography";
+
+/*
+ * The docs-viewer + canvas workspace packages live outside this vite
+ * project's root, so Tailwind v4's automatic content heuristics won't
+ * reliably discover their className strings. Scan them explicitly (same
+ * approach as Spectre apps/frontend/src/app/globals.css).
+ */
+@source "../../../../packages/docs-viewer/src";
+@source "../../../../packages/canvas/packages/canvas/src";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Font stacks: Spectre ships proprietary display/body fonts (Bank Gothic,
+ * TX-02) that are not vendored into the standalone viewer — the variables
+ * keep the same names so the token structure matches, with system fallbacks.
+ */
+:root {
+  --font-display: ui-sans-serif, system-ui, sans-serif;
+  --font-tx02: ui-sans-serif, system-ui, sans-serif;
+  --font-tx02-semicondensed: ui-sans-serif, system-ui, sans-serif;
+  --font-tx02-condensed: ui-sans-serif, system-ui, sans-serif;
+}
+
+/*
+ * Tailwind token bridge — the subset of Spectre's `@theme inline` mapping the
+ * docs-viewer + canvas components actually use (core shadcn palette,
+ * radius scale, fonts, and the status-* family).
+ */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-tx02);
+  --font-display: var(--font-display);
+  --font-semicondensed: var(--font-tx02-semicondensed);
+  --font-condensed: var(--font-tx02-condensed);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+
+  --color-status-success: var(--status-success);
+  --color-status-success-fill: var(--status-success-fill);
+  --color-status-success-border: var(--status-success-border);
+  --color-status-success-foreground: var(--status-success-foreground);
+  --color-status-info: var(--status-info);
+  --color-status-info-fill: var(--status-info-fill);
+  --color-status-info-border: var(--status-info-border);
+  --color-status-info-foreground: var(--status-info-foreground);
+  --color-status-warning: var(--status-warning);
+  --color-status-warning-fill: var(--status-warning-fill);
+  --color-status-warning-border: var(--status-warning-border);
+  --color-status-warning-foreground: var(--status-warning-foreground);
+  --color-status-danger: var(--status-danger);
+  --color-status-danger-fill: var(--status-danger-fill);
+  --color-status-danger-border: var(--status-danger-border);
+  --color-status-danger-foreground: var(--status-danger-foreground);
+  --color-status-error: var(--status-error);
+  --color-status-error-fill: var(--status-error-fill);
+  --color-status-error-border: var(--status-error-border);
+  --color-status-error-foreground: var(--status-error-foreground);
+  --color-status-neutral: var(--status-neutral);
+  --color-status-neutral-fill: var(--status-neutral-fill);
+  --color-status-neutral-border: var(--status-neutral-border);
+  --color-status-neutral-foreground: var(--status-neutral-foreground);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    scrollbar-color: var(--spectre-icon-muted) transparent;
+    scrollbar-width: thin;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  h1, h2, h3 {
+    font-family: var(--font-display);
+  }
+}
+
+/* Docs typography bridge — mirrors Spectre's .spectre-markdown block. */
+.spectre-markdown {
+  font-family: var(--font-tx02), ui-sans-serif, system-ui, sans-serif;
+  --tw-prose-body: var(--spec-viewer-text-body);
+  --tw-prose-headings: var(--spec-viewer-text-heading);
+  --tw-prose-lead: var(--spec-viewer-text-muted);
+  --tw-prose-links: var(--spec-viewer-link);
+  --tw-prose-bold: var(--spec-viewer-text-heading);
+  --tw-prose-counters: var(--spec-viewer-text-muted);
+  --tw-prose-bullets: var(--spec-viewer-text-muted);
+  --tw-prose-hr: var(--spectre-border-default);
+  --tw-prose-quotes: var(--spec-viewer-text-muted);
+  --tw-prose-quote-borders: var(--spec-viewer-callout-border);
+  --tw-prose-captions: var(--spec-viewer-text-muted);
+  --tw-prose-kbd: var(--spec-viewer-text-heading);
+  --tw-prose-code: var(--spec-viewer-text-muted);
+  --tw-prose-pre-code: var(--spec-viewer-text-muted);
+  --tw-prose-pre-bg: var(--spectre-surface-muted);
+  --tw-prose-th-borders: var(--spectre-border-strong);
+  --tw-prose-td-borders: var(--spectre-border-default);
+  color: var(--spec-viewer-text-body);
+}
+
+.spectre-markdown :where(h1, h2, h3, h4, h5, h6, strong) {
+  font-family: var(--font-tx02), ui-sans-serif, system-ui, sans-serif;
+  color: var(--spec-viewer-text-heading);
+}
+
+.spectre-markdown :where(p, li, td) {
+  color: var(--spec-viewer-text-body);
+}
+
+.spectre-markdown :where(blockquote) {
+  background: var(--spec-viewer-callout-fill);
+  border-color: var(--spec-viewer-callout-border);
+  color: var(--spec-viewer-text-muted);
+}
+
+.spectre-markdown :where(code:not(pre code)) {
+  background: var(--spec-viewer-inline-fill);
+  border: 1px solid var(--spec-viewer-callout-border);
+  color: var(--spec-viewer-text-muted);
+}
+
+.spectre-markdown :where(a) {
+  color: var(--spec-viewer-link);
+}
+
+/* Syntax highlighting — theme-token colors over rehype-highlight classes. */
+.hljs {
+  background: transparent;
+  color: var(--spectre-text-secondary);
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-built_in,
+.hljs-name,
+.hljs-tag {
+  color: var(--syntax-key);
+}
+
+.hljs-string,
+.hljs-title,
+.hljs-section,
+.hljs-attribute,
+.hljs-literal,
+.hljs-template-tag,
+.hljs-template-variable {
+  color: var(--syntax-string);
+}
+
+.hljs-number,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-variable {
+  color: var(--syntax-number);
+}
+
+.hljs-boolean,
+.hljs-meta {
+  color: var(--syntax-boolean);
+}
+
+.hljs-comment,
+.hljs-quote {
+  color: var(--spectre-text-tertiary);
+}
+
+.hljs-deletion {
+  color: var(--status-danger);
+}
+
+.hljs-addition {
+  color: var(--status-success);
+}
+
+[data-block-id] {
+  transition: background 0.1s ease;
+  border-radius: 3px;
+}

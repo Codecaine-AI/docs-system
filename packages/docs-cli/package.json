@@ -16,7 +16,8 @@
   },
   "dependencies": {
     "@codecaine-ai/docs-index": "workspace:*",
-    "@codecaine-ai/docs-model": "workspace:*"
+    "@codecaine-ai/docs-model": "workspace:*",
+    "@codecaine-ai/docs-serve": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "latest",

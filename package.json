@@ -12,7 +12,8 @@
     "apps/*"
   ],
   "scripts": {
-    "test": "bun test packages/docs-model packages/docs-index packages/docs-cli packages/docs-viewer",
+    "docs": "bun packages/docs-cli/src/index.ts",
+    "test": "bun test packages/docs-model packages/docs-index packages/docs-cli packages/docs-viewer apps/serve/src",
     "typecheck": "bunx --bun tsc --noEmit"
   },
   "devDependencies": {
