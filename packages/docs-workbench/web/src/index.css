@@ -231,19 +231,8 @@
   border-radius: 4px;
 }
 
-/* Annotate mode: blocks are click targets for Plannotator comments. */
-.docs-annotate-mode [data-block-id] {
-  cursor: pointer;
-}
-
-.docs-annotate-mode [data-block-id]:hover {
-  background: color-mix(in oklab, var(--primary) 4%, transparent);
-}
-
-/* The currently-selected comment target (block or canvas object). */
-[data-docs-selected="true"] {
-  outline: 2px solid var(--primary);
-  outline-offset: 3px;
-  border-radius: 6px;
-  background: color-mix(in oklab, var(--primary) 5%, transparent);
-}
+/*
+ * Annotate-mode targeting visuals (hover outline + chip, selected ring,
+ * cursors) come from the framework's DocTargetingLayer
+ * (@codecaine-ai/docs-viewer/doc-targeting-layer) — no host CSS needed.
+ */

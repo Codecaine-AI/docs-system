@@ -31,6 +31,17 @@ export {
   type PlannotatorProps,
   type PlannotatorSelection,
 } from "./Plannotator";
+export {
+  default as DocTargetingLayer,
+  useDocTargeting,
+  DOC_TARGETING_CSS,
+  type DocTargetingLayerProps,
+  type DocTargetingOptions,
+  type DocTargeting,
+  type DocTargetingCanvasIndex,
+  type DocTargetingCreateAnnotationInput,
+  type DocsAnnotationView,
+} from "./doc-targeting-layer";
 export { default as DocsBlockLibrary } from "./DocsBlockLibrary";
 export {
   default as DocsComponentGallery,

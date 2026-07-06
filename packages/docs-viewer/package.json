@@ -16,6 +16,7 @@
     "./docs-block-library": "./src/DocsBlockLibrary.tsx",
     "./docs-component-gallery": "./src/DocsComponentGallery.tsx",
     "./docs-targeting": "./src/docs-targeting.ts",
+    "./doc-targeting-layer": "./src/doc-targeting-layer.tsx",
     "./use-transient-highlights": "./src/useTransientHighlights.ts",
     "./flavour-registry": "./src/flavour-registry.ts",
     "./docs-blocks/base": "./src/docs-blocks/base.tsx",

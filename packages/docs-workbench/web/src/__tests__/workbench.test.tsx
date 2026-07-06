@@ -55,6 +55,7 @@ const BUNDLES: Array<[string, string]> = [
   ["30-stale", "Stale"],
   ["40-locked", "Locked"],
   ["50-comments", "Comments"],
+  ["55-hover", "Hover"],
   ["60-live", "Live"],
   ["70-edit", "Edit"],
   ["80-undo", "Undo"],
@@ -164,6 +165,13 @@ describe("workbench shell", () => {
     expect(!!screen.queryByRole("group", { name: "Docs workbench mode" })).toBe(false);
     expect(!!document.querySelector("[data-docs-undo]")).toBe(false);
     expect(!!document.querySelector("[data-docs-action-pane]")).toBe(false);
+    // The annotate targeting layer is read-only-hidden too: hovering a block
+    // produces no outline and no chip.
+    const block = document.querySelector('[data-block-id="para-1"]');
+    expect(block).toBeTruthy();
+    fireEvent.mouseMove(block!);
+    expect(block!.classList.contains("docs-target-hovered")).toBe(false);
+    expect(!!document.querySelector("[data-docs-target-overlay-label]")).toBe(false);
   });
 });
 
@@ -329,6 +337,62 @@ describe("annotate mode", () => {
     );
     const resolvedRaw = await readFile(join(docsRoot, "50-comments", "comments.json"), "utf8");
     expect(resolvedRaw).toContain('"resolved"');
+  });
+
+  it("hover-targets a block (outline + flavour chip) and selecting via the layer opens the composer", async () => {
+    renderDocPage("55-hover");
+    await waitFor(() => {
+      expect(screen.getByText("Hello from Hover")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Annotate mode" }));
+
+    const block = document.querySelector('[data-block-id="para-1"]');
+    expect(block).toBeTruthy();
+
+    // Hover: outline class on the block wrapper + floating chip naming the
+    // flavour (from the flavour registry descriptor) and the block text.
+    fireEvent.mouseMove(block!);
+    expect(block!.classList.contains("docs-target-hovered")).toBe(true);
+    expect(!!document.querySelector('[data-docs-target-overlay="hover"]')).toBe(true);
+    const chip = document.querySelector('[data-docs-target-overlay-label="hover"]');
+    expect(chip?.textContent).toBe("Paragraph: Hello from Hover");
+
+    // Selecting through the layer opens the composer against that target
+    // (real block id, flavour-labelled) and draws the selected ring.
+    fireEvent.click(block!);
+    await waitFor(() => {
+      expect(screen.getByText("Commenting on: Paragraph: Hello from Hover")).toBeTruthy();
+    });
+    expect(!!document.querySelector('[data-docs-target-overlay="selected"]')).toBe(true);
+    expect(
+      document.querySelector('[data-docs-target-overlay-label="selected"]')?.textContent,
+    ).toBe("Paragraph");
+
+    // Composer cancel clears the controlled selection -> ring disappears.
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    await waitFor(() => {
+      expect(!!screen.queryByText(/Commenting on:/)).toBe(false);
+      expect(!!document.querySelector('[data-docs-target-overlay="selected"]')).toBe(false);
+    });
+
+    // The layer-selected target round-trips through the comment store: post
+    // a comment and it lands against the clicked block id.
+    fireEvent.click(block!);
+    await waitFor(() => {
+      expect(screen.getByText(/Commenting on:/)).toBeTruthy();
+    });
+    fireEvent.change(screen.getByPlaceholderText("Add a comment..."), {
+      target: { value: "Layer-selected comment." },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Post comment/ }));
+    await waitFor(
+      () => {
+        expect(!!screen.getByText("Layer-selected comment.")).toBe(true);
+      },
+      { timeout: 5000 },
+    );
+    const commentsRaw = await readFile(join(docsRoot, "55-hover", "comments.json"), "utf8");
+    expect(commentsRaw).toContain('"blockId": "para-1"');
   });
 });
 

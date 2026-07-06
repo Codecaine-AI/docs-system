@@ -1,0 +1,201 @@
+import { afterEach, describe, expect, it } from "bun:test";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
+import DocTargetingLayer from "../doc-targeting-layer";
+import type { ResolvedDocsTarget } from "../docs-targeting";
+
+afterEach(() => {
+  cleanup();
+  window.getSelection()?.removeAllRanges();
+});
+
+const bundleDoc: DocDocument = {
+  schemaVersion: 1,
+  id: "doc-1",
+  root: "root",
+  blocks: {
+    root: { id: "root", flavour: "paragraph", props: {}, children: ["para-1", "dec-1"] },
+    "para-1": {
+      id: "para-1",
+      flavour: "paragraph",
+      props: {},
+      text: [{ insert: "Hello targeting" }],
+      children: [],
+    },
+    "dec-1": {
+      id: "dec-1",
+      flavour: "decision",
+      props: { title: "Pick the layer" },
+      text: [{ insert: "We extract it." }],
+      children: [],
+    },
+  },
+};
+
+describe("DocTargetingLayer (source/MDX mode)", () => {
+  it("pinpoint click opens the built-in toolbar and creates a delete annotation", () => {
+    const created: unknown[] = [];
+    render(
+      <DocTargetingLayer
+        mode="pinpoint"
+        content={"A paragraph to target."}
+        contentHash="hash-1"
+        documentPath="docs/a.mdx"
+        onCreateAnnotation={(input) => created.push(input)}
+      >
+        <p>A paragraph to target.</p>
+      </DocTargetingLayer>,
+    );
+
+    fireEvent.click(screen.getByText("A paragraph to target."));
+
+    expect(document.querySelector('[data-docs-target-overlay="selected"]')).toBeTruthy();
+    expect(screen.getByText("Paragraph")).toBeTruthy();
+    fireEvent.click(screen.getByLabelText("Mark for deletion"));
+
+    expect(created).toHaveLength(1);
+    expect(created[0]).toMatchObject({
+      intent: "delete",
+      body: "Delete this selection.",
+      resolution_target: "agent",
+      anchor: {
+        document_path: "docs/a.mdx",
+        content_hash: "hash-1",
+        text_quote: "A paragraph to target.",
+        target_kind: "block",
+        target: { kind: "block", block_type: "paragraph" },
+      },
+    });
+    // Toolbar submit clears the ring.
+    expect(document.querySelector('[data-docs-target-overlay="selected"]')).toBeNull();
+  });
+
+  it("hovering in pinpoint mode outlines the block and shows the label chip", () => {
+    render(
+      <DocTargetingLayer
+        mode="pinpoint"
+        content={"Hover me now."}
+        contentHash="hash-2"
+        documentPath="docs/b.mdx"
+      >
+        <p>Hover me now.</p>
+      </DocTargetingLayer>,
+    );
+
+    const paragraph = screen.getByText("Hover me now.");
+    fireEvent.mouseMove(paragraph);
+
+    expect(paragraph.classList.contains("docs-target-hovered")).toBe(true);
+    const chip = document.querySelector('[data-docs-target-overlay-label="hover"]');
+    expect(chip?.textContent).toBe("paragraph: Hover me now.");
+
+    fireEvent.mouseLeave(paragraph.parentElement!);
+    expect(paragraph.classList.contains("docs-target-hovered")).toBe(false);
+  });
+});
+
+describe("DocTargetingLayer (bundle mode)", () => {
+  function renderBundle(props?: {
+    onTargetSelect?: (target: ResolvedDocsTarget) => void;
+    selectedTargetId?: string | null;
+  }) {
+    return render(
+      <DocTargetingLayer
+        mode="pinpoint"
+        contentHash="doc-hash-1"
+        documentPath="docs/10-guide"
+        document={bundleDoc}
+        {...props}
+      >
+        {/* Mirrors the flavour-registry wrapper attributes DocBlockRenderer emits. */}
+        <div
+          data-doc-block="paragraph"
+          data-block-id="para-1"
+          data-docs-target="true"
+          data-docs-target-type="paragraph"
+        >
+          Hello targeting
+        </div>
+        <section
+          data-doc-block="decision"
+          data-block-id="dec-1"
+          data-docs-target="true"
+          data-docs-target-type="decision"
+        >
+          Pick the layer We extract it.
+        </section>
+      </DocTargetingLayer>,
+    );
+  }
+
+  it("hover chips use the flavour registry descriptor label and real block ids", () => {
+    const selected: ResolvedDocsTarget[] = [];
+    renderBundle({ onTargetSelect: (target) => selected.push(target) });
+
+    const decision = document.querySelector('[data-block-id="dec-1"]')!;
+    fireEvent.mouseMove(decision);
+
+    expect(decision.classList.contains("docs-target-hovered")).toBe(true);
+    const chip = document.querySelector('[data-docs-target-overlay-label="hover"]');
+    expect(chip?.textContent).toBe("Decision: Pick the layer We extract it.");
+
+    fireEvent.click(decision);
+    expect(selected).toHaveLength(1);
+    expect(selected[0].label).toBe("Decision: Pick the layer We extract it.");
+    expect(selected[0].anchor.block_id).toBe("dec-1");
+    expect(selected[0].anchor.target).toMatchObject({
+      kind: "block",
+      block_id: "dec-1",
+      block_type: "decision",
+    });
+  });
+
+  it("controlled selectedTargetId drives the ring; null clears it; dangling ids render none", () => {
+    const { rerender } = renderBundle({ selectedTargetId: "para-1" });
+    expect(document.querySelector('[data-docs-target-overlay="selected"]')).toBeTruthy();
+    expect(
+      document.querySelector('[data-docs-target-overlay-label="selected"]')?.textContent,
+    ).toBe("Paragraph");
+
+    rerender(
+      <DocTargetingLayer
+        mode="pinpoint"
+        contentHash="doc-hash-1"
+        documentPath="docs/10-guide"
+        document={bundleDoc}
+        selectedTargetId={null}
+      >
+        <div
+          data-doc-block="paragraph"
+          data-block-id="para-1"
+          data-docs-target="true"
+          data-docs-target-type="paragraph"
+        >
+          Hello targeting
+        </div>
+      </DocTargetingLayer>,
+    );
+    expect(document.querySelector('[data-docs-target-overlay="selected"]')).toBeNull();
+
+    rerender(
+      <DocTargetingLayer
+        mode="pinpoint"
+        contentHash="doc-hash-1"
+        documentPath="docs/10-guide"
+        document={bundleDoc}
+        selectedTargetId="gone-block"
+      >
+        <div
+          data-doc-block="paragraph"
+          data-block-id="para-1"
+          data-docs-target="true"
+          data-docs-target-type="paragraph"
+        >
+          Hello targeting
+        </div>
+      </DocTargetingLayer>,
+    );
+    // Dangling: no crash, no ring.
+    expect(document.querySelector('[data-docs-target-overlay="selected"]')).toBeNull();
+  });
+});
