@@ -208,3 +208,42 @@
   transition: background 0.1s ease;
   border-radius: 3px;
 }
+
+/*
+ * Changed-id highlight flash (D12) — ids recently changed by a save, an
+ * undo, or another session's edit get data-docs-changed="true" for ~2s
+ * (useTransientHighlights); the visual flash is this one-shot animation.
+ * Ported from Spectre globals.css — theme status-warning tokens only.
+ */
+@keyframes spectre-docs-changed-flash {
+  0% {
+    background-color: var(--status-warning-fill);
+    box-shadow: 0 0 0 2px var(--status-warning-border);
+  }
+  100% {
+    background-color: transparent;
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+[data-docs-changed="true"] {
+  animation: spectre-docs-changed-flash 2s ease-out;
+  border-radius: 4px;
+}
+
+/* Annotate mode: blocks are click targets for Plannotator comments. */
+.docs-annotate-mode [data-block-id] {
+  cursor: pointer;
+}
+
+.docs-annotate-mode [data-block-id]:hover {
+  background: color-mix(in oklab, var(--primary) 4%, transparent);
+}
+
+/* The currently-selected comment target (block or canvas object). */
+[data-docs-selected="true"] {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+  border-radius: 6px;
+  background: color-mix(in oklab, var(--primary) 5%, transparent);
+}

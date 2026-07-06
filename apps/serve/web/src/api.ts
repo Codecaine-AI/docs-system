@@ -1,25 +1,46 @@
-import type { DocsTreeNode } from "@codecaine-ai/docs-viewer/client";
+import type { DocsTreeNode, DraftLockKind, AcquireDraftLockResult } from "@codecaine-ai/docs-viewer/client";
+import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
+import type { DocOp } from "@codecaine-ai/docs-model/doc-ops";
+import type {
+  CommentIntent,
+  CommentTarget,
+  CommentsDocument,
+  DocComment,
+} from "@codecaine-ai/docs-model/comments-schema";
+
+import { getSessionId } from "./session";
 
 /**
- * Data layer for the standalone viewer, with two build-time variants:
+ * Data layer for the standalone docs workbench, with two build-time variants:
  *
- *  - serve mode (__DOCS_STATIC__ === false): fetches the live docs-serve API
- *    (`api/tree`, `api/bundle?path=`, ...).
- *  - static/export mode (__DOCS_STATIC__ === true): fetches the pregenerated
- *    JSON the exporter emitted under `data/` (tree.json, per-bundle
- *    snapshots, copied asset/canvas files, backlinks.json).
+ *  - serve mode (IS_STATIC === false): the full read+write `/api/*` surface
+ *    of @codecaine-ai/docs-server (ops with hash preconditions, comments,
+ *    draft locks, undo, SSE change events).
+ *  - static/export mode (IS_STATIC === true): fetches the pregenerated JSON
+ *    the exporter emitted under `data/` (tree.json, per-bundle snapshots,
+ *    copied asset/canvas files, backlinks.json). No write routes exist in an
+ *    export — every mutation helper throws, and the UI hides all
+ *    edit/annotate affordances (see App/DocPage).
  *
  * ALL paths are RELATIVE (no leading slash) so the built site works from any
  * static host and from a subpath — combined with `base: "./"` in the vite
  * config and hash-based navigation.
  */
 
+/**
+ * Build-time static flag. `__DOCS_STATIC__` is a vite `define`; the `typeof`
+ * guard keeps this module loadable under plain bun (tests, smoke scripts)
+ * where no define ran — those environments are always "serve" mode.
+ */
+export const IS_STATIC: boolean =
+  typeof __DOCS_STATIC__ !== "undefined" ? __DOCS_STATIC__ : false;
+
 export type BundlePayload = {
   path: string;
   document_path: string;
   doc: unknown;
   doc_hash: string;
-  comments: unknown;
+  comments: CommentsDocument | null;
   comments_hash: string | null;
 };
 
@@ -41,19 +62,51 @@ export type BacklinkRow = {
   updatedAt: string;
 };
 
-async function fetchJson<T>(url: string): Promise<T> {
-  const response = await fetch(url);
+/** Error carrying the HTTP status + parsed body, so callers can branch on 409/423/404. */
+export class ApiError extends Error {
+  readonly status: number;
+  readonly payload: Record<string, unknown> | null;
+
+  constructor(message: string, status: number, payload: Record<string, unknown> | null = null) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+    this.payload = payload;
+  }
+}
+
+async function parseErrorPayload(response: Response): Promise<Record<string, unknown> | null> {
+  try {
+    const body = (await response.json()) as Record<string, unknown>;
+    return body;
+  } catch {
+    return null;
+  }
+}
+
+async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(url, init);
   if (!response.ok) {
-    let detail = `${response.status}`;
-    try {
-      const body = (await response.json()) as { detail?: string };
-      if (body.detail) detail = body.detail;
-    } catch {
-      // non-JSON error body — status alone is the message
-    }
-    throw new Error(detail);
+    const payload = await parseErrorPayload(response);
+    const detail =
+      payload && typeof payload.detail === "string" ? payload.detail : `${response.status}`;
+    throw new ApiError(detail, response.status, payload);
   }
   return (await response.json()) as T;
+}
+
+function postJson<T>(url: string, body: unknown): Promise<T> {
+  return fetchJson<T>(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+}
+
+function assertWritable(operation: string): void {
+  if (IS_STATIC) {
+    throw new ApiError(`${operation} is unavailable in a static docs export.`, 405);
+  }
 }
 
 /** Encodes a docs-root-relative path for use as URL path segments. */
@@ -61,18 +114,30 @@ function encodePathSegments(path: string): string {
   return path.split("/").map(encodeURIComponent).join("/");
 }
 
+/**
+ * Draft locks and mutations key on the bare docs-root-relative bundle path;
+ * strip a `docs/`-prefixed document_path defensively so both shapes work.
+ */
+function bundlePathOf(path: string): string {
+  return path.replace(/^docs\//i, "");
+}
+
+// ---------------------------------------------------------------------------
+// Reads (serve + static)
+// ---------------------------------------------------------------------------
+
 export async function getTree(): Promise<{ tree: DocsTreeNode[] }> {
-  if (__DOCS_STATIC__) return fetchJson(`data/tree.json`);
+  if (IS_STATIC) return fetchJson(`data/tree.json`);
   return fetchJson(`api/tree`);
 }
 
 export async function getBundle(path: string): Promise<BundlePayload> {
-  if (__DOCS_STATIC__) return fetchJson(`data/bundles/${encodePathSegments(path)}.json`);
+  if (IS_STATIC) return fetchJson(`data/bundles/${encodePathSegments(path)}.json`);
   return fetchJson(`api/bundle?path=${encodeURIComponent(path)}`);
 }
 
 export async function getCanvasBySrc(src: string): Promise<CanvasPayload> {
-  if (__DOCS_STATIC__) {
+  if (IS_STATIC) {
     const canvas = await fetchJson<unknown>(`data/files/${encodePathSegments(src)}`);
     return {
       canvas_path: src,
@@ -86,14 +151,14 @@ export async function getCanvasBySrc(src: string): Promise<CanvasPayload> {
 
 /** URL an `image`/`attachment` block's docs-root-relative src is served at. */
 export function assetUrl(path: string): string {
-  if (__DOCS_STATIC__) return `data/files/${encodePathSegments(path)}`;
+  if (IS_STATIC) return `data/files/${encodePathSegments(path)}`;
   return `api/asset?path=${encodeURIComponent(path)}`;
 }
 
 let staticBacklinksPromise: Promise<Record<string, BacklinkRow[]>> | null = null;
 
 export async function getBacklinks(target: string): Promise<BacklinkRow[]> {
-  if (__DOCS_STATIC__) {
+  if (IS_STATIC) {
     staticBacklinksPromise ??= fetchJson<Record<string, BacklinkRow[]>>(`data/backlinks.json`);
     const map = await staticBacklinksPromise;
     return map[target] ?? [];
@@ -102,4 +167,288 @@ export async function getBacklinks(target: string): Promise<BacklinkRow[]> {
     `api/backlinks?target=${encodeURIComponent(target)}`,
   );
   return payload.backlinks;
+}
+
+// ---------------------------------------------------------------------------
+// Doc ops (serve only)
+// ---------------------------------------------------------------------------
+
+export type ApplyDocOpsResponse = {
+  doc: DocDocument;
+  hash: string;
+  patch_id: string;
+};
+
+/**
+ * Applies a block-op batch with the current doc hash as precondition.
+ * Throws `ApiError` with status 409 (stale hash — payload carries
+ * `current_hash`) or 423 (draft lock held by another session — payload
+ * carries `held_by`).
+ */
+export async function applyDocOps(
+  path: string,
+  ops: DocOp[],
+  expectedHash?: string,
+): Promise<ApplyDocOpsResponse> {
+  assertWritable("Saving");
+  return postJson(`api/ops`, {
+    path: bundlePathOf(path),
+    ops,
+    expected_hash: expectedHash,
+    session_id: getSessionId(),
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Comments (serve only)
+// ---------------------------------------------------------------------------
+
+export type CommentsPayload = { comments: CommentsDocument; hash: string | null };
+
+export async function getComments(path: string): Promise<CommentsPayload> {
+  assertWritable("Loading comments");
+  return fetchJson(`api/comments?path=${encodeURIComponent(bundlePathOf(path))}`);
+}
+
+export async function addComment(
+  path: string,
+  input: {
+    target: CommentTarget;
+    body: string;
+    intent: CommentIntent;
+    author: string;
+    expectedHash?: string | null;
+  },
+): Promise<{ comment: DocComment; comments: CommentsDocument; hash: string }> {
+  assertWritable("Commenting");
+  return postJson(`api/comments`, {
+    path: bundlePathOf(path),
+    target: input.target,
+    body: input.body,
+    intent: input.intent,
+    author: input.author,
+    expected_hash: input.expectedHash ?? undefined,
+    session_id: getSessionId(),
+  });
+}
+
+export async function resolveComment(
+  path: string,
+  commentId: string,
+  expectedHash?: string | null,
+): Promise<{ comments: CommentsDocument; hash: string }> {
+  assertWritable("Resolving comments");
+  return postJson(`api/comments/${encodeURIComponent(commentId)}/resolve`, {
+    path: bundlePathOf(path),
+    expected_hash: expectedHash ?? undefined,
+    session_id: getSessionId(),
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Undo (serve only)
+// ---------------------------------------------------------------------------
+
+export type UndoResult =
+  | { ok: true }
+  | { ok: false; alreadyUndone: boolean; detail: string };
+
+/**
+ * Replays the stored inverse of a patch. Single-use: a second undo of the
+ * same patch id 404s, surfaced as `alreadyUndone`.
+ */
+export async function undoPatch(patchId: string): Promise<UndoResult> {
+  assertWritable("Undo");
+  try {
+    await postJson(`api/undo`, { patch_id: patchId });
+    return { ok: true };
+  } catch (error) {
+    if (error instanceof ApiError) {
+      return {
+        ok: false,
+        alreadyUndone: error.status === 404,
+        detail: error.status === 404 ? "Already undone." : error.message,
+      };
+    }
+    throw error;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Draft locks (serve only)
+// ---------------------------------------------------------------------------
+
+async function draftLockCall(
+  endpoint: "acquire" | "heartbeat",
+  path: string,
+  kind: DraftLockKind,
+  sessionId: string,
+): Promise<AcquireDraftLockResult> {
+  const response = await fetch(`api/draft-lock/${endpoint}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ path: bundlePathOf(path), kind, sessionId }),
+  });
+  // 423 (held-by-other) is a NORMAL result for this contract, not an error.
+  const payload = (await response.json()) as AcquireDraftLockResult & { detail?: string };
+  if (!response.ok && response.status !== 423) {
+    throw new ApiError(payload.detail ?? `${response.status}`, response.status);
+  }
+  return payload;
+}
+
+export function acquireDraftLock(
+  path: string,
+  kind: DraftLockKind,
+  sessionId: string,
+): Promise<AcquireDraftLockResult> {
+  assertWritable("Draft locking");
+  return draftLockCall("acquire", path, kind, sessionId);
+}
+
+export function heartbeatDraftLock(
+  path: string,
+  kind: DraftLockKind,
+  sessionId: string,
+): Promise<AcquireDraftLockResult> {
+  assertWritable("Draft locking");
+  return draftLockCall("heartbeat", path, kind, sessionId);
+}
+
+export async function releaseDraftLock(
+  path: string,
+  kind: DraftLockKind,
+  sessionId: string,
+): Promise<void> {
+  assertWritable("Draft locking");
+  await postJson(`api/draft-lock/release`, { path: bundlePathOf(path), kind, sessionId });
+}
+
+// ---------------------------------------------------------------------------
+// SSE change events (serve only)
+// ---------------------------------------------------------------------------
+
+/** One `/api/events` frame — mirrors docs-server's DocsChangeEvent. */
+export type DocsChangeEventFrame = {
+  path: string;
+  changedIds: string[];
+  patchId: string;
+  actor: string;
+};
+
+function parseEventFrame(data: string): DocsChangeEventFrame | null {
+  try {
+    const parsed = JSON.parse(data) as Partial<DocsChangeEventFrame>;
+    if (typeof parsed !== "object" || parsed === null) return null;
+    return {
+      path: typeof parsed.path === "string" ? parsed.path : "",
+      changedIds: Array.isArray(parsed.changedIds)
+        ? parsed.changedIds.filter((id): id is string => typeof id === "string")
+        : [],
+      patchId: typeof parsed.patchId === "string" ? parsed.patchId : "",
+      actor: typeof parsed.actor === "string" ? parsed.actor : "",
+    };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Fallback SSE consumer over `fetch` streaming, for environments without a
+ * native `EventSource` (happy-dom test/smoke runs). Only default (unnamed)
+ * events are delivered — the server's named "connected"/"keepalive" frames
+ * are dropped exactly like EventSource's `onmessage` would drop them.
+ */
+function subscribeViaFetchStream(
+  url: string,
+  onEvent: (event: DocsChangeEventFrame) => void,
+): () => void {
+  const controller = new AbortController();
+  let stopped = false;
+  let activeReader: ReadableStreamDefaultReader<Uint8Array> | null = null;
+
+  const consume = async () => {
+    while (!stopped) {
+      try {
+        const response = await fetch(url, {
+          signal: controller.signal,
+          headers: { Accept: "text/event-stream" },
+        });
+        if (!response.ok || !response.body) throw new Error(`SSE connect failed: ${response.status}`);
+        const reader = response.body.getReader();
+        activeReader = reader;
+        if (stopped) {
+          await reader.cancel().catch(() => {});
+          return;
+        }
+        const decoder = new TextDecoder();
+        let buffer = "";
+        for (;;) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          // Over a socket chunks are bytes; an in-process handler (tests,
+          // smoke harnesses driving `app.handle`) may yield strings.
+          buffer +=
+            typeof value === "string" ? value : decoder.decode(value, { stream: true });
+          let boundary: number;
+          // SSE frames are separated by a blank line.
+          while ((boundary = buffer.search(/\r?\n\r?\n/)) >= 0) {
+            const rawFrame = buffer.slice(0, boundary);
+            buffer = buffer.slice(boundary).replace(/^\r?\n\r?\n/, "");
+            let eventName = "message";
+            const dataLines: string[] = [];
+            for (const line of rawFrame.split(/\r?\n/)) {
+              if (line.startsWith("event:")) eventName = line.slice(6).trim();
+              else if (line.startsWith("data:")) dataLines.push(line.slice(5).trimStart());
+            }
+            if (eventName !== "message" || dataLines.length === 0) continue;
+            const frame = parseEventFrame(dataLines.join("\n"));
+            if (frame) onEvent(frame);
+          }
+        }
+      } catch {
+        // Connection dropped/aborted — fall through to the reconnect delay.
+      }
+      if (stopped) return;
+      await new Promise((resolvePromise) => setTimeout(resolvePromise, 1000));
+    }
+  };
+  void consume();
+
+  return () => {
+    stopped = true;
+    controller.abort();
+    // Cancelling the reader resolves any pending read() with done:true even
+    // when the server never observes the abort signal (in-process handlers).
+    void activeReader?.cancel().catch(() => {});
+  };
+}
+
+/**
+ * Subscribes to the docs change-event stream. Frames published for THIS
+ * tab's own mutations (actor === our session id) are filtered out — the
+ * mutation response already updated local state.
+ *
+ * Returns an unsubscribe function. In static mode this is a no-op
+ * subscription (no server, no stream).
+ */
+export function subscribeDocsEvents(
+  onEvent: (event: DocsChangeEventFrame) => void,
+): () => void {
+  if (IS_STATIC) return () => {};
+  const sessionId = getSessionId();
+  const deliver = (frame: DocsChangeEventFrame) => {
+    if (frame.actor === sessionId) return;
+    onEvent(frame);
+  };
+
+  if (typeof EventSource !== "undefined") {
+    const source = new EventSource(`api/events`);
+    source.onmessage = (event) => {
+      const frame = parseEventFrame(String(event.data));
+      if (frame) deliver(frame);
+    };
+    return () => source.close();
+  }
+  return subscribeViaFetchStream(`api/events`, deliver);
 }
