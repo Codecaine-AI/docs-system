@@ -51,7 +51,7 @@ async function get(path: string): Promise<Response> {
 }
 
 beforeAll(async () => {
-  docsRoot = await mkdtemp(join(tmpdir(), "docs-serve-test-"));
+  docsRoot = await mkdtemp(join(tmpdir(), "docs-workbench-test-"));
 
   // Bundle with a canvas sidecar + asset.
   await mkdir(join(docsRoot, "10-guide", "assets", "canvases"), { recursive: true });
@@ -236,7 +236,7 @@ describe("GET /api/backlinks", () => {
 
 describe("static SPA serving", () => {
   test("serves index.html at / and confines asset paths", async () => {
-    const staticDir = await mkdtemp(join(tmpdir(), "docs-serve-static-"));
+    const staticDir = await mkdtemp(join(tmpdir(), "docs-workbench-static-"));
     await writeFile(join(staticDir, "index.html"), "<html>spa-shell</html>");
     await mkdir(join(staticDir, "assets"), { recursive: true });
     await writeFile(join(staticDir, "assets", "app.js"), "console.log('app')");

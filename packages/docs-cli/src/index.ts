@@ -378,7 +378,7 @@ async function main() {
     }
 
     if (command === "serve") {
-      // Standalone read-only docs server + viewer SPA (apps/serve).
+      // Standalone read-only docs server + viewer SPA (packages/docs-workbench).
       //   docs-cli serve [--root <path>] [--port <port>] [--host <addr>] [--dev] [--rebuild]
       // Default mode vite-builds the SPA once (cached) and serves API + SPA
       // from one port; --dev spawns `vite dev` with an /api proxy instead.
@@ -390,7 +390,7 @@ async function main() {
         process.exitCode = 1;
         return;
       }
-      const { runServe } = await import("@codecaine-ai/docs-serve");
+      const { runServe } = await import("@codecaine-ai/docs-workbench");
       await runServe({
         docsRoot: root,
         port,
@@ -402,7 +402,7 @@ async function main() {
     }
 
     if (command === "export") {
-      // Static-site export (apps/serve/src/export.ts):
+      // Static-site export (packages/docs-workbench/src/export.ts):
       //   docs-cli export [--root <path>] --out <dir> [--rebuild]
       const root = path.resolve(flagValue(args, "--root") ?? "docs");
       const out = flagValue(args, "--out");
@@ -411,7 +411,7 @@ async function main() {
         process.exitCode = 1;
         return;
       }
-      const { runExport } = await import("@codecaine-ai/docs-serve");
+      const { runExport } = await import("@codecaine-ai/docs-workbench");
       const report = await runExport({
         docsRoot: root,
         outDir: path.resolve(out),

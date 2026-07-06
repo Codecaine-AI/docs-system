@@ -21,7 +21,7 @@ import { DocPage } from "../DocPage";
  * Opt-in: set DOCS_SMOKE_ROOT to a real docs tree, e.g.
  *
  *   DOCS_SMOKE_ROOT="/path/to/some/docs" \
- *     bun test apps/serve/web/src/__tests__/live-smoke.test.tsx
+ *     bun test packages/docs-workbench/web/src/__tests__/live-smoke.test.tsx
  *
  * The tree is COPIED into a temp dir first — writes (ops saves, comments,
  * undo) never touch the source. Skipped entirely when the env var is unset,
@@ -217,7 +217,7 @@ describe("live smoke (real server, real docs copy)", () => {
       expect(savedRaw).toContain("SMOKEMARK");
 
       // The SSE frame for our save arrived over the real socket.
-      const sessionId = window.sessionStorage.getItem("docs-serve-session-id");
+      const sessionId = window.sessionStorage.getItem("docs-workbench-session-id");
       await waitFor(
         () => {
           expect(frames.some((frame) => frame.path === bundlePath && !!frame.patchId)).toBe(true);

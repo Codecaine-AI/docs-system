@@ -14,35 +14,6 @@
         "typescript": "^5",
       },
     },
-    "apps/serve": {
-      "name": "@codecaine-ai/docs-serve",
-      "version": "0.1.0",
-      "dependencies": {
-        "@codecaine-ai/canvas": "workspace:*",
-        "@codecaine-ai/docs-index": "workspace:*",
-        "@codecaine-ai/docs-model": "workspace:*",
-        "@codecaine-ai/docs-server": "workspace:*",
-        "@codecaine-ai/docs-viewer": "workspace:*",
-        "elysia": "^1.2.0",
-        "lucide-react": "^0.563.0",
-        "react": "^19",
-        "react-dom": "^19",
-      },
-      "devDependencies": {
-        "@tailwindcss/typography": "^0.5.19",
-        "@tailwindcss/vite": "^4",
-        "@testing-library/dom": "^10.4.1",
-        "@testing-library/react": "^16.3.2",
-        "@tiptap/react": "^3.27.1",
-        "@types/bun": "latest",
-        "@types/react": "^19",
-        "@types/react-dom": "^19",
-        "@vitejs/plugin-react": "^5.1.2",
-        "tailwindcss": "^4",
-        "typescript": "^5",
-        "vite": "^7.3.0",
-      },
-    },
     "packages/canvas/packages/canvas": {
       "name": "@codecaine-ai/canvas",
       "version": "0.1.0",
@@ -100,7 +71,7 @@
       "dependencies": {
         "@codecaine-ai/docs-index": "workspace:*",
         "@codecaine-ai/docs-model": "workspace:*",
-        "@codecaine-ai/docs-serve": "workspace:*",
+        "@codecaine-ai/docs-workbench": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "latest",
@@ -175,6 +146,39 @@
         "react-dom": "^19",
       },
     },
+    "packages/docs-workbench": {
+      "name": "@codecaine-ai/docs-workbench",
+      "version": "0.1.0",
+      "dependencies": {
+        "@codecaine-ai/canvas": "workspace:*",
+        "@codecaine-ai/docs-index": "workspace:*",
+        "@codecaine-ai/docs-model": "workspace:*",
+        "@codecaine-ai/docs-server": "workspace:*",
+        "@codecaine-ai/docs-viewer": "workspace:*",
+        "elysia": "^1.2.0",
+        "lucide-react": "^0.563.0",
+        "react": "^19",
+        "react-dom": "^19",
+      },
+      "devDependencies": {
+        "@tailwindcss/typography": "^0.5.19",
+        "@tailwindcss/vite": "^4",
+        "@testing-library/dom": "^10.4.1",
+        "@testing-library/react": "^16.3.2",
+        "@tiptap/react": "^3.27.1",
+        "@types/bun": "latest",
+        "@types/react": "^19",
+        "@types/react-dom": "^19",
+        "@vitejs/plugin-react": "^5.1.2",
+        "tailwindcss": "^4",
+        "typescript": "^5",
+        "vite": "^7.3.0",
+      },
+    },
+    "packages/framework": {
+      "name": "@codecaine-ai/docs-framework-skill",
+      "version": "0.0.1",
+    },
   },
   "packages": {
     "@alloc/quick-lru": ["@alloc/quick-lru@5.2.0", "", {}, "sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw=="],
@@ -225,15 +229,17 @@
 
     "@codecaine-ai/docs-cli": ["@codecaine-ai/docs-cli@workspace:packages/docs-cli"],
 
+    "@codecaine-ai/docs-framework-skill": ["@codecaine-ai/docs-framework-skill@workspace:packages/framework"],
+
     "@codecaine-ai/docs-index": ["@codecaine-ai/docs-index@workspace:packages/docs-index"],
 
     "@codecaine-ai/docs-model": ["@codecaine-ai/docs-model@workspace:packages/docs-model"],
 
-    "@codecaine-ai/docs-serve": ["@codecaine-ai/docs-serve@workspace:apps/serve"],
-
     "@codecaine-ai/docs-server": ["@codecaine-ai/docs-server@workspace:packages/docs-server"],
 
     "@codecaine-ai/docs-viewer": ["@codecaine-ai/docs-viewer@workspace:packages/docs-viewer"],
+
+    "@codecaine-ai/docs-workbench": ["@codecaine-ai/docs-workbench@workspace:packages/docs-workbench"],
 
     "@codecaine-ai/studio": ["@codecaine-ai/studio@workspace:packages/canvas/packages/studio"],
 

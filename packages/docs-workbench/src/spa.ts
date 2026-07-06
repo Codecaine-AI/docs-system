@@ -3,7 +3,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 /**
- * Locating + building the viewer SPA (apps/serve/web).
+ * Locating + building the viewer SPA (packages/docs-workbench/web).
  *
  * "clone -> bun install -> docs-cli serve" UX: the SPA is vite-built into
  * `web/dist` (or `web/dist-static` for the export data-layer variant) on
@@ -12,7 +12,7 @@ import { fileURLToPath } from "node:url";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 
-/** apps/serve/web — the Vite project directory. */
+/** packages/docs-workbench/web — the Vite project directory. */
 export function webDir(): string {
   return join(HERE, "..", "web");
 }
@@ -38,7 +38,7 @@ export async function ensureSpaBuilt(options: EnsureSpaBuiltOptions): Promise<st
   if (!options.force && existsSync(indexHtml)) return dist;
 
   const log = options.log ?? (() => {});
-  log(`[docs-serve] Building viewer SPA (${options.mode} mode) — first run only...`);
+  log(`[docs-workbench] Building viewer SPA (${options.mode} mode) — first run only...`);
 
   const proc = Bun.spawnSync(["bun", "x", "vite", "build"], {
     cwd: webDir(),
@@ -57,6 +57,6 @@ export async function ensureSpaBuilt(options: EnsureSpaBuiltOptions): Promise<st
   if (!existsSync(indexHtml)) {
     throw new Error(`vite build produced no index.html at ${indexHtml}`);
   }
-  log(`[docs-serve] SPA built at ${dist}`);
+  log(`[docs-workbench] SPA built at ${dist}`);
   return dist;
 }

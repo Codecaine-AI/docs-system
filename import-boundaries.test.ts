@@ -15,8 +15,8 @@ const ROOTS = [
   "packages/docs-cli/src",
   "packages/docs-server/src",
   "packages/docs-viewer/src",
-  "apps/serve/src",
-  "apps/serve/web/src",
+  "packages/docs-workbench/src",
+  "packages/docs-workbench/web/src",
 ];
 
 const SKIP_DIRS = new Set(["node_modules", "dist", "__fixtures__"]);

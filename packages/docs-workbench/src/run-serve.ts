@@ -6,7 +6,7 @@ import { ensureSpaBuilt, webDir } from "./spa";
 
 /**
  * `docs-cli serve` entrypoint. Default mode builds the SPA once (vite build,
- * cached in apps/serve/web/dist) and serves API + static SPA from ONE port.
+ * cached in packages/docs-workbench/web/dist) and serves API + static SPA from ONE port.
  * `--dev` instead starts the API alone and spawns `vite dev` with an /api
  * proxy pointed at it (SPA hot reload; two ports).
  */
@@ -33,8 +33,8 @@ export async function runServe(options: RunServeOptions): Promise<void> {
 
   if (options.dev) {
     startDocsServe({ docsRoot, port, hostname, staticDir: null });
-    log(`[docs-serve] API listening on http://${displayHost}:${port} (docs root: ${docsRoot})`);
-    log(`[docs-serve] Starting vite dev server (proxying /api -> :${port})...`);
+    log(`[docs-workbench] API listening on http://${displayHost}:${port} (docs root: ${docsRoot})`);
+    log(`[docs-workbench] Starting vite dev server (proxying /api -> :${port})...`);
     const proc = Bun.spawn(["bun", "x", "vite"], {
       cwd: webDir(),
       env: { ...process.env, DOCS_API: `http://localhost:${port}` },
@@ -47,6 +47,6 @@ export async function runServe(options: RunServeOptions): Promise<void> {
 
   const staticDir = await ensureSpaBuilt({ mode: "serve", force: options.forceBuild, log });
   startDocsServe({ docsRoot, port, hostname, staticDir });
-  log(`[docs-serve] Serving docs from ${docsRoot}`);
-  log(`[docs-serve] http://${displayHost}:${port}`);
+  log(`[docs-workbench] Serving docs from ${docsRoot}`);
+  log(`[docs-workbench] http://${displayHost}:${port}`);
 }

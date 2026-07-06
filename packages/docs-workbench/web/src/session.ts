@@ -12,7 +12,7 @@
  *    so locks and ops MUST share this id (see client.ts).
  */
 
-const STORAGE_KEY = "docs-serve-session-id";
+const STORAGE_KEY = "docs-workbench-session-id";
 
 let fallbackId: string | null = null;
 
