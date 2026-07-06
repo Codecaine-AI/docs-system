@@ -256,6 +256,15 @@ describe("live smoke (real server, real docs copy)", () => {
       fireEvent.click(screen.getByRole("button", { name: "Annotate mode" }));
       const block = document.querySelector(`[data-block-id="${firstBlockId}"]`);
       expect(!!block).toBe(true);
+
+      // Framework targeting layer: hovering the real block outlines it and
+      // shows the floating chip labelled from the flavour registry.
+      fireEvent.mouseMove(block!);
+      expect(block!.classList.contains("docs-target-hovered")).toBe(true);
+      const chip = document.querySelector('[data-docs-target-overlay-label="hover"]');
+      expect(!!chip).toBe(true);
+      expect((chip?.textContent ?? "").length).toBeGreaterThan(0);
+
       fireEvent.click(block!);
       await waitFor(() => {
         expect(!!screen.getByText(/Commenting on:/)).toBe(true);

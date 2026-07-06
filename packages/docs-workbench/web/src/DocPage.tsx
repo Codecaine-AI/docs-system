@@ -18,6 +18,7 @@ import DocBlockRenderer, {
   type DocBlockSaveResult,
 } from "@codecaine-ai/docs-viewer/doc-block-renderer";
 import DocEditor from "@codecaine-ai/docs-viewer/editor/doc-editor";
+import DocTargetingLayer from "@codecaine-ai/docs-viewer/doc-targeting-layer";
 import type { PlannotatorSelection } from "@codecaine-ai/docs-viewer/plannotator";
 import { useTransientHighlights } from "@codecaine-ai/docs-viewer/use-transient-highlights";
 import {
@@ -277,21 +278,15 @@ export function DocPage({ path, onEditorReady, isStatic = IS_STATIC }: DocPagePr
     };
   }, [highlightedIds, bundle, canvasEpoch, mode]);
 
-  // Selected-annotation-target outline (annotate mode).
-  useEffect(() => {
-    const container = contentRef.current;
-    if (!container || !selection) return;
-    const id =
-      selection.kind === "block"
+  // Selected-annotation-target ring (annotate mode): the targeting layer
+  // renders the ring overlay from this id ([data-block-id] or
+  // [data-canvas-object-id]); null clears it (e.g. composer cancel).
+  const selectedTargetId =
+    selection == null
+      ? null
+      : selection.kind === "block"
         ? selection.blockId
-        : (selection.objectId ?? selection.connectionId);
-    if (!id) return;
-    const attribute = selection.kind === "block" ? "data-block-id" : "data-canvas-object-id";
-    const element = container.querySelector(`[${attribute}="${cssEscape(id)}"]`);
-    if (!element) return;
-    element.setAttribute("data-docs-selected", "true");
-    return () => element.removeAttribute("data-docs-selected");
-  }, [selection, bundle, canvasEpoch]);
+        : (selection.objectId ?? selection.connectionId ?? null);
 
   // ---------------------------------------------------------------------
   // Canvas object index (dangling-target detection for Plannotator)
@@ -526,6 +521,21 @@ export function DocPage({ path, onEditorReady, isStatic = IS_STATIC }: DocPagePr
     setPaneError(null);
   }, []);
 
+  // Block selection via the framework targeting layer (hover chip +
+  // pinpoint click). Canvas-object selection stays on the canvas embed's own
+  // object-select surface (onCanvasObjectSelect below) — the layer
+  // intentionally ignores clicks on [data-canvas-object-id] elements.
+  const docRef = useRef(doc);
+  docRef.current = doc;
+  const handleTargetSelect = useCallback(
+    (target: { label: string; anchor: { block_id?: string | null } }) => {
+      const blockId = target.anchor.block_id;
+      if (!blockId || !docRef.current?.blocks[blockId]) return;
+      setSelection({ kind: "block", blockId, label: target.label });
+    },
+    [],
+  );
+
   if (isLoading) {
     return <div className="p-8 text-sm text-muted-foreground">Loading {path}...</div>;
   }
@@ -605,13 +615,8 @@ export function DocPage({ path, onEditorReady, isStatic = IS_STATIC }: DocPagePr
       <div className="flex min-h-0 flex-1">
         <div className="min-h-0 min-w-0 flex-1 overflow-y-auto">
           <div key={canvasEpoch} ref={contentRef} className="mx-auto w-full max-w-[88ch] px-5 py-6 sm:px-8">
-            <div
-              className={cn(
-                "spectre-markdown prose prose-sm dark:prose-invert relative max-w-none font-sans text-sm leading-[1.7]",
-                mode === "annotate" && "docs-annotate-mode",
-              )}
-            >
-              {mode === "edit" ? (
+            {mode === "edit" ? (
+              <div className="spectre-markdown prose prose-sm dark:prose-invert relative max-w-none font-sans text-sm leading-[1.7]">
                 <DocEditor
                   document={doc}
                   projectId="local"
@@ -622,27 +627,40 @@ export function DocPage({ path, onEditorReady, isStatic = IS_STATIC }: DocPagePr
                   onReloadDoc={handleReloadDoc}
                   onEditorReady={onEditorReady}
                 />
-              ) : (
+              </div>
+            ) : mode === "annotate" ? (
+              <DocTargetingLayer
+                mode="pinpoint"
+                contentHash={bundle?.hash ?? null}
+                documentPath={`docs/${path}`}
+                document={doc}
+                canvasIndex={canvasIndex}
+                selectedTargetId={selectedTargetId}
+                onTargetSelect={handleTargetSelect}
+                className="spectre-markdown prose prose-sm dark:prose-invert relative max-w-none font-sans text-sm leading-[1.7]"
+              >
                 <DocBlockRenderer
                   document={doc}
                   projectId="local"
                   documentPath={`docs/${path}`}
                   bundlePath={path}
                   resolveAssetSrc={resolveAssetSrc}
-                  onBlockSelect={
-                    mode === "annotate"
-                      ? ({ blockId, label }) => setSelection({ kind: "block", blockId, label })
-                      : undefined
-                  }
-                  onCanvasObjectSelect={
-                    mode === "annotate"
-                      ? ({ canvasSrc, objectId }) =>
-                          setSelection({ kind: "canvas-object", canvasSrc, objectId })
-                      : undefined
+                  onCanvasObjectSelect={({ canvasSrc, objectId }) =>
+                    setSelection({ kind: "canvas-object", canvasSrc, objectId })
                   }
                 />
-              )}
-            </div>
+              </DocTargetingLayer>
+            ) : (
+              <div className="spectre-markdown prose prose-sm dark:prose-invert relative max-w-none font-sans text-sm leading-[1.7]">
+                <DocBlockRenderer
+                  document={doc}
+                  projectId="local"
+                  documentPath={`docs/${path}`}
+                  bundlePath={path}
+                  resolveAssetSrc={resolveAssetSrc}
+                />
+              </div>
+            )}
 
             {mode === "read" && backlinks.length > 0 && (
               <footer className="mt-10 border-t pt-4">
