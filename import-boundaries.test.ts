@@ -13,6 +13,7 @@ const ROOTS = [
   "packages/docs-model/src",
   "packages/docs-index/src",
   "packages/docs-cli/src",
+  "packages/docs-server/src",
   "packages/docs-viewer/src",
   "apps/serve/src",
   "apps/serve/web/src",

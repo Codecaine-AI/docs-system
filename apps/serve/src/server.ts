@@ -2,40 +2,41 @@ import { existsSync } from "node:fs";
 import { readFile, stat } from "node:fs/promises";
 import { join } from "node:path";
 
-import { Elysia, t } from "elysia";
+import { Elysia } from "elysia";
 import type { Database } from "bun:sqlite";
-import { openBacklinksDb, queryInboundTolerant, rescanAll } from "@codecaine-ai/docs-index/backlinks";
-
-import { bundleResponse, createContentHash, loadDocBundle, loadDocProjection } from "./bundle";
+import { openBacklinksDb, rescanAll } from "@codecaine-ai/docs-index/backlinks";
 import {
-  MAX_ASSET_BYTES,
-  MAX_CANVAS_FILE_BYTES,
-  inferAssetContentType,
-  resolveAssetRootRelativePath,
-  resolveCanvasSidecarRootRelativePath,
+  createDocsRoutes,
+  createDocsStore,
+  primeBacklinksDb,
   resolveStaticFilePath,
-} from "./confine";
-import { walkDocsDir } from "./docs-tree";
+  validateCanvasPayload,
+} from "@codecaine-ai/docs-server";
 
 /**
- * Standalone read-only docs server: serves a `--root` docs tree of doc.json
- * bundles over the same response shapes Spectre's data-backend exposes under
- * `/projects/:id/docs/*`, minus the project scoping (and minus every
- * mutation route — there are NO write endpoints here, by design).
+ * Standalone docs server: serves a `--root` docs tree of doc.json bundles
+ * through @codecaine-ai/docs-server's route factory — the SAME route source
+ * every host uses, so `/api/*` here is response-shape-identical to any other
+ * docs-server host. This app owns only the docs-root/SPA plumbing:
  *
- * Route table (all GET, all read-only):
- *   /api/tree                 -> { tree: DocsTreeNode[] }
- *   /api/bundle?path=         -> { path, document_path, doc, doc_hash, comments, comments_hash }
- *   /api/markdown?path=       -> { markdown } (projectToMarkdown projection)
- *   /api/canvas?src=          -> { canvas_path, canvas_document_path, content_hash, canvas }
- *   /api/asset?path=          -> raw asset bytes (confined to assets/images|attachments)
- *   /api/backlinks?target=    -> { target, backlinks: BacklinkRow[] }
- *   /*                        -> built SPA (when staticDir is provided)
+ *   - the full read+write `/api/*` route table comes from
+ *     `createDocsRoutes(createDocsStore(docsRoot))` (see routes.ts in
+ *     @codecaine-ai/docs-server for the table);
+ *   - `/*` serves the built SPA (when staticDir is provided), confined via
+ *     `resolveStaticFilePath`;
+ *   - the backlinks index is built/rescanned at boot (`initBacklinksDb`) and
+ *     primed into the docs-server backlinks cache so the read route and the
+ *     save-path indexers share one connection.
  *
  * EVERY path input goes through the confinement helpers
- * (@codecaine-ai/docs-index/paths + ./confine) — no traversal outside the
- * docs root or the SPA dist dir is possible.
+ * (@codecaine-ai/docs-index/paths + @codecaine-ai/docs-server confine) — no
+ * traversal outside the docs root or the SPA dist dir is possible. The
+ * default bind stays loopback (`startDocsServe`): the served tree may be
+ * private, and the write routes make loopback confinement doubly important.
  */
+
+// Re-exported for existing consumers/tests of the serve app's surface.
+export { validateCanvasPayload };
 
 export interface DocsServeAppOptions {
   /** Absolute path to the docs tree to serve. */
@@ -64,172 +65,19 @@ export async function initBacklinksDb(
   }
 }
 
-/**
- * Light structural check on a canvas sidecar payload before it goes over the
- * wire — mirrors Spectre's `validateCanvasPayload` (the full schema
- * validation happens client-side via `validateInteractiveCanvasDocument`).
- */
-export function validateCanvasPayload(value: unknown): { ok: true } | { ok: false; detail: string } {
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    return { ok: false, detail: "Canvas payload must be an object" };
-  }
-  const record = value as Record<string, unknown>;
-  if (record.schemaVersion !== 1) {
-    return { ok: false, detail: "Canvas schemaVersion must be 1" };
-  }
-  if (typeof record.id !== "string" || !record.id.trim()) {
-    return { ok: false, detail: "Canvas id is required" };
-  }
-  if (record.mode !== "diagram") {
-    return { ok: false, detail: "Canvas mode must be diagram" };
-  }
-  if (!Array.isArray(record.objects) || !Array.isArray(record.connections)) {
-    return { ok: false, detail: "Canvas objects and connections must be arrays" };
-  }
-  return { ok: true };
-}
-
 export function createDocsServeApp(options: DocsServeAppOptions) {
   const docsRoot = options.docsRoot;
   const staticDir = options.staticDir ?? null;
 
-  // Kicked off at app creation; the backlinks route awaits it. A failed
-  // build (e.g. an unreadable tree) fails the route, not the whole server.
+  // Kicked off at app creation; the backlinks route awaits it (through the
+  // primed cache). A failed build (e.g. an unreadable tree) fails the route,
+  // not the whole server.
   const backlinksReady = initBacklinksDb(docsRoot);
   backlinksReady.catch(() => {});
+  primeBacklinksDb(docsRoot, backlinksReady.then((result) => result.db));
 
-  const app = new Elysia()
-    .get(
-      "/api/tree",
-      async ({ set }) => {
-        try {
-          return { tree: await walkDocsDir(docsRoot) };
-        } catch (error) {
-          set.status = 500;
-          return {
-            detail: `Failed to walk docs tree: ${error instanceof Error ? error.message : String(error)}`,
-          };
-        }
-      },
-    )
-    .get(
-      "/api/bundle",
-      async ({ query, set }) => {
-        const loaded = await loadDocBundle(docsRoot, query.path);
-        if ("error" in loaded) {
-          set.status = loaded.error.status;
-          return { detail: loaded.error.detail };
-        }
-        return bundleResponse(loaded);
-      },
-      { query: t.Object({ path: t.String({ minLength: 1 }) }) },
-    )
-    .get(
-      "/api/markdown",
-      async ({ query, set }) => {
-        const projected = await loadDocProjection(docsRoot, query.path);
-        if ("error" in projected) {
-          set.status = projected.error.status;
-          return { detail: projected.error.detail };
-        }
-        return projected;
-      },
-      { query: t.Object({ path: t.String({ minLength: 1 }) }) },
-    )
-    .get(
-      "/api/canvas",
-      async ({ query, set }) => {
-        const src = query.src;
-        const canvasRelPath = resolveCanvasSidecarRootRelativePath(docsRoot, src);
-        if (!canvasRelPath) {
-          set.status = 400;
-          return { detail: `Invalid canvas sidecar path: ${src}` };
-        }
-        const canvasAbs = join(docsRoot, canvasRelPath);
-        let st;
-        try {
-          st = await stat(canvasAbs);
-        } catch {
-          set.status = 404;
-          return { detail: `Canvas sidecar not found: ${src}` };
-        }
-        if (!st.isFile()) {
-          set.status = 404;
-          return { detail: `Canvas sidecar is not a file: ${src}` };
-        }
-        if (st.size > MAX_CANVAS_FILE_BYTES) {
-          set.status = 413;
-          return { detail: `Canvas sidecar exceeds size cap: ${src}` };
-        }
-        const canvasContent = await readFile(canvasAbs, "utf8");
-        let canvas: unknown;
-        try {
-          canvas = JSON.parse(canvasContent);
-        } catch {
-          set.status = 400;
-          return { detail: `Canvas sidecar is invalid JSON: ${src}` };
-        }
-        const payloadValidation = validateCanvasPayload(canvas);
-        if (!payloadValidation.ok) {
-          set.status = 400;
-          return { detail: payloadValidation.detail };
-        }
-        return {
-          canvas_path: canvasRelPath,
-          canvas_document_path: `docs/${canvasRelPath}`,
-          content_hash: createContentHash(canvasContent),
-          canvas,
-        };
-      },
-      { query: t.Object({ src: t.String({ minLength: 1 }) }) },
-    )
-    .get(
-      "/api/asset",
-      async ({ query, set }) => {
-        const assetAbs = resolveAssetRootRelativePath(docsRoot, query.path);
-        if (!assetAbs) {
-          set.status = 400;
-          return { detail: `Invalid asset path: ${query.path}` };
-        }
-        let st;
-        try {
-          st = await stat(assetAbs);
-        } catch {
-          set.status = 404;
-          return { detail: `Asset not found: ${query.path}` };
-        }
-        if (!st.isFile()) {
-          set.status = 404;
-          return { detail: `Asset path is not a file: ${query.path}` };
-        }
-        if (st.size > MAX_ASSET_BYTES) {
-          set.status = 413;
-          return { detail: `Asset exceeds size cap: ${query.path}` };
-        }
-        return new Response(await readFile(assetAbs), {
-          headers: {
-            "Content-Type": inferAssetContentType(assetAbs),
-            "Cache-Control": "private, max-age=300",
-          },
-        });
-      },
-      { query: t.Object({ path: t.String({ minLength: 1 }) }) },
-    )
-    .get(
-      "/api/backlinks",
-      async ({ query, set }) => {
-        try {
-          const { db } = await backlinksReady;
-          return { target: query.target, backlinks: queryInboundTolerant(db, query.target) };
-        } catch (error) {
-          set.status = 500;
-          return {
-            detail: `Failed to query backlinks index: ${error instanceof Error ? error.message : String(error)}`,
-          };
-        }
-      },
-      { query: t.Object({ target: t.String({ minLength: 1 }) }) },
-    );
+  const store = createDocsStore(docsRoot);
+  const app = new Elysia().use(createDocsRoutes(store));
 
   if (staticDir) {
     const indexAbs = join(staticDir, "index.html");

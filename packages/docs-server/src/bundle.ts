@@ -1,27 +1,24 @@
-import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 
 import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import { serializeDocDocument, validateDocDocument } from "@codecaine-ai/docs-model/doc-schema";
-import type { CommentsDocument } from "@codecaine-ai/docs-model/comments-schema";
+import type { CommentsDocument, CommentTarget } from "@codecaine-ai/docs-model/comments-schema";
 import { validateCommentsDocument } from "@codecaine-ai/docs-model/comments-schema";
 import { projectToMarkdown } from "@codecaine-ai/docs-model/project-markdown";
 import { resolveDocBundleJsonPath } from "@codecaine-ai/docs-index/paths";
 
+import { atomicWriteFile } from "./atomic-write";
+import { createContentHash } from "./content-hash";
+
 /**
- * Doc-bundle loading, ported from Spectre apps/data-backend/src/index.ts
- * (`loadDocBundle` / `loadDocProjection` / `normalizeBundlePath` /
- * `createContentHash`) so the standalone `GET /api/bundle` and
- * `GET /api/markdown` responses are shape-identical to Spectre's
- * `/projects/:id/docs/bundle` and `/projects/:id/docs/file?format=projection`
- * cores. Read-only: nothing in this module writes.
+ * Doc-bundle loading + comments sidecar read/write. This is the single
+ * source of truth for the bundle wire shapes — both the standalone serve
+ * app's `GET /api/bundle` and any host app's project-scoped bundle routes
+ * delegate here, so responses stay shape-identical everywhere.
  */
 
-/** Canonical content-hash helper (SHA-256 hex) — same derivation as Spectre. */
-export function createContentHash(content: string): string {
-  return createHash("sha256").update(content).digest("hex");
-}
+export { createContentHash };
 
 /**
  * Normalizes a `docs/`-relative bundle reference (folder, `doc.json` path,
@@ -146,9 +143,8 @@ export async function loadDocBundle(
 }
 
 /**
- * The wire shape both `GET /api/bundle` and the exported per-bundle JSON
- * snapshots use — field-for-field Spectre's `/projects/:id/docs/bundle`
- * response.
+ * The wire shape both `GET /api/bundle` and exported per-bundle JSON
+ * snapshots use.
  */
 export function bundleResponse(loaded: DocBundleLoadResult) {
   return {
@@ -171,4 +167,77 @@ export async function loadDocProjection(
   const loaded = await loadDocBundle(docsRoot, path);
   if ("error" in loaded) return loaded;
   return { markdown: projectToMarkdown(loaded.document) };
+}
+
+// ---------------------------------------------------------------------------
+// Comments sidecar primitives
+// ---------------------------------------------------------------------------
+
+export const EMPTY_COMMENTS_DOCUMENT: CommentsDocument = { schemaVersion: 1, comments: [] };
+
+/**
+ * Reads + validates a bundle's `comments.json` sidecar directly (the GET
+ * comments route uses this rather than `loadDocBundle`, since fetching
+ * comments shouldn't require the doc.json to itself be valid). Absence is a
+ * valid empty state — never a 404.
+ */
+export async function readCommentsSidecar(
+  commentsAbs: string,
+): Promise<
+  | { ok: true; comments: CommentsDocument; hash: string | null }
+  | { error: { status: number; detail: string } }
+> {
+  let raw: string;
+  try {
+    raw = await readFile(commentsAbs, "utf8");
+  } catch {
+    return { ok: true, comments: EMPTY_COMMENTS_DOCUMENT, hash: null };
+  }
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    return { error: { status: 422, detail: "Comments sidecar is not valid JSON" } };
+  }
+  const validated = validateCommentsDocument(parsed);
+  if (!validated.ok) {
+    return {
+      error: {
+        status: 422,
+        detail: `Comments sidecar failed schema validation: ${validated.issues
+          .map((issue) => `${issue.path}: ${issue.message}`)
+          .join("; ")}`,
+      },
+    };
+  }
+  return { ok: true, comments: validated.document, hash: createContentHash(raw) };
+}
+
+/** Atomically persists a comments document; returns content + hash. */
+export async function writeCommentsSidecar(
+  commentsAbs: string,
+  document: CommentsDocument,
+): Promise<{ content: string; hash: string }> {
+  const content = `${JSON.stringify(document, null, 2)}\n`;
+  await atomicWriteFile(commentsAbs, content);
+  return { content, hash: createContentHash(content) };
+}
+
+/** Structural check for a comment target (block or canvas-object). */
+export function isValidCommentTarget(value: unknown): value is CommentTarget {
+  if (!value || typeof value !== "object") return false;
+  const record = value as Record<string, unknown>;
+  if (record.kind === "block") {
+    return typeof record.blockId === "string" && record.blockId.length > 0;
+  }
+  if (record.kind === "canvas-object") {
+    const hasCanvasSrc = typeof record.canvasSrc === "string" && record.canvasSrc.length > 0;
+    const selectorCount = [
+      record.objectId !== undefined,
+      record.connectionId !== undefined,
+      record.region !== undefined,
+    ].filter(Boolean).length;
+    return hasCanvasSrc && selectorCount === 1;
+  }
+  return false;
 }

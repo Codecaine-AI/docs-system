@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import { createDocsServeApp } from "../server";
-import { collectBundlePaths, walkDocsDir } from "../docs-tree";
+import { collectBundlePaths, walkDocsDir } from "@codecaine-ai/docs-server";
 import { runExport } from "../export";
 
 /**

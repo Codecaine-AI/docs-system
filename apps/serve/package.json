@@ -19,6 +19,7 @@
     "@codecaine-ai/canvas": "workspace:*",
     "@codecaine-ai/docs-index": "workspace:*",
     "@codecaine-ai/docs-model": "workspace:*",
+    "@codecaine-ai/docs-server": "workspace:*",
     "@codecaine-ai/docs-viewer": "workspace:*",
     "elysia": "^1.2.0",
     "react": "^19",

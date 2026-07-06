@@ -4,8 +4,8 @@ import { dirname, join } from "node:path";
 import { projectToMarkdown } from "@codecaine-ai/docs-model/project-markdown";
 import { openBacklinksDb, queryInboundTolerant, rescanAll } from "@codecaine-ai/docs-index/backlinks";
 
-import { bundleResponse, loadDocBundle } from "./bundle";
-import { collectBundlePaths, walkDocsDir, type DocsTreeNode } from "./docs-tree";
+import { bundleResponse, loadDocBundle } from "@codecaine-ai/docs-server";
+import { collectBundlePaths, walkDocsDir, type DocsTreeNode } from "@codecaine-ai/docs-server";
 import { ensureSpaBuilt } from "./spa";
 
 /**

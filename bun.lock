@@ -21,6 +21,7 @@
         "@codecaine-ai/canvas": "workspace:*",
         "@codecaine-ai/docs-index": "workspace:*",
         "@codecaine-ai/docs-model": "workspace:*",
+        "@codecaine-ai/docs-server": "workspace:*",
         "@codecaine-ai/docs-viewer": "workspace:*",
         "elysia": "^1.2.0",
         "react": "^19",
@@ -122,6 +123,20 @@
         "typescript": "^5",
       },
     },
+    "packages/docs-server": {
+      "name": "@codecaine-ai/docs-server",
+      "version": "0.1.0",
+      "dependencies": {
+        "@codecaine-ai/canvas": "workspace:*",
+        "@codecaine-ai/docs-index": "workspace:*",
+        "@codecaine-ai/docs-model": "workspace:*",
+        "elysia": "^1.2.0",
+      },
+      "devDependencies": {
+        "@types/bun": "latest",
+        "typescript": "^5",
+      },
+    },
     "packages/docs-viewer": {
       "name": "@codecaine-ai/docs-viewer",
       "version": "0.1.0",
@@ -211,6 +226,8 @@
     "@codecaine-ai/docs-model": ["@codecaine-ai/docs-model@workspace:packages/docs-model"],
 
     "@codecaine-ai/docs-serve": ["@codecaine-ai/docs-serve@workspace:apps/serve"],
+
+    "@codecaine-ai/docs-server": ["@codecaine-ai/docs-server@workspace:packages/docs-server"],
 
     "@codecaine-ai/docs-viewer": ["@codecaine-ai/docs-viewer@workspace:packages/docs-viewer"],
 
