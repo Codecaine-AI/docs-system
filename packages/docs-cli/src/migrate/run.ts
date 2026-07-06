@@ -89,8 +89,38 @@ function walkFilesByExtension(dir: string, extensions: readonly string[]): strin
   return results;
 }
 
-function walkMdxFiles(dir: string): string[] {
-  return walkFilesByExtension(dir, [".mdx"]);
+/** Source extensions the migrator accepts, in twin-preference order. */
+const SOURCE_EXTENSIONS = [".mdx", ".md", ".markdown"] as const;
+
+/**
+ * Walks every markdown-family source under `dir`. Spectre's original tree was
+ * .mdx-only, but generic host repos are typically plain .md — both migrate
+ * through the same pipeline (MDX is a superset). When multiple extensions
+ * share one stem in one directory (a twin pair like a.mdx + a.md), only the
+ * most-preferred extension is returned; the others are reported as twins.
+ */
+function walkSourceFiles(dir: string): { sources: string[]; twinsSkipped: string[] } {
+  const all = walkFilesByExtension(dir, SOURCE_EXTENSIONS);
+  const byStem = new Map<string, string[]>();
+  for (const file of all) {
+    const stemKey = join(dirname(file), basename(file, extname(file)));
+    const group = byStem.get(stemKey);
+    if (group) group.push(file);
+    else byStem.set(stemKey, [file]);
+  }
+  const sources: string[] = [];
+  const twinsSkipped: string[] = [];
+  for (const group of byStem.values()) {
+    group.sort(
+      (a, b) =>
+        SOURCE_EXTENSIONS.indexOf(extname(a) as (typeof SOURCE_EXTENSIONS)[number]) -
+        SOURCE_EXTENSIONS.indexOf(extname(b) as (typeof SOURCE_EXTENSIONS)[number]),
+    );
+    sources.push(group[0]);
+    twinsSkipped.push(...group.slice(1));
+  }
+  sources.sort();
+  return { sources, twinsSkipped };
 }
 
 /** Twin extensions eligible for retirement once a bundle exists (§8.5: ".md/.mdx twins"). */
@@ -147,17 +177,25 @@ export function runMigration(options: RunOptions): MigrationReport {
   const verbose = options.verbose ?? true;
   const includeDrafts = options.includeDrafts ?? false;
 
-  const allFiles = walkMdxFiles(docsDir);
+  const { sources: allFiles, twinsSkipped } = walkSourceFiles(docsDir);
   const migrated: MigratedFileReport[] = [];
   const skipped: SkippedFileReport[] = [];
   const failed: FailedFileReport[] = [];
   const warnings: Array<{ sourcePath: string; message: string }> = [];
 
+  for (const twin of twinsSkipped) {
+    const repoRelTwin = relative(repoRoot, twin).split("\\").join("/");
+    skipped.push({ sourcePath: repoRelTwin, reason: "lower-preference twin of a sibling source with the same stem" });
+    if (verbose) console.log(`[docs-migrate] SKIP  (twin) ${repoRelTwin}`);
+  }
+
   if (verbose) {
     console.log(
       `[docs-migrate] drafts policy: ${includeDrafts ? "INCLUDED (--drafts)" : "EXEMPT (default, §8.5)"}`,
     );
-    console.log(`[docs-migrate] found ${allFiles.length} .mdx files under ${relative(repoRoot, docsDir)}`);
+    console.log(
+      `[docs-migrate] found ${allFiles.length} markdown source files (.mdx/.md/.markdown) under ${relative(repoRoot, docsDir)}`,
+    );
   }
 
   for (const sourceAbsPath of allFiles) {

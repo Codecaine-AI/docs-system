@@ -211,3 +211,38 @@ describe("retireTwins — gated, dry-run by default", () => {
     expect(existsSync(draftMdx)).toBe(true);
   });
 });
+
+describe("runMigration — .md and twin handling", () => {
+  it("migrates plain .md sources (generic host repos are .md-only)", () => {
+    const { repoRoot, docsDir } = makeTempRepo();
+    mkdirSync(join(docsDir, "00-foundation"), { recursive: true });
+    writeFileSync(join(docsDir, "00-foundation", "10-purpose.md"), SIMPLE_MDX);
+    writeFileSync(join(docsDir, "00-foundation", "20-notes.markdown"), SIMPLE_MDX);
+
+    const report = runMigration({ repoRoot, docsDir, verbose: false });
+
+    expect(report.totals.filesFailed).toBe(0);
+    expect(report.totals.filesMigrated).toBe(2);
+    expect(existsSync(join(docsDir, "00-foundation", "10-purpose", "doc.json"))).toBe(true);
+    expect(existsSync(join(docsDir, "00-foundation", "20-notes", "doc.json"))).toBe(true);
+  });
+
+  it("prefers .mdx over a same-stem .md twin and reports the twin as skipped", () => {
+    const { repoRoot, docsDir } = makeTempRepo();
+    mkdirSync(join(docsDir, "00-foundation"), { recursive: true });
+    writeFileSync(join(docsDir, "00-foundation", "10-purpose.mdx"), "# From MDX\n\nBody.\n");
+    writeFileSync(join(docsDir, "00-foundation", "10-purpose.md"), "# From MD\n\nBody.\n");
+
+    const report = runMigration({ repoRoot, docsDir, verbose: false });
+
+    expect(report.totals.filesFailed).toBe(0);
+    expect(report.totals.filesMigrated).toBe(1);
+    const parsed = JSON.parse(readFileSync(join(docsDir, "00-foundation", "10-purpose", "doc.json"), "utf8"));
+    expect(parsed.title).toBe("From MDX");
+    const twin = report.skipped.find((s) => s.sourcePath.endsWith("10-purpose.md"));
+    expect(twin?.reason).toContain("twin");
+    // Both source files remain on disk — migration stays non-destructive.
+    expect(existsSync(join(docsDir, "00-foundation", "10-purpose.md"))).toBe(true);
+    expect(existsSync(join(docsDir, "00-foundation", "10-purpose.mdx"))).toBe(true);
+  });
+});
