@@ -1,0 +1,27 @@
+{
+  "name": "codecaine-docs-framework",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/docs-model",
+    "packages/docs-index",
+    "packages/docs-cli",
+    "packages/docs-viewer",
+    "packages/canvas/packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "test": "bun test packages/docs-model packages/docs-index packages/docs-cli packages/docs-viewer",
+    "typecheck": "bunx --bun tsc --noEmit"
+  },
+  "devDependencies": {
+    "@happy-dom/global-registrator": "^20.9.0",
+    "@types/bun": "latest",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "react": "^19",
+    "react-dom": "^19",
+    "typescript": "^5"
+  }
+}

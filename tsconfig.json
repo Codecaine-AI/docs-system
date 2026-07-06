@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "noEmit": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "types": ["bun"]
+  },
+  "include": [
+    "packages/docs-model/src/**/*",
+    "packages/docs-index/src/**/*",
+    "packages/docs-cli/src/**/*",
+    "packages/docs-viewer/src/**/*"
+  ],
+  "exclude": ["node_modules", "dist", "packages/canvas", "apps"]
+}
