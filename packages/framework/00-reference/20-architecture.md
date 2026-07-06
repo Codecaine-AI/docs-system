@@ -1,6 +1,6 @@
 ---
-covers: The structural model — three documentation layers (Foundation, System Design, Implementation) with progressive disclosure enabled by vertical slices, clear boundaries, and layered depth.
-concepts: [architecture, progressive-disclosure, vertical-slices, boundaries, zones, layers, L1-L6, shared-understanding]
+covers: The structural model — three documentation layers (Foundation, System Design, Implementation) with progressive disclosure enabled by vertical slices, clear boundaries, and layered depth — plus how that model is stored as doc.json bundles and served by the docs-model/docs-index/docs-server/docs-viewer/docs-workbench stack.
+concepts: [architecture, progressive-disclosure, vertical-slices, boundaries, zones, layers, L1-L6, shared-understanding, doc-json, bundle, projection, docs-server, docs-viewer, docs-workbench]
 ---
 
 # Architecture
@@ -238,3 +238,48 @@ Two complementary mechanisms connect layers:
 Both approaches coexist. Frontmatter links help where they exist; multi-pass navigation is the fallback.
 
 No human guidance needed. The documentation structure itself provides the map.
+
+---
+
+# How It's Stored and Served
+
+Everything above describes the *conceptual* model: three layers, six depth levels, progressive disclosure. This section describes how that model is actually represented on disk and made accessible — to agents via `docs render`/`docs grep`, and to humans via the workbench UI.
+
+## The `doc.json` Bundle
+
+Each documentation node — what used to be a single `.md` or `.mdx` file — is now a `doc.json` bundle: a normalized, id-keyed tree of blocks rather than a flat text file.
+
+- **Id-keyed block tree**: every block (heading, paragraph, code fence, list, table, etc.) has a stable id and a parent pointer, not just a position in a character stream. This is what makes precise mutation possible — an operation targets a block id, not a line range.
+- **20 block flavours**: the renderable vocabulary (paragraph, heading, code, quote, list variants, table, callout, image, and others) — see `packages/docs-viewer`'s `DocBlockRenderer` for the full flavour list and `packages/docs-model`'s flavour registry for the schema side.
+- **Delta spans**: rich text within a block (bold, italic, code, links, reference chips) is represented as delta-style spans, not raw Markdown inline syntax — Markdown is a projection *of* this, not the source of truth.
+- **Comments**: a parallel schema anchors Plannotator-style comment threads to block ids (and, within a block, to span ranges), independent of the block tree itself.
+
+Frontmatter (`covers`, `concepts`, `depends-on`, `design_refs`, etc.) lives as bundle-level metadata, not as a YAML preamble in a text file — but it projects back out as YAML frontmatter when rendered to Markdown, so every workflow in this manual that reads `covers`/`concepts` still works unchanged.
+
+## Reading and Writing: Projection, Not Direct File Reads
+
+Because the source of truth is a block tree, not text, **never read a bundle's `.md`/`.mdx` twin directly** (a twin may still exist on disk mid-migration, or as a non-authoritative artifact — see the migration note below). Always go through projection:
+
+- `projectToMarkdown(doc)` (`packages/docs-model`) turns a bundle into the Markdown string every workflow expects — frontmatter, opening paragraph, full body — in one pass. This is what `docs render <path>` prints.
+- Markdown → delta conversion runs the other direction, for authoring flows that accept pasted or typed Markdown (e.g. the TipTap editor's Markdown input rules) and need to produce valid delta spans.
+- `docs grep <term> [path-prefix]` searches across projected Markdown, not raw bundle JSON — so search results read the same as if the docs were still flat files.
+
+This is why every workflow in `30-workflows/` says to use `docs render`/`docs grep` rather than `Read`-ing a file path under `docs/`: the file *is* JSON, and reading it directly would show you the block tree, not the document.
+
+## Mutation: The Six-Op Vocabulary
+
+Bundles are never hand-edited as JSON. All changes go through `packages/docs-model`'s pure `applyOp(doc, op) -> { doc, inverse }` — six operations covering the ways a block tree can change (insert, delete, move, update content, update attributes, and similar structural edits; see `packages/docs-model`'s op-schema for the authoritative list). Purity matters here: every op returns both the new document *and* its inverse, which is what makes single-use undo possible without replaying history.
+
+## The Serving Stack
+
+Three packages turn the model into something usable:
+
+- **`packages/docs-index`** — a `bun:sqlite` backlinks index derived from bundle content, living at `<docsRoot>/.index/` (gitignored, always rebuildable via `docs backlinks rescan`). Also home to reference matching (resolving a doc-link's target to a canonical path) and `move-doc` (renaming/relocating a bundle while rewriting every inbound reference to it).
+- **`packages/docs-server`** — the mutation authority. `createDocsStore(docsRoot)` provides per-path mutexed writes, atomic temp-then-rename file writes (no torn reads), TTL-bounded draft locks (concurrent editors get a 423 rather than clobbering each other), the undo ledger, and SSE change events for live UI updates. `createDocsRoutes(store)` exposes all of this as an Elysia route factory — the full read+write `/api/*` surface, where mutating requests carry an `expected_hash` and get a 409 if the bundle changed underneath them.
+- **`packages/docs-viewer`** — the React rendering and editing layer on top: `DocBlockRenderer` for read-only projection to UI, a TipTap-based editor for Edit mode, `DocTargetingLayer` for hover/pinpoint/selection targeting (what an agent or a human uses to say "this block, specifically"), and the `DocsClientProvider` seam a host app uses to supply its own API client and slot in a canvas embed.
+
+`packages/docs-workbench` assembles docs-server and docs-viewer into the runnable app (`docs serve` / `docs export`); `packages/docs-cli` is the thin command-line surface over all of it. See the root `README.md`'s package map for the full picture, and `99-appendix/10-setup-guide.md` for how a host project mounts and wires these together.
+
+## Migration Status Note
+
+A project's `docs/` tree may, mid-migration, contain both `doc.json` bundles and their original `.md`/`.mdx` sources side by side — `docs migrate` is deliberately non-destructive and writes bundles *alongside* sources rather than replacing them. When both exist, the bundle is authoritative; the Markdown twin is not read by any workflow in this manual and is retired only via the explicit `--retire-twins --yes-delete-markdown` flag pair. `.mdx` is preferred over a same-stem `.md` twin if a project has both.

@@ -8,6 +8,8 @@ concepts: [workflows, commands, init, scaffold, interview, write, annotate, audi
 
 The "How-To" guides for executing documentation tasks. These workflows are invoked via the `/docs:*` commands and cover the full documentation lifecycle from initialization to maintenance.
 
+Every workflow below reads and writes documentation content through the `docs` CLI (`bun run docs render`, `docs grep`, `docs links check`) rather than direct file reads — content is stored as `doc.json` bundles, not flat Markdown (see [00-reference/20-architecture.md](../00-reference/20-architecture.md)). `docs serve`, `docs export`, and `docs migrate` are the remaining CLI surface not tied to a specific `/docs:*` workflow — see `99-appendix/10-setup-guide.md` for the full command list.
+
 ---
 
 ## Workflow Categories

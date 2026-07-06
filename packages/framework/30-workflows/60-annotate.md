@@ -29,9 +29,10 @@ This bridges `docs/` (the Why) with implementation (the How).
 Read:
 - Corresponding `docs/20-implementation/[section]/` documentation
 - Interview notes if available: `docs/.drafts/[section].interview.md`
-- Templates:
-  - `.claude/skills/docs-framework/40-templates/50-L4-file-header/10-generic.md`
-  - `.claude/skills/docs-framework/40-templates/60-L5-docstring/10-generic.md`
+- Templates (relative to this framework's root — resolve via your skill mount, e.g.
+  `.claude/skills/docs-framework/40-templates/...`):
+  - `40-templates/50-L4-file-header/10-generic.md`
+  - `40-templates/60-L5-docstring/10-generic.md`
 
 ### 2. Analyze Target Files
 

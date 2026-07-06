@@ -15,13 +15,15 @@ Validate documentation structure, frontmatter schema compliance, and semantic dr
 
 ## Quick Audit
 
-Run the validation script to check all deterministic rules:
+Run `bun run docs links check` first — it rescans the backlinks index and reports every doc-to-doc or doc-to-code reference that doesn't resolve (a bundle or source file genuinely missing at the target), exiting non-zero if any are found. This is a fast, deterministic complement to the structural audit below and catches broken references the structure script doesn't look at.
+
+Then run the validation script to check all deterministic rules:
 
 ```bash
-uv run .claude/skills/docs-framework/scripts/audit.py <docs_path>
+uv run scripts/audit.py <docs_path>
 ```
 
-Where `<docs_path>` is the path to the documentation root (typically `docs/` at repository root).
+Run this from the framework's own root (`packages/framework/` inside the `docs-system` submodule) — resolve it via your skill mount, e.g. `uv run .claude/skills/docs-framework/scripts/audit.py <docs_path>`. `<docs_path>` is the path to the documentation root (typically `docs/` at your project's repository root).
 
 The script validates:
 - **Structure**: three zones, foundation files, 00-overview.md in all directories

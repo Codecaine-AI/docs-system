@@ -29,3 +29,4 @@ How we build it. The shared communication bridge between humans and agents:
 - Progressive disclosure as the core organizing principle
 - What makes it work (vertical slices, clear boundaries, overviews at every level)
 - The implementation (three zones, six layers, navigation pattern)
+- How that model is stored (the `doc.json` bundle: id-keyed block tree, flavours, delta spans) and served (the docs-model/docs-index/docs-server/docs-viewer/docs-workbench stack)

@@ -153,7 +153,7 @@ Scoped overviews for major areas (Core, Data Layer, API, Auth, etc.)
 - Links to L3 nodes with descriptive anchor text
 
 ### Template
-See [30-section-overview-template.md](../40-templates/30-section-overview-template.md) for structure and examples.
+See [40-templates/30-L2-section-overview/](../40-templates/30-L2-section-overview/00-overview.md) for structure and archetype examples (generic, service-system, domain-module, library-package, data-layer, infrastructure, pipeline-workflow).
 
 ---
 
@@ -196,7 +196,7 @@ Bridge between documentation and code - explains "What" without "How"
 - Public API exports
 
 ### Template
-See [50-code-header-template.md](../40-templates/50-code-header-template.md) for structure and examples.
+See [40-templates/50-L4-file-header/10-generic.md](../40-templates/50-L4-file-header/10-generic.md) for structure and examples.
 
 ### Critical Rule
 Must be ≤50 lines to maintain scannability
@@ -220,7 +220,7 @@ Concise contract for individual functions
 - Complexity notes if relevant
 
 ### Template
-See [60-docstring-template.md](../40-templates/60-docstring-template.md) for structure and examples.
+See [40-templates/60-L5-docstring/10-generic.md](../40-templates/60-L5-docstring/10-generic.md) for structure and examples.
 
 ---
 

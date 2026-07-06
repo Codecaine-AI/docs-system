@@ -11,15 +11,15 @@ One-time initialization of `docs/` in your project. Sets up the three-layer stru
 
 ## Prerequisites Check
 
-First, verify the Documentation framework is installed:
+First, verify docs-system is mounted:
 
 1. **Check `.claude/skills/docs-framework/` exists** (framework documentation)
-   - If missing: "Copy `.claude/skills/docs-framework/` from the Documentation repository first"
+   - If missing: "Mount docs-system first — see `99-appendix/10-setup-guide.md` for the submodule + skill-symlink steps"
 
 2. **Check `.claude/commands/docs/` exists** (commands)
-   - If missing: "Copy `.claude/commands/docs/` from the Documentation repository"
+   - If missing: "The `/docs:*` slash commands aren't installed — see `99-appendix/10-setup-guide.md`"
 
-If any prerequisites are missing, stop and instruct the user to copy the missing components.
+If any prerequisites are missing, stop and instruct the user to complete setup per the setup guide.
 
 ## Initialization Steps
 

@@ -366,7 +366,7 @@ Notes file used:
 - [notes_file]
 
 Next Steps:
-1. Review the generated documentation
+1. Review the generated documentation — `bun run docs serve` gives a live, rendered view (with edit support) instead of reading raw doc.json
 2. Edit as needed to refine language and accuracy
 3. Run /docs:annotate [source_path] to add L4/L5 to source files
 4. Run /docs:audit to verify structure
