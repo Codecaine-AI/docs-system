@@ -59,7 +59,8 @@ For each confirmed mapping:
 1. Create the directory: `docs/20-implementation/XX-section/`
 
 2. Create `00-overview.md` using template from:
-   `.claude/skills/docs-framework/40-templates/30-L2-section-overview/10-generic.md`
+   `40-templates/30-L2-section-overview/10-generic.md` (relative to this framework's root —
+   resolve via your skill mount, e.g. `.claude/skills/docs-framework/40-templates/...`)
    (or choose a more specific archetype from `30-L2-section-overview/` if applicable)
 
 3. Fill in minimal content:
