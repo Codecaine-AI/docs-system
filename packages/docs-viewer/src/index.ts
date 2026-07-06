@@ -23,10 +23,6 @@ export {
   type DocBlockSaveResult,
 } from "./DocBlockRenderer";
 export {
-  default as MdxDocumentRenderer,
-  type MdxDocumentRendererProps,
-} from "./MdxDocumentRenderer";
-export {
   default as Plannotator,
   type PlannotatorProps,
   type PlannotatorSelection,
@@ -43,8 +39,4 @@ export {
   type DocsAnnotationView,
 } from "./doc-targeting-layer";
 export { default as DocsBlockLibrary } from "./DocsBlockLibrary";
-export {
-  default as DocsComponentGallery,
-  type DocsComponentGalleryProps,
-} from "./DocsComponentGallery";
 export { default as DocEditor, type DocEditorProps } from "./editor/DocEditor";

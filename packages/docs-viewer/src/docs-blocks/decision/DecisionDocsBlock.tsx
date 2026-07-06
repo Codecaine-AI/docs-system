@@ -7,25 +7,13 @@ import {
   type DocsMdxParsedBlock,
 } from "../base";
 
-const DECISION_STATUSES = [
-  "proposed",
-  "accepted",
-  "rejected",
-  "superseded",
-] as const;
-
-type DecisionStatus = (typeof DECISION_STATUSES)[number];
-
 type DecisionData = {
   id: string;
-  status: DecisionStatus;
+  /** Lifecycle status (proposed/accepted/rejected/superseded). */
+  status: string;
   title?: string;
   body: string;
 };
-
-function isDecisionStatus(value: string): value is DecisionStatus {
-  return DECISION_STATUSES.includes(value as DecisionStatus);
-}
 
 function statusVariant(
   status: string,
@@ -43,36 +31,6 @@ export class DecisionDocsBlock extends DocsMdxBlock<DecisionData> {
   readonly label = "Decision";
   readonly agentDescription =
     "A durable product or architecture decision with an explicit id and lifecycle status.";
-  override readonly patchOps = [
-    "update-mdx-block-props",
-    "update-mdx-block-body",
-    "replace-mdx-block",
-  ] as const;
-
-  parse({
-    attrs,
-    body,
-  }: {
-    attrs: Record<string, string>;
-    body: string;
-    source: string;
-  }): DocsMdxParsedBlock<DecisionData> | null {
-    const id = attrs.id?.trim();
-    const status = attrs.status?.trim();
-    if (!id || !status || !isDecisionStatus(status)) return null;
-    return {
-      tag: this.tag,
-      type: this.type,
-      targetKind: this.targetKind,
-      sourceId: id,
-      data: {
-        id,
-        status,
-        title: attrs.title?.trim() || undefined,
-        body: body.trim(),
-      },
-    };
-  }
 
   render(
     block: DocsMdxParsedBlock<DecisionData>,

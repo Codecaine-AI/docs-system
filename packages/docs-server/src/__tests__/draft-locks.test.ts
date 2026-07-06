@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { canonicalDraftLockPath, DraftLockStore, type DraftLockKey } from "./draft-locks";
+import { canonicalDraftLockPath, DraftLockStore, type DraftLockKey } from "../draft-locks";
 
 const ttlMs = 50;
 const key: DraftLockKey = { kind: "doc", path: "a" };

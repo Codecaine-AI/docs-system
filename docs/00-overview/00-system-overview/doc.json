@@ -1,0 +1,369 @@
+{
+  "schemaVersion": 1,
+  "id": "00-overview-00-system-overview",
+  "title": "What this repository is",
+  "root": "b-00-system-overview-root-14",
+  "blocks": {
+    "b-00-system-overview-root-14": {
+      "id": "b-00-system-overview-root-14",
+      "flavour": "paragraph",
+      "props": {},
+      "children": [
+        "b-00-system-overview-what-this-repository-is-1",
+        "b-00-system-overview-docs-system-is-codecai-2",
+        "b-00-system-overview-the-one-sentence-philoso-3",
+        "b-00-system-overview-the-pipeline-at-a-glance-4",
+        "b-00-system-overview-code-5",
+        "b-00-system-overview-each-layer-only-depends-6",
+        "b-00-system-overview-where-content-lives-7",
+        "b-00-system-overview-a-document-is-a-bundle-8",
+        "b-00-system-overview-markdown-is-an-on-ramp-9",
+        "b-00-system-overview-reading-these-docs-10",
+        "b-00-system-overview-from-the-repo-root-11",
+        "b-00-system-overview-code-12",
+        "b-00-system-overview-opens-this-very-document-13"
+      ]
+    },
+    "b-00-system-overview-what-this-repository-is-1": {
+      "id": "b-00-system-overview-what-this-repository-is-1",
+      "flavour": "heading",
+      "props": {
+        "level": 1
+      },
+      "text": [
+        {
+          "insert": "What this repository is"
+        }
+      ],
+      "children": []
+    },
+    "b-00-system-overview-docs-system-is-codecai-2": {
+      "id": "b-00-system-overview-docs-system-is-codecai-2",
+      "flavour": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs-system",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is Codecaine's documentation infrastructure: a block-based\ndocument format ("
+        },
+        {
+          "insert": "doc.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "), the tooling that reads/writes/serves it, and a\nbrowser workbench for humans "
+        },
+        {
+          "insert": "and",
+          "attributes": {
+            "italic": true
+          }
+        },
+        {
+          "insert": " agents to read, edit, and annotate docs."
+        }
+      ],
+      "children": []
+    },
+    "b-00-system-overview-the-one-sentence-philoso-3": {
+      "id": "b-00-system-overview-the-one-sentence-philoso-3",
+      "flavour": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The one-sentence philosophy: "
+        },
+        {
+          "insert": "docs are structured data, not markdown\nfiles.",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " Every document is a normalized tree of typed blocks with stable\nids. Stable block ids are what make the rest possible — an agent can say\n\"change "
+        },
+        {
+          "insert": "this",
+          "attributes": {
+            "italic": true
+          }
+        },
+        {
+          "insert": " block\", a comment can anchor to "
+        },
+        {
+          "insert": "this",
+          "attributes": {
+            "italic": true
+          }
+        },
+        {
+          "insert": " paragraph and survive\nedits around it, a backlink can point at "
+        },
+        {
+          "insert": "this",
+          "attributes": {
+            "italic": true
+          }
+        },
+        {
+          "insert": " exact card, and a save can\nbe expressed as a minimal batch of block operations instead of a whole-file\nrewrite."
+        }
+      ],
+      "children": []
+    },
+    "b-00-system-overview-the-pipeline-at-a-glance-4": {
+      "id": "b-00-system-overview-the-pipeline-at-a-glance-4",
+      "flavour": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The pipeline at a glance"
+        }
+      ],
+      "children": []
+    },
+    "b-00-system-overview-code-5": {
+      "id": "b-00-system-overview-code-5",
+      "flavour": "code",
+      "props": {},
+      "text": [
+        {
+          "insert": "                    ┌─────────────┐\n   authoring        │  docs-model │   pure schema + ops (no I/O, no React)\n   (markdown ───►   └──────┬──────┘\n    migrate,               │\n    or live edit)   ┌──────┴──────┐\n                    │ docs-index  │   sqlite backlinks index (derived, rebuildable)\n                    └──────┬──────┘\n                    ┌──────┴──────┐\n                    │ docs-server │   mutation authority: locks, hashes, undo, SSE\n                    └──────┬──────┘\n                    ┌──────┴──────┐\n                    │ docs-viewer │   React rendering + TipTap editor + targeting\n                    └──────┬──────┘\n                    ┌──────┴──────┐\n                    │docs-workbench│  the runnable app (serve + static export)\n                    └──────┬──────┘\n                    ┌──────┴──────┐\n                    │  docs-cli   │   `docs` command: serve, export, migrate, …\n                    └─────────────┘"
+        }
+      ],
+      "children": []
+    },
+    "b-00-system-overview-each-layer-only-depends-6": {
+      "id": "b-00-system-overview-each-layer-only-depends-6",
+      "flavour": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each layer only depends on the layers above it in this list. The\n"
+        },
+        {
+          "insert": "package map",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "docs/00-overview/10-package-map.md",
+              "label": "package map"
+            }
+          }
+        },
+        {
+          "insert": " walks through every package in\ndetail."
+        }
+      ],
+      "children": []
+    },
+    "b-00-system-overview-where-content-lives-7": {
+      "id": "b-00-system-overview-where-content-lives-7",
+      "flavour": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Where content lives"
+        }
+      ],
+      "children": []
+    },
+    "b-00-system-overview-a-document-is-a-bundle-8": {
+      "id": "b-00-system-overview-a-document-is-a-bundle-8",
+      "flavour": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A document is a "
+        },
+        {
+          "insert": "bundle",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": ": a folder holding "
+        },
+        {
+          "insert": "doc.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " (the block tree),\noptional "
+        },
+        {
+          "insert": "comments.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " (annotations), and an "
+        },
+        {
+          "insert": "assets/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " folder for images\nand canvas sidecars. Bundles live in a "
+        },
+        {
+          "insert": "docs/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " tree owned by whichever\nproject the docs are "
+        },
+        {
+          "insert": "about",
+          "attributes": {
+            "italic": true
+          }
+        },
+        {
+          "insert": " — the canvas repo has "
+        },
+        {
+          "insert": "canvas/docs/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and this\nrepo has its own "
+        },
+        {
+          "insert": "docs/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " (the one you are reading right now)."
+        }
+      ],
+      "children": []
+    },
+    "b-00-system-overview-markdown-is-an-on-ramp-9": {
+      "id": "b-00-system-overview-markdown-is-an-on-ramp-9",
+      "flavour": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Markdown is an on-ramp, not the storage format: "
+        },
+        {
+          "insert": "docs migrate",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " converts an\nexisting "
+        },
+        {
+          "insert": ".md",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": ".mdx",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " tree into bundles once, and from then on the workbench\n(or an agent driving the ops API) edits "
+        },
+        {
+          "insert": "doc.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " directly."
+        }
+      ],
+      "children": []
+    },
+    "b-00-system-overview-reading-these-docs-10": {
+      "id": "b-00-system-overview-reading-these-docs-10",
+      "flavour": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Reading these docs"
+        }
+      ],
+      "children": []
+    },
+    "b-00-system-overview-from-the-repo-root-11": {
+      "id": "b-00-system-overview-from-the-repo-root-11",
+      "flavour": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "From the repo root:"
+        }
+      ],
+      "children": []
+    },
+    "b-00-system-overview-code-12": {
+      "id": "b-00-system-overview-code-12",
+      "flavour": "code",
+      "props": {},
+      "text": [
+        {
+          "insert": "bun run docs serve"
+        }
+      ],
+      "children": []
+    },
+    "b-00-system-overview-opens-this-very-document-13": {
+      "id": "b-00-system-overview-opens-this-very-document-13",
+      "flavour": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "opens this very documentation in the workbench at "
+        },
+        {
+          "insert": "http://localhost:4800",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    }
+  }
+}

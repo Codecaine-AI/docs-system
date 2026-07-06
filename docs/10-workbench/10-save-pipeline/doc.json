@@ -1,0 +1,334 @@
+{
+  "schemaVersion": 1,
+  "id": "10-workbench-10-save-pipeline",
+  "title": "How a save works",
+  "root": "b-10-save-pipeline-root-18",
+  "blocks": {
+    "b-10-save-pipeline-root-18": {
+      "id": "b-10-save-pipeline-root-18",
+      "flavour": "paragraph",
+      "props": {},
+      "children": [
+        "b-10-save-pipeline-how-a-save-works-1",
+        "b-10-save-pipeline-the-full-path-from-a-key-2",
+        "b-10-save-pipeline-1-editing-docs-viewer-3",
+        "b-10-save-pipeline-doceditor-hosts-a-tipt-4",
+        "b-10-save-pipeline-2-diff-to-ops-docs-vie-5",
+        "b-10-save-pipeline-on-save-debounce-fire-6",
+        "b-10-save-pipeline-3-post-api-ops-docs-w-7",
+        "b-10-save-pipeline-the-op-batch-is-posted-w-8",
+        "b-10-save-pipeline-expected-hash-the-co-9",
+        "b-10-save-pipeline-against-mismatch-409-10",
+        "b-10-save-pipeline-session-id-the-tab-s-11",
+        "b-10-save-pipeline-used-to-filter-self-echo-12",
+        "b-10-save-pipeline-on-success-the-server-ap-13",
+        "b-10-save-pipeline-4-reconciliation-back-14",
+        "b-10-save-pipeline-the-editor-adopts-the-se-15",
+        "b-10-save-pipeline-change-flashes-and-prose-16",
+        "b-10-save-pipeline-when-an-sse-event-flashe-17"
+      ]
+    },
+    "b-10-save-pipeline-how-a-save-works-1": {
+      "id": "b-10-save-pipeline-how-a-save-works-1",
+      "flavour": "heading",
+      "props": {
+        "level": 1
+      },
+      "text": [
+        {
+          "insert": "How a save works"
+        }
+      ],
+      "children": []
+    },
+    "b-10-save-pipeline-the-full-path-from-a-key-2": {
+      "id": "b-10-save-pipeline-the-full-path-from-a-key-2",
+      "flavour": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The full path from a keystroke to bytes on disk — worth knowing when\ndebugging, and a good map of how the packages cooperate."
+        }
+      ],
+      "children": []
+    },
+    "b-10-save-pipeline-1-editing-docs-viewer-3": {
+      "id": "b-10-save-pipeline-1-editing-docs-viewer-3",
+      "flavour": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "1. Editing (docs-viewer)"
+        }
+      ],
+      "children": []
+    },
+    "b-10-save-pipeline-doceditor-hosts-a-tipt-4": {
+      "id": "b-10-save-pipeline-doceditor-hosts-a-tipt-4",
+      "flavour": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "DocEditor",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " hosts a TipTap/ProseMirror editor whose node schema mirrors the\ndoc.json flavours one-to-one. Every ProseMirror node carries the block's\nstable id in its attrs, so a block edited in place keeps its identity —\nthat is what lets the diff below emit a single "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " instead of a\ndelete + insert pair."
+        }
+      ],
+      "children": []
+    },
+    "b-10-save-pipeline-2-diff-to-ops-docs-vie-5": {
+      "id": "b-10-save-pipeline-2-diff-to-ops-docs-vie-5",
+      "flavour": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "2. Diff to ops (docs-viewer → docs-model)"
+        }
+      ],
+      "children": []
+    },
+    "b-10-save-pipeline-on-save-debounce-fire-6": {
+      "id": "b-10-save-pipeline-on-save-debounce-fire-6",
+      "flavour": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "On save (debounce fire, "
+        },
+        {
+          "insert": "Cmd+S",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", blur, or unmount), the editor converts its\nProseMirror state back to a "
+        },
+        {
+          "insert": "DocDocument",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and diffs it against the baseline\ndoc this editing session started from. The diff is a minimal batch of the\nmodel's six ops. A no-op edit diffs to zero ops and no request is sent."
+        }
+      ],
+      "children": []
+    },
+    "b-10-save-pipeline-3-post-api-ops-docs-w-7": {
+      "id": "b-10-save-pipeline-3-post-api-ops-docs-w-7",
+      "flavour": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "3. POST /api/ops (docs-workbench → docs-server)"
+        }
+      ],
+      "children": []
+    },
+    "b-10-save-pipeline-the-op-batch-is-posted-w-8": {
+      "id": "b-10-save-pipeline-the-op-batch-is-posted-w-8",
+      "flavour": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The op batch is posted with two guards:"
+        }
+      ],
+      "children": []
+    },
+    "b-10-save-pipeline-expected-hash-the-co-9": {
+      "id": "b-10-save-pipeline-expected-hash-the-co-9",
+      "flavour": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "expected_hash",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — the content hash of the doc the diff was computed"
+        }
+      ],
+      "children": []
+    },
+    "b-10-save-pipeline-against-mismatch-409-10": {
+      "id": "b-10-save-pipeline-against-mismatch-409-10",
+      "flavour": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "  against. Mismatch → "
+        },
+        {
+          "insert": "409",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", nothing written."
+        }
+      ],
+      "children": []
+    },
+    "b-10-save-pipeline-session-id-the-tab-s-11": {
+      "id": "b-10-save-pipeline-session-id-the-tab-s-11",
+      "flavour": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "session_id",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — the tab's identity, checked against the draft lock and"
+        }
+      ],
+      "children": []
+    },
+    "b-10-save-pipeline-used-to-filter-self-echo-12": {
+      "id": "b-10-save-pipeline-used-to-filter-self-echo-12",
+      "flavour": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "  used to filter self-echoes out of the SSE stream."
+        }
+      ],
+      "children": []
+    },
+    "b-10-save-pipeline-on-success-the-server-ap-13": {
+      "id": "b-10-save-pipeline-on-success-the-server-ap-13",
+      "flavour": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "On success the server applies the ops atomically (per-path mutex,\ntemp-then-rename), stores the inverse ops in the undo ledger under a\n"
+        },
+        {
+          "insert": "patch_id",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", broadcasts an SSE change event with the changed block ids, and\nreturns the new doc + hash."
+        }
+      ],
+      "children": []
+    },
+    "b-10-save-pipeline-4-reconciliation-back-14": {
+      "id": "b-10-save-pipeline-4-reconciliation-back-14",
+      "flavour": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "4. Reconciliation (back in the editor)"
+        }
+      ],
+      "children": []
+    },
+    "b-10-save-pipeline-the-editor-adopts-the-se-15": {
+      "id": "b-10-save-pipeline-the-editor-adopts-the-se-15",
+      "flavour": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The editor adopts the server's returned doc as the next diff baseline. The\nhost feeds that same object back down as the "
+        },
+        {
+          "insert": "document",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " prop, and the\neditor recognizes the identity and "
+        },
+        {
+          "insert": "skips",
+          "attributes": {
+            "italic": true
+          }
+        },
+        {
+          "insert": " re-seeding its content — this is\nwhy a save never resets your cursor. If keystrokes landed while the save\nwas in flight, the doc simply stays dirty and the next debounce saves the\nremainder against the new baseline."
+        }
+      ],
+      "children": []
+    },
+    "b-10-save-pipeline-change-flashes-and-prose-16": {
+      "id": "b-10-save-pipeline-change-flashes-and-prose-16",
+      "flavour": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Change flashes and ProseMirror ownership"
+        }
+      ],
+      "children": []
+    },
+    "b-10-save-pipeline-when-an-sse-event-flashe-17": {
+      "id": "b-10-save-pipeline-when-an-sse-event-flashe-17",
+      "flavour": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "When an SSE event flashes changed blocks, the read surfaces get a\n"
+        },
+        {
+          "insert": "data-docs-changed",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " attribute set on the block's wrapper element. Inside\nthe editor that approach cannot work: ProseMirror owns the contenteditable\nDOM and strips foreign attribute mutations as drift. The editor therefore\nrenders the flash as a ProseMirror "
+        },
+        {
+          "insert": "node decoration",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " driven by the same\nhighlighted-id set — same CSS animation, different mechanism."
+        }
+      ],
+      "children": []
+    }
+  }
+}

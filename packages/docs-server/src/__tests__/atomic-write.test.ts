@@ -2,7 +2,7 @@ import { chmod, mkdir, mkdtemp, readdir, readFile, rm, writeFile } from "node:fs
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
-import { atomicWriteFile } from "./atomic-write";
+import { atomicWriteFile } from "../atomic-write";
 
 describe("atomicWriteFile", () => {
   let root: string;

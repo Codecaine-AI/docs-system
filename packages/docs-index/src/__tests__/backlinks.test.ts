@@ -15,7 +15,7 @@ import {
   rescanAll,
   upsertForSource,
   type BacklinkRef,
-} from "./backlinks";
+} from "../backlinks";
 import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import type { InteractiveCanvasDocument } from "@codecaine-ai/canvas/schema";
 

@@ -3,6 +3,12 @@ __pycache__/
 *.pyc
 .ruff_cache/
 node_modules/
+# Local reference checkouts (BlockSuite/AFFiNE upstream sources for vendoring/design parity) — not part of the repo
+/reference/
 dist/
 dist-static/
 *.tsbuildinfo
+
+# Derived docs state — always rebuildable (backlinks index, migrate report)
+.index/
+docs-migrate-report.json

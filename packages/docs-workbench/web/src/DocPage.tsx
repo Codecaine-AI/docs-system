@@ -6,7 +6,7 @@ import {
   useState,
   type ComponentProps,
 } from "react";
-import { EyeIcon, MessageSquareIcon, PencilIcon, Undo2Icon } from "lucide-react";
+import { MessageSquareIcon, PencilIcon, Undo2Icon } from "lucide-react";
 import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import type { DocOp } from "@codecaine-ai/docs-model/doc-ops";
 import type {
@@ -17,7 +17,9 @@ import type {
 import DocBlockRenderer, {
   type DocBlockSaveResult,
 } from "@codecaine-ai/docs-viewer/doc-block-renderer";
-import DocEditor from "@codecaine-ai/docs-viewer/editor/doc-editor";
+import DocEditor, {
+  type DocEditorSaveState,
+} from "@codecaine-ai/docs-viewer/editor/doc-editor";
 import DocTargetingLayer from "@codecaine-ai/docs-viewer/doc-targeting-layer";
 import type { PlannotatorSelection } from "@codecaine-ai/docs-viewer/plannotator";
 import { useTransientHighlights } from "@codecaine-ai/docs-viewer/use-transient-highlights";
@@ -45,38 +47,43 @@ import { ActionPane } from "./ActionPane";
 import { StandaloneCanvasEmbed } from "./CanvasEmbed";
 
 /**
- * One doc bundle as a full workbench (Spectre docs-tab parity, standalone):
+ * One doc bundle as a full workbench (standalone), two modes:
  *
- *  - READ: DocBlockRenderer + "Referenced by" backlinks footer.
+ *  - EDIT (default): Notion-style always-editable DocEditor over the whole
+ *    page — no read mode, no Save button. Edits auto-save on a debounce
+ *    (Cmd/Ctrl+S = manual flush) as a minimal op batch through `/api/ops`
+ *    with the current hash as precondition; a 409 keeps the draft, shows the
+ *    stale banner with a reload option, and pauses auto-save; the draft-lock
+ *    lifecycle (acquire-on-dirty / 75s heartbeat / release) runs through the
+ *    DocsClient provided in App.tsx. The header shows a subtle
+ *    Saving…/Saved/Not saved indicator, and the "Referenced by" backlinks
+ *    footer renders below the editor.
  *  - ANNOTATE: Plannotator over blocks and canvas objects — click a
  *    `[data-block-id]` wrapper or a canvas object to select it, compose a
  *    comment in the side pane, resolve from the list. Dangling targets are
  *    detected against the live doc + a lazily-fetched canvas object index.
- *  - EDIT: DocEditor over the whole page. Saves diff to a minimal op batch
- *    sent through `/api/ops` with the current hash as precondition; a 409
- *    keeps the draft and shows the stale banner with a reload option; the
- *    draft-lock lifecycle (acquire-on-dirty / 75s heartbeat / release) runs
- *    through the DocsClient provided in App.tsx.
  *
  * Live changes: an `/api/events` SSE subscription refreshes the open bundle
  * when ANOTHER actor changes it (self-echoes are filtered by session id in
  * api.ts) and flashes the changed block/canvas-object ids via
  * `useTransientHighlights` + the `data-docs-changed` CSS animation. While
- * the editor is open the auto-refresh is suppressed — the save-time 409 owns
+ * the editor is CLEAN the refresh applies silently (the editor reseeds from
+ * the new doc); while dirty/saving it is suppressed — the save-time 409 owns
  * conflict handling there, so an in-progress draft is never clobbered.
  *
  * Undo: a successful save records its `patch_id`; the header offers a
  * single-use "Undo last save" (a reused patch id 404s server-side and is
  * surfaced as "Already undone").
  *
- * Static exports have no write routes: IS_STATIC pins the page to READ and
- * hides the mode switcher, undo, and the SSE subscription entirely.
+ * Static exports have no write routes: IS_STATIC pins the page to a
+ * read-only DocBlockRenderer (plus the backlinks footer) and hides the mode
+ * switcher, undo, save indicator, and the SSE subscription entirely.
  */
 
 /** Static author label — the standalone app has no identity concept. */
 const COMMENT_AUTHOR = "you";
 
-type WorkbenchMode = "read" | "annotate" | "edit";
+type WorkbenchMode = "edit" | "annotate";
 
 type BundleState = { doc: DocDocument; hash: string };
 
@@ -140,14 +147,25 @@ export interface DocPageProps {
   onEditorReady?: ComponentProps<typeof DocEditor>["onEditorReady"];
   /**
    * Static-export degradation override (defaults to the build-time flag):
-   * true pins the page to READ mode — no mode switcher, no undo, no SSE
-   * subscription, no canvas-index fetching. Prop-injectable so tests can
-   * cover the static shape without a static vite build.
+   * true pins the page to a read-only render — no mode switcher, no undo,
+   * no SSE subscription, no canvas-index fetching. Prop-injectable so tests
+   * can cover the static shape without a static vite build.
    */
   isStatic?: boolean;
+  /**
+   * Test seam, forwarded to DocEditor: a large value keeps the auto-save
+   * debounce from firing mid-test so conflict flows (409/423) can be staged
+   * deterministically before an explicit Cmd+S flush.
+   */
+  autoSaveDelayMs?: number;
 }
 
-export function DocPage({ path, onEditorReady, isStatic = IS_STATIC }: DocPageProps) {
+export function DocPage({
+  path,
+  onEditorReady,
+  isStatic = IS_STATIC,
+  autoSaveDelayMs,
+}: DocPageProps) {
   const [bundle, setBundle] = useState<BundleState | null>(null);
   const [comments, setComments] = useState<CommentsDocument | null>(null);
   const [commentsHash, setCommentsHash] = useState<string | null>(null);
@@ -155,7 +173,8 @@ export function DocPage({ path, onEditorReady, isStatic = IS_STATIC }: DocPagePr
   const [isLoading, setIsLoading] = useState(true);
   const [backlinks, setBacklinks] = useState<BacklinkRow[]>([]);
 
-  const [mode, setMode] = useState<WorkbenchMode>("read");
+  const [mode, setMode] = useState<WorkbenchMode>("edit");
+  const [saveState, setSaveState] = useState<DocEditorSaveState>("saved");
   const [selection, setSelection] = useState<PlannotatorSelection | null>(null);
   const [canvasIndex, setCanvasIndex] = useState<CanvasIndex | undefined>(undefined);
   const [paneError, setPaneError] = useState<string | null>(null);
@@ -178,6 +197,15 @@ export function DocPage({ path, onEditorReady, isStatic = IS_STATIC }: DocPagePr
   // ---------------------------------------------------------------------
 
   const loadSeqRef = useRef(0);
+  // Save precondition hash. Deliberately a SEPARATE ref from `bundle` (and
+  // deliberately NOT cleared on path switch): when navigating away with
+  // pending edits, DocEditor's unmount flush runs after the path-switch
+  // effect has already nulled `bundle`, and its `/api/ops` call must still
+  // carry the old doc's hash — an unconditioned save could silently clobber
+  // remote changes.
+  const expectedHashRef = useRef<string | undefined>(undefined);
+  const pathRef = useRef(path);
+  pathRef.current = path;
   const fetchBundle = useCallback(
     async (options?: { showLoading?: boolean }) => {
       const seq = ++loadSeqRef.current;
@@ -188,6 +216,7 @@ export function DocPage({ path, onEditorReady, isStatic = IS_STATIC }: DocPagePr
       try {
         const payload = await getBundle(path);
         if (seq !== loadSeqRef.current) return;
+        expectedHashRef.current = payload.doc_hash;
         setBundle({ doc: payload.doc as DocDocument, hash: payload.doc_hash });
         setComments(payload.comments ?? { schemaVersion: 1, comments: [] });
         setCommentsHash(payload.comments_hash);
@@ -209,7 +238,8 @@ export function DocPage({ path, onEditorReady, isStatic = IS_STATIC }: DocPagePr
     setComments(null);
     setCommentsHash(null);
     setBacklinks([]);
-    setMode("read");
+    setMode("edit");
+    setSaveState("saved");
     setSelection(null);
     setPaneError(null);
     setLastPatch(null);
@@ -225,20 +255,24 @@ export function DocPage({ path, onEditorReady, isStatic = IS_STATIC }: DocPagePr
   // Live change events (SSE) — serve mode only
   // ---------------------------------------------------------------------
 
-  const liveStateRef = useRef<{ path: string; doc: DocDocument | null; mode: WorkbenchMode }>({
-    path,
-    doc: null,
-    mode,
-  });
-  liveStateRef.current = { path, doc: bundle?.doc ?? null, mode };
+  const liveStateRef = useRef<{
+    path: string;
+    doc: DocDocument | null;
+    mode: WorkbenchMode;
+    saveState: DocEditorSaveState;
+  }>({ path, doc: null, mode, saveState });
+  liveStateRef.current = { path, doc: bundle?.doc ?? null, mode, saveState };
 
   useEffect(() => {
     if (isStatic) return;
     return subscribeDocsEvents((event) => {
-      const { path: openPath, doc, mode: currentMode } = liveStateRef.current;
-      // While editing, never auto-swap the doc under the draft — the save's
-      // hash precondition (409 -> stale banner + reload) owns conflicts.
-      const canRefresh = currentMode !== "edit";
+      const { path: openPath, doc, mode: currentMode, saveState: currentSaveState } =
+        liveStateRef.current;
+      // A CLEAN editor auto-applies remote changes silently (the fresh doc
+      // reseeds it + the change flash marks what moved). While dirty/saving,
+      // never auto-swap the doc under the draft — the save's hash
+      // precondition (409 -> stale banner + reload) owns conflicts.
+      const canRefresh = currentMode !== "edit" || currentSaveState === "saved";
       if (event.path === openPath || event.path === "") {
         if (canRefresh) void fetchBundleRef.current();
         flash(event.changedIds);
@@ -269,6 +303,11 @@ export function DocPage({ path, onEditorReady, isStatic = IS_STATIC }: DocPagePr
         `[data-block-id="${cssEscape(id)}"], [data-canvas-object-id="${cssEscape(id)}"]`,
       );
       for (const element of matches) {
+        // Never touch elements inside the editor's contenteditable:
+        // ProseMirror owns that DOM and strips foreign attribute mutations
+        // (its DOM observer treats them as drift). The editor renders its
+        // own flash from `changedBlockIds` via a PM decoration instead.
+        if (element.closest('[data-doc-editor="true"]')) continue;
         element.setAttribute("data-docs-changed", "true");
         marked.push(element);
       }
@@ -342,22 +381,28 @@ export function DocPage({ path, onEditorReady, isStatic = IS_STATIC }: DocPagePr
   // Edit-mode save loop
   // ---------------------------------------------------------------------
 
-  const bundleRef = useRef(bundle);
-  bundleRef.current = bundle;
-
   const handleApplyOps = useCallback(
     async (ops: DocOp[]): Promise<DocBlockSaveResult> => {
       try {
-        const response = await applyDocOps(path, ops, bundleRef.current?.hash);
-        setBundle({ doc: response.doc, hash: response.hash });
-        setLastPatch({
-          patchId: response.patch_id,
-          changedIds: ops
-            .map((op) => ("blockId" in op ? op.blockId : undefined))
-            .filter((id): id is string => !!id),
-        });
-        setUndoNotice(null);
-        return { ok: true };
+        const response = await applyDocOps(path, ops, expectedHashRef.current);
+        // A late response from an unmount flush must not clobber the state
+        // (bundle, hash, undo ledger) of a doc we have since navigated to —
+        // the save itself still landed server-side.
+        if (pathRef.current === path) {
+          expectedHashRef.current = response.hash;
+          setBundle({ doc: response.doc, hash: response.hash });
+          setLastPatch({
+            patchId: response.patch_id,
+            changedIds: ops
+              .map((op) => ("blockId" in op ? op.blockId : undefined))
+              .filter((id): id is string => !!id),
+          });
+          setUndoNotice(null);
+        }
+        // Returning the server doc lets DocEditor advance its diff baseline
+        // to exactly the backend state AND (same object identity as the
+        // `document` prop after setBundle) skip the cursor-resetting reseed.
+        return { ok: true, doc: response.doc };
       } catch (saveError) {
         if (saveError instanceof ApiError && saveError.status === 409) {
           return { ok: false, stale: true, message: "Document changed elsewhere." };
@@ -519,6 +564,10 @@ export function DocPage({ path, onEditorReady, isStatic = IS_STATIC }: DocPagePr
     setMode(next);
     if (next !== "annotate") setSelection(null);
     setPaneError(null);
+    // Leaving edit mode unmounts DocEditor (its unmount flush saves any
+    // pending edits); entering it mounts a clean editor that re-reports.
+    // Either way the stale indicator value must not linger.
+    setSaveState("saved");
   }, []);
 
   // Block selection via the framework targeting layer (hover chip +
@@ -551,10 +600,9 @@ export function DocPage({ path, onEditorReady, isStatic = IS_STATIC }: DocPagePr
   }
   if (!doc) return null;
 
-  const modeButtons: Array<{ value: WorkbenchMode; label: string; icon: typeof EyeIcon }> = [
-    { value: "read", label: "Read", icon: EyeIcon },
-    { value: "annotate", label: "Annotate", icon: MessageSquareIcon },
+  const modeButtons: Array<{ value: WorkbenchMode; label: string; icon: typeof PencilIcon }> = [
     { value: "edit", label: "Edit", icon: PencilIcon },
+    { value: "annotate", label: "Annotate", icon: MessageSquareIcon },
   ];
 
   return (
@@ -564,6 +612,19 @@ export function DocPage({ path, onEditorReady, isStatic = IS_STATIC }: DocPagePr
           docs/{path}
         </div>
         <div className="flex shrink-0 items-center gap-2">
+          {!isStatic && mode === "edit" && (
+            <span
+              data-docs-save-state={saveState}
+              className="text-xs text-muted-foreground"
+              aria-live="polite"
+            >
+              {saveState === "saving"
+                ? "Saving…"
+                : saveState === "saved"
+                  ? "Saved"
+                  : "Not saved"}
+            </span>
+          )}
           {undoNotice && (
             <span data-docs-undo-notice="" className="text-xs text-muted-foreground">
               {undoNotice}
@@ -615,9 +676,26 @@ export function DocPage({ path, onEditorReady, isStatic = IS_STATIC }: DocPagePr
       <div className="flex min-h-0 flex-1">
         <div className="min-h-0 min-w-0 flex-1 overflow-y-auto">
           <div key={canvasEpoch} ref={contentRef} className="mx-auto w-full max-w-[88ch] px-5 py-6 sm:px-8">
-            {mode === "edit" ? (
+            {isStatic ? (
+              // Static-export degradation: no write routes, so no editor —
+              // the plain read-only renderer.
+              <div className="spectre-markdown prose prose-sm dark:prose-invert relative max-w-none font-sans text-sm leading-[1.7]">
+                <DocBlockRenderer
+                  document={doc}
+                  projectId="local"
+                  documentPath={`docs/${path}`}
+                  bundlePath={path}
+                  resolveAssetSrc={resolveAssetSrc}
+                />
+              </div>
+            ) : mode === "edit" ? (
               <div className="spectre-markdown prose prose-sm dark:prose-invert relative max-w-none font-sans text-sm leading-[1.7]">
                 <DocEditor
+                  // Keyed by path so navigating away UNMOUNTS this instance
+                  // while its onApplyOps still closes over the old path —
+                  // the unmount flush must save the doc it was editing, not
+                  // the doc being navigated to.
+                  key={path}
                   document={doc}
                   projectId="local"
                   documentPath={path}
@@ -626,9 +704,13 @@ export function DocPage({ path, onEditorReady, isStatic = IS_STATIC }: DocPagePr
                   onApplyOps={handleApplyOps}
                   onReloadDoc={handleReloadDoc}
                   onEditorReady={onEditorReady}
+                  autoSave
+                  autoSaveDelayMs={autoSaveDelayMs}
+                  onSaveStateChange={setSaveState}
+                  changedBlockIds={highlightedIds}
                 />
               </div>
-            ) : mode === "annotate" ? (
+            ) : (
               <DocTargetingLayer
                 mode="pinpoint"
                 contentHash={bundle?.hash ?? null}
@@ -650,19 +732,9 @@ export function DocPage({ path, onEditorReady, isStatic = IS_STATIC }: DocPagePr
                   }
                 />
               </DocTargetingLayer>
-            ) : (
-              <div className="spectre-markdown prose prose-sm dark:prose-invert relative max-w-none font-sans text-sm leading-[1.7]">
-                <DocBlockRenderer
-                  document={doc}
-                  projectId="local"
-                  documentPath={`docs/${path}`}
-                  bundlePath={path}
-                  resolveAssetSrc={resolveAssetSrc}
-                />
-              </div>
             )}
 
-            {mode === "read" && backlinks.length > 0 && (
+            {(isStatic || mode === "edit") && backlinks.length > 0 && (
               <footer className="mt-10 border-t pt-4">
                 <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   Referenced by

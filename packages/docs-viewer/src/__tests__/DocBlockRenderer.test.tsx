@@ -57,14 +57,9 @@ describe("DocBlockRenderer", () => {
   it("mounts the full fixture without throwing and renders key content", () => {
     const doc = loadFixture();
     render(
-      <DocBlockRenderer
-        document={doc}
-        renderCanvas={(canvas) => (
-          <div data-testid="canvas-embed">
-            {canvas.src}:{canvas.view}:{canvas.title}
-          </div>
-        )}
-      />,
+      <DocsClientProvider canvasEmbed={FakeCanvasEmbed}>
+        <DocBlockRenderer document={doc} />
+      </DocsClientProvider>,
     );
 
     // Headings + inline delta marks.
@@ -113,11 +108,10 @@ describe("DocBlockRenderer", () => {
       expect(screen.getByText(label)).toBeTruthy();
     }
 
-    // Canvas embed goes through the render context with src + view.
-    const canvas = screen.getByTestId("canvas-embed");
-    expect(canvas.textContent).toBe(
-      "./assets/canvases/sample.canvas.json:container-architecture:Architecture overview",
-    );
+    // Canvas embed goes through the injected slot with src + view.
+    const canvas = screen.getByTestId("fake-canvas-embed");
+    expect(canvas.getAttribute("data-src")).toBe("./assets/canvases/sample.canvas.json");
+    expect(canvas.getAttribute("data-view")).toBe("container-architecture");
     const canvasWrapper = document.querySelector('[data-doc-block="canvas"]');
     expect(canvasWrapper?.getAttribute("data-canvas-view")).toBe("container-architecture");
 
@@ -161,7 +155,7 @@ describe("DocBlockRenderer", () => {
     expect(fallback?.textContent).toContain("Architecture overview");
   });
 
-  it("renders nothing for an empty root and no canvas override without crashing", () => {
+  it("renders a minimal document without crashing", () => {
     const doc = loadFixture();
     const minimal = {
       ...doc,
@@ -179,34 +173,6 @@ describe("DocBlockRenderer", () => {
     };
     render(<DocBlockRenderer document={minimal} />);
     expect(screen.getByText("Alone")).toBeTruthy();
-  });
-
-  it("calls onBlockSelect with the nearest block id when a rendered block is clicked", () => {
-    const doc = loadFixture();
-    const selected: Array<{ blockId: string; label?: string }> = [];
-    render(
-      <DocBlockRenderer
-        document={doc}
-        onBlockSelect={(input) => selected.push(input)}
-        renderCanvas={() => <div data-testid="canvas-embed" />}
-      />,
-    );
-
-    // "Docs Model Sample" is the h1's text — clicking it should resolve to
-    // the nearest ancestor carrying data-block-id (the heading block itself).
-    fireEvent.click(screen.getByText("Docs Model Sample"));
-    expect(selected).toHaveLength(1);
-    expect(selected[0].blockId).toBe("h1");
-    expect(selected[0].label).toBe("heading block");
-  });
-
-  it("does not attach a click handler (and adds no pointer affordance) when onBlockSelect is omitted", () => {
-    const doc = loadFixture();
-    render(<DocBlockRenderer document={doc} renderCanvas={() => <div data-testid="canvas-embed" />} />);
-    const root = document.querySelector(`[data-doc-id="${doc.id}"]`);
-    expect(root?.className).toBe("");
-    // Clicking should not throw even though there's no handler.
-    fireEvent.click(screen.getByText("Docs Model Sample"));
   });
 
   it("threads onCanvasObjectSelect into the injected embed, bundling the block's src", () => {
@@ -282,21 +248,13 @@ describe("DocBlockRenderer", () => {
 
   it("has no editing affordances of its own (M4: editing lives entirely in DocEditor)", () => {
     const doc = loadFixture();
-    const selected: string[] = [];
-    render(
-      <DocBlockRenderer
-        document={doc}
-        onBlockSelect={({ blockId }) => selected.push(blockId)}
-        renderCanvas={() => <div data-testid="canvas-embed" />}
-      />,
-    );
+    render(<DocBlockRenderer document={doc} />);
 
-    // No textarea/edit affordance exists anywhere — clicking any block only
-    // ever reports a selection, never opens an editor. DocBlockRenderer is
+    // No textarea/edit affordance exists anywhere — DocBlockRenderer is
     // read-only; DocEditor (editor/DocEditor.tsx) is what mounts instead of
     // it when the host enables block editing (see DocsViewer.tsx).
     expect(screen.queryByLabelText("Edit block markdown")).toBeNull();
+    // Clicking a block is inert — no handler, nothing to throw.
     fireEvent.click(screen.getByText("Docs Model Sample"));
-    expect(selected).toEqual(["h1"]);
   });
 });

@@ -138,5 +138,5 @@ export {
 } from "./backlinks-cache";
 
 // Store + routes
-export { createDocsStore, docsStoreForRoot, type DocsStore } from "./store";
+export { createDocsStore, type DocsStore } from "./store";
 export { createDocsRoutes } from "./routes";

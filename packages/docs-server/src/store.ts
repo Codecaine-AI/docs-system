@@ -227,16 +227,3 @@ export function createDocsStore(docsRoot: string): DocsStore {
     subscribeChanges: (listener) => subscribeToDocsChangeEvents(channel, listener),
   };
 }
-
-const storesByRoot = new Map<string, DocsStore>();
-
-/** Cached `createDocsStore` — hosts get ONE store instance per docs root. */
-export function docsStoreForRoot(docsRoot: string): DocsStore {
-  const key = resolve(docsRoot);
-  let store = storesByRoot.get(key);
-  if (!store) {
-    store = createDocsStore(key);
-    storesByRoot.set(key, store);
-  }
-  return store;
-}

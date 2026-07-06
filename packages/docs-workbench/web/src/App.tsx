@@ -14,7 +14,7 @@ import { Sidebar } from "./Sidebar";
  * Standalone docs workbench shell: left sidebar (docs tree + block-library
  * nav + theme toggle) and the main surface — either the block library
  * (#/blocks) or a doc workbench page (#/<bundle path>, see DocPage for the
- * read/annotate/edit modes). Hash-based navigation so both `docs-cli serve`
+ * edit/annotate modes). Hash-based navigation so both `docs-cli serve`
  * and the static export deep-link from any host/subpath; the light/dark
  * toggle drives the baked Spectre theme variables (.dark class +
  * data-theme attribute).

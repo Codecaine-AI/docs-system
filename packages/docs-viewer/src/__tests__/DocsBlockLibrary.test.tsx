@@ -1,24 +1,30 @@
 import { afterEach, describe, expect, it } from "bun:test";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { DOC_BLOCK_FLAVOURS, validateDocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import DocsBlockLibrary from "../DocsBlockLibrary";
 import { DocsClientProvider, type CanvasEmbedProps } from "../client";
 
 /**
- * The Canvas block's "Interactive Canvas Lab" preview renders through the
- * host-injected `CanvasEmbedComponent` slot (in Spectre this file asserted
- * the REAL InteractiveCanvasViewer's synthetic-canvas content; the viewer
- * package has no canvas dependency, so a recording fake stands in).
+ * The library's canvas example renders through the host-injected
+ * `CanvasEmbedComponent` slot (in the workbench that's StandaloneCanvasEmbed
+ * showing the synthetic fixture canvas); the viewer package has no canvas
+ * dependency, so a recording fake stands in — the same pattern as
+ * DocBlockRenderer.test.tsx.
  */
+const embedCalls: CanvasEmbedProps[] = [];
+
 function FakeCanvasEmbed(props: CanvasEmbedProps) {
-  return <div data-testid="fake-canvas-embed">canvas embed: {props.id}</div>;
+  embedCalls.push(props);
+  return <div data-testid="fake-canvas-embed">canvas embed: {props.canvasId}</div>;
 }
 
 afterEach(() => {
+  embedCalls.length = 0;
   cleanup();
 });
 
 describe("DocsBlockLibrary", () => {
-  it("renders live previews for the registered docs block types", () => {
+  it("renders a catalog entry for every doc.json flavour", () => {
     render(
       <DocsClientProvider canvasEmbed={FakeCanvasEmbed}>
         <DocsBlockLibrary />
@@ -26,185 +32,117 @@ describe("DocsBlockLibrary", () => {
     );
 
     expect(screen.getByRole("heading", { name: "Block Library" })).toBeTruthy();
-    [
-      "Decision",
-      "Callout",
-      "Agent Contract",
-      "File Tree",
-      "Constraint",
-      "Assumption",
-      "Risk",
-      "Open Question",
-      "Status",
-      "Milestone",
-      "Checklist",
-      "Structured Table",
-      "Tabs",
-      "Columns",
-      "Code",
-      "Implementation Map",
-      "API Endpoint",
-      "API Surface",
-      "Data Model",
-      "Diff",
-      "JSON Explorer",
-      "Annotated Code",
-      "Diagram",
-      "Flow",
-      "Mermaid",
-      "Wireframe",
-      "Design Board",
-      "Canvas",
-      "Artboard",
-      "Screen",
-      "Prototype",
-      "Prototype Screen",
-      "Prototype Transition",
-    ].forEach((label) => {
-      expect(screen.getByRole("button", { name: `Select ${label}` })).toBeTruthy();
-    });
-    expect(screen.getByText("Default to MDX Lab")).toBeTruthy();
 
-    fireEvent.click(screen.getByRole("button", { name: "Select Callout" }));
-    expect(screen.getByText("Review Anchor")).toBeTruthy();
-
-    fireEvent.click(screen.getByRole("button", { name: "Select Agent Contract" }));
-    expect(screen.getAllByText("Docs Revisor").length).toBeGreaterThan(0);
-
-    fireEvent.click(screen.getByRole("button", { name: "Select File Tree" }));
-    expect(screen.getByText("Docs Lab Files")).toBeTruthy();
-
-    fireEvent.click(screen.getByRole("button", { name: "Select Constraint" }));
-    expect(screen.getByText("Safe MDX")).toBeTruthy();
-
-    fireEvent.click(screen.getByRole("button", { name: "Select Open Question" }));
-    expect(screen.getByText("Canvas Targets")).toBeTruthy();
-
-    fireEvent.click(screen.getByRole("button", { name: "Select Checklist" }));
-    expect(screen.getByText("Review Checklist")).toBeTruthy();
-
-    fireEvent.click(screen.getByRole("button", { name: "Select Structured Table" }));
-    expect(screen.getByText("Block Status")).toBeTruthy();
-
-    fireEvent.click(screen.getByRole("button", { name: "Select Tabs" }));
-    expect(screen.getByText("Review Modes")).toBeTruthy();
-
-    fireEvent.click(screen.getByRole("button", { name: "Select Columns" }));
-    expect(screen.getByText("Review Loop")).toBeTruthy();
-
-    fireEvent.click(screen.getByRole("button", { name: "Select Code" }));
-    expect(screen.getByText("Typed API call shape")).toBeTruthy();
-
-    fireEvent.click(screen.getByRole("button", { name: "Select Implementation Map" }));
-    expect(screen.getByText("Docs Lab Implementation")).toBeTruthy();
-
-    fireEvent.click(screen.getByRole("button", { name: "Select API Endpoint" }));
-    expect(screen.getByText("Apply a reviewed docs proposal")).toBeTruthy();
-
-    fireEvent.click(screen.getByRole("button", { name: "Select API Surface" }));
-    expect(screen.getByText("Docs Lab API")).toBeTruthy();
-
-    fireEvent.click(screen.getByRole("button", { name: "Select Data Model" }));
-    expect(screen.getByText("Docs Lab Review State")).toBeTruthy();
-
-    fireEvent.click(screen.getByRole("button", { name: "Select Diff" }));
-    expect(screen.getByText("-The docs lab can request proposals.")).toBeTruthy();
-
-    fireEvent.click(screen.getByRole("button", { name: "Select JSON Explorer" }));
-    expect(screen.getByText("Docs Anchor Payload")).toBeTruthy();
-
-    fireEvent.click(screen.getByRole("button", { name: "Select Annotated Code" }));
-    expect(screen.getByText("Hash guard")).toBeTruthy();
-
-    fireEvent.click(screen.getByRole("button", { name: "Select Diagram" }));
-    expect(screen.getByText("Docs Review Lifecycle")).toBeTruthy();
-
-    fireEvent.click(screen.getByRole("button", { name: "Select Flow" }));
-    expect(screen.getByText("Docs Review Flow")).toBeTruthy();
-
-    fireEvent.click(screen.getByRole("button", { name: "Select Mermaid" }));
-    expect(screen.getByText("Proposal Sequence")).toBeTruthy();
-    expect(screen.getByText("inert source")).toBeTruthy();
-
-    fireEvent.click(screen.getByRole("button", { name: "Select Wireframe" }));
-    expect(screen.getByText("Docs Review Workspace")).toBeTruthy();
-
-    fireEvent.click(screen.getByRole("button", { name: "Select Design Board" }));
-    expect(screen.getByText("Docs Lab Visual Review")).toBeTruthy();
-
-    fireEvent.click(screen.getByRole("button", { name: "Select Canvas" }));
-    expect(screen.getByText("Docs Lab Canvas")).toBeTruthy();
-    expect(screen.getByText("Interactive Canvas Lab")).toBeTruthy();
-    // The injected embed slot receives the synthetic fixture id.
-    expect(screen.getByText("canvas embed: synthetic")).toBeTruthy();
-
-    fireEvent.click(screen.getByRole("button", { name: "Select Artboard" }));
-    expect(screen.getByText("Action Pane Artboard")).toBeTruthy();
-
-    fireEvent.click(screen.getByRole("button", { name: "Select Screen" }));
-    expect(screen.getByText("Proposal Review Screen")).toBeTruthy();
-
-    fireEvent.click(screen.getByRole("button", { name: "Select Prototype" }));
-    expect(screen.getByText("Docs Proposal Prototype")).toBeTruthy();
-
-    fireEvent.click(screen.getByRole("button", { name: "Select Prototype Screen" }));
-    expect(screen.getByText("Review Proposal")).toBeTruthy();
-
-    fireEvent.click(screen.getByRole("button", { name: "Select Prototype Transition" }));
-    expect(screen.getAllByText(/runtime navigation stays inside allowlisted screen ids/).length).toBeGreaterThan(0);
+    for (const flavour of DOC_BLOCK_FLAVOURS) {
+      // The catalog card for the flavour exists...
+      const card = document.querySelector(`[data-library-flavour="${flavour}"]`);
+      expect(card).toBeTruthy();
+      // ...and its example rendered through the flavour registry's real
+      // wrapper (DocBlockRenderer output), not bespoke preview markup.
+      expect(card?.querySelector(`[data-doc-block="${flavour}"]`)).toBeTruthy();
+    }
   });
 
-  it("groups blocks, edits source live, and exposes preview targets", async () => {
-    render(<DocsBlockLibrary />);
-
-    expect(screen.getByRole("heading", { name: "Foundation" })).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "Semantic" })).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "Engineering" })).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "Interactive" })).toBeTruthy();
-
-    expect(screen.getByRole("tab", { name: /Preview/ })).toBeTruthy();
-    expect(screen.getByRole("tab", { name: /Source/ })).toBeTruthy();
-    expect(screen.queryByRole("button", { name: "Mobile" })).toBeNull();
-
-    fireEvent.click(screen.getByRole("tab", { name: /Source/ }));
-    const editor = screen.getByLabelText("MDX source editor");
-    fireEvent.change(editor, {
-      target: {
-        value: [
-          '<Decision id="edited-decision" status="accepted" title="Edited Live">',
-          "  Live source edits update the rendered preview.",
-          "</Decision>",
-        ].join("\n"),
-      },
-    });
-
-    fireEvent.click(screen.getByRole("tab", { name: /Preview/ }));
-    expect(screen.getByText("Edited Live")).toBeTruthy();
-    expect(screen.getAllByText("edited-decision").length).toBeGreaterThan(0);
-
-    fireEvent.click(screen.getByRole("button", { name: "Select Design Board" }));
-    expect(screen.getAllByText("Interactive").length).toBeGreaterThan(0);
-    expect(screen.getByRole("button", { name: "Add artboard" })).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Add artboard" }));
-    expect(screen.getByText("New Artboard")).toBeTruthy();
-
-    fireEvent.change(screen.getByLabelText("Name"), {
-      target: { value: "Lab Draft" },
-    });
-    expect(screen.getByText("Lab Draft")).toBeTruthy();
-    expect((screen.getByLabelText("MDX source editor") as HTMLTextAreaElement).value).toContain(
-      "Lab Draft",
+  it("shows real rendered examples with delta marks and semantic chrome", () => {
+    render(
+      <DocsClientProvider canvasEmbed={FakeCanvasEmbed}>
+        <DocsBlockLibrary />
+      </DocsClientProvider>,
     );
 
-    fireEvent.click(screen.getByRole("tab", { name: /Source/ }));
-    await waitFor(() => {
-      expect(screen.getByText("docs-lab-design-board:browse")).toBeTruthy();
-    });
+    // Delta-span marks render as real inline elements.
+    expect(screen.getByText("bold").tagName).toBe("STRONG");
+    expect(screen.getByText("italic").tagName).toBe("EM");
+    expect(screen.getByText("inline code").tagName).toBe("CODE");
+    const link = screen.getByText("linked");
+    expect(link.tagName).toBe("A");
+    expect(link.getAttribute("href")).toBe("https://example.com");
 
-    fireEvent.change(screen.getByPlaceholderText("Filter blocks"), {
-      target: { value: "prototype" },
+    // Adapted docs-block components render their card chrome.
+    expect(screen.getByText("Docs are doc.json bundles")).toBeTruthy();
+    expect(screen.getByText("accepted")).toBeTruthy();
+    expect(screen.getByText("Review anchor")).toBeTruthy();
+    expect(screen.getAllByText("Docs Revisor").length).toBeGreaterThan(0);
+    expect(screen.getByText("packages/docs-viewer/src/DocBlockRenderer.tsx")).toBeTruthy();
+
+    // Media atoms render without any asset backend (inline data: srcs).
+    expect(document.querySelector('figure[data-doc-block="image"] img')).toBeTruthy();
+    expect(screen.getByText("design-notes.txt")).toBeTruthy();
+    expect(document.querySelector('hr[data-doc-block="divider"]')).toBeTruthy();
+  });
+
+  it("routes the canvas example through the injected embed slot", () => {
+    render(
+      <DocsClientProvider canvasEmbed={FakeCanvasEmbed}>
+        <DocsBlockLibrary />
+      </DocsClientProvider>,
+    );
+
+    expect(screen.getByText("canvas embed: synthetic")).toBeTruthy();
+    expect(embedCalls).toHaveLength(1);
+    expect(embedCalls[0].canvasId).toBe("synthetic");
+    expect(embedCalls[0].title).toBe("Synthetic fixture canvas");
+  });
+
+  it("falls back to the neutral canvas card without a provider", () => {
+    render(<DocsBlockLibrary />);
+    expect(document.querySelector('[data-canvas-embed-unavailable="true"]')).toBeTruthy();
+  });
+
+  it("exposes schema-valid doc.json source for every example", () => {
+    render(
+      <DocsClientProvider canvasEmbed={FakeCanvasEmbed}>
+        <DocsBlockLibrary />
+      </DocsClientProvider>,
+    );
+
+    // Each card carries the example's blocks as pretty-printed doc.json;
+    // reassembling them under a root must satisfy the doc schema — the
+    // catalog can never drift from the vocabulary it showcases.
+    const sources = Array.from(document.querySelectorAll("details pre"));
+    expect(sources.length).toBe(DOC_BLOCK_FLAVOURS.length);
+    for (const source of sources) {
+      const blocks = JSON.parse(source.textContent ?? "{}") as Record<
+        string,
+        { id: string; children: string[] }
+      >;
+      const ids = Object.keys(blocks);
+      expect(ids.length).toBeGreaterThan(0);
+      const nested = new Set(ids.flatMap((id) => blocks[id].children));
+      const result = validateDocDocument({
+        schemaVersion: 1,
+        id: "library-roundtrip",
+        root: "root",
+        blocks: {
+          root: {
+            id: "root",
+            flavour: "paragraph",
+            props: {},
+            children: ids.filter((id) => !nested.has(id)),
+          },
+          ...blocks,
+        },
+      });
+      expect(result.ok).toBe(true);
+    }
+  });
+
+  it("filters the catalog by flavour name", () => {
+    render(
+      <DocsClientProvider canvasEmbed={FakeCanvasEmbed}>
+        <DocsBlockLibrary />
+      </DocsClientProvider>,
+    );
+
+    fireEvent.change(screen.getByPlaceholderText("Filter flavours"), {
+      target: { value: "decision" },
     });
-    expect(screen.getByRole("button", { name: "Select Prototype" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Select Prototype Screen" })).toBeTruthy();
+    expect(document.querySelector('[data-library-flavour="decision"]')).toBeTruthy();
+    expect(document.querySelector('[data-library-flavour="paragraph"]')).toBeNull();
+
+    fireEvent.change(screen.getByPlaceholderText("Filter flavours"), {
+      target: { value: "no-such-flavour" },
+    });
+    expect(screen.getByText("No matching flavours.")).toBeTruthy();
   });
 });

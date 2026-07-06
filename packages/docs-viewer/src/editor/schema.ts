@@ -117,8 +117,23 @@ export const FLAVOUR_TO_NODE_TYPE: Record<DocBlockFlavour, string> = Object.from
 
 /** Shared attrs every block-carrying node needs: the stable id + typed props blob. */
 const blockAttrs = {
-  blockId: { default: null as string | null },
-  blockProps: { default: {} as Record<string, unknown> },
+  // Rendered to the DOM as `data-block-id` — the SAME wrapper attribute the
+  // flavour-registry descriptors emit on the read surface, so host features
+  // that LOCATE blocks by id (scroll-to-block, test selectors) work
+  // identically over the editor's DOM. Note the SSE change flash cannot ride
+  // this alone: hosts must not SET attributes inside the editor (PM's DOM
+  // observer strips foreign mutations) — that half goes through the
+  // changed-flash.ts decoration instead.
+  blockId: {
+    default: null as string | null,
+    parseHTML: (element: HTMLElement) => element.getAttribute("data-block-id"),
+    renderHTML: (attributes: Record<string, unknown>) =>
+      attributes.blockId ? { "data-block-id": attributes.blockId } : {},
+  },
+  // Kept out of the DOM entirely: an object attr would stringify to
+  // "[object Object]" and the props blob only matters to convert.ts's PM
+  // JSON round trip, never to rendering.
+  blockProps: { default: {} as Record<string, unknown>, rendered: false },
 };
 
 type DomOutputSpec = [string, Record<string, unknown>, number] | [string, Record<string, unknown>];

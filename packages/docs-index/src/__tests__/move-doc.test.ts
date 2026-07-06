@@ -6,9 +6,9 @@ import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import type { Database } from "bun:sqlite";
 import { serializeDocDocument, validateDocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import { applyOps } from "@codecaine-ai/docs-model/doc-ops";
-import { openBacklinksDb, rescanAll, queryInbound } from "./backlinks";
-import { moveDocBundle, type ApplyDocOpsFn, type LoadCanvasFn, type SaveCanvasFn } from "./move-doc";
-import { resolveDocBundleJsonPath } from "./paths";
+import { openBacklinksDb, rescanAll, queryInbound } from "../backlinks";
+import { moveDocBundle, type ApplyDocOpsFn, type LoadCanvasFn, type SaveCanvasFn } from "../move-doc";
+import { resolveDocBundleJsonPath } from "../paths";
 import type { InteractiveCanvasDocument } from "@codecaine-ai/canvas/schema";
 
 let docsRoot: string;

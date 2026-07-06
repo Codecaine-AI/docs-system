@@ -222,6 +222,35 @@ export const referenceMentionPluginKey = new PluginKey<ReferenceMentionState>("d
 export const ReferenceMention = Extension.create({
   name: "docReferenceMention",
 
+  addKeyboardShortcuts() {
+    // TipTap hoists every extension's keymap plugin ahead of all
+    // addProseMirrorPlugins plugins (including its own core Enter→splitBlock
+    // keymap), so the plugin-prop swallow below runs too LATE to stop other
+    // keymaps (DocKeymap, core splitBlock) from ALSO acting on Enter/Tab
+    // while the picker is open. These bindings swallow the picker's keys at
+    // the front of the chain — the actual navigation/selection already
+    // happened in ReferenceMentionPopover's capture-phase document listener,
+    // which fires before ProseMirror sees the event at all.
+    const swallowWhileOpen = () => {
+      const state = referenceMentionPluginKey.getState(this.editor.state);
+      return state?.open === true;
+    };
+    return {
+      Enter: swallowWhileOpen,
+      Tab: swallowWhileOpen,
+      ArrowUp: swallowWhileOpen,
+      ArrowDown: swallowWhileOpen,
+      Escape: () => {
+        const state = referenceMentionPluginKey.getState(this.editor.state);
+        if (!state?.open) return false;
+        this.editor.view.dispatch(
+          this.editor.view.state.tr.setMeta(referenceMentionPluginKey, { forceClose: true }),
+        );
+        return true;
+      },
+    };
+  },
+
   addProseMirrorPlugins() {
     return [
       new Plugin<ReferenceMentionState>({

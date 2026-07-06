@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useMemo, type MouseEvent as ReactMouseEvent, type ReactNode } from "react";
+import { Fragment, useMemo, type ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import remarkGfm from "remark-gfm";
@@ -11,13 +11,9 @@ import { CanvasEmbedUnavailable, useCanvasEmbed } from "./client";
 import { resolveBundleCanvasSrc } from "./bundle-src";
 
 /**
- * M2 tracer read surface: walks a validated DocDocument from its root and
+ * The doc.json read surface: walks a validated DocDocument from its root and
  * renders every block through the flavour registry (D28). The root block is
  * the page container — its own chrome is skipped, its children are the page.
- *
- * This sits BESIDE MdxDocumentRenderer (which stays untouched until the M2
- * migration flips docs to doc.json); both share the docs-blocks component
- * implementations via the flavour registry adapters.
  */
 export interface DocBlockRendererProps {
   document: DocDocument;
@@ -33,48 +29,37 @@ export interface DocBlockRendererProps {
    * reports as `canvasSrc`, so comment targets stay unambiguous across docs.
    */
   bundlePath?: string | null;
-  /** Overrides canvas embedding (tests, previews). Defaults to the provider-injected `CanvasEmbedComponent`. */
-  renderCanvas?: DocFlavourRenderContext["renderCanvas"];
   /**
    * Resolves `image`/`attachment` block `src` props to a fetchable URL
    * (e.g. via the `/docs/asset` GET route). Purely passed through to the
-   * flavour registry's `ctx.resolveAssetSrc` — same philosophy as
-   * `renderCanvas` above: this component owns no HTTP-fetching logic of its
-   * own, it just wires whatever the host provides. Omit to keep existing
-   * callers' raw-`src` behavior unchanged.
+   * flavour registry's `ctx.resolveAssetSrc` — this component owns no
+   * HTTP-fetching logic of its own, it just wires whatever the host
+   * provides. Omit to keep existing callers' raw-`src` behavior unchanged.
    */
   resolveAssetSrc?: DocFlavourRenderContext["resolveAssetSrc"];
   /**
    * Canvas-object selection for Plannotator targeting (M2 Checkpoint 5,
-   * TG5.3): only wired into the DEFAULT injected-embed rendering (not
-   * applied when `renderCanvas` is overridden, since the caller then owns
-   * canvas embedding entirely). Called with the clicked object's id and the
-   * embedding block's `src`, so the host can build a
-   * `{ kind: "canvas-object", canvasSrc, objectId }` selection.
+   * TG5.3): wired into the injected-embed rendering. Called with the
+   * clicked object's id and the embedding block's `src`, so the host can
+   * build a `{ kind: "canvas-object", canvasSrc, objectId }` selection.
    */
   onCanvasObjectSelect?: (input: { canvasSrc: string; objectId: string }) => void;
-  /**
-   * Block selection for Plannotator targeting (M2 Checkpoint 5, TG5.3).
-   * Every flavour descriptor's wrapper already carries `data-block-id`
-   * (see flavour-registry.ts) — rather than adding a new DOM wrapper around
-   * every block (risking layout regressions in adapted MDX block styling),
-   * this uses event delegation: a single click listener on the root
-   * container walks up to the nearest `[data-block-id]` ancestor, mirroring
-   * DocsViewer's existing `resolveDocsTargetElement`/`closest(...)` pattern.
-   * Only fires when `editable`/comment mode is enabled by the host — pass
-   * this prop only when block-click-to-comment should be active.
-   */
-  onBlockSelect?: (input: { blockId: string; label?: string }) => void;
 }
 
 export type DocBlockSaveResult =
-  | { ok: true }
+  | {
+      ok: true;
+      /**
+       * The post-save document as the backend now has it, when the host has
+       * it on hand (e.g. `/api/ops` echoes the applied doc). DocEditor uses
+       * it two ways: as the exact diff baseline for the next save, and — when
+       * the host passes the SAME object back down as the `document` prop — as
+       * the identity token that tells the reseed effect "this is our own save
+       * reflected back, don't reset the cursor by re-seeding content".
+       */
+      doc?: DocDocument;
+    }
   | { ok: false; stale: boolean; message: string };
-
-function nearestBlockId(element: Element | null): string | null {
-  const match = element?.closest("[data-block-id]");
-  return match instanceof HTMLElement ? (match.dataset.blockId ?? null) : null;
-}
 
 function MarkdownContent({ content }: { content: string }) {
   return (
@@ -85,10 +70,8 @@ function MarkdownContent({ content }: { content: string }) {
 }
 
 /**
- * Delta spans -> inline React (mirrors MdxDocumentRenderer's inline markdown
- * approach, but over structured spans instead of a markdown string). Marks
- * nest deterministically: reference/link outermost, then bold/italic/strike,
- * code innermost.
+ * Delta spans -> inline React. Marks nest deterministically: reference/link
+ * outermost, then bold/italic/strike, code innermost.
  */
 export function renderDeltaSpans(text: DeltaSpan[] | undefined): ReactNode {
   if (!text || text.length === 0) return null;
@@ -156,46 +139,42 @@ export default function DocBlockRenderer({
   projectId,
   documentPath,
   bundlePath,
-  renderCanvas,
   resolveAssetSrc,
   onCanvasObjectSelect,
-  onBlockSelect,
 }: DocBlockRendererProps) {
-  // The default canvas embedding is the host-injected `CanvasEmbedComponent`
-  // slot (DocsClientProvider's `canvasEmbed`) — in Spectre that's
+  // Canvas embedding is the host-injected `CanvasEmbedComponent` slot
+  // (DocsClientProvider's `canvasEmbed`) — in Spectre that's
   // CanvasSidecarEmbed; standalone viewers may omit it and get the neutral
   // "canvas embed unavailable" card instead.
   const CanvasEmbed = useCanvasEmbed();
 
-  // Stable identity per prop set — a fresh fallback closure every render
-  // would give every canvas block a new `renderCanvas` and defeat
-  // descendant memoization.
+  // Stable identity per prop set — a fresh closure every render would give
+  // every canvas block a new `renderCanvas` and defeat descendant
+  // memoization.
   const renderCanvasEmbed = useMemo<DocFlavourRenderContext["renderCanvas"]>(
-    () =>
-      renderCanvas ??
-      ((input) => {
-        const canvasSrc = input.src ? resolveBundleCanvasSrc(bundlePath, input.src) : undefined;
-        if (!CanvasEmbed) {
-          return <CanvasEmbedUnavailable title={input.title} src={canvasSrc} />;
-        }
-        return (
-          <CanvasEmbed
-            projectId={projectId}
-            documentPath={documentPath}
-            id={input.id}
-            canvasId={input.canvasId}
-            src={canvasSrc}
-            title={input.title}
-            view={input.view}
-            onObjectSelect={
-              onCanvasObjectSelect && canvasSrc
-                ? (objectId) => onCanvasObjectSelect({ canvasSrc, objectId })
-                : undefined
-            }
-          />
-        );
-      }),
-    [renderCanvas, bundlePath, projectId, documentPath, onCanvasObjectSelect, CanvasEmbed],
+    () => (input) => {
+      const canvasSrc = input.src ? resolveBundleCanvasSrc(bundlePath, input.src) : undefined;
+      if (!CanvasEmbed) {
+        return <CanvasEmbedUnavailable title={input.title} src={canvasSrc} />;
+      }
+      return (
+        <CanvasEmbed
+          projectId={projectId}
+          documentPath={documentPath}
+          id={input.id}
+          canvasId={input.canvasId}
+          src={canvasSrc}
+          title={input.title}
+          view={input.view}
+          onObjectSelect={
+            onCanvasObjectSelect && canvasSrc
+              ? (objectId) => onCanvasObjectSelect({ canvasSrc, objectId })
+              : undefined
+          }
+        />
+      );
+    },
+    [bundlePath, projectId, documentPath, onCanvasObjectSelect, CanvasEmbed],
   );
 
   // One shared ctx + renderBlock pair per (document, canvas, asset) triple
@@ -226,24 +205,8 @@ export default function DocBlockRenderer({
   const root = document.blocks[document.root];
   if (!root) return null;
 
-  const handleClick = onBlockSelect
-    ? (event: ReactMouseEvent<HTMLDivElement>) => {
-        if (!(event.target instanceof Element)) return;
-        const blockId = nearestBlockId(event.target);
-        if (!blockId) return;
-        const block = document.blocks[blockId];
-        if (!block) return;
-        onBlockSelect({ blockId, label: `${block.flavour} block` });
-      }
-    : undefined;
-
   return (
-    <div
-      data-doc-id={document.id}
-      data-doc-root={document.root}
-      onClick={handleClick}
-      className={onBlockSelect ? "cursor-pointer" : undefined}
-    >
+    <div data-doc-id={document.id} data-doc-root={document.root}>
       {root.children.map((childId) => renderBlock(childId))}
     </div>
   );

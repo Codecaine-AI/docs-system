@@ -14,7 +14,7 @@
         "typescript": "^5",
       },
     },
-    "packages/canvas/packages/canvas": {
+    "external/canvas/packages/canvas": {
       "name": "@codecaine-ai/canvas",
       "version": "0.1.0",
       "dependencies": {
@@ -39,7 +39,7 @@
         "react-dom": "^19",
       },
     },
-    "packages/canvas/packages/studio": {
+    "external/canvas/packages/studio": {
       "name": "@codecaine-ai/studio",
       "version": "0.1.0",
       "dependencies": {
@@ -225,7 +225,7 @@
 
     "@borewit/text-codec": ["@borewit/text-codec@0.2.2", "", {}, "sha512-DDaRehssg1aNrH4+2hnj1B7vnUGEjU6OIlyRdkMd0aUdIUvKXrJfXsy8LVtXAy7DRvYVluWbMspsRhz2lcW0mQ=="],
 
-    "@codecaine-ai/canvas": ["@codecaine-ai/canvas@workspace:packages/canvas/packages/canvas"],
+    "@codecaine-ai/canvas": ["@codecaine-ai/canvas@workspace:external/canvas/packages/canvas"],
 
     "@codecaine-ai/docs-cli": ["@codecaine-ai/docs-cli@workspace:packages/docs-cli"],
 
@@ -241,7 +241,7 @@
 
     "@codecaine-ai/docs-workbench": ["@codecaine-ai/docs-workbench@workspace:packages/docs-workbench"],
 
-    "@codecaine-ai/studio": ["@codecaine-ai/studio@workspace:packages/canvas/packages/studio"],
+    "@codecaine-ai/studio": ["@codecaine-ai/studio@workspace:external/canvas/packages/studio"],
 
     "@esbuild/aix-ppc64": ["@esbuild/aix-ppc64@0.28.1", "", { "os": "aix", "cpu": "ppc64" }, "sha512-Svl7tq8k/08+p6CXPpRjQ1fKX+1odH/BQbb48fV6fj3CWHhsoIOoY87w1oHXm0qEpkIK3ZfVgp0hed3XBXzXMQ=="],
 

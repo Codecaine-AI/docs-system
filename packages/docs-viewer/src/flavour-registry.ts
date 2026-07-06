@@ -2,21 +2,27 @@
 
 import { createElement, type ReactNode } from "react";
 import type { DocsMdxBlock } from "./docs-blocks/base";
-import { docsMdxBlockRegistry } from "./docs-blocks/registry";
+import { AgentContractDocsBlock } from "./docs-blocks/agent-contract/AgentContractDocsBlock";
+import { CalloutDocsBlock } from "./docs-blocks/callout/CalloutDocsBlock";
+import { DecisionDocsBlock } from "./docs-blocks/decision/DecisionDocsBlock";
+import { FileTreeDocsBlock } from "./docs-blocks/file-tree/FileTreeDocsBlock";
+import {
+  assumptionDocsBlock,
+  constraintDocsBlock,
+} from "./docs-blocks/semantic/SemanticDocsBlocks";
 import type { DeltaSpan, DocBlock, DocBlockFlavour } from "@codecaine-ai/docs-model/doc-schema";
 import { DOC_BLOCK_FLAVOURS } from "@codecaine-ai/docs-model/doc-schema";
 import { deltaToPlainTextInline, wrapMarkdownMarks } from "@codecaine-ai/docs-model/delta-markdown";
 
 /**
  * Flavour registry (D28): maps every doc.json flavour to a render/agent
- * descriptor. This is an ADDITIVE adapter layer — the MDX block registry and
- * MdxDocumentRenderer stay untouched (CP4/CP5 still consume them). Where a
- * doc.json flavour aligns with an existing docs-block implementation
- * (decision, callout, agent-contract, file-tree, constraint, assumption) the
- * descriptor delegates to that block's render; the remaining flavours get
- * minimal tracer descriptors here. DocBlockRenderer supplies the concrete
- * render context (delta spans -> inline React, recursive children, canvas
- * embeds, markdown projection).
+ * descriptor. Where a doc.json flavour aligns with a docs-block component
+ * implementation (decision, callout, agent-contract, file-tree, constraint,
+ * assumption) the descriptor delegates to that block's render — the blocks
+ * are imported directly; the MDX-era tag registry and MdxDocumentRenderer
+ * are gone. The remaining flavours get minimal tracer descriptors here.
+ * DocBlockRenderer supplies the concrete render context (delta spans ->
+ * inline React, recursive children, canvas embeds, markdown projection).
  */
 
 export type DocFlavourRenderContext = {
@@ -199,28 +205,20 @@ function simpleCardDescriptor(options: SimpleCardOptions): DocFlavourDescriptor 
 
 type MdxAdapterOptions = {
   flavour: DocBlockFlavour;
-  tag: string;
-  /** Builds the MDX block's parsed `data` from the doc block + markdown body. */
+  /** The docs-block component implementation the flavour delegates to. */
+  block: DocsMdxBlock<any>;
+  /** Builds the block component's parsed `data` from the doc block + markdown body. */
   data: (block: DocBlock, body: string) => Record<string, unknown>;
 };
 
 /**
- * Adapts an existing DocsMdxBlock implementation (D28 — "the existing
+ * Adapts a docs-block component implementation (D28 — "the existing
  * docs-blocks registry becomes the flavour registry"): constructs the parsed
- * block the MDX component expects from doc.json props + a delta->markdown
- * body projection, and reuses its render + agentDescription verbatim.
+ * block the component expects from doc.json props + a delta->markdown body
+ * projection, and reuses its render + agentDescription verbatim.
  */
 function mdxAdapterDescriptor(options: MdxAdapterOptions): DocFlavourDescriptor {
-  const mdxBlock = docsMdxBlockRegistry.get(options.tag) as DocsMdxBlock<unknown> | null;
-  if (!mdxBlock) {
-    // Defensive: never expected — every adapted tag is registered at import
-    // time. Fall back to a simple card so rendering cannot crash.
-    return simpleCardDescriptor({
-      flavour: options.flavour,
-      label: options.tag,
-      agentDescription: `${options.tag} block.`,
-    });
-  }
+  const mdxBlock = options.block;
   return {
     flavour: options.flavour,
     targetKind: mdxBlock.targetKind,
@@ -237,13 +235,7 @@ function mdxAdapterDescriptor(options: MdxAdapterOptions): DocFlavourDescriptor 
           sourceId: block.id,
           data: options.data(block, body),
         },
-        {
-          renderMarkdown: ctx.renderMarkdown,
-          renderCanvas: ctx.renderCanvas
-            ? (input) =>
-                ctx.renderCanvas?.({ id: input.id, src: input.src, title: input.title })
-            : undefined,
-        },
+        { renderMarkdown: ctx.renderMarkdown },
       );
       return el(
         "div",
@@ -519,7 +511,7 @@ function buildRegistry(): Map<DocBlockFlavour, DocFlavourDescriptor> {
   add(
     mdxAdapterDescriptor({
       flavour: "decision",
-      tag: "Decision",
+      block: new DecisionDocsBlock(),
       data: (block, body) => ({
         id: block.id,
         status: stringProp(block, "status") ?? "proposed",
@@ -532,7 +524,7 @@ function buildRegistry(): Map<DocBlockFlavour, DocFlavourDescriptor> {
   add(
     mdxAdapterDescriptor({
       flavour: "callout",
-      tag: "Callout",
+      block: new CalloutDocsBlock(),
       data: (block, body) => ({
         id: block.id,
         tone: stringProp(block, "tone") ?? "info",
@@ -545,7 +537,7 @@ function buildRegistry(): Map<DocBlockFlavour, DocFlavourDescriptor> {
   add(
     mdxAdapterDescriptor({
       flavour: "agent-contract",
-      tag: "AgentContract",
+      block: new AgentContractDocsBlock(),
       data: (block, body) => ({
         id: block.id,
         agent: stringProp(block, "agent"),
@@ -560,7 +552,7 @@ function buildRegistry(): Map<DocBlockFlavour, DocFlavourDescriptor> {
   add(
     mdxAdapterDescriptor({
       flavour: "file-tree",
-      tag: "FileTree",
+      block: new FileTreeDocsBlock(),
       data: (block) => ({
         id: block.id,
         title: stringProp(block, "title"),
@@ -572,7 +564,7 @@ function buildRegistry(): Map<DocBlockFlavour, DocFlavourDescriptor> {
   add(
     mdxAdapterDescriptor({
       flavour: "constraint",
-      tag: "Constraint",
+      block: constraintDocsBlock,
       data: (block, body) => {
         const owner = stringProp(block, "owner");
         return {
@@ -589,7 +581,7 @@ function buildRegistry(): Map<DocBlockFlavour, DocFlavourDescriptor> {
   add(
     mdxAdapterDescriptor({
       flavour: "assumption",
-      tag: "Assumption",
+      block: assumptionDocsBlock,
       data: (block, body) => {
         const owner = stringProp(block, "owner");
         return {

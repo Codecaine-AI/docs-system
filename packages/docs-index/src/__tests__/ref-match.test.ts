@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { normalizeDocRefPath, rewriteDocRefPath, sameDocRef } from "./ref-match";
+import { normalizeDocRefPath, rewriteDocRefPath, sameDocRef } from "../ref-match";
 
 describe("normalizeDocRefPath", () => {
   test("strips docs/ prefix and .md/.mdx extension", () => {

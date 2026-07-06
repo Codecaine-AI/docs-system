@@ -38,7 +38,7 @@ function validDoc(): DocDocument {
             insert: "schema.ts",
             attributes: {
               code: true,
-              reference: { kind: "source", path: "packages/canvas/packages/canvas/src/schema.ts" },
+              reference: { kind: "source", path: "external/canvas/packages/canvas/src/schema.ts" },
             },
           },
         ],

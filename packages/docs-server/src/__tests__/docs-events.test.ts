@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { publishDocsChangeEvent, subscribeToDocsChangeEvents, subscriberCountForTest } from "./docs-events";
+import { publishDocsChangeEvent, subscribeToDocsChangeEvents, subscriberCountForTest } from "../docs-events";
 
 describe("docs-events: in-process pub/sub (CP9, TG9.3)", () => {
   test("a subscriber receives events published for its own project", () => {

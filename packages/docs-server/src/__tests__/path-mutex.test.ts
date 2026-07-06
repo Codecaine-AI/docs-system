@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { withPathLock } from "./path-mutex";
+import { withPathLock } from "../path-mutex";
 
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));

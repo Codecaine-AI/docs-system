@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { isSafeRelativePath } from "./paths";
+import { isSafeRelativePath } from "../paths";
 
 describe("isSafeRelativePath", () => {
   test("accepts normal docs-relative paths", () => {

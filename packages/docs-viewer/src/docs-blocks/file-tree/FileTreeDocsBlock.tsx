@@ -19,28 +19,6 @@ type FileTreeData = {
   entries: FileTreeEntry[];
 };
 
-function parseEntry(line: string): FileTreeEntry | null {
-  const cleaned = line
-    .trim()
-    .replace(/^[-*]\s+/, "")
-    .replace(/^`([^`]+)`/, "$1")
-    .trim();
-  if (!cleaned) return null;
-
-  const changeMatch = cleaned.match(/^\[(added|modified|removed|renamed)\]\s+/i);
-  const change = changeMatch?.[1]?.toLowerCase() as FileTreeEntry["change"] | undefined;
-  const withoutChange = changeMatch ? cleaned.slice(changeMatch[0].length).trim() : cleaned;
-  const [pathPart, ...noteParts] = withoutChange.split(/\s+(?:--|::|—)\s+/);
-  const filePath = pathPart?.replace(/^`|`$/g, "").trim();
-  if (!filePath) return null;
-
-  return {
-    path: filePath,
-    note: noteParts.join(" - ").trim() || undefined,
-    change,
-  };
-}
-
 function changeVariant(
   change: FileTreeEntry["change"],
 ): "default" | "secondary" | "destructive" | "outline" {
@@ -57,38 +35,6 @@ export class FileTreeDocsBlock extends DocsMdxBlock<FileTreeData> {
   readonly label = "File Tree";
   readonly agentDescription =
     "A source-aware list of files, packages, or docs with optional change state and notes.";
-  override readonly patchOps = [
-    "append-file-tree-entry",
-    "update-file-tree-entry",
-    "remove-file-tree-entry",
-    "replace-mdx-block",
-  ] as const;
-
-  parse({
-    attrs,
-    body,
-  }: {
-    attrs: Record<string, string>;
-    body: string;
-    source: string;
-  }): DocsMdxParsedBlock<FileTreeData> | null {
-    const entries = body
-      .split("\n")
-      .map(parseEntry)
-      .filter((entry): entry is FileTreeEntry => entry !== null);
-    if (entries.length === 0) return null;
-    return {
-      tag: this.tag,
-      type: this.type,
-      targetKind: this.targetKind,
-      sourceId: this.sourceId(attrs),
-      data: {
-        id: attrs.id?.trim() || undefined,
-        title: attrs.title?.trim() || undefined,
-        entries,
-      },
-    };
-  }
 
   render(block: DocsMdxParsedBlock<FileTreeData>) {
     const { data } = block;

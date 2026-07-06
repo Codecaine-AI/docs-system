@@ -26,9 +26,9 @@ larger system.
 | [`packages/docs-index`](packages/docs-index) | A `bun:sqlite`-backed backlinks index. Derived state lives at `<docsRoot>/.index/` (gitignored — always rebuildable via rescan). Also: reference matching, `move-doc` with inbound-reference rewriting, and path-confinement helpers so operations can't escape the docs root. |
 | [`packages/docs-server`](packages/docs-server) | The embeddable mutation authority. `createDocsStore(docsRoot)` gives per-path mutexed, atomic (temp-then-rename) writes, TTL-based draft locks (423 on conflict), a single-use inverse-op undo ledger, and SSE change events. `createDocsRoutes(store)` turns that into an Elysia route factory exposing the full read+write `/api/*` table; mutating ops take an `expected_hash` and return 409 on staleness. |
 | [`packages/docs-viewer`](packages/docs-viewer) | React: `DocBlockRenderer` and 20 block flavours, a TipTap-based editor (slash menu, Markdown input rules, reference chips), Plannotator-style comments, `DocTargetingLayer` (hover outline, type chips, pinpoint and text-selection targeting), `DocsBlockLibrary`, and the `DocsClientProvider` seam a host uses to inject its own client and a canvas-embed slot. |
-| [`packages/docs-workbench`](packages/docs-workbench) | The runnable app. `docs serve` starts a loopback-only (127.0.0.1:4800 by default; `--host` to expose) read+write workbench with Read/Annotate/Edit modes, a block library at `#/blocks`, SSE change flashes, and one-click undo. `docs export` produces a fully static, read-only site (relative paths — works from any subpath). |
+| [`packages/docs-workbench`](packages/docs-workbench) | The runnable app. `docs serve` starts a loopback-only (127.0.0.1:4800 by default; `--host` to expose) read+write workbench — always-editable Edit mode (Notion-style auto-save) plus an Annotate mode — with a block library at `#/blocks`, SSE change flashes, and one-click undo. `docs export` produces a fully static, read-only site (relative paths — works from any subpath). |
 | [`packages/docs-cli`](packages/docs-cli) | The `docs` CLI: `render`, `grep`, `backlinks rescan`, `links check`, `migrate`, `serve`, `export`. |
-| [`packages/canvas`](packages/canvas) | Git submodule ([`Codecaine-AI/canvas`](https://github.com/Codecaine-AI/canvas)) powering canvas embeds inside the workbench. See the caveat below before cloning recursively. |
+| [`external/canvas`](external/canvas) | Git submodule ([`Codecaine-AI/canvas`](https://github.com/Codecaine-AI/canvas)) powering canvas embeds inside the workbench. Lives under `external/` (not `packages/`) because it is a sibling Codecaine project the docs system *supports*, not a part of it. See the caveat below before cloning recursively. |
 
 ---
 
@@ -112,7 +112,7 @@ Both are enforced by [`import-boundaries.test.ts`](import-boundaries.test.ts) at
 
 ### Canvas submodule cycle caveat
 
-`packages/canvas` is itself a git submodule. Host repos that also embed the
+`external/canvas` is itself a git submodule. Host repos that also embed the
 canvas engine directly (not just through this repo) create a submodule
 cycle: this repo depends on `canvas`, and a canvas-embedding host may in
 turn depend on this repo. **Never `git clone --recursive` blindly** in that
@@ -152,7 +152,7 @@ with its own `NOTICE` explaining provenance and why the port satisfies
 MPL-2.0 file-level copyleft:
 
 - [`packages/docs-viewer/src/vendor/blocksuite/NOTICE`](packages/docs-viewer/src/vendor/blocksuite/NOTICE)
-- `packages/canvas/packages/canvas/src/vendor/blocksuite/NOTICE` (inside the `canvas` submodule)
+- `external/canvas/packages/canvas/src/vendor/blocksuite/NOTICE` (inside the `canvas` submodule)
 
 Do not modify the vendored/ported files without updating their NOTICE and
 file-header provenance comments accordingly.

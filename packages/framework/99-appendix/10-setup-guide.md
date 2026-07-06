@@ -258,7 +258,7 @@ The `/docs:init` command validates existing structure rather than overwriting. R
 
 ### `bun install` inside the mount fails, or `docs serve` can't find `@codecaine-ai/canvas`
 
-The submodule has its own workspace and its own nested `packages/canvas` submodule. Make sure both were initialized:
+The submodule has its own workspace and its own nested `external/canvas` submodule. Make sure both were initialized:
 
 ```
 git submodule update --init --recursive packages/docs-framework

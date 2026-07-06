@@ -1,10 +1,10 @@
 import DocsBlockLibrary from "@codecaine-ai/docs-viewer/docs-block-library";
 
 /**
- * `#/blocks` route — the docs block library (the same gallery Spectre's
- * blocks page renders): every registered MDX block family with editable
- * example source, live preview, and target inspection. Uses the provider-
- * injected canvas embed for the Interactive Canvas Lab preview.
+ * `#/blocks` route — the docs block library: a catalog of every doc.json
+ * block flavour, rendered from real DocDocument fragments through the same
+ * DocBlockRenderer the doc pages use. The canvas example renders through the
+ * provider-injected canvas embed (StandaloneCanvasEmbed, see App.tsx).
  */
 export function BlocksPage() {
   return (

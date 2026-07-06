@@ -1,0 +1,431 @@
+{
+  "schemaVersion": 1,
+  "id": "20-development-00-local-dev-loop",
+  "title": "Local development loop",
+  "root": "b-00-local-dev-loop-root-21",
+  "blocks": {
+    "b-00-local-dev-loop-root-21": {
+      "id": "b-00-local-dev-loop-root-21",
+      "flavour": "paragraph",
+      "props": {},
+      "children": [
+        "b-00-local-dev-loop-local-development-loop-1",
+        "b-00-local-dev-loop-iterating-on-the-tooling-2",
+        "b-00-local-dev-loop-the-key-separation-do-3",
+        "b-00-local-dev-loop-content-doc-json-bund-4",
+        "b-00-local-dev-loop-and-is-committed-there-l-5",
+        "b-00-local-dev-loop-tooling-this-repo-reac-6",
+        "b-00-local-dev-loop-but-for-local-developmen-7",
+        "b-00-local-dev-loop-to-dogfood-tooling-chang-8",
+        "b-00-local-dev-loop-code-9",
+        "b-00-local-dev-loop-that-serves-the-api-from-10",
+        "b-00-local-dev-loop-to-work-on-these-docs-11",
+        "b-00-local-dev-loop-shipping-tooling-to-a-co-12",
+        "b-00-local-dev-loop-consuming-repos-e-g-ca-13",
+        "b-00-local-dev-loop-code-14",
+        "b-00-local-dev-loop-this-is-deliberate-versi-15",
+        "b-00-local-dev-loop-verification-16",
+        "b-00-local-dev-loop-code-17",
+        "b-00-local-dev-loop-the-workbench-web-tests-18",
+        "b-00-local-dev-loop-authoring-new-docs-19",
+        "b-00-local-dev-loop-write-markdown-under-a-20"
+      ]
+    },
+    "b-00-local-dev-loop-local-development-loop-1": {
+      "id": "b-00-local-dev-loop-local-development-loop-1",
+      "flavour": "heading",
+      "props": {
+        "level": 1
+      },
+      "text": [
+        {
+          "insert": "Local development loop"
+        }
+      ],
+      "children": []
+    },
+    "b-00-local-dev-loop-iterating-on-the-tooling-2": {
+      "id": "b-00-local-dev-loop-iterating-on-the-tooling-2",
+      "flavour": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Iterating on the tooling (this repo)"
+        }
+      ],
+      "children": []
+    },
+    "b-00-local-dev-loop-the-key-separation-do-3": {
+      "id": "b-00-local-dev-loop-the-key-separation-do-3",
+      "flavour": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The key separation: "
+        },
+        {
+          "insert": "docs content",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "docs tooling",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " version\nindependently."
+        }
+      ],
+      "children": []
+    },
+    "b-00-local-dev-loop-content-doc-json-bund-4": {
+      "id": "b-00-local-dev-loop-content-doc-json-bund-4",
+      "flavour": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Content ("
+        },
+        {
+          "insert": "doc.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " bundles) lives in whatever repo the docs are about"
+        }
+      ],
+      "children": []
+    },
+    "b-00-local-dev-loop-and-is-committed-there-l-5": {
+      "id": "b-00-local-dev-loop-and-is-committed-there-l-5",
+      "flavour": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "  and is committed there like any other file."
+        }
+      ],
+      "children": []
+    },
+    "b-00-local-dev-loop-tooling-this-repo-reac-6": {
+      "id": "b-00-local-dev-loop-tooling-this-repo-reac-6",
+      "flavour": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Tooling (this repo) reaches consuming repos as a pinned git submodule —"
+        }
+      ],
+      "children": []
+    },
+    "b-00-local-dev-loop-but-for-local-developmen-7": {
+      "id": "b-00-local-dev-loop-but-for-local-developmen-7",
+      "flavour": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "  but for local development you never need the pin."
+        }
+      ],
+      "children": []
+    },
+    "b-00-local-dev-loop-to-dogfood-tooling-chang-8": {
+      "id": "b-00-local-dev-loop-to-dogfood-tooling-chang-8",
+      "flavour": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "To dogfood tooling changes against the canvas repo's real docs:"
+        }
+      ],
+      "children": []
+    },
+    "b-00-local-dev-loop-code-9": {
+      "id": "b-00-local-dev-loop-code-9",
+      "flavour": "code",
+      "props": {},
+      "text": [
+        {
+          "insert": "bun run docs:canvas       # from this repo's root"
+        }
+      ],
+      "children": []
+    },
+    "b-00-local-dev-loop-that-serves-the-api-from-10": {
+      "id": "b-00-local-dev-loop-that-serves-the-api-from-10",
+      "flavour": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "That serves the API from this working copy against "
+        },
+        {
+          "insert": "../canvas/docs",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and\nstarts a Vite dev server ("
+        },
+        {
+          "insert": "http://localhost:4801",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ") with hot reload — all\nfrontend packages ("
+        },
+        {
+          "insert": "docs-viewer",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "docs-workbench",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ") export raw TypeScript\nsource, so UI edits appear on save. Server-side changes ("
+        },
+        {
+          "insert": "docs-server",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ",\n"
+        },
+        {
+          "insert": "docs-cli",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ") need a restart of the command."
+        }
+      ],
+      "children": []
+    },
+    "b-00-local-dev-loop-to-work-on-these-docs-11": {
+      "id": "b-00-local-dev-loop-to-work-on-these-docs-11",
+      "flavour": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "To work on "
+        },
+        {
+          "insert": "these",
+          "attributes": {
+            "italic": true
+          }
+        },
+        {
+          "insert": " docs instead: "
+        },
+        {
+          "insert": "bun run docs serve",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " (defaults to this\nrepo's own "
+        },
+        {
+          "insert": "docs/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ")."
+        }
+      ],
+      "children": []
+    },
+    "b-00-local-dev-loop-shipping-tooling-to-a-co-12": {
+      "id": "b-00-local-dev-loop-shipping-tooling-to-a-co-12",
+      "flavour": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Shipping tooling to a consuming repo"
+        }
+      ],
+      "children": []
+    },
+    "b-00-local-dev-loop-consuming-repos-e-g-ca-13": {
+      "id": "b-00-local-dev-loop-consuming-repos-e-g-ca-13",
+      "flavour": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Consuming repos (e.g. canvas) mount this repo as a submodule at\n"
+        },
+        {
+          "insert": "tools/docs-framework",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and run the CLI through it. Bump the pin when you\nwant them to pick up new tooling:"
+        }
+      ],
+      "children": []
+    },
+    "b-00-local-dev-loop-code-14": {
+      "id": "b-00-local-dev-loop-code-14",
+      "flavour": "code",
+      "props": {},
+      "text": [
+        {
+          "insert": "# here: commit + push\n# in the consuming repo:\ngit -C tools/docs-framework fetch origin\ngit -C tools/docs-framework checkout origin/main\ngit add tools/docs-framework\ngit commit -m \"chore: bump docs-framework pin\""
+        }
+      ],
+      "children": []
+    },
+    "b-00-local-dev-loop-this-is-deliberate-versi-15": {
+      "id": "b-00-local-dev-loop-this-is-deliberate-versi-15",
+      "flavour": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This is deliberate versioning, not friction — CI and other machines get a\nreproducible toolchain, and your local loop never waits on it."
+        }
+      ],
+      "children": []
+    },
+    "b-00-local-dev-loop-verification-16": {
+      "id": "b-00-local-dev-loop-verification-16",
+      "flavour": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Verification"
+        }
+      ],
+      "children": []
+    },
+    "b-00-local-dev-loop-code-17": {
+      "id": "b-00-local-dev-loop-code-17",
+      "flavour": "code",
+      "props": {},
+      "text": [
+        {
+          "insert": "bun run test         # full workspace suite (model, index, cli, server, viewer, workbench)\nbun run typecheck    # tsc --noEmit across the workspace"
+        }
+      ],
+      "children": []
+    },
+    "b-00-local-dev-loop-the-workbench-web-tests-18": {
+      "id": "b-00-local-dev-loop-the-workbench-web-tests-18",
+      "flavour": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The workbench web tests run the real serve app over a temp docs tree with\n"
+        },
+        {
+          "insert": "fetch",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " stubbed straight into the route handler — the 409/423/undo/SSE\npaths are exercised end-to-end with no network."
+        }
+      ],
+      "children": []
+    },
+    "b-00-local-dev-loop-authoring-new-docs-19": {
+      "id": "b-00-local-dev-loop-authoring-new-docs-19",
+      "flavour": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Authoring new docs"
+        }
+      ],
+      "children": []
+    },
+    "b-00-local-dev-loop-write-markdown-under-a-20": {
+      "id": "b-00-local-dev-loop-write-markdown-under-a-20",
+      "flavour": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Write markdown under a "
+        },
+        {
+          "insert": "docs/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " tree and run "
+        },
+        {
+          "insert": "docs migrate",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " once to convert\nit to bundles, or create pages directly in the workbench's Edit mode.\nMarkdown twins left behind by migration can be retired later with\n"
+        },
+        {
+          "insert": "docs migrate --retire-twins",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " (guarded; see "
+        },
+        {
+          "insert": "docs --help",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ")."
+        }
+      ],
+      "children": []
+    }
+  }
+}

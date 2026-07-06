@@ -11,9 +11,9 @@ import {
   doc_update_blocks,
   getStoredPatch,
   undo_patch,
-} from "./agent-tools";
-import { addBundleComment } from "./index";
-import { draftLockStore } from "./draft-locks";
+} from "../agent-tools";
+import { addBundleComment } from "../index";
+import { draftLockStore } from "../draft-locks";
 
 const SAMPLE_DOC = {
   schemaVersion: 1,

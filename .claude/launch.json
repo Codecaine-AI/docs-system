@@ -1,0 +1,18 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "docs-workbench",
+      "runtimeExecutable": "bun",
+      "runtimeArgs": [
+        "packages/docs-cli/src/index.ts",
+        "serve",
+        "--root",
+        "../canvas/docs",
+        "--port",
+        "4801"
+      ],
+      "port": 4801
+    }
+  ]
+}

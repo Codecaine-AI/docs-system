@@ -24,37 +24,6 @@ export class AgentContractDocsBlock extends DocsMdxBlock<AgentContractData> {
   readonly label = "Agent Contract";
   readonly agentDescription =
     "A docs-native description of what an agent reads, writes, may call, and where approval gates apply.";
-  override readonly patchOps = [
-    "update-mdx-block-props",
-    "update-mdx-block-body",
-    "replace-mdx-block",
-  ] as const;
-
-  parse({
-    attrs,
-    body,
-  }: {
-    attrs: Record<string, string>;
-    body: string;
-    source: string;
-  }): DocsMdxParsedBlock<AgentContractData> | null {
-    const id = attrs.id?.trim();
-    if (!id) return null;
-    return {
-      tag: this.tag,
-      type: this.type,
-      targetKind: this.targetKind,
-      sourceId: id,
-      data: {
-        id,
-        agent: attrs.agent?.trim() || undefined,
-        title: attrs.title?.trim() || undefined,
-        tools: attrs.tools?.trim() || undefined,
-        approvals: attrs.approvals?.trim() || undefined,
-        body: body.trim(),
-      },
-    };
-  }
 
   render(
     block: DocsMdxParsedBlock<AgentContractData>,

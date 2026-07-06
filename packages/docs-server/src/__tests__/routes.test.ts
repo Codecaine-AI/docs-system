@@ -3,10 +3,10 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 
-import { createDocsStore } from "./store";
-import { createDocsRoutes } from "./routes";
-import { draftLockStore } from "./draft-locks";
-import type { DocsChangeEvent } from "./docs-events";
+import { createDocsStore } from "../store";
+import { createDocsRoutes } from "../routes";
+import { draftLockStore } from "../draft-locks";
+import type { DocsChangeEvent } from "../docs-events";
 
 /**
  * Route-factory CONTRACT tests: the write routes must mirror the reference

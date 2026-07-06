@@ -1,0 +1,469 @@
+{
+  "schemaVersion": 1,
+  "id": "10-workbench-00-using-the-workbench",
+  "title": "Using the workbench",
+  "root": "b-00-using-the-workbench-root-28",
+  "blocks": {
+    "b-00-using-the-workbench-root-28": {
+      "id": "b-00-using-the-workbench-root-28",
+      "flavour": "paragraph",
+      "props": {},
+      "children": [
+        "b-00-using-the-workbench-using-the-workbench-1",
+        "b-00-using-the-workbench-docs-serve-opens-the-w-2",
+        "b-00-using-the-workbench-edit-mode-default-3",
+        "b-00-using-the-workbench-the-page-is-the-editor-4",
+        "b-00-using-the-workbench-auto-save-edits-sav-5",
+        "b-00-using-the-workbench-continuous-typing-still-6",
+        "b-00-using-the-workbench-the-header-indicator-7",
+        "b-00-using-the-workbench-times-8",
+        "b-00-using-the-workbench-undo-last-save-in-th-9",
+        "b-00-using-the-workbench-single-use-powered-by-10",
+        "b-00-using-the-workbench-live-changes-if-ano-11",
+        "b-00-using-the-workbench-while-your-editor-is-cle-12",
+        "b-00-using-the-workbench-conflicts-13",
+        "b-00-using-the-workbench-two-layers-both-server-14",
+        "b-00-using-the-workbench-stale-hash-409-ev-15",
+        "b-00-using-the-workbench-the-doc-changed-undernea-16",
+        "b-00-using-the-workbench-draft-lock-423-go-17",
+        "b-00-using-the-workbench-heartbeat-renewed-if-18",
+        "b-00-using-the-workbench-annotate-mode-19",
+        "b-00-using-the-workbench-for-pointing-at-things-a-20",
+        "b-00-using-the-workbench-hover-any-block-for-an-o-21",
+        "b-00-using-the-workbench-canvas-objects-inside-em-22",
+        "b-00-using-the-workbench-compose-a-comment-with-23",
+        "b-00-using-the-workbench-list-dangling-targets-24",
+        "b-00-using-the-workbench-comments-live-in-the-bun-25",
+        "b-00-using-the-workbench-static-export-26",
+        "b-00-using-the-workbench-docs-export-produces-t-27"
+      ]
+    },
+    "b-00-using-the-workbench-using-the-workbench-1": {
+      "id": "b-00-using-the-workbench-using-the-workbench-1",
+      "flavour": "heading",
+      "props": {
+        "level": 1
+      },
+      "text": [
+        {
+          "insert": "Using the workbench"
+        }
+      ],
+      "children": []
+    },
+    "b-00-using-the-workbench-docs-serve-opens-the-w-2": {
+      "id": "b-00-using-the-workbench-docs-serve-opens-the-w-2",
+      "flavour": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs serve",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " opens the workbench: a two-mode surface over one docs tree."
+        }
+      ],
+      "children": []
+    },
+    "b-00-using-the-workbench-edit-mode-default-3": {
+      "id": "b-00-using-the-workbench-edit-mode-default-3",
+      "flavour": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Edit mode (default)"
+        }
+      ],
+      "children": []
+    },
+    "b-00-using-the-workbench-the-page-is-the-editor-4": {
+      "id": "b-00-using-the-workbench-the-page-is-the-editor-4",
+      "flavour": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The page "
+        },
+        {
+          "insert": "is",
+          "attributes": {
+            "italic": true
+          }
+        },
+        {
+          "insert": " the editor — Notion-style. There is no read mode and no Save\nbutton:"
+        }
+      ],
+      "children": []
+    },
+    "b-00-using-the-workbench-auto-save-edits-sav-5": {
+      "id": "b-00-using-the-workbench-auto-save-edits-sav-5",
+      "flavour": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Auto-save.",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " Edits save on a ~1s idle debounce (with a 5s max-wait so"
+        }
+      ],
+      "children": []
+    },
+    "b-00-using-the-workbench-continuous-typing-still-6": {
+      "id": "b-00-using-the-workbench-continuous-typing-still-6",
+      "flavour": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "  continuous typing still persists). "
+        },
+        {
+          "insert": "Cmd/Ctrl+S",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " forces an immediate\n  flush. Drafts also flush when the window blurs, the tab hides, you switch\n  modes, or you navigate to another doc."
+        }
+      ],
+      "children": []
+    },
+    "b-00-using-the-workbench-the-header-indicator-7": {
+      "id": "b-00-using-the-workbench-the-header-indicator-7",
+      "flavour": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The header indicator",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " shows "
+        },
+        {
+          "insert": "Saved",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " / "
+        },
+        {
+          "insert": "Saving…",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " / "
+        },
+        {
+          "insert": "Not saved",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " at all"
+        }
+      ],
+      "children": []
+    },
+    "b-00-using-the-workbench-times-8": {
+      "id": "b-00-using-the-workbench-times-8",
+      "flavour": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "  times."
+        }
+      ],
+      "children": []
+    },
+    "b-00-using-the-workbench-undo-last-save-in-th-9": {
+      "id": "b-00-using-the-workbench-undo-last-save-in-th-9",
+      "flavour": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Undo last save",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " in the header reverts the most recent saved patch"
+        }
+      ],
+      "children": []
+    },
+    "b-00-using-the-workbench-single-use-powered-by-10": {
+      "id": "b-00-using-the-workbench-single-use-powered-by-10",
+      "flavour": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "  (single-use; powered by the server's inverse-op ledger)."
+        }
+      ],
+      "children": []
+    },
+    "b-00-using-the-workbench-live-changes-if-ano-11": {
+      "id": "b-00-using-the-workbench-live-changes-if-ano-11",
+      "flavour": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Live changes.",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " If another actor (a teammate, an agent) edits the doc"
+        }
+      ],
+      "children": []
+    },
+    "b-00-using-the-workbench-while-your-editor-is-cle-12": {
+      "id": "b-00-using-the-workbench-while-your-editor-is-cle-12",
+      "flavour": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "  while your editor is clean, the change applies silently and the affected\n  blocks flash. While you have unsaved edits, remote refreshes are\n  suppressed — conflicts are handled at save time instead (below)."
+        }
+      ],
+      "children": []
+    },
+    "b-00-using-the-workbench-conflicts-13": {
+      "id": "b-00-using-the-workbench-conflicts-13",
+      "flavour": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Conflicts"
+        }
+      ],
+      "children": []
+    },
+    "b-00-using-the-workbench-two-layers-both-server-14": {
+      "id": "b-00-using-the-workbench-two-layers-both-server-14",
+      "flavour": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Two layers, both server-enforced:"
+        }
+      ],
+      "children": []
+    },
+    "b-00-using-the-workbench-stale-hash-409-ev-15": {
+      "id": "b-00-using-the-workbench-stale-hash-409-ev-15",
+      "flavour": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Stale hash (409).",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " Every save carries the doc hash it was based on. If"
+        }
+      ],
+      "children": []
+    },
+    "b-00-using-the-workbench-the-doc-changed-undernea-16": {
+      "id": "b-00-using-the-workbench-the-doc-changed-undernea-16",
+      "flavour": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "  the doc changed underneath you, the save is rejected, your draft is kept\n  in the editor, a banner offers \"Reload doc\", and auto-save pauses until\n  you reload."
+        }
+      ],
+      "children": []
+    },
+    "b-00-using-the-workbench-draft-lock-423-go-17": {
+      "id": "b-00-using-the-workbench-draft-lock-423-go-17",
+      "flavour": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Draft lock (423).",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " Going dirty acquires a best-effort TTL lock"
+        }
+      ],
+      "children": []
+    },
+    "b-00-using-the-workbench-heartbeat-renewed-if-18": {
+      "id": "b-00-using-the-workbench-heartbeat-renewed-if-18",
+      "flavour": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "  (heartbeat-renewed). If another session already holds it, a banner says\n  so and saving pauses until the lock frees (the heartbeat notices\n  automatically)."
+        }
+      ],
+      "children": []
+    },
+    "b-00-using-the-workbench-annotate-mode-19": {
+      "id": "b-00-using-the-workbench-annotate-mode-19",
+      "flavour": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Annotate mode"
+        }
+      ],
+      "children": []
+    },
+    "b-00-using-the-workbench-for-pointing-at-things-a-20": {
+      "id": "b-00-using-the-workbench-for-pointing-at-things-a-20",
+      "flavour": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "For pointing at things and leaving structured feedback — the mode an agent\nconversation lives in (\"do this, do this, do this\"):"
+        }
+      ],
+      "children": []
+    },
+    "b-00-using-the-workbench-hover-any-block-for-an-o-21": {
+      "id": "b-00-using-the-workbench-hover-any-block-for-an-o-21",
+      "flavour": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "hover any block for an outline + flavour chip; click to select it;"
+        }
+      ],
+      "children": []
+    },
+    "b-00-using-the-workbench-canvas-objects-inside-em-22": {
+      "id": "b-00-using-the-workbench-canvas-objects-inside-em-22",
+      "flavour": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "canvas objects inside embedded canvases are selectable the same way;"
+        }
+      ],
+      "children": []
+    },
+    "b-00-using-the-workbench-compose-a-comment-with-23": {
+      "id": "b-00-using-the-workbench-compose-a-comment-with-23",
+      "flavour": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "compose a comment (with an intent) in the side pane; resolve from the"
+        }
+      ],
+      "children": []
+    },
+    "b-00-using-the-workbench-list-dangling-targets-24": {
+      "id": "b-00-using-the-workbench-list-dangling-targets-24",
+      "flavour": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "  list; dangling targets (block deleted since) are detected and labeled."
+        }
+      ],
+      "children": []
+    },
+    "b-00-using-the-workbench-comments-live-in-the-bun-25": {
+      "id": "b-00-using-the-workbench-comments-live-in-the-bun-25",
+      "flavour": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Comments live in the bundle's "
+        },
+        {
+          "insert": "comments.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " sidecar with the same\nhash-precondition write path as doc edits."
+        }
+      ],
+      "children": []
+    },
+    "b-00-using-the-workbench-static-export-26": {
+      "id": "b-00-using-the-workbench-static-export-26",
+      "flavour": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Static export"
+        }
+      ],
+      "children": []
+    },
+    "b-00-using-the-workbench-docs-export-produces-t-27": {
+      "id": "b-00-using-the-workbench-docs-export-produces-t-27",
+      "flavour": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs export",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " produces the same UI with everything mutable removed: no mode\nswitcher, no editor, no comments pane, no SSE — a plain read-only site that\nworks from any static host or subpath."
+        }
+      ],
+      "children": []
+    }
+  }
+}
