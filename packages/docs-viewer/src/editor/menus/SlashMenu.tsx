@@ -37,7 +37,7 @@ import {
   Type,
   type LucideIcon,
 } from "lucide-react";
-import type { DocBlockFlavour } from "@codecaine-ai/docs-model/doc-schema";
+import type { DocBlockType } from "@codecaine-ai/docs-model/doc-schema";
 import {
   buildSlashMenuItems,
   filterSlashMenuItems,
@@ -45,10 +45,10 @@ import {
   type SlashMenuActionItem,
   type SlashMenuItem,
   type SlashMenuSubMenu,
-} from "../vendor/blocksuite/slash-menu-model";
-import { FLAVOUR_TO_NODE_TYPE, TEXT_BLOCK_FLAVOURS } from "./schema";
+} from "./vendor/blocksuite/slash-menu-model";
+import { BLOCK_TYPE_TO_NODE_TYPE, TEXT_BLOCK_TYPES } from "../core/schema";
 
-const TEXT_BLOCK_FLAVOUR_SET = new Set<string>(TEXT_BLOCK_FLAVOURS);
+const TEXT_BLOCK_TYPE_SET = new Set<string>(TEXT_BLOCK_TYPES);
 
 /**
  * Slash-menu insertion context: enough for a command's `action` to replace
@@ -100,8 +100,8 @@ function isSubMenuCommand(item: SlashCommandItem): item is SlashCommandSubMenuIt
  * - The line still has text before the `/` → insert the new block as a
  *   true SIBLING right after the current block.
  */
-function insertFlavourBlock(flavour: DocBlockFlavour, ctx: SlashMenuActionContext, extraAttrs?: Record<string, unknown>) {
-  const nodeType = FLAVOUR_TO_NODE_TYPE[flavour];
+function insertBlockOfType(flavour: DocBlockType, ctx: SlashMenuActionContext, extraAttrs?: Record<string, unknown>) {
+  const nodeType = BLOCK_TYPE_TO_NODE_TYPE[flavour];
   const { editor, from, to } = ctx;
   const node = editor.schema.nodes[nodeType];
   if (!node) return;
@@ -119,9 +119,9 @@ function insertFlavourBlock(flavour: DocBlockFlavour, ctx: SlashMenuActionContex
     // "Emptied" = the wrapper lost its only text to the delete and the block
     // has no nested children riding along.
     const emptied = $pos.parent.content.size === 0 && block.childCount === 1;
-    const isWrappedTextFlavour = TEXT_BLOCK_FLAVOUR_SET.has(flavour) && flavour !== "code";
+    const isWrappedTextBlockType = TEXT_BLOCK_TYPE_SET.has(flavour) && flavour !== "code";
 
-    if (emptied && isWrappedTextFlavour) {
+    if (emptied && isWrappedTextBlockType) {
       tr.setNodeMarkup(blockStart, node, {
         ...attrs,
         blockId: (block.attrs.blockId as string | null) ?? null,
@@ -173,7 +173,7 @@ function buildV1Commands(): SlashCommandItem[] {
     name: string,
     icon: LucideIcon,
     description: string,
-    flavour: DocBlockFlavour,
+    flavour: DocBlockType,
     extraAttrs?: Record<string, unknown>,
     searchAlias?: string[],
   ): SlashCommandActionItem => ({
@@ -182,7 +182,7 @@ function buildV1Commands(): SlashCommandItem[] {
     icon,
     description,
     searchAlias,
-    action: (ctx) => insertFlavourBlock(flavour, ctx, extraAttrs),
+    action: (ctx) => insertBlockOfType(flavour, ctx, extraAttrs),
   });
 
   const HEADING_ICONS: Record<number, LucideIcon> = {
@@ -195,7 +195,7 @@ function buildV1Commands(): SlashCommandItem[] {
     icon: HEADING_ICONS[level],
     description: `Headings in the ${level}th font size.`,
     searchAlias: [`h${level}`],
-    action: (ctx) => insertFlavourBlock("heading", ctx, { level }),
+    action: (ctx) => insertBlockOfType("heading", ctx, { level }),
   });
 
   return [
@@ -449,7 +449,7 @@ export const SlashMenu = Extension.create({
             if (meta?.forceClose) return CLOSED_STATE;
             if (meta && prev.open) return { ...prev, ...meta };
 
-            // A command's `action` (see `insertFlavourBlock`/reference-node's
+            // A command's `action` (see `insertBlockOfType`/reference-node's
             // mention insertion) runs its OWN `editor.chain()....run()` before
             // the caller (SlashMenuPopover's `choose`, or this plugin's own
             // `handleKeyDown` Enter branch) gets a chance to dispatch the

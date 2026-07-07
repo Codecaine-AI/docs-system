@@ -13,6 +13,19 @@
         "4801"
       ],
       "port": 4801
+    },
+    {
+      "name": "docs-workbench-self",
+      "runtimeExecutable": "bun",
+      "runtimeArgs": [
+        "packages/docs-cli/src/index.ts",
+        "serve",
+        "--root",
+        "docs",
+        "--port",
+        "4802"
+      ],
+      "port": 4802
     }
   ]
 }

@@ -10,23 +10,23 @@
  */
 
 export * from "./client";
-export * from "./annotations";
-export * from "./bundle-src";
-export * from "./flavour-registry";
-export * from "./docs-targeting";
-export * from "./useTransientHighlights";
+export * from "./annotate/annotations";
+export * from "./render/bundle-src";
+export * from "./render/block-registry";
+export * from "./annotate/docs-targeting";
+export * from "./annotate/useTransientHighlights";
 
 export {
   default as DocBlockRenderer,
   renderDeltaSpans,
   type DocBlockRendererProps,
   type DocBlockSaveResult,
-} from "./DocBlockRenderer";
+} from "./render/DocBlockRenderer";
 export {
   default as Plannotator,
   type PlannotatorProps,
   type PlannotatorSelection,
-} from "./Plannotator";
+} from "./annotate/Plannotator";
 export {
   default as DocTargetingLayer,
   useDocTargeting,
@@ -37,6 +37,6 @@ export {
   type DocTargetingCanvasIndex,
   type DocTargetingCreateAnnotationInput,
   type DocsAnnotationView,
-} from "./doc-targeting-layer";
-export { default as DocsBlockLibrary } from "./DocsBlockLibrary";
+} from "./annotate/doc-targeting-layer";
+export { default as DocsBlockLibrary } from "./render/DocsBlockLibrary";
 export { default as DocEditor, type DocEditorProps } from "./editor/DocEditor";

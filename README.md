@@ -151,7 +151,7 @@ Two files are vendored, labeled, non-verbatim ports from
 with its own `NOTICE` explaining provenance and why the port satisfies
 MPL-2.0 file-level copyleft:
 
-- [`packages/docs-viewer/src/vendor/blocksuite/NOTICE`](packages/docs-viewer/src/vendor/blocksuite/NOTICE)
+- [`packages/docs-viewer/src/editor/menus/vendor/blocksuite/NOTICE`](packages/docs-viewer/src/editor/menus/vendor/blocksuite/NOTICE)
 - `external/canvas/packages/canvas/src/vendor/blocksuite/NOTICE` (inside the `canvas` submodule)
 
 Do not modify the vendored/ported files without updating their NOTICE and

@@ -24,7 +24,7 @@ import {
   type ReferenceType,
 } from "@floating-ui/react";
 import type { SpectreRef } from "@codecaine-ai/docs-model/spectre-ref";
-import { useDocsClient, type DocsClient, type DocsTreeNode } from "../client";
+import { useDocsClient, type DocsClient, type DocsTreeNode } from "../../client";
 
 /**
  * Inline reference (mention) node — the doc.json `DeltaSpan.attributes.reference`

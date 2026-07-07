@@ -4,6 +4,11 @@ import { AlertTriangleIcon, CheckCircle2Icon, InfoIcon } from "lucide-react";
 import { Badge } from "../../ui/badge";
 import { cn } from "../../ui/cn";
 import {
+  CARD_BASE_CLASSES,
+  CARD_TONE_DECISION_CLASSES,
+  CARD_TONE_PRIMARY_CLASSES,
+} from "../../render/block-classes";
+import {
   DocsMdxBlock,
   type DocsMdxBlockRenderContext,
   type DocsMdxParsedBlock,
@@ -25,11 +30,11 @@ function toneIcon(tone: string) {
 
 function toneClass(tone: string): string {
   if (tone === "warning" || tone === "risk") {
-    return "border-primary/30 bg-primary/5";
+    return CARD_TONE_PRIMARY_CLASSES;
   }
-  if (tone === "success") return "border-primary/30 bg-primary/5";
-  if (tone === "decision") return "border-primary/25 bg-primary/5";
-  return "border-primary/30 bg-primary/5";
+  if (tone === "success") return CARD_TONE_PRIMARY_CLASSES;
+  if (tone === "decision") return CARD_TONE_DECISION_CLASSES;
+  return CARD_TONE_PRIMARY_CLASSES;
 }
 
 export class CalloutDocsBlock extends DocsMdxBlock<CalloutData> {
@@ -48,7 +53,7 @@ export class CalloutDocsBlock extends DocsMdxBlock<CalloutData> {
     const Icon = toneIcon(data.tone);
     return (
       <aside
-        className={cn("not-prose my-4 rounded-md border p-3", toneClass(data.tone))}
+        className={cn(CARD_BASE_CLASSES, toneClass(data.tone))}
         data-mdx-block={this.tag}
         data-docs-block-type={this.type}
         data-source-id={data.id}

@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
 import { Editor, Extension, type JSONContent } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
-import { DocCodeBlock, DocDivider, DocHeading, DocListItem, DocParagraph, DocQuote } from "../schema";
-import { buildDocInputRules } from "../input-rules";
+import { DocCodeBlock, DocDivider, DocHeading, DocListItem, DocParagraph, DocQuote } from "../core/schema";
+import { buildDocInputRules } from "../input/input-rules";
 
 const DocInputRules = Extension.create({
   name: "docInputRules",

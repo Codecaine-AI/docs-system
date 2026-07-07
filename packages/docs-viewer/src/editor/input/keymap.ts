@@ -4,9 +4,9 @@ import { Extension, type Editor } from "@tiptap/core";
 import { TextSelection, type Selection, type Transaction } from "@tiptap/pm/state";
 import { canSplit } from "@tiptap/pm/transform";
 import type { Attrs, NodeType, Schema } from "@tiptap/pm/model";
-import { FLAVOUR_TO_NODE_TYPE, TEXT_BLOCK_FLAVOURS } from "./schema";
-import { slashMenuPluginKey } from "./SlashMenu";
-import { referenceMentionPluginKey } from "./reference-node";
+import { BLOCK_TYPE_TO_NODE_TYPE, TEXT_BLOCK_TYPES } from "../core/schema";
+import { slashMenuPluginKey } from "../menus/SlashMenu";
+import { referenceMentionPluginKey } from "../menus/reference-node";
 
 /**
  * Notion-style Enter/Backspace handling for the block editor (keyboard feel).
@@ -57,8 +57,8 @@ import { referenceMentionPluginKey } from "./reference-node";
 
 /** Node type names whose content is `"docBlockText block*"` (all text-bearing flavours except code, which is a flat `text*` block). */
 const WRAPPED_TEXT_NODE_NAMES: ReadonlySet<string> = new Set(
-  TEXT_BLOCK_FLAVOURS.filter((flavour) => flavour !== "code").map(
-    (flavour) => FLAVOUR_TO_NODE_TYPE[flavour],
+  TEXT_BLOCK_TYPES.filter((flavour) => flavour !== "code").map(
+    (flavour) => BLOCK_TYPE_TO_NODE_TYPE[flavour],
   ),
 );
 

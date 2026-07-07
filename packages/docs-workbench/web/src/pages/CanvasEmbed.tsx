@@ -7,7 +7,7 @@ import {
   type InteractiveCanvasDocument,
 } from "@codecaine-ai/canvas";
 
-import { getCanvasBySrc } from "./api";
+import { getCanvasBySrc } from "../data/api";
 
 /**
  * Read-only standalone counterpart of Spectre's CanvasSidecarEmbed, wired

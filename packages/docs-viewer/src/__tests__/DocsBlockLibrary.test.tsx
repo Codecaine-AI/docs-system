@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from "bun:test";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { DOC_BLOCK_FLAVOURS, validateDocDocument } from "@codecaine-ai/docs-model/doc-schema";
-import DocsBlockLibrary from "../DocsBlockLibrary";
+import { DOC_BLOCK_TYPES, validateDocDocument } from "@codecaine-ai/docs-model/doc-schema";
+import DocsBlockLibrary from "../render/DocsBlockLibrary";
 import { DocsClientProvider, type CanvasEmbedProps } from "../client";
 
 /**
@@ -33,7 +33,7 @@ describe("DocsBlockLibrary", () => {
 
     expect(screen.getByRole("heading", { name: "Block Library" })).toBeTruthy();
 
-    for (const flavour of DOC_BLOCK_FLAVOURS) {
+    for (const flavour of DOC_BLOCK_TYPES) {
       // The catalog card for the flavour exists...
       const card = document.querySelector(`[data-library-flavour="${flavour}"]`);
       expect(card).toBeTruthy();
@@ -100,7 +100,7 @@ describe("DocsBlockLibrary", () => {
     // reassembling them under a root must satisfy the doc schema — the
     // catalog can never drift from the vocabulary it showcases.
     const sources = Array.from(document.querySelectorAll("details pre"));
-    expect(sources.length).toBe(DOC_BLOCK_FLAVOURS.length);
+    expect(sources.length).toBe(DOC_BLOCK_TYPES.length);
     for (const source of sources) {
       const blocks = JSON.parse(source.textContent ?? "{}") as Record<
         string,

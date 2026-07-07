@@ -27,10 +27,10 @@
 
 import { useMemo, useState } from "react";
 import { AlertTriangleIcon, CheckIcon, MessageSquarePlusIcon, SparklesIcon } from "lucide-react";
-import { Badge } from "./ui/badge";
-import { Button } from "./ui/button";
-import { Textarea } from "./ui/textarea";
-import { cn } from "./ui/cn";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
+import { Textarea } from "../ui/textarea";
+import { cn } from "../ui/cn";
 import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import {
   detectDanglingTargets,

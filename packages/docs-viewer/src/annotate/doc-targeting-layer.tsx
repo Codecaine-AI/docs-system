@@ -56,13 +56,13 @@ import {
   Trash2Icon,
   XIcon,
 } from "lucide-react";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Textarea } from "./ui/textarea";
-import { cn } from "./ui/cn";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
+import { cn } from "../ui/cn";
 import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import type { DocsAnchor, DocsTarget } from "./annotations";
-import { getDocFlavourDescriptor } from "./flavour-registry";
+import { getDocBlockDescriptor } from "../render/block-registry";
 import {
   blockTypeForElement,
   buildBlockDocsTarget,
@@ -536,7 +536,7 @@ function targetKindLabel(
   if (doc) {
     // Bundle mode: prefer the flavour registry descriptor's human label
     // ("Paragraph", "Agent Contract", ...) when the block type is a flavour.
-    const descriptor = getDocFlavourDescriptor(raw);
+    const descriptor = getDocBlockDescriptor(raw);
     if (descriptor) return descriptor.label;
   }
   return titleCaseTargetKind(raw);
@@ -578,7 +578,7 @@ function decorateBundleTarget(
   const block = blockId ? doc.blocks[blockId] : undefined;
   if (!blockId || !block) return target;
 
-  const descriptor = getDocFlavourDescriptor(block.flavour);
+  const descriptor = getDocBlockDescriptor(block.flavour);
   const flavourLabel = descriptor?.label ?? block.flavour;
   const text = truncateLabelText(target.element.textContent ?? "");
   const label = text ? `${flavourLabel}: ${text}` : flavourLabel;

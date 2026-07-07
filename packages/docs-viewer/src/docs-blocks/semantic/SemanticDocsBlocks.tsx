@@ -4,6 +4,7 @@ import type { LucideIcon } from "lucide-react";
 import { AlertCircleIcon, LightbulbIcon } from "lucide-react";
 import { Badge } from "../../ui/badge";
 import { cn } from "../../ui/cn";
+import { CARD_BASE_CLASSES, CARD_TONE_PRIMARY_CLASSES } from "../../render/block-classes";
 import {
   DocsMdxBlock,
   type DocsMdxBlockRenderContext,
@@ -63,7 +64,7 @@ class ConfiguredSemanticDocsBlock extends DocsMdxBlock<SemanticBlockData> {
     const Icon = this.config.icon;
     return (
       <section
-        className={cn("not-prose my-4 rounded-md border p-3", this.config.className)}
+        className={cn(CARD_BASE_CLASSES, this.config.className)}
         data-mdx-block={this.tag}
         data-docs-block-type={this.type}
         data-source-id={data.id}
@@ -113,7 +114,7 @@ export const constraintDocsBlock = new ConfiguredSemanticDocsBlock({
   agentDescription:
     "A hard or soft rule that limits implementation, product behavior, safety, or architecture decisions.",
   icon: AlertCircleIcon,
-  className: "border-primary/30 bg-primary/5",
+  className: CARD_TONE_PRIMARY_CLASSES,
 });
 
 export const assumptionDocsBlock = new ConfiguredSemanticDocsBlock({
@@ -124,5 +125,5 @@ export const assumptionDocsBlock = new ConfiguredSemanticDocsBlock({
   agentDescription:
     "An explicit belief the docs rely on, with optional confidence and owner metadata.",
   icon: LightbulbIcon,
-  className: "border-primary/30 bg-primary/5",
+  className: CARD_TONE_PRIMARY_CLASSES,
 });

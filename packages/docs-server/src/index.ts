@@ -15,6 +15,13 @@ export {
   subscribeToDocsChangeEvents,
   type DocsChangeEvent,
 } from "./docs-events";
+export {
+  FS_WATCH_ACTOR,
+  changeTargetForRelPath,
+  watchDocsRoot,
+  type DocsFsWatchHandle,
+  type WatchDocsRootOptions,
+} from "./fs-watch";
 
 // Confinement + tree
 export {

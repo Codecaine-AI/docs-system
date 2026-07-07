@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, type ReactNode } from "react";
-import type { DocFlavourRenderContext } from "../flavour-registry";
+import type { DocBlockRenderContext } from "../../render/block-registry";
 
 /**
  * TipTap NodeViews are mounted deep inside ProseMirror's DOM tree — they
@@ -13,8 +13,8 @@ import type { DocFlavourRenderContext } from "../flavour-registry";
  * to reach that deep without prop-drilling through TipTap's node view API.
  */
 export type DocEditorNodeViewContextValue = {
-  renderCanvas?: DocFlavourRenderContext["renderCanvas"];
-  resolveAssetSrc?: DocFlavourRenderContext["resolveAssetSrc"];
+  renderCanvas?: DocBlockRenderContext["renderCanvas"];
+  resolveAssetSrc?: DocBlockRenderContext["resolveAssetSrc"];
 };
 
 const DocEditorNodeViewContext = createContext<DocEditorNodeViewContextValue>({});

@@ -7,7 +7,7 @@ import tailwindcss from "@tailwindcss/vite";
 const here = dirname(fileURLToPath(import.meta.url));
 
 /**
- * Two build modes (see web/src/api.ts):
+ * Two build modes (see web/src/data/api.ts):
  *  - default: SPA for `docs-cli serve` (live /api routes) -> dist/
  *  - DOCS_STATIC=1: SPA for `docs-cli export` (pregenerated data/ JSON)
  *    -> dist-static/

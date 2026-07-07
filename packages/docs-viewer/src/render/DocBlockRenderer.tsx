@@ -5,9 +5,9 @@ import ReactMarkdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import remarkGfm from "remark-gfm";
 import type { DeltaSpan, DocBlock, DocDocument } from "@codecaine-ai/docs-model/doc-schema";
-import type { DocFlavourRenderContext } from "./flavour-registry";
-import { getDocFlavourDescriptor } from "./flavour-registry";
-import { CanvasEmbedUnavailable, useCanvasEmbed } from "./client";
+import type { DocBlockRenderContext } from "./block-registry";
+import { getDocBlockDescriptor } from "./block-registry";
+import { CanvasEmbedUnavailable, useCanvasEmbed } from "../client";
 import { resolveBundleCanvasSrc } from "./bundle-src";
 
 /**
@@ -36,7 +36,7 @@ export interface DocBlockRendererProps {
    * HTTP-fetching logic of its own, it just wires whatever the host
    * provides. Omit to keep existing callers' raw-`src` behavior unchanged.
    */
-  resolveAssetSrc?: DocFlavourRenderContext["resolveAssetSrc"];
+  resolveAssetSrc?: DocBlockRenderContext["resolveAssetSrc"];
   /**
    * Canvas-object selection for Plannotator targeting (M2 Checkpoint 5,
    * TG5.3): wired into the injected-embed rendering. Called with the
@@ -120,7 +120,7 @@ export function renderDeltaSpans(text: DeltaSpan[] | undefined): ReactNode {
   });
 }
 
-function UnknownFlavourBlock({ block }: { block: DocBlock }) {
+function UnknownBlockTypeBlock({ block }: { block: DocBlock }) {
   return (
     <section
       className="not-prose my-4 rounded-md border border-dashed bg-muted/30 p-3"
@@ -151,7 +151,7 @@ export default function DocBlockRenderer({
   // Stable identity per prop set — a fresh closure every render would give
   // every canvas block a new `renderCanvas` and defeat descendant
   // memoization.
-  const renderCanvasEmbed = useMemo<DocFlavourRenderContext["renderCanvas"]>(
+  const renderCanvasEmbed = useMemo<DocBlockRenderContext["renderCanvas"]>(
     () => (input) => {
       const canvasSrc = input.src ? resolveBundleCanvasSrc(bundlePath, input.src) : undefined;
       if (!CanvasEmbed) {
@@ -183,7 +183,7 @@ export default function DocBlockRenderer({
   // `renderBlock` are mutually recursive, so both are built inside a single
   // useMemo (the hoisted function declaration resolves the cycle).
   const renderBlock = useMemo(() => {
-    const ctx: DocFlavourRenderContext = {
+    const ctx: DocBlockRenderContext = {
       renderText: renderDeltaSpans,
       renderChildren: (parent) => (
         <>{parent.children.map((childId) => renderBlock(childId))}</>
@@ -195,8 +195,8 @@ export default function DocBlockRenderer({
     function renderBlock(blockId: string): ReactNode {
       const block = document.blocks[blockId];
       if (!block) return null;
-      const descriptor = getDocFlavourDescriptor(block.flavour);
-      if (!descriptor) return <UnknownFlavourBlock key={blockId} block={block} />;
+      const descriptor = getDocBlockDescriptor(block.flavour);
+      if (!descriptor) return <UnknownBlockTypeBlock key={blockId} block={block} />;
       return <Fragment key={blockId}>{descriptor.render(block, ctx)}</Fragment>;
     }
     return renderBlock;

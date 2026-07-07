@@ -2,10 +2,10 @@ import { afterEach, describe, expect, it } from "bun:test";
 import { Editor, type AnyExtension, type JSONContent } from "@tiptap/core";
 import { NodeSelection } from "@tiptap/pm/state";
 import StarterKit from "@tiptap/starter-kit";
-import { TEXT_BLOCK_NODES } from "../schema";
-import { DocKeymap } from "../keymap";
-import { DocPlaceholder } from "../placeholder";
-import { SlashMenu, slashMenuPluginKey } from "../SlashMenu";
+import { TEXT_BLOCK_NODES } from "../core/schema";
+import { DocKeymap } from "../input/keymap";
+import { DocPlaceholder } from "../decorations/placeholder";
+import { SlashMenu, slashMenuPluginKey } from "../menus/SlashMenu";
 
 /**
  * Notion-feel keyboard behavior (keymap.ts) + empty-block placeholder hints
@@ -615,10 +615,10 @@ describe("DocPlaceholder", () => {
     setCursorInWrapper(editor, 4, 0);
     expect(dom.querySelector("blockquote")?.getAttribute("data-placeholder")).toBe("Quote");
     expect(
-      dom.querySelector('[data-doc-flavour="callout"]')?.getAttribute("data-placeholder"),
+      dom.querySelector('[data-doc-type="callout"]')?.getAttribute("data-placeholder"),
     ).toBe("Callout");
     expect(
-      dom.querySelector('[data-doc-flavour="decision"]')?.getAttribute("data-placeholder"),
+      dom.querySelector('[data-doc-type="decision"]')?.getAttribute("data-placeholder"),
     ).toBe("Decision");
     expect(dom.querySelector("li")?.getAttribute("data-placeholder")).toBe("List");
 

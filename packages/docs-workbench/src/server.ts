@@ -11,6 +11,7 @@ import {
   primeBacklinksDb,
   resolveStaticFilePath,
   validateCanvasPayload,
+  watchDocsRoot,
 } from "@codecaine-ai/docs-server";
 
 /**
@@ -43,6 +44,15 @@ export interface DocsServeAppOptions {
   docsRoot: string;
   /** Built SPA directory to serve at `/`; omit for API-only (tests). */
   staticDir?: string | null;
+  /**
+   * Watch the docs tree on disk and publish change events for edits made
+   * OUTSIDE the API (hand edits, agents, CLI writes) so open workbench tabs
+   * live-reload them over the existing SSE stream. The watcher is closed via
+   * the app's `stop()` lifecycle (`onStop`). Defaults OFF for bare embedding
+   * (an app that never `listen()`s/`stop()`s would leak the watcher);
+   * `runServe` turns it on.
+   */
+  watchFs?: boolean;
 }
 
 /**
@@ -79,11 +89,27 @@ export function createDocsServeApp(options: DocsServeAppOptions) {
   const store = createDocsStore(docsRoot);
   const app = new Elysia().use(createDocsRoutes(store));
 
+  if (options.watchFs) {
+    // External edits (hand edits, agents, CLI writes) surface as the same
+    // change events API mutations publish, so open tabs pick them up live.
+    // Events carry `actor: "fs"` — never a client session id — so no client
+    // filters them as its own echo. Duplicates after API saves (which also
+    // touch disk) are benign: clients respond with a re-fetch, not a write.
+    const watcher = watchDocsRoot(docsRoot, (event) => store.publishChange(event));
+    app.onStop(() => watcher.close());
+  }
+
   if (staticDir) {
     const indexAbs = join(staticDir, "index.html");
+    // Without explicit cache headers browsers cache heuristically, so a tab
+    // can keep loading a pre-rebuild bundle entirely from cache. The shell
+    // must always revalidate; hashed /assets/ files are immutable by name.
     const serveIndex = async () =>
       new Response(await readFile(indexAbs), {
-        headers: { "Content-Type": "text/html; charset=utf-8" },
+        headers: {
+          "Content-Type": "text/html; charset=utf-8",
+          "Cache-Control": "no-cache",
+        },
       });
     app.get("/*", async ({ path }) => {
       if (path === "/" || path === "/index.html") return serveIndex();
@@ -92,7 +118,12 @@ export function createDocsServeApp(options: DocsServeAppOptions) {
         const st = await stat(abs);
         if (st.isFile()) {
           return new Response(await readFile(abs), {
-            headers: { "Content-Type": Bun.file(abs).type },
+            headers: {
+              "Content-Type": Bun.file(abs).type,
+              "Cache-Control": path.startsWith("/assets/")
+                ? "public, max-age=31536000, immutable"
+                : "no-cache",
+            },
           });
         }
       }

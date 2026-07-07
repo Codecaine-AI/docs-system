@@ -30,7 +30,19 @@
         "impl-1",
         "testing-1",
         "contract-1",
-        "tree-1"
+        "tree-1",
+        "annotated-code-1",
+        "api-endpoint-1",
+        "api-surface-1",
+        "data-model-1",
+        "diff-1",
+        "impl-map-1",
+        "json-explorer-1",
+        "checklist-1",
+        "columns-1",
+        "structured-table-1",
+        "tabs-1",
+        "mermaid-1"
       ]
     },
     "h1": {
@@ -234,6 +246,111 @@
           { "path": "src/components/docs/DocBlockRenderer.tsx", "note": "tracer renderer", "change": "added" }
         ]
       },
+      "children": []
+    },
+    "annotated-code-1": {
+      "id": "annotated-code-1",
+      "flavour": "annotated-code",
+      "props": { "title": "Annotated code sample", "language": "typescript" },
+      "text": [
+        {
+          "insert": "--- code ---\nexport const fixtureGreeting = \"hello\";\n--- annotations ---\n- 1|Constant -- The canonical fixture greeting."
+        }
+      ],
+      "children": []
+    },
+    "api-endpoint-1": {
+      "id": "api-endpoint-1",
+      "flavour": "api-endpoint",
+      "props": {
+        "title": "API endpoint sample",
+        "method": "GET",
+        "path": "/docs/sample",
+        "summary": "Fetch the sample doc"
+      },
+      "text": [
+        { "insert": "Returns the sample doc bundle.\n\n- response 200 :: The doc.json payload." }
+      ],
+      "children": []
+    },
+    "api-surface-1": {
+      "id": "api-surface-1",
+      "flavour": "api-surface",
+      "props": { "title": "API surface sample" },
+      "text": [{ "insert": "- GET /docs/sample -- Fetch the sample doc" }],
+      "children": []
+    },
+    "data-model-1": {
+      "id": "data-model-1",
+      "flavour": "data-model",
+      "props": { "title": "Data model sample" },
+      "text": [{ "insert": "--- Doc ---\n- id: string pk -- Stable doc id" }],
+      "children": []
+    },
+    "diff-1": {
+      "id": "diff-1",
+      "flavour": "diff",
+      "props": { "title": "Diff sample", "filename": "answer.ts", "mode": "unified" },
+      "text": [
+        {
+          "insert": "--- before ---\nexport const answer = 41;\n--- after ---\nexport const answer = 42;"
+        }
+      ],
+      "children": []
+    },
+    "impl-map-1": {
+      "id": "impl-map-1",
+      "flavour": "implementation-map",
+      "props": { "title": "Implementation map sample" },
+      "text": [
+        { "insert": "- [added] `src/lib/docs-model/doc-schema.ts` (ts) -- Types and validation" }
+      ],
+      "children": []
+    },
+    "json-explorer-1": {
+      "id": "json-explorer-1",
+      "flavour": "json-explorer",
+      "props": { "title": "JSON explorer sample", "collapsedDepth": 2 },
+      "text": [{ "insert": "{ \"answer\": 42 }" }],
+      "children": []
+    },
+    "checklist-1": {
+      "id": "checklist-1",
+      "flavour": "checklist",
+      "props": { "title": "Checklist sample" },
+      "text": [{ "insert": "- [x] Validate the fixture -- parses through every adapter" }],
+      "children": []
+    },
+    "columns-1": {
+      "id": "columns-1",
+      "flavour": "columns",
+      "props": { "title": "Columns sample", "columns": 2 },
+      "text": [
+        { "insert": "--- Left ---\nLeft column body.\n--- Right ---\nRight column body." }
+      ],
+      "children": []
+    },
+    "structured-table-1": {
+      "id": "structured-table-1",
+      "flavour": "structured-table",
+      "props": { "title": "Structured table sample", "density": "compact" },
+      "text": [{ "insert": "| Name | Value |\n| --- | --- |\n| answer | 42 |" }],
+      "children": []
+    },
+    "tabs-1": {
+      "id": "tabs-1",
+      "flavour": "tabs",
+      "props": { "title": "Tabs sample" },
+      "text": [
+        { "insert": "--- First ---\nFirst tab body.\n--- Second ---\nSecond tab body." }
+      ],
+      "children": []
+    },
+    "mermaid-1": {
+      "id": "mermaid-1",
+      "flavour": "mermaid",
+      "props": { "title": "Mermaid sample" },
+      "text": [{ "insert": "flowchart LR\n  A[Doc] --> B[Render]" }],
       "children": []
     }
   }

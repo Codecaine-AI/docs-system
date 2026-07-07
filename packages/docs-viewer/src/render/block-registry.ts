@@ -1,31 +1,63 @@
 "use client";
 
 import { createElement, type ReactNode } from "react";
-import type { DocsMdxBlock } from "./docs-blocks/base";
-import { AgentContractDocsBlock } from "./docs-blocks/agent-contract/AgentContractDocsBlock";
-import { CalloutDocsBlock } from "./docs-blocks/callout/CalloutDocsBlock";
-import { DecisionDocsBlock } from "./docs-blocks/decision/DecisionDocsBlock";
-import { FileTreeDocsBlock } from "./docs-blocks/file-tree/FileTreeDocsBlock";
+import type { DocsMdxBlock, DocsMdxParsedBlock } from "../docs-blocks/base";
+import { AgentContractDocsBlock } from "../docs-blocks/agent-contract/AgentContractDocsBlock";
+import { CalloutDocsBlock } from "../docs-blocks/callout/CalloutDocsBlock";
+import { DecisionDocsBlock } from "../docs-blocks/decision/DecisionDocsBlock";
+import { FileTreeDocsBlock } from "../docs-blocks/file-tree/FileTreeDocsBlock";
+import {
+  AnnotatedCodeDocsBlock,
+  ApiEndpointDocsBlock,
+  ApiSurfaceDocsBlock,
+  DataModelDocsBlock,
+  DiffDocsBlock,
+  ImplementationMapDocsBlock,
+  JsonExplorerDocsBlock,
+} from "../docs-blocks/engineering/EngineeringDocsBlocks";
+import { MermaidDocsBlock } from "../docs-blocks/mermaid/MermaidDocsBlock";
 import {
   assumptionDocsBlock,
   constraintDocsBlock,
-} from "./docs-blocks/semantic/SemanticDocsBlocks";
-import type { DeltaSpan, DocBlock, DocBlockFlavour } from "@codecaine-ai/docs-model/doc-schema";
-import { DOC_BLOCK_FLAVOURS } from "@codecaine-ai/docs-model/doc-schema";
+} from "../docs-blocks/semantic/SemanticDocsBlocks";
+import {
+  ChecklistDocsBlock,
+  ColumnsDocsBlock,
+  StructuredTableDocsBlock,
+  TabsDocsBlock,
+} from "../docs-blocks/support/SupportDocsBlocks";
+import type { DeltaSpan, DocBlock, DocBlockType } from "@codecaine-ai/docs-model/doc-schema";
+import { DOC_BLOCK_TYPES } from "@codecaine-ai/docs-model/doc-schema";
 import { deltaToPlainTextInline, wrapMarkdownMarks } from "@codecaine-ai/docs-model/delta-markdown";
+import {
+  CARD_BODY_TEXT_CLASSES,
+  CODE_BLOCK_CLASSES,
+  HEADING_CLASSES,
+  LIST_ITEM_BULLET_CLASSES,
+  LIST_ITEM_CHILDREN_CLASSES,
+  LIST_ITEM_CLASSES,
+  LIST_ITEM_CONTENT_CLASSES,
+  PARAGRAPH_CLASSES,
+  QUOTE_CLASSES,
+  SEMANTIC_CARD_CLASSES,
+} from "./block-classes";
 
 /**
  * Flavour registry (D28): maps every doc.json flavour to a render/agent
  * descriptor. Where a doc.json flavour aligns with a docs-block component
- * implementation (decision, callout, agent-contract, file-tree, constraint,
- * assumption) the descriptor delegates to that block's render — the blocks
- * are imported directly; the MDX-era tag registry and MdxDocumentRenderer
- * are gone. The remaining flavours get minimal tracer descriptors here.
- * DocBlockRenderer supplies the concrete render context (delta spans ->
- * inline React, recursive children, canvas embeds, markdown projection).
+ * implementation the descriptor delegates to that block's render — via
+ * `mdxAdapterDescriptor` (decision, callout, agent-contract, file-tree,
+ * constraint, assumption: `data` built by hand from props) or
+ * `parsedMdxAdapterDescriptor` (the restored engineering/support/mermaid
+ * flavours: `data` built by REUSING the component's MDX-era parse() over a
+ * delta->markdown body projection). The blocks are imported directly; the
+ * MDX-era tag registry and MdxDocumentRenderer are gone. The remaining
+ * flavours get minimal tracer descriptors here. DocBlockRenderer supplies
+ * the concrete render context (delta spans -> inline React, recursive
+ * children, canvas embeds, markdown projection).
  */
 
-export type DocFlavourRenderContext = {
+export type DocBlockRenderContext = {
   /** Renders delta spans to inline React (bold/italic/strike/code/link/reference marks). */
   renderText: (text: DeltaSpan[] | undefined) => ReactNode;
   /** Renders the block's ordered children recursively. */
@@ -53,14 +85,14 @@ export type DocFlavourRenderContext = {
   resolveAssetSrc?: (src: string) => string;
 };
 
-export type DocFlavourDescriptor = {
-  flavour: DocBlockFlavour;
+export type DocBlockDescriptor = {
+  flavour: DocBlockType;
   targetKind: string;
   label: string;
   agentDescription: string;
   /** Typed doc ops applicable to this flavour (see doc-ops.ts DocOp union). */
   patchOps: readonly string[];
-  render: (block: DocBlock, ctx: DocFlavourRenderContext) => ReactNode;
+  render: (block: DocBlock, ctx: DocBlockRenderContext) => ReactNode;
 };
 
 const STRUCTURAL_OPS = ["insertBlock", "updateBlock", "deleteBlock", "moveBlock"] as const;
@@ -126,7 +158,7 @@ export function deltaToPlainText(text: DeltaSpan[] | undefined): string {
 }
 
 type SimpleCardOptions = {
-  flavour: DocBlockFlavour;
+  flavour: DocBlockType;
   label: string;
   agentDescription: string;
   targetKind?: string;
@@ -154,7 +186,7 @@ function blockAttrs(block: DocBlock): Record<string, unknown> {
  * aligned MDX implementation yet (observation, outcome, requirement,
  * implementation, testing). Mirrors the semantic docs-block chrome.
  */
-function simpleCardDescriptor(options: SimpleCardOptions): DocFlavourDescriptor {
+function simpleCardDescriptor(options: SimpleCardOptions): DocBlockDescriptor {
   return {
     flavour: options.flavour,
     targetKind: options.targetKind ?? options.flavour,
@@ -168,7 +200,7 @@ function simpleCardDescriptor(options: SimpleCardOptions): DocFlavourDescriptor 
         {
           key: block.id,
           ...blockAttrs(block),
-          className: "not-prose my-4 rounded-md border border-primary/30 bg-primary/5 p-3",
+          className: SEMANTIC_CARD_CLASSES,
         },
         el(
           "div",
@@ -193,7 +225,7 @@ function simpleCardDescriptor(options: SimpleCardOptions): DocFlavourDescriptor 
         block.text && block.text.length > 0
           ? el(
               "div",
-              { className: "font-sans text-sm leading-[1.7]" },
+              { className: CARD_BODY_TEXT_CLASSES },
               ctx.renderText(block.text),
             )
           : null,
@@ -204,7 +236,7 @@ function simpleCardDescriptor(options: SimpleCardOptions): DocFlavourDescriptor 
 }
 
 type MdxAdapterOptions = {
-  flavour: DocBlockFlavour;
+  flavour: DocBlockType;
   /** The docs-block component implementation the flavour delegates to. */
   block: DocsMdxBlock<any>;
   /** Builds the block component's parsed `data` from the doc block + markdown body. */
@@ -217,7 +249,7 @@ type MdxAdapterOptions = {
  * block the component expects from doc.json props + a delta->markdown body
  * projection, and reuses its render + agentDescription verbatim.
  */
-function mdxAdapterDescriptor(options: MdxAdapterOptions): DocFlavourDescriptor {
+function mdxAdapterDescriptor(options: MdxAdapterOptions): DocBlockDescriptor {
   const mdxBlock = options.block;
   return {
     flavour: options.flavour,
@@ -247,6 +279,92 @@ function mdxAdapterDescriptor(options: MdxAdapterOptions): DocFlavourDescriptor 
   };
 }
 
+/**
+ * A docs-block component implementation that still carries its MDX-era
+ * `parse()` (the restored engineering/support/mermaid blocks). The adapter
+ * below reuses that parser instead of hand-building `data`.
+ */
+type ParseableDocsMdxBlock = DocsMdxBlock<any> & {
+  parse(input: {
+    tag: string;
+    attrs: Record<string, string>;
+    body: string;
+    source: string;
+  }): DocsMdxParsedBlock<any> | null;
+};
+
+type ParsedMdxAdapterOptions = {
+  flavour: DocBlockType;
+  /** The docs-block component implementation the flavour delegates to. */
+  block: ParseableDocsMdxBlock;
+  /**
+   * One-sentence body-format hint (the doc.json body grammar) appended to the
+   * component's own agentDescription — doc.json authors write the block's
+   * body into `text` delta spans, so the agent surface must spell out the
+   * grammar the component's parse() expects.
+   */
+  bodyHint: string;
+};
+
+/**
+ * Adapts a restored docs-block component by REUSING its MDX-era parser
+ * (parse-reuse adapter): the doc.json convention for these flavours is that
+ * the old MDX attrs live in `props` (scalars, stringified) and the old MDX
+ * body lives in the block's `text` delta spans (projected to markdown via
+ * `deltaToMarkdown`, exactly like `mdxAdapterDescriptor`). `attrs.id` is
+ * always the block's own id — every restored parser requires it. On a null
+ * parse (body doesn't match the grammar) the flavour renders a muted
+ * dashed-border placeholder card instead of throwing, still wrapped with
+ * `blockAttrs` so targeting attributes exist.
+ */
+function parsedMdxAdapterDescriptor(options: ParsedMdxAdapterOptions): DocBlockDescriptor {
+  const mdxBlock = options.block;
+  return {
+    flavour: options.flavour,
+    targetKind: mdxBlock.targetKind,
+    label: mdxBlock.label,
+    agentDescription: `${mdxBlock.agentDescription} ${options.bodyHint}`,
+    patchOps: TEXT_OPS,
+    render: (block, ctx) => {
+      const body = deltaToMarkdown(block.text);
+      const attrs: Record<string, string> = {};
+      for (const [key, value] of Object.entries(block.props)) {
+        if (
+          typeof value === "string" ||
+          typeof value === "number" ||
+          typeof value === "boolean"
+        ) {
+          attrs[key] = String(value);
+        }
+      }
+      attrs.id = block.id;
+      const parsed = mdxBlock.parse({ tag: mdxBlock.tag, attrs, body, source: body });
+      if (!parsed) {
+        return el(
+          "div",
+          { key: block.id, ...blockAttrs(block) },
+          el(
+            "div",
+            {
+              className:
+                "rounded-md border border-dashed bg-muted/30 p-3 text-xs text-muted-foreground",
+            },
+            `Invalid ${mdxBlock.label} block — see agent description for the expected body format.`,
+          ),
+          ctx.renderChildren(block),
+        );
+      }
+      const rendered = mdxBlock.render(parsed, { renderMarkdown: ctx.renderMarkdown });
+      return el(
+        "div",
+        { key: block.id, ...blockAttrs(block) },
+        rendered,
+        ctx.renderChildren(block),
+      );
+    },
+  };
+}
+
 function fileTreeEntries(block: DocBlock): Array<Record<string, unknown>> {
   const raw = block.props.entries;
   if (!Array.isArray(raw)) return [];
@@ -256,9 +374,9 @@ function fileTreeEntries(block: DocBlock): Array<Record<string, unknown>> {
   );
 }
 
-function buildRegistry(): Map<DocBlockFlavour, DocFlavourDescriptor> {
-  const registry = new Map<DocBlockFlavour, DocFlavourDescriptor>();
-  const add = (descriptor: DocFlavourDescriptor) => registry.set(descriptor.flavour, descriptor);
+function buildRegistry(): Map<DocBlockType, DocBlockDescriptor> {
+  const registry = new Map<DocBlockType, DocBlockDescriptor>();
+  const add = (descriptor: DocBlockDescriptor) => registry.set(descriptor.flavour, descriptor);
 
   // ---- core flavours (minimal tracer descriptors) -------------------------
   add({
@@ -271,7 +389,7 @@ function buildRegistry(): Map<DocBlockFlavour, DocFlavourDescriptor> {
       el(
         "div",
         { key: block.id, ...blockAttrs(block) },
-        el("p", { className: "my-3 text-sm leading-[1.7]" }, ctx.renderText(block.text)),
+        el("p", { className: PARAGRAPH_CLASSES }, ctx.renderText(block.text)),
         ctx.renderChildren(block),
       ),
   });
@@ -293,7 +411,7 @@ function buildRegistry(): Map<DocBlockFlavour, DocFlavourDescriptor> {
         { key: block.id, ...blockAttrs(block) },
         el(
           `h${level}`,
-          { className: "mt-6 mb-3 font-display font-semibold text-foreground" },
+          { className: HEADING_CLASSES },
           ctx.renderText(block.text),
         ),
         ctx.renderChildren(block),
@@ -314,14 +432,14 @@ function buildRegistry(): Map<DocBlockFlavour, DocFlavourDescriptor> {
           key: block.id,
           ...blockAttrs(block),
           role: "listitem",
-          className: "my-1 flex gap-2 text-sm leading-[1.7]",
+          className: LIST_ITEM_CLASSES,
         },
-        el("span", { className: "select-none text-muted-foreground", "aria-hidden": "true" }, "•"),
+        el("span", { className: LIST_ITEM_BULLET_CLASSES, "aria-hidden": "true" }, "•"),
         el(
           "div",
-          { className: "min-w-0 flex-1" },
+          { className: LIST_ITEM_CONTENT_CLASSES },
           ctx.renderText(block.text),
-          el("div", { className: "ml-4" }, ctx.renderChildren(block)),
+          el("div", { className: LIST_ITEM_CHILDREN_CLASSES }, ctx.renderChildren(block)),
         ),
       ),
   });
@@ -339,8 +457,7 @@ function buildRegistry(): Map<DocBlockFlavour, DocFlavourDescriptor> {
         el(
           "pre",
           {
-            className:
-              "not-prose my-4 overflow-auto rounded-md border bg-muted/30 p-3 font-mono text-xs leading-relaxed",
+            className: CODE_BLOCK_CLASSES,
             "data-language": stringProp(block, "language"),
           },
           el("code", null, deltaToPlainText(block.text)),
@@ -362,8 +479,7 @@ function buildRegistry(): Map<DocBlockFlavour, DocFlavourDescriptor> {
         el(
           "blockquote",
           {
-            className:
-              "my-4 border-l-2 border-primary/40 pl-3 text-sm italic leading-[1.7] text-muted-foreground",
+            className: QUOTE_CLASSES,
           },
           ctx.renderText(block.text),
         ),
@@ -632,24 +748,123 @@ function buildRegistry(): Map<DocBlockFlavour, DocFlavourDescriptor> {
     }),
   );
 
+  // ---- restored flavours — parse-reuse adapters over the restored
+  // ---- engineering/support/mermaid docs-block components -------------------
+  add(
+    parsedMdxAdapterDescriptor({
+      flavour: "annotated-code",
+      block: new AnnotatedCodeDocsBlock(),
+      bodyHint:
+        "Body is the code itself, or `--- code ---` / `--- annotations ---` sections whose annotation bullets are `- 4-9|Label -- note` (line range, optional label, note); props: filename, language.",
+    }),
+  );
+  add(
+    parsedMdxAdapterDescriptor({
+      flavour: "api-endpoint",
+      block: new ApiEndpointDocsBlock(),
+      bodyHint:
+        "Props method (HTTP verb) and path are REQUIRED (optional: summary, auth, deprecated, change); body is freeform markdown plus `- param <in> <name> [type] [required|optional] :: desc` and `- response <status> :: desc` bullets, and may be empty.",
+    }),
+  );
+  add(
+    parsedMdxAdapterDescriptor({
+      flavour: "api-surface",
+      block: new ApiSurfaceDocsBlock(),
+      bodyHint:
+        "Body is one `- METHOD /path -- summary` bullet per endpoint (at least one); optional prop: title.",
+    }),
+  );
+  add(
+    parsedMdxAdapterDescriptor({
+      flavour: "data-model",
+      block: new DataModelDocsBlock(),
+      bodyHint:
+        "Body is `--- EntityName ---` sections of `- field: type [pk] [nullable] [fk=Other.field] -- note` bullets (at least one entity with one field); optional prop: title.",
+    }),
+  );
+  add(
+    parsedMdxAdapterDescriptor({
+      flavour: "diff",
+      block: new DiffDocsBlock(),
+      bodyHint:
+        "Body requires BOTH a `--- before ---` and an `--- after ---` section; props: filename, language, mode (split|unified).",
+    }),
+  );
+  add(
+    parsedMdxAdapterDescriptor({
+      flavour: "implementation-map",
+      block: new ImplementationMapDocsBlock(),
+      bodyHint:
+        "Body is `- [added|modified|removed|renamed] `path` (lang) -- note` bullets (at least one; change prefix and lang optional, note required); optional prop: title.",
+    }),
+  );
+  add(
+    parsedMdxAdapterDescriptor({
+      flavour: "json-explorer",
+      block: new JsonExplorerDocsBlock(),
+      bodyHint:
+        "Body is the non-empty JSON text itself (invalid JSON still renders, with an error banner); props: title, collapsedDepth.",
+    }),
+  );
+  add(
+    parsedMdxAdapterDescriptor({
+      flavour: "checklist",
+      block: new ChecklistDocsBlock(),
+      bodyHint:
+        "Body is markdown task-list rows `- [x] label -- note` (at least one; note optional); optional prop: title.",
+    }),
+  );
+  add(
+    parsedMdxAdapterDescriptor({
+      flavour: "columns",
+      block: new ColumnsDocsBlock(),
+      bodyHint:
+        "Body splits into columns on `--- Label ---` delimiters or ##/### headings (at least one section); props: title, columns (2-3).",
+    }),
+  );
+  add(
+    parsedMdxAdapterDescriptor({
+      flavour: "structured-table",
+      block: new StructuredTableDocsBlock(),
+      bodyHint:
+        "Body is a markdown pipe table: header row, `| --- |` separator row, and at least one data row; props: title, density (compact|normal|relaxed).",
+    }),
+  );
+  add(
+    parsedMdxAdapterDescriptor({
+      flavour: "tabs",
+      block: new TabsDocsBlock(),
+      bodyHint:
+        "Body splits into tabs on `--- Label ---` delimiters or ##/### headings (at least one section); props: title, orientation (horizontal|vertical).",
+    }),
+  );
+  add(
+    parsedMdxAdapterDescriptor({
+      flavour: "mermaid",
+      block: new MermaidDocsBlock(),
+      bodyHint:
+        "Body is the non-blank Mermaid diagram source (e.g. starting `flowchart LR`); props: title, caption, diagramType (defaults to the source's first word).",
+    }),
+  );
+
   return registry;
 }
 
-const FLAVOUR_REGISTRY = buildRegistry();
+const BLOCK_REGISTRY = buildRegistry();
 
-export function getDocFlavourDescriptor(flavour: string): DocFlavourDescriptor | null {
-  return FLAVOUR_REGISTRY.get(flavour as DocBlockFlavour) ?? null;
+export function getDocBlockDescriptor(flavour: string): DocBlockDescriptor | null {
+  return BLOCK_REGISTRY.get(flavour as DocBlockType) ?? null;
 }
 
-export function describeDocFlavoursForAgent(): Array<{
-  flavour: DocBlockFlavour;
+export function describeDocBlocksForAgent(): Array<{
+  flavour: DocBlockType;
   targetKind: string;
   label: string;
   description: string;
   patchOps: readonly string[];
 }> {
-  return DOC_BLOCK_FLAVOURS.map((flavour) => {
-    const descriptor = FLAVOUR_REGISTRY.get(flavour) as DocFlavourDescriptor;
+  return DOC_BLOCK_TYPES.map((flavour) => {
+    const descriptor = BLOCK_REGISTRY.get(flavour) as DocBlockDescriptor;
     return {
       flavour,
       targetKind: descriptor.targetKind,

@@ -4,12 +4,12 @@ import type {
   DeltaSpan,
   DeltaSpanAttributes,
   DocBlock,
-  DocBlockFlavour,
+  DocBlockType,
   DocDocument,
 } from "@codecaine-ai/docs-model/doc-schema";
 import type { DocOp, DocIdFactory } from "@codecaine-ai/docs-model/doc-ops";
 import type { SpectreRef } from "@codecaine-ai/docs-model/spectre-ref";
-import { FLAVOUR_TO_NODE_TYPE, NODE_TYPE_TO_FLAVOUR, TEXT_BLOCK_FLAVOURS } from "./schema";
+import { BLOCK_TYPE_TO_NODE_TYPE, NODE_TYPE_TO_BLOCK_TYPE, TEXT_BLOCK_TYPES } from "./schema";
 
 /**
  * doc.json <-> ProseMirror JSON bridge (Checkpoint 8, TG8.1.2).
@@ -83,8 +83,19 @@ function marksForSpan(attrs: DeltaSpanAttributes | undefined): PMMark[] {
   return marks;
 }
 
+/**
+ * Newlines inside prose text spans (hard-wrapped markdown sources carry them)
+ * render as collapsed whitespace in every read surface, but ProseMirror's
+ * `white-space: pre-wrap` would show them as literal line breaks — so the
+ * editor flows them as spaces. Code blocks are exempt: their newlines are
+ * real content.
+ */
+function flowSpanText(text: string): string {
+  return text.replace(/[ \t]*\n[ \t]*/g, " ");
+}
+
 /** Converts a block's DeltaSpan[] into PM inline content — plain `text` nodes with marks, or `docReference` atom nodes for reference spans. */
-function deltaToPMInline(spans: DeltaSpan[] | undefined): PMNode[] {
+function deltaToPMInline(spans: DeltaSpan[] | undefined, flowNewlines: boolean): PMNode[] {
   if (!spans || spans.length === 0) return [];
   const out: PMNode[] = [];
   for (const span of spans) {
@@ -96,8 +107,9 @@ function deltaToPMInline(spans: DeltaSpan[] | undefined): PMNode[] {
       continue;
     }
     if (span.insert.length === 0) continue;
+    const text = flowNewlines ? flowSpanText(span.insert) : span.insert;
     const marks = marksForSpan(span.attributes);
-    out.push(marks.length > 0 ? { type: "text", text: span.insert, marks } : { type: "text", text: span.insert });
+    out.push(marks.length > 0 ? { type: "text", text, marks } : { type: "text", text });
   }
   return out;
 }
@@ -110,7 +122,7 @@ function deltaToPMInline(spans: DeltaSpan[] | undefined): PMNode[] {
  * precisely so `joinPropsFromNode` can tell "absent in source" apart from
  * "present with a falsy/default value" and stay byte-for-byte lossless.
  */
-function splitPropsForNode(flavour: DocBlockFlavour, props: Record<string, unknown>) {
+function splitPropsForNode(flavour: DocBlockType, props: Record<string, unknown>) {
   const rest = { ...props };
   const promoted: Record<string, unknown> = {};
   if (flavour === "heading") {
@@ -128,8 +140,8 @@ function splitPropsForNode(flavour: DocBlockFlavour, props: Record<string, unkno
 
 function blockToPMNode(doc: DocDocument, blockId: string): PMNode {
   const block = doc.blocks[blockId];
-  const nodeType = FLAVOUR_TO_NODE_TYPE[block.flavour];
-  const isTextBlock = (TEXT_BLOCK_FLAVOURS as readonly string[]).includes(block.flavour);
+  const nodeType = BLOCK_TYPE_TO_NODE_TYPE[block.flavour];
+  const isTextBlock = (TEXT_BLOCK_TYPES as readonly string[]).includes(block.flavour);
   const { promoted, blockProps } = splitPropsForNode(block.flavour, block.props);
 
   if (!isTextBlock) {
@@ -156,7 +168,7 @@ function blockToPMNode(doc: DocDocument, blockId: string): PMNode {
   // rejected by ProseMirror): a mandatory `docBlockText` wrapper carrying the
   // block's OWN inline text is always content[0], followed by any nested
   // DocBlock children as sibling block nodes.
-  const wrapper: PMNode = { type: "docBlockText", content: deltaToPMInline(block.text) };
+  const wrapper: PMNode = { type: "docBlockText", content: deltaToPMInline(block.text, block.flavour !== "code") };
   const content: PMNode[] = [wrapper, ...block.children.map((childId) => blockToPMNode(doc, childId))];
   return {
     type: nodeType,
@@ -180,7 +192,7 @@ export function docToPM(doc: DocDocument): PMNode {
     attrs: {
       blockId: root.id,
       blockProps,
-      rootFlavour: root.flavour,
+      rootType: root.flavour,
       ...promoted,
     },
     content: root.children.map((childId) => blockToPMNode(doc, childId)),
@@ -244,7 +256,7 @@ function sameSpanAttrs(a: DeltaSpanAttributes | undefined, b: DeltaSpanAttribute
  * its original `props` doesn't grow one just because the PM node type
  * defines the attr.
  */
-function joinPropsFromNode(flavour: DocBlockFlavour, attrs: Record<string, unknown>): Record<string, unknown> {
+function joinPropsFromNode(flavour: DocBlockType, attrs: Record<string, unknown>): Record<string, unknown> {
   const blockProps = (attrs.blockProps as Record<string, unknown>) ?? {};
   const props: Record<string, unknown> = { ...blockProps };
   if (flavour === "heading" && typeof attrs.level === "number") props.level = attrs.level;
@@ -278,7 +290,7 @@ function pmNodeToBlock(
   used: Set<string>,
   blocks: Record<string, DocBlock>,
 ): string {
-  const flavour = NODE_TYPE_TO_FLAVOUR[node.type];
+  const flavour = NODE_TYPE_TO_BLOCK_TYPE[node.type];
   if (!flavour) {
     throw new Error(`pmToDoc: unknown PM node type "${node.type}" (no doc-schema flavour mapping).`);
   }
@@ -288,7 +300,7 @@ function pmNodeToBlock(
   used.add(id);
 
   const props = joinPropsFromNode(flavour, attrs);
-  const isTextBlock = (TEXT_BLOCK_FLAVOURS as readonly string[]).includes(flavour);
+  const isTextBlock = (TEXT_BLOCK_TYPES as readonly string[]).includes(flavour);
 
   if (!isTextBlock) {
     const blockText = attrs.blockText as DeltaSpan[] | null | undefined;
@@ -335,18 +347,18 @@ function pmNodeToBlock(
  */
 export function pmToDoc(pmDoc: PMNode, baseDoc: DocDocument, idFactory: DocIdFactory): DocDocument {
   const rootAttrs = pmDoc.attrs ?? {};
-  const rootFlavour = (rootAttrs.rootFlavour as DocBlockFlavour) ?? baseDoc.blocks[baseDoc.root].flavour;
+  const rootType = (rootAttrs.rootType as DocBlockType) ?? baseDoc.blocks[baseDoc.root].flavour;
   const rootId =
     typeof rootAttrs.blockId === "string" && rootAttrs.blockId ? rootAttrs.blockId : baseDoc.root;
 
   const used = new Set<string>([rootId]);
   const blocks: Record<string, DocBlock> = {};
-  const rootProps = joinPropsFromNode(rootFlavour, rootAttrs);
+  const rootProps = joinPropsFromNode(rootType, rootAttrs);
   const children = (pmDoc.content ?? []).map((child) => pmNodeToBlock(child, idFactory, used, blocks));
 
   blocks[rootId] = {
     id: rootId,
-    flavour: rootFlavour,
+    flavour: rootType,
     props: rootProps,
     children,
   };
@@ -387,13 +399,19 @@ function deepEqual(a: unknown, b: unknown): boolean {
   return false;
 }
 
-function sameText(a: DeltaSpan[] | undefined, b: DeltaSpan[] | undefined): boolean {
+function sameText(a: DeltaSpan[] | undefined, b: DeltaSpan[] | undefined, flowNewlines: boolean): boolean {
   const an = a ?? [];
   const bn = b ?? [];
   if (an.length !== bn.length) return false;
   return an.every((span, index) => {
     const other = bn[index];
-    return span.insert === other.insert && sameSpanAttrsFull(span.attributes, other.attributes);
+    // The editor flows prose newlines as spaces (see flowSpanText), so a
+    // base span differing from its edited twin only by flowed whitespace is
+    // NOT a user edit — without this, opening a hard-wrapped doc and typing
+    // anywhere would rewrite every prose block in the batch.
+    const aInsert = flowNewlines ? flowSpanText(span.insert) : span.insert;
+    const bInsert = flowNewlines ? flowSpanText(other.insert) : other.insert;
+    return aInsert === bInsert && sameSpanAttrsFull(span.attributes, other.attributes);
   });
 }
 
@@ -644,7 +662,7 @@ export function diffToOps(
     }
 
     const propsChanged = !shallowEqualProps(baseBlock.props, editedBlock.props);
-    const textChanged = !sameText(baseBlock.text, editedBlock.text);
+    const textChanged = !sameText(baseBlock.text, editedBlock.text, editedBlock.flavour !== "code");
     if (propsChanged || textChanged) {
       ops.push({
         type: "updateBlock",

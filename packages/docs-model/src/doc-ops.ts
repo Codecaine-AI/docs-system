@@ -1,7 +1,7 @@
 "use client";
 
-import type { DeltaSpan, DocBlock, DocBlockFlavour, DocDocument, DocValidationIssue } from "./doc-schema";
-import { isDocBlockFlavour } from "./doc-schema";
+import type { DeltaSpan, DocBlock, DocBlockType, DocDocument, DocValidationIssue } from "./doc-schema";
+import { isDocBlockType } from "./doc-schema";
 
 /**
  * Typed block op vocabulary (M2 tracer, design record §4.5 + §8.3).
@@ -26,7 +26,8 @@ export type DocOp =
       parentId: string;
       /** Position within parent's children, in [0, children.length]. */
       index: number;
-      flavour: DocBlockFlavour;
+      /** The new block's kind (`type` is taken by the op discriminant). */
+      blockType: DocBlockType;
       props: Record<string, unknown>;
       text?: DeltaSpan[];
     }
@@ -87,7 +88,7 @@ function fail(path: string, message: string): DocOpResult {
 function cloneBlockShallow(block: DocBlock): DocBlock {
   return {
     id: block.id,
-    flavour: block.flavour,
+    type: block.type,
     props: { ...block.props },
     text: block.text ? block.text.map((span) => ({ ...span })) : undefined,
     children: [...block.children],
@@ -189,7 +190,7 @@ function insertBlockOpsForSubtree(
       blockId: id,
       parentId: intoParent,
       index: at,
-      flavour: block.flavour,
+      blockType: block.type,
       props: { ...block.props },
       text: block.text ? block.text.map((span) => ({ ...span })) : undefined,
     });
@@ -218,8 +219,8 @@ export function applyOp(doc: DocDocument, op: DocOp, idFactory?: DocIdFactory): 
       if (!parent) {
         return fail("$.op.parentId", `insertBlock parent "${op.parentId}" does not exist.`);
       }
-      if (!isDocBlockFlavour(op.flavour)) {
-        return fail("$.op.flavour", `Unknown block flavour: ${String(op.flavour)}`);
+      if (!isDocBlockType(op.blockType)) {
+        return fail("$.op.blockType", `Unknown block type: ${String(op.blockType)}`);
       }
       if (!Number.isInteger(op.index) || op.index < 0 || op.index > parent.children.length) {
         return fail(
@@ -233,7 +234,7 @@ export function applyOp(doc: DocDocument, op: DocOp, idFactory?: DocIdFactory): 
       blocks[op.parentId] = newParent;
       blocks[op.blockId] = {
         id: op.blockId,
-        flavour: op.flavour,
+        type: op.blockType,
         props: { ...op.props },
         text: op.text ? op.text.map((span) => ({ ...span })) : undefined,
         children: [],
@@ -307,7 +308,7 @@ export function applyOp(doc: DocDocument, op: DocOp, idFactory?: DocIdFactory): 
             blockId: op.blockId,
             parentId: location.parentId,
             index: location.index,
-            flavour: block.flavour,
+            blockType: block.type,
             props: { ...block.props },
             text: block.text ? block.text.map((span) => ({ ...span })) : undefined,
           },
@@ -402,12 +403,12 @@ export function applyOp(doc: DocDocument, op: DocOp, idFactory?: DocIdFactory): 
       const original = cloneBlockShallow(block);
       original.text = block.text ? head : undefined;
       blocks[op.blockId] = original;
-      // New block: same flavour + props copy, tail text, no children —
+      // New block: same block type + props copy, tail text, no children —
       // children stay with the original block (semantic choice; the tail
       // block is a continuation line, not a new section owner).
       blocks[newId] = {
         id: newId,
-        flavour: block.flavour,
+        type: block.type,
         props: { ...block.props },
         text: block.text ? tail : undefined,
         children: [],
@@ -463,7 +464,7 @@ export function applyOp(doc: DocDocument, op: DocOp, idFactory?: DocIdFactory): 
       }
       const mergedId = mintFreshId(doc, idFactory);
 
-      // Merged block: flavour + props from the first source; texts and
+      // Merged block: block type + props from the first source; texts and
       // children concatenated in order (semantic choice — merge joins text
       // without a separator and keeps every descendant).
       const mergedText: DeltaSpan[] = [];
@@ -480,7 +481,7 @@ export function applyOp(doc: DocDocument, op: DocOp, idFactory?: DocIdFactory): 
       const blocks = { ...doc.blocks };
       blocks[mergedId] = {
         id: mergedId,
-        flavour: sources[0].flavour,
+        type: sources[0].type,
         props: { ...sources[0].props },
         text: hasText ? mergedText : undefined,
         children: mergedChildren,
@@ -500,7 +501,7 @@ export function applyOp(doc: DocDocument, op: DocOp, idFactory?: DocIdFactory): 
           blockId: source.id,
           parentId: firstLocation.parentId,
           index: firstLocation.index + sourceIndex,
-          flavour: source.flavour,
+          blockType: source.type,
           props: { ...source.props },
           text: source.text ? source.text.map((span) => ({ ...span })) : undefined,
         });

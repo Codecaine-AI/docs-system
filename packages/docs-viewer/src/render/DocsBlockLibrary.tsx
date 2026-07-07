@@ -6,12 +6,12 @@ import type {
   DeltaSpan,
   DeltaSpanAttributes,
   DocBlock,
-  DocBlockFlavour,
+  DocBlockType,
   DocDocument,
 } from "@codecaine-ai/docs-model/doc-schema";
 import DocBlockRenderer from "./DocBlockRenderer";
-import { getDocFlavourDescriptor } from "./flavour-registry";
-import { Badge } from "./ui/badge";
+import { getDocBlockDescriptor } from "./block-registry";
+import { Badge } from "../ui/badge";
 
 /**
  * The block library (`#/blocks` in the docs workbench) is a catalog of the
@@ -32,7 +32,7 @@ function span(insert: string, attributes?: DeltaSpanAttributes): DeltaSpan {
 
 function block(
   id: string,
-  flavour: DocBlockFlavour,
+  flavour: DocBlockType,
   init: { props?: Record<string, unknown>; text?: DeltaSpan[]; children?: string[] } = {},
 ): DocBlock {
   return {
@@ -50,7 +50,7 @@ function block(
  * of others (list-item); by default every block mounts at the root.
  */
 function exampleDoc(
-  flavour: DocBlockFlavour,
+  flavour: DocBlockType,
   blocks: DocBlock[],
   rootChildren?: string[],
 ): DocDocument {
@@ -71,7 +71,7 @@ function exampleDoc(
 }
 
 type LibraryEntry = {
-  flavour: DocBlockFlavour;
+  flavour: DocBlockType;
   document: DocDocument;
 };
 
@@ -83,7 +83,7 @@ type LibraryFamily = {
 };
 
 function entry(
-  flavour: DocBlockFlavour,
+  flavour: DocBlockType,
   blocks: DocBlock[],
   rootChildren?: string[],
 ): LibraryEntry {
@@ -160,7 +160,7 @@ const LIBRARY_FAMILIES: LibraryFamily[] = [
       entry("code", [
         block("code-1", "code", {
           props: { language: "ts" },
-          text: [span("export type DocBlockFlavour = (typeof DOC_BLOCK_FLAVOURS)[number];")],
+          text: [span("export type DocBlockType = (typeof DOC_BLOCK_TYPES)[number];")],
         }),
       ]),
     ],
@@ -279,6 +279,201 @@ const LIBRARY_FAMILIES: LibraryFamily[] = [
           },
         }),
       ]),
+      // Restored engineering flavours — bodies live in `text` delta spans
+      // using each component parser's grammar (see the registry's bodyHints).
+      entry("annotated-code", [
+        block("annotated-code-1", "annotated-code", {
+          props: { filename: "doc-schema.ts", language: "ts" },
+          text: [
+            span(
+              [
+                "--- code ---",
+                "export function validateDocDocument(input: unknown) {",
+                "  return parseDocDocument(input);",
+                "}",
+                "--- annotations ---",
+                "- 1|Entry point -- Validates a raw doc.json payload.",
+                "- 2|Delegation -- Schema parsing owns the real work.",
+              ].join("\n"),
+            ),
+          ],
+        }),
+      ]),
+      entry("api-endpoint", [
+        block("api-endpoint-1", "api-endpoint", {
+          props: {
+            method: "GET",
+            path: "/docs/asset",
+            summary: "Fetch a bundle asset",
+            auth: "session cookie",
+          },
+          text: [
+            span(
+              [
+                "Returns the raw bytes of a doc bundle asset.",
+                "",
+                "- param query path string required :: Bundle-relative asset path.",
+                "- response 200 :: The asset bytes.",
+                "- response 404 :: Unknown asset path.",
+              ].join("\n"),
+            ),
+          ],
+        }),
+      ]),
+      entry("api-surface", [
+        block("api-surface-1", "api-surface", {
+          props: { title: "Docs routes" },
+          text: [
+            span(
+              [
+                "- GET /docs/list -- List doc bundles",
+                "- GET /docs/asset -- Fetch a bundle asset",
+                "- POST /docs/ops -- Apply typed doc ops",
+              ].join("\n"),
+            ),
+          ],
+        }),
+      ]),
+      entry("data-model", [
+        block("data-model-1", "data-model", {
+          props: { title: "Comments" },
+          text: [
+            span(
+              [
+                "--- Comment ---",
+                "- id: string pk -- Stable comment id",
+                "- docId: string fk=Doc.id -- Owning document",
+                "- body: string -- Markdown body",
+                "- resolvedAt: string nullable -- Resolution timestamp",
+              ].join("\n"),
+            ),
+          ],
+        }),
+      ]),
+      entry("diff", [
+        block("diff-1", "diff", {
+          props: { filename: "block-registry.ts", language: "ts", mode: "split" },
+          text: [
+            span(
+              [
+                "--- before ---",
+                'add(simpleCardDescriptor({ flavour: "checklist" }));',
+                "--- after ---",
+                'add(parsedMdxAdapterDescriptor({ flavour: "checklist" }));',
+              ].join("\n"),
+            ),
+          ],
+        }),
+      ]),
+      entry("implementation-map", [
+        block("implementation-map-1", "implementation-map", {
+          props: { title: "Flavour registry" },
+          text: [
+            span(
+              [
+                "- [modified] `src/render/block-registry.ts` (ts) -- Flavour descriptors",
+                "- [added] `src/docs-blocks/support/SupportDocsBlocks.tsx` (tsx) -- Restored support blocks",
+              ].join("\n"),
+            ),
+          ],
+        }),
+      ]),
+      entry("json-explorer", [
+        block("json-explorer-1", "json-explorer", {
+          props: { title: "Block shape", collapsedDepth: 2 },
+          text: [
+            span('{ "id": "quote-1", "flavour": "quote", "props": {}, "children": [] }'),
+          ],
+        }),
+      ]),
+    ],
+  },
+  {
+    id: "layout",
+    label: "Support & layout",
+    summary: "Checklists, columns, tables, and tabbed containers",
+    entries: [
+      entry("checklist", [
+        block("checklist-1", "checklist", {
+          props: { title: "Restoration pass" },
+          text: [
+            span(
+              [
+                "- [x] Wire component adapters -- block-registry.ts",
+                "- [x] Refresh the library examples",
+                "- [ ] Add the library sidebar",
+              ].join("\n"),
+            ),
+          ],
+        }),
+      ]),
+      entry("columns", [
+        block("columns-1", "columns", {
+          props: { title: "Read vs write", columns: 2 },
+          text: [
+            span(
+              [
+                "--- Read ---",
+                "DocBlockRenderer walks the tree through the flavour registry.",
+                "--- Write ---",
+                "DocEditor emits typed doc ops against stable block ids.",
+              ].join("\n"),
+            ),
+          ],
+        }),
+      ]),
+      entry("structured-table", [
+        block("structured-table-1", "structured-table", {
+          props: { title: "Flavour families", density: "compact" },
+          text: [
+            span(
+              [
+                "| Family | Examples |",
+                "| --- | --- |",
+                "| Text | paragraph, heading, quote |",
+                "| Layout | checklist, columns, tabs |",
+              ].join("\n"),
+            ),
+          ],
+        }),
+      ]),
+      entry("tabs", [
+        block("tabs-1", "tabs", {
+          props: { title: "Projections" },
+          text: [
+            span(
+              [
+                "--- Markdown ---",
+                "projectToMarkdown emits greppable text for CLIs and agents.",
+                "--- React ---",
+                "DocBlockRenderer renders the live read surface.",
+              ].join("\n"),
+            ),
+          ],
+        }),
+      ]),
+    ],
+  },
+  {
+    id: "diagram",
+    label: "Diagram",
+    summary: "Diagrams rendered from text definitions",
+    entries: [
+      entry("mermaid", [
+        block("mermaid-1", "mermaid", {
+          props: { title: "Save flow", caption: "Typed ops validate before they land." },
+          text: [
+            span(
+              [
+                "flowchart LR",
+                "  A[Edit] --> B[Typed ops]",
+                "  B --> C{Valid?}",
+                "  C -->|yes| D[Saved doc.json]",
+              ].join("\n"),
+            ),
+          ],
+        }),
+      ]),
     ],
   },
   {
@@ -328,7 +523,7 @@ const LIBRARY_FAMILIES: LibraryFamily[] = [
   },
 ];
 
-const FLAVOUR_COUNT = LIBRARY_FAMILIES.reduce(
+const BLOCK_TYPE_COUNT = LIBRARY_FAMILIES.reduce(
   (count, family) => count + family.entries.length,
   0,
 );
@@ -339,8 +534,8 @@ function exampleSource(document: DocDocument): string {
   return JSON.stringify(blocks, null, 2);
 }
 
-function FlavourCard({ entry }: { entry: LibraryEntry }) {
-  const descriptor = getDocFlavourDescriptor(entry.flavour);
+function BlockTypeCard({ entry }: { entry: LibraryEntry }) {
+  const descriptor = getDocBlockDescriptor(entry.flavour);
   return (
     <section
       className="overflow-hidden rounded-md border border-border/60 bg-background"
@@ -381,7 +576,7 @@ export default function DocsBlockLibrary() {
     return LIBRARY_FAMILIES.map((family) => ({
       ...family,
       entries: family.entries.filter((candidate) => {
-        const descriptor = getDocFlavourDescriptor(candidate.flavour);
+        const descriptor = getDocBlockDescriptor(candidate.flavour);
         return [
           candidate.flavour,
           descriptor?.label ?? "",
@@ -402,7 +597,7 @@ export default function DocsBlockLibrary() {
           <h1 className="text-xl font-semibold">Block Library</h1>
           <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
             <BlocksIcon className="h-4 w-4" />
-            <span>{FLAVOUR_COUNT} doc.json block flavours</span>
+            <span>{BLOCK_TYPE_COUNT} doc.json block flavours</span>
             <span className="h-1 w-1 rounded-full bg-muted-foreground/40" />
             <span>{LIBRARY_FAMILIES.length} families</span>
           </div>
@@ -429,7 +624,7 @@ export default function DocsBlockLibrary() {
               <span className="text-xs text-muted-foreground">{family.summary}</span>
             </div>
             {family.entries.map((familyEntry) => (
-              <FlavourCard key={familyEntry.flavour} entry={familyEntry} />
+              <BlockTypeCard key={familyEntry.flavour} entry={familyEntry} />
             ))}
           </section>
         ))

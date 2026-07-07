@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it } from "bun:test";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import sampleDoc from "@codecaine-ai/docs-model/fixtures/sample.doc.json";
-import { DOC_BLOCK_FLAVOURS, validateDocDocument } from "@codecaine-ai/docs-model/doc-schema";
-import DocBlockRenderer from "../DocBlockRenderer";
+import { DOC_BLOCK_TYPES, validateDocDocument } from "@codecaine-ai/docs-model/doc-schema";
+import DocBlockRenderer from "../render/DocBlockRenderer";
 import { DocsClientProvider, type CanvasEmbedProps } from "../client";
 
 /**
@@ -49,7 +49,7 @@ describe("DocBlockRenderer", () => {
   it("fixture is schema-valid and covers every v1 flavour", () => {
     const doc = loadFixture();
     const flavours = new Set(Object.values(doc.blocks).map((block) => block.flavour));
-    for (const flavour of DOC_BLOCK_FLAVOURS) {
+    for (const flavour of DOC_BLOCK_TYPES) {
       expect(flavours.has(flavour)).toBe(true);
     }
   });

@@ -7,10 +7,14 @@ import { validateSpectreRef } from "./spectre-ref";
  * doc.json schema (design record §9.2, D24/D25/D28):
  * - Normalized tree: flat id-keyed `blocks` map + ordered `children` ids.
  * - Rich text as Delta JSON spans (D24), references as shared SpectreRef (D27).
- * - Semantic docs-blocks carry over as first-class flavours (D28).
+ * - Semantic docs-blocks carry over as first-class block types (D28).
+ * - A block's kind field is `type`. The BlockSuite-heritage key `flavour` is
+ *   accepted on READ as a legacy alias (normalized into `type`) so older
+ *   bundles — e.g. the canvas sibling project's docs — keep validating;
+ *   writes always emit canonical `type`.
  */
 
-export const DOC_BLOCK_FLAVOURS = [
+export const DOC_BLOCK_TYPES = [
   // core
   "paragraph",
   "heading",
@@ -33,9 +37,29 @@ export const DOC_BLOCK_FLAVOURS = [
   "testing",
   "agent-contract",
   "file-tree",
+  // restored engineering/support/diagram vocabulary (tracer descriptors in
+  // block-registry until the component-adapter restoration pass)
+  "annotated-code",
+  "api-endpoint",
+  "api-surface",
+  "data-model",
+  "diff",
+  "implementation-map",
+  "json-explorer",
+  "checklist",
+  "columns",
+  "structured-table",
+  "tabs",
+  "mermaid",
 ] as const;
 
-export type DocBlockFlavour = (typeof DOC_BLOCK_FLAVOURS)[number];
+export type DocBlockType = (typeof DOC_BLOCK_TYPES)[number];
+
+/** @deprecated Use DOC_BLOCK_TYPES. */
+export const DOC_BLOCK_FLAVOURS = DOC_BLOCK_TYPES;
+
+/** @deprecated Use DocBlockType. */
+export type DocBlockFlavour = DocBlockType;
 
 export type DeltaSpanAttributes = {
   bold?: true;
@@ -56,10 +80,10 @@ export type DeltaSpan = {
 export type DocBlock = {
   /** Stable — comments, patches, and backlinks anchor here (§8.3). */
   id: string;
-  flavour: DocBlockFlavour;
-  /** Typed per flavour: {level}, {status}, {src, view}, ... */
+  type: DocBlockType;
+  /** Typed per block type: {level}, {status}, {src, view}, ... */
   props: Record<string, unknown>;
-  /** Rich text where the flavour carries it (D24). */
+  /** Rich text where the block type carries it (D24). */
   text?: DeltaSpan[];
   /** Ordered child ids (D25). */
   children: string[];
@@ -84,11 +108,14 @@ export type DocValidationResult =
   | { ok: true; document: DocDocument }
   | { ok: false; issues: DocValidationIssue[] };
 
-const FLAVOUR_SET: ReadonlySet<string> = new Set(DOC_BLOCK_FLAVOURS);
+const BLOCK_TYPE_SET: ReadonlySet<string> = new Set(DOC_BLOCK_TYPES);
 
-export function isDocBlockFlavour(value: unknown): value is DocBlockFlavour {
-  return typeof value === "string" && FLAVOUR_SET.has(value);
+export function isDocBlockType(value: unknown): value is DocBlockType {
+  return typeof value === "string" && BLOCK_TYPE_SET.has(value);
 }
+
+/** @deprecated Use isDocBlockType. */
+export const isDocBlockFlavour = isDocBlockType;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === "object" && !Array.isArray(value);
@@ -163,12 +190,12 @@ function validateDeltaSpans(
 }
 
 function validateBlockProps(
-  flavour: DocBlockFlavour,
+  blockType: DocBlockType,
   props: Record<string, unknown>,
   path: string,
   issues: DocValidationIssue[],
 ): boolean {
-  if (flavour !== "canvas") return true;
+  if (blockType !== "canvas") return true;
   const canvasId = props.canvasId;
   const src = props.src;
   if (
@@ -192,7 +219,8 @@ function validateBlockProps(
 /**
  * Pure structural validation (no throw, canvas-schema style):
  * - schemaVersion / id / root / blocks shape,
- * - block ids match their map key, flavours known, children are id arrays,
+ * - block ids match their map key, block types known (legacy `flavour` key
+ *   normalized into `type` on read), children are id arrays,
  * - root exists in blocks,
  * - no orphan child references (every child id resolves),
  * - no shared children (a block reachable from two parents),
@@ -241,10 +269,24 @@ export function validateDocDocument(value: unknown): DocValidationResult {
       });
       continue;
     }
-    if (!isDocBlockFlavour(rawBlock.flavour)) {
+    // Canonical kind key is `type`; the BlockSuite-heritage `flavour` key is
+    // accepted as a READ alias and normalized. Both present must agree.
+    if (
+      rawBlock.type !== undefined &&
+      rawBlock.flavour !== undefined &&
+      rawBlock.type !== rawBlock.flavour
+    ) {
       issues.push({
-        path: `${path}.flavour`,
-        message: `Unknown block flavour: ${String(rawBlock.flavour)}`,
+        path: `${path}.type`,
+        message: `Block "type" (${String(rawBlock.type)}) conflicts with legacy "flavour" (${String(rawBlock.flavour)}).`,
+      });
+      continue;
+    }
+    const rawType = rawBlock.type !== undefined ? rawBlock.type : rawBlock.flavour;
+    if (!isDocBlockType(rawType)) {
+      issues.push({
+        path: `${path}.type`,
+        message: `Unknown block type: ${String(rawType)}`,
       });
       continue;
     }
@@ -254,7 +296,7 @@ export function validateDocDocument(value: unknown): DocValidationResult {
     }
     if (
       !validateBlockProps(
-        rawBlock.flavour,
+        rawType,
         rawBlock.props as Record<string, unknown>,
         `${path}.props`,
         issues,
@@ -290,7 +332,7 @@ export function validateDocDocument(value: unknown): DocValidationResult {
 
     blocks[key] = {
       id: rawBlock.id,
-      flavour: rawBlock.flavour,
+      type: rawType,
       props: rawBlock.props as Record<string, unknown>,
       text,
       children,
@@ -384,7 +426,7 @@ export function docBlockOrder(document: DocDocument): string[] {
 }
 
 const DOC_KEY_ORDER = ["schemaVersion", "id", "title", "root", "blocks"] as const;
-const BLOCK_KEY_ORDER = ["id", "flavour", "props", "text", "children"] as const;
+const BLOCK_KEY_ORDER = ["id", "type", "props", "text", "children"] as const;
 const SPAN_KEY_ORDER = ["insert", "attributes"] as const;
 const ATTR_KEY_ORDER = ["bold", "italic", "strike", "code", "link", "reference"] as const;
 const REF_KEY_ORDER = ["kind", "path", "symbol", "line", "section", "label"] as const;
@@ -440,7 +482,7 @@ export function serializeDocDocument(document: DocDocument): string {
     const block = document.blocks[id];
     const raw: Record<string, unknown> = {
       id: block.id,
-      flavour: block.flavour,
+      type: block.type,
       props: orderedRecord(block.props, Object.keys(block.props).sort()),
       text: block.text?.map(serializableSpan),
       children: block.children,

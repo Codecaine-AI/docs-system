@@ -42,7 +42,7 @@ import {
   subscribeDocsEvents,
   undoPatch,
   type BacklinkRow,
-} from "./api";
+} from "../data/api";
 import { ActionPane } from "./ActionPane";
 import { StandaloneCanvasEmbed } from "./CanvasEmbed";
 
@@ -673,9 +673,9 @@ export function DocPage({
         </div>
       </header>
 
-      <div className="flex min-h-0 flex-1">
+      <div className="flex min-h-0 flex-1 overflow-hidden">
         <div className="min-h-0 min-w-0 flex-1 overflow-y-auto">
-          <div key={canvasEpoch} ref={contentRef} className="mx-auto w-full max-w-[88ch] px-5 py-6 sm:px-8">
+          <div key={canvasEpoch} ref={contentRef} className="mx-auto w-full max-w-[100ch] px-5 py-6 sm:px-8">
             {isStatic ? (
               // Static-export degradation: no write routes, so no editor —
               // the plain read-only renderer.
@@ -763,24 +763,37 @@ export function DocPage({
           </div>
         </div>
 
-        {mode === "annotate" && (
+        {!isStatic && (
+          // Push drawer: a flex sibling whose width animates, so entering
+          // annotate mode slides the pane out from the right and the content
+          // column reflows beside it (never underneath it). Always mounted so
+          // the width change animates; the pane CONTENT mounts only in
+          // annotate mode, keeping the edit-mode DOM free of pane text/roles.
           <aside
-            className="w-[360px] shrink-0 overflow-y-auto border-l bg-sidebar/40 p-3"
+            className={cn(
+              "shrink-0 overflow-hidden border-l bg-sidebar/40 transition-[width] duration-300 ease-in-out",
+              mode === "annotate" ? "w-[360px]" : "w-0 border-transparent",
+            )}
             aria-label="Comments pane"
-            data-docs-action-pane=""
+            aria-hidden={mode !== "annotate"}
+            data-docs-action-pane={mode === "annotate" ? "" : undefined}
           >
-            <ActionPane
-              comments={comments?.comments ?? []}
-              document={doc}
-              canvases={canvasIndex}
-              selection={selection}
-              onClearSelection={() => setSelection(null)}
-              onAddComment={handleAddComment}
-              onResolveComment={handleResolveComment}
-              onFocusTarget={handleFocusTarget}
-              isSubmitting={isCommentSubmitting}
-              error={paneError}
-            />
+            {mode === "annotate" && (
+              <div className="h-full w-[360px] overflow-y-auto p-3">
+                <ActionPane
+                  comments={comments?.comments ?? []}
+                  document={doc}
+                  canvases={canvasIndex}
+                  selection={selection}
+                  onClearSelection={() => setSelection(null)}
+                  onAddComment={handleAddComment}
+                  onResolveComment={handleResolveComment}
+                  onFocusTarget={handleFocusTarget}
+                  isSubmitting={isCommentSubmitting}
+                  error={paneError}
+                />
+              </div>
+            )}
           </aside>
         )}
       </div>

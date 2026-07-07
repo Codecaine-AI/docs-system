@@ -1,7 +1,19 @@
 "use client";
 
 import { Node, mergeAttributes } from "@tiptap/core";
-import type { DocBlockFlavour } from "@codecaine-ai/docs-model/doc-schema";
+import type { DocBlockType } from "@codecaine-ai/docs-model/doc-schema";
+import {
+  CODE_BLOCK_CLASSES,
+  DECISION_CARD_CLASSES,
+  HEADING_CLASSES,
+  LIST_ITEM_BULLET_CLASSES,
+  LIST_ITEM_CLASSES,
+  LIST_ITEM_CONTENT_CLASSES,
+  PARAGRAPH_CLASSES,
+  QUOTE_CLASSES,
+  SEMANTIC_CARD_CLASSES,
+  CARD_BODY_TEXT_CLASSES,
+} from "../../render/block-classes";
 
 /**
  * TipTap/ProseMirror node schema for the M4 full block editor (Checkpoint 8).
@@ -59,7 +71,7 @@ import type { DocBlockFlavour } from "@codecaine-ai/docs-model/doc-schema";
  */
 
 /** Doc-schema flavours whose PM representation is an editable text block (`inline* block*` content). */
-export const TEXT_BLOCK_FLAVOURS = [
+export const TEXT_BLOCK_TYPES = [
   "paragraph",
   "heading",
   "list-item",
@@ -74,20 +86,34 @@ export const TEXT_BLOCK_FLAVOURS = [
   "requirement",
   "implementation",
   "testing",
-] as const satisfies readonly DocBlockFlavour[];
+] as const satisfies readonly DocBlockType[];
 
 /** Doc-schema flavours whose PM representation is a non-editable atom leaf node. */
-export const ATOM_BLOCK_FLAVOURS = [
+export const ATOM_BLOCK_TYPES = [
   "divider",
   "image",
   "attachment",
   "canvas",
   "agent-contract",
   "file-tree",
-] as const satisfies readonly DocBlockFlavour[];
+  // restored engineering/support/diagram flavours — atoms until the
+  // component-adapter restoration pass gives them dedicated editing UIs
+  "annotated-code",
+  "api-endpoint",
+  "api-surface",
+  "data-model",
+  "diff",
+  "implementation-map",
+  "json-explorer",
+  "checklist",
+  "columns",
+  "structured-table",
+  "tabs",
+  "mermaid",
+] as const satisfies readonly DocBlockType[];
 
 /** PM node type name -> doc-schema flavour. */
-export const NODE_TYPE_TO_FLAVOUR: Record<string, DocBlockFlavour> = {
+export const NODE_TYPE_TO_BLOCK_TYPE: Record<string, DocBlockType> = {
   docParagraph: "paragraph",
   docHeading: "heading",
   docListItem: "list-item",
@@ -108,12 +134,24 @@ export const NODE_TYPE_TO_FLAVOUR: Record<string, DocBlockFlavour> = {
   docCanvas: "canvas",
   docAgentContract: "agent-contract",
   docFileTree: "file-tree",
+  docAnnotatedCode: "annotated-code",
+  docApiEndpoint: "api-endpoint",
+  docApiSurface: "api-surface",
+  docDataModel: "data-model",
+  docDiff: "diff",
+  docImplementationMap: "implementation-map",
+  docJsonExplorer: "json-explorer",
+  docChecklist: "checklist",
+  docColumns: "columns",
+  docStructuredTable: "structured-table",
+  docTabs: "tabs",
+  docMermaid: "mermaid",
 };
 
-/** Inverse of NODE_TYPE_TO_FLAVOUR — doc-schema flavour -> PM node type name. */
-export const FLAVOUR_TO_NODE_TYPE: Record<DocBlockFlavour, string> = Object.fromEntries(
-  Object.entries(NODE_TYPE_TO_FLAVOUR).map(([nodeType, flavour]) => [flavour, nodeType]),
-) as Record<DocBlockFlavour, string>;
+/** Inverse of NODE_TYPE_TO_BLOCK_TYPE — doc-schema flavour -> PM node type name. */
+export const BLOCK_TYPE_TO_NODE_TYPE: Record<DocBlockType, string> = Object.fromEntries(
+  Object.entries(NODE_TYPE_TO_BLOCK_TYPE).map(([nodeType, flavour]) => [flavour, nodeType]),
+) as Record<DocBlockType, string>;
 
 /** Shared attrs every block-carrying node needs: the stable id + typed props blob. */
 const blockAttrs = {
@@ -195,7 +233,11 @@ function textBlockNode(
 
 export const DocParagraph = textBlockNode("docParagraph", {
   parseHTML: () => [{ tag: "p" }],
-  renderHTML: ({ HTMLAttributes }) => ["p", mergeAttributes(HTMLAttributes), 0],
+  renderHTML: ({ HTMLAttributes }) => [
+    "p",
+    mergeAttributes(HTMLAttributes, { class: PARAGRAPH_CLASSES }),
+    0,
+  ],
 });
 
 export const DocHeading = Node.create({
@@ -215,7 +257,7 @@ export const DocHeading = Node.create({
   },
   renderHTML({ node, HTMLAttributes }) {
     const level = (node.attrs.level as number) ?? 2;
-    return [`h${level}`, mergeAttributes(HTMLAttributes), 0];
+    return [`h${level}`, mergeAttributes(HTMLAttributes, { class: HEADING_CLASSES }), 0];
   },
 });
 
@@ -230,10 +272,40 @@ export const DocListItem = Node.create({
     return { ...blockAttrs, ordered: { default: null as boolean | null } };
   },
   parseHTML() {
-    return [{ tag: "li" }];
+    // The serialized editor `<li>` carries a static bullet `<span>` before
+    // its content column (see renderHTML below) — `contentElement` keeps the
+    // clipboard round trip from re-parsing that "•" into the item's text.
+    // Bare `<li>`s (external paste) have no content column and parse whole.
+    return [
+      {
+        tag: "li",
+        contentElement: (element: HTMLElement) =>
+          element.querySelector<HTMLElement>(":scope > div[data-doc-list-content]") ?? element,
+      },
+    ];
   },
   renderHTML({ HTMLAttributes }) {
-    return ["li", mergeAttributes(HTMLAttributes), 0];
+    // Mirrors the registry's list-item shape (block-classes.ts): a flex row
+    // with a hand-drawn bullet and a content column — `flex` also suppresses
+    // the `<li>`'s native marker. The content hole stays the ONLY child of
+    // its parent (PM toDOM rule); the bullet is a static, non-editable
+    // sibling. `order-first` keeps the bullet ahead of the empty-item
+    // placeholder hint, which renders as an `::before` flex item on the
+    // `<li>` itself (see decorations/placeholder.ts).
+    return [
+      "li",
+      mergeAttributes(HTMLAttributes, { class: LIST_ITEM_CLASSES }),
+      [
+        "span",
+        {
+          class: `${LIST_ITEM_BULLET_CLASSES} order-first`,
+          contenteditable: "false",
+          "aria-hidden": "true",
+        },
+        "•",
+      ],
+      ["div", { class: LIST_ITEM_CONTENT_CLASSES, "data-doc-list-content": "true" }, 0],
+    ];
   },
 });
 
@@ -251,29 +323,45 @@ export const DocCodeBlock = Node.create({
     return [{ tag: "pre", preserveWhitespace: "full" as const }];
   },
   renderHTML({ HTMLAttributes }) {
-    return ["pre", mergeAttributes(HTMLAttributes), ["code", 0]];
+    return ["pre", mergeAttributes(HTMLAttributes, { class: CODE_BLOCK_CLASSES }), ["code", 0]];
   },
 });
 
 export const DocQuote = textBlockNode("docQuote", {
   parseHTML: () => [{ tag: "blockquote" }],
-  renderHTML: ({ HTMLAttributes }) => ["blockquote", mergeAttributes(HTMLAttributes), 0],
+  renderHTML: ({ HTMLAttributes }) => [
+    "blockquote",
+    mergeAttributes(HTMLAttributes, { class: QUOTE_CLASSES }),
+    0,
+  ],
 });
 
-/** Shared factory for callout + the semantic/engineering "simple card" flavours — all `inline* block*` content, distinguished only by node name/flavour. */
-function semanticNode(name: string) {
+/**
+ * Shared factory for callout + the semantic/engineering "simple card"
+ * flavours — all `inline* block*` content, distinguished only by node
+ * name/flavour. The DOM carries the read surface's card-container chrome
+ * (block-classes.ts) so a card block LOOKS like a card while editing; the
+ * badge/label header row the read surface adds is presentation the editor
+ * intentionally omits (it would be static non-editable furniture inside a
+ * text block). `cardClasses` defaults to the primary-tone card; decision
+ * uses its lighter tone.
+ */
+function semanticNode(name: string, cardClasses: string = SEMANTIC_CARD_CLASSES) {
   return textBlockNode(name, {
-    parseHTML: () => [{ tag: `div[data-doc-flavour="${NODE_TYPE_TO_FLAVOUR[name]}"]` }],
+    parseHTML: () => [{ tag: `div[data-doc-type="${NODE_TYPE_TO_BLOCK_TYPE[name]}"]` }],
     renderHTML: ({ HTMLAttributes }) => [
       "div",
-      mergeAttributes(HTMLAttributes, { "data-doc-flavour": NODE_TYPE_TO_FLAVOUR[name] }),
+      mergeAttributes(HTMLAttributes, {
+        "data-doc-type": NODE_TYPE_TO_BLOCK_TYPE[name],
+        class: `${cardClasses} ${CARD_BODY_TEXT_CLASSES}`,
+      }),
       0,
     ],
   });
 }
 
 export const DocCallout = semanticNode("docCallout");
-export const DocDecision = semanticNode("docDecision");
+export const DocDecision = semanticNode("docDecision", DECISION_CARD_CLASSES);
 export const DocConstraint = semanticNode("docConstraint");
 export const DocAssumption = semanticNode("docAssumption");
 export const DocObservation = semanticNode("docObservation");
@@ -313,8 +401,22 @@ export const DocAttachment = atomBlockNode("docAttachment");
 export const DocCanvas = atomBlockNode("docCanvas");
 export const DocAgentContract = atomBlockNode("docAgentContract");
 export const DocFileTree = atomBlockNode("docFileTree");
+// Restored engineering/support/diagram flavours — plain atoms for now; the
+// restoration pass swaps their node views to real component adapters.
+export const DocAnnotatedCode = atomBlockNode("docAnnotatedCode");
+export const DocApiEndpoint = atomBlockNode("docApiEndpoint");
+export const DocApiSurface = atomBlockNode("docApiSurface");
+export const DocDataModel = atomBlockNode("docDataModel");
+export const DocDiff = atomBlockNode("docDiff");
+export const DocImplementationMap = atomBlockNode("docImplementationMap");
+export const DocJsonExplorer = atomBlockNode("docJsonExplorer");
+export const DocChecklist = atomBlockNode("docChecklist");
+export const DocColumns = atomBlockNode("docColumns");
+export const DocStructuredTable = atomBlockNode("docStructuredTable");
+export const DocTabs = atomBlockNode("docTabs");
+export const DocMermaid = atomBlockNode("docMermaid");
 
-/** All text-block node definitions (used to build the editor's extension list). `DocBlockText` must be registered too — every text-bearing node above references it in its content expression — but it is NOT itself a doc-schema flavour (see NODE_TYPE_TO_FLAVOUR: it has no entry) and convert.ts never treats it as its own DocBlock. */
+/** All text-block node definitions (used to build the editor's extension list). `DocBlockText` must be registered too — every text-bearing node above references it in its content expression — but it is NOT itself a doc-schema flavour (see NODE_TYPE_TO_BLOCK_TYPE: it has no entry) and convert.ts never treats it as its own DocBlock. */
 export const TEXT_BLOCK_NODES = [
   DocBlockText,
   DocParagraph,
@@ -341,4 +443,16 @@ export const ATOM_BLOCK_NODES = [
   DocCanvas,
   DocAgentContract,
   DocFileTree,
+  DocAnnotatedCode,
+  DocApiEndpoint,
+  DocApiSurface,
+  DocDataModel,
+  DocDiff,
+  DocImplementationMap,
+  DocJsonExplorer,
+  DocChecklist,
+  DocColumns,
+  DocStructuredTable,
+  DocTabs,
+  DocMermaid,
 ];

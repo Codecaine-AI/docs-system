@@ -60,7 +60,7 @@ import type { DocBlock, DocDocument } from "./doc-schema";
  * children as nested indented list lines.
  */
 
-const CALLOUT_LIKE_SEMANTIC_FLAVOURS = new Set([
+const CALLOUT_LIKE_SEMANTIC_TYPES = new Set([
   "decision",
   "constraint",
   "assumption",
@@ -69,6 +69,20 @@ const CALLOUT_LIKE_SEMANTIC_FLAVOURS = new Set([
   "requirement",
   "implementation",
   "testing",
+  // restored engineering/support/diagram flavours — labeled-blockquote
+  // projection until the restoration pass gives them richer projections
+  "annotated-code",
+  "api-endpoint",
+  "api-surface",
+  "data-model",
+  "diff",
+  "implementation-map",
+  "json-explorer",
+  "checklist",
+  "columns",
+  "structured-table",
+  "tabs",
+  "mermaid",
 ]);
 
 const SEMANTIC_LABELS: Record<string, string> = {
@@ -80,6 +94,18 @@ const SEMANTIC_LABELS: Record<string, string> = {
   requirement: "Requirement",
   implementation: "Implementation",
   testing: "Testing",
+  "annotated-code": "Annotated Code",
+  "api-endpoint": "API Endpoint",
+  "api-surface": "API Surface",
+  "data-model": "Data Model",
+  diff: "Diff",
+  "implementation-map": "Implementation Map",
+  "json-explorer": "JSON Explorer",
+  checklist: "Checklist",
+  columns: "Columns",
+  "structured-table": "Structured Table",
+  tabs: "Tabs",
+  mermaid: "Mermaid",
 };
 
 /** Which props key (if any) supplies the semantic flavour's status-like qualifier. */
@@ -246,7 +272,7 @@ function projectBlockOwnLines(block: DocBlock): string | null {
       // Handled specially by the walker (needs depth + ordered numbering).
       return null;
     default:
-      if (CALLOUT_LIKE_SEMANTIC_FLAVOURS.has(block.flavour)) {
+      if (CALLOUT_LIKE_SEMANTIC_TYPES.has(block.flavour)) {
         return projectSemanticBlock(block);
       }
       // Unknown/unhandled flavour: fall back to its plain text, if any.

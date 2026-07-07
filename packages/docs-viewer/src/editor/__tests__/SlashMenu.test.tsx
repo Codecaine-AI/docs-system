@@ -3,8 +3,8 @@ import { act, cleanup, fireEvent, render } from "@testing-library/react";
 import { Editor } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
 import type { JSONContent } from "@tiptap/core";
-import { ATOM_BLOCK_NODES, TEXT_BLOCK_NODES } from "../schema";
-import { SlashMenu, SlashMenuPopover, slashMenuPluginKey, type SlashMenuState } from "../SlashMenu";
+import { ATOM_BLOCK_NODES, TEXT_BLOCK_NODES } from "../core/schema";
+import { SlashMenu, SlashMenuPopover, slashMenuPluginKey, type SlashMenuState } from "../menus/SlashMenu";
 
 /**
  * AFFiNE-style slash menu (SlashMenu.tsx): popover UI (icon box + name +

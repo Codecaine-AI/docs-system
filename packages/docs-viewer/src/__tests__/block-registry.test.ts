@@ -1,17 +1,19 @@
 import { describe, expect, it } from "bun:test";
+import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import type { DocBlock } from "@codecaine-ai/docs-model/doc-schema";
-import { DOC_BLOCK_FLAVOURS } from "@codecaine-ai/docs-model/doc-schema";
+import type { DocBlock, DocDocument } from "@codecaine-ai/docs-model/doc-schema";
+import { DOC_BLOCK_TYPES } from "@codecaine-ai/docs-model/doc-schema";
+import DocBlockRenderer from "../render/DocBlockRenderer";
 import {
   deltaToMarkdown,
   deltaToPlainText,
-  describeDocFlavoursForAgent,
-  type DocFlavourRenderContext,
-  getDocFlavourDescriptor,
-} from "../flavour-registry";
+  describeDocBlocksForAgent,
+  type DocBlockRenderContext,
+  getDocBlockDescriptor,
+} from "../render/block-registry";
 
 /** Minimal render context — enough to drive `image`/`attachment` descriptors. */
-function makeCtx(overrides: Partial<DocFlavourRenderContext> = {}): DocFlavourRenderContext {
+function makeCtx(overrides: Partial<DocBlockRenderContext> = {}): DocBlockRenderContext {
   return {
     renderText: () => null,
     renderChildren: () => null,
@@ -26,8 +28,8 @@ function block(flavour: DocBlock["flavour"], props: Record<string, unknown> = {}
 
 describe("flavour registry", () => {
   it("resolves a descriptor for every doc.json flavour", () => {
-    for (const flavour of DOC_BLOCK_FLAVOURS) {
-      const descriptor = getDocFlavourDescriptor(flavour);
+    for (const flavour of DOC_BLOCK_TYPES) {
+      const descriptor = getDocBlockDescriptor(flavour);
       expect(descriptor).not.toBeNull();
       if (!descriptor) continue;
       expect(descriptor.flavour).toBe(flavour);
@@ -39,26 +41,75 @@ describe("flavour registry", () => {
   });
 
   it("reuses the existing docs-block metadata for adapted flavours", () => {
-    expect(getDocFlavourDescriptor("decision")?.targetKind).toBe("decision");
-    expect(getDocFlavourDescriptor("decision")?.label).toBe("Decision");
-    expect(getDocFlavourDescriptor("callout")?.label).toBe("Callout");
-    expect(getDocFlavourDescriptor("agent-contract")?.label).toBe("Agent Contract");
-    expect(getDocFlavourDescriptor("file-tree")?.label).toBe("File Tree");
-    expect(getDocFlavourDescriptor("constraint")?.label).toBe("Constraint");
-    expect(getDocFlavourDescriptor("assumption")?.label).toBe("Assumption");
+    expect(getDocBlockDescriptor("decision")?.targetKind).toBe("decision");
+    expect(getDocBlockDescriptor("decision")?.label).toBe("Decision");
+    expect(getDocBlockDescriptor("callout")?.label).toBe("Callout");
+    expect(getDocBlockDescriptor("agent-contract")?.label).toBe("Agent Contract");
+    expect(getDocBlockDescriptor("file-tree")?.label).toBe("File Tree");
+    expect(getDocBlockDescriptor("constraint")?.label).toBe("Constraint");
+    expect(getDocBlockDescriptor("assumption")?.label).toBe("Assumption");
   });
 
   it("returns null for unknown flavours", () => {
-    expect(getDocFlavourDescriptor("wormhole")).toBeNull();
+    expect(getDocBlockDescriptor("wormhole")).toBeNull();
   });
 
   it("describes every flavour for the agent surface", () => {
-    const described = describeDocFlavoursForAgent();
-    expect(described.map((entry) => entry.flavour)).toEqual([...DOC_BLOCK_FLAVOURS]);
+    const described = describeDocBlocksForAgent();
+    expect(described.map((entry) => entry.flavour)).toEqual([...DOC_BLOCK_TYPES]);
     for (const entry of described) {
       expect(entry.description.length).toBeGreaterThan(0);
       expect(entry.patchOps.length).toBeGreaterThan(0);
     }
+  });
+});
+
+describe("restored flavours — parse-reuse adapters", () => {
+  function checklistDoc(body: string): DocDocument {
+    return {
+      schemaVersion: 1,
+      id: "registry-checklist",
+      root: "root",
+      blocks: {
+        root: { id: "root", flavour: "paragraph", props: {}, children: ["checklist-1"] },
+        "checklist-1": {
+          id: "checklist-1",
+          flavour: "checklist",
+          props: { title: "Restoration" },
+          text: [{ insert: body }],
+          children: [],
+        },
+      },
+    };
+  }
+
+  it("renders real parsed checklist content through DocBlockRenderer", () => {
+    const doc = checklistDoc("- [x] Wire adapters -- registry wired\n- [ ] Ship sidebar");
+    const html = renderToStaticMarkup(createElement(DocBlockRenderer, { document: doc }));
+    // Targeting wrapper + the component's own chrome (not the tracer card).
+    expect(html).toContain('data-doc-block="checklist"');
+    expect(html).toContain('data-docs-block-type="checklist"');
+    expect(html).toContain("Wire adapters");
+    expect(html).toContain("registry wired");
+    expect(html).toContain("Ship sidebar");
+    expect(html).toContain("1/2");
+    expect(html).not.toContain("Invalid Checklist block");
+  });
+
+  it("renders the placeholder card instead of throwing when the body does not parse", () => {
+    const doc = checklistDoc("no task rows here");
+    const html = renderToStaticMarkup(createElement(DocBlockRenderer, { document: doc }));
+    // Targeting attrs still exist so annotation/patch anchoring keeps working.
+    expect(html).toContain('data-doc-block="checklist"');
+    expect(html).toContain('data-block-id="checklist-1"');
+    expect(html).toContain("Invalid Checklist block");
+    expect(html).not.toContain('data-docs-block-type="checklist"');
+  });
+
+  it("appends a body-format hint to each restored flavour's agentDescription", () => {
+    expect(getDocBlockDescriptor("checklist")?.agentDescription).toContain("- [x]");
+    expect(getDocBlockDescriptor("diff")?.agentDescription).toContain("--- before ---");
+    expect(getDocBlockDescriptor("api-endpoint")?.agentDescription).toContain("REQUIRED");
   });
 });
 
@@ -91,7 +142,7 @@ describe("delta projections", () => {
 
 describe("image/attachment flavours — resolveAssetSrc (TG7.3)", () => {
   it("image block resolves its src through ctx.resolveAssetSrc when provided", () => {
-    const descriptor = getDocFlavourDescriptor("image");
+    const descriptor = getDocBlockDescriptor("image");
     expect(descriptor).not.toBeNull();
     const ctx = makeCtx({
       resolveAssetSrc: (src) => `https://api.example.com/asset?path=${encodeURIComponent(src)}`,
@@ -106,7 +157,7 @@ describe("image/attachment flavours — resolveAssetSrc (TG7.3)", () => {
   });
 
   it("image block falls back to the raw src when resolveAssetSrc is omitted (non-regression)", () => {
-    const descriptor = getDocFlavourDescriptor("image");
+    const descriptor = getDocBlockDescriptor("image");
     expect(descriptor).not.toBeNull();
     const ctx = makeCtx();
     const html = renderToStaticMarkup(
@@ -116,7 +167,7 @@ describe("image/attachment flavours — resolveAssetSrc (TG7.3)", () => {
   });
 
   it("attachment block shows filename, uppercase extension badge, size (when present), and a resolved download href", () => {
-    const descriptor = getDocFlavourDescriptor("attachment");
+    const descriptor = getDocBlockDescriptor("attachment");
     expect(descriptor).not.toBeNull();
     const ctx = makeCtx({
       resolveAssetSrc: (src) => `https://api.example.com/asset?path=${encodeURIComponent(src)}`,
@@ -136,7 +187,7 @@ describe("image/attachment flavours — resolveAssetSrc (TG7.3)", () => {
   });
 
   it("attachment block falls back to the raw src and omits size when not provided (non-regression)", () => {
-    const descriptor = getDocFlavourDescriptor("attachment");
+    const descriptor = getDocBlockDescriptor("attachment");
     expect(descriptor).not.toBeNull();
     const ctx = makeCtx();
     const html = renderToStaticMarkup(

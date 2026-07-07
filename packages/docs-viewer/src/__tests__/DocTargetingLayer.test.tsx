@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it } from "bun:test";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
-import DocTargetingLayer from "../doc-targeting-layer";
-import type { ResolvedDocsTarget } from "../docs-targeting";
+import DocTargetingLayer from "../annotate/doc-targeting-layer";
+import type { ResolvedDocsTarget } from "../annotate/docs-targeting";
 
 afterEach(() => {
   cleanup();

@@ -3,11 +3,11 @@ import { BlocksIcon } from "lucide-react";
 import { DocsClientProvider, type DocsTreeNode } from "@codecaine-ai/docs-viewer/client";
 import { cn } from "@codecaine-ai/docs-viewer/ui/cn";
 
-import { IS_STATIC, getTree } from "./api";
-import { createStandaloneDocsClient } from "./client";
-import { StandaloneCanvasEmbed } from "./CanvasEmbed";
-import { BlocksPage } from "./BlocksPage";
-import { DocPage } from "./DocPage";
+import { IS_STATIC, getTree } from "../data/api";
+import { createStandaloneDocsClient } from "../data/client";
+import { StandaloneCanvasEmbed } from "../pages/CanvasEmbed";
+import { BlocksPage } from "../pages/BlocksPage";
+import { DocPage } from "../pages/DocPage";
 import { Sidebar } from "./Sidebar";
 
 /**

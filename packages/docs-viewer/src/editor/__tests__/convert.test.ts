@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import sampleDoc from "@codecaine-ai/docs-model/fixtures/sample.doc.json";
 import { validateDocDocument, type DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import { applyOps } from "@codecaine-ai/docs-model/doc-ops";
-import { docToPM, pmToDoc, diffToOps, type PMNode } from "../convert";
+import { docToPM, pmToDoc, diffToOps, type PMNode } from "../core/convert";
 
 function loadFixture(): DocDocument {
   const result = validateDocDocument(sampleDoc);

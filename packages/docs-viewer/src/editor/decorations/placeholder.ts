@@ -4,7 +4,7 @@ import { Extension } from "@tiptap/core";
 import type { Node as PMNode } from "@tiptap/pm/model";
 import { Plugin, PluginKey, type EditorState } from "@tiptap/pm/state";
 import { Decoration, DecorationSet } from "@tiptap/pm/view";
-import { NODE_TYPE_TO_FLAVOUR } from "./schema";
+import { NODE_TYPE_TO_BLOCK_TYPE } from "../core/schema";
 
 /**
  * Notion-style gray placeholder hints on empty blocks, as a ProseMirror node
@@ -101,7 +101,7 @@ function buildDecorations(state: EditorState, editorFocused: boolean): Decoratio
     } else if (name === "docListItem") {
       if (hasEmptyWrapper(node) && editorFocused) text = "List";
     } else if (FOCUS_LABELED_NODE_NAMES.has(name) && hasEmptyWrapper(node) && editorFocused) {
-      text = capitalize(NODE_TYPE_TO_FLAVOUR[name] ?? name);
+      text = capitalize(NODE_TYPE_TO_BLOCK_TYPE[name] ?? name);
     }
 
     if (text !== null) {

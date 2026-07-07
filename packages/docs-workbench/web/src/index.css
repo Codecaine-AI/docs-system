@@ -107,6 +107,13 @@
   }
 }
 
+/* The typography plugin's `.prose` carries `max-width: 65ch`. Docs surfaces
+   size their own column (DocPage's max-w wrapper) — kill the cap with plain
+   author CSS so no utility-ordering or stale-build accident can revive it. */
+.spectre-markdown.prose {
+  max-width: none;
+}
+
 /* Docs typography bridge — mirrors Spectre's .spectre-markdown block. */
 .spectre-markdown {
   font-family: var(--font-tx02), ui-sans-serif, system-ui, sans-serif;
@@ -153,6 +160,19 @@
 
 .spectre-markdown :where(a) {
   color: var(--spec-viewer-link);
+}
+
+/*
+ * Editor list-item nested-children indent. The read surface (block-registry)
+ * wraps a list item's nested children in an `ml-4` div inside the content
+ * column; the ProseMirror editor cannot add that wrapper (the content hole
+ * holds the item's own text wrapper AND its nested blocks together), so the
+ * same indent is applied here to every non-text child of the editor's
+ * list-item content column. Everything else about the two surfaces' list
+ * items shares literal classes from docs-viewer's block-classes.ts.
+ */
+.docs-editor-prosemirror li > [data-doc-list-content] > :not([data-doc-node="docBlockText"]) {
+  margin-left: 1rem; /* = ml-4 */
 }
 
 /* Syntax highlighting — theme-token colors over rehype-highlight classes. */

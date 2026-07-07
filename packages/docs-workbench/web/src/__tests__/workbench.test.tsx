@@ -7,12 +7,12 @@ import type { Editor } from "@tiptap/react";
 import { DocsClientProvider } from "@codecaine-ai/docs-viewer/client";
 
 import { createDocsServeApp } from "../../../src/server";
-import { applyDocOps, getBundle, undoPatch, ApiError } from "../api";
-import { getSessionId } from "../session";
-import { createStandaloneDocsClient } from "../client";
-import { StandaloneCanvasEmbed } from "../CanvasEmbed";
-import { App } from "../App";
-import { DocPage } from "../DocPage";
+import { applyDocOps, getBundle, undoPatch, ApiError } from "../data/api";
+import { getSessionId } from "../data/session";
+import { createStandaloneDocsClient } from "../data/client";
+import { StandaloneCanvasEmbed } from "../pages/CanvasEmbed";
+import { App } from "../shell/App";
+import { DocPage } from "../pages/DocPage";
 
 /**
  * Workbench integration tests: the REAL serve app (docs-server routes over a

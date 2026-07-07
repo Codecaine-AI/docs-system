@@ -6,19 +6,19 @@ import { Extension } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
 import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import { applyOps, type DocOp } from "@codecaine-ai/docs-model/doc-ops";
-import type { DocFlavourRenderContext } from "../flavour-registry";
-import type { DocBlockSaveResult } from "../DocBlockRenderer";
+import type { DocBlockRenderContext } from "../render/block-registry";
+import type { DocBlockSaveResult } from "../render/DocBlockRenderer";
 import { useDocsClient, type DraftLockInfo } from "../client";
-import { docToPM, pmToDoc, diffToOps, type PMNode } from "./convert";
-import { TEXT_BLOCK_NODES } from "./schema";
-import { ATOM_BLOCK_NODES_WITH_VIEWS } from "./node-views";
-import { DocEditorNodeViewProvider } from "./node-view-context";
-import { SlashMenu, SlashMenuPopover } from "./SlashMenu";
-import { DocReference, ReferenceMention, ReferenceMentionPopover } from "./reference-node";
-import { buildDocInputRules } from "./input-rules";
-import { ChangedFlash, setChangedFlashIds } from "./changed-flash";
-import { DocKeymap } from "./keymap";
-import { DocPlaceholder } from "./placeholder";
+import { docToPM, pmToDoc, diffToOps, type PMNode } from "./core/convert";
+import { TEXT_BLOCK_NODES } from "./core/schema";
+import { ATOM_BLOCK_NODES_WITH_VIEWS } from "./views/node-views";
+import { DocEditorNodeViewProvider } from "./views/node-view-context";
+import { SlashMenu, SlashMenuPopover } from "./menus/SlashMenu";
+import { DocReference, ReferenceMention, ReferenceMentionPopover } from "./menus/reference-node";
+import { buildDocInputRules } from "./input/input-rules";
+import { ChangedFlash, setChangedFlashIds } from "./decorations/changed-flash";
+import { DocKeymap } from "./input/keymap";
+import { DocPlaceholder } from "./decorations/placeholder";
 
 /**
  * M4 full block editor (Checkpoint 8, TG8.3) — composes schema.ts's PM node
@@ -55,8 +55,8 @@ export type DocEditorProps = {
   document: DocDocument;
   projectId?: string | null;
   documentPath?: string | null;
-  renderCanvas?: DocFlavourRenderContext["renderCanvas"];
-  resolveAssetSrc?: DocFlavourRenderContext["resolveAssetSrc"];
+  renderCanvas?: DocBlockRenderContext["renderCanvas"];
+  resolveAssetSrc?: DocBlockRenderContext["resolveAssetSrc"];
   onApplyOps: (ops: DocOp[]) => Promise<DocBlockSaveResult>;
   onReloadDoc?: () => void;
   /**

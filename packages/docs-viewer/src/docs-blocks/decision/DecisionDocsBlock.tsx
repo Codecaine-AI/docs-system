@@ -1,6 +1,7 @@
 "use client";
 
 import { Badge } from "../../ui/badge";
+import { DECISION_CARD_CLASSES } from "../../render/block-classes";
 import {
   DocsMdxBlock,
   type DocsMdxBlockRenderContext,
@@ -39,7 +40,7 @@ export class DecisionDocsBlock extends DocsMdxBlock<DecisionData> {
     const { data } = block;
     return (
       <section
-        className="not-prose my-4 rounded-md border border-primary/25 bg-primary/5 p-3"
+        className={DECISION_CARD_CLASSES}
         data-mdx-block={this.tag}
         data-docs-block-type={this.type}
         data-source-id={data.id}

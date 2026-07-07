@@ -20,7 +20,7 @@ import { inlineToDelta } from "./inline-to-delta";
 import {
   validateDocDocument,
   type DocBlock,
-  type DocBlockFlavour,
+  type DocBlockType,
   type DocDocument,
 } from "@codecaine-ai/docs-model/doc-schema";
 
@@ -103,7 +103,7 @@ function parseAttrs(source: string): Record<string, string> {
  * Any PascalCase tag is treated as a component segment (unlike the renderer,
  * the migration doesn't gate on a registry — it maps every recognized tag it
  * knows about and falls back to a lossless raw-source code block for the
- * rest, see COMPONENT_TAG_TO_FLAVOUR / buildUnmappedComponentBlock below).
+ * rest, see COMPONENT_TAG_TO_BLOCK_TYPE / buildUnmappedComponentBlock below).
  */
 function segmentMdx(content: string): Segment[] {
   const lines = content.split("\n");
@@ -430,7 +430,7 @@ function buildProseBlocks(markdown: string, ctx: BuildCtx): string[] {
 // ---------------------------------------------------------------------------
 
 type ComponentMapper = (attrs: Record<string, string>, body: string, ctx: BuildCtx) => {
-  flavour: DocBlockFlavour;
+  flavour: DocBlockType;
   props: Record<string, unknown>;
   text?: DocBlock["text"];
 };
@@ -451,7 +451,7 @@ function strAttr(attrs: Record<string, string>, key: string): string | undefined
  * DesignBoard/Artboard/Screen/Prototype/PrototypeScreen/PrototypeTransition)
  * has no doc-schema flavour yet — those fall back to buildUnmappedComponentBlock.
  */
-const COMPONENT_TAG_TO_FLAVOUR: Record<string, ComponentMapper> = {
+const COMPONENT_TAG_TO_BLOCK_TYPE: Record<string, ComponentMapper> = {
   Decision: (attrs, body, ctx) => ({
     flavour: "decision",
     props: {
@@ -539,7 +539,7 @@ function parseFileTreeEntries(body: string): Array<Record<string, unknown>> {
 
 /**
  * Fallback for MDX component tags with no doc-schema flavour yet (see the
- * comment above COMPONENT_TAG_TO_FLAVOUR for the list). Preserves the
+ * comment above COMPONENT_TAG_TO_BLOCK_TYPE for the list). Preserves the
  * original tag + full raw source verbatim as a `code` block with
  * `props.language: "mdx"` and `props.mdxTag` — lossless, validated, and
  * clearly flagged in the migration warnings so this can be revisited once
@@ -597,7 +597,7 @@ export function mdxToDoc(source: string, docPath: string): MdxToDocResult {
       continue;
     }
 
-    const mapper = COMPONENT_TAG_TO_FLAVOUR[segment.tag];
+    const mapper = COMPONENT_TAG_TO_BLOCK_TYPE[segment.tag];
     if (!mapper) {
       rootChildren.push(buildUnmappedComponentBlock(segment.tag, segment.attrs, segment.body, ctx));
       continue;

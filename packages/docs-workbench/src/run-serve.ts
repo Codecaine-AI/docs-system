@@ -32,7 +32,7 @@ export async function runServe(options: RunServeOptions): Promise<void> {
   }
 
   if (options.dev) {
-    startDocsServe({ docsRoot, port, hostname, staticDir: null });
+    startDocsServe({ docsRoot, port, hostname, staticDir: null, watchFs: true });
     log(`[docs-workbench] API listening on http://${displayHost}:${port} (docs root: ${docsRoot})`);
     log(`[docs-workbench] Starting vite dev server (proxying /api -> :${port})...`);
     const proc = Bun.spawn(["bun", "x", "vite"], {
@@ -46,7 +46,7 @@ export async function runServe(options: RunServeOptions): Promise<void> {
   }
 
   const staticDir = await ensureSpaBuilt({ mode: "serve", force: options.forceBuild, log });
-  startDocsServe({ docsRoot, port, hostname, staticDir });
+  startDocsServe({ docsRoot, port, hostname, staticDir, watchFs: true });
   log(`[docs-workbench] Serving docs from ${docsRoot}`);
   log(`[docs-workbench] http://${displayHost}:${port}`);
 }
