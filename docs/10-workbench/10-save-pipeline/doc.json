@@ -22,10 +22,15 @@
         "b-10-save-pipeline-session-id-the-tab-s-11",
         "b-10-save-pipeline-used-to-filter-self-echo-12",
         "b-10-save-pipeline-on-success-the-server-ap-13",
+        "b-10-save-pipeline-one-upload-route-sits-be-19",
         "b-10-save-pipeline-4-reconciliation-back-14",
         "b-10-save-pipeline-the-editor-adopts-the-se-15",
         "b-10-save-pipeline-change-flashes-and-prose-16",
-        "b-10-save-pipeline-when-an-sse-event-flashe-17"
+        "b-10-save-pipeline-when-an-sse-event-flashe-17",
+        "b-10-save-pipeline-callout-dirty-suppress-20",
+        "b-10-save-pipeline-typed-block-actions-the-21",
+        "b-10-save-pipeline-structured-object-blocks-22",
+        "b-10-save-pipeline-block-action-examples-23"
       ]
     },
     "b-10-save-pipeline-how-a-save-works-1": {
@@ -128,7 +133,16 @@
           }
         },
         {
-          "insert": " and diffs it against the baseline\ndoc this editing session started from. The diff is a minimal batch of the\nmodel's six ops. A no-op edit diffs to zero ops and no request is sent."
+          "insert": " and diffs it against the baseline\ndoc this editing session started from. The diff is a minimal batch of the\nmodel's six generic structural/text ops (the vocabulary's seventh op,\n"
+        },
+        {
+          "insert": "blockAction",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", is the typed-action bridge for agents — see below; the\neditor's diff never emits it). A no-op edit diffs to zero ops and no\nrequest is sent."
         }
       ],
       "children": []
@@ -328,6 +342,233 @@
           "insert": " driven by the same\nhighlighted-id set — same CSS animation, different mechanism."
         }
       ],
+      "children": []
+    },
+    "b-10-save-pipeline-one-upload-route-sits-be-19": {
+      "id": "b-10-save-pipeline-one-upload-route-sits-be-19",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "One upload route sits beside "
+        },
+        {
+          "insert": "/api/ops",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ": dropping a video file in the\neditor first POSTs it (multipart) to "
+        },
+        {
+          "insert": "POST /api/assets/video",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — a strict\nroute with a 64 MB cap, an extension/MIME allowlist ("
+        },
+        {
+          "insert": "mp4",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": "webm",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": "mov",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": "m4v",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "video/*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "), and collision-suffixed filenames under the bundle's\n"
+        },
+        {
+          "insert": "assets/videos/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — and only inserts the video block (whose "
+        },
+        {
+          "insert": "props.src",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "\npoints at the stored file) once the upload resolves. A failed upload\ninserts nothing."
+        }
+      ],
+      "children": []
+    },
+    "b-10-save-pipeline-callout-dirty-suppress-20": {
+      "id": "b-10-save-pipeline-callout-dirty-suppress-20",
+      "type": "callout",
+      "props": {
+        "tone": "info",
+        "kind": "Gotcha",
+        "title": "Why didn't the live update apply?"
+      },
+      "text": [
+        {
+          "insert": "SSE auto-apply is suppressed while your editor is dirty or a save is in flight — incoming remote changes are held rather than clobbering your unsaved draft. Nothing is lost: once you save (or reload), any true overlap surfaces as the save-time 409 instead of a silent merge."
+        }
+      ],
+      "children": []
+    },
+    "b-10-save-pipeline-typed-block-actions-the-21": {
+      "id": "b-10-save-pipeline-typed-block-actions-the-21",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Typed block actions (the seventh op)"
+        }
+      ],
+      "children": []
+    },
+    "b-10-save-pipeline-structured-object-blocks-22": {
+      "id": "b-10-save-pipeline-structured-object-blocks-22",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Structured object blocks — code annotations, "
+        },
+        {
+          "insert": "structured-table",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ",\n"
+        },
+        {
+          "insert": "file-tree",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "interaction-surface",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — are edited through named actions\ninstead of hand-built props JSON. A "
+        },
+        {
+          "insert": "blockAction",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " op carries an action name\nplus params; the server resolves it from the registry in\n"
+        },
+        {
+          "insert": "docs-model/src/block-actions.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " (13 actions today), validates the\nparams, and expands it into an ordinary "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " props patch — so\nthe inverse op, the undo ledger, and the SSE broadcast all work exactly as\nabove. Agents discover the whole edit surface (the generic ops plus every\naction's param specs) from "
+        },
+        {
+          "insert": "GET /api/blocks",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Two of the thirteen, as\nsignatures:"
+        }
+      ],
+      "children": []
+    },
+    "b-10-save-pipeline-block-action-examples-23": {
+      "id": "b-10-save-pipeline-block-action-examples-23",
+      "type": "interaction-surface",
+      "props": {
+        "title": "blockAction examples (2 of 13)",
+        "operations": [
+          {
+            "name": "structured-table.updateCell",
+            "description": "Set one cell, addressing the column by name (column) or position (columnIndex)",
+            "params": [
+              { "name": "rowIndex", "type": "number", "required": true },
+              { "name": "column", "type": "string", "required": false, "description": "exactly one of column/columnIndex" },
+              { "name": "columnIndex", "type": "number", "required": false },
+              { "name": "value", "type": "string", "required": true }
+            ],
+            "returns": "updateBlock props patch (standard inverse)",
+            "kind": "action"
+          },
+          {
+            "name": "code.setAnnotation",
+            "description": "Upsert a line annotation keyed by its exact \"lines\" string",
+            "params": [
+              { "name": "lines", "type": "string", "required": true, "description": "line range key, e.g. \"4-9\"" },
+              { "name": "note", "type": "string", "required": true },
+              { "name": "label", "type": "string", "required": false }
+            ],
+            "returns": "updateBlock props patch (standard inverse)",
+            "kind": "action"
+          }
+        ]
+      },
       "children": []
     }
   }

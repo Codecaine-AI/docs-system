@@ -21,6 +21,8 @@
         "b-00-using-the-workbench-single-use-powered-by-10",
         "b-00-using-the-workbench-live-changes-if-ano-11",
         "b-00-using-the-workbench-while-your-editor-is-cle-12",
+        "b-00-using-the-workbench-links-cmd-ctrl-k-with-29",
+        "b-00-using-the-workbench-video-paste-a-youtube-30",
         "b-00-using-the-workbench-conflicts-13",
         "b-00-using-the-workbench-two-layers-both-server-14",
         "b-00-using-the-workbench-stale-hash-409-ev-15",
@@ -34,6 +36,8 @@
         "b-00-using-the-workbench-compose-a-comment-with-23",
         "b-00-using-the-workbench-list-dangling-targets-24",
         "b-00-using-the-workbench-comments-live-in-the-bun-25",
+        "b-00-using-the-workbench-block-library-31",
+        "b-00-using-the-workbench-blocks-opens-a-searc-32",
         "b-00-using-the-workbench-static-export-26",
         "b-00-using-the-workbench-docs-export-produces-t-27"
       ]
@@ -461,6 +465,137 @@
         },
         {
           "insert": " produces the same UI with everything mutable removed: no mode\nswitcher, no editor, no comments pane, no SSE — a plain read-only site that\nworks from any static host or subpath."
+        }
+      ],
+      "children": []
+    },
+    "b-00-using-the-workbench-links-cmd-ctrl-k-with-29": {
+      "id": "b-00-using-the-workbench-links-cmd-ctrl-k-with-29",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Links.",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " "
+        },
+        {
+          "insert": "Cmd/Ctrl+K",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with text selected opens a Notion-style link popover\n  (Enter applies, an empty input or the Remove button clears). Pasting a URL\n  over selected text wraps the selection in a link instead of replacing it."
+        }
+      ],
+      "children": []
+    },
+    "b-00-using-the-workbench-video-paste-a-youtube-30": {
+      "id": "b-00-using-the-workbench-video-paste-a-youtube-30",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Video.",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " Paste or drop a YouTube/Vimeo/Loom URL on an empty line to embed\n  it as a video block (there is deliberately no slash-menu entry — video\n  blocks come from content). Dropping a video file from disk ("
+        },
+        {
+          "insert": "mp4",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": "webm",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": "mov",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": "m4v",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", up to 64 MB) uploads it into the bundle's "
+        },
+        {
+          "insert": "assets/videos/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and inserts\n  the block once the upload lands."
+        }
+      ],
+      "children": []
+    },
+    "b-00-using-the-workbench-block-library-31": {
+      "id": "b-00-using-the-workbench-block-library-31",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Block library"
+        }
+      ],
+      "children": []
+    },
+    "b-00-using-the-workbench-blocks-opens-a-searc-32": {
+      "id": "b-00-using-the-workbench-blocks-opens-a-searc-32",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "#/blocks",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " opens a searchable catalog of all 14 block types — one live\nexample per type, navigated by a scroll-spy sidebar, with the exact\n"
+        },
+        {
+          "insert": "doc.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " source expandable under each example. Examples render through\nthe same read surface as real docs, so it also shows the read-surface\nniceties: code blocks are syntax-highlighted and JSON code is\npretty-printed at render time (display-only — the stored text is never\nrewritten)."
         }
       ],
       "children": []

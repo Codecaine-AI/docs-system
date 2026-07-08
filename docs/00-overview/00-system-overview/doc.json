@@ -12,6 +12,7 @@
         "b-00-system-overview-what-this-repository-is-1",
         "b-00-system-overview-docs-system-is-codecai-2",
         "b-00-system-overview-the-one-sentence-philoso-3",
+        "b-00-system-overview-every-block-is-one-of-15",
         "b-00-system-overview-the-pipeline-at-a-glance-4",
         "b-00-system-overview-code-5",
         "b-00-system-overview-each-layer-only-depends-6",
@@ -115,6 +116,75 @@
         },
         {
           "insert": " exact card, and a save can\nbe expressed as a minimal batch of block operations instead of a whole-file\nrewrite."
+        }
+      ],
+      "children": []
+    },
+    "b-00-system-overview-every-block-is-one-of-15": {
+      "id": "b-00-system-overview-every-block-is-one-of-15",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every block is one of "
+        },
+        {
+          "insert": "14 types",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": ": paragraph, heading, list-item, quote, code,\ncallout, divider, structured-table, file-tree, interaction-surface, mermaid,\ncanvas, image, and video. Retired MDX-era types (the old semantic cards,\n"
+        },
+        {
+          "insert": "data-model",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "api-surface",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", …) coerce to "
+        },
+        {
+          "insert": "callout",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " on read, with the old type\nname preserved as "
+        },
+        {
+          "insert": "props.kind",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". The full vocabulary — every type's props and\nits typed actions — is documented in "
+        },
+        {
+          "insert": "Block vocabulary & typed actions",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "docs/00-overview/20-block-vocabulary.md",
+              "label": "Block vocabulary & typed actions"
+            }
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []
@@ -305,7 +375,25 @@
           }
         },
         {
-          "insert": " directly."
+          "insert": " directly. Edits are\nexpressed in a seven-op kernel — six generic structural/text ops plus\n"
+        },
+        {
+          "insert": "blockAction",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", which invokes one of 13 typed actions on structured blocks\n(tables, file trees, interaction surfaces, code annotations) — and an agent\ncan discover the whole edit surface from "
+        },
+        {
+          "insert": "GET /api/blocks",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []
