@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "00-overview-20-block-vocabulary",
+  "id": "10-system-design-10-block-vocabulary",
   "title": "Block vocabulary & typed actions",
   "root": "b-20-block-vocabulary-root",
   "blocks": {
@@ -1161,7 +1161,7 @@
         "title": "Where the content model lives",
         "entries": [
           {
-            "path": "docs/00-overview/20-block-vocabulary/doc.json",
+            "path": "docs/10-system-design/10-block-vocabulary/doc.json",
             "change": "added",
             "note": "this document"
           },

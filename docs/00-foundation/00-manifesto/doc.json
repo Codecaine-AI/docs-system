@@ -1,0 +1,336 @@
+{
+  "schemaVersion": 1,
+  "id": "00-foundation-00-manifesto",
+  "title": "Manifesto",
+  "root": "b-00-manifesto-root",
+  "blocks": {
+    "b-00-manifesto-root": {
+      "id": "b-00-manifesto-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-00-manifesto-title-1",
+        "b-00-manifesto-north-star-2",
+        "b-00-manifesto-markdown-primary-3",
+        "b-00-manifesto-progressive-disclosure-4",
+        "b-00-manifesto-prime-directive-5",
+        "b-00-manifesto-divider-authoring-6",
+        "b-00-manifesto-authoring-heading-7",
+        "b-00-manifesto-vocabulary-8",
+        "b-00-manifesto-model-quote-9",
+        "b-00-manifesto-edit-surface-10",
+        "b-00-manifesto-dogfood-11",
+        "b-00-manifesto-layers-heading-12",
+        "b-00-manifesto-foundation-layer-13",
+        "b-00-manifesto-system-design-layer-14",
+        "b-00-manifesto-implementation-layer-15",
+        "b-00-manifesto-reader-path-16",
+        "b-00-manifesto-divider-conviction-17",
+        "b-00-manifesto-conviction-heading-18",
+        "b-00-manifesto-durable-artifact-19",
+        "b-00-manifesto-better-model-20"
+      ]
+    },
+    "b-00-manifesto-title-1": {
+      "id": "b-00-manifesto-title-1",
+      "type": "heading",
+      "props": {
+        "level": 1
+      },
+      "text": [
+        {
+          "insert": "Manifesto"
+        }
+      ],
+      "children": []
+    },
+    "b-00-manifesto-north-star-2": {
+      "id": "b-00-manifesto-north-star-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This repository exists to make documentation the shared medium between humans and agents. Code is a lossy projection of intent. These docs keep the intent close enough to rebuild from it."
+        }
+      ],
+      "children": []
+    },
+    "b-00-manifesto-markdown-primary-3": {
+      "id": "b-00-manifesto-markdown-primary-3",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The agent-read markdown projection is the primary consumer of every document. An agent should never have to parse "
+        },
+        {
+          "insert": "doc.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " to read a doc. The JSON is the stable storage form; markdown is the reading contract."
+        }
+      ],
+      "children": []
+    },
+    "b-00-manifesto-progressive-disclosure-4": {
+      "id": "b-00-manifesto-progressive-disclosure-4",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Humans get the same blocks rendered in the workbench. Both readers move through the system by progressive disclosure: intent first, concepts next, implementation only when the task calls for it. The structure should let a reader find the relevant subsystem without reading the whole manual."
+        }
+      ],
+      "children": []
+    },
+    "b-00-manifesto-prime-directive-5": {
+      "id": "b-00-manifesto-prime-directive-5",
+      "type": "callout",
+      "props": {
+        "tone": "decision",
+        "kind": "Prime directive",
+        "title": "Markdown is the contract"
+      },
+      "text": [
+        {
+          "insert": "Write every document for the agent that will read it as markdown. If the projection reads wrong, the document is wrong."
+        }
+      ],
+      "children": []
+    },
+    "b-00-manifesto-divider-authoring-6": {
+      "id": "b-00-manifesto-divider-authoring-6",
+      "type": "divider",
+      "props": {},
+      "children": []
+    },
+    "b-00-manifesto-authoring-heading-7": {
+      "id": "b-00-manifesto-authoring-heading-7",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The authoring model"
+        }
+      ],
+      "children": []
+    },
+    "b-00-manifesto-vocabulary-8": {
+      "id": "b-00-manifesto-vocabulary-8",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The authoring model is deliberately small: "
+        },
+        {
+          "insert": "fourteen block types, and no more",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": ". A minimal vocabulary keeps the projection stable, the editor learnable, and the agent edit surface enumerable."
+        }
+      ],
+      "children": []
+    },
+    "b-00-manifesto-model-quote-9": {
+      "id": "b-00-manifesto-model-quote-9",
+      "type": "quote",
+      "props": {},
+      "text": [
+        {
+          "insert": "State is an annotated JSON code block; the ways to change that state are an interaction-surface block."
+        }
+      ],
+      "children": []
+    },
+    "b-00-manifesto-edit-surface-10": {
+      "id": "b-00-manifesto-edit-surface-10",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Text blocks edit as text. Object blocks edit through typed, discoverable actions. Discovery belongs in the system, not in tribal memory; "
+        },
+        {
+          "insert": "GET /api/blocks",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " exists so an agent can learn the available moves before it mutates state."
+        }
+      ],
+      "children": []
+    },
+    "b-00-manifesto-dogfood-11": {
+      "id": "b-00-manifesto-dogfood-11",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This repo is the proving ground for that rule. Its own documentation must be clear to agents, pleasant for humans, and constrained enough that edits can be made by operation instead of by guesswork."
+        }
+      ],
+      "children": []
+    },
+    "b-00-manifesto-layers-heading-12": {
+      "id": "b-00-manifesto-layers-heading-12",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The layers"
+        }
+      ],
+      "children": []
+    },
+    "b-00-manifesto-foundation-layer-13": {
+      "id": "b-00-manifesto-foundation-layer-13",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Foundation is the why. It captures the north star, the constraints, and the beliefs that should survive rewrites. This document belongs there because it says what docs-system is trying to preserve."
+        }
+      ],
+      "children": []
+    },
+    "b-00-manifesto-system-design-layer-14": {
+      "id": "b-00-manifesto-system-design-layer-14",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "System Design is the concept layer: the "
+        },
+        {
+          "insert": "data model",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "docs/10-system-design/00-data-model.md",
+              "label": "data model"
+            }
+          }
+        },
+        {
+          "insert": ", the "
+        },
+        {
+          "insert": "block vocabulary",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "docs/10-system-design/10-block-vocabulary.md",
+              "label": "block vocabulary"
+            }
+          }
+        },
+        {
+          "insert": ", and the "
+        },
+        {
+          "insert": "mutation model",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "docs/10-system-design/20-mutation-model.md",
+              "label": "mutation model"
+            }
+          }
+        },
+        {
+          "insert": ". It says how the system should behave independent of any particular codebase."
+        }
+      ],
+      "children": []
+    },
+    "b-00-manifesto-implementation-layer-15": {
+      "id": "b-00-manifesto-implementation-layer-15",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Implementation is the current projection into packages, routes, commands, and UI. It starts at the "
+        },
+        {
+          "insert": "implementation overview",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "docs/20-implementation/00-overview.md",
+              "label": "implementation overview"
+            }
+          }
+        },
+        {
+          "insert": ", and it is expected to change as the code changes."
+        }
+      ],
+      "children": []
+    },
+    "b-00-manifesto-reader-path-16": {
+      "id": "b-00-manifesto-reader-path-16",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A reader starts here and descends only as far as the task requires. If the task is about purpose, stay in Foundation. If it is about behavior, move into System Design. If it is about current mechanics, continue into Implementation."
+        }
+      ],
+      "children": []
+    },
+    "b-00-manifesto-divider-conviction-17": {
+      "id": "b-00-manifesto-divider-conviction-17",
+      "type": "divider",
+      "props": {},
+      "children": []
+    },
+    "b-00-manifesto-conviction-heading-18": {
+      "id": "b-00-manifesto-conviction-heading-18",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The conviction"
+        }
+      ],
+      "children": []
+    },
+    "b-00-manifesto-durable-artifact-19": {
+      "id": "b-00-manifesto-durable-artifact-19",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The docs are the durable artifact. The code is the current projection. When they disagree, the right question is not which file is newer; the right question is where the intent is most clearly preserved."
+        }
+      ],
+      "children": []
+    },
+    "b-00-manifesto-better-model-20": {
+      "id": "b-00-manifesto-better-model-20",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "If a better model arrives next year, you should be able to hand it Foundation plus System Design and get a better implementation back. That is the bet: intent outlives any one projection."
+        }
+      ],
+      "children": []
+    }
+  }
+}

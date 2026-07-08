@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "id": "00-overview-00-system-overview",
-  "title": "What this repository is",
+  "id": "20-implementation-00-overview",
+  "title": "docs-system: system architecture",
   "root": "b-00-system-overview-root-14",
   "blocks": {
     "b-00-system-overview-root-14": {
@@ -33,7 +33,7 @@
       },
       "text": [
         {
-          "insert": "What this repository is"
+          "insert": "docs-system: system architecture"
         }
       ],
       "children": []
@@ -50,7 +50,7 @@
           }
         },
         {
-          "insert": " is Codecaine's documentation infrastructure: a block-based\ndocument format ("
+          "insert": " is Codecaine's documentation infrastructure: a layered implementation\npipeline built around a block-based document format ("
         },
         {
           "insert": "doc.json",
@@ -79,7 +79,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The one-sentence philosophy: "
+          "insert": "The foundation layer carries the philosophy; this overview focuses on the\nimplementation shape: "
         },
         {
           "insert": "docs are structured data, not markdown\nfiles.",
@@ -88,7 +88,7 @@
           }
         },
         {
-          "insert": " Every document is a normalized tree of typed blocks with stable\nids. Stable block ids are what make the rest possible — an agent can say\n\"change "
+          "insert": " Every document is a normalized tree of typed blocks with stable\nids, which lets the pipeline address a precise block instead of a whole file.\nAn agent can say\n\"change "
         },
         {
           "insert": "this",
@@ -178,7 +178,7 @@
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "docs/00-overview/20-block-vocabulary.md",
+              "path": "docs/10-system-design/10-block-vocabulary.md",
               "label": "Block vocabulary & typed actions"
             }
           }
@@ -226,7 +226,7 @@
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "docs/00-overview/10-package-map.md",
+              "path": "docs/20-implementation/10-package-map.md",
               "label": "package map"
             }
           }

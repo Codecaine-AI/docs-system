@@ -1,0 +1,862 @@
+{
+  "schemaVersion": 1,
+  "id": "20-implementation-30-save-pipeline",
+  "title": "The save pipeline: keystroke to disk",
+  "root": "b-30-save-pipeline-root",
+  "blocks": {
+    "b-30-save-pipeline-root": {
+      "id": "b-30-save-pipeline-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-10-save-pipeline-how-a-save-works-1",
+        "b-10-save-pipeline-the-full-path-from-a-key-2",
+        "b-30-save-pipeline-system-model-1",
+        "b-10-save-pipeline-1-editing-docs-viewer-3",
+        "b-10-save-pipeline-doceditor-hosts-a-tipt-4",
+        "b-10-save-pipeline-2-diff-to-ops-docs-vie-5",
+        "b-10-save-pipeline-on-save-debounce-fire-6",
+        "b-30-save-pipeline-save-state-indicator-2",
+        "b-10-save-pipeline-3-post-api-ops-docs-w-7",
+        "b-10-save-pipeline-the-op-batch-is-posted-w-8",
+        "b-10-save-pipeline-expected-hash-the-co-9",
+        "b-10-save-pipeline-against-mismatch-409-10",
+        "b-10-save-pipeline-session-id-the-tab-s-11",
+        "b-10-save-pipeline-used-to-filter-self-echo-12",
+        "b-30-save-pipeline-client-pause-3",
+        "b-10-save-pipeline-on-success-the-server-ap-13",
+        "b-10-save-pipeline-4-reconciliation-back-14",
+        "b-10-save-pipeline-the-editor-adopts-the-se-15",
+        "b-10-save-pipeline-change-flashes-and-prose-16",
+        "b-10-save-pipeline-when-an-sse-event-flashe-17",
+        "b-30-save-pipeline-upload-route-4",
+        "b-10-save-pipeline-one-upload-route-sits-be-19"
+      ]
+    },
+    "b-10-save-pipeline-how-a-save-works-1": {
+      "id": "b-10-save-pipeline-how-a-save-works-1",
+      "type": "heading",
+      "props": {
+        "level": 1
+      },
+      "text": [
+        {
+          "insert": "The save pipeline: keystroke to disk"
+        }
+      ],
+      "children": []
+    },
+    "b-10-save-pipeline-the-full-path-from-a-key-2": {
+      "id": "b-10-save-pipeline-the-full-path-from-a-key-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The full path from a keystroke to bytes on disk — worth knowing when\ndebugging save failures, and a good map of how docs-viewer, docs-workbench,\nand docs-server cooperate."
+        }
+      ],
+      "children": []
+    },
+    "b-30-save-pipeline-system-model-1": {
+      "id": "b-30-save-pipeline-system-model-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This page is the wiring view. For the stored "
+        },
+        {
+          "insert": "doc.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " shape, see "
+        },
+        {
+          "insert": "the data model — doc.json shapes",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "docs/10-system-design/00-data-model.md",
+              "label": "the data model — doc.json shapes"
+            }
+          }
+        },
+        {
+          "insert": "; for the op semantics, inverses, and undo contract, see "
+        },
+        {
+          "insert": "the mutation model — ops, inverses, undo",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "docs/10-system-design/20-mutation-model.md",
+              "label": "the mutation model — ops, inverses, undo"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-10-save-pipeline-1-editing-docs-viewer-3": {
+      "id": "b-10-save-pipeline-1-editing-docs-viewer-3",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "1. Editing (docs-viewer)"
+        }
+      ],
+      "children": []
+    },
+    "b-10-save-pipeline-doceditor-hosts-a-tipt-4": {
+      "id": "b-10-save-pipeline-doceditor-hosts-a-tipt-4",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "DocEditor",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "packages/docs-viewer/src/editor/DocEditor.tsx",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " hosts a TipTap/ProseMirror editor whose node schema in "
+        },
+        {
+          "insert": "packages/docs-viewer/src/editor/core/schema.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " mirrors the doc.json block types one-to-one. Every ProseMirror node carries the block's stable id in its attrs, so a block edited in place keeps its identity — that is what lets the diff below emit a single "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " instead of a delete + insert pair."
+        }
+      ],
+      "children": []
+    },
+    "b-10-save-pipeline-2-diff-to-ops-docs-vie-5": {
+      "id": "b-10-save-pipeline-2-diff-to-ops-docs-vie-5",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "2. Diff to ops (docs-viewer → docs-model)"
+        }
+      ],
+      "children": []
+    },
+    "b-10-save-pipeline-on-save-debounce-fire-6": {
+      "id": "b-10-save-pipeline-on-save-debounce-fire-6",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "On save (debounce fire, "
+        },
+        {
+          "insert": "Cmd+S",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", blur, or unmount), the editor calls "
+        },
+        {
+          "insert": "pmToDoc",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": "diffToOps",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "packages/docs-viewer/src/editor/core/convert.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ": the current ProseMirror JSON becomes a "
+        },
+        {
+          "insert": "DocDocument",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and is diffed against "
+        },
+        {
+          "insert": "baseDocRef.current",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " into a "
+        },
+        {
+          "insert": "DocOp[]",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " batch. The diff is a small batch of the model's six generic structural/text ops; the vocabulary's seventh op, "
+        },
+        {
+          "insert": "blockAction",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", is the typed-action bridge for agents and lives in "
+        },
+        {
+          "insert": "the mutation model — ops, inverses, undo",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "docs/10-system-design/20-mutation-model.md",
+              "label": "the mutation model — ops, inverses, undo"
+            }
+          }
+        },
+        {
+          "insert": "; the editor's diff never emits it. A no-op edit diffs to zero ops and no request is sent."
+        }
+      ],
+      "children": []
+    },
+    "b-30-save-pipeline-save-state-indicator-2": {
+      "id": "b-30-save-pipeline-save-state-indicator-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The workbench surfaces the loop as a header indicator in "
+        },
+        {
+          "insert": "packages/docs-workbench/web/src/pages/DocPage.tsx",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ": "
+        },
+        {
+          "insert": "DocEditor",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " reports through "
+        },
+        {
+          "insert": "onSaveStateChange",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "DocPage",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " writes "
+        },
+        {
+          "insert": "data-docs-save-state",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and the rendered buckets are idle ("
+        },
+        {
+          "insert": "Not saved",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " while work is dirty), saving ("
+        },
+        {
+          "insert": "Saving...",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "), saved ("
+        },
+        {
+          "insert": "Saved",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "), and error ("
+        },
+        {
+          "insert": "Not saved",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with the conflict message nearby)."
+        }
+      ],
+      "children": []
+    },
+    "b-10-save-pipeline-3-post-api-ops-docs-w-7": {
+      "id": "b-10-save-pipeline-3-post-api-ops-docs-w-7",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "3. POST /api/ops (docs-workbench → docs-server)"
+        }
+      ],
+      "children": []
+    },
+    "b-10-save-pipeline-the-op-batch-is-posted-w-8": {
+      "id": "b-10-save-pipeline-the-op-batch-is-posted-w-8",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The op batch is posted by "
+        },
+        {
+          "insert": "handleApplyOps",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "DocPage",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " through "
+        },
+        {
+          "insert": "applyDocOps",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "packages/docs-workbench/web/src/data/api.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " to "
+        },
+        {
+          "insert": "/api/ops",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "packages/docs-server/src/routes.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with two guards:"
+        }
+      ],
+      "children": []
+    },
+    "b-10-save-pipeline-expected-hash-the-co-9": {
+      "id": "b-10-save-pipeline-expected-hash-the-co-9",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "expected_hash",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — the content hash of the doc the diff was computed"
+        }
+      ],
+      "children": []
+    },
+    "b-10-save-pipeline-against-mismatch-409-10": {
+      "id": "b-10-save-pipeline-against-mismatch-409-10",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "  against. "
+        },
+        {
+          "insert": "applyDocOpsToBundle",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "packages/docs-server/src/doc-ops.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " returns "
+        },
+        {
+          "insert": "409",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " on mismatch, and nothing is written."
+        }
+      ],
+      "children": []
+    },
+    "b-10-save-pipeline-session-id-the-tab-s-11": {
+      "id": "b-10-save-pipeline-session-id-the-tab-s-11",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "session_id",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — the tab's identity from "
+        },
+        {
+          "insert": "getSessionId",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", checked against the draft lock and"
+        }
+      ],
+      "children": []
+    },
+    "b-10-save-pipeline-used-to-filter-self-echo-12": {
+      "id": "b-10-save-pipeline-used-to-filter-self-echo-12",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "  used to filter self-echoes out of the SSE stream."
+        }
+      ],
+      "children": []
+    },
+    "b-30-save-pipeline-client-pause-3": {
+      "id": "b-30-save-pipeline-client-pause-3",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "From the client side, "
+        },
+        {
+          "insert": "409",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "423",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " pause the save instead of clobbering: "
+        },
+        {
+          "insert": "DocPage.handleApplyOps",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " returns an error result, "
+        },
+        {
+          "insert": "DocEditor",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " leaves the ProseMirror draft intact, and debounce/unmount flushes hold while the stale hash or foreign draft lock is known. The client policy follows "
+        },
+        {
+          "insert": "the mutation model — ops, inverses, undo",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "docs/10-system-design/20-mutation-model.md",
+              "label": "the mutation model — ops, inverses, undo"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-10-save-pipeline-on-success-the-server-ap-13": {
+      "id": "b-10-save-pipeline-on-success-the-server-ap-13",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "On success the server applies the ops atomically ("
+        },
+        {
+          "insert": "applyDocOpsToBundle",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ": per-path mutex, temp-then-rename), stores the inverse ops in the undo ledger under a "
+        },
+        {
+          "insert": "patch_id",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", broadcasts an SSE change event with the changed block ids, and returns the new doc + hash."
+        }
+      ],
+      "children": []
+    },
+    "b-10-save-pipeline-4-reconciliation-back-14": {
+      "id": "b-10-save-pipeline-4-reconciliation-back-14",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "4. Reconciliation (back in the editor)"
+        }
+      ],
+      "children": []
+    },
+    "b-10-save-pipeline-the-editor-adopts-the-se-15": {
+      "id": "b-10-save-pipeline-the-editor-adopts-the-se-15",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The editor adopts the server's returned doc as the next diff baseline. The host feeds that same object back down as the "
+        },
+        {
+          "insert": "document",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " prop, and the editor recognizes the identity and "
+        },
+        {
+          "insert": "skips",
+          "attributes": {
+            "italic": true
+          }
+        },
+        {
+          "insert": " re-seeding its content — this is why a save never resets your cursor. If keystrokes landed while the save was in flight, the doc simply stays dirty and the next debounce saves the remainder against the new baseline."
+        }
+      ],
+      "children": []
+    },
+    "b-10-save-pipeline-change-flashes-and-prose-16": {
+      "id": "b-10-save-pipeline-change-flashes-and-prose-16",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Change flashes and ProseMirror ownership"
+        }
+      ],
+      "children": []
+    },
+    "b-10-save-pipeline-when-an-sse-event-flashe-17": {
+      "id": "b-10-save-pipeline-when-an-sse-event-flashe-17",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "When an SSE event flashes changed blocks, the read surfaces get a "
+        },
+        {
+          "insert": "data-docs-changed",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " attribute set on the block's wrapper element. Inside the editor that approach cannot work: ProseMirror owns the contenteditable DOM and strips foreign attribute mutations as drift. The editor therefore renders the flash as a ProseMirror "
+        },
+        {
+          "insert": "node decoration",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " from "
+        },
+        {
+          "insert": "packages/docs-viewer/src/editor/decorations/changed-flash.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " driven by the same highlighted-id set — same CSS animation, different mechanism."
+        }
+      ],
+      "children": []
+    },
+    "b-30-save-pipeline-upload-route-4": {
+      "id": "b-30-save-pipeline-upload-route-4",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Upload route: video assets"
+        }
+      ],
+      "children": []
+    },
+    "b-10-save-pipeline-one-upload-route-sits-be-19": {
+      "id": "b-10-save-pipeline-one-upload-route-sits-be-19",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "One upload route sits beside "
+        },
+        {
+          "insert": "/api/ops",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ": dropping a video file in the editor calls "
+        },
+        {
+          "insert": "handleUploadAsset",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "DocPage",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", then "
+        },
+        {
+          "insert": "uploadVideoAsset",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " POSTs it (multipart) to "
+        },
+        {
+          "insert": "POST /api/assets/video",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — a strict route backed by "
+        },
+        {
+          "insert": "uploadDocVideoAsset",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with a 64 MB cap, an extension/MIME allowlist ("
+        },
+        {
+          "insert": "mp4",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": "webm",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": "mov",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": "m4v",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "video/*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "), and collision-suffixed filenames under the bundle's "
+        },
+        {
+          "insert": "assets/videos/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — and only inserts the video block (whose "
+        },
+        {
+          "insert": "props.src",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " points at the stored file) once the upload resolves. A failed upload inserts nothing."
+        }
+      ],
+      "children": []
+    }
+  }
+}

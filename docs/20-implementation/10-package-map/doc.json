@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "00-overview-10-package-map",
+  "id": "20-implementation-10-package-map",
   "title": "Package map",
   "root": "b-10-package-map-root-44",
   "blocks": {
@@ -869,7 +869,7 @@
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "docs/10-workbench/00-using-the-workbench.md",
+              "path": "docs/20-implementation/20-workbench.md",
               "label": "the workbench pages"
             }
           }
