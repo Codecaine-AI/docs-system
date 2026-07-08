@@ -391,6 +391,76 @@ function exampleSource(document: DocDocument): string {
   return JSON.stringify(blocks, null, 2);
 }
 
+type JsonTokenKind = "key" | "string" | "number" | "boolean" | "null" | "punct";
+
+/**
+ * JSON token tints, JSON Explorer heritage: keys sky, strings emerald,
+ * numbers amber, booleans violet, null muted italic; structural punctuation
+ * and whitespace muted.
+ */
+const JSON_TOKEN_CLASS: Record<JsonTokenKind, string> = {
+  key: "text-sky-700 dark:text-sky-300",
+  string: "text-emerald-700 dark:text-emerald-300",
+  number: "text-amber-700 dark:text-amber-300",
+  boolean: "text-violet-700 dark:text-violet-300",
+  null: "italic text-muted-foreground",
+  punct: "text-muted-foreground",
+};
+
+/**
+ * Value tokens in JSON.stringify output: a string (key when followed by a
+ * colon), a number, or a literal. Everything between matches is structural
+ * punctuation/whitespace. The source is always our own pretty-printed
+ * JSON.stringify output, so this tiny deterministic pass is enough — no
+ * highlight.js needed.
+ */
+const JSON_TOKEN_PATTERN =
+  /("(?:[^"\\]|\\.)*")(\s*:)?|(-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)|\b(true|false)\b|\bnull\b/g;
+
+/**
+ * Renders pretty-printed JSON as colorized token spans. The concatenated
+ * span text is exactly the input string, so `textContent` of the host
+ * element stays valid parseable JSON.
+ */
+function JsonTokens({ source }: { source: string }) {
+  const tokens: { kind: JsonTokenKind; text: string }[] = [];
+  let cursor = 0;
+  JSON_TOKEN_PATTERN.lastIndex = 0;
+  for (
+    let match = JSON_TOKEN_PATTERN.exec(source);
+    match;
+    match = JSON_TOKEN_PATTERN.exec(source)
+  ) {
+    if (match.index > cursor) {
+      tokens.push({ kind: "punct", text: source.slice(cursor, match.index) });
+    }
+    const [, string, keyColon, number, boolean] = match;
+    if (string !== undefined) {
+      tokens.push({ kind: keyColon ? "key" : "string", text: string });
+      if (keyColon) tokens.push({ kind: "punct", text: keyColon });
+    } else if (number !== undefined) {
+      tokens.push({ kind: "number", text: number });
+    } else if (boolean !== undefined) {
+      tokens.push({ kind: "boolean", text: boolean });
+    } else {
+      tokens.push({ kind: "null", text: match[0] });
+    }
+    cursor = match.index + match[0].length;
+  }
+  if (cursor < source.length) {
+    tokens.push({ kind: "punct", text: source.slice(cursor) });
+  }
+  return (
+    <>
+      {tokens.map((token, index) => (
+        <span key={index} data-json-token={token.kind} className={JSON_TOKEN_CLASS[token.kind]}>
+          {token.text}
+        </span>
+      ))}
+    </>
+  );
+}
+
 /** Anchor id for a block type's example card, targeted by the sidebar. */
 function cardAnchorId(type: DocBlockType): string {
   return `library-block-${type}`;
@@ -427,7 +497,7 @@ function BlockTypeCard({ entry }: { entry: LibraryEntry }) {
           doc.json
         </summary>
         <pre className="my-2 overflow-auto rounded-md border bg-muted/30 p-3 font-mono text-xs leading-relaxed">
-          {exampleSource(entry.document)}
+          <JsonTokens source={exampleSource(entry.document)} />
         </pre>
       </details>
     </section>

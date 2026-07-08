@@ -79,6 +79,56 @@ describe("InteractionSurfaceBlock", () => {
     expect(unbadged?.textContent).toBe("state.unbadged()");
   });
 
+  it("colorizes signature tokens: cyan name, amber types and returns, muted punctuation", () => {
+    render(
+      <InteractionSurfaceBlock
+        id="surface-tokens"
+        operations={[
+          {
+            name: "state.update",
+            params: [
+              { name: "key", type: "string", required: true },
+              { name: "value", required: false },
+            ],
+            returns: "State",
+          },
+        ]}
+      />,
+    );
+
+    const code = document.querySelector('[data-interaction-operation="state.update"] code');
+    // The flat signature is still the code element's full textContent.
+    expect(code?.textContent).toBe("state.update(key: string, value?) -> State");
+
+    const name = code?.querySelector('[data-sig-token="name"]');
+    expect(name?.textContent).toBe("state.update");
+    expect(name?.className).toContain("text-cyan-700");
+    expect(name?.className).toContain("dark:text-cyan-300");
+
+    const paramName = code?.querySelector('[data-sig-token="param"]');
+    expect(paramName?.textContent).toBe("key");
+
+    const type = code?.querySelector('[data-sig-token="type"]');
+    expect(type?.textContent).toBe("string");
+    expect(type?.className).toContain("text-amber-700");
+    expect(type?.className).toContain("dark:text-amber-300");
+
+    const returns = code?.querySelector('[data-sig-token="returns"]');
+    expect(returns?.textContent).toBe(" -> State");
+    expect(returns?.className).toContain("text-amber-700");
+
+    const optional = code?.querySelector('[data-sig-token="optional"]');
+    expect(optional?.textContent).toBe("?");
+    expect(optional?.className).toContain("text-muted-foreground");
+
+    // Punctuation spans, in DOM order: "(", ": ", ", ", ")".
+    const puncts = Array.from(code?.querySelectorAll('[data-sig-token="punct"]') ?? []);
+    expect(puncts.map((punct) => punct.textContent).join("")).toBe("(: , )");
+    for (const punct of puncts) {
+      expect(punct.className).toContain("text-muted-foreground");
+    }
+  });
+
   it("renders params without types and threads param descriptions as title tooltips", () => {
     render(
       <InteractionSurfaceBlock

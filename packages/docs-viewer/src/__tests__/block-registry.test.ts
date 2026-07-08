@@ -319,8 +319,13 @@ describe("structured-table / interaction-surface — props-driven descriptors", 
     expect(html).toContain('data-interaction-operation="file-tree.addEntry"');
     expect(html).toContain("Append a path entry");
     expect(html).toContain("File-tree block surface");
-    expect(html).toContain("note?");
-    expect(html).toContain("props patch");
+    // The signature is colorized token-by-token (data-sig-token spans), but
+    // its flat text is still the full `name(params) -> returns` signature.
+    const signatureText = html.replace(/<[^>]+>/g, "").replace(/&gt;/g, ">");
+    expect(signatureText).toContain(
+      "file-tree.addEntry(path: string, note?: string) -> props patch",
+    );
+    expect(html).toContain('data-sig-token="name"');
     expect(html).toContain(">query<");
     expect(html).not.toContain("Invalid Interaction Surface block");
   });
@@ -371,7 +376,10 @@ describe("code — optional props.annotations", () => {
     expect(html).toContain('data-doc-block="code"');
     expect(html).toContain('data-code-annotations="code-1"');
     expect(html).toContain("Declares the first operand.");
-    expect(html).toContain("const c = a + b;");
+    // Code text survives highlighting (hljs token spans split the raw text,
+    // so compare with tags stripped) and carries ts token spans.
+    expect(html.replace(/<[^>]+>/g, "")).toContain("const c = a + b;");
+    expect(html).toContain("hljs-keyword");
   });
 
   it("skips malformed annotation entries but keeps the valid ones", () => {
@@ -402,7 +410,45 @@ describe("code — optional props.annotations", () => {
       expect(html).not.toContain("data-code-annotations");
       expect(html).toContain("<pre");
       expect(html).toContain("const a = 1;");
+      expect(html).toContain('class="hljs"');
     }
+  });
+});
+
+describe("code — syntax highlighting on the plain path", () => {
+  function codeDoc(text: string, props: Record<string, unknown> = {}): DocDocument {
+    return singleBlockDoc({
+      id: "code-1",
+      type: "code",
+      props,
+      text: [{ insert: text }],
+      children: [],
+    });
+  }
+
+  it("renders hljs token spans for a declared language", () => {
+    const doc = codeDoc("const a = 1;", { language: "ts" });
+    const html = renderToStaticMarkup(createElement(DocBlockRenderer, { document: doc }));
+    expect(html).toContain('data-language="ts"');
+    expect(html).toContain('<span class="hljs-keyword">const</span>');
+    expect(html).toContain('<span class="hljs-number">1</span>');
+    expect(html.replace(/<[^>]+>/g, "")).toContain("const a = 1;");
+  });
+
+  it("pretty-prints one-liner JSON into nested form (display only) with tokens", () => {
+    const doc = codeDoc('{"name":"app","ok":true}', { language: "json" });
+    const html = renderToStaticMarkup(createElement(DocBlockRenderer, { document: doc }));
+    const text = html.replace(/<[^>]+>/g, "");
+    // Nested multi-line structure, never the one-liner (hljs escapes quotes).
+    expect(text).toContain("{\n  &quot;name&quot;: &quot;app&quot;,\n  &quot;ok&quot;: true\n}");
+    expect(html).toContain("hljs-attr");
+  });
+
+  it("escapes markup in code with no matching grammar", () => {
+    const doc = codeDoc('<script>alert("x")</script>', { language: "klingon" });
+    const html = renderToStaticMarkup(createElement(DocBlockRenderer, { document: doc }));
+    expect(html).not.toContain("<script");
+    expect(html).toContain("&lt;script&gt;");
   });
 });
 

@@ -4,6 +4,7 @@ import { createElement, type ReactNode } from "react";
 import type { DocsMdxBlock, DocsMdxParsedBlock } from "../docs-blocks/base";
 import { CalloutDocsBlock } from "../docs-blocks/callout/CalloutDocsBlock";
 import { AnnotatedCodeBlock, type CodeAnnotation } from "../docs-blocks/code/CodeAnnotations";
+import { highlightCode, prettyPrintIfJson } from "../docs-blocks/code/highlight";
 import {
   INTERACTION_SURFACE_AGENT_DESCRIPTION,
   INTERACTION_SURFACE_LABEL,
@@ -532,6 +533,13 @@ function buildRegistry(): Map<DocBlockType, DocBlockDescriptor> {
           ctx.renderChildren(block),
         );
       }
+      // Plain (annotation-free) path: display-only JSON pretty-print + real
+      // syntax highlighting (docs-blocks/code/highlight.ts). The highlighted
+      // HTML is hljs-generated token spans over escaped text (or fully
+      // escaped plain text when no grammar matches) — safe for
+      // dangerouslySetInnerHTML; stored block text is never mutated.
+      const language = stringProp(block, "language");
+      const displayCode = prettyPrintIfJson(deltaToPlainText(block.text), language);
       return el(
         "div",
         { key: block.id, ...blockAttrs(block) },
@@ -539,9 +547,12 @@ function buildRegistry(): Map<DocBlockType, DocBlockDescriptor> {
           "pre",
           {
             className: CODE_BLOCK_CLASSES,
-            "data-language": stringProp(block, "language"),
+            "data-language": language,
           },
-          el("code", null, deltaToPlainText(block.text)),
+          el("code", {
+            className: "hljs",
+            dangerouslySetInnerHTML: { __html: highlightCode(displayCode, language).join("\n") },
+          }),
         ),
         ctx.renderChildren(block),
       );

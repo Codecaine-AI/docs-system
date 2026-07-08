@@ -37,10 +37,27 @@ const KIND_BADGE_CLASS: Record<NonNullable<InteractionSurfaceOperation["kind"]>,
 };
 
 /**
+ * Signature token tints. Deterministic JSX spans over the grammar we control
+ * (no highlight.js): the operation name carries the block's cyan identity,
+ * punctuation and the optional `?` marker are muted, param names stay on the
+ * foreground, and types plus the `-> returns` tail share an amber type hue —
+ * matching the workbench hljs theme, where the amber `--syntax-boolean`
+ * bucket is the annotation-like token color.
+ */
+const SIG_TOKEN_CLASS = {
+  name: "font-medium text-cyan-700 dark:text-cyan-300",
+  punct: "text-muted-foreground",
+  optional: "text-muted-foreground",
+  type: "text-amber-700 dark:text-amber-300",
+  returns: "text-amber-700 dark:text-amber-300",
+} as const;
+
+/**
  * Interaction surface block. Structured props (no body parsing): cyan
  * identity with a WaypointsIcon header strip and one row per operation — a
- * mono signature `name(params) -> returns` with muted param types, an
- * optional tinted kind badge, and the description as a muted second line.
+ * mono signature `name(params) -> returns` colorized token-by-token (cyan
+ * name, muted punctuation, amber types), an optional tinted kind badge, and
+ * the description as a muted second line.
  */
 export function InteractionSurfaceBlock({
   id,
@@ -78,23 +95,39 @@ export function InteractionSurfaceBlock({
             >
               <div className="flex flex-wrap items-center gap-1.5">
                 <code className="break-all font-mono text-foreground">
-                  <span className="font-medium">{operation.name}</span>
-                  <span className="text-muted-foreground">(</span>
+                  <span data-sig-token="name" className={SIG_TOKEN_CLASS.name}>
+                    {operation.name}
+                  </span>
+                  <span data-sig-token="punct" className={SIG_TOKEN_CLASS.punct}>(</span>
                   {(operation.params ?? []).map((param, index) => (
                     <Fragment key={param.name}>
-                      {index > 0 && <span className="text-muted-foreground">, </span>}
+                      {index > 0 && (
+                        <span data-sig-token="punct" className={SIG_TOKEN_CLASS.punct}>, </span>
+                      )}
                       <span title={param.description}>
-                        {param.name}
-                        {param.required === false && "?"}
+                        <span data-sig-token="param">{param.name}</span>
+                        {param.required === false && (
+                          <span data-sig-token="optional" className={SIG_TOKEN_CLASS.optional}>
+                            ?
+                          </span>
+                        )}
                       </span>
                       {param.type && (
-                        <span className="text-muted-foreground">: {param.type}</span>
+                        <>
+                          <span data-sig-token="punct" className={SIG_TOKEN_CLASS.punct}>: </span>
+                          <span data-sig-token="type" className={SIG_TOKEN_CLASS.type}>
+                            {param.type}
+                          </span>
+                        </>
                       )}
                     </Fragment>
                   ))}
-                  <span className="text-muted-foreground">)</span>
+                  <span data-sig-token="punct" className={SIG_TOKEN_CLASS.punct}>)</span>
                   {operation.returns && (
-                    <span className="text-muted-foreground"> {"->"} {operation.returns}</span>
+                    <span data-sig-token="returns" className={SIG_TOKEN_CLASS.returns}>
+                      {" "}
+                      {"->"} {operation.returns}
+                    </span>
                   )}
                 </code>
                 {operation.kind && (

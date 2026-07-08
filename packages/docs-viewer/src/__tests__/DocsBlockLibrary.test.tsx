@@ -102,7 +102,14 @@ describe("DocsBlockLibrary", () => {
         '"from" keeps the old path, so a rename stays one entry instead of a remove plus an add.',
       ),
     ).toBeTruthy();
-    expect(screen.getByText('"title": "Agent runtime layout",')).toBeTruthy();
+    // Highlighted code lines are hljs token spans — match on textContent.
+    expect(
+      screen.getByText(
+        (_content, element) =>
+          element?.tagName === "CODE" &&
+          element.textContent === '  "title": "Agent runtime layout",',
+      ),
+    ).toBeTruthy();
 
     // Structured blocks render from typed props.
     expect(screen.getByText("Agent roster")).toBeTruthy();
@@ -180,6 +187,48 @@ describe("DocsBlockLibrary", () => {
       });
       expect(result.ok).toBe(true);
     }
+  });
+
+  it("colorizes doc.json source panels without changing their textContent", () => {
+    render(
+      <DocsClientProvider canvasEmbed={FakeCanvasEmbed}>
+        <DocsBlockLibrary />
+      </DocsClientProvider>,
+    );
+
+    const source = document.querySelector('[data-library-type="paragraph"] details pre');
+    expect(source).toBeTruthy();
+    // Pretty-printed nested JSON: multi-line with 2-space indentation.
+    expect(source?.textContent).toContain('{\n  "paragraph-1": {\n    "id": "paragraph-1",');
+    // ...and its textContent is still exactly parseable JSON.
+    expect(Object.keys(JSON.parse(source?.textContent ?? ""))).toEqual(["paragraph-1"]);
+
+    // Token tints: keys sky, strings emerald, punctuation muted...
+    const key = source?.querySelector('[data-json-token="key"]');
+    expect(key?.textContent).toBe('"paragraph-1"');
+    expect(key?.className).toContain("text-sky-700");
+    expect(key?.className).toContain("dark:text-sky-300");
+    const stringToken = source?.querySelector('[data-json-token="string"]');
+    expect(stringToken?.className).toContain("text-emerald-700");
+    expect(stringToken?.className).toContain("dark:text-emerald-300");
+    expect(source?.querySelector('[data-json-token="punct"]')?.className).toContain(
+      "text-muted-foreground",
+    );
+
+    // ...numbers amber (heading props.level) and booleans violet
+    // (interaction-surface params.required).
+    const heading = document.querySelector('[data-library-type="heading"] details pre');
+    const numberToken = heading?.querySelector('[data-json-token="number"]');
+    expect(numberToken?.textContent).toBe("2");
+    expect(numberToken?.className).toContain("text-amber-700");
+    expect(numberToken?.className).toContain("dark:text-amber-300");
+    const surface = document.querySelector(
+      '[data-library-type="interaction-surface"] details pre',
+    );
+    const booleanToken = surface?.querySelector('[data-json-token="boolean"]');
+    expect(booleanToken?.textContent).toBe("true");
+    expect(booleanToken?.className).toContain("text-violet-700");
+    expect(booleanToken?.className).toContain("dark:text-violet-300");
   });
 
   it("filters the catalog by block type name", () => {

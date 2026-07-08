@@ -88,7 +88,14 @@ describe("DocBlockRenderer", () => {
 
     // Code (the fixture's code block carries annotations, so it renders the
     // annotated variant with click-pairable side notes), quote, divider.
-    expect(screen.getByText("export const answer = 42;")).toBeTruthy();
+    // Highlighted lines are hljs token spans, so match on the <code>
+    // element's textContent rather than a single text node.
+    expect(
+      screen.getByText(
+        (_content, element) =>
+          element?.tagName === "CODE" && element.textContent === "export const answer = 42;",
+      ),
+    ).toBeTruthy();
     expect(document.querySelector('[data-code-annotations="code-1"]')).toBeTruthy();
     expect(screen.getByText("The canonical answer constant.")).toBeTruthy();
     expect(screen.getByText("Helper that doubles the answer.")).toBeTruthy();

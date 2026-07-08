@@ -17,19 +17,31 @@ function renderBlock(
   );
 }
 
+/**
+ * Highlighted code lines are hljs token `<span>`s inside the `<code>`
+ * element, so whole-line text lookups match on the element's textContent
+ * instead of testing-library's direct-text-node default.
+ */
+function codeLineWithText(expected: string) {
+  return screen.getByText(
+    (_content, element) => element?.tagName === "CODE" && element.textContent === expected,
+  );
+}
+
 describe("AnnotatedCodeBlock", () => {
   it("renders code with line numbers and the note cards", () => {
-    renderBlock([
+    const { container } = renderBlock([
       { lines: "1-2", label: "Setup", note: "Declares the inputs." },
       { lines: "4", note: "Prints the result." },
     ]);
 
-    expect(screen.getByText("const a = 1;")).toBeTruthy();
-    expect(screen.getByText("console.log(c);")).toBeTruthy();
+    expect(codeLineWithText("const a = 1;")).toBeTruthy();
+    expect(codeLineWithText("console.log(c);")).toBeTruthy();
     expect(screen.getByText("ts")).toBeTruthy();
-    // Line-number gutter.
-    expect(screen.getByText("1")).toBeTruthy();
-    expect(screen.getByText("4")).toBeTruthy();
+    // Line-number gutter (the row's first span; "1" also appears as an
+    // hljs-number token in the highlighted code, so target the gutter cell).
+    expect(container.querySelector('[data-code-line="1"] > span')?.textContent).toBe("1");
+    expect(container.querySelector('[data-code-line="4"] > span')?.textContent).toBe("4");
     // Note cards with L{lines} badges and optional label.
     expect(screen.getByText("L1-2")).toBeTruthy();
     expect(screen.getByText("L4")).toBeTruthy();
@@ -102,6 +114,40 @@ describe("AnnotatedCodeBlock", () => {
     expect(screen.getByText("Clamped to the end.")).toBeTruthy();
     expect(screen.getByText("Fully out of range.")).toBeTruthy();
     expect(screen.getByText("Unparseable.")).toBeTruthy();
+  });
+
+  it("highlights code lines with hljs token spans", () => {
+    const { container } = renderBlock([{ lines: "1", note: "Setup." }]);
+
+    const firstLine = container.querySelector('[data-code-line="1"] code')!;
+    expect(firstLine.querySelector(".hljs-keyword")?.textContent).toBe("const");
+    expect(firstLine.querySelector(".hljs-number")?.textContent).toBe("1");
+    expect(firstLine.textContent).toBe("const a = 1;");
+  });
+
+  it("pretty-prints one-liner JSON so annotation ranges target the nested form", () => {
+    const { container } = render(
+      <AnnotatedCodeBlock
+        id="code-json"
+        language="json"
+        code='{"name":"app","deps":["a","b"]}'
+        annotations={[{ lines: "3-6", note: "The dependency list." }]}
+      />,
+    );
+
+    // Display-only pretty-print: 1 line in, 7 nested lines out.
+    expect(container.querySelectorAll("[data-code-line]").length).toBe(7);
+    const annotated = Array.from(container.querySelectorAll("[data-annotated]")).map((el) =>
+      el.getAttribute("data-code-line"),
+    );
+    expect(annotated).toEqual(["3", "4", "5", "6"]);
+    // JSON keys/strings tokenized.
+    expect(container.querySelector(".hljs-attr")?.textContent).toBe('"name"');
+    // Click pairing still works over the pretty-printed lines.
+    fireEvent.click(container.querySelector('[data-code-line="4"]')!);
+    expect(
+      container.querySelector('[data-annotation-note="0"]')!.hasAttribute("data-active"),
+    ).toBe(true);
   });
 
   it("resolves overlapping annotations to the earliest note on line click", () => {

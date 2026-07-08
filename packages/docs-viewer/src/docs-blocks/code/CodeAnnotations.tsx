@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { MessageSquareCodeIcon } from "lucide-react";
 import { Badge } from "../../ui/badge";
 import { cn } from "../../ui/cn";
+import { highlightCode, prettyPrintIfJson } from "./highlight";
 
 export type CodeAnnotation = {
   /** 1-indexed line range: "4" or "4-9" (comma lists like "1,4-6" also work). */
@@ -52,7 +53,16 @@ export function AnnotatedCodeBlock({
   annotations: Array<{ lines: string; label?: string; note: string }>;
 }) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
-  const lines = useMemo(() => code.split("\n"), [code]);
+  /**
+   * JSON pretty-print happens BEFORE line-splitting, so annotation `lines`
+   * ranges refer to the pretty-printed (displayed) form. Authors of JSON
+   * examples should write pretty multi-line text in the block so their ranges
+   * are stable against this transform — it is a display-only safety net that
+   * rescues one-liner JSON, not something to author against.
+   */
+  const displayCode = useMemo(() => prettyPrintIfJson(code, language), [code, language]);
+  /** One hljs-highlighted HTML string per line (count matches split("\n")). */
+  const lines = useMemo(() => highlightCode(displayCode, language), [displayCode, language]);
 
   /** Per-annotation covered line sets (clamped; possibly empty). */
   const ranges = useMemo(
@@ -129,7 +139,14 @@ export function AnnotatedCodeBlock({
                 >
                   {lineNumber}
                 </span>
-                <code className="px-3 py-1">{line || " "}</code>
+                <code
+                  className="hljs px-3 py-1"
+                  // `line` is hljs output (token spans over escaped text) or
+                  // fully escaped plain text — see highlight.ts. The single
+                  // space keeps empty lines at full height (white-space is
+                  // preserved under the surrounding <pre>).
+                  dangerouslySetInnerHTML={{ __html: line || " " }}
+                />
               </div>
             );
           })}

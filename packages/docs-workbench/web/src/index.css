@@ -175,7 +175,13 @@
   margin-left: 1rem; /* = ml-4 */
 }
 
-/* Syntax highlighting — theme-token colors over rehype-highlight classes. */
+/*
+ * Syntax highlighting — theme-token colors over hljs classes, emitted by BOTH
+ * rehype-highlight (markdown-projected fenced code) and docs-viewer's
+ * docs-blocks/code/highlight.ts (the read surface's `code` block + annotated
+ * code). The --syntax-* vars are defined per theme (light/dark/figjam) in
+ * spectre-theme.css, so dark mode needs no extra rules here.
+ */
 .hljs {
   background: transparent;
   color: var(--spectre-text-secondary);
@@ -185,7 +191,14 @@
 .hljs-selector-tag,
 .hljs-built_in,
 .hljs-name,
-.hljs-tag {
+.hljs-tag,
+.hljs-attr,
+.hljs-property,
+.hljs-doctag,
+.hljs-selector-class,
+.hljs-selector-id,
+.hljs-selector-pseudo,
+.hljs-selector-attr {
   color: var(--syntax-key);
 }
 
@@ -193,7 +206,8 @@
 .hljs-title,
 .hljs-section,
 .hljs-attribute,
-.hljs-literal,
+.hljs-type,
+.hljs-regexp,
 .hljs-template-tag,
 .hljs-template-variable {
   color: var(--syntax-string);
@@ -206,9 +220,19 @@
   color: var(--syntax-number);
 }
 
+/* true/false/null (JSON, ts, python's True/None) read as booleans. The
+   descendant selector matters: the json grammar nests hljs-keyword INSIDE
+   hljs-literal, and the inner span would otherwise win with --syntax-key. */
+.hljs-literal,
+.hljs-literal .hljs-keyword,
 .hljs-boolean,
 .hljs-meta {
   color: var(--syntax-boolean);
+}
+
+/* Interpolated code inside template strings is code again, not string. */
+.hljs-subst {
+  color: var(--spectre-text-secondary);
 }
 
 .hljs-comment,
