@@ -258,7 +258,7 @@ describe("live smoke (real server, real docs copy)", () => {
       expect(!!block).toBe(true);
 
       // Framework targeting layer: hovering the real block outlines it and
-      // shows the floating chip labelled from the flavour registry.
+      // shows the floating chip labelled from the block registry.
       fireEvent.mouseMove(block!);
       expect(block!.classList.contains("docs-target-hovered")).toBe(true);
       const chip = document.querySelector('[data-docs-target-overlay-label="hover"]');

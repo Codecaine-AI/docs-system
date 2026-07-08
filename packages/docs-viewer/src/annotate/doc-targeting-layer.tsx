@@ -26,7 +26,7 @@
  *
  * Bundle-mode awareness: pass `document` (the doc.json `DocDocument`) and the
  * layer resolves `[data-block-id]` wrappers against it — chip labels come
- * from the flavour registry's descriptors ("Paragraph", "Decision", ...) and
+ * from the block registry's descriptors ("Paragraph", "Decision", ...) and
  * anchors carry the real block id. Canvas objects (`[data-canvas-object-id]`
  * inside an embedded canvas) get hover chips too; the optional `canvasIndex`
  * marks hovered objects that no longer exist in any known canvas as removed.
@@ -171,7 +171,7 @@ export interface DocTargetingOptions<
   documentPath: string;
   /**
    * Bundle mode: the rendered doc.json document. Enables `[data-block-id]`
-   * wrapper resolution (real block ids in anchors, flavour-registry labels
+   * wrapper resolution (real block ids in anchors, block-registry labels
    * in chips) and `[data-canvas-object-id]` hover chips.
    */
   document?: DocDocument | null;
@@ -534,8 +534,8 @@ function targetKindLabel(
     target.label.split(":")[0] ??
     "Target";
   if (doc) {
-    // Bundle mode: prefer the flavour registry descriptor's human label
-    // ("Paragraph", "Agent Contract", ...) when the block type is a flavour.
+    // Bundle mode: prefer the block registry descriptor's human label
+    // ("Paragraph", "Agent Contract", ...) when the block type is a block type.
     const descriptor = getDocBlockDescriptor(raw);
     if (descriptor) return descriptor.label;
   }
@@ -563,8 +563,8 @@ function truncateLabelText(text: string, max = 42): string {
 
 /**
  * Bundle-mode decoration: when the resolved element is a `[data-block-id]`
- * flavour wrapper whose block exists in the doc, rewrite the target's label
- * with the flavour registry descriptor ("Paragraph: ...") and carry the real
+ * block type wrapper whose block exists in the doc, rewrite the target's label
+ * with the block registry descriptor ("Paragraph: ...") and carry the real
  * block id in the anchor. Blocks missing from the doc (dangling wrappers)
  * pass through undecorated.
  */
@@ -578,10 +578,10 @@ function decorateBundleTarget(
   const block = blockId ? doc.blocks[blockId] : undefined;
   if (!blockId || !block) return target;
 
-  const descriptor = getDocBlockDescriptor(block.flavour);
-  const flavourLabel = descriptor?.label ?? block.flavour;
+  const descriptor = getDocBlockDescriptor(block.type);
+  const typeLabel = descriptor?.label ?? block.type;
   const text = truncateLabelText(target.element.textContent ?? "");
-  const label = text ? `${flavourLabel}: ${text}` : flavourLabel;
+  const label = text ? `${typeLabel}: ${text}` : typeLabel;
 
   return {
     ...target,
@@ -594,7 +594,7 @@ function decorateBundleTarget(
             ...target.anchor.target,
             label,
             block_id: blockId,
-            block_type: block.flavour,
+            block_type: block.type,
           }
         : target.anchor.target,
     },

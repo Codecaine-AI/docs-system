@@ -24,7 +24,7 @@ afterEach(() => {
 });
 
 describe("DocsBlockLibrary", () => {
-  it("renders a catalog entry for every doc.json flavour", () => {
+  it("renders a catalog entry for every doc.json block type", () => {
     render(
       <DocsClientProvider canvasEmbed={FakeCanvasEmbed}>
         <DocsBlockLibrary />
@@ -33,17 +33,49 @@ describe("DocsBlockLibrary", () => {
 
     expect(screen.getByRole("heading", { name: "Block Library" })).toBeTruthy();
 
-    for (const flavour of DOC_BLOCK_TYPES) {
-      // The catalog card for the flavour exists...
-      const card = document.querySelector(`[data-library-flavour="${flavour}"]`);
+    for (const blockType of DOC_BLOCK_TYPES) {
+      // The catalog card for the block type exists...
+      const card = document.querySelector(`[data-library-type="${blockType}"]`);
       expect(card).toBeTruthy();
-      // ...and its example rendered through the flavour registry's real
+      // ...and its example rendered through the block registry's real
       // wrapper (DocBlockRenderer output), not bespoke preview markup.
-      expect(card?.querySelector(`[data-doc-block="${flavour}"]`)).toBeTruthy();
+      expect(card?.querySelector(`[data-doc-block="${blockType}"]`)).toBeTruthy();
     }
   });
 
-  it("shows real rendered examples with delta marks and semantic chrome", () => {
+  it("renders a sidebar entry for every doc.json block type", () => {
+    render(
+      <DocsClientProvider canvasEmbed={FakeCanvasEmbed}>
+        <DocsBlockLibrary />
+      </DocsClientProvider>,
+    );
+
+    const sidebar = document.querySelector("[data-library-sidebar]");
+    expect(sidebar).toBeTruthy();
+    for (const blockType of DOC_BLOCK_TYPES) {
+      const navEntry = sidebar?.querySelector(`[data-library-nav="${blockType}"]`);
+      expect(navEntry).toBeTruthy();
+      // The compact row shows the descriptor label (type name dropped by design).
+      expect(navEntry?.textContent?.trim().length).toBeGreaterThan(0);
+    }
+  });
+
+  it("marks a sidebar entry active on click", () => {
+    render(
+      <DocsClientProvider canvasEmbed={FakeCanvasEmbed}>
+        <DocsBlockLibrary />
+      </DocsClientProvider>,
+    );
+
+    const navEntry = document.querySelector('[data-library-nav="interaction-surface"]');
+    expect(navEntry).toBeTruthy();
+    fireEvent.click(navEntry!);
+    expect(navEntry?.getAttribute("aria-current")).toBe("true");
+    // The card it targets exists as a same-page anchor.
+    expect(document.getElementById("library-block-interaction-surface")).toBeTruthy();
+  });
+
+  it("shows real rendered examples with delta marks and component chrome", () => {
     render(
       <DocsClientProvider canvasEmbed={FakeCanvasEmbed}>
         <DocsBlockLibrary />
@@ -58,17 +90,40 @@ describe("DocsBlockLibrary", () => {
     expect(link.tagName).toBe("A");
     expect(link.getAttribute("href")).toBe("https://example.com");
 
-    // Adapted docs-block components render their card chrome.
-    expect(screen.getByText("Docs are doc.json bundles")).toBeTruthy();
-    expect(screen.getByText("accepted")).toBeTruthy();
-    expect(screen.getByText("Review anchor")).toBeTruthy();
-    expect(screen.getAllByText("Docs Revisor").length).toBeGreaterThan(0);
-    expect(screen.getByText("packages/docs-viewer/src/DocBlockRenderer.tsx")).toBeTruthy();
+    // Callout with a kind: the kind text replaces the tone in the label chip.
+    expect(screen.getByText("One tool registry")).toBeTruthy();
+    expect(screen.getByText("Decision")).toBeTruthy();
 
-    // Media atoms render without any asset backend (inline data: srcs).
+    // Code as an annotated JSON state object: the annotated variant renders
+    // the JSON source with its click-pairable design-decision notes.
+    expect(document.querySelector('[data-code-annotations="code-1"]')).toBeTruthy();
+    expect(
+      screen.getByText(
+        '"from" keeps the old path, so a rename stays one entry instead of a remove plus an add.',
+      ),
+    ).toBeTruthy();
+    expect(screen.getByText('"title": "Agent runtime layout",')).toBeTruthy();
+
+    // Structured blocks render from typed props.
+    expect(screen.getByText("Agent roster")).toBeTruthy();
+    expect(screen.getByText("Decomposes the request into tasks")).toBeTruthy();
+    expect(
+      document.querySelector('[data-interaction-operation="file-tree.addEntry"]'),
+    ).toBeTruthy();
+    expect(screen.getByText("Append a path entry to the tree")).toBeTruthy();
+    expect(
+      document.querySelector('[data-docs-file-tree-entry="src/runtime/registry.ts"]'),
+    ).toBeTruthy();
+
+    // Media atoms render without any asset backend (inline data: srcs; the
+    // video example is an external provider url embedding an iframe).
     expect(document.querySelector('figure[data-doc-block="image"] img')).toBeTruthy();
-    expect(screen.getByText("design-notes.txt")).toBeTruthy();
     expect(document.querySelector('hr[data-doc-block="divider"]')).toBeTruthy();
+    const videoFrame = document.querySelector('[data-doc-block="video"] iframe');
+    expect(videoFrame).toBeTruthy();
+    expect(videoFrame?.getAttribute("src")).toBe(
+      "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ",
+    );
   });
 
   it("routes the canvas example through the injected embed slot", () => {
@@ -116,7 +171,7 @@ describe("DocsBlockLibrary", () => {
         blocks: {
           root: {
             id: "root",
-            flavour: "paragraph",
+            type: "paragraph",
             props: {},
             children: ids.filter((id) => !nested.has(id)),
           },
@@ -127,22 +182,25 @@ describe("DocsBlockLibrary", () => {
     }
   });
 
-  it("filters the catalog by flavour name", () => {
+  it("filters the catalog by block type name", () => {
     render(
       <DocsClientProvider canvasEmbed={FakeCanvasEmbed}>
         <DocsBlockLibrary />
       </DocsClientProvider>,
     );
 
-    fireEvent.change(screen.getByPlaceholderText("Filter flavours"), {
-      target: { value: "decision" },
+    fireEvent.change(screen.getByPlaceholderText("Filter block types"), {
+      target: { value: "mermaid" },
     });
-    expect(document.querySelector('[data-library-flavour="decision"]')).toBeTruthy();
-    expect(document.querySelector('[data-library-flavour="paragraph"]')).toBeNull();
+    expect(document.querySelector('[data-library-type="mermaid"]')).toBeTruthy();
+    expect(document.querySelector('[data-library-type="paragraph"]')).toBeNull();
+    // The sidebar filters in lockstep with the example cards.
+    expect(document.querySelector('[data-library-nav="mermaid"]')).toBeTruthy();
+    expect(document.querySelector('[data-library-nav="paragraph"]')).toBeNull();
 
-    fireEvent.change(screen.getByPlaceholderText("Filter flavours"), {
-      target: { value: "no-such-flavour" },
+    fireEvent.change(screen.getByPlaceholderText("Filter block types"), {
+      target: { value: "no-such-block-type" },
     });
-    expect(screen.getByText("No matching flavours.")).toBeTruthy();
+    expect(screen.getByText("No matching block types.")).toBeTruthy();
   });
 });

@@ -14,13 +14,13 @@ const doc: DocDocument = {
   blocks: {
     root: {
       id: "root",
-      flavour: "paragraph",
+      type: "paragraph",
       props: {},
       children: ["b1"],
     },
     b1: {
       id: "b1",
-      flavour: "paragraph",
+      type: "paragraph",
       props: {},
       children: [],
     },

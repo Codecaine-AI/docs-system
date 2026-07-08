@@ -19,7 +19,7 @@ const DOC_JSON = JSON.stringify({
   schemaVersion: 1,
   id: "doc-1",
   root: "root-1",
-  blocks: { "root-1": { id: "root-1", flavour: "paragraph", props: {}, children: [] } },
+  blocks: { "root-1": { id: "root-1", type: "paragraph", props: {}, children: [] } },
 });
 
 beforeAll(async () => {

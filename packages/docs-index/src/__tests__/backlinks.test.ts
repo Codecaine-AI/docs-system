@@ -94,10 +94,10 @@ describe("backlinks: pure extractors", () => {
       id: "doc-1",
       root: "root",
       blocks: {
-        root: { id: "root", flavour: "page", props: {}, children: ["b1"] },
+        root: { id: "root", type: "page", props: {}, children: ["b1"] },
         b1: {
           id: "b1",
-          flavour: "paragraph",
+          type: "paragraph",
           props: {},
           children: [],
           text: [
@@ -190,10 +190,10 @@ describe("backlinks: rescanAll against a fixture docsRoot", () => {
       id: "doc-a",
       root: "root",
       blocks: {
-        root: { id: "root", flavour: "page", props: {}, children: ["b1"] },
+        root: { id: "root", type: "page", props: {}, children: ["b1"] },
         b1: {
           id: "b1",
-          flavour: "paragraph",
+          type: "paragraph",
           props: {},
           children: [],
           text: [
@@ -214,7 +214,7 @@ describe("backlinks: rescanAll against a fixture docsRoot", () => {
       id: "doc-b",
       root: "root",
       blocks: {
-        root: { id: "root", flavour: "page", props: {}, children: [] },
+        root: { id: "root", type: "page", props: {}, children: [] },
       },
     } as unknown as DocDocument;
     await writeFile(join(docsRoot, "b", "doc.json"), JSON.stringify(docB));
@@ -226,7 +226,7 @@ describe("backlinks: rescanAll against a fixture docsRoot", () => {
       id: "doc-c",
       root: "root",
       blocks: {
-        root: { id: "root", flavour: "page", props: {}, children: [] },
+        root: { id: "root", type: "page", props: {}, children: [] },
       },
     } as unknown as DocDocument;
     await writeFile(join(docsRoot, "c", "doc.json"), JSON.stringify(docC));
@@ -330,10 +330,10 @@ function docAFixture(): DocDocument {
     id: "doc-a",
     root: "root",
     blocks: {
-      root: { id: "root", flavour: "page", props: {}, children: ["b1"] },
+      root: { id: "root", type: "page", props: {}, children: ["b1"] },
       b1: {
         id: "b1",
-        flavour: "paragraph",
+        type: "paragraph",
         props: {},
         children: [],
         text: [

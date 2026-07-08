@@ -3,6 +3,8 @@ import { join } from "node:path";
 
 import { Elysia, sse, t } from "elysia";
 import type { DocOp } from "@codecaine-ai/docs-model/doc-ops";
+import { DOC_BLOCK_TYPES } from "@codecaine-ai/docs-model/doc-schema";
+import { BLOCK_TYPE_CATEGORY, listBlockActions } from "@codecaine-ai/docs-model";
 
 import type { DocsStore } from "./store";
 import { bundleResponse, createContentHash } from "./bundle";
@@ -12,6 +14,80 @@ import {
 } from "./confine";
 import { validateCanvasPayload } from "./canvas-sidecar";
 import type { DocsChangeEvent } from "./docs-events";
+
+/**
+ * GET /api/blocks payload — the agent edit-surface discovery document, so
+ * agents learn HOW to edit each block type instead of reverse-engineering
+ * props JSON. Pure static metadata derived entirely from docs-model exports
+ * (kernel op vocabulary in doc-ops.ts + the block-actions registry), computed
+ * once at module load: no doc loading, no per-request work, no auth changes.
+ *
+ * The viewer's block registry carries richer render-level `agentDescription`
+ * prose per block type; that is INTENTIONALLY not served here — the server
+ * must not depend on docs-viewer. A future unification can move those prose
+ * descriptions into docs-model and surface them from this endpoint.
+ */
+const BLOCKS_DISCOVERY = {
+  schemaVersion: 1,
+  // One entry per kernel op — descriptions mirror the DocOp docs in
+  // docs-model doc-ops.ts. Every op applies to every block type.
+  genericOps: [
+    {
+      op: "insertBlock",
+      description:
+        "Insert a new block (fresh, non-colliding blockId) of blockType under parentId at the given child index, with props and optional delta text.",
+      appliesTo: "all",
+    },
+    {
+      op: "updateBlock",
+      description:
+        "Shallow-merge a props patch into a block (a key set to undefined removes that prop) and/or replace its text (null clears); the block id is preserved.",
+      appliesTo: "all",
+    },
+    {
+      op: "deleteBlock",
+      description:
+        'Delete a block — mode "subtree" (default) removes it and all descendants; "reparent" splices its children into its parent at the block\'s former position.',
+      appliesTo: "all",
+    },
+    {
+      op: "moveBlock",
+      description:
+        "Move a block under toParentId at toIndex — the index within the destination children AFTER the block is detached.",
+      appliesTo: "all",
+    },
+    {
+      op: "splitBlock",
+      description:
+        "Split a block's delta text at a character offset in [0, textLength] into two blocks; the new sibling gets a freshly minted id.",
+      appliesTo: "all",
+    },
+    {
+      op: "mergeBlocks",
+      description:
+        "Merge two or more contiguous sibling blocks (in document order) into a single block with a freshly minted id.",
+      appliesTo: "all",
+    },
+    {
+      op: "blockAction",
+      description:
+        "Run a named typed action from the block-actions registry against a structured block; the validated result applies as a shallow-merge updateBlock patch (same inverse/undo path).",
+      appliesTo: "all",
+    },
+  ],
+  // Per block type: its editing category and (for object types) the typed
+  // actions it supports; text types stay on the generic op vocabulary and
+  // report an empty actions array.
+  blockTypes: DOC_BLOCK_TYPES.map((type) => ({
+    type,
+    category: BLOCK_TYPE_CATEGORY[type],
+    actions: listBlockActions(type).map(({ action, description, params }) => ({
+      action,
+      description,
+      params,
+    })),
+  })),
+};
 
 /**
  * `createDocsRoutes(store)` — the full docs read+write HTTP surface as an
@@ -29,6 +105,7 @@ import type { DocsChangeEvent } from "./docs-events";
  *   GET  /api/canvas-by-doc?path=&src=      -> doc-relative sidecar read
  *   GET  /api/asset?path=                   -> raw asset bytes
  *   GET  /api/backlinks?target=             -> { target, backlinks }
+ *   GET  /api/blocks                        -> { schemaVersion, genericOps, blockTypes } (static edit-surface discovery)
  *   POST /api/ops                           -> { doc, hash, patch_id } | 409/423
  *   GET  /api/comments?path=                -> { comments, hash }
  *   POST /api/comments                      -> 201 { comment, comments, hash } | 409/423
@@ -37,6 +114,7 @@ import type { DocsChangeEvent } from "./docs-events";
  *   POST /api/draft-lock/heartbeat          -> same as acquire
  *   POST /api/draft-lock/release            -> { ok: true }
  *   POST /api/assets (multipart)            -> 201 { src, path, document_path, content_type, size, filename }
+ *   POST /api/assets/video (multipart)      -> 201 same shape; strict video allowlist, 64MB cap, assets/videos/
  *   POST /api/move                          -> { moved, rewrittenSources, failures }
  *   POST /api/undo                          -> { ok, doc|canvas, hash } | 404/409
  *   PUT  /api/canvas                        -> save existing doc-relative sidecar | 409/423
@@ -189,6 +267,9 @@ export function createDocsRoutes(store: DocsStore) {
       },
       { query: t.Object({ target: t.String({ minLength: 1 }) }) },
     )
+
+    // Static edit-surface discovery — see BLOCKS_DISCOVERY above.
+    .get("/api/blocks", () => BLOCKS_DISCOVERY)
 
     // -- doc ops ---------------------------------------------------------------
     .post(
@@ -370,6 +451,29 @@ export function createDocsRoutes(store: DocsStore) {
       "/api/assets",
       async ({ body, set }) => {
         const result = await store.uploadAsset(body);
+        if (!result.ok) {
+          set.status = result.status;
+          return { detail: result.detail };
+        }
+        set.status = 201;
+        return result.response;
+      },
+      {
+        body: t.Object({
+          file: t.File(),
+          bundlePath: t.String({ minLength: 1 }),
+          kind: t.Optional(t.String()),
+        }),
+      },
+    )
+
+    // Dedicated VIDEO upload (editor drop-a-video-file flow): strict
+    // extension/MIME allowlist, 64MB cap (413 over), writes into the bundle's
+    // `assets/videos/` with collision-suffixed naming — see uploadDocVideoAsset.
+    .post(
+      "/api/assets/video",
+      async ({ body, set }) => {
+        const result = await store.uploadVideoAsset(body);
         if (!result.ok) {
           set.status = result.status;
           return { detail: result.detail };

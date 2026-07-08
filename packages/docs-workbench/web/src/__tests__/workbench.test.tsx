@@ -36,13 +36,13 @@ function docJson(id: string, title: string, text: string) {
     blocks: {
       "root-1": {
         id: "root-1",
-        flavour: "paragraph",
+        type: "paragraph",
         props: { title },
         children: ["para-1"],
       },
       "para-1": {
         id: "para-1",
-        flavour: "paragraph",
+        type: "paragraph",
         props: {},
         text: [{ insert: text }],
         children: [],
@@ -495,7 +495,7 @@ describe("annotate mode", () => {
     expect(resolvedRaw).toContain('"resolved"');
   });
 
-  it("hover-targets a block (outline + flavour chip) and selecting via the layer opens the composer", async () => {
+  it("hover-targets a block (outline + block type chip) and selecting via the layer opens the composer", async () => {
     renderDocPage("55-hover");
     await waitFor(() => {
       expect(screen.getByText("Hello from Hover")).toBeTruthy();
@@ -506,7 +506,7 @@ describe("annotate mode", () => {
     expect(block).toBeTruthy();
 
     // Hover: outline class on the block wrapper + floating chip naming the
-    // flavour (from the flavour registry descriptor) and the block text.
+    // block type (from the block registry descriptor) and the block text.
     fireEvent.mouseMove(block!);
     expect(block!.classList.contains("docs-target-hovered")).toBe(true);
     expect(!!document.querySelector('[data-docs-target-overlay="hover"]')).toBe(true);
@@ -514,7 +514,7 @@ describe("annotate mode", () => {
     expect(chip?.textContent).toBe("Paragraph: Hello from Hover");
 
     // Selecting through the layer opens the composer against that target
-    // (real block id, flavour-labelled) and draws the selected ring.
+    // (real block id, block type-labelled) and draws the selected ring.
     fireEvent.click(block!);
     await waitFor(() => {
       expect(screen.getByText("Commenting on: Paragraph: Hello from Hover")).toBeTruthy();

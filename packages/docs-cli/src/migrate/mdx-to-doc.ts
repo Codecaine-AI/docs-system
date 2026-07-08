@@ -4,7 +4,7 @@
  * Converts one MDX source file into a docs-model DocDocument (doc-schema.ts):
  * frontmatter -> doc meta, prose -> paragraph/heading/list-item/code/quote/
  * divider blocks with inline marks parsed by inline-to-delta.ts, and
- * recognized MDX component tags -> their matching doc-schema flavour where
+ * recognized MDX component tags -> their matching doc-schema block type where
  * one exists.
  *
  * Segmentation mirrors MdxDocumentRenderer's parseMdxSegments/parseAttrs
@@ -249,7 +249,7 @@ function buildProseBlocks(markdown: string, ctx: BuildCtx): string[] {
       topLevel.push(
         addBlock(ctx, {
           id,
-          flavour: "paragraph",
+          type: "paragraph",
           props: {},
           text: textInsert(text, ctx),
           children: [],
@@ -271,7 +271,7 @@ function buildProseBlocks(markdown: string, ctx: BuildCtx): string[] {
       const id = ctx.mintId(item.text.slice(0, 24));
       addBlock(ctx, {
         id,
-        flavour: "list-item",
+        type: "list-item",
         props: { ordered: item.ordered },
         text: textInsert(item.text, ctx),
         children: [],
@@ -317,7 +317,7 @@ function buildProseBlocks(markdown: string, ctx: BuildCtx): string[] {
       topLevel.push(
         addBlock(ctx, {
           id,
-          flavour: "heading",
+          type: "heading",
           props: { level },
           text: textInsert(text, ctx),
           children: [],
@@ -342,7 +342,7 @@ function buildProseBlocks(markdown: string, ctx: BuildCtx): string[] {
       topLevel.push(
         addBlock(ctx, {
           id,
-          flavour: "code",
+          type: "code",
           props: lang ? { language: lang } : {},
           text: [{ insert: codeLines.join("\n") }],
           children: [],
@@ -354,7 +354,7 @@ function buildProseBlocks(markdown: string, ctx: BuildCtx): string[] {
     if (DIVIDER_RE.test(trimmed)) {
       flushParagraph();
       const id = ctx.mintId("divider");
-      topLevel.push(addBlock(ctx, { id, flavour: "divider", props: {}, children: [] }));
+      topLevel.push(addBlock(ctx, { id, type: "divider", props: {}, children: [] }));
       i += 1;
       continue;
     }
@@ -373,7 +373,7 @@ function buildProseBlocks(markdown: string, ctx: BuildCtx): string[] {
       topLevel.push(
         addBlock(ctx, {
           id,
-          flavour: "quote",
+          type: "quote",
           props: {},
           text: textInsert(text, ctx),
           children: [],
@@ -416,7 +416,7 @@ function buildProseBlocks(markdown: string, ctx: BuildCtx): string[] {
 
     // Table rows: keep as a paragraph run for now (tables render fine as
     // prose text via the markdown projection path used by adapted blocks;
-    // no dedicated `table` flavour exists in doc-schema v1).
+    // no dedicated `table` block type exists in doc-schema v1).
     paragraphBuffer.push(line);
     i += 1;
   }
@@ -426,11 +426,11 @@ function buildProseBlocks(markdown: string, ctx: BuildCtx): string[] {
 }
 
 // ---------------------------------------------------------------------------
-// MDX component tag -> flavour mapping
+// MDX component tag -> block type mapping
 // ---------------------------------------------------------------------------
 
 type ComponentMapper = (attrs: Record<string, string>, body: string, ctx: BuildCtx) => {
-  flavour: DocBlockType;
+  type: DocBlockType;
   props: Record<string, unknown>;
   text?: DocBlock["text"];
 };
@@ -441,27 +441,33 @@ function strAttr(attrs: Record<string, string>, key: string): string | undefined
 }
 
 /**
- * Tags with a first-class doc-schema flavour (D28 — "the existing
- * docs-blocks registry becomes the flavour registry"). Mirrors
- * flavour-registry.ts's mdxAdapterDescriptor mappings for the ones with an
- * aligned flavour today; the rest of the MDX component vocabulary
+ * Tags with a first-class doc-schema block type (D28 — "the existing
+ * docs-blocks registry becomes the block registry"). Mirrors
+ * block-registry.ts's mdxAdapterDescriptor mappings for the ones with an
+ * aligned block type today; the rest of the MDX component vocabulary
  * (Risk/OpenQuestion/Status/Milestone/Checklist/StructuredTable/Tabs/
  * Columns/Code(component)/ImplementationMap/ApiEndpoint/ApiSurface/
  * DataModel/Diff/JsonExplorer/AnnotatedCode/Diagram/Flow/Mermaid/Wireframe/
  * DesignBoard/Artboard/Screen/Prototype/PrototypeScreen/PrototypeTransition)
- * has no doc-schema flavour yet — those fall back to buildUnmappedComponentBlock.
+ * has no doc-schema block type yet — those fall back to buildUnmappedComponentBlock.
  */
 const COMPONENT_TAG_TO_BLOCK_TYPE: Record<string, ComponentMapper> = {
+  // Decision/AgentContract/Constraint/Assumption have NO first-class block
+  // type in the 14-type vocabulary — they migrate to callouts carrying the
+  // retired type name as `props.kind`, matching what doc-schema's
+  // legacy-type coercion produces for an old doc.json that still used the
+  // retired type name.
   Decision: (attrs, body, ctx) => ({
-    flavour: "decision",
+    type: "callout",
     props: {
+      kind: "decision",
       status: strAttr(attrs, "status") ?? "proposed",
       title: strAttr(attrs, "title"),
     },
     text: textInsert(body.trim(), ctx),
   }),
   Callout: (attrs, body, ctx) => ({
-    flavour: "callout",
+    type: "callout",
     props: {
       tone: strAttr(attrs, "tone") ?? "info",
       title: strAttr(attrs, "title"),
@@ -469,8 +475,9 @@ const COMPONENT_TAG_TO_BLOCK_TYPE: Record<string, ComponentMapper> = {
     text: textInsert(body.trim(), ctx),
   }),
   AgentContract: (attrs, body, ctx) => ({
-    flavour: "agent-contract",
+    type: "callout",
     props: {
+      kind: "agent-contract",
       agent: strAttr(attrs, "agent"),
       title: strAttr(attrs, "title"),
       tools: strAttr(attrs, "tools"),
@@ -479,15 +486,16 @@ const COMPONENT_TAG_TO_BLOCK_TYPE: Record<string, ComponentMapper> = {
     text: textInsert(body.trim(), ctx),
   }),
   FileTree: (attrs, body) => ({
-    flavour: "file-tree",
+    type: "file-tree",
     props: {
       title: strAttr(attrs, "title"),
       entries: parseFileTreeEntries(body),
     },
   }),
   Constraint: (attrs, body, ctx) => ({
-    flavour: "constraint",
+    type: "callout",
     props: {
+      kind: "constraint",
       title: strAttr(attrs, "title"),
       severity: strAttr(attrs, "severity") ?? "hard",
       owner: strAttr(attrs, "owner"),
@@ -495,8 +503,9 @@ const COMPONENT_TAG_TO_BLOCK_TYPE: Record<string, ComponentMapper> = {
     text: textInsert(body.trim(), ctx),
   }),
   Assumption: (attrs, body, ctx) => ({
-    flavour: "assumption",
+    type: "callout",
     props: {
+      kind: "assumption",
       title: strAttr(attrs, "title"),
       confidence: strAttr(attrs, "confidence") ?? "medium",
       owner: strAttr(attrs, "owner"),
@@ -504,7 +513,7 @@ const COMPONENT_TAG_TO_BLOCK_TYPE: Record<string, ComponentMapper> = {
     text: textInsert(body.trim(), ctx),
   }),
   Canvas: (attrs) => ({
-    flavour: "canvas",
+    type: "canvas",
     props: {
       src: strAttr(attrs, "src"),
       view: strAttr(attrs, "view"),
@@ -538,12 +547,12 @@ function parseFileTreeEntries(body: string): Array<Record<string, unknown>> {
 }
 
 /**
- * Fallback for MDX component tags with no doc-schema flavour yet (see the
+ * Fallback for MDX component tags with no doc-schema block type yet (see the
  * comment above COMPONENT_TAG_TO_BLOCK_TYPE for the list). Preserves the
  * original tag + full raw source verbatim as a `code` block with
  * `props.language: "mdx"` and `props.mdxTag` — lossless, validated, and
  * clearly flagged in the migration warnings so this can be revisited once
- * doc-schema grows those flavours (tracked as an explicit irreducible case,
+ * doc-schema grows those block types (tracked as an explicit irreducible case,
  * not silently dropped).
  */
 function buildUnmappedComponentBlock(
@@ -553,7 +562,7 @@ function buildUnmappedComponentBlock(
   ctx: BuildCtx,
 ): string {
   ctx.warnings.push(
-    `Unmapped MDX component <${tag}> in ${ctx.docPath} — stored as raw "code" fallback block (props.mdxTag="${tag}"); no doc-schema flavour exists for this tag yet.`,
+    `Unmapped MDX component <${tag}> in ${ctx.docPath} — stored as raw "code" fallback block (props.mdxTag="${tag}"); no doc-schema block type exists for this tag yet.`,
   );
   const attrsSource = Object.entries(attrs)
     .map(([key, value]) => `${key}="${value}"`)
@@ -562,7 +571,7 @@ function buildUnmappedComponentBlock(
   const id = ctx.mintId(tag);
   return addBlock(ctx, {
     id,
-    flavour: "code",
+    type: "code",
     props: { language: "mdx", mdxTag: tag, mdxAttrs: attrs },
     text: [{ insert: source }],
     children: [],
@@ -603,10 +612,10 @@ export function mdxToDoc(source: string, docPath: string): MdxToDocResult {
       continue;
     }
 
-    const { flavour, props, text } = mapper(segment.attrs, segment.body, ctx);
+    const { type, props, text } = mapper(segment.attrs, segment.body, ctx);
     const idHint = strAttr(segment.attrs, "id") ?? strAttr(segment.attrs, "title") ?? segment.tag;
     const id = ctx.mintId(idHint);
-    rootChildren.push(addBlock(ctx, { id, flavour, props, text, children: [] }));
+    rootChildren.push(addBlock(ctx, { id, type, props, text, children: [] }));
   }
 
   const rootId = mintId("root");
@@ -623,7 +632,7 @@ export function mdxToDoc(source: string, docPath: string): MdxToDocResult {
 
   blocks[rootId] = {
     id: rootId,
-    flavour: "paragraph",
+    type: "paragraph",
     props: rootProps,
     children: rootChildren,
   };
@@ -649,7 +658,7 @@ export function mdxToDoc(source: string, docPath: string): MdxToDocResult {
 function findFirstHeadingText(blocks: Record<string, DocBlock>, ids: string[]): string | undefined {
   for (const id of ids) {
     const block = blocks[id];
-    if (block?.flavour === "heading" && block.text) {
+    if (block?.type === "heading" && block.text) {
       const text = block.text.map((span) => span.insert).join("").trim();
       if (text) return text;
     }

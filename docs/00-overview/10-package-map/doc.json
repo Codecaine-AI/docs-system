@@ -6,7 +6,7 @@
   "blocks": {
     "b-10-package-map-root-44": {
       "id": "b-10-package-map-root-44",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "children": [
         "b-10-package-map-package-map-1",
@@ -56,7 +56,7 @@
     },
     "b-10-package-map-package-map-1": {
       "id": "b-10-package-map-package-map-1",
-      "flavour": "heading",
+      "type": "heading",
       "props": {
         "level": 1
       },
@@ -69,7 +69,7 @@
     },
     "b-10-package-map-every-workspace-package-2": {
       "id": "b-10-package-map-every-workspace-package-2",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
@@ -80,7 +80,7 @@
     },
     "b-10-package-map-packages-docs-model-3": {
       "id": "b-10-package-map-packages-docs-model-3",
-      "flavour": "heading",
+      "type": "heading",
       "props": {
         "level": 2
       },
@@ -99,7 +99,7 @@
     },
     "b-10-package-map-pure-typescript-no-reac-4": {
       "id": "b-10-package-map-pure-typescript-no-reac-4",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
@@ -110,7 +110,7 @@
     },
     "b-10-package-map-the-doc-json-schema-5": {
       "id": "b-10-package-map-the-doc-json-schema-5",
-      "flavour": "list-item",
+      "type": "list-item",
       "props": {
         "ordered": false
       },
@@ -132,18 +132,18 @@
     },
     "b-10-package-map-flavours-paragraph-hea-6": {
       "id": "b-10-package-map-flavours-paragraph-hea-6",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "  flavours (paragraph, heading, list-item, code, quote, callout, decision,\n  constraint, image, canvas, agent-contract, …) and delta-style rich-text\n  spans;"
+          "insert": "  block types (paragraph, heading, list-item, code, quote, callout, decision,\n  constraint, image, canvas, agent-contract, …) and delta-style rich-text\n  spans;"
         }
       ],
       "children": []
     },
     "b-10-package-map-the-six-op-mutation-voca-7": {
       "id": "b-10-package-map-the-six-op-mutation-voca-7",
-      "flavour": "list-item",
+      "type": "list-item",
       "props": {
         "ordered": false
       },
@@ -174,7 +174,7 @@
     },
     "b-10-package-map-deleteblock-movebloc-8": {
       "id": "b-10-package-map-deleteblock-movebloc-8",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
@@ -212,7 +212,7 @@
     },
     "b-10-package-map-the-comments-schema-tar-9": {
       "id": "b-10-package-map-the-comments-schema-tar-9",
-      "flavour": "list-item",
+      "type": "list-item",
       "props": {
         "ordered": false
       },
@@ -225,7 +225,7 @@
     },
     "b-10-package-map-markdown-projection-in-b-10": {
       "id": "b-10-package-map-markdown-projection-in-b-10",
-      "flavour": "list-item",
+      "type": "list-item",
       "props": {
         "ordered": false
       },
@@ -238,7 +238,7 @@
     },
     "b-10-package-map-everything-else-in-the-r-11": {
       "id": "b-10-package-map-everything-else-in-the-r-11",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
@@ -249,7 +249,7 @@
     },
     "b-10-package-map-packages-docs-index-12": {
       "id": "b-10-package-map-packages-docs-index-12",
-      "flavour": "heading",
+      "type": "heading",
       "props": {
         "level": 2
       },
@@ -268,7 +268,7 @@
     },
     "b-10-package-map-a-bun-sqlite-backed-in-13": {
       "id": "b-10-package-map-a-bun-sqlite-backed-in-13",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
@@ -324,7 +324,7 @@
     },
     "b-10-package-map-packages-docs-server-14": {
       "id": "b-10-package-map-packages-docs-server-14",
-      "flavour": "heading",
+      "type": "heading",
       "props": {
         "level": 2
       },
@@ -343,7 +343,7 @@
     },
     "b-10-package-map-the-embeddable-write-sid-15": {
       "id": "b-10-package-map-the-embeddable-write-sid-15",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
@@ -363,7 +363,7 @@
     },
     "b-10-package-map-per-path-mutexed-atomic-16": {
       "id": "b-10-package-map-per-path-mutexed-atomic-16",
-      "flavour": "list-item",
+      "type": "list-item",
       "props": {
         "ordered": false
       },
@@ -376,7 +376,7 @@
     },
     "b-10-package-map-hash-preconditions-17": {
       "id": "b-10-package-map-hash-preconditions-17",
-      "flavour": "list-item",
+      "type": "list-item",
       "props": {
         "ordered": false
       },
@@ -404,7 +404,7 @@
     },
     "b-10-package-map-409-if-the-doc-changed-18": {
       "id": "b-10-package-map-409-if-the-doc-changed-18",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
@@ -424,7 +424,7 @@
     },
     "b-10-package-map-draft-locks-best-e-19": {
       "id": "b-10-package-map-draft-locks-best-e-19",
-      "flavour": "list-item",
+      "type": "list-item",
       "props": {
         "ordered": false
       },
@@ -452,7 +452,7 @@
     },
     "b-10-package-map-another-session-advisor-20": {
       "id": "b-10-package-map-another-session-advisor-20",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
@@ -463,7 +463,7 @@
     },
     "b-10-package-map-a-single-use-undo-ledg-21": {
       "id": "b-10-package-map-a-single-use-undo-ledg-21",
-      "flavour": "list-item",
+      "type": "list-item",
       "props": {
         "ordered": false
       },
@@ -485,7 +485,7 @@
     },
     "b-10-package-map-sse-change-events-so-22": {
       "id": "b-10-package-map-sse-change-events-so-22",
-      "flavour": "list-item",
+      "type": "list-item",
       "props": {
         "ordered": false
       },
@@ -504,7 +504,7 @@
     },
     "b-10-package-map-createdocsroutes-store-23": {
       "id": "b-10-package-map-createdocsroutes-store-23",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
@@ -530,7 +530,7 @@
     },
     "b-10-package-map-packages-docs-viewer-24": {
       "id": "b-10-package-map-packages-docs-viewer-24",
-      "flavour": "heading",
+      "type": "heading",
       "props": {
         "level": 2
       },
@@ -549,7 +549,7 @@
     },
     "b-10-package-map-the-react-layer-25": {
       "id": "b-10-package-map-the-react-layer-25",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
@@ -560,7 +560,7 @@
     },
     "b-10-package-map-docblockrenderer-rea-26": {
       "id": "b-10-package-map-docblockrenderer-rea-26",
-      "flavour": "list-item",
+      "type": "list-item",
       "props": {
         "ordered": false
       },
@@ -572,25 +572,25 @@
           }
         },
         {
-          "insert": " — read-only projection of a bundle through the flavour"
+          "insert": " — read-only projection of a bundle through the block"
         }
       ],
       "children": []
     },
     "b-10-package-map-registry-each-block-fla-27": {
       "id": "b-10-package-map-registry-each-block-fla-27",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "  registry (each block flavour has one descriptor used everywhere);"
+          "insert": "  registry (each block type has one descriptor used everywhere);"
         }
       ],
       "children": []
     },
     "b-10-package-map-the-tiptap-based-block-28": {
       "id": "b-10-package-map-the-tiptap-based-block-28",
-      "flavour": "list-item",
+      "type": "list-item",
       "props": {
         "ordered": false
       },
@@ -621,7 +621,7 @@
     },
     "b-10-package-map-input-rules-reference-c-29": {
       "id": "b-10-package-map-input-rules-reference-c-29",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
@@ -645,7 +645,7 @@
     },
     "b-10-package-map-doctargetinglayer-ho-30": {
       "id": "b-10-package-map-doctargetinglayer-ho-30",
-      "flavour": "list-item",
+      "type": "list-item",
       "props": {
         "ordered": false
       },
@@ -657,14 +657,14 @@
           }
         },
         {
-          "insert": " — hover outline + flavour chip + pinpoint click, the"
+          "insert": " — hover outline + block-type chip + pinpoint click, the"
         }
       ],
       "children": []
     },
     "b-10-package-map-surface-both-humans-and-31": {
       "id": "b-10-package-map-surface-both-humans-and-31",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
@@ -675,7 +675,7 @@
     },
     "b-10-package-map-plannotator-style-commen-32": {
       "id": "b-10-package-map-plannotator-style-commen-32",
-      "flavour": "list-item",
+      "type": "list-item",
       "props": {
         "ordered": false
       },
@@ -688,7 +688,7 @@
     },
     "b-10-package-map-docsclientprovider-t-33": {
       "id": "b-10-package-map-docsclientprovider-t-33",
-      "flavour": "list-item",
+      "type": "list-item",
       "props": {
         "ordered": false
       },
@@ -707,7 +707,7 @@
     },
     "b-10-package-map-client-and-a-canvas-embe-34": {
       "id": "b-10-package-map-client-and-a-canvas-embe-34",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
@@ -718,7 +718,7 @@
     },
     "b-10-package-map-packages-docs-workbench-35": {
       "id": "b-10-package-map-packages-docs-workbench-35",
-      "flavour": "heading",
+      "type": "heading",
       "props": {
         "level": 2
       },
@@ -737,7 +737,7 @@
     },
     "b-10-package-map-the-standalone-runnable-36": {
       "id": "b-10-package-map-the-standalone-runnable-36",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
@@ -793,7 +793,7 @@
     },
     "b-10-package-map-packages-docs-cli-th-37": {
       "id": "b-10-package-map-packages-docs-cli-th-37",
-      "flavour": "heading",
+      "type": "heading",
       "props": {
         "level": 2
       },
@@ -812,7 +812,7 @@
     },
     "b-10-package-map-the-docs-command-ren-38": {
       "id": "b-10-package-map-the-docs-command-ren-38",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
@@ -895,7 +895,7 @@
     },
     "b-10-package-map-packages-framework-t-39": {
       "id": "b-10-package-map-packages-framework-t-39",
-      "flavour": "heading",
+      "type": "heading",
       "props": {
         "level": 2
       },
@@ -914,7 +914,7 @@
     },
     "b-10-package-map-not-code-the-documentat-40": {
       "id": "b-10-package-map-not-code-the-documentat-40",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
@@ -934,7 +934,7 @@
     },
     "b-10-package-map-external-canvas-a-su-41": {
       "id": "b-10-package-map-external-canvas-a-su-41",
-      "flavour": "heading",
+      "type": "heading",
       "props": {
         "level": 2
       },
@@ -953,7 +953,7 @@
     },
     "b-10-package-map-the-codecaine-canvas-eng-42": {
       "id": "b-10-package-map-the-codecaine-canvas-eng-42",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
@@ -1009,7 +1009,7 @@
     },
     "b-10-package-map-see-the-readme-s-submodu-43": {
       "id": "b-10-package-map-see-the-readme-s-submodu-43",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {

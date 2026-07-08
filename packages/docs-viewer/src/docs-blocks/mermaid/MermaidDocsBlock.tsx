@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { Code2Icon, GitBranchIcon } from "lucide-react";
 import { Badge } from "../../ui/badge";
+import { cn } from "../../ui/cn";
 import {
   DocsMdxBlock,
   type DocsMdxParsedBlock,
@@ -32,8 +33,35 @@ export type MermaidData = {
  */
 let mermaidRenderSeq = 0;
 
-/** initialize() must run exactly once per page, before the first render(). */
-let mermaidInitialized = false;
+/**
+ * initialize() must run before the first render(), and re-run only when the
+ * app theme flips (light <-> dark) so diagrams rendered after a toggle pick
+ * up the matching mermaid theme. Tracks the last theme passed to initialize;
+ * null means mermaid has never been initialized.
+ */
+let mermaidCurrentTheme: "neutral" | "dark" | null = null;
+
+/**
+ * Dark mode is a `.dark` class on the document root (see the workbench shell).
+ * The class is toggled imperatively (outside React data flow), so subscribe to
+ * it with a MutationObserver via useSyncExternalStore: diagrams re-render with
+ * the matching mermaid theme when the app theme flips. SSR-safe: defaults to
+ * light on the server snapshot.
+ */
+function isDarkTheme(): boolean {
+  return typeof document !== "undefined" && document.documentElement.classList.contains("dark");
+}
+
+function subscribeToRootClass(onChange: () => void): () => void {
+  if (typeof document === "undefined") return () => {};
+  const observer = new MutationObserver(onChange);
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+  return () => observer.disconnect();
+}
+
+function useIsDarkTheme(): boolean {
+  return useSyncExternalStore(subscribeToRootClass, isDarkTheme, () => false);
+}
 
 function firstLine(message: string): string {
   return message.split("\n", 1)[0].trim();
@@ -68,6 +96,7 @@ export type MermaidDiagramProps = {
 export function MermaidDiagram({ source, blockId }: MermaidDiagramProps) {
   const [svg, setSvg] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const dark = useIsDarkTheme();
 
   useEffect(() => {
     let cancelled = false;
@@ -80,13 +109,14 @@ export function MermaidDiagram({ source, blockId }: MermaidDiagramProps) {
     async function renderDiagram() {
       try {
         const { default: mermaid } = await import("mermaid");
-        if (!mermaidInitialized) {
+        const desiredTheme = dark ? "dark" : "neutral";
+        if (mermaidCurrentTheme !== desiredTheme) {
           mermaid.initialize({
             startOnLoad: false,
             securityLevel: "strict",
-            theme: "neutral",
+            theme: desiredTheme,
           });
-          mermaidInitialized = true;
+          mermaidCurrentTheme = desiredTheme;
         }
         const rendered = await mermaid.render(renderId, source);
         if (!cancelled) setSvg(rendered.svg);
@@ -104,7 +134,7 @@ export function MermaidDiagram({ source, blockId }: MermaidDiagramProps) {
     return () => {
       cancelled = true;
     };
-  }, [source, blockId]);
+  }, [source, blockId, dark]);
 
   if (svg) {
     return (
@@ -121,11 +151,16 @@ export function MermaidDiagram({ source, blockId }: MermaidDiagramProps) {
   return (
     <div data-mermaid-fallback={error ? "error" : "loading"}>
       {error && (
-        <div className="border-b bg-background px-3 py-1.5 text-[11px] text-muted-foreground">
+        <div className="border-b border-rose-500/30 bg-rose-500/10 px-3 py-1.5 text-[11px] text-rose-700 dark:border-rose-400/30 dark:bg-rose-400/10 dark:text-rose-300">
           Mermaid render failed: {error}
         </div>
       )}
-      <pre className="max-h-[360px] overflow-auto bg-background p-3 font-mono text-xs leading-relaxed">
+      <pre
+        className={cn(
+          "max-h-[360px] overflow-auto bg-background p-3 font-mono text-xs leading-relaxed",
+          !error && "animate-pulse text-muted-foreground",
+        )}
+      >
         <code>{source}</code>
       </pre>
     </div>
@@ -175,13 +210,20 @@ export class MermaidDocsBlock extends DocsMdxBlock<MermaidData> {
         data-docs-block-type={this.type}
         data-source-id={data.id}
       >
-        <div className="flex flex-wrap items-center gap-2 border-b bg-muted/40 px-3 py-2">
-          <GitBranchIcon className="h-4 w-4 text-muted-foreground" />
+        <div className="flex flex-wrap items-center gap-2 border-b border-teal-500/20 bg-teal-500/10 px-3 py-2 dark:border-teal-400/20 dark:bg-teal-400/10">
+          <GitBranchIcon className="h-4 w-4 text-teal-600 dark:text-teal-400" />
           <span className="font-display text-xs font-medium uppercase tracking-wider text-muted-foreground">
             Mermaid
           </span>
           {data.title && <span className="text-sm font-medium">{data.title}</span>}
-          {data.diagramType && <Badge variant="outline">{data.diagramType}</Badge>}
+          {data.diagramType && (
+            <Badge
+              variant="outline"
+              className="border-teal-500/40 bg-teal-500/10 text-teal-700 dark:border-teal-400/30 dark:bg-teal-400/10 dark:text-teal-300"
+            >
+              {data.diagramType}
+            </Badge>
+          )}
           <span className="font-mono text-[11px] text-muted-foreground">{data.id}</span>
         </div>
         <MermaidDiagram source={data.source} blockId={data.id} />

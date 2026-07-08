@@ -17,7 +17,7 @@ function makeIdFactory(prefix: string) {
 }
 
 describe("convert: docToPM / pmToDoc round-trip", () => {
-  it("round-trips the full 20-flavour fixture losslessly", () => {
+  it("round-trips the full 14-block-type fixture losslessly", () => {
     const doc = loadFixture();
     const pm = docToPM(doc);
     const back = pmToDoc(pm, doc, makeIdFactory("fresh"));
@@ -46,14 +46,25 @@ describe("convert: docToPM / pmToDoc round-trip", () => {
     expect(back.blocks.h1.props).toEqual({ level: 1 });
     expect(back.blocks["h2-structure"].props).toEqual({ level: 2 });
     expect(back.blocks["li-a"].children).toEqual(["li-a-1"]);
-    expect(back.blocks["code-1"].props).toEqual({ language: "typescript" });
+    // code-1 also carries `annotations` in the fixture — promotion only pulls
+    // `language` out; everything else must ride through blockProps verbatim.
+    expect(back.blocks["code-1"].props).toEqual(doc.blocks["code-1"].props);
+    expect(back.blocks["code-1"].props.language).toBe("typescript");
   });
 
-  it("preserves atom flavour props verbatim (canvas/image/attachment/file-tree/agent-contract)", () => {
+  it("preserves atom block type props verbatim (canvas/image/video/file-tree/structured-table/interaction-surface/mermaid)", () => {
     const doc = loadFixture();
     const pm = docToPM(doc);
     const back = pmToDoc(pm, doc, makeIdFactory("fresh"));
-    for (const id of ["canvas-1", "image-1", "attach-1", "tree-1", "contract-1"]) {
+    for (const id of [
+      "canvas-1",
+      "image-1",
+      "video-1",
+      "tree-1",
+      "table-1",
+      "interaction-surface-1",
+      "mermaid-1",
+    ]) {
       expect(back.blocks[id]).toEqual(doc.blocks[id]);
     }
   });
@@ -123,7 +134,7 @@ describe("diffToOps", () => {
     if (ops[0].type === "insertBlock") {
       expect(ops[0].parentId).toBe(doc.root);
       expect(ops[0].index).toBe(insertAt);
-      expect(ops[0].flavour).toBe("paragraph");
+      expect(ops[0].blockType).toBe("paragraph");
       expect(ops[0].text).toEqual([{ insert: "Inserted paragraph" }]);
     }
   });
@@ -189,7 +200,7 @@ describe("diffToOps", () => {
     ).toBe(true);
     expect(
       ops.some(
-        (op) => op.type === "insertBlock" && op.flavour === "paragraph" && op.blockId.startsWith("fresh-"),
+        (op) => op.type === "insertBlock" && op.blockType === "paragraph" && op.blockId.startsWith("fresh-"),
       ),
     ).toBe(true);
   });
@@ -273,14 +284,14 @@ describe("diffToOps", () => {
     if (applied.ok) expect(applied.doc.blocks).toEqual(edited.blocks);
   });
 
-  it("flavour change on a surviving id emits deleteBlock + fresh-id insertBlock, never a silent props-only update (§8.3)", () => {
+  it("block type change on a surviving id emits deleteBlock + fresh-id insertBlock, never a silent props-only update (§8.3)", () => {
     const doc = loadFixture();
     const pm = docToPM(doc);
     const edited = pmToDoc(pm, doc, makeIdFactory("fresh"));
-    // Simulate a (hypothetical) flavour-preserving "turn into": same id,
-    // different flavour. updateBlock has no flavour field, so a props-only
+    // Simulate a (hypothetical) block type-preserving "turn into": same id,
+    // different block type. updateBlock has no block type field, so a props-only
     // update would silently drop this.
-    edited.blocks["quote-1"] = { ...edited.blocks["quote-1"], flavour: "callout" };
+    edited.blocks["quote-1"] = { ...edited.blocks["quote-1"], type: "callout" };
 
     const quoteIndex = doc.blocks[doc.root].children.indexOf("quote-1");
     const ops = diffToOps(doc, edited, makeIdFactory("fl"));
@@ -291,7 +302,7 @@ describe("diffToOps", () => {
         blockId: "fl-1",
         parentId: doc.root,
         index: quoteIndex,
-        flavour: "callout",
+        blockType: "callout",
         props: {},
         text: [{ insert: "Stable ids are a system invariant." }],
       },
@@ -301,16 +312,16 @@ describe("diffToOps", () => {
     expect(applied.ok).toBe(true);
     if (applied.ok) {
       expect(applied.doc.blocks["quote-1"]).toBeUndefined();
-      expect(applied.doc.blocks["fl-1"].flavour).toBe("callout");
+      expect(applied.doc.blocks["fl-1"].type).toBe("callout");
       expect(applied.doc.blocks[applied.doc.root].children[quoteIndex]).toBe("fl-1");
     }
   });
 
-  it("flavour change on a block WITH children re-inserts the whole surviving subtree fresh", () => {
+  it("block type change on a block WITH children re-inserts the whole surviving subtree fresh", () => {
     const doc = loadFixture();
     const pm = docToPM(doc);
     const edited = pmToDoc(pm, doc, makeIdFactory("fresh"));
-    edited.blocks["li-a"] = { ...edited.blocks["li-a"], flavour: "paragraph" };
+    edited.blocks["li-a"] = { ...edited.blocks["li-a"], type: "paragraph" };
 
     const liAIndex = doc.blocks[doc.root].children.indexOf("li-a");
     const ops = diffToOps(doc, edited, makeIdFactory("fl"));
@@ -323,7 +334,7 @@ describe("diffToOps", () => {
         blockId: "fl-1",
         parentId: doc.root,
         index: liAIndex,
-        flavour: "paragraph",
+        blockType: "paragraph",
         props: {},
         text: [{ insert: "First item" }],
       },
@@ -332,7 +343,7 @@ describe("diffToOps", () => {
         blockId: "fl-2",
         parentId: "fl-1",
         index: 0,
-        flavour: "list-item",
+        blockType: "list-item",
         props: {},
         text: [{ insert: "Nested item under the first" }],
       },
@@ -387,7 +398,7 @@ describe("diffToOps", () => {
         blockId: "esc-1",
         parentId: doc.root,
         index: doc.blocks[doc.root].children.indexOf("li-a"),
-        flavour: "list-item",
+        blockType: "list-item",
         props: {},
         text: [{ insert: "Nested item under the first" }],
       },

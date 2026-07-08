@@ -2,35 +2,31 @@
 
 import { createElement, type ReactNode } from "react";
 import type { DocsMdxBlock, DocsMdxParsedBlock } from "../docs-blocks/base";
-import { AgentContractDocsBlock } from "../docs-blocks/agent-contract/AgentContractDocsBlock";
 import { CalloutDocsBlock } from "../docs-blocks/callout/CalloutDocsBlock";
-import { DecisionDocsBlock } from "../docs-blocks/decision/DecisionDocsBlock";
-import { FileTreeDocsBlock } from "../docs-blocks/file-tree/FileTreeDocsBlock";
+import { AnnotatedCodeBlock, type CodeAnnotation } from "../docs-blocks/code/CodeAnnotations";
 import {
-  AnnotatedCodeDocsBlock,
-  ApiEndpointDocsBlock,
-  ApiSurfaceDocsBlock,
-  DataModelDocsBlock,
-  DiffDocsBlock,
-  ImplementationMapDocsBlock,
-  JsonExplorerDocsBlock,
-} from "../docs-blocks/engineering/EngineeringDocsBlocks";
+  INTERACTION_SURFACE_AGENT_DESCRIPTION,
+  INTERACTION_SURFACE_LABEL,
+  InteractionSurfaceBlock,
+  type InteractionSurfaceOperation,
+} from "../docs-blocks/interaction-surface/InteractionSurfaceDocsBlock";
+import { FileTreeDocsBlock } from "../docs-blocks/file-tree/FileTreeDocsBlock";
 import { MermaidDocsBlock } from "../docs-blocks/mermaid/MermaidDocsBlock";
 import {
-  assumptionDocsBlock,
-  constraintDocsBlock,
-} from "../docs-blocks/semantic/SemanticDocsBlocks";
+  STRUCTURED_TABLE_AGENT_DESCRIPTION,
+  STRUCTURED_TABLE_LABEL,
+  StructuredTableBlock,
+  type StructuredTableDensity,
+} from "../docs-blocks/structured-table/StructuredTableDocsBlock";
 import {
-  ChecklistDocsBlock,
-  ColumnsDocsBlock,
-  StructuredTableDocsBlock,
-  TabsDocsBlock,
-} from "../docs-blocks/support/SupportDocsBlocks";
+  VIDEO_AGENT_DESCRIPTION,
+  VIDEO_LABEL,
+  VideoBlock,
+} from "../docs-blocks/video/VideoDocsBlock";
 import type { DeltaSpan, DocBlock, DocBlockType } from "@codecaine-ai/docs-model/doc-schema";
 import { DOC_BLOCK_TYPES } from "@codecaine-ai/docs-model/doc-schema";
 import { deltaToPlainTextInline, wrapMarkdownMarks } from "@codecaine-ai/docs-model/delta-markdown";
 import {
-  CARD_BODY_TEXT_CLASSES,
   CODE_BLOCK_CLASSES,
   HEADING_CLASSES,
   LIST_ITEM_BULLET_CLASSES,
@@ -39,22 +35,24 @@ import {
   LIST_ITEM_CONTENT_CLASSES,
   PARAGRAPH_CLASSES,
   QUOTE_CLASSES,
-  SEMANTIC_CARD_CLASSES,
 } from "./block-classes";
 
 /**
- * Flavour registry (D28): maps every doc.json flavour to a render/agent
- * descriptor. Where a doc.json flavour aligns with a docs-block component
+ * Block registry (D28): maps every doc.json block type — exactly the 14
+ * canonical types in doc-schema's DOC_BLOCK_TYPES — to a render/agent
+ * descriptor. Where a doc.json block type aligns with a docs-block component
  * implementation the descriptor delegates to that block's render — via
- * `mdxAdapterDescriptor` (decision, callout, agent-contract, file-tree,
- * constraint, assumption: `data` built by hand from props) or
- * `parsedMdxAdapterDescriptor` (the restored engineering/support/mermaid
- * flavours: `data` built by REUSING the component's MDX-era parse() over a
- * delta->markdown body projection). The blocks are imported directly; the
- * MDX-era tag registry and MdxDocumentRenderer are gone. The remaining
- * flavours get minimal tracer descriptors here. DocBlockRenderer supplies
- * the concrete render context (delta spans -> inline React, recursive
- * children, canvas embeds, markdown projection).
+ * `mdxAdapterDescriptor` (callout, file-tree: `data` built by hand from
+ * props), `parsedMdxAdapterDescriptor` (mermaid: `data` built by
+ * REUSING the component's MDX-era parse() over a delta->markdown body
+ * projection), or a plain props-driven descriptor (structured-table,
+ * interaction-surface: the component renders straight from typed props, no
+ * body grammar). The blocks are imported directly; the MDX-era tag registry and
+ * MdxDocumentRenderer are gone. The remaining block types get minimal
+ * tracer descriptors here. DocBlockRenderer supplies the concrete render
+ * context (delta spans -> inline React, recursive children, canvas embeds,
+ * markdown projection). Legacy/retired block types never reach this file:
+ * doc-schema validation coerces them to `callout` (type name -> props.kind).
  */
 
 export type DocBlockRenderContext = {
@@ -73,27 +71,33 @@ export type DocBlockRenderContext = {
     title?: string;
   }) => ReactNode;
   /**
-   * Resolves an `image`/`attachment` block's raw `src` prop (often a
-   * bundle-relative `./assets/images/...` or `./assets/attachments/...`
-   * path) to a fetchable URL — analogous to `renderCanvas` above, this is
-   * purely optional plumbing: the host decides HOW to resolve (e.g. via the
-   * `/docs/asset` GET route + `resolveBundleAssetSrc`), the flavour
-   * descriptors below just call it if present. When omitted, `image`/
-   * `attachment` fall back to using the raw `src` unchanged (non-breaking
-   * for existing callers that don't pass this prop).
+   * Resolves an `image`/`video` block's raw `src` prop (often a
+   * bundle-relative `./assets/images/...` or `./assets/videos/...` path) to
+   * a fetchable URL — analogous to `renderCanvas` above, this is purely
+   * optional plumbing: the host decides HOW to resolve (e.g. via the
+   * `/docs/asset` GET route + `resolveBundleAssetSrc`), the block type
+   * descriptors below just call it if present. When omitted, `image`/`video`
+   * fall back to using the raw `src` unchanged (non-breaking for existing
+   * callers that don't pass this prop).
    */
   resolveAssetSrc?: (src: string) => string;
 };
 
+/** @deprecated Use DocBlockRenderContext. */
+export type DocFlavourRenderContext = DocBlockRenderContext;
+
 export type DocBlockDescriptor = {
-  flavour: DocBlockType;
+  type: DocBlockType;
   targetKind: string;
   label: string;
   agentDescription: string;
-  /** Typed doc ops applicable to this flavour (see doc-ops.ts DocOp union). */
+  /** Typed doc ops applicable to this block type (see doc-ops.ts DocOp union). */
   patchOps: readonly string[];
   render: (block: DocBlock, ctx: DocBlockRenderContext) => ReactNode;
 };
+
+/** @deprecated Use DocBlockDescriptor. */
+export type DocFlavourDescriptor = DocBlockDescriptor;
 
 const STRUCTURAL_OPS = ["insertBlock", "updateBlock", "deleteBlock", "moveBlock"] as const;
 const TEXT_OPS = [...STRUCTURAL_OPS, "splitBlock", "mergeBlocks"] as const;
@@ -101,31 +105,6 @@ const TEXT_OPS = [...STRUCTURAL_OPS, "splitBlock", "mergeBlocks"] as const;
 function stringProp(block: DocBlock, key: string): string | undefined {
   const value = block.props[key];
   return typeof value === "string" && value.trim() ? value.trim() : undefined;
-}
-
-function numberProp(block: DocBlock, key: string): number | undefined {
-  const value = block.props[key];
-  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
-}
-
-/** Human-readable byte size (e.g. `142 KB`) for the attachment card (D35). */
-function formatByteSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  const units = ["KB", "MB", "GB", "TB"];
-  let value = bytes / 1024;
-  let unitIndex = 0;
-  while (value >= 1024 && unitIndex < units.length - 1) {
-    value /= 1024;
-    unitIndex += 1;
-  }
-  const precision = value >= 10 ? 0 : 1;
-  return `${value.toFixed(precision)} ${units[unitIndex]}`;
-}
-
-/** Uppercase extension badge for the attachment card (e.g. "PDF", "ZIP"). */
-function fileExtensionBadge(name: string): string | undefined {
-  const match = /\.([A-Za-z0-9]+)$/.exec(name);
-  return match ? match[1]!.toUpperCase() : undefined;
 }
 
 /**
@@ -157,13 +136,6 @@ export function deltaToPlainText(text: DeltaSpan[] | undefined): string {
   return deltaToPlainTextInline(text);
 }
 
-type SimpleCardOptions = {
-  flavour: DocBlockType;
-  label: string;
-  agentDescription: string;
-  targetKind?: string;
-};
-
 function el(
   tag: string,
   props: Record<string, unknown> | null,
@@ -174,70 +146,43 @@ function el(
 
 function blockAttrs(block: DocBlock): Record<string, unknown> {
   return {
-    "data-doc-block": block.flavour,
+    "data-doc-block": block.type,
     "data-block-id": block.id,
     "data-docs-target": "true",
-    "data-docs-target-type": block.flavour,
+    "data-docs-target-type": block.type,
   };
 }
 
 /**
- * Minimal labeled card for semantic/engineering flavours that have no
- * aligned MDX implementation yet (observation, outcome, requirement,
- * implementation, testing). Mirrors the semantic docs-block chrome.
+ * Muted dashed-border placeholder card shown (inside the standard blockAttrs
+ * wrapper, so targeting attributes keep working) when a block's body/props
+ * don't match the shape its descriptor expects. Shared by the parse-reuse
+ * adapters and the props-driven structured-table/interaction-surface
+ * descriptors.
  */
-function simpleCardDescriptor(options: SimpleCardOptions): DocBlockDescriptor {
-  return {
-    flavour: options.flavour,
-    targetKind: options.targetKind ?? options.flavour,
-    label: options.label,
-    agentDescription: options.agentDescription,
-    patchOps: TEXT_OPS,
-    render: (block, ctx) => {
-      const title = stringProp(block, "title");
-      return el(
-        "section",
-        {
-          key: block.id,
-          ...blockAttrs(block),
-          className: SEMANTIC_CARD_CLASSES,
-        },
-        el(
-          "div",
-          { className: "mb-2 flex flex-wrap items-center gap-2" },
-          el(
-            "span",
-            {
-              className:
-                "font-display text-xs font-medium uppercase tracking-wider text-muted-foreground",
-            },
-            options.label,
-          ),
-          el("span", { className: "font-mono text-[11px] text-muted-foreground" }, block.id),
-        ),
-        title
-          ? el(
-              "h3",
-              { className: "mb-2 font-display text-sm font-semibold text-foreground" },
-              title,
-            )
-          : null,
-        block.text && block.text.length > 0
-          ? el(
-              "div",
-              { className: CARD_BODY_TEXT_CLASSES },
-              ctx.renderText(block.text),
-            )
-          : null,
-        ctx.renderChildren(block),
-      );
-    },
-  };
+function invalidBlockPlaceholder(
+  block: DocBlock,
+  ctx: DocBlockRenderContext,
+  label: string,
+): ReactNode {
+  return el(
+    "div",
+    { key: block.id, ...blockAttrs(block) },
+    el(
+      "div",
+      {
+        className:
+          "rounded-md border border-dashed bg-muted/30 p-3 text-xs text-muted-foreground",
+      },
+      `Invalid ${label} block — see agent description for the expected shape.`,
+    ),
+    ctx.renderChildren(block),
+  );
 }
 
 type MdxAdapterOptions = {
-  flavour: DocBlockType;
-  /** The docs-block component implementation the flavour delegates to. */
+  type: DocBlockType;
+  /** The docs-block component implementation the block type delegates to. */
   block: DocsMdxBlock<any>;
   /** Builds the block component's parsed `data` from the doc block + markdown body. */
   data: (block: DocBlock, body: string) => Record<string, unknown>;
@@ -245,14 +190,14 @@ type MdxAdapterOptions = {
 
 /**
  * Adapts a docs-block component implementation (D28 — "the existing
- * docs-blocks registry becomes the flavour registry"): constructs the parsed
+ * docs-blocks registry becomes the block registry"): constructs the parsed
  * block the component expects from doc.json props + a delta->markdown body
  * projection, and reuses its render + agentDescription verbatim.
  */
 function mdxAdapterDescriptor(options: MdxAdapterOptions): DocBlockDescriptor {
   const mdxBlock = options.block;
   return {
-    flavour: options.flavour,
+    type: options.type,
     targetKind: mdxBlock.targetKind,
     label: mdxBlock.label,
     agentDescription: mdxBlock.agentDescription,
@@ -281,8 +226,8 @@ function mdxAdapterDescriptor(options: MdxAdapterOptions): DocBlockDescriptor {
 
 /**
  * A docs-block component implementation that still carries its MDX-era
- * `parse()` (the restored engineering/support/mermaid blocks). The adapter
- * below reuses that parser instead of hand-building `data`.
+ * `parse()` (mermaid). The adapter below reuses that parser
+ * instead of hand-building `data`.
  */
 type ParseableDocsMdxBlock = DocsMdxBlock<any> & {
   parse(input: {
@@ -294,8 +239,8 @@ type ParseableDocsMdxBlock = DocsMdxBlock<any> & {
 };
 
 type ParsedMdxAdapterOptions = {
-  flavour: DocBlockType;
-  /** The docs-block component implementation the flavour delegates to. */
+  type: DocBlockType;
+  /** The docs-block component implementation the block type delegates to. */
   block: ParseableDocsMdxBlock;
   /**
    * One-sentence body-format hint (the doc.json body grammar) appended to the
@@ -307,20 +252,20 @@ type ParsedMdxAdapterOptions = {
 };
 
 /**
- * Adapts a restored docs-block component by REUSING its MDX-era parser
- * (parse-reuse adapter): the doc.json convention for these flavours is that
- * the old MDX attrs live in `props` (scalars, stringified) and the old MDX
- * body lives in the block's `text` delta spans (projected to markdown via
+ * Adapts a docs-block component by REUSING its MDX-era parser (parse-reuse
+ * adapter): the doc.json convention for this block type is that the old
+ * MDX attrs live in `props` (scalars, stringified) and the old MDX body
+ * lives in the block's `text` delta spans (projected to markdown via
  * `deltaToMarkdown`, exactly like `mdxAdapterDescriptor`). `attrs.id` is
- * always the block's own id — every restored parser requires it. On a null
- * parse (body doesn't match the grammar) the flavour renders a muted
+ * always the block's own id — every parser requires it. On a null parse
+ * (body doesn't match the grammar) the block type renders the muted
  * dashed-border placeholder card instead of throwing, still wrapped with
  * `blockAttrs` so targeting attributes exist.
  */
 function parsedMdxAdapterDescriptor(options: ParsedMdxAdapterOptions): DocBlockDescriptor {
   const mdxBlock = options.block;
   return {
-    flavour: options.flavour,
+    type: options.type,
     targetKind: mdxBlock.targetKind,
     label: mdxBlock.label,
     agentDescription: `${mdxBlock.agentDescription} ${options.bodyHint}`,
@@ -340,19 +285,7 @@ function parsedMdxAdapterDescriptor(options: ParsedMdxAdapterOptions): DocBlockD
       attrs.id = block.id;
       const parsed = mdxBlock.parse({ tag: mdxBlock.tag, attrs, body, source: body });
       if (!parsed) {
-        return el(
-          "div",
-          { key: block.id, ...blockAttrs(block) },
-          el(
-            "div",
-            {
-              className:
-                "rounded-md border border-dashed bg-muted/30 p-3 text-xs text-muted-foreground",
-            },
-            `Invalid ${mdxBlock.label} block — see agent description for the expected body format.`,
-          ),
-          ctx.renderChildren(block),
-        );
+        return invalidBlockPlaceholder(block, ctx, mdxBlock.label);
       }
       const rendered = mdxBlock.render(parsed, { renderMarkdown: ctx.renderMarkdown });
       return el(
@@ -365,22 +298,155 @@ function parsedMdxAdapterDescriptor(options: ParsedMdxAdapterOptions): DocBlockD
   };
 }
 
+const FILE_TREE_CHANGES = ["added", "removed", "modified", "renamed"] as const;
+
+/**
+ * `file-tree` props guard: entries need a string `path`; the optional v2
+ * fields (`note`, `change`, `from`) pass through only when well-typed —
+ * malformed entries are dropped and malformed optional fields stripped
+ * rather than failing the block.
+ */
 function fileTreeEntries(block: DocBlock): Array<Record<string, unknown>> {
   const raw = block.props.entries;
   if (!Array.isArray(raw)) return [];
-  return raw.filter(
-    (entry): entry is Record<string, unknown> =>
-      !!entry && typeof entry === "object" && typeof (entry as { path?: unknown }).path === "string",
-  );
+  return raw
+    .filter(
+      (entry): entry is Record<string, unknown> =>
+        !!entry && typeof entry === "object" && typeof (entry as { path?: unknown }).path === "string",
+    )
+    .map((entry) => ({
+      path: entry.path,
+      ...(typeof entry.note === "string" && entry.note.trim() ? { note: entry.note } : {}),
+      ...(FILE_TREE_CHANGES.includes(entry.change as (typeof FILE_TREE_CHANGES)[number])
+        ? { change: entry.change }
+        : {}),
+      ...(typeof entry.from === "string" && entry.from.trim() ? { from: entry.from } : {}),
+    }));
+}
+
+function isPlainRecord(value: unknown): value is Record<string, unknown> {
+  return !!value && typeof value === "object" && !Array.isArray(value);
+}
+
+/**
+ * `code` annotation props guard: `props.annotations` entries need a string
+ * `lines` ("4", "4-9", "1,4-6") and a string `note`; `label` is optional.
+ * Malformed entries are skipped rather than failing the block; returns null
+ * when nothing valid remains, which keeps the plain `<pre>` path in charge.
+ */
+function codeAnnotations(block: DocBlock): CodeAnnotation[] | null {
+  const raw = block.props.annotations;
+  if (!Array.isArray(raw) || raw.length === 0) return null;
+  const annotations: CodeAnnotation[] = [];
+  for (const entry of raw) {
+    if (!isPlainRecord(entry)) continue;
+    const { lines, label, note } = entry;
+    if (typeof lines !== "string" || !lines.trim()) continue;
+    if (typeof note !== "string" || !note.trim()) continue;
+    annotations.push({ lines, note, ...(typeof label === "string" && label ? { label } : {}) });
+  }
+  return annotations.length > 0 ? annotations : null;
+}
+
+type StructuredTableData = {
+  title?: string;
+  density?: StructuredTableDensity;
+  columns: string[];
+  rows: string[][];
+};
+
+/**
+ * `structured-table` props guard: `columns` must be a non-empty all-string
+ * array and `rows` an array of all-string arrays (the component pads ragged
+ * rows itself). Null -> the invalid-block placeholder.
+ */
+function structuredTableData(block: DocBlock): StructuredTableData | null {
+  const { columns, rows } = block.props;
+  if (!Array.isArray(columns) || columns.length === 0) return null;
+  if (!columns.every((column): column is string => typeof column === "string")) return null;
+  if (!Array.isArray(rows)) return null;
+  if (
+    !rows.every(
+      (row): row is string[] =>
+        Array.isArray(row) && row.every((cell) => typeof cell === "string"),
+    )
+  ) {
+    return null;
+  }
+  const density = stringProp(block, "density");
+  return {
+    title: stringProp(block, "title"),
+    density:
+      density === "compact" || density === "normal" || density === "relaxed"
+        ? density
+        : undefined,
+    columns,
+    rows,
+  };
+}
+
+const INTERACTION_SURFACE_KINDS = ["action", "query", "event"] as const;
+
+/**
+ * `interaction-surface` props guard: `operations` must be a non-empty array
+ * of `{ name: string, description?, params?: [{ name, type?, required?,
+ * description? }], returns?, kind?: "action" | "query" | "event" }`.
+ * Any malformed operation/param invalidates the block (null -> the
+ * invalid-block placeholder) — a silently half-rendered surface is worse for
+ * review than a visible "fix your props" card.
+ */
+function interactionSurfaceOperations(block: DocBlock): InteractionSurfaceOperation[] | null {
+  const raw = block.props.operations;
+  if (!Array.isArray(raw) || raw.length === 0) return null;
+  const operations: InteractionSurfaceOperation[] = [];
+  for (const entry of raw) {
+    if (!isPlainRecord(entry)) return null;
+    const { name, description, params, returns, kind } = entry;
+    if (typeof name !== "string" || !name.trim()) return null;
+    if (description !== undefined && typeof description !== "string") return null;
+    if (returns !== undefined && typeof returns !== "string") return null;
+    if (
+      kind !== undefined &&
+      !INTERACTION_SURFACE_KINDS.includes(kind as (typeof INTERACTION_SURFACE_KINDS)[number])
+    ) {
+      return null;
+    }
+    let operationParams: InteractionSurfaceOperation["params"];
+    if (params !== undefined) {
+      if (!Array.isArray(params)) return null;
+      operationParams = [];
+      for (const param of params) {
+        if (!isPlainRecord(param)) return null;
+        if (typeof param.name !== "string" || !param.name.trim()) return null;
+        if (param.type !== undefined && typeof param.type !== "string") return null;
+        if (param.required !== undefined && typeof param.required !== "boolean") return null;
+        if (param.description !== undefined && typeof param.description !== "string") return null;
+        operationParams.push({
+          name: param.name,
+          ...(param.type !== undefined ? { type: param.type } : {}),
+          ...(param.required !== undefined ? { required: param.required } : {}),
+          ...(param.description !== undefined ? { description: param.description } : {}),
+        });
+      }
+    }
+    operations.push({
+      name,
+      ...(description !== undefined ? { description } : {}),
+      ...(operationParams !== undefined ? { params: operationParams } : {}),
+      ...(returns !== undefined ? { returns } : {}),
+      ...(kind !== undefined ? { kind: kind as InteractionSurfaceOperation["kind"] } : {}),
+    });
+  }
+  return operations;
 }
 
 function buildRegistry(): Map<DocBlockType, DocBlockDescriptor> {
   const registry = new Map<DocBlockType, DocBlockDescriptor>();
-  const add = (descriptor: DocBlockDescriptor) => registry.set(descriptor.flavour, descriptor);
+  const add = (descriptor: DocBlockDescriptor) => registry.set(descriptor.type, descriptor);
 
-  // ---- core flavours (minimal tracer descriptors) -------------------------
+  // ---- core block types (minimal tracer descriptors) -------------------------
   add({
-    flavour: "paragraph",
+    type: "paragraph",
     targetKind: "paragraph",
     label: "Paragraph",
     agentDescription: "A paragraph of rich text (delta spans).",
@@ -395,7 +461,7 @@ function buildRegistry(): Map<DocBlockType, DocBlockDescriptor> {
   });
 
   add({
-    flavour: "heading",
+    type: "heading",
     targetKind: "heading",
     label: "Heading",
     agentDescription: "A section heading; props.level selects h1-h6.",
@@ -420,7 +486,7 @@ function buildRegistry(): Map<DocBlockType, DocBlockDescriptor> {
   });
 
   add({
-    flavour: "list-item",
+    type: "list-item",
     targetKind: "list-item",
     label: "List Item",
     agentDescription: "A list item; nesting via child list-item blocks (D25 normalized tree).",
@@ -445,13 +511,28 @@ function buildRegistry(): Map<DocBlockType, DocBlockDescriptor> {
   });
 
   add({
-    flavour: "code",
+    type: "code",
     targetKind: "code",
     label: "Code",
-    agentDescription: "A code block; props.language for syntax hint, text is the source.",
+    agentDescription:
+      "A code block; props.language for syntax hint, text is the source. Optional props.annotations — [{ lines, label?, note }] with 1-indexed lines like \"4\", \"4-9\", or \"1,4-6\" — render as click-pairable side notes next to the code.",
     patchOps: TEXT_OPS,
-    render: (block, ctx) =>
-      el(
+    render: (block, ctx) => {
+      const annotations = codeAnnotations(block);
+      if (annotations) {
+        return el(
+          "div",
+          { key: block.id, ...blockAttrs(block) },
+          createElement(AnnotatedCodeBlock, {
+            id: block.id,
+            language: stringProp(block, "language"),
+            code: deltaToPlainText(block.text),
+            annotations,
+          }),
+          ctx.renderChildren(block),
+        );
+      }
+      return el(
         "div",
         { key: block.id, ...blockAttrs(block) },
         el(
@@ -463,11 +544,12 @@ function buildRegistry(): Map<DocBlockType, DocBlockDescriptor> {
           el("code", null, deltaToPlainText(block.text)),
         ),
         ctx.renderChildren(block),
-      ),
+      );
+    },
   });
 
   add({
-    flavour: "quote",
+    type: "quote",
     targetKind: "quote",
     label: "Quote",
     agentDescription: "A block quote of rich text.",
@@ -488,7 +570,7 @@ function buildRegistry(): Map<DocBlockType, DocBlockDescriptor> {
   });
 
   add({
-    flavour: "divider",
+    type: "divider",
     targetKind: "divider",
     label: "Divider",
     agentDescription: "A horizontal rule separating sections.",
@@ -497,7 +579,7 @@ function buildRegistry(): Map<DocBlockType, DocBlockDescriptor> {
   });
 
   add({
-    flavour: "image",
+    type: "image",
     targetKind: "image",
     label: "Image",
     agentDescription:
@@ -537,53 +619,33 @@ function buildRegistry(): Map<DocBlockType, DocBlockDescriptor> {
   });
 
   add({
-    flavour: "attachment",
-    targetKind: "attachment",
-    label: "Attachment",
-    agentDescription:
-      "A file attachment card (D30/D35 — PDFs get NO inline viewer in v1, just a download card); props: src, name, size (bytes).",
+    type: "video",
+    targetKind: "video",
+    label: VIDEO_LABEL,
+    agentDescription: VIDEO_AGENT_DESCRIPTION,
     patchOps: STRUCTURAL_OPS,
     render: (block, ctx) => {
       const src = stringProp(block, "src");
-      const name = stringProp(block, "name") ?? src ?? "attachment";
-      const size = numberProp(block, "size");
-      const extBadge = fileExtensionBadge(name) ?? "FILE";
-      const href = src ? (ctx.resolveAssetSrc?.(src) ?? src) : undefined;
       return el(
         "div",
         { key: block.id, ...blockAttrs(block) },
-        el(
-          "a",
-          {
-            className:
-              "not-prose my-4 flex items-center gap-2 rounded-md border bg-muted/20 p-3 text-sm text-foreground",
-            href,
-            download: true,
-          },
-          el(
-            "span",
-            {
-              className:
-                "font-mono text-xs font-medium uppercase tracking-wider text-muted-foreground",
-            },
-            extBadge,
-          ),
-          el("span", { className: "min-w-0 flex-1 break-all" }, name),
-          size !== undefined
-            ? el(
-                "span",
-                { className: "shrink-0 text-xs text-muted-foreground" },
-                formatByteSize(size),
-              )
-            : null,
-        ),
+        createElement(VideoBlock, {
+          id: block.id,
+          src,
+          // Same optional plumbing as the image descriptor above: the host
+          // decides HOW a bundle-relative src resolves; raw src otherwise.
+          resolvedSrc: src ? (ctx.resolveAssetSrc?.(src) ?? src) : undefined,
+          url: stringProp(block, "url"),
+          title: stringProp(block, "title"),
+          caption: stringProp(block, "caption"),
+        }),
         ctx.renderChildren(block),
       );
     },
   });
 
   add({
-    flavour: "canvas",
+    type: "canvas",
     targetKind: "canvas",
     label: "Canvas",
     agentDescription:
@@ -623,27 +685,15 @@ function buildRegistry(): Map<DocBlockType, DocBlockDescriptor> {
     },
   });
 
-  // ---- flavours adapted from existing docs-blocks (D28) -------------------
+  // ---- block types adapted from existing docs-blocks (D28) -------------------
   add(
     mdxAdapterDescriptor({
-      flavour: "decision",
-      block: new DecisionDocsBlock(),
-      data: (block, body) => ({
-        id: block.id,
-        status: stringProp(block, "status") ?? "proposed",
-        title: stringProp(block, "title"),
-        body,
-      }),
-    }),
-  );
-
-  add(
-    mdxAdapterDescriptor({
-      flavour: "callout",
+      type: "callout",
       block: new CalloutDocsBlock(),
       data: (block, body) => ({
         id: block.id,
         tone: stringProp(block, "tone") ?? "info",
+        kind: stringProp(block, "kind"),
         title: stringProp(block, "title"),
         body,
       }),
@@ -652,22 +702,7 @@ function buildRegistry(): Map<DocBlockType, DocBlockDescriptor> {
 
   add(
     mdxAdapterDescriptor({
-      flavour: "agent-contract",
-      block: new AgentContractDocsBlock(),
-      data: (block, body) => ({
-        id: block.id,
-        agent: stringProp(block, "agent"),
-        title: stringProp(block, "title"),
-        tools: stringProp(block, "tools"),
-        approvals: stringProp(block, "approvals"),
-        body,
-      }),
-    }),
-  );
-
-  add(
-    mdxAdapterDescriptor({
-      flavour: "file-tree",
+      type: "file-tree",
       block: new FileTreeDocsBlock(),
       data: (block) => ({
         id: block.id,
@@ -677,170 +712,51 @@ function buildRegistry(): Map<DocBlockType, DocBlockDescriptor> {
     }),
   );
 
-  add(
-    mdxAdapterDescriptor({
-      flavour: "constraint",
-      block: constraintDocsBlock,
-      data: (block, body) => {
-        const owner = stringProp(block, "owner");
-        return {
+  // ---- structured block types rendered straight from typed props -------------
+  add({
+    type: "structured-table",
+    targetKind: "structured-table",
+    label: STRUCTURED_TABLE_LABEL,
+    agentDescription: STRUCTURED_TABLE_AGENT_DESCRIPTION,
+    patchOps: STRUCTURAL_OPS,
+    render: (block, ctx) => {
+      const data = structuredTableData(block);
+      if (!data) return invalidBlockPlaceholder(block, ctx, STRUCTURED_TABLE_LABEL);
+      return el(
+        "div",
+        { key: block.id, ...blockAttrs(block) },
+        createElement(StructuredTableBlock, { id: block.id, ...data }),
+        ctx.renderChildren(block),
+      );
+    },
+  });
+
+  add({
+    type: "interaction-surface",
+    targetKind: "interaction-surface",
+    label: INTERACTION_SURFACE_LABEL,
+    agentDescription: INTERACTION_SURFACE_AGENT_DESCRIPTION,
+    patchOps: STRUCTURAL_OPS,
+    render: (block, ctx) => {
+      const operations = interactionSurfaceOperations(block);
+      if (!operations) return invalidBlockPlaceholder(block, ctx, INTERACTION_SURFACE_LABEL);
+      return el(
+        "div",
+        { key: block.id, ...blockAttrs(block) },
+        createElement(InteractionSurfaceBlock, {
           id: block.id,
           title: stringProp(block, "title"),
-          body,
-          primary: { label: "Severity", value: stringProp(block, "severity") ?? "hard" },
-          meta: owner ? [{ label: "Owner", value: owner }] : [],
-        };
-      },
-    }),
-  );
+          operations,
+        }),
+        ctx.renderChildren(block),
+      );
+    },
+  });
 
-  add(
-    mdxAdapterDescriptor({
-      flavour: "assumption",
-      block: assumptionDocsBlock,
-      data: (block, body) => {
-        const owner = stringProp(block, "owner");
-        return {
-          id: block.id,
-          title: stringProp(block, "title"),
-          body,
-          primary: { label: "Confidence", value: stringProp(block, "confidence") ?? "medium" },
-          meta: owner ? [{ label: "Owner", value: owner }] : [],
-        };
-      },
-    }),
-  );
-
-  // ---- semantic/engineering flavours without an aligned MDX block ---------
-  add(
-    simpleCardDescriptor({
-      flavour: "observation",
-      label: "Observation",
-      agentDescription: "A recorded observation about system or user behavior.",
-    }),
-  );
-  add(
-    simpleCardDescriptor({
-      flavour: "outcome",
-      label: "Outcome",
-      agentDescription: "An outcome or result worth preserving as review context.",
-    }),
-  );
-  add(
-    simpleCardDescriptor({
-      flavour: "requirement",
-      label: "Requirement",
-      agentDescription: "A product or engineering requirement with an explicit id.",
-    }),
-  );
-  add(
-    simpleCardDescriptor({
-      flavour: "implementation",
-      label: "Implementation",
-      agentDescription: "Implementation notes tied to source paths and symbols.",
-    }),
-  );
-  add(
-    simpleCardDescriptor({
-      flavour: "testing",
-      label: "Testing",
-      agentDescription: "Testing notes: coverage, harnesses, and verification steps.",
-    }),
-  );
-
-  // ---- restored flavours — parse-reuse adapters over the restored
-  // ---- engineering/support/mermaid docs-block components -------------------
+  // ---- parse-reuse adapters (body grammar lives in `text` delta spans) -------
   add(
     parsedMdxAdapterDescriptor({
-      flavour: "annotated-code",
-      block: new AnnotatedCodeDocsBlock(),
-      bodyHint:
-        "Body is the code itself, or `--- code ---` / `--- annotations ---` sections whose annotation bullets are `- 4-9|Label -- note` (line range, optional label, note); props: filename, language.",
-    }),
-  );
-  add(
-    parsedMdxAdapterDescriptor({
-      flavour: "api-endpoint",
-      block: new ApiEndpointDocsBlock(),
-      bodyHint:
-        "Props method (HTTP verb) and path are REQUIRED (optional: summary, auth, deprecated, change); body is freeform markdown plus `- param <in> <name> [type] [required|optional] :: desc` and `- response <status> :: desc` bullets, and may be empty.",
-    }),
-  );
-  add(
-    parsedMdxAdapterDescriptor({
-      flavour: "api-surface",
-      block: new ApiSurfaceDocsBlock(),
-      bodyHint:
-        "Body is one `- METHOD /path -- summary` bullet per endpoint (at least one); optional prop: title.",
-    }),
-  );
-  add(
-    parsedMdxAdapterDescriptor({
-      flavour: "data-model",
-      block: new DataModelDocsBlock(),
-      bodyHint:
-        "Body is `--- EntityName ---` sections of `- field: type [pk] [nullable] [fk=Other.field] -- note` bullets (at least one entity with one field); optional prop: title.",
-    }),
-  );
-  add(
-    parsedMdxAdapterDescriptor({
-      flavour: "diff",
-      block: new DiffDocsBlock(),
-      bodyHint:
-        "Body requires BOTH a `--- before ---` and an `--- after ---` section; props: filename, language, mode (split|unified).",
-    }),
-  );
-  add(
-    parsedMdxAdapterDescriptor({
-      flavour: "implementation-map",
-      block: new ImplementationMapDocsBlock(),
-      bodyHint:
-        "Body is `- [added|modified|removed|renamed] `path` (lang) -- note` bullets (at least one; change prefix and lang optional, note required); optional prop: title.",
-    }),
-  );
-  add(
-    parsedMdxAdapterDescriptor({
-      flavour: "json-explorer",
-      block: new JsonExplorerDocsBlock(),
-      bodyHint:
-        "Body is the non-empty JSON text itself (invalid JSON still renders, with an error banner); props: title, collapsedDepth.",
-    }),
-  );
-  add(
-    parsedMdxAdapterDescriptor({
-      flavour: "checklist",
-      block: new ChecklistDocsBlock(),
-      bodyHint:
-        "Body is markdown task-list rows `- [x] label -- note` (at least one; note optional); optional prop: title.",
-    }),
-  );
-  add(
-    parsedMdxAdapterDescriptor({
-      flavour: "columns",
-      block: new ColumnsDocsBlock(),
-      bodyHint:
-        "Body splits into columns on `--- Label ---` delimiters or ##/### headings (at least one section); props: title, columns (2-3).",
-    }),
-  );
-  add(
-    parsedMdxAdapterDescriptor({
-      flavour: "structured-table",
-      block: new StructuredTableDocsBlock(),
-      bodyHint:
-        "Body is a markdown pipe table: header row, `| --- |` separator row, and at least one data row; props: title, density (compact|normal|relaxed).",
-    }),
-  );
-  add(
-    parsedMdxAdapterDescriptor({
-      flavour: "tabs",
-      block: new TabsDocsBlock(),
-      bodyHint:
-        "Body splits into tabs on `--- Label ---` delimiters or ##/### headings (at least one section); props: title, orientation (horizontal|vertical).",
-    }),
-  );
-  add(
-    parsedMdxAdapterDescriptor({
-      flavour: "mermaid",
+      type: "mermaid",
       block: new MermaidDocsBlock(),
       bodyHint:
         "Body is the non-blank Mermaid diagram source (e.g. starting `flowchart LR`); props: title, caption, diagramType (defaults to the source's first word).",
@@ -852,21 +768,24 @@ function buildRegistry(): Map<DocBlockType, DocBlockDescriptor> {
 
 const BLOCK_REGISTRY = buildRegistry();
 
-export function getDocBlockDescriptor(flavour: string): DocBlockDescriptor | null {
-  return BLOCK_REGISTRY.get(flavour as DocBlockType) ?? null;
+export function getDocBlockDescriptor(type: string): DocBlockDescriptor | null {
+  return BLOCK_REGISTRY.get(type as DocBlockType) ?? null;
 }
 
+/** @deprecated Use getDocBlockDescriptor. */
+export const getDocFlavourDescriptor = getDocBlockDescriptor;
+
 export function describeDocBlocksForAgent(): Array<{
-  flavour: DocBlockType;
+  type: DocBlockType;
   targetKind: string;
   label: string;
   description: string;
   patchOps: readonly string[];
 }> {
-  return DOC_BLOCK_TYPES.map((flavour) => {
-    const descriptor = BLOCK_REGISTRY.get(flavour) as DocBlockDescriptor;
+  return DOC_BLOCK_TYPES.map((type) => {
+    const descriptor = BLOCK_REGISTRY.get(type) as DocBlockDescriptor;
     return {
-      flavour,
+      type,
       targetKind: descriptor.targetKind,
       label: descriptor.label,
       description: descriptor.agentDescription,
@@ -874,3 +793,6 @@ export function describeDocBlocksForAgent(): Array<{
     };
   });
 }
+
+/** @deprecated Use describeDocBlocksForAgent. */
+export const describeDocFlavoursForAgent = describeDocBlocksForAgent;

@@ -10,7 +10,7 @@ import { validateSpectreRef } from "../spectre-ref";
 function block(id: string, overrides: Partial<DocBlock> = {}): DocBlock {
   return {
     id,
-    flavour: "paragraph",
+    type: "paragraph",
     props: {},
     children: [],
     ...overrides,
@@ -26,7 +26,7 @@ function validDoc(): DocDocument {
     blocks: {
       root: block("root", { children: ["h1", "p1", "list"] }),
       h1: block("h1", {
-        flavour: "heading",
+        type: "heading",
         props: { level: 1 },
         text: [{ insert: "Overview" }],
       }),
@@ -43,8 +43,8 @@ function validDoc(): DocDocument {
           },
         ],
       }),
-      list: block("list", { flavour: "list-item", text: [{ insert: "Item" }], children: ["nested"] }),
-      nested: block("nested", { flavour: "list-item", text: [{ insert: "Nested item" }] }),
+      list: block("list", { type: "list-item", text: [{ insert: "Item" }], children: ["nested"] }),
+      nested: block("nested", { type: "list-item", text: [{ insert: "Nested item" }] }),
     },
   };
 }
@@ -66,13 +66,48 @@ describe("validateDocDocument", () => {
     expect(result.issues[0]?.path).toBe("$");
   });
 
-  it("rejects an unknown flavour", () => {
+  it("rejects a non-string block type", () => {
     const doc = validDoc();
-    (doc.blocks.p1 as unknown as { flavour: string }).flavour = "wormhole";
+    (doc.blocks.p1 as unknown as { type: unknown }).type = 42;
     const result = validateDocDocument(doc);
     expect(result.ok).toBe(false);
     if (result.ok) return;
-    expect(result.issues.some((issue) => issue.path === "$.blocks.p1.flavour")).toBe(true);
+    expect(result.issues.some((issue) => issue.path === "$.blocks.p1.type")).toBe(true);
+  });
+
+  it("rejects a missing block type", () => {
+    const doc = validDoc();
+    delete (doc.blocks.p1 as unknown as { type?: unknown }).type;
+    const result = validateDocDocument(doc);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.issues.some((issue) => issue.path === "$.blocks.p1.type")).toBe(true);
+  });
+
+  it("accepts the legacy \"flavour\" key on read and normalizes it into \"type\"", () => {
+    const doc = validDoc() as unknown as { blocks: Record<string, Record<string, unknown>> };
+    for (const block of Object.values(doc.blocks)) {
+      block.flavour = block.type;
+      delete block.type;
+    }
+    const result = validateDocDocument(doc);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.document.blocks.p1.type).toBe("paragraph");
+    // The serialized form always carries canonical "type", never "flavour".
+    const serialized = serializeDocDocument(result.document);
+    expect(serialized).toContain('"type"');
+    expect(serialized).not.toContain('"flavour"');
+  });
+
+  it("rejects a block whose \"type\" and legacy \"flavour\" disagree", () => {
+    const doc = validDoc() as unknown as { blocks: Record<string, Record<string, unknown>> };
+    doc.blocks.p1.flavour = "quote";
+    const result = validateDocDocument(doc);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    const issue = result.issues.find((candidate) => candidate.path === "$.blocks.p1.type");
+    expect(issue?.message).toContain("conflicts");
   });
 
   it("rejects a missing root id", () => {
@@ -169,7 +204,7 @@ describe("validateDocDocument", () => {
     const doc = validDoc();
     doc.blocks.root.children.push("canvas-1");
     doc.blocks["canvas-1"] = block("canvas-1", {
-      flavour: "canvas",
+      type: "canvas",
       props: { canvasId: "canvas-main" },
     });
     const result = validateDocDocument(doc);
@@ -180,11 +215,169 @@ describe("validateDocDocument", () => {
     const doc = validDoc();
     doc.blocks.root.children.push("canvas-1");
     doc.blocks["canvas-1"] = block("canvas-1", {
-      flavour: "canvas",
+      type: "canvas",
       props: { title: "Docs Lab Canvas" },
     });
     const result = validateDocDocument(doc);
     expect(result.ok).toBe(true);
+  });
+});
+
+describe("validateDocDocument — legacy type coercion", () => {
+  function docWithBlock(raw: Record<string, unknown>): Record<string, unknown> {
+    return {
+      schemaVersion: 1,
+      id: "doc-coerce",
+      root: "root",
+      blocks: {
+        root: { id: "root", type: "paragraph", props: {}, children: ["legacy"] },
+        legacy: raw,
+      },
+    };
+  }
+
+  it("coerces a retired semantic type to a callout carrying the type as kind", () => {
+    const result = validateDocDocument(
+      docWithBlock({
+        id: "legacy",
+        type: "requirement",
+        props: { title: "Id stability" },
+        text: [{ insert: "Update keeps ids; split and merge mint fresh ones." }],
+        children: [],
+      }),
+    );
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    const block = result.document.blocks.legacy;
+    expect(block.type).toBe("callout");
+    expect(block.props.kind).toBe("requirement");
+    // Original props, text, and children survive verbatim.
+    expect(block.props.title).toBe("Id stability");
+    expect(block.text).toEqual([{ insert: "Update keeps ids; split and merge mint fresh ones." }]);
+    expect(block.children).toEqual([]);
+  });
+
+  it("coerces never-in-schema legacy types (e.g. \"overview\") the same way", () => {
+    const result = validateDocDocument(
+      docWithBlock({
+        id: "legacy",
+        type: "overview",
+        props: { title: "Big picture" },
+        text: [{ insert: "Legacy overview body." }],
+        children: [],
+      }),
+    );
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.document.blocks.legacy.type).toBe("callout");
+    expect(result.document.blocks.legacy.props.kind).toBe("overview");
+  });
+
+  it('coerces the retired "data-model" type to a callout carrying kind "data-model"', () => {
+    const result = validateDocDocument(
+      docWithBlock({
+        id: "legacy",
+        type: "data-model",
+        props: { title: "Old model", entities: [{ name: "Doc", fields: [] }] },
+        children: [],
+      }),
+    );
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    const block = result.document.blocks.legacy;
+    expect(block.type).toBe("callout");
+    expect(block.props.kind).toBe("data-model");
+    // Original props survive verbatim alongside the coercion.
+    expect(block.props.title).toBe("Old model");
+    expect(block.props.entities).toEqual([{ name: "Doc", fields: [] }]);
+  });
+
+  it('coerces the retired "api-surface" type to a callout carrying kind "api-surface"', () => {
+    const result = validateDocDocument(
+      docWithBlock({
+        id: "legacy",
+        type: "api-surface",
+        props: { title: "Old routes" },
+        text: [{ insert: "- GET /docs/sample -- Fetch the sample doc" }],
+        children: [],
+      }),
+    );
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    const block = result.document.blocks.legacy;
+    expect(block.type).toBe("callout");
+    expect(block.props.kind).toBe("api-surface");
+    expect(block.text).toEqual([{ insert: "- GET /docs/sample -- Fetch the sample doc" }]);
+  });
+
+  it("keeps an existing non-empty props.kind instead of overwriting it", () => {
+    const result = validateDocDocument(
+      docWithBlock({
+        id: "legacy",
+        type: "decision",
+        props: { kind: "ADR", title: "Normalized tree" },
+        children: [],
+      }),
+    );
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.document.blocks.legacy.props.kind).toBe("ADR");
+    expect(result.document.blocks.legacy.type).toBe("callout");
+  });
+
+  it("coerces when the legacy flavour key names a retired type", () => {
+    const result = validateDocDocument(
+      docWithBlock({
+        id: "legacy",
+        flavour: "testing",
+        props: {},
+        text: [{ insert: "Contract tests lock invariants." }],
+        children: [],
+      }),
+    );
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.document.blocks.legacy.type).toBe("callout");
+    expect(result.document.blocks.legacy.props.kind).toBe("testing");
+  });
+
+  it("coerces when type and flavour agree on a retired type", () => {
+    const result = validateDocDocument(
+      docWithBlock({
+        id: "legacy",
+        type: "constraint",
+        flavour: "constraint",
+        props: {},
+        children: [],
+      }),
+    );
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.document.blocks.legacy.type).toBe("callout");
+    expect(result.document.blocks.legacy.props.kind).toBe("constraint");
+  });
+
+  it("serialization emits the coerced canonical form", () => {
+    const result = validateDocDocument(
+      docWithBlock({
+        id: "legacy",
+        type: "requirement",
+        props: { title: "Id stability" },
+        children: [],
+      }),
+    );
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    const serialized = serializeDocDocument(result.document);
+    const parsed = JSON.parse(serialized) as {
+      blocks: Record<string, { type: string; props: Record<string, unknown> }>;
+    };
+    expect(parsed.blocks.legacy.type).toBe("callout");
+    expect(parsed.blocks.legacy.props.kind).toBe("requirement");
+    expect(serialized).not.toContain('"flavour"');
+    // Re-validating the serialized form is a no-op (already canonical).
+    const revalidated = validateDocDocument(JSON.parse(serialized));
+    expect(revalidated.ok).toBe(true);
   });
 });
 
@@ -230,7 +423,7 @@ describe("serializeDocDocument", () => {
     expect(Object.keys(parsed.blocks)).toEqual(["root", "h1", "p1", "list", "nested"]);
     expect(Object.keys(parsed.blocks.h1 as Record<string, unknown>)).toEqual([
       "id",
-      "flavour",
+      "type",
       "props",
       "text",
       "children",

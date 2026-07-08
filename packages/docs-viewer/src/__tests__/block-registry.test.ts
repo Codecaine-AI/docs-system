@@ -12,7 +12,7 @@ import {
   getDocBlockDescriptor,
 } from "../render/block-registry";
 
-/** Minimal render context — enough to drive `image`/`attachment` descriptors. */
+/** Minimal render context — enough to drive descriptors directly. */
 function makeCtx(overrides: Partial<DocBlockRenderContext> = {}): DocBlockRenderContext {
   return {
     renderText: () => null,
@@ -22,17 +22,30 @@ function makeCtx(overrides: Partial<DocBlockRenderContext> = {}): DocBlockRender
   };
 }
 
-function block(flavour: DocBlock["flavour"], props: Record<string, unknown> = {}): DocBlock {
-  return { id: `${flavour}-1`, flavour, props, children: [] };
+function block(blockType: DocBlock["type"], props: Record<string, unknown> = {}): DocBlock {
+  return { id: `${blockType}-1`, type: blockType, props, children: [] };
 }
 
-describe("flavour registry", () => {
-  it("resolves a descriptor for every doc.json flavour", () => {
-    for (const flavour of DOC_BLOCK_TYPES) {
-      const descriptor = getDocBlockDescriptor(flavour);
+/** Wraps a single block in a minimal one-page DocDocument. */
+function singleBlockDoc(example: DocBlock): DocDocument {
+  return {
+    schemaVersion: 1,
+    id: `registry-${example.type}`,
+    root: "root",
+    blocks: {
+      root: { id: "root", type: "paragraph", props: {}, children: [example.id] },
+      [example.id]: example,
+    },
+  };
+}
+
+describe("block registry", () => {
+  it("resolves a descriptor for every doc.json block type", () => {
+    for (const blockType of DOC_BLOCK_TYPES) {
+      const descriptor = getDocBlockDescriptor(blockType);
       expect(descriptor).not.toBeNull();
       if (!descriptor) continue;
-      expect(descriptor.flavour).toBe(flavour);
+      expect(descriptor.type).toBe(blockType);
       expect(descriptor.targetKind.length).toBeGreaterThan(0);
       expect(descriptor.agentDescription.length).toBeGreaterThan(0);
       expect(descriptor.patchOps.length).toBeGreaterThan(0);
@@ -40,76 +53,356 @@ describe("flavour registry", () => {
     }
   });
 
-  it("reuses the existing docs-block metadata for adapted flavours", () => {
-    expect(getDocBlockDescriptor("decision")?.targetKind).toBe("decision");
-    expect(getDocBlockDescriptor("decision")?.label).toBe("Decision");
+  it("reuses the docs-block component metadata for adapted block types", () => {
     expect(getDocBlockDescriptor("callout")?.label).toBe("Callout");
-    expect(getDocBlockDescriptor("agent-contract")?.label).toBe("Agent Contract");
     expect(getDocBlockDescriptor("file-tree")?.label).toBe("File Tree");
-    expect(getDocBlockDescriptor("constraint")?.label).toBe("Constraint");
-    expect(getDocBlockDescriptor("assumption")?.label).toBe("Assumption");
+    expect(getDocBlockDescriptor("structured-table")?.label).toBe("Structured Table");
+    expect(getDocBlockDescriptor("interaction-surface")?.label).toBe("Interaction Surface");
+    expect(getDocBlockDescriptor("interaction-surface")?.targetKind).toBe("interaction-surface");
+    expect(getDocBlockDescriptor("mermaid")?.label).toBe("Mermaid");
   });
 
-  it("returns null for unknown flavours", () => {
+  it("returns null for unknown and retired block types", () => {
     expect(getDocBlockDescriptor("wormhole")).toBeNull();
+    // Retired types never reach the registry: doc-schema validation coerces
+    // them to callout, so the registry must not resurrect descriptors.
+    for (const retired of [
+      "decision",
+      "checklist",
+      "attachment",
+      "agent-contract",
+      "tabs",
+      "data-model",
+      "api-surface",
+    ]) {
+      expect(getDocBlockDescriptor(retired)).toBeNull();
+    }
   });
 
-  it("describes every flavour for the agent surface", () => {
+  it("describes every block type for the agent surface", () => {
     const described = describeDocBlocksForAgent();
-    expect(described.map((entry) => entry.flavour)).toEqual([...DOC_BLOCK_TYPES]);
+    expect(described.map((entry) => entry.type)).toEqual([...DOC_BLOCK_TYPES]);
     for (const entry of described) {
       expect(entry.description.length).toBeGreaterThan(0);
       expect(entry.patchOps.length).toBeGreaterThan(0);
     }
   });
+
+  it("appends a body-format hint to the parse-reuse block types' agentDescription", () => {
+    expect(getDocBlockDescriptor("mermaid")?.agentDescription).toContain("flowchart LR");
+    expect(getDocBlockDescriptor("code")?.agentDescription).toContain("annotations");
+  });
 });
 
-describe("restored flavours — parse-reuse adapters", () => {
-  function checklistDoc(body: string): DocDocument {
-    return {
-      schemaVersion: 1,
-      id: "registry-checklist",
-      root: "root",
-      blocks: {
-        root: { id: "root", flavour: "paragraph", props: {}, children: ["checklist-1"] },
-        "checklist-1": {
-          id: "checklist-1",
-          flavour: "checklist",
-          props: { title: "Restoration" },
-          text: [{ insert: body }],
-          children: [],
-        },
-      },
-    };
+describe("file-tree — mdx adapter + tree rendering", () => {
+  function fileTreeDoc(props: Record<string, unknown>): DocDocument {
+    return singleBlockDoc({ id: "tree-1", type: "file-tree", props, children: [] });
   }
 
-  it("renders real parsed checklist content through DocBlockRenderer", () => {
-    const doc = checklistDoc("- [x] Wire adapters -- registry wired\n- [ ] Ship sidebar");
-    const html = renderToStaticMarkup(createElement(DocBlockRenderer, { document: doc }));
-    // Targeting wrapper + the component's own chrome (not the tracer card).
-    expect(html).toContain('data-doc-block="checklist"');
-    expect(html).toContain('data-docs-block-type="checklist"');
-    expect(html).toContain("Wire adapters");
-    expect(html).toContain("registry wired");
-    expect(html).toContain("Ship sidebar");
-    expect(html).toContain("1/2");
-    expect(html).not.toContain("Invalid Checklist block");
+  function renderTree(props: Record<string, unknown>): string {
+    return renderToStaticMarkup(
+      createElement(DocBlockRenderer, { document: fileTreeDoc(props) }),
+    );
+  }
+
+  it("documents the v2 entry fields in the agentDescription", () => {
+    const description = getDocBlockDescriptor("file-tree")?.agentDescription ?? "";
+    expect(description).toContain("change?");
+    expect(description).toContain("renamed");
+    expect(description).toContain("from?");
+    expect(description).toContain('trailing "/"');
   });
 
-  it("renders the placeholder card instead of throwing when the body does not parse", () => {
-    const doc = checklistDoc("no task rows here");
-    const html = renderToStaticMarkup(createElement(DocBlockRenderer, { document: doc }));
-    // Targeting attrs still exist so annotation/patch anchoring keeps working.
-    expect(html).toContain('data-doc-block="checklist"');
-    expect(html).toContain('data-block-id="checklist-1"');
-    expect(html).toContain("Invalid Checklist block");
-    expect(html).not.toContain('data-docs-block-type="checklist"');
+  it("nests flat paths and renders tree-style guide glyphs", () => {
+    const html = renderTree({
+      title: "Layout",
+      entries: [
+        { path: "src/runtime/registry.ts" },
+        { path: "src/runtime/dispatch.ts" },
+        { path: "src/index.ts" },
+      ],
+    });
+    expect(html).toContain('data-docs-block-type="file-tree"');
+    expect(html).toContain("Layout");
+    expect(html).toContain("3 entries");
+    // Derived directories from prefixes + guide glyphs at each depth.
+    expect(html).toContain("└── ");
+    expect(html).toContain("├── ");
+    expect(html).toContain("│   ");
+    // Rows show basenames; full paths live in the entry data attribute.
+    expect(html).toContain('data-docs-file-tree-entry="src/runtime/registry.ts"');
+    expect(html).toContain('data-docs-file-tree-entry="src/index.ts"');
+    expect(html).toContain(">registry.ts</span>");
+    // Derived dirs render with a trailing slash and no entry attribute.
+    expect(html).toContain(">runtime/</span>");
+    expect(html).not.toContain('data-docs-file-tree-entry="src/"');
   });
 
-  it("appends a body-format hint to each restored flavour's agentDescription", () => {
-    expect(getDocBlockDescriptor("checklist")?.agentDescription).toContain("- [x]");
-    expect(getDocBlockDescriptor("diff")?.agentDescription).toContain("--- before ---");
-    expect(getDocBlockDescriptor("api-endpoint")?.agentDescription).toContain("REQUIRED");
+  it("sorts directories before files, then alphabetically", () => {
+    const html = renderTree({
+      entries: [
+        { path: "zeta.ts" },
+        { path: "alpha.ts" },
+        { path: "beta/inner.ts" },
+      ],
+    });
+    const beta = html.indexOf(">beta/</span>");
+    const alpha = html.indexOf(">alpha.ts</span>");
+    const zeta = html.indexOf(">zeta.ts</span>");
+    expect(beta).toBeGreaterThan(-1);
+    expect(alpha).toBeGreaterThan(beta);
+    expect(zeta).toBeGreaterThan(alpha);
+  });
+
+  it("respects explicit trailing-/ directory entries (with metadata)", () => {
+    const html = renderTree({
+      entries: [
+        { path: "docs/", note: "empty for now" },
+        { path: "src/main.ts" },
+      ],
+    });
+    expect(html).toContain('data-docs-file-tree-entry="docs/"');
+    expect(html).toContain(">docs/</span>");
+    expect(html).toContain("# empty for now");
+  });
+
+  it("renders diff markers and tints per change state", () => {
+    const html = renderTree({
+      entries: [
+        { path: "src/a.ts", change: "added" },
+        { path: "src/b.ts", change: "removed" },
+        { path: "src/c.ts", change: "modified" },
+      ],
+    });
+    expect(html).toContain('data-docs-file-tree-change="added"');
+    expect(html).toContain(">+</span>");
+    expect(html).toContain("bg-emerald-500/10");
+    expect(html).toContain('data-docs-file-tree-change="removed"');
+    expect(html).toContain(">-</span>");
+    expect(html).toContain("bg-rose-500/10");
+    expect(html).toContain("line-through");
+    expect(html).toContain('data-docs-file-tree-change="modified"');
+    expect(html).toContain(">~</span>");
+    expect(html).toContain("bg-amber-500/10");
+    // Derived parent dirs never carry change state: the first change attr in
+    // the markup appears only after the derived `src/` directory row.
+    const srcRow = html.indexOf(">src/</span>");
+    expect(srcRow).toBeGreaterThan(-1);
+    expect(html.slice(0, srcRow)).not.toContain("data-docs-file-tree-change");
+  });
+
+  it("renders renamed entries as struck from → name with the sky tint", () => {
+    const html = renderTree({
+      entries: [
+        { path: "src/agents/planner.ts", change: "renamed", from: "src/agents/orchestrator.ts" },
+      ],
+    });
+    expect(html).toContain('data-docs-file-tree-change="renamed"');
+    expect(html).toContain("bg-sky-500/10");
+    expect(html).toContain(">src/agents/orchestrator.ts</span>");
+    expect(html).toContain("line-through");
+    expect(html).toContain("→");
+    expect(html).toContain(">planner.ts</span>");
+  });
+
+  it("renders notes as muted # comments with a title attribute", () => {
+    const html = renderTree({
+      entries: [{ path: "src/registry.ts", note: "single tool registry" }],
+    });
+    expect(html).toContain("# single tool registry");
+    expect(html).toContain('title="single tool registry"');
+  });
+
+  it("keeps rendering plain v1 { path } entries (backward compat)", () => {
+    const html = renderTree({
+      entries: [{ path: "src/lib/doc-ops.ts" }, { path: "README.md" }],
+    });
+    expect(html).toContain('data-docs-file-tree-entry="src/lib/doc-ops.ts"');
+    expect(html).toContain(">doc-ops.ts</span>");
+    expect(html).toContain(">README.md</span>");
+    expect(html).not.toContain("data-docs-file-tree-change");
+  });
+
+  it("filters malformed entries and strips malformed optional fields without crashing", () => {
+    const html = renderTree({
+      entries: [
+        null,
+        "not an object",
+        { note: "no path" },
+        { path: 42 },
+        { path: "ok.ts", change: "exploded", note: 7, from: 3 },
+        { path: "   " },
+      ],
+    });
+    expect(html).toContain('data-docs-file-tree-entry="ok.ts"');
+    expect(html).not.toContain("data-docs-file-tree-change");
+    // Only the entries that survive normalization are counted.
+    expect(html).toContain("1 entry");
+  });
+
+  it("renders the empty-tree placeholder when entries are absent or not an array", () => {
+    for (const props of [{}, { entries: "nope" }, { entries: [] }]) {
+      const html = renderTree(props as Record<string, unknown>);
+      expect(html).toContain('data-docs-block-type="file-tree"');
+      expect(html).toContain("0 entries");
+      expect(html).toContain("(no entries)");
+    }
+  });
+});
+
+describe("structured-table / interaction-surface — props-driven descriptors", () => {
+  it("structured-table renders the component from typed props", () => {
+    const doc = singleBlockDoc({
+      id: "table-1",
+      type: "structured-table",
+      props: {
+        title: "Agent roster",
+        density: "compact",
+        columns: ["Agent", "Model"],
+        rows: [["planner", "fable-5"], ["worker"]],
+      },
+      children: [],
+    });
+    const html = renderToStaticMarkup(createElement(DocBlockRenderer, { document: doc }));
+    expect(html).toContain('data-doc-block="structured-table"');
+    expect(html).toContain('data-docs-block-type="structured-table"');
+    expect(html).toContain("Agent roster");
+    expect(html).toContain("planner");
+    expect(html).not.toContain("Invalid Structured Table block");
+  });
+
+  it("structured-table falls back to the placeholder on malformed columns/rows", () => {
+    for (const props of [
+      {}, // no columns at all
+      { columns: ["A"], rows: [[1]] }, // non-string cell
+      { columns: [], rows: [] }, // empty header
+      { columns: ["A"], rows: "nope" }, // rows not an array
+    ]) {
+      const doc = singleBlockDoc({
+        id: "table-1",
+        type: "structured-table",
+        props: props as Record<string, unknown>,
+        children: [],
+      });
+      const html = renderToStaticMarkup(createElement(DocBlockRenderer, { document: doc }));
+      expect(html).toContain("Invalid Structured Table block");
+      expect(html).toContain('data-block-id="table-1"');
+      expect(html).not.toContain('data-docs-block-type="structured-table"');
+    }
+  });
+
+  it("interaction-surface renders operation signatures from typed props", () => {
+    const doc = singleBlockDoc({
+      id: "surface-1",
+      type: "interaction-surface",
+      props: {
+        title: "File-tree block surface",
+        operations: [
+          {
+            name: "file-tree.addEntry",
+            description: "Append a path entry",
+            params: [
+              { name: "path", type: "string", required: true },
+              { name: "note", type: "string", required: false },
+            ],
+            returns: "props patch",
+            kind: "action",
+          },
+          { name: "file-tree.entries", returns: "FileTreeEntry[]", kind: "query" },
+        ],
+      },
+      children: [],
+    });
+    const html = renderToStaticMarkup(createElement(DocBlockRenderer, { document: doc }));
+    expect(html).toContain('data-doc-block="interaction-surface"');
+    expect(html).toContain('data-docs-block-type="interaction-surface"');
+    expect(html).toContain('data-interaction-operation="file-tree.addEntry"');
+    expect(html).toContain("Append a path entry");
+    expect(html).toContain("File-tree block surface");
+    expect(html).toContain("note?");
+    expect(html).toContain("props patch");
+    expect(html).toContain(">query<");
+    expect(html).not.toContain("Invalid Interaction Surface block");
+  });
+
+  it("interaction-surface falls back to the placeholder on malformed operations", () => {
+    for (const operations of [
+      undefined, // absent
+      [], // empty
+      [{ params: [] }], // operation without a name
+      [{ name: "op", kind: "mutation" }], // unknown kind
+      [{ name: "op", params: [{ type: "string" }] }], // param without a name
+      [{ name: "op", params: "nope" }], // params not an array
+    ]) {
+      const doc = singleBlockDoc({
+        id: "surface-1",
+        type: "interaction-surface",
+        props: operations === undefined ? {} : { operations },
+        children: [],
+      });
+      const html = renderToStaticMarkup(createElement(DocBlockRenderer, { document: doc }));
+      expect(html).toContain("Invalid Interaction Surface block");
+      expect(html).toContain('data-block-id="surface-1"');
+      expect(html).not.toContain('data-docs-block-type="interaction-surface"');
+    }
+  });
+});
+
+describe("code — optional props.annotations", () => {
+  function codeDoc(props: Record<string, unknown>): DocDocument {
+    return singleBlockDoc({
+      id: "code-1",
+      type: "code",
+      props,
+      text: [{ insert: "const a = 1;\nconst b = 2;\nconst c = a + b;" }],
+      children: [],
+    });
+  }
+
+  it("renders the annotated code block when valid annotations exist", () => {
+    const doc = codeDoc({
+      language: "ts",
+      annotations: [
+        { lines: "1", label: "Setup", note: "Declares the first operand." },
+        { lines: "3", note: "The sum." },
+      ],
+    });
+    const html = renderToStaticMarkup(createElement(DocBlockRenderer, { document: doc }));
+    expect(html).toContain('data-doc-block="code"');
+    expect(html).toContain('data-code-annotations="code-1"');
+    expect(html).toContain("Declares the first operand.");
+    expect(html).toContain("const c = a + b;");
+  });
+
+  it("skips malformed annotation entries but keeps the valid ones", () => {
+    const doc = codeDoc({
+      annotations: [
+        { lines: 2, note: "numeric lines — malformed" },
+        { lines: "2", note: "" }, // empty note — malformed
+        { lines: "2", note: "The second operand." },
+        "not an object",
+      ],
+    });
+    const html = renderToStaticMarkup(createElement(DocBlockRenderer, { document: doc }));
+    expect(html).toContain('data-code-annotations="code-1"');
+    expect(html).toContain("The second operand.");
+    expect(html).not.toContain("malformed");
+  });
+
+  it("keeps the plain pre path when annotations are absent or entirely malformed", () => {
+    for (const props of [
+      {},
+      { annotations: [] },
+      { annotations: [{ lines: 4, note: 7 }] },
+      { annotations: "nope" },
+    ]) {
+      const doc = codeDoc(props as Record<string, unknown>);
+      const html = renderToStaticMarkup(createElement(DocBlockRenderer, { document: doc }));
+      expect(html).toContain('data-doc-block="code"');
+      expect(html).not.toContain("data-code-annotations");
+      expect(html).toContain("<pre");
+      expect(html).toContain("const a = 1;");
+    }
   });
 });
 
@@ -140,7 +433,7 @@ describe("delta projections", () => {
   });
 });
 
-describe("image/attachment flavours — resolveAssetSrc (TG7.3)", () => {
+describe("image block type — resolveAssetSrc (TG7.3)", () => {
   it("image block resolves its src through ctx.resolveAssetSrc when provided", () => {
     const descriptor = getDocBlockDescriptor("image");
     expect(descriptor).not.toBeNull();
@@ -165,36 +458,58 @@ describe("image/attachment flavours — resolveAssetSrc (TG7.3)", () => {
     );
     expect(html).toContain('src="./assets/images/sample.png"');
   });
+});
 
-  it("attachment block shows filename, uppercase extension badge, size (when present), and a resolved download href", () => {
-    const descriptor = getDocBlockDescriptor("attachment");
+describe("video block type — descriptor", () => {
+  it("embeds a provider url as an iframe, with title/caption threaded through", () => {
+    const descriptor = getDocBlockDescriptor("video");
     expect(descriptor).not.toBeNull();
+    const html = renderToStaticMarkup(
+      descriptor!.render(
+        block("video", {
+          url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+          title: "Docs walkthrough",
+          caption: "An external video.",
+        }),
+        makeCtx(),
+      ) as never,
+    );
+    expect(html).toContain('data-doc-block="video"');
+    expect(html).toContain('src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"');
+    expect(html).toContain('title="Docs walkthrough"');
+    expect(html).toContain("An external video.");
+  });
+
+  it("renders a link card (never an iframe) for a non-provider url", () => {
+    const descriptor = getDocBlockDescriptor("video");
+    const html = renderToStaticMarkup(
+      descriptor!.render(block("video", { url: "https://example.com/talk" }), makeCtx()) as never,
+    );
+    expect(html).not.toContain("<iframe");
+    expect(html).toContain('href="https://example.com/talk"');
+    expect(html).toContain('rel="noopener noreferrer"');
+  });
+
+  it("resolves a bundle-relative src through ctx.resolveAssetSrc like image (TG7.3)", () => {
+    const descriptor = getDocBlockDescriptor("video");
     const ctx = makeCtx({
       resolveAssetSrc: (src) => `https://api.example.com/asset?path=${encodeURIComponent(src)}`,
     });
     const html = renderToStaticMarkup(
-      descriptor!.render(
-        block("attachment", { src: "./assets/attachments/spec.pdf", name: "spec.pdf", size: 2_500_000 }),
-        ctx,
-      ) as never,
+      descriptor!.render(block("video", { src: "./assets/videos/demo.mp4" }), ctx) as never,
     );
-    expect(html).toContain(">spec.pdf<");
-    expect(html).toContain(">PDF<");
-    expect(html).toContain(">2.4 MB<");
+    expect(html).toContain("<video");
     expect(html).toContain(
-      'href="https://api.example.com/asset?path=.%2Fassets%2Fattachments%2Fspec.pdf"',
+      'src="https://api.example.com/asset?path=.%2Fassets%2Fvideos%2Fdemo.mp4"',
     );
+    expect(html).not.toContain('src="./assets/videos/demo.mp4"');
   });
 
-  it("attachment block falls back to the raw src and omits size when not provided (non-regression)", () => {
-    const descriptor = getDocBlockDescriptor("attachment");
-    expect(descriptor).not.toBeNull();
-    const ctx = makeCtx();
+  it("falls back to the raw src when resolveAssetSrc is omitted (non-regression)", () => {
+    const descriptor = getDocBlockDescriptor("video");
     const html = renderToStaticMarkup(
-      descriptor!.render(block("attachment", { src: "./assets/attachments/spec.pdf", name: "spec.pdf" }), ctx) as never,
+      descriptor!.render(block("video", { src: "./assets/videos/demo.mp4" }), makeCtx()) as never,
     );
-    expect(html).toContain('href="./assets/attachments/spec.pdf"');
-    expect(html).toContain(">spec.pdf<");
-    expect(html).toContain(">PDF<");
+    expect(html).toContain('src="./assets/videos/demo.mp4"');
   });
 });

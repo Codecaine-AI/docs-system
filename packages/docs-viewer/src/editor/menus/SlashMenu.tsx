@@ -14,9 +14,7 @@ import {
 import { useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent, type Ref } from "react";
 import {
   ChevronRight,
-  ClipboardCheck,
   Code,
-  Eye,
   Frame,
   Heading,
   Heading1,
@@ -28,11 +26,8 @@ import {
   Image as ImageIcon,
   List,
   ListOrdered,
-  Lock,
   Megaphone,
   Minus,
-  Paperclip,
-  Scale,
   TextQuote,
   Type,
   type LucideIcon,
@@ -82,7 +77,7 @@ function isSubMenuCommand(item: SlashCommandItem): item is SlashCommandSubMenuIt
 }
 
 /**
- * Replaces the `/query` range with a block of the given flavour, Notion
+ * Replaces the `/query` range with a block of the given block type, Notion
  * style, landing the cursor inside/after it.
  *
  * This must NOT go through TipTap's `insertContent`: at a cursor inside a
@@ -92,7 +87,7 @@ function isSubMenuCommand(item: SlashCommandItem): item is SlashCommandSubMenuIt
  * previous one like a subpage" bug, slash-menu edition. Instead, after
  * deleting the `/query` text, exactly one of three block-level edits runs:
  *
- * - The line is now empty and the target is a wrapped text flavour →
+ * - The line is now empty and the target is a wrapped text block type →
  *   CONVERT the block in place (`setNodeMarkup`; same content shape), like
  *   Notion transforming the line you typed `/heading1` on.
  * - The line is now empty but the target has a different content shape
@@ -100,8 +95,8 @@ function isSubMenuCommand(item: SlashCommandItem): item is SlashCommandSubMenuIt
  * - The line still has text before the `/` → insert the new block as a
  *   true SIBLING right after the current block.
  */
-function insertBlockOfType(flavour: DocBlockType, ctx: SlashMenuActionContext, extraAttrs?: Record<string, unknown>) {
-  const nodeType = BLOCK_TYPE_TO_NODE_TYPE[flavour];
+function insertBlockOfType(blockType: DocBlockType, ctx: SlashMenuActionContext, extraAttrs?: Record<string, unknown>) {
+  const nodeType = BLOCK_TYPE_TO_NODE_TYPE[blockType];
   const { editor, from, to } = ctx;
   const node = editor.schema.nodes[nodeType];
   if (!node) return;
@@ -119,7 +114,7 @@ function insertBlockOfType(flavour: DocBlockType, ctx: SlashMenuActionContext, e
     // "Emptied" = the wrapper lost its only text to the delete and the block
     // has no nested children riding along.
     const emptied = $pos.parent.content.size === 0 && block.childCount === 1;
-    const isWrappedTextBlockType = TEXT_BLOCK_TYPE_SET.has(flavour) && flavour !== "code";
+    const isWrappedTextBlockType = TEXT_BLOCK_TYPE_SET.has(blockType) && blockType !== "code";
 
     if (emptied && isWrappedTextBlockType) {
       tr.setNodeMarkup(blockStart, node, {
@@ -162,8 +157,8 @@ function insertBlockOfType(flavour: DocBlockType, ctx: SlashMenuActionContext, e
 }
 
 /**
- * Fixed v1 command set (TG8.2.1) — Basic / Blocks / Semantic groups, sorted
- * via the vendored group-index model. Icons/descriptions follow AFFiNE's
+ * Fixed v1 command set (TG8.2.1) — Basic / Blocks groups, sorted via the
+ * vendored group-index model. Icons/descriptions follow AFFiNE's
  * slash-menu metadata; "Other Headings" is a `subMenu` item holding the
  * lower heading levels (4-6), mirroring upstream.
  */
@@ -173,7 +168,7 @@ function buildV1Commands(): SlashCommandItem[] {
     name: string,
     icon: LucideIcon,
     description: string,
-    flavour: DocBlockType,
+    blockType: DocBlockType,
     extraAttrs?: Record<string, unknown>,
     searchAlias?: string[],
   ): SlashCommandActionItem => ({
@@ -182,7 +177,7 @@ function buildV1Commands(): SlashCommandItem[] {
     icon,
     description,
     searchAlias,
-    action: (ctx) => insertBlockOfType(flavour, ctx, extraAttrs),
+    action: (ctx) => insertBlockOfType(blockType, ctx, extraAttrs),
   });
 
   const HEADING_ICONS: Record<number, LucideIcon> = {
@@ -217,11 +212,6 @@ function buildV1Commands(): SlashCommandItem[] {
     action("1_Blocks@0", "Callout", Megaphone, "Emphasize a block of text.", "callout", undefined, ["note", "info", "tip"]),
     action("1_Blocks@1", "Canvas", Frame, "Embed an editable canvas.", "canvas", undefined, ["diagram", "drawing"]),
     action("1_Blocks@2", "Image", ImageIcon, "Insert an image.", "image", undefined, ["picture", "photo"]),
-    action("1_Blocks@3", "Attachment", Paperclip, "Attach a file.", "attachment", undefined, ["file", "upload"]),
-    action("2_Semantic@0", "Decision", Scale, "Record a decision.", "decision"),
-    action("2_Semantic@1", "Constraint", Lock, "Record a constraint.", "constraint"),
-    action("2_Semantic@2", "Requirement", ClipboardCheck, "Record a requirement.", "requirement"),
-    action("2_Semantic@3", "Observation", Eye, "Record an observation.", "observation"),
   ];
 }
 
@@ -535,7 +525,6 @@ export const SlashMenu = Extension.create({
 const GROUP_LABELS: Record<string, string> = {
   Basic: "Basic",
   Blocks: "Blocks",
-  Semantic: "Semantic",
 };
 
 function groupNameOf(item: SlashCommandItem): string {

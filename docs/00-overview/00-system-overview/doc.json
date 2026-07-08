@@ -6,7 +6,7 @@
   "blocks": {
     "b-00-system-overview-root-14": {
       "id": "b-00-system-overview-root-14",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "children": [
         "b-00-system-overview-what-this-repository-is-1",
@@ -26,7 +26,7 @@
     },
     "b-00-system-overview-what-this-repository-is-1": {
       "id": "b-00-system-overview-what-this-repository-is-1",
-      "flavour": "heading",
+      "type": "heading",
       "props": {
         "level": 1
       },
@@ -39,7 +39,7 @@
     },
     "b-00-system-overview-docs-system-is-codecai-2": {
       "id": "b-00-system-overview-docs-system-is-codecai-2",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
@@ -74,7 +74,7 @@
     },
     "b-00-system-overview-the-one-sentence-philoso-3": {
       "id": "b-00-system-overview-the-one-sentence-philoso-3",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
@@ -121,7 +121,7 @@
     },
     "b-00-system-overview-the-pipeline-at-a-glance-4": {
       "id": "b-00-system-overview-the-pipeline-at-a-glance-4",
-      "flavour": "heading",
+      "type": "heading",
       "props": {
         "level": 2
       },
@@ -134,7 +134,7 @@
     },
     "b-00-system-overview-code-5": {
       "id": "b-00-system-overview-code-5",
-      "flavour": "code",
+      "type": "code",
       "props": {},
       "text": [
         {
@@ -145,7 +145,7 @@
     },
     "b-00-system-overview-each-layer-only-depends-6": {
       "id": "b-00-system-overview-each-layer-only-depends-6",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
@@ -169,7 +169,7 @@
     },
     "b-00-system-overview-where-content-lives-7": {
       "id": "b-00-system-overview-where-content-lives-7",
-      "flavour": "heading",
+      "type": "heading",
       "props": {
         "level": 2
       },
@@ -182,7 +182,7 @@
     },
     "b-00-system-overview-a-document-is-a-bundle-8": {
       "id": "b-00-system-overview-a-document-is-a-bundle-8",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
@@ -265,7 +265,7 @@
     },
     "b-00-system-overview-markdown-is-an-on-ramp-9": {
       "id": "b-00-system-overview-markdown-is-an-on-ramp-9",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
@@ -312,7 +312,7 @@
     },
     "b-00-system-overview-reading-these-docs-10": {
       "id": "b-00-system-overview-reading-these-docs-10",
-      "flavour": "heading",
+      "type": "heading",
       "props": {
         "level": 2
       },
@@ -325,7 +325,7 @@
     },
     "b-00-system-overview-from-the-repo-root-11": {
       "id": "b-00-system-overview-from-the-repo-root-11",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
@@ -336,7 +336,7 @@
     },
     "b-00-system-overview-code-12": {
       "id": "b-00-system-overview-code-12",
-      "flavour": "code",
+      "type": "code",
       "props": {},
       "text": [
         {
@@ -347,7 +347,7 @@
     },
     "b-00-system-overview-opens-this-very-document-13": {
       "id": "b-00-system-overview-opens-this-very-document-13",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {

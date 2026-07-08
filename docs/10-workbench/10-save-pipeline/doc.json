@@ -6,7 +6,7 @@
   "blocks": {
     "b-10-save-pipeline-root-18": {
       "id": "b-10-save-pipeline-root-18",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "children": [
         "b-10-save-pipeline-how-a-save-works-1",
@@ -30,7 +30,7 @@
     },
     "b-10-save-pipeline-how-a-save-works-1": {
       "id": "b-10-save-pipeline-how-a-save-works-1",
-      "flavour": "heading",
+      "type": "heading",
       "props": {
         "level": 1
       },
@@ -43,7 +43,7 @@
     },
     "b-10-save-pipeline-the-full-path-from-a-key-2": {
       "id": "b-10-save-pipeline-the-full-path-from-a-key-2",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
@@ -54,7 +54,7 @@
     },
     "b-10-save-pipeline-1-editing-docs-viewer-3": {
       "id": "b-10-save-pipeline-1-editing-docs-viewer-3",
-      "flavour": "heading",
+      "type": "heading",
       "props": {
         "level": 2
       },
@@ -67,7 +67,7 @@
     },
     "b-10-save-pipeline-doceditor-hosts-a-tipt-4": {
       "id": "b-10-save-pipeline-doceditor-hosts-a-tipt-4",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
@@ -77,7 +77,7 @@
           }
         },
         {
-          "insert": " hosts a TipTap/ProseMirror editor whose node schema mirrors the\ndoc.json flavours one-to-one. Every ProseMirror node carries the block's\nstable id in its attrs, so a block edited in place keeps its identity —\nthat is what lets the diff below emit a single "
+          "insert": " hosts a TipTap/ProseMirror editor whose node schema mirrors the\ndoc.json block types one-to-one. Every ProseMirror node carries the block's\nstable id in its attrs, so a block edited in place keeps its identity —\nthat is what lets the diff below emit a single "
         },
         {
           "insert": "updateBlock",
@@ -93,7 +93,7 @@
     },
     "b-10-save-pipeline-2-diff-to-ops-docs-vie-5": {
       "id": "b-10-save-pipeline-2-diff-to-ops-docs-vie-5",
-      "flavour": "heading",
+      "type": "heading",
       "props": {
         "level": 2
       },
@@ -106,7 +106,7 @@
     },
     "b-10-save-pipeline-on-save-debounce-fire-6": {
       "id": "b-10-save-pipeline-on-save-debounce-fire-6",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
@@ -135,7 +135,7 @@
     },
     "b-10-save-pipeline-3-post-api-ops-docs-w-7": {
       "id": "b-10-save-pipeline-3-post-api-ops-docs-w-7",
-      "flavour": "heading",
+      "type": "heading",
       "props": {
         "level": 2
       },
@@ -148,7 +148,7 @@
     },
     "b-10-save-pipeline-the-op-batch-is-posted-w-8": {
       "id": "b-10-save-pipeline-the-op-batch-is-posted-w-8",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
@@ -159,7 +159,7 @@
     },
     "b-10-save-pipeline-expected-hash-the-co-9": {
       "id": "b-10-save-pipeline-expected-hash-the-co-9",
-      "flavour": "list-item",
+      "type": "list-item",
       "props": {
         "ordered": false
       },
@@ -178,7 +178,7 @@
     },
     "b-10-save-pipeline-against-mismatch-409-10": {
       "id": "b-10-save-pipeline-against-mismatch-409-10",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
@@ -198,7 +198,7 @@
     },
     "b-10-save-pipeline-session-id-the-tab-s-11": {
       "id": "b-10-save-pipeline-session-id-the-tab-s-11",
-      "flavour": "list-item",
+      "type": "list-item",
       "props": {
         "ordered": false
       },
@@ -217,7 +217,7 @@
     },
     "b-10-save-pipeline-used-to-filter-self-echo-12": {
       "id": "b-10-save-pipeline-used-to-filter-self-echo-12",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
@@ -228,7 +228,7 @@
     },
     "b-10-save-pipeline-on-success-the-server-ap-13": {
       "id": "b-10-save-pipeline-on-success-the-server-ap-13",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
@@ -248,7 +248,7 @@
     },
     "b-10-save-pipeline-4-reconciliation-back-14": {
       "id": "b-10-save-pipeline-4-reconciliation-back-14",
-      "flavour": "heading",
+      "type": "heading",
       "props": {
         "level": 2
       },
@@ -261,7 +261,7 @@
     },
     "b-10-save-pipeline-the-editor-adopts-the-se-15": {
       "id": "b-10-save-pipeline-the-editor-adopts-the-se-15",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
@@ -290,7 +290,7 @@
     },
     "b-10-save-pipeline-change-flashes-and-prose-16": {
       "id": "b-10-save-pipeline-change-flashes-and-prose-16",
-      "flavour": "heading",
+      "type": "heading",
       "props": {
         "level": 2
       },
@@ -303,7 +303,7 @@
     },
     "b-10-save-pipeline-when-an-sse-event-flashe-17": {
       "id": "b-10-save-pipeline-when-an-sse-event-flashe-17",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {

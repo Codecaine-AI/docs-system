@@ -129,7 +129,7 @@ function blockIdForElement(
 ): string {
   const sourceId = element.dataset.sourceId?.trim();
   if (sourceId) return sourceId;
-  // Bundle mode: flavour-registry wrappers carry the doc.json block id
+  // Bundle mode: block-registry wrappers carry the doc.json block id
   // directly (data-block-id) — MDX renders never set it, so this is inert
   // for the legacy pipeline.
   const bundleBlockId = element.dataset.blockId?.trim();

@@ -2,7 +2,7 @@
  * @codecaine-ai/docs-viewer — React read/edit surface for doc.json bundles.
  *
  * Extracted from Spectre apps/frontend/src/components/docs (+ the React
- * flavour registry from lib/docs-model). Host integration happens through
+ * block registry from lib/docs-model). Host integration happens through
  * ./client: a `DocsClient` (backend operations) and a `CanvasEmbedComponent`
  * (canvas rendering slot), both provided via `DocsClientProvider`. Without a
  * provider the components render read-only with a neutral "canvas embed

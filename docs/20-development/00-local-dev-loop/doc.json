@@ -6,7 +6,7 @@
   "blocks": {
     "b-00-local-dev-loop-root-21": {
       "id": "b-00-local-dev-loop-root-21",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "children": [
         "b-00-local-dev-loop-local-development-loop-1",
@@ -33,7 +33,7 @@
     },
     "b-00-local-dev-loop-local-development-loop-1": {
       "id": "b-00-local-dev-loop-local-development-loop-1",
-      "flavour": "heading",
+      "type": "heading",
       "props": {
         "level": 1
       },
@@ -46,7 +46,7 @@
     },
     "b-00-local-dev-loop-iterating-on-the-tooling-2": {
       "id": "b-00-local-dev-loop-iterating-on-the-tooling-2",
-      "flavour": "heading",
+      "type": "heading",
       "props": {
         "level": 2
       },
@@ -59,7 +59,7 @@
     },
     "b-00-local-dev-loop-the-key-separation-do-3": {
       "id": "b-00-local-dev-loop-the-key-separation-do-3",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
@@ -88,7 +88,7 @@
     },
     "b-00-local-dev-loop-content-doc-json-bund-4": {
       "id": "b-00-local-dev-loop-content-doc-json-bund-4",
-      "flavour": "list-item",
+      "type": "list-item",
       "props": {
         "ordered": false
       },
@@ -110,7 +110,7 @@
     },
     "b-00-local-dev-loop-and-is-committed-there-l-5": {
       "id": "b-00-local-dev-loop-and-is-committed-there-l-5",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
@@ -121,7 +121,7 @@
     },
     "b-00-local-dev-loop-tooling-this-repo-reac-6": {
       "id": "b-00-local-dev-loop-tooling-this-repo-reac-6",
-      "flavour": "list-item",
+      "type": "list-item",
       "props": {
         "ordered": false
       },
@@ -134,7 +134,7 @@
     },
     "b-00-local-dev-loop-but-for-local-developmen-7": {
       "id": "b-00-local-dev-loop-but-for-local-developmen-7",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
@@ -145,7 +145,7 @@
     },
     "b-00-local-dev-loop-to-dogfood-tooling-chang-8": {
       "id": "b-00-local-dev-loop-to-dogfood-tooling-chang-8",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
@@ -156,7 +156,7 @@
     },
     "b-00-local-dev-loop-code-9": {
       "id": "b-00-local-dev-loop-code-9",
-      "flavour": "code",
+      "type": "code",
       "props": {},
       "text": [
         {
@@ -167,7 +167,7 @@
     },
     "b-00-local-dev-loop-that-serves-the-api-from-10": {
       "id": "b-00-local-dev-loop-that-serves-the-api-from-10",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
@@ -232,7 +232,7 @@
     },
     "b-00-local-dev-loop-to-work-on-these-docs-11": {
       "id": "b-00-local-dev-loop-to-work-on-these-docs-11",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
@@ -270,7 +270,7 @@
     },
     "b-00-local-dev-loop-shipping-tooling-to-a-co-12": {
       "id": "b-00-local-dev-loop-shipping-tooling-to-a-co-12",
-      "flavour": "heading",
+      "type": "heading",
       "props": {
         "level": 2
       },
@@ -283,7 +283,7 @@
     },
     "b-00-local-dev-loop-consuming-repos-e-g-ca-13": {
       "id": "b-00-local-dev-loop-consuming-repos-e-g-ca-13",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
@@ -303,7 +303,7 @@
     },
     "b-00-local-dev-loop-code-14": {
       "id": "b-00-local-dev-loop-code-14",
-      "flavour": "code",
+      "type": "code",
       "props": {},
       "text": [
         {
@@ -314,7 +314,7 @@
     },
     "b-00-local-dev-loop-this-is-deliberate-versi-15": {
       "id": "b-00-local-dev-loop-this-is-deliberate-versi-15",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
@@ -325,7 +325,7 @@
     },
     "b-00-local-dev-loop-verification-16": {
       "id": "b-00-local-dev-loop-verification-16",
-      "flavour": "heading",
+      "type": "heading",
       "props": {
         "level": 2
       },
@@ -338,7 +338,7 @@
     },
     "b-00-local-dev-loop-code-17": {
       "id": "b-00-local-dev-loop-code-17",
-      "flavour": "code",
+      "type": "code",
       "props": {},
       "text": [
         {
@@ -349,7 +349,7 @@
     },
     "b-00-local-dev-loop-the-workbench-web-tests-18": {
       "id": "b-00-local-dev-loop-the-workbench-web-tests-18",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
@@ -369,7 +369,7 @@
     },
     "b-00-local-dev-loop-authoring-new-docs-19": {
       "id": "b-00-local-dev-loop-authoring-new-docs-19",
-      "flavour": "heading",
+      "type": "heading",
       "props": {
         "level": 2
       },
@@ -382,7 +382,7 @@
     },
     "b-00-local-dev-loop-write-markdown-under-a-20": {
       "id": "b-00-local-dev-loop-write-markdown-under-a-20",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         {

@@ -13,8 +13,8 @@ const doc: DocDocument = {
   id: "doc-1",
   root: "root",
   blocks: {
-    root: { id: "root", flavour: "paragraph", props: {}, children: ["p1"] },
-    p1: { id: "p1", flavour: "paragraph", props: {}, text: [{ insert: "Hello" }], children: [] },
+    root: { id: "root", type: "paragraph", props: {}, children: ["p1"] },
+    p1: { id: "p1", type: "paragraph", props: {}, text: [{ insert: "Hello" }], children: [] },
   },
 };
 

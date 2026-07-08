@@ -26,9 +26,11 @@ export {
 // Confinement + tree
 export {
   ALLOWED_DOC_EXT,
+  ALLOWED_VIDEO_ASSET_EXT,
   MAX_ASSET_BYTES,
   MAX_CANVAS_FILE_BYTES,
   MAX_DOC_FILE_BYTES,
+  MAX_VIDEO_ASSET_BYTES,
   inferAssetContentType,
   inferDocsFormat,
   isAllowedAssetRelativePath,
@@ -80,9 +82,11 @@ export {
   sanitizeAssetFilename,
   uniquifyAssetFilename,
   uploadDocAsset,
+  uploadDocVideoAsset,
   type ReadDocAssetResult,
   type UploadDocAssetInput,
   type UploadDocAssetResult,
+  type UploadDocVideoAssetResult,
 } from "./assets";
 
 // Canvas sidecars (doc-relative) + MDX reference helpers

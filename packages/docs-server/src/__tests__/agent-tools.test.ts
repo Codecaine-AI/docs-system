@@ -21,10 +21,10 @@ const SAMPLE_DOC = {
   title: "Sample",
   root: "root",
   blocks: {
-    root: { id: "root", flavour: "paragraph", props: {}, children: ["h1"] },
+    root: { id: "root", type: "paragraph", props: {}, children: ["h1"] },
     h1: {
       id: "h1",
-      flavour: "heading",
+      type: "heading",
       props: { level: 1 },
       text: [{ insert: "Title" }],
       children: [],
@@ -64,7 +64,7 @@ describe("agent-tools: doc_get / doc_update_blocks (TG9.1)", () => {
     const result = await doc_get(docsRoot, "guide");
     expect(result.ok).toBe(true);
     if (result.ok) {
-      expect(result.doc.blocks.h1?.flavour).toBe("heading");
+      expect(result.doc.blocks.h1?.type).toBe("heading");
       expect(result.hash).toBeTruthy();
       expect(result.markdown).toContain("Title");
     }
@@ -86,7 +86,7 @@ describe("agent-tools: doc_get / doc_update_blocks (TG9.1)", () => {
           blockId: "p1",
           parentId: "root",
           index: 0,
-          flavour: "paragraph",
+          blockType: "paragraph",
           props: {},
           text: [{ insert: "New paragraph" }],
         },
@@ -96,7 +96,7 @@ describe("agent-tools: doc_get / doc_update_blocks (TG9.1)", () => {
     );
     expect(result.ok).toBe(true);
     if (result.ok) {
-      expect(result.doc.blocks.p1?.flavour).toBe("paragraph");
+      expect(result.doc.blocks.p1?.type).toBe("paragraph");
       expect(result.patchId).toBeTruthy();
 
       const onDisk = JSON.parse(await Bun.file(join(docsRoot, "guide", "doc.json")).text());
@@ -173,7 +173,7 @@ describe("agent-tools: doc_get / doc_update_blocks (TG9.1)", () => {
           blockId: "p1",
           parentId: "root",
           index: 0,
-          flavour: "paragraph",
+          blockType: "paragraph",
           props: {},
           text: [{ insert: "New paragraph" }],
         },

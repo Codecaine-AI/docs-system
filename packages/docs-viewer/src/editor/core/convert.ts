@@ -42,8 +42,8 @@ import { BLOCK_TYPE_TO_NODE_TYPE, NODE_TYPE_TO_BLOCK_TYPE, TEXT_BLOCK_TYPES } fr
  *   `insertBlock`; a baseDoc block missing from the edited doc is a
  *   `deleteBlock`; a block whose id exists in both but under a different
  *   parent/index is a `moveBlock`; a block whose id survived but whose
- *   FLAVOUR changed is delete+insert with a fresh id (see
- *   `reidentifyDoomedSurvivors` — updateBlock has no flavour field by
+ *   BLOCK TYPE changed is delete+insert with a fresh id (see
+ *   `reidentifyDoomedSurvivors` — updateBlock has no block type field by
  *   design, §8.3). Per-parent children are matched by id (not by a general
  *   LCS) —
  *   simple and correct, per the checkpoint's guidance to prefer
@@ -115,23 +115,23 @@ function deltaToPMInline(spans: DeltaSpan[] | undefined, flowNewlines: boolean):
 }
 
 /**
- * Splits a flavour's raw `props` into the PM node's own promoted attrs
+ * Splits a block type's raw `props` into the PM node's own promoted attrs
  * (level/ordered/language) + the rest (`blockProps`). Promotion is only
  * applied when the source `props` actually HAD that key — the promoted PM
  * attrs default to `null` (never a "real" value like `2` or `false`)
  * precisely so `joinPropsFromNode` can tell "absent in source" apart from
  * "present with a falsy/default value" and stay byte-for-byte lossless.
  */
-function splitPropsForNode(flavour: DocBlockType, props: Record<string, unknown>) {
+function splitPropsForNode(blockType: DocBlockType, props: Record<string, unknown>) {
   const rest = { ...props };
   const promoted: Record<string, unknown> = {};
-  if (flavour === "heading") {
+  if (blockType === "heading") {
     promoted.level = typeof rest.level === "number" ? rest.level : null;
     delete rest.level;
-  } else if (flavour === "list-item") {
+  } else if (blockType === "list-item") {
     promoted.ordered = typeof rest.ordered === "boolean" ? rest.ordered : null;
     delete rest.ordered;
-  } else if (flavour === "code") {
+  } else if (blockType === "code") {
     promoted.language = typeof rest.language === "string" ? rest.language : null;
     delete rest.language;
   }
@@ -140,17 +140,17 @@ function splitPropsForNode(flavour: DocBlockType, props: Record<string, unknown>
 
 function blockToPMNode(doc: DocDocument, blockId: string): PMNode {
   const block = doc.blocks[blockId];
-  const nodeType = BLOCK_TYPE_TO_NODE_TYPE[block.flavour];
-  const isTextBlock = (TEXT_BLOCK_TYPES as readonly string[]).includes(block.flavour);
-  const { promoted, blockProps } = splitPropsForNode(block.flavour, block.props);
+  const nodeType = BLOCK_TYPE_TO_NODE_TYPE[block.type];
+  const isTextBlock = (TEXT_BLOCK_TYPES as readonly string[]).includes(block.type);
+  const { promoted, blockProps } = splitPropsForNode(block.type, block.props);
 
   if (!isTextBlock) {
     // Atom leaf: no PM inline content slot at all (children of a structured
-    // DocBlock are not expected/supported by any v1 atom flavour, but if
+    // DocBlock are not expected/supported by any v1 atom block type, but if
     // present are dropped from the PM tree deliberately rather than silently
-    // nested inside an atom node PM would reject — see convert.test.ts). A
-    // few atom flavours (agent-contract) still carry a `text` DeltaSpan[] in
-    // doc-schema (e.g. a description) even though they have no editable PM
+    // nested inside an atom node PM would reject — see convert.test.ts). An
+    // atom block type may carry a `text` DeltaSpan[] in doc-schema (mermaid's
+    // body grammar lives there) even though it has no editable PM
     // content — that rides losslessly as the `blockText` attr instead.
     return {
       type: nodeType,
@@ -168,7 +168,7 @@ function blockToPMNode(doc: DocDocument, blockId: string): PMNode {
   // rejected by ProseMirror): a mandatory `docBlockText` wrapper carrying the
   // block's OWN inline text is always content[0], followed by any nested
   // DocBlock children as sibling block nodes.
-  const wrapper: PMNode = { type: "docBlockText", content: deltaToPMInline(block.text, block.flavour !== "code") };
+  const wrapper: PMNode = { type: "docBlockText", content: deltaToPMInline(block.text, block.type !== "code") };
   const content: PMNode[] = [wrapper, ...block.children.map((childId) => blockToPMNode(doc, childId))];
   return {
     type: nodeType,
@@ -186,13 +186,13 @@ function blockToPMNode(doc: DocDocument, blockId: string): PMNode {
  */
 export function docToPM(doc: DocDocument): PMNode {
   const root = doc.blocks[doc.root];
-  const { promoted, blockProps } = splitPropsForNode(root.flavour, root.props);
+  const { promoted, blockProps } = splitPropsForNode(root.type, root.props);
   return {
     type: "doc",
     attrs: {
       blockId: root.id,
       blockProps,
-      rootType: root.flavour,
+      rootType: root.type,
       ...promoted,
     },
     content: root.children.map((childId) => blockToPMNode(doc, childId)),
@@ -256,12 +256,12 @@ function sameSpanAttrs(a: DeltaSpanAttributes | undefined, b: DeltaSpanAttribute
  * its original `props` doesn't grow one just because the PM node type
  * defines the attr.
  */
-function joinPropsFromNode(flavour: DocBlockType, attrs: Record<string, unknown>): Record<string, unknown> {
+function joinPropsFromNode(blockType: DocBlockType, attrs: Record<string, unknown>): Record<string, unknown> {
   const blockProps = (attrs.blockProps as Record<string, unknown>) ?? {};
   const props: Record<string, unknown> = { ...blockProps };
-  if (flavour === "heading" && typeof attrs.level === "number") props.level = attrs.level;
-  if (flavour === "list-item" && typeof attrs.ordered === "boolean") props.ordered = attrs.ordered;
-  if (flavour === "code" && typeof attrs.language === "string" && attrs.language) {
+  if (blockType === "heading" && typeof attrs.level === "number") props.level = attrs.level;
+  if (blockType === "list-item" && typeof attrs.ordered === "boolean") props.ordered = attrs.ordered;
+  if (blockType === "code" && typeof attrs.language === "string" && attrs.language) {
     props.language = attrs.language;
   }
   return props;
@@ -290,23 +290,23 @@ function pmNodeToBlock(
   used: Set<string>,
   blocks: Record<string, DocBlock>,
 ): string {
-  const flavour = NODE_TYPE_TO_BLOCK_TYPE[node.type];
-  if (!flavour) {
-    throw new Error(`pmToDoc: unknown PM node type "${node.type}" (no doc-schema flavour mapping).`);
+  const blockType = NODE_TYPE_TO_BLOCK_TYPE[node.type];
+  if (!blockType) {
+    throw new Error(`pmToDoc: unknown PM node type "${node.type}" (no doc-schema block type mapping).`);
   }
   const attrs = node.attrs ?? {};
   const existingId = typeof attrs.blockId === "string" && attrs.blockId ? attrs.blockId : null;
   const id = existingId && !used.has(existingId) ? existingId : mintId(idFactory, used);
   used.add(id);
 
-  const props = joinPropsFromNode(flavour, attrs);
-  const isTextBlock = (TEXT_BLOCK_TYPES as readonly string[]).includes(flavour);
+  const props = joinPropsFromNode(blockType, attrs);
+  const isTextBlock = (TEXT_BLOCK_TYPES as readonly string[]).includes(blockType);
 
   if (!isTextBlock) {
     const blockText = attrs.blockText as DeltaSpan[] | null | undefined;
     blocks[id] = {
       id,
-      flavour,
+      type: blockType,
       props,
       children: [],
       ...(blockText && blockText.length > 0 ? { text: blockText } : {}),
@@ -329,7 +329,7 @@ function pmNodeToBlock(
 
   blocks[id] = {
     id,
-    flavour,
+    type: blockType,
     props,
     text,
     children,
@@ -347,7 +347,7 @@ function pmNodeToBlock(
  */
 export function pmToDoc(pmDoc: PMNode, baseDoc: DocDocument, idFactory: DocIdFactory): DocDocument {
   const rootAttrs = pmDoc.attrs ?? {};
-  const rootType = (rootAttrs.rootType as DocBlockType) ?? baseDoc.blocks[baseDoc.root].flavour;
+  const rootType = (rootAttrs.rootType as DocBlockType) ?? baseDoc.blocks[baseDoc.root].type;
   const rootId =
     typeof rootAttrs.blockId === "string" && rootAttrs.blockId ? rootAttrs.blockId : baseDoc.root;
 
@@ -358,7 +358,7 @@ export function pmToDoc(pmDoc: PMNode, baseDoc: DocDocument, idFactory: DocIdFac
 
   blocks[rootId] = {
     id: rootId,
-    flavour: rootType,
+    type: rootType,
     props: rootProps,
     children,
   };
@@ -468,15 +468,15 @@ function indexByParentAmong(doc: DocDocument, keepIds: Set<string>): Map<string,
  * ops that either silently drop data or fail mid-batch. A base block is
  * doomed when it — or any base ancestor of it — is:
  *
- * 1. FLAVOUR-CHANGED: its id survived the edit but its flavour differs.
- *    `updateBlock` deliberately has NO flavour field (§8.3 — a block's
- *    flavour is part of its identity), so a props-only update would
- *    SILENTLY DROP the flavour change. Unreachable from today's editor
+ * 1. TYPE-CHANGED: its id survived the edit but its block type differs.
+ *    `updateBlock` deliberately has NO block type field (§8.3 — a block's
+ *    block type is part of its identity), so a props-only update would
+ *    SILENTLY DROP the block type change. Unreachable from today's editor
  *    (input rules reset `blockId`, so a retyped block already arrives as
- *    delete+insert), but a future flavour-preserving "turn into" command
+ *    delete+insert), but a future block type-preserving "turn into" command
  *    would hit this. Fresh id per §8.3: comment/backlink targets anchored
  *    to the old id become detectably dangling rather than silently
- *    re-anchoring to a different-flavoured block.
+ *    re-anchoring to a different-typed block.
  * 2. DELETED with surviving escapees: the block is gone from the edited doc
  *    (subtree deleteBlock), but a descendant escaped the doomed subtree
  *    (e.g. cut a nested block, paste it elsewhere, delete the old parent).
@@ -494,14 +494,14 @@ function reidentifyDoomedSurvivors(
   editedDoc: DocDocument,
   idFactory: DocIdFactory | undefined,
 ): DocDocument {
-  // A doomed base id: itself deleted/flavour-changed, or living under one.
+  // A doomed base id: itself deleted/block type-changed, or living under one.
   const doomed = new Set<string>();
   const walk = (id: string, underDoomed: boolean) => {
     const block = baseDoc.blocks[id];
     if (!block) return;
     const edited = editedDoc.blocks[id];
     const isRoot = id === baseDoc.root;
-    const isDoomed = underDoomed || (!isRoot && (!edited || edited.flavour !== block.flavour));
+    const isDoomed = underDoomed || (!isRoot && (!edited || edited.type !== block.type));
     if (isDoomed && !isRoot) doomed.add(id);
     for (const childId of block.children) walk(childId, isDoomed);
   };
@@ -549,7 +549,7 @@ function reidentifyDoomedSurvivors(
  *     differ                                      -> updateBlock
  *   - id in both, parent or index differs          -> moveBlock (+ updateBlock
  *     if props/text ALSO differ)
- *   - id in both but FLAVOUR differs (or the block
+ *   - id in both but BLOCK TYPE differs (or the block
  *     escaped a deleted subtree)                    -> deleteBlock + insertBlock
  *     with a fresh id (see `reidentifyDoomedSurvivors`)
  *
@@ -626,7 +626,7 @@ export function diffToOps(
       blockId: id,
       parentId: parented.parentId,
       index: parented.index,
-      flavour: block.flavour,
+      blockType: block.type,
       props: { ...block.props },
       text: block.text ? block.text.map((span) => ({ ...span })) : undefined,
     });
@@ -662,7 +662,7 @@ export function diffToOps(
     }
 
     const propsChanged = !shallowEqualProps(baseBlock.props, editedBlock.props);
-    const textChanged = !sameText(baseBlock.text, editedBlock.text, editedBlock.flavour !== "code");
+    const textChanged = !sameText(baseBlock.text, editedBlock.text, editedBlock.type !== "code");
     if (propsChanged || textChanged) {
       ops.push({
         type: "updateBlock",

@@ -15,7 +15,9 @@ import { ATOM_BLOCK_NODES_WITH_VIEWS } from "./views/node-views";
 import { DocEditorNodeViewProvider } from "./views/node-view-context";
 import { SlashMenu, SlashMenuPopover } from "./menus/SlashMenu";
 import { DocReference, ReferenceMention, ReferenceMentionPopover } from "./menus/reference-node";
+import { LinkEditor, LinkEditorPopover } from "./menus/link-editor";
 import { buildDocInputRules } from "./input/input-rules";
+import { VideoDropHandler, type UploadVideoAsset } from "./input/video-embed";
 import { ChangedFlash, setChangedFlashIds } from "./decorations/changed-flash";
 import { DocKeymap } from "./input/keymap";
 import { DocPlaceholder } from "./decorations/placeholder";
@@ -57,6 +59,15 @@ export type DocEditorProps = {
   documentPath?: string | null;
   renderCanvas?: DocBlockRenderContext["renderCanvas"];
   resolveAssetSrc?: DocBlockRenderContext["resolveAssetSrc"];
+  /**
+   * Host-injected asset uploader (same host-capability slot family as
+   * `renderCanvas`/`resolveAssetSrc`): uploads a video file dropped onto the
+   * editor and resolves to the bundle-relative `src` a `video` block's props
+   * carry (e.g. `./assets/videos/demo.mp4`). Omit it and video-file drops
+   * fall through to the browser default — docs-viewer stays host-neutral
+   * about where bytes go.
+   */
+  uploadAsset?: UploadVideoAsset;
   onApplyOps: (ops: DocOp[]) => Promise<DocBlockSaveResult>;
   onReloadDoc?: () => void;
   /**
@@ -112,6 +123,7 @@ export default function DocEditor({
   documentPath,
   renderCanvas,
   resolveAssetSrc,
+  uploadAsset,
   onApplyOps,
   onReloadDoc,
   onEditorReady,
@@ -218,6 +230,17 @@ export default function DocEditor({
     [],
   );
 
+  // Video paste/drop authoring (input/video-embed.ts). The extension list is
+  // built once, but the host's `uploadAsset` prop identity may change per
+  // render — the option is a GETTER over a latest-render ref (same pattern as
+  // onApplyOpsRef above).
+  const uploadAssetRef = useRef(uploadAsset);
+  uploadAssetRef.current = uploadAsset;
+  const DocVideoDrop = useMemo(
+    () => VideoDropHandler.configure({ getUploadAsset: () => uploadAssetRef.current }),
+    [],
+  );
+
   const editor = useEditor({
     extensions: [
       // StarterKit supplies the top-level `doc`/`text` nodes (its
@@ -238,7 +261,11 @@ export default function DocEditor({
         codeBlock: false,
         heading: false,
         horizontalRule: false,
-        link: { openOnClick: false, autolink: false },
+        // linkOnPaste is ALSO off: link-editor.tsx's paste plugin owns
+        // paste-URL-over-selection (Notion semantics), and a URL pasted at a
+        // collapsed cursor must insert as plain text — TipTap's default
+        // linkOnPaste would mark it.
+        link: { openOnClick: false, autolink: false, linkOnPaste: false },
         listItem: false,
         listKeymap: false,
         orderedList: false,
@@ -250,6 +277,14 @@ export default function DocEditor({
       DocReference,
       SlashMenu,
       ReferenceMention,
+      // Mod-K link popover + paste-URL-over-selection (authoring UI for the
+      // link mark StarterKit already registers — autolink/openOnClick stay
+      // off above; see link-editor.tsx).
+      LinkEditor,
+      // Paste/drop-a-video authoring: URL drops + file-drop upload (the
+      // provider-URL PASTE path runs inside LinkEditor's handlePaste — see
+      // input/video-embed.ts).
+      DocVideoDrop,
       DocInputRules,
       ChangedFlash,
       // Notion-style Enter/Backspace behavior (sibling paragraph after a
@@ -417,7 +452,7 @@ export default function DocEditor({
           // Advance the baseline to EXACTLY what the backend now has — i.e.
           // `ops` applied to the old baseline — not to `currentDoc`: diffToOps
           // may have re-identified doomed-survivor blocks (fresh ids for
-          // flavour changes / subtree-delete escapees, see convert.ts), in
+          // block type changes / subtree-delete escapees, see convert.ts), in
           // which case currentDoc's ids no longer match the backend and every
           // subsequent diff would emit ops against ids the backend doesn't
           // have. When no re-identification happened, applyOps(base, ops)
@@ -621,6 +656,7 @@ export default function DocEditor({
         )}
         <EditorContent editor={editor} />
         <SlashMenuPopover editor={editor} />
+        <LinkEditorPopover editor={editor} />
         {projectId && <ReferenceMentionPopover editor={editor} projectId={projectId} />}
       </div>
     </DocEditorNodeViewProvider>

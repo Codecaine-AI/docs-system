@@ -115,8 +115,8 @@ function targetDoc(bundleId: string): unknown {
     id: bundleId,
     root: "root",
     blocks: {
-      root: { id: "root", flavour: "paragraph", props: {}, children: ["h1"] },
-      h1: { id: "h1", flavour: "heading", props: { level: 1 }, children: [] },
+      root: { id: "root", type: "paragraph", props: {}, children: ["h1"] },
+      h1: { id: "h1", type: "heading", props: { level: 1 }, children: [] },
     },
   };
 }
@@ -127,10 +127,10 @@ function sourceDocWithRef(bundleId: string, refPath: string): unknown {
     id: bundleId,
     root: "root",
     blocks: {
-      root: { id: "root", flavour: "paragraph", props: {}, children: ["p1"] },
+      root: { id: "root", type: "paragraph", props: {}, children: ["p1"] },
       p1: {
         id: "p1",
-        flavour: "paragraph",
+        type: "paragraph",
         props: {},
         children: [],
         text: [

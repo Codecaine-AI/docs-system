@@ -40,7 +40,7 @@ const DOC_JSON = (title: string) =>
     id: "doc-guide",
     root: "root-1",
     blocks: {
-      "root-1": { id: "root-1", flavour: "paragraph", props: { title }, children: [] },
+      "root-1": { id: "root-1", type: "paragraph", props: { title }, children: [] },
     },
   });
 

@@ -12,7 +12,7 @@ import { resolveBundleCanvasSrc } from "./bundle-src";
 
 /**
  * The doc.json read surface: walks a validated DocDocument from its root and
- * renders every block through the flavour registry (D28). The root block is
+ * renders every block through the block registry (D28). The root block is
  * the page container — its own chrome is skipped, its children are the page.
  */
 export interface DocBlockRendererProps {
@@ -30,9 +30,9 @@ export interface DocBlockRendererProps {
    */
   bundlePath?: string | null;
   /**
-   * Resolves `image`/`attachment` block `src` props to a fetchable URL
+   * Resolves `image` block `src` props to a fetchable URL
    * (e.g. via the `/docs/asset` GET route). Purely passed through to the
-   * flavour registry's `ctx.resolveAssetSrc` — this component owns no
+   * block registry's `ctx.resolveAssetSrc` — this component owns no
    * HTTP-fetching logic of its own, it just wires whatever the host
    * provides. Omit to keep existing callers' raw-`src` behavior unchanged.
    */
@@ -128,7 +128,7 @@ function UnknownBlockTypeBlock({ block }: { block: DocBlock }) {
       data-block-id={block.id}
     >
       <div className="font-display text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-        Unknown block flavour: {block.flavour}
+        Unknown block type: {block.type}
       </div>
     </section>
   );
@@ -195,7 +195,7 @@ export default function DocBlockRenderer({
     function renderBlock(blockId: string): ReactNode {
       const block = document.blocks[blockId];
       if (!block) return null;
-      const descriptor = getDocBlockDescriptor(block.flavour);
+      const descriptor = getDocBlockDescriptor(block.type);
       if (!descriptor) return <UnknownBlockTypeBlock key={blockId} block={block} />;
       return <Fragment key={blockId}>{descriptor.render(block, ctx)}</Fragment>;
     }

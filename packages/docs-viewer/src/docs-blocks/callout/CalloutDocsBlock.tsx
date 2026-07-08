@@ -18,6 +18,12 @@ type CalloutData = {
   id?: string;
   /** Tone (info/decision/risk/warning/success); unknown tones render as info. */
   tone: string;
+  /**
+   * Optional free-form kind (e.g. "Requirement", "Decision") shown as the
+   * label chip instead of the tone text. Coloring stays tone-derived. Legacy
+   * semantic cards are coerced to callouts with a kind at validation.
+   */
+  kind?: string;
   title?: string;
   body: string;
 };
@@ -60,7 +66,7 @@ export class CalloutDocsBlock extends DocsMdxBlock<CalloutData> {
       >
         <div className="mb-2 flex flex-wrap items-center gap-2">
           <Icon className="h-4 w-4 text-muted-foreground" />
-          <Badge variant="outline">{data.tone}</Badge>
+          <Badge variant="outline">{data.kind || data.tone}</Badge>
           <span className="font-display text-xs font-medium uppercase tracking-wider text-muted-foreground">
             Callout
           </span>

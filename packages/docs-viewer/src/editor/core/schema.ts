@@ -4,7 +4,6 @@ import { Node, mergeAttributes } from "@tiptap/core";
 import type { DocBlockType } from "@codecaine-ai/docs-model/doc-schema";
 import {
   CODE_BLOCK_CLASSES,
-  DECISION_CARD_CLASSES,
   HEADING_CLASSES,
   LIST_ITEM_BULLET_CLASSES,
   LIST_ITEM_CLASSES,
@@ -26,15 +25,15 @@ import {
  *   whose text/props are edited but never removed/recreated keeps exactly
  *   the same PM node identity attr, so `diffToOps` (convert.ts) can recognize
  *   it as the SAME block and emit a single `updateBlock`, never a
- *   delete+insert pair. `blockProps` carries the flavour's typed `props`
+ *   delete+insert pair. `blockProps` carries the block type's typed `props`
  *   blob verbatim (level/tone/src/... — whatever doc-schema allows) so
  *   round-tripping through the editor never drops metadata it doesn't
  *   specifically model as its own PM attr (e.g. heading's `level` IS its own
  *   attr for editing ergonomics, but anything else the block's props carried
  *   rides along in `blockProps` untouched).
  *
- * - Text-bearing flavours (paragraph, heading, docListItem, codeBlock, quote,
- *   callout, and the semantic/engineering flavours) are ProseMirror "block"
+ * - Text-bearing block types (paragraph, heading, docListItem, codeBlock, quote,
+ *   callout) are ProseMirror "block"
  *   group nodes with `content: "docBlockText block*"`. ProseMirror's content
  *   expression parser REJECTS a top-level mix of an inline-group reference
  *   and a block-group reference in the same sequence (confirmed via
@@ -52,11 +51,11 @@ import {
  *   is transparent in both directions: `docToPM`/`pmToDoc` (convert.ts) always
  *   emit/consume it as content[0] and never expose it as its own DocBlock.
  *
- * - Structured/atomic flavours (canvas, image, attachment, divider,
- *   file-tree, agent-contract) are PM atom leaf nodes (`atom: true`, no
- *   editable inline content). They carry their full `props` blob as
+ * - Structured/atomic block types (divider, image, video, canvas, file-tree,
+ *   structured-table, interaction-surface, mermaid) are PM atom leaf
+ *   nodes (`atom: true`, no editable inline content). They carry their full `props` blob as
  *   `blockProps` and render through a React NodeView (node-views.tsx) that
- *   DELEGATES to the existing flavour-registry descriptor's `render` — this
+ *   DELEGATES to the existing block-registry descriptor's `render` — this
  *   reuses the same renderCanvas/resolveAssetSrc wiring DocBlockRenderer
  *   already established, so canvas embeds/asset resolution behave
  *   identically in and out of edit mode.
@@ -70,7 +69,7 @@ import {
  *   mark its own arbitrary text content independent of the surrounding run.
  */
 
-/** Doc-schema flavours whose PM representation is an editable text block (`inline* block*` content). */
+/** Doc-schema block types whose PM representation is an editable text block (`inline* block*` content). */
 export const TEXT_BLOCK_TYPES = [
   "paragraph",
   "heading",
@@ -78,41 +77,21 @@ export const TEXT_BLOCK_TYPES = [
   "code",
   "quote",
   "callout",
-  "decision",
-  "constraint",
-  "assumption",
-  "observation",
-  "outcome",
-  "requirement",
-  "implementation",
-  "testing",
 ] as const satisfies readonly DocBlockType[];
 
-/** Doc-schema flavours whose PM representation is a non-editable atom leaf node. */
+/** Doc-schema block types whose PM representation is a non-editable atom leaf node. */
 export const ATOM_BLOCK_TYPES = [
   "divider",
   "image",
-  "attachment",
+  "video",
   "canvas",
-  "agent-contract",
   "file-tree",
-  // restored engineering/support/diagram flavours — atoms until the
-  // component-adapter restoration pass gives them dedicated editing UIs
-  "annotated-code",
-  "api-endpoint",
-  "api-surface",
-  "data-model",
-  "diff",
-  "implementation-map",
-  "json-explorer",
-  "checklist",
-  "columns",
   "structured-table",
-  "tabs",
+  "interaction-surface",
   "mermaid",
 ] as const satisfies readonly DocBlockType[];
 
-/** PM node type name -> doc-schema flavour. */
+/** PM node type name -> doc-schema block type. */
 export const NODE_TYPE_TO_BLOCK_TYPE: Record<string, DocBlockType> = {
   docParagraph: "paragraph",
   docHeading: "heading",
@@ -120,43 +99,25 @@ export const NODE_TYPE_TO_BLOCK_TYPE: Record<string, DocBlockType> = {
   docCodeBlock: "code",
   docQuote: "quote",
   docCallout: "callout",
-  docDecision: "decision",
-  docConstraint: "constraint",
-  docAssumption: "assumption",
-  docObservation: "observation",
-  docOutcome: "outcome",
-  docRequirement: "requirement",
-  docImplementation: "implementation",
-  docTesting: "testing",
   docDivider: "divider",
   docImage: "image",
-  docAttachment: "attachment",
+  docVideo: "video",
   docCanvas: "canvas",
-  docAgentContract: "agent-contract",
   docFileTree: "file-tree",
-  docAnnotatedCode: "annotated-code",
-  docApiEndpoint: "api-endpoint",
-  docApiSurface: "api-surface",
-  docDataModel: "data-model",
-  docDiff: "diff",
-  docImplementationMap: "implementation-map",
-  docJsonExplorer: "json-explorer",
-  docChecklist: "checklist",
-  docColumns: "columns",
   docStructuredTable: "structured-table",
-  docTabs: "tabs",
+  docInteractionSurface: "interaction-surface",
   docMermaid: "mermaid",
 };
 
-/** Inverse of NODE_TYPE_TO_BLOCK_TYPE — doc-schema flavour -> PM node type name. */
+/** Inverse of NODE_TYPE_TO_BLOCK_TYPE — doc-schema block type -> PM node type name. */
 export const BLOCK_TYPE_TO_NODE_TYPE: Record<DocBlockType, string> = Object.fromEntries(
-  Object.entries(NODE_TYPE_TO_BLOCK_TYPE).map(([nodeType, flavour]) => [flavour, nodeType]),
+  Object.entries(NODE_TYPE_TO_BLOCK_TYPE).map(([nodeType, blockType]) => [blockType, nodeType]),
 ) as Record<DocBlockType, string>;
 
 /** Shared attrs every block-carrying node needs: the stable id + typed props blob. */
 const blockAttrs = {
   // Rendered to the DOM as `data-block-id` — the SAME wrapper attribute the
-  // flavour-registry descriptors emit on the read surface, so host features
+  // block-registry descriptors emit on the read surface, so host features
   // that LOCATE blocks by id (scroll-to-block, test selectors) work
   // identically over the editor's DOM. Note the SSE change flash cannot ride
   // this alone: hosts must not SET attributes inside the editor (PM's DOM
@@ -190,7 +151,7 @@ type DomOutputSpec = [string, Record<string, unknown>, number] | [string, Record
  * `group: "block"` made TipTap's trailing-node behavior treat it as a valid
  * trailing filler node directly under `doc` itself (whose own content is
  * `"block+"`), inserting a stray top-level `docBlockText` sibling that
- * `pmToDoc` then choked on (no doc-schema flavour mapping for it).
+ * `pmToDoc` then choked on (no doc-schema block type mapping for it).
  */
 export const DocBlockText = Node.create({
   name: "docBlockText",
@@ -203,7 +164,7 @@ export const DocBlockText = Node.create({
   },
 });
 
-/** Common factory for the "docBlockText block*" text block nodes — same shape, distinguished by node name/flavour and (for heading) one extra attr. */
+/** Common factory for the "docBlockText block*" text block nodes — same shape, distinguished by node name/block type and (for heading) one extra attr. */
 function textBlockNode(
   name: string,
   options: {
@@ -337,14 +298,12 @@ export const DocQuote = textBlockNode("docQuote", {
 });
 
 /**
- * Shared factory for callout + the semantic/engineering "simple card"
- * flavours — all `inline* block*` content, distinguished only by node
- * name/flavour. The DOM carries the read surface's card-container chrome
- * (block-classes.ts) so a card block LOOKS like a card while editing; the
- * badge/label header row the read surface adds is presentation the editor
- * intentionally omits (it would be static non-editable furniture inside a
- * text block). `cardClasses` defaults to the primary-tone card; decision
- * uses its lighter tone.
+ * Card-styled text block factory (callout is the only remaining user) —
+ * `docBlockText block*` content like every other text block. The DOM carries
+ * the read surface's card-container chrome (block-classes.ts) so a card
+ * block LOOKS like a card while editing; the badge/label header row the read
+ * surface adds is presentation the editor intentionally omits (it would be
+ * static non-editable furniture inside a text block).
  */
 function semanticNode(name: string, cardClasses: string = SEMANTIC_CARD_CLASSES) {
   return textBlockNode(name, {
@@ -361,14 +320,6 @@ function semanticNode(name: string, cardClasses: string = SEMANTIC_CARD_CLASSES)
 }
 
 export const DocCallout = semanticNode("docCallout");
-export const DocDecision = semanticNode("docDecision", DECISION_CARD_CLASSES);
-export const DocConstraint = semanticNode("docConstraint");
-export const DocAssumption = semanticNode("docAssumption");
-export const DocObservation = semanticNode("docObservation");
-export const DocOutcome = semanticNode("docOutcome");
-export const DocRequirement = semanticNode("docRequirement");
-export const DocImplementation = semanticNode("docImplementation");
-export const DocTesting = semanticNode("docTesting");
 
 /** Factory for the atom (non-editable) leaf block nodes; NodeView wiring (`addNodeView`) is attached in node-views.tsx via `.extend()` to keep this module React-free. */
 function atomBlockNode(name: string) {
@@ -379,10 +330,10 @@ function atomBlockNode(name: string) {
     selectable: true,
     draggable: false,
     addAttributes() {
-      // Atom flavours have no PM inline content slot, but doc-schema allows
-      // ANY block (including atoms like agent-contract) to carry a `text`
-      // DeltaSpan[] — e.g. agent-contract's description. `blockText` rides
-      // that verbatim as a plain attr (never rendered as editable PM
+      // Atom block types have no PM inline content slot, but doc-schema allows
+      // ANY block (including atoms like mermaid, whose body
+      // grammar lives in `text`) to carry a `text` DeltaSpan[]. `blockText`
+      // rides that verbatim as a plain attr (never rendered as editable PM
       // content) so convert.ts's atom-node path stays lossless.
       return { ...blockAttrs, blockText: { default: null as unknown } };
     },
@@ -397,26 +348,14 @@ function atomBlockNode(name: string) {
 
 export const DocDivider = atomBlockNode("docDivider");
 export const DocImage = atomBlockNode("docImage");
-export const DocAttachment = atomBlockNode("docAttachment");
+export const DocVideo = atomBlockNode("docVideo");
 export const DocCanvas = atomBlockNode("docCanvas");
-export const DocAgentContract = atomBlockNode("docAgentContract");
 export const DocFileTree = atomBlockNode("docFileTree");
-// Restored engineering/support/diagram flavours — plain atoms for now; the
-// restoration pass swaps their node views to real component adapters.
-export const DocAnnotatedCode = atomBlockNode("docAnnotatedCode");
-export const DocApiEndpoint = atomBlockNode("docApiEndpoint");
-export const DocApiSurface = atomBlockNode("docApiSurface");
-export const DocDataModel = atomBlockNode("docDataModel");
-export const DocDiff = atomBlockNode("docDiff");
-export const DocImplementationMap = atomBlockNode("docImplementationMap");
-export const DocJsonExplorer = atomBlockNode("docJsonExplorer");
-export const DocChecklist = atomBlockNode("docChecklist");
-export const DocColumns = atomBlockNode("docColumns");
 export const DocStructuredTable = atomBlockNode("docStructuredTable");
-export const DocTabs = atomBlockNode("docTabs");
+export const DocInteractionSurface = atomBlockNode("docInteractionSurface");
 export const DocMermaid = atomBlockNode("docMermaid");
 
-/** All text-block node definitions (used to build the editor's extension list). `DocBlockText` must be registered too — every text-bearing node above references it in its content expression — but it is NOT itself a doc-schema flavour (see NODE_TYPE_TO_BLOCK_TYPE: it has no entry) and convert.ts never treats it as its own DocBlock. */
+/** All text-block node definitions (used to build the editor's extension list). `DocBlockText` must be registered too — every text-bearing node above references it in its content expression — but it is NOT itself a doc-schema block type (see NODE_TYPE_TO_BLOCK_TYPE: it has no entry) and convert.ts never treats it as its own DocBlock. */
 export const TEXT_BLOCK_NODES = [
   DocBlockText,
   DocParagraph,
@@ -425,34 +364,16 @@ export const TEXT_BLOCK_NODES = [
   DocCodeBlock,
   DocQuote,
   DocCallout,
-  DocDecision,
-  DocConstraint,
-  DocAssumption,
-  DocObservation,
-  DocOutcome,
-  DocRequirement,
-  DocImplementation,
-  DocTesting,
 ];
 
 /** All atom (base, un-node-viewed) node definitions — node-views.tsx re-exports NodeView-attached versions of these under the same names. */
 export const ATOM_BLOCK_NODES = [
   DocDivider,
   DocImage,
-  DocAttachment,
+  DocVideo,
   DocCanvas,
-  DocAgentContract,
   DocFileTree,
-  DocAnnotatedCode,
-  DocApiEndpoint,
-  DocApiSurface,
-  DocDataModel,
-  DocDiff,
-  DocImplementationMap,
-  DocJsonExplorer,
-  DocChecklist,
-  DocColumns,
   DocStructuredTable,
-  DocTabs,
+  DocInteractionSurface,
   DocMermaid,
 ];

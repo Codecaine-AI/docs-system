@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 /**
  * Base shape of a docs-block component implementation. These originated in
  * the MDX-tag era (hence the parsed-block field names); today their only
- * consumer is flavour-registry.ts, which constructs a `DocsMdxParsedBlock`
+ * consumer is block-registry.ts, which constructs a `DocsMdxParsedBlock`
  * from doc.json props + a delta->markdown body projection and delegates to
  * `render`. The MDX parsing side (tag registry, attr/body parsers) is gone.
  */

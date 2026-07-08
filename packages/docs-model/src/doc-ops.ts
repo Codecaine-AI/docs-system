@@ -1,10 +1,18 @@
 "use client";
 
+import { getBlockAction } from "./block-actions";
 import type { DeltaSpan, DocBlock, DocBlockType, DocDocument, DocValidationIssue } from "./doc-schema";
 import { isDocBlockType } from "./doc-schema";
 
 /**
  * Typed block op vocabulary (M2 tracer, design record §4.5 + §8.3).
+ *
+ * Seven ops: the six generic structural/text ops plus `blockAction`, the
+ * typed-action bridge. A blockAction resolves a named action from the
+ * block-actions registry (block-actions.ts), runs its validated `apply()`
+ * against the target block, and executes the resulting shallow-merge props
+ * patch through the EXISTING updateBlock code path — so merge semantics are
+ * single-sourced and the inverse op is the usual updateBlock inverse.
  *
  * Id-stability contract (§8.3 — system invariant, locked by
  * __tests__/doc-ops.contract.test.ts):
@@ -69,6 +77,13 @@ export type DocOp =
       type: "mergeBlocks";
       /** Two or more contiguous siblings, in document order. */
       blockIds: string[];
+    }
+  | {
+      type: "blockAction";
+      blockId: string;
+      /** Registry key, "<blockType>.<verb>" — see block-actions.ts. */
+      action: string;
+      params: Record<string, unknown>;
     };
 
 export type DocOpResult =
@@ -516,6 +531,29 @@ export function applyOp(doc: DocDocument, op: DocOp, idFactory?: DocIdFactory): 
       });
       inverse.push({ type: "deleteBlock", blockId: mergedId, mode: "subtree" });
       return { ok: true, doc: withBlocks(doc, blocks), inverse };
+    }
+
+    case "blockAction": {
+      const definition = getBlockAction(op.action);
+      if (!definition) {
+        return fail("$.op.action", `Unknown block action: "${String(op.action)}".`);
+      }
+      const block = doc.blocks[op.blockId];
+      if (!block) {
+        return fail("$.op.blockId", `blockAction target "${op.blockId}" does not exist.`);
+      }
+      if (block.type !== definition.blockType) {
+        return fail(
+          "$.op.blockId",
+          `blockAction "${op.action}" targets "${definition.blockType}" blocks, but "${op.blockId}" is a "${block.type}".`,
+        );
+      }
+      const result = definition.apply(block, op.params ?? {});
+      if (!result.ok) return { ok: false, issues: result.issues };
+      // Execute the action's shallow-merge patch through the existing
+      // updateBlock path (never duplicated here) — the inverse comes back as
+      // the usual updateBlock inverse.
+      return applyOp(doc, { type: "updateBlock", blockId: op.blockId, props: result.props }, idFactory);
     }
 
     default: {

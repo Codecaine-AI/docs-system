@@ -55,10 +55,10 @@ import { referenceMentionPluginKey } from "../menus/reference-node";
  *   the block format before it ever deletes/joins).
  */
 
-/** Node type names whose content is `"docBlockText block*"` (all text-bearing flavours except code, which is a flat `text*` block). */
+/** Node type names whose content is `"docBlockText block*"` (all text-bearing block types except code, which is a flat `text*` block). */
 const WRAPPED_TEXT_NODE_NAMES: ReadonlySet<string> = new Set(
-  TEXT_BLOCK_TYPES.filter((flavour) => flavour !== "code").map(
-    (flavour) => BLOCK_TYPE_TO_NODE_TYPE[flavour],
+  TEXT_BLOCK_TYPES.filter((blockType) => blockType !== "code").map(
+    (blockType) => BLOCK_TYPE_TO_NODE_TYPE[blockType],
   ),
 );
 
@@ -159,7 +159,7 @@ function applyEnterAtCursor(tr: Transaction, schema: Schema): boolean {
   if (block.type.name === "docListItem") {
     if ($from.parent.content.size === 0) {
       // Empty list item: exit the list — convert to a paragraph in place
-      // (id preserved; the save layer treats a flavour change as
+      // (id preserved; the save layer treats a block type change as
       // delete+insert with a fresh id, which is exactly right).
       tr.setNodeMarkup($from.before(blockDepth), schema.nodes.docParagraph, {
         blockId: block.attrs.blockId ?? null,
@@ -168,7 +168,7 @@ function applyEnterAtCursor(tr: Transaction, schema: Schema): boolean {
       return true;
     }
     // Non-empty: split into a new sibling list item with the same `ordered`
-    // flavour; fresh identity (id minted on save).
+    // block type; fresh identity (id minted on save).
     return splitIntoSibling(tr, schema, block.type, {
       blockId: null,
       blockProps: {},

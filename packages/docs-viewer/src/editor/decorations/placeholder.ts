@@ -25,8 +25,8 @@ import { NODE_TYPE_TO_BLOCK_TYPE } from "../core/schema";
  *   focused (and the paragraph has no nested children) —
  *   "Type '/' for commands".
  * - docListItem: editor focused — "List".
- * - docQuote / docCallout / the semantic flavours: editor focused — their
- *   flavour name capitalized ("Quote", "Callout", "Decision", ...).
+ * - docQuote / docCallout: editor focused — their block type name
+ *   capitalized ("Quote", "Callout").
  *
  * Focus changes recompute correctly because TipTap's core FocusEvents
  * extension dispatches a meta transaction on focus/blur (keeping
@@ -55,18 +55,10 @@ function injectPlaceholderStyles(): void {
   document.head.appendChild(style);
 }
 
-/** Node type names that show their flavour name when empty and the editor is focused (quote + callout + semantic flavours). */
+/** Node type names that show their block type name when empty and the editor is focused (quote + callout). */
 const FOCUS_LABELED_NODE_NAMES: ReadonlySet<string> = new Set([
   "docQuote",
   "docCallout",
-  "docDecision",
-  "docConstraint",
-  "docAssumption",
-  "docObservation",
-  "docOutcome",
-  "docRequirement",
-  "docImplementation",
-  "docTesting",
 ]);
 
 /** "Empty" = the block's mandatory docBlockText wrapper (content[0]) holds no inline content. */

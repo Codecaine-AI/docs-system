@@ -184,7 +184,7 @@ describe("SlashMenuPopover rendering", () => {
     await openMenu(editor);
 
     const headers = Array.from(document.querySelectorAll("[data-doc-slash-menu-group]"));
-    expect(headers.map((h) => h.textContent)).toEqual(["Basic", "Blocks", "Semantic"]);
+    expect(headers.map((h) => h.textContent)).toEqual(["Basic", "Blocks"]);
     for (const header of headers) {
       // Normal case — the old UI uppercased headers via a class.
       expect(header.className).not.toContain("uppercase");
@@ -227,7 +227,7 @@ describe("keyboard model", () => {
     // Up from the first row wraps to the last…
     expect(await sendKey(editor, "ArrowUp")).toBe(true);
     expect(menuState(editor).selectedIndex).toBe(rowCount - 1);
-    expect(selectedRow(root()!)?.dataset.docSlashMenuRow).toBe("Observation");
+    expect(selectedRow(root()!)?.dataset.docSlashMenuRow).toBe("Image");
 
     // …and down from the last wraps back to the first.
     expect(await sendKey(editor, "ArrowDown")).toBe(true);

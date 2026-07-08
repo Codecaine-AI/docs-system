@@ -149,10 +149,37 @@ export async function getCanvasBySrc(src: string): Promise<CanvasPayload> {
   return fetchJson(`api/canvas?src=${encodeURIComponent(src)}`);
 }
 
-/** URL an `image`/`attachment` block's docs-root-relative src is served at. */
+/** URL an `image` block's docs-root-relative src is served at. */
 export function assetUrl(path: string): string {
   if (IS_STATIC) return `data/files/${encodePathSegments(path)}`;
   return `api/asset?path=${encodeURIComponent(path)}`;
+}
+
+export type UploadVideoAssetResponse = {
+  src: string;
+  path: string;
+  document_path: string;
+  content_type: string;
+  size: number;
+  filename: string;
+};
+
+/**
+ * Uploads a video file into the doc bundle's `assets/videos/` via the strict
+ * `/api/assets/video` route (video-extension/MIME allowlist, 64MB cap,
+ * collision-suffixed naming). `src` in the response is the bundle-relative
+ * `./assets/videos/<name>` a `video` block's props carry — the same shape
+ * `assetUrl` + `resolveBundleAssetSrc` already resolve at render time.
+ */
+export async function uploadVideoAsset(
+  path: string,
+  file: File,
+): Promise<UploadVideoAssetResponse> {
+  assertWritable("Uploading videos");
+  const form = new FormData();
+  form.append("file", file);
+  form.append("bundlePath", bundlePathOf(path));
+  return fetchJson(`api/assets/video`, { method: "POST", body: form });
 }
 
 let staticBacklinksPromise: Promise<Record<string, BacklinkRow[]>> | null = null;

@@ -20,7 +20,7 @@ export function resolveBundleCanvasSrc(
 
 /**
  * Canonicalizes a bundle-relative asset src (TG7.3), mirroring
- * `resolveBundleCanvasSrc` exactly: an `image`/`attachment` block's
+ * `resolveBundleCanvasSrc` exactly: an `image` block's
  * `./assets/...` src rewrites to the docs-root-relative form
  * `<bundlePath>/assets/...`. Root-relative srcs and `../` escapes pass
  * through unchanged.

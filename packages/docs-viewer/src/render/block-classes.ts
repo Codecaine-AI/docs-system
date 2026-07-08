@@ -1,8 +1,8 @@
 /**
  * Shared text-block class strings — the single source of truth for how the
- * text-flavour blocks LOOK, used by BOTH rendering surfaces:
+ * text-block type blocks LOOK, used by BOTH rendering surfaces:
  *
- * - the read/annotate surface: block-registry.ts's flavour descriptors (and
+ * - the read/annotate surface: block-registry.ts's block type descriptors (and
  *   the docs-blocks card components they delegate to), and
  * - the edit surface: editor/core/schema.ts's ProseMirror `renderHTML` specs.
  *
@@ -47,20 +47,17 @@ export const CODE_BLOCK_CLASSES =
 export const QUOTE_CLASSES =
   "my-4 border-l-2 border-primary/40 pl-3 text-sm italic leading-[1.7] text-muted-foreground";
 
-/** Card container chrome shared by callout/decision/semantic flavours (tone fragment appended separately). */
+/** Card container chrome for the callout block type (tone fragment appended separately). */
 export const CARD_BASE_CLASSES = "not-prose my-4 rounded-md border p-3";
 
-/** Default card tone (callout info/warning/risk/success, constraint, assumption, simple semantic cards). */
+/** Default card tone (callout info/warning/risk/success). */
 export const CARD_TONE_PRIMARY_CLASSES = "border-primary/30 bg-primary/5";
 
-/** Decision card tone (slightly lighter border). */
+/** Decision-tone card (callouts with tone="decision" — e.g. coerced legacy decision blocks). */
 export const CARD_TONE_DECISION_CLASSES = "border-primary/25 bg-primary/5";
 
-/** Full card container for the simple semantic flavours (observation, outcome, requirement, implementation, testing — and callout/constraint/assumption in the editor). */
+/** Card container for the callout block type in the editor (semanticNode). */
 export const SEMANTIC_CARD_CLASSES = `${CARD_BASE_CLASSES} ${CARD_TONE_PRIMARY_CLASSES}`;
 
-/** Full card container for the decision flavour. */
-export const DECISION_CARD_CLASSES = `${CARD_BASE_CLASSES} ${CARD_TONE_DECISION_CLASSES}`;
-
-/** Body text inside a semantic/engineering card (the registry's simple-card text row). */
+/** Body text inside a card block (the editor's callout node body). */
 export const CARD_BODY_TEXT_CLASSES = "font-sans text-sm leading-[1.7]";

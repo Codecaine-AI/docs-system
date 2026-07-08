@@ -136,8 +136,8 @@ describe("mdxToDoc — golden sample", () => {
 
   it("builds heading, paragraph, list, code, quote, divider blocks in document order", () => {
     const order = docBlockOrder(doc).filter((id) => id !== doc.root);
-    const flavours = order.map((id) => doc.blocks[id].flavour);
-    expect(flavours).toEqual([
+    const blockTypes = order.map((id) => doc.blocks[id].type);
+    expect(blockTypes).toEqual([
       "heading", // Sample Doc
       "paragraph", // bold/italic/link paragraph
       "heading", // Section
@@ -148,7 +148,7 @@ describe("mdxToDoc — golden sample", () => {
       "code",
       "quote",
       "divider",
-      "decision",
+      "callout", // Decision -> callout carrying kind="decision"
       "callout",
       "canvas",
       "code", // Mermaid fallback
@@ -182,23 +182,25 @@ describe("mdxToDoc — golden sample", () => {
     expect(secondItem.text?.map((s) => s.insert).join("")).toBe("Second item");
     expect(secondItem.children.length).toBe(1);
     const nested = doc.blocks[secondItem.children[0]];
-    expect(nested.flavour).toBe("list-item");
+    expect(nested.type).toBe("list-item");
     expect(nested.text?.map((s) => s.insert).join("")).toBe("Nested item");
   });
 
-  it("maps Decision/Callout/Canvas to their doc-schema flavours with expected props", () => {
+  it("maps Decision/Callout/Canvas to their doc-schema block types with expected props", () => {
     const order = docBlockOrder(doc).filter((id) => id !== doc.root);
+    // Decision has no first-class block type anymore — it migrates to a
+    // callout with the retired type name as props.kind (coercion parity).
     const decision = doc.blocks[order[10]];
-    expect(decision.flavour).toBe("decision");
-    expect(decision.props).toEqual({ status: "accepted", title: "Ship it" });
+    expect(decision.type).toBe("callout");
+    expect(decision.props).toEqual({ kind: "decision", status: "accepted", title: "Ship it" });
     expect(decision.text?.map((s) => s.insert).join("")).toBe("We decided to ship the sample.");
 
     const callout = doc.blocks[order[11]];
-    expect(callout.flavour).toBe("callout");
+    expect(callout.type).toBe("callout");
     expect(callout.props).toEqual({ tone: "info", title: "Heads up" });
 
     const canvas = doc.blocks[order[12]];
-    expect(canvas.flavour).toBe("canvas");
+    expect(canvas.type).toBe("canvas");
     expect(canvas.props.src).toBe("./assets/canvases/sample.canvas.json");
     expect(canvas.props.title).toBe("Sample Canvas");
   });
@@ -206,7 +208,7 @@ describe("mdxToDoc — golden sample", () => {
   it("falls back unmapped MDX components to a raw code block and warns", () => {
     const order = docBlockOrder(doc).filter((id) => id !== doc.root);
     const fallback = doc.blocks[order[13]];
-    expect(fallback.flavour).toBe("code");
+    expect(fallback.type).toBe("code");
     expect(fallback.props.language).toBe("mdx");
     expect(fallback.props.mdxTag).toBe("Mermaid");
     expect(fallback.text?.[0]?.insert).toContain("<Mermaid");
@@ -218,7 +220,7 @@ describe("mdxToDoc — golden sample", () => {
   it("preserves fenced code language and exact source text", () => {
     const order = docBlockOrder(doc).filter((id) => id !== doc.root);
     const code = doc.blocks[order[7]];
-    expect(code.flavour).toBe("code");
+    expect(code.type).toBe("code");
     expect(code.props.language).toBe("ts");
     expect(code.text).toEqual([{ insert: "const x = 1;" }]);
   });

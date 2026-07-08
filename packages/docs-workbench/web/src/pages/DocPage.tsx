@@ -41,6 +41,7 @@ import {
   resolveComment,
   subscribeDocsEvents,
   undoPatch,
+  uploadVideoAsset,
   type BacklinkRow,
 } from "../data/api";
 import { ActionPane } from "./ActionPane";
@@ -102,7 +103,7 @@ function canvasBlockIdsForSrc(
   const ids: string[] = [];
   for (const block of Object.values(doc.blocks)) {
     if (
-      block.flavour === "canvas" &&
+      block.type === "canvas" &&
       typeof block.props?.src === "string" &&
       resolveBundleCanvasSrc(bundlePath, block.props.src) === canvasSrc
     ) {
@@ -124,7 +125,7 @@ function referencedCanvasSrcs(
   }
   if (doc) {
     for (const block of Object.values(doc.blocks)) {
-      if (block.flavour === "canvas" && typeof block.props?.src === "string") {
+      if (block.type === "canvas" && typeof block.props?.src === "string") {
         srcs.add(resolveBundleCanvasSrc(bundlePath, block.props.src));
       }
     }
@@ -547,6 +548,17 @@ export function DocPage({
     [path],
   );
 
+  // Host uploader for video files dropped onto the editor (DocEditor's
+  // `uploadAsset` slot): POSTs into this bundle's assets/videos/ and hands
+  // back the bundle-relative src the inserted video block will carry.
+  const handleUploadAsset = useCallback(
+    async (file: File) => {
+      const response = await uploadVideoAsset(path, file);
+      return { src: response.src };
+    },
+    [path],
+  );
+
   const renderEditorCanvas = useCallback(
     (input: { id: string; canvasId?: string; src?: string; view?: string; title?: string }) => (
       <StandaloneCanvasEmbed
@@ -701,6 +713,7 @@ export function DocPage({
                   documentPath={path}
                   renderCanvas={renderEditorCanvas}
                   resolveAssetSrc={resolveAssetSrc}
+                  uploadAsset={handleUploadAsset}
                   onApplyOps={handleApplyOps}
                   onReloadDoc={handleReloadDoc}
                   onEditorReady={onEditorReady}

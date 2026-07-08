@@ -7,50 +7,39 @@ import { validateSpectreRef } from "./spectre-ref";
  * doc.json schema (design record §9.2, D24/D25/D28):
  * - Normalized tree: flat id-keyed `blocks` map + ordered `children` ids.
  * - Rich text as Delta JSON spans (D24), references as shared SpectreRef (D27).
- * - Semantic docs-blocks carry over as first-class block types (D28).
  * - A block's kind field is `type`. The BlockSuite-heritage key `flavour` is
  *   accepted on READ as a legacy alias (normalized into `type`) so older
  *   bundles — e.g. the canvas sibling project's docs — keep validating;
  *   writes always emit canonical `type`.
+ * - LEGACY TYPE COERCION: after the `flavour` aliasing above, any block whose
+ *   type is a string but NOT one of the 14 canonical types coerces to a
+ *   `callout` instead of failing validation. The retired/unknown type name is
+ *   preserved as `props.kind` (unless the block already carries a non-empty
+ *   string `props.kind` of its own); props, text, and children carry over
+ *   verbatim. This is deliberate resilience: it migrates the canvas sibling's
+ *   semantic-card blocks (requirement/decision/constraint/...) and its
+ *   never-in-schema legacy blocks (overview/design/reference) with zero file
+ *   rewrites — blocks canonicalize to the coerced form on next save.
  */
 
 export const DOC_BLOCK_TYPES = [
-  // core
+  // core text & structure
   "paragraph",
   "heading",
   "list-item",
-  "code",
   "quote",
-  "divider",
+  "code",
   "callout",
-  "image",
-  "attachment",
-  "canvas",
-  // semantic / engineering / support carried over from the MDX vocabulary
-  "decision",
-  "constraint",
-  "assumption",
-  "observation",
-  "outcome",
-  "requirement",
-  "implementation",
-  "testing",
-  "agent-contract",
-  "file-tree",
-  // restored engineering/support/diagram vocabulary (tracer descriptors in
-  // block-registry until the component-adapter restoration pass)
-  "annotated-code",
-  "api-endpoint",
-  "api-surface",
-  "data-model",
-  "diff",
-  "implementation-map",
-  "json-explorer",
-  "checklist",
-  "columns",
+  "divider",
+  // structured / engineering
   "structured-table",
-  "tabs",
+  "file-tree",
+  "interaction-surface",
+  // diagram & media
   "mermaid",
+  "canvas",
+  "image",
+  "video",
 ] as const;
 
 export type DocBlockType = (typeof DOC_BLOCK_TYPES)[number];
@@ -220,7 +209,9 @@ function validateBlockProps(
  * Pure structural validation (no throw, canvas-schema style):
  * - schemaVersion / id / root / blocks shape,
  * - block ids match their map key, block types known (legacy `flavour` key
- *   normalized into `type` on read), children are id arrays,
+ *   normalized into `type` on read; retired/unknown string types coerce to
+ *   `callout` with the type name preserved as `props.kind` — see module
+ *   header), children are id arrays,
  * - root exists in blocks,
  * - no orphan child references (every child id resolves),
  * - no shared children (a block reachable from two parents),
@@ -283,7 +274,7 @@ export function validateDocDocument(value: unknown): DocValidationResult {
       continue;
     }
     const rawType = rawBlock.type !== undefined ? rawBlock.type : rawBlock.flavour;
-    if (!isDocBlockType(rawType)) {
+    if (typeof rawType !== "string" || rawType.length === 0) {
       issues.push({
         path: `${path}.type`,
         message: `Unknown block type: ${String(rawType)}`,
@@ -294,14 +285,25 @@ export function validateDocDocument(value: unknown): DocValidationResult {
       issues.push({ path: `${path}.props`, message: "Block props must be an object." });
       continue;
     }
-    if (
-      !validateBlockProps(
-        rawType,
-        rawBlock.props as Record<string, unknown>,
-        `${path}.props`,
-        issues,
-      )
-    ) {
+    let blockType: DocBlockType;
+    let props = rawBlock.props as Record<string, unknown>;
+    if (isDocBlockType(rawType)) {
+      blockType = rawType;
+    } else {
+      // Legacy type coercion (see module header): retired/unknown string types
+      // become callouts; the original type name survives as props.kind unless
+      // the block already carries its own non-empty kind.
+      blockType = "callout";
+      const existingKind = props.kind;
+      props = {
+        ...props,
+        kind:
+          typeof existingKind === "string" && existingKind.length > 0
+            ? existingKind
+            : rawType,
+      };
+    }
+    if (!validateBlockProps(blockType, props, `${path}.props`, issues)) {
       continue;
     }
     if (!Array.isArray(rawBlock.children)) {
@@ -332,8 +334,8 @@ export function validateDocDocument(value: unknown): DocValidationResult {
 
     blocks[key] = {
       id: rawBlock.id,
-      type: rawType,
-      props: rawBlock.props as Record<string, unknown>,
+      type: blockType,
+      props,
       text,
       children,
     };
