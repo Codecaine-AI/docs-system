@@ -79,24 +79,24 @@ import {
  * for hosts that render the container through `useDocTargeting` manually.
  */
 export const DOC_TARGETING_CSS = `
-  .spectre-markdown [data-docs-target],
-  .spectre-markdown [data-mdx-block],
-  .spectre-markdown [data-docs-block-type] {
+  .docs-markdown [data-docs-target],
+  .docs-markdown [data-mdx-block],
+  .docs-markdown [data-docs-block-type] {
     border-radius: 6px;
   }
-  .spectre-markdown.docs-mode-select [data-docs-target],
-  .spectre-markdown.docs-mode-select [data-mdx-block],
-  .spectre-markdown.docs-mode-select [data-docs-block-type] {
+  .docs-markdown.docs-mode-select [data-docs-target],
+  .docs-markdown.docs-mode-select [data-mdx-block],
+  .docs-markdown.docs-mode-select [data-docs-block-type] {
     cursor: text;
   }
-  .spectre-markdown.docs-mode-pinpoint [data-docs-target],
-  .spectre-markdown.docs-mode-pinpoint [data-mdx-block],
-  .spectre-markdown.docs-mode-pinpoint [data-docs-block-type] {
+  .docs-markdown.docs-mode-pinpoint [data-docs-target],
+  .docs-markdown.docs-mode-pinpoint [data-mdx-block],
+  .docs-markdown.docs-mode-pinpoint [data-docs-block-type] {
     cursor: crosshair;
   }
-  .spectre-markdown.docs-mode-add [data-docs-target],
-  .spectre-markdown.docs-mode-add [data-mdx-block],
-  .spectre-markdown.docs-mode-add [data-docs-block-type] {
+  .docs-markdown.docs-mode-add [data-docs-target],
+  .docs-markdown.docs-mode-add [data-mdx-block],
+  .docs-markdown.docs-mode-add [data-docs-block-type] {
     cursor: copy;
   }
   .docs-target-hovered {

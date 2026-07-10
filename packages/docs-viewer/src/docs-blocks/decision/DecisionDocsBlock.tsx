@@ -99,7 +99,7 @@ export class DecisionDocsBlock extends DocsMdxBlock<DecisionData> {
           </h3>
         )}
         {data.body && (
-          <div className="spectre-markdown prose prose-sm dark:prose-invert max-w-none font-sans text-sm leading-[1.7]">
+          <div className="docs-markdown prose prose-sm dark:prose-invert max-w-none font-sans text-sm leading-[1.7]">
             {ctx.renderMarkdown(data.body)}
           </div>
         )}

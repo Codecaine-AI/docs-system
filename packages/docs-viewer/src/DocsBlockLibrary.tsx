@@ -1399,7 +1399,7 @@ export default function DocsBlockLibrary() {
                         </div>
                       </div>
                       <div ref={previewRef} className="p-4 sm:p-7">
-                        <div className="spectre-markdown prose prose-sm dark:prose-invert max-w-none font-sans text-sm leading-[1.7]">
+                        <div className="docs-markdown prose prose-sm dark:prose-invert max-w-none font-sans text-sm leading-[1.7]">
                           {selectedSource.trim() ? (
                             hasVisualPlayground ? (
                               <div className="grid gap-4">

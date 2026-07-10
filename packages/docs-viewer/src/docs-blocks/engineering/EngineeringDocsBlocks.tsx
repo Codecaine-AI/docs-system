@@ -323,7 +323,7 @@ export class ApiEndpointDocsBlock extends DocsMdxBlock<ApiEndpointData> {
           </div>
         )}
         {data.description && (
-          <div className="spectre-markdown prose prose-sm dark:prose-invert mb-3 max-w-none font-sans text-sm leading-[1.7]">
+          <div className="docs-markdown prose prose-sm dark:prose-invert mb-3 max-w-none font-sans text-sm leading-[1.7]">
             {ctx.renderMarkdown(data.description)}
           </div>
         )}

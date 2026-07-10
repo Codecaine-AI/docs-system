@@ -364,7 +364,7 @@ function DocsTabsPreview({
         })}
       </div>
       {activeTab && (
-        <div className="spectre-markdown prose prose-sm dark:prose-invert max-w-none rounded-md border bg-background p-3 font-sans text-sm leading-[1.7]">
+        <div className="docs-markdown prose prose-sm dark:prose-invert max-w-none rounded-md border bg-background p-3 font-sans text-sm leading-[1.7]">
           {renderMarkdown(activeTab.body)}
         </div>
       )}
@@ -518,7 +518,7 @@ export class ColumnsDocsBlock extends DocsMdxBlock<ColumnsData> {
               <h3 className="mb-2 font-display text-sm font-semibold text-foreground">
                 {column.label}
               </h3>
-              <div className="spectre-markdown prose prose-sm dark:prose-invert max-w-none font-sans text-sm leading-[1.7]">
+              <div className="docs-markdown prose prose-sm dark:prose-invert max-w-none font-sans text-sm leading-[1.7]">
                 {ctx.renderMarkdown(column.body)}
               </div>
             </section>

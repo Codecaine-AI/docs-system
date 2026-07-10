@@ -616,7 +616,7 @@ export function DocPage({ path, onEditorReady, isStatic = IS_STATIC }: DocPagePr
         <div className="min-h-0 min-w-0 flex-1 overflow-y-auto">
           <div key={canvasEpoch} ref={contentRef} className="mx-auto w-full max-w-[88ch] px-5 py-6 sm:px-8">
             {mode === "edit" ? (
-              <div className="spectre-markdown prose prose-sm dark:prose-invert relative max-w-none font-sans text-sm leading-[1.7]">
+              <div className="docs-markdown prose prose-sm dark:prose-invert relative max-w-none font-sans text-sm leading-[1.7]">
                 <DocEditor
                   document={doc}
                   projectId="local"
@@ -637,7 +637,7 @@ export function DocPage({ path, onEditorReady, isStatic = IS_STATIC }: DocPagePr
                 canvasIndex={canvasIndex}
                 selectedTargetId={selectedTargetId}
                 onTargetSelect={handleTargetSelect}
-                className="spectre-markdown prose prose-sm dark:prose-invert relative max-w-none font-sans text-sm leading-[1.7]"
+                className="docs-markdown prose prose-sm dark:prose-invert relative max-w-none font-sans text-sm leading-[1.7]"
               >
                 <DocBlockRenderer
                   document={doc}
@@ -651,7 +651,7 @@ export function DocPage({ path, onEditorReady, isStatic = IS_STATIC }: DocPagePr
                 />
               </DocTargetingLayer>
             ) : (
-              <div className="spectre-markdown prose prose-sm dark:prose-invert relative max-w-none font-sans text-sm leading-[1.7]">
+              <div className="docs-markdown prose prose-sm dark:prose-invert relative max-w-none font-sans text-sm leading-[1.7]">
                 <DocBlockRenderer
                   document={doc}
                   projectId="local"
