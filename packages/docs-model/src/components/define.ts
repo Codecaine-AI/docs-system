@@ -39,7 +39,19 @@ export function schemaIssues(
   errors: Iterable<ValueError>,
   base = "$.params",
 ): DocValidationIssue[] {
-  return Array.from(errors, (error) => ({
+  function collect(error: ValueError): ValueError[] {
+    const nested = error.errors.flatMap((branch) =>
+      Array.from(branch).flatMap(collect),
+    );
+    const deeper = nested.filter((nestedError) =>
+      error.path === ""
+        ? nestedError.path.startsWith("/")
+        : nestedError.path.startsWith(`${error.path}/`),
+    );
+    return deeper.length > 0 ? deeper : [error];
+  }
+
+  return Array.from(errors).flatMap(collect).map((error) => ({
     path: issuePath(error.path, base),
     message: error.message,
   }));
