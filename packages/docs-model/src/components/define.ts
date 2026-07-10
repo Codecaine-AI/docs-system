@@ -3,8 +3,8 @@
 import type { TObject } from "@sinclair/typebox";
 import { Value } from "@sinclair/typebox/value";
 import type { ValueError } from "@sinclair/typebox/value";
-import type { BlockActionParamSpec, BlockActionParamType } from "../block-actions";
 import type { DocValidationIssue } from "../doc-schema";
+import type { BlockActionParamSpec, BlockActionParamType } from "./compat";
 import type { ComponentAction } from "./types";
 
 export function defineComponentAction<P extends TObject>(

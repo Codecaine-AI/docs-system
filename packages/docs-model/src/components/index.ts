@@ -2,6 +2,13 @@
 
 import type { DocBlockType } from "../doc-schema";
 import { assertComponentRegistry } from "./checks";
+import { canvasComponent } from "./canvas";
+import { codeComponent } from "./code";
+import { fileTreeComponent } from "./file-tree";
+import { interactionSurfaceComponent } from "./interaction-surface";
+import { mermaidComponent } from "./mermaid";
+import { richTextComponent } from "./rich-text";
+import { structuredTableComponent } from "./structured-table";
 import type {
   BlockStateDefinition,
   ComponentAction,
@@ -12,10 +19,24 @@ export * from "./types";
 export * from "./define";
 export * from "./checks";
 export * from "./projection-utils";
+export * from "./compat";
+
+export { richTextComponent } from "./rich-text";
+export { codeComponent } from "./code";
+export { mermaidComponent } from "./mermaid";
+export { fileTreeComponent } from "./file-tree";
+export { structuredTableComponent } from "./structured-table";
+export { interactionSurfaceComponent } from "./interaction-surface";
+export { canvasComponent } from "./canvas";
 
 export const ALL_COMPONENTS: readonly ComponentBundle[] = [
-  // Wave 1 bundles registered in Wave 2: rich-text, code, mermaid, file-tree,
-  // structured-table, interaction-surface, canvas.
+  richTextComponent,
+  codeComponent,
+  mermaidComponent,
+  fileTreeComponent,
+  structuredTableComponent,
+  interactionSurfaceComponent,
+  canvasComponent,
 ];
 
 export const COMPONENT_BY_TYPE: ReadonlyMap<DocBlockType, ComponentBundle> = new Map(

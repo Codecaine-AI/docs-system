@@ -1,6 +1,7 @@
 "use client";
 
-import { getBlockAction } from "./block-actions";
+import { ACTION_REGISTRY } from "./components";
+import { checkParams } from "./components/define";
 import type { DeltaSpan, DocBlock, DocBlockType, DocDocument, DocValidationIssue } from "./doc-schema";
 import { isDocBlockType } from "./doc-schema";
 
@@ -9,7 +10,7 @@ import { isDocBlockType } from "./doc-schema";
  *
  * Seven ops: the six generic structural/text ops plus `blockAction`, the
  * typed-action bridge. A blockAction resolves a named action from the
- * block-actions registry (block-actions.ts), runs its validated `apply()`
+ * components action registry, validates its params, runs `apply()`
  * against the target block, and executes the resulting shallow-merge props
  * patch through the EXISTING updateBlock code path — so merge semantics are
  * single-sourced and the inverse op is the usual updateBlock inverse.
@@ -81,7 +82,7 @@ export type DocOp =
   | {
       type: "blockAction";
       blockId: string;
-      /** Registry key, "<blockType>.<verb>" — see block-actions.ts. */
+      /** Registry key, "<blockType>.<verb>" — see the components registry. */
       action: string;
       params: Record<string, unknown>;
     };
@@ -534,21 +535,30 @@ export function applyOp(doc: DocDocument, op: DocOp, idFactory?: DocIdFactory): 
     }
 
     case "blockAction": {
-      const definition = getBlockAction(op.action);
-      if (!definition) {
+      const action = ACTION_REGISTRY.get(op.action);
+      if (!action) {
         return fail("$.op.action", `Unknown block action: "${String(op.action)}".`);
       }
       const block = doc.blocks[op.blockId];
       if (!block) {
         return fail("$.op.blockId", `blockAction target "${op.blockId}" does not exist.`);
       }
-      if (block.type !== definition.blockType) {
+      if (block.type !== action.blockType) {
         return fail(
           "$.op.blockId",
-          `blockAction "${op.action}" targets "${definition.blockType}" blocks, but "${op.blockId}" is a "${block.type}".`,
+          `blockAction "${op.action}" targets "${action.blockType}" blocks, but "${op.blockId}" is a "${block.type}".`,
         );
       }
-      const result = definition.apply(block, op.params ?? {});
+      const params = op.params ?? {};
+      const issues = checkParams(action, params);
+      if (issues.length > 0) return { ok: false, issues };
+      if (!("apply" in action)) {
+        return fail(
+          "$.op.action",
+          `Action "${op.action}" is handled by the ${action.forward.authority} authority and cannot be applied as a doc op.`,
+        );
+      }
+      const result = action.apply(block, params);
       if (!result.ok) return { ok: false, issues: result.issues };
       // Execute the action's shallow-merge patch through the existing
       // updateBlock path (never duplicated here) — the inverse comes back as

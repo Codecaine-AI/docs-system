@@ -4,8 +4,8 @@ import {
   BLOCK_TYPE_CATEGORY,
   getBlockAction,
   listBlockActions,
-} from "../block-actions";
-import type { BlockActionResult } from "../block-actions";
+} from "..";
+import type { BlockActionResult } from "..";
 import type { DocBlock, DocBlockType } from "../doc-schema";
 import { DOC_BLOCK_TYPES } from "../doc-schema";
 

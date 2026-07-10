@@ -1,13 +1,33 @@
 "use client";
 
-import type {
-  BlockActionDefinition,
-  BlockActionResult,
-} from "../block-actions";
-import type { DocBlockType } from "../doc-schema";
+import type { DocBlock, DocBlockType } from "../doc-schema";
+import { codeComponent } from "./code";
 import { checkParams, deriveParamSpecs } from "./define";
-import { ACTION_REGISTRY } from "./index";
-import type { ComponentAction } from "./types";
+import { fileTreeComponent } from "./file-tree";
+import { interactionSurfaceComponent } from "./interaction-surface";
+import { structuredTableComponent } from "./structured-table";
+import type { BlockActionResult, ComponentAction } from "./types";
+
+export type BlockActionParamType = "string" | "number" | "boolean" | "object" | "array";
+
+export type BlockActionParamSpec = {
+  name: string;
+  type: BlockActionParamType;
+  required: boolean;
+  description: string;
+};
+
+export type BlockActionDefinition = {
+  /** Registry key: "<blockType>.<verb>". */
+  action: string;
+  blockType: DocBlockType;
+  /** One-line, agent-facing. */
+  description: string;
+  /** Discovery-only specs; the runtime checks live in apply(). */
+  params: BlockActionParamSpec[];
+  /** Pure: validates params itself and never mutates the input block. */
+  apply(block: DocBlock, params: Record<string, unknown>): BlockActionResult;
+};
 
 export type BlockCategory = "text" | "object";
 
@@ -55,6 +75,12 @@ export const LEGACY_ACTION_ORDER: readonly string[] = [
   "code.removeAnnotation",
 ];
 
+const LEGACY_ACTION_REGISTRY: ReadonlyMap<string, ComponentAction> = new Map(
+  [fileTreeComponent, structuredTableComponent, interactionSurfaceComponent, codeComponent].flatMap(
+    (component) => component.actions.map((action) => [action.action, action] as const),
+  ),
+);
+
 export function toLegacyDefinition(action: ComponentAction): BlockActionDefinition {
   return {
     action: action.action,
@@ -80,7 +106,7 @@ export function toLegacyDefinition(action: ComponentAction): BlockActionDefiniti
 
 export const BLOCK_ACTIONS: ReadonlyMap<string, BlockActionDefinition> = new Map(
   LEGACY_ACTION_ORDER.map((key) => {
-    const action = ACTION_REGISTRY.get(key);
+    const action = LEGACY_ACTION_REGISTRY.get(key);
     if (!action) throw new Error(`Legacy block action "${key}" is not registered.`);
     return [key, toLegacyDefinition(action)] as const;
   }),
@@ -95,12 +121,16 @@ export function listBlockActions(blockType?: DocBlockType): BlockActionDefinitio
   return blockType === undefined ? all : all.filter((definition) => definition.blockType === blockType);
 }
 
-// TODO(Wave 2): Re-export FILE_TREE_CHANGES, FileTreeEntry,
-// readFileTreeEntries, and FileTreeChange from the file-tree bundle home.
-// TODO(Wave 2): Re-export INTERACTION_SURFACE_KINDS,
-// InteractionSurfaceKind, InteractionSurfaceParam, InteractionSurfaceOperation,
-// and readInteractionSurfaceOperations from the interaction-surface bundle home.
-// TODO(Wave 2): Re-export CodeAnnotation and readCodeAnnotations from the code
-// bundle home.
-// TODO(Wave 2): Re-export BlockActionParamType and BlockActionParamSpec from
-// their bundle-home compatibility definitions.
+export { FILE_TREE_CHANGES, readFileTreeEntries } from "./file-tree/state";
+export type { FileTreeChange, FileTreeEntry } from "./file-tree/state";
+export {
+  INTERACTION_SURFACE_KINDS,
+  readInteractionSurfaceOperations,
+} from "./interaction-surface/state";
+export type {
+  InteractionSurfaceKind,
+  InteractionSurfaceOperation,
+  InteractionSurfaceParam,
+} from "./interaction-surface/state";
+export { readCodeAnnotations } from "./code/state";
+export type { CodeAnnotation } from "./code/state";

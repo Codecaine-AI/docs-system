@@ -5,7 +5,7 @@ import { Type } from "@sinclair/typebox";
 import { Value } from "@sinclair/typebox/value";
 
 import { DOC_BLOCK_TYPES } from "../../doc-schema";
-import type { BlockActionParamSpec } from "../../block-actions";
+import type { BlockActionParamSpec } from "../compat";
 import { collectRegistryIssues } from "../checks";
 import { checkParams, deriveParamSpecs, schemaIssues } from "../define";
 import type { ComponentAction, ComponentBundle } from "../types";
