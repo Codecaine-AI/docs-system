@@ -513,7 +513,6 @@
       "id": "b-10-save-pipeline-block-action-examples-23",
       "type": "interaction-surface",
       "props": {
-        "title": "blockAction examples (2 of 13)",
         "operations": [
           {
             "name": "structured-table.updateCell",
@@ -568,7 +567,8 @@
             "returns": "updateBlock props patch (standard inverse)",
             "kind": "action"
           }
-        ]
+        ],
+        "title": "blockAction examples (2 of 13)"
       },
       "children": []
     },
@@ -629,9 +629,9 @@
       "id": "b-10-save-pipeline-callout-dirty-suppress-20",
       "type": "callout",
       "props": {
-        "tone": "info",
         "kind": "Gotcha",
-        "title": "Why didn't the live update apply?"
+        "title": "Why didn't the live update apply?",
+        "tone": "info"
       },
       "text": [
         {

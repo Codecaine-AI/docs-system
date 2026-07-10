@@ -90,9 +90,9 @@
       "id": "b-00-manifesto-prime-directive-5",
       "type": "callout",
       "props": {
-        "tone": "decision",
         "kind": "Prime directive",
-        "title": "Markdown is the contract"
+        "title": "Markdown is the contract",
+        "tone": "decision"
       },
       "text": [
         {

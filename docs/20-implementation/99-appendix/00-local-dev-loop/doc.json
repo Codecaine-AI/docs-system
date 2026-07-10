@@ -272,6 +272,119 @@
       ],
       "children": []
     },
+    "b-00-local-dev-loop-everyday-commands-the-22": {
+      "id": "b-00-local-dev-loop-everyday-commands-the-22",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Everyday commands (the Makefile)"
+        }
+      ],
+      "children": []
+    },
+    "b-00-local-dev-loop-the-root-makefile-wraps-23": {
+      "id": "b-00-local-dev-loop-the-root-makefile-wraps-23",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The root "
+        },
+        {
+          "insert": "Makefile",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " wraps the loop into short targets ("
+        },
+        {
+          "insert": "make help",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " lists\nthem; ports match "
+        },
+        {
+          "insert": ".claude/launch.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "):"
+        }
+      ],
+      "children": []
+    },
+    "b-00-local-dev-loop-makefile-targets-24": {
+      "id": "b-00-local-dev-loop-makefile-targets-24",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Target",
+          "What it does"
+        ],
+        "density": "compact",
+        "rows": [
+          [
+            "make dev",
+            "Self-docs workbench with vite HMR on :4803 — THE loop for layout/UI iteration"
+          ],
+          [
+            "make serve",
+            "Self-docs workbench on :4802 from the static SPA build (cached at startup)"
+          ],
+          [
+            "make canvas",
+            "Sibling canvas project's docs with hot reload on :4801 (= bun run docs:canvas)"
+          ],
+          [
+            "make test",
+            "Full workspace test suite (= bun run test)"
+          ],
+          [
+            "make typecheck",
+            "tsc --noEmit across the workspace"
+          ],
+          [
+            "make check",
+            "typecheck + test"
+          ],
+          [
+            "make spa",
+            "Rebuild the static SPA cache — fixes docs-cli test timeouts after docs-viewer changes"
+          ],
+          [
+            "make install",
+            "bun install for the workspace"
+          ]
+        ],
+        "title": "Makefile targets"
+      },
+      "children": []
+    },
+    "b-00-local-dev-loop-callout-serve-no-hmr-25": {
+      "id": "b-00-local-dev-loop-callout-serve-no-hmr-25",
+      "type": "callout",
+      "props": {
+        "kind": "Gotcha",
+        "title": "make serve does not hot-reload",
+        "tone": "warning"
+      },
+      "text": [
+        {
+          "insert": "Plain serve builds the SPA once and caches it at startup, so tooling/source changes will not appear until you restart it (or rebuild the cache with make spa). Editing doc content is fine — that flows through the API live. For source iteration, use make dev."
+        }
+      ],
+      "children": []
+    },
     "b-00-local-dev-loop-shipping-tooling-to-a-co-12": {
       "id": "b-00-local-dev-loop-shipping-tooling-to-a-co-12",
       "type": "heading",
@@ -427,92 +540,6 @@
         },
         {
           "insert": ")."
-        }
-      ],
-      "children": []
-    },
-    "b-00-local-dev-loop-everyday-commands-the-22": {
-      "id": "b-00-local-dev-loop-everyday-commands-the-22",
-      "type": "heading",
-      "props": {
-        "level": 2
-      },
-      "text": [
-        {
-          "insert": "Everyday commands (the Makefile)"
-        }
-      ],
-      "children": []
-    },
-    "b-00-local-dev-loop-the-root-makefile-wraps-23": {
-      "id": "b-00-local-dev-loop-the-root-makefile-wraps-23",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "The root "
-        },
-        {
-          "insert": "Makefile",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " wraps the loop into short targets ("
-        },
-        {
-          "insert": "make help",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " lists\nthem; ports match "
-        },
-        {
-          "insert": ".claude/launch.json",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "):"
-        }
-      ],
-      "children": []
-    },
-    "b-00-local-dev-loop-makefile-targets-24": {
-      "id": "b-00-local-dev-loop-makefile-targets-24",
-      "type": "structured-table",
-      "props": {
-        "title": "Makefile targets",
-        "density": "compact",
-        "columns": ["Target", "What it does"],
-        "rows": [
-          ["make dev", "Self-docs workbench with vite HMR on :4803 — THE loop for layout/UI iteration"],
-          ["make serve", "Self-docs workbench on :4802 from the static SPA build (cached at startup)"],
-          ["make canvas", "Sibling canvas project's docs with hot reload on :4801 (= bun run docs:canvas)"],
-          ["make test", "Full workspace test suite (= bun run test)"],
-          ["make typecheck", "tsc --noEmit across the workspace"],
-          ["make check", "typecheck + test"],
-          ["make spa", "Rebuild the static SPA cache — fixes docs-cli test timeouts after docs-viewer changes"],
-          ["make install", "bun install for the workspace"]
-        ]
-      },
-      "children": []
-    },
-    "b-00-local-dev-loop-callout-serve-no-hmr-25": {
-      "id": "b-00-local-dev-loop-callout-serve-no-hmr-25",
-      "type": "callout",
-      "props": {
-        "tone": "warning",
-        "kind": "Gotcha",
-        "title": "make serve does not hot-reload"
-      },
-      "text": [
-        {
-          "insert": "Plain serve builds the SPA once and caches it at startup, so tooling/source changes will not appear until you restart it (or rebuild the cache with make spa). Editing doc content is fine — that flows through the API live. For source iteration, use make dev."
         }
       ],
       "children": []

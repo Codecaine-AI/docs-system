@@ -30,8 +30,14 @@
     "h1": {
       "id": "h1",
       "type": "heading",
-      "props": { "level": 1 },
-      "text": [{ "insert": "Docs Model Sample" }],
+      "props": {
+        "level": 1
+      },
+      "text": [
+        {
+          "insert": "Docs Model Sample"
+        }
+      ],
       "children": []
     },
     "p-intro": {
@@ -39,17 +45,54 @@
       "type": "paragraph",
       "props": {},
       "text": [
-        { "insert": "This paragraph mixes " },
-        { "insert": "bold", "attributes": { "bold": true } },
-        { "insert": ", " },
-        { "insert": "italic", "attributes": { "italic": true } },
-        { "insert": ", " },
-        { "insert": "struck", "attributes": { "strike": true } },
-        { "insert": ", " },
-        { "insert": "inline code", "attributes": { "code": true } },
-        { "insert": ", a " },
-        { "insert": "link", "attributes": { "link": "https://example.com" } },
-        { "insert": ", and a reference to " },
+        {
+          "insert": "This paragraph mixes "
+        },
+        {
+          "insert": "bold",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "italic",
+          "attributes": {
+            "italic": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "struck",
+          "attributes": {
+            "strike": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "inline code",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", a "
+        },
+        {
+          "insert": "link",
+          "attributes": {
+            "link": "https://example.com"
+          }
+        },
+        {
+          "insert": ", and a reference to "
+        },
         {
           "insert": "doc-schema.ts",
           "attributes": {
@@ -61,7 +104,9 @@
             }
           }
         },
-        { "insert": "." }
+        {
+          "insert": "."
+        }
       ],
       "children": []
     },
@@ -74,43 +119,72 @@
     "h2-structure": {
       "id": "h2-structure",
       "type": "heading",
-      "props": { "level": 2 },
-      "text": [{ "insert": "Structure" }],
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Structure"
+        }
+      ],
       "children": []
     },
     "li-a": {
       "id": "li-a",
       "type": "list-item",
       "props": {},
-      "text": [{ "insert": "First item" }],
-      "children": ["li-a-1"]
+      "text": [
+        {
+          "insert": "First item"
+        }
+      ],
+      "children": [
+        "li-a-1"
+      ]
     },
     "li-a-1": {
       "id": "li-a-1",
       "type": "list-item",
       "props": {},
-      "text": [{ "insert": "Nested item under the first" }],
+      "text": [
+        {
+          "insert": "Nested item under the first"
+        }
+      ],
       "children": []
     },
     "li-b": {
       "id": "li-b",
       "type": "list-item",
       "props": {},
-      "text": [{ "insert": "Second item" }],
+      "text": [
+        {
+          "insert": "Second item"
+        }
+      ],
       "children": []
     },
     "code-1": {
       "id": "code-1",
       "type": "code",
       "props": {
-        "language": "typescript",
         "annotations": [
-          { "lines": "1", "label": "Export", "note": "The canonical answer constant." },
-          { "lines": "2-3", "note": "Helper that doubles the answer." }
-        ]
+          {
+            "lines": "1",
+            "label": "Export",
+            "note": "The canonical answer constant."
+          },
+          {
+            "lines": "2-3",
+            "note": "Helper that doubles the answer."
+          }
+        ],
+        "language": "typescript"
       },
       "text": [
-        { "insert": "export const answer = 42;\nexport const double = () =>\n  answer * 2;" }
+        {
+          "insert": "export const answer = 42;\nexport const double = () =>\n  answer * 2;"
+        }
       ],
       "children": []
     },
@@ -118,27 +192,48 @@
       "id": "quote-1",
       "type": "quote",
       "props": {},
-      "text": [{ "insert": "Stable ids are a system invariant." }],
+      "text": [
+        {
+          "insert": "Stable ids are a system invariant."
+        }
+      ],
       "children": []
     },
     "callout-1": {
       "id": "callout-1",
       "type": "callout",
-      "props": { "tone": "info", "kind": "Decision", "title": "Heads up" },
-      "text": [{ "insert": "Comments live in comments.json, never in doc.json." }],
+      "props": {
+        "kind": "Decision",
+        "title": "Heads up",
+        "tone": "info"
+      },
+      "text": [
+        {
+          "insert": "Comments live in comments.json, never in doc.json."
+        }
+      ],
       "children": []
     },
     "table-1": {
       "id": "table-1",
       "type": "structured-table",
       "props": {
-        "title": "Structured table sample",
+        "columns": [
+          "Name",
+          "Value"
+        ],
         "density": "compact",
-        "columns": ["Name", "Value"],
         "rows": [
-          ["answer", "42"],
-          ["question", "unknown"]
-        ]
+          [
+            "answer",
+            "42"
+          ],
+          [
+            "question",
+            "unknown"
+          ]
+        ],
+        "title": "Structured table sample"
       },
       "children": []
     },
@@ -146,18 +241,32 @@
       "id": "tree-1",
       "type": "file-tree",
       "props": {
-        "title": "Module layout",
         "entries": [
-          { "path": "src/lib/docs-model/doc-schema.ts", "note": "types + validation", "change": "added" },
-          { "path": "src/lib/docs-model/doc-ops.ts", "note": "typed ops + inverses", "change": "modified" },
+          {
+            "path": "src/lib/docs-model/doc-schema.ts",
+            "note": "types + validation",
+            "change": "added"
+          },
+          {
+            "path": "src/lib/docs-model/doc-ops.ts",
+            "note": "typed ops + inverses",
+            "change": "modified"
+          },
           {
             "path": "src/components/docs/DocBlockRenderer.tsx",
             "change": "renamed",
             "from": "src/components/docs/BlockRenderer.tsx"
           },
-          { "path": "src/lib/legacy/", "change": "removed", "note": "dead code purge" },
-          { "path": "README.md" }
-        ]
+          {
+            "path": "src/lib/legacy/",
+            "change": "removed",
+            "note": "dead code purge"
+          },
+          {
+            "path": "README.md"
+          }
+        ],
+        "title": "Module layout"
       },
       "children": []
     },
@@ -165,15 +274,27 @@
       "id": "interaction-surface-1",
       "type": "interaction-surface",
       "props": {
-        "title": "File-tree block surface",
         "operations": [
           {
             "name": "file-tree.addEntry",
             "description": "Append a path entry to the tree",
             "params": [
-              { "name": "path", "type": "string", "required": true, "description": "/-separated path" },
-              { "name": "note", "type": "string", "required": false },
-              { "name": "change", "type": "string", "required": false }
+              {
+                "name": "path",
+                "type": "string",
+                "required": true,
+                "description": "/-separated path"
+              },
+              {
+                "name": "note",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "change",
+                "type": "string",
+                "required": false
+              }
             ],
             "returns": "props patch",
             "kind": "action"
@@ -182,26 +303,45 @@
             "name": "file-tree.updateEntry",
             "description": "Patch note/change/from, or rename via newPath",
             "params": [
-              { "name": "path", "type": "string", "required": true },
-              { "name": "newPath", "type": "string", "required": false }
+              {
+                "name": "path",
+                "type": "string",
+                "required": true
+              },
+              {
+                "name": "newPath",
+                "type": "string",
+                "required": false
+              }
             ],
             "returns": "props patch"
           },
           {
             "name": "file-tree.removeEntry",
             "params": [
-              { "name": "path", "type": "string", "required": true }
+              {
+                "name": "path",
+                "type": "string",
+                "required": true
+              }
             ]
           }
-        ]
+        ],
+        "title": "File-tree block surface"
       },
       "children": []
     },
     "mermaid-1": {
       "id": "mermaid-1",
       "type": "mermaid",
-      "props": { "title": "Mermaid sample" },
-      "text": [{ "insert": "flowchart LR\n  A[Doc] --> B[Render]" }],
+      "props": {
+        "title": "Mermaid sample"
+      },
+      "text": [
+        {
+          "insert": "flowchart LR\n  A[Doc] --> B[Render]"
+        }
+      ],
       "children": []
     },
     "canvas-1": {
@@ -209,8 +349,8 @@
       "type": "canvas",
       "props": {
         "src": "./assets/canvases/sample.canvas.json",
-        "view": "container-architecture",
-        "title": "Architecture overview"
+        "title": "Architecture overview",
+        "view": "container-architecture"
       },
       "children": []
     },
@@ -218,9 +358,9 @@
       "id": "image-1",
       "type": "image",
       "props": {
-        "src": "./assets/images/sample.png",
         "alt": "Sample image",
-        "caption": "A bundled asset image (D30)."
+        "caption": "A bundled asset image (D30).",
+        "src": "./assets/images/sample.png"
       },
       "children": []
     },
@@ -228,9 +368,9 @@
       "id": "video-1",
       "type": "video",
       "props": {
-        "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "caption": "An external video (YouTube).",
         "title": "Docs walkthrough",
-        "caption": "An external video (YouTube)."
+        "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
       },
       "children": []
     }
