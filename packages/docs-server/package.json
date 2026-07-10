@@ -12,6 +12,7 @@
     "./agent-tools": "./src/agent-tools.ts",
     "./draft-locks": "./src/draft-locks.ts",
     "./docs-events": "./src/docs-events.ts",
+    "./fs-watch": "./src/fs-watch.ts",
     "./path-mutex": "./src/path-mutex.ts",
     "./atomic-write": "./src/atomic-write.ts",
     "./content-hash": "./src/content-hash.ts",

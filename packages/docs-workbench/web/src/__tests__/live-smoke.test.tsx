@@ -7,11 +7,11 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-libra
 import type { Editor } from "@tiptap/react";
 import { DocsClientProvider } from "@codecaine-ai/docs-viewer/client";
 
-import { applyDocOps, getBundle, undoPatch } from "../api";
-import { createStandaloneDocsClient } from "../client";
-import { StandaloneCanvasEmbed } from "../CanvasEmbed";
-import { App } from "../App";
-import { DocPage } from "../DocPage";
+import { applyDocOps, getBundle, undoPatch } from "../data/api";
+import { createStandaloneDocsClient } from "../data/client";
+import { StandaloneCanvasEmbed } from "../pages/CanvasEmbed";
+import { App } from "../shell/App";
+import { DocPage } from "../pages/DocPage";
 
 /**
  * LIVE smoke: boots a REAL listening docs server over a temp COPY of a real
@@ -258,7 +258,7 @@ describe("live smoke (real server, real docs copy)", () => {
       expect(!!block).toBe(true);
 
       // Framework targeting layer: hovering the real block outlines it and
-      // shows the floating chip labelled from the flavour registry.
+      // shows the floating chip labelled from the block registry.
       fireEvent.mouseMove(block!);
       expect(block!.classList.contains("docs-target-hovered")).toBe(true);
       const chip = document.querySelector('[data-docs-target-overlay-label="hover"]');

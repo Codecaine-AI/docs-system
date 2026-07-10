@@ -5,7 +5,9 @@ import { basename, dirname, extname, join, resolve, sep } from "node:path";
 import { resolveDocBundleJsonPath } from "@codecaine-ai/docs-index/paths";
 
 import {
+  ALLOWED_VIDEO_ASSET_EXT,
   MAX_ASSET_BYTES,
+  MAX_VIDEO_ASSET_BYTES,
   inferAssetContentType,
   resolveAssetRootRelativePath,
 } from "./confine";
@@ -146,6 +148,103 @@ export async function uploadDocAsset(
       path: assetRelPath,
       document_path: `docs/${assetRelPath}`,
       content_type: contentType,
+      size: buffer.byteLength,
+      filename: finalName,
+    },
+  };
+}
+
+export type UploadDocVideoAssetResult = UploadDocAssetResult;
+
+/**
+ * Uploads a VIDEO asset into a doc bundle's `assets/videos/` folder — the
+ * strict sibling of `uploadDocAsset` backing the editor's drop-a-video-file
+ * flow. Differences from the generic route, all deliberate:
+ *
+ * - allowlist enforcement instead of routing-by-type: the extension must be
+ *   one of ALLOWED_VIDEO_ASSET_EXT and any declared content type must be
+ *   `video/*` (or the browsers' opaque `application/octet-stream` fallback),
+ *   else 415 — a video slot must never accept arbitrary bytes-as-.txt;
+ * - the RAW filename is rejected (400) on null bytes / path separators /
+ *   leading-dot-dot shapes rather than silently sanitized — browser `File`
+ *   names never contain them, so their presence is an attack, not a typo;
+ * - MAX_VIDEO_ASSET_BYTES (64MB) cap, enforced on declared size AND the
+ *   actual bytes (413 over), since screen recordings routinely exceed the
+ *   generic 20MB asset cap.
+ *
+ * Returns the same wire shape as the generic upload; `src` is the
+ * bundle-relative `./assets/videos/<name>` a `video` block's props carry.
+ */
+export async function uploadDocVideoAsset(
+  docsRoot: string,
+  input: UploadDocAssetInput,
+): Promise<UploadDocVideoAssetResult> {
+  const bundleJsonAbs = resolveDocBundleJsonPath(docsRoot, input.bundlePath);
+  if (!bundleJsonAbs) {
+    return { ok: false, status: 400, detail: `Invalid bundle path: ${input.bundlePath}` };
+  }
+  if (!(await pathExists(bundleJsonAbs))) {
+    return { ok: false, status: 404, detail: `Doc bundle not found: ${input.bundlePath}` };
+  }
+  const { file } = input;
+  const rawName = file.name || "";
+  if (rawName.includes("\0") || /[\\/]/.test(rawName) || rawName.startsWith("..")) {
+    return { ok: false, status: 400, detail: `Invalid video filename: ${JSON.stringify(rawName)}` };
+  }
+  const ext = extname(rawName).toLowerCase();
+  if (!ALLOWED_VIDEO_ASSET_EXT.has(ext)) {
+    return {
+      ok: false,
+      status: 415,
+      detail: `Unsupported video extension (allowed: ${[...ALLOWED_VIDEO_ASSET_EXT].join(", ")}): ${rawName}`,
+    };
+  }
+  const declaredType = (input.kind && input.kind.trim()) || file.type || "";
+  if (declaredType && declaredType !== "application/octet-stream" && !declaredType.startsWith("video/")) {
+    return { ok: false, status: 415, detail: `Unsupported video content type: ${declaredType}` };
+  }
+  if (file.size > MAX_VIDEO_ASSET_BYTES) {
+    return {
+      ok: false,
+      status: 413,
+      detail: `Video exceeds size cap of ${MAX_VIDEO_ASSET_BYTES} bytes: ${rawName}`,
+    };
+  }
+  const subfolder = "assets/videos";
+  const bundleDirAbs = dirname(bundleJsonAbs);
+  const targetDirAbs = join(bundleDirAbs, subfolder);
+  const sanitizedName = sanitizeAssetFilename(rawName);
+  await mkdir(targetDirAbs, { recursive: true });
+  const finalName = uniquifyAssetFilename(sanitizedName, (candidate) =>
+    existsSync(join(targetDirAbs, candidate)),
+  );
+  const targetAbs = join(targetDirAbs, finalName);
+  const resolvedTarget = resolve(targetAbs);
+  const docsRootResolved = resolve(docsRoot);
+  if (!resolvedTarget.startsWith(docsRootResolved + sep)) {
+    return { ok: false, status: 400, detail: `Asset path escapes docs directory: ${finalName}` };
+  }
+  const buffer = new Uint8Array(await file.arrayBuffer());
+  // Re-check against the ACTUAL bytes — `file.size` is caller metadata.
+  if (buffer.byteLength > MAX_VIDEO_ASSET_BYTES) {
+    return {
+      ok: false,
+      status: 413,
+      detail: `Video exceeds size cap of ${MAX_VIDEO_ASSET_BYTES} bytes: ${rawName}`,
+    };
+  }
+  await writeFile(targetAbs, buffer);
+  const bundlePath = normalizeBundlePath(input.bundlePath);
+  const assetRelPath = bundlePath
+    ? `${bundlePath}/${subfolder}/${finalName}`
+    : `${subfolder}/${finalName}`;
+  return {
+    ok: true,
+    response: {
+      src: `./${subfolder}/${finalName}`,
+      path: assetRelPath,
+      document_path: `docs/${assetRelPath}`,
+      content_type: declaredType || inferAssetContentType(finalName),
       size: buffer.byteLength,
       filename: finalName,
     },

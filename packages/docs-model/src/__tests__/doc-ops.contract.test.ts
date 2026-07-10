@@ -24,7 +24,7 @@ import { serializeDocDocument, validateDocDocument } from "../doc-schema";
 function block(id: string, overrides: Partial<DocBlock> = {}): DocBlock {
   return {
     id,
-    flavour: "paragraph",
+    type: "paragraph",
     props: {},
     children: [],
     ...overrides,
@@ -48,7 +48,7 @@ function baseDoc(): DocDocument {
     root: "root",
     blocks: {
       root: block("root", { children: ["h1", "p1", "p2", "list", "quote"] }),
-      h1: block("h1", { flavour: "heading", props: { level: 1 }, text: [{ insert: "Title" }] }),
+      h1: block("h1", { type: "heading", props: { level: 1 }, text: [{ insert: "Title" }] }),
       p1: block("p1", {
         props: { note: "keep" },
         text: [
@@ -58,10 +58,10 @@ function baseDoc(): DocDocument {
         ],
       }),
       p2: block("p2", { text: [{ insert: "Second paragraph" }] }),
-      list: block("list", { flavour: "list-item", text: [{ insert: "List head" }], children: ["li1", "li2"] }),
-      li1: block("li1", { flavour: "list-item", text: [{ insert: "One" }] }),
-      li2: block("li2", { flavour: "list-item", text: [{ insert: "Two" }] }),
-      quote: block("quote", { flavour: "quote", text: [{ insert: "A quote" }] }),
+      list: block("list", { type: "list-item", text: [{ insert: "List head" }], children: ["li1", "li2"] }),
+      li1: block("li1", { type: "list-item", text: [{ insert: "One" }] }),
+      li2: block("li2", { type: "list-item", text: [{ insert: "Two" }] }),
+      quote: block("quote", { type: "quote", text: [{ insert: "A quote" }] }),
     },
   };
 }
@@ -284,7 +284,7 @@ describe("contract 4 — applyOp then inverse restores the exact original doc", 
       blockId: "p-new",
       parentId: "root",
       index: 2,
-      flavour: "paragraph",
+      blockType: "paragraph",
       props: { tone: "aside" },
       text: [{ insert: "Inserted" }],
     });
@@ -362,7 +362,7 @@ describe("pre-apply validation — ops that would break invariants are rejected"
       blockId: "p1",
       parentId: "root",
       index: 0,
-      flavour: "paragraph",
+      blockType: "paragraph",
       props: {},
     });
     expect(result.ok).toBe(false);
@@ -374,7 +374,7 @@ describe("pre-apply validation — ops that would break invariants are rejected"
       blockId: "b-new",
       parentId: "ghost",
       index: 0,
-      flavour: "paragraph",
+      blockType: "paragraph",
       props: {},
     });
     expect(result.ok).toBe(false);
@@ -399,7 +399,7 @@ describe("pre-apply validation — ops that would break invariants are rejected"
         blockId: "b-new",
         parentId: "root",
         index: 99,
-        flavour: "paragraph",
+        blockType: "paragraph",
         props: {},
       }).ok,
     ).toBe(false);
@@ -419,6 +419,142 @@ describe("pre-apply validation — ops that would break invariants are rejected"
     mustApply(doc, { type: "updateBlock", blockId: "p1", props: { note: "x" } });
     mustApply(doc, { type: "deleteBlock", blockId: "list" });
     mustApply(doc, { type: "splitBlock", blockId: "p1", offset: 2 }, makeIdFactory());
+    expect(serializeDocDocument(doc)).toBe(snapshot);
+  });
+});
+
+describe("blockAction op — typed actions through the kernel", () => {
+  function objectDoc(): DocDocument {
+    return {
+      schemaVersion: 1,
+      id: "doc-actions",
+      root: "root",
+      blocks: {
+        root: block("root", { children: ["tree", "table", "p"] }),
+        tree: block("tree", {
+          type: "file-tree",
+          props: {
+            entries: [
+              { path: "src/a.ts", note: "alpha", change: "added" },
+              { path: "src/b.ts" },
+            ],
+          },
+        }),
+        table: block("table", {
+          type: "structured-table",
+          props: { columns: ["Name", "Value"], rows: [["answer", "42"]] },
+        }),
+        p: block("p", { text: [{ insert: "prose" }] }),
+      },
+    };
+  }
+
+  it("applies the action's props patch and returns an updateBlock inverse", () => {
+    const doc = objectDoc();
+    const { doc: next, inverse } = mustApply(doc, {
+      type: "blockAction",
+      blockId: "tree",
+      action: "file-tree.addEntry",
+      params: { path: "src/c.ts", change: "added" },
+    });
+    expect(next.blocks.tree.props.entries).toEqual([
+      { path: "src/a.ts", note: "alpha", change: "added" },
+      { path: "src/b.ts" },
+      { path: "src/c.ts", change: "added" },
+    ]);
+    // The action executes through the existing updateBlock path: the inverse
+    // is the usual updateBlock props patch, and the block id is preserved.
+    expect(inverse).toHaveLength(1);
+    expect(inverse[0].type).toBe("updateBlock");
+    expect(next.blocks.tree.id).toBe("tree");
+  });
+
+  it("applyOps then inverse restores the exact original doc", () => {
+    const doc = objectDoc();
+    const result = applyOps(doc, [
+      {
+        type: "blockAction",
+        blockId: "tree",
+        action: "file-tree.updateEntry",
+        params: { path: "src/b.ts", newPath: "src/b2.ts", change: "renamed", from: "src/b.ts" },
+      },
+      {
+        type: "blockAction",
+        blockId: "table",
+        action: "structured-table.addColumn",
+        params: { name: "Notes", fill: "-" },
+      },
+    ]);
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error(JSON.stringify(result.issues));
+    expect(result.doc.blocks.table.props.columns).toEqual(["Name", "Value", "Notes"]);
+    expect(result.doc.blocks.table.props.rows).toEqual([["answer", "42", "-"]]);
+    expect((result.doc.blocks.tree.props.entries as Array<{ path: string }>)[1].path).toBe("src/b2.ts");
+
+    const undone = applyOps(result.doc, result.inverse);
+    expect(undone.ok).toBe(true);
+    if (!undone.ok) throw new Error(JSON.stringify(undone.issues));
+    expectSameDoc(undone.doc, doc);
+  });
+
+  it("fails on an unknown action", () => {
+    const result = applyOp(objectDoc(), {
+      type: "blockAction",
+      blockId: "tree",
+      action: "file-tree.nope",
+      params: {},
+    });
+    expect(result.ok).toBe(false);
+    if (result.ok) throw new Error("expected failure");
+    expect(result.issues[0].path).toBe("$.op.action");
+  });
+
+  it("fails when the target block is missing", () => {
+    const result = applyOp(objectDoc(), {
+      type: "blockAction",
+      blockId: "ghost",
+      action: "file-tree.addEntry",
+      params: { path: "x.ts" },
+    });
+    expect(result.ok).toBe(false);
+    if (result.ok) throw new Error("expected failure");
+    expect(result.issues[0].path).toBe("$.op.blockId");
+  });
+
+  it("fails when the block's type does not match the action's blockType", () => {
+    const result = applyOp(objectDoc(), {
+      type: "blockAction",
+      blockId: "p",
+      action: "file-tree.addEntry",
+      params: { path: "x.ts" },
+    });
+    expect(result.ok).toBe(false);
+    if (result.ok) throw new Error("expected failure");
+    expect(result.issues[0].path).toBe("$.op.blockId");
+    expect(result.issues[0].message).toContain('"file-tree"');
+  });
+
+  it("propagates the action's own param validation issues", () => {
+    const result = applyOp(objectDoc(), {
+      type: "blockAction",
+      blockId: "tree",
+      action: "file-tree.addEntry",
+      params: { path: "src/a.ts" },
+    });
+    expect(result.ok).toBe(false);
+    if (result.ok) throw new Error("expected failure");
+    expect(result.issues[0].path).toBe("$.params.path");
+  });
+
+  it("never mutates the input document", () => {
+    const doc = objectDoc();
+    const snapshot = serializeDocDocument(doc);
+    mustApply(doc, {
+      type: "blockAction",
+      blockId: "table",
+      action: "structured-table.updateCell",
+      params: { rowIndex: 0, column: "Value", value: "43" },
+    });
     expect(serializeDocDocument(doc)).toBe(snapshot);
   });
 });

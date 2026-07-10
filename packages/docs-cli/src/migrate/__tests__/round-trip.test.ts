@@ -215,10 +215,12 @@ describe("round-trip: mdxToDoc -> projectToMarkdown preserves content of real re
 });
 
 describe("round-trip: mapped component blocks keep their key fields", () => {
-  it("00-foundation/00-overview: Decision projects with status, title, and body", () => {
+  it("00-foundation/00-overview: Decision migrates to a kind-labeled callout with title and body", () => {
     const { projection } = projectDoc("docs/00-foundation/00-overview.mdx");
+    // Decision has no first-class block type — it migrates to a callout with
+    // kind="decision", which the projection renders as the label chip.
     expect(projection).toContain(
-      "> **Decision (accepted): Documentation is the durable project memory**",
+      "> **decision: Documentation is the durable project memory**",
     );
     // Body text survives (normalized — the em-dash join is projection syntax).
     expect(normalize(projection)).toContain(

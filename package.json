@@ -11,10 +11,11 @@
     "packages/docs-server",
     "packages/docs-viewer",
     "packages/docs-workbench",
-    "packages/canvas/packages/*"
+    "external/canvas/packages/*"
   ],
   "scripts": {
     "docs": "bun packages/docs-cli/src/index.ts",
+    "docs:canvas": "bun packages/docs-cli/src/index.ts serve --root ../canvas/docs --dev",
     "test": "bun test packages/docs-model packages/docs-index packages/docs-cli packages/docs-server packages/docs-viewer packages/docs-workbench/src packages/docs-workbench/web/src",
     "typecheck": "bunx --bun tsc --noEmit"
   },

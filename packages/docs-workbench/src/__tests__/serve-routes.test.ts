@@ -23,13 +23,13 @@ const DOC_JSON = (id: string, title: string) => ({
   blocks: {
     "root-1": {
       id: "root-1",
-      flavour: "paragraph",
+      type: "paragraph",
       props: { title },
       children: ["para-1"],
     },
     "para-1": {
       id: "para-1",
-      flavour: "paragraph",
+      type: "paragraph",
       props: {},
       text: [{ insert: `Hello from ${title}` }],
       children: [],
@@ -109,6 +109,22 @@ describe("GET /api/tree", () => {
     // dot dirs and assets internals never appear
     expect(JSON.stringify(body)).not.toContain(".drafts");
     expect(JSON.stringify(body)).not.toContain("assets");
+  });
+});
+
+describe("GET /api/blocks", () => {
+  test("edit-surface discovery is mounted through the workbench serve app", async () => {
+    const response = await get("/api/blocks");
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as {
+      schemaVersion: number;
+      genericOps: Array<{ op: string }>;
+      blockTypes: Array<{ type: string; actions: Array<{ action: string }> }>;
+    };
+    expect(body.schemaVersion).toBe(1);
+    expect(body.genericOps).toHaveLength(7);
+    const fileTree = body.blockTypes.find((entry) => entry.type === "file-tree");
+    expect(fileTree?.actions.map((action) => action.action)).toContain("file-tree.addEntry");
   });
 });
 

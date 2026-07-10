@@ -2,7 +2,7 @@
  * bun test preload — de-duplicates React across the @codecaine-ai/canvas
  * git-submodule boundary.
  *
- * packages/canvas is a git submodule that may carry its own node_modules
+ * external/canvas is a git submodule that may carry its own node_modules
  * (installed by its own bun.lock), so canvas sources can resolve
  * react/react-dom to a second copy while this repo's tests render with the
  * root copy. Two React instances share no dispatcher, so any test that

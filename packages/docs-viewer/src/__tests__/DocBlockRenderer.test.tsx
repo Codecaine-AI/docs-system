@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it } from "bun:test";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import sampleDoc from "@codecaine-ai/docs-model/fixtures/sample.doc.json";
-import { DOC_BLOCK_FLAVOURS, validateDocDocument } from "@codecaine-ai/docs-model/doc-schema";
-import DocBlockRenderer from "../DocBlockRenderer";
+import { DOC_BLOCK_TYPES, validateDocDocument } from "@codecaine-ai/docs-model/doc-schema";
+import DocBlockRenderer from "../render/DocBlockRenderer";
 import { DocsClientProvider, type CanvasEmbedProps } from "../client";
 
 /**
@@ -46,25 +46,20 @@ function loadFixture() {
 }
 
 describe("DocBlockRenderer", () => {
-  it("fixture is schema-valid and covers every v1 flavour", () => {
+  it("fixture is schema-valid and covers every v1 block type", () => {
     const doc = loadFixture();
-    const flavours = new Set(Object.values(doc.blocks).map((block) => block.flavour));
-    for (const flavour of DOC_BLOCK_FLAVOURS) {
-      expect(flavours.has(flavour)).toBe(true);
+    const blockTypes = new Set(Object.values(doc.blocks).map((block) => block.type));
+    for (const blockType of DOC_BLOCK_TYPES) {
+      expect(blockTypes.has(blockType)).toBe(true);
     }
   });
 
   it("mounts the full fixture without throwing and renders key content", () => {
     const doc = loadFixture();
     render(
-      <DocBlockRenderer
-        document={doc}
-        renderCanvas={(canvas) => (
-          <div data-testid="canvas-embed">
-            {canvas.src}:{canvas.view}:{canvas.title}
-          </div>
-        )}
-      />,
+      <DocsClientProvider canvasEmbed={FakeCanvasEmbed}>
+        <DocBlockRenderer document={doc} />
+      </DocsClientProvider>,
     );
 
     // Headings + inline delta marks.
@@ -91,39 +86,64 @@ describe("DocBlockRenderer", () => {
     expect(screen.getByText("First item")).toBeTruthy();
     expect(screen.getByText("Nested item under the first")).toBeTruthy();
 
-    // Code, quote, divider.
-    expect(screen.getByText("export const answer = 42;")).toBeTruthy();
+    // Code (the fixture's code block carries annotations, so it renders the
+    // annotated variant with click-pairable side notes), quote, divider.
+    // Highlighted lines are hljs token spans, so match on the <code>
+    // element's textContent rather than a single text node.
+    expect(
+      screen.getByText(
+        (_content, element) =>
+          element?.tagName === "CODE" && element.textContent === "export const answer = 42;",
+      ),
+    ).toBeTruthy();
+    expect(document.querySelector('[data-code-annotations="code-1"]')).toBeTruthy();
+    expect(screen.getByText("The canonical answer constant.")).toBeTruthy();
+    expect(screen.getByText("Helper that doubles the answer.")).toBeTruthy();
     expect(screen.getByText("Stable ids are a system invariant.")).toBeTruthy();
     expect(document.querySelector('hr[data-doc-block="divider"]')).toBeTruthy();
 
-    // Adapted MDX flavours render through the existing docs-block components.
-    expect(document.querySelector('[data-docs-block-type="decision"]')).toBeTruthy();
-    expect(screen.getByText("accepted")).toBeTruthy();
-    expect(screen.getByText("Normalized block tree")).toBeTruthy();
+    // Adapted docs-block components: callout (kind renders as the label chip
+    // instead of the tone) and file-tree.
     expect(document.querySelector('[data-docs-block-type="callout"]')).toBeTruthy();
     expect(screen.getByText("Heads up")).toBeTruthy();
-    expect(document.querySelector('[data-docs-block-type="agent-contract"]')).toBeTruthy();
-    expect(document.querySelector('[data-docs-block-type="file-tree"]')).toBeTruthy();
-    expect(screen.getByText("src/lib/docs-model/doc-ops.ts")).toBeTruthy();
-    expect(document.querySelector('[data-docs-block-type="constraint"]')).toBeTruthy();
-    expect(document.querySelector('[data-docs-block-type="assumption"]')).toBeTruthy();
+    expect(screen.getByText("Decision")).toBeTruthy();
+    // File-tree renders `tree`-style: rows carry the full entry path as a
+    // data attribute while showing only the basename with guide glyphs
+    // (fixture-shape-tolerant: paths may evolve with the v2 fixture).
+    const fileTree = document.querySelector('[data-docs-block-type="file-tree"]');
+    expect(fileTree).toBeTruthy();
+    expect(document.querySelectorAll("[data-docs-file-tree-entry]").length).toBeGreaterThan(0);
+    expect(fileTree?.textContent).toContain("└── ");
 
-    // Semantic/engineering tracer cards.
-    for (const label of ["Observation", "Outcome", "Requirement", "Implementation", "Testing"]) {
-      expect(screen.getByText(label)).toBeTruthy();
-    }
+    // Props-driven structured blocks.
+    expect(document.querySelector('[data-docs-block-type="structured-table"]')).toBeTruthy();
+    expect(screen.getByText("Structured table sample")).toBeTruthy();
+    expect(screen.getByText("question")).toBeTruthy();
+    expect(document.querySelector('[data-docs-block-type="interaction-surface"]')).toBeTruthy();
+    expect(
+      document.querySelector('[data-interaction-operation="file-tree.addEntry"]'),
+    ).toBeTruthy();
+    expect(screen.getByText("Append a path entry to the tree")).toBeTruthy();
 
-    // Canvas embed goes through the render context with src + view.
-    const canvas = screen.getByTestId("canvas-embed");
-    expect(canvas.textContent).toBe(
-      "./assets/canvases/sample.canvas.json:container-architecture:Architecture overview",
-    );
+    // Parse-reuse structured block: the mermaid wrapper.
+    expect(document.querySelector('[data-doc-block="mermaid"]')).toBeTruthy();
+
+    // Canvas embed goes through the injected slot with src + view.
+    const canvas = screen.getByTestId("fake-canvas-embed");
+    expect(canvas.getAttribute("data-src")).toBe("./assets/canvases/sample.canvas.json");
+    expect(canvas.getAttribute("data-view")).toBe("container-architecture");
     const canvasWrapper = document.querySelector('[data-doc-block="canvas"]');
     expect(canvasWrapper?.getAttribute("data-canvas-view")).toBe("container-architecture");
 
-    // Image + attachment.
+    // Image.
     expect(document.querySelector('img[src="./assets/images/sample.png"]')).toBeTruthy();
-    expect(screen.getByText("spec.pdf")).toBeTruthy();
+
+    // Video: the fixture's external YouTube url embeds the nocookie iframe.
+    const videoFrame = document.querySelector('[data-doc-block="video"] iframe');
+    expect(videoFrame).toBeTruthy();
+    expect(videoFrame?.getAttribute("src")).toBe(
+      "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ",
+    );
 
     // Every non-root block landed in the DOM with its stable id.
     for (const blockId of Object.keys(doc.blocks)) {
@@ -161,16 +181,16 @@ describe("DocBlockRenderer", () => {
     expect(fallback?.textContent).toContain("Architecture overview");
   });
 
-  it("renders nothing for an empty root and no canvas override without crashing", () => {
+  it("renders a minimal document without crashing", () => {
     const doc = loadFixture();
     const minimal = {
       ...doc,
       root: "root",
       blocks: {
-        root: { id: "root", flavour: "paragraph" as const, props: {}, children: ["p-solo"] },
+        root: { id: "root", type: "paragraph" as const, props: {}, children: ["p-solo"] },
         "p-solo": {
           id: "p-solo",
-          flavour: "paragraph" as const,
+          type: "paragraph" as const,
           props: {},
           text: [{ insert: "Alone" }],
           children: [],
@@ -179,34 +199,6 @@ describe("DocBlockRenderer", () => {
     };
     render(<DocBlockRenderer document={minimal} />);
     expect(screen.getByText("Alone")).toBeTruthy();
-  });
-
-  it("calls onBlockSelect with the nearest block id when a rendered block is clicked", () => {
-    const doc = loadFixture();
-    const selected: Array<{ blockId: string; label?: string }> = [];
-    render(
-      <DocBlockRenderer
-        document={doc}
-        onBlockSelect={(input) => selected.push(input)}
-        renderCanvas={() => <div data-testid="canvas-embed" />}
-      />,
-    );
-
-    // "Docs Model Sample" is the h1's text — clicking it should resolve to
-    // the nearest ancestor carrying data-block-id (the heading block itself).
-    fireEvent.click(screen.getByText("Docs Model Sample"));
-    expect(selected).toHaveLength(1);
-    expect(selected[0].blockId).toBe("h1");
-    expect(selected[0].label).toBe("heading block");
-  });
-
-  it("does not attach a click handler (and adds no pointer affordance) when onBlockSelect is omitted", () => {
-    const doc = loadFixture();
-    render(<DocBlockRenderer document={doc} renderCanvas={() => <div data-testid="canvas-embed" />} />);
-    const root = document.querySelector(`[data-doc-id="${doc.id}"]`);
-    expect(root?.className).toBe("");
-    // Clicking should not throw even though there's no handler.
-    fireEvent.click(screen.getByText("Docs Model Sample"));
   });
 
   it("threads onCanvasObjectSelect into the injected embed, bundling the block's src", () => {
@@ -282,21 +274,13 @@ describe("DocBlockRenderer", () => {
 
   it("has no editing affordances of its own (M4: editing lives entirely in DocEditor)", () => {
     const doc = loadFixture();
-    const selected: string[] = [];
-    render(
-      <DocBlockRenderer
-        document={doc}
-        onBlockSelect={({ blockId }) => selected.push(blockId)}
-        renderCanvas={() => <div data-testid="canvas-embed" />}
-      />,
-    );
+    render(<DocBlockRenderer document={doc} />);
 
-    // No textarea/edit affordance exists anywhere — clicking any block only
-    // ever reports a selection, never opens an editor. DocBlockRenderer is
+    // No textarea/edit affordance exists anywhere — DocBlockRenderer is
     // read-only; DocEditor (editor/DocEditor.tsx) is what mounts instead of
     // it when the host enables block editing (see DocsViewer.tsx).
     expect(screen.queryByLabelText("Edit block markdown")).toBeNull();
+    // Clicking a block is inert — no handler, nothing to throw.
     fireEvent.click(screen.getByText("Docs Model Sample"));
-    expect(selected).toEqual(["h1"]);
   });
 });

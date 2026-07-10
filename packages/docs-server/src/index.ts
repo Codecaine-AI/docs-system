@@ -15,13 +15,22 @@ export {
   subscribeToDocsChangeEvents,
   type DocsChangeEvent,
 } from "./docs-events";
+export {
+  FS_WATCH_ACTOR,
+  changeTargetForRelPath,
+  watchDocsRoot,
+  type DocsFsWatchHandle,
+  type WatchDocsRootOptions,
+} from "./fs-watch";
 
 // Confinement + tree
 export {
   ALLOWED_DOC_EXT,
+  ALLOWED_VIDEO_ASSET_EXT,
   MAX_ASSET_BYTES,
   MAX_CANVAS_FILE_BYTES,
   MAX_DOC_FILE_BYTES,
+  MAX_VIDEO_ASSET_BYTES,
   inferAssetContentType,
   inferDocsFormat,
   isAllowedAssetRelativePath,
@@ -73,9 +82,11 @@ export {
   sanitizeAssetFilename,
   uniquifyAssetFilename,
   uploadDocAsset,
+  uploadDocVideoAsset,
   type ReadDocAssetResult,
   type UploadDocAssetInput,
   type UploadDocAssetResult,
+  type UploadDocVideoAssetResult,
 } from "./assets";
 
 // Canvas sidecars (doc-relative) + MDX reference helpers
@@ -138,5 +149,5 @@ export {
 } from "./backlinks-cache";
 
 // Store + routes
-export { createDocsStore, docsStoreForRoot, type DocsStore } from "./store";
+export { createDocsStore, type DocsStore } from "./store";
 export { createDocsRoutes } from "./routes";

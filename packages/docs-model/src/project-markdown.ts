@@ -14,7 +14,7 @@ import type { DocBlock, DocDocument } from "./doc-schema";
  * string (print it, grep it, send it over HTTP) — this module writes
  * nothing.
  *
- * ## Flavour -> markdown conventions (documented here; keep this comment in
+ * ## Block type -> markdown conventions (documented here; keep this comment in
  * sync with the switch below — it is the single source of truth for the
  * projection format):
  *
@@ -27,23 +27,44 @@ import type { DocBlock, DocDocument } from "./doc-schema";
  *   under other list-items (siblings share a depth; a list-item nested
  *   inside another list-item is depth+1).
  * - `code` -> a fenced code block, ```` ```<language> ```` using
- *   `props.language` when present.
+ *   `props.language` when present. When `props.annotations` is present
+ *   (`Array<{ lines, label?, note }>`), the fence is followed by one line
+ *   per annotation: `> **L<lines>[ (<label>)]:** <note>`, e.g.
+ *   `> **L4-9 (Validation):** Rejects orphan children.`
  * - `quote` -> `>`-prefixed blockquote line(s).
  * - `divider` -> a `---` line.
- * - `callout` -> `> **[TONE]** _optional title_ — body`, e.g.
- *   `> **INFO:** **Heads up** — body text`. Tone uppercased from
- *   `props.tone` (default "info").
- * - `decision`/`constraint`/`assumption`/`observation`/`outcome`/
- *   `requirement`/`implementation`/`testing` (semantic/engineering
- *   flavours) -> a labeled blockquote:
- *   `> **Decision (accepted): Normalized block tree** — body text`
- *   The convention is `> **<Label>[ (<status/severity/confidence>)][:
- *   <title>]** — <body>` — always greppable on the leading
- *   `> **<Label>` token (e.g. `grep '> \*\*Decision'`).
- * - `agent-contract` -> `> **Agent Contract: <agent>** — body` plus
- *   `tools:`/`approvals:` sub-lines when present.
- * - `file-tree` -> a fenced ```` ```text ```` block listing `path — note`
- *   per entry (falls back to bare path when note is absent).
+ * - `callout` -> `> **<label>[: <title>]** — body` where the label is
+ *   `props.kind` when present (free-form chip, e.g. "Requirement"),
+ *   otherwise the uppercased `props.tone` (default "INFO"). E.g.
+ *   `> **Decision: Normalized block tree** — body text` or
+ *   `> **INFO: Heads up** — body text`. Always greppable on the leading
+ *   `> **<label>` token (e.g. `grep '> \*\*Decision'`). Legacy semantic
+ *   blocks coerce to callouts carrying their old type as `kind` (see
+ *   doc-schema.ts), so this one projection covers them all.
+ * - `structured-table` -> optional `**<title>**` bold line, then a markdown
+ *   pipe table built from `props.columns: string[]` / `props.rows:
+ *   string[][]` (header row, `---` separator row, one line per row).
+ * - `interaction-surface` -> optional `**<title>**` bold line, then a bare
+ *   fenced ``` block with one signature line per operation in
+ *   `props.operations` (document order):
+ *   `name(param: type, optional?: type) -> returns` — params render
+ *   `name[?][: type]` (the `?` marks `required === false`), ` -> returns`
+ *   appears only when `returns` is present, a `  # description` suffix
+ *   appends when present, and a `[kind] ` prefix appears only for
+ *   query/event operations (actions are the default and render bare).
+ * - `mermaid` -> a labeled blockquote:
+ *   `> **Mermaid: <title>** — <body>`.
+ * - `file-tree` -> optional `**<title>**` bold line, then a literal
+ *   tree-command rendering inside a bare fenced ``` block: a nested tree
+ *   derived from the v2 entry paths (`{ path, note?, change?, from? }`) with
+ *   `├──`/`└──`/`│` guides. Directories come from path prefixes (an explicit
+ *   trailing-`/` entry is respected as a directory) and render with a
+ *   trailing `/`. Each line is prefixed by a change marker when the entry
+ *   carries one — `+ ` added, `- ` removed, `~ ` modified, `> ` renamed
+ *   (rendered as `{from} -> {name}`); when ANY entry carries a marker, the
+ *   unmarked lines are padded with two spaces so the guides stay aligned.
+ *   Notes append as `  # note`. Deterministic: children sort directories
+ *   first, then alphabetically (codepoint order).
  * - `canvas` -> an HTML-comment reference line:
  *   `<!-- canvas: <src> [view=<view>] [title="<title>"] -->` — chosen over
  *   a markdown image (`![canvas](src)`) because a canvas is not an image
@@ -51,47 +72,28 @@ import type { DocBlock, DocDocument } from "./doc-schema";
  *   misread as a broken image link by markdown tooling.
  * - `image` -> standard markdown image `![alt](src)` with an optional
  *   `*caption*` line beneath when `props.caption` is present.
- * - `attachment` -> standard markdown link `[name](src)`.
+ * - `video` -> a labeled blockquote in the callout family's shape:
+ *   `> **Video[: <title>]** — <url ?? src>[ — <caption>]` (external `url`
+ *   wins over the bundle-relative `src` when both are present). Chosen over
+ *   a markdown image/link because the target is not an image asset and may
+ *   be a bare provider URL; the leading `> **Video` token greps cleanly
+ *   (e.g. `grep '> \*\*Video'`).
  *
- * Every flavour's `text` (delta spans) projects through
+ * Every block type's `text` (delta spans) projects through
  * `deltaToMarkdownInline` (reference marks render plain per D35 — see
  * delta-markdown.ts). Children are projected depth-first, in document
  * order, after the block's own line(s), except `list-item` which projects
  * children as nested indented list lines.
  */
 
-const CALLOUT_LIKE_SEMANTIC_FLAVOURS = new Set([
-  "decision",
-  "constraint",
-  "assumption",
-  "observation",
-  "outcome",
-  "requirement",
-  "implementation",
-  "testing",
-]);
+// Kept types that still project as a labeled blockquote (`> **Label: title**
+// — body`). Retired semantic types never reach projection: validation coerces
+// them to callouts (doc-schema.ts), and the callout projection carries their
+// old type name as the kind label.
+const CALLOUT_LIKE_SEMANTIC_TYPES = new Set(["mermaid"]);
 
 const SEMANTIC_LABELS: Record<string, string> = {
-  decision: "Decision",
-  constraint: "Constraint",
-  assumption: "Assumption",
-  observation: "Observation",
-  outcome: "Outcome",
-  requirement: "Requirement",
-  implementation: "Implementation",
-  testing: "Testing",
-};
-
-/** Which props key (if any) supplies the semantic flavour's status-like qualifier. */
-const SEMANTIC_STATUS_PROP: Record<string, string | undefined> = {
-  decision: "status",
-  constraint: "severity",
-  assumption: "confidence",
-  observation: undefined,
-  outcome: undefined,
-  requirement: undefined,
-  implementation: undefined,
-  testing: undefined,
+  mermaid: "Mermaid",
 };
 
 function stringProp(block: DocBlock, key: string): string | undefined {
@@ -119,14 +121,11 @@ function blockquotePrefix(text: string): string {
 }
 
 function projectSemanticBlock(block: DocBlock): string {
-  const label = SEMANTIC_LABELS[block.flavour] ?? block.flavour;
-  const statusProp = SEMANTIC_STATUS_PROP[block.flavour];
-  const status = statusProp ? stringProp(block, statusProp) : undefined;
+  const label = SEMANTIC_LABELS[block.type] ?? block.type;
   const title = stringProp(block, "title");
   const body = deltaToMarkdownInline(block.text);
 
   let head = `**${label}`;
-  if (status) head += ` (${status})`;
   if (title) head += `: ${title}`;
   head += "**";
   if (body) head += ` — ${body}`;
@@ -134,36 +133,159 @@ function projectSemanticBlock(block: DocBlock): string {
 }
 
 function projectCallout(block: DocBlock): string {
-  const tone = (stringProp(block, "tone") ?? "info").toUpperCase();
+  // kind (free-form label chip, incl. coerced legacy type names) wins over
+  // the tone-derived label.
+  const label = stringProp(block, "kind") ?? (stringProp(block, "tone") ?? "info").toUpperCase();
   const title = stringProp(block, "title");
   const body = deltaToMarkdownInline(block.text);
 
-  let head = `**${tone}:**`;
-  if (title) head += ` **${title}**`;
-  if (body) head += title ? ` — ${body}` : ` ${body}`;
+  let head = `**${label}`;
+  if (title) head += `: ${title}`;
+  head += "**";
+  if (body) head += ` — ${body}`;
   return blockquotePrefix(head);
 }
 
-function projectAgentContract(block: DocBlock): string {
-  const agent = stringProp(block, "agent");
-  const title = stringProp(block, "title");
-  const tools = stringProp(block, "tools");
-  const approvals = stringProp(block, "approvals");
-  const body = deltaToMarkdownInline(block.text);
+type CodeAnnotation = { lines: string; label?: string; note: string };
 
-  const lines: string[] = [];
-  let head = "**Agent Contract";
-  if (agent) head += `: ${agent}`;
-  head += "**";
-  if (title) head += ` — ${title}`;
-  lines.push(head);
-  if (body) lines.push(body);
-  if (tools) lines.push(`tools: ${tools}`);
-  if (approvals) lines.push(`approvals: ${approvals}`);
-  return blockquotePrefix(lines.join("\n"));
+function codeAnnotations(block: DocBlock): CodeAnnotation[] {
+  const raw = block.props.annotations;
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter(
+      (entry): entry is Record<string, unknown> =>
+        !!entry &&
+        typeof entry === "object" &&
+        typeof (entry as { lines?: unknown }).lines === "string" &&
+        typeof (entry as { note?: unknown }).note === "string",
+    )
+    .map((entry) => ({
+      lines: entry.lines as string,
+      label: typeof entry.label === "string" && entry.label.trim() ? entry.label.trim() : undefined,
+      note: entry.note as string,
+    }));
 }
 
-function fileTreeEntries(block: DocBlock): Array<{ path: string; note?: string }> {
+function projectStructuredTable(block: DocBlock): string {
+  const title = stringProp(block, "title");
+  const rawColumns = block.props.columns;
+  const columns = Array.isArray(rawColumns)
+    ? rawColumns.filter((column): column is string => typeof column === "string")
+    : [];
+  const rawRows = block.props.rows;
+  const rows = Array.isArray(rawRows)
+    ? rawRows
+        .filter((row): row is unknown[] => Array.isArray(row))
+        .map((row) => row.map((cell) => (typeof cell === "string" ? cell : String(cell ?? ""))))
+    : [];
+
+  const tableLines: string[] = [];
+  if (columns.length > 0) {
+    tableLines.push(`| ${columns.join(" | ")} |`);
+    tableLines.push(`| ${columns.map(() => "---").join(" | ")} |`);
+    for (const row of rows) tableLines.push(`| ${row.join(" | ")} |`);
+  }
+  const table = tableLines.join("\n");
+  if (title && table) return `**${title}**\n\n${table}`;
+  return title ? `**${title}**` : table;
+}
+
+type InteractionSurfaceParam = {
+  name: string;
+  type?: string;
+  required?: boolean;
+  description?: string;
+};
+
+type InteractionSurfaceOperation = {
+  name: string;
+  description?: string;
+  params?: InteractionSurfaceParam[];
+  returns?: string;
+  kind?: "action" | "query" | "event";
+};
+
+const INTERACTION_SURFACE_KINDS = ["action", "query", "event"] as const;
+
+function isInteractionSurfaceKind(value: unknown): value is "action" | "query" | "event" {
+  return typeof value === "string" && (INTERACTION_SURFACE_KINDS as readonly string[]).includes(value);
+}
+
+function interactionSurfaceOperations(block: DocBlock): InteractionSurfaceOperation[] {
+  const raw = block.props.operations;
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter(
+      (entry): entry is Record<string, unknown> =>
+        !!entry && typeof entry === "object" && typeof (entry as { name?: unknown }).name === "string",
+    )
+    .map((entry) => ({
+      name: entry.name as string,
+      description:
+        typeof entry.description === "string" && entry.description.trim()
+          ? entry.description.trim()
+          : undefined,
+      params: (Array.isArray(entry.params) ? entry.params : [])
+        .filter(
+          (param): param is Record<string, unknown> =>
+            !!param && typeof param === "object" && typeof (param as { name?: unknown }).name === "string",
+        )
+        .map((param) => ({
+          name: param.name as string,
+          type: typeof param.type === "string" && param.type.trim() ? param.type.trim() : undefined,
+          required: typeof param.required === "boolean" ? param.required : undefined,
+          description:
+            typeof param.description === "string" && param.description.trim()
+              ? param.description.trim()
+              : undefined,
+        })),
+      returns: typeof entry.returns === "string" && entry.returns.trim() ? entry.returns.trim() : undefined,
+      kind: isInteractionSurfaceKind(entry.kind) ? entry.kind : undefined,
+    }));
+}
+
+/**
+ * Signature-line rendering (see the module header for the format):
+ * `[kind] name(param: type, optional?: type) -> returns  # description` —
+ * the `[kind]` prefix only for query/event, ` -> returns` and
+ * `  # description` only when present. One line per operation, document order.
+ */
+function projectInteractionSurface(block: DocBlock): string {
+  const title = stringProp(block, "title");
+  const lines = interactionSurfaceOperations(block).map((operation) => {
+    const kindPrefix =
+      operation.kind === "query" || operation.kind === "event" ? `[${operation.kind}] ` : "";
+    const params = (operation.params ?? [])
+      .map((param) => {
+        const optional = param.required === false ? "?" : "";
+        return param.type ? `${param.name}${optional}: ${param.type}` : `${param.name}${optional}`;
+      })
+      .join(", ");
+    const returns = operation.returns ? ` -> ${operation.returns}` : "";
+    const description = operation.description ? `  # ${operation.description}` : "";
+    return `${kindPrefix}${operation.name}(${params})${returns}${description}`;
+  });
+  const fence = lines.length > 0 ? "```\n" + lines.join("\n") + "\n```" : "";
+  if (title && fence) return `**${title}**\n\n${fence}`;
+  return title ? `**${title}**` : fence;
+}
+
+type FileTreeChange = "added" | "removed" | "modified" | "renamed";
+
+type FileTreeEntry = { path: string; note?: string; change?: FileTreeChange; from?: string };
+
+const FILE_TREE_CHANGE_MARKERS: Record<FileTreeChange, string> = {
+  added: "+",
+  removed: "-",
+  modified: "~",
+  renamed: ">",
+};
+
+function isFileTreeChange(value: unknown): value is FileTreeChange {
+  return typeof value === "string" && value in FILE_TREE_CHANGE_MARKERS;
+}
+
+function fileTreeEntries(block: DocBlock): FileTreeEntry[] {
   const raw = block.props.entries;
   if (!Array.isArray(raw)) return [];
   return raw
@@ -174,16 +296,80 @@ function fileTreeEntries(block: DocBlock): Array<{ path: string; note?: string }
     .map((entry) => ({
       path: entry.path as string,
       note: typeof entry.note === "string" && entry.note.trim() ? entry.note.trim() : undefined,
+      change: isFileTreeChange(entry.change) ? entry.change : undefined,
+      from: typeof entry.from === "string" && entry.from.trim() ? entry.from.trim() : undefined,
     }));
 }
 
+type FileTreeNode = {
+  name: string;
+  /** Explicit trailing-"/" entry, or has children (derived from prefixes). */
+  explicitDir: boolean;
+  entry?: FileTreeEntry;
+  children: Map<string, FileTreeNode>;
+};
+
+/**
+ * Literal tree-command rendering (see the module header for the format):
+ * nested tree from /-separated paths, ├──/└──/│ guides, dirs-first stable
+ * sort, change-marker line prefixes, `  # note` suffixes.
+ */
 function projectFileTree(block: DocBlock): string {
   const title = stringProp(block, "title");
   const entries = fileTreeEntries(block);
-  const lines = entries.map((entry) => (entry.note ? `${entry.path} — ${entry.note}` : entry.path));
-  const body = lines.join("\n");
-  const header = title ? `${title}\n` : "";
-  return "```text\n" + header + body + "\n```";
+
+  const root: FileTreeNode = { name: "", explicitDir: true, children: new Map() };
+  for (const entry of entries) {
+    const explicitDir = entry.path.endsWith("/");
+    const segments = entry.path.split("/").filter((segment) => segment.length > 0);
+    if (segments.length === 0) continue;
+    let node = root;
+    for (const segment of segments) {
+      let child = node.children.get(segment);
+      if (!child) {
+        child = { name: segment, explicitDir: false, children: new Map() };
+        node.children.set(segment, child);
+      }
+      node = child;
+    }
+    node.entry = entry;
+    if (explicitDir) node.explicitDir = true;
+  }
+
+  const hasAnyMarker = entries.some((entry) => entry.change !== undefined);
+  const markerFor = (entry: FileTreeEntry | undefined): string => {
+    if (entry?.change) return `${FILE_TREE_CHANGE_MARKERS[entry.change]} `;
+    return hasAnyMarker ? "  " : "";
+  };
+
+  const sortChildren = (node: FileTreeNode): FileTreeNode[] => {
+    const isDir = (child: FileTreeNode) => child.explicitDir || child.children.size > 0;
+    return [...node.children.values()].sort((a, b) => {
+      const dirDelta = Number(isDir(b)) - Number(isDir(a));
+      if (dirDelta !== 0) return dirDelta;
+      return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
+    });
+  };
+
+  const lines: string[] = [];
+  const render = (node: FileTreeNode, guide: string, childGuide: string) => {
+    const isDir = node.explicitDir || node.children.size > 0;
+    const name = isDir ? `${node.name}/` : node.name;
+    const label =
+      node.entry?.change === "renamed" && node.entry.from ? `${node.entry.from} -> ${name}` : name;
+    const note = node.entry?.note ? `  # ${node.entry.note}` : "";
+    lines.push(`${markerFor(node.entry)}${guide}${label}${note}`);
+    const children = sortChildren(node);
+    children.forEach((child, index) => {
+      const last = index === children.length - 1;
+      render(child, `${childGuide}${last ? "└── " : "├── "}`, `${childGuide}${last ? "    " : "│   "}`);
+    });
+  };
+  // Top-level nodes render flat (no guide); their descendants get guides.
+  for (const top of sortChildren(root)) render(top, "", "");
+
+  const fence = "```\n" + lines.join("\n") + "\n```";
+  return title ? `**${title}**\n\n${fence}` : fence;
 }
 
 function projectCanvas(block: DocBlock): string {
@@ -207,15 +393,24 @@ function projectImage(block: DocBlock): string {
   return lines.join("\n");
 }
 
-function projectAttachment(block: DocBlock): string {
-  const src = stringProp(block, "src") ?? "";
-  const name = stringProp(block, "name") ?? src ?? "attachment";
-  return `[${name}](${src})`;
+function projectVideo(block: DocBlock): string {
+  // External url wins over the bundle-relative src when both are present —
+  // same precedence the video block's render surface applies.
+  const target = stringProp(block, "url") ?? stringProp(block, "src");
+  const title = stringProp(block, "title");
+  const caption = stringProp(block, "caption");
+
+  let head = "**Video";
+  if (title) head += `: ${title}`;
+  head += "**";
+  if (target) head += ` — ${target}`;
+  if (caption) head += ` — ${caption}`;
+  return blockquotePrefix(head);
 }
 
 /** Renders a single block's own line(s) — NOT its children (handled by the caller/walker). */
 function projectBlockOwnLines(block: DocBlock): string | null {
-  switch (block.flavour) {
+  switch (block.type) {
     case "heading": {
       const level = headingLevel(block);
       return `${"#".repeat(level)} ${deltaToMarkdownInline(block.text)}`;
@@ -224,7 +419,14 @@ function projectBlockOwnLines(block: DocBlock): string | null {
       return block.text && block.text.length > 0 ? deltaToMarkdownInline(block.text) : null;
     case "code": {
       const language = stringProp(block, "language") ?? "";
-      return "```" + language + "\n" + deltaToPlainTextInline(block.text) + "\n```";
+      const fence = "```" + language + "\n" + deltaToPlainTextInline(block.text) + "\n```";
+      const annotations = codeAnnotations(block);
+      if (annotations.length === 0) return fence;
+      const annotationLines = annotations.map(
+        (annotation) =>
+          `> **L${annotation.lines}${annotation.label ? ` (${annotation.label})` : ""}:** ${annotation.note}`,
+      );
+      return fence + "\n" + annotationLines.join("\n");
     }
     case "quote":
       return blockquotePrefix(deltaToMarkdownInline(block.text));
@@ -236,20 +438,22 @@ function projectBlockOwnLines(block: DocBlock): string | null {
       return projectCanvas(block);
     case "image":
       return projectImage(block);
-    case "attachment":
-      return projectAttachment(block);
-    case "agent-contract":
-      return projectAgentContract(block);
+    case "video":
+      return projectVideo(block);
     case "file-tree":
       return projectFileTree(block);
+    case "structured-table":
+      return projectStructuredTable(block);
+    case "interaction-surface":
+      return projectInteractionSurface(block);
     case "list-item":
       // Handled specially by the walker (needs depth + ordered numbering).
       return null;
     default:
-      if (CALLOUT_LIKE_SEMANTIC_FLAVOURS.has(block.flavour)) {
+      if (CALLOUT_LIKE_SEMANTIC_TYPES.has(block.type)) {
         return projectSemanticBlock(block);
       }
-      // Unknown/unhandled flavour: fall back to its plain text, if any.
+      // Unknown/unhandled block type: fall back to its plain text, if any.
       return block.text && block.text.length > 0 ? deltaToMarkdownInline(block.text) : null;
   }
 }
@@ -272,7 +476,7 @@ export function projectToMarkdown(doc: DocDocument): string {
     const block = doc.blocks[blockId];
     if (!block) return;
 
-    if (block.flavour === "list-item") {
+    if (block.type === "list-item") {
       lines.push(projectListItem(block, listDepth, listIndex));
       walkChildren(block.children, listDepth + 1);
       return;
@@ -294,7 +498,7 @@ export function projectToMarkdown(doc: DocDocument): string {
     let runIndex = 0;
     for (const childId of children) {
       const child = doc.blocks[childId];
-      if (child?.flavour === "list-item") {
+      if (child?.type === "list-item") {
         walk(childId, listDepth, runIndex);
         runIndex += 1;
       } else {

@@ -1,0 +1,1388 @@
+{
+  "schemaVersion": 1,
+  "id": "20-implementation-10-package-map",
+  "title": "Package map",
+  "root": "b-10-package-map-root-44",
+  "blocks": {
+    "b-10-package-map-root-44": {
+      "id": "b-10-package-map-root-44",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-10-package-map-package-map-1",
+        "b-10-package-map-every-workspace-package-2",
+        "b-10-package-map-packages-docs-model-3",
+        "b-10-package-map-pure-typescript-no-reac-4",
+        "b-10-package-map-the-doc-json-schema-5",
+        "b-10-package-map-flavours-paragraph-hea-6",
+        "b-10-package-map-the-six-op-mutation-voca-7",
+        "b-10-package-map-deleteblock-movebloc-8",
+        "b-10-package-map-typed-block-actions-45",
+        "b-10-package-map-the-comments-schema-tar-9",
+        "b-10-package-map-markdown-projection-in-b-10",
+        "b-10-package-map-everything-else-in-the-r-11",
+        "b-10-package-map-packages-docs-index-12",
+        "b-10-package-map-a-bun-sqlite-backed-in-13",
+        "b-10-package-map-packages-docs-server-14",
+        "b-10-package-map-the-embeddable-write-sid-15",
+        "b-10-package-map-per-path-mutexed-atomic-16",
+        "b-10-package-map-hash-preconditions-17",
+        "b-10-package-map-409-if-the-doc-changed-18",
+        "b-10-package-map-draft-locks-best-e-19",
+        "b-10-package-map-another-session-advisor-20",
+        "b-10-package-map-a-single-use-undo-ledg-21",
+        "b-10-package-map-sse-change-events-so-22",
+        "b-10-package-map-createdocsroutes-store-23",
+        "b-10-package-map-packages-docs-viewer-24",
+        "b-10-package-map-the-react-layer-25",
+        "b-10-package-map-docblockrenderer-rea-26",
+        "b-10-package-map-registry-each-block-fla-27",
+        "b-10-package-map-the-docs-blocks-familie-46",
+        "b-10-package-map-the-tiptap-based-block-28",
+        "b-10-package-map-input-rules-reference-c-29",
+        "b-10-package-map-doctargetinglayer-ho-30",
+        "b-10-package-map-surface-both-humans-and-31",
+        "b-10-package-map-plannotator-style-commen-32",
+        "b-10-package-map-docsclientprovider-t-33",
+        "b-10-package-map-client-and-a-canvas-embe-34",
+        "b-10-package-map-packages-docs-workbench-35",
+        "b-10-package-map-the-standalone-runnable-36",
+        "b-10-package-map-packages-docs-cli-th-37",
+        "b-10-package-map-the-docs-command-ren-38",
+        "b-10-package-map-packages-framework-t-39",
+        "b-10-package-map-not-code-the-documentat-40",
+        "b-10-package-map-external-canvas-a-su-41",
+        "b-10-package-map-the-codecaine-canvas-eng-42",
+        "b-10-package-map-see-the-readme-s-submodu-43",
+        "b-10-package-map-repo-root-makefile-47",
+        "b-10-package-map-a-makefile-at-the-repo-48"
+      ]
+    },
+    "b-10-package-map-package-map-1": {
+      "id": "b-10-package-map-package-map-1",
+      "type": "heading",
+      "props": {
+        "level": 1
+      },
+      "text": [
+        {
+          "insert": "Package map"
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-every-workspace-package-2": {
+      "id": "b-10-package-map-every-workspace-package-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every workspace package, what it owns, and why it exists as its own layer."
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-packages-docs-model-3": {
+      "id": "b-10-package-map-packages-docs-model-3",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "packages/docs-model",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — the format"
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-pure-typescript-no-reac-4": {
+      "id": "b-10-package-map-pure-typescript-no-reac-4",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Pure TypeScript: no React, no filesystem, no network. Owns:"
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-the-doc-json-schema-5": {
+      "id": "b-10-package-map-the-doc-json-schema-5",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "the "
+        },
+        {
+          "insert": "doc.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " schema — a normalized, id-keyed block tree with exactly 14"
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-flavours-paragraph-hea-6": {
+      "id": "b-10-package-map-flavours-paragraph-hea-6",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "  block types (paragraph, heading, list-item, quote, code, callout, divider,\n  structured-table, file-tree, interaction-surface, mermaid, canvas, image,\n  video) and delta-style rich-text spans; retired MDX-era types coerce to\n  callout on read, the old type name preserved as "
+        },
+        {
+          "insert": "props.kind",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ";"
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-the-six-op-mutation-voca-7": {
+      "id": "b-10-package-map-the-six-op-mutation-voca-7",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "the seven-op mutation vocabulary ("
+        },
+        {
+          "insert": "insertBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ","
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-deleteblock-movebloc-8": {
+      "id": "b-10-package-map-deleteblock-movebloc-8",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "  "
+        },
+        {
+          "insert": "deleteBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "moveBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "splitBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "mergeBlocks",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", plus\n  "
+        },
+        {
+          "insert": "blockAction",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " as the seventh) with a pure\n  "
+        },
+        {
+          "insert": "applyOp(doc, op) -> { doc, inverse }",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — the returned inverse is what\n  powers undo;"
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-typed-block-actions-45": {
+      "id": "b-10-package-map-typed-block-actions-45",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "typed block actions ("
+        },
+        {
+          "insert": "block-actions.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ") — 13 named actions across "
+        },
+        {
+          "insert": "code",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ",\n  "
+        },
+        {
+          "insert": "structured-table",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "file-tree",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "interaction-surface",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " blocks,\n  invoked through the "
+        },
+        {
+          "insert": "blockAction",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " op; "
+        },
+        {
+          "insert": "BLOCK_TYPE_CATEGORY",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " sorts every\n  type into "
+        },
+        {
+          "insert": "text",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " (generic ops) or "
+        },
+        {
+          "insert": "object",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " (structured props edited via\n  actions);"
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-the-comments-schema-tar-9": {
+      "id": "b-10-package-map-the-comments-schema-tar-9",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "the comments schema (targets that anchor to blocks or canvas objects);"
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-markdown-projection-in-b-10": {
+      "id": "b-10-package-map-markdown-projection-in-b-10",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Markdown projection in both directions."
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-everything-else-in-the-r-11": {
+      "id": "b-10-package-map-everything-else-in-the-r-11",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Everything else in the repo is machinery around this package's types."
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-packages-docs-index-12": {
+      "id": "b-10-package-map-packages-docs-index-12",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "packages/docs-index",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — backlinks"
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-a-bun-sqlite-backed-in-13": {
+      "id": "b-10-package-map-a-bun-sqlite-backed-in-13",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A "
+        },
+        {
+          "insert": "bun:sqlite",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "-backed index of references between docs (and from docs into\nsource files). Strictly "
+        },
+        {
+          "insert": "derived",
+          "attributes": {
+            "italic": true
+          }
+        },
+        {
+          "insert": " state — it lives at "
+        },
+        {
+          "insert": "<docsRoot>/.index/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ",\nis gitignored, and can always be rebuilt with "
+        },
+        {
+          "insert": "docs backlinks rescan",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Also\nhome to "
+        },
+        {
+          "insert": "move-doc",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " (renames a bundle and rewrites inbound references) and\npath-confinement helpers so no operation can escape the docs root."
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-packages-docs-server-14": {
+      "id": "b-10-package-map-packages-docs-server-14",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "packages/docs-server",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — the mutation authority"
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-the-embeddable-write-sid-15": {
+      "id": "b-10-package-map-the-embeddable-write-sid-15",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The embeddable write side. "
+        },
+        {
+          "insert": "createDocsStore(docsRoot)",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " provides:"
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-per-path-mutexed-atomic-16": {
+      "id": "b-10-package-map-per-path-mutexed-atomic-16",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "per-path mutexed, atomic (temp-then-rename) file writes;"
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-hash-preconditions-17": {
+      "id": "b-10-package-map-hash-preconditions-17",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "hash preconditions",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " — every mutation carries "
+        },
+        {
+          "insert": "expected_hash",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and gets a"
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-409-if-the-doc-changed-18": {
+      "id": "b-10-package-map-409-if-the-doc-changed-18",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "  "
+        },
+        {
+          "insert": "409",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " if the doc changed underneath it (this is the real concurrency\n  backstop);"
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-draft-locks-best-e-19": {
+      "id": "b-10-package-map-draft-locks-best-e-19",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "draft locks",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " — best-effort TTL locks with heartbeat, "
+        },
+        {
+          "insert": "423",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " when held by"
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-another-session-advisor-20": {
+      "id": "b-10-package-map-another-session-advisor-20",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "  another session (advisory; the hash check is what guarantees correctness);"
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-a-single-use-undo-ledg-21": {
+      "id": "b-10-package-map-a-single-use-undo-ledg-21",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "a single-use "
+        },
+        {
+          "insert": "undo ledger",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " built from the model's inverse ops;"
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-sse-change-events-so-22": {
+      "id": "b-10-package-map-sse-change-events-so-22",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "SSE change events",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " so open clients see other actors' edits live."
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-createdocsroutes-store-23": {
+      "id": "b-10-package-map-createdocsroutes-store-23",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "createDocsRoutes(store)",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " exposes all of that as an Elysia "
+        },
+        {
+          "insert": "/api/*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " route\nfactory that any host app can mount. Two newer routes worth knowing:\n"
+        },
+        {
+          "insert": "GET /api/blocks",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", a static discovery document describing the whole agent\nedit surface (the generic ops plus every typed block action), and\n"
+        },
+        {
+          "insert": "POST /api/assets/video",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", multipart video upload (strict type allowlist,\n64MB cap, collision-suffixed names under the bundle's "
+        },
+        {
+          "insert": "assets/videos/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ")."
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-packages-docs-viewer-24": {
+      "id": "b-10-package-map-packages-docs-viewer-24",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "packages/docs-viewer",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — rendering and editing"
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-the-react-layer-25": {
+      "id": "b-10-package-map-the-react-layer-25",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The React layer:"
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-docblockrenderer-rea-26": {
+      "id": "b-10-package-map-docblockrenderer-rea-26",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "DocBlockRenderer",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — read-only projection of a bundle through the block"
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-registry-each-block-fla-27": {
+      "id": "b-10-package-map-registry-each-block-fla-27",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "  registry ("
+        },
+        {
+          "insert": "render/block-registry.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — one descriptor per block type,\n  mapping exactly the 14 canonical types);"
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-the-docs-blocks-familie-46": {
+      "id": "b-10-package-map-the-docs-blocks-familie-46",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "the "
+        },
+        {
+          "insert": "docs-blocks/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " component families — callout, code (highlight.js-core\n  syntax highlighting in "
+        },
+        {
+          "insert": "highlight.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " plus line-anchored\n  "
+        },
+        {
+          "insert": "CodeAnnotations",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "), file-tree (tree rendering with change markers and\n  notes), structured-table, interaction-surface, mermaid (real SVG\n  rendering that follows the theme), and video (provider embeds plus native\n  playback); the MDX-era semantic families are gone;"
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-the-tiptap-based-block-28": {
+      "id": "b-10-package-map-the-tiptap-based-block-28",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "the "
+        },
+        {
+          "insert": "TipTap-based block editor",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " ("
+        },
+        {
+          "insert": "DocEditor",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ") — slash menu, Markdown"
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-input-rules-reference-c-29": {
+      "id": "b-10-package-map-input-rules-reference-c-29",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "  input rules, reference chips, link authoring ("
+        },
+        {
+          "insert": "menus/link-editor.tsx",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "),\n  video paste/drop ("
+        },
+        {
+          "insert": "input/video-embed.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", uploading through the host's\n  "
+        },
+        {
+          "insert": "uploadAsset",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " slot), and an opt-in Notion-style auto-save mode\n  (see "
+        },
+        {
+          "insert": "the workbench pages",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "docs/20-implementation/20-workbench.md",
+              "label": "the workbench pages"
+            }
+          }
+        },
+        {
+          "insert": ");"
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-doctargetinglayer-ho-30": {
+      "id": "b-10-package-map-doctargetinglayer-ho-30",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "DocTargetingLayer",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — hover outline + block-type chip + pinpoint click, the"
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-surface-both-humans-and-31": {
+      "id": "b-10-package-map-surface-both-humans-and-31",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "  surface both humans and agents use to say \"this block, specifically\";"
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-plannotator-style-commen-32": {
+      "id": "b-10-package-map-plannotator-style-commen-32",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Plannotator-style comment composition;"
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-docsclientprovider-t-33": {
+      "id": "b-10-package-map-docsclientprovider-t-33",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "DocsClientProvider",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — the seam a host app uses to inject its own API"
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-client-and-a-canvas-embe-34": {
+      "id": "b-10-package-map-client-and-a-canvas-embe-34",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "  client and a canvas-embed component."
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-packages-docs-workbench-35": {
+      "id": "b-10-package-map-packages-docs-workbench-35",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "packages/docs-workbench",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — the app"
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-the-standalone-runnable-36": {
+      "id": "b-10-package-map-the-standalone-runnable-36",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The standalone runnable: an Elysia server wrapping "
+        },
+        {
+          "insert": "docs-server",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "'s routes\nplus a Vite-built SPA. Two modes — "
+        },
+        {
+          "insert": "Edit",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " (default, always-editable with\nauto-save) and "
+        },
+        {
+          "insert": "Annotate",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " (comment on blocks/canvas objects) — plus a\nblock library at "
+        },
+        {
+          "insert": "#/blocks",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", live SSE change flashes, and one-click undo.\n"
+        },
+        {
+          "insert": "docs export",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " produces a fully static read-only site from the same code."
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-packages-docs-cli-th-37": {
+      "id": "b-10-package-map-packages-docs-cli-th-37",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "packages/docs-cli",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — the entry point"
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-the-docs-command-ren-38": {
+      "id": "b-10-package-map-the-docs-command-ren-38",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "docs",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " command: "
+        },
+        {
+          "insert": "render",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "grep",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "backlinks rescan",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "links check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ",\n"
+        },
+        {
+          "insert": "migrate",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " (markdown → bundles, non-destructive by default), "
+        },
+        {
+          "insert": "serve",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and\n"
+        },
+        {
+          "insert": "export",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Host repos invoke this through their submodule mount."
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-packages-framework-t-39": {
+      "id": "b-10-package-map-packages-framework-t-39",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "packages/framework",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — the methodology"
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-not-code-the-documentat-40": {
+      "id": "b-10-package-map-not-code-the-documentat-40",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Not code: the documentation "
+        },
+        {
+          "insert": "methodology",
+          "attributes": {
+            "italic": true
+          }
+        },
+        {
+          "insert": " itself — the manual\n(architecture reference, standards, hierarchy conventions, setup guide),\ndocument templates, and the skill definition that host repos symlink into\ntheir agent tooling. This is the \"how to run docs in a project\" layer."
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-external-canvas-a-su-41": {
+      "id": "b-10-package-map-external-canvas-a-su-41",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "external/canvas",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — a supported neighbor, not a part"
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-the-codecaine-canvas-eng-42": {
+      "id": "b-10-package-map-the-codecaine-canvas-eng-42",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The Codecaine canvas engine, vendored as a git submodule so the workbench\ncan render embedded canvases. It lives under "
+        },
+        {
+          "insert": "external/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " rather than\n"
+        },
+        {
+          "insert": "packages/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " deliberately: the docs system "
+        },
+        {
+          "insert": "supports",
+          "attributes": {
+            "italic": true
+          }
+        },
+        {
+          "insert": " canvas (canvas\ndocuments can be embedded in docs), but canvas is its own project with its\nown repo, workspace, and release cadence. Only its inner packages are\npulled into this workspace ("
+        },
+        {
+          "insert": "external/canvas/packages/*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ") so\n"
+        },
+        {
+          "insert": "@codecaine-ai/canvas",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " resolves for the embed components."
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-see-the-readme-s-submodu-43": {
+      "id": "b-10-package-map-see-the-readme-s-submodu-43",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "See the README's submodule-cycle caveat before cloning recursively."
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-repo-root-makefile-47": {
+      "id": "b-10-package-map-repo-root-makefile-47",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Repo root — the "
+        },
+        {
+          "insert": "Makefile",
+          "attributes": {
+            "code": true
+          }
+        }
+      ],
+      "children": []
+    },
+    "b-10-package-map-a-makefile-at-the-repo-48": {
+      "id": "b-10-package-map-a-makefile-at-the-repo-48",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A "
+        },
+        {
+          "insert": "Makefile",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " at the repo root wraps the common commands: "
+        },
+        {
+          "insert": "make test",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ",\n"
+        },
+        {
+          "insert": "make typecheck",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "make check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " (both), "
+        },
+        {
+          "insert": "make serve",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " (self-docs on\n"
+        },
+        {
+          "insert": ":4802",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "), "
+        },
+        {
+          "insert": "make dev",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " (hot reload on "
+        },
+        {
+          "insert": ":4803",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "), "
+        },
+        {
+          "insert": "make canvas",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " (the\nsibling canvas project's docs on "
+        },
+        {
+          "insert": ":4801",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "), and "
+        },
+        {
+          "insert": "make spa",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " (rebuilds the\nstatic SPA cache)."
+        }
+      ],
+      "children": []
+    }
+  }
+}

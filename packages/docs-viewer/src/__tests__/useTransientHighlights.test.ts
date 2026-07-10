@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from "bun:test";
 import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
-import { useTransientHighlights } from "../useTransientHighlights";
+import { useTransientHighlights } from "../annotate/useTransientHighlights";
 
 /**
  * CP9 (TG9.3, D12) changed-id highlight window. Timing-sensitive behavior

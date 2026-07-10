@@ -4,39 +4,43 @@ import { AlertTriangleIcon, CheckCircle2Icon, InfoIcon } from "lucide-react";
 import { Badge } from "../../ui/badge";
 import { cn } from "../../ui/cn";
 import {
+  CARD_BASE_CLASSES,
+  CARD_TONE_DECISION_CLASSES,
+  CARD_TONE_PRIMARY_CLASSES,
+} from "../../render/block-classes";
+import {
   DocsMdxBlock,
   type DocsMdxBlockRenderContext,
   type DocsMdxParsedBlock,
 } from "../base";
 
-const CALLOUT_TONES = ["info", "decision", "risk", "warning", "success"] as const;
-
-type CalloutTone = (typeof CALLOUT_TONES)[number];
-
 type CalloutData = {
   id?: string;
-  tone: CalloutTone;
+  /** Tone (info/decision/risk/warning/success); unknown tones render as info. */
+  tone: string;
+  /**
+   * Optional free-form kind (e.g. "Requirement", "Decision") shown as the
+   * label chip instead of the tone text. Coloring stays tone-derived. Legacy
+   * semantic cards are coerced to callouts with a kind at validation.
+   */
+  kind?: string;
   title?: string;
   body: string;
 };
 
-function isCalloutTone(value: string | undefined): value is CalloutTone {
-  return CALLOUT_TONES.includes(value as CalloutTone);
-}
-
-function toneIcon(tone: CalloutTone) {
+function toneIcon(tone: string) {
   if (tone === "warning" || tone === "risk") return AlertTriangleIcon;
   if (tone === "success") return CheckCircle2Icon;
   return InfoIcon;
 }
 
-function toneClass(tone: CalloutTone): string {
+function toneClass(tone: string): string {
   if (tone === "warning" || tone === "risk") {
-    return "border-primary/30 bg-primary/5";
+    return CARD_TONE_PRIMARY_CLASSES;
   }
-  if (tone === "success") return "border-primary/30 bg-primary/5";
-  if (tone === "decision") return "border-primary/25 bg-primary/5";
-  return "border-primary/30 bg-primary/5";
+  if (tone === "success") return CARD_TONE_PRIMARY_CLASSES;
+  if (tone === "decision") return CARD_TONE_DECISION_CLASSES;
+  return CARD_TONE_PRIMARY_CLASSES;
 }
 
 export class CalloutDocsBlock extends DocsMdxBlock<CalloutData> {
@@ -46,35 +50,6 @@ export class CalloutDocsBlock extends DocsMdxBlock<CalloutData> {
   readonly label = "Callout";
   readonly agentDescription =
     "A highlighted note, risk, warning, success, or decision-adjacent context block.";
-  override readonly patchOps = [
-    "update-mdx-block-props",
-    "update-mdx-block-body",
-    "replace-mdx-block",
-  ] as const;
-
-  parse({
-    attrs,
-    body,
-  }: {
-    attrs: Record<string, string>;
-    body: string;
-    source: string;
-  }): DocsMdxParsedBlock<CalloutData> | null {
-    const rawTone = attrs.tone?.trim();
-    const tone = isCalloutTone(rawTone) ? rawTone : "info";
-    return {
-      tag: this.tag,
-      type: this.type,
-      targetKind: this.targetKind,
-      sourceId: this.sourceId(attrs),
-      data: {
-        id: attrs.id?.trim() || undefined,
-        tone,
-        title: attrs.title?.trim() || undefined,
-        body: body.trim(),
-      },
-    };
-  }
 
   render(
     block: DocsMdxParsedBlock<CalloutData>,
@@ -84,14 +59,14 @@ export class CalloutDocsBlock extends DocsMdxBlock<CalloutData> {
     const Icon = toneIcon(data.tone);
     return (
       <aside
-        className={cn("not-prose my-4 rounded-md border p-3", toneClass(data.tone))}
+        className={cn(CARD_BASE_CLASSES, toneClass(data.tone))}
         data-mdx-block={this.tag}
         data-docs-block-type={this.type}
         data-source-id={data.id}
       >
         <div className="mb-2 flex flex-wrap items-center gap-2">
           <Icon className="h-4 w-4 text-muted-foreground" />
-          <Badge variant="outline">{data.tone}</Badge>
+          <Badge variant="outline">{data.kind || data.tone}</Badge>
           <span className="font-display text-xs font-medium uppercase tracking-wider text-muted-foreground">
             Callout
           </span>

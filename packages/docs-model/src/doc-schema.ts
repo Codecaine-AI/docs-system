@@ -7,35 +7,48 @@ import { validateSpectreRef } from "./spectre-ref";
  * doc.json schema (design record §9.2, D24/D25/D28):
  * - Normalized tree: flat id-keyed `blocks` map + ordered `children` ids.
  * - Rich text as Delta JSON spans (D24), references as shared SpectreRef (D27).
- * - Semantic docs-blocks carry over as first-class flavours (D28).
+ * - A block's kind field is `type`. The BlockSuite-heritage key `flavour` is
+ *   accepted on READ as a legacy alias (normalized into `type`) so older
+ *   bundles — e.g. the canvas sibling project's docs — keep validating;
+ *   writes always emit canonical `type`.
+ * - LEGACY TYPE COERCION: after the `flavour` aliasing above, any block whose
+ *   type is a string but NOT one of the 14 canonical types coerces to a
+ *   `callout` instead of failing validation. The retired/unknown type name is
+ *   preserved as `props.kind` (unless the block already carries a non-empty
+ *   string `props.kind` of its own); props, text, and children carry over
+ *   verbatim. This is deliberate resilience: it migrates the canvas sibling's
+ *   semantic-card blocks (requirement/decision/constraint/...) and its
+ *   never-in-schema legacy blocks (overview/design/reference) with zero file
+ *   rewrites — blocks canonicalize to the coerced form on next save.
  */
 
-export const DOC_BLOCK_FLAVOURS = [
-  // core
+export const DOC_BLOCK_TYPES = [
+  // core text & structure
   "paragraph",
   "heading",
   "list-item",
-  "code",
   "quote",
-  "divider",
+  "code",
   "callout",
-  "image",
-  "attachment",
-  "canvas",
-  // semantic / engineering / support carried over from the MDX vocabulary
-  "decision",
-  "constraint",
-  "assumption",
-  "observation",
-  "outcome",
-  "requirement",
-  "implementation",
-  "testing",
-  "agent-contract",
+  "divider",
+  // structured / engineering
+  "structured-table",
   "file-tree",
+  "interaction-surface",
+  // diagram & media
+  "mermaid",
+  "canvas",
+  "image",
+  "video",
 ] as const;
 
-export type DocBlockFlavour = (typeof DOC_BLOCK_FLAVOURS)[number];
+export type DocBlockType = (typeof DOC_BLOCK_TYPES)[number];
+
+/** @deprecated Use DOC_BLOCK_TYPES. */
+export const DOC_BLOCK_FLAVOURS = DOC_BLOCK_TYPES;
+
+/** @deprecated Use DocBlockType. */
+export type DocBlockFlavour = DocBlockType;
 
 export type DeltaSpanAttributes = {
   bold?: true;
@@ -56,10 +69,10 @@ export type DeltaSpan = {
 export type DocBlock = {
   /** Stable — comments, patches, and backlinks anchor here (§8.3). */
   id: string;
-  flavour: DocBlockFlavour;
-  /** Typed per flavour: {level}, {status}, {src, view}, ... */
+  type: DocBlockType;
+  /** Typed per block type: {level}, {status}, {src, view}, ... */
   props: Record<string, unknown>;
-  /** Rich text where the flavour carries it (D24). */
+  /** Rich text where the block type carries it (D24). */
   text?: DeltaSpan[];
   /** Ordered child ids (D25). */
   children: string[];
@@ -84,11 +97,14 @@ export type DocValidationResult =
   | { ok: true; document: DocDocument }
   | { ok: false; issues: DocValidationIssue[] };
 
-const FLAVOUR_SET: ReadonlySet<string> = new Set(DOC_BLOCK_FLAVOURS);
+const BLOCK_TYPE_SET: ReadonlySet<string> = new Set(DOC_BLOCK_TYPES);
 
-export function isDocBlockFlavour(value: unknown): value is DocBlockFlavour {
-  return typeof value === "string" && FLAVOUR_SET.has(value);
+export function isDocBlockType(value: unknown): value is DocBlockType {
+  return typeof value === "string" && BLOCK_TYPE_SET.has(value);
 }
+
+/** @deprecated Use isDocBlockType. */
+export const isDocBlockFlavour = isDocBlockType;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === "object" && !Array.isArray(value);
@@ -163,12 +179,12 @@ function validateDeltaSpans(
 }
 
 function validateBlockProps(
-  flavour: DocBlockFlavour,
+  blockType: DocBlockType,
   props: Record<string, unknown>,
   path: string,
   issues: DocValidationIssue[],
 ): boolean {
-  if (flavour !== "canvas") return true;
+  if (blockType !== "canvas") return true;
   const canvasId = props.canvasId;
   const src = props.src;
   if (
@@ -192,7 +208,10 @@ function validateBlockProps(
 /**
  * Pure structural validation (no throw, canvas-schema style):
  * - schemaVersion / id / root / blocks shape,
- * - block ids match their map key, flavours known, children are id arrays,
+ * - block ids match their map key, block types known (legacy `flavour` key
+ *   normalized into `type` on read; retired/unknown string types coerce to
+ *   `callout` with the type name preserved as `props.kind` — see module
+ *   header), children are id arrays,
  * - root exists in blocks,
  * - no orphan child references (every child id resolves),
  * - no shared children (a block reachable from two parents),
@@ -241,10 +260,24 @@ export function validateDocDocument(value: unknown): DocValidationResult {
       });
       continue;
     }
-    if (!isDocBlockFlavour(rawBlock.flavour)) {
+    // Canonical kind key is `type`; the BlockSuite-heritage `flavour` key is
+    // accepted as a READ alias and normalized. Both present must agree.
+    if (
+      rawBlock.type !== undefined &&
+      rawBlock.flavour !== undefined &&
+      rawBlock.type !== rawBlock.flavour
+    ) {
       issues.push({
-        path: `${path}.flavour`,
-        message: `Unknown block flavour: ${String(rawBlock.flavour)}`,
+        path: `${path}.type`,
+        message: `Block "type" (${String(rawBlock.type)}) conflicts with legacy "flavour" (${String(rawBlock.flavour)}).`,
+      });
+      continue;
+    }
+    const rawType = rawBlock.type !== undefined ? rawBlock.type : rawBlock.flavour;
+    if (typeof rawType !== "string" || rawType.length === 0) {
+      issues.push({
+        path: `${path}.type`,
+        message: `Unknown block type: ${String(rawType)}`,
       });
       continue;
     }
@@ -252,14 +285,25 @@ export function validateDocDocument(value: unknown): DocValidationResult {
       issues.push({ path: `${path}.props`, message: "Block props must be an object." });
       continue;
     }
-    if (
-      !validateBlockProps(
-        rawBlock.flavour,
-        rawBlock.props as Record<string, unknown>,
-        `${path}.props`,
-        issues,
-      )
-    ) {
+    let blockType: DocBlockType;
+    let props = rawBlock.props as Record<string, unknown>;
+    if (isDocBlockType(rawType)) {
+      blockType = rawType;
+    } else {
+      // Legacy type coercion (see module header): retired/unknown string types
+      // become callouts; the original type name survives as props.kind unless
+      // the block already carries its own non-empty kind.
+      blockType = "callout";
+      const existingKind = props.kind;
+      props = {
+        ...props,
+        kind:
+          typeof existingKind === "string" && existingKind.length > 0
+            ? existingKind
+            : rawType,
+      };
+    }
+    if (!validateBlockProps(blockType, props, `${path}.props`, issues)) {
       continue;
     }
     if (!Array.isArray(rawBlock.children)) {
@@ -290,8 +334,8 @@ export function validateDocDocument(value: unknown): DocValidationResult {
 
     blocks[key] = {
       id: rawBlock.id,
-      flavour: rawBlock.flavour,
-      props: rawBlock.props as Record<string, unknown>,
+      type: blockType,
+      props,
       text,
       children,
     };
@@ -384,7 +428,7 @@ export function docBlockOrder(document: DocDocument): string[] {
 }
 
 const DOC_KEY_ORDER = ["schemaVersion", "id", "title", "root", "blocks"] as const;
-const BLOCK_KEY_ORDER = ["id", "flavour", "props", "text", "children"] as const;
+const BLOCK_KEY_ORDER = ["id", "type", "props", "text", "children"] as const;
 const SPAN_KEY_ORDER = ["insert", "attributes"] as const;
 const ATTR_KEY_ORDER = ["bold", "italic", "strike", "code", "link", "reference"] as const;
 const REF_KEY_ORDER = ["kind", "path", "symbol", "line", "section", "label"] as const;
@@ -440,7 +484,7 @@ export function serializeDocDocument(document: DocDocument): string {
     const block = document.blocks[id];
     const raw: Record<string, unknown> = {
       id: block.id,
-      flavour: block.flavour,
+      type: block.type,
       props: orderedRecord(block.props, Object.keys(block.props).sort()),
       text: block.text?.map(serializableSpan),
       children: block.children,

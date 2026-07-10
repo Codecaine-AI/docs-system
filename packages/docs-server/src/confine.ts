@@ -13,6 +13,11 @@ import { isSafeRelativePath } from "@codecaine-ai/docs-index/paths";
 export const MAX_DOC_FILE_BYTES = 5 * 1024 * 1024;
 export const MAX_CANVAS_FILE_BYTES = 1024 * 1024;
 export const MAX_ASSET_BYTES = 20 * 1024 * 1024;
+/** Video uploads get a higher cap than generic assets — screen recordings routinely exceed 20MB. */
+export const MAX_VIDEO_ASSET_BYTES = 64 * 1024 * 1024;
+
+/** Extensions the dedicated video-upload route accepts (mirrors the `video/*` rows of ASSET_CONTENT_TYPE_BY_EXT below). */
+export const ALLOWED_VIDEO_ASSET_EXT = new Set([".mp4", ".webm", ".mov", ".m4v"]);
 
 export const ALLOWED_DOC_EXT = new Set([".md", ".markdown", ".mdx"]);
 
@@ -56,7 +61,7 @@ export function resolveCanvasSidecarRelativePath(docPath: string, src: string): 
 
 /**
  * Resolves a docs-ROOT-relative canvas sidecar `src` (the doc.json "canvas"
- * flavour's cross-doc form) to its docs-root-relative path, or null when the
+ * block type's cross-doc form) to its docs-root-relative path, or null when the
  * src is malformed or escapes `docsRoot`.
  */
 export function resolveCanvasSidecarRootRelativePath(
@@ -79,12 +84,16 @@ export function resolveCanvasSidecarRootRelativePath(
   return canvasRelPath;
 }
 
-/** Docs-asset path predicate: under `assets/images/` or `assets/attachments/`. */
+/** Docs-asset path predicate: under `assets/images/`, `assets/videos/`, or `assets/attachments/`. */
 export function isAllowedAssetRelativePath(path: string): boolean {
   const normalized = path.replace(/^\.\/+/, "").replaceAll("\\", "/");
   if (!isSafeRelativePath(normalized)) return false;
   const lower = normalized.toLowerCase();
-  return lower.includes("assets/images/") || lower.includes("assets/attachments/");
+  return (
+    lower.includes("assets/images/") ||
+    lower.includes("assets/videos/") ||
+    lower.includes("assets/attachments/")
+  );
 }
 
 /**
@@ -116,6 +125,10 @@ const ASSET_CONTENT_TYPE_BY_EXT: Record<string, string> = {
   ".webp": "image/webp",
   ".svg": "image/svg+xml",
   ".pdf": "application/pdf",
+  ".mp4": "video/mp4",
+  ".webm": "video/webm",
+  ".mov": "video/quicktime",
+  ".m4v": "video/x-m4v",
 };
 
 /** Infers a response Content-Type from a file extension (asset serve route). */

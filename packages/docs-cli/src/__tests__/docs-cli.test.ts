@@ -28,20 +28,20 @@ function doc(id: string, heading: string, paragraph: string): TestDoc {
     blocks: {
       root: {
         id: "root",
-        flavour: "paragraph",
+        type: "paragraph",
         props: {},
         children: ["heading", "body"],
       },
       heading: {
         id: "heading",
-        flavour: "heading",
+        type: "heading",
         props: { level: 1 },
         text: [{ insert: heading }],
         children: [],
       },
       body: {
         id: "body",
-        flavour: "paragraph",
+        type: "paragraph",
         props: {},
         text: [{ insert: paragraph }],
         children: [],
@@ -213,10 +213,10 @@ describe("docs cli backlinks rescan (TG7.1)", () => {
       id: "referrer-doc",
       root: "root",
       blocks: {
-        root: { id: "root", flavour: "paragraph", props: {}, children: ["p1"] },
+        root: { id: "root", type: "paragraph", props: {}, children: ["p1"] },
         p1: {
           id: "p1",
-          flavour: "paragraph",
+          type: "paragraph",
           props: {},
           children: [],
           text: [
@@ -253,10 +253,10 @@ describe("docs cli links check (TG7.2)", () => {
       id: "referrer-doc",
       root: "root",
       blocks: {
-        root: { id: "root", flavour: "paragraph", props: {}, children: ["p1"] },
+        root: { id: "root", type: "paragraph", props: {}, children: ["p1"] },
         p1: {
           id: "p1",
-          flavour: "paragraph",
+          type: "paragraph",
           props: {},
           children: [],
           text: [
@@ -294,10 +294,10 @@ describe("docs cli links check (TG7.2)", () => {
       id: "referrer-doc",
       root: "root",
       blocks: {
-        root: { id: "root", flavour: "paragraph", props: {}, children: ["p1"] },
+        root: { id: "root", type: "paragraph", props: {}, children: ["p1"] },
         p1: {
           id: "p1",
-          flavour: "paragraph",
+          type: "paragraph",
           props: {},
           children: [],
           text: [

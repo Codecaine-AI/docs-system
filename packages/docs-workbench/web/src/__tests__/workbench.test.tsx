@@ -7,11 +7,12 @@ import type { Editor } from "@tiptap/react";
 import { DocsClientProvider } from "@codecaine-ai/docs-viewer/client";
 
 import { createDocsServeApp } from "../../../src/server";
-import { applyDocOps, getBundle, undoPatch, ApiError } from "../api";
-import { createStandaloneDocsClient } from "../client";
-import { StandaloneCanvasEmbed } from "../CanvasEmbed";
-import { App } from "../App";
-import { DocPage } from "../DocPage";
+import { applyDocOps, getBundle, undoPatch, ApiError } from "../data/api";
+import { getSessionId } from "../data/session";
+import { createStandaloneDocsClient } from "../data/client";
+import { StandaloneCanvasEmbed } from "../pages/CanvasEmbed";
+import { App } from "../shell/App";
+import { DocPage } from "../pages/DocPage";
 
 /**
  * Workbench integration tests: the REAL serve app (docs-server routes over a
@@ -35,13 +36,13 @@ function docJson(id: string, title: string, text: string) {
     blocks: {
       "root-1": {
         id: "root-1",
-        flavour: "paragraph",
+        type: "paragraph",
         props: { title },
         children: ["para-1"],
       },
       "para-1": {
         id: "para-1",
-        flavour: "paragraph",
+        type: "paragraph",
         props: {},
         text: [{ insert: text }],
         children: [],
@@ -57,9 +58,32 @@ const BUNDLES: Array<[string, string]> = [
   ["50-comments", "Comments"],
   ["55-hover", "Hover"],
   ["60-live", "Live"],
+  ["65-autosave", "Autosave"],
   ["70-edit", "Edit"],
+  ["75-flush", "Flush"],
+  ["76-nav", "Nav"],
+  ["77-nav-target", "NavTarget"],
   ["80-undo", "Undo"],
 ];
+
+/**
+ * A debounce delay no test will ever wait out (the max-wait bound scales
+ * with it, so it can't fire early either) — used wherever a test needs the
+ * doc to STAY dirty until an explicit Cmd+S flush or unmount.
+ */
+const NEVER_AUTOSAVE_MS = 600_000;
+
+/** Cmd+S — DocEditor's manual flush (the workbench has no Save button). */
+function pressSaveShortcut() {
+  fireEvent.keyDown(window, { key: "s", metaKey: true });
+}
+
+function saveStateAttr(): string | null {
+  return (
+    document.querySelector("[data-docs-save-state]")?.getAttribute("data-docs-save-state") ??
+    null
+  );
+}
 
 /** Raw request against the serve app (bypasses the SPA data layer). */
 async function rawRequest(path: string, init?: RequestInit): Promise<Response> {
@@ -88,13 +112,24 @@ async function postOpsAs(
 
 function renderDocPage(
   path: string,
-  options?: { onEditorReady?: (editor: Editor) => void; isStatic?: boolean },
+  options?: {
+    onEditorReady?: (editor: Editor) => void;
+    isStatic?: boolean;
+    autoSaveDelayMs?: number;
+  },
 ) {
-  return render(
+  const ui = (currentPath: string) => (
     <DocsClientProvider client={createStandaloneDocsClient()} canvasEmbed={StandaloneCanvasEmbed}>
-      <DocPage path={path} onEditorReady={options?.onEditorReady} isStatic={options?.isStatic} />
-    </DocsClientProvider>,
+      <DocPage
+        path={currentPath}
+        onEditorReady={options?.onEditorReady}
+        isStatic={options?.isStatic}
+        autoSaveDelayMs={options?.autoSaveDelayMs}
+      />
+    </DocsClientProvider>
   );
+  const view = render(ui(path));
+  return { ...view, rerenderPath: (nextPath: string) => view.rerender(ui(nextPath)) };
 }
 
 async function makeEditorDirty(getEditor: () => Editor | null, text: string) {
@@ -105,7 +140,7 @@ async function makeEditorDirty(getEditor: () => Editor | null, text: string) {
     getEditor()!.commands.insertContentAt(1, text);
   });
   await waitFor(() => {
-    expect(screen.getByText("Unsaved changes")).toBeTruthy();
+    expect(saveStateAttr()).toBe("dirty");
   });
 }
 
@@ -151,9 +186,16 @@ describe("workbench shell", () => {
     });
     expect(screen.getByText("docs/10-guide")).toBeTruthy();
     expect(screen.getByRole("group", { name: "Docs workbench mode" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Read mode" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Annotate mode" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Edit mode" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Annotate mode" })).toBeTruthy();
+    // Two modes only — read mode collapsed into the always-editable default.
+    expect(!!screen.queryByRole("button", { name: "Read mode" })).toBe(false);
+    // Edit IS the default: the editor mounts with no mode click, and the
+    // header shows the auto-save indicator at rest.
+    await waitFor(() => {
+      expect(document.querySelector('[data-doc-editor="true"]')).toBeTruthy();
+    });
+    expect(saveStateAttr()).toBe("saved");
     expect(screen.getByText("Block library")).toBeTruthy();
   });
 
@@ -165,6 +207,9 @@ describe("workbench shell", () => {
     expect(!!screen.queryByRole("group", { name: "Docs workbench mode" })).toBe(false);
     expect(!!document.querySelector("[data-docs-undo]")).toBe(false);
     expect(!!document.querySelector("[data-docs-action-pane]")).toBe(false);
+    // No editor and no save indicator either — static is read-only.
+    expect(!!document.querySelector('[data-doc-editor="true"]')).toBe(false);
+    expect(saveStateAttr()).toBe(null);
     // The annotate targeting layer is read-only-hidden too: hovering a block
     // produces no outline and no chip.
     const block = document.querySelector('[data-block-id="para-1"]');
@@ -176,20 +221,50 @@ describe("workbench shell", () => {
 });
 
 describe("edit mode save loop", () => {
-  it("saves ops through /api/ops (hash precondition), persists to disk, and undoes once from the header", async () => {
+  it("auto-saves through /api/ops on the debounce alone (no manual action)", async () => {
     let editor: Editor | null = null;
-    renderDocPage("70-edit", { onEditorReady: (e) => (editor = e) });
+    renderDocPage("65-autosave", { onEditorReady: (e) => (editor = e), autoSaveDelayMs: 40 });
+
+    await waitFor(() => {
+      expect(screen.getByText("Hello from Autosave")).toBeTruthy();
+      expect(editor).toBeTruthy();
+    });
+    act(() => {
+      editor!.commands.insertContentAt(1, "AUTOMARK ");
+    });
+
+    // No Cmd+S, no button — the debounce persists the edit on its own.
+    await waitFor(
+      async () => {
+        const raw = await readFile(join(docsRoot, "65-autosave", "doc.json"), "utf8");
+        expect(raw).toContain("AUTOMARK");
+      },
+      { timeout: 5000 },
+    );
+    await waitFor(() => {
+      expect(saveStateAttr()).toBe("saved");
+    });
+    // The editor kept its content across its own save reflecting back (no
+    // reseed): the draft text is still present exactly once.
+    expect(editor!.getText()).toContain("AUTOMARK");
+  });
+
+  it("saves ops through /api/ops (hash precondition) on Cmd+S, persists to disk, and undoes once from the header", async () => {
+    let editor: Editor | null = null;
+    renderDocPage("70-edit", {
+      onEditorReady: (e) => (editor = e),
+      autoSaveDelayMs: NEVER_AUTOSAVE_MS,
+    });
 
     await waitFor(() => {
       expect(screen.getByText("Hello from Edit")).toBeTruthy();
     });
-    fireEvent.click(screen.getByRole("button", { name: "Edit mode" }));
     await makeEditorDirty(() => editor, "EDITMARK ");
 
-    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    pressSaveShortcut();
     await waitFor(
       () => {
-        expect(!!screen.getByText("Saved")).toBe(true);
+        expect(saveStateAttr()).toBe("saved");
       },
       { timeout: 5000 },
     );
@@ -212,29 +287,41 @@ describe("edit mode save loop", () => {
 
   it("a 409 stale save keeps the draft and shows the stale banner with a reload option", async () => {
     let editor: Editor | null = null;
-    renderDocPage("30-stale", { onEditorReady: (e) => (editor = e) });
+    renderDocPage("30-stale", {
+      onEditorReady: (e) => (editor = e),
+      autoSaveDelayMs: NEVER_AUTOSAVE_MS,
+    });
 
     await waitFor(() => {
       expect(screen.getByText("Hello from Stale")).toBeTruthy();
     });
-    // Enter edit mode FIRST — the SSE-driven auto-refresh is suppressed
-    // while editing, so the out-of-band change below leaves our hash stale.
-    fireEvent.click(screen.getByRole("button", { name: "Edit mode" }));
-    await waitFor(() => {
-      expect(editor).toBeTruthy();
+
+    // Dirty FIRST: while dirty the SSE-driven auto-refresh is suppressed, so
+    // the rival change below leaves our hash stale instead of reseeding us.
+    await makeEditorDirty(() => editor, "MY DRAFT ");
+
+    // Going dirty acquired OUR draft lock; drop it via a raw release
+    // (simulating TTL expiry) so the rival's write is admitted. The release
+    // may race the in-flight acquire, so the rival write retries under
+    // waitFor until the lock is really gone.
+    await waitFor(async () => {
+      await rawRequest("/api/draft-lock/release", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ path: "30-stale", kind: "doc", sessionId: getSessionId() }),
+      });
+      await postOpsAs("rival-session", "30-stale", "Rewritten elsewhere");
     });
 
-    // Another actor rewrites the doc (no draft lock held yet — not dirty).
-    await postOpsAs("rival-session", "30-stale", "Rewritten elsewhere");
-
-    await makeEditorDirty(() => editor, "MY DRAFT ");
-    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    pressSaveShortcut();
 
     await waitFor(() => {
       expect(screen.getByText(/Doc changed elsewhere — reload to continue/)).toBeTruthy();
     });
     expect(screen.getByRole("button", { name: "Reload doc" })).toBeTruthy();
-    // The draft survived the rejected save.
+    // The header indicator reflects the failed save…
+    expect(saveStateAttr()).toBe("error");
+    // …and the draft survived the rejected save.
     expect(editor!.getText()).toContain("MY DRAFT");
     // And the server kept the rival's version (our ops never applied).
     const diskRaw = await readFile(join(docsRoot, "30-stale", "doc.json"), "utf8");
@@ -242,7 +329,7 @@ describe("edit mode save loop", () => {
     expect(diskRaw).not.toContain("MY DRAFT");
   });
 
-  it("a draft lock held by another session disables Save (acquire conflict) and 423s direct ops", async () => {
+  it("a draft lock held by another session pauses saving (acquire conflict) and 423s direct ops", async () => {
     // Rival grabs the lock before we start editing.
     const acquire = await rawRequest("/api/draft-lock/acquire", {
       method: "POST",
@@ -253,19 +340,28 @@ describe("edit mode save loop", () => {
 
     try {
       let editor: Editor | null = null;
-      renderDocPage("40-locked", { onEditorReady: (e) => (editor = e) });
+      renderDocPage("40-locked", {
+        onEditorReady: (e) => (editor = e),
+        autoSaveDelayMs: NEVER_AUTOSAVE_MS,
+      });
       await waitFor(() => {
         expect(screen.getByText("Hello from Locked")).toBeTruthy();
       });
-      fireEvent.click(screen.getByRole("button", { name: "Edit mode" }));
-      await makeEditorDirty(() => editor, "BLOCKED ");
+      await waitFor(() => {
+        expect(editor).toBeTruthy();
+      });
+      act(() => {
+        editor!.commands.insertContentAt(1, "BLOCKED ");
+      });
 
-      // Acquire-on-dirty returned held-by-other -> conflict banner + Save disabled.
+      // Acquire-on-dirty returned held-by-other -> conflict banner, and the
+      // header indicator reports the conflict (auto-save is paused on it).
       await waitFor(() => {
         expect(document.querySelector("[data-doc-editor-lock-conflict]")).toBeTruthy();
       });
-      const saveButton = screen.getByRole("button", { name: "Save" }) as HTMLButtonElement;
-      expect(saveButton.disabled).toBe(true);
+      await waitFor(() => {
+        expect(saveStateAttr()).toBe("error");
+      });
 
       // The ops route itself also rejects our session with 423.
       const bundle = await getBundle("40-locked");
@@ -287,6 +383,66 @@ describe("edit mode save loop", () => {
         body: JSON.stringify({ path: "40-locked", kind: "doc", sessionId: "rival-session" }),
       });
     }
+  });
+
+  it("switching to annotate mode flushes pending edits through the unmount save", async () => {
+    let editor: Editor | null = null;
+    renderDocPage("75-flush", {
+      onEditorReady: (e) => (editor = e),
+      autoSaveDelayMs: NEVER_AUTOSAVE_MS,
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("Hello from Flush")).toBeTruthy();
+    });
+    await makeEditorDirty(() => editor, "FLUSHMARK ");
+
+    fireEvent.click(screen.getByRole("button", { name: "Annotate mode" }));
+
+    // The editor unmounted with the debounce still pending — the unmount
+    // flush persists the draft anyway…
+    await waitFor(
+      async () => {
+        const raw = await readFile(join(docsRoot, "75-flush", "doc.json"), "utf8");
+        expect(raw).toContain("FLUSHMARK");
+      },
+      { timeout: 5000 },
+    );
+    // …and the annotate surface catches up to the saved content.
+    await waitFor(() => {
+      expect(screen.getByText(/FLUSHMARK/)).toBeTruthy();
+    });
+  });
+
+  it("navigating away while dirty flushes the old doc without clobbering the new one", async () => {
+    let editor: Editor | null = null;
+    const view = renderDocPage("76-nav", {
+      onEditorReady: (e) => (editor = e),
+      autoSaveDelayMs: NEVER_AUTOSAVE_MS,
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("Hello from Nav")).toBeTruthy();
+    });
+    await makeEditorDirty(() => editor, "NAVMARK ");
+
+    view.rerenderPath("77-nav-target");
+    await waitFor(() => {
+      expect(screen.getByText("Hello from NavTarget")).toBeTruthy();
+    });
+
+    // The unmount flush saved the OLD doc (with its captured hash as the
+    // precondition, even though the page state had already moved on)…
+    await waitFor(
+      async () => {
+        const raw = await readFile(join(docsRoot, "76-nav", "doc.json"), "utf8");
+        expect(raw).toContain("NAVMARK");
+      },
+      { timeout: 5000 },
+    );
+    // …and its late response did not swap the newly-opened doc's content.
+    expect(screen.getByText("Hello from NavTarget")).toBeTruthy();
+    expect(!!screen.queryByText(/NAVMARK/)).toBe(false);
   });
 });
 
@@ -339,7 +495,7 @@ describe("annotate mode", () => {
     expect(resolvedRaw).toContain('"resolved"');
   });
 
-  it("hover-targets a block (outline + flavour chip) and selecting via the layer opens the composer", async () => {
+  it("hover-targets a block (outline + block type chip) and selecting via the layer opens the composer", async () => {
     renderDocPage("55-hover");
     await waitFor(() => {
       expect(screen.getByText("Hello from Hover")).toBeTruthy();
@@ -350,7 +506,7 @@ describe("annotate mode", () => {
     expect(block).toBeTruthy();
 
     // Hover: outline class on the block wrapper + floating chip naming the
-    // flavour (from the flavour registry descriptor) and the block text.
+    // block type (from the block registry descriptor) and the block text.
     fireEvent.mouseMove(block!);
     expect(block!.classList.contains("docs-target-hovered")).toBe(true);
     expect(!!document.querySelector('[data-docs-target-overlay="hover"]')).toBe(true);
@@ -358,7 +514,7 @@ describe("annotate mode", () => {
     expect(chip?.textContent).toBe("Paragraph: Hello from Hover");
 
     // Selecting through the layer opens the composer against that target
-    // (real block id, flavour-labelled) and draws the selected ring.
+    // (real block id, block type-labelled) and draws the selected ring.
     fireEvent.click(block!);
     await waitFor(() => {
       expect(screen.getByText("Commenting on: Paragraph: Hello from Hover")).toBeTruthy();
@@ -385,8 +541,12 @@ describe("annotate mode", () => {
       target: { value: "Layer-selected comment." },
     });
     fireEvent.click(screen.getByRole("button", { name: /Post comment/ }));
+    // Wait for the composer to CLOSE (not just for the text — the textarea's
+    // own content matches it immediately): a closed composer means the POST
+    // round-tripped and the sidecar write is on disk.
     await waitFor(
       () => {
+        expect(!!screen.queryByText(/Commenting on:/)).toBe(false);
         expect(!!screen.getByText("Layer-selected comment.")).toBe(true);
       },
       { timeout: 5000 },

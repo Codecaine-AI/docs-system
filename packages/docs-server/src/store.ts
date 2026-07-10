@@ -31,6 +31,7 @@ import {
 import {
   readDocAsset,
   uploadDocAsset,
+  uploadDocVideoAsset,
   type ReadDocAssetResult,
   type UploadDocAssetInput,
   type UploadDocAssetResult,
@@ -137,6 +138,7 @@ export interface DocsStore {
   ): Promise<CommentResolveResult>;
   attachAgentRun(path: string, input: AttachAgentRunInput): Promise<AttachAgentRunResult>;
   uploadAsset(input: UploadDocAssetInput): Promise<UploadDocAssetResult>;
+  uploadVideoAsset(input: UploadDocAssetInput): Promise<UploadDocAssetResult>;
   saveCanvasSidecar(input: SaveCanvasSidecarInput): Promise<SaveCanvasSidecarResult>;
   createCanvasSidecar(input: CreateCanvasSidecarInput): Promise<CreateCanvasSidecarResult>;
   deleteCanvasSidecar(input: DeleteCanvasSidecarInput): Promise<DeleteCanvasSidecarResult>;
@@ -184,6 +186,7 @@ export function createDocsStore(docsRoot: string): DocsStore {
       comment_resolve(root, path, commentId, expectedHash, actor, response),
     attachAgentRun: (path, input) => attachAgentRunToComment(root, path, input),
     uploadAsset: (input) => uploadDocAsset(root, input),
+    uploadVideoAsset: (input) => uploadDocVideoAsset(root, input),
     saveCanvasSidecar: (input) => saveCanvasSidecar(root, input),
     createCanvasSidecar: (input) => createCanvasSidecar(root, input),
     deleteCanvasSidecar: (input) => deleteCanvasSidecar(root, input),
@@ -226,17 +229,4 @@ export function createDocsStore(docsRoot: string): DocsStore {
     publishChange: (event) => publishDocsChangeEvent(channel, event),
     subscribeChanges: (listener) => subscribeToDocsChangeEvents(channel, listener),
   };
-}
-
-const storesByRoot = new Map<string, DocsStore>();
-
-/** Cached `createDocsStore` — hosts get ONE store instance per docs root. */
-export function docsStoreForRoot(docsRoot: string): DocsStore {
-  const key = resolve(docsRoot);
-  let store = storesByRoot.get(key);
-  if (!store) {
-    store = createDocsStore(key);
-    storesByRoot.set(key, store);
-  }
-  return store;
 }

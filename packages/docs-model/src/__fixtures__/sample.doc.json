@@ -6,7 +6,7 @@
   "blocks": {
     "root": {
       "id": "root",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "children": [
         "h1",
@@ -18,31 +18,25 @@
         "code-1",
         "quote-1",
         "callout-1",
-        "decision-1",
+        "table-1",
+        "tree-1",
+        "interaction-surface-1",
+        "mermaid-1",
         "canvas-1",
         "image-1",
-        "attach-1",
-        "constraint-1",
-        "assumption-1",
-        "observation-1",
-        "outcome-1",
-        "requirement-1",
-        "impl-1",
-        "testing-1",
-        "contract-1",
-        "tree-1"
+        "video-1"
       ]
     },
     "h1": {
       "id": "h1",
-      "flavour": "heading",
+      "type": "heading",
       "props": { "level": 1 },
       "text": [{ "insert": "Docs Model Sample" }],
       "children": []
     },
     "p-intro": {
       "id": "p-intro",
-      "flavour": "paragraph",
+      "type": "paragraph",
       "props": {},
       "text": [
         { "insert": "This paragraph mixes " },
@@ -73,69 +67,146 @@
     },
     "divider-1": {
       "id": "divider-1",
-      "flavour": "divider",
+      "type": "divider",
       "props": {},
       "children": []
     },
     "h2-structure": {
       "id": "h2-structure",
-      "flavour": "heading",
+      "type": "heading",
       "props": { "level": 2 },
       "text": [{ "insert": "Structure" }],
       "children": []
     },
     "li-a": {
       "id": "li-a",
-      "flavour": "list-item",
+      "type": "list-item",
       "props": {},
       "text": [{ "insert": "First item" }],
       "children": ["li-a-1"]
     },
     "li-a-1": {
       "id": "li-a-1",
-      "flavour": "list-item",
+      "type": "list-item",
       "props": {},
       "text": [{ "insert": "Nested item under the first" }],
       "children": []
     },
     "li-b": {
       "id": "li-b",
-      "flavour": "list-item",
+      "type": "list-item",
       "props": {},
       "text": [{ "insert": "Second item" }],
       "children": []
     },
     "code-1": {
       "id": "code-1",
-      "flavour": "code",
-      "props": { "language": "typescript" },
-      "text": [{ "insert": "export const answer = 42;" }],
+      "type": "code",
+      "props": {
+        "language": "typescript",
+        "annotations": [
+          { "lines": "1", "label": "Export", "note": "The canonical answer constant." },
+          { "lines": "2-3", "note": "Helper that doubles the answer." }
+        ]
+      },
+      "text": [
+        { "insert": "export const answer = 42;\nexport const double = () =>\n  answer * 2;" }
+      ],
       "children": []
     },
     "quote-1": {
       "id": "quote-1",
-      "flavour": "quote",
+      "type": "quote",
       "props": {},
       "text": [{ "insert": "Stable ids are a system invariant." }],
       "children": []
     },
     "callout-1": {
       "id": "callout-1",
-      "flavour": "callout",
-      "props": { "tone": "info", "title": "Heads up" },
+      "type": "callout",
+      "props": { "tone": "info", "kind": "Decision", "title": "Heads up" },
       "text": [{ "insert": "Comments live in comments.json, never in doc.json." }],
       "children": []
     },
-    "decision-1": {
-      "id": "decision-1",
-      "flavour": "decision",
-      "props": { "status": "accepted", "title": "Normalized block tree" },
-      "text": [{ "insert": "Flat id-keyed blocks map with ordered children arrays." }],
+    "table-1": {
+      "id": "table-1",
+      "type": "structured-table",
+      "props": {
+        "title": "Structured table sample",
+        "density": "compact",
+        "columns": ["Name", "Value"],
+        "rows": [
+          ["answer", "42"],
+          ["question", "unknown"]
+        ]
+      },
+      "children": []
+    },
+    "tree-1": {
+      "id": "tree-1",
+      "type": "file-tree",
+      "props": {
+        "title": "Module layout",
+        "entries": [
+          { "path": "src/lib/docs-model/doc-schema.ts", "note": "types + validation", "change": "added" },
+          { "path": "src/lib/docs-model/doc-ops.ts", "note": "typed ops + inverses", "change": "modified" },
+          {
+            "path": "src/components/docs/DocBlockRenderer.tsx",
+            "change": "renamed",
+            "from": "src/components/docs/BlockRenderer.tsx"
+          },
+          { "path": "src/lib/legacy/", "change": "removed", "note": "dead code purge" },
+          { "path": "README.md" }
+        ]
+      },
+      "children": []
+    },
+    "interaction-surface-1": {
+      "id": "interaction-surface-1",
+      "type": "interaction-surface",
+      "props": {
+        "title": "File-tree block surface",
+        "operations": [
+          {
+            "name": "file-tree.addEntry",
+            "description": "Append a path entry to the tree",
+            "params": [
+              { "name": "path", "type": "string", "required": true, "description": "/-separated path" },
+              { "name": "note", "type": "string", "required": false },
+              { "name": "change", "type": "string", "required": false }
+            ],
+            "returns": "props patch",
+            "kind": "action"
+          },
+          {
+            "name": "file-tree.updateEntry",
+            "description": "Patch note/change/from, or rename via newPath",
+            "params": [
+              { "name": "path", "type": "string", "required": true },
+              { "name": "newPath", "type": "string", "required": false }
+            ],
+            "returns": "props patch"
+          },
+          {
+            "name": "file-tree.removeEntry",
+            "params": [
+              { "name": "path", "type": "string", "required": true }
+            ]
+          }
+        ]
+      },
+      "children": []
+    },
+    "mermaid-1": {
+      "id": "mermaid-1",
+      "type": "mermaid",
+      "props": { "title": "Mermaid sample" },
+      "text": [{ "insert": "flowchart LR\n  A[Doc] --> B[Render]" }],
       "children": []
     },
     "canvas-1": {
       "id": "canvas-1",
-      "flavour": "canvas",
+      "type": "canvas",
       "props": {
         "src": "./assets/canvases/sample.canvas.json",
         "view": "container-architecture",
@@ -145,7 +216,7 @@
     },
     "image-1": {
       "id": "image-1",
-      "flavour": "image",
+      "type": "image",
       "props": {
         "src": "./assets/images/sample.png",
         "alt": "Sample image",
@@ -153,86 +224,13 @@
       },
       "children": []
     },
-    "attach-1": {
-      "id": "attach-1",
-      "flavour": "attachment",
+    "video-1": {
+      "id": "video-1",
+      "type": "video",
       "props": {
-        "src": "./assets/attachments/spec.pdf",
-        "name": "spec.pdf"
-      },
-      "children": []
-    },
-    "constraint-1": {
-      "id": "constraint-1",
-      "flavour": "constraint",
-      "props": { "severity": "hard", "title": "No MDX regressions", "owner": "ford" },
-      "text": [{ "insert": "The existing MDX pipeline keeps working untouched." }],
-      "children": []
-    },
-    "assumption-1": {
-      "id": "assumption-1",
-      "flavour": "assumption",
-      "props": { "confidence": "high", "title": "Delta spans suffice" },
-      "text": [{ "insert": "V1 marks cover the docs corpus." }],
-      "children": []
-    },
-    "observation-1": {
-      "id": "observation-1",
-      "flavour": "observation",
-      "props": { "title": "Renderer walk" },
-      "text": [{ "insert": "Depth-first walk matches serializer order." }],
-      "children": []
-    },
-    "outcome-1": {
-      "id": "outcome-1",
-      "flavour": "outcome",
-      "props": { "title": "Tracer complete" },
-      "text": [{ "insert": "Schema, ops, registry, and renderer connect end to end." }],
-      "children": []
-    },
-    "requirement-1": {
-      "id": "requirement-1",
-      "flavour": "requirement",
-      "props": { "title": "Id stability" },
-      "text": [{ "insert": "Update keeps ids; split and merge mint fresh ones." }],
-      "children": []
-    },
-    "impl-1": {
-      "id": "impl-1",
-      "flavour": "implementation",
-      "props": { "title": "docs-model module" },
-      "text": [{ "insert": "Lives under apps/frontend/src/lib/docs-model." }],
-      "children": []
-    },
-    "testing-1": {
-      "id": "testing-1",
-      "flavour": "testing",
-      "props": { "title": "Contract tests" },
-      "text": [{ "insert": "doc-ops.contract.test.ts locks the id-stability invariants." }],
-      "children": []
-    },
-    "contract-1": {
-      "id": "contract-1",
-      "flavour": "agent-contract",
-      "props": {
-        "agent": "doc-editor",
-        "title": "Doc editing agent",
-        "tools": "doc_get, doc_update_blocks",
-        "approvals": "Mutations require hash preconditions."
-      },
-      "text": [{ "insert": "Reads the doc projection, writes typed block ops." }],
-      "children": []
-    },
-    "tree-1": {
-      "id": "tree-1",
-      "flavour": "file-tree",
-      "props": {
-        "title": "Module layout",
-        "entries": [
-          { "path": "src/lib/docs-model/doc-schema.ts", "note": "types + validation", "change": "added" },
-          { "path": "src/lib/docs-model/doc-ops.ts", "note": "typed ops + inverses", "change": "added" },
-          { "path": "src/components/docs/DocBlockRenderer.tsx", "note": "tracer renderer", "change": "added" }
-        ]
+        "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "title": "Docs walkthrough",
+        "caption": "An external video (YouTube)."
       },
       "children": []
     }

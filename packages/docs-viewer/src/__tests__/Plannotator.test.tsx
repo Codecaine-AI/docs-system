@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it } from "bun:test";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import type { DocComment } from "@codecaine-ai/docs-model/comments-schema";
-import Plannotator, { type PlannotatorSelection } from "../Plannotator";
+import Plannotator, { type PlannotatorSelection } from "../annotate/Plannotator";
 
 afterEach(() => {
   cleanup();
@@ -13,8 +13,8 @@ const doc: DocDocument = {
   id: "doc-1",
   root: "root",
   blocks: {
-    root: { id: "root", flavour: "paragraph", props: {}, children: ["p1"] },
-    p1: { id: "p1", flavour: "paragraph", props: {}, text: [{ insert: "Hello" }], children: [] },
+    root: { id: "root", type: "paragraph", props: {}, children: ["p1"] },
+    p1: { id: "p1", type: "paragraph", props: {}, text: [{ insert: "Hello" }], children: [] },
   },
 };
 

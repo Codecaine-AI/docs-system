@@ -1,0 +1,719 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-00-data-model",
+  "title": "The data model: doc.json shapes",
+  "root": "b-00-data-model-root",
+  "blocks": {
+    "b-00-data-model-root": {
+      "id": "b-00-data-model-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-00-data-model-title-1",
+        "b-00-data-model-opening-format-2",
+        "b-00-data-model-opening-read-write-3",
+        "b-00-data-model-opening-neighbors-4",
+        "b-00-data-model-document-envelope-5",
+        "b-00-data-model-document-example-6",
+        "b-00-data-model-the-block-7",
+        "b-00-data-model-block-example-8",
+        "b-00-data-model-delta-example-9",
+        "b-00-data-model-validation-serializer-10",
+        "b-00-data-model-seven-ops-11",
+        "b-00-data-model-ops-intro-12",
+        "b-00-data-model-op-surface-13",
+        "b-00-data-model-typed-actions-14",
+        "b-00-data-model-actions-intro-15",
+        "b-00-data-model-action-definition-16",
+        "b-00-data-model-blocks-discovery-17",
+        "b-00-data-model-markdown-shapes-18",
+        "b-00-data-model-markdown-intro-19",
+        "b-00-data-model-projection-table-20",
+        "b-00-data-model-divider-21",
+        "b-00-data-model-closing-links-22"
+      ]
+    },
+    "b-00-data-model-title-1": {
+      "id": "b-00-data-model-title-1",
+      "type": "heading",
+      "props": {
+        "level": 1
+      },
+      "text": [
+        {
+          "insert": "The data model: doc.json shapes"
+        }
+      ],
+      "children": []
+    },
+    "b-00-data-model-opening-format-2": {
+      "id": "b-00-data-model-opening-format-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The docs system has one on-disk content format: "
+        },
+        {
+          "insert": "doc.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". A document is a normalized block tree: a root pointer, a flat id-keyed "
+        },
+        {
+          "insert": "blocks",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " map, and ordered child-id arrays. The vocabulary of valid block shapes stays deliberately small; see "
+        },
+        {
+          "insert": "the block vocabulary",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "docs/10-system-design/10-block-vocabulary.md",
+              "label": "the block vocabulary — what each of the 14 types is for"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-00-data-model-opening-read-write-3": {
+      "id": "b-00-data-model-opening-read-write-3",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Agents read through a pure markdown projection and write through the same seven-op kernel the editor uses. That keeps reading greppable, writing enumerable, and file bytes deterministic enough for reviewable diffs."
+        }
+      ],
+      "children": []
+    },
+    "b-00-data-model-opening-neighbors-4": {
+      "id": "b-00-data-model-opening-neighbors-4",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This page is system-agnostic: it describes shapes and invariants, not transport wiring. The one HTTP-shaped exception is the "
+        },
+        {
+          "insert": "GET /api/blocks",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " discovery payload, because that payload is itself data."
+        }
+      ],
+      "children": []
+    },
+    "b-00-data-model-document-envelope-5": {
+      "id": "b-00-data-model-document-envelope-5",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The document envelope"
+        }
+      ],
+      "children": []
+    },
+    "b-00-data-model-document-example-6": {
+      "id": "b-00-data-model-document-example-6",
+      "type": "code",
+      "props": {
+        "annotations": [
+          {
+            "lines": "5",
+            "label": "Root pointer",
+            "note": "The document root names a block shell. Rendering and projection skip the root's own paragraph chrome and walk only its children."
+          },
+          {
+            "lines": "6-15",
+            "label": "Normalized tree",
+            "note": "Storage is a flat id-keyed map; ordered children arrays carry tree order. A sibling reorder is localized to the children array under the deterministic serializer."
+          },
+          {
+            "lines": "8,17,24",
+            "label": "Anchor invariant",
+            "note": "The map key and block id match. Comments, patches, and backlinks anchor to ids; updateBlock preserves them, while split and merge mint fresh ids."
+          }
+        ],
+        "language": "json"
+      },
+      "text": [
+        {
+          "insert": "{\n  \"schemaVersion\": 1,\n  \"id\": \"example-data-shape\",\n  \"title\": \"Tiny doc\",\n  \"root\": \"b-example-root\",\n  \"blocks\": {\n    \"b-example-root\": {\n      \"id\": \"b-example-root\",\n      \"type\": \"paragraph\",\n      \"props\": {},\n      \"children\": [\n        \"b-example-title\",\n        \"b-example-body\"\n      ]\n    },\n    \"b-example-title\": {\n      \"id\": \"b-example-title\",\n      \"type\": \"heading\",\n      \"props\": { \"level\": 1 },\n      \"text\": [{ \"insert\": \"Tiny doc\" }],\n      \"children\": []\n    },\n    \"b-example-body\": {\n      \"id\": \"b-example-body\",\n      \"type\": \"paragraph\",\n      \"props\": {},\n      \"text\": [{ \"insert\": \"A normalized block tree.\" }],\n      \"children\": []\n    }\n  }\n}"
+        }
+      ],
+      "children": []
+    },
+    "b-00-data-model-the-block-7": {
+      "id": "b-00-data-model-the-block-7",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The block"
+        }
+      ],
+      "children": []
+    },
+    "b-00-data-model-block-example-8": {
+      "id": "b-00-data-model-block-example-8",
+      "type": "code",
+      "props": {
+        "annotations": [
+          {
+            "lines": "3",
+            "label": "Canonical type",
+            "note": "The canonical kind key is type. The legacy flavour key is accepted only on read as an alias, and retired string types coerce to callout while preserving the old name as props.kind."
+          },
+          {
+            "lines": "4-12",
+            "label": "Typed props",
+            "note": "Props are typed per block type: code uses language and annotations, heading uses level, image uses src/alt/caption, and so on."
+          },
+          {
+            "lines": "17",
+            "label": "Ordered children",
+            "note": "children is always present. It stores ordered child ids, even when the block has no children."
+          }
+        ],
+        "language": "json"
+      },
+      "text": [
+        {
+          "insert": "{\n  \"id\": \"b-example-code-7\",\n  \"type\": \"code\",\n  \"props\": {\n    \"language\": \"ts\",\n    \"annotations\": [\n      {\n        \"lines\": \"3-5\",\n        \"label\": \"Invariant\",\n        \"note\": \"Validation keeps shape errors explicit.\"\n      }\n    ]\n  },\n  \"text\": [\n    { \"insert\": \"export const stable = true;\\n\" }\n  ],\n  \"children\": []\n}"
+        }
+      ],
+      "children": []
+    },
+    "b-00-data-model-delta-example-9": {
+      "id": "b-00-data-model-delta-example-9",
+      "type": "code",
+      "props": {
+        "annotations": [
+          {
+            "lines": "3,5",
+            "label": "Marks",
+            "note": "Rich text is delta spans. Marks are literal true flags when present; absent marks are simply absent."
+          },
+          {
+            "lines": "6",
+            "label": "Outbound link",
+            "note": "link is the external URL mark on the span that carries it."
+          },
+          {
+            "lines": "11-15",
+            "label": "Reference chip",
+            "note": "reference carries the shared SpectreRef identity for doc mentions and canvas links alike: kind is doc or source, path is repo-relative, and label is display text."
+          }
+        ],
+        "language": "json"
+      },
+      "text": [
+        {
+          "insert": "[\n  { \"insert\": \"Read \" },\n  { \"insert\": \"doc.json\", \"attributes\": { \"code\": true } },\n  { \"insert\": \" with \" },\n  { \"insert\": \"stable anchors\", \"attributes\": { \"bold\": true, \"italic\": true } },\n  { \"insert\": \" and a link\", \"attributes\": { \"link\": \"https://example.com/docs\" } },\n  { \"insert\": \" to \" },\n  {\n    \"insert\": \"the block vocabulary\",\n    \"attributes\": {\n      \"reference\": {\n        \"kind\": \"doc\",\n        \"path\": \"docs/10-system-design/10-block-vocabulary.md\",\n        \"label\": \"the block vocabulary\"\n      }\n    }\n  },\n  { \"insert\": \".\" }\n]"
+        }
+      ],
+      "children": []
+    },
+    "b-00-data-model-validation-serializer-10": {
+      "id": "b-00-data-model-validation-serializer-10",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Validation treats the tree as a real graph, not a bag of blocks: child refs must resolve, a child can have only one parent, the root cannot be a child, cycles are rejected, and every non-root block must be reachable from the root. Serialization is deterministic too: stable key order at every level, blocks emitted in depth-first document order, and the same document becomes identical bytes."
+        }
+      ],
+      "children": []
+    },
+    "b-00-data-model-seven-ops-11": {
+      "id": "b-00-data-model-seven-ops-11",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Seven ops, one write path"
+        }
+      ],
+      "children": []
+    },
+    "b-00-data-model-ops-intro-12": {
+      "id": "b-00-data-model-ops-intro-12",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Everything that changes a document is one of seven ops, and every successful apply returns exact inverse ops that become undo units. The full mutation concept lives in "
+        },
+        {
+          "insert": "the mutation model",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "docs/10-system-design/20-mutation-model.md",
+              "label": "the mutation model — ops, inverses, undo"
+            }
+          }
+        },
+        {
+          "insert": "; this surface is the data shape."
+        }
+      ],
+      "children": []
+    },
+    "b-00-data-model-op-surface-13": {
+      "id": "b-00-data-model-op-surface-13",
+      "type": "interaction-surface",
+      "props": {
+        "operations": [
+          {
+            "name": "insertBlock",
+            "description": "Insert a fresh non-colliding block under parentId at index.",
+            "params": [
+              {
+                "name": "blockId",
+                "type": "string",
+                "required": true,
+                "description": "Stable id for the new block."
+              },
+              {
+                "name": "parentId",
+                "type": "string",
+                "required": true,
+                "description": "Existing parent block id."
+              },
+              {
+                "name": "index",
+                "type": "number",
+                "required": true,
+                "description": "Position within the parent's children."
+              },
+              {
+                "name": "blockType",
+                "type": "DocBlockType",
+                "required": true,
+                "description": "One of the 14 canonical block types."
+              },
+              {
+                "name": "props",
+                "type": "object",
+                "required": true,
+                "description": "Initial typed props."
+              },
+              {
+                "name": "text",
+                "type": "DeltaSpan[]",
+                "required": false,
+                "description": "Optional initial rich text."
+              }
+            ],
+            "returns": "{ doc, inverse: DocOp[] }"
+          },
+          {
+            "name": "updateBlock",
+            "description": "Shallow-merge props and/or replace text while preserving the block id.",
+            "params": [
+              {
+                "name": "blockId",
+                "type": "string",
+                "required": true,
+                "description": "Target block id."
+              },
+              {
+                "name": "props",
+                "type": "object",
+                "required": false,
+                "description": "Patch; a key set to undefined removes that prop."
+              },
+              {
+                "name": "text",
+                "type": "DeltaSpan[] | null",
+                "required": false,
+                "description": "Replacement text; null clears text."
+              }
+            ],
+            "returns": "{ doc, inverse: DocOp[] }"
+          },
+          {
+            "name": "deleteBlock",
+            "description": "Delete a block as a subtree, or splice its children into the parent.",
+            "params": [
+              {
+                "name": "blockId",
+                "type": "string",
+                "required": true,
+                "description": "Target block id."
+              },
+              {
+                "name": "mode",
+                "type": "\"subtree\" | \"reparent\"",
+                "required": false,
+                "description": "subtree is the default; reparent splices children into the former slot."
+              }
+            ],
+            "returns": "{ doc, inverse: DocOp[] }"
+          },
+          {
+            "name": "moveBlock",
+            "description": "Move a block under toParentId at toIndex, checking cycles.",
+            "params": [
+              {
+                "name": "blockId",
+                "type": "string",
+                "required": true,
+                "description": "Block being moved."
+              },
+              {
+                "name": "toParentId",
+                "type": "string",
+                "required": true,
+                "description": "Destination parent id."
+              },
+              {
+                "name": "toIndex",
+                "type": "number",
+                "required": true,
+                "description": "Destination child index after detach."
+              }
+            ],
+            "returns": "{ doc, inverse: DocOp[] }"
+          },
+          {
+            "name": "splitBlock",
+            "description": "Split a block's delta text at a character offset; the new sibling gets a fresh id.",
+            "params": [
+              {
+                "name": "blockId",
+                "type": "string",
+                "required": true,
+                "description": "Text block to split."
+              },
+              {
+                "name": "offset",
+                "type": "number",
+                "required": true,
+                "description": "Character offset in [0, textLength]."
+              }
+            ],
+            "returns": "{ doc, inverse: DocOp[] }"
+          },
+          {
+            "name": "mergeBlocks",
+            "description": "Merge two or more contiguous siblings in document order into a fresh block.",
+            "params": [
+              {
+                "name": "blockIds",
+                "type": "string[]",
+                "required": true,
+                "description": "The contiguous sibling ids to merge."
+              }
+            ],
+            "returns": "{ doc, inverse: DocOp[] }"
+          },
+          {
+            "name": "blockAction",
+            "description": "Resolve a named typed action and apply its validated result through updateBlock.",
+            "params": [
+              {
+                "name": "blockId",
+                "type": "string",
+                "required": true,
+                "description": "Target block id."
+              },
+              {
+                "name": "action",
+                "type": "string",
+                "required": true,
+                "description": "Registry key in the form <blockType>.<verb>."
+              },
+              {
+                "name": "params",
+                "type": "object",
+                "required": true,
+                "description": "Action-specific params validated by the action."
+              }
+            ],
+            "returns": "{ doc, inverse: DocOp[] }"
+          }
+        ],
+        "title": "DocOp kernel"
+      },
+      "children": []
+    },
+    "b-00-data-model-typed-actions-14": {
+      "id": "b-00-data-model-typed-actions-14",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Typed actions as data"
+        }
+      ],
+      "children": []
+    },
+    "b-00-data-model-actions-intro-15": {
+      "id": "b-00-data-model-actions-intro-15",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Object-category blocks edit structured props through named actions, not hand-patched JSON. "
+        },
+        {
+          "insert": "BLOCK_TYPE_CATEGORY",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " splits the 14 types into five text types (paragraph, heading, list-item, quote, callout) and nine object types. The registry defines 13 actions across code, structured-table, file-tree, and interaction-surface; text-category types define no actions and stay on the generic ops."
+        }
+      ],
+      "children": []
+    },
+    "b-00-data-model-action-definition-16": {
+      "id": "b-00-data-model-action-definition-16",
+      "type": "code",
+      "props": {
+        "annotations": [
+          {
+            "lines": "2",
+            "label": "Registry key",
+            "note": "The action key is always <blockType>.<verb>, so the registry can list and resolve actions without inspecting props."
+          },
+          {
+            "lines": "5-24",
+            "label": "Discovery params",
+            "note": "Params are discovery-only specs for agents and UIs. Runtime validation lives in apply."
+          },
+          {
+            "lines": "25",
+            "label": "Undo for free",
+            "note": "apply returns a shallow-merge props patch. The kernel executes it through updateBlock, so the same merge semantics and inverse op path apply."
+          }
+        ],
+        "language": "json"
+      },
+      "text": [
+        {
+          "insert": "{\n  \"action\": \"file-tree.addEntry\",\n  \"blockType\": \"file-tree\",\n  \"description\": \"Append a path entry (optional note and change marker) to the file tree.\",\n  \"params\": [\n    {\n      \"name\": \"path\",\n      \"type\": \"string\",\n      \"required\": true,\n      \"description\": \"/-separated path, no leading \\\"./\\\"; a trailing \\\"/\\\" marks an explicit directory.\"\n    },\n    {\n      \"name\": \"note\",\n      \"type\": \"string\",\n      \"required\": false,\n      \"description\": \"Short annotation rendered after the path.\"\n    },\n    {\n      \"name\": \"change\",\n      \"type\": \"string\",\n      \"required\": false,\n      \"description\": \"Change marker: \\\"added\\\" | \\\"removed\\\" | \\\"modified\\\" | \\\"renamed\\\".\"\n    }\n  ],\n  \"apply\": \"(pure function: validates params, returns shallow-merge props patch)\"\n}"
+        }
+      ],
+      "children": []
+    },
+    "b-00-data-model-blocks-discovery-17": {
+      "id": "b-00-data-model-blocks-discovery-17",
+      "type": "code",
+      "props": {
+        "annotations": [
+          {
+            "lines": "1-2",
+            "label": "Static payload",
+            "note": "The discovery document is static metadata derived entirely from docs-model exports."
+          },
+          {
+            "lines": "3-15",
+            "label": "Seven generic ops",
+            "note": "genericOps lists the seven kernel ops that apply to all block types. The elision marker is a JSON string so the snippet remains parseable."
+          },
+          {
+            "lines": "18-40",
+            "label": "Learn the edit surface",
+            "note": "Text types report empty actions, while object types list named actions and params so agents learn how to edit each type instead of reverse-engineering props."
+          }
+        ],
+        "language": "json"
+      },
+      "text": [
+        {
+          "insert": "{\n  \"schemaVersion\": 1,\n  \"genericOps\": [\n    {\n      \"op\": \"insertBlock\",\n      \"description\": \"Insert a new block under parentId at index with props and optional delta text.\",\n      \"appliesTo\": \"all\"\n    },\n    {\n      \"op\": \"updateBlock\",\n      \"description\": \"Shallow-merge props and/or replace text; id is preserved.\",\n      \"appliesTo\": \"all\"\n    },\n    \"... 5 more generic ops elided\"\n  ],\n  \"blockTypes\": [\n    {\n      \"type\": \"paragraph\",\n      \"category\": \"text\",\n      \"actions\": []\n    },\n    {\n      \"type\": \"file-tree\",\n      \"category\": \"object\",\n      \"actions\": [\n        {\n          \"action\": \"file-tree.addEntry\",\n          \"description\": \"Append a path entry (optional note and change marker) to the file tree.\",\n          \"params\": [\n            {\n              \"name\": \"path\",\n              \"type\": \"string\",\n              \"required\": true,\n              \"description\": \"/-separated path, no leading \\\"./\\\"; a trailing \\\"/\\\" marks an explicit directory.\"\n            },\n            \"... 2 more params elided\"\n          ]\n        },\n        \"... 2 more file-tree actions elided\"\n      ]\n    },\n    \"... 12 more block types elided\"\n  ]\n}"
+        }
+      ],
+      "children": []
+    },
+    "b-00-data-model-markdown-shapes-18": {
+      "id": "b-00-data-model-markdown-shapes-18",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "What each shape becomes in markdown"
+        }
+      ],
+      "children": []
+    },
+    "b-00-data-model-markdown-intro-19": {
+      "id": "b-00-data-model-markdown-intro-19",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Agents read documents through "
+        },
+        {
+          "insert": "projectToMarkdown",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". The function is pure and runtime-only: it never writes a markdown mirror to disk. Each block type has a deterministic, greppable form."
+        }
+      ],
+      "children": []
+    },
+    "b-00-data-model-projection-table-20": {
+      "id": "b-00-data-model-projection-table-20",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "type",
+          "projects as"
+        ],
+        "density": "compact",
+        "rows": [
+          [
+            "paragraph",
+            "Plain text line; the root paragraph shell is skipped."
+          ],
+          [
+            "heading",
+            "# through ###### from props.level, default 2 and clamped 1-6."
+          ],
+          [
+            "list-item",
+            "- bullet or 1. when props.ordered; 2-space indent per nesting depth."
+          ],
+          [
+            "quote",
+            ">-prefixed blockquote line(s)."
+          ],
+          [
+            "code",
+            "Fenced block with props.language; annotations render as > **L<lines>[ (<label>)]:** <note> lines."
+          ],
+          [
+            "callout",
+            "Blockquote label from props.kind or uppercased props.tone, optional title, then body."
+          ],
+          [
+            "divider",
+            "---"
+          ],
+          [
+            "structured-table",
+            "Optional bold title plus a markdown pipe table from props.columns and props.rows."
+          ],
+          [
+            "file-tree",
+            "Optional bold title plus a literal tree fence with dirs-first sort, change markers, and note suffixes."
+          ],
+          [
+            "interaction-surface",
+            "Optional bold title plus a bare fenced list of signature lines; query/event get bracket prefixes."
+          ],
+          [
+            "mermaid",
+            "Blockquote labeled Mermaid with optional title and body."
+          ],
+          [
+            "canvas",
+            "HTML comment: <!-- canvas: <src> [view=...] [title=\"...\"] -->."
+          ],
+          [
+            "image",
+            "Markdown image ![alt](src) plus optional italic caption."
+          ],
+          [
+            "video",
+            "Blockquote labeled Video with title, url-or-src target, and optional caption."
+          ]
+        ],
+        "title": "Projection map"
+      },
+      "children": []
+    },
+    "b-00-data-model-divider-21": {
+      "id": "b-00-data-model-divider-21",
+      "type": "divider",
+      "props": {},
+      "children": []
+    },
+    "b-00-data-model-closing-links-22": {
+      "id": "b-00-data-model-closing-links-22",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Read this alongside "
+        },
+        {
+          "insert": "the block vocabulary — what each of the 14 types is for",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "docs/10-system-design/10-block-vocabulary.md",
+              "label": "the block vocabulary — what each of the 14 types is for"
+            }
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "the mutation model — ops, inverses, undo",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "docs/10-system-design/20-mutation-model.md",
+              "label": "the mutation model — ops, inverses, undo"
+            }
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "the save pipeline — how bytes reach disk",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "docs/20-implementation/30-save-pipeline.md",
+              "label": "the save pipeline — how bytes reach disk"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    }
+  }
+}

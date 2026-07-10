@@ -4,13 +4,13 @@ import type { Editor } from "@tiptap/react";
 import type { ReactElement } from "react";
 import sampleDoc from "@codecaine-ai/docs-model/fixtures/sample.doc.json";
 import { validateDocDocument, type DocDocument } from "@codecaine-ai/docs-model/doc-schema";
-import type { DocOp } from "@codecaine-ai/docs-model/doc-ops";
+import { applyOps, type DocOp } from "@codecaine-ai/docs-model/doc-ops";
 import {
   DocsClientProvider,
   type AcquireDraftLockResult,
   type DocsClient,
 } from "../../client";
-import DocEditor from "../DocEditor";
+import DocEditor, { type DocEditorSaveState } from "../DocEditor";
 
 /**
  * Save-boundary coverage for the M4 full block editor (Checkpoint 8, TG8.3):
@@ -447,5 +447,361 @@ describe("draft-lock lifecycle (TG9.3)", () => {
     expect(releaseCalls[0][1]).toBe("docs/sample2.doc.json");
 
     result.unmount();
+  });
+});
+
+/**
+ * Auto-save (Notion-style hosts): the debounce loop, the Save-row removal,
+ * save-state reporting, the seq-counter reschedule for edits typed during an
+ * in-flight save, 409 pausing + reload resume, the unmount/blur flushes, and
+ * the host-returned-doc identity trick that skips the cursor-resetting
+ * reseed. All edits are driven through the `onEditorReady` transaction seam
+ * (see the module doc comment for why).
+ */
+describe("auto-save", () => {
+  it("auto-saves on the debounce alone and renders no Save row", async () => {
+    const doc = loadFixture();
+    const batches: DocOp[][] = [];
+    let editorInstance: Editor | null = null;
+    renderWithClient(
+      <DocEditor
+        document={doc}
+        autoSave
+        autoSaveDelayMs={30}
+        onApplyOps={async (ops) => {
+          batches.push(ops);
+          return { ok: true };
+        }}
+        onEditorReady={(e) => {
+          editorInstance = e;
+        }}
+      />,
+    );
+    await waitFor(() => {
+      expect(editorInstance).toBeTruthy();
+    });
+    expect(!!screen.queryByRole("button", { name: "Save" })).toBe(false);
+    expect(!!screen.queryByText("Unsaved changes")).toBe(false);
+
+    act(() => {
+      const { to } = findTextRange(editorInstance!, "Docs Model Sample");
+      editorInstance!.commands.insertContentAt(to, " (auto)");
+    });
+
+    await waitFor(
+      () => {
+        expect(batches.length).toBe(1);
+      },
+      { timeout: 3000 },
+    );
+    expect(batches[0]).toEqual([
+      {
+        type: "updateBlock",
+        blockId: "h1",
+        text: [{ insert: "Docs Model Sample (auto)" }],
+      },
+    ]);
+  });
+
+  it("reports save-state transitions dirty -> saving -> saved", async () => {
+    const doc = loadFixture();
+    const states: DocEditorSaveState[] = [];
+    let editorInstance: Editor | null = null;
+    renderWithClient(
+      <DocEditor
+        document={doc}
+        autoSave
+        autoSaveDelayMs={30}
+        onSaveStateChange={(state) => states.push(state)}
+        onApplyOps={async () => {
+          // A synchronous resolve completes before React ever commits the
+          // isSaving render — hold it a beat so "saving" is observable.
+          await new Promise((resolve) => setTimeout(resolve, 40));
+          return { ok: true };
+        }}
+        onEditorReady={(e) => {
+          editorInstance = e;
+        }}
+      />,
+    );
+    await waitFor(() => {
+      expect(editorInstance).toBeTruthy();
+    });
+
+    act(() => {
+      editorInstance!.commands.insertContentAt(1, "x");
+    });
+
+    await waitFor(
+      () => {
+        expect(states[states.length - 1]).toBe("saved");
+      },
+      { timeout: 3000 },
+    );
+    // The full loop was reported in order (initial "saved" report allowed first).
+    const meaningful = states.filter((state, i) => states[i - 1] !== state);
+    expect(meaningful.join(",")).toContain("dirty,saving,saved");
+  });
+
+  it("keeps the doc dirty and re-saves when edits land during an in-flight save", async () => {
+    const doc = loadFixture();
+    const batches: DocOp[][] = [];
+    const states: DocEditorSaveState[] = [];
+    let releaseFirstSave: () => void = () => {};
+    const firstSaveGate = new Promise<void>((resolve) => {
+      releaseFirstSave = resolve;
+    });
+    let editorInstance: Editor | null = null;
+    renderWithClient(
+      <DocEditor
+        document={doc}
+        autoSave
+        autoSaveDelayMs={20}
+        onSaveStateChange={(state) => states.push(state)}
+        onApplyOps={async (ops) => {
+          batches.push(ops);
+          if (batches.length === 1) await firstSaveGate;
+          return { ok: true };
+        }}
+        onEditorReady={(e) => {
+          editorInstance = e;
+        }}
+      />,
+    );
+    await waitFor(() => {
+      expect(editorInstance).toBeTruthy();
+    });
+
+    act(() => {
+      const { to } = findTextRange(editorInstance!, "Docs Model Sample");
+      editorInstance!.commands.insertContentAt(to, " one");
+    });
+    // First save dispatches and blocks on the gate…
+    await waitFor(
+      () => {
+        expect(batches.length).toBe(1);
+      },
+      { timeout: 3000 },
+    );
+    // …and a second edit lands while it is in flight.
+    act(() => {
+      const { to } = findTextRange(editorInstance!, "Docs Model Sample one");
+      editorInstance!.commands.insertContentAt(to, " two");
+    });
+    releaseFirstSave();
+
+    // The completion notices the seq moved, stays dirty, and re-saves ONLY
+    // the trailing edit (diffed against the advanced baseline).
+    await waitFor(
+      () => {
+        expect(batches.length).toBe(2);
+      },
+      { timeout: 3000 },
+    );
+    expect(batches[1]).toEqual([
+      {
+        type: "updateBlock",
+        blockId: "h1",
+        text: [{ insert: "Docs Model Sample one two" }],
+      },
+    ]);
+    await waitFor(() => {
+      expect(states[states.length - 1]).toBe("saved");
+    });
+  });
+
+  it("pauses auto-save after a 409 and resumes once the host reloads the doc", async () => {
+    const doc = loadFixture();
+    const batches: DocOp[][] = [];
+    let stale = true;
+    let editorInstance: Editor | null = null;
+    const ui = (docProp: DocDocument) => (
+      <DocEditor
+        document={docProp}
+        autoSave
+        autoSaveDelayMs={20}
+        onApplyOps={async (ops) => {
+          batches.push(ops);
+          return stale
+            ? { ok: false, stale: true, message: "Document changed elsewhere." }
+            : { ok: true };
+        }}
+        onEditorReady={(e) => {
+          editorInstance = e;
+        }}
+      />
+    );
+    const view = renderWithClient(ui(doc));
+    await waitFor(() => {
+      expect(editorInstance).toBeTruthy();
+    });
+
+    act(() => {
+      editorInstance!.commands.insertContentAt(1, "a");
+    });
+    await waitFor(
+      () => {
+        expect(screen.getByText(/Doc changed elsewhere/)).toBeTruthy();
+      },
+      { timeout: 3000 },
+    );
+    expect(batches.length).toBe(1);
+
+    // Paused: further edits schedule nothing while the stale banner is up.
+    act(() => {
+      editorInstance!.commands.insertContentAt(1, "b");
+    });
+    await new Promise((resolve) => setTimeout(resolve, 150));
+    expect(batches.length).toBe(1);
+
+    // Host reload: a NEW document object reseeds the editor, clears the
+    // error, and unpauses — the next edit auto-saves again.
+    stale = false;
+    view.rerender(
+      <DocsClientProvider client={fakeClient}>{ui(loadFixture())}</DocsClientProvider>,
+    );
+    await waitFor(() => {
+      expect(!!screen.queryByText(/Doc changed elsewhere/)).toBe(false);
+    });
+    act(() => {
+      editorInstance!.commands.insertContentAt(1, "c");
+    });
+    await waitFor(
+      () => {
+        expect(batches.length).toBe(2);
+      },
+      { timeout: 3000 },
+    );
+  });
+
+  it("flushes pending edits on unmount", async () => {
+    const doc = loadFixture();
+    const batches: DocOp[][] = [];
+    let editorInstance: Editor | null = null;
+    const view = renderWithClient(
+      <DocEditor
+        document={doc}
+        autoSave
+        // Never fires on its own — the unmount flush is the subject.
+        autoSaveDelayMs={600_000}
+        onApplyOps={async (ops) => {
+          batches.push(ops);
+          return { ok: true };
+        }}
+        onEditorReady={(e) => {
+          editorInstance = e;
+        }}
+      />,
+    );
+    await waitFor(() => {
+      expect(editorInstance).toBeTruthy();
+    });
+    act(() => {
+      const { to } = findTextRange(editorInstance!, "Docs Model Sample");
+      editorInstance!.commands.insertContentAt(to, " (flushed)");
+    });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(batches.length).toBe(0);
+
+    view.unmount();
+
+    await waitFor(() => {
+      expect(batches.length).toBe(1);
+    });
+    expect(batches[0]).toEqual([
+      {
+        type: "updateBlock",
+        blockId: "h1",
+        text: [{ insert: "Docs Model Sample (flushed)" }],
+      },
+    ]);
+  });
+
+  it("flushes pending edits when the window blurs", async () => {
+    const doc = loadFixture();
+    const batches: DocOp[][] = [];
+    let editorInstance: Editor | null = null;
+    renderWithClient(
+      <DocEditor
+        document={doc}
+        autoSave
+        autoSaveDelayMs={600_000}
+        onApplyOps={async (ops) => {
+          batches.push(ops);
+          return { ok: true };
+        }}
+        onEditorReady={(e) => {
+          editorInstance = e;
+        }}
+      />,
+    );
+    await waitFor(() => {
+      expect(editorInstance).toBeTruthy();
+    });
+    act(() => {
+      editorInstance!.commands.insertContentAt(1, "y");
+    });
+
+    fireEvent.blur(window);
+
+    await waitFor(() => {
+      expect(batches.length).toBe(1);
+    });
+  });
+
+  it("advances its baseline to a host-returned doc and skips the reseed when that object round-trips as the document prop", async () => {
+    const doc = loadFixture();
+    let serverDoc = doc;
+    let counter = 0;
+    let editorInstance: Editor | null = null;
+    const onApplyOps = async (ops: DocOp[]) => {
+      const applied = applyOps(serverDoc, ops, () => `srv-${++counter}`);
+      if (!applied.ok) throw new Error("fixture ops failed to apply");
+      serverDoc = applied.doc;
+      return { ok: true as const, doc: serverDoc };
+    };
+    const ui = (docProp: DocDocument) => (
+      <DocEditor
+        document={docProp}
+        // Manual-save flow on purpose: the identity trick is not
+        // autoSave-specific and the Save button keeps the test direct.
+        onApplyOps={onApplyOps}
+        onEditorReady={(e) => {
+          editorInstance = e;
+        }}
+      />
+    );
+    const view = renderWithClient(ui(doc));
+    await waitFor(() => {
+      expect(editorInstance).toBeTruthy();
+    });
+
+    act(() => {
+      const { to } = findTextRange(editorInstance!, "Docs Model Sample");
+      editorInstance!.commands.insertContentAt(to, " (kept)");
+    });
+    await waitFor(() => {
+      expect(screen.getByText("Unsaved changes")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    await waitFor(() => {
+      expect(screen.getByText("Saved")).toBeTruthy();
+    });
+
+    // The host feeds the SAME object back down (DocPage's setBundle) — the
+    // reseed must recognize it and NOT dispatch a content reset. PM state
+    // identity is the observable: setContent would produce a new state.
+    const stateBeforeRoundTrip = editorInstance!.state;
+    view.rerender(<DocsClientProvider client={fakeClient}>{ui(serverDoc)}</DocsClientProvider>);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(editorInstance!.state).toBe(stateBeforeRoundTrip);
+    expect(editorInstance!.getText()).toContain("Docs Model Sample (kept)");
+
+    // A genuinely NEW document object still reseeds (control case).
+    view.rerender(<DocsClientProvider client={fakeClient}>{ui(loadFixture())}</DocsClientProvider>);
+    await waitFor(() => {
+      expect(editorInstance!.state).not.toBe(stateBeforeRoundTrip);
+      expect(editorInstance!.getText()).not.toContain("(kept)");
+    });
   });
 });

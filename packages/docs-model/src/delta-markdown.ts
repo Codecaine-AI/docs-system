@@ -14,7 +14,7 @@ import type { DeltaSpan } from "./doc-schema";
  * are NOT duplicates of this one — they serve different consumers with
  * deliberately different semantics:
  *
- * - `flavour-registry.ts`'s `deltaToMarkdown` feeds MDX-adapter block bodies
+ * - `block-registry.ts`'s `deltaToMarkdown` feeds MDX-adapter block bodies
  *   that get rendered back through `react-markdown` in the browser; it
  *   renders `reference` marks as markdown links (`[label](path)`) because a
  *   real link is useful there.
@@ -26,7 +26,7 @@ import type { DeltaSpan } from "./doc-schema";
  *   just be noise for `docs grep`.
  *
  * If a future checkpoint decides these two should converge, do it there —
- * don't silently reconcile them here and break the flavour-registry test
+ * don't silently reconcile them here and break the block-registry test
  * that locks its link-producing behavior.
  */
 
@@ -34,7 +34,7 @@ import type { DeltaSpan } from "./doc-schema";
  * Wraps a single span's text in the standard markdown mark syntax for
  * bold/italic/strike/code/link (nesting: code innermost, then bold/italic/
  * strike, link outermost of those). Shared by both projections below AND by
- * flavour-registry's `deltaToMarkdown` (M2 consolidation) — the `reference`
+ * block-registry's `deltaToMarkdown` (M2 consolidation) — the `reference`
  * mark is deliberately NOT handled here since the two callers render it
  * differently (see module header); each caller applies its own reference
  * handling on top of this shared wrap.

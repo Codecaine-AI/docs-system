@@ -22,13 +22,13 @@ larger system.
 | Package | What it is |
 |---|---|
 | [`packages/framework`](packages/framework/SKILL.md) | The skill/manual: `SKILL.md` entry point plus `00-reference` (philosophy, architecture), `10-cookbook` (navigate/produce/maintain), `20-standards` (structure rules), `30-workflows` (the `/docs:*` commands), `40-templates` (document templates), `99-appendix` (setup, operations). |
-| [`packages/docs-model`](packages/docs-model) | Pure TypeScript, no React, no I/O. The `doc.json` schema (a normalized, id-keyed block tree, 20 block flavours, delta/rich-text spans), a 6-op mutation vocabulary with a pure `applyOp(doc, op) -> { doc, inverse }`, the comments schema, and Markdown projection in both directions (`projectToMarkdown`, Markdown → delta). |
+| [`packages/docs-model`](packages/docs-model) | Pure TypeScript, no React, no I/O. The `doc.json` schema (a normalized, id-keyed block tree, 14 block types, delta/rich-text spans), a 7-op mutation vocabulary — six generic structural/text ops plus `blockAction`, which expands typed per-block actions (13, defined in `src/block-actions.ts`) into `updateBlock` patches — with a pure `applyOp(doc, op) -> { doc, inverse }`, the comments schema, and Markdown projection in both directions (`projectToMarkdown`, Markdown → delta). |
 | [`packages/docs-index`](packages/docs-index) | A `bun:sqlite`-backed backlinks index. Derived state lives at `<docsRoot>/.index/` (gitignored — always rebuildable via rescan). Also: reference matching, `move-doc` with inbound-reference rewriting, and path-confinement helpers so operations can't escape the docs root. |
 | [`packages/docs-server`](packages/docs-server) | The embeddable mutation authority. `createDocsStore(docsRoot)` gives per-path mutexed, atomic (temp-then-rename) writes, TTL-based draft locks (423 on conflict), a single-use inverse-op undo ledger, and SSE change events. `createDocsRoutes(store)` turns that into an Elysia route factory exposing the full read+write `/api/*` table; mutating ops take an `expected_hash` and return 409 on staleness. |
-| [`packages/docs-viewer`](packages/docs-viewer) | React: `DocBlockRenderer` and 20 block flavours, a TipTap-based editor (slash menu, Markdown input rules, reference chips), Plannotator-style comments, `DocTargetingLayer` (hover outline, type chips, pinpoint and text-selection targeting), `DocsBlockLibrary`, and the `DocsClientProvider` seam a host uses to inject its own client and a canvas-embed slot. |
-| [`packages/docs-workbench`](packages/docs-workbench) | The runnable app. `docs serve` starts a loopback-only (127.0.0.1:4800 by default; `--host` to expose) read+write workbench with Read/Annotate/Edit modes, a block library at `#/blocks`, SSE change flashes, and one-click undo. `docs export` produces a fully static, read-only site (relative paths — works from any subpath). |
+| [`packages/docs-viewer`](packages/docs-viewer) | React: `DocBlockRenderer` and the 14 block types (with read-surface syntax highlighting and render-time JSON pretty-printing), a TipTap-based editor (slash menu, Markdown input rules, reference chips, `Cmd/Ctrl+K` link authoring, paste/drop video embeds), Plannotator-style comments, `DocTargetingLayer` (hover outline, type chips, pinpoint and text-selection targeting), `DocsBlockLibrary`, and the `DocsClientProvider` seam a host uses to inject its own client and a canvas-embed slot. |
+| [`packages/docs-workbench`](packages/docs-workbench) | The runnable app. `docs serve` starts a loopback-only (127.0.0.1:4800 by default; `--host` to expose) read+write workbench — always-editable Edit mode (Notion-style auto-save) plus an Annotate mode — with a block library at `#/blocks`, SSE change flashes, and one-click undo. `docs export` produces a fully static, read-only site (relative paths — works from any subpath). |
 | [`packages/docs-cli`](packages/docs-cli) | The `docs` CLI: `render`, `grep`, `backlinks rescan`, `links check`, `migrate`, `serve`, `export`. |
-| [`packages/canvas`](packages/canvas) | Git submodule ([`Codecaine-AI/canvas`](https://github.com/Codecaine-AI/canvas)) powering canvas embeds inside the workbench. See the caveat below before cloning recursively. |
+| [`external/canvas`](external/canvas) | Git submodule ([`Codecaine-AI/canvas`](https://github.com/Codecaine-AI/canvas)) powering canvas embeds inside the workbench. Lives under `external/` (not `packages/`) because it is a sibling Codecaine project the docs system *supports*, not a part of it. See the caveat below before cloning recursively. |
 
 ---
 
@@ -112,7 +112,7 @@ Both are enforced by [`import-boundaries.test.ts`](import-boundaries.test.ts) at
 
 ### Canvas submodule cycle caveat
 
-`packages/canvas` is itself a git submodule. Host repos that also embed the
+`external/canvas` is itself a git submodule. Host repos that also embed the
 canvas engine directly (not just through this repo) create a submodule
 cycle: this repo depends on `canvas`, and a canvas-embedding host may in
 turn depend on this repo. **Never `git clone --recursive` blindly** in that
@@ -125,20 +125,29 @@ superproject you're already inside. Clone flat, then `git submodule update
 ## Development
 
 ```bash
-bun install                # from the repo root
-bun run test                # runs the full workspace test suite
-bunx --bun tsc --noEmit     # typecheck (via `bun run typecheck`)
+make install    # bun install, from the repo root
+make test       # full workspace test suite (= bun run test)
+make typecheck  # tsc --noEmit across the workspace (= bun run typecheck)
+make check      # both
+make dev        # self-docs workbench with vite HMR on :4803
+make serve      # self-docs workbench on :4802 (static SPA build, cached at startup)
+make canvas     # sibling canvas project's docs with hot reload on :4801
+make spa        # rebuild the static SPA cache (fixes docs-cli test timeouts after docs-viewer changes)
 ```
+
+`make help` lists all targets. Note that `make serve` caches the SPA build at
+startup — source changes need a restart (or `make spa`); use `make dev` when
+iterating on the tooling itself.
 
 `bun run test` runs `docs-model`, `docs-index`, `docs-cli`, `docs-server`,
 `docs-viewer`, and both `docs-workbench` test trees (`src` and `web/src`).
 
 **Known flake**: `packages/docs-workbench/web/src/__tests__/workbench.test.tsx`
-— `annotate mode > hover-targets a block (outline + flavour chip) and
+— `annotate mode > hover-targets a block (outline + block type chip) and
 selecting via the layer opens the composer` — intermittently fails with an
 `ENOENT` reading a temp-dir `comments.json` fixture (a test-harness timing
 issue around the canvas-embed comments seam, not a product bug). Re-run the
-suite if only this test fails; a clean run passes all 401 tests.
+suite if only this test fails; a clean run passes the full suite.
 
 ---
 
@@ -151,8 +160,8 @@ Two files are vendored, labeled, non-verbatim ports from
 with its own `NOTICE` explaining provenance and why the port satisfies
 MPL-2.0 file-level copyleft:
 
-- [`packages/docs-viewer/src/vendor/blocksuite/NOTICE`](packages/docs-viewer/src/vendor/blocksuite/NOTICE)
-- `packages/canvas/packages/canvas/src/vendor/blocksuite/NOTICE` (inside the `canvas` submodule)
+- [`packages/docs-viewer/src/editor/menus/vendor/blocksuite/NOTICE`](packages/docs-viewer/src/editor/menus/vendor/blocksuite/NOTICE)
+- `external/canvas/packages/canvas/src/vendor/blocksuite/NOTICE` (inside the `canvas` submodule)
 
 Do not modify the vendored/ported files without updating their NOTICE and
 file-header provenance comments accordingly.
