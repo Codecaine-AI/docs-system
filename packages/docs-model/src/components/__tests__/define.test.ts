@@ -33,6 +33,18 @@ describe("schemaIssues", () => {
     const issues = schemaIssues(Value.Errors(schema, {}));
     expect(issues.some((issue) => issue.path === "$.params.name")).toBe(true);
   });
+
+  it("deduplicates overlapping missing-property issues", () => {
+    const schema = Type.Object(
+      { rowIndex: Type.Integer(), value: Type.String() },
+      { additionalProperties: false },
+    );
+    const issues = schemaIssues(Value.Errors(schema, {}));
+    expect(issues).toHaveLength(2);
+    expect(new Set(issues.map((issue) => issue.path))).toEqual(
+      new Set(["$.params.rowIndex", "$.params.value"]),
+    );
+  });
 });
 
 describe("deriveParamSpecs", () => {
@@ -129,22 +141,30 @@ describe("deriveParamSpecs", () => {
 });
 
 describe("checkParams", () => {
-  it("accepts conforming objects and rejects extra properties", () => {
-    const params = Type.Object(
-      { path: Type.String({ description: "Path." }) },
-      { additionalProperties: false },
-    );
+  it("accepts conforming objects and ignores extra properties", () => {
+    const params = Type.Object({ path: Type.String({ description: "Path." }) });
     const action: ComponentAction<typeof params> = {
       action: "file-tree.addEntry",
       blockType: "file-tree",
       description: "Add an entry.",
       params,
-      apply: () => ({ ok: true, props: {} }),
+      apply: (_block, actionParams) => ({
+        ok: true,
+        props: { path: actionParams.path },
+      }),
     };
     expect(checkParams(action, { path: "src/index.ts" })).toEqual([]);
-    const issues = checkParams(action, { path: "src/index.ts", extra: true });
-    expect(issues.length).toBeGreaterThan(0);
-    expect(issues.some((issue) => issue.path === "$.params.extra")).toBe(true);
+    const supplied = { path: "src/index.ts", extra: true };
+    expect(checkParams(action, supplied)).toEqual([]);
+    if (!("apply" in action)) throw new Error("Expected a local action.");
+    const result = action.apply(
+      { id: "b1", type: "file-tree", props: {}, children: [] },
+      supplied,
+    );
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.props).toEqual({ path: "src/index.ts" });
+    expect(result.props).not.toHaveProperty("extra");
   });
 });
 

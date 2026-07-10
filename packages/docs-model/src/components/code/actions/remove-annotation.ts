@@ -8,10 +8,9 @@ export const removeAnnotation = defineComponentAction({
   action: "code.removeAnnotation",
   blockType: "code",
   description: 'Remove the annotation whose "lines" key matches exactly.',
-  params: Type.Object(
-    { lines: Type.String({ minLength: 1, description: "Line range key of the annotation." }) },
-    { additionalProperties: false },
-  ),
+  params: Type.Object({
+    lines: Type.String({ minLength: 1, description: "Line range key of the annotation." }),
+  }),
   apply(block, { lines }) {
     const annotations = readCodeAnnotations(block);
     if (!annotations.some((candidate) => candidate.lines === lines)) {

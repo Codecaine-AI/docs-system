@@ -51,10 +51,22 @@ export function schemaIssues(
     return deeper.length > 0 ? deeper : [error];
   }
 
-  return Array.from(errors).flatMap(collect).map((error) => ({
+  const issues = Array.from(errors).flatMap(collect).map((error) => ({
     path: issuePath(error.path, base),
     message: error.message,
   }));
+  const seen = new Set<string>();
+  const missingPaths = new Set<string>();
+  return issues.filter((issue) => {
+    const key = JSON.stringify([issue.path, issue.message]);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    if (missingPaths.has(issue.path)) return false;
+    if (issue.message === "Expected required property") {
+      missingPaths.add(issue.path);
+    }
+    return true;
+  });
 }
 
 export function checkParams(

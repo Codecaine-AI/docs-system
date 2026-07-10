@@ -36,12 +36,10 @@ export const updateOperation = defineComponentAction({
           ),
         },
         {
-          additionalProperties: false,
           description: "Partial operation; patch.name renames, null clears.",
         },
       ),
     },
-    { additionalProperties: false },
   ),
   apply(block, params) {
     const { name, patch } = params;

@@ -103,6 +103,23 @@ function collectClosedObjectIssues(
   ancestors.delete(schema);
 }
 
+function collectObjectSchemaIssue(
+  schema: unknown,
+  label: string,
+  issues: string[],
+): void {
+  if (!isRecord(schema)) {
+    issues.push(`${label} must be a TypeBox object schema.`);
+    return;
+  }
+
+  const schemaType = schema.type;
+  const isObjectSchema =
+    schemaType === "object" ||
+    (Array.isArray(schemaType) && schemaType.includes("object"));
+  if (!isObjectSchema) issues.push(`${label} must be a TypeBox object schema.`);
+}
+
 export function collectRegistryIssues(bundles: readonly ComponentBundle[]): string[] {
   const issues: string[] = [];
   const canonicalTypes = new Set<string>(DOC_BLOCK_TYPES);
@@ -180,11 +197,10 @@ export function collectRegistryIssues(bundles: readonly ComponentBundle[]): stri
         );
       }
 
-      collectClosedObjectIssues(
+      collectObjectSchemaIssue(
         action.params,
         `Component "${bundleName}" action "${action.action}" params schema`,
         issues,
-        true,
       );
 
       if ("forward" in action && !KNOWN_AUTHORITIES.includes(action.forward.authority as "canvas")) {

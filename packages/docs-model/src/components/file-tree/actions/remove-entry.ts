@@ -8,12 +8,9 @@ export const removeEntry = defineComponentAction({
   action: "file-tree.removeEntry",
   blockType: "file-tree",
   description: "Remove the entry with the given path from the file tree.",
-  params: Type.Object(
-    {
-      path: Type.String({ minLength: 1, description: "Exact path of the entry to remove." }),
-    },
-    { additionalProperties: false },
-  ),
+  params: Type.Object({
+    path: Type.String({ minLength: 1, description: "Exact path of the entry to remove." }),
+  }),
   apply(block, params) {
     const { path } = params;
     const entries = readFileTreeEntries(block);

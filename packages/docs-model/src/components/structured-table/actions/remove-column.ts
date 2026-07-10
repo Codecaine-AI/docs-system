@@ -28,7 +28,6 @@ export const removeColumn = defineComponentAction({
         }),
       ),
     },
-    { additionalProperties: false },
   ),
   apply(block, params) {
     const issues: DocValidationIssue[] = [];

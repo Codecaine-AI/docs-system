@@ -9,50 +9,44 @@ import {
   type InteractionSurfaceOperation,
 } from "../state";
 
-export const ActionOperationParamSchema = Type.Object(
-  {
-    name: Type.String({ minLength: 1 }),
-    type: Type.Optional(Type.String()),
-    required: Type.Optional(Type.Boolean()),
-    description: Type.Optional(Type.String()),
-  },
-  { additionalProperties: false },
-);
+export const ActionOperationParamSchema = Type.Object({
+  name: Type.String({ minLength: 1 }),
+  type: Type.Optional(Type.String()),
+  required: Type.Optional(Type.Boolean()),
+  description: Type.Optional(Type.String()),
+});
 
 export const addOperation = defineComponentAction({
   action: "interaction-surface.addOperation",
   blockType: "interaction-surface",
   description:
     "Append an operation signature ({ name, description?, params?, returns?, kind? }) to the surface.",
-  params: Type.Object(
-    {
-      name: Type.String({
-        minLength: 1,
-        description: 'Operation name, e.g. "file-tree.addEntry" (must not already exist).',
+  params: Type.Object({
+    name: Type.String({
+      minLength: 1,
+      description: 'Operation name, e.g. "file-tree.addEntry" (must not already exist).',
+    }),
+    description: Type.Optional(
+      Type.String({ description: "One-line description of what the operation does." }),
+    ),
+    params: Type.Optional(
+      Type.Array(ActionOperationParamSchema, {
+        description: "Signature params: [{ name, type?, required?, description? }].",
       }),
-      description: Type.Optional(
-        Type.String({ description: "One-line description of what the operation does." }),
+    ),
+    returns: Type.Optional(
+      Type.String({ description: "What the operation returns/yields." }),
+    ),
+    kind: Type.Optional(
+      Type.Union(
+        [Type.Literal("action"), Type.Literal("query"), Type.Literal("event")],
+        {
+          description:
+            'Operation kind: "action" | "query" | "event" (default reading: action).',
+        },
       ),
-      params: Type.Optional(
-        Type.Array(ActionOperationParamSchema, {
-          description: "Signature params: [{ name, type?, required?, description? }].",
-        }),
-      ),
-      returns: Type.Optional(
-        Type.String({ description: "What the operation returns/yields." }),
-      ),
-      kind: Type.Optional(
-        Type.Union(
-          [Type.Literal("action"), Type.Literal("query"), Type.Literal("event")],
-          {
-            description:
-              'Operation kind: "action" | "query" | "event" (default reading: action).',
-          },
-        ),
-      ),
-    },
-    { additionalProperties: false },
-  ),
+    ),
+  }),
   apply(block, params) {
     const operations = readInteractionSurfaceOperations(block);
     if (operations.some((operation) => operation.name === params.name)) {

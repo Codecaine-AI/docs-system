@@ -20,7 +20,6 @@ export const addRow = defineComponentAction({
         }),
       ),
     },
-    { additionalProperties: false },
   ),
   apply(block, params) {
     const columns = readTableColumns(block);

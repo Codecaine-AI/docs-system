@@ -14,7 +14,6 @@ export const removeRow = defineComponentAction({
         description: "Row index in [0, rows.length - 1].",
       }),
     },
-    { additionalProperties: false },
   ),
   apply(block, params) {
     const rows = readTableRows(block);

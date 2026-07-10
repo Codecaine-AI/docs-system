@@ -11,27 +11,24 @@ export const addEntry = defineComponentAction({
   action: "file-tree.addEntry",
   blockType: "file-tree",
   description: "Append a path entry (optional note and change marker) to the file tree.",
-  params: Type.Object(
-    {
-      path: Type.String({
-        minLength: 1,
-        description: '/-separated path, no leading "./"; a trailing "/" marks an explicit directory.',
-      }),
-      note: Type.Optional(Type.String({ description: "Short annotation rendered after the path." })),
-      change: Type.Optional(
-        Type.Union(
-          [
-            Type.Literal("added"),
-            Type.Literal("removed"),
-            Type.Literal("modified"),
-            Type.Literal("renamed"),
-          ],
-          { description: 'Change marker: "added" | "removed" | "modified" | "renamed".' },
-        ),
+  params: Type.Object({
+    path: Type.String({
+      minLength: 1,
+      description: '/-separated path, no leading "./"; a trailing "/" marks an explicit directory.',
+    }),
+    note: Type.Optional(Type.String({ description: "Short annotation rendered after the path." })),
+    change: Type.Optional(
+      Type.Union(
+        [
+          Type.Literal("added"),
+          Type.Literal("removed"),
+          Type.Literal("modified"),
+          Type.Literal("renamed"),
+        ],
+        { description: 'Change marker: "added" | "removed" | "modified" | "renamed".' },
       ),
-    },
-    { additionalProperties: false },
-  ),
+    ),
+  }),
   apply(block, params) {
     const issues: DocValidationIssue[] = [];
     const { path, note, change } = params;

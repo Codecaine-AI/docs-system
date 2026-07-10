@@ -27,7 +27,6 @@ export const addColumn = defineComponentAction({
         }),
       ),
     },
-    { additionalProperties: false },
   ),
   apply(block, params) {
     const issues: DocValidationIssue[] = [];

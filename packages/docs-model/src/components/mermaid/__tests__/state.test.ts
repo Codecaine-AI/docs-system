@@ -19,6 +19,10 @@ describe("mermaid component state", () => {
     expect(Value.Check(MermaidState, { title: "x", caption: "y" })).toBe(true);
   });
 
+  it("accepts title and viewer-rendered diagram type", () => {
+    expect(Value.Check(MermaidState, { title: "x", diagramType: "flowchart" })).toBe(true);
+  });
+
   it("rejects stray properties", () => {
     expect(Value.Check(MermaidState, { ...fixtureBlock.props, stray: true })).toBe(false);
   });

@@ -32,7 +32,6 @@ export const updateCell = defineComponentAction({
       ),
       value: Type.String({ description: "New cell value." }),
     },
-    { additionalProperties: false },
   ),
   apply(block, params) {
     const issues: DocValidationIssue[] = [];

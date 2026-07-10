@@ -9,15 +9,12 @@ export const removeOperation = defineComponentAction({
   action: "interaction-surface.removeOperation",
   blockType: "interaction-surface",
   description: "Remove the operation with the given name from the surface.",
-  params: Type.Object(
-    {
-      name: Type.String({
-        minLength: 1,
-        description: "Exact name of the operation to remove.",
-      }),
-    },
-    { additionalProperties: false },
-  ),
+  params: Type.Object({
+    name: Type.String({
+      minLength: 1,
+      description: "Exact name of the operation to remove.",
+    }),
+  }),
   apply(block, params) {
     const operations = readInteractionSurfaceOperations(block);
     if (!operations.some((operation) => operation.name === params.name)) {
