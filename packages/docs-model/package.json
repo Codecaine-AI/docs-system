@@ -16,6 +16,9 @@
     "./spectre-ref": "./src/spectre-ref.ts",
     "./fixtures/sample.doc.json": "./src/__fixtures__/sample.doc.json"
   },
+  "dependencies": {
+    "@sinclair/typebox": "^0.34"
+  },
   "devDependencies": {
     "@types/bun": "latest",
     "typescript": "^5"
