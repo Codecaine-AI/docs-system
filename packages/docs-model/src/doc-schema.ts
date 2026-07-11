@@ -178,33 +178,6 @@ function validateDeltaSpans(
   return spans;
 }
 
-function validateBlockProps(
-  blockType: DocBlockType,
-  props: Record<string, unknown>,
-  path: string,
-  issues: DocValidationIssue[],
-): boolean {
-  if (blockType !== "canvas") return true;
-  const canvasId = props.canvasId;
-  const src = props.src;
-  if (
-    canvasId !== undefined &&
-    (typeof canvasId !== "string" || canvasId.trim().length === 0)
-  ) {
-    issues.push({ path: `${path}.canvasId`, message: "Canvas canvasId must be a non-empty string." });
-    return false;
-  }
-  if (src !== undefined && (typeof src !== "string" || src.trim().length === 0)) {
-    issues.push({ path: `${path}.src`, message: "Canvas src must be a non-empty string." });
-    return false;
-  }
-  // A canvas block with neither canvasId nor src is tolerated: legacy docs
-  // contain title-only canvas placeholders (e.g. 40-docs-mdx-lab), and the
-  // embed renders an explicit "missing src or canvasId" card for them —
-  // rejecting here would 422 the whole bundle on load.
-  return true;
-}
-
 /**
  * Pure structural validation (no throw, canvas-schema style):
  * - schemaVersion / id / root / blocks shape,
@@ -302,9 +275,6 @@ export function validateDocDocument(value: unknown): DocValidationResult {
             ? existingKind
             : rawType,
       };
-    }
-    if (!validateBlockProps(blockType, props, `${path}.props`, issues)) {
-      continue;
     }
     if (!Array.isArray(rawBlock.children)) {
       issues.push({ path: `${path}.children`, message: "Block children must be an array of ids." });

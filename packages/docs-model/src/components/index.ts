@@ -20,6 +20,7 @@ export * from "./define";
 export * from "./checks";
 export * from "./projection-utils";
 export * from "./compat";
+export * from "./validate";
 
 export { richTextComponent } from "./rich-text";
 export { codeComponent } from "./code";

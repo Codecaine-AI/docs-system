@@ -32,12 +32,13 @@ function docJson(id: string, title: string, text: string) {
   return {
     schemaVersion: 1,
     id,
+    title,
     root: "root-1",
     blocks: {
       "root-1": {
         id: "root-1",
         type: "paragraph",
-        props: { title },
+        props: {},
         children: ["para-1"],
       },
       "para-1": {

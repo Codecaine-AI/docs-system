@@ -50,7 +50,6 @@ function baseDoc(): DocDocument {
       root: block("root", { children: ["h1", "p1", "p2", "list", "quote"] }),
       h1: block("h1", { type: "heading", props: { level: 1 }, text: [{ insert: "Title" }] }),
       p1: block("p1", {
-        props: { note: "keep" },
         text: [
           { insert: "Hello " },
           { insert: "bold", attributes: { bold: true } },
@@ -92,25 +91,25 @@ describe("contract 1 — updateBlock preserves the block id", () => {
     const doc = baseDoc();
     const { doc: updated } = mustApply(doc, {
       type: "updateBlock",
-      blockId: "p1",
-      props: { note: "changed", extra: 1 },
+      blockId: "h1",
+      props: { level: 2 },
       text: [{ insert: "Rewritten" }],
     });
 
-    expect(updated.blocks.p1).toBeDefined();
-    expect(updated.blocks.p1.id).toBe("p1");
-    expect(updated.blocks.p1.props).toEqual({ note: "changed", extra: 1 });
-    expect(updated.blocks.p1.text).toEqual([{ insert: "Rewritten" }]);
+    expect(updated.blocks.h1).toBeDefined();
+    expect(updated.blocks.h1.id).toBe("h1");
+    expect(updated.blocks.h1.props).toEqual({ level: 2 });
+    expect(updated.blocks.h1.text).toEqual([{ insert: "Rewritten" }]);
     // Same set of ids before and after — update never mints or drops ids.
     expect(Object.keys(updated.blocks).sort()).toEqual(Object.keys(doc.blocks).sort());
 
-    // A block-target comment on p1 still resolves (not dangling).
+    // A block-target comment on h1 still resolves (not dangling).
     const comments: CommentsDocument = {
       schemaVersion: 1,
       comments: [
         {
-          id: "cm_p1",
-          target: { kind: "block", blockId: "p1" },
+          id: "cm_h1",
+          target: { kind: "block", blockId: "h1" },
           body: "anchor me",
           intent: "note",
           author: "user",
@@ -284,19 +283,28 @@ describe("contract 4 — applyOp then inverse restores the exact original doc", 
       blockId: "p-new",
       parentId: "root",
       index: 2,
-      blockType: "paragraph",
-      props: { tone: "aside" },
+      blockType: "callout",
+      props: { tone: "info" },
       text: [{ insert: "Inserted" }],
     });
   });
 
   it("updateBlock (props merge, prop removal, and text replacement)", () => {
-    roundTrip({
-      type: "updateBlock",
-      blockId: "p1",
-      props: { note: undefined, added: true },
-      text: [{ insert: "different" }],
-    });
+    const calloutDoc = baseDoc();
+    calloutDoc.blocks.p1 = {
+      ...calloutDoc.blocks.p1,
+      type: "callout",
+      props: { title: "keep" },
+    };
+    roundTrip(
+      {
+        type: "updateBlock",
+        blockId: "p1",
+        props: { title: undefined, kind: "aside" },
+        text: [{ insert: "different" }],
+      },
+      calloutDoc,
+    );
     roundTrip({ type: "updateBlock", blockId: "p1", text: null });
     roundTrip({ type: "updateBlock", blockId: "h1", props: { level: 2 } });
   });
@@ -416,7 +424,7 @@ describe("pre-apply validation — ops that would break invariants are rejected"
   it("never mutates the input document, even on success", () => {
     const doc = baseDoc();
     const snapshot = serializeDocDocument(doc);
-    mustApply(doc, { type: "updateBlock", blockId: "p1", props: { note: "x" } });
+    mustApply(doc, { type: "updateBlock", blockId: "h1", props: { level: 2 } });
     mustApply(doc, { type: "deleteBlock", blockId: "list" });
     mustApply(doc, { type: "splitBlock", blockId: "p1", offset: 2 }, makeIdFactory());
     expect(serializeDocDocument(doc)).toBe(snapshot);

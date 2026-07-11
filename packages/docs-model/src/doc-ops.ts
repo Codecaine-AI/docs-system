@@ -2,6 +2,7 @@
 
 import { ACTION_REGISTRY } from "./components";
 import { checkParams } from "./components/define";
+import { checkStateProps } from "./components/validate";
 import type { DeltaSpan, DocBlock, DocBlockType, DocDocument, DocValidationIssue } from "./doc-schema";
 import { isDocBlockType } from "./doc-schema";
 
@@ -26,6 +27,8 @@ import { isDocBlockType } from "./doc-schema";
  * Every applyOp returns exact inverse op(s): applying `inverse` in order to
  * the resulting doc restores the original doc structurally. M3 stores these
  * as undo units keyed by patch id.
+ * insertBlock and updateBlock results are schema-validated against their
+ * owning component state; refusals report `$.op.props.*` issue paths (D8a).
  */
 export type DocOp =
   | {
@@ -244,6 +247,8 @@ export function applyOp(doc: DocDocument, op: DocOp, idFactory?: DocIdFactory): 
           `insertBlock index ${op.index} is out of range [0, ${parent.children.length}].`,
         );
       }
+      const stateIssues = checkStateProps(op.blockType, op.props);
+      if (stateIssues.length > 0) return { ok: false, issues: stateIssues };
       const blocks = { ...doc.blocks };
       const newParent = cloneBlockShallow(parent);
       newParent.children.splice(op.index, 0, op.blockId);
@@ -286,6 +291,8 @@ export function applyOp(doc: DocDocument, op: DocOp, idFactory?: DocIdFactory): 
         inverseText = block.text ? block.text.map((span) => ({ ...span })) : null;
         next.text = op.text === null ? undefined : op.text.map((span) => ({ ...span }));
       }
+      const stateIssues = checkStateProps(next.type, next.props);
+      if (stateIssues.length > 0) return { ok: false, issues: stateIssues };
       const blocks = { ...doc.blocks, [op.blockId]: next };
       const inverse: DocOp = {
         type: "updateBlock",

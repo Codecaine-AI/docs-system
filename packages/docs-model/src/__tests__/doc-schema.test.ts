@@ -200,26 +200,30 @@ describe("validateDocDocument", () => {
     expect(validateDocDocument(doc2).ok).toBe(false);
   });
 
-  it("accepts canvas blocks with canvasId only", () => {
+  it("tolerates wrong-typed canvas props on read and preserves them", () => {
     const doc = validDoc();
     doc.blocks.root.children.push("canvas-1");
     doc.blocks["canvas-1"] = block("canvas-1", {
       type: "canvas",
-      props: { canvasId: "canvas-main" },
+      props: { canvasId: 42 },
     });
     const result = validateDocDocument(doc);
     expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.document.blocks["canvas-1"].props.canvasId).toBe(42);
   });
 
-  it("tolerates canvas blocks without canvasId or src (legacy title-only placeholders)", () => {
+  it("tolerates stray canvas props on read and preserves them", () => {
     const doc = validDoc();
     doc.blocks.root.children.push("canvas-1");
     doc.blocks["canvas-1"] = block("canvas-1", {
       type: "canvas",
-      props: { title: "Docs Lab Canvas" },
+      props: { zoom: 3 },
     });
     const result = validateDocDocument(doc);
     expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.document.blocks["canvas-1"].props.zoom).toBe(3);
   });
 });
 
