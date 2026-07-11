@@ -2,6 +2,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 
 import type { DocOp } from "@codecaine-ai/docs-model/doc-ops";
+import { ACTION_REGISTRY, checkParams } from "@codecaine-ai/docs-model";
 import type { InteractiveCanvasDocument } from "@codecaine-ai/canvas/schema";
 import { queryInboundTolerant, type BacklinkRow } from "@codecaine-ai/docs-index/backlinks";
 import { moveDocBundle, type MoveDocDeps, type MoveDocResult } from "@codecaine-ai/docs-index/move-doc";
@@ -65,7 +66,8 @@ import {
   type DocGetResult,
   type UndoPatchResult,
 } from "./agent-tools";
-import { draftLockStore, type DraftLockStore } from "./draft-locks";
+import { draftLockStore, type DraftLockInfo, type DraftLockStore } from "./draft-locks";
+import { resolveCanvasSidecarRelativePath } from "./confine";
 import {
   publishDocsChangeEvent,
   subscribeToDocsChangeEvents,
@@ -117,6 +119,13 @@ export interface DocsStore {
     expectedHash?: string,
     sessionId?: string,
   ): Promise<ApplyDocOpsResult>;
+  forwardCanvasAction(
+    path: string,
+    op: Extract<DocOp, { type: "blockAction" }>,
+    expectedDocHash?: string,
+    expectedCanvasHash?: string,
+    sessionId?: string,
+  ): Promise<ForwardCanvasActionResult>;
   addComment(
     path: string,
     input: AddBundleCommentInput,
@@ -156,6 +165,129 @@ export interface DocsStore {
   subscribeChanges(listener: (event: DocsChangeEvent) => void): () => void;
 }
 
+export type ForwardCanvasActionResult =
+  | {
+      ok: true;
+      canvas: InteractiveCanvasDocument;
+      canvasHash: string;
+      patchId: string;
+      changedIds: string[];
+      canvasRelPath: string;
+    }
+  | {
+      ok: false;
+      status: number;
+      detail: string;
+      current_hash?: string;
+      expected_hash?: string;
+      held_by?: DraftLockInfo;
+      issues?: unknown;
+    };
+
+async function forwardCanvasAction(
+  docsRoot: string,
+  path: string,
+  op: Extract<DocOp, { type: "blockAction" }>,
+  expectedDocHash?: string,
+  expectedCanvasHash?: string,
+  sessionId?: string,
+): Promise<ForwardCanvasActionResult> {
+  const loaded = await loadDocBundle(docsRoot, path);
+  if ("error" in loaded) {
+    return { ok: false, status: loaded.error.status, detail: loaded.error.detail };
+  }
+  if (expectedDocHash && expectedDocHash !== loaded.docHash) {
+    return {
+      ok: false,
+      status: 409,
+      detail: "Doc bundle is stale; reload before applying ops.",
+      current_hash: loaded.docHash,
+      expected_hash: expectedDocHash,
+    };
+  }
+
+  const action = ACTION_REGISTRY.get(op.action);
+  if (!action || !("forward" in action) || action.forward.authority !== "canvas") {
+    return {
+      ok: false,
+      status: 400,
+      detail: `Action "${op.action}" is not forwarded to the canvas authority.`,
+    };
+  }
+
+  const block = loaded.document.blocks[op.blockId];
+  if (!block) {
+    return {
+      ok: false,
+      status: 400,
+      detail: `blockAction target "${op.blockId}" does not exist.`,
+    };
+  }
+  if (block.type !== "canvas") {
+    return {
+      ok: false,
+      status: 400,
+      detail: `Forwarded canvas action target "${op.blockId}" is a "${block.type}" block, not a "canvas" block.`,
+    };
+  }
+
+  const params = op.params ?? {};
+  const issues = checkParams(action, params);
+  if (issues.length > 0) {
+    return {
+      ok: false,
+      status: 400,
+      detail: "Canvas action params failed validation.",
+      issues,
+    };
+  }
+
+  const source = block.props.canvasId ?? block.props.src;
+  if (typeof source !== "string" || source.length === 0) {
+    return {
+      ok: false,
+      status: 400,
+      detail: `Canvas block "${op.blockId}" is missing a resolvable canvasId or src.`,
+    };
+  }
+
+  // Bundle docs have no markdown filename, but canvas sidecars use the same
+  // doc-directory-relative confinement rules as GET /api/canvas-by-doc. A
+  // synthetic filename supplies only that directory context to the shared
+  // resolver; it is never read from disk.
+  const docPath = loaded.bundlePath ? `${loaded.bundlePath}/doc.mdx` : "doc.mdx";
+  const canvasRelPath = resolveCanvasSidecarRelativePath(docPath, source);
+  if (!canvasRelPath) {
+    return {
+      ok: false,
+      status: 400,
+      detail: `Invalid canvas sidecar path for ${path}: ${source}`,
+    };
+  }
+
+  const operation = {
+    type: op.action.slice("canvas.".length),
+    ...params,
+  } as CanvasAgentPatchOperation;
+  const applied = await canvas_apply_patch(
+    docsRoot,
+    canvasRelPath,
+    [operation],
+    expectedCanvasHash,
+    sessionId,
+  );
+  if (!applied.ok) return applied;
+
+  return {
+    ok: true,
+    canvas: applied.canvas,
+    canvasHash: applied.hash,
+    patchId: applied.patchId,
+    changedIds: applied.changedIds,
+    canvasRelPath,
+  };
+}
+
 export function createDocsStore(docsRoot: string): DocsStore {
   const root = resolve(docsRoot);
   // Change events are channeled per resolved docs root, so every store (and
@@ -179,6 +311,8 @@ export function createDocsStore(docsRoot: string): DocsStore {
 
     applyDocOps: (path, ops, expectedHash, sessionId) =>
       applyDocOpsToBundle(root, path, ops, expectedHash, sessionId),
+    forwardCanvasAction: (path, op, expectedDocHash, expectedCanvasHash, sessionId) =>
+      forwardCanvasAction(root, path, op, expectedDocHash, expectedCanvasHash, sessionId),
     addComment: (path, input, sessionId) => addBundleComment(root, path, input, sessionId),
     resolveComment: (path, commentId, expectedHash, sessionId, response) =>
       resolveBundleComment(root, path, commentId, expectedHash, sessionId, response),

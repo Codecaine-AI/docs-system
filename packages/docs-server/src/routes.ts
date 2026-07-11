@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 import { Elysia, sse, t } from "elysia";
 import type { DocOp } from "@codecaine-ai/docs-model/doc-ops";
-import { buildBlocksDiscovery } from "@codecaine-ai/docs-model";
+import { ACTION_REGISTRY, buildBlocksDiscovery } from "@codecaine-ai/docs-model";
 
 import type { DocsStore } from "./store";
 import { bundleResponse, createContentHash } from "./bundle";
@@ -45,7 +45,7 @@ const BLOCKS_DISCOVERY = buildBlocksDiscovery();
  *   GET  /api/asset?path=                   -> raw asset bytes
  *   GET  /api/backlinks?target=             -> { target, backlinks }
  *   GET  /api/blocks                        -> { schemaVersion, ops, components } (static edit-surface discovery)
- *   POST /api/ops                           -> { doc, hash, patch_id } | 409/423
+ *   POST /api/ops                           -> doc ops or one forwarded canvas action | 400/409/423
  *   GET  /api/comments?path=                -> { comments, hash }
  *   POST /api/comments                      -> 201 { comment, comments, hash } | 409/423
  *   POST /api/comments/:commentId/resolve   -> { comments, hash } | 404/409/423
@@ -214,9 +214,56 @@ export function createDocsRoutes(store: DocsStore) {
     .post(
       "/api/ops",
       async ({ body, set }) => {
+        const ops = body.ops as DocOp[];
+        const forwardedOps = ops.filter((op) => {
+          if (op.type !== "blockAction") return false;
+          const action = ACTION_REGISTRY.get(op.action);
+          return !!action && "forward" in action;
+        });
+        if (forwardedOps.length > 0) {
+          if (ops.length !== 1) {
+            set.status = 400;
+            return {
+              detail: "Forwarded actions must be sent alone.",
+              issues: [
+                { path: "$.ops", message: "Forwarded actions must be sent alone." },
+              ],
+            };
+          }
+          const op = forwardedOps[0] as Extract<DocOp, { type: "blockAction" }>;
+          const result = await store.forwardCanvasAction(
+            body.path,
+            op,
+            body.expected_hash,
+            body.expected_canvas_hash,
+            body.session_id,
+          );
+          if (!result.ok) {
+            set.status = result.status;
+            return {
+              detail: result.detail,
+              current_hash: result.current_hash,
+              expected_hash: result.expected_hash,
+              issues: result.issues,
+              held_by: result.held_by,
+            };
+          }
+          store.publishChange({
+            path: result.canvasRelPath,
+            changedIds: result.changedIds,
+            patchId: result.patchId,
+            actor: body.session_id ?? "anonymous",
+          });
+          return {
+            canvas: result.canvas,
+            canvas_hash: result.canvasHash,
+            patch_id: result.patchId,
+          };
+        }
+
         const result = await store.applyDocOps(
           body.path,
-          body.ops as DocOp[],
+          ops,
           body.expected_hash,
           body.session_id,
         );
@@ -232,7 +279,7 @@ export function createDocsRoutes(store: DocsStore) {
         }
         store.publishChange({
           path: body.path,
-          changedIds: (body.ops as DocOp[])
+          changedIds: ops
             .map((op) => ("blockId" in op ? op.blockId : undefined))
             .filter((id): id is string => !!id),
           patchId: result.patchId,
@@ -245,6 +292,7 @@ export function createDocsRoutes(store: DocsStore) {
           path: t.String({ minLength: 1 }),
           ops: t.Array(t.Any(), { minItems: 1 }),
           expected_hash: t.Optional(t.String()),
+          expected_canvas_hash: t.Optional(t.String()),
           session_id: t.Optional(t.String()),
         }),
       },
