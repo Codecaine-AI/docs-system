@@ -4,7 +4,6 @@ import type { TObject } from "@sinclair/typebox";
 import { Value } from "@sinclair/typebox/value";
 import type { ValueError } from "@sinclair/typebox/value";
 import type { DocValidationIssue } from "../doc-schema";
-import type { BlockActionParamSpec, BlockActionParamType } from "./compat";
 import type { ComponentAction } from "./types";
 
 export function defineComponentAction<P extends TObject>(
@@ -75,53 +74,4 @@ export function checkParams(
 ): DocValidationIssue[] {
   if (Value.Check(action.params, params)) return [];
   return schemaIssues(Value.Errors(action.params, params));
-}
-
-function schemaParamType(schema: Record<string, unknown>): BlockActionParamType {
-  const type = schema.type;
-  if (type === "string") return "string";
-  if (type === "integer" || type === "number") return "number";
-  if (type === "boolean") return "boolean";
-  if (type === "array") return "array";
-  if (type === "object") return "object";
-
-  if (Object.prototype.hasOwnProperty.call(schema, "const")) {
-    const literalType = typeof schema.const;
-    if (
-      literalType === "string" ||
-      literalType === "number" ||
-      literalType === "boolean" ||
-      literalType === "object"
-    ) {
-      return literalType;
-    }
-  }
-
-  if (Array.isArray(schema.anyOf)) {
-    const member = schema.anyOf.find(
-      (candidate): candidate is Record<string, unknown> =>
-        !!candidate &&
-        typeof candidate === "object" &&
-        !Array.isArray(candidate) &&
-        (candidate as Record<string, unknown>).type !== "null",
-    );
-    if (member) return schemaParamType(member);
-  }
-
-  throw new Error("Unable to derive a legacy block-action parameter type from schema.");
-}
-
-export function deriveParamSpecs(schema: TObject): BlockActionParamSpec[] {
-  const required = new Set<string>(schema.required ?? []);
-  return Object.entries(schema.properties).map(([name, propertySchema]) => {
-    if (typeof propertySchema.description !== "string") {
-      throw new Error(`Parameter schema "${name}" must include a description.`);
-    }
-    return {
-      name,
-      type: schemaParamType(propertySchema),
-      required: required.has(name),
-      description: propertySchema.description,
-    };
-  });
 }

@@ -1,13 +1,7 @@
 import { describe, expect, it } from "bun:test";
-import {
-  BLOCK_ACTIONS,
-  BLOCK_TYPE_CATEGORY,
-  getBlockAction,
-  listBlockActions,
-} from "..";
+import { BLOCK_ACTIONS, getBlockAction, listBlockActions } from "..";
 import type { BlockActionResult } from "..";
 import type { DocBlock, DocBlockType } from "../doc-schema";
-import { DOC_BLOCK_TYPES } from "../doc-schema";
 
 function makeBlock(type: DocBlockType, props: Record<string, unknown>): DocBlock {
   return { id: "b1", type, props, children: [] };
@@ -38,7 +32,7 @@ function mustFail(result: BlockActionResult, ...paths: string[]): void {
 }
 
 // ---------------------------------------------------------------------------
-// Registry + category map
+// Registry
 // ---------------------------------------------------------------------------
 
 describe("block-actions registry", () => {
@@ -47,7 +41,10 @@ describe("block-actions registry", () => {
       expect(definition.action).toBe(key);
       expect(key.startsWith(`${definition.blockType}.`)).toBe(true);
       expect(definition.description.length).toBeGreaterThan(0);
-      expect(definition.params.length).toBeGreaterThan(0);
+      expect(typeof definition.params).toBe("object");
+      expect(definition.params.type).toBe("object");
+      expect(typeof definition.params.properties).toBe("object");
+      expect(Object.keys(definition.params.properties).length).toBeGreaterThan(0);
     }
   });
 
@@ -81,22 +78,6 @@ describe("block-actions registry", () => {
     const fileTree = listBlockActions("file-tree").map((d) => d.action);
     expect(fileTree.sort()).toEqual(["file-tree.addEntry", "file-tree.removeEntry", "file-tree.updateEntry"]);
     expect(listBlockActions("paragraph")).toEqual([]);
-  });
-
-  it("BLOCK_TYPE_CATEGORY covers every canonical type; text types are exactly the 5 prose types", () => {
-    expect(Object.keys(BLOCK_TYPE_CATEGORY).sort()).toEqual([...DOC_BLOCK_TYPES].sort());
-    const textTypes = DOC_BLOCK_TYPES.filter((type) => BLOCK_TYPE_CATEGORY[type] === "text");
-    expect([...textTypes].sort()).toEqual(
-      (["callout", "heading", "list-item", "paragraph", "quote"] as DocBlockType[]).sort(),
-    );
-    // code is object-category (annotations edit via actions) despite its text source.
-    expect(BLOCK_TYPE_CATEGORY.code).toBe("object");
-  });
-
-  it("every registered action targets an object-category type", () => {
-    for (const definition of BLOCK_ACTIONS.values()) {
-      expect(BLOCK_TYPE_CATEGORY[definition.blockType]).toBe("object");
-    }
   });
 });
 

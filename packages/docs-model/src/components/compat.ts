@@ -1,21 +1,13 @@
 "use client";
 
+import type { TObject } from "@sinclair/typebox";
 import type { DocBlock, DocBlockType } from "../doc-schema";
 import { codeComponent } from "./code";
-import { checkParams, deriveParamSpecs } from "./define";
+import { checkParams } from "./define";
 import { fileTreeComponent } from "./file-tree";
 import { interactionSurfaceComponent } from "./interaction-surface";
 import { structuredTableComponent } from "./structured-table";
 import type { BlockActionResult, ComponentAction } from "./types";
-
-export type BlockActionParamType = "string" | "number" | "boolean" | "object" | "array";
-
-export type BlockActionParamSpec = {
-  name: string;
-  type: BlockActionParamType;
-  required: boolean;
-  description: string;
-};
 
 export type BlockActionDefinition = {
   /** Registry key: "<blockType>.<verb>". */
@@ -23,40 +15,10 @@ export type BlockActionDefinition = {
   blockType: DocBlockType;
   /** One-line, agent-facing. */
   description: string;
-  /** Discovery-only specs; the runtime checks live in apply(). */
-  params: BlockActionParamSpec[];
+  /** TypeBox schema; this is the discovery and parameter contract. */
+  params: TObject;
   /** Pure: validates params itself and never mutates the input block. */
   apply(block: DocBlock, params: Record<string, unknown>): BlockActionResult;
-};
-
-export type BlockCategory = "text" | "object";
-
-/**
- * Editing category per block type. Text types edit through generic ops
- * (updateBlock text/props, split/merge); object types edit their structured
- * props through named actions.
- *
- * `code` counts as OBJECT because of its structured `annotations` prop
- * (edited via code.setAnnotation / code.removeAnnotation) — its SOURCE text
- * still edits through generic text ops like any text block.
- *
- * @deprecated Removed in P2 when discovery serves component manifests directly.
- */
-export const BLOCK_TYPE_CATEGORY: Record<DocBlockType, BlockCategory> = {
-  paragraph: "text",
-  heading: "text",
-  "list-item": "text",
-  quote: "text",
-  callout: "text",
-  code: "object",
-  divider: "object",
-  "structured-table": "object",
-  "file-tree": "object",
-  "interaction-surface": "object",
-  mermaid: "object",
-  canvas: "object",
-  image: "object",
-  video: "object",
 };
 
 export const LEGACY_ACTION_ORDER: readonly string[] = [
@@ -86,7 +48,7 @@ export function toLegacyDefinition(action: ComponentAction): BlockActionDefiniti
     action: action.action,
     blockType: action.blockType,
     description: action.description,
-    params: deriveParamSpecs(action.params),
+    params: action.params,
     apply(block, params): BlockActionResult {
       const issues = checkParams(action, params);
       if (issues.length > 0) return { ok: false, issues };
