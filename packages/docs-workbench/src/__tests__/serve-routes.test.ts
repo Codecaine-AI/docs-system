@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import { createDocsServeApp } from "../server";
+import { buildBlocksDiscovery } from "@codecaine-ai/docs-model";
 import { collectBundlePaths, walkDocsDir } from "@codecaine-ai/docs-server";
 import { runExport } from "../export";
 
@@ -118,13 +119,13 @@ describe("GET /api/blocks", () => {
     expect(response.status).toBe(200);
     const body = (await response.json()) as {
       schemaVersion: number;
-      genericOps: Array<{ op: string }>;
-      blockTypes: Array<{ type: string; actions: Array<{ action: string }> }>;
+      ops: Array<{ op: string }>;
+      components: Array<{ name: string }>;
     };
-    expect(body.schemaVersion).toBe(1);
-    expect(body.genericOps).toHaveLength(7);
-    const fileTree = body.blockTypes.find((entry) => entry.type === "file-tree");
-    expect(fileTree?.actions.map((action) => action.action)).toContain("file-tree.addEntry");
+    expect(body.schemaVersion).toBe(2);
+    expect(body.ops).toHaveLength(7);
+    expect(body.components).toHaveLength(7);
+    expect(body).toEqual(JSON.parse(JSON.stringify(buildBlocksDiscovery())));
   });
 });
 

@@ -3,8 +3,7 @@ import { join } from "node:path";
 
 import { Elysia, sse, t } from "elysia";
 import type { DocOp } from "@codecaine-ai/docs-model/doc-ops";
-import { DOC_BLOCK_TYPES } from "@codecaine-ai/docs-model/doc-schema";
-import { BLOCK_TYPE_CATEGORY, listBlockActions } from "@codecaine-ai/docs-model";
+import { buildBlocksDiscovery } from "@codecaine-ai/docs-model";
 
 import type { DocsStore } from "./store";
 import { bundleResponse, createContentHash } from "./bundle";
@@ -19,7 +18,7 @@ import type { DocsChangeEvent } from "./docs-events";
  * GET /api/blocks payload — the agent edit-surface discovery document, so
  * agents learn HOW to edit each block type instead of reverse-engineering
  * props JSON. Pure static metadata derived entirely from docs-model exports
- * (kernel op vocabulary in doc-ops.ts + the block-actions registry), computed
+ * (kernel op vocabulary in doc-ops.ts + the component registry), computed
  * once at module load: no doc loading, no per-request work, no auth changes.
  *
  * The viewer's block registry carries richer render-level `agentDescription`
@@ -27,67 +26,7 @@ import type { DocsChangeEvent } from "./docs-events";
  * must not depend on docs-viewer. A future unification can move those prose
  * descriptions into docs-model and surface them from this endpoint.
  */
-const BLOCKS_DISCOVERY = {
-  schemaVersion: 1,
-  // One entry per kernel op — descriptions mirror the DocOp docs in
-  // docs-model doc-ops.ts. Every op applies to every block type.
-  genericOps: [
-    {
-      op: "insertBlock",
-      description:
-        "Insert a new block (fresh, non-colliding blockId) of blockType under parentId at the given child index, with props and optional delta text.",
-      appliesTo: "all",
-    },
-    {
-      op: "updateBlock",
-      description:
-        "Shallow-merge a props patch into a block (a key set to undefined removes that prop) and/or replace its text (null clears); the block id is preserved.",
-      appliesTo: "all",
-    },
-    {
-      op: "deleteBlock",
-      description:
-        'Delete a block — mode "subtree" (default) removes it and all descendants; "reparent" splices its children into its parent at the block\'s former position.',
-      appliesTo: "all",
-    },
-    {
-      op: "moveBlock",
-      description:
-        "Move a block under toParentId at toIndex — the index within the destination children AFTER the block is detached.",
-      appliesTo: "all",
-    },
-    {
-      op: "splitBlock",
-      description:
-        "Split a block's delta text at a character offset in [0, textLength] into two blocks; the new sibling gets a freshly minted id.",
-      appliesTo: "all",
-    },
-    {
-      op: "mergeBlocks",
-      description:
-        "Merge two or more contiguous sibling blocks (in document order) into a single block with a freshly minted id.",
-      appliesTo: "all",
-    },
-    {
-      op: "blockAction",
-      description:
-        "Run a named typed action from the block-actions registry against a structured block; the validated result applies as a shallow-merge updateBlock patch (same inverse/undo path).",
-      appliesTo: "all",
-    },
-  ],
-  // Per block type: its editing category and (for object types) the typed
-  // actions it supports; text types stay on the generic op vocabulary and
-  // report an empty actions array.
-  blockTypes: DOC_BLOCK_TYPES.map((type) => ({
-    type,
-    category: BLOCK_TYPE_CATEGORY[type],
-    actions: listBlockActions(type).map(({ action, description, params }) => ({
-      action,
-      description,
-      params,
-    })),
-  })),
-};
+const BLOCKS_DISCOVERY = buildBlocksDiscovery();
 
 /**
  * `createDocsRoutes(store)` — the full docs read+write HTTP surface as an
@@ -105,7 +44,7 @@ const BLOCKS_DISCOVERY = {
  *   GET  /api/canvas-by-doc?path=&src=      -> doc-relative sidecar read
  *   GET  /api/asset?path=                   -> raw asset bytes
  *   GET  /api/backlinks?target=             -> { target, backlinks }
- *   GET  /api/blocks                        -> { schemaVersion, genericOps, blockTypes } (static edit-surface discovery)
+ *   GET  /api/blocks                        -> { schemaVersion, ops, components } (static edit-surface discovery)
  *   POST /api/ops                           -> { doc, hash, patch_id } | 409/423
  *   GET  /api/comments?path=                -> { comments, hash }
  *   POST /api/comments                      -> 201 { comment, comments, hash } | 409/423

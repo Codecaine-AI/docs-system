@@ -447,6 +447,42 @@ describe("POST /api/assets/video (strict video upload)", () => {
 });
 
 describe("GET /api/blocks (edit-surface discovery)", () => {
+  type BlocksDiscovery = import("@codecaine-ai/docs-model").BlocksDiscovery;
+
+  const OP_NAMES = [
+    "insertBlock",
+    "updateBlock",
+    "deleteBlock",
+    "moveBlock",
+    "splitBlock",
+    "mergeBlocks",
+    "blockAction",
+  ] as const;
+  const COMPONENT_NAMES = [
+    "rich-text",
+    "code",
+    "mermaid",
+    "file-tree",
+    "structured-table",
+    "interaction-surface",
+    "canvas",
+  ] as const;
+  const LEGACY_ACTION_KEYS = [
+    "code.removeAnnotation",
+    "code.setAnnotation",
+    "file-tree.addEntry",
+    "file-tree.removeEntry",
+    "file-tree.updateEntry",
+    "interaction-surface.addOperation",
+    "interaction-surface.removeOperation",
+    "interaction-surface.updateOperation",
+    "structured-table.addColumn",
+    "structured-table.addRow",
+    "structured-table.removeColumn",
+    "structured-table.removeRow",
+    "structured-table.updateCell",
+  ] as const;
+
   let docsRoot: string;
   let app: ReturnType<typeof createDocsRoutes>;
 
@@ -461,110 +497,70 @@ describe("GET /api/blocks (edit-surface discovery)", () => {
 
   async function getBlocks(): Promise<{
     status: number;
-    body: {
-      schemaVersion: number;
-      genericOps: Array<{ op: string; description: string; appliesTo: string }>;
-      blockTypes: Array<{
-        type: string;
-        category: string;
-        actions: Array<{
-          action: string;
-          description: string;
-          params: Array<{ name: string; type: string; required: boolean; description: string }>;
-        }>;
-      }>;
-    };
+    body: BlocksDiscovery;
   }> {
     const response = await app.handle(new Request("http://localhost/api/blocks"));
-    return { status: response.status, body: await response.json() };
+    return { status: response.status, body: (await response.json()) as BlocksDiscovery };
   }
 
-  test("200s with schemaVersion 1 and all 7 generic kernel ops", async () => {
+  test("200s with schemaVersion 2 and all 7 documented kernel ops", async () => {
     const { status, body } = await getBlocks();
     expect(status).toBe(200);
-    expect(body.schemaVersion).toBe(1);
+    expect(body.schemaVersion).toBe(2);
 
-    expect(body.genericOps.map((entry) => entry.op)).toEqual([
-      "insertBlock",
-      "updateBlock",
-      "deleteBlock",
-      "moveBlock",
-      "splitBlock",
-      "mergeBlocks",
-      "blockAction",
-    ]);
-    for (const entry of body.genericOps) {
-      expect(entry.appliesTo).toBe("all");
-      expect(entry.description.length).toBeGreaterThan(0);
+    expect(body.ops.map((entry) => entry.op)).toEqual([...OP_NAMES]);
+    expect(body.ops).toHaveLength(7);
+    for (const entry of body.ops) {
+      expect(entry.description.trim().length).toBeGreaterThan(0);
     }
   });
 
-  test("lists all 14 block types with their text/object categories", async () => {
+  test("lists all components and partitions the 14 canonical block types", async () => {
     const { body } = await getBlocks();
-    expect(body.blockTypes).toHaveLength(14);
-    const categories = Object.fromEntries(body.blockTypes.map((entry) => [entry.type, entry.category]));
-    expect(categories).toEqual({
-      paragraph: "text",
-      heading: "text",
-      "list-item": "text",
-      quote: "text",
-      callout: "text",
-      code: "object",
-      divider: "object",
-      "structured-table": "object",
-      "file-tree": "object",
-      "interaction-surface": "object",
-      mermaid: "object",
-      canvas: "object",
-      image: "object",
-      video: "object",
-    });
-  });
+    const { DOC_BLOCK_TYPES } = await import("@codecaine-ai/docs-model/doc-schema");
 
-  test("file-tree exposes its typed actions, addEntry with full param specs", async () => {
-    const { body } = await getBlocks();
-    const fileTree = body.blockTypes.find((entry) => entry.type === "file-tree");
-    expect(fileTree).toBeDefined();
-    expect(fileTree?.actions.map((action) => action.action)).toEqual([
-      "file-tree.addEntry",
-      "file-tree.removeEntry",
-      "file-tree.updateEntry",
-    ]);
+    expect(body.components).toHaveLength(7);
+    expect(body.components.map((component) => component.name)).toEqual([...COMPONENT_NAMES]);
 
-    const addEntry = fileTree?.actions.find((action) => action.action === "file-tree.addEntry");
-    expect(addEntry?.description.length).toBeGreaterThan(0);
-    expect(addEntry?.params.map(({ name, type, required }) => ({ name, type, required }))).toEqual([
-      { name: "path", type: "string", required: true },
-      { name: "note", type: "string", required: false },
-      { name: "change", type: "string", required: false },
-    ]);
-    for (const param of addEntry?.params ?? []) {
-      expect(param.description.length).toBeGreaterThan(0);
-    }
-  });
-
-  test("text types (and action-less object types) report empty actions", async () => {
-    const { body } = await getBlocks();
-    const actionsByType = Object.fromEntries(
-      body.blockTypes.map((entry) => [entry.type, entry.actions.map((action) => action.action)]),
+    const servedTypes = body.components.flatMap((component) =>
+      component.types.map((entry) => entry.type),
     );
-    // Text-category types stay on the generic op vocabulary.
-    for (const type of ["paragraph", "heading", "list-item", "quote", "callout"]) {
-      expect(actionsByType[type]).toEqual([]);
+    expect(servedTypes).toHaveLength(DOC_BLOCK_TYPES.length);
+    expect(new Set(servedTypes).size).toBe(servedTypes.length);
+    expect([...servedTypes].sort()).toEqual([...DOC_BLOCK_TYPES].sort());
+  });
+
+  test("serves closed state schemas and object parameter schemas", async () => {
+    const { body } = await getBlocks();
+
+    for (const component of body.components) {
+      for (const entry of component.types) {
+        expect(typeof entry.carriesText).toBe("boolean");
+        expect(entry.state).not.toBeNull();
+        expect(typeof entry.state).toBe("object");
+        expect(Array.isArray(entry.state)).toBe(false);
+        expect(entry.state.additionalProperties).toBe(false);
+      }
+      for (const action of component.actions) {
+        expect(action.params.type).toBe("object");
+        expect(action.params.properties).not.toBeNull();
+        expect(typeof action.params.properties).toBe("object");
+        expect(Array.isArray(action.params.properties)).toBe(false);
+      }
     }
-    // Object types without a registry entry (yet) also report none.
-    for (const type of ["divider", "mermaid", "canvas", "image", "video"]) {
-      expect(actionsByType[type]).toEqual([]);
-    }
-    // All 13 registry actions are accounted for across the action-bearing types.
-    const total = body.blockTypes.reduce((sum, entry) => sum + entry.actions.length, 0);
-    expect(total).toBe(13);
-    expect(actionsByType["structured-table"]).toHaveLength(5);
-    expect(actionsByType["interaction-surface"]).toEqual([
-      "interaction-surface.addOperation",
-      "interaction-surface.updateOperation",
-      "interaction-surface.removeOperation",
-    ]);
-    expect(actionsByType.code).toEqual(["code.setAnnotation", "code.removeAnnotation"]);
+
+    const actionKeys = body.components.flatMap((component) =>
+      component.actions.map((action) => action.action),
+    );
+    expect([...actionKeys].sort()).toEqual([...LEGACY_ACTION_KEYS]);
+  });
+
+  test("matches the docs-model discovery builder exactly", async () => {
+    const { body } = await getBlocks();
+    const { buildBlocksDiscovery } = await import("@codecaine-ai/docs-model");
+    const expectedJson = JSON.stringify(buildBlocksDiscovery());
+
+    expect(body).toEqual(JSON.parse(expectedJson));
+    expect(JSON.stringify(body)).toBe(expectedJson);
   });
 });

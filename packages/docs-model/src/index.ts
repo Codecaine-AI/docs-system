@@ -10,6 +10,7 @@
 export * from "./doc-schema";
 export * from "./doc-ops";
 export * from "./components";
+export * from "./discovery";
 export * from "./comments-schema";
 export * from "./delta-markdown";
 export * from "./project-markdown";
