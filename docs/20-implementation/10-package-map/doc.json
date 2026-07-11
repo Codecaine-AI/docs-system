@@ -258,88 +258,25 @@
       },
       "text": [
         {
-          "insert": "typed block actions ("
+          "insert": "component bundles ("
         },
         {
-          "insert": "block-actions.ts",
+          "insert": "components/",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": ") — 13 named actions across "
+          "insert": ") — seven bundles own all 14 block types. Each bundle separates its manifest, state, actions, and agent view; "
         },
         {
-          "insert": "code",
+          "insert": "components/index.ts",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": ",\n  "
-        },
-        {
-          "insert": "structured-table",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "file-tree",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", and "
-        },
-        {
-          "insert": "interaction-surface",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " blocks,\n  invoked through the "
-        },
-        {
-          "insert": "blockAction",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " op; "
-        },
-        {
-          "insert": "BLOCK_TYPE_CATEGORY",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " sorts every\n  type into "
-        },
-        {
-          "insert": "text",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " (generic ops) or "
-        },
-        {
-          "insert": "object",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " (structured props edited via\n  actions);"
+          "insert": " folds those exports into the registry used by validation, discovery, projection, and typed actions."
         }
       ],
       "children": []

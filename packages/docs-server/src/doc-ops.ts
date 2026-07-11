@@ -62,6 +62,7 @@ export async function applyDocOpsToBundle(
   ops: DocOp[],
   expectedHash: string | undefined,
   sessionId?: string,
+  options?: { validateProps?: boolean },
 ): Promise<ApplyDocOpsResult> {
   const jsonAbs = resolveDocBundleJsonPath(docsRoot, path);
   if (!jsonAbs) {
@@ -96,7 +97,7 @@ export async function applyDocOpsToBundle(
       };
     }
 
-    const result = applyOps(loaded.document, ops, () => randomUUID());
+    const result = applyOps(loaded.document, ops, () => randomUUID(), options);
     if (!result.ok) {
       return { ok: false, status: 400, detail: "Doc ops failed to apply", issues: result.issues };
     }

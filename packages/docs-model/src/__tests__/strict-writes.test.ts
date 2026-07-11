@@ -68,6 +68,24 @@ function docWith(type: DocBlockType, props: Record<string, unknown>): DocDocumen
   };
 }
 
+function legacyParagraphDoc(): DocDocument {
+  return {
+    schemaVersion: 1,
+    id: "doc-legacy-paragraph",
+    root: "root",
+    blocks: {
+      root: { id: "root", type: "paragraph", props: {}, children: ["target"] },
+      target: {
+        id: "target",
+        type: "paragraph",
+        props: { legacy: true },
+        text: [{ insert: "hello" }],
+        children: [],
+      },
+    },
+  };
+}
+
 function expectIssuePath(result: ReturnType<typeof applyOp>, path: string): void {
   expect(result.ok).toBe(false);
   if (result.ok) return;
@@ -151,6 +169,26 @@ describe("strict component-state writes", () => {
     ]);
   });
 
+  it("forwards the validation option through blockAction's updateBlock", () => {
+    const original = docWith("file-tree", { entries: [], legacy: true });
+    const op = {
+      type: "blockAction" as const,
+      blockId: "target",
+      action: "file-tree.addEntry",
+      params: { path: "src/index.ts", change: "added" },
+    };
+
+    expectIssuePath(applyOp(original, op), "$.op.props.legacy");
+
+    const exempt = applyOp(original, op, undefined, { validateProps: false });
+    expect(exempt.ok).toBe(true);
+    if (!exempt.ok) return;
+    expect(exempt.doc.blocks.target.props).toEqual({
+      entries: [{ path: "src/index.ts", change: "added" }],
+      legacy: true,
+    });
+  });
+
   it("keeps blockAction parameter failures at $.params.*", () => {
     const result = applyOp(docWith("file-tree", { entries: [] }), {
       type: "blockAction",
@@ -213,5 +251,81 @@ describe("strict component-state writes", () => {
     expect(undone.ok).toBe(true);
     if (!undone.ok) return;
     expect(undone.doc).toEqual(original);
+  });
+
+  describe("legacy props during inverse replay", () => {
+    function expectUndoOnlyExemption(
+      original: DocDocument,
+      forward: ReturnType<typeof applyOps>,
+    ): void {
+      expect(forward.ok).toBe(true);
+      if (!forward.ok) return;
+
+      const restored = applyOps(forward.doc, forward.inverse, undefined, {
+        validateProps: false,
+      });
+      expect(restored.ok).toBe(true);
+      if (restored.ok) expect(restored.doc).toEqual(original);
+
+      const strictReplay = applyOps(forward.doc, forward.inverse);
+      expectIssuePath(strictReplay, "$.op.props.legacy");
+    }
+
+    it("restores a deleted legacy-prop subtree only during exempt inverse replay", () => {
+      const original = legacyParagraphDoc();
+      original.blocks.target.children.push("nested");
+      original.blocks.nested = {
+        id: "nested",
+        type: "paragraph",
+        props: {},
+        text: [{ insert: "child" }],
+        children: [],
+      };
+
+      const forward = applyOps(original, [
+        { type: "deleteBlock", blockId: "target", mode: "subtree" },
+      ]);
+
+      expectUndoOnlyExemption(original, forward);
+    });
+
+    it("restores a split legacy-prop block only during exempt inverse replay", () => {
+      const original = legacyParagraphDoc();
+      const forward = applyOps(
+        original,
+        [{ type: "splitBlock", blockId: "target", offset: 2 }],
+        () => "tail",
+      );
+
+      expectUndoOnlyExemption(original, forward);
+    });
+
+    it("restores merged legacy-prop blocks only during exempt inverse replay", () => {
+      const original = legacyParagraphDoc();
+      original.blocks.root.children.push("second");
+      original.blocks.second = {
+        id: "second",
+        type: "paragraph",
+        props: {},
+        text: [{ insert: "world" }],
+        children: [],
+      };
+      const forward = applyOps(
+        original,
+        [{ type: "mergeBlocks", blockIds: ["target", "second"] }],
+        () => "merged",
+      );
+
+      expectUndoOnlyExemption(original, forward);
+    });
+
+    it("restores a cleaned-up legacy prop only during exempt inverse replay", () => {
+      const original = legacyParagraphDoc();
+      const forward = applyOps(original, [
+        { type: "updateBlock", blockId: "target", props: { legacy: undefined } },
+      ]);
+
+      expectUndoOnlyExemption(original, forward);
+    });
   });
 });

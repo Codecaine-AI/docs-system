@@ -377,6 +377,9 @@
         },
         {
           "insert": ". splitBlock and mergeBlocks are not revalidated because they copy existing props. Reads and loads remain tolerant: structural validation never rejects a document for props content."
+        },
+        {
+          "insert": " Undo replay is exempt from strict props validation because it restores a previously-accepted state."
         }
       ],
       "children": []

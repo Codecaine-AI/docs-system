@@ -20,11 +20,7 @@ Pure TypeScript: no React, no filesystem, no network. Owns:
   `applyOp(doc, op) -> { doc, inverse }` — the returned inverse is what
   powers undo;
 
-- typed block actions (`block-actions.ts`) — 13 named actions across `code`,
-  `structured-table`, `file-tree`, and `interaction-surface` blocks,
-  invoked through the `blockAction` op; `BLOCK_TYPE_CATEGORY` sorts every
-  type into `text` (generic ops) or `object` (structured props edited via
-  actions);
+- component bundles (`components/`) — seven bundles own all 14 block types. Each bundle separates its manifest, state, actions, and agent view; `components/index.ts` folds those exports into the registry used by validation, discovery, projection, and typed actions.
 
 - the comments schema (targets that anchor to blocks or canvas objects);
 

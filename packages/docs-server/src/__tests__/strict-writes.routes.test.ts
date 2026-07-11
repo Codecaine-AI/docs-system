@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
@@ -46,6 +46,16 @@ describe("createDocsRoutes (strict writes, tolerant reads)", () => {
         body: JSON.stringify(body),
       }),
     );
+  }
+
+  function postDecodedJson(path: string, body: unknown): Promise<Response> {
+    const request = new Request(`http://localhost${path}`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: "{}",
+    });
+    Object.defineProperty(request, "json", { value: async () => body });
+    return app.handle(request);
   }
 
   function get(path: string): Promise<Response> {
@@ -106,5 +116,53 @@ describe("createDocsRoutes (strict writes, tolerant reads)", () => {
       src: "./assets/example.canvas.json",
       zoom: 3,
     });
+  });
+
+  test("POST /api/undo restores legacy props removed by an accepted cleanup op", async () => {
+    await mkdir(join(docsRoot, "legacy-guide"), { recursive: true });
+    await writeFile(
+      join(docsRoot, "legacy-guide", "doc.json"),
+      JSON.stringify({
+        schemaVersion: 1,
+        id: "legacy-guide",
+        title: "Legacy guide",
+        root: "root",
+        blocks: {
+          root: { id: "root", type: "paragraph", props: {}, children: ["legacy"] },
+          legacy: {
+            id: "legacy",
+            type: "paragraph",
+            props: { legacy: true },
+            text: [{ insert: "Legacy content" }],
+            children: [],
+          },
+        },
+      }),
+      "utf8",
+    );
+
+    const bundleRes = await get("/api/bundle?path=legacy-guide");
+    expect(bundleRes.status).toBe(200);
+    const { doc_hash } = (await bundleRes.json()) as { doc_hash: string };
+
+    // `undefined` is the model's prop-deletion sentinel but cannot be represented
+    // on the JSON wire, so provide the route the already-decoded request value.
+    const opsRes = await postDecodedJson("/api/ops", {
+      path: "legacy-guide",
+      ops: [{ type: "updateBlock", blockId: "legacy", props: { legacy: undefined } }],
+      expected_hash: doc_hash,
+      session_id: "session-a",
+    });
+    expect(opsRes.status).toBe(200);
+    const { patch_id } = (await opsRes.json()) as { patch_id: string };
+    expect(patch_id).toBeTruthy();
+
+    const undoRes = await postJson("/api/undo", { patch_id });
+    expect(undoRes.status).toBe(200);
+
+    const persisted = JSON.parse(
+      await readFile(join(docsRoot, "legacy-guide", "doc.json"), "utf8"),
+    ) as { blocks: Record<string, { props: Record<string, unknown> }> };
+    expect(persisted.blocks.legacy?.props.legacy).toBe(true);
   });
 });

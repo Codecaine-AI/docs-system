@@ -481,16 +481,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Object-category blocks edit structured props through named actions, not hand-patched JSON. "
-        },
-        {
-          "insert": "BLOCK_TYPE_CATEGORY",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " splits the 14 types into five text types (paragraph, heading, list-item, quote, callout) and nine object types. The registry defines 13 actions across code, structured-table, file-tree, and interaction-surface; text-category types define no actions and stay on the generic ops."
+          "insert": "The 14 block types are owned by seven component bundles under packages/docs-model/src/components/. Each type declares carriesText; five types (paragraph, heading, list-item, quote, and callout) carry text. Component manifests also expose state schemas and named actions, while all types remain available to the seven kernel ops."
         }
       ],
       "children": []
@@ -503,15 +494,15 @@
           {
             "lines": "2",
             "label": "Registry key",
-            "note": "The action key is always <blockType>.<verb>, so the registry can list and resolve actions without inspecting props."
+            "note": "The action key is always <blockType>.<verb>, so the component registry can list and resolve actions without inspecting props."
           },
           {
-            "lines": "5-24",
+            "lines": "5-12",
             "label": "Discovery params",
-            "note": "Params are discovery-only specs for agents and UIs. Runtime validation lives in apply."
+            "note": "Params is the action's TypeBox schema, served verbatim as JSON Schema and used for runtime validation."
           },
           {
-            "lines": "25",
+            "lines": "13",
             "label": "Undo for free",
             "note": "apply returns a shallow-merge props patch. The kernel executes it through updateBlock, so the same merge semantics and inverse op path apply."
           }
@@ -520,7 +511,7 @@
       },
       "text": [
         {
-          "insert": "{\n  \"action\": \"file-tree.addEntry\",\n  \"blockType\": \"file-tree\",\n  \"description\": \"Append a path entry (optional note and change marker) to the file tree.\",\n  \"params\": [\n    {\n      \"name\": \"path\",\n      \"type\": \"string\",\n      \"required\": true,\n      \"description\": \"/-separated path, no leading \\\"./\\\"; a trailing \\\"/\\\" marks an explicit directory.\"\n    },\n    {\n      \"name\": \"note\",\n      \"type\": \"string\",\n      \"required\": false,\n      \"description\": \"Short annotation rendered after the path.\"\n    },\n    {\n      \"name\": \"change\",\n      \"type\": \"string\",\n      \"required\": false,\n      \"description\": \"Change marker: \\\"added\\\" | \\\"removed\\\" | \\\"modified\\\" | \\\"renamed\\\".\"\n    }\n  ],\n  \"apply\": \"(pure function: validates params, returns shallow-merge props patch)\"\n}"
+          "insert": "{\n  \"action\": \"file-tree.addEntry\",\n  \"blockType\": \"file-tree\",\n  \"description\": \"Append a path entry to the file tree.\",\n  \"params\": {\n    \"type\": \"object\",\n    \"properties\": {\n      \"path\": { \"type\": \"string\", \"description\": \"/-separated path; trailing / marks a directory.\" },\n      \"note\": { \"type\": \"string\" }\n    },\n    \"required\": [\"path\"],\n    \"additionalProperties\": false\n  },\n  \"apply\": \"(pure function: validates params, returns shallow-merge props patch)\"\n}"
         }
       ],
       "children": []
@@ -532,25 +523,25 @@
         "annotations": [
           {
             "lines": "1-2",
-            "label": "Static payload",
-            "note": "The discovery document is static metadata derived entirely from docs-model exports."
+            "label": "Discovery v2",
+            "note": "GET /api/blocks serves static metadata derived entirely from component and operation exports."
           },
           {
-            "lines": "3-15",
-            "label": "Seven generic ops",
-            "note": "genericOps lists the seven kernel ops that apply to all block types. The elision marker is a JSON string so the snippet remains parseable."
+            "lines": "3-7",
+            "label": "Seven ops",
+            "note": "ops lists the seven kernel operations with their descriptions."
           },
           {
-            "lines": "18-40",
-            "label": "Learn the edit surface",
-            "note": "Text types report empty actions, while object types list named actions and params so agents learn how to edit each type instead of reverse-engineering props."
+            "lines": "8-29",
+            "label": "Component-owned surface",
+            "note": "Each bundle reports its types, carriesText facts, state schemas, actions, and verbatim JSON Schema params."
           }
         ],
         "language": "json"
       },
       "text": [
         {
-          "insert": "{\n  \"schemaVersion\": 1,\n  \"genericOps\": [\n    {\n      \"op\": \"insertBlock\",\n      \"description\": \"Insert a new block under parentId at index with props and optional delta text.\",\n      \"appliesTo\": \"all\"\n    },\n    {\n      \"op\": \"updateBlock\",\n      \"description\": \"Shallow-merge props and/or replace text; id is preserved.\",\n      \"appliesTo\": \"all\"\n    },\n    \"... 5 more generic ops elided\"\n  ],\n  \"blockTypes\": [\n    {\n      \"type\": \"paragraph\",\n      \"category\": \"text\",\n      \"actions\": []\n    },\n    {\n      \"type\": \"file-tree\",\n      \"category\": \"object\",\n      \"actions\": [\n        {\n          \"action\": \"file-tree.addEntry\",\n          \"description\": \"Append a path entry (optional note and change marker) to the file tree.\",\n          \"params\": [\n            {\n              \"name\": \"path\",\n              \"type\": \"string\",\n              \"required\": true,\n              \"description\": \"/-separated path, no leading \\\"./\\\"; a trailing \\\"/\\\" marks an explicit directory.\"\n            },\n            \"... 2 more params elided\"\n          ]\n        },\n        \"... 2 more file-tree actions elided\"\n      ]\n    },\n    \"... 12 more block types elided\"\n  ]\n}"
+          "insert": "{\n  \"schemaVersion\": 2,\n  \"ops\": [\n    { \"op\": \"insertBlock\", \"description\": \"Insert a new block under a parent.\" },\n    \"... 6 more ops elided\"\n  ],\n  \"components\": [\n    {\n      \"name\": \"prose\",\n      \"description\": \"Text-bearing prose blocks.\",\n      \"types\": [{ \"type\": \"paragraph\", \"carriesText\": true, \"state\": { \"type\": \"object\", \"properties\": {}, \"additionalProperties\": false } }],\n      \"actions\": []\n    },\n    {\n      \"name\": \"file-tree\",\n      \"description\": \"Structured file hierarchy blocks.\",\n      \"types\": [{ \"type\": \"file-tree\", \"carriesText\": false, \"state\": { \"type\": \"object\" } }],\n      \"actions\": [{\n        \"action\": \"file-tree.addEntry\",\n        \"description\": \"Append a path entry to the file tree.\",\n        \"params\": { \"type\": \"object\", \"properties\": { \"path\": { \"type\": \"string\" } }, \"required\": [\"path\"], \"additionalProperties\": false }\n      }]\n    },\n    \"... 5 more components elided\"\n  ]\n}"
         }
       ],
       "children": []

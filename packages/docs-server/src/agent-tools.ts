@@ -389,6 +389,7 @@ export async function undo_patch(docsRoot: string, patchId: string): Promise<Und
       stored.inverse,
       stored.hashAfterApply,
       undefined,
+      { validateProps: false },
     );
     if (!result.ok) {
       return {

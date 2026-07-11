@@ -224,8 +224,16 @@ function insertBlockOpsForSubtree(
  * Rejects (with canvas-schema-style issues) any op that would orphan a block,
  * create a cycle, dangle a child reference, touch the root illegally, or
  * reuse an id. On success returns the new document plus exact inverse op(s).
+ *
+ * Inverse/undo replay uses `validateProps: false` because it restores a
+ * previously accepted state; agent and user writes stay strict by default.
  */
-export function applyOp(doc: DocDocument, op: DocOp, idFactory?: DocIdFactory): DocOpResult {
+export function applyOp(
+  doc: DocDocument,
+  op: DocOp,
+  idFactory?: DocIdFactory,
+  options?: { validateProps?: boolean },
+): DocOpResult {
   switch (op.type) {
     case "insertBlock": {
       if (!isId(op.blockId)) {
@@ -247,8 +255,10 @@ export function applyOp(doc: DocDocument, op: DocOp, idFactory?: DocIdFactory): 
           `insertBlock index ${op.index} is out of range [0, ${parent.children.length}].`,
         );
       }
-      const stateIssues = checkStateProps(op.blockType, op.props);
-      if (stateIssues.length > 0) return { ok: false, issues: stateIssues };
+      if (options?.validateProps !== false) {
+        const stateIssues = checkStateProps(op.blockType, op.props);
+        if (stateIssues.length > 0) return { ok: false, issues: stateIssues };
+      }
       const blocks = { ...doc.blocks };
       const newParent = cloneBlockShallow(parent);
       newParent.children.splice(op.index, 0, op.blockId);
@@ -291,8 +301,10 @@ export function applyOp(doc: DocDocument, op: DocOp, idFactory?: DocIdFactory): 
         inverseText = block.text ? block.text.map((span) => ({ ...span })) : null;
         next.text = op.text === null ? undefined : op.text.map((span) => ({ ...span }));
       }
-      const stateIssues = checkStateProps(next.type, next.props);
-      if (stateIssues.length > 0) return { ok: false, issues: stateIssues };
+      if (options?.validateProps !== false) {
+        const stateIssues = checkStateProps(next.type, next.props);
+        if (stateIssues.length > 0) return { ok: false, issues: stateIssues };
+      }
       const blocks = { ...doc.blocks, [op.blockId]: next };
       const inverse: DocOp = {
         type: "updateBlock",
@@ -570,7 +582,12 @@ export function applyOp(doc: DocDocument, op: DocOp, idFactory?: DocIdFactory): 
       // Execute the action's shallow-merge patch through the existing
       // updateBlock path (never duplicated here) — the inverse comes back as
       // the usual updateBlock inverse.
-      return applyOp(doc, { type: "updateBlock", blockId: op.blockId, props: result.props }, idFactory);
+      return applyOp(
+        doc,
+        { type: "updateBlock", blockId: op.blockId, props: result.props },
+        idFactory,
+        options,
+      );
     }
 
     default: {
@@ -580,11 +597,16 @@ export function applyOp(doc: DocDocument, op: DocOp, idFactory?: DocIdFactory): 
 }
 
 /** Applies ops in order; stops at the first failure. Inverse comes back in REVERSE apply order, ready to run front-to-back as an undo unit. */
-export function applyOps(doc: DocDocument, ops: DocOp[], idFactory?: DocIdFactory): DocOpResult {
+export function applyOps(
+  doc: DocDocument,
+  ops: DocOp[],
+  idFactory?: DocIdFactory,
+  options?: { validateProps?: boolean },
+): DocOpResult {
   let current = doc;
   const inverse: DocOp[] = [];
   for (const op of ops) {
-    const result = applyOp(current, op, idFactory);
+    const result = applyOp(current, op, idFactory, options);
     if (!result.ok) return result;
     current = result.doc;
     inverse.unshift(...result.inverse);

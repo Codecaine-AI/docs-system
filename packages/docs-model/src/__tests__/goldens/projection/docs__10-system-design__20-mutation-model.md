@@ -30,7 +30,7 @@ Every successful apply returns exact inverse ops for the state it actually chang
 
 ## Refusing an apply
 
-A syntactically valid op batch can still be refused before bytes change: hash staleness, a draft lock, or strict props validation. For `insertBlock` and `updateBlock`, applyOp validates the resulting props against the owning component’s closed state schema; `blockAction` reaches the same gate through updateBlock. Nonconforming writes return `{ ok: false, issues }` at `$.op.props.<key>`. splitBlock and mergeBlocks are not revalidated because they copy existing props. Reads and loads remain tolerant: structural validation never rejects a document for props content.
+A syntactically valid op batch can still be refused before bytes change: hash staleness, a draft lock, or strict props validation. For `insertBlock` and `updateBlock`, applyOp validates the resulting props against the owning component’s closed state schema; `blockAction` reaches the same gate through updateBlock. Nonconforming writes return `{ ok: false, issues }` at `$.op.props.<key>`. splitBlock and mergeBlocks are not revalidated because they copy existing props. Reads and loads remain tolerant: structural validation never rejects a document for props content. Undo replay is exempt from strict props validation because it restores a previously-accepted state.
 
 - `expected_hash` — the content hash the change was computed against. If the current content has a different hash, the apply is rejected; over HTTP this is `409`, and nothing is written.
 

@@ -116,89 +116,60 @@ blockAction(blockId: string, action: string, params: object) -> { doc, inverse: 
 
 ## Typed actions as data
 
-Object-category blocks edit structured props through named actions, not hand-patched JSON. `BLOCK_TYPE_CATEGORY` splits the 14 types into five text types (paragraph, heading, list-item, quote, callout) and nine object types. The registry defines 13 actions across code, structured-table, file-tree, and interaction-surface; text-category types define no actions and stay on the generic ops.
+The 14 block types are owned by seven component bundles under packages/docs-model/src/components/. Each type declares carriesText; five types (paragraph, heading, list-item, quote, and callout) carry text. Component manifests also expose state schemas and named actions, while all types remain available to the seven kernel ops.
 
 ```json
 {
   "action": "file-tree.addEntry",
   "blockType": "file-tree",
-  "description": "Append a path entry (optional note and change marker) to the file tree.",
-  "params": [
-    {
-      "name": "path",
-      "type": "string",
-      "required": true,
-      "description": "/-separated path, no leading \"./\"; a trailing \"/\" marks an explicit directory."
+  "description": "Append a path entry to the file tree.",
+  "params": {
+    "type": "object",
+    "properties": {
+      "path": { "type": "string", "description": "/-separated path; trailing / marks a directory." },
+      "note": { "type": "string" }
     },
-    {
-      "name": "note",
-      "type": "string",
-      "required": false,
-      "description": "Short annotation rendered after the path."
-    },
-    {
-      "name": "change",
-      "type": "string",
-      "required": false,
-      "description": "Change marker: \"added\" | \"removed\" | \"modified\" | \"renamed\"."
-    }
-  ],
+    "required": ["path"],
+    "additionalProperties": false
+  },
   "apply": "(pure function: validates params, returns shallow-merge props patch)"
 }
 ```
-> **L2 (Registry key):** The action key is always <blockType>.<verb>, so the registry can list and resolve actions without inspecting props.
-> **L5-24 (Discovery params):** Params are discovery-only specs for agents and UIs. Runtime validation lives in apply.
-> **L25 (Undo for free):** apply returns a shallow-merge props patch. The kernel executes it through updateBlock, so the same merge semantics and inverse op path apply.
+> **L2 (Registry key):** The action key is always <blockType>.<verb>, so the component registry can list and resolve actions without inspecting props.
+> **L5-12 (Discovery params):** Params is the action's TypeBox schema, served verbatim as JSON Schema and used for runtime validation.
+> **L13 (Undo for free):** apply returns a shallow-merge props patch. The kernel executes it through updateBlock, so the same merge semantics and inverse op path apply.
 
 ```json
 {
-  "schemaVersion": 1,
-  "genericOps": [
-    {
-      "op": "insertBlock",
-      "description": "Insert a new block under parentId at index with props and optional delta text.",
-      "appliesTo": "all"
-    },
-    {
-      "op": "updateBlock",
-      "description": "Shallow-merge props and/or replace text; id is preserved.",
-      "appliesTo": "all"
-    },
-    "... 5 more generic ops elided"
+  "schemaVersion": 2,
+  "ops": [
+    { "op": "insertBlock", "description": "Insert a new block under a parent." },
+    "... 6 more ops elided"
   ],
-  "blockTypes": [
+  "components": [
     {
-      "type": "paragraph",
-      "category": "text",
+      "name": "prose",
+      "description": "Text-bearing prose blocks.",
+      "types": [{ "type": "paragraph", "carriesText": true, "state": { "type": "object", "properties": {}, "additionalProperties": false } }],
       "actions": []
     },
     {
-      "type": "file-tree",
-      "category": "object",
-      "actions": [
-        {
-          "action": "file-tree.addEntry",
-          "description": "Append a path entry (optional note and change marker) to the file tree.",
-          "params": [
-            {
-              "name": "path",
-              "type": "string",
-              "required": true,
-              "description": "/-separated path, no leading \"./\"; a trailing \"/\" marks an explicit directory."
-            },
-            "... 2 more params elided"
-          ]
-        },
-        "... 2 more file-tree actions elided"
-      ]
+      "name": "file-tree",
+      "description": "Structured file hierarchy blocks.",
+      "types": [{ "type": "file-tree", "carriesText": false, "state": { "type": "object" } }],
+      "actions": [{
+        "action": "file-tree.addEntry",
+        "description": "Append a path entry to the file tree.",
+        "params": { "type": "object", "properties": { "path": { "type": "string" } }, "required": ["path"], "additionalProperties": false }
+      }]
     },
-    "... 12 more block types elided"
+    "... 5 more components elided"
   ]
 }
 ```
-> **L1-2 (Static payload):** The discovery document is static metadata derived entirely from docs-model exports.
-> **L3-15 (Seven generic ops):** genericOps lists the seven kernel ops that apply to all block types. The elision marker is a JSON string so the snippet remains parseable.
-> **L18-40 (Learn the edit surface):** Text types report empty actions, while object types list named actions and params so agents learn how to edit each type instead of reverse-engineering props.
+> **L1-2 (Discovery v2):** GET /api/blocks serves static metadata derived entirely from component and operation exports.
+> **L3-7 (Seven ops):** ops lists the seven kernel operations with their descriptions.
+> **L8-29 (Component-owned surface):** Each bundle reports its types, carriesText facts, state schemas, actions, and verbatim JSON Schema params.
 
 ## What each shape becomes in markdown
 
