@@ -229,7 +229,7 @@
           }
         },
         {
-          "insert": " in docs-model's "
+          "insert": " in docs-model’s "
         },
         {
           "insert": "doc-schema.ts",
@@ -238,52 +238,34 @@
           }
         },
         {
-          "insert": " (declared in three groups: core text & structure, structured/engineering, diagram & media). Each type also carries an "
+          "insert": ". Seven component bundles in "
         },
         {
-          "insert": "editing category",
-          "attributes": {
-            "italic": true
-          }
-        },
-        {
-          "insert": " from "
-        },
-        {
-          "insert": "BLOCK_TYPE_CATEGORY",
+          "insert": "components/<name>/",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " in "
+          "insert": " own those 14 types exactly once: rich-text owns the eight text-flow types, while code, mermaid, file-tree, structured-table, interaction-surface, and canvas each own their namesake. Every bundle supplies a manifest, closed TypeBox state schemas with a per-type "
         },
         {
-          "insert": "block-actions.ts",
+          "insert": "carriesText",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": ": "
+          "insert": " fact, one file per action verb, and an "
         },
         {
-          "insert": "text",
+          "insert": "agent-view.ts",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " types edit through the generic op kernel; "
-        },
-        {
-          "insert": "object",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " types keep structured props and (where defined) edit them through named actions."
+          "insert": " markdown projection."
         }
       ],
       "children": []
@@ -294,79 +276,79 @@
       "props": {
         "columns": [
           "type",
-          "category",
+          "component",
           "purpose"
         ],
         "density": "compact",
         "rows": [
           [
             "paragraph",
-            "text",
+            "rich-text",
             "Rich text prose (delta spans); the default block."
           ],
           [
             "heading",
-            "text",
+            "rich-text",
             "Section heading; props.level picks h1-h6 (default 2)."
           ],
           [
             "list-item",
-            "text",
+            "rich-text",
             "Bullet (or ordered) item; nesting via child list-item blocks."
           ],
           [
             "quote",
-            "text",
+            "rich-text",
             "A block quote of rich text."
           ],
           [
             "code",
-            "object",
+            "code",
             "Source code in text; props.language plus optional props.annotations side notes."
           ],
           [
             "callout",
-            "text",
+            "rich-text",
             "Highlighted note; props.tone colors it, free-form props.kind labels the chip."
           ],
           [
             "divider",
-            "object",
+            "rich-text",
             "A horizontal rule separating sections."
           ],
           [
             "structured-table",
-            "object",
+            "structured-table",
             "Typed table from props.columns (string[]) and props.rows (string[][])."
           ],
           [
             "file-tree",
-            "object",
+            "file-tree",
             "Rendered tree of props.entries: { path, note?, change?, from? }."
           ],
           [
             "interaction-surface",
-            "object",
+            "interaction-surface",
             "Operation signatures ({ name, description?, params?, returns?, kind? }) describing how a system is changed or queried."
           ],
           [
             "mermaid",
-            "object",
+            "mermaid",
             "Mermaid diagram; the source lives in the block's text."
           ],
           [
             "canvas",
-            "object",
+            "canvas",
             "Embedded interactive canvas; props.canvasId (or legacy src) plus an optional view crop."
           ],
           [
             "image",
-            "object",
+            "rich-text",
             "Image from the bundle's assets/images/; props: src, alt, caption."
           ],
           [
             "video",
-            "object",
+            "rich-text",
             "Bundle video (src) or external URL (url); YouTube/Vimeo/Loom embed privacy-friendly players."
           ]
         ],
@@ -380,7 +362,7 @@
       "props": {},
       "text": [
         {
-          "insert": "One nuance: "
+          "insert": "One nuance: the "
         },
         {
           "insert": "code",
@@ -389,7 +371,7 @@
           }
         },
         {
-          "insert": " counts as an object type because of its structured "
+          "insert": " component keeps structured "
         },
         {
           "insert": "annotations",
@@ -398,16 +380,7 @@
           }
         },
         {
-          "insert": " prop — but its "
-        },
-        {
-          "insert": "source",
-          "attributes": {
-            "italic": true
-          }
-        },
-        {
-          "insert": " still edits through generic text ops like any text block."
+          "insert": " in props, while its source carries text and still edits through generic text ops."
         }
       ],
       "children": []
@@ -573,7 +546,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Object types with structured props carry "
+          "insert": "Four component bundles expose "
         },
         {
           "insert": "typed actions",
@@ -582,16 +555,16 @@
           }
         },
         {
-          "insert": " ("
+          "insert": " from "
         },
         {
-          "insert": "block-actions.ts",
+          "insert": "components/<name>/actions/<verb>.ts",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": ") instead of hand-edited props JSON: a "
+          "insert": ": a "
         },
         {
           "insert": "blockAction",
@@ -600,16 +573,7 @@
           }
         },
         {
-          "insert": " op names an action ("
-        },
-        {
-          "insert": "\"<blockType>.<verb>\"",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "), the action validates its own params and returns a shallow-merge props patch, and the kernel executes that patch through the existing "
+          "insert": " names an action, the dispatcher validates its TypeBox params before apply, and the action returns a props patch executed through "
         },
         {
           "insert": "updateBlock",
@@ -618,7 +582,25 @@
           }
         },
         {
-          "insert": " path — same merge semantics, same undo inverse. There are 13 actions across four types: code (2), structured-table (5), file-tree (3), interaction-surface (3). "
+          "insert": ". Rejections stay at "
+        },
+        {
+          "insert": "$.params.<name>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "; unknown extra params are ignored. The 13 actions are unchanged: code (2), structured-table (5), file-tree (3), interaction-surface (3). "
+        },
+        {
+          "insert": "ALL_COMPONENTS",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " folds into the type and action registries, with module-load checks for exact type ownership, action-key grammar, and closed state schemas. "
         },
         {
           "insert": "GET /api/blocks",
@@ -627,16 +609,16 @@
           }
         },
         {
-          "insert": " is the discovery endpoint: it returns "
+          "insert": " serves "
         },
         {
-          "insert": "{ schemaVersion, genericOps, blockTypes }",
+          "insert": "{ schemaVersion: 2, ops, components }",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " with each type's category and actions, so agents learn how to edit each block type instead of reverse-engineering props. The four surfaces below mirror that registry, one per object type:"
+          "insert": ": kernel-op descriptions plus component manifests, per-type carriesText and state schemas, and action descriptions and params schemas, with TypeBox schemas served verbatim as JSON Schema. The four surfaces below show the bundles that define actions:"
         }
       ],
       "children": []
@@ -1169,8 +1151,8 @@
             "note": "the 14-type vocabulary + coercion"
           },
           {
-            "path": "packages/docs-model/src/block-actions.ts",
-            "note": "the 13 typed actions"
+            "path": "packages/docs-model/src/components/",
+            "note": "the seven component bundles + folded registries"
           },
           {
             "path": "packages/docs-model/src/doc-ops.ts",

@@ -1,12 +1,12 @@
 # The mutation model: ops, inverses, undo
 
-Every document change is one of seven ops. Six are generic structural/text mutations; the seventh, `blockAction`, is the typed-action bridge for object blocks. A successful apply always yields exact inverse ops, so undo is just another apply in the opposite direction.
+Every document change is one of seven ops. Six are generic structural/text mutations; the seventh, `blockAction`, is the typed-action bridge for component-owned actions. A successful apply always yields exact inverse ops, so undo is just another apply in the opposite direction.
 
 The model is transport-agnostic: it defines the algebra, invariants, inverses, and refusal rules, not the UI or file write path. For the exact op surface, read the data model — doc.json shapes. For concrete wiring, read the save pipeline — how bytes reach disk.
 
 ## The op algebra
 
-The algebra is small on purpose. `insertBlock`, `updateBlock`, `deleteBlock`, `moveBlock`, `splitBlock`, and `mergeBlocks` cover document structure and rich text. `blockAction` is the seventh op: it names a typed action, validates action params, and expands to the same `updateBlock` semantics as any other props patch.
+The six generic ops cover document structure and rich text. `blockAction` is the seventh: it names a component-owned action, whose TypeBox params the dispatcher validates before apply, then expands to `updateBlock` semantics. Param issues use `$.params.<name>`, and unknown extra params remain tolerated.
 
 **Seven mutation ops**
 
@@ -18,7 +18,7 @@ The algebra is small on purpose. `insertBlock`, `updateBlock`, `deleteBlock`, `m
 | moveBlock | Detaches a block and inserts it under another parent, rejecting moves that would create cycles. |
 | splitBlock | Splits one text-bearing block into two sibling blocks; the new sibling gets a fresh id. |
 | mergeBlocks | Combines contiguous siblings into one fresh block. |
-| blockAction | Runs a typed action for a structured object block and applies its validated result as an updateBlock patch. |
+| blockAction | Runs a component-owned typed action and applies its validated result as an updateBlock patch. |
 
 `updateBlock` is a shallow patch, not a replacement object. `props` keys merge one level deep; a key set to `undefined` removes that prop; `text` replaces the block's rich-text array wholesale when present. The block id is preserved, which keeps comment and backlink anchors stable through ordinary edits.
 
@@ -30,7 +30,7 @@ Every successful apply returns exact inverse ops for the state it actually chang
 
 ## Refusing an apply
 
-A syntactically valid op batch still has two refusal gates. Both fail before bytes are changed, so either the whole batch applies or none of it does.
+A syntactically valid op batch can still be refused before bytes change: hash staleness, a draft lock, or strict props validation. For `insertBlock` and `updateBlock`, applyOp validates the resulting props against the owning component’s closed state schema; `blockAction` reaches the same gate through updateBlock. Nonconforming writes return `{ ok: false, issues }` at `$.op.props.<key>`. splitBlock and mergeBlocks are not revalidated because they copy existing props. Reads and loads remain tolerant: structural validation never rejects a document for props content.
 
 - `expected_hash` — the content hash the change was computed against. If the current content has a different hash, the apply is rejected; over HTTP this is `409`, and nothing is written.
 
@@ -38,7 +38,7 @@ A syntactically valid op batch still has two refusal gates. Both fail before byt
 
 ## Typed block actions (the seventh op)
 
-Structured object blocks — code annotations, `structured-table`, `file-tree`, `interaction-surface` — are edited through named actions instead of hand-built props JSON. A `blockAction` op carries an action name plus params; the action registry validates the params and expands the action into an ordinary `updateBlock` props patch. That means inverse ops, the undo ledger, and change events all work through the same mutation path as generic edits. Agents discover the whole edit surface (the generic ops plus every action's param specs) from `GET /api/blocks`. Two of the thirteen, as signatures:
+The code, structured-table, file-tree, and interaction-surface bundles expose 13 named actions for structured collections. A `blockAction` carries an action name plus params; the folded registry validates the TypeBox params before expanding it into an `updateBlock` props patch. Inverses, undo, strict resulting-props validation, and events stay on the same path. Discovery v2 at `GET /api/blocks` serves ops and component bundles, with state and params schemas verbatim as JSON Schema. Two of the thirteen, as signatures:
 
 **blockAction examples (2 of 13)**
 
@@ -57,7 +57,7 @@ Auto-apply of incoming change events is held while a consumer has an unsaved or 
 
 ## Discovery
 
-`GET /api/blocks` exposes the complete edit surface: the seven generic ops plus each block type's named actions, param specs, and descriptions. Agents use it as the contract for writing, so they do not infer structured props from rendered markdown or hand-edit arbitrary JSON.
+`GET /api/blocks` exposes `{ schemaVersion: 2, ops, components }`. Ops carry kernel descriptions. Each component has name, description, types, and actions; types contain `{ type, carriesText, state }`, and actions contain `{ action, description, params }`. TypeBox state and params schemas are served verbatim as JSON Schema. There is no text/object category.
 
 ---
 

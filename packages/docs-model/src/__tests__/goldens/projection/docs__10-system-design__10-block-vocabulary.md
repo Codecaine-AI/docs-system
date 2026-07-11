@@ -10,28 +10,28 @@ This document dogfoods the vocabulary it documents: the table below is a `struct
 
 ## The 14 block types
 
-The source of truth is `DOC_BLOCK_TYPES` in docs-model's `doc-schema.ts` (declared in three groups: core text & structure, structured/engineering, diagram & media). Each type also carries an *editing category* from `BLOCK_TYPE_CATEGORY` in `block-actions.ts`: `text` types edit through the generic op kernel; `object` types keep structured props and (where defined) edit them through named actions.
+The source of truth is `DOC_BLOCK_TYPES` in docs-model’s `doc-schema.ts`. Seven component bundles in `components/<name>/` own those 14 types exactly once: rich-text owns the eight text-flow types, while code, mermaid, file-tree, structured-table, interaction-surface, and canvas each own their namesake. Every bundle supplies a manifest, closed TypeBox state schemas with a per-type `carriesText` fact, one file per action verb, and an `agent-view.ts` markdown projection.
 
 **The 14 block types**
 
-| type | category | purpose |
+| type | component | purpose |
 | --- | --- | --- |
-| paragraph | text | Rich text prose (delta spans); the default block. |
-| heading | text | Section heading; props.level picks h1-h6 (default 2). |
-| list-item | text | Bullet (or ordered) item; nesting via child list-item blocks. |
-| quote | text | A block quote of rich text. |
-| code | object | Source code in text; props.language plus optional props.annotations side notes. |
-| callout | text | Highlighted note; props.tone colors it, free-form props.kind labels the chip. |
-| divider | object | A horizontal rule separating sections. |
-| structured-table | object | Typed table from props.columns (string[]) and props.rows (string[][]). |
-| file-tree | object | Rendered tree of props.entries: { path, note?, change?, from? }. |
-| interaction-surface | object | Operation signatures ({ name, description?, params?, returns?, kind? }) describing how a system is changed or queried. |
-| mermaid | object | Mermaid diagram; the source lives in the block's text. |
-| canvas | object | Embedded interactive canvas; props.canvasId (or legacy src) plus an optional view crop. |
-| image | object | Image from the bundle's assets/images/; props: src, alt, caption. |
-| video | object | Bundle video (src) or external URL (url); YouTube/Vimeo/Loom embed privacy-friendly players. |
+| paragraph | rich-text | Rich text prose (delta spans); the default block. |
+| heading | rich-text | Section heading; props.level picks h1-h6 (default 2). |
+| list-item | rich-text | Bullet (or ordered) item; nesting via child list-item blocks. |
+| quote | rich-text | A block quote of rich text. |
+| code | code | Source code in text; props.language plus optional props.annotations side notes. |
+| callout | rich-text | Highlighted note; props.tone colors it, free-form props.kind labels the chip. |
+| divider | rich-text | A horizontal rule separating sections. |
+| structured-table | structured-table | Typed table from props.columns (string[]) and props.rows (string[][]). |
+| file-tree | file-tree | Rendered tree of props.entries: { path, note?, change?, from? }. |
+| interaction-surface | interaction-surface | Operation signatures ({ name, description?, params?, returns?, kind? }) describing how a system is changed or queried. |
+| mermaid | mermaid | Mermaid diagram; the source lives in the block's text. |
+| canvas | canvas | Embedded interactive canvas; props.canvasId (or legacy src) plus an optional view crop. |
+| image | rich-text | Image from the bundle's assets/images/; props: src, alt, caption. |
+| video | rich-text | Bundle video (src) or external URL (url); YouTube/Vimeo/Loom embed privacy-friendly players. |
 
-One nuance: `code` counts as an object type because of its structured `annotations` prop — but its *source* still edits through generic text ops like any text block.
+One nuance: the `code` component keeps structured `annotations` in props, while its source carries text and still edits through generic text ops.
 
 ## The edit model
 
@@ -43,7 +43,7 @@ Everything is an op. The kernel (`doc-ops.ts`) speaks **seven ops**: six generic
 >   kernel -->|"doc + fresh hash"| agent
 >   kernel -->|"SSE change event"| watchers["GET /api/events"]
 
-Object types with structured props carry **typed actions** (`block-actions.ts`) instead of hand-edited props JSON: a `blockAction` op names an action (`"<blockType>.<verb>"`), the action validates its own params and returns a shallow-merge props patch, and the kernel executes that patch through the existing `updateBlock` path — same merge semantics, same undo inverse. There are 13 actions across four types: code (2), structured-table (5), file-tree (3), interaction-surface (3). `GET /api/blocks` is the discovery endpoint: it returns `{ schemaVersion, genericOps, blockTypes }` with each type's category and actions, so agents learn how to edit each block type instead of reverse-engineering props. The four surfaces below mirror that registry, one per object type:
+Four component bundles expose **typed actions** from `components/<name>/actions/<verb>.ts`: a `blockAction` names an action, the dispatcher validates its TypeBox params before apply, and the action returns a props patch executed through `updateBlock`. Rejections stay at `$.params.<name>`; unknown extra params are ignored. The 13 actions are unchanged: code (2), structured-table (5), file-tree (3), interaction-surface (3). `ALL_COMPONENTS` folds into the type and action registries, with module-load checks for exact type ownership, action-key grammar, and closed state schemas. `GET /api/blocks` serves `{ schemaVersion: 2, ops, components }`: kernel-op descriptions plus component manifests, per-type carriesText and state schemas, and action descriptions and params schemas, with TypeBox schemas served verbatim as JSON Schema. The four surfaces below show the bundles that define actions:
 
 ### code
 
@@ -123,7 +123,7 @@ And the same block type rendered, not quoted — a slice of this repo with a not
   packages/
   ├── docs-model/
   │   └── src/
-  │       ├── block-actions.ts  # the 13 typed actions
+  │       ├── components/  # the seven component bundles + folded registries
   │       ├── doc-ops.ts  # the 7-op kernel + inverses
   │       ├── doc-schema.ts  # the 14-type vocabulary + coercion
   │       └── project-markdown.ts  # the markdown projection

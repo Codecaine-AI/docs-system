@@ -64,7 +64,7 @@
           }
         },
         {
-          "insert": ", is the typed-action bridge for object blocks. A successful apply always yields exact inverse ops, so undo is just another apply in the opposite direction."
+          "insert": ", is the typed-action bridge for component-owned actions. A successful apply always yields exact inverse ops, so undo is just another apply in the opposite direction."
         }
       ],
       "children": []
@@ -125,61 +125,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The algebra is small on purpose. "
-        },
-        {
-          "insert": "insertBlock",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "updateBlock",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "deleteBlock",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "moveBlock",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "splitBlock",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", and "
-        },
-        {
-          "insert": "mergeBlocks",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " cover document structure and rich text. "
+          "insert": "The six generic ops cover document structure and rich text. "
         },
         {
           "insert": "blockAction",
@@ -188,7 +134,7 @@
           }
         },
         {
-          "insert": " is the seventh op: it names a typed action, validates action params, and expands to the same "
+          "insert": " is the seventh: it names a component-owned action, whose TypeBox params the dispatcher validates before apply, then expands to "
         },
         {
           "insert": "updateBlock",
@@ -197,7 +143,16 @@
           }
         },
         {
-          "insert": " semantics as any other props patch."
+          "insert": " semantics. Param issues use "
+        },
+        {
+          "insert": "$.params.<name>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and unknown extra params remain tolerated."
         }
       ],
       "children": []
@@ -238,7 +193,7 @@
           ],
           [
             "blockAction",
-            "Runs a typed action for a structured object block and applies its validated result as an updateBlock patch."
+            "Runs a component-owned typed action and applies its validated result as an updateBlock patch."
           ]
         ],
         "title": "Seven mutation ops"
@@ -376,7 +331,52 @@
       "props": {},
       "text": [
         {
-          "insert": "A syntactically valid op batch still has two refusal gates. Both fail before bytes are changed, so either the whole batch applies or none of it does."
+          "insert": "A syntactically valid op batch can still be refused before bytes change: hash staleness, a draft lock, or strict props validation. For "
+        },
+        {
+          "insert": "insertBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", applyOp validates the resulting props against the owning component’s closed state schema; "
+        },
+        {
+          "insert": "blockAction",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " reaches the same gate through updateBlock. Nonconforming writes return "
+        },
+        {
+          "insert": "{ ok: false, issues }",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " at "
+        },
+        {
+          "insert": "$.op.props.<key>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". splitBlock and mergeBlocks are not revalidated because they copy existing props. Reads and loads remain tolerant: structural validation never rejects a document for props content."
         }
       ],
       "children": []
@@ -450,34 +450,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Structured object blocks — code annotations, "
-        },
-        {
-          "insert": "structured-table",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "file-tree",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "interaction-surface",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " — are edited through named actions instead of hand-built props JSON. A "
+          "insert": "The code, structured-table, file-tree, and interaction-surface bundles expose 13 named actions for structured collections. A "
         },
         {
           "insert": "blockAction",
@@ -486,7 +459,7 @@
           }
         },
         {
-          "insert": " op carries an action name plus params; the action registry validates the params and expands the action into an ordinary "
+          "insert": " carries an action name plus params; the folded registry validates the TypeBox params before expanding it into an "
         },
         {
           "insert": "updateBlock",
@@ -495,7 +468,7 @@
           }
         },
         {
-          "insert": " props patch. That means inverse ops, the undo ledger, and change events all work through the same mutation path as generic edits. Agents discover the whole edit surface (the generic ops plus every action's param specs) from "
+          "insert": " props patch. Inverses, undo, strict resulting-props validation, and events stay on the same path. Discovery v2 at "
         },
         {
           "insert": "GET /api/blocks",
@@ -504,7 +477,7 @@
           }
         },
         {
-          "insert": ". Two of the thirteen, as signatures:"
+          "insert": " serves ops and component bundles, with state and params schemas verbatim as JSON Schema. Two of the thirteen, as signatures:"
         }
       ],
       "children": []
@@ -665,7 +638,34 @@
           }
         },
         {
-          "insert": " exposes the complete edit surface: the seven generic ops plus each block type's named actions, param specs, and descriptions. Agents use it as the contract for writing, so they do not infer structured props from rendered markdown or hand-edit arbitrary JSON."
+          "insert": " exposes "
+        },
+        {
+          "insert": "{ schemaVersion: 2, ops, components }",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Ops carry kernel descriptions. Each component has name, description, types, and actions; types contain "
+        },
+        {
+          "insert": "{ type, carriesText, state }",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and actions contain "
+        },
+        {
+          "insert": "{ action, description, params }",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". TypeBox state and params schemas are served verbatim as JSON Schema. There is no text/object category."
         }
       ],
       "children": []
