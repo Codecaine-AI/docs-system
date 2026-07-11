@@ -12,7 +12,12 @@ import {
 } from "../index";
 import type { ComponentAction, ComponentBundle } from "../types";
 
-const LEGACY_ACTION_KEYS = [
+const ACTION_KEYS = [
+  "canvas.addAnnotation",
+  "canvas.addConnection",
+  "canvas.addObject",
+  "canvas.fitContainerToChildren",
+  "canvas.updateObject",
   "code.removeAnnotation",
   "code.setAnnotation",
   "file-tree.addEntry",
@@ -83,8 +88,8 @@ describe("component registry", () => {
     }
   });
 
-  it("registers exactly the 13 legacy action keys", () => {
-    expect([...ACTION_REGISTRY.keys()].sort()).toEqual([...LEGACY_ACTION_KEYS]);
+  it("registers the 13 legacy and 5 canvas action keys", () => {
+    expect([...ACTION_REGISTRY.keys()].sort()).toEqual([...ACTION_KEYS]);
   });
 
   it("reports block types left unowned by a missing bundle", () => {

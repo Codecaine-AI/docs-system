@@ -17,6 +17,7 @@
     "./fixtures/sample.doc.json": "./src/__fixtures__/sample.doc.json"
   },
   "dependencies": {
+    "@codecaine-ai/canvas": "workspace:*",
     "@sinclair/typebox": "^0.34"
   },
   "devDependencies": {

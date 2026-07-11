@@ -199,6 +199,30 @@ describe("strict component-state writes", () => {
     expectIssuePath(result, "$.params.path");
   });
 
+  it("refuses to apply a forwarded canvas action as a doc op", () => {
+    const result = applyOp(docWith("canvas", { canvasId: "canvas-main" }), {
+      type: "blockAction",
+      blockId: "target",
+      action: "canvas.addObject",
+      params: {
+        object: {
+          id: "agent-draft",
+          type: "process",
+          label: "Draft response",
+          geometry: { x: 440, y: 176, width: 192, height: 88 },
+        },
+      },
+    });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.issues).toContainEqual({
+      path: "$.op.action",
+      message:
+        'Action "canvas.addObject" is handled by the canvas authority and cannot be applied as a doc op.',
+    });
+  });
+
   it("rejects a text-only update when the existing props are nonconforming", () => {
     const result = applyOp(docWith("heading", { level: 1, legacy: true }), {
       type: "updateBlock",

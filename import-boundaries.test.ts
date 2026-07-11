@@ -81,4 +81,16 @@ describe("import boundaries", () => {
     }
     expect(violations).toEqual([]);
   });
+
+  test("docs-model imports canvas only through the agent-schema leaf", () => {
+    const violations: string[] = [];
+    for (const file of walk(join(repoRoot, "packages/docs-model/src"))) {
+      for (const spec of importSpecifiers(readFileSync(file, "utf8"))) {
+        if (spec.startsWith("@codecaine-ai/canvas") && spec !== "@codecaine-ai/canvas/agent-schema") {
+          violations.push(`${file.slice(repoRoot.length + 1)} -> ${spec}`);
+        }
+      }
+    }
+    expect(violations).toEqual([]);
+  });
 });

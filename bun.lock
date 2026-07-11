@@ -18,6 +18,7 @@
       "name": "@codecaine-ai/canvas",
       "version": "0.1.0",
       "dependencies": {
+        "@sinclair/typebox": "^0.34",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
         "lucide-react": "^0.563.0",
@@ -94,6 +95,7 @@
       "name": "@codecaine-ai/docs-model",
       "version": "0.1.0",
       "dependencies": {
+        "@codecaine-ai/canvas": "workspace:*",
         "@sinclair/typebox": "^0.34",
       },
       "devDependencies": {

@@ -26,7 +26,12 @@ const CARRIES_TEXT = {
   canvas: false,
 } as const;
 
-const LEGACY_ACTION_KEYS = [
+const ACTION_KEYS = [
+  "canvas.addAnnotation",
+  "canvas.addConnection",
+  "canvas.addObject",
+  "canvas.fitContainerToChildren",
+  "canvas.updateObject",
   "code.removeAnnotation",
   "code.setAnnotation",
   "file-tree.addEntry",
@@ -95,7 +100,7 @@ describe("buildBlocksDiscovery", () => {
     );
 
     expect(servedActions.map((entry) => entry.action).sort()).toEqual([
-      ...LEGACY_ACTION_KEYS,
+      ...ACTION_KEYS,
     ]);
     for (const served of servedActions) {
       const registered = ACTION_REGISTRY.get(served.action);
@@ -103,6 +108,20 @@ describe("buildBlocksDiscovery", () => {
       expect(registered, served.action).toBeDefined();
       expect(served.params, served.action).toBe(registered!.params);
     }
+  });
+
+  it("serves the five canvas actions in lifted descriptor order", () => {
+    const canvas = buildBlocksDiscovery().components.find(
+      (component) => component.name === "canvas",
+    );
+
+    expect(canvas?.actions.map((entry) => entry.action)).toEqual([
+      "canvas.addObject",
+      "canvas.updateObject",
+      "canvas.addConnection",
+      "canvas.addAnnotation",
+      "canvas.fitContainerToChildren",
+    ]);
   });
 
   it("publishes all seven documented kernel operations", () => {

@@ -467,7 +467,12 @@ describe("GET /api/blocks (edit-surface discovery)", () => {
     "interaction-surface",
     "canvas",
   ] as const;
-  const LEGACY_ACTION_KEYS = [
+  const ACTION_KEYS = [
+    "canvas.addAnnotation",
+    "canvas.addConnection",
+    "canvas.addObject",
+    "canvas.fitContainerToChildren",
+    "canvas.updateObject",
     "code.removeAnnotation",
     "code.setAnnotation",
     "file-tree.addEntry",
@@ -552,7 +557,7 @@ describe("GET /api/blocks (edit-surface discovery)", () => {
     const actionKeys = body.components.flatMap((component) =>
       component.actions.map((action) => action.action),
     );
-    expect([...actionKeys].sort()).toEqual([...LEGACY_ACTION_KEYS]);
+    expect([...actionKeys].sort()).toEqual([...ACTION_KEYS]);
   });
 
   test("matches the docs-model discovery builder exactly", async () => {
