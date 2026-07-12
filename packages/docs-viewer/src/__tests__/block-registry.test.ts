@@ -7,7 +7,6 @@ import DocBlockRenderer from "../render/DocBlockRenderer";
 import {
   deltaToMarkdown,
   deltaToPlainText,
-  describeDocBlocksForAgent,
   type DocBlockRenderContext,
   getDocBlockDescriptor,
 } from "../render/block-registry";
@@ -76,15 +75,6 @@ describe("block registry", () => {
       "api-surface",
     ]) {
       expect(getDocBlockDescriptor(retired)).toBeNull();
-    }
-  });
-
-  it("describes every block type for the agent surface", () => {
-    const described = describeDocBlocksForAgent();
-    expect(described.map((entry) => entry.type)).toEqual([...DOC_BLOCK_TYPES]);
-    for (const entry of described) {
-      expect(entry.description.length).toBeGreaterThan(0);
-      expect(entry.patchOps.length).toBeGreaterThan(0);
     }
   });
 

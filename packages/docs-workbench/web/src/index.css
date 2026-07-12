@@ -178,7 +178,7 @@
 /*
  * Syntax highlighting — theme-token colors over hljs classes, emitted by BOTH
  * rehype-highlight (markdown-projected fenced code) and docs-viewer's
- * docs-blocks/code/highlight.ts (the read surface's `code` block + annotated
+ * components/code/highlight.ts (the read surface's `code` block + annotated
  * code). The --syntax-* vars are defined per theme (light/dark/figjam) in
  * spectre-theme.css, so dark mode needs no extra rules here.
  */

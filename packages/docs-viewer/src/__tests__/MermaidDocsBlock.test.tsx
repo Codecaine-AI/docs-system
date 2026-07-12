@@ -3,8 +3,8 @@ import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import {
   MermaidDocsBlock,
   type MermaidData,
-} from "../docs-blocks/mermaid/MermaidDocsBlock";
-import type { DocsMdxParsedBlock } from "../docs-blocks/base";
+} from "../components/mermaid/MermaidDocsBlock";
+import type { DocsMdxParsedBlock } from "../components/base";
 
 /**
  * The real `mermaid` package is heavy and layout-dependent — happy-dom cannot

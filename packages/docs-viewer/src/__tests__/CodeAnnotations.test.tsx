@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from "bun:test";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { AnnotatedCodeBlock } from "../docs-blocks/code/CodeAnnotations";
+import { AnnotatedCodeBlock } from "../components/code/CodeAnnotations";
 
 afterEach(() => {
   cleanup();

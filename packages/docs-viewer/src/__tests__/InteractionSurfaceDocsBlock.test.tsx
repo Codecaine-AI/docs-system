@@ -4,7 +4,7 @@ import {
   INTERACTION_SURFACE_AGENT_DESCRIPTION,
   INTERACTION_SURFACE_LABEL,
   InteractionSurfaceBlock,
-} from "../docs-blocks/interaction-surface/InteractionSurfaceDocsBlock";
+} from "../components/interaction-surface/InteractionSurfaceDocsBlock";
 
 afterEach(() => {
   cleanup();

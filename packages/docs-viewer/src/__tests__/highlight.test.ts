@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { highlightCode, prettyPrintIfJson } from "../docs-blocks/code/highlight";
+import { highlightCode, prettyPrintIfJson } from "../components/code/highlight";
 
 /** Strip all tags — recovers the (still HTML-escaped) text of a line. */
 function stripTags(html: string): string {

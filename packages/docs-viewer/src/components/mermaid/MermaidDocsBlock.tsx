@@ -10,7 +10,7 @@ import {
 } from "../base";
 
 /**
- * Local copy of the shared `attr` helper (docs-blocks/attrs.ts is being
+ * Local copy of the shared `attr` helper (components/attrs.ts is being
  * restored separately — keep this file decoupled from that landing).
  */
 function attr(attrs: Record<string, string>, key: string): string | undefined {
@@ -150,7 +150,7 @@ export function MermaidDiagram({ source, blockId }: MermaidDiagramProps) {
 
   // NOTE: the raw-source fallback below stays UNhighlighted on purpose —
   // highlight.js core ships no 'mermaid' grammar (checked v11.11), so the
-  // shared docs-blocks/code/highlight.ts util would only escape-and-passthrough
+  // shared components/code/highlight.ts util would only escape-and-passthrough
   // anyway. If hljs ever gains a mermaid grammar, register it there and route
   // this <pre> through highlightCode(source, "mermaid").
   return (

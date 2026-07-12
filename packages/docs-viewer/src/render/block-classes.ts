@@ -3,7 +3,7 @@
  * text-block type blocks LOOK, used by BOTH rendering surfaces:
  *
  * - the read/annotate surface: block-registry.ts's block type descriptors (and
- *   the docs-blocks card components they delegate to), and
+ *   the component cards they delegate to), and
  * - the edit surface: editor/core/schema.ts's ProseMirror `renderHTML` specs.
  *
  * The registry's utility-class styling is the target look (it already wins

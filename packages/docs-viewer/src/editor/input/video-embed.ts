@@ -3,7 +3,7 @@
 import { Extension } from "@tiptap/core";
 import { NodeSelection, Plugin, PluginKey, TextSelection } from "@tiptap/pm/state";
 import type { EditorView } from "@tiptap/pm/view";
-import { parseVideoEmbed } from "../../docs-blocks/video/VideoDocsBlock";
+import { parseVideoEmbed } from "../../components/rich-text/VideoDocsBlock";
 
 /**
  * Video blocks appear FROM CONTENT — there is deliberately no slash-menu

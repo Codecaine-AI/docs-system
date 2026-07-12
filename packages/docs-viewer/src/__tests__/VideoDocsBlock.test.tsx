@@ -6,7 +6,7 @@ import {
   VIDEO_LABEL,
   VideoBlock,
   parseVideoEmbed,
-} from "../docs-blocks/video/VideoDocsBlock";
+} from "../components/rich-text/VideoDocsBlock";
 
 function renderVideo(props: Partial<Parameters<typeof VideoBlock>[0]> = {}): string {
   return renderToStaticMarkup(createElement(VideoBlock, { id: "video-1", ...props }));

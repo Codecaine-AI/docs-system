@@ -4,7 +4,7 @@ import {
   STRUCTURED_TABLE_AGENT_DESCRIPTION,
   STRUCTURED_TABLE_LABEL,
   StructuredTableBlock,
-} from "../docs-blocks/structured-table/StructuredTableDocsBlock";
+} from "../components/structured-table/StructuredTableDocsBlock";
 
 afterEach(() => {
   cleanup();

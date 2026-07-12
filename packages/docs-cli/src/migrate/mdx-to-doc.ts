@@ -442,7 +442,7 @@ function strAttr(attrs: Record<string, string>, key: string): string | undefined
 
 /**
  * Tags with a first-class doc-schema block type (D28 — "the existing
- * docs-blocks registry becomes the block registry"). Mirrors
+ * component registry becomes the block registry"). Mirrors
  * block-registry.ts's mdxAdapterDescriptor mappings for the ones with an
  * aligned block type today; the rest of the MDX component vocabulary
  * (Risk/OpenQuestion/Status/Milestone/Checklist/StructuredTable/Tabs/
