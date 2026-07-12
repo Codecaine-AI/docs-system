@@ -11,6 +11,10 @@ const componentFolders = (await readdir(componentsDir, { withFileTypes: true }))
 const modelComponents = ALL_COMPONENTS.map((component) => component.manifest.name).sort();
 
 describe("docs-viewer component folder mirror", () => {
+  it("exactly mirrors the sorted docs-model component names", () => {
+    expect(componentFolders).toEqual(modelComponents);
+  });
+
   it("has a folder for every docs-model component", () => {
     const missingFolders = modelComponents.filter(
       (component) => !componentFolders.includes(component),
