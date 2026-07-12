@@ -1,12 +1,13 @@
+import { realpath } from "node:fs/promises";
 import { extname, join, normalize, resolve, sep, dirname } from "node:path";
 
 import { isSafeRelativePath } from "@codecaine-ai/docs-index/paths";
 
 /**
- * Path-confinement helpers for the docs server. Everything here is pure —
- * no I/O — and every file-serving/mutating route funnels its path input
- * through one of these resolvers so nothing outside the served docs root is
- * ever reachable. Originally ported from the host data-backend's canonical
+ * Path-confinement helpers for the docs server. Most predicates and read
+ * resolvers are lexical; write resolvers additionally canonicalize existing
+ * filesystem ancestors so symlinks cannot redirect a mutation outside the
+ * served docs root. Originally ported from the host data-backend's canonical
  * implementation; this package is now the single source of truth.
  */
 
@@ -79,6 +80,51 @@ export function resolveCanvasSidecarRootRelativePath(
   const resolved = resolve(abs);
   const docsRootResolved = resolve(docsRoot);
   if (resolved !== docsRootResolved && !resolved.startsWith(docsRootResolved + sep)) {
+    return null;
+  }
+  return canvasRelPath;
+}
+
+async function realpathDeepestExistingAncestor(absPath: string): Promise<string | null> {
+  let candidate = absPath;
+  while (true) {
+    try {
+      return await realpath(candidate);
+    } catch (error) {
+      const code = (error as NodeJS.ErrnoException).code;
+      if (code !== "ENOENT" && code !== "ENOTDIR") return null;
+      const parent = dirname(candidate);
+      if (parent === candidate) return null;
+      candidate = parent;
+    }
+  }
+}
+
+/**
+ * Write-safe canvas resolver. After the usual lexical checks, canonicalizes
+ * the target's deepest existing ancestor and requires that canonical path to
+ * remain under the canonical docs root. This rejects an existing or missing
+ * sidecar reached through a symlink that leaves `docsRoot`.
+ */
+export async function resolveCanvasSidecarRootRelativeWritePath(
+  docsRoot: string,
+  src: string,
+): Promise<string | null> {
+  const canvasRelPath = resolveCanvasSidecarRootRelativePath(docsRoot, src);
+  if (!canvasRelPath) return null;
+
+  let docsRootReal: string;
+  try {
+    docsRootReal = await realpath(docsRoot);
+  } catch {
+    return null;
+  }
+
+  const ancestorReal = await realpathDeepestExistingAncestor(
+    resolve(join(docsRoot, canvasRelPath)),
+  );
+  if (!ancestorReal) return null;
+  if (ancestorReal !== docsRootReal && !ancestorReal.startsWith(docsRootReal + sep)) {
     return null;
   }
   return canvasRelPath;

@@ -32,7 +32,10 @@ import { atomicWriteFile } from "./atomic-write";
 import { createContentHash } from "./content-hash";
 import { draftLockStore, type DraftLockInfo } from "./draft-locks";
 import { loadDocBundle } from "./bundle";
-import { resolveCanvasSidecarRootRelativePath } from "./confine";
+import {
+  resolveCanvasSidecarRootRelativePath,
+  resolveCanvasSidecarRootRelativeWritePath,
+} from "./confine";
 import {
   addBundleComment,
   applyDocOpsToBundle,
@@ -282,7 +285,7 @@ export async function canvas_apply_patch(
   expectedHash: string | undefined,
   actor?: string,
 ): Promise<CanvasApplyPatchResult> {
-  const canvasRelPath = resolveCanvasSidecarRootRelativePath(docsRoot, canvasPath);
+  const canvasRelPath = await resolveCanvasSidecarRootRelativeWritePath(docsRoot, canvasPath);
   if (!canvasRelPath) {
     return { ok: false, status: 400, detail: `Invalid canvas sidecar path: ${canvasPath}` };
   }

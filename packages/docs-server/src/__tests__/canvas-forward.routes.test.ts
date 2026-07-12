@@ -1,12 +1,15 @@
-import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+import type { DocOp } from "@codecaine-ai/docs-model/doc-ops";
 
+import { createContentHash } from "../bundle";
 import { createDocsRoutes } from "../routes";
 import { createDocsStore, type DocsStore } from "../store";
 import { draftLockStore } from "../draft-locks";
 import type { DocsChangeEvent } from "../docs-events";
+import { withPathLock } from "../path-mutex";
 
 const BUNDLE_PATH = "guide";
 const CANVAS_SRC = "./assets/canvases/flow.canvas.json";
@@ -142,14 +145,15 @@ describe("POST /api/ops forwarded canvas actions", () => {
         patch_id: string;
       };
       expect(body.canvas.objects.map((object) => object.id)).toEqual(["obj-1", "obj-2"]);
-      expect(body.canvas_hash).toBeTruthy();
       expect(body.patch_id).toBeTruthy();
       expect("doc" in body).toBe(false);
       expect("hash" in body).toBe(false);
 
-      const persisted = JSON.parse(await readFile(join(docsRoot, CANVAS_REL_PATH), "utf8")) as {
+      const persistedBytes = await readFile(join(docsRoot, CANVAS_REL_PATH), "utf8");
+      const persisted = JSON.parse(persistedBytes) as {
         objects: Array<{ id: string }>;
       };
+      expect(body.canvas_hash).toBe(createContentHash(persistedBytes));
       expect(persisted.objects.map((object) => object.id)).toEqual(["obj-1", "obj-2"]);
       expect(await readFile(join(docsRoot, BUNDLE_PATH, "doc.json"), "utf8")).toBe(
         initialDocBytes,
@@ -168,6 +172,224 @@ describe("POST /api/ops forwarded canvas actions", () => {
     }
   });
 
+  test("forwards updateObject and persists the patched label", async () => {
+    const response = await postJson("/api/ops", {
+      path: BUNDLE_PATH,
+      ops: [{
+        type: "blockAction",
+        blockId: "canvas-1",
+        action: "canvas.updateObject",
+        params: { objectId: "obj-1", patch: { label: "Updated step" } },
+      }],
+    });
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as { canvas_hash: string };
+    const persistedBytes = await readFile(join(docsRoot, CANVAS_REL_PATH), "utf8");
+    const persisted = JSON.parse(persistedBytes) as { objects: Array<{ id: string; label: string }> };
+    expect(persisted.objects.find((object) => object.id === "obj-1")?.label).toBe("Updated step");
+    expect(body.canvas_hash).toBe(createContentHash(persistedBytes));
+  });
+
+  test("forwards addConnection between two objects and persists it", async () => {
+    const canvas = structuredClone(SAMPLE_CANVAS);
+    canvas.objects.push({
+      id: "obj-2",
+      type: "process",
+      label: "Step two",
+      parentId: null,
+      geometry: { x: 200, y: 0, width: 120, height: 64 },
+    });
+    await writeFile(join(docsRoot, CANVAS_REL_PATH), `${JSON.stringify(canvas, null, 2)}\n`, "utf8");
+
+    const response = await postJson("/api/ops", {
+      path: BUNDLE_PATH,
+      ops: [{
+        type: "blockAction",
+        blockId: "canvas-1",
+        action: "canvas.addConnection",
+        params: {
+          connection: {
+            id: "obj-1-to-obj-2",
+            from: { objectId: "obj-1", anchor: "right" },
+            to: { objectId: "obj-2", anchor: "left" },
+            style: "elbow",
+            arrow: "forward",
+          },
+        },
+      }],
+    });
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as { canvas_hash: string };
+    const persistedBytes = await readFile(join(docsRoot, CANVAS_REL_PATH), "utf8");
+    const persisted = JSON.parse(persistedBytes) as { connections: unknown[] };
+    expect(persisted.connections).toEqual([{
+      id: "obj-1-to-obj-2",
+      from: { objectId: "obj-1", anchor: "right" },
+      to: { objectId: "obj-2", anchor: "left" },
+      style: "elbow",
+      arrow: "forward",
+    }]);
+    expect(body.canvas_hash).toBe(createContentHash(persistedBytes));
+  });
+
+  test("forwards an object-targeted addAnnotation and persists it", async () => {
+    const response = await postJson("/api/ops", {
+      path: BUNDLE_PATH,
+      ops: [{
+        type: "blockAction",
+        blockId: "canvas-1",
+        action: "canvas.addAnnotation",
+        params: {
+          annotation: {
+            id: "review-obj-1",
+            target: { kind: "object", objectId: "obj-1" },
+            body: "Review this step.",
+            intent: "note",
+            status: "open",
+            createdBy: "agent",
+          },
+        },
+      }],
+    });
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as { canvas_hash: string };
+    const persistedBytes = await readFile(join(docsRoot, CANVAS_REL_PATH), "utf8");
+    const persisted = JSON.parse(persistedBytes) as { annotations: unknown[] };
+    expect(persisted.annotations).toEqual([{
+      id: "review-obj-1",
+      target: { kind: "object", objectId: "obj-1" },
+      body: "Review this step.",
+      intent: "note",
+      status: "open",
+      createdBy: "agent",
+    }]);
+    expect(body.canvas_hash).toBe(createContentHash(persistedBytes));
+  });
+
+  test("forwards fitContainerToChildren and persists changed container geometry", async () => {
+    const canvas = structuredClone(SAMPLE_CANVAS);
+    canvas.objects = [
+      {
+        id: "container-1",
+        type: "container",
+        label: "Container",
+        parentId: null,
+        geometry: { x: 0, y: 0, width: 500, height: 500 },
+      },
+      {
+        id: "child-1",
+        type: "process",
+        label: "Child",
+        parentId: "container-1",
+        geometry: { x: 100, y: 120, width: 120, height: 64 },
+      },
+    ];
+    await writeFile(join(docsRoot, CANVAS_REL_PATH), `${JSON.stringify(canvas, null, 2)}\n`, "utf8");
+
+    const response = await postJson("/api/ops", {
+      path: BUNDLE_PATH,
+      ops: [{
+        type: "blockAction",
+        blockId: "canvas-1",
+        action: "canvas.fitContainerToChildren",
+        params: { containerId: "container-1", padding: 20 },
+      }],
+    });
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as { canvas_hash: string };
+    const persistedBytes = await readFile(join(docsRoot, CANVAS_REL_PATH), "utf8");
+    const persisted = JSON.parse(persistedBytes) as {
+      objects: Array<{ id: string; geometry: { x: number; y: number; width: number; height: number } }>;
+    };
+    expect(persisted.objects.find((object) => object.id === "container-1")?.geometry).toEqual({
+      x: 80,
+      y: 96,
+      width: 160,
+      height: 112,
+    });
+    expect(body.canvas_hash).toBe(createContentHash(persistedBytes));
+  });
+
+  test("refuses a forwarded write through a canvases symlink outside docsRoot", async () => {
+    const outsideRoot = await mkdtemp(join(tmpdir(), "docs-server-canvas-outside-"));
+    const outsideCanvas = join(outsideRoot, "flow.canvas.json");
+    try {
+      await writeFile(outsideCanvas, initialCanvasBytes, "utf8");
+      const canvasesDir = join(docsRoot, BUNDLE_PATH, "assets", "canvases");
+      await rm(canvasesDir, { recursive: true, force: true });
+      await symlink(outsideRoot, canvasesDir, "dir");
+
+      const response = await forward();
+      expect(response.status).toBe(400);
+      const body = (await response.json()) as { detail: string };
+      expect(body.detail).toBe(`Invalid canvas sidecar path: ${CANVAS_REL_PATH}`);
+      expect(await readFile(outsideCanvas, "utf8")).toBe(initialCanvasBytes);
+    } finally {
+      await rm(outsideRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("holds the doc path lock until the forwarded canvas apply completes", async () => {
+    const canvasAbs = join(docsRoot, CANVAS_REL_PATH);
+    let markCanvasLockHeld: () => void = () => {};
+    const canvasLockHeld = new Promise<void>((resolve) => {
+      markCanvasLockHeld = resolve;
+    });
+    let releaseCanvasLock: () => void = () => {};
+    const canvasLockRelease = new Promise<void>((resolve) => {
+      releaseCanvasLock = resolve;
+    });
+    const heldCanvasLock = withPathLock(canvasAbs, async () => {
+      markCanvasLockHeld();
+      await canvasLockRelease;
+    });
+    await canvasLockHeld;
+
+    let forwardedPromise: ReturnType<DocsStore["forwardCanvasAction"]> | undefined;
+    let docMutationPromise: ReturnType<DocsStore["applyDocOps"]> | undefined;
+    try {
+      forwardedPromise = store.forwardCanvasAction(
+        BUNDLE_PATH,
+        ADD_OBJECT_OP as Extract<DocOp, { type: "blockAction" }>,
+        undefined,
+        undefined,
+        "agent-session",
+      );
+
+      let docMutationSettled = false;
+      docMutationPromise = store
+        .applyDocOps(
+          BUNDLE_PATH,
+          [{ type: "deleteBlock", blockId: "canvas-1", mode: "subtree" }],
+          undefined,
+          "editor-session",
+        )
+        .then((result) => {
+          docMutationSettled = true;
+          return result;
+        });
+
+      await Bun.sleep(100);
+      expect(docMutationSettled).toBe(false);
+
+      releaseCanvasLock();
+      const [forwarded, docMutation] = await Promise.all([
+        forwardedPromise,
+        docMutationPromise,
+      ]);
+      expect(forwarded.ok).toBe(true);
+      expect(docMutation.ok).toBe(true);
+    } finally {
+      releaseCanvasLock();
+      await heldCanvasLock;
+      await Promise.allSettled(
+        [forwardedPromise, docMutationPromise].filter(
+          (promise): promise is Promise<unknown> => promise !== undefined,
+        ),
+      );
+    }
+  });
+
   test("undo restores the forwarded canvas patch to its prior bytes", async () => {
     const response = await forward();
     expect(response.status).toBe(200);
@@ -178,6 +400,54 @@ describe("POST /api/ops forwarded canvas actions", () => {
     const undone = (await undoResponse.json()) as { ok: boolean; canvas: unknown; hash: string };
     expect(undone.ok).toBe(true);
     expect(undone.canvas).toEqual(SAMPLE_CANVAS);
+    expect(await readFile(join(docsRoot, CANVAS_REL_PATH), "utf8")).toBe(initialCanvasBytes);
+  });
+
+  test("action-derived canvas operation type overrides a stray params type", async () => {
+    const response = await postJson("/api/ops", {
+      path: BUNDLE_PATH,
+      ops: [{
+        ...ADD_OBJECT_OP,
+        params: {
+          ...ADD_OBJECT_OP.params,
+          type: "fitContainerToChildren",
+          containerId: "obj-1",
+        },
+      }],
+    });
+    expect(response.status).toBe(200);
+    const persisted = JSON.parse(await readFile(join(docsRoot, CANVAS_REL_PATH), "utf8")) as {
+      objects: Array<{ id: string; geometry: { width: number; height: number } }>;
+    };
+    expect(persisted.objects.map((object) => object.id)).toEqual(["obj-1", "obj-2"]);
+    expect(persisted.objects[0]?.geometry).toEqual(SAMPLE_CANVAS.objects[0]?.geometry);
+  });
+
+  test("routes a canvas block with both src and canvasId via src", async () => {
+    const doc = structuredClone(SAMPLE_DOC);
+    doc.blocks["canvas-1"].props.canvasId = "central-canvas-id";
+    await writeFile(join(docsRoot, BUNDLE_PATH, "doc.json"), `${JSON.stringify(doc, null, 2)}\n`, "utf8");
+
+    const response = await forward();
+    expect(response.status).toBe(200);
+    const persisted = JSON.parse(await readFile(join(docsRoot, CANVAS_REL_PATH), "utf8")) as {
+      objects: Array<{ id: string }>;
+    };
+    expect(persisted.objects.map((object) => object.id)).toEqual(["obj-1", "obj-2"]);
+  });
+
+  test("returns 400 for a canvasId-only central canvas reference", async () => {
+    const doc = structuredClone(SAMPLE_DOC);
+    delete doc.blocks["canvas-1"].props.src;
+    doc.blocks["canvas-1"].props.canvasId = "central-canvas-id";
+    await writeFile(join(docsRoot, BUNDLE_PATH, "doc.json"), `${JSON.stringify(doc, null, 2)}\n`, "utf8");
+
+    const response = await forward();
+    expect(response.status).toBe(400);
+    const body = (await response.json()) as { detail: string };
+    expect(body.detail).toBe(
+      "Central canvas references are not routable by this server yet; only sidecar canvases are supported.",
+    );
     expect(await readFile(join(docsRoot, CANVAS_REL_PATH), "utf8")).toBe(initialCanvasBytes);
   });
 
@@ -254,8 +524,26 @@ describe("POST /api/ops forwarded canvas actions", () => {
       ops: [{ ...ADD_OBJECT_OP, blockId: "p1" }],
     });
     expect(response.status).toBe(400);
-    const body = (await response.json()) as { detail: string };
-    expect(body.detail).toContain('not a "canvas" block');
+    const body = (await response.json()) as {
+      detail: string;
+      issues: Array<{ path: string; message: string }>;
+    };
+    expect(body.detail).toContain('targets "canvas" blocks');
+    expect(body.issues).toContainEqual({ path: "$.op.blockId", message: body.detail });
+    expect(await readFile(join(docsRoot, CANVAS_REL_PATH), "utf8")).toBe(initialCanvasBytes);
+  });
+
+  test("returns 400 with a structured issue when the target block is missing", async () => {
+    const response = await postJson("/api/ops", {
+      path: BUNDLE_PATH,
+      ops: [{ ...ADD_OBJECT_OP, blockId: "missing" }],
+    });
+    expect(response.status).toBe(400);
+    const body = (await response.json()) as {
+      detail: string;
+      issues: Array<{ path: string; message: string }>;
+    };
+    expect(body.issues).toEqual([{ path: "$.op.blockId", message: body.detail }]);
     expect(await readFile(join(docsRoot, CANVAS_REL_PATH), "utf8")).toBe(initialCanvasBytes);
   });
 

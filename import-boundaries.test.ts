@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { readdirSync, readFileSync, statSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join, relative, resolve } from "node:path";
 
 /**
  * Enforces the framework/host boundary: the docs-framework packages are
@@ -34,7 +34,7 @@ function walk(dir: string, files: string[] = []): string[] {
     if (SKIP_DIRS.has(entry)) continue;
     const full = join(dir, entry);
     if (statSync(full).isDirectory()) walk(full, files);
-    else if (/\.(ts|tsx)$/.test(entry)) files.push(full);
+    else if (/\.(ts|tsx|mts|cts|js)$/.test(entry)) files.push(full);
   }
   return files;
 }
@@ -84,9 +84,18 @@ describe("import boundaries", () => {
 
   test("docs-model imports canvas only through the agent-schema leaf", () => {
     const violations: string[] = [];
+    const canvasRoot = join(repoRoot, "external/canvas");
+    const agentSchema = join(canvasRoot, "packages/canvas/src/agent-schema");
     for (const file of walk(join(repoRoot, "packages/docs-model/src"))) {
       for (const spec of importSpecifiers(readFileSync(file, "utf8"))) {
-        if (spec.startsWith("@codecaine-ai/canvas") && spec !== "@codecaine-ai/canvas/agent-schema") {
+        const resolved = resolve(dirname(file), spec);
+        const canvasRelative = relative(canvasRoot, resolved);
+        const isCanvasPath = canvasRelative !== "" && canvasRelative !== ".." && !canvasRelative.startsWith("../");
+        const isAgentSchema = resolved === agentSchema || resolved === `${agentSchema}.ts`;
+        if (
+          (spec.startsWith("@codecaine-ai/canvas") && spec !== "@codecaine-ai/canvas/agent-schema") ||
+          (isCanvasPath && !isAgentSchema)
+        ) {
           violations.push(`${file.slice(repoRoot.length + 1)} -> ${spec}`);
         }
       }

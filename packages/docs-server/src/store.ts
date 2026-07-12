@@ -6,6 +6,7 @@ import { ACTION_REGISTRY, checkParams } from "@codecaine-ai/docs-model";
 import type { InteractiveCanvasDocument } from "@codecaine-ai/canvas/schema";
 import { queryInboundTolerant, type BacklinkRow } from "@codecaine-ai/docs-index/backlinks";
 import { moveDocBundle, type MoveDocDeps, type MoveDocResult } from "@codecaine-ai/docs-index/move-doc";
+import { resolveDocBundleJsonPath } from "@codecaine-ai/docs-index/paths";
 
 import { walkDocsDir, type DocsTreeNode } from "./docs-tree";
 import {
@@ -68,6 +69,7 @@ import {
 } from "./agent-tools";
 import { draftLockStore, type DraftLockInfo, type DraftLockStore } from "./draft-locks";
 import { resolveCanvasSidecarRelativePath } from "./confine";
+import { withPathLock } from "./path-mutex";
 import {
   publishDocsChangeEvent,
   subscribeToDocsChangeEvents,
@@ -192,100 +194,118 @@ async function forwardCanvasAction(
   expectedCanvasHash?: string,
   sessionId?: string,
 ): Promise<ForwardCanvasActionResult> {
-  const loaded = await loadDocBundle(docsRoot, path);
-  if ("error" in loaded) {
-    return { ok: false, status: loaded.error.status, detail: loaded.error.detail };
-  }
-  if (expectedDocHash && expectedDocHash !== loaded.docHash) {
-    return {
-      ok: false,
-      status: 409,
-      detail: "Doc bundle is stale; reload before applying ops.",
-      current_hash: loaded.docHash,
-      expected_hash: expectedDocHash,
-    };
+  const docAbs = resolveDocBundleJsonPath(docsRoot, path);
+  if (!docAbs) {
+    return { ok: false, status: 400, detail: `Invalid docs path: ${path}` };
   }
 
-  const action = ACTION_REGISTRY.get(op.action);
-  if (!action || !("forward" in action) || action.forward.authority !== "canvas") {
-    return {
-      ok: false,
-      status: 400,
-      detail: `Action "${op.action}" is not forwarded to the canvas authority.`,
-    };
-  }
+  return withPathLock(docAbs, async (): Promise<ForwardCanvasActionResult> => {
+    const loaded = await loadDocBundle(docsRoot, path);
+    if ("error" in loaded) {
+      return { ok: false, status: loaded.error.status, detail: loaded.error.detail };
+    }
+    if (expectedDocHash && expectedDocHash !== loaded.docHash) {
+      return {
+        ok: false,
+        status: 409,
+        detail: "Doc bundle is stale; reload before applying ops.",
+        current_hash: loaded.docHash,
+        expected_hash: expectedDocHash,
+      };
+    }
 
-  const block = loaded.document.blocks[op.blockId];
-  if (!block) {
-    return {
-      ok: false,
-      status: 400,
-      detail: `blockAction target "${op.blockId}" does not exist.`,
-    };
-  }
-  if (block.type !== "canvas") {
-    return {
-      ok: false,
-      status: 400,
-      detail: `Forwarded canvas action target "${op.blockId}" is a "${block.type}" block, not a "canvas" block.`,
-    };
-  }
+    const action = ACTION_REGISTRY.get(op.action);
+    if (!action || !("forward" in action) || action.forward.authority !== "canvas") {
+      return {
+        ok: false,
+        status: 400,
+        detail: `Action "${op.action}" is not forwarded to the canvas authority.`,
+      };
+    }
 
-  const params = op.params ?? {};
-  const issues = checkParams(action, params);
-  if (issues.length > 0) {
+    const block = loaded.document.blocks[op.blockId];
+    if (!block) {
+      const message = `blockAction target "${op.blockId}" does not exist.`;
+      return {
+        ok: false,
+        status: 400,
+        detail: message,
+        issues: [{ path: "$.op.blockId", message }],
+      };
+    }
+    if (block.type !== "canvas") {
+      const message = `blockAction "${op.action}" targets "canvas" blocks, but "${op.blockId}" is a "${block.type}".`;
+      return {
+        ok: false,
+        status: 400,
+        detail: message,
+        issues: [{ path: "$.op.blockId", message }],
+      };
+    }
+
+    const params = op.params ?? {};
+    const issues = checkParams(action, params);
+    if (issues.length > 0) {
+      return {
+        ok: false,
+        status: 400,
+        detail: "Canvas action params failed validation.",
+        issues,
+      };
+    }
+
+    const source = block.props.src ?? block.props.canvasId;
+    if (!block.props.src && typeof block.props.canvasId === "string") {
+      return {
+        ok: false,
+        status: 400,
+        detail: "Central canvas references are not routable by this server yet; only sidecar canvases are supported.",
+      };
+    }
+    if (typeof source !== "string" || source.length === 0) {
+      return {
+        ok: false,
+        status: 400,
+        detail: `Canvas block "${op.blockId}" is missing a resolvable canvasId or src.`,
+      };
+    }
+
+    // Bundle docs have no markdown filename, but canvas sidecars use the same
+    // doc-directory-relative confinement rules as GET /api/canvas-by-doc. A
+    // synthetic filename supplies only that directory context to the shared
+    // resolver; it is never read from disk.
+    const docPath = loaded.bundlePath ? `${loaded.bundlePath}/doc.mdx` : "doc.mdx";
+    const canvasRelPath = resolveCanvasSidecarRelativePath(docPath, source);
+    if (!canvasRelPath) {
+      return {
+        ok: false,
+        status: 400,
+        detail: `Invalid canvas sidecar path for ${path}: ${source}`,
+      };
+    }
+
+    const operation = {
+      ...params,
+      type: op.action.slice("canvas.".length),
+    } as CanvasAgentPatchOperation;
+    const applied = await canvas_apply_patch(
+      docsRoot,
+      canvasRelPath,
+      [operation],
+      expectedCanvasHash,
+      sessionId,
+    );
+    if (!applied.ok) return applied;
+
     return {
-      ok: false,
-      status: 400,
-      detail: "Canvas action params failed validation.",
-      issues,
+      ok: true,
+      canvas: applied.canvas,
+      canvasHash: applied.hash,
+      patchId: applied.patchId,
+      changedIds: applied.changedIds,
+      canvasRelPath,
     };
-  }
-
-  const source = block.props.canvasId ?? block.props.src;
-  if (typeof source !== "string" || source.length === 0) {
-    return {
-      ok: false,
-      status: 400,
-      detail: `Canvas block "${op.blockId}" is missing a resolvable canvasId or src.`,
-    };
-  }
-
-  // Bundle docs have no markdown filename, but canvas sidecars use the same
-  // doc-directory-relative confinement rules as GET /api/canvas-by-doc. A
-  // synthetic filename supplies only that directory context to the shared
-  // resolver; it is never read from disk.
-  const docPath = loaded.bundlePath ? `${loaded.bundlePath}/doc.mdx` : "doc.mdx";
-  const canvasRelPath = resolveCanvasSidecarRelativePath(docPath, source);
-  if (!canvasRelPath) {
-    return {
-      ok: false,
-      status: 400,
-      detail: `Invalid canvas sidecar path for ${path}: ${source}`,
-    };
-  }
-
-  const operation = {
-    type: op.action.slice("canvas.".length),
-    ...params,
-  } as CanvasAgentPatchOperation;
-  const applied = await canvas_apply_patch(
-    docsRoot,
-    canvasRelPath,
-    [operation],
-    expectedCanvasHash,
-    sessionId,
-  );
-  if (!applied.ok) return applied;
-
-  return {
-    ok: true,
-    canvas: applied.canvas,
-    canvasHash: applied.hash,
-    patchId: applied.patchId,
-    changedIds: applied.changedIds,
-    canvasRelPath,
-  };
+  });
 }
 
 export function createDocsStore(docsRoot: string): DocsStore {
