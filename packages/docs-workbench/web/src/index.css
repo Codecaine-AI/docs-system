@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
-/* Resolved Spectre theme variables (light/dark/figjam) — see file header. */
-@import "./spectre-theme.css";
+/* Docs-system theme: Notion palette + semantic tokens (light/dark). */
+@import "./theme/index.css";
 
 @plugin "@tailwindcss/typography";
 
@@ -96,7 +96,7 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
-    scrollbar-color: var(--spectre-icon-muted) transparent;
+    scrollbar-color: var(--docs-icon-muted) transparent;
     scrollbar-width: thin;
   }
   body {
@@ -110,56 +110,56 @@
 /* The typography plugin's `.prose` carries `max-width: 65ch`. Docs surfaces
    size their own column (DocPage's max-w wrapper) — kill the cap with plain
    author CSS so no utility-ordering or stale-build accident can revive it. */
-.spectre-markdown.prose {
+.docs-markdown.prose {
   max-width: none;
 }
 
-/* Docs typography bridge — mirrors Spectre's .spectre-markdown block. */
-.spectre-markdown {
+/* Docs typography bridge — mirrors Spectre's .docs-markdown block. */
+.docs-markdown {
   font-family: var(--font-tx02), ui-sans-serif, system-ui, sans-serif;
-  --tw-prose-body: var(--spec-viewer-text-body);
-  --tw-prose-headings: var(--spec-viewer-text-heading);
-  --tw-prose-lead: var(--spec-viewer-text-muted);
-  --tw-prose-links: var(--spec-viewer-link);
-  --tw-prose-bold: var(--spec-viewer-text-heading);
-  --tw-prose-counters: var(--spec-viewer-text-muted);
-  --tw-prose-bullets: var(--spec-viewer-text-muted);
-  --tw-prose-hr: var(--spectre-border-default);
-  --tw-prose-quotes: var(--spec-viewer-text-muted);
-  --tw-prose-quote-borders: var(--spec-viewer-callout-border);
-  --tw-prose-captions: var(--spec-viewer-text-muted);
-  --tw-prose-kbd: var(--spec-viewer-text-heading);
-  --tw-prose-code: var(--spec-viewer-text-muted);
-  --tw-prose-pre-code: var(--spec-viewer-text-muted);
-  --tw-prose-pre-bg: var(--spectre-surface-muted);
-  --tw-prose-th-borders: var(--spectre-border-strong);
-  --tw-prose-td-borders: var(--spectre-border-default);
-  color: var(--spec-viewer-text-body);
+  --tw-prose-body: var(--docs-viewer-text-body);
+  --tw-prose-headings: var(--docs-viewer-text-heading);
+  --tw-prose-lead: var(--docs-viewer-text-muted);
+  --tw-prose-links: var(--docs-viewer-link);
+  --tw-prose-bold: var(--docs-viewer-text-heading);
+  --tw-prose-counters: var(--docs-viewer-text-muted);
+  --tw-prose-bullets: var(--docs-viewer-text-muted);
+  --tw-prose-hr: var(--docs-border-default);
+  --tw-prose-quotes: var(--docs-viewer-text-muted);
+  --tw-prose-quote-borders: var(--docs-viewer-callout-border);
+  --tw-prose-captions: var(--docs-viewer-text-muted);
+  --tw-prose-kbd: var(--docs-viewer-text-heading);
+  --tw-prose-code: var(--docs-viewer-text-muted);
+  --tw-prose-pre-code: var(--docs-viewer-text-muted);
+  --tw-prose-pre-bg: var(--docs-surface-muted);
+  --tw-prose-th-borders: var(--docs-border-strong);
+  --tw-prose-td-borders: var(--docs-border-default);
+  color: var(--docs-viewer-text-body);
 }
 
-.spectre-markdown :where(h1, h2, h3, h4, h5, h6, strong) {
+.docs-markdown :where(h1, h2, h3, h4, h5, h6, strong) {
   font-family: var(--font-tx02), ui-sans-serif, system-ui, sans-serif;
-  color: var(--spec-viewer-text-heading);
+  color: var(--docs-viewer-text-heading);
 }
 
-.spectre-markdown :where(p, li, td) {
-  color: var(--spec-viewer-text-body);
+.docs-markdown :where(p, li, td) {
+  color: var(--docs-viewer-text-body);
 }
 
-.spectre-markdown :where(blockquote) {
-  background: var(--spec-viewer-callout-fill);
-  border-color: var(--spec-viewer-callout-border);
-  color: var(--spec-viewer-text-muted);
+.docs-markdown :where(blockquote) {
+  background: var(--docs-viewer-callout-fill);
+  border-color: var(--docs-viewer-callout-border);
+  color: var(--docs-viewer-text-muted);
 }
 
-.spectre-markdown :where(code:not(pre code)) {
-  background: var(--spec-viewer-inline-fill);
-  border: 1px solid var(--spec-viewer-callout-border);
-  color: var(--spec-viewer-text-muted);
+.docs-markdown :where(code:not(pre code)) {
+  background: var(--docs-viewer-inline-fill);
+  border: 1px solid var(--docs-viewer-callout-border);
+  color: var(--docs-viewer-text-muted);
 }
 
-.spectre-markdown :where(a) {
-  color: var(--spec-viewer-link);
+.docs-markdown :where(a) {
+  color: var(--docs-viewer-link);
 }
 
 /*
@@ -179,12 +179,12 @@
  * Syntax highlighting — theme-token colors over hljs classes, emitted by BOTH
  * rehype-highlight (markdown-projected fenced code) and docs-viewer's
  * components/code/highlight.ts (the read surface's `code` block + annotated
- * code). The --syntax-* vars are defined per theme (light/dark/figjam) in
- * spectre-theme.css, so dark mode needs no extra rules here.
+ * code). The --syntax-* vars are defined per theme (light/dark) in
+ * theme/semantic.css, so dark mode needs no extra rules here.
  */
 .hljs {
   background: transparent;
-  color: var(--spectre-text-secondary);
+  color: var(--docs-text-secondary);
 }
 
 .hljs-keyword,
@@ -232,12 +232,12 @@
 
 /* Interpolated code inside template strings is code again, not string. */
 .hljs-subst {
-  color: var(--spectre-text-secondary);
+  color: var(--docs-text-secondary);
 }
 
 .hljs-comment,
 .hljs-quote {
-  color: var(--spectre-text-tertiary);
+  color: var(--docs-text-tertiary);
 }
 
 .hljs-deletion {
@@ -259,7 +259,7 @@
  * (useTransientHighlights); the visual flash is this one-shot animation.
  * Ported from Spectre globals.css — theme status-warning tokens only.
  */
-@keyframes spectre-docs-changed-flash {
+@keyframes docs-changed-flash {
   0% {
     background-color: var(--status-warning-fill);
     box-shadow: 0 0 0 2px var(--status-warning-border);
@@ -271,7 +271,7 @@
 }
 
 [data-docs-changed="true"] {
-  animation: spectre-docs-changed-flash 2s ease-out;
+  animation: docs-changed-flash 2s ease-out;
   border-radius: 4px;
 }
 

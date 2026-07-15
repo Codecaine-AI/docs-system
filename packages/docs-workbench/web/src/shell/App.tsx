@@ -16,7 +16,7 @@ import { Sidebar } from "./Sidebar";
  * (#/blocks) or a doc workbench page (#/<bundle path>, see DocPage for the
  * edit/annotate modes). Hash-based navigation so both `docs-cli serve`
  * and the static export deep-link from any host/subpath; the light/dark
- * toggle drives the baked Spectre theme variables (.dark class +
+ * toggle drives the docs theme tokens (.dark class +
  * data-theme attribute).
  */
 
@@ -26,7 +26,7 @@ const BLOCKS_ROUTE = "blocks";
 
 function applyTheme(dark: boolean) {
   document.documentElement.classList.toggle("dark", dark);
-  document.documentElement.setAttribute("data-theme", dark ? "spectre-dark" : "spectre-light");
+  document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
 }
 
 function readHashPath(): string | null {

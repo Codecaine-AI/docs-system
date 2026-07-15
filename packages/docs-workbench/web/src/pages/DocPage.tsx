@@ -691,7 +691,7 @@ export function DocPage({
             {isStatic ? (
               // Static-export degradation: no write routes, so no editor —
               // the plain read-only renderer.
-              <div className="spectre-markdown prose prose-sm dark:prose-invert relative max-w-none font-sans text-sm leading-[1.7]">
+              <div className="docs-markdown prose prose-sm dark:prose-invert relative max-w-none font-sans text-sm leading-[1.7]">
                 <DocBlockRenderer
                   document={doc}
                   projectId="local"
@@ -701,7 +701,7 @@ export function DocPage({
                 />
               </div>
             ) : mode === "edit" ? (
-              <div className="spectre-markdown prose prose-sm dark:prose-invert relative max-w-none font-sans text-sm leading-[1.7]">
+              <div className="docs-markdown prose prose-sm dark:prose-invert relative max-w-none font-sans text-sm leading-[1.7]">
                 <DocEditor
                   // Keyed by path so navigating away UNMOUNTS this instance
                   // while its onApplyOps still closes over the old path —
@@ -732,7 +732,7 @@ export function DocPage({
                 canvasIndex={canvasIndex}
                 selectedTargetId={selectedTargetId}
                 onTargetSelect={handleTargetSelect}
-                className="spectre-markdown prose prose-sm dark:prose-invert relative max-w-none font-sans text-sm leading-[1.7]"
+                className="docs-markdown prose prose-sm dark:prose-invert relative max-w-none font-sans text-sm leading-[1.7]"
               >
                 <DocBlockRenderer
                   document={doc}

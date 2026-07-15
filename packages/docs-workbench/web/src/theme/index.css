@@ -1,0 +1,7 @@
+/*
+ * Docs-system single theming location. Palette values imported here are
+ * Notion's, and semantic tokens are the only color surface consumed by UI.
+ */
+
+@import "./notion-palette.css";
+@import "./semantic.css";

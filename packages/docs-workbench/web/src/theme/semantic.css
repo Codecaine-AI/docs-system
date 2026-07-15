@@ -1,0 +1,158 @@
+/*
+ * Docs-system single theming location. Semantic tokens in this directory are
+ * mapped from Notion's palette variables instead of restating raw colors.
+ */
+
+:root, [data-theme="light"] {
+  color-scheme: light;
+
+  --background: var(--color-bg-default);
+  --foreground: var(--color-text-default);
+  --card: var(--color-bg-default);
+  --card-foreground: var(--color-text-default);
+  --popover: var(--color-bg-default);
+  --popover-foreground: var(--color-text-default);
+  --primary: var(--color-text-default);
+  --primary-foreground: var(--color-bg-default);
+  --secondary: var(--color-bg-gray);
+  --secondary-foreground: var(--color-text-default);
+  --muted: var(--color-bg-gray);
+  --muted-foreground: var(--color-text-gray);
+  --accent: var(--color-bg-blue);
+  --accent-foreground: var(--color-text-blue);
+  --destructive: var(--color-text-red);
+  --border: var(--color-pill-default);
+  --input: var(--color-pill-default);
+  --ring: var(--color-pill-blue);
+
+  --sidebar: var(--color-bg-default);
+  --sidebar-foreground: var(--color-text-default);
+  --sidebar-border: var(--color-pill-default);
+  --sidebar-accent: var(--color-bg-gray);
+  --sidebar-accent-foreground: var(--color-text-default);
+
+  --radius: 0.5rem;
+
+  --status-info: var(--color-text-blue);
+  --status-info-foreground: var(--color-text-blue);
+  --status-info-fill: var(--color-bg-blue);
+  --status-info-border: var(--color-pill-blue);
+  --status-success: var(--color-text-green);
+  --status-success-foreground: var(--color-text-green);
+  --status-success-fill: var(--color-bg-green);
+  --status-success-border: var(--color-pill-green);
+  --status-warning: var(--color-text-orange);
+  --status-warning-foreground: var(--color-text-orange);
+  --status-warning-fill: var(--color-bg-orange);
+  --status-warning-border: var(--color-pill-orange);
+  --status-danger: var(--color-text-red);
+  --status-danger-foreground: var(--color-text-red);
+  --status-danger-fill: var(--color-bg-red);
+  --status-danger-border: var(--color-pill-red);
+  --status-error: var(--color-text-red);
+  --status-error-foreground: var(--color-text-red);
+  --status-error-fill: var(--color-bg-red);
+  --status-error-border: var(--color-pill-red);
+  --status-neutral: var(--color-text-gray);
+  --status-neutral-foreground: var(--color-text-gray);
+  --status-neutral-fill: var(--color-bg-gray);
+  --status-neutral-border: var(--color-pill-gray);
+
+  --syntax-key: var(--color-text-purple);
+  --syntax-string: var(--color-text-green);
+  --syntax-number: var(--color-text-blue);
+  --syntax-boolean: var(--color-text-orange);
+  --syntax-null: var(--color-text-red);
+
+  --docs-viewer-callout-border: var(--color-pill-orange);
+  --docs-viewer-callout-fill: var(--color-bg-orange);
+  --docs-viewer-inline-fill: var(--color-bg-gray);
+  --docs-viewer-link: var(--color-text-blue);
+  --docs-viewer-text-body: var(--color-text-default);
+  --docs-viewer-text-heading: var(--color-text-default);
+  --docs-viewer-text-muted: var(--color-text-gray);
+
+  --docs-icon-muted: var(--color-text-gray);
+  --docs-border-default: var(--color-pill-default);
+  --docs-border-strong: color-mix(in srgb, var(--color-pill-default) 70%, var(--color-text-gray) 30%);
+  --docs-surface-muted: var(--color-bg-gray);
+  --docs-text-secondary: color-mix(in srgb, var(--color-text-default) 84%, transparent);
+  --docs-text-tertiary: var(--color-text-gray);
+}
+
+[data-theme="dark"], .dark {
+  color-scheme: dark;
+
+  --background: var(--color-bg-default);
+  --foreground: var(--color-text-default);
+  --card: var(--color-bg-default);
+  --card-foreground: var(--color-text-default);
+  --popover: var(--color-bg-default);
+  --popover-foreground: var(--color-text-default);
+  --primary: var(--color-text-default);
+  --primary-foreground: var(--color-bg-default);
+  --secondary: var(--color-bg-gray);
+  --secondary-foreground: var(--color-text-default);
+  --muted: var(--color-bg-gray);
+  --muted-foreground: var(--color-text-gray);
+  --accent: var(--color-bg-blue);
+  --accent-foreground: var(--color-text-blue);
+  --destructive: var(--color-text-red);
+  --border: var(--color-pill-default);
+  --input: var(--color-pill-default);
+  --ring: var(--color-pill-blue);
+
+  --sidebar: var(--color-bg-default);
+  --sidebar-foreground: var(--color-text-default);
+  --sidebar-border: var(--color-pill-default);
+  --sidebar-accent: var(--color-bg-gray);
+  --sidebar-accent-foreground: var(--color-text-default);
+
+  --radius: 0.5rem;
+
+  --status-info: var(--color-text-blue);
+  --status-info-foreground: var(--color-text-blue);
+  --status-info-fill: var(--color-bg-blue);
+  --status-info-border: var(--color-pill-blue);
+  --status-success: var(--color-text-green);
+  --status-success-foreground: var(--color-text-green);
+  --status-success-fill: var(--color-bg-green);
+  --status-success-border: var(--color-pill-green);
+  --status-warning: var(--color-text-orange);
+  --status-warning-foreground: var(--color-text-orange);
+  --status-warning-fill: var(--color-bg-orange);
+  --status-warning-border: var(--color-pill-orange);
+  --status-danger: var(--color-text-red);
+  --status-danger-foreground: var(--color-text-red);
+  --status-danger-fill: var(--color-bg-red);
+  --status-danger-border: var(--color-pill-red);
+  --status-error: var(--color-text-red);
+  --status-error-foreground: var(--color-text-red);
+  --status-error-fill: var(--color-bg-red);
+  --status-error-border: var(--color-pill-red);
+  --status-neutral: var(--color-text-gray);
+  --status-neutral-foreground: var(--color-text-gray);
+  --status-neutral-fill: var(--color-bg-gray);
+  --status-neutral-border: var(--color-pill-gray);
+
+  --syntax-key: var(--color-text-purple);
+  --syntax-string: var(--color-text-green);
+  --syntax-number: var(--color-text-blue);
+  --syntax-boolean: var(--color-text-orange);
+  --syntax-null: var(--color-text-red);
+
+  --docs-viewer-callout-border: var(--color-pill-orange);
+  --docs-viewer-callout-fill: var(--color-bg-orange);
+  --docs-viewer-inline-fill: var(--color-bg-gray);
+  --docs-viewer-link: var(--color-text-blue);
+  --docs-viewer-text-body: var(--color-text-default);
+  --docs-viewer-text-heading: var(--color-text-default);
+  --docs-viewer-text-muted: var(--color-text-gray);
+
+  --docs-icon-muted: var(--color-text-gray);
+  --docs-border-default: var(--color-pill-default);
+  --docs-border-strong: color-mix(in srgb, var(--color-pill-default) 70%, var(--color-text-gray) 30%);
+  --docs-surface-muted: var(--color-bg-gray);
+  --docs-text-secondary: color-mix(in srgb, var(--color-text-default) 84%, transparent);
+  --docs-text-tertiary: var(--color-text-gray);
+}
