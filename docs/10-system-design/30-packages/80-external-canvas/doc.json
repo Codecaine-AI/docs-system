@@ -1,0 +1,307 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-30-packages-80-external-canvas",
+  "title": "external/canvas — a supported neighbor",
+  "root": "b-80-external-canvas-root",
+  "blocks": {
+    "b-80-external-canvas-root": {
+      "id": "b-80-external-canvas-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-80-external-canvas-title-1",
+        "b-80-external-canvas-identity-2",
+        "b-80-external-canvas-wiring-heading-3",
+        "b-80-external-canvas-workspace-mechanics-4",
+        "b-80-external-canvas-location-heading-5",
+        "b-80-external-canvas-ownership-boundary-6",
+        "b-80-external-canvas-contact-heading-7",
+        "b-80-external-canvas-model-contact-8",
+        "b-80-external-canvas-server-contact-9",
+        "b-80-external-canvas-viewer-contact-10",
+        "b-80-external-canvas-clone-warning-11"
+      ]
+    },
+    "b-80-external-canvas-title-1": {
+      "id": "b-80-external-canvas-title-1",
+      "type": "heading",
+      "props": {
+        "level": 1
+      },
+      "text": [
+        {
+          "insert": "external/canvas — a supported neighbor"
+        }
+      ],
+      "children": []
+    },
+    "b-80-external-canvas-identity-2": {
+      "id": "b-80-external-canvas-identity-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The Codecaine canvas engine is vendored here as a git submodule at "
+        },
+        {
+          "insert": "external/canvas",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". It is its own project, with its own repository, workspace, and release cadence; it is not part of the docs system."
+        }
+      ],
+      "children": []
+    },
+    "b-80-external-canvas-wiring-heading-3": {
+      "id": "b-80-external-canvas-wiring-heading-3",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "How it is wired in"
+        }
+      ],
+      "children": []
+    },
+    "b-80-external-canvas-workspace-mechanics-4": {
+      "id": "b-80-external-canvas-workspace-mechanics-4",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The submodule mounts the canvas project at "
+        },
+        {
+          "insert": "external/canvas",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". The root Bun workspace pulls in only "
+        },
+        {
+          "insert": "external/canvas/packages/*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", so "
+        },
+        {
+          "insert": "@codecaine-ai/canvas",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " resolves for the embed components without making the canvas project itself a docs-system package."
+        }
+      ],
+      "children": []
+    },
+    "b-80-external-canvas-location-heading-5": {
+      "id": "b-80-external-canvas-location-heading-5",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why it lives under external/, not packages/"
+        }
+      ],
+      "children": []
+    },
+    "b-80-external-canvas-ownership-boundary-6": {
+      "id": "b-80-external-canvas-ownership-boundary-6",
+      "type": "callout",
+      "props": {
+        "kind": "Boundary",
+        "title": "Canvas is not an eighth package",
+        "tone": "decision"
+      },
+      "text": [
+        {
+          "insert": "The docs system supports canvas because canvas documents can be embedded in docs, but canvas is not part of the docs system. Keeping it outside "
+        },
+        {
+          "insert": "packages/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " makes that ownership boundary literal. The placement is forced by canvas being another project; it is not a judgment call about package organization."
+        }
+      ],
+      "children": []
+    },
+    "b-80-external-canvas-contact-heading-7": {
+      "id": "b-80-external-canvas-contact-heading-7",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Where the docs system touches it"
+        }
+      ],
+      "children": []
+    },
+    "b-80-external-canvas-model-contact-8": {
+      "id": "b-80-external-canvas-model-contact-8",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "docs-model",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "docs/10-system-design/30-packages/10-docs-model.md",
+              "label": "docs-model"
+            }
+          }
+        },
+        {
+          "insert": " consumes only the agent-schema leaf. The repository-root "
+        },
+        {
+          "insert": "import-boundaries.test.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " enforces that canvas imports from docs-model go exclusively through "
+        },
+        {
+          "insert": "@codecaine-ai/canvas/agent-schema",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ": types cross the boundary, never the engine."
+        }
+      ],
+      "children": []
+    },
+    "b-80-external-canvas-server-contact-9": {
+      "id": "b-80-external-canvas-server-contact-9",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "docs-server",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "docs/10-system-design/30-packages/30-docs-server.md",
+              "label": "docs-server"
+            }
+          }
+        },
+        {
+          "insert": " does not apply canvas actions itself. It forwards them to the canvas authority through "
+        },
+        {
+          "insert": "POST /api/ops",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-80-external-canvas-viewer-contact-10": {
+      "id": "b-80-external-canvas-viewer-contact-10",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "docs-viewer",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "docs/10-system-design/30-packages/40-docs-viewer.md",
+              "label": "docs-viewer"
+            }
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "docs-workbench",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " render embedded canvases through a "
+        },
+        {
+          "insert": "canvas-embed",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " component injected through the viewer's "
+        },
+        {
+          "insert": "DocsClientProvider",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " seam. The canvas block is one of the fourteen block types."
+        }
+      ],
+      "children": []
+    },
+    "b-80-external-canvas-clone-warning-11": {
+      "id": "b-80-external-canvas-clone-warning-11",
+      "type": "callout",
+      "props": {
+        "kind": "Clone caveat",
+        "title": "Check for a submodule cycle",
+        "tone": "warning"
+      },
+      "text": [
+        {
+          "insert": "Before cloning recursively, read the repository "
+        },
+        {
+          "insert": "README.md",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " submodule-cycle caveat. Follow that guidance before initializing nested submodules."
+        }
+      ],
+      "children": []
+    }
+  }
+}

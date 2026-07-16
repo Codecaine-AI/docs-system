@@ -4,14 +4,18 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { EditorContent, useEditor, type Editor } from "@tiptap/react";
 import { Extension } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
-import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
+import { serializeDocDocument, type DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import { applyOps, type DocOp } from "@codecaine-ai/docs-model/doc-ops";
 import type { DocBlockRenderContext } from "../render/block-registry";
+import { INLINE_CODE_CLASSES } from "../render/block-classes";
 import type { DocBlockSaveResult } from "../render/DocBlockRenderer";
 import { useDocsClient, type DraftLockInfo } from "../client";
 import { docToPM, pmToDoc, diffToOps, type PMNode } from "./core/convert";
 import { TEXT_BLOCK_NODES } from "./core/schema";
-import { ATOM_BLOCK_NODES_WITH_VIEWS } from "./views/node-views";
+import { DocItalic, DocStrike } from "../components/rich-text/editor-marks";
+import { ATOM_BLOCK_NODES_WITH_VIEWS, DocCodeBlockWithView } from "./views/node-views";
+import { DocDragHandle } from "./views/drag-handle";
+import { DocCodeBlockHighlight } from "../components/code/editor-highlight";
 import { DocEditorNodeViewProvider } from "./views/node-view-context";
 import { SlashMenu, SlashMenuPopover } from "./menus/SlashMenu";
 import { DocReference, ReferenceMention, ReferenceMentionPopover } from "./menus/reference-node";
@@ -258,9 +262,24 @@ export default function DocEditor({
       StarterKit.configure({
         blockquote: false,
         bulletList: false,
+        // Inline `code` MARK spans get the same Notion-style chip as the
+        // read surface (renderDeltaSpans) so a mark applied while typing
+        // looks identical in and out of edit mode.
+        code: { HTMLAttributes: { class: INLINE_CODE_CLASSES } },
         codeBlock: false,
+        // The drop-line drawn while dragging blocks (grip reorder). The
+        // class hands its look to the host stylesheet — docs-workbench
+        // styles color/thickness/opacity via the style rail's
+        // --docs-dropcursor-* vars.
+        dropcursor: { class: "docs-drop-cursor", width: 3 },
         heading: false,
         horizontalRule: false,
+        // Italic/strike are re-registered below WITHOUT their markdown
+        // typing shortcuts (see DocItalic/DocStrike in rich-text
+        // editor-nodes) — bold + inline code are the only auto-converting
+        // marks.
+        italic: false,
+        strike: false,
         // linkOnPaste is ALSO off: link-editor.tsx's paste plugin owns
         // paste-URL-over-selection (Notion semantics), and a URL pasted at a
         // collapsed cursor must insert as plain text — TipTap's default
@@ -272,7 +291,15 @@ export default function DocEditor({
         paragraph: false,
         trailingNode: false,
       }),
-      ...TEXT_BLOCK_NODES,
+      // Italic/strike marks minus their markdown typing shortcuts (see the
+      // StarterKit config above).
+      DocItalic,
+      DocStrike,
+      // The code block swaps in its React node view (language picker); its
+      // live-highlight decorations ride the extension right after.
+      ...TEXT_BLOCK_NODES.filter((node) => node.name !== "docCodeBlock"),
+      DocCodeBlockWithView,
+      DocCodeBlockHighlight,
       ...ATOM_BLOCK_NODES_WITH_VIEWS,
       DocReference,
       SlashMenu,
@@ -293,6 +320,9 @@ export default function DocEditor({
       DocKeymap,
       // Gray placeholder hints on empty blocks (injects its own scoped CSS).
       DocPlaceholder,
+      // Left-side ⠿ grip for reordering top-level blocks (drag rides PM's
+      // native node-drag + the StarterKit dropCursor above).
+      DocDragHandle,
     ],
     content: docToPM(document) as unknown as Record<string, unknown>,
     editorProps: {
@@ -332,6 +362,18 @@ export default function DocEditor({
     if (!editor) return;
     if (document === lastSeededDocRef.current) return;
     lastSeededDocRef.current = document;
+    // Identity changed but content didn't: typically the SSE echo of our own
+    // save round-tripping back through the host's refetch (auto-save ->
+    // file change -> events -> fetchBundle -> new object). setContent here
+    // would destroy the caret/selection ~1s after every typing pause, so
+    // only the diff baseline advances and in-progress edits (if any) stay.
+    // A host reload after a 409 lands here too when the reloaded doc matches
+    // our baseline — clearing the error below still unpauses auto-save.
+    if (serializeDocDocument(document) === serializeDocDocument(baseDocRef.current)) {
+      baseDocRef.current = document;
+      setSaveError(null);
+      return;
+    }
     baseDocRef.current = document;
     cancelPendingAutoSave();
     firstPendingEditAtRef.current = null;

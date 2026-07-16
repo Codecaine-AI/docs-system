@@ -25,6 +25,8 @@
     "@codecaine-ai/docs-model": "workspace:*",
     "@floating-ui/react": "^0.27.19",
     "@tiptap/core": "^3.27.1",
+    "@tiptap/extension-italic": "^3.27.1",
+    "@tiptap/extension-strike": "^3.27.1",
     "@tiptap/pm": "^3.27.1",
     "@tiptap/react": "^3.27.1",
     "@tiptap/starter-kit": "^3.27.1",

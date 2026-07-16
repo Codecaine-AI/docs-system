@@ -482,6 +482,43 @@ describe("DocKeymap Backspace", () => {
     });
   });
 
+  it("at the start of a NESTED list item outdents one level, staying a bullet", () => {
+    const editor = createEditor([
+      {
+        type: "docListItem",
+        attrs: { blockId: "li1" },
+        content: [
+          { type: "docBlockText", content: [{ type: "text", text: "parent" }] },
+          {
+            type: "docListItem",
+            attrs: { blockId: "li2" },
+            content: [{ type: "docBlockText", content: [{ type: "text", text: "nested" }] }],
+          },
+        ],
+      },
+    ]);
+    // Cursor at offset 0 of the nested item's text: li1 opens (+1), its
+    // wrapper spans "parent"+2, li2 opens (+1), li2's wrapper opens (+1).
+    editor.commands.setTextSelection(1 + ("parent".length + 2) + 2);
+
+    expect(pressKey(editor, "Backspace")).toBe(true);
+
+    const json = docJSON(editor);
+    expect(json.content).toHaveLength(2);
+    expect(json.content![0]).toMatchObject({ type: "docListItem", attrs: { blockId: "li1" } });
+    expect(json.content![1]).toMatchObject({ type: "docListItem", attrs: { blockId: "li2" } });
+    expect(wrapperText(json.content![1])).toBe("nested");
+
+    // A second Backspace at the (now top-level) item start strips it to a
+    // paragraph — the full ladder ends OUTSIDE the list, never stranded as
+    // an indented non-bullet inside it.
+    expect(pressKey(editor, "Backspace")).toBe(true);
+    expect(docJSON(editor).content![1]).toMatchObject({
+      type: "docParagraph",
+      attrs: { blockId: "li2" },
+    });
+  });
+
   it("preserves marks on the converted block's text", () => {
     const editor = createEditor([
       {
@@ -507,23 +544,93 @@ describe("DocKeymap Backspace", () => {
     });
   });
 
-  it("at the start of a paragraph is NOT handled by DocKeymap (defaults run)", () => {
+  it("at the start of a paragraph merges it into the previous paragraph", () => {
     const editor = createEditor([
       paragraph("Above", { blockId: "p1" }),
       paragraph("Below", { blockId: "p2" }),
     ]);
     setCursorInWrapper(editor, 1, 0);
 
-    pressKey(editor, "Backspace");
+    expect(pressKey(editor, "Backspace")).toBe(true);
 
-    // Whatever the default join does, our convert-to-paragraph must not have
-    // touched types/ids of a block that is ALREADY a paragraph — and it must
-    // not have swallowed the key into a no-op that leaves both intact AND
-    // dispatched. Pin the non-conversion: no block changed type.
     const json = docJSON(editor);
-    for (const block of json.content!) {
-      expect(block.type).toBe("docParagraph");
-    }
+    expect(json.content).toHaveLength(1);
+    expect(json.content![0]).toMatchObject({ type: "docParagraph", attrs: { blockId: "p1" } });
+    expect(wrapperText(json.content![0])).toBe("AboveBelow");
+    // Cursor sits at the junction.
+    expect(editor.state.selection.$from.parentOffset).toBe("Above".length);
+  });
+
+  it("at the start of a paragraph below a nested list merges into the DEEPEST last item in one press", () => {
+    const editor = createEditor([
+      {
+        type: "docListItem",
+        attrs: { blockId: "li1" },
+        content: [
+          wrapper("one"),
+          {
+            type: "docListItem",
+            attrs: { blockId: "li2" },
+            content: [wrapper("two"), listItem("deep", { blockId: "li3" })],
+          },
+        ],
+      },
+      paragraph("tail", { blockId: "p1" }),
+    ]);
+    setCursorInWrapper(editor, 1, 0);
+
+    expect(pressKey(editor, "Backspace")).toBe(true);
+
+    const json = docJSON(editor);
+    // The paragraph is gone; its text landed at the end of the deepest item.
+    expect(json.content).toHaveLength(1);
+    const deep = json.content![0].content![1].content![1];
+    expect(deep).toMatchObject({ type: "docListItem", attrs: { blockId: "li3" } });
+    expect(wrapperText(deep)).toBe("deeptail");
+    expect(editor.state.selection.$from.parent.textContent).toBe("deeptail");
+    expect(editor.state.selection.$from.parentOffset).toBe("deep".length);
+  });
+
+  it("deletes an EMPTY paragraph below a list, cursor landing at the end of the last item", () => {
+    const editor = createEditor([
+      listItem("only", { blockId: "li1" }),
+      paragraph(undefined, { blockId: "p1" }),
+    ]);
+    setCursorInWrapper(editor, 1, 0);
+
+    expect(pressKey(editor, "Backspace")).toBe(true);
+
+    const json = docJSON(editor);
+    expect(json.content).toHaveLength(1);
+    expect(json.content![0]).toMatchObject({ type: "docListItem", attrs: { blockId: "li1" } });
+    expect(wrapperText(json.content![0])).toBe("only");
+    expect(editor.state.selection.$from.parent.textContent).toBe("only");
+    expect(editor.state.selection.$from.parentOffset).toBe("only".length);
+  });
+
+  it("keeps marks on the merged paragraph's text", () => {
+    const editor = createEditor([
+      paragraph("plain ", { blockId: "p1" }),
+      {
+        type: "docParagraph",
+        attrs: { blockId: "p2" },
+        content: [
+          {
+            type: "docBlockText",
+            content: [{ type: "text", text: "bold", marks: [{ type: "bold" }] }],
+          },
+        ],
+      },
+    ]);
+    setCursorInWrapper(editor, 1, 0);
+
+    expect(pressKey(editor, "Backspace")).toBe(true);
+
+    const merged = docJSON(editor).content![0];
+    expect(merged.content![0].content![1]).toMatchObject({
+      text: "bold",
+      marks: [{ type: "bold" }],
+    });
   });
 
   it("mid-text in a heading is NOT handled (default character delete applies)", () => {
@@ -616,7 +723,9 @@ describe("DocPlaceholder", () => {
     expect(
       dom.querySelector('[data-doc-type="callout"]')?.getAttribute("data-placeholder"),
     ).toBe("Callout");
-    expect(dom.querySelector("li")?.getAttribute("data-placeholder")).toBe("List");
+    // List items get NO hint even focused — a gray "List" next to the marker
+    // read as phantom content while typing (dogfood review 2026-07-16).
+    expect(dom.querySelector("li")?.getAttribute("data-placeholder")).toBeNull();
 
     // Non-empty blocks carry no placeholder attributes even while focused.
     expect(dom.querySelector('p[data-block-id="p1"]')?.getAttribute("data-placeholder")).toBeNull();
@@ -671,5 +780,176 @@ describe("DocKeymap + SlashMenu integration (full handleKeyDown chain)", () => {
     expect(json.content).toHaveLength(2);
     expect(json.content![0].type).toBe("docHeading");
     expect(json.content![1].type).toBe("docParagraph");
+  });
+});
+
+describe("Tab / Shift-Tab list indent (Notion semantics)", () => {
+  /** A docListItem with optional nested children after its text wrapper. */
+  function item(
+    text: string,
+    attrs: Record<string, unknown> = {},
+    ...children: JSONContent[]
+  ): JSONContent {
+    return { type: "docListItem", attrs, content: [wrapper(text), ...children] };
+  }
+
+  /** Cursor at `offset` inside the docBlockText whose full text is `matchText` (works at any nesting depth). */
+  function setCursorInTextOf(editor: Editor, matchText: string, offset = 0): void {
+    let target: number | null = null;
+    editor.state.doc.descendants((node, pos) => {
+      if (target !== null) return false;
+      if (node.type.name === "docBlockText" && node.textContent === matchText) {
+        target = pos;
+        return false;
+      }
+      return true;
+    });
+    if (target === null) throw new Error(`no docBlockText with text ${JSON.stringify(matchText)}`);
+    editor.commands.setTextSelection(target + 1 + offset);
+  }
+
+  it("Tab nests the item under its previous sibling list item", () => {
+    const editor = createEditor([item("one", { blockId: "li1" }), item("two", { blockId: "li2" })]);
+    setCursorInTextOf(editor, "two", 1);
+
+    expect(pressKey(editor, "Tab")).toBe(true);
+
+    const json = docJSON(editor);
+    expect(json.content).toHaveLength(1);
+    expect(json.content![0]).toMatchObject({ type: "docListItem", attrs: { blockId: "li1" } });
+    expect(json.content![0].content![1]).toMatchObject({
+      type: "docListItem",
+      attrs: { blockId: "li2" },
+    });
+    // Cursor stays where it was in the moved item's text.
+    expect(editor.state.selection.$from.parent.textContent).toBe("two");
+    expect(editor.state.selection.$from.parentOffset).toBe(1);
+  });
+
+  it("Tab keeps the item's own children riding along", () => {
+    const editor = createEditor([
+      item("one", { blockId: "li1" }),
+      item("two", { blockId: "li2" }, item("child", { blockId: "li3" })),
+    ]);
+    setCursorInTextOf(editor, "two");
+
+    expect(pressKey(editor, "Tab")).toBe(true);
+
+    const json = docJSON(editor);
+    expect(json.content).toHaveLength(1);
+    const moved = json.content![0].content![1];
+    expect(moved).toMatchObject({ type: "docListItem", attrs: { blockId: "li2" } });
+    expect(moved.content![1]).toMatchObject({ type: "docListItem", attrs: { blockId: "li3" } });
+  });
+
+  it("Tab on the first item is swallowed without changes", () => {
+    const editor = createEditor([item("one", { blockId: "li1" }), item("two", { blockId: "li2" })]);
+    setCursorInTextOf(editor, "one");
+    const before = JSON.stringify(docJSON(editor));
+
+    expect(pressKey(editor, "Tab")).toBe(true);
+
+    expect(JSON.stringify(docJSON(editor))).toBe(before);
+  });
+
+  it("Tab after a non-list sibling is swallowed without changes", () => {
+    const editor = createEditor([paragraph("intro", { blockId: "p1" }), item("one", { blockId: "li1" })]);
+    setCursorInTextOf(editor, "one");
+    const before = JSON.stringify(docJSON(editor));
+
+    expect(pressKey(editor, "Tab")).toBe(true);
+
+    expect(JSON.stringify(docJSON(editor))).toBe(before);
+  });
+
+  it("Tab in a code block inserts two spaces", () => {
+    const editor = createEditor([codeBlock("line", { blockId: "c1" })]);
+    setCursorInCode(editor, 0, "line".length);
+
+    expect(pressKey(editor, "Tab")).toBe(true);
+
+    const json = docJSON(editor);
+    expect(json.content![0].content![0]).toMatchObject({ type: "text", text: "line  " });
+  });
+
+  it("Shift-Tab outdents a nested item to be its parent's next sibling", () => {
+    const editor = createEditor([
+      item("parent", { blockId: "li1" }, item("nested", { blockId: "li2" })),
+    ]);
+    setCursorInTextOf(editor, "nested", 2);
+
+    expect(pressKey(editor, "Tab", { shift: true })).toBe(true);
+
+    const json = docJSON(editor);
+    expect(json.content).toHaveLength(2);
+    expect(json.content![0]).toMatchObject({ type: "docListItem", attrs: { blockId: "li1" } });
+    expect(json.content![0].content).toHaveLength(1); // child gone
+    expect(json.content![1]).toMatchObject({ type: "docListItem", attrs: { blockId: "li2" } });
+    expect(editor.state.selection.$from.parent.textContent).toBe("nested");
+    expect(editor.state.selection.$from.parentOffset).toBe(2);
+  });
+
+  it("Shift-Tab absorbs former following siblings as children", () => {
+    const editor = createEditor([
+      item(
+        "parent",
+        { blockId: "li1" },
+        item("a", { blockId: "li2" }),
+        item("b", { blockId: "li3" }),
+      ),
+    ]);
+    setCursorInTextOf(editor, "a");
+
+    expect(pressKey(editor, "Tab", { shift: true })).toBe(true);
+
+    const json = docJSON(editor);
+    expect(json.content).toHaveLength(2);
+    const lifted = json.content![1];
+    expect(lifted).toMatchObject({ type: "docListItem", attrs: { blockId: "li2" } });
+    expect(lifted.content![1]).toMatchObject({ type: "docListItem", attrs: { blockId: "li3" } });
+  });
+
+  it("Enter on an EMPTY nested item outdents one level, staying a list item", () => {
+    const editor = createEditor([
+      item("parent", { blockId: "li1" }, item("", { blockId: "li2" })),
+    ]);
+    setCursorInTextOf(editor, "");
+
+    expect(pressKey(editor, "Enter")).toBe(true);
+
+    const json = docJSON(editor);
+    expect(json.content).toHaveLength(2);
+    expect(json.content![0]).toMatchObject({ type: "docListItem", attrs: { blockId: "li1" } });
+    expect(json.content![1]).toMatchObject({ type: "docListItem", attrs: { blockId: "li2" } });
+  });
+
+  it("Shift-Tab frees a paragraph trapped as a list item's child", () => {
+    const editor = createEditor([
+      {
+        type: "docListItem",
+        attrs: { blockId: "li1" },
+        content: [wrapper("item"), paragraph("trapped", { blockId: "p1" })],
+      },
+    ]);
+    setCursorInTextOf(editor, "trapped", 3);
+
+    expect(pressKey(editor, "Tab", { shift: true })).toBe(true);
+
+    const json = docJSON(editor);
+    expect(json.content).toHaveLength(2);
+    expect(json.content![0]).toMatchObject({ type: "docListItem", attrs: { blockId: "li1" } });
+    expect(json.content![1]).toMatchObject({ type: "docParagraph", attrs: { blockId: "p1" } });
+    expect(editor.state.selection.$from.parent.textContent).toBe("trapped");
+    expect(editor.state.selection.$from.parentOffset).toBe(3);
+  });
+
+  it("Shift-Tab on a top-level item is swallowed without changes", () => {
+    const editor = createEditor([item("one", { blockId: "li1" })]);
+    setCursorInTextOf(editor, "one");
+    const before = JSON.stringify(docJSON(editor));
+
+    expect(pressKey(editor, "Tab", { shift: true })).toBe(true);
+
+    expect(JSON.stringify(docJSON(editor))).toBe(before);
   });
 });

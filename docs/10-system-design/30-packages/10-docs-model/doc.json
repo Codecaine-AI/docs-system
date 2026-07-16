@@ -1,0 +1,542 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-30-packages-10-docs-model",
+  "title": "docs-model — the format",
+  "root": "b-10-docs-model-root",
+  "blocks": {
+    "b-10-docs-model-root": {
+      "id": "b-10-docs-model-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-10-docs-model-title-1",
+        "b-10-docs-model-lead-2",
+        "b-10-docs-model-owns-3",
+        "b-10-docs-model-scope-4",
+        "b-10-docs-model-schema-5",
+        "b-10-docs-model-tree-6",
+        "b-10-docs-model-ops-7",
+        "b-10-docs-model-components-8",
+        "b-10-docs-model-comments-9",
+        "b-10-docs-model-projection-10",
+        "b-10-docs-model-why-11",
+        "b-10-docs-model-runtimes-12",
+        "b-10-docs-model-decision-13",
+        "b-10-docs-model-boundary-14",
+        "b-10-docs-model-dependencies-15",
+        "b-10-docs-model-dependency-table-16",
+        "b-10-docs-model-center-17",
+        "b-10-docs-model-alone-18",
+        "b-10-docs-model-consumers-19"
+      ]
+    },
+    "b-10-docs-model-title-1": {
+      "id": "b-10-docs-model-title-1",
+      "type": "heading",
+      "props": {
+        "level": 1
+      },
+      "text": [
+        {
+          "insert": "docs-model — the format"
+        }
+      ],
+      "children": []
+    },
+    "b-10-docs-model-lead-2": {
+      "id": "b-10-docs-model-lead-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "@codecaine-ai/docs-model",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is the dependency-pure TypeScript definition of "
+        },
+        {
+          "insert": "doc.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". It owns the shared format, operations, and projections that every other package builds around."
+        }
+      ],
+      "children": []
+    },
+    "b-10-docs-model-owns-3": {
+      "id": "b-10-docs-model-owns-3",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "What it owns"
+        }
+      ],
+      "children": []
+    },
+    "b-10-docs-model-scope-4": {
+      "id": "b-10-docs-model-scope-4",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The package has 88 source files. It is pure TypeScript: no React, filesystem, or network code."
+        }
+      ],
+      "children": []
+    },
+    "b-10-docs-model-schema-5": {
+      "id": "b-10-docs-model-schema-5",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/docs-model/src/doc-schema.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " defines "
+        },
+        {
+          "insert": "doc.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " as a normalized, id-keyed block tree with delta-style rich-text spans. The schema has exactly 14 block types: paragraph, heading, list-item, quote, code, callout, divider, structured-table, file-tree, interaction-surface, mermaid, canvas, image, and video. Retired MDX-era types coerce to callout on read, with the old type name preserved as "
+        },
+        {
+          "insert": "props.kind",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-10-docs-model-tree-6": {
+      "id": "b-10-docs-model-tree-6",
+      "type": "file-tree",
+      "props": {
+        "entries": [
+          {
+            "path": "packages/docs-model/src/doc-schema.ts",
+            "note": "The doc.json schema, validation, and deterministic serializer."
+          },
+          {
+            "path": "packages/docs-model/src/doc-ops.ts",
+            "note": "The seven-operation mutation kernel."
+          },
+          {
+            "path": "packages/docs-model/src/components/<name>/",
+            "note": "Seven component bundles that own all 14 block types."
+          },
+          {
+            "path": "packages/docs-model/src/components/index.ts",
+            "note": "The folded component registry."
+          },
+          {
+            "path": "packages/docs-model/src/comments-schema.ts",
+            "note": "Comment targets for blocks and canvas objects."
+          },
+          {
+            "path": "packages/docs-model/src/project-markdown.ts",
+            "note": "Document-to-Markdown projection."
+          },
+          {
+            "path": "packages/docs-model/src/markdown-to-delta.ts",
+            "note": "Inline Markdown back to delta spans."
+          }
+        ],
+        "title": "Key source paths"
+      },
+      "children": []
+    },
+    "b-10-docs-model-ops-7": {
+      "id": "b-10-docs-model-ops-7",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/docs-model/src/doc-ops.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " defines the seven-op mutation kernel: "
+        },
+        {
+          "insert": "insertBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "deleteBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "moveBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "splitBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "mergeBlocks",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "blockAction",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Its pure "
+        },
+        {
+          "insert": "applyOp(doc, op) -> { doc, inverse }",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " returns the inverse that powers undo in docs-server."
+        }
+      ],
+      "children": []
+    },
+    "b-10-docs-model-components-8": {
+      "id": "b-10-docs-model-components-8",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The seven bundles under "
+        },
+        {
+          "insert": "packages/docs-model/src/components/<name>/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " are rich-text, code, structured-table, file-tree, interaction-surface, mermaid, and canvas. Together they own all 14 block types; each separates its manifest, state, actions, and agent view. "
+        },
+        {
+          "insert": "packages/docs-model/src/components/index.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " folds them into the registry used by validation, discovery, projection, and typed actions."
+        }
+      ],
+      "children": []
+    },
+    "b-10-docs-model-comments-9": {
+      "id": "b-10-docs-model-comments-9",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/docs-model/src/comments-schema.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " defines comments whose targets anchor to document blocks or canvas objects."
+        }
+      ],
+      "children": []
+    },
+    "b-10-docs-model-projection-10": {
+      "id": "b-10-docs-model-projection-10",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/docs-model/src/project-markdown.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "packages/docs-model/src/markdown-to-delta.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " cover Markdown projection in both directions: documents project to Markdown, and edited inline Markdown parses back to delta spans. "
+        },
+        {
+          "insert": "serializeDocDocument",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " produces canonical on-disk bytes deterministically; golden tests assert byte equality."
+        }
+      ],
+      "children": []
+    },
+    "b-10-docs-model-why-11": {
+      "id": "b-10-docs-model-why-11",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why it is its own package"
+        }
+      ],
+      "children": []
+    },
+    "b-10-docs-model-runtimes-12": {
+      "id": "b-10-docs-model-runtimes-12",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The browser viewer, Bun server, and CLI must agree on one definition of a valid document and one mutation contract."
+        }
+      ],
+      "children": []
+    },
+    "b-10-docs-model-decision-13": {
+      "id": "b-10-docs-model-decision-13",
+      "type": "callout",
+      "props": {
+        "title": "One format must cross three runtimes",
+        "tone": "decision"
+      },
+      "text": [
+        {
+          "insert": "The only artifact the browser viewer, Bun server, and CLI can all share is a dependency-pure package. This boundary is a forcing constraint, not a judgment call."
+        }
+      ],
+      "children": []
+    },
+    "b-10-docs-model-boundary-14": {
+      "id": "b-10-docs-model-boundary-14",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The root "
+        },
+        {
+          "insert": "import-boundaries.test.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " enforces the constraint: docs-model may not import "
+        },
+        {
+          "insert": "react",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "react-dom",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", or "
+        },
+        {
+          "insert": "@tiptap/*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". It may import canvas only through the "
+        },
+        {
+          "insert": "@codecaine-ai/canvas/agent-schema",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " leaf for types, never through the engine."
+        }
+      ],
+      "children": []
+    },
+    "b-10-docs-model-dependencies-15": {
+      "id": "b-10-docs-model-dependencies-15",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Dependencies"
+        }
+      ],
+      "children": []
+    },
+    "b-10-docs-model-dependency-table-16": {
+      "id": "b-10-docs-model-dependency-table-16",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Direction",
+          "Package or layer",
+          "Relationship"
+        ],
+        "density": "compact",
+        "rows": [
+          [
+            "Depends on",
+            "@sinclair/typebox",
+            "Defines the package's runtime schemas."
+          ],
+          [
+            "Depends on, types only",
+            "@codecaine-ai/canvas through @codecaine-ai/canvas/agent-schema",
+            "Provides canvas types without importing the engine."
+          ],
+          [
+            "Depended on by",
+            "docs-index",
+            "Consumes the shared document format."
+          ],
+          [
+            "Depended on by",
+            "docs-server",
+            "Applies operations and uses returned inverses for undo."
+          ],
+          [
+            "Depended on by",
+            "docs-viewer",
+            "Consumes the shared document format in the browser."
+          ],
+          [
+            "Depended on by",
+            "docs-workbench",
+            "Builds editing machinery around the shared types."
+          ],
+          [
+            "Depended on by",
+            "docs-cli",
+            "Consumes the shared format and projections from the CLI."
+          ]
+        ],
+        "title": "Package boundary"
+      },
+      "children": []
+    },
+    "b-10-docs-model-center-17": {
+      "id": "b-10-docs-model-center-17",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Everything else in the repo is machinery around this package's types."
+        }
+      ],
+      "children": []
+    },
+    "b-10-docs-model-alone-18": {
+      "id": "b-10-docs-model-alone-18",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Using it alone"
+        }
+      ],
+      "children": []
+    },
+    "b-10-docs-model-consumers-19": {
+      "id": "b-10-docs-model-consumers-19",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Consume docs-model by itself when a tool needs to read, validate, mutate, or project "
+        },
+        {
+          "insert": "doc.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " without running a server. Offline agents, static generators, and scripts can use the format and its pure operations without browser, server, or CLI machinery."
+        }
+      ],
+      "children": []
+    }
+  }
+}

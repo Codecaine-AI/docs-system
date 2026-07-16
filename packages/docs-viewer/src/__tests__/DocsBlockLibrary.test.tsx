@@ -75,7 +75,7 @@ describe("DocsBlockLibrary", () => {
     expect(document.getElementById("library-block-interaction-surface")).toBeTruthy();
   });
 
-  it("shows real rendered examples with delta marks and component chrome", () => {
+  it("shows real rendered examples with delta marks and component framing", () => {
     render(
       <DocsClientProvider canvasEmbed={FakeCanvasEmbed}>
         <DocsBlockLibrary />
@@ -90,9 +90,11 @@ describe("DocsBlockLibrary", () => {
     expect(link.tagName).toBe("A");
     expect(link.getAttribute("href")).toBe("https://example.com");
 
-    // Callout with a kind: the kind text replaces the tone in the label chip.
+    // The showcase keeps its own block-type label, while the rendered callout
+    // itself stays inline and does not surface its semantic kind as a banner.
+    const callout = document.querySelector('[data-docs-block-type="callout"]');
     expect(screen.getByText("One tool registry")).toBeTruthy();
-    expect(screen.getByText("Decision")).toBeTruthy();
+    expect(callout?.textContent).not.toContain("Decision");
 
     // Code as an annotated JSON state object: the annotated variant renders
     // the JSON source with its click-pairable design-decision notes.

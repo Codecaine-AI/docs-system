@@ -102,11 +102,19 @@ describe("DocBlockRenderer", () => {
     expect(screen.getByText("Stable ids are a system invariant.")).toBeTruthy();
     expect(document.querySelector('hr[data-doc-block="divider"]')).toBeTruthy();
 
-    // Adapted docs-block components: callout (kind renders as the label chip
-    // instead of the tone) and file-tree.
-    expect(document.querySelector('[data-docs-block-type="callout"]')).toBeTruthy();
-    expect(screen.getByText("Heads up")).toBeTruthy();
-    expect(screen.getByText("Decision")).toBeTruthy();
+    // Adapted docs-block components: the callout keeps its semantic box and
+    // content without rendering kind/type banners, and file-tree follows it.
+    const callout = document.querySelector('[data-docs-block-type="callout"]');
+    expect(callout).toBeTruthy();
+    expect(callout?.getAttribute("data-mdx-block")).toBe("Callout");
+    expect(callout?.getAttribute("data-source-id")).toBe("callout-1");
+    expect(callout?.classList.contains("not-prose")).toBe(true);
+    expect(callout?.classList.contains("my-4")).toBe(true);
+    expect(callout?.textContent).toContain("Heads up");
+    expect(callout?.textContent).not.toContain("Decision");
+    expect(screen.getByText("Heads up").className).toBe(
+      "mb-1.5 text-sm font-medium text-foreground",
+    );
     // File-tree renders `tree`-style: rows carry the full entry path as a
     // data attribute while showing only the basename with guide glyphs
     // (fixture-shape-tolerant: paths may evolve with the v2 fixture).

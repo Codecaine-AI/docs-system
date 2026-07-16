@@ -1,7 +1,6 @@
 "use client";
 
 import { AlertTriangleIcon, CheckCircle2Icon, InfoIcon } from "lucide-react";
-import { Badge } from "../../ui/badge";
 import { cn } from "../../ui/cn";
 import {
   CARD_BASE_CLASSES,
@@ -19,9 +18,10 @@ type CalloutData = {
   /** Tone (info/decision/risk/warning/success); unknown tones render as info. */
   tone: string;
   /**
-   * Optional free-form kind (e.g. "Requirement", "Decision") shown as the
-   * label chip instead of the tone text. Coloring stays tone-derived. Legacy
-   * semantic cards are coerced to callouts with a kind at validation.
+   * Optional free-form semantic kind (e.g. "Requirement", "Decision").
+   * Coloring stays tone-derived; the read surface does not render kind as
+   * framing. Legacy semantic cards are coerced to callouts with a kind at
+   * validation.
    */
   kind?: string;
   title?: string;
@@ -64,26 +64,19 @@ export class CalloutDocsBlock extends DocsMdxBlock<CalloutData> {
         data-docs-block-type={this.type}
         data-source-id={data.id}
       >
-        <div className="mb-2 flex flex-wrap items-center gap-2">
-          <Icon className="h-4 w-4 text-muted-foreground" />
-          <Badge variant="outline">{data.kind || data.tone}</Badge>
-          <span className="font-display text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            Callout
-          </span>
-          {data.id && (
-            <span className="font-mono text-[11px] text-muted-foreground">{data.id}</span>
-          )}
-        </div>
-        {data.title && (
-          <h3 className="mb-2 font-display text-sm font-semibold text-foreground">
-            {data.title}
-          </h3>
-        )}
-        {data.body && (
-          <div className="docs-markdown prose prose-sm dark:prose-invert max-w-none font-sans text-sm leading-[1.7]">
-            {ctx.renderMarkdown(data.body)}
+        <div className="flex items-start gap-3">
+          <Icon className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+          <div className="min-w-0 flex-1">
+            {data.title && (
+              <div className="mb-1.5 text-sm font-medium text-foreground">{data.title}</div>
+            )}
+            {data.body && (
+              <div className="docs-markdown prose prose-sm dark:prose-invert max-w-none font-sans text-sm leading-[1.7] text-[color:var(--docs-callout-fg,currentColor)]">
+                {ctx.renderMarkdown(data.body)}
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </aside>
     );
   }

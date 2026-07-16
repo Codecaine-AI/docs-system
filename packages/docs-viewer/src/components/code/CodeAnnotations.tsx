@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { MessageSquareCodeIcon } from "lucide-react";
 import { Badge } from "../../ui/badge";
 import { cn } from "../../ui/cn";
 import { highlightCode, prettyPrintIfJson } from "./highlight";
@@ -95,18 +94,10 @@ export function AnnotatedCodeBlock({
 
   return (
     <section
-      className="not-prose my-4 overflow-hidden rounded-md border bg-muted/20"
+      className="not-prose my-4"
       data-code-annotations={id}
     >
-      <div className="flex flex-wrap items-center gap-2 border-b bg-sky-500/10 px-3 py-2">
-        <MessageSquareCodeIcon className="h-4 w-4 shrink-0 text-sky-600 dark:text-sky-400" />
-        <span className="font-display text-xs font-medium uppercase tracking-wider text-sky-700 dark:text-sky-300">
-          Annotated Code
-        </span>
-        {language && <Badge variant="outline">{language}</Badge>}
-        <span className="font-mono text-[11px] text-muted-foreground">{id}</span>
-      </div>
-      <div className="grid gap-0 lg:grid-cols-[minmax(0,1fr)_320px]">
+      <div className="grid gap-0 overflow-hidden rounded-md border lg:grid-cols-[minmax(0,1fr)_320px]">
         <pre className="max-h-[440px] overflow-auto bg-background p-0 font-mono text-xs leading-relaxed">
           {lines.map((line, index) => {
             const lineNumber = index + 1;

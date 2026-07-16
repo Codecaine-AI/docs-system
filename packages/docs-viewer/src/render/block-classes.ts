@@ -28,26 +28,43 @@ export const PARAGRAPH_CLASSES = "my-3 text-sm leading-[1.7]";
 export const HEADING_CLASSES = "mt-6 mb-3 font-display font-semibold text-foreground";
 
 /** `list-item` — the flex row container (registry `div[role=listitem]`, editor `<li>`; `flex` also suppresses the `<li>`'s native marker). */
-export const LIST_ITEM_CLASSES = "my-1 flex gap-2 text-sm leading-[1.7]";
+export const LIST_ITEM_CLASSES = "my-1 flex text-sm leading-[1.7]";
 
-/** `list-item` — the hand-drawn `•` bullet span. */
-export const LIST_ITEM_BULLET_CLASSES = "select-none text-muted-foreground";
+/**
+ * `list-item` — the marker box (Notion metrics: a fixed 24px column with the
+ * marker centered, text starting at its right edge; marker inherits the text
+ * color). Holds a literal `•` for unordered items; ordered items leave it
+ * empty and the number arrives via a CSS counter on
+ * `[data-doc-ordered] > [data-doc-list-marker]::before` (host stylesheet —
+ * see docs-workbench index.css).
+ */
+export const LIST_ITEM_BULLET_CLASSES = "w-6 shrink-0 select-none text-center";
 
 /** `list-item` — the content column next to the bullet. */
 export const LIST_ITEM_CONTENT_CLASSES = "min-w-0 flex-1";
 
-/** `list-item` — the nested-children indent (registry-only wrapper; the editor mirrors it via a scoped CSS rule in the host stylesheet, see index.css). */
-export const LIST_ITEM_CHILDREN_CLASSES = "ml-4";
+/** `list-item` — nested-children wrapper (registry-only). No extra indent: a child's own 24px marker box supplies the per-level step, matching Notion (a nested paragraph aligns flush with the parent item's text). */
+export const LIST_ITEM_CHILDREN_CLASSES = "";
 
-/** `code` — the `<pre>` element (the inner `<code>` is unstyled on both surfaces). */
+/**
+ * Inline `code` MARK spans (not the code block) — Notion-style chip: soft
+ * neutral background, red monospace text, no backtick glyphs (hosts that
+ * run Tailwind Typography must also suppress its code::before/::after
+ * backticks — see docs-workbench index.css). The `--docs-inline-code-*`
+ * vars let a themed host recolor it; the fallbacks are Notion's own values.
+ */
+export const INLINE_CODE_CLASSES =
+  "not-prose rounded bg-[var(--docs-inline-code-bg,rgba(135,131,120,0.15))] px-[0.35em] py-[0.1em] font-mono text-[0.85em] text-[var(--docs-inline-code-fg,#eb5757)]";
+
+/** `code` — the `<pre>` element (the inner `<code>` is unstyled on both surfaces). Border/background follow the per-block-type tokens; the fallbacks equal the old `border` + `bg-muted/30` utilities so unthemed hosts render unchanged. */
 export const CODE_BLOCK_CLASSES =
-  "not-prose my-4 overflow-auto rounded-md border bg-muted/30 p-3 font-mono text-xs leading-relaxed";
+  "not-prose my-4 overflow-auto rounded-md border border-[color:var(--docs-code-block-border,var(--border))] bg-[color:var(--docs-code-block-bg,color-mix(in_srgb,var(--muted)_30%,transparent))] p-3 font-mono text-xs leading-relaxed";
 
-/** `quote` — the `<blockquote>` element. */
+/** `quote` — the `<blockquote>` element. Border/text colors follow the per-block-type tokens; the fallbacks equal the old `border-primary/40` + `text-muted-foreground` utilities. */
 export const QUOTE_CLASSES =
-  "my-4 border-l-2 border-primary/40 pl-3 text-sm italic leading-[1.7] text-muted-foreground";
+  "my-4 border-l-2 border-[color:var(--docs-quote-border,color-mix(in_srgb,var(--primary)_40%,transparent))] pl-3 text-sm italic leading-[1.7] text-[color:var(--docs-quote-fg,var(--muted-foreground))]";
 
-/** Card container chrome for the callout block type (tone fragment appended separately). */
+/** Card container styling for the callout block type (tone fragment appended separately). */
 export const CARD_BASE_CLASSES = "not-prose my-4 rounded-md border p-3";
 
 /** Default card tone (callout info/warning/risk/success). */
@@ -59,5 +76,6 @@ export const CARD_TONE_DECISION_CLASSES = "border-primary/25 bg-primary/5";
 /** Card container for the callout block type in the editor (semanticNode). */
 export const SEMANTIC_CARD_CLASSES = `${CARD_BASE_CLASSES} ${CARD_TONE_PRIMARY_CLASSES}`;
 
-/** Body text inside a card block (the editor's callout node body). */
-export const CARD_BODY_TEXT_CLASSES = "font-sans text-sm leading-[1.7]";
+/** Body text inside a card block (the editor's callout node body). Text color follows the callout token; the currentColor fallback preserves the old behavior (inherit). */
+export const CARD_BODY_TEXT_CLASSES =
+  "font-sans text-sm leading-[1.7] text-[color:var(--docs-callout-fg,currentColor)]";

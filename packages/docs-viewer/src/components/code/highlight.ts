@@ -1,10 +1,11 @@
 /**
- * Shared syntax-highlighting utility for the READ surface's code content —
- * the core `code` block descriptor (block-registry.ts) and the annotated
- * code component (CodeAnnotations.tsx) both render through here. The editor
- * intentionally does NOT (ProseMirror decoration work is a separate
- * follow-up); markdown-projected fenced code already highlights via
- * rehype-highlight in DocBlockRenderer's renderMarkdown.
+ * Shared syntax-highlighting utility for ALL code content — the READ
+ * surface's core `code` block descriptor (block-registry.ts) and annotated
+ * code component (CodeAnnotations.tsx) render through highlightCode's
+ * per-line HTML, and the EDITOR's live-highlight decorations
+ * (editor-highlight.ts) come from highlightCodeTokens' offset ranges, so
+ * both surfaces tokenize identically. Markdown-projected fenced code
+ * highlights via rehype-highlight in DocBlockRenderer's renderMarkdown.
  *
  * Uses highlight.js CORE plus an explicitly registered, curated common set of
  * grammars — never the all-languages bundle (hundreds of grammars would bloat
@@ -59,6 +60,23 @@ hljs.registerLanguage("yaml", yaml);
 // tokenize as comments — acceptable for a display hint).
 hljs.registerAliases(["shell", "zsh"], { languageName: "bash" });
 hljs.registerAliases(["jsonc"], { languageName: "json" });
+
+/** The curated grammar names, for language-picker UIs (each also accepts its hljs aliases). */
+export const HIGHLIGHT_LANGUAGES = [
+  "bash",
+  "css",
+  "diff",
+  "go",
+  "javascript",
+  "json",
+  "markdown",
+  "python",
+  "rust",
+  "sql",
+  "typescript",
+  "xml",
+  "yaml",
+] as const;
 
 function escapeHtml(text: string): string {
   return text
@@ -150,6 +168,70 @@ export function highlightCode(code: string, language?: string): string[] {
     return code.split("\n").map(escapeHtml);
   }
   return splitHighlightedHtml(highlighted);
+}
+
+/** Reverses escapeHtml — used only to recover original-text lengths when mapping hljs output back to source offsets. `&amp;` must go last so it never double-unescapes. */
+function unescapeHtml(text: string): string {
+  return text
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#x27;/g, "'")
+    .replace(/&amp;/g, "&");
+}
+
+export type HighlightToken = {
+  /** Start offset in the ORIGINAL code string (0-based, inclusive). */
+  from: number;
+  /** End offset in the original code string (exclusive). */
+  to: number;
+  /** Space-joined hljs class list (outer-to-inner for nested tokens). */
+  className: string;
+};
+
+/**
+ * Highlight `code` and return token CLASS RANGES as offsets into the
+ * original string — the shape ProseMirror inline decorations need (the
+ * editor's live-highlight plugin, editor-highlight.ts). Same grammar
+ * resolution as highlightCode (declared language, else JSON sniff, else
+ * none); unknown/missing languages return no tokens. Offsets are recovered
+ * by walking hljs's span-tagged HTML and unescaping the text runs, so they
+ * are exact for any input.
+ */
+export function highlightCodeTokens(code: string, language?: string): HighlightToken[] {
+  const grammar = resolveLanguage(code, language);
+  if (!grammar) return [];
+  let highlighted: string;
+  try {
+    highlighted = hljs.highlight(code, { language: grammar, ignoreIllegals: true }).value;
+  } catch {
+    return [];
+  }
+  const tokens: HighlightToken[] = [];
+  const classStack: string[] = [];
+  let offset = 0;
+  let lastIndex = 0;
+  const pushText = (chunk: string) => {
+    if (!chunk) return;
+    const length = unescapeHtml(chunk).length;
+    if (classStack.length > 0) {
+      tokens.push({ from: offset, to: offset + length, className: classStack.join(" ") });
+    }
+    offset += length;
+  };
+  HLJS_TAG_RE.lastIndex = 0;
+  let match: RegExpExecArray | null;
+  while ((match = HLJS_TAG_RE.exec(highlighted)) !== null) {
+    pushText(highlighted.slice(lastIndex, match.index));
+    if (match[0] === "</span>") {
+      classStack.pop();
+    } else {
+      classStack.push(/class="([^"]*)"/.exec(match[0])?.[1] ?? "");
+    }
+    lastIndex = match.index + match[0].length;
+  }
+  pushText(highlighted.slice(lastIndex));
+  return tokens;
 }
 
 /**

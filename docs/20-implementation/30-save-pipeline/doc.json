@@ -79,7 +79,7 @@
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "docs/10-system-design/00-data-model.md",
+              "path": "docs/10-system-design/00-data-model/00-overview.md",
               "label": "the data model — doc.json shapes"
             }
           }

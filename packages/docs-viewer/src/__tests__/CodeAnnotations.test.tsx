@@ -37,7 +37,9 @@ describe("AnnotatedCodeBlock", () => {
 
     expect(codeLineWithText("const a = 1;")).toBeTruthy();
     expect(codeLineWithText("console.log(c);")).toBeTruthy();
-    expect(screen.getByText("ts")).toBeTruthy();
+    expect(container.querySelector('[data-code-annotations="code-1"]')).toBeTruthy();
+    expect(screen.queryByText("Annotated Code")).toBeNull();
+    expect(screen.queryByText("ts")).toBeNull();
     // Line-number gutter (the row's first span; "1" also appears as an
     // hljs-number token in the highlighted code, so target the gutter cell).
     expect(container.querySelector('[data-code-line="1"] > span')?.textContent).toBe("1");

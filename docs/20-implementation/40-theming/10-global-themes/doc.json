@@ -1,0 +1,279 @@
+{
+  "schemaVersion": 1,
+  "id": "20-implementation-40-theming-10-global-themes",
+  "title": "Global themes",
+  "root": "b-global-themes-root",
+  "blocks": {
+    "b-global-themes-root": {
+      "id": "b-global-themes-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-global-themes-title-1",
+        "b-global-themes-intro-2",
+        "b-global-themes-folder-heading-3",
+        "b-global-themes-folder-para-4",
+        "b-global-themes-manifest-table-5",
+        "b-global-themes-example-6",
+        "b-global-themes-selection-heading-7",
+        "b-global-themes-selection-para-8",
+        "b-global-themes-saveas-heading-9",
+        "b-global-themes-saveas-rail-10",
+        "b-global-themes-saveas-hand-11",
+        "b-global-themes-saveas-export-12"
+      ]
+    },
+    "b-global-themes-title-1": {
+      "id": "b-global-themes-title-1",
+      "type": "heading",
+      "props": {
+        "level": 1
+      },
+      "text": [
+        {
+          "insert": "Global themes"
+        }
+      ],
+      "children": []
+    },
+    "b-global-themes-intro-2": {
+      "id": "b-global-themes-intro-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A theme is a folder. Global built-ins (Default and Dark — the catalogue stays minimal while the theme identity is still being figured out) are compiled into the workbench; custom themes live in the repo's "
+        },
+        {
+          "insert": "themes/<id>/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " directory (sibling of "
+        },
+        {
+          "insert": "docs/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "), served by docs-server ("
+        },
+        {
+          "insert": "GET/POST /api/themes",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ") and listed in the style rail's Themes section."
+        }
+      ],
+      "children": []
+    },
+    "b-global-themes-folder-heading-3": {
+      "id": "b-global-themes-folder-heading-3",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The folder format"
+        }
+      ],
+      "children": []
+    },
+    "b-global-themes-folder-para-4": {
+      "id": "b-global-themes-folder-para-4",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each folder holds a "
+        },
+        {
+          "insert": "theme.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " manifest and one "
+        },
+        {
+          "insert": "components/<surface>.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " token file per visual surface (see Component themes). A manifest's "
+        },
+        {
+          "insert": "base",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " names the theme it layers over, so a custom theme overrides only what differs."
+        }
+      ],
+      "children": []
+    },
+    "b-global-themes-manifest-table-5": {
+      "id": "b-global-themes-manifest-table-5",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Field",
+          "Type",
+          "Meaning"
+        ],
+        "rows": [
+          [
+            "name",
+            "string",
+            "Display name in the Themes picker."
+          ],
+          [
+            "base",
+            "string (theme id)",
+            "Theme to layer over; v1 resolves bases against BUILT-INS only."
+          ],
+          [
+            "dark",
+            "boolean",
+            "Mode applied when the theme is selected."
+          ],
+          [
+            "fonts",
+            "{ body?, heading?, code?, number? }",
+            "Font stacks (any string) written to the per-surface font tokens."
+          ],
+          [
+            "railDefaults",
+            "partial rail settings",
+            "Knob values applied ONCE on selection (a preset ride-along, not a live link)."
+          ]
+        ],
+        "title": "theme.json fields"
+      },
+      "children": []
+    },
+    "b-global-themes-example-6": {
+      "id": "b-global-themes-example-6",
+      "type": "code",
+      "props": {
+        "language": "json"
+      },
+      "text": [
+        {
+          "insert": "// themes/example/theme.json\n{\n  \"name\": \"Example (blue code)\",\n  \"base\": \"default\",\n  \"dark\": false,\n  \"fonts\": { \"code\": \"'Berkeley Mono', ui-monospace, monospace\" }\n}"
+        }
+      ],
+      "children": []
+    },
+    "b-global-themes-selection-heading-7": {
+      "id": "b-global-themes-selection-heading-7",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Selection semantics"
+        }
+      ],
+      "children": []
+    },
+    "b-global-themes-selection-para-8": {
+      "id": "b-global-themes-selection-para-8",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Selecting a theme injects its compiled CSS layer (a light block and a dark block of tier-2 variables) and applies its railDefaults and dark flag once. The style rail stays a personal overlay ON TOP: knob changes afterwards are yours alone and always win over theme values. The selection persists per user ("
+        },
+        {
+          "insert": "docs-theme-folder-id",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ") and re-injects on boot without re-applying railDefaults."
+        }
+      ],
+      "children": []
+    },
+    "b-global-themes-saveas-heading-9": {
+      "id": "b-global-themes-saveas-heading-9",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Creating themes"
+        }
+      ],
+      "children": []
+    },
+    "b-global-themes-saveas-rail-10": {
+      "id": "b-global-themes-saveas-rail-10",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "From the rail: Save current look as theme snapshots your knobs (base = the active theme) into a new "
+        },
+        {
+          "insert": "themes/<id>/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " folder via "
+        },
+        {
+          "insert": "POST /api/themes",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-global-themes-saveas-hand-11": {
+      "id": "b-global-themes-saveas-hand-11",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "By hand or by agent: create the folder directly — ids are lowercase slugs, content is validated tolerantly on load (unknown fields and keys are ignored, never fatal)."
+        }
+      ],
+      "children": []
+    },
+    "b-global-themes-saveas-export-12": {
+      "id": "b-global-themes-saveas-export-12",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Export/Import theme buttons move just the knob blob (settings JSON + dark flag) between machines — the quick path when a full theme folder is overkill."
+        }
+      ],
+      "children": []
+    }
+  }
+}

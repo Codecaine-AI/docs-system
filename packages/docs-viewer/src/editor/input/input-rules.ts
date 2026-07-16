@@ -1,73 +1,16 @@
 "use client";
 
-import {
-  type Editor,
-  type InputRule,
-  markInputRule,
-  nodeInputRule,
-  textblockTypeInputRule,
-  wrappingInputRule,
-} from "@tiptap/core";
+import { type Editor, type InputRule } from "@tiptap/core";
+import { buildCodeInputRules } from "../../components/code/input-rules";
+import { buildRichTextInputRules } from "../../components/rich-text/input-rules";
 
 /**
- * Input-rule port of markdown-shortcut authoring, TG8.2.2.
- * Referenced by DocEditor.tsx through an Extension's addInputRules().
+ * Aggregator for markdown-shortcut authoring (TG8.2.2): each component
+ * folder owns its own rules (components/<name>/input-rules.ts, built on the
+ * schema-shape-aware factories in ./block-convert.ts); this module only
+ * composes them. Referenced by DocEditor.tsx through an Extension's
+ * addInputRules().
  */
 export function buildDocInputRules(editor: Editor): InputRule[] {
-  return [
-    markInputRule({
-      find: /(?:^|\s)((?:\*\*)((?:[^*]+))(?:\*\*))$/,
-      type: editor.schema.marks.bold,
-    }),
-    markInputRule({
-      find: /(?:^|\s)((?:\*)((?:[^*]+))(?:\*))$/,
-      type: editor.schema.marks.italic,
-    }),
-    markInputRule({
-      find: /(?:^|\s)((?:~~)((?:[^~]+))(?:~~))$/,
-      type: editor.schema.marks.strike,
-    }),
-    markInputRule({
-      find: /(?:^|\s)((?:`)((?:[^`]+))(?:`))$/,
-      type: editor.schema.marks.code,
-    }),
-    textblockTypeInputRule({
-      find: /^#\s$/,
-      type: editor.schema.nodes.docHeading,
-      getAttributes: { level: 1 },
-    }),
-    textblockTypeInputRule({
-      find: /^##\s$/,
-      type: editor.schema.nodes.docHeading,
-      getAttributes: { level: 2 },
-    }),
-    textblockTypeInputRule({
-      find: /^###\s$/,
-      type: editor.schema.nodes.docHeading,
-      getAttributes: { level: 3 },
-    }),
-    wrappingInputRule({
-      find: /^\s*([-*])\s$/,
-      type: editor.schema.nodes.docListItem,
-      getAttributes: { ordered: false },
-    }),
-    wrappingInputRule({
-      find: /^(\d+)\.\s$/,
-      type: editor.schema.nodes.docListItem,
-      getAttributes: { ordered: true },
-    }),
-    wrappingInputRule({
-      find: /^\s*>\s$/,
-      type: editor.schema.nodes.docQuote,
-    }),
-    textblockTypeInputRule({
-      find: /^```([a-z0-9_+-]*)[\s\n]$/,
-      type: editor.schema.nodes.docCodeBlock,
-      getAttributes: (match) => ({ language: match[1] || null }),
-    }),
-    nodeInputRule({
-      find: /^(?:---)\s$/,
-      type: editor.schema.nodes.docDivider,
-    }),
-  ];
+  return [...buildRichTextInputRules(editor), ...buildCodeInputRules(editor)];
 }

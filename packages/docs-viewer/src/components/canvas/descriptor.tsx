@@ -26,7 +26,7 @@ export const descriptors: DocBlockDescriptor[] = [
               "div",
               {
                 className:
-                  "rounded-md border border-dashed bg-muted/30 p-3 text-xs text-muted-foreground",
+                  "rounded-md border border-dashed border-[color:var(--docs-canvas-border,var(--border))] bg-muted/30 p-3 text-xs text-muted-foreground",
               },
               canvasId || src
                 ? `Canvas embed: ${canvasId ?? src}`

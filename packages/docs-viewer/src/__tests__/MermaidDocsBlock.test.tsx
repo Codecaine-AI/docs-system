@@ -74,7 +74,7 @@ describe("MermaidDocsBlock.parse", () => {
 });
 
 describe("MermaidDocsBlock.render", () => {
-  it("shows the header chrome and the source fallback initially", async () => {
+  it("shows a quiet title and the source fallback without header framing", async () => {
     const parsed = parseValid({ id: "diagram-3", title: "Topology" });
     const { container } = render(<>{block.render(parsed)}</>);
 
@@ -82,11 +82,13 @@ describe("MermaidDocsBlock.render", () => {
     expect(section).toBeTruthy();
     expect(section?.getAttribute("data-mdx-block")).toBe("Mermaid");
     expect(section?.getAttribute("data-source-id")).toBe("diagram-3");
-    expect(screen.getByText("Mermaid")).toBeTruthy();
-    expect(screen.getByText("Topology")).toBeTruthy();
-    // diagramType badge + block id in the header.
-    expect(screen.getByText("graph")).toBeTruthy();
-    expect(screen.getByText("diagram-3")).toBeTruthy();
+    expect(section?.className).toBe("not-prose my-4");
+    expect(screen.queryByText("Mermaid")).toBeNull();
+    expect(screen.getByText("Topology").className).toBe(
+      "mb-1.5 text-sm font-medium text-foreground",
+    );
+    expect(screen.queryByText("graph")).toBeNull();
+    expect(screen.queryByText("diagram-3")).toBeNull();
     // Source fallback is visible before (and while) the async render runs.
     expect(container.querySelector("pre code")?.textContent).toBe(VALID_SOURCE);
 
@@ -100,7 +102,8 @@ describe("MermaidDocsBlock.render", () => {
   it("renders the caption footer when provided", async () => {
     const parsed = parseValid({ id: "diagram-4", caption: "A caption" });
     const { container } = render(<>{block.render(parsed)}</>);
-    expect(screen.getByText("A caption")).toBeTruthy();
+    const caption = screen.getByText("A caption");
+    expect(caption.className).toBe("mt-1.5 text-xs text-muted-foreground");
     await waitFor(() => {
       expect(container.querySelector('[data-mermaid-rendered="true"]')).toBeTruthy();
     });

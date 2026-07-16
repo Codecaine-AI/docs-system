@@ -11,17 +11,18 @@
       "children": [
         "b-00-manifesto-title-1",
         "b-00-manifesto-north-star-2",
+        "pm-mrnr7bg2-1-smqaz1",
         "b-00-manifesto-markdown-primary-3",
-        "b-00-manifesto-progressive-disclosure-4",
         "b-00-manifesto-prime-directive-5",
         "b-00-manifesto-divider-authoring-6",
         "b-00-manifesto-authoring-heading-7",
+        "pm-mro31aco-2-otusry",
         "b-00-manifesto-vocabulary-8",
         "b-00-manifesto-model-quote-9",
         "b-00-manifesto-edit-surface-10",
         "b-00-manifesto-dogfood-11",
         "b-00-manifesto-layers-heading-12",
-        "b-00-manifesto-foundation-layer-13",
+        "pm-mrnqs7fe-49-t40od6",
         "b-00-manifesto-system-design-layer-14",
         "b-00-manifesto-implementation-layer-15",
         "b-00-manifesto-reader-path-16",
@@ -55,6 +56,17 @@
       ],
       "children": []
     },
+    "pm-mrnr7bg2-1-smqaz1": {
+      "id": "pm-mrnr7bg2-1-smqaz1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Humans get the same blocks rendered in the workbench. Both readers move through the system by progressive disclosure: intent first, concepts next, implementation only when the task calls for it. The structure should let a reader find the relevant subsystem without reading the whole manual."
+        }
+      ],
+      "children": []
+    },
     "b-00-manifesto-markdown-primary-3": {
       "id": "b-00-manifesto-markdown-primary-3",
       "type": "paragraph",
@@ -71,17 +83,6 @@
         },
         {
           "insert": " to read a doc. The JSON is the stable storage form; markdown is the reading contract."
-        }
-      ],
-      "children": []
-    },
-    "b-00-manifesto-progressive-disclosure-4": {
-      "id": "b-00-manifesto-progressive-disclosure-4",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "Humans get the same blocks rendered in the workbench. Both readers move through the system by progressive disclosure: intent first, concepts next, implementation only when the task calls for it. The structure should let a reader find the relevant subsystem without reading the whole manual."
         }
       ],
       "children": []
@@ -116,6 +117,17 @@
       "text": [
         {
           "insert": "The authoring model"
+        }
+      ],
+      "children": []
+    },
+    "pm-mro31aco-2-otusry": {
+      "id": "pm-mro31aco-2-otusry",
+      "type": "quote",
+      "props": {},
+      "text": [
+        {
+          "insert": "This is important"
         }
       ],
       "children": []
@@ -195,8 +207,8 @@
       ],
       "children": []
     },
-    "b-00-manifesto-foundation-layer-13": {
-      "id": "b-00-manifesto-foundation-layer-13",
+    "pm-mrnqs7fe-49-t40od6": {
+      "id": "pm-mrnqs7fe-49-t40od6",
       "type": "paragraph",
       "props": {},
       "text": [
@@ -219,7 +231,7 @@
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "docs/10-system-design/00-data-model.md",
+              "path": "docs/10-system-design/00-data-model/00-overview.md",
               "label": "data model"
             }
           }
@@ -232,7 +244,7 @@
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "docs/10-system-design/10-block-vocabulary.md",
+              "path": "docs/10-system-design/10-block-vocabulary/00-overview.md",
               "label": "block vocabulary"
             }
           }

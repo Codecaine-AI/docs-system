@@ -546,7 +546,7 @@ const ZERO_RECT = {
 };
 
 /**
- * AFFiNE-style popover container + row chrome, shared by the top-level menu
+ * AFFiNE-style popover container + row styling, shared by the top-level menu
  * and submenus: 280px wide, max 390px tall (scrolling), 8px/4px padding on
  * the overlay-panel background.
  */

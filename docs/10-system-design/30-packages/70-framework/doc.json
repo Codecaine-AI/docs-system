@@ -1,0 +1,176 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-30-packages-70-framework",
+  "title": "framework — the methodology",
+  "root": "b-70-framework-root",
+  "blocks": {
+    "b-70-framework-root": {
+      "id": "b-70-framework-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-70-framework-title-1",
+        "b-70-framework-lead-2",
+        "b-70-framework-owns-heading-3",
+        "b-70-framework-owns-4",
+        "b-70-framework-package-heading-5",
+        "b-70-framework-package-6",
+        "b-70-framework-dependencies-heading-7",
+        "b-70-framework-dependencies-8",
+        "b-70-framework-alone-heading-9",
+        "b-70-framework-alone-10",
+        "b-70-framework-boundary-11"
+      ]
+    },
+    "b-70-framework-title-1": {
+      "id": "b-70-framework-title-1",
+      "type": "heading",
+      "props": {
+        "level": 1
+      },
+      "text": [
+        {
+          "insert": "framework — the methodology"
+        }
+      ],
+      "children": []
+    },
+    "b-70-framework-lead-2": {
+      "id": "b-70-framework-lead-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "@codecaine-ai/docs-framework-skill",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is the documentation methodology: the how-to-run-docs-in-a-project layer. It contains guidance and reusable authoring material, not runtime code."
+        }
+      ],
+      "children": []
+    },
+    "b-70-framework-owns-heading-3": {
+      "id": "b-70-framework-owns-heading-3",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "What it owns"
+        }
+      ],
+      "children": []
+    },
+    "b-70-framework-owns-4": {
+      "id": "b-70-framework-owns-4",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "At "
+        },
+        {
+          "insert": "packages/framework/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", it owns the manual—architecture reference, standards, hierarchy conventions, and setup guide—plus document templates and the skill definition that host repositories symlink into their agent tooling."
+        }
+      ],
+      "children": []
+    },
+    "b-70-framework-package-heading-5": {
+      "id": "b-70-framework-package-heading-5",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why it is a package at all"
+        }
+      ],
+      "children": []
+    },
+    "b-70-framework-package-6": {
+      "id": "b-70-framework-package-6",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The honest reason is distribution convenience. Being a workspace package lets a host repository resolve, version, and symlink the methodology like any other dependency; the packaging is not an architectural layer."
+        }
+      ],
+      "children": []
+    },
+    "b-70-framework-dependencies-heading-7": {
+      "id": "b-70-framework-dependencies-heading-7",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Dependencies"
+        }
+      ],
+      "children": []
+    },
+    "b-70-framework-dependencies-8": {
+      "id": "b-70-framework-dependencies-8",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "None. The package has zero dependencies and imports nothing. Nothing depends on it at runtime, and it does not ship in the server, viewer, or CLI. A running docs installation behaves identically whether the package is present or absent."
+        }
+      ],
+      "children": []
+    },
+    "b-70-framework-alone-heading-9": {
+      "id": "b-70-framework-alone-heading-9",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Using it alone"
+        }
+      ],
+      "children": []
+    },
+    "b-70-framework-alone-10": {
+      "id": "b-70-framework-alone-10",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A repository can adopt the manual, templates, and skill without running any of the software. In that mode, it uses only the documentation method."
+        }
+      ],
+      "children": []
+    },
+    "b-70-framework-boundary-11": {
+      "id": "b-70-framework-boundary-11",
+      "type": "callout",
+      "props": {
+        "kind": "Boundary under review",
+        "title": "This may not need to be a package",
+        "tone": "info"
+      },
+      "text": [
+        {
+          "insert": "Framework-as-package is itself under review. It may not need to remain a workspace package at all; the same material could live as plain repository content or use its own distribution channel."
+        }
+      ],
+      "children": []
+    }
+  }
+}

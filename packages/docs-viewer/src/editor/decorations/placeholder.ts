@@ -24,7 +24,9 @@ import { NODE_TYPE_TO_BLOCK_TYPE } from "../core/schema";
  * - docParagraph: only when the cursor sits inside it AND the editor is
  *   focused (and the paragraph has no nested children) —
  *   "Type '/' for commands".
- * - docListItem: editor focused — "List".
+ * - docListItem: NO hint — a gray "List" next to the marker read as
+ *   phantom content while typing (Ford, dogfood review 2026-07-16); an
+ *   empty item is self-explanatory, the marker is already visible.
  * - docQuote / docCallout: editor focused — their block type name
  *   capitalized ("Quote", "Callout").
  *
@@ -90,8 +92,6 @@ function buildDecorations(state: EditorState, editorFocused: boolean): Decoratio
       if (node.childCount === 1 && hasEmptyWrapper(node) && cursorInside && editorFocused) {
         text = "Type '/' for commands";
       }
-    } else if (name === "docListItem") {
-      if (hasEmptyWrapper(node) && editorFocused) text = "List";
     } else if (FOCUS_LABELED_NODE_NAMES.has(name) && hasEmptyWrapper(node) && editorFocused) {
       text = capitalize(NODE_TYPE_TO_BLOCK_TYPE[name] ?? name);
     }

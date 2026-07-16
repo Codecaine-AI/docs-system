@@ -1,7 +1,5 @@
 "use client";
 
-import { FolderTreeIcon } from "lucide-react";
-import { Badge } from "../../ui/badge";
 import { cn } from "../../ui/cn";
 import {
   DocsMdxBlock,
@@ -77,14 +75,11 @@ function normalizePath(raw: string): { segments: string[]; isDir: boolean } {
  */
 function buildFileTree(entries: FileTreeEntry[]): {
   roots: Map<string, FileTreeNode>;
-  entryCount: number;
 } {
   const roots = new Map<string, FileTreeNode>();
-  let entryCount = 0;
   for (const entry of entries) {
     const { segments, isDir } = normalizePath(entry.path);
     if (segments.length === 0) continue;
-    entryCount += 1;
     let level = roots;
     let prefix = "";
     for (const [index, segment] of segments.entries()) {
@@ -119,7 +114,7 @@ function buildFileTree(entries: FileTreeEntry[]): {
       level = node.children;
     }
   }
-  return { roots, entryCount };
+  return { roots };
 }
 
 /**
@@ -221,7 +216,7 @@ function FileTreeRowView({ row }: { row: FileTreeRow }) {
       </span>
       {node.note && (
         <span
-          className="ml-2 min-w-0 max-w-[48ch] truncate text-muted-foreground"
+          className="ml-2 min-w-0 max-w-[48ch] truncate text-[color:var(--docs-file-tree-note-fg,var(--muted-foreground))]"
           title={node.note}
         >
           {"# "}
@@ -242,44 +237,32 @@ export class FileTreeDocsBlock extends DocsMdxBlock<FileTreeData> {
 
   render(block: DocsMdxParsedBlock<FileTreeData>) {
     const { data } = block;
-    const { roots, entryCount } = buildFileTree(data.entries);
+    const { roots } = buildFileTree(data.entries);
     const rows = flattenFileTree(roots.values(), "", []);
     return (
       <section
-        className="not-prose my-4 overflow-hidden rounded-md border bg-muted/20"
+        className="not-prose my-4"
         data-mdx-block={this.tag}
         data-docs-block-type={this.type}
         data-source-id={data.id}
       >
-        <div className="flex flex-wrap items-center gap-2 border-b bg-amber-500/10 px-3 py-2">
-          <FolderTreeIcon className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
-          <span className="font-display text-xs font-medium uppercase tracking-wider text-amber-700 dark:text-amber-300">
-            File Tree
-          </span>
-          {data.title && <span className="text-sm font-medium">{data.title}</span>}
-          <Badge variant="outline">
-            {entryCount} {entryCount === 1 ? "entry" : "entries"}
-          </Badge>
-          {data.id && (
-            <span className="font-mono text-[11px] text-muted-foreground">{data.id}</span>
+        {data.title && (
+          <div className="mb-1.5 text-sm font-medium text-foreground">{data.title}</div>
+        )}
+        <div className="overflow-x-auto rounded-md border border-[color:var(--docs-file-tree-border,var(--border))] bg-background py-2 font-mono text-xs leading-6">
+          {rows.length === 0 ? (
+            <div className="px-3 text-muted-foreground">(no entries)</div>
+          ) : (
+            <>
+              <div className="flex items-center px-3 text-muted-foreground" aria-hidden="true">
+                <span className="w-4 shrink-0 select-none"> </span>
+                <span className="whitespace-pre">.</span>
+              </div>
+              {rows.map((row) => (
+                <FileTreeRowView key={row.node.path} row={row} />
+              ))}
+            </>
           )}
-        </div>
-        <div className="p-3">
-          <div className="overflow-x-auto rounded-md border bg-background py-2 font-mono text-xs leading-6">
-            {rows.length === 0 ? (
-              <div className="px-3 text-muted-foreground">(no entries)</div>
-            ) : (
-              <>
-                <div className="flex items-center px-3 text-muted-foreground" aria-hidden="true">
-                  <span className="w-4 shrink-0 select-none"> </span>
-                  <span className="whitespace-pre">.</span>
-                </div>
-                {rows.map((row) => (
-                  <FileTreeRowView key={row.node.path} row={row} />
-                ))}
-              </>
-            )}
-          </div>
         </div>
       </section>
     );

@@ -1,0 +1,311 @@
+{
+  "schemaVersion": 1,
+  "id": "20-implementation-40-theming-40-system-ui",
+  "title": "System UI and the knob map",
+  "root": "b-system-ui-root",
+  "blocks": {
+    "b-system-ui-root": {
+      "id": "b-system-ui-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-system-ui-title-1",
+        "b-system-ui-intro-2",
+        "b-system-ui-fixed-heading-3",
+        "b-system-ui-fixed-table-4",
+        "b-system-ui-fixed-note-5",
+        "b-system-ui-knobs-heading-6",
+        "b-system-ui-knobs-para-7",
+        "b-system-ui-knobs-theme-8",
+        "b-system-ui-knobs-font-9",
+        "b-system-ui-knobs-layout-10",
+        "b-system-ui-knobs-effects-11",
+        "b-system-ui-knobs-components-12"
+      ]
+    },
+    "b-system-ui-title-1": {
+      "id": "b-system-ui-title-1",
+      "type": "heading",
+      "props": {
+        "level": 1
+      },
+      "text": [
+        {
+          "insert": "System UI and the knob map"
+        }
+      ],
+      "children": []
+    },
+    "b-system-ui-intro-2": {
+      "id": "b-system-ui-intro-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Not everything is themable, on purpose. The system UI — the workbench's own furniture — stays fixed so every theme still FEELS like the same tool. This page draws that line explicitly, then maps every style-rail knob to what it actually writes."
+        }
+      ],
+      "children": []
+    },
+    "b-system-ui-fixed-heading-3": {
+      "id": "b-system-ui-fixed-heading-3",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Deliberately fixed"
+        }
+      ],
+      "children": []
+    },
+    "b-system-ui-fixed-table-4": {
+      "id": "b-system-ui-fixed-table-4",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Fixed UI",
+          "Value",
+          "Where it lives"
+        ],
+        "rows": [
+          [
+            "Docs sidebar width",
+            "18rem (w-72)",
+            "shell/App.tsx"
+          ],
+          [
+            "Style rail width",
+            "30rem expanded, 3.25rem collapsed",
+            "shell/StyleRail.tsx"
+          ],
+          [
+            "Header row heights",
+            "2.75rem (h-11)",
+            "shell components"
+          ],
+          [
+            "Tree metrics",
+            "indent, row padding, chevron sizes",
+            "shell/Sidebar.tsx"
+          ],
+          [
+            "Rail visibility breakpoint",
+            "hidden below lg",
+            "shell/StyleRail.tsx"
+          ]
+        ]
+      },
+      "children": []
+    },
+    "b-system-ui-fixed-note-5": {
+      "id": "b-system-ui-fixed-note-5",
+      "type": "callout",
+      "props": {
+        "title": "Moving the line",
+        "tone": "decision"
+      },
+      "text": [
+        {
+          "insert": "Promoting any of these to themable is a deliberate decision: add a tier-2 token + registry entry (see Component themes), never a one-off knob. The default answer is no — a consistent workbench frame is a feature."
+        }
+      ],
+      "children": []
+    },
+    "b-system-ui-knobs-heading-6": {
+      "id": "b-system-ui-knobs-heading-6",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The style-rail knob map"
+        }
+      ],
+      "children": []
+    },
+    "b-system-ui-knobs-para-7": {
+      "id": "b-system-ui-knobs-para-7",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The rail has two tabs — Theme (identity: themes, colors, typography, components, background effect) and Layout (geometry: column, surfaces, editor controls) — each a stack of collapsible sections whose open state persists per user. Every knob writes CSS variables onto the root element (a knob at its default removes the override). The full inventory:"
+        }
+      ],
+      "children": []
+    },
+    "b-system-ui-knobs-theme-8": {
+      "id": "b-system-ui-knobs-theme-8",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Knob",
+          "Writes",
+          "Notes"
+        ],
+        "rows": [
+          [
+            "Dark mode",
+            "data-theme attr + .dark class",
+            "Swaps the tier 1/2 definitions"
+          ],
+          [
+            "Accent",
+            "--accent, --ring, --docs-viewer-link",
+            "Palette family swap"
+          ],
+          [
+            "Background / Sidebar / Text",
+            "--background, --sidebar, --foreground families",
+            "Explicit color overrides; null follows the theme"
+          ],
+          [
+            "Themes picker",
+            "injects the theme CSS layer",
+            "See Global themes"
+          ]
+        ],
+        "title": "Theme tab — Themes / Colors"
+      },
+      "children": []
+    },
+    "b-system-ui-knobs-font-9": {
+      "id": "b-system-ui-knobs-font-9",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Knob",
+          "Writes",
+          "Notes"
+        ],
+        "rows": [
+          [
+            "Body / Heading font",
+            "--font-tx02 / --font-display + --style-heading-font",
+            ""
+          ],
+          [
+            "Code font",
+            "--docs-font-code",
+            "Code blocks, inline chips, kbd"
+          ],
+          [
+            "Number font",
+            "--docs-font-numeric",
+            "List markers + ordered counters; Body = inherit"
+          ],
+          [
+            "Font size / Line height / Letter spacing",
+            "--style-font-size / --style-line-height / --style-letter-spacing",
+            "Content column only"
+          ]
+        ],
+        "title": "Theme tab — Typography"
+      },
+      "children": []
+    },
+    "b-system-ui-knobs-layout-10": {
+      "id": "b-system-ui-knobs-layout-10",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Knob",
+          "Writes",
+          "Notes"
+        ],
+        "rows": [
+          [
+            "Max width / Margin / Top padding",
+            "--style-content-width / --style-content-margin / --style-content-top",
+            "The doc content column"
+          ],
+          [
+            "Radius",
+            "--radius",
+            "Corner rounding across the UI"
+          ],
+          [
+            "Border strength",
+            "--border, --input, --sidebar-border, --docs-border-default",
+            "Alpha/contrast multiplier"
+          ],
+          [
+            "Background / Sidebar tint",
+            "color-mix into --background / --sidebar",
+            "Accent-family tinting"
+          ],
+          [
+            "Scrollbar width / color / opacity",
+            "--docs-scrollbar-width / -color / -opacity",
+            "WebKit scrollbar styling (Electron); thumb hover goes full-opacity"
+          ]
+        ],
+        "title": "Layout tab — Column / Surfaces"
+      },
+      "children": []
+    },
+    "b-system-ui-knobs-effects-11": {
+      "id": "b-system-ui-knobs-effects-11",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Knob",
+          "Writes",
+          "Notes"
+        ],
+        "rows": [
+          [
+            "Grain (intensity/density/contrast/blend/softening)",
+            "--docs-grain-*",
+            "Film-grain overlay"
+          ],
+          [
+            "Highlight color / Rounding / Padding",
+            "--docs-highlight-color / -radius / -padding",
+            "Block selection + changed-flash; padding = same-color shadow spread"
+          ],
+          [
+            "Drag opacity",
+            "--docs-drag-opacity",
+            "Ghost level of the held block while dragging"
+          ],
+          [
+            "Drop line color / thickness / opacity / rounding",
+            "--docs-dropcursor-color / -width / -opacity / -radius",
+            "The line shown while dragging"
+          ],
+          [
+            "Grip gap / vertical offset / size / fade / color",
+            "--docs-grip-gap / -offset-y / -size / -fade / -color",
+            "WHERE and HOW the drag grip renders (fade = show/hide + block-to-block timing)"
+          ]
+        ],
+        "title": "Layout tab — Editor · Theme tab — Background effect"
+      },
+      "children": []
+    },
+    "b-system-ui-knobs-components-12": {
+      "id": "b-system-ui-knobs-components-12",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Knob",
+          "Writes",
+          "Notes"
+        ],
+        "rows": [
+          [
+            "One collapsible group per theme surface (inline-code, the 14 block types, shared surfaces)",
+            "every CSS variable THEME_TOKEN_REGISTRY maps for the picked key",
+            "Same vocabulary as a theme folder's components/*.json; overrides layer over the active theme and flow into Save-as-theme as real component files"
+          ]
+        ],
+        "title": "Theme tab — Components"
+      },
+      "children": []
+    }
+  }
+}

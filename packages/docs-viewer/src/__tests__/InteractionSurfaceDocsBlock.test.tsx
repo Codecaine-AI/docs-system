@@ -32,8 +32,10 @@ describe("InteractionSurfaceBlock", () => {
       />,
     );
 
-    expect(screen.getByText("File-tree block surface")).toBeTruthy();
-    expect(screen.getByText("2 operations")).toBeTruthy();
+    const title = screen.getByText("File-tree block surface");
+    expect(title.className).toBe("mb-1.5 text-sm font-medium text-foreground");
+    expect(screen.queryByText("Interaction Surface")).toBeNull();
+    expect(screen.queryByText("2 operations")).toBeNull();
     const rows = document.querySelectorAll("[data-interaction-operation]");
     expect(rows).toHaveLength(2);
 
@@ -150,9 +152,12 @@ describe("InteractionSurfaceBlock", () => {
     expect(row?.querySelector('[title="Row position"]')).toBeTruthy();
   });
 
-  it("pluralizes the operation-count badge", () => {
+  it("preserves targeting attributes without outer framing or count banners", () => {
     render(<InteractionSurfaceBlock id="surface-one" operations={[{ name: "only.op" }]} />);
-    expect(screen.getByText("1 operation")).toBeTruthy();
+    const section = document.querySelector('[data-docs-block-type="interaction-surface"]');
+    expect(section?.getAttribute("data-source-id")).toBe("surface-one");
+    expect(section?.className).toBe("not-prose my-4");
+    expect(screen.queryByText("1 operation")).toBeNull();
   });
 
   it("exports the label and an agent description covering the props contract", () => {

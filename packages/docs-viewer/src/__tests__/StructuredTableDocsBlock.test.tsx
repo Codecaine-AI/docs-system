@@ -12,7 +12,7 @@ afterEach(() => {
 
 describe("StructuredTableBlock", () => {
   it("renders columns and rows from structured props", () => {
-    render(
+    const { container } = render(
       <StructuredTableBlock
         id="tbl-1"
         title="Rollout matrix"
@@ -30,9 +30,15 @@ describe("StructuredTableBlock", () => {
     expect(screen.getByText("Status")).toBeTruthy();
     expect(screen.getByText("Alpha")).toBeTruthy();
     expect(screen.getByText("in progress")).toBeTruthy();
-    // Density defaults to "normal" and shows in the header badge.
-    expect(screen.getByText("normal")).toBeTruthy();
-    expect(screen.getByText("tbl-1")).toBeTruthy();
+    expect(screen.queryByText("normal")).toBeNull();
+    expect(screen.queryByText("tbl-1")).toBeNull();
+
+    const section = container.querySelector('[data-docs-block-type="structured-table"]');
+    expect(section?.getAttribute("data-source-id")).toBe("tbl-1");
+    expect(section?.className).toBe("not-prose my-4");
+    expect(screen.getByText("Rollout matrix").className).toBe(
+      "mb-1.5 text-sm font-medium text-foreground",
+    );
   });
 
   it("pads ragged rows with empty cells so every row spans all columns", () => {
@@ -69,7 +75,7 @@ describe("StructuredTableBlock", () => {
     );
     const cell = container.querySelector("tbody td");
     expect(cell?.className).toContain("px-2 py-1");
-    expect(screen.getByText("compact")).toBeTruthy();
+    expect(screen.queryByText("compact")).toBeNull();
   });
 
   it("exports the label and an agent description covering the structured props", () => {

@@ -217,8 +217,8 @@ export interface DocTargeting {
   selectedTarget: ResolvedDocsTarget | null;
   /** Absolutely-positioned overlays (hover chip + selected ring); the container must be `position: relative`. */
   overlays: ReactNode;
-  /** Fixed-position chrome (annotation toolbar, comment + canvas-insert popovers). */
-  chrome: ReactNode;
+  /** Fixed-position overlay UI (annotation toolbar, comment + canvas-insert popovers). */
+  overlayUi: ReactNode;
   /** The layer's `<style>` element (`DOC_TARGETING_CSS`). */
   styles: ReactNode;
 }
@@ -1105,7 +1105,7 @@ export function useDocTargeting<A extends DocsAnnotationView = DocsAnnotationVie
     </>
   );
 
-  const chrome = (
+  const overlayUi = (
     <>
       {targetToolbar && (
         <DocsAnnotationToolbar
@@ -1153,7 +1153,7 @@ export function useDocTargeting<A extends DocsAnnotationView = DocsAnnotationVie
     hoverTarget,
     selectedTarget,
     overlays,
-    chrome,
+    overlayUi,
     styles: <style>{DOC_TARGETING_CSS}</style>,
   };
 }
@@ -1188,7 +1188,7 @@ export default function DocTargetingLayer<
         {children}
         {targeting.overlays}
       </div>
-      {targeting.chrome}
+      {targeting.overlayUi}
     </>
   );
 }
@@ -1604,7 +1604,7 @@ function DocsTargetOverlay({
   return (
     <>
       <div
-        data-docs-target-chrome
+        data-docs-target-ui
         data-docs-target-overlay={variant}
         className={cn(
           "pointer-events-none rounded-sm border-2",
@@ -1623,7 +1623,7 @@ function DocsTargetOverlay({
         }}
       />
       <div
-        data-docs-target-chrome
+        data-docs-target-ui
         data-docs-target-overlay-label={variant}
         className="pointer-events-none"
         style={{

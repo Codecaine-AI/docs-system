@@ -6,6 +6,7 @@ import type { DocBlock } from "@codecaine-ai/docs-model/doc-schema";
 import { getDocBlockDescriptor, type DocBlockRenderContext } from "../../render/block-registry";
 import {
   DocCanvas,
+  DocCodeBlock,
   DocDivider,
   DocFileTree,
   DocImage,
@@ -15,6 +16,7 @@ import {
   DocVideo,
   NODE_TYPE_TO_BLOCK_TYPE,
 } from "../core/schema";
+import { CodeBlockNodeView } from "../../components/code/editor-node-view";
 import { useDocEditorNodeViewContext } from "./node-view-context";
 
 /**
@@ -128,3 +130,15 @@ export const ATOM_BLOCK_NODES_WITH_VIEWS = [
   DocInteractionSurfaceWithView,
   DocMermaidWithView,
 ];
+
+/**
+ * The one TEXT block with a React view: `docCodeBlock` keeps its editable
+ * flat-text content (NodeViewContent) and gains the code component's
+ * language picker (components/code/editor-node-view.tsx). DocEditor
+ * registers this INSTEAD of the plain DocCodeBlock from TEXT_BLOCK_NODES.
+ */
+export const DocCodeBlockWithView = DocCodeBlock.extend({
+  addNodeView() {
+    return ReactNodeViewRenderer(CodeBlockNodeView);
+  },
+});

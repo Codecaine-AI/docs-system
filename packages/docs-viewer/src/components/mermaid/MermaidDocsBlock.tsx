@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState, useSyncExternalStore } from "react";
-import { Code2Icon, GitBranchIcon } from "lucide-react";
-import { Badge } from "../../ui/badge";
+import { Code2Icon } from "lucide-react";
 import { cn } from "../../ui/cn";
 import {
   DocsMdxBlock,
@@ -139,7 +138,7 @@ export function MermaidDiagram({ source, blockId }: MermaidDiagramProps) {
   if (svg) {
     return (
       <div
-        className="overflow-auto bg-background p-3 [&_svg]:mx-auto [&_svg]:h-auto [&_svg]:max-w-full"
+        className="overflow-auto bg-[color:var(--docs-mermaid-bg,var(--background))] p-3 [&_svg]:mx-auto [&_svg]:h-auto [&_svg]:max-w-full"
         data-mermaid-rendered="true"
         // Mermaid runs with securityLevel "strict", which sanitizes the
         // generated SVG before it is handed back to us.
@@ -162,7 +161,7 @@ export function MermaidDiagram({ source, blockId }: MermaidDiagramProps) {
       )}
       <pre
         className={cn(
-          "max-h-[360px] overflow-auto bg-background p-3 font-mono text-xs leading-relaxed",
+          "max-h-[360px] overflow-auto bg-[color:var(--docs-mermaid-bg,var(--background))] p-3 font-mono text-xs leading-relaxed",
           !error && "animate-pulse text-muted-foreground",
         )}
       >
@@ -210,30 +209,19 @@ export class MermaidDocsBlock extends DocsMdxBlock<MermaidData> {
     const { data } = block;
     return (
       <section
-        className="not-prose my-4 overflow-hidden rounded-md border bg-muted/20"
+        className="not-prose my-4"
         data-mdx-block={this.tag}
         data-docs-block-type={this.type}
         data-source-id={data.id}
       >
-        <div className="flex flex-wrap items-center gap-2 border-b border-teal-500/20 bg-teal-500/10 px-3 py-2 dark:border-teal-400/20 dark:bg-teal-400/10">
-          <GitBranchIcon className="h-4 w-4 text-teal-600 dark:text-teal-400" />
-          <span className="font-display text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            Mermaid
-          </span>
-          {data.title && <span className="text-sm font-medium">{data.title}</span>}
-          {data.diagramType && (
-            <Badge
-              variant="outline"
-              className="border-teal-500/40 bg-teal-500/10 text-teal-700 dark:border-teal-400/30 dark:bg-teal-400/10 dark:text-teal-300"
-            >
-              {data.diagramType}
-            </Badge>
-          )}
-          <span className="font-mono text-[11px] text-muted-foreground">{data.id}</span>
+        {data.title && (
+          <div className="mb-1.5 text-sm font-medium text-foreground">{data.title}</div>
+        )}
+        <div className="overflow-hidden rounded-md border border-[color:var(--docs-mermaid-border,var(--border))] bg-[color:var(--docs-mermaid-bg,var(--background))]">
+          <MermaidDiagram source={data.source} blockId={data.id} />
         </div>
-        <MermaidDiagram source={data.source} blockId={data.id} />
         {data.caption && (
-          <div className="border-t bg-background px-3 py-2 text-xs text-muted-foreground">
+          <div className="mt-1.5 text-xs text-muted-foreground">
             <Code2Icon className="mr-1 inline h-3.5 w-3.5 align-[-2px]" />
             {data.caption}
           </div>

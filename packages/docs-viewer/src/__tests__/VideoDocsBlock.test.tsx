@@ -147,7 +147,7 @@ describe("VideoBlock — local bundle src", () => {
   });
 });
 
-describe("VideoBlock — chrome", () => {
+describe("VideoBlock — framing", () => {
   it("renders the dashed placeholder when neither src nor url is present", () => {
     const html = renderVideo();
     expect(html).toContain("Video block is missing a src or url.");

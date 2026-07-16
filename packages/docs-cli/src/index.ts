@@ -246,7 +246,7 @@ function usage(): string {
     "  docs-cli backlinks rescan [docsRoot]",
     "  docs-cli links check [docsRoot]",
     "  docs-cli migrate [repoRoot] [--drafts] [--dry-run]",
-    "  docs-cli serve [--root <path>] [--port <port>] [--host <addr>] [--dev] [--rebuild]",
+    "  docs-cli serve [--root <path>] [--port <port>] [--ui-port <port>] [--host <addr>] [--dev] [--rebuild]",
     "  docs-cli export [--root <path>] --out <dir> [--rebuild]",
     "",
     "migrate is NON-DESTRUCTIVE by default: it writes doc.json bundles",
@@ -379,7 +379,7 @@ async function main() {
 
     if (command === "serve") {
       // Standalone read-only docs server + viewer SPA (packages/docs-workbench).
-      //   docs-cli serve [--root <path>] [--port <port>] [--host <addr>] [--dev] [--rebuild]
+      //   docs-cli serve [--root <path>] [--port <port>] [--ui-port <port>] [--host <addr>] [--dev] [--rebuild]
       // Default mode vite-builds the SPA once (cached) and serves API + SPA
       // from one port; --dev spawns `vite dev` with an /api proxy instead.
       // Binds loopback unless --host is given (the docs tree may be private).
@@ -390,10 +390,18 @@ async function main() {
         process.exitCode = 1;
         return;
       }
+      const uiPortValue = flagValue(args, "--ui-port");
+      const uiPort = uiPortValue === undefined ? undefined : Number(uiPortValue);
+      if (uiPort !== undefined && (!Number.isInteger(uiPort) || uiPort <= 0 || uiPort > 65535)) {
+        console.error(`Invalid --ui-port: ${uiPortValue}`);
+        process.exitCode = 1;
+        return;
+      }
       const { runServe } = await import("@codecaine-ai/docs-workbench");
       await runServe({
         docsRoot: root,
         port,
+        uiPort,
         hostname: flagValue(args, "--host"),
         dev: args.includes("--dev"),
         forceBuild: args.includes("--rebuild"),

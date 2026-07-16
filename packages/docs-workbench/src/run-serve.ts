@@ -16,6 +16,7 @@ export interface RunServeOptions {
   /** Bind address. Defaults to loopback — the served docs tree may be private. */
   hostname?: string;
   dev?: boolean;
+  uiPort?: number;
   /** Rebuild the SPA even when a build already exists. */
   forceBuild?: boolean;
   log?: (message: string) => void;
@@ -35,14 +36,28 @@ export async function runServe(options: RunServeOptions): Promise<void> {
     startDocsServe({ docsRoot, port, hostname, staticDir: null, watchFs: true });
     log(`[docs-workbench] API listening on http://${displayHost}:${port} (docs root: ${docsRoot})`);
     log(`[docs-workbench] Starting vite dev server (proxying /api -> :${port})...`);
-    const proc = Bun.spawn(["bun", "x", "vite"], {
+    const viteArgs =
+      options.uiPort === undefined
+        ? ["bun", "x", "vite"]
+        : ["bun", "x", "vite", "--port", String(options.uiPort), "--strictPort", "--host", "127.0.0.1"];
+    if (options.uiPort !== undefined) {
+      log(`[docs-workbench] UI listening on http://localhost:${options.uiPort}`);
+    }
+    const proc = Bun.spawn(viteArgs, {
       cwd: webDir(),
       env: { ...process.env, DOCS_API: `http://localhost:${port}` },
       stdout: "inherit",
       stderr: "inherit",
     });
+    const shutdown = () => {
+      proc.kill();
+      process.exit();
+    };
+    process.on("SIGTERM", shutdown);
+    process.on("SIGINT", shutdown);
+    process.on("exit", () => proc.kill());
     await proc.exited;
-    return;
+    process.exit(proc.exitCode ?? 1);
   }
 
   const staticDir = await ensureSpaBuilt({ mode: "serve", force: options.forceBuild, log });

@@ -1,6 +1,37 @@
 /*
- * Docs-system single theming location. Semantic tokens in this directory are
- * mapped from Notion's palette variables instead of restating raw colors.
+ * Docs-system single theming location — THE CANONICAL THEME CONTRACT.
+ *
+ * Three tiers, strictly layered:
+ *
+ *  1. PALETTE (notion-palette.css): raw color values as `--color-*` vars,
+ *     defined twice — light and dark. The ONLY place raw hex/rgba theme
+ *     colors live.
+ *  2. SEMANTIC TOKENS (this file): per-surface/per-component meaning mapped
+ *     from palette vars, defined in BOTH theme blocks below. Naming:
+ *     `--docs-<component>-<part>` for component tokens (e.g.
+ *     --docs-inline-code-fg / --docs-inline-code-bg), `--docs-viewer-*` for
+ *     the older read-surface family, plus the shadcn-compat block
+ *     (--background/--muted/...) that Tailwind's semantic utilities
+ *     (bg-muted, text-muted-foreground) resolve through. Every NEW themable
+ *     property gets a token here, in both blocks — never a literal at the
+ *     use site.
+ *  3. CONSUMPTION: app CSS (index.css) and docs-viewer components reference
+ *     tier-2 tokens only. docs-viewer's Tailwind classes may carry a
+ *     NEUTRAL literal fallback inside var() (host-neutral packages render
+ *     without this stylesheet); the workbench always defines the token, so
+ *     fallbacks never win here.
+ *
+ * FONTS follow the same idea, one token per text surface: --font-tx02
+ * (body), --font-display / --style-heading-font (headings),
+ * --docs-font-code (code blocks + inline chips + kbd), --docs-font-numeric
+ * (list markers/counters; defaults to inherit). Defaults live in
+ * index.css's :root; the style rail overrides per user.
+ *
+ * The STYLE RAIL (shell/StyleRail.tsx) is the runtime override layer: every
+ * knob writes tier-2 tokens (or font/highlight/grip vars) onto <html>, and
+ * a knob at its default removes the override so these files stay
+ * authoritative. Light/dark flips only ever swap tier 1+2 definitions —
+ * consumers never branch on theme.
  */
 
 :root, [data-theme="light"] {
@@ -25,7 +56,7 @@
   --input: var(--color-pill-default);
   --ring: var(--color-pill-blue);
 
-  --sidebar: var(--color-bg-default);
+  --sidebar: var(--color-bg-sidebar);
   --sidebar-foreground: var(--color-text-default);
   --sidebar-border: var(--color-pill-default);
   --sidebar-accent: var(--color-bg-gray);
@@ -65,8 +96,36 @@
   --syntax-null: var(--color-text-red);
 
   --docs-viewer-callout-border: var(--color-pill-orange);
+  /* Per-block-type component tokens (one file per vocabulary type in a
+     theme folder — see docs/20-implementation/40-theming/20-component-themes).
+     Defaults map to each component's previous effective values. */
+  --docs-paragraph-fg: var(--docs-viewer-text-body);
+  --docs-heading-fg: var(--docs-viewer-text-heading);
+  --docs-list-marker-fg: var(--docs-viewer-text-body);
+  --docs-quote-fg: var(--docs-viewer-text-muted);
+  --docs-quote-border: var(--docs-viewer-callout-border);
+  --docs-code-block-bg: color-mix(in srgb, var(--muted) 30%, transparent);
+  --docs-code-block-border: var(--border);
+  --docs-callout-fg: var(--docs-viewer-text-body);
+  --docs-divider-color: var(--border);
+  --docs-image-border: var(--border);
+  --docs-image-caption-fg: var(--docs-viewer-text-muted);
+  --docs-video-border: var(--border);
+  --docs-video-caption-fg: var(--docs-viewer-text-muted);
+  --docs-file-tree-border: var(--border);
+  --docs-file-tree-note-fg: var(--docs-viewer-text-muted);
+  --docs-table-border: var(--docs-border-default);
+  --docs-table-header-bg: var(--docs-surface-muted);
+  --docs-table-header-fg: var(--docs-viewer-text-heading);
+  --docs-interaction-border: var(--border);
+  --docs-interaction-bg: var(--background);
+  --docs-mermaid-border: var(--border);
+  --docs-mermaid-bg: transparent;
+  --docs-canvas-border: var(--border);
   --docs-viewer-callout-fill: var(--color-bg-orange);
   --docs-viewer-inline-fill: var(--color-bg-gray);
+  --docs-inline-code-bg: rgba(135, 131, 120, 0.15);
+  --docs-inline-code-fg: var(--color-text-red);
   --docs-viewer-link: var(--color-text-blue);
   --docs-viewer-text-body: var(--color-text-default);
   --docs-viewer-text-heading: var(--color-text-default);
@@ -102,7 +161,7 @@
   --input: var(--color-pill-default);
   --ring: var(--color-pill-blue);
 
-  --sidebar: var(--color-bg-default);
+  --sidebar: var(--color-bg-sidebar);
   --sidebar-foreground: var(--color-text-default);
   --sidebar-border: var(--color-pill-default);
   --sidebar-accent: var(--color-bg-gray);
@@ -142,8 +201,36 @@
   --syntax-null: var(--color-text-red);
 
   --docs-viewer-callout-border: var(--color-pill-orange);
+  /* Per-block-type component tokens (one file per vocabulary type in a
+     theme folder — see docs/20-implementation/40-theming/20-component-themes).
+     Defaults map to each component's previous effective values. */
+  --docs-paragraph-fg: var(--docs-viewer-text-body);
+  --docs-heading-fg: var(--docs-viewer-text-heading);
+  --docs-list-marker-fg: var(--docs-viewer-text-body);
+  --docs-quote-fg: var(--docs-viewer-text-muted);
+  --docs-quote-border: var(--docs-viewer-callout-border);
+  --docs-code-block-bg: color-mix(in srgb, var(--muted) 30%, transparent);
+  --docs-code-block-border: var(--border);
+  --docs-callout-fg: var(--docs-viewer-text-body);
+  --docs-divider-color: var(--border);
+  --docs-image-border: var(--border);
+  --docs-image-caption-fg: var(--docs-viewer-text-muted);
+  --docs-video-border: var(--border);
+  --docs-video-caption-fg: var(--docs-viewer-text-muted);
+  --docs-file-tree-border: var(--border);
+  --docs-file-tree-note-fg: var(--docs-viewer-text-muted);
+  --docs-table-border: var(--docs-border-default);
+  --docs-table-header-bg: var(--docs-surface-muted);
+  --docs-table-header-fg: var(--docs-viewer-text-heading);
+  --docs-interaction-border: var(--border);
+  --docs-interaction-bg: var(--background);
+  --docs-mermaid-border: var(--border);
+  --docs-mermaid-bg: transparent;
+  --docs-canvas-border: var(--border);
   --docs-viewer-callout-fill: var(--color-bg-orange);
   --docs-viewer-inline-fill: var(--color-bg-gray);
+  --docs-inline-code-bg: rgba(135, 131, 120, 0.15);
+  --docs-inline-code-fg: var(--color-text-red);
   --docs-viewer-link: var(--color-text-blue);
   --docs-viewer-text-body: var(--color-text-default);
   --docs-viewer-text-heading: var(--color-text-default);

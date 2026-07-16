@@ -45,6 +45,17 @@ export {
 } from "./confine";
 export { collectBundlePaths, walkDocsDir, type DocsTreeNode } from "./docs-tree";
 
+// Theme folders (docs/20-implementation/40-theming)
+export {
+  isValidThemeId,
+  listRepoThemes,
+  readRepoTheme,
+  themesRootFor,
+  writeRepoTheme,
+  type ThemeFilePayload,
+  type ThemeListEntry,
+} from "./themes";
+
 // Bundle + comments primitives
 export {
   EMPTY_COMMENTS_DOCUMENT,

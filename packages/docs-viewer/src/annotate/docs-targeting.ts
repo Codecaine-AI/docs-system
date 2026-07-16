@@ -27,7 +27,7 @@ const SKIP_SELECTOR = [
   "input",
   "select",
   "[contenteditable='true']",
-  "[data-docs-target-chrome]",
+  "[data-docs-target-ui]",
 ].join(",");
 
 export type ResolvedDocsTarget = {

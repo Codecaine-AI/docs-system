@@ -93,7 +93,7 @@ export function parseVideoEmbed(rawUrl: string): VideoEmbed | null {
 }
 
 /**
- * Video block. Minimal figure chrome like the image block — no header strip,
+ * Video block. Minimal figure framing like the image block — no header strip,
  * just the media surface plus a muted caption line. `url` (external) wins
  * over `src` (bundle asset); known providers embed, unknown urls get a
  * neutral link card (never an iframe), a bare `src` plays through a native
@@ -119,7 +119,7 @@ export function VideoBlock({
   let media: ReactNode;
   if (url && embed) {
     media = (
-      <div className="aspect-video w-full overflow-hidden rounded-md border bg-muted/20">
+      <div className="aspect-video w-full overflow-hidden rounded-md border border-[color:var(--docs-video-border,var(--border))] bg-muted/20">
         <iframe
           src={embed.embedUrl}
           title={title ?? `${VIDEO_LABEL}: ${url}`}
@@ -144,7 +144,7 @@ export function VideoBlock({
         target="_blank"
         rel="noopener noreferrer"
         data-video-link-card="true"
-        className="flex items-center gap-3 rounded-md border bg-muted/20 px-3 py-2 no-underline transition-colors hover:bg-muted/40"
+        className="flex items-center gap-3 rounded-md border border-[color:var(--docs-video-border,var(--border))] bg-muted/20 px-3 py-2 no-underline transition-colors hover:bg-muted/40"
       >
         <FilmIcon className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
         <span className="min-w-0">
@@ -164,7 +164,7 @@ export function VideoBlock({
         controls
         preload="metadata"
         title={title}
-        className="max-w-full rounded-md border"
+        className="max-w-full rounded-md border border-[color:var(--docs-video-border,var(--border))]"
       />
     );
   } else {
@@ -183,7 +183,9 @@ export function VideoBlock({
     >
       {media}
       {caption && (
-        <figcaption className="mt-1 text-xs text-muted-foreground">{caption}</figcaption>
+        <figcaption className="mt-1 text-xs text-[color:var(--docs-video-caption-fg,var(--muted-foreground))]">
+          {caption}
+        </figcaption>
       )}
     </figure>
   );

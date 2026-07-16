@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 1,
+  "id": "20-implementation-40-theming-30-fonts",
+  "title": "Fonts",
+  "root": "b-theming-fonts-root",
+  "blocks": {
+    "b-theming-fonts-root": {
+      "id": "b-theming-fonts-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-theming-fonts-title-1",
+        "b-theming-fonts-tokens-2",
+        "b-theming-fonts-sources-3",
+        "b-theming-fonts-custom-files-4"
+      ]
+    },
+    "b-theming-fonts-title-1": {
+      "id": "b-theming-fonts-title-1",
+      "type": "heading",
+      "props": {
+        "level": 1
+      },
+      "text": [
+        {
+          "insert": "Fonts"
+        }
+      ],
+      "children": []
+    },
+    "b-theming-fonts-tokens-2": {
+      "id": "b-theming-fonts-tokens-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each text surface has its own font token: "
+        },
+        {
+          "insert": "--font-tx02",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " (body), "
+        },
+        {
+          "insert": "--font-display",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " (headings), "
+        },
+        {
+          "insert": "--docs-font-code",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " (code blocks, inline code chips, kbd), and "
+        },
+        {
+          "insert": "--docs-font-numeric",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " (list markers and ordered-list counters; inherits the body font by default). Defaults live in "
+        },
+        {
+          "insert": "index.css",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "'s "
+        },
+        {
+          "insert": ":root",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-theming-fonts-sources-3": {
+      "id": "b-theming-fonts-sources-3",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Two ways to set them: the style rail's Font tab (Body / Heading / Code / Number selects over the three built-in system stacks), or a theme manifest's "
+        },
+        {
+          "insert": "fonts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " field, which accepts ARBITRARY stack strings — a theme can name any family the browser can resolve."
+        }
+      ],
+      "children": []
+    },
+    "b-theming-fonts-custom-files-4": {
+      "id": "b-theming-fonts-custom-files-4",
+      "type": "callout",
+      "props": {
+        "title": "Custom font FILES — designed, not built",
+        "tone": "warning"
+      },
+      "text": [
+        {
+          "insert": "Loading font binaries is the one unbuilt piece: the planned path is files in the workbench's "
+        },
+        {
+          "insert": "web/public/fonts/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", registered via "
+        },
+        {
+          "insert": "@font-face",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in a fonts.css, after which a theme just names the family in its stacks. The tokens are already the only seam."
+        }
+      ],
+      "children": []
+    }
+  }
+}

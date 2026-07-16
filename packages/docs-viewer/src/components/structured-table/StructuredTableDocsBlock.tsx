@@ -1,7 +1,5 @@
 "use client";
 
-import { Table2Icon } from "lucide-react";
-import { Badge } from "../../ui/badge";
 import { cn } from "../../ui/cn";
 
 export const STRUCTURED_TABLE_LABEL = "Structured Table";
@@ -23,9 +21,9 @@ function resolveDensity(density: string | undefined): StructuredTableDensity {
 
 /**
  * Structured table block. Data arrives as structured props (no body parsing):
- * indigo identity with a tinted header row, zebra body rows, hover highlight,
- * and density-driven cell padding. Ragged rows are padded with empty cells so
- * every row spans the full column set.
+ * a tinted data header row, zebra body rows, hover highlight, and
+ * density-driven cell padding. Ragged rows are padded with empty cells so every
+ * row spans the full column set.
  */
 export function StructuredTableBlock({
   id,
@@ -44,27 +42,16 @@ export function StructuredTableBlock({
   const cellClass = DENSITY_CELL_CLASS[resolvedDensity];
   return (
     <section
-      className="not-prose my-4 rounded-md border bg-muted/20 p-3"
+      className="not-prose my-4"
       data-docs-block-type="structured-table"
       data-source-id={id}
     >
-      <div className="mb-3 flex flex-wrap items-center gap-2">
-        <Table2Icon className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-        <span className="font-display text-xs font-medium uppercase tracking-wider text-muted-foreground">
-          Structured Table
-        </span>
-        {title && <span className="text-sm font-medium">{title}</span>}
-        <Badge
-          variant="outline"
-          className="border-indigo-500/40 bg-indigo-500/10 text-indigo-700 dark:border-indigo-400/30 dark:bg-indigo-400/10 dark:text-indigo-300"
-        >
-          {resolvedDensity}
-        </Badge>
-        <span className="font-mono text-[11px] text-muted-foreground">{id}</span>
-      </div>
-      <div className="overflow-auto rounded-md border bg-background">
+      {title && (
+        <div className="mb-1.5 text-sm font-medium text-foreground">{title}</div>
+      )}
+      <div className="overflow-auto rounded-md border border-[color:var(--docs-table-border,var(--border))] bg-background">
         <table className="w-full border-collapse text-left text-xs">
-          <thead className="border-b border-indigo-500/20 bg-indigo-500/10 text-indigo-700 dark:border-indigo-400/20 dark:bg-indigo-400/10 dark:text-indigo-300">
+          <thead className="border-b border-[color:var(--docs-table-border,color-mix(in_srgb,var(--color-indigo-500)_20%,transparent))] bg-[color:var(--docs-table-header-bg,color-mix(in_srgb,var(--color-indigo-500)_10%,transparent))] text-[color:var(--docs-table-header-fg,var(--color-indigo-700))] dark:border-[color:var(--docs-table-border,color-mix(in_srgb,var(--color-indigo-400)_20%,transparent))] dark:bg-[color:var(--docs-table-header-bg,color-mix(in_srgb,var(--color-indigo-400)_10%,transparent))] dark:text-[color:var(--docs-table-header-fg,var(--color-indigo-300))]">
             <tr>
               {columns.map((column, columnIndex) => (
                 <th
@@ -76,7 +63,7 @@ export function StructuredTableBlock({
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y">
+          <tbody className="divide-y divide-[color:var(--docs-table-border,var(--border))]">
             {rows.map((row, rowIndex) => (
               <tr
                 key={`${id}-row-${rowIndex}`}

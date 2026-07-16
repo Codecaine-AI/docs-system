@@ -11,6 +11,8 @@
     "./export": "./src/export.ts"
   },
   "scripts": {
+    "app": "electron electron/main.cjs",
+    "app:dev": "electron electron/main.cjs --dev",
     "build:web": "vite build web",
     "build:web:static": "DOCS_STATIC=1 vite build web",
     "test": "bun test src web/src"
@@ -36,6 +38,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^5.1.2",
+    "electron": "^37",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vite": "^7.3.0"

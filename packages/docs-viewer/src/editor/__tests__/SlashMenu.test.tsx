@@ -191,7 +191,7 @@ describe("SlashMenuPopover rendering", () => {
     }
 
     // Searching: headers disappear and submenu contents flatten into the
-    // rows (Heading 4-6 surface without submenu chrome).
+    // rows (Heading 4-6 surface without submenu framing).
     await fire(() => {
       editor.commands.insertContent("head");
     });

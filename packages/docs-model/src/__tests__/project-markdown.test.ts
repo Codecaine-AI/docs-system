@@ -351,7 +351,7 @@ describe("projectToMarkdown — structural edge cases", () => {
     expect(projectToMarkdown(doc)).toBe("");
   });
 
-  it("skips the root's own chrome, projecting only its children", () => {
+  it("skips the root's own wrapper, projecting only its children", () => {
     const doc = docWith(
       { h: block("h", { type: "heading", props: { level: 1 }, text: [{ insert: "Title" }] }) },
       ["h"],

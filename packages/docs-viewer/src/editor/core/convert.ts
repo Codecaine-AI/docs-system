@@ -180,7 +180,7 @@ function blockToPMNode(doc: DocDocument, blockId: string): PMNode {
 /**
  * Converts a DocDocument into PM `doc` JSON. The PM doc's own top-level
  * `content` is the ROOT block's children (the root block itself is a
- * container with no visual chrome — DocBlockRenderer skips it too — so its
+ * container with no visual framing — DocBlockRenderer skips it too — so its
  * `id`/`props` ride along on the PM `doc` node's own attrs so they aren't
  * lost on the round trip back through `pmToDoc`).
  */

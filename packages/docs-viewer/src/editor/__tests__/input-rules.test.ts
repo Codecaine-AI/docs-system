@@ -1,7 +1,16 @@
 import { describe, expect, it } from "bun:test";
 import { Editor, Extension, type JSONContent } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
-import { DocCodeBlock, DocDivider, DocHeading, DocListItem, DocParagraph, DocQuote } from "../core/schema";
+import {
+  DocBlockText,
+  DocCodeBlock,
+  DocDivider,
+  DocHeading,
+  DocListItem,
+  DocParagraph,
+  DocQuote,
+} from "../core/schema";
+import { DocItalic, DocStrike } from "../../components/rich-text/editor-marks";
 import { buildDocInputRules } from "../input/input-rules";
 
 const DocInputRules = Extension.create({
@@ -11,16 +20,22 @@ const DocInputRules = Extension.create({
   },
 });
 
+// The REAL nested schema shape — every text block is `docBlockText block*`
+// with the wrapper holding the inline content (see editor/core/schema.ts).
+// An earlier version of this harness flattened the nodes to `inline*`, which
+// made TipTap's stock textblock/wrapping rules pass here while silently
+// never firing in the live editor; the harness now mirrors production.
 const TEST_NODES = [
-  DocParagraph.extend({ content: "inline*" }),
-  DocHeading.extend({ content: "inline*" }),
-  DocListItem.extend({ content: "block+" }),
+  DocBlockText,
+  DocParagraph,
+  DocHeading,
+  DocListItem,
   DocCodeBlock,
-  DocQuote.extend({ content: "block+" }),
+  DocQuote,
   DocDivider,
 ];
 
-function createEditor(text = "") {
+function createEditor(text = "", attrs: Record<string, unknown> = {}) {
   const editor = new Editor({
     extensions: [
       StarterKit.configure({
@@ -32,13 +47,19 @@ function createEditor(text = "") {
         hardBreak: false,
         heading: false,
         horizontalRule: false,
+        // Mirrors DocEditor: italic/strike marks re-register below WITHOUT
+        // their markdown typing shortcuts (bold-only policy).
+        italic: false,
         listItem: false,
         listKeymap: false,
         orderedList: false,
         paragraph: false,
+        strike: false,
         trailingNode: false,
         undoRedo: false,
       }),
+      DocItalic,
+      DocStrike,
       ...TEST_NODES,
       DocInputRules,
     ],
@@ -47,7 +68,13 @@ function createEditor(text = "") {
       content: [
         {
           type: "docParagraph",
-          content: text ? [{ type: "text", text }] : undefined,
+          attrs,
+          content: [
+            {
+              type: "docBlockText",
+              content: text ? [{ type: "text", text }] : undefined,
+            },
+          ],
         },
       ],
     },
@@ -55,12 +82,13 @@ function createEditor(text = "") {
   });
 
   editor.commands.focus();
-  editor.commands.setTextSelection(text.length + 1);
+  // Cursor at end of the paragraph's text: doc > docParagraph(+1) >
+  // docBlockText(+1) puts the first text position at 2.
+  editor.commands.setTextSelection(text.length + 2);
   return editor;
 }
 
-function trigger(textBefore: string, triggerChar: string) {
-  const editor = createEditor(textBefore);
+function typeChar(editor: Editor, triggerChar: string) {
   const { from, to } = editor.state.selection;
   let handled = false;
 
@@ -82,23 +110,34 @@ function trigger(textBefore: string, triggerChar: string) {
   if (!handled) {
     editor.commands.insertContent(triggerChar);
   }
+}
 
+function trigger(textBefore: string, triggerChar: string, attrs: Record<string, unknown> = {}) {
+  const editor = createEditor(textBefore, attrs);
+  typeChar(editor, triggerChar);
   const json = editor.getJSON();
+  const selectionParent = editor.state.selection.$from.node(-1)?.type.name ?? null;
   editor.destroy();
-  return json;
+  return { json, selectionParent };
 }
 
 function firstBlock(json: JSONContent) {
   return json.content?.[0];
 }
 
-function firstText(json: JSONContent) {
+/** The first block's docBlockText wrapper. */
+function blockText(json: JSONContent) {
   return firstBlock(json)?.content?.[0];
+}
+
+/** The first text node inside the first block's docBlockText. */
+function firstText(json: JSONContent) {
+  return blockText(json)?.content?.[0];
 }
 
 describe("buildDocInputRules", () => {
   it("applies bold from double asterisk delimiters", () => {
-    const json = trigger("**bold text*", "*");
+    const { json } = trigger("**bold text*", "*");
 
     expect(firstText(json)).toMatchObject({
       type: "text",
@@ -107,34 +146,28 @@ describe("buildDocInputRules", () => {
     });
   });
 
-  it("applies italic from single asterisk delimiters", () => {
-    const json = trigger("*italic text", "*");
-
-    expect(firstText(json)).toMatchObject({
-      type: "text",
-      text: "italic text",
-      marks: [{ type: "italic" }],
-    });
-  });
-
-  it("does not treat bold syntax as italic", () => {
-    const json = trigger("**bold text*", "*");
+  it("closing double asterisks resolve as bold, never italic", () => {
+    const { json } = trigger("**bold text*", "*");
 
     expect(firstText(json)?.marks).toEqual([{ type: "bold" }]);
   });
 
-  it("applies strike from double tilde delimiters", () => {
-    const json = trigger("~~strike text~", "~");
+  it("does NOT auto-italicize single asterisk delimiters (bold-only policy)", () => {
+    const { json } = trigger("*italic text", "*");
 
-    expect(firstText(json)).toMatchObject({
-      type: "text",
-      text: "strike text",
-      marks: [{ type: "strike" }],
-    });
+    expect(firstText(json)).toMatchObject({ type: "text", text: "*italic text*" });
+    expect(firstText(json)?.marks).toBeUndefined();
+  });
+
+  it("does NOT auto-strike double tilde delimiters (bold-only policy)", () => {
+    const { json } = trigger("~~strike text~", "~");
+
+    expect(firstText(json)).toMatchObject({ type: "text", text: "~~strike text~~" });
+    expect(firstText(json)?.marks).toBeUndefined();
   });
 
   it("applies code from backtick delimiters", () => {
-    const json = trigger("`code text", "`");
+    const { json } = trigger("`code text", "`");
 
     expect(firstText(json)).toMatchObject({
       type: "text",
@@ -144,7 +177,7 @@ describe("buildDocInputRules", () => {
   });
 
   it("converts # to level 1 docHeading", () => {
-    const json = trigger("#", " ");
+    const { json } = trigger("#", " ");
 
     expect(firstBlock(json)).toMatchObject({
       type: "docHeading",
@@ -153,7 +186,7 @@ describe("buildDocInputRules", () => {
   });
 
   it("converts ## to level 2 docHeading", () => {
-    const json = trigger("##", " ");
+    const { json } = trigger("##", " ");
 
     expect(firstBlock(json)).toMatchObject({
       type: "docHeading",
@@ -162,7 +195,7 @@ describe("buildDocInputRules", () => {
   });
 
   it("converts ### to level 3 docHeading", () => {
-    const json = trigger("###", " ");
+    const { json } = trigger("###", " ");
 
     expect(firstBlock(json)).toMatchObject({
       type: "docHeading",
@@ -170,26 +203,37 @@ describe("buildDocInputRules", () => {
     });
   });
 
-  it("wraps dash trigger in unordered docListItem", () => {
-    const json = trigger("-", " ");
+  it("keeps the blockId when converting a paragraph", () => {
+    const { json } = trigger("##", " ", { blockId: "b-stable-1" });
 
     expect(firstBlock(json)).toMatchObject({
-      type: "docListItem",
-      attrs: { blockId: null, blockProps: {}, ordered: false },
+      type: "docHeading",
+      attrs: { blockId: "b-stable-1", level: 2 },
     });
   });
 
-  it("wraps asterisk trigger in unordered docListItem", () => {
-    const json = trigger("*", " ");
+  it("converts dash trigger to an unordered docListItem", () => {
+    const { json } = trigger("-", " ");
 
+    // `ordered: null` is deliberate — the absent-in-source-props sentinel
+    // (see DocListItem's attr comment); null renders as unordered.
     expect(firstBlock(json)).toMatchObject({
       type: "docListItem",
-      attrs: { blockId: null, blockProps: {}, ordered: false },
+      attrs: { blockId: null, blockProps: {}, ordered: null },
     });
   });
 
-  it("wraps ordered trigger in ordered docListItem", () => {
-    const json = trigger("1.", " ");
+  it("converts asterisk trigger to an unordered docListItem", () => {
+    const { json } = trigger("*", " ");
+
+    expect(firstBlock(json)).toMatchObject({
+      type: "docListItem",
+      attrs: { blockId: null, blockProps: {}, ordered: null },
+    });
+  });
+
+  it("converts ordered trigger to an ordered docListItem", () => {
+    const { json } = trigger("1.", " ");
 
     expect(firstBlock(json)).toMatchObject({
       type: "docListItem",
@@ -197,8 +241,8 @@ describe("buildDocInputRules", () => {
     });
   });
 
-  it("wraps quote trigger in docQuote", () => {
-    const json = trigger(">", " ");
+  it("converts quote trigger to docQuote", () => {
+    const { json } = trigger(">", " ");
 
     expect(firstBlock(json)).toMatchObject({
       type: "docQuote",
@@ -206,8 +250,15 @@ describe("buildDocInputRules", () => {
     });
   });
 
-  it("converts bare code fence to docCodeBlock with null language", () => {
-    const json = trigger("```", " ");
+  it("does not convert mid-paragraph hashes", () => {
+    const { json } = trigger("some text ##", " ");
+
+    expect(firstBlock(json)).toMatchObject({ type: "docParagraph" });
+    expect(firstText(json)).toMatchObject({ type: "text", text: "some text ## " });
+  });
+
+  it("converts to docCodeBlock the moment the third backtick lands", () => {
+    const { json } = trigger("``", "`");
 
     expect(firstBlock(json)).toMatchObject({
       type: "docCodeBlock",
@@ -215,39 +266,35 @@ describe("buildDocInputRules", () => {
     });
   });
 
-  it("converts language code fence to docCodeBlock language attr", () => {
-    const json = trigger("```typescript", " ");
+  it("does not convert backticks mid-paragraph", () => {
+    const { json } = trigger("x ``", "`");
 
-    expect(firstBlock(json)).toMatchObject({
-      type: "docCodeBlock",
-      attrs: { blockId: null, blockProps: {}, language: "typescript" },
-    });
+    expect(firstBlock(json)).toMatchObject({ type: "docParagraph" });
   });
 
-  it("replaces exactly three hyphens with docDivider", () => {
-    const json = trigger("---", " ");
+  it("replaces three hyphens with docDivider the moment the third lands", () => {
+    const { json, selectionParent } = trigger("--", "-");
 
     expect(firstBlock(json)).toMatchObject({
       type: "docDivider",
-      attrs: { blockId: null, blockProps: {}, blockText: null },
+      attrs: { blockId: null, blockProps: {} },
     });
+    // Notion semantics: the cursor lands in an empty paragraph after the rule.
+    expect(json.content?.[1]).toMatchObject({ type: "docParagraph" });
+    expect(selectionParent).toBe("docParagraph");
   });
 
   it("does not replace two hyphens with docDivider", () => {
-    const json = trigger("--", " ");
+    const { json } = trigger("-", "-");
 
-    expect(firstBlock(json)).toMatchObject({
-      type: "docParagraph",
-      content: [{ type: "text", text: "-- " }],
-    });
+    expect(firstBlock(json)).toMatchObject({ type: "docParagraph" });
+    expect(firstText(json)).toMatchObject({ type: "text", text: "--" });
   });
 
-  it("does not replace four hyphens with docDivider", () => {
-    const json = trigger("----", " ");
+  it("does not fire the divider mid-paragraph", () => {
+    const { json } = trigger("a --", "-");
 
-    expect(firstBlock(json)).toMatchObject({
-      type: "docParagraph",
-      content: [{ type: "text", text: "---- " }],
-    });
+    expect(firstBlock(json)).toMatchObject({ type: "docParagraph" });
+    expect(firstText(json)).toMatchObject({ type: "text", text: "a ---" });
   });
 });

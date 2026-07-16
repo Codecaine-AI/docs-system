@@ -619,7 +619,7 @@ export function DocPage({
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <header className="flex shrink-0 items-center justify-between gap-3 border-b px-3 py-1.5">
+      <header className="flex h-11 shrink-0 items-center justify-between gap-3 border-b px-3">
         <div className="min-w-0 truncate font-mono text-xs text-muted-foreground" title={path}>
           docs/{path}
         </div>
@@ -687,7 +687,7 @@ export function DocPage({
 
       <div className="flex min-h-0 flex-1 overflow-hidden">
         <div className="min-h-0 min-w-0 flex-1 overflow-y-auto">
-          <div key={canvasEpoch} ref={contentRef} className="mx-auto w-full max-w-[100ch] px-5 py-6 sm:px-8">
+          <div key={canvasEpoch} ref={contentRef} className="mx-auto w-full max-w-[var(--style-content-width,100ch)] px-[var(--style-content-margin,2rem)] pt-[var(--style-content-top,1.5rem)] pb-6">
             {isStatic ? (
               // Static-export degradation: no write routes, so no editor —
               // the plain read-only renderer.

@@ -178,7 +178,7 @@
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "docs/10-system-design/10-block-vocabulary.md",
+              "path": "docs/10-system-design/10-block-vocabulary/00-overview.md",
               "label": "Block vocabulary & typed actions"
             }
           }

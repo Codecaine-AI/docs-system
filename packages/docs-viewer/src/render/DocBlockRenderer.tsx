@@ -8,12 +8,13 @@ import type { DeltaSpan, DocBlock, DocDocument } from "@codecaine-ai/docs-model/
 import type { DocBlockRenderContext } from "./block-registry";
 import { getDocBlockDescriptor } from "./block-registry";
 import { CanvasEmbedUnavailable, useCanvasEmbed } from "../client";
+import { INLINE_CODE_CLASSES } from "./block-classes";
 import { resolveBundleCanvasSrc } from "./bundle-src";
 
 /**
  * The doc.json read surface: walks a validated DocDocument from its root and
  * renders every block through the block registry (D28). The root block is
- * the page container — its own chrome is skipped, its children are the page.
+ * the page container — its own wrapper is skipped, its children are the page.
  */
 export interface DocBlockRendererProps {
   document: DocDocument;
@@ -81,7 +82,7 @@ export function renderDeltaSpans(text: DeltaSpan[] | undefined): ReactNode {
     if (attrs) {
       if (attrs.code) {
         node = (
-          <code className="rounded bg-muted px-1 py-0.5 font-mono text-[0.85em]">{node}</code>
+          <code className={INLINE_CODE_CLASSES}>{node}</code>
         );
       }
       if (attrs.bold) node = <strong>{node}</strong>;

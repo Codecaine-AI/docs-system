@@ -479,3 +479,33 @@ export function subscribeDocsEvents(
   }
   return subscribeViaFetchStream(`api/events`, deliver);
 }
+
+// ---------------------------------------------------------------------------
+// Theme folders (docs/20-implementation/40-theming)
+// ---------------------------------------------------------------------------
+
+export type ThemeListEntry = { id: string; name: string };
+
+export type ThemeWirePayload = {
+  id: string;
+  manifest: Record<string, unknown>;
+  components: Record<string, Record<string, unknown>>;
+};
+
+/** Repo themes/ catalogue; a static export ships no server, so no custom themes. */
+export async function getThemes(): Promise<{ themes: ThemeListEntry[] }> {
+  if (IS_STATIC) return { themes: [] };
+  return fetchJson(`api/themes`);
+}
+
+export async function getTheme(id: string): Promise<{ theme: ThemeWirePayload }> {
+  assertWritable("Loading a repo theme");
+  return fetchJson(`api/themes/${encodeURIComponent(id)}`);
+}
+
+export async function saveTheme(
+  payload: ThemeWirePayload,
+): Promise<{ theme: ThemeWirePayload }> {
+  assertWritable("Saving a theme");
+  return postJson(`api/themes`, payload);
+}

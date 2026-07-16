@@ -13,6 +13,7 @@ import {
 } from "./confine";
 import { validateCanvasPayload } from "./canvas-sidecar";
 import type { DocsChangeEvent } from "./docs-events";
+import { isValidThemeId, listRepoThemes, readRepoTheme, themesRootFor, writeRepoTheme } from "./themes";
 
 /**
  * GET /api/blocks payload — the agent edit-surface discovery document, so
@@ -45,6 +46,9 @@ const BLOCKS_DISCOVERY = buildBlocksDiscovery();
  *   GET  /api/asset?path=                   -> raw asset bytes
  *   GET  /api/backlinks?target=             -> { target, backlinks }
  *   GET  /api/blocks                        -> { schemaVersion, ops, components } (static edit-surface discovery)
+ *   GET  /api/themes                        -> { themes: [{ id, name }] } (repo themes/ folders)
+ *   GET  /api/themes/:themeId               -> { theme: { id, manifest, components } } | 404
+ *   POST /api/themes                        -> 201 { theme } | 400 (writes themes/<id>/ folder)
  *   POST /api/ops                           -> doc ops or one forwarded canvas action | 400/409/423
  *   GET  /api/comments?path=                -> { comments, hash }
  *   POST /api/comments                      -> 201 { comment, comments, hash } | 409/423
@@ -209,6 +213,38 @@ export function createDocsRoutes(store: DocsStore) {
 
     // Static edit-surface discovery — see BLOCKS_DISCOVERY above.
     .get("/api/blocks", () => BLOCKS_DISCOVERY)
+
+    // -- theme folders (docs/20-implementation/40-theming) ---------------------
+    .get("/api/themes", async () => {
+      return { themes: await listRepoThemes(themesRootFor(store.docsRoot)) };
+    })
+    .get("/api/themes/:themeId", async ({ params, set }) => {
+      const theme = await readRepoTheme(themesRootFor(store.docsRoot), params.themeId);
+      if (!theme) {
+        set.status = 404;
+        return { detail: `No theme named ${JSON.stringify(params.themeId)}.` };
+      }
+      return { theme };
+    })
+    .post("/api/themes", async ({ body, set }) => {
+      const payload = body as { id?: unknown; manifest?: unknown; components?: unknown };
+      if (typeof payload.id !== "string" || !isValidThemeId(payload.id)) {
+        set.status = 400;
+        return { detail: "Theme id must be a lowercase slug ([a-z0-9-], max 64 chars)." };
+      }
+      if (typeof payload.manifest !== "object" || payload.manifest === null) {
+        set.status = 400;
+        return { detail: "Theme manifest must be an object." };
+      }
+      const themesRoot = themesRootFor(store.docsRoot);
+      await writeRepoTheme(themesRoot, {
+        id: payload.id,
+        manifest: payload.manifest as Record<string, unknown>,
+        components: (payload.components ?? {}) as Record<string, Record<string, unknown>>,
+      });
+      set.status = 201;
+      return { theme: await readRepoTheme(themesRoot, payload.id) };
+    })
 
     // -- doc ops ---------------------------------------------------------------
     .post(

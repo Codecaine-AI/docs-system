@@ -113,8 +113,12 @@ describe("file-tree — mdx adapter + tree rendering", () => {
       ],
     });
     expect(html).toContain('data-docs-block-type="file-tree"');
+    expect(html).toContain('data-source-id="tree-1"');
+    expect(html).toContain('class="not-prose my-4"');
     expect(html).toContain("Layout");
-    expect(html).toContain("3 entries");
+    expect(html).toContain('class="mb-1.5 text-sm font-medium text-foreground"');
+    expect(html).not.toContain("File Tree");
+    expect(html).not.toContain("3 entries");
     // Derived directories from prefixes + guide glyphs at each depth.
     expect(html).toContain("└── ");
     expect(html).toContain("├── ");
@@ -226,15 +230,14 @@ describe("file-tree — mdx adapter + tree rendering", () => {
     });
     expect(html).toContain('data-docs-file-tree-entry="ok.ts"');
     expect(html).not.toContain("data-docs-file-tree-change");
-    // Only the entries that survive normalization are counted.
-    expect(html).toContain("1 entry");
+    expect(html).not.toContain("1 entry");
   });
 
   it("renders the empty-tree placeholder when entries are absent or not an array", () => {
     for (const props of [{}, { entries: "nope" }, { entries: [] }]) {
       const html = renderTree(props as Record<string, unknown>);
       expect(html).toContain('data-docs-block-type="file-tree"');
-      expect(html).toContain("0 entries");
+      expect(html).not.toContain("0 entries");
       expect(html).toContain("(no entries)");
     }
   });

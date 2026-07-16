@@ -21,7 +21,7 @@ import type { DocBlock, DocDocument } from "./doc-schema";
  *
  * - `heading` -> `#`..`######` per `props.level` (default 2, clamped 1-6).
  * - `paragraph` -> a plain text line (root's own paragraph "shell" is
- *   skipped the same way DocBlockRenderer skips the root's own chrome —
+ *   skipped the same way DocBlockRenderer skips the root's own wrapper —
  *   only its children are projected at the top level).
  * - `list-item` -> `-` bullet, or `1.` if `props.ordered === true`, indented
  *   2 spaces per nesting depth. Depth is the list-item's own nesting depth
@@ -147,7 +147,7 @@ export function projectToMarkdown(doc: DocDocument): string {
   const root = doc.blocks[doc.root];
   if (!root) return "";
 
-  // Mirror DocBlockRenderer: the root's own chrome is skipped, only its
+  // Mirror DocBlockRenderer: the root's own wrapper is skipped, only its
   // children are projected.
   walkChildren(root.children, 0);
 

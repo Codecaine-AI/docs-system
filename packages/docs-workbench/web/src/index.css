@@ -3,6 +3,9 @@
 /* Docs-system theme: Notion palette + semantic tokens (light/dark). */
 @import "./theme/index.css";
 
+/* Style rail (right-docked live theme-tuning panel) styling. */
+@import "./theme/style-rail.css";
+
 @plugin "@tailwindcss/typography";
 
 /*
@@ -26,6 +29,10 @@
   --font-tx02: ui-sans-serif, system-ui, sans-serif;
   --font-tx02-semicondensed: ui-sans-serif, system-ui, sans-serif;
   --font-tx02-condensed: ui-sans-serif, system-ui, sans-serif;
+  /* Canonical per-surface font tokens (style-rail "Code font" / "Number
+     font" override these; --docs-font-numeric defaults to inherit at the
+     use sites, so no :root entry). */
+  --docs-font-code: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
 }
 
 /*
@@ -96,8 +103,6 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
-    scrollbar-color: var(--docs-icon-muted) transparent;
-    scrollbar-width: thin;
   }
   body {
     @apply bg-background text-foreground;
@@ -105,6 +110,39 @@
   h1, h2, h3 {
     font-family: var(--font-display);
   }
+}
+
+/*
+ * Scrollbars — width/color/opacity are style-rail knobs (Layout tab,
+ * --docs-scrollbar-*). WebKit scrollbar styling (the only route to a px
+ * width) is what the Electron shell renders; note Chromium IGNORES these
+ * pseudo-elements if the standard scrollbar-color/width properties are set
+ * anywhere on the element, so those must not reappear in @layer base.
+ */
+::-webkit-scrollbar {
+  width: var(--docs-scrollbar-width, 10px);
+  height: var(--docs-scrollbar-width, 10px);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: color-mix(
+    in srgb,
+    var(--docs-scrollbar-color, var(--docs-icon-muted)) calc(var(--docs-scrollbar-opacity, 1) * 100%),
+    transparent
+  );
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--docs-scrollbar-color, var(--docs-icon-muted));
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 /* The typography plugin's `.prose` carries `max-width: 65ch`. Docs surfaces
@@ -137,25 +175,91 @@
   color: var(--docs-viewer-text-body);
 }
 
-.docs-markdown :where(h1, h2, h3, h4, h5, h6, strong) {
+/* Headings follow the per-block-type token (--docs-heading-fg defaults to
+   the heading text var in theme/semantic.css); strong stays on the shared
+   heading text var — bold text is not a heading block. */
+.docs-markdown :where(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--font-tx02), ui-sans-serif, system-ui, sans-serif;
+  color: var(--docs-heading-fg);
+}
+
+.docs-markdown :where(strong) {
   font-family: var(--font-tx02), ui-sans-serif, system-ui, sans-serif;
   color: var(--docs-viewer-text-heading);
 }
 
-.docs-markdown :where(p, li, td) {
+/* Style-rail typography hooks — the vars are only set on <html> while the
+   corresponding knob is off its default, so these normally resolve to the
+   same values the utility classes (text-sm, leading-[1.7]) already apply. */
+.docs-markdown.prose {
+  font-size: var(--style-font-size, 0.875rem);
+  line-height: var(--style-line-height, 1.7);
+  letter-spacing: var(--style-letter-spacing, 0em);
+}
+
+/* The block renderer/editor pins each text block with its own text-sm /
+   leading-[1.7] utilities, so container-level values never reach the text.
+   Re-assert the knobs at the block level; the fallbacks equal the pinned
+   utility values, so this is a no-op until a knob moves. */
+.docs-markdown :where(p, li, td, th, dd, dt, blockquote) {
+  font-size: var(--style-font-size, 0.875rem);
+  line-height: var(--style-line-height, 1.7);
+  letter-spacing: var(--style-letter-spacing, 0em);
+}
+
+.docs-markdown :where(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--style-heading-font, var(--font-tx02)), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Paragraph text follows the per-block-type token (--docs-paragraph-fg
+   defaults to the body text var in theme/semantic.css); list items and
+   table cells stay on the shared body var — they have their own tokens. */
+.docs-markdown :where(p) {
+  color: var(--docs-paragraph-fg);
+}
+
+.docs-markdown :where(li, td) {
   color: var(--docs-viewer-text-body);
 }
 
+/* Callout body text follows its own token on both surfaces (read: the
+   aside wraps a nested .docs-markdown body div; edit: the callout node's
+   div[data-doc-type]). Re-pins the descendants the paragraph rule above
+   would otherwise color; the default equals the body text var, so this is
+   a no-op until a theme moves --docs-callout-fg. */
+[data-docs-block-type="callout"] .docs-markdown,
+[data-docs-block-type="callout"] .docs-markdown :where(p, li, td),
+.docs-markdown [data-doc-type="callout"],
+.docs-markdown [data-doc-type="callout"] :where(p, li, td) {
+  color: var(--docs-callout-fg);
+}
+
+/* Quote text follows the per-block-type token (--docs-quote-fg defaults to
+   the muted text var in theme/semantic.css). Background/border-color stay
+   on the callout vars — swapping them for the quote tokens would change
+   the current rendered look (the quote tokens default to the utility-class
+   values this rule overrides). */
 .docs-markdown :where(blockquote) {
   background: var(--docs-viewer-callout-fill);
-  border-color: var(--docs-viewer-callout-border);
-  color: var(--docs-viewer-text-muted);
+  border-color: var(--docs-quote-border);
+  color: var(--docs-quote-fg);
 }
 
 .docs-markdown :where(code:not(pre code)) {
-  background: var(--docs-viewer-inline-fill);
-  border: 1px solid var(--docs-viewer-callout-border);
-  color: var(--docs-viewer-text-muted);
+  background: var(--docs-inline-code-bg);
+  border-radius: 4px;
+  padding: 0.1em 0.35em;
+  color: var(--docs-inline-code-fg);
+}
+
+/* Tailwind Typography wraps inline code in literal backtick pseudo-elements;
+   the Notion-style chip carries the meaning instead, on both the read
+   surface and the ProseMirror editor. */
+.docs-markdown code::before,
+.docs-markdown code::after,
+.docs-editor-prosemirror code::before,
+.docs-editor-prosemirror code::after {
+  content: none;
 }
 
 .docs-markdown :where(a) {
@@ -163,16 +267,98 @@
 }
 
 /*
- * Editor list-item nested-children indent. The read surface (block-registry)
- * wraps a list item's nested children in an `ml-4` div inside the content
- * column; the ProseMirror editor cannot add that wrapper (the content hole
- * holds the item's own text wrapper AND its nested blocks together), so the
- * same indent is applied here to every non-text child of the editor's
- * list-item content column. Everything else about the two surfaces' list
- * items shares literal classes from docs-viewer's block-classes.ts.
+ * Per-surface font tokens: every code surface (blocks, inline chips, kbd)
+ * follows --docs-font-code, and numeric UI (list markers + their CSS
+ * counters) follows --docs-font-numeric — both style-rail knobs. These
+ * override docs-viewer's Tailwind `font-mono` fallbacks, which exist only
+ * for hosts without this stylesheet.
  */
-.docs-editor-prosemirror li > [data-doc-list-content] > :not([data-doc-node="docBlockText"]) {
-  margin-left: 1rem; /* = ml-4 */
+.docs-markdown code,
+.docs-markdown pre,
+.docs-markdown kbd,
+.docs-editor-prosemirror code,
+.docs-editor-prosemirror pre {
+  font-family: var(--docs-font-code);
+}
+
+.docs-markdown [data-doc-list-marker] {
+  font-family: var(--docs-font-numeric, inherit);
+  color: var(--docs-list-marker-fg, inherit);
+}
+
+/*
+ * List-item nested children carry NO extra indent (Notion metrics): a nested
+ * list item's own 24px marker box supplies the per-level step, and a nested
+ * paragraph aligns flush with the parent item's text. The read surface's
+ * children wrapper (LIST_ITEM_CHILDREN_CLASSES) is likewise indent-free, so
+ * the editor needs no mirroring rule anymore.
+ *
+ * Ordered list numbering: consecutive `data-doc-ordered` siblings form one
+ * counter run — the run's FIRST item carries the counter-reset (a reset
+ * scopes the counter over the element and its following siblings), so a
+ * bullet/paragraph between runs restarts the numbering, and a nested run
+ * (whose first ordered item follows the item's text wrapper or starts its
+ * children div) numbers independently of its ancestors' run.
+ */
+.docs-markdown [data-doc-ordered="true"] {
+  counter-increment: docs-ordered-list;
+}
+
+.docs-markdown [data-doc-ordered="true"]:first-child,
+.docs-markdown :not([data-doc-ordered="true"]) + [data-doc-ordered="true"] {
+  counter-reset: docs-ordered-list;
+}
+
+/*
+ * Marker style cycles with ordered-nesting depth like Notion: 1. → a. → i.,
+ * then repeats. Depth = number of ordered-item ancestors (the descendant
+ * combinator crosses the content column on both surfaces); deeper selectors
+ * are more specific, so the deepest matching rule wins.
+ */
+.docs-markdown [data-doc-ordered="true"] > [data-doc-list-marker]::before {
+  content: counter(docs-ordered-list) ".";
+}
+
+.docs-markdown [data-doc-ordered="true"] [data-doc-ordered="true"] > [data-doc-list-marker]::before {
+  content: counter(docs-ordered-list, lower-alpha) ".";
+}
+
+.docs-markdown
+  [data-doc-ordered="true"]
+  [data-doc-ordered="true"]
+  [data-doc-ordered="true"]
+  > [data-doc-list-marker]::before {
+  content: counter(docs-ordered-list, lower-roman) ".";
+}
+
+.docs-markdown
+  [data-doc-ordered="true"]
+  [data-doc-ordered="true"]
+  [data-doc-ordered="true"]
+  [data-doc-ordered="true"]
+  > [data-doc-list-marker]::before {
+  content: counter(docs-ordered-list) ".";
+}
+
+.docs-markdown
+  [data-doc-ordered="true"]
+  [data-doc-ordered="true"]
+  [data-doc-ordered="true"]
+  [data-doc-ordered="true"]
+  [data-doc-ordered="true"]
+  > [data-doc-list-marker]::before {
+  content: counter(docs-ordered-list, lower-alpha) ".";
+}
+
+.docs-markdown
+  [data-doc-ordered="true"]
+  [data-doc-ordered="true"]
+  [data-doc-ordered="true"]
+  [data-doc-ordered="true"]
+  [data-doc-ordered="true"]
+  [data-doc-ordered="true"]
+  > [data-doc-list-marker]::before {
+  content: counter(docs-ordered-list, lower-roman) ".";
 }
 
 /*
@@ -257,12 +443,14 @@
  * Changed-id highlight flash (D12) — ids recently changed by a save, an
  * undo, or another session's edit get data-docs-changed="true" for ~2s
  * (useTransientHighlights); the visual flash is this one-shot animation.
- * Ported from Spectre globals.css — theme status-warning tokens only.
+ * Soft AFFiNE-style blue (palette blue tokens, both themes) — the original
+ * status-warning orange read as an alarm for what is routine activity.
  */
 @keyframes docs-changed-flash {
   0% {
-    background-color: var(--status-warning-fill);
-    box-shadow: 0 0 0 2px var(--status-warning-border);
+    background-color: var(--docs-highlight-color, var(--color-bg-blue));
+    box-shadow: 0 0 0 var(--docs-highlight-padding, 4px)
+      var(--docs-highlight-color, var(--color-bg-blue));
   }
   100% {
     background-color: transparent;
@@ -272,7 +460,103 @@
 
 [data-docs-changed="true"] {
   animation: docs-changed-flash 2s ease-out;
+  border-radius: var(--docs-highlight-radius, 6px);
+}
+
+/*
+ * Block selection highlight (grip-grab, node selection) — a plain soft
+ * fill like AFFiNE's, no ring. The "padding" is a same-color shadow
+ * spread, so the highlight breathes past the block's box without shifting
+ * layout. Color, rounding, and padding are style-rail knobs
+ * (--docs-highlight-*), theme blue by default.
+ */
+.docs-editor-prosemirror .ProseMirror-selectednode {
+  background-color: var(--docs-highlight-color, var(--color-bg-blue));
+  border-radius: var(--docs-highlight-radius, 6px);
+  box-shadow: 0 0 0 var(--docs-highlight-padding, 4px)
+    var(--docs-highlight-color, var(--color-bg-blue));
+  outline: none;
+}
+
+/*
+ * Notion drag feel: WHILE a grip-drag is in flight (drag-handle.ts puts
+ * .docs-block-dragging on the editor root) the held block shows no
+ * highlight — just the browser drag image and a dimmed source; the blue
+ * highlight lands with the drop, when the class comes off and the mapped
+ * NodeSelection shows through.
+ */
+.docs-editor-prosemirror.docs-block-dragging .ProseMirror-selectednode {
+  background-color: transparent;
+  box-shadow: none;
+  opacity: var(--docs-drag-opacity, 0.3);
+}
+
+/*
+ * Drag drop-line (prosemirror-dropcursor element; class set in DocEditor's
+ * dropcursor config). Inline styles carry PM's computed geometry, so color
+ * and thickness need !important; the block/inline classes tell a horizontal
+ * gap line from a vertical text-position caret, keeping the thickness knob
+ * on the correct axis. All three knobs live in the style rail
+ * (--docs-dropcursor-*), theme blue by default.
+ */
+.docs-drop-cursor {
+  background-color: var(--docs-dropcursor-color, var(--color-text-blue)) !important;
+  opacity: var(--docs-dropcursor-opacity, 0.9);
+  border-radius: var(--docs-dropcursor-radius, 2px);
+}
+
+.docs-drop-cursor.prosemirror-dropcursor-block {
+  height: var(--docs-dropcursor-width, 3px) !important;
+}
+
+.docs-drop-cursor.prosemirror-dropcursor-inline {
+  width: var(--docs-dropcursor-width, 3px) !important;
+}
+
+/*
+ * The ⠿ drag grip (editor/views/drag-handle.ts): floats left of the
+ * hovered top-level block, inside DocEditor's relative wrapper. The
+ * extension owns show/hide + positioning; this owns the look.
+ */
+.docs-drag-handle {
+  position: absolute;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--docs-grip-size, 18px);
+  height: calc(var(--docs-grip-size, 18px) * 4 / 3);
   border-radius: 4px;
+  color: var(--docs-grip-color, var(--docs-icon-muted));
+  cursor: grab;
+  user-select: none;
+  /* Fade in/out only — no positional animation (block-to-block moves
+     fade out at the old spot and back in at the new one; drag-handle.ts
+     sequences it). Hidden state keeps the element in the layer
+     (offsetParent stays readable) but ignores the pointer. */
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--docs-grip-fade, 100ms) ease;
+}
+
+.docs-drag-handle-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* The glyph scales with the grip box (inline SVG attrs are just the fallback). */
+.docs-drag-handle svg {
+  width: calc(var(--docs-grip-size, 18px) * 0.55);
+  height: auto;
+}
+
+.docs-drag-handle:hover {
+  background-color: var(--docs-surface-muted);
+  color: var(--docs-viewer-text-body);
+}
+
+.docs-drag-handle:active {
+  cursor: grabbing;
 }
 
 /*

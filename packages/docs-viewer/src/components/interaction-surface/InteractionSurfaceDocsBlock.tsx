@@ -1,7 +1,6 @@
 "use client";
 
 import { Fragment } from "react";
-import { WaypointsIcon } from "lucide-react";
 import { Badge } from "../../ui/badge";
 import { cn } from "../../ui/cn";
 
@@ -54,10 +53,10 @@ const SIG_TOKEN_CLASS = {
 
 /**
  * Interaction surface block. Structured props (no body parsing): cyan
- * identity with a WaypointsIcon header strip and one row per operation — a
- * mono signature `name(params) -> returns` colorized token-by-token (cyan
- * name, muted punctuation, amber types), an optional tinted kind badge, and
- * the description as a muted second line.
+ * identity with one row per operation — a mono signature
+ * `name(params) -> returns` colorized token-by-token (cyan name, muted
+ * punctuation, amber types), an optional tinted kind badge, and the
+ * description as a muted second line.
  */
 export function InteractionSurfaceBlock({
   id,
@@ -70,81 +69,69 @@ export function InteractionSurfaceBlock({
 }) {
   return (
     <section
-      className="not-prose my-4 overflow-hidden rounded-md border bg-muted/20"
+      className="not-prose my-4"
       data-docs-block-type="interaction-surface"
       data-source-id={id}
     >
-      <div className="flex flex-wrap items-center gap-2 border-b bg-cyan-500/10 px-3 py-2">
-        <WaypointsIcon className="h-4 w-4 shrink-0 text-cyan-600 dark:text-cyan-400" />
-        <span className="font-display text-xs font-medium uppercase tracking-wider text-cyan-700 dark:text-cyan-300">
-          Interaction Surface
-        </span>
-        {title && <span className="text-sm font-medium">{title}</span>}
-        <Badge variant="outline">
-          {operations.length} operation{operations.length === 1 ? "" : "s"}
-        </Badge>
-        <span className="font-mono text-[11px] text-muted-foreground">{id}</span>
-      </div>
-      <div className="p-3">
-        <div className="divide-y rounded-md border bg-background">
-          {operations.map((operation) => (
-            <div
-              key={operation.name}
-              className="grid gap-1 px-3 py-2 text-xs"
-              data-interaction-operation={operation.name}
-            >
-              <div className="flex flex-wrap items-center gap-1.5">
-                <code className="break-all font-mono text-foreground">
-                  <span data-sig-token="name" className={SIG_TOKEN_CLASS.name}>
-                    {operation.name}
-                  </span>
-                  <span data-sig-token="punct" className={SIG_TOKEN_CLASS.punct}>(</span>
-                  {(operation.params ?? []).map((param, index) => (
-                    <Fragment key={param.name}>
-                      {index > 0 && (
-                        <span data-sig-token="punct" className={SIG_TOKEN_CLASS.punct}>, </span>
+      {title && <div className="mb-1.5 text-sm font-medium text-foreground">{title}</div>}
+      <div className="divide-y rounded-md border border-[color:var(--docs-interaction-border,var(--border))] bg-[color:var(--docs-interaction-bg,var(--background))]">
+        {operations.map((operation) => (
+          <div
+            key={operation.name}
+            className="grid gap-1 px-3 py-2 text-xs"
+            data-interaction-operation={operation.name}
+          >
+            <div className="flex flex-wrap items-center gap-1.5">
+              <code className="break-all font-mono text-foreground">
+                <span data-sig-token="name" className={SIG_TOKEN_CLASS.name}>
+                  {operation.name}
+                </span>
+                <span data-sig-token="punct" className={SIG_TOKEN_CLASS.punct}>(</span>
+                {(operation.params ?? []).map((param, index) => (
+                  <Fragment key={param.name}>
+                    {index > 0 && (
+                      <span data-sig-token="punct" className={SIG_TOKEN_CLASS.punct}>, </span>
+                    )}
+                    <span title={param.description}>
+                      <span data-sig-token="param">{param.name}</span>
+                      {param.required === false && (
+                        <span data-sig-token="optional" className={SIG_TOKEN_CLASS.optional}>
+                          ?
+                        </span>
                       )}
-                      <span title={param.description}>
-                        <span data-sig-token="param">{param.name}</span>
-                        {param.required === false && (
-                          <span data-sig-token="optional" className={SIG_TOKEN_CLASS.optional}>
-                            ?
-                          </span>
-                        )}
-                      </span>
-                      {param.type && (
-                        <>
-                          <span data-sig-token="punct" className={SIG_TOKEN_CLASS.punct}>: </span>
-                          <span data-sig-token="type" className={SIG_TOKEN_CLASS.type}>
-                            {param.type}
-                          </span>
-                        </>
-                      )}
-                    </Fragment>
-                  ))}
-                  <span data-sig-token="punct" className={SIG_TOKEN_CLASS.punct}>)</span>
-                  {operation.returns && (
-                    <span data-sig-token="returns" className={SIG_TOKEN_CLASS.returns}>
-                      {" "}
-                      {"->"} {operation.returns}
                     </span>
-                  )}
-                </code>
-                {operation.kind && (
-                  <Badge
-                    variant="outline"
-                    className={cn("font-mono", KIND_BADGE_CLASS[operation.kind])}
-                  >
-                    {operation.kind}
-                  </Badge>
+                    {param.type && (
+                      <>
+                        <span data-sig-token="punct" className={SIG_TOKEN_CLASS.punct}>: </span>
+                        <span data-sig-token="type" className={SIG_TOKEN_CLASS.type}>
+                          {param.type}
+                        </span>
+                      </>
+                    )}
+                  </Fragment>
+                ))}
+                <span data-sig-token="punct" className={SIG_TOKEN_CLASS.punct}>)</span>
+                {operation.returns && (
+                  <span data-sig-token="returns" className={SIG_TOKEN_CLASS.returns}>
+                    {" "}
+                    {"->"} {operation.returns}
+                  </span>
                 )}
-              </div>
-              {operation.description && (
-                <div className="text-muted-foreground">{operation.description}</div>
+              </code>
+              {operation.kind && (
+                <Badge
+                  variant="outline"
+                  className={cn("font-mono", KIND_BADGE_CLASS[operation.kind])}
+                >
+                  {operation.kind}
+                </Badge>
               )}
             </div>
-          ))}
-        </div>
+            {operation.description && (
+              <div className="text-muted-foreground">{operation.description}</div>
+            )}
+          </div>
+        ))}
       </div>
     </section>
   );
