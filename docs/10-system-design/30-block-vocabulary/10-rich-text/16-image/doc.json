@@ -9,7 +9,6 @@
       "type": "paragraph",
       "props": {},
       "children": [
-        "b-30-image-title-1",
         "b-30-image-lead-2",
         "b-30-image-state-h-3",
         "b-30-image-state-4",
@@ -25,19 +24,6 @@
         "b-30-image-theming-para",
         "b-30-image-theming-table"
       ]
-    },
-    "b-30-image-title-1": {
-      "id": "b-30-image-title-1",
-      "type": "heading",
-      "props": {
-        "level": 1
-      },
-      "text": [
-        {
-          "insert": "image"
-        }
-      ],
-      "children": []
     },
     "b-30-image-lead-2": {
       "id": "b-30-image-lead-2",

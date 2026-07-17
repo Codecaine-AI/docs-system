@@ -92,7 +92,7 @@ describe("topLevelBlockPos", () => {
     const block = editor.view.dom.children[0] as HTMLElement;
     block.classList.add("ProseMirror-selectednode");
 
-    const ghost = buildDragGhost(block);
+    const ghost = buildDragGhost([block]);
     try {
       expect(ghost.parentElement).toBe(document.body);
       expect(ghost.className).toBe("docs-drag-image");
@@ -117,7 +117,7 @@ describe("topLevelBlockPos", () => {
     context.appendChild(block);
     document.body.appendChild(context);
 
-    const ghost = buildDragGhost(block);
+    const ghost = buildDragGhost([block]);
     try {
       expect(ghost.classList.contains("docs-drag-image")).toBe(true);
       // The wrapper's cascade re-applies inside the ghost — without these
@@ -127,6 +127,24 @@ describe("topLevelBlockPos", () => {
     } finally {
       ghost.remove();
       context.remove();
+    }
+  });
+
+  it("stacks one clone per block for a multi-block ghost", () => {
+    const editor = createEditor([paragraph("first", "b1"), paragraph("second", "b2")]);
+    const blocks = Array.from(editor.view.dom.children) as HTMLElement[];
+    blocks[1].classList.add("docs-block-multi-selected");
+
+    const ghost = buildDragGhost(blocks);
+    try {
+      expect(ghost.children.length).toBe(2);
+      expect(ghost.children[0].textContent).toBe("first");
+      expect(ghost.children[1].textContent).toBe("second");
+      expect((ghost.children[1] as HTMLElement).classList.contains("docs-block-multi-selected")).toBe(
+        false,
+      );
+    } finally {
+      ghost.remove();
     }
   });
 

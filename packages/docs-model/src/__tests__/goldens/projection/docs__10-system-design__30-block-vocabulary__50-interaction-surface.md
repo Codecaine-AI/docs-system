@@ -1,5 +1,3 @@
-# interaction-surface
-
 The operation list of the block vocabulary, and the other half of its documentation doctrine: where an annotated code block shows what a system's state *is*, an interaction-surface lists the named operations by which that state is changed or queried.
 
 ## State

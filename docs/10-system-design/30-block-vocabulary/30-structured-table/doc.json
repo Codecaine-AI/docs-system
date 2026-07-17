@@ -9,7 +9,6 @@
       "type": "paragraph",
       "props": {},
       "children": [
-        "b-20-structured-table-title-1",
         "b-20-structured-table-lead-2",
         "b-20-structured-table-state-h-3",
         "b-20-structured-table-state-4",
@@ -28,19 +27,6 @@
         "b-20-structured-table-theming-para",
         "b-20-structured-table-theming-table"
       ]
-    },
-    "b-20-structured-table-title-1": {
-      "id": "b-20-structured-table-title-1",
-      "type": "heading",
-      "props": {
-        "level": 1
-      },
-      "text": [
-        {
-          "insert": "structured-table"
-        }
-      ],
-      "children": []
     },
     "b-20-structured-table-lead-2": {
       "id": "b-20-structured-table-lead-2",
@@ -504,7 +490,7 @@
           }
         },
         {
-          "insert": "."
+          "insert": ". Spacing and rule tokens (widths, paddings, opacity, and fontSize) are non-color values stored as single strings: lengths use a px unit and opacities are bare numbers."
         }
       ],
       "children": []
@@ -522,17 +508,62 @@
           [
             "border",
             "--docs-table-border",
-            "Table and cell borders"
+            "Outer wrapper border (default transparent)"
           ],
           [
             "headerBg",
             "--docs-table-header-bg",
-            "Header row background"
+            "Header row background (default transparent)"
           ],
           [
             "headerFg",
             "--docs-table-header-fg",
             "Header text color"
+          ],
+          [
+            "headerRule",
+            "--docs-table-header-rule",
+            "Header rule color"
+          ],
+          [
+            "headerRuleWidth",
+            "--docs-table-header-rule-width",
+            "Header rule thickness"
+          ],
+          [
+            "headerRuleOpacity",
+            "--docs-table-header-rule-opacity",
+            "Header rule opacity"
+          ],
+          [
+            "rowRule",
+            "--docs-table-row-rule",
+            "Row rule color"
+          ],
+          [
+            "rowRuleWidth",
+            "--docs-table-row-rule-width",
+            "Row rule thickness"
+          ],
+          [
+            "rowRuleOpacity",
+            "--docs-table-row-rule-opacity",
+            "Row rule opacity"
+          ],
+          [
+            "cellPaddingY",
+            "--docs-table-cell-pad-y",
+            "Vertical cell padding"
+          ],
+          [
+            "cellPaddingX",
+            "--docs-table-cell-pad-x",
+            "Column gap"
+          ],
+          [
+            "fontSize",
+            "--docs-table-font-size",
+            "Cell text size"
           ]
         ]
       },

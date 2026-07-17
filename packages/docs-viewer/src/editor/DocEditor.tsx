@@ -15,6 +15,7 @@ import { TEXT_BLOCK_NODES } from "./core/schema";
 import { DocItalic, DocStrike } from "../components/rich-text/editor-marks";
 import { ATOM_BLOCK_NODES_WITH_VIEWS, DocCodeBlockWithView } from "./views/node-views";
 import { DocDragHandle } from "./views/drag-handle";
+import { DocDragSelect } from "./views/drag-select";
 import { DocCodeBlockHighlight } from "../components/code/editor-highlight";
 import { DocEditorNodeViewProvider } from "./views/node-view-context";
 import { SlashMenu, SlashMenuPopover } from "./menus/SlashMenu";
@@ -323,6 +324,9 @@ export default function DocEditor({
       // Left-side ⠿ grip for reordering top-level blocks (drag rides PM's
       // native node-drag + the StarterKit dropCursor above).
       DocDragHandle,
+      // Notion-style rubber-band multi-block selection (background drag);
+      // selected runs move together through the grip.
+      DocDragSelect,
     ],
     content: docToPM(document) as unknown as Record<string, unknown>,
     editorProps: {

@@ -9,7 +9,6 @@
       "type": "paragraph",
       "props": {},
       "children": [
-        "b-24-canvas-title-1",
         "b-24-canvas-lead-2",
         "b-24-canvas-state-h-3",
         "b-24-canvas-state-4",
@@ -33,19 +32,6 @@
         "b-24-canvas-theming-para",
         "b-24-canvas-theming-table"
       ]
-    },
-    "b-24-canvas-title-1": {
-      "id": "b-24-canvas-title-1",
-      "type": "heading",
-      "props": {
-        "level": 1
-      },
-      "text": [
-        {
-          "insert": "canvas"
-        }
-      ],
-      "children": []
     },
     "b-24-canvas-lead-2": {
       "id": "b-24-canvas-lead-2",

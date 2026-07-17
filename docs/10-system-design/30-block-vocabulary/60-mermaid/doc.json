@@ -9,7 +9,6 @@
       "type": "paragraph",
       "props": {},
       "children": [
-        "b-23-mermaid-title-1",
         "b-23-mermaid-lead-2",
         "b-23-mermaid-state-h-3",
         "b-23-mermaid-state-4",
@@ -25,19 +24,6 @@
         "b-23-mermaid-theming-para",
         "b-23-mermaid-theming-table"
       ]
-    },
-    "b-23-mermaid-title-1": {
-      "id": "b-23-mermaid-title-1",
-      "type": "heading",
-      "props": {
-        "level": 1
-      },
-      "text": [
-        {
-          "insert": "mermaid"
-        }
-      ],
-      "children": []
     },
     "b-23-mermaid-lead-2": {
       "id": "b-23-mermaid-lead-2",

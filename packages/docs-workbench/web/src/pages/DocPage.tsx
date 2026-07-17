@@ -38,12 +38,14 @@ import {
   getBacklinks,
   getBundle,
   getCanvasBySrc,
+  moveDoc,
   resolveComment,
   subscribeDocsEvents,
   undoPatch,
   uploadVideoAsset,
   type BacklinkRow,
 } from "../data/api";
+import { docSegmentFromTitle, docTitleFromPath } from "../lib/doc-title";
 import { ActionPane } from "./ActionPane";
 import { StandaloneCanvasEmbed } from "./CanvasEmbed";
 
@@ -159,6 +161,12 @@ export interface DocPageProps {
    * deterministically before an explicit Cmd+S flush.
    */
   autoSaveDelayMs?: number;
+  /**
+   * Fired after a page-title rename moves the bundle on disk (R2-D12).
+   * The host owns what follows — navigate to the new path, refetch the
+   * sidebar tree.
+   */
+  onDocMoved?: (newPath: string) => void;
 }
 
 export function DocPage({
@@ -166,6 +174,7 @@ export function DocPage({
   onEditorReady,
   isStatic = IS_STATIC,
   autoSaveDelayMs,
+  onDocMoved,
 }: DocPageProps) {
   const [bundle, setBundle] = useState<BundleState | null>(null);
   const [comments, setComments] = useState<CommentsDocument | null>(null);
@@ -191,6 +200,46 @@ export function DocPage({
   const [canvasEpoch, setCanvasEpoch] = useState(0);
 
   const contentRef = useRef<HTMLDivElement | null>(null);
+  const titleRef = useRef<HTMLHeadingElement | null>(null);
+  // Escape sets this so the following blur restores instead of committing.
+  const revertTitleRef = useRef(false);
+
+  // Page-title rename (R2-D12): committing an edited title re-slugs the
+  // bundle folder name (numeric prefix kept) and moves the bundle through
+  // the server — inbound references rewrite there; the host navigates and
+  // refreshes the sidebar via onDocMoved.
+  const commitTitleEdit = useCallback(async () => {
+    const el = titleRef.current;
+    if (!el) return;
+    const current = docTitleFromPath(path);
+    if (revertTitleRef.current) {
+      revertTitleRef.current = false;
+      el.textContent = current;
+      return;
+    }
+    const next = (el.textContent ?? "").replace(/\s+/g, " ").trim();
+    if (!next || next === current) {
+      el.textContent = current;
+      return;
+    }
+    const segments = path.replace(/\/+$/, "").split("/");
+    const segment = segments.pop() ?? "";
+    const newSegment = docSegmentFromTitle(next, segment);
+    if (!newSegment || newSegment === segment) {
+      el.textContent = current;
+      return;
+    }
+    const newPath = [...segments, newSegment].join("/");
+    try {
+      await moveDoc(path, newPath);
+      onDocMoved?.(newPath);
+    } catch (error) {
+      el.textContent = current;
+      setPaneError(
+        error instanceof Error ? `Rename failed: ${error.message}` : "Rename failed",
+      );
+    }
+  }, [path, onDocMoved]);
   const { highlightedIds, flash } = useTransientHighlights();
 
   // ---------------------------------------------------------------------
@@ -689,6 +738,33 @@ export function DocPage({
       <div className="flex min-h-0 flex-1 overflow-hidden">
         <div className="min-h-0 min-w-0 flex-1 overflow-y-auto">
           <div key={canvasEpoch} ref={contentRef} className="mx-auto w-full max-w-[var(--style-content-width,100ch)] px-[var(--style-content-margin,2rem)] pt-[var(--style-content-top,1.5rem)] pb-[var(--style-content-bottom,1.5rem)]">
+            {/* Fixed page furniture, not a block: mirrors the sidebar name
+                so page and tree read as one thing (R2-D11). Lives outside
+                the editor/renderer, so it can't be selected or dragged.
+                Click to rename (R2-D12): Enter/blur commits — the bundle
+                folder re-slugs (numeric prefix kept) and the sidebar
+                follows; Escape reverts. Keyed by path so a rename or
+                navigation always remounts with clean text. */}
+            <h1
+              key={path}
+              ref={titleRef}
+              className="docs-page-title"
+              contentEditable={!isStatic}
+              suppressContentEditableWarning
+              spellCheck={false}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  event.currentTarget.blur();
+                } else if (event.key === "Escape") {
+                  revertTitleRef.current = true;
+                  event.currentTarget.blur();
+                }
+              }}
+              onBlur={() => void commitTitleEdit()}
+            >
+              {docTitleFromPath(path)}
+            </h1>
             {isStatic ? (
               // Static-export degradation: no write routes, so no editor —
               // the plain read-only renderer.

@@ -9,7 +9,6 @@
       "type": "paragraph",
       "props": {},
       "children": [
-        "b-m2-title-1",
         "b-m2-species-2",
         "pm-mrp8188r-2788-wn1eyl",
         "b-m2-lineage-3",
@@ -76,19 +75,6 @@
         "pm-mrp8188r-2837-8zswxr",
         "pm-mrp8188r-2838-qr4d0t"
       ]
-    },
-    "b-m2-title-1": {
-      "id": "b-m2-title-1",
-      "type": "heading",
-      "props": {
-        "level": 1
-      },
-      "text": [
-        {
-          "insert": "Manifesto"
-        }
-      ],
-      "children": []
     },
     "b-m2-species-2": {
       "id": "b-m2-species-2",

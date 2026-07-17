@@ -1,5 +1,3 @@
-# code
-
 The source-code block of the block vocabulary, and one half of its documentation doctrine: state shown as real, annotated JSON. The source lives in the block's *text*; structured line annotations live in *props*. It is the only type owned by the `code` component.
 
 ## State

@@ -1,5 +1,3 @@
-# video
-
 The video block of the block vocabulary: either a bundle-local file (`src`) or an external URL (`url`). YouTube, Vimeo, and Loom URLs embed through privacy-friendly players. Owned by the rich-text component; carries no text.
 
 ## State

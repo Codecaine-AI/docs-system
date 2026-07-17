@@ -1,5 +1,3 @@
-# canvas
-
 The spatial-canvas block of the block vocabulary. The block itself is only a reference — the canvas document, its objects, and its schema live in the external canvas system (`external/canvas`, the vendored sibling project); the doc block points at one and optionally crops it to a named view.
 
 ## State

@@ -9,26 +9,12 @@
       "type": "paragraph",
       "props": {},
       "children": [
-        "b-component-themes-title-1",
         "b-component-themes-intro-2",
         "b-component-themes-registry-table-3",
         "b-component-themes-example-4",
         "b-component-themes-extend-heading-5",
         "b-component-themes-extend-steps-6"
       ]
-    },
-    "b-component-themes-title-1": {
-      "id": "b-component-themes-title-1",
-      "type": "heading",
-      "props": {
-        "level": 1
-      },
-      "text": [
-        {
-          "insert": "Component themes"
-        }
-      ],
-      "children": []
     },
     "b-component-themes-intro-2": {
       "id": "b-component-themes-intro-2",
@@ -54,7 +40,7 @@
           }
         },
         {
-          "insert": " pair. There is ONE FILE PER BLOCK-VOCABULARY TYPE (each type's own doc under 10-block-vocabulary states its keys) plus four non-block files. The vocabulary is CLOSED: files and keys must appear in "
+          "insert": " pair. Non-color length and number tokens are always single strings. There is ONE FILE PER BLOCK-VOCABULARY TYPE (each type's own doc under 10-block-vocabulary states its keys) plus four non-block files. The vocabulary is CLOSED: files and keys must appear in "
         },
         {
           "insert": "THEME_TOKEN_REGISTRY",
@@ -159,8 +145,8 @@
           ],
           [
             "structured-table.json",
-            "border, headerBg, headerFg",
-            "Table borders + header row"
+            "border, headerBg, headerFg, headerRule(+Width/Opacity), rowRule(+Width/Opacity), cellPaddingY/X, fontSize",
+            "Header + row rules, spacing, text size"
           ],
           [
             "interaction-surface.json",

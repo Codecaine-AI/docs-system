@@ -63,6 +63,7 @@ const BUNDLES: Array<[string, string]> = [
   ["70-edit", "Edit"],
   ["75-flush", "Flush"],
   ["76-nav", "Nav"],
+  ["80-rename", "Rename"],
   ["77-nav-target", "NavTarget"],
   ["80-undo", "Undo"],
 ];
@@ -117,6 +118,7 @@ function renderDocPage(
     onEditorReady?: (editor: Editor) => void;
     isStatic?: boolean;
     autoSaveDelayMs?: number;
+    onDocMoved?: (newPath: string) => void;
   },
 ) {
   const ui = (currentPath: string) => (
@@ -126,6 +128,7 @@ function renderDocPage(
         onEditorReady={options?.onEditorReady}
         isStatic={options?.isStatic}
         autoSaveDelayMs={options?.autoSaveDelayMs}
+        onDocMoved={options?.onDocMoved}
       />
     </DocsClientProvider>
   );
@@ -447,6 +450,68 @@ describe("edit mode save loop", () => {
   });
 });
 
+describe("page title rename", () => {
+  it("commits an edited title as a bundle move (prefix kept) and reports the new path", async () => {
+    const moves: string[] = [];
+    renderDocPage("80-rename", { onDocMoved: (newPath) => moves.push(newPath) });
+    await waitFor(() => {
+      expect(screen.getByText("Hello from Rename")).toBeTruthy();
+    });
+
+    const title = document.querySelector(".docs-page-title") as HTMLElement;
+    expect(title.textContent).toBe("Rename");
+    title.textContent = "Fresh Coat";
+    fireEvent.blur(title);
+
+    // The REAL server moved the folder on disk, numeric prefix intact…
+    await waitFor(async () => {
+      const raw = await readFile(join(docsRoot, "80-fresh-coat", "doc.json"), "utf8");
+      expect(raw).toContain("Hello from Rename");
+    });
+    // …and the host was told where the doc lives now.
+    expect(moves).toEqual(["80-fresh-coat"]);
+
+    // Restore for any later test that reuses the fixture list.
+    const { moveDoc } = await import("../data/api");
+    await moveDoc("80-fresh-coat", "80-rename");
+  });
+
+  it("reverts on Escape and on empty/unchanged titles without touching disk", async () => {
+    const moves: string[] = [];
+    renderDocPage("80-rename", { onDocMoved: (newPath) => moves.push(newPath) });
+    await waitFor(() => {
+      expect(screen.getByText("Hello from Rename")).toBeTruthy();
+    });
+    const title = document.querySelector(".docs-page-title") as HTMLElement;
+
+    // Escape: typed text restores, no move.
+    title.textContent = "Discarded";
+    fireEvent.keyDown(title, { key: "Escape" });
+    fireEvent.blur(title);
+    await waitFor(() => {
+      expect(title.textContent).toBe("Rename");
+    });
+
+    // Empty commit: restores, no move.
+    title.textContent = "   ";
+    fireEvent.blur(title);
+    await waitFor(() => {
+      expect(title.textContent).toBe("Rename");
+    });
+
+    // Punctuation-only commit (slug collapses to nothing): restores, no move.
+    title.textContent = "!!!";
+    fireEvent.blur(title);
+    await waitFor(() => {
+      expect(title.textContent).toBe("Rename");
+    });
+
+    expect(moves).toEqual([]);
+    const raw = await readFile(join(docsRoot, "80-rename", "doc.json"), "utf8");
+    expect(raw).toContain("Hello from Rename");
+  });
+});
+
 describe("annotate mode", () => {
   it("creates a comment against a clicked block and resolves it", async () => {
     renderDocPage("50-comments");
@@ -454,7 +519,9 @@ describe("annotate mode", () => {
       expect(screen.getByText("Hello from Comments")).toBeTruthy();
     });
     fireEvent.click(screen.getByRole("button", { name: "Annotate mode" }));
-    expect(screen.getByText("Comments")).toBeTruthy();
+    // level 2: the comments PANE header — the fixture's page title (h1)
+    // also reads "Comments" since the R2-D11 page-title furniture.
+    expect(screen.getByRole("heading", { name: "Comments", level: 2 })).toBeTruthy();
 
     // Click the paragraph block -> composer opens against it.
     const block = document.querySelector('[data-block-id="para-1"]');

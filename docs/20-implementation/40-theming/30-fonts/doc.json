@@ -9,24 +9,10 @@
       "type": "paragraph",
       "props": {},
       "children": [
-        "b-theming-fonts-title-1",
         "b-theming-fonts-tokens-2",
         "b-theming-fonts-sources-3",
         "b-theming-fonts-custom-files-4"
       ]
-    },
-    "b-theming-fonts-title-1": {
-      "id": "b-theming-fonts-title-1",
-      "type": "heading",
-      "props": {
-        "level": 1
-      },
-      "text": [
-        {
-          "insert": "Fonts"
-        }
-      ],
-      "children": []
     },
     "b-theming-fonts-tokens-2": {
       "id": "b-theming-fonts-tokens-2",

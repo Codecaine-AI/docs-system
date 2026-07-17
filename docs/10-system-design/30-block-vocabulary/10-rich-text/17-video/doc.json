@@ -9,7 +9,6 @@
       "type": "paragraph",
       "props": {},
       "children": [
-        "b-31-video-title-1",
         "b-31-video-lead-2",
         "b-31-video-state-h-3",
         "b-31-video-state-4",
@@ -25,19 +24,6 @@
         "b-31-video-theming-para",
         "b-31-video-theming-table"
       ]
-    },
-    "b-31-video-title-1": {
-      "id": "b-31-video-title-1",
-      "type": "heading",
-      "props": {
-        "level": 1
-      },
-      "text": [
-        {
-          "insert": "video"
-        }
-      ],
-      "children": []
     },
     "b-31-video-lead-2": {
       "id": "b-31-video-lead-2",

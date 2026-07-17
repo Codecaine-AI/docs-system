@@ -1,5 +1,3 @@
-# mermaid
-
 The diagram block of the block vocabulary: Mermaid source with a live render. Unusually for an object block, the diagram source lives in the block's *text*, not in props — so it edits through the same generic text ops as prose.
 
 ## State

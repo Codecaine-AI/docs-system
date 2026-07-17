@@ -1,5 +1,3 @@
-# paragraph
-
 The default block of the block vocabulary: rich text prose. Anything that is not structurally something else is a paragraph — leads, explanations, connective tissue between headings and object blocks.
 
 ## State

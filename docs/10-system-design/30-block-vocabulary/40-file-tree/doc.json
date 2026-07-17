@@ -9,7 +9,6 @@
       "type": "paragraph",
       "props": {},
       "children": [
-        "b-21-file-tree-title-1",
         "b-21-file-tree-lead-2",
         "b-21-file-tree-state-h-3",
         "b-21-file-tree-state-4",
@@ -29,19 +28,6 @@
         "b-21-file-tree-theming-para",
         "b-21-file-tree-theming-table"
       ]
-    },
-    "b-21-file-tree-title-1": {
-      "id": "b-21-file-tree-title-1",
-      "type": "heading",
-      "props": {
-        "level": 1
-      },
-      "text": [
-        {
-          "insert": "file-tree"
-        }
-      ],
-      "children": []
     },
     "b-21-file-tree-lead-2": {
       "id": "b-21-file-tree-lead-2",

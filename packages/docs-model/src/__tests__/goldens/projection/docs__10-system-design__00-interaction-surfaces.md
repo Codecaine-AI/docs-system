@@ -1,5 +1,3 @@
-# Interaction Surfaces
-
 <!-- canvas: interaction-surfaces view=one-state-two-readers title="One state, two readers" -->
 
 ## The Issue
@@ -32,7 +30,17 @@ Recently HTML or MDX have been touted as the best way to do it, which has merrit
 
 - Similar issue with MDX
 
+The key idea we need to accept is that AI and humans consume information differently, so there is no true single medium that is best for both of use.
+
 ## The Solution
+
+### Canonical Shared State
+
+Every document is a `doc.json` bundle: an id-keyed tree of blocks — the data model — serialized to canonical bytes. 
+
+No reader consumes this form directly**.** 
+
+It is built for precision, not reading: stable ids make every block addressable, canonical bytes make every change diffable and testable, and the whole tree is validated on every write.
 
 **Shared State**
 
@@ -49,14 +57,6 @@ An agent meets it as rendered MDX through the CLI
 - stable, greppable, precisely addressable
 
 One idea underpins everything else in this system: a document is a single canonical state with two kinds of readers, and each reader gets a surface engineered for how it consumes. A human should never have to read storage bytes; an agent should never have to drive a UI. Both work on the same truth, through the form that is optimal for them.
-
-### The canonical state
-
-Every document is a `doc.json` bundle: an id-keyed tree of blocks — the data model — serialized to canonical bytes. 
-
-**No reader consumes this form directly.** 
-
-It is built for precision, not reading: stable ids make every block addressable, canonical bytes make every change diffable and testable, and the whole tree is validated on every write.
 
 ## The human interaction surface
 

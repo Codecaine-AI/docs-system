@@ -85,6 +85,15 @@ describe("DocBlockRenderer", () => {
     // Nested list items.
     expect(screen.getByText("First item")).toBeTruthy();
     expect(screen.getByText("Nested item under the first")).toBeTruthy();
+    const bulletItems = document.querySelectorAll(
+      '[role="listitem"][data-doc-bullet="true"]',
+    );
+    expect(bulletItems).toHaveLength(3);
+    for (const item of bulletItems) {
+      const marker = item.querySelector(':scope > [data-doc-list-marker="true"]');
+      expect(marker).toBeTruthy();
+      expect(marker?.textContent).toBe("");
+    }
 
     // Code (the fixture's code block carries annotations, so it renders the
     // annotated variant with click-pairable side notes), quote, divider.

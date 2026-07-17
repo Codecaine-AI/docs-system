@@ -1,5 +1,3 @@
-# Doc architecture
-
 The corpus itself is a designed artifact. The rules below are small — folder shapes, two-digit prefixes, where overviews live — but each is a decision, and the reasons decay faster than the rules do. This page is the decision memory: every structural rule with its why, so that a year from now the structure still means what it meant. It is also the structure agents adhere to when they add or move docs — followed well, new material lands where readers expect it, with no cleanup pass to put it there.
 
 > **INFO: Where the how lives** — The operational form of these rules — imperative, load-and-follow, no rationale — is the framework skill. The reasons live here. The discipline: change a structural decision on this page and update the skill in the same change.

@@ -9,7 +9,6 @@
       "type": "paragraph",
       "props": {},
       "children": [
-        "b-global-themes-title-1",
         "b-global-themes-intro-2",
         "b-global-themes-folder-heading-3",
         "b-global-themes-folder-para-4",
@@ -22,19 +21,6 @@
         "b-global-themes-saveas-hand-11",
         "b-global-themes-saveas-export-12"
       ]
-    },
-    "b-global-themes-title-1": {
-      "id": "b-global-themes-title-1",
-      "type": "heading",
-      "props": {
-        "level": 1
-      },
-      "text": [
-        {
-          "insert": "Global themes"
-        }
-      ],
-      "children": []
     },
     "b-global-themes-intro-2": {
       "id": "b-global-themes-intro-2",

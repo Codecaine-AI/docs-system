@@ -9,7 +9,6 @@
       "type": "paragraph",
       "props": {},
       "children": [
-        "b-22-interaction-surface-title-1",
         "b-22-interaction-surface-lead-2",
         "b-22-interaction-surface-state-h-3",
         "b-22-interaction-surface-state-4",
@@ -30,19 +29,6 @@
         "b-22-interaction-surface-theming-para",
         "b-22-interaction-surface-theming-table"
       ]
-    },
-    "b-22-interaction-surface-title-1": {
-      "id": "b-22-interaction-surface-title-1",
-      "type": "heading",
-      "props": {
-        "level": 1
-      },
-      "text": [
-        {
-          "insert": "interaction-surface"
-        }
-      ],
-      "children": []
     },
     "b-22-interaction-surface-lead-2": {
       "id": "b-22-interaction-surface-lead-2",

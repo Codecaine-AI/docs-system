@@ -9,7 +9,6 @@
       "type": "paragraph",
       "props": {},
       "children": [
-        "b-darch-title-1",
         "b-darch-intro-2",
         "b-darch-how-callout-3",
         "b-darch-layers-heading-4",
@@ -36,19 +35,6 @@
         "b-darch-blocks-changed-25",
         "b-darch-blocks-kept-26"
       ]
-    },
-    "b-darch-title-1": {
-      "id": "b-darch-title-1",
-      "type": "heading",
-      "props": {
-        "level": 1
-      },
-      "text": [
-        {
-          "insert": "Doc architecture"
-        }
-      ],
-      "children": []
     },
     "b-darch-intro-2": {
       "id": "b-darch-intro-2",

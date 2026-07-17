@@ -9,7 +9,6 @@
       "type": "paragraph",
       "props": {},
       "children": [
-        "b-10-package-map-title-100",
         "b-10-package-map-system-design-101",
         "b-10-package-map-roles-102",
         "b-10-package-map-docs-model-103",
@@ -22,19 +21,6 @@
         "b-10-package-map-external-canvas-110",
         "b-10-package-map-makefile-111"
       ]
-    },
-    "b-10-package-map-title-100": {
-      "id": "b-10-package-map-title-100",
-      "type": "heading",
-      "props": {
-        "level": 1
-      },
-      "text": [
-        {
-          "insert": "Package map"
-        }
-      ],
-      "children": []
     },
     "b-10-package-map-system-design-101": {
       "id": "b-10-package-map-system-design-101",

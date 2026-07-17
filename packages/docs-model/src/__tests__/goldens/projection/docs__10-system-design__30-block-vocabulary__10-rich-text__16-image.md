@@ -1,5 +1,3 @@
-# image
-
 The image block of the block vocabulary: a picture from the bundle's assets, with alt text and an optional caption. Owned by the rich-text component (it lives in the text flow), but carries no text of its own.
 
 ## State

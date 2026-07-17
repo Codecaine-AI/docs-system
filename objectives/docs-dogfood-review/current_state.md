@@ -1,35 +1,55 @@
 <current_state>
-<last_updated>2026-07-17 (round 2: R2-D1 landed; R2-D2 paste-corruption incident fixed — awaiting Ford's pass)</last_updated>
+<last_updated>2026-07-17 evening (round 2, second sitting closed: R2-D3..D12 landed — canvas embed de-framing, drag-select, page titles, drop-nesting root-cause fix)</last_updated>
 
 <status>
-    - ROUND 2 in progress. Landed this sitting: R2-D1 (foundation rewrite,
-      via a full pre-implementation interview with Ford) and R2-D2 (the
-      paste-corruption incident + its three-layer root-cause fix). Both
-      Ford-checked ("everything has been done and checked" 2026-07-17);
-      still awaiting Ford's ledger READ pass on the R2-D1 docs.
-    - Suite state: make check 871 pass / 4 skip / 0 FAIL (was 857 before
-      the R2-D2 fixes added 14 tests). The round-1 manifesto-golden
-      failure is GONE (superseded by the rewrite). Links check 0 stale;
-      backlinks rescanned (45 sources / 119 refs — one fewer after the
-      repaired paste chip went to plain text).
-    - CORPUS IS NOW 45 DOCS (was 43): +00-interaction-surfaces,
-      +10-doc-architecture. System-design RENUMBERED: data-model→20-,
-      block-vocabulary→30-, mutation-model→40-, packages→50-.
-    - NEW CANON VOCABULARY (enforced corpus-wide, memory saved):
-      "projection" = specs→code ONLY (docs define the function; code is the
-      current projection). The per-reader forms are RENDERED INTERACTION
-      SURFACES: human surface = workbench Notion-style editor; agent
-      surface = rendered markdown via CLI. The doc.json is the "canonical
-      state" that neither reader touches. Code identifiers
-      (projectToMarkdown, goldens/projection/) unchanged — rename PARKED.
-    - Round 1 work is committed (b55ecfd "lots of changes"). Today's R2-D1
-      work is uncommitted. NOTE: a PARALLEL session appended round-1 D19
-      (Default-only living theme, preserved below) to this file mid-day
-      2026-07-17 — watch for concurrent edits when updating this bundle.
-    - WORKING MODE unchanged (hard rules in context/03): agent implements +
-      machine-verifies only; Ford is the only UI verifier; never type into
-      corpus docs via a browser. R2-D1 execution mode per Ford: all-Fable
-      subagents, NO codex, for this directive.
+    - ROUND 2 in progress, SECOND SITTING CLOSED (2026-07-17 evening).
+      This sitting landed ten directives, R2-D3..R2-D12 (full detail per
+      directive in <completed>): canvas embed de-framed + content-fitted
+      section previews (D3/D4, incl. a fit=content renderer option in the
+      CANVAS SIBLING REPO); drag grip on atom blocks (D5); bottom-padding
+      + scrollbar-padding + title-padding rail knobs (D6/D12); drag
+      opacity governs the whole floating block via a typography-faithful
+      body-level ghost (D7); the interaction-surfaces canvas restructured
+      to nested-sections containment, no arrows (D8, canvas repo);
+      Notion-style drag select — screenshot-style band from margins/gaps,
+      multi-block grip move, rail color/opacity knobs, borderless fill
+      (D9); drop-nesting root cause fixed + the "Solution staircase"
+      repaired (D10); fixed page-title furniture from the sidebar name +
+      21 duplicate leading H1s stripped (D11); click-to-rename page title
+      through /api/move (D12, incl. the band-vs-title press fix).
+    - Ford visually verified through iteration: D3-D10 flows and the D11
+      furniture. STILL PENDING his check: D12 title rename (the
+      not-clickable fix landed after his last test), the borderless band
+      rect, and the per-doc call on the 24 docs that KEPT a richer
+      opening H1 under the new page title.
+    - Suite state at close: make check 909 pass / 4 skip / 0 fail (913
+      tests, was 875 at sitting start — drag-select, drag-handle,
+      doc-title, rename e2e, clamp tests added). Links 0 stale; backlinks
+      45 sources / 119 refs. Corpus still 45 docs; content changed by:
+      staircase repair (00-interaction-surfaces), 21 title-strips, and
+      Ford's own live edits (goldens regenerated over disk truth ~6x).
+    - UNCOMMITTED SCOPE NOW SPANS TWO REPOS: everything above in
+      docs-system, PLUS the canvas sibling repo
+      (~/Github Repos/Codecaine/canvas, on main with Ford's own changes):
+      fit=content renderer option (static-svg.ts, types.ts,
+      canvas-file-api.ts, 2 renderer tests) and the restructured
+      canvases/interaction-surfaces.canvas.json. Commit strategy is
+      OVERDUE — see next_actions.
+    - NEW CANON VOCABULARY (unchanged from first sitting, memory saved):
+      "projection" = specs→code ONLY; per-reader forms are RENDERED
+      INTERACTION SURFACES (human = workbench editor, agent = rendered
+      markdown via CLI); doc.json = canonical state neither reader
+      touches. Code identifiers (projectToMarkdown) rename still PARKED.
+    - PARALLEL SESSION note: another session edits this repo same-day
+      (D19 living theme; a `list` rail settings group + style-rail.css
+      appeared mid-sitting) — watch for concurrent edits to this bundle
+      and to StyleRail.tsx/index.css.
+    - WORKING MODE unchanged (hard rules in context/03): agent implements
+      + machine-verifies only (targeted tests, typecheck, make spa + make
+      check, links/backlinks); Ford is the ONLY UI verifier; every
+      UI-affecting change ships with a numbered TEST PLAN; never type
+      into corpus docs via a browser; sub-agents are all-Fable, NO codex;
+      "chrome" is a banned word for UI.
 </status>
 
 <completed>
@@ -94,6 +114,116 @@
         regenerator); backlinks rescan; links 0 stale; make check green.
     - Authoring scripts for audit: .tmp/author-foundation-round2.ts,
       .tmp/vocab-sweep.ts, .tmp/scan-vocab.ts, .tmp/regen-goldens.ts.
+    - R2-D12 Click-to-rename page title + title padding knob (2026-07-17,
+      next sitting): the page title (R2-D11) is now contentEditable (read
+      + edit modes, not static export) — Enter/blur commits, Escape
+      reverts. Commit re-slugs the typed title (docSegmentFromTitle: slug
+      + keep the segment's numeric prefix) and calls NEW api moveDoc →
+      POST /api/move (server rewrites inbound refs); DocPage fires new
+      onDocMoved(newPath) prop; App navigates (hash) + refetches the tree
+      so the sidebar follows. Empty/punctuation-only/unchanged titles
+      revert silently; move failure reverts + paneError. h1 keyed by path.
+      Rail: Layout → "Title padding" (0-240, default 20px,
+      --style-title-padding) = gap between the page title and first block
+      (Top/Title/Bottom now the three column paddings).
+      Tests: 2 e2e rename tests in workbench.test.tsx (real server, disk
+      folder asserted moved 80-rename→80-fresh-coat and back; revert
+      matrix), 4 docSegmentFromTitle unit tests. make check green.
+      FOLLOW-UP (Ford: title not clickable): the R2-D9 drag-select band
+      preventDefault-ed presses on the title (it's neither editor text
+      nor a control). drag-select.ts now has exported shouldStartBand —
+      outside view.dom, anything [contenteditable] keeps native caret
+      behavior (the PM root is contenteditable, so the check only applies
+      outside the editor); grip presses still keep the range; text/node
+      view/furniture presses dissolve it. 3 new predicate tests (14 in
+      drag-select.test.ts).
+      CAUTION for Ford: renaming a REAL corpus doc moves its bundle —
+      CORPUS_PATHS + golden filenames pin old paths, so make check goes
+      red until the agent runs the rename cascade (CORPUS_PATHS edit,
+      goldens regen, backlinks rescan, links check). Tell the agent after
+      renaming. Awaiting Ford's visual check.
+    - R2-D11 Fixed page title from the sidebar name (2026-07-17, next
+      sitting): DocPage renders non-block page furniture above all three
+      mode panes — <h1 class="docs-page-title"> of
+      docTitleFromPath(path) (NEW web/src/lib/doc-title.ts: last path
+      segment, numeric prefix stripped, Title Case with minor-word
+      exceptions + acronym uppercasing CLI/UI/API/etc; 4 unit tests).
+      Styled a step larger than a block H1 (2.25rem, heading-font var,
+      index.css). CORPUS SWEEP (.tmp/strip-duplicate-title-headings.ts):
+      leading childless H1 blocks whose normalized text equals the
+      derived title REMOVED — 21/45 stripped, 24 kept (richer titles like
+      "The data model — one format, five shapes"; kept docs will show
+      page title + their own H1 — Ford may retitle during the
+      read-through). doc.json `title` FIELDS untouched. Goldens regen,
+      backlinks rescan (119 refs), links 0 stale. One test updated for
+      the new furniture (workbench annotate test: "Comments" heading now
+      needs level:2). Awaiting Ford's visual check.
+    - R2-D10 Drop-nesting bug ("Solution staircase") repaired + fixed
+      (2026-07-17, next sitting): grip drops near a block's interior
+      NESTED the dragged block into that block's block* child slot (PM
+      dropPoint honors the schema's nested-children capability) — Ford's
+      00-interaction-surfaces ended up with a 5-block diagonal staircase
+      under the "The Solution" heading. REPAIR:
+      .tmp/repair-solution-staircase.ts flattened the chain to top-level
+      siblings after the heading (canonical bytes rewritten, goldens
+      regen). FIX (drag-select.ts): new topLevelDropPos snaps any block
+      drop to the nearest top-level boundary; moveRangeTr uses it, and
+      handleDrop now ALSO intercepts single CLOSED block slices (grip
+      drags) via new dropBlockSliceTr (top-level reorder + NodeSelection
+      lands on the dropped block; open slices = native text drags stay
+      PM's). TRADE-OFF recorded: block drops can no longer nest into
+      callouts either — deliberate for now, revisit if Ford wants
+      Notion-style nest-into-callout drops. 3 new tests (11 total in
+      drag-select.test.ts). NOTE: intentional nesting still exists in the
+      corpus from authoring (e.g. the callout under the agent-surface
+      paragraph) — only the staircase was repaired.
+    - R2-D9 Notion-style drag select (2026-07-17, next sitting): NEW
+      editor extension docs-viewer views/drag-select.ts (+ shared
+      drag-select-state.ts to avoid a drag-handle circular import) —
+      background press + drag draws a rubber-band rect (container-level
+      div, .docs-drag-select-rect); intersecting top-level blocks become a
+      contiguous multi-selection (plugin state {from,to,dragging} + node
+      decorations .docs-block-multi-selected, same look as selectednode).
+      Grip drag on a selected block moves the WHOLE range (drag-handle
+      sets dragging:true + range slice; drag-select handleDrop does one
+      delete+insert via moveRangeTr, selection follows the move). Escape
+      clears; Backspace/Delete removes the run (extension priority 200 so
+      the guards precede base keymaps); any doc edit dissolves; plain
+      background click re-places the caret manually (mousedown is
+      preventDefaulted). buildDragGhost now takes HTMLElement[] (stacked
+      clones for multi-drag). Rail: Editor → "Drag select" nested section
+      (color + fill opacity 2-60%, default theme blue @ 12%) →
+      --docs-dragselect-color/-opacity consumed in index.css (border =
+      fixed 60% mix of the color). Tests: drag-select.test.ts (8: state
+      lifecycle, keyboard, moveRangeTr both directions + no-op) +
+      drag-handle multi-ghost test; geometry (blockRangeForRect) is
+      layout-dependent — Ford's visual pass covers it. make check green.
+      REWORK same day (Ford: band must start like a screenshot drag from
+      anywhere, not just the editor's own background element): mousedown
+      listener moved to the nearest scrollable ancestor (findScrollRegion;
+      document fallback) so page margins + gaps + the run-out beside a
+      line all start the band; only presses ON text
+      (span[data-doc-node=docBlockText]), inside node views
+      ([data-node-view-wrapper]), or on controls (BAND_EXCLUDED_SELECTOR)
+      are excluded. Rect is now a body-level position:fixed overlay
+      (unclipped by the scroll region); margin plain-clicks deselect
+      without placing a caret (in-column clicks still place it).
+      Ford-verified the band UX; border then REMOVED per Ford (borderless
+      soft fill only, index.css). Awaiting his look at the borderless
+      rect.
+    - R2-D8 Interaction-surfaces canvas restructured to containment
+      (2026-07-17, next sitting): canvases/interaction-surfaces.canvas.json
+      (CANVAS SIBLING REPO, uncommitted) rewritten — arrows removed;
+      "Canonical document state — stable, validated, addressable" is now a
+      violet SECTION inside one-state-two-readers, containing two nested
+      sections "Human surface" (blue: Direct manipulation + Workbench
+      sticky) and "Agent surface" (green: Rendered markdown/typed actions
+      + CLI sticky) plus the red contract pill. Nesting = the "both read
+      one state" visual. Machine-verified: validateInteractiveCanvasDocument
+      ok + fit=content section render contains all labels, no connectors.
+      If Ford has the board open in Studio, RELOAD Studio before editing it
+      there (stale in-memory state would overwrite the file). Awaiting
+      Ford's visual check.
     - R2-D7 Drag-opacity governs the whole floating block (2026-07-17,
       next sitting): Chromium snapshots the drag image AFTER dragstart
       returns — by then the source was dimmed/highlight-stripped, so the
@@ -182,35 +312,47 @@
 </completed>
 
 <in_progress>
-    - R2-D1 mechanics + R2-D2 fixes are Ford-CHECKED. Still open: the
-      per-doc CONTENT read-through (the core of round 2) — Ford reads
-      each R2-D1 doc in the workbench for accuracy/voice and issues
-      directives. Ledger rows for the authored/swept docs still say
-      "needs Ford's read"; the walk resumes at 00-manifesto.
-    - FORD MAY STILL BE MID-REWRITE of the manifesto opening (his own
-      voice: lineage as list items, "ideas are getting more complex"
-      line) and moved the
-      "One state, two readers" section into 00-interaction-surfaces. Two
-      mid-edit artifacts deliberately left in the manifesto for him: the
-      broken opening sentence ("…our species is not any specific entity.")
-      and the orphaned fragment "software needs that channel — and
-      because…". The repaired chip is now plain text "interaction
-      surfaces" in the pasted paragraph (re-chip it in the editor if
-      wanted, post-restart).
+    - THE CORE OF ROUND 2 IS STILL OPEN: the per-doc CONTENT read-through.
+      Ford reads each doc in the workbench for accuracy/voice and issues
+      directives; the ledger walk resumes at docs/00-foundation/00-manifesto
+      and proceeds in tree order (00-interaction-surfaces →
+      10-doc-architecture → 20-data-model → …). This second sitting was
+      consumed ENTIRELY by editor/UX directives (D3-D12) — zero ledger
+      READ verdicts were recorded; rows still say "needs Ford's read".
+    - Ford was actively editing 00-interaction-surfaces this sitting (The
+      Issue / The Solution / Shared State sections are his live text) and
+      may still be mid-rewrite of the manifesto opening. Two mid-edit
+      artifacts were deliberately left in the manifesto for him earlier:
+      the broken opening sentence ("…our species is not any specific
+      entity.") and the orphaned fragment "software needs that channel —
+      and because…". Verify they're still relevant before flagging.
+    - Awaiting Ford's visual check (fresh session should ask): D12 title
+      rename (the click fix landed AFTER his last test — plan in chat
+      history; re-give it), the borderless drag-select rect, and the
+      page-title look across docs that kept a richer opening H1.
 </in_progress>
 
 <next_actions>
-    - Ford RESTARTS make dev (picks up the save gate + clipboard fix),
-      then tests R2-D2 paste flow (chat test plan) and R2-D1.
-    - Then resume the ledger read-through at docs/00-foundation/00-manifesto
-      (which doubles as the R2-D1 review) and walk forward in the new
-      order: 00-interaction-surfaces → 10-doc-architecture → 20-data-model…
-    - Commit strategy for today's uncommitted R2-D1 work (suggest: one
-      commit — it is one coherent directive). D19's themes/default/ rides
-      with the theme workstream per the parallel session's note.
-    - Ford still to explicitly test from round 1: @-references, video drop,
-      dark-mode sweep (scrollbar, grip, highlight), D18 grip click/fade,
-      D19 Default living theme.
+    - FIRST: Ford re-tests the D12 title rename (click title → caret in;
+      rename → sidebar follows, prefix kept; Escape reverts). If he
+      renames a REAL corpus doc and keeps it, the agent must run the
+      rename cascade: CORPUS_PATHS in goldens.test.ts, golden file
+      rename/regen, backlinks rescan, links check.
+    - THEN: resume the ledger read-through at 00-manifesto and walk
+      forward. Per doc: Ford reads, issues directives, agent lands them,
+      row gets a verdict. Also collect his per-doc call on kept opening
+      H1s (page title + richer H1 now stack — retitle folder, reword H1,
+      or leave).
+    - COMMIT STRATEGY (overdue, Ford's call): the uncommitted tree now
+      holds R2-D1..D12 in docs-system plus fit=content + the restructured
+      interaction-surfaces canvas in the CANVAS sibling repo. Suggest:
+      one docs-system commit for R2-D1/D2 (foundation + paste fix), one
+      for the D3-D12 editor/UX batch, one canvas-repo commit for
+      fit=content + the canvas doc; D19's themes/default/ rides with the
+      theme workstream (parallel session's note).
+    - Ford still to explicitly test from round 1: @-references, video
+      drop, dark-mode sweep (scrollbar, grip, highlight), D18 grip
+      click/fade, D19 Default living theme.
 </next_actions>
 
 <risks_or_open_questions>
@@ -228,11 +370,27 @@
     - OPEN (Ford, carried): his early-typing manifesto paragraphs were
       folded into the rewrite as substance, not verbatim — confirm the
       rewrite covers what he meant.
+    - OPEN (new this sitting, Ford calls):
+      - Block drops can no longer nest into callouts (D10's top-level
+        clamp is deliberate) — revisit if Ford wants Notion-style
+        nest-into-callout with a proper drop indicator.
+      - Intentional nesting still in the corpus from authoring (e.g. the
+        callout under the agent-surface "Writing is typed operations"
+        paragraph in 00-interaction-surfaces) — untouched by the
+        staircase repair; Ford may want it top-level during read-through.
+      - 24 docs kept a richer opening H1 under the new page title (see
+        ledger note "title strip") — per-doc call during read-through.
+      - Canvas repo: if Ford has the interaction-surfaces board open in
+        Studio, he must RELOAD Studio before editing it there (stale
+        in-memory state would overwrite the D8 restructure).
+      - Band-drag while the page scrolls mid-drag doesn't retrack until
+        the next mousemove (viewport-fixed rect) — known v1 simplification.
     - PARKED (unchanged from round 1): SPA relative API URLs / path-style
       deep links; own-save changed-flash (actor-tagged SSE); editor
       code-block commenting; syntax auto-detect; custom font FILES;
-      repo-theme base chains vs builtins; drag grip top-level only; AFFiNE
-      "+" insert button; theming v2.
+      repo-theme base chains vs builtins; drag grip top-level only (the
+      GRIP; drag-select multi-move is in as of D9); AFFiNE "+" insert
+      button; theming v2.
     - PARKED (new): rename projectToMarkdown/goldens-projection code
       identifiers to render vocabulary (docs prose already switched);
       "render the framework skill FROM the corpus" = framework north star
@@ -257,5 +415,19 @@
       components/__tests__/schema-over-corpus.test.ts (count = 45)
     - .tmp/regen-goldens.ts — regenerate ALL goldens from disk state
     - .tmp/author-foundation-round2.ts — R2-D1 authoring source (audit)
+    - .tmp/repair-solution-staircase.ts + .tmp/strip-duplicate-title-headings.ts
+      — this sitting's corpus repair/sweep scripts (audit)
+    - packages/docs-viewer/src/editor/views/drag-select.ts (+
+      drag-select-state.ts, drag-handle.ts) — band select, multi-move,
+      top-level drop clamp, buildDragGhost
+    - packages/docs-workbench/web/src/lib/doc-title.ts — page-title
+      derivation + rename slugging; DocPage.tsx carries the editable title
+    - packages/docs-workbench/web/src/shell/StyleRail.tsx — rail knobs
+      (this sitting added: bottomPadding, titlePadding, scrollbar.padding,
+      dragSelect; a PARALLEL session owns the `list` group)
+    - CANVAS SIBLING REPO (~/Github Repos/Codecaine/canvas, uncommitted):
+      packages/canvas/src/render/static-svg.ts + types.ts (fit=content),
+      packages/studio/server/canvas-file-api.ts (fit/pad params),
+      canvases/interaction-surfaces.canvas.json (D8 containment layout)
 </important_paths>
 </current_state>

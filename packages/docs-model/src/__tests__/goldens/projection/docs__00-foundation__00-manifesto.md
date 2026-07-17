@@ -1,5 +1,3 @@
-# Manifesto
-
 The most important technology our species is not any specific entity.
 
 It is the ability to transfer of knowledge from one mind to another, so that the next mind is able to pick up where the previous left off.

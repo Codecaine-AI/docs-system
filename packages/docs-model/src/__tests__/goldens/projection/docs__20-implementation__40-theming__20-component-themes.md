@@ -1,6 +1,4 @@
-# Component themes
-
-Each visual surface has its own token file inside a theme folder: `components/<surface>.json`. Every color value is one string (both modes) or a `{ light, dark }` pair. There is ONE FILE PER BLOCK-VOCABULARY TYPE (each type's own doc under 10-block-vocabulary states its keys) plus four non-block files. The vocabulary is CLOSED: files and keys must appear in `THEME_TOKEN_REGISTRY` (`theme/theme-folders.ts`), which maps each key to the tier-2 CSS variables it writes. Unknown files or keys are ignored, so a hand-edited theme can never break the app.
+Each visual surface has its own token file inside a theme folder: `components/<surface>.json`. Every color value is one string (both modes) or a `{ light, dark }` pair. Non-color length and number tokens are always single strings. There is ONE FILE PER BLOCK-VOCABULARY TYPE (each type's own doc under 10-block-vocabulary states its keys) plus four non-block files. The vocabulary is CLOSED: files and keys must appear in `THEME_TOKEN_REGISTRY` (`theme/theme-folders.ts`), which maps each key to the tier-2 CSS variables it writes. Unknown files or keys are ignored, so a hand-edited theme can never break the app.
 
 **The surface vocabulary**
 
@@ -20,7 +18,7 @@ Each visual surface has its own token file inside a theme folder: `components/<s
 | image.json | border, caption | Image border + caption text |
 | video.json | border, caption | Video frame border + caption text |
 | file-tree.json | border, note | Container border + entry notes |
-| structured-table.json | border, headerBg, headerFg | Table borders + header row |
+| structured-table.json | border, headerBg, headerFg, headerRule(+Width/Opacity), rowRule(+Width/Opacity), cellPaddingY/X, fontSize | Header + row rules, spacing, text size |
 | interaction-surface.json | border, bg | Container border + background |
 | mermaid.json | border, bg | Container border + background |
 | canvas.json | border | Embed container border |

@@ -9,7 +9,6 @@
       "type": "paragraph",
       "props": {},
       "children": [
-        "b-15-callout-title-1",
         "b-15-callout-lead-2",
         "b-15-callout-state-h-3",
         "b-15-callout-state-4",
@@ -27,19 +26,6 @@
         "b-15-callout-theming-para",
         "b-15-callout-theming-table"
       ]
-    },
-    "b-15-callout-title-1": {
-      "id": "b-15-callout-title-1",
-      "type": "heading",
-      "props": {
-        "level": 1
-      },
-      "text": [
-        {
-          "insert": "callout"
-        }
-      ],
-      "children": []
     },
     "b-15-callout-lead-2": {
       "id": "b-15-callout-lead-2",

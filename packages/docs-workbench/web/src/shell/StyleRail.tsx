@@ -44,7 +44,7 @@ export type StyleRailSettings = {
     headingFont: FontChoice;
     /** Font for code surfaces (code blocks, inline code chips) — --docs-font-code. */
     codeFont: FontChoice;
-    /** Font for numeric UI (list markers/counters) — --docs-font-numeric; "body" inherits. */
+    /** Font for numeric UI (including ordered list counters) — --docs-font-numeric; "body" inherits. */
     numberFont: NumberFontChoice;
     /** Content body size in px. */
     fontSize: number;
@@ -59,6 +59,8 @@ export type StyleRailSettings = {
     contentMargin: number;
     /** Space above the doc's first block in px. */
     topPadding: number;
+    /** Space between the fixed page title and the first block, in px. */
+    titlePadding: number;
     /** Space below the doc's last block in px. */
     bottomPadding: number;
     /** --radius in px (theme default 0.5rem = 8). */
@@ -103,6 +105,24 @@ export type StyleRailSettings = {
     dropOpacity: number;
     /** Drop-line corner rounding in px. */
     dropRadius: number;
+  };
+  dragSelect: {
+    /** Rubber-band rectangle color; null = theme blue. */
+    color: string | null;
+    /** Rectangle fill opacity (0-1); the border rides the color at a fixed mix. */
+    opacity: number;
+  };
+  list: {
+    /** Disc (depth 1, 4, …) diameter in px — --docs-list-disc-size. */
+    discSize: number;
+    /** Circle (depth 2, 5, …) outer diameter in px — --docs-list-circle-size. */
+    circleSize: number;
+    /** Circle ring stroke width in px — --docs-list-circle-thickness. */
+    circleThickness: number;
+    /** Square (depth 3, 6, …) edge length in px — --docs-list-square-size. */
+    squareSize: number;
+    /** Marker column width = per-level indent step, in px (--docs-list-indent). */
+    indent: number;
   };
   grip: {
     /** Horizontal gap between the grip and the block's left edge, in px. */
@@ -150,6 +170,7 @@ export const DEFAULT_STYLE_RAIL_SETTINGS: StyleRailSettings = {
     contentWidth: 100,
     contentMargin: 32,
     topPadding: 24,
+    titlePadding: 20,
     bottomPadding: 24,
     radius: 8,
     borderStrength: 1,
@@ -167,6 +188,8 @@ export const DEFAULT_STYLE_RAIL_SETTINGS: StyleRailSettings = {
     softening: { background: 1, font: 0.8, icons: 0.8 },
   },
   highlight: { color: null, radius: 6, padding: 4, dragOpacity: 0.3, dropColor: null, dropWidth: 3, dropOpacity: 0.9, dropRadius: 2 },
+  dragSelect: { color: null, opacity: 0.12 },
+  list: { discSize: 6, circleSize: 6, circleThickness: 1.5, squareSize: 5, indent: 24 },
   grip: { gap: 12, offsetY: 6, size: 18, color: null, fadeMs: 100 },
   scrollbar: { width: 10, color: null, opacity: 1, padding: 0 },
   components: {},
@@ -231,6 +254,15 @@ const TOKEN_KEY_LABELS: Record<string, string> = {
   note: "Note",
   headerBg: "Header background",
   headerFg: "Header text",
+  headerRule: "Header rule",
+  headerRuleWidth: "Header rule width",
+  headerRuleOpacity: "Header rule opacity",
+  rowRule: "Row rule",
+  rowRuleWidth: "Row rule width",
+  rowRuleOpacity: "Row rule opacity",
+  cellPaddingY: "Row padding",
+  cellPaddingX: "Column gap",
+  fontSize: "Text size",
   color: "Color",
   string: "Strings",
   number: "Numbers",
@@ -279,7 +311,31 @@ function pickHexColor(value: unknown): string | null {
   return typeof value === "string" && /^#[0-9a-fA-F]{6}$/.test(value) ? value.toLowerCase() : null;
 }
 
-/** Keeps only registry-valid file/key pairs with valid hex values. */
+function normalizeComponentOverride(
+  value: unknown,
+  token: (typeof THEME_TOKEN_REGISTRY)[string][string],
+): string | null {
+  if (token.kind === "color") return pickHexColor(value);
+  if (typeof value !== "string" && typeof value !== "number") return null;
+
+  const raw = String(value).trim();
+  if (!raw) return null;
+  const numericPart = token.unit && raw.endsWith(token.unit)
+    ? raw.slice(0, -token.unit.length).trim()
+    : raw;
+  if (!numericPart) return null;
+  const numericValue = Number(numericPart);
+  if (
+    !Number.isFinite(numericValue)
+    || numericValue < token.min
+    || numericValue > token.max
+  ) {
+    return null;
+  }
+  return `${numericValue}${token.unit ?? ""}`;
+}
+
+/** Keeps only registry-valid file/key pairs with values valid for their token kind. */
 function normalizeComponentOverrides(raw: unknown): StyleRailSettings["components"] {
   const kept: StyleRailSettings["components"] = {};
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) return kept;
@@ -288,9 +344,10 @@ function normalizeComponentOverrides(raw: unknown): StyleRailSettings["component
     if (!registry || !tokens || typeof tokens !== "object" || Array.isArray(tokens)) continue;
     const fileKept: Record<string, string> = {};
     for (const [key, value] of Object.entries(tokens as Record<string, unknown>)) {
-      if (!registry[key]) continue;
-      const hex = pickHexColor(value);
-      if (hex) fileKept[key] = hex;
+      const token = registry[key];
+      if (!token) continue;
+      const normalized = normalizeComponentOverride(value, token);
+      if (normalized !== null) fileKept[key] = normalized;
     }
     if (Object.keys(fileKept).length > 0) kept[file] = fileKept;
   }
@@ -313,6 +370,8 @@ export function normalizeSettings(raw: unknown): StyleRailSettings {
   const highlight = input.highlight ?? ({} as Partial<StyleRailSettings["highlight"]>);
   const grip = input.grip ?? ({} as Partial<StyleRailSettings["grip"]>);
   const scrollbar = input.scrollbar ?? ({} as Partial<StyleRailSettings["scrollbar"]>);
+  const dragSelect = input.dragSelect ?? ({} as Partial<StyleRailSettings["dragSelect"]>);
+  const list = input.list ?? ({} as Partial<StyleRailSettings["list"]>);
   return {
     accent: pickOption(input.accent, ACCENT_OPTIONS, d.accent),
     colors: {
@@ -333,6 +392,7 @@ export function normalizeSettings(raw: unknown): StyleRailSettings {
       contentWidth: clampNumber(layout.contentWidth ?? typography.contentWidth, 60, 140, d.layout.contentWidth),
       contentMargin: clampNumber(layout.contentMargin, 0, 96, d.layout.contentMargin),
       topPadding: clampNumber(layout.topPadding, 0, 240, d.layout.topPadding),
+      titlePadding: clampNumber(layout.titlePadding, 0, 240, d.layout.titlePadding),
       bottomPadding: clampNumber(layout.bottomPadding, 0, 600, d.layout.bottomPadding),
       radius: clampNumber(layout.radius, 0, 16, d.layout.radius),
       borderStrength: clampNumber(layout.borderStrength, 0, 2, d.layout.borderStrength),
@@ -348,6 +408,22 @@ export function normalizeSettings(raw: unknown): StyleRailSettings {
       dropWidth: clampNumber(highlight.dropWidth, 1, 8, d.highlight.dropWidth),
       dropOpacity: clampNumber(highlight.dropOpacity, 0.1, 1, d.highlight.dropOpacity),
       dropRadius: clampNumber(highlight.dropRadius, 0, 6, d.highlight.dropRadius),
+    },
+    dragSelect: {
+      color: pickHexColor(dragSelect.color),
+      opacity: clampNumber(dragSelect.opacity, 0.02, 0.6, d.dragSelect.opacity),
+    },
+    list: {
+      discSize: clampNumber(list.discSize, 3, 12, d.list.discSize),
+      circleSize: clampNumber(list.circleSize, 3, 12, d.list.circleSize),
+      circleThickness: clampNumber(
+        list.circleThickness,
+        0.5,
+        3,
+        d.list.circleThickness,
+      ),
+      squareSize: clampNumber(list.squareSize, 3, 12, d.list.squareSize),
+      indent: clampNumber(list.indent, 12, 48, d.list.indent),
     },
     grip: {
       gap: clampNumber(grip.gap, 0, 32, d.grip.gap),
@@ -403,7 +479,7 @@ export function saveStyleRailSettings(settings: StyleRailSettings) {
  */
 export function styleRailVars(settings: StyleRailSettings): Record<string, string | null> {
   const d = DEFAULT_STYLE_RAIL_SETTINGS;
-  const { accent, colors, typography, layout, grain, highlight, grip, scrollbar, components } = settings;
+  const { accent, colors, typography, layout, grain, highlight, dragSelect, list, grip, scrollbar, components } = settings;
   const { softening } = grain;
 
   const accented = accent !== d.accent;
@@ -449,7 +525,7 @@ export function styleRailVars(settings: StyleRailSettings): Record<string, strin
   const componentVars: Record<string, string | null> = {};
   for (const [file, tokens] of Object.entries(components)) {
     for (const [key, value] of Object.entries(tokens)) {
-      for (const cssVar of THEME_TOKEN_REGISTRY[file]?.[key] ?? []) {
+      for (const cssVar of THEME_TOKEN_REGISTRY[file]?.[key]?.vars ?? []) {
         componentVars[cssVar] = value;
       }
     }
@@ -487,6 +563,8 @@ export function styleRailVars(settings: StyleRailSettings): Record<string, strin
       layout.topPadding === d.layout.topPadding ? null : `${layout.topPadding}px`,
     "--style-content-bottom":
       layout.bottomPadding === d.layout.bottomPadding ? null : `${layout.bottomPadding}px`,
+    "--style-title-padding":
+      layout.titlePadding === d.layout.titlePadding ? null : `${layout.titlePadding}px`,
 
     // Block highlight (changed-flash + node selection) and the drag
     // drop-line — consumed in index.css with theme-blue fallbacks.
@@ -504,6 +582,22 @@ export function styleRailVars(settings: StyleRailSettings): Record<string, strin
       highlight.dropOpacity === d.highlight.dropOpacity ? null : String(highlight.dropOpacity),
     "--docs-dropcursor-radius":
       highlight.dropRadius === d.highlight.dropRadius ? null : `${highlight.dropRadius}px`,
+
+    // Drag-select rubber band — consumed in index.css.
+    "--docs-dragselect-color": dragSelect.color,
+    "--docs-dragselect-opacity":
+      dragSelect.opacity === d.dragSelect.opacity ? null : String(dragSelect.opacity),
+
+    // List marker geometry and indent — consumed in index.css.
+    "--docs-list-disc-size":
+      list.discSize === d.list.discSize ? null : `${list.discSize}px`,
+    "--docs-list-circle-size":
+      list.circleSize === d.list.circleSize ? null : `${list.circleSize}px`,
+    "--docs-list-circle-thickness":
+      list.circleThickness === d.list.circleThickness ? null : `${list.circleThickness}px`,
+    "--docs-list-square-size":
+      list.squareSize === d.list.squareSize ? null : `${list.squareSize}px`,
+    "--docs-list-indent": list.indent === d.list.indent ? null : `${list.indent}px`,
 
     // Drag grip — position vars are read by drag-handle.ts at show
     // time; size/color are consumed in index.css.
@@ -872,6 +966,10 @@ export function StyleRail({
     onSettingsChange({ ...settings, grip: { ...settings.grip, ...patch } });
   const patchScrollbar = (patch: Partial<StyleRailSettings["scrollbar"]>) =>
     onSettingsChange({ ...settings, scrollbar: { ...settings.scrollbar, ...patch } });
+  const patchDragSelect = (patch: Partial<StyleRailSettings["dragSelect"]>) =>
+    onSettingsChange({ ...settings, dragSelect: { ...settings.dragSelect, ...patch } });
+  const patchList = (patch: Partial<StyleRailSettings["list"]>) =>
+    onSettingsChange({ ...settings, list: { ...settings.list, ...patch } });
   const patchComponent = (file: string, key: string, value: string | null) => {
     const fileTokens = { ...(settings.components[file] ?? {}) };
     if (value === null) delete fileTokens[key];
@@ -1088,15 +1186,87 @@ export function StyleRail({
                   </p>
                   {COMPONENT_PICKER_FILES.map((file) => (
                     <PanelSection key={file} nested title={componentLabel(file)}>
-                      {Object.entries(THEME_TOKEN_REGISTRY[file] ?? {}).map(([key, cssVars]) => (
-                        <ColorRow
-                          key={key}
-                          defaultExpr={`var(${cssVars[0]})`}
-                          label={TOKEN_KEY_LABELS[key] ?? key}
-                          onChange={(value) => patchComponent(file, key, value)}
-                          value={settings.components[file]?.[key] ?? null}
-                        />
-                      ))}
+                      {Object.entries(THEME_TOKEN_REGISTRY[file] ?? {}).map(([key, token]) => {
+                        const label = TOKEN_KEY_LABELS[key] ?? key;
+                        if (token.kind === "color") {
+                          return (
+                            <ColorRow
+                              key={key}
+                              defaultExpr={`var(${token.vars[0]})`}
+                              label={label}
+                              onChange={(value) => patchComponent(file, key, value)}
+                              value={settings.components[file]?.[key] ?? null}
+                            />
+                          );
+                        }
+                        const storedValue = settings.components[file]?.[key];
+                        const value = storedValue === undefined
+                          ? token.defaultValue
+                          : Number.parseFloat(storedValue);
+                        return (
+                          <SliderRow
+                            key={key}
+                            label={label}
+                            max={token.max}
+                            min={token.min}
+                            onChange={(nextValue) =>
+                              patchComponent(file, key, `${nextValue}${token.unit ?? ""}`)
+                            }
+                            step={token.step}
+                            value={value}
+                            valueLabel={`${value}${token.unit ?? ""}`}
+                          />
+                        );
+                      })}
+                      {file === "list-item" && (
+                        <>
+                          <SliderRow
+                            label="Disc size"
+                            max={12}
+                            min={3}
+                            onChange={(value) => patchList({ discSize: value })}
+                            step={0.5}
+                            value={settings.list.discSize}
+                            valueLabel={`${settings.list.discSize}px`}
+                          />
+                          <SliderRow
+                            label="Circle size"
+                            max={12}
+                            min={3}
+                            onChange={(value) => patchList({ circleSize: value })}
+                            step={0.5}
+                            value={settings.list.circleSize}
+                            valueLabel={`${settings.list.circleSize}px`}
+                          />
+                          <SliderRow
+                            label="Circle thickness"
+                            max={3}
+                            min={0.5}
+                            onChange={(value) => patchList({ circleThickness: value })}
+                            step={0.25}
+                            value={settings.list.circleThickness}
+                            valueLabel={`${settings.list.circleThickness}px`}
+                          />
+                          <SliderRow
+                            label="Square size"
+                            max={12}
+                            min={3}
+                            onChange={(value) => patchList({ squareSize: value })}
+                            step={0.5}
+                            value={settings.list.squareSize}
+                            valueLabel={`${settings.list.squareSize}px`}
+                          />
+                          <SliderRow
+                            label="Indent"
+                            max={48}
+                            min={12}
+                            onChange={(value) => patchList({ indent: value })}
+                            step={1}
+                            value={settings.list.indent}
+                            valueLabel={`${settings.list.indent}px`}
+                          />
+                        </>
+                      )}
                     </PanelSection>
                   ))}
                 </PanelSection>
@@ -1201,6 +1371,15 @@ export function StyleRail({
                     step={4}
                     value={layout.topPadding}
                     valueLabel={`${layout.topPadding}px`}
+                  />
+                  <SliderRow
+                    label="Title padding"
+                    max={240}
+                    min={0}
+                    onChange={(value) => patchLayout({ titlePadding: value })}
+                    step={2}
+                    value={layout.titlePadding}
+                    valueLabel={`${layout.titlePadding}px`}
                   />
                   <SliderRow
                     label="Bottom padding"
@@ -1354,6 +1533,23 @@ export function StyleRail({
                       step={1}
                       value={settings.highlight.dropRadius}
                       valueLabel={`${settings.highlight.dropRadius}px`}
+                    />
+                  </PanelSection>
+                  <PanelSection nested title="Drag select">
+                    <ColorRow
+                      defaultExpr="var(--color-text-blue)"
+                      label="Color"
+                      onChange={(value) => patchDragSelect({ color: value })}
+                      value={settings.dragSelect.color}
+                    />
+                    <SliderRow
+                      label="Fill opacity"
+                      max={0.6}
+                      min={0.02}
+                      onChange={(value) => patchDragSelect({ opacity: value })}
+                      step={0.02}
+                      value={settings.dragSelect.opacity}
+                      valueLabel={`${Math.round(settings.dragSelect.opacity * 100)}%`}
                     />
                   </PanelSection>
                   <PanelSection nested title="Drag grip">

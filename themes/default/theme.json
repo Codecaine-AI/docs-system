@@ -20,7 +20,8 @@
     "layout": {
       "contentWidth": 80,
       "contentMargin": 0,
-      "topPadding": 40,
+      "topPadding": 88,
+      "titlePadding": 50,
       "bottomPadding": 300,
       "radius": 8,
       "borderStrength": 1,
@@ -29,13 +30,24 @@
     },
     "highlight": {
       "color": null,
-      "radius": 6,
+      "radius": 1,
       "padding": 4,
-      "dragOpacity": 0.1,
+      "dragOpacity": 0.2,
       "dropColor": "#bcdae7",
       "dropWidth": 6,
       "dropOpacity": 0.7,
       "dropRadius": 1
+    },
+    "dragSelect": {
+      "color": null,
+      "opacity": 0.12
+    },
+    "list": {
+      "discSize": 6,
+      "circleSize": 6,
+      "circleThickness": 1.5,
+      "squareSize": 6,
+      "indent": 24
     },
     "grip": {
       "gap": 12,

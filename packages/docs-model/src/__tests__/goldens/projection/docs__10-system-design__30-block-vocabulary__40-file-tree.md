@@ -1,5 +1,3 @@
-# file-tree
-
 The annotated path tree of the block vocabulary: a flat list of path entries in props that renders — on both surfaces — as a `tree`-command drawing, with notes and per-entry change markers for describing repo slices and refactors.
 
 ## State

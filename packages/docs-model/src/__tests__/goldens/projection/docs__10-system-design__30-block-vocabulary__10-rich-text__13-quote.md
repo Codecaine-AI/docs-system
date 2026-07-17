@@ -1,5 +1,3 @@
-# quote
-
 The block quote of the block vocabulary: rich text set apart for emphasis or citation. For labeled, toned admonitions use a callout instead — quote is the plain, unlabeled form.
 
 ## State

@@ -41,8 +41,12 @@ const EXTENSIONS = [
 
 /** Serializes PM JSON to clipboard HTML and parses it back through the schema — the copy→paste data path. */
 function roundTrip(content: JSONContent[]): JSONContent {
-  const html = generateHTML({ type: "doc", content }, EXTENSIONS);
+  const html = serialize(content);
   return generateJSON(html, EXTENSIONS);
+}
+
+function serialize(content: JSONContent[]): string {
+  return generateHTML({ type: "doc", content }, EXTENSIONS);
 }
 
 function findNodes(node: JSONContent, type: string, out: JSONContent[] = []): JSONContent[] {
@@ -63,6 +67,36 @@ function wrapper(inline: JSONContent[]): JSONContent {
 function paragraph(inline: JSONContent[]): JSONContent {
   return { type: "docParagraph", attrs: { blockId: "p1", blockProps: {} }, content: [wrapper(inline)] };
 }
+
+describe("clipboard HTML: list markers", () => {
+  it("serializes empty CSS-driven markers and the matching ordered/bullet item attribute", () => {
+    const unordered = serialize([
+      {
+        type: "docListItem",
+        attrs: { blockId: "li-unordered", blockProps: {}, ordered: null },
+        content: [wrapper([{ type: "text", text: "Unordered item" }])],
+      },
+    ]);
+    expect(unordered).toContain('data-doc-bullet="true"');
+    expect(unordered).not.toContain('data-doc-ordered="true"');
+    expect(unordered).not.toContain("•");
+    expect(unordered).toMatch(/<span[^>]*data-doc-list-marker="true"[^>]*><\/span>/);
+    expect(collectText(generateJSON(unordered, EXTENSIONS))).toBe("Unordered item");
+
+    const ordered = serialize([
+      {
+        type: "docListItem",
+        attrs: { blockId: "li-ordered", blockProps: {}, ordered: true },
+        content: [wrapper([{ type: "text", text: "Ordered item" }])],
+      },
+    ]);
+    expect(ordered).toContain('data-doc-ordered="true"');
+    expect(ordered).not.toContain('data-doc-bullet="true"');
+    expect(ordered).not.toContain("•");
+    expect(ordered).toMatch(/<span[^>]*data-doc-list-marker="true"[^>]*><\/span>/);
+    expect(collectText(generateJSON(ordered, EXTENSIONS))).toBe("Ordered item");
+  });
+});
 
 describe("clipboard round-trip: reference chip", () => {
   it("preserves kind/path/label (and symbol/line) through copy HTML", () => {

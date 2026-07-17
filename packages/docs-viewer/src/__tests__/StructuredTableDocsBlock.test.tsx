@@ -64,17 +64,54 @@ describe("StructuredTableBlock", () => {
     expect(screen.queryByText("overflow-dropped")).toBeNull();
   });
 
-  it("applies the requested density's cell padding", () => {
+  it("uses theme tokens for spacing and accent rules regardless of density", () => {
     const { container } = render(
       <StructuredTableBlock
         id="tbl-compact"
         density="compact"
-        columns={["A"]}
-        rows={[["x"]]}
+        columns={["A", "B"]}
+        rows={[
+          ["x", "y"],
+          ["z", "w"],
+        ]}
       />,
     );
-    const cell = container.querySelector("tbody td");
-    expect(cell?.className).toContain("px-2 py-1");
+
+    const wrapper = container.querySelector("section > div");
+    const header = container.querySelector("thead");
+    const headerCells = container.querySelectorAll("thead th");
+    const bodyRows = container.querySelectorAll("tbody tr");
+    const bodyCells = container.querySelectorAll("tbody td");
+
+    expect(wrapper?.className).toContain(
+      "border-[color:var(--docs-table-border,transparent)]",
+    );
+    expect(header?.className).toContain(
+      "border-b-[length:var(--docs-table-header-rule-width,1.5px)]",
+    );
+    expect(header?.className).toContain("var(--docs-table-header-rule-opacity,0.5)");
+    expect(header?.className).toContain(
+      "bg-[color:var(--docs-table-header-bg,transparent)]",
+    );
+    expect(headerCells[0]?.className).toContain(
+      "text-[length:calc(var(--docs-table-font-size,14px)-1px)]",
+    );
+    expect(headerCells[0]?.className).toContain("font-medium");
+    expect(headerCells[0]?.className).not.toContain("uppercase");
+    expect(bodyCells[0]?.className).toContain(
+      "py-[length:var(--docs-table-cell-pad-y,10px)]",
+    );
+    expect(bodyCells[0]?.className).toContain(
+      "pr-[length:var(--docs-table-cell-pad-x,16px)]",
+    );
+    expect(bodyCells[1]?.className).toContain("pr-0");
+    expect(bodyRows[0]?.className).toContain(
+      "border-b-[length:var(--docs-table-row-rule-width,1px)]",
+    );
+    expect(bodyRows[0]?.className).toContain("var(--docs-table-row-rule-opacity,1)");
+    expect(bodyRows[1]?.className).not.toContain("border-b");
+    expect(bodyRows[0]?.className).not.toContain("even:bg-muted/30");
+    expect(bodyCells[0]?.className).not.toContain("px-2 py-1");
     expect(screen.queryByText("compact")).toBeNull();
   });
 

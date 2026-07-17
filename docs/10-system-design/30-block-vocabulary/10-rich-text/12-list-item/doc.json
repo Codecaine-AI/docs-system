@@ -9,7 +9,6 @@
       "type": "paragraph",
       "props": {},
       "children": [
-        "b-12-list-item-title-1",
         "b-12-list-item-lead-2",
         "b-12-list-item-state-h-3",
         "b-12-list-item-state-4",
@@ -25,19 +24,6 @@
         "b-12-list-item-theming-para",
         "b-12-list-item-theming-table"
       ]
-    },
-    "b-12-list-item-title-1": {
-      "id": "b-12-list-item-title-1",
-      "type": "heading",
-      "props": {
-        "level": 1
-      },
-      "text": [
-        {
-          "insert": "list-item"
-        }
-      ],
-      "children": []
     },
     "b-12-list-item-lead-2": {
       "id": "b-12-list-item-lead-2",

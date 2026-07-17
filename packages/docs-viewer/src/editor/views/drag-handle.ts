@@ -3,6 +3,7 @@
 import { Extension } from "@tiptap/core";
 import { NodeSelection, Plugin, PluginKey } from "@tiptap/pm/state";
 import type { EditorView } from "@tiptap/pm/view";
+import { dragSelectPluginKey } from "./drag-select-state";
 
 /**
  * AFFiNE/Notion-style drag grip for reordering top-level blocks (Ford,
@@ -79,15 +80,15 @@ function topLevelBlockElement(view: EditorView, target: EventTarget | null): HTM
  * governs the whole floating block, text and backgrounds alike. The caller
  * owns removal (dragend → hide()).
  */
-export function buildDragGhost(block: HTMLElement): HTMLElement {
+export function buildDragGhost(blocks: HTMLElement[]): HTMLElement {
   const holder = document.createElement("div");
   // The holder lives at body level, OUTSIDE the host's typography wrapper —
   // every scoped rule (.docs-markdown.prose font sizing, prose colors,
   // heading fonts) would fall back to body defaults and the floating text
   // visibly changed size on pickup (Ford, dogfood round 2). Carrying the
   // wrapper's class list onto the holder re-establishes the cascade for the
-  // clone.
-  const context = block.closest(".docs-markdown");
+  // clones.
+  const context = blocks[0]?.closest(".docs-markdown");
   holder.className =
     context instanceof HTMLElement
       ? `docs-drag-image ${context.className}`
@@ -95,12 +96,15 @@ export function buildDragGhost(block: HTMLElement): HTMLElement {
   holder.style.position = "fixed";
   holder.style.top = "-10000px";
   holder.style.left = "0";
-  // Match the source width so text wraps identically in the snapshot.
-  holder.style.width = `${block.getBoundingClientRect().width}px`;
+  // Match the widest source so text wraps identically in the snapshot.
+  const width = Math.max(0, ...blocks.map((block) => block.getBoundingClientRect().width));
+  if (width > 0) holder.style.width = `${width}px`;
   holder.style.pointerEvents = "none";
-  const clone = block.cloneNode(true) as HTMLElement;
-  clone.classList.remove("ProseMirror-selectednode");
-  holder.appendChild(clone);
+  for (const block of blocks) {
+    const clone = block.cloneNode(true) as HTMLElement;
+    clone.classList.remove("ProseMirror-selectednode", "docs-block-multi-selected");
+    holder.appendChild(clone);
+  }
   document.body.appendChild(holder);
   return holder;
 }
@@ -226,6 +230,27 @@ class DragHandleView {
     if (this.blockPos === null || !event.dataTransfer) return;
     const { state } = this.view;
     if (this.blockPos >= state.doc.content.size || !state.doc.nodeAt(this.blockPos)) return;
+    const range = dragSelectPluginKey.getState(state);
+    if (range && this.blockPos >= range.from && this.blockPos < range.to) {
+      // The grabbed block is part of a drag-select range: move the WHOLE
+      // range. The dragging flag routes the drop to drag-select.ts's
+      // handleDrop (a single schema-safe delete+insert); PM's native drop
+      // handler never sees it.
+      this.view.dispatch(state.tr.setMeta(dragSelectPluginKey, { ...range, dragging: true }));
+      this.view.dragging = { slice: state.doc.slice(range.from, range.to), move: true };
+      const blocks: HTMLElement[] = [];
+      state.doc.forEach((node, offset) => {
+        if (offset < range.from || offset + node.nodeSize > range.to) return;
+        const dom = this.view.nodeDOM(offset);
+        if (dom instanceof HTMLElement) blocks.push(dom);
+      });
+      this.dragGhost = buildDragGhost(blocks.length ? blocks : this.blockElement ? [this.blockElement] : []);
+      event.dataTransfer.setDragImage(this.dragGhost, 0, 0);
+      event.dataTransfer.effectAllowed = "copyMove";
+      event.dataTransfer.setData("text/plain", "​");
+      this.view.dom.classList.add("docs-block-dragging");
+      return;
+    }
     const selection = NodeSelection.create(state.doc, this.blockPos);
     this.view.dispatch(state.tr.setSelection(selection));
     // Handing PM the dragged slice makes its own drop handler perform a
@@ -236,7 +261,7 @@ class DragHandleView {
     // Some browsers cancel drags carrying no data at all.
     event.dataTransfer.setData("text/plain", "​");
     if (this.blockElement) {
-      this.dragGhost = buildDragGhost(this.blockElement);
+      this.dragGhost = buildDragGhost([this.blockElement]);
       event.dataTransfer.setDragImage(this.dragGhost, 0, 0);
     }
     // Notion feel: while in flight the source block dims instead of

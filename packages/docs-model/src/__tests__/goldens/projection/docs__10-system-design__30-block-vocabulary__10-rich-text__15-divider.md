@@ -1,5 +1,3 @@
-# divider
-
 The horizontal rule of the block vocabulary: a visual section break with no content of its own.
 
 ## State

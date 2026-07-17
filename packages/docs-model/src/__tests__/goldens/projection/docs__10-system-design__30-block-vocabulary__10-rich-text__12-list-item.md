@@ -1,5 +1,3 @@
-# list-item
-
 The list block of the block vocabulary. There is no wrapping list container type: a list is simply a run of consecutive `list-item` siblings, and nesting is expressed by child `list-item` blocks, not by markup.
 
 ## State

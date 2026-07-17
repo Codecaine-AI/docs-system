@@ -13,10 +13,9 @@ import { blockAttrs as nodeBlockAttrs } from "../../editor/core/node-helpers";
 
 /**
  * `list-item` — read-surface descriptor + ProseMirror editor node. Both
- * surfaces share the marker contract: ordered items ship an EMPTY marker
- * plus `data-doc-ordered`, and the number arrives via the host
- * stylesheet's CSS counter over consecutive ordered siblings
- * (docs-workbench index.css).
+ * surfaces share the marker contract: every item ships an EMPTY marker plus
+ * `data-doc-ordered` or `data-doc-bullet`, and the marker glyph arrives via
+ * the host stylesheet's `::before` rules (docs-workbench index.css).
  */
 
 export const DocListItem = Node.create({
@@ -30,10 +29,11 @@ export const DocListItem = Node.create({
     return { ...nodeBlockAttrs, ordered: { default: null as boolean | null } };
   },
   parseHTML() {
-    // The serialized editor `<li>` carries a static bullet `<span>` before
-    // its content column (see renderHTML below) — `contentElement` keeps the
-    // clipboard round trip from re-parsing that "•" into the item's text.
-    // Bare `<li>`s (external paste) have no content column and parse whole.
+    // The serialized editor `<li>` carries a marker `<span>` before its
+    // content column (see renderHTML below). `contentElement` keeps that
+    // presentation-only sibling out of the editable content on clipboard
+    // round trips. Bare `<li>`s (external paste) have no content column and
+    // parse whole.
     return [
       {
         tag: "li",
@@ -51,33 +51,22 @@ export const DocListItem = Node.create({
     // renders as an `::before` flex item on the `<li>` itself (see
     // decorations/placeholder.ts).
     const ordered = node.attrs.ordered === true;
-    const marker = ordered
-      ? [
-          "span",
-          {
-            class: `${LIST_ITEM_BULLET_CLASSES} order-first`,
-            contenteditable: "false",
-            "aria-hidden": "true",
-            "data-doc-list-marker": "true",
-          },
-        ]
-      : [
-          "span",
-          {
-            class: `${LIST_ITEM_BULLET_CLASSES} order-first`,
-            contenteditable: "false",
-            "aria-hidden": "true",
-            "data-doc-list-marker": "true",
-          },
-          "•",
-        ];
+    const marker = [
+      "span",
+      {
+        class: `${LIST_ITEM_BULLET_CLASSES} order-first`,
+        contenteditable: "false",
+        "aria-hidden": "true",
+        "data-doc-list-marker": "true",
+      },
+    ];
     return [
       "li",
       mergeAttributes(
         HTMLAttributes,
         ordered
           ? { class: LIST_ITEM_CLASSES, "data-doc-ordered": "true" }
-          : { class: LIST_ITEM_CLASSES },
+          : { class: LIST_ITEM_CLASSES, "data-doc-bullet": "true" },
       ),
       marker,
       ["div", { class: LIST_ITEM_CONTENT_CLASSES, "data-doc-list-content": "true" }, 0],
@@ -100,7 +89,7 @@ export const listItemDescriptor: DocBlockDescriptor = {
         ...blockAttrs(block),
         role: "listitem",
         className: LIST_ITEM_CLASSES,
-        ...(ordered ? { "data-doc-ordered": "true" } : {}),
+        ...(ordered ? { "data-doc-ordered": "true" } : { "data-doc-bullet": "true" }),
       },
       el(
         "span",
@@ -109,7 +98,6 @@ export const listItemDescriptor: DocBlockDescriptor = {
           "aria-hidden": "true",
           "data-doc-list-marker": "true",
         },
-        ordered ? null : "•",
       ),
       el(
         "div",

@@ -1,5 +1,3 @@
-# callout
-
 The labeled admonition of the block vocabulary — decisions, risks, warnings, mental models — and the vocabulary's designated safety net: every retired or unknown block type coerces into a callout rather than failing validation.
 
 ## State

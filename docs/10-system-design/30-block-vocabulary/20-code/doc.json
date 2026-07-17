@@ -9,7 +9,6 @@
       "type": "paragraph",
       "props": {},
       "children": [
-        "b-14-code-title-1",
         "b-14-code-lead-2",
         "b-14-code-state-h-3",
         "b-14-code-state-4",
@@ -29,19 +28,6 @@
         "b-14-code-theming-para",
         "b-14-code-theming-table"
       ]
-    },
-    "b-14-code-title-1": {
-      "id": "b-14-code-title-1",
-      "type": "heading",
-      "props": {
-        "level": 1
-      },
-      "text": [
-        {
-          "insert": "code"
-        }
-      ],
-      "children": []
     },
     "b-14-code-lead-2": {
       "id": "b-14-code-lead-2",

@@ -284,6 +284,15 @@ export type UndoResult =
  * Replays the stored inverse of a patch. Single-use: a second undo of the
  * same patch id 404s, surfaced as `alreadyUndone`.
  */
+/** Moves/renames a bundle folder; the server rewrites inbound references. */
+export async function moveDoc(
+  fromPath: string,
+  toPath: string,
+): Promise<{ moved: string[]; rewrittenSources: string[]; failures: string[] }> {
+  assertWritable("Move");
+  return postJson(`api/move`, { fromPath, toPath });
+}
+
 export async function undoPatch(patchId: string): Promise<UndoResult> {
   assertWritable("Undo");
   try {

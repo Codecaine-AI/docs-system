@@ -1,5 +1,3 @@
-# heading
-
 The section heading of the block vocabulary. Use it to give documents a greppable outline — `docs grep '^## '` finds every second-level section in a corpus.
 
 ## State

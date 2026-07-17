@@ -1,5 +1,3 @@
-# Package map
-
 Every workspace package, what it owns, and why it exists as its own layer—the rationale now lives in System Design: Packages — why seven.
 
 | package | one-line role |

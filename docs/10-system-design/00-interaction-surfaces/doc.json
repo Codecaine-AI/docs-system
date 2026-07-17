@@ -9,7 +9,6 @@
       "type": "paragraph",
       "props": {},
       "children": [
-        "b-isurf-title-1",
         "b-isurf-canvas-hero",
         "pm-mrp81bx4-2839-23vo4v",
         "pm-mrpfasf5-1-dsblal",
@@ -26,7 +25,12 @@
         "pm-mrpddwdu-760-2e5vcv",
         "pm-mrpddwdu-761-qj4gpg",
         "pm-mrpddwdu-762-pil9qz",
+        "pm-mrpfkxn0-75-76u4o2",
         "pm-mrpddwdu-763-0b5gwr",
+        "pm-mrpfkxn0-76-ty8nul",
+        "pm-mrpg8ecz-2-cir0id",
+        "pm-mrpg8ecz-3-t6poph",
+        "pm-mrpg8ecz-4-cdiuzv",
         "pm-mrpddwdu-770-6t9k90",
         "pm-mrpddwdu-771-abom36",
         "pm-mrpd2dxn-76-pozp6x",
@@ -35,10 +39,6 @@
         "pm-mrpddwdu-774-2mf1ej",
         "pm-mrpddwdu-775-lyb5t9",
         "b-isurf-intro-2",
-        "b-isurf-state-heading-3",
-        "b-isurf-state-para-4",
-        "pm-mrpe42kc-18-es7q9q",
-        "pm-mrpe42kc-19-7m0of4",
         "b-isurf-human-heading-6",
         "b-isurf-human-editor-7",
         "b-isurf-human-embed-8",
@@ -49,19 +49,6 @@
         "b-isurf-symmetry-table-14",
         "b-isurf-symmetry-para-15"
       ]
-    },
-    "b-isurf-title-1": {
-      "id": "b-isurf-title-1",
-      "type": "heading",
-      "props": {
-        "level": 1
-      },
-      "text": [
-        {
-          "insert": "Interaction Surfaces"
-        }
-      ],
-      "children": []
     },
     "b-isurf-canvas-hero": {
       "id": "b-isurf-canvas-hero",
@@ -241,6 +228,17 @@
       ],
       "children": []
     },
+    "pm-mrpfkxn0-75-76u4o2": {
+      "id": "pm-mrpfkxn0-75-76u4o2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The key idea we need to accept is that AI and humans consume information differently, so there is no true single medium that is best for both of use."
+        }
+      ],
+      "children": []
+    },
     "pm-mrpddwdu-763-0b5gwr": {
       "id": "pm-mrpddwdu-763-0b5gwr",
       "type": "heading",
@@ -250,6 +248,96 @@
       "text": [
         {
           "insert": "The Solution"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrpfkxn0-76-ty8nul": {
+      "id": "pm-mrpfkxn0-76-ty8nul",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Canonical Shared State"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrpg8ecz-2-cir0id": {
+      "id": "pm-mrpg8ecz-2-cir0id",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every document is a "
+        },
+        {
+          "insert": "doc.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " bundle: an id-keyed tree of blocks — the "
+        },
+        {
+          "insert": "data model",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/20-data-model/00-overview",
+              "label": "data model"
+            }
+          }
+        },
+        {
+          "insert": " — serialized to "
+        },
+        {
+          "insert": "canonical bytes",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/20-data-model/50-canonical-bytes",
+              "label": "canonical bytes"
+            }
+          }
+        },
+        {
+          "insert": ". "
+        }
+      ],
+      "children": []
+    },
+    "pm-mrpg8ecz-3-t6poph": {
+      "id": "pm-mrpg8ecz-3-t6poph",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "No reader consumes this form directly"
+        },
+        {
+          "insert": ".",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " "
+        }
+      ],
+      "children": []
+    },
+    "pm-mrpg8ecz-4-cdiuzv": {
+      "id": "pm-mrpg8ecz-4-cdiuzv",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "It is built for precision, not reading: stable ids make every block addressable, canonical bytes make every change diffable and testable, and the whole tree is validated on every write."
         }
       ],
       "children": []
@@ -341,93 +429,6 @@
       "text": [
         {
           "insert": "One idea underpins everything else in this system: a document is a single canonical state with two kinds of readers, and each reader gets a surface engineered for how it consumes. A human should never have to read storage bytes; an agent should never have to drive a UI. Both work on the same truth, through the form that is optimal for them."
-        }
-      ],
-      "children": []
-    },
-    "b-isurf-state-heading-3": {
-      "id": "b-isurf-state-heading-3",
-      "type": "heading",
-      "props": {
-        "level": 3
-      },
-      "text": [
-        {
-          "insert": "The canonical state"
-        }
-      ],
-      "children": []
-    },
-    "b-isurf-state-para-4": {
-      "id": "b-isurf-state-para-4",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "Every document is a "
-        },
-        {
-          "insert": "doc.json",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " bundle: an id-keyed tree of blocks — the "
-        },
-        {
-          "insert": "data model",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "10-system-design/20-data-model/00-overview",
-              "label": "data model"
-            }
-          }
-        },
-        {
-          "insert": " — serialized to "
-        },
-        {
-          "insert": "canonical bytes",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "10-system-design/20-data-model/50-canonical-bytes",
-              "label": "canonical bytes"
-            }
-          }
-        },
-        {
-          "insert": ". "
-        }
-      ],
-      "children": []
-    },
-    "pm-mrpe42kc-18-es7q9q": {
-      "id": "pm-mrpe42kc-18-es7q9q",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "No reader consumes this form directly.",
-          "attributes": {
-            "bold": true
-          }
-        },
-        {
-          "insert": " "
-        }
-      ],
-      "children": []
-    },
-    "pm-mrpe42kc-19-7m0of4": {
-      "id": "pm-mrpe42kc-19-7m0of4",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "It is built for precision, not reading: stable ids make every block addressable, canonical bytes make every change diffable and testable, and the whole tree is validated on every write."
         }
       ],
       "children": []

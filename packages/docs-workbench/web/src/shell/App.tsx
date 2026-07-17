@@ -258,7 +258,17 @@ export function App() {
           {isBlocksRoute ? (
             <BlocksPage />
           ) : path ? (
-            <DocPage path={path} />
+            <DocPage
+              path={path}
+              onDocMoved={(newPath) => {
+                // A title rename moved the bundle: follow it and let the
+                // sidebar pick up the new name.
+                window.location.hash = `#/${newPath}`;
+                void getTree()
+                  .then(({ tree: nodes }) => setTree(nodes))
+                  .catch(() => {});
+              }}
+            />
           ) : (
             <div className="flex h-full items-center justify-center p-8 text-sm text-muted-foreground">
               Select a doc from the tree

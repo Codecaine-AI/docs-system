@@ -9,7 +9,6 @@
       "type": "paragraph",
       "props": {},
       "children": [
-        "b-16-divider-title-1",
         "b-16-divider-lead-2",
         "b-16-divider-state-h-3",
         "b-16-divider-state-4",
@@ -23,19 +22,6 @@
         "b-16-divider-theming-para",
         "b-16-divider-theming-table"
       ]
-    },
-    "b-16-divider-title-1": {
-      "id": "b-16-divider-title-1",
-      "type": "heading",
-      "props": {
-        "level": 1
-      },
-      "text": [
-        {
-          "insert": "divider"
-        }
-      ],
-      "children": []
     },
     "b-16-divider-lead-2": {
       "id": "b-16-divider-lead-2",

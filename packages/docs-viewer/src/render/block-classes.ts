@@ -31,19 +31,18 @@ export const HEADING_CLASSES = "mt-6 mb-3 font-display font-semibold text-foregr
 export const LIST_ITEM_CLASSES = "my-1 flex text-sm leading-[1.7]";
 
 /**
- * `list-item` — the marker box (Notion metrics: a fixed 24px column with the
- * marker centered, text starting at its right edge; marker inherits the text
- * color). Holds a literal `•` for unordered items; ordered items leave it
- * empty and the number arrives via a CSS counter on
- * `[data-doc-ordered] > [data-doc-list-marker]::before` (host stylesheet —
- * see docs-workbench index.css).
+ * `list-item` — the marker box (Notion metrics: a 24px fallback column whose
+ * host-controlled width is the per-level indent; marker centered, text starting
+ * at its right edge, color inherited). The box stays empty on both list kinds;
+ * unordered glyphs and ordered counters arrive via host-stylesheet `::before`
+ * rules targeting `[data-doc-list-marker]` (see docs-workbench index.css).
  */
 export const LIST_ITEM_BULLET_CLASSES = "w-6 shrink-0 select-none text-center";
 
 /** `list-item` — the content column next to the bullet. */
 export const LIST_ITEM_CONTENT_CLASSES = "min-w-0 flex-1";
 
-/** `list-item` — nested-children wrapper (registry-only). No extra indent: a child's own 24px marker box supplies the per-level step, matching Notion (a nested paragraph aligns flush with the parent item's text). */
+/** `list-item` — nested-children wrapper (registry-only). No extra indent: a child's own marker box supplies the per-level step, matching Notion (a nested paragraph aligns flush with the parent item's text). */
 export const LIST_ITEM_CHILDREN_CLASSES = "";
 
 /**

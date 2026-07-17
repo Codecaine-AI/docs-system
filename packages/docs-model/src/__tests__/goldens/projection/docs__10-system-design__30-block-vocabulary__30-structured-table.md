@@ -1,5 +1,3 @@
-# structured-table
-
 The typed table of the block vocabulary: a columns × rows grid of strings kept in props, not prose. Use it for index tables, comparison matrices, and anything an agent should edit cell-by-cell instead of re-flowing text.
 
 ## State
@@ -43,10 +41,19 @@ A non-editable atom leaf node with its own React render surface (`StructuredTabl
 
 ## Theming
 
-This block's theme file is `components/structured-table.json` in a theme folder (`themes/<id>/`; see 20-implementation/40-theming). Every value is one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY`.
+This block's theme file is `components/structured-table.json` in a theme folder (`themes/<id>/`; see 20-implementation/40-theming). Every value is one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY`. Spacing and rule tokens (widths, paddings, opacity, and fontSize) are non-color values stored as single strings: lengths use a px unit and opacities are bare numbers.
 
 | Key | CSS variable | Styles |
 | --- | --- | --- |
-| border | --docs-table-border | Table and cell borders |
-| headerBg | --docs-table-header-bg | Header row background |
+| border | --docs-table-border | Outer wrapper border (default transparent) |
+| headerBg | --docs-table-header-bg | Header row background (default transparent) |
 | headerFg | --docs-table-header-fg | Header text color |
+| headerRule | --docs-table-header-rule | Header rule color |
+| headerRuleWidth | --docs-table-header-rule-width | Header rule thickness |
+| headerRuleOpacity | --docs-table-header-rule-opacity | Header rule opacity |
+| rowRule | --docs-table-row-rule | Row rule color |
+| rowRuleWidth | --docs-table-row-rule-width | Row rule thickness |
+| rowRuleOpacity | --docs-table-row-rule-opacity | Row rule opacity |
+| cellPaddingY | --docs-table-cell-pad-y | Vertical cell padding |
+| cellPaddingX | --docs-table-cell-pad-x | Column gap |
+| fontSize | --docs-table-font-size | Cell text size |

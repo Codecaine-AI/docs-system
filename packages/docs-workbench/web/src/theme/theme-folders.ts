@@ -6,7 +6,7 @@ import type { StyleRailSettings } from "../shell/StyleRail";
  *
  * A theme is a folder: `theme.json` (manifest: name, `base` inheritance,
  * font stacks, optional style-rail defaults) plus `components/<file>.json`
- * token files where every color value is either one string (both modes) or
+ * token files where every token value is either one string (both modes) or
  * a `{ light, dark }` pair. The loader validates values against
  * THEME_TOKEN_REGISTRY — the closed map from component file + key to the
  * tier-2 CSS vars of the canonical contract (theme/semantic.css) — and
@@ -44,6 +44,32 @@ export type ThemeDefinition = {
   source: "builtin" | "repo";
 };
 
+export type ThemeTokenDefinition =
+  | {
+      vars: string[];
+      kind: "color";
+    }
+  | {
+      vars: string[];
+      kind: "length";
+      min: number;
+      max: number;
+      step: number;
+      unit: "px";
+      defaultValue: number;
+    }
+  | {
+      vars: string[];
+      kind: "number";
+      min: number;
+      max: number;
+      step: number;
+      unit?: never;
+      defaultValue: number;
+    };
+
+const color = (...vars: string[]): ThemeTokenDefinition => ({ vars, kind: "color" });
+
 /**
  * The closed token vocabulary: component file -> token key -> the CSS vars
  * it writes. Unknown files/keys in a theme are ignored (tolerant reads,
@@ -54,94 +80,157 @@ export type ThemeDefinition = {
  * plus four non-block files: shell, surfaces, inline-code (the text mark),
  * and editor-controls.
  */
-export const THEME_TOKEN_REGISTRY: Record<string, Record<string, string[]>> = {
+export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefinition>> = {
   // -- non-block surfaces ---------------------------------------------------
   shell: {
-    background: ["--background", "--card", "--popover"],
-    sidebar: ["--sidebar"],
-    text: [
+    background: color("--background", "--card", "--popover"),
+    sidebar: color("--sidebar"),
+    text: color(
       "--foreground",
       "--card-foreground",
       "--popover-foreground",
       "--sidebar-foreground",
       "--docs-viewer-text-body",
       "--docs-viewer-text-heading",
-    ],
-    accent: ["--accent"],
-    link: ["--docs-viewer-link"],
+    ),
+    accent: color("--accent"),
+    link: color("--docs-viewer-link"),
   },
   surfaces: {
-    border: ["--border", "--input", "--sidebar-border", "--docs-border-default"],
-    muted: ["--muted", "--docs-surface-muted"],
-    icon: ["--docs-icon-muted"],
+    border: color("--border", "--input", "--sidebar-border", "--docs-border-default"),
+    muted: color("--muted", "--docs-surface-muted"),
+    icon: color("--docs-icon-muted"),
   },
   "inline-code": {
-    fg: ["--docs-inline-code-fg"],
-    bg: ["--docs-inline-code-bg"],
+    fg: color("--docs-inline-code-fg"),
+    bg: color("--docs-inline-code-bg"),
   },
   "editor-controls": {
-    highlight: ["--docs-highlight-color"],
-    dropLine: ["--docs-dropcursor-color"],
-    grip: ["--docs-grip-color"],
+    highlight: color("--docs-highlight-color"),
+    dropLine: color("--docs-dropcursor-color"),
+    grip: color("--docs-grip-color"),
   },
   // -- one file per block-vocabulary type ------------------------------------
   paragraph: {
-    fg: ["--docs-paragraph-fg"],
+    fg: color("--docs-paragraph-fg"),
   },
   heading: {
-    fg: ["--docs-heading-fg"],
+    fg: color("--docs-heading-fg"),
   },
   "list-item": {
-    marker: ["--docs-list-marker-fg"],
+    marker: color("--docs-list-marker-fg"),
   },
   quote: {
-    fg: ["--docs-quote-fg"],
-    border: ["--docs-quote-border"],
+    fg: color("--docs-quote-fg"),
+    border: color("--docs-quote-border"),
   },
   code: {
-    bg: ["--docs-code-block-bg"],
-    border: ["--docs-code-block-border"],
-    string: ["--syntax-string"],
-    number: ["--syntax-number"],
-    boolean: ["--syntax-boolean"],
-    null: ["--syntax-null"],
-    key: ["--syntax-key"],
+    bg: color("--docs-code-block-bg"),
+    border: color("--docs-code-block-border"),
+    string: color("--syntax-string"),
+    number: color("--syntax-number"),
+    boolean: color("--syntax-boolean"),
+    null: color("--syntax-null"),
+    key: color("--syntax-key"),
   },
   callout: {
-    border: ["--docs-viewer-callout-border"],
-    fill: ["--docs-viewer-callout-fill"],
-    fg: ["--docs-callout-fg"],
+    border: color("--docs-viewer-callout-border"),
+    fill: color("--docs-viewer-callout-fill"),
+    fg: color("--docs-callout-fg"),
   },
   divider: {
-    color: ["--docs-divider-color"],
+    color: color("--docs-divider-color"),
   },
   image: {
-    border: ["--docs-image-border"],
-    caption: ["--docs-image-caption-fg"],
+    border: color("--docs-image-border"),
+    caption: color("--docs-image-caption-fg"),
   },
   video: {
-    border: ["--docs-video-border"],
-    caption: ["--docs-video-caption-fg"],
+    border: color("--docs-video-border"),
+    caption: color("--docs-video-caption-fg"),
   },
   "file-tree": {
-    border: ["--docs-file-tree-border"],
-    note: ["--docs-file-tree-note-fg"],
+    border: color("--docs-file-tree-border"),
+    note: color("--docs-file-tree-note-fg"),
   },
   "structured-table": {
-    border: ["--docs-table-border"],
-    headerBg: ["--docs-table-header-bg"],
-    headerFg: ["--docs-table-header-fg"],
+    border: color("--docs-table-border"),
+    headerBg: color("--docs-table-header-bg"),
+    headerFg: color("--docs-table-header-fg"),
+    headerRule: color("--docs-table-header-rule"),
+    headerRuleWidth: {
+      vars: ["--docs-table-header-rule-width"],
+      kind: "length",
+      min: 0,
+      max: 4,
+      step: 0.5,
+      unit: "px",
+      defaultValue: 1.5,
+    },
+    headerRuleOpacity: {
+      vars: ["--docs-table-header-rule-opacity"],
+      kind: "number",
+      min: 0,
+      max: 1,
+      step: 0.05,
+      defaultValue: 0.5,
+    },
+    rowRule: color("--docs-table-row-rule"),
+    rowRuleWidth: {
+      vars: ["--docs-table-row-rule-width"],
+      kind: "length",
+      min: 0,
+      max: 3,
+      step: 0.5,
+      unit: "px",
+      defaultValue: 1,
+    },
+    rowRuleOpacity: {
+      vars: ["--docs-table-row-rule-opacity"],
+      kind: "number",
+      min: 0,
+      max: 1,
+      step: 0.05,
+      defaultValue: 1,
+    },
+    cellPaddingY: {
+      vars: ["--docs-table-cell-pad-y"],
+      kind: "length",
+      min: 4,
+      max: 24,
+      step: 1,
+      unit: "px",
+      defaultValue: 10,
+    },
+    cellPaddingX: {
+      vars: ["--docs-table-cell-pad-x"],
+      kind: "length",
+      min: 8,
+      max: 32,
+      step: 1,
+      unit: "px",
+      defaultValue: 16,
+    },
+    fontSize: {
+      vars: ["--docs-table-font-size"],
+      kind: "length",
+      min: 12,
+      max: 16,
+      step: 0.5,
+      unit: "px",
+      defaultValue: 14,
+    },
   },
   "interaction-surface": {
-    border: ["--docs-interaction-border"],
-    bg: ["--docs-interaction-bg"],
+    border: color("--docs-interaction-border"),
+    bg: color("--docs-interaction-bg"),
   },
   mermaid: {
-    border: ["--docs-mermaid-border"],
-    bg: ["--docs-mermaid-bg"],
+    border: color("--docs-mermaid-border"),
+    bg: color("--docs-mermaid-bg"),
   },
   canvas: {
-    border: ["--docs-canvas-border"],
+    border: color("--docs-canvas-border"),
   },
 };
 
@@ -245,11 +334,11 @@ export function compileThemeCss(theme: ThemeDefinition): string {
   const dark: string[] = [];
   for (const [file, tokens] of Object.entries(theme.components)) {
     for (const [key, value] of Object.entries(tokens)) {
-      const vars = THEME_TOKEN_REGISTRY[file]?.[key];
-      if (!vars) continue;
+      const token = THEME_TOKEN_REGISTRY[file]?.[key];
+      if (!token) continue;
       const mode = readModeValue(value);
       if (!mode) continue;
-      for (const cssVar of vars) {
+      for (const cssVar of token.vars) {
         light.push(`  ${cssVar}: ${mode.light};`);
         dark.push(`  ${cssVar}: ${mode.dark};`);
       }

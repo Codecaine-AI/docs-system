@@ -9,7 +9,6 @@
       "type": "paragraph",
       "props": {},
       "children": [
-        "b-11-heading-title-1",
         "b-11-heading-lead-2",
         "b-11-heading-state-h-3",
         "b-11-heading-state-4",
@@ -25,19 +24,6 @@
         "b-11-heading-theming-para",
         "b-11-heading-theming-table"
       ]
-    },
-    "b-11-heading-title-1": {
-      "id": "b-11-heading-title-1",
-      "type": "heading",
-      "props": {
-        "level": 1
-      },
-      "text": [
-        {
-          "insert": "heading"
-        }
-      ],
-      "children": []
     },
     "b-11-heading-lead-2": {
       "id": "b-11-heading-lead-2",

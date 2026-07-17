@@ -1,5 +1,3 @@
-# Global themes
-
 A theme is a folder. While the default theme's identity is being figured out, the picker shows ONLY Default: the rail auto-saves every change (debounced) into the repo's `themes/default/` folder, which overrides the compiled-in fallback — Default IS the living core theme, and selecting it restores the last saved look. Custom themes still live as folders in the repo's `themes/<id>/` directory (sibling of `docs/`), served by docs-server (`GET/POST /api/themes`) and listed in the style rail's Themes section.
 
 ## The folder format

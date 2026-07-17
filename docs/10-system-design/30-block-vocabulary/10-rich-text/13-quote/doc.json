@@ -9,7 +9,6 @@
       "type": "paragraph",
       "props": {},
       "children": [
-        "b-13-quote-title-1",
         "b-13-quote-lead-2",
         "b-13-quote-state-h-3",
         "b-13-quote-state-4",
@@ -24,19 +23,6 @@
         "b-13-quote-theming-para",
         "b-13-quote-theming-table"
       ]
-    },
-    "b-13-quote-title-1": {
-      "id": "b-13-quote-title-1",
-      "type": "heading",
-      "props": {
-        "level": 1
-      },
-      "text": [
-        {
-          "insert": "quote"
-        }
-      ],
-      "children": []
     },
     "b-13-quote-lead-2": {
       "id": "b-13-quote-lead-2",
