@@ -1,29 +1,17 @@
 ---
-covers: Extract developer's mental model of a code area for L2/L3 documentation.
+covers: Extract the developer's mental model of a code area for L2/L3 documentation.
 concepts: [interview, codebase, mental-model, L2, L3]
 ---
 
 # Docs Codebase Interview Workflow
 
-Transfer the developer's mental model of a code area into a structured report. Active interviewing that extracts understanding that cannot be determined from code alone: why the code exists, how the developer thinks about it, and constraints that must be respected.
+Transfer the developer's mental model of a code area into a structured report: why the code exists, how they think about it, and the constraints that must be respected. Pure information collection — no design challenges, no suggestions, no code changes.
 
 ---
 
-## What This Is
-
-The interview extracts understanding that cannot be determined from code alone:
-
-- Why the code exists and what problem it solves
-- How the developer thinks about it
-- Constraints and invariants that must be respected
-- Decisions that were made and their rationale
-- What would break if someone didn't understand X
-
-**This is pure information collection.** No design challenges, no suggestions, no code changes. Just understand what exists and why.
-
 ## Your Role
 
-You are an active interviewer, not a stenographer.
+Active interviewer, not a stenographer.
 
 | Do | Don't |
 |----|-------|
@@ -31,84 +19,32 @@ You are an active interviewer, not a stenographer.
 | Propose interpretations for confirmation | Put words in their mouth |
 | Say "Give me a moment to look at X..." | Silently disappear |
 | Synthesize: "So it sounds like..." | Assume and move on |
-| Follow interesting threads | Stick to a rigid script |
 | Capture the developer's framing | Editorialize or improve |
 
 ## The Interview
 
-There are no rigid phases. This is a conversation that flows naturally until understanding is complete.
-
 ### 1. Initial Exploration
 
-Read the target directory with curiosity:
-
-- What does this code appear to do?
-- What decisions seem to have been made?
-- What confuses you or seems non-obvious?
-- What would you need explained to work here safely?
-
-Focus on forming genuine questions, not cataloging components.
+Read the target directory (and any existing section docs via `bun run docs render`). Form genuine questions: what does this do, what decisions were made, what seems non-obvious, what would you need explained to work here safely?
 
 ### 2. Open Honestly
 
-Share your understanding and confusion:
-
-```
-I've read through [path]. Here's what I think I understand:
-
-[Your honest interpretation - what it does, why it might exist]
-
-Here's what confuses me or seems important to clarify:
-
-- [Genuine question or uncertainty]
-- [Something that seems non-obvious]
-- [A decision you noticed but don't understand]
-
-What am I getting right? What am I missing?
-```
-
-This invites correction and starts the dialogue.
+Share your interpretation and your genuine confusions. Ask: "What am I getting right? What am I missing?"
 
 ### 3. Curious Dialogue
 
-Let the conversation flow naturally:
-
-**Probe contradictions:**
-> "You mentioned X, but I see Y in the code. Give me a moment to look at that..."
-> [Read relevant code]
-> "I see [what you found]. Can you help me understand the discrepancy?"
-
-**Propose interpretations for confirmation:**
-> "So it sounds like the core responsibility here is [interpretation]. Is that right?"
-
-**Follow threads:**
-> "You mentioned [interesting thing]. Tell me more about why that matters."
-
-**Go deeper when needed:**
-> "Give me a moment to look at [file/area]..."
-> [Read more code]
-> "Okay, I see [what you found]. So [follow-up question]?"
-
-**Check understanding periodically:**
-> "Let me make sure I have this right: [synthesis]. Is that accurate?"
+- **Probe contradictions:** "You mentioned X, but I see Y in the code..." — go read the relevant code, then ask about the discrepancy.
+- **Propose interpretations:** "So the core responsibility here is [interpretation]. Is that right?"
+- **Follow threads:** "You mentioned [thing]. Tell me more about why that matters."
+- **Check understanding periodically:** "Let me make sure I have this right: [synthesis]."
 
 ### 4. Synthesize Understanding
 
-When you feel you understand enough to explain this to another engineer:
-
-```
-Let me summarize what I've learned:
-
-[Your synthesized understanding]
-
-Is there anything critical I'm missing?
-```
-
-Get final confirmation before capturing.
+When you could explain this area to another engineer, summarize and get final confirmation.
 
 ### 5. Capture the Report
 
-Save to `docs/.drafts/[section-name].interview.md`:
+Save working notes (plain markdown) to `docs/.drafts/[section-name].interview.md`:
 
 ```markdown
 # Interview Report: [Section Name]
@@ -116,69 +52,40 @@ Save to `docs/.drafts/[section-name].interview.md`:
 **Source**: [path]
 **Date**: [timestamp]
 
----
-
 ## Summary
-
-[2-3 sentences: What this is, why it exists, the key insight]
+[2-3 sentences: what this is, why it exists, the key insight]
 
 ## Purpose & Context
-
-[Why this code exists. What problem it solves. How it fits in the larger system.]
+[Why this code exists; how it fits the larger system]
 
 ## How the Developer Thinks About It
-
-[Their mental model. The framing and terminology they use. This is the "transfer" part.]
+[Their mental model, framing, and terminology]
 
 ## Key Design Decisions
-
-[The important choices and their rationale. Not everything—just what matters for someone working here.]
+[The choices that matter for someone working here, with rationale]
 
 ## Constraints & Invariants
-
-[What must stay true. What would break things if violated.]
+[What must stay true; what breaks if violated]
 
 ## Potential Gaps or Tensions
-
-[Contradictions surfaced. Things not fully resolved. Be honest about uncertainty.]
+[Contradictions surfaced; honest uncertainty]
 
 ## Code References
-
 [Key files discussed and their roles]
-
----
-
-*Ready for drafting: /docs:draft [section]*
 ```
 
-### 6. Close the Interview
+### 6. Close
 
-```
-Interview complete.
-
-Saved to: docs/.drafts/[section].interview.md
-
-Key understanding:
-- [Most important insight]
-- [Second insight]
-- [Third insight]
-
-Next: Run /docs:draft [section] to generate documentation from this report.
-```
+Report where the notes were saved and the top insights. Next: `/docs:write [section]`.
 
 ## Guidance
 
-**Run until understanding is complete.** There's no fixed number of questions or time limit. You're done when you could explain this code area to another engineer well enough that they could work in it safely.
-
-**Synthesis over transcription.** The report should be distilled understanding, not a verbatim record. Capture the essence in clear prose.
-
-**Use their language.** The developer's terminology and framing matters. Preserve it—the drafting agent will need it.
-
-**Trust your sense of incompleteness.** If something feels unclear, dig in. Go read more code. Ask more questions.
-
-**Contradictions are valuable.** When code and explanation don't match, that's where the real understanding lives. Probe it.
+- Run until you could explain this code area well enough that another engineer could work in it safely.
+- Synthesis over transcription — distilled understanding, not a verbatim record.
+- Use their language; the drafting step needs it.
+- Contradictions between code and explanation are where the real understanding lives. Probe them.
 
 ## Output
 
-- Interview report saved to `docs/.drafts/`
-- Distilled understanding ready for `/docs:draft`
+- Interview notes in `docs/.drafts/`
+- Ready for `/docs:write [section]`

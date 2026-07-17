@@ -1,0 +1,581 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-30-packages-30-docs-server",
+  "title": "docs-server — the mutation authority",
+  "root": "b-30-docs-server-root",
+  "blocks": {
+    "b-30-docs-server-root": {
+      "id": "b-30-docs-server-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-30-docs-server-title-1",
+        "b-30-docs-server-lead-2",
+        "b-30-docs-server-owns-heading-3",
+        "b-30-docs-server-store-4",
+        "b-30-docs-server-mutex-5",
+        "b-30-docs-server-atomic-6",
+        "b-30-docs-server-hash-7",
+        "b-30-docs-server-locks-8",
+        "b-30-docs-server-undo-9",
+        "b-30-docs-server-events-10",
+        "b-30-docs-server-routes-11",
+        "b-30-docs-server-discovery-12",
+        "b-30-docs-server-ops-13",
+        "b-30-docs-server-video-14",
+        "b-30-docs-server-why-heading-15",
+        "b-30-docs-server-embeddable-decision-16",
+        "b-30-docs-server-headless-17",
+        "b-30-docs-server-boundary-review-18",
+        "b-30-docs-server-dependencies-heading-19",
+        "b-30-docs-server-depends-on-20",
+        "b-30-docs-server-depended-on-21",
+        "b-30-docs-server-alone-heading-22",
+        "b-30-docs-server-alone-23"
+      ]
+    },
+    "b-30-docs-server-title-1": {
+      "id": "b-30-docs-server-title-1",
+      "type": "heading",
+      "props": {
+        "level": 1
+      },
+      "text": [
+        {
+          "insert": "docs-server — the mutation authority"
+        }
+      ],
+      "children": []
+    },
+    "b-30-docs-server-lead-2": {
+      "id": "b-30-docs-server-lead-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "@codecaine-ai/docs-server",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is the headless mutation authority for a docs tree. It owns safe file mutation and exposes that authority as an embeddable Elysia route factory, without React."
+        }
+      ],
+      "children": []
+    },
+    "b-30-docs-server-owns-heading-3": {
+      "id": "b-30-docs-server-owns-heading-3",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "What it owns"
+        }
+      ],
+      "children": []
+    },
+    "b-30-docs-server-store-4": {
+      "id": "b-30-docs-server-store-4",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "createDocsStore(docsRoot)",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "packages/docs-server/src/store.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " binds one docs root to the package's mutation guarantees:"
+        }
+      ],
+      "children": []
+    },
+    "b-30-docs-server-mutex-5": {
+      "id": "b-30-docs-server-mutex-5",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Per-path serialization — writes to the same path are mutexed through "
+        },
+        {
+          "insert": "packages/docs-server/src/path-mutex.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-30-docs-server-atomic-6": {
+      "id": "b-30-docs-server-atomic-6",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Atomic persistence — "
+        },
+        {
+          "insert": "packages/docs-server/src/atomic-write.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " writes a temporary file and then renames it into place."
+        }
+      ],
+      "children": []
+    },
+    "b-30-docs-server-hash-7": {
+      "id": "b-30-docs-server-hash-7",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Hash preconditions — every mutation carries "
+        },
+        {
+          "insert": "expected_hash",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". If the document changed underneath the caller, the mutation returns "
+        },
+        {
+          "insert": "409",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " without writing. This check is the real concurrency backstop."
+        }
+      ],
+      "children": []
+    },
+    "b-30-docs-server-locks-8": {
+      "id": "b-30-docs-server-locks-8",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Draft locks — best-effort TTL locks stay alive by heartbeat and return "
+        },
+        {
+          "insert": "423",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " when another session holds the path. They are advisory; the hash check guarantees correctness. Path canonicalization lives in "
+        },
+        {
+          "insert": "packages/docs-server/src/draft-locks.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-30-docs-server-undo-9": {
+      "id": "b-30-docs-server-undo-9",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Undo — "
+        },
+        {
+          "insert": "packages/docs-server/src/patch-ledger.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " records a single-use undo entry built from the model's inverse ops. The inverse contract belongs to "
+        },
+        {
+          "insert": "the mutation model",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-mutation-model",
+              "label": "the mutation model"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-30-docs-server-events-10": {
+      "id": "b-30-docs-server-events-10",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Live change notification — SSE events from "
+        },
+        {
+          "insert": "packages/docs-server/src/docs-events.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " let open clients see edits made by other actors."
+        }
+      ],
+      "children": []
+    },
+    "b-30-docs-server-routes-11": {
+      "id": "b-30-docs-server-routes-11",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "createDocsRoutes(store)",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "packages/docs-server/src/routes.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is an embeddable Elysia "
+        },
+        {
+          "insert": "/api/*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " route factory that any host app can mount. Its notable routes are:"
+        }
+      ],
+      "children": []
+    },
+    "b-30-docs-server-discovery-12": {
+      "id": "b-30-docs-server-discovery-12",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "GET /api/blocks",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " serves a static discovery document for the full agent edit surface: the generic ops and every typed block action."
+        }
+      ],
+      "children": []
+    },
+    "b-30-docs-server-ops-13": {
+      "id": "b-30-docs-server-ops-13",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "POST /api/ops",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is the one write path. Canvas actions enter through it but are not handled locally; docs-server forwards them to the canvas authority."
+        }
+      ],
+      "children": []
+    },
+    "b-30-docs-server-video-14": {
+      "id": "b-30-docs-server-video-14",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "POST /api/assets/video",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " accepts multipart video uploads with a strict type allowlist and a 64 MB cap. It writes collision-suffixed names under the bundle's "
+        },
+        {
+          "insert": "assets/videos/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-30-docs-server-why-heading-15": {
+      "id": "b-30-docs-server-why-heading-15",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why it is its own package"
+        }
+      ],
+      "children": []
+    },
+    "b-30-docs-server-embeddable-decision-16": {
+      "id": "b-30-docs-server-embeddable-decision-16",
+      "type": "callout",
+      "props": {
+        "kind": "Package boundary",
+        "title": "Embeddable in host apps",
+        "tone": "decision"
+      },
+      "text": [
+        {
+          "insert": "The forcing constraint is EMBEDDABLE-IN-HOST-APPS. A host must be able to mount the "
+        },
+        {
+          "insert": "/api/*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " factory into its own Elysia server and bring its own UI. A dependency on docs-viewer or React would drag the entire UI stack into every host."
+        }
+      ],
+      "children": []
+    },
+    "b-30-docs-server-headless-17": {
+      "id": "b-30-docs-server-headless-17",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "That constraint keeps the write side headless in docs-server. The React layer stays in "
+        },
+        {
+          "insert": "docs-viewer",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-packages/40-docs-viewer",
+              "label": "docs-viewer"
+            }
+          }
+        },
+        {
+          "insert": ", where a UI dependency belongs."
+        }
+      ],
+      "children": []
+    },
+    "b-30-docs-server-boundary-review-18": {
+      "id": "b-30-docs-server-boundary-review-18",
+      "type": "callout",
+      "props": {
+        "kind": "Boundary under review",
+        "title": "docs-index may fold into docs-server",
+        "tone": "info"
+      },
+      "text": [
+        {
+          "insert": "Folding docs-index into docs-server is a live candidate: both are Bun-only, and the server is the index's main consumer. The current reason to keep them separate is that the index is derived, rebuildable state that the CLI can use with no HTTP server running."
+        }
+      ],
+      "children": []
+    },
+    "b-30-docs-server-dependencies-heading-19": {
+      "id": "b-30-docs-server-dependencies-heading-19",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Dependencies"
+        }
+      ],
+      "children": []
+    },
+    "b-30-docs-server-depends-on-20": {
+      "id": "b-30-docs-server-depends-on-20",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs-server depends on "
+        },
+        {
+          "insert": "docs-model",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-packages/10-docs-model",
+              "label": "docs-model"
+            }
+          }
+        },
+        {
+          "insert": " for schema and inverse-producing mutation application; "
+        },
+        {
+          "insert": "docs-index",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-packages/20-docs-index",
+              "label": "docs-index"
+            }
+          }
+        },
+        {
+          "insert": " for backlinks upkeep; "
+        },
+        {
+          "insert": "@codecaine-ai/canvas",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " for the canvas authority; and "
+        },
+        {
+          "insert": "elysia",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " for the HTTP route layer. It has no React dependency."
+        }
+      ],
+      "children": []
+    },
+    "b-30-docs-server-depended-on-21": {
+      "id": "b-30-docs-server-depended-on-21",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "In the other direction, "
+        },
+        {
+          "insert": "docs-workbench",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-packages/50-docs-workbench",
+              "label": "docs-workbench"
+            }
+          }
+        },
+        {
+          "insert": " depends on docs-server and wraps these routes."
+        }
+      ],
+      "children": []
+    },
+    "b-30-docs-server-alone-heading-22": {
+      "id": "b-30-docs-server-alone-heading-22",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Using it alone"
+        }
+      ],
+      "children": []
+    },
+    "b-30-docs-server-alone-23": {
+      "id": "b-30-docs-server-alone-23",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Use docs-server alone when a host application supplies its own front end. Create "
+        },
+        {
+          "insert": "createDocsStore(docsRoot)",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", mount "
+        },
+        {
+          "insert": "createDocsRoutes(store)",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in the host's Elysia server, and connect that host-owned UI to the embedded mutation API."
+        }
+      ],
+      "children": []
+    }
+  }
+}

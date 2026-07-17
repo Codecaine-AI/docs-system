@@ -1,206 +1,80 @@
 ---
-covers: Validate documentation structure, frontmatter schema, and check for semantic drift.
-concepts: [audit, validation, frontmatter, drift-detection]
+covers: Validate documentation structure, references, and semantic drift.
+concepts: [audit, validation, references, drift-detection]
 ---
 
 # Docs Audit Workflow
 
-Validate documentation structure, frontmatter schema compliance, and semantic drift. Quick mode validates structure and frontmatter; deep mode adds semantic checks and dependency graph analysis.
+Validate documentation health. Quick mode runs the deterministic checks; deep mode adds semantic drift analysis.
+
+**Modes:**
+- `quick` (default) — reference resolution + structure checks
+- `deep` — quick + semantic drift sampling
 
 ---
 
-**Modes:**
-- `quick` (default) - Manifest + structure + frontmatter validation (fast, script-driven)
-- `deep` - Quick + semantic drift check (thorough, requires AI analysis)
-
 ## Quick Audit
 
-Run `bun run docs links check` first — it rescans the backlinks index and reports every doc-to-doc or doc-to-code reference that doesn't resolve (a bundle or source file genuinely missing at the target), exiting non-zero if any are found. This is a fast, deterministic complement to the structural audit below and catches broken references the structure script doesn't look at.
+### 1. Reference Check
 
-Then run the validation script to check all deterministic rules:
+Run `bun run docs links check` — rescans the backlinks index and reports every doc-to-doc or doc-to-code reference that doesn't resolve. Exits non-zero on failures. This is the primary deterministic check for a bundle tree.
 
-```bash
-uv run scripts/audit.py <docs_path>
-```
+### 2. Structure Check
 
-Run this from the framework's own root (`packages/framework/` inside the `docs-system` submodule) — resolve it via your skill mount, e.g. `uv run .claude/skills/docs-framework/scripts/audit.py <docs_path>`. `<docs_path>` is the path to the documentation root (typically `docs/` at your project's repository root).
+Verify against `20-standards/`:
 
-The script validates:
-- **Structure**: three zones, foundation files, 00-overview.md in all directories
-- **Numbering**: two-digit prefixes, lowercase-hyphen format
-- **Frontmatter**: covers required, concepts length, type field placement
-- **Links**: broken links, generic anchor text, orphan files
-- **Dependencies**: circular dependency detection in depends-on graph
+- Three layers present (`00-foundation/`, `10-system-design/`, `20-implementation/`)
+- Every folder has a `00-overview` doc
+- Numbering follows `XX-lowercase-hyphenated` with gaps; `00`/`99` reserved correctly
+- Every overview links its children; no orphan docs (present but unlinked from the parent overview)
+- Render spot-checks (`docs render <path>`): specific titles, opening paragraph present, no placeholder text ("[To be filled]", "TBD")
 
-**Exit codes:** 0 = pass, 1 = warnings only, 2 = critical issues
-
-Parse the JSON output and format as the report template below.
+Note: `scripts/audit.py` (in this package) is a markdown-era validator — it scans `*.md` files and YAML frontmatter. Use it only on a markdown docs tree (pre-migration); it reports nothing useful on `doc.json` bundles.
 
 ## Deep Audit
 
-Run quick audit first, then perform these semantic checks.
+Run quick first, then sample 2-3 L3 docs for semantic drift:
 
-### Reference Documentation
+1. Render the doc (`docs render <path>`) and read the code files it references.
+2. Compare: does the documented architecture match the code? Are stated responsibilities accurate? Do code references point to the right files? Does documented behavior match implementation?
 
-For semantic checks, consult these standards:
-- `.claude/skills/docs-framework/20-standards/50-code-linking.md` - Code reference format
-- `.claude/skills/docs-framework/40-templates/` - Required sections (organized by layer)
+Example findings: "doc says Redis, code uses Memcached"; "doc references `UserSession`, renamed to `AuthSession`"; "doc says tokens expire after 1 hour, code shows 24".
 
-### Semantic Drift Detection
-Sample 2-3 L3 nodes and compare documentation claims to code reality:
+Also check coverage: which source directories lack a corresponding `20-implementation/` section?
 
-1. Pick a random L3 documentation node — read its content via `bun run docs render <path>`, not a
-   direct read of its `.md`/`.mdx` twin (retired post-migration, D20; the tree may still contain
-   twins mid-migration, but they aren't authoritative)
-2. Read the code files it references
-3. Compare:
-   - Does the documented architecture match the code?
-   - Are the stated responsibilities accurate?
-   - Do code references point to the right files?
-   - Have any referenced files been renamed/deleted?
-   - Does documented behavior match implementation?
+## Severity
 
-Example findings:
-- "Doc says 'uses Redis for caching' but code uses Memcached"
-- "Doc references `UserSession` class which was renamed to `AuthSession`"
-- "Doc states 'all inputs validated' but validation is commented out"
+| Issue | Severity |
+|-------|----------|
+| Missing layer; missing `00-overview`; broken reference | Critical |
+| Numbering format; orphan doc; generic reference label; placeholder text | Warning |
+| Stale code reference; drifted behavior claims | Warning (deep) |
 
-### Coverage Analysis
-
-- What percentage of source directories have corresponding docs in `20-implementation/`?
-- Are there undocumented areas that should have docs?
-- Is the Foundation zone complete (purpose, principles, boundaries)?
-
-### Content Quality
-
-- [ ] No placeholder text remains ("[To be filled]", "TBD", etc.)
-- [ ] Code references use `file:line` or `file` format
-
-## Anti-Pattern Detection
-
-The script detects these issues automatically (marked with †). Deep mode adds semantic checks (marked with *):
-
-| Anti-Pattern | Severity | Description |
-|--------------|----------|-------------|
-| Missing zones † | Critical | One or more of 00-foundation, 10-system-design, 20-implementation missing |
-| Missing frontmatter † | Critical | File lacks YAML frontmatter |
-| Empty covers † | Critical | `covers` field is empty or missing |
-| Circular dependency † | Critical | Cycle detected in `depends-on` graph |
-| Missing overview † | Critical | Directory without 00-overview.md |
-| Broken link † | Critical | Link to non-existent file |
-| Numbering format † | Warning | Files/dirs not using XX-lowercase-name pattern |
-| Legacy Covers † | Warning | `## Covers` section still exists (should be in frontmatter) |
-| Generic anchor † | Warning | "click here" instead of descriptive text |
-| Orphan file † | Warning | File not linked from parent overview |
-| Placeholder text * | Warning | Unfilled template sections |
-| Stale reference * | Warning | Code file referenced doesn't exist |
-
-## Output Format
-
-### Script JSON Output
-
-The script outputs JSON with this structure:
-
-```json
-{
-  "timestamp": "2025-12-18T...",
-  "docs_root": "docs/",
-  "structure": {"zones_present": [...], "missing_overviews": [...], "issues": [...]},
-  "frontmatter": {"files_checked": 25, "issues": [...]},
-  "links": {"total": 45, "broken": [...], "generic_anchors": [...], "orphan_files": [...], "circular_deps": [...]},
-  "summary": {"files_checked": 25, "critical": 2, "warnings": 5, "health_score": 85}
-}
-```
-
-### Formatted Report
-
-Format the JSON into this markdown report:
+## Report Format
 
 ```markdown
 # Docs Audit Report
 
-**Date**: [timestamp]
-**Mode**: [quick/deep]
-**Path**: docs/
+**Date / Mode / Path**
 
 ## Summary
-
-| Metric | Value |
-|--------|-------|
-| Files checked | X |
-| Directories checked | Y |
-| Issues found | Z |
-| Critical | A |
-| Warnings | B |
-| Suggestions | C |
-
-## Health Score: [X/100]
-
-[Visual indicator: ████████░░ 80%]
-
----
+| Files checked | Critical | Warnings |
 
 ## Critical Issues
-*Must fix - blocks AI navigation*
-
-### [Issue 1]
-- **Location**: `docs/10-auth/00-overview.md`
-- **Problem**: Missing "Child Nodes" section
-- **Impact**: AI cannot discover L3 documentation
-- **Fix**: Add Child Nodes section linking to L3 files
-
-### [Issue 2]
-...
-
----
+- **Location** / **Problem** / **Fix**
 
 ## Warnings
-*Should fix - degrades experience*
+- **Location** / **Problem** / **Fix**
 
-### [Issue 1]
-- **Location**: `docs/20-api/10-endpoints.md`
-- **Problem**: Code reference `src/api/routes.py` not found
-- **Impact**: Broken link when navigating to code
-- **Fix**: Update reference to `src/api/router.py`
-
----
-
-## Suggestions
-*Nice to have - improvements*
-
-### [Suggestion 1]
-- **Location**: `docs/00-overview.md`
-- **Suggestion**: Add architecture diagram
-- **Benefit**: Faster mental model building
-
----
-
-## Semantic Drift Report (Deep Mode Only)
-
-### Sampled: `docs/10-auth/20-sessions.md`
-- ✅ Session lifecycle matches documented flow
-- ✅ Redis storage confirmed in code
-- ⚠️ Doc says "tokens expire after 1 hour" but code shows 24 hours
-
-### Sampled: `docs/20-api/10-endpoints.md`
-- ✅ Endpoint list matches router
-- ❌ Doc references deprecated `v1/` prefix, code uses `v2/`
-
----
+## Semantic Drift (deep mode)
+- Sampled doc → per-claim pass/fail
 
 ## Recommended Actions
-
-Priority order:
-1. Fix [Critical Issue 1] - [one-line description]
-2. Fix [Critical Issue 2] - [one-line description]
-3. Update [Warning 1] - [one-line description]
-4. Run `/docs:interview-codebase src/auth/` to update stale session docs
-5. Run `/docs:sync` to check full coverage alignment
+1. [Priority-ordered fixes; suggest /docs:write or /docs:interview-codebase for stale sections]
 ```
 
 ## Output
 
-- Structured audit report
-- Issues categorized by severity
-- Specific file locations and fixes
+- Structured audit report, issues categorized by severity
+- Specific locations and fixes
 - Recommended next actions

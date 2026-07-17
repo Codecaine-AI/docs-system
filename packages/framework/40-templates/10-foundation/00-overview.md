@@ -6,7 +6,7 @@ concepts: [templates, foundation, patterns, understanding]
 
 # Foundation Templates
 
-Templates for the Foundation zone. Foundation is manifesto-style — fluid, narrative, more like explaining what you're building to someone than filling out a structured document. File boundaries are organic: driven by what naturally groups together, not by a prescribed schema. Only the entry point (`00-overview.md`) is required. Everything else depends on how you want to capture your understanding. Fewer, more fluid files are often better than many rigid ones.
+Patterns for the Foundation layer. Foundation is manifesto-style — fluid, narrative, more like explaining what you're building to someone than filling out a structured document. Every project has a different feel, and its Foundation should too: structure is organic, driven by what naturally groups together, never prescribed. Only the entry point (`00-overview`) is required. Fewer, more fluid docs are often better than many rigid ones.
 
 ---
 
@@ -14,11 +14,11 @@ Templates for the Foundation zone. Foundation is manifesto-style — fluid, narr
 
 | Template | Use When |
 |----------|----------|
-| **10-entry-point.md** | Creating Foundation's `00-overview.md` (always required) |
+| **10-entry-point.md** | Creating Foundation's `00-overview` (always required) |
 
 ## Example Patterns
 
-These are optional starting points, not defaults. Most Foundation docs won't follow any of these exactly — the structure should emerge from the content. Use these as inspiration if you're stuck, or ignore them entirely and let your own structure take shape.
+The patterns below (problem, vision, thinking, decisions) are optional starting points, not a prescribed structure. Most Foundation docs won't follow any of them exactly — the structure should emerge from the content and the interview. Borrow from them if you're stuck, blend them, or ignore them entirely.
 
 | Pattern | Files | Best For |
 |---------|-------|----------|

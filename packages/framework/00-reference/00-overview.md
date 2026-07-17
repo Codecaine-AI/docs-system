@@ -1,32 +1,16 @@
 ---
-covers: Background theory and philosophy — why this framework exists and how it's architected.
+covers: Pointer stub — philosophy and structural rationale live in the host corpus, not in this package.
 type: overview
-concepts: [reference, philosophy, architecture, progressive-disclosure, shared-bridge]
+concepts: [reference, pointer, corpus]
 ---
 
 # Reference
 
-Background theory and philosophy.
+This folder intentionally holds no doctrine.
 
-This section explains the "why" behind the framework:
-- The problem it solves (context, not intelligence)
-- The vision it pursues (documentation as the durable artifact)
-- The architectural model that enables it (progressive disclosure)
+The philosophy and structural rationale that used to live here moved into the host corpus:
 
----
+- Intent and philosophy: `docs/00-foundation/00-manifesto`
+- Structural decisions and their rationale: `docs/10-system-design/10-doc-architecture`
 
-## Contents
-
-### [10-philosophy.md](10-philosophy.md)
-The problem and the vision. Why documentation is the source of truth:
-- The context problem (agents start fresh every invocation)
-- The mental model (car repair manuals, Factorio's modular systems)
-- Code as lossy projection of intent
-- Documentation as the durable artifact; code as current projection
-
-### [20-architecture.md](20-architecture.md)
-How we build it. The shared communication bridge between humans and agents:
-- Progressive disclosure as the core organizing principle
-- What makes it work (vertical slices, clear boundaries, overviews at every level)
-- The implementation (three zones, six layers, navigation pattern)
-- How that model is stored (the `doc.json` bundle: id-keyed block tree, flavours, delta spans) and served (the docs-model/docs-index/docs-server/docs-viewer/docs-workbench stack)
+Read them with `docs render <path>`.

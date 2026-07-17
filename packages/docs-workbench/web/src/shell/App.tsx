@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { BlocksIcon } from "lucide-react";
 import { DocsClientProvider, type DocsTreeNode } from "@codecaine-ai/docs-viewer/client";
 import { cn } from "@codecaine-ai/docs-viewer/ui/cn";
 
-import { IS_STATIC, getTheme, getThemes, getTree, saveTheme, type ThemeListEntry } from "../data/api";
+import { IS_STATIC, getTheme, getTree, saveTheme } from "../data/api";
 import { createStandaloneDocsClient } from "../data/client";
 import { StandaloneCanvasEmbed } from "../pages/CanvasEmbed";
 import { BlocksPage } from "../pages/BlocksPage";
@@ -48,29 +48,24 @@ const STYLE_RAIL_COLLAPSE_KEY = "docs-style-rail-collapsed";
  * theme basing on another repo theme is a documented v1 limitation).
  */
 async function resolveThemeById(id: string): Promise<ThemeDefinition | null> {
-  let definition = BUILTIN_THEMES.find((theme) => theme.id === id) ?? null;
-  if (!definition && !IS_STATIC) {
+  // Repo folder FIRST: themes/default (auto-saved from the rail) is Ford's
+  // living core theme and overrides the compiled-in fallback of the same id.
+  let definition: ThemeDefinition | null = null;
+  if (!IS_STATIC) {
     try {
       const { theme } = await getTheme(id);
       definition = readThemeDefinition(theme.id, theme, "repo");
     } catch {
-      return null;
+      definition = null;
     }
   }
+  definition ??= BUILTIN_THEMES.find((theme) => theme.id === id) ?? null;
   if (!definition) return null;
   return resolveThemeChain(definition, (baseId) =>
     BUILTIN_THEMES.find((theme) => theme.id === baseId),
   );
 }
 
-/** "My Theme!" -> "my-theme" (the server's slug rule). */
-function themeSlug(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 64);
-}
 /** `#/blocks` — the block library route (unless the tree really has a bundle at that path). */
 const BLOCKS_ROUTE = "blocks";
 
@@ -124,27 +119,19 @@ export function App() {
   const [themeId, setThemeId] = useState<string>(
     () => localStorage.getItem(THEME_FOLDER_KEY) ?? "default",
   );
-  const [repoThemes, setRepoThemes] = useState<ThemeListEntry[]>([]);
-
   // Theme-folder boot: re-inject the persisted theme's CSS layer (WITHOUT
-  // its railDefaults — the user's own knob state persisted separately) and
-  // load the repo themes/ catalogue.
+  // its railDefaults — the user's own knob state persisted separately).
   useEffect(() => {
     void resolveThemeById(themeId).then((resolved) => applyThemeCss(resolved));
     // eslint-disable-next-line react-hooks/exhaustive-deps -- boot only; selection re-applies explicitly
-  }, []);
-  useEffect(() => {
-    void getThemes()
-      .then(({ themes }) => setRepoThemes(themes))
-      .catch(() => setRepoThemes([]));
   }, []);
 
   const handleSelectTheme = (id: string) => {
     void resolveThemeById(id).then((resolved) => {
       if (!resolved) return;
       applyThemeCss(resolved);
-      // Selecting a theme applies its rail defaults + dark flag ONCE (the
-      // rail stays a personal overlay afterwards — see 40-theming).
+      // Selecting Default restores the SAVED core theme (railDefaults from
+      // themes/default, or a stock reset before one exists).
       if (resolved.manifest.railDefaults) {
         setStyleSettings(normalizeSettings(resolved.manifest.railDefaults));
       }
@@ -154,43 +141,39 @@ export function App() {
     });
   };
 
-  const handleSaveTheme = (name: string) => {
-    const id = themeSlug(name);
-    if (!id) return;
-    // Component overrides become REAL theme component files; the remaining
-    // knobs ride as railDefaults (selection-time preset). One value covers
-    // both modes — the picker edits whatever mode you're in.
-    const { components, ...railDefaults } = styleSettings;
-    void saveTheme({
-      id,
-      manifest: {
-        name,
-        // Snapshot semantics: layer over the active theme, capture the
-        // current knobs + mode as the theme's selection defaults.
-        base: themeId === id ? "default" : themeId,
-        dark,
-        railDefaults: { ...railDefaults, components: {} },
-      },
-      components,
-    })
-      .then(() => getThemes())
-      .then(({ themes }) => {
-        setRepoThemes(themes);
-        setThemeId(id);
-        localStorage.setItem(THEME_FOLDER_KEY, id);
-      })
-      .catch(() => {});
-  };
+  // While Ford iterates on WHAT the default theme is, every knob change IS
+  // the default theme: debounce-write the current look (knobs + mode +
+  // component overrides as real token files) to the repo's themes/default
+  // folder. localStorage still carries the instant per-session state; the
+  // folder is the durable, committable record.
+  const themeSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (IS_STATIC) return;
+    if (themeSaveTimer.current !== null) clearTimeout(themeSaveTimer.current);
+    themeSaveTimer.current = setTimeout(() => {
+      themeSaveTimer.current = null;
+      const { components, ...railDefaults } = styleSettings;
+      void saveTheme({
+        id: "default",
+        manifest: {
+          name: "Default",
+          dark,
+          railDefaults: { ...railDefaults, components: {} },
+        },
+        components,
+      }).catch(() => {
+        // Offline/static hosts just keep the localStorage copy.
+      });
+    }, 1500);
+    return () => {
+      if (themeSaveTimer.current !== null) clearTimeout(themeSaveTimer.current);
+    };
+  }, [styleSettings, dark]);
 
+  // The picker shows ONLY Default (Ford: still figuring the theme out —
+  // nothing clickable that could wipe the working look).
   const themePickerEntries: ThemePickerEntry[] = [
-    ...BUILTIN_THEMES.map((theme) => ({
-      id: theme.id,
-      name: theme.manifest.name,
-      source: "builtin" as const,
-    })),
-    ...repoThemes
-      .filter((theme) => !BUILTIN_THEMES.some((builtin) => builtin.id === theme.id))
-      .map((theme) => ({ ...theme, source: "repo" as const })),
+    { id: "default", name: "Default", source: "builtin" },
   ];
 
   useEffect(() => {
@@ -292,7 +275,6 @@ export function App() {
           themes={themePickerEntries}
           activeThemeId={themeId}
           onSelectTheme={handleSelectTheme}
-          onSaveTheme={IS_STATIC ? undefined : handleSaveTheme}
         />
       </div>
       <StyleRailOverlay settings={styleSettings} dark={dark} />

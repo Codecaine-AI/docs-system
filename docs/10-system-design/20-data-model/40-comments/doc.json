@@ -1,0 +1,597 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-00-data-model-40-comments",
+  "title": "Comments & targets",
+  "root": "b-40-comments-root",
+  "blocks": {
+    "b-40-comments-root": {
+      "id": "b-40-comments-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-40-comments-title-1",
+        "b-40-comments-lead-2",
+        "b-40-comments-example-3",
+        "b-40-comments-fields-4",
+        "b-40-comments-fields-intro-5",
+        "b-40-comments-fields-table-6",
+        "b-40-comments-targets-7",
+        "b-40-comments-block-target-8",
+        "b-40-comments-canvas-target-9",
+        "b-40-comments-agent-runs-10",
+        "b-40-comments-agent-run-shape-11",
+        "b-40-comments-additive-callout-12",
+        "b-40-comments-dangling-13",
+        "b-40-comments-dangling-blocks-14",
+        "b-40-comments-dangling-canvas-15",
+        "b-40-comments-divider-16",
+        "b-40-comments-closing-17"
+      ]
+    },
+    "b-40-comments-title-1": {
+      "id": "b-40-comments-title-1",
+      "type": "heading",
+      "props": {
+        "level": 1
+      },
+      "text": [
+        {
+          "insert": "Comments & targets"
+        }
+      ],
+      "children": []
+    },
+    "b-40-comments-lead-2": {
+      "id": "b-40-comments-lead-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Comments never live inside "
+        },
+        {
+          "insert": "doc.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Each bundle folder may carry a "
+        },
+        {
+          "insert": "comments.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " sidecar — "
+        },
+        {
+          "insert": "{ \"schemaVersion\": 1, \"comments\": [...] }",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — so annotation churn never touches content bytes or content hashes. A comment points at its subject through a typed target and carries an intent, which is what turns the sidecar from margin notes into an agent work queue."
+        }
+      ],
+      "children": []
+    },
+    "b-40-comments-example-3": {
+      "id": "b-40-comments-example-3",
+      "type": "code",
+      "props": {
+        "annotations": [
+          {
+            "lines": "5",
+            "label": "Block anchor",
+            "note": "A block target anchors to a stable block id — the same anchor contract the tree page describes. Split and merge mint fresh ids, so anchored comments can dangle."
+          },
+          {
+            "lines": "7",
+            "label": "Intent",
+            "note": "note is a human margin note; agent-request asks an agent to act on the target."
+          },
+          {
+            "lines": "15-19",
+            "label": "Canvas-object target",
+            "note": "Canvas targets name the canvas file plus exactly one selector: objectId, connectionId, or a region rectangle."
+          },
+          {
+            "lines": "23-28",
+            "label": "Agent run receipt",
+            "note": "When an agent handles a request, the run is recorded on the comment: session, patch, summary, and the ids it actually changed."
+          }
+        ],
+        "language": "json"
+      },
+      "text": [
+        {
+          "insert": "{\n  \"schemaVersion\": 1,\n  \"comments\": [\n    {\n      \"id\": \"c-example-1\",\n      \"target\": { \"kind\": \"block\", \"blockId\": \"b-example-body\" },\n      \"body\": \"Tighten this paragraph.\",\n      \"intent\": \"note\",\n      \"author\": \"ford\",\n      \"status\": \"open\",\n      \"createdAt\": \"2026-07-15T09:30:00Z\"\n    },\n    {\n      \"id\": \"c-example-2\",\n      \"target\": {\n        \"kind\": \"canvas-object\",\n        \"canvasSrc\": \"assets/flow.canvas.json\",\n        \"objectId\": \"node-auth\"\n      },\n      \"body\": \"Rename this node to match the doc.\",\n      \"intent\": \"agent-request\",\n      \"author\": \"ford\",\n      \"status\": \"resolved\",\n      \"createdAt\": \"2026-07-14T18:12:00Z\",\n      \"agentRun\": {\n        \"sessionId\": \"s-20260714-1812\",\n        \"patchId\": \"p-42\",\n        \"summary\": \"Renamed node-auth to Auth gateway.\",\n        \"changedIds\": [\"node-auth\"]\n      },\n      \"resolution\": \"Renamed as requested.\"\n    }\n  ]\n}"
+        }
+      ],
+      "children": []
+    },
+    "b-40-comments-fields-4": {
+      "id": "b-40-comments-fields-4",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The comment"
+        }
+      ],
+      "children": []
+    },
+    "b-40-comments-fields-intro-5": {
+      "id": "b-40-comments-fields-intro-5",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Comment ids follow the same stable-ASCII id rule as block ids and must be unique within the sidecar. Validation is the same style as the document validator: pure, no throw, typed issue list."
+        }
+      ],
+      "children": []
+    },
+    "b-40-comments-fields-table-6": {
+      "id": "b-40-comments-fields-table-6",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "field",
+          "shape",
+          "meaning"
+        ],
+        "density": "compact",
+        "rows": [
+          [
+            "id",
+            "stable ASCII id, unique in the sidecar",
+            "Identity for resolve/edit flows."
+          ],
+          [
+            "target",
+            "block | canvas-object",
+            "What the comment is about; see targets below."
+          ],
+          [
+            "body",
+            "string",
+            "The comment text."
+          ],
+          [
+            "intent",
+            "\"note\" | \"agent-request\"",
+            "Margin note vs work item for an agent."
+          ],
+          [
+            "author",
+            "non-empty string",
+            "Who wrote it."
+          ],
+          [
+            "status",
+            "\"open\" | \"resolved\"",
+            "Lifecycle; resolved comments stay in the file."
+          ],
+          [
+            "createdAt",
+            "string timestamp",
+            "When it was created."
+          ],
+          [
+            "agentRun?",
+            "{ sessionId, patchId, summary, changedIds? }",
+            "Receipt of the agent run that handled the request."
+          ],
+          [
+            "resolution?",
+            "string",
+            "Optional note persisted when resolving with a response."
+          ]
+        ],
+        "title": "DocComment fields"
+      },
+      "children": []
+    },
+    "b-40-comments-targets-7": {
+      "id": "b-40-comments-targets-7",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Two target kinds"
+        }
+      ],
+      "children": []
+    },
+    "b-40-comments-block-target-8": {
+      "id": "b-40-comments-block-target-8",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "block",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " — "
+        },
+        {
+          "insert": "{ kind: \"block\", blockId }",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Anchors to a block id in the bundle's own "
+        },
+        {
+          "insert": "doc.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "; survives edits and moves because "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "moveBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " preserve ids."
+        }
+      ],
+      "children": []
+    },
+    "b-40-comments-canvas-target-9": {
+      "id": "b-40-comments-canvas-target-9",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "canvas-object",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " — "
+        },
+        {
+          "insert": "{ kind: \"canvas-object\", canvasSrc, ... }",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " plus "
+        },
+        {
+          "insert": "exactly one",
+          "attributes": {
+            "italic": true
+          }
+        },
+        {
+          "insert": " selector: "
+        },
+        {
+          "insert": "objectId",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "connectionId",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", or a "
+        },
+        {
+          "insert": "region",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " rectangle ("
+        },
+        {
+          "insert": "x, y",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " finite; "
+        },
+        {
+          "insert": "width, height",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " finite and positive). Zero selectors or two selectors are both validation errors."
+        }
+      ],
+      "children": []
+    },
+    "b-40-comments-agent-runs-10": {
+      "id": "b-40-comments-agent-runs-10",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent runs and resolution"
+        }
+      ],
+      "children": []
+    },
+    "b-40-comments-agent-run-shape-11": {
+      "id": "b-40-comments-agent-run-shape-11",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "An "
+        },
+        {
+          "insert": "agent-request",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " comment that an agent has handled carries an "
+        },
+        {
+          "insert": "agentRun",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " receipt: the "
+        },
+        {
+          "insert": "sessionId",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "patchId",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " that produced the change, a human-readable "
+        },
+        {
+          "insert": "summary",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and optionally "
+        },
+        {
+          "insert": "changedIds",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — the block ids or canvas-object ids the run actually touched, so an open viewer can flash exactly those targets without re-diffing. Resolving with a response persists the text as "
+        },
+        {
+          "insert": "resolution",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-40-comments-additive-callout-12": {
+      "id": "b-40-comments-additive-callout-12",
+      "type": "callout",
+      "props": {
+        "kind": "Additive evolution",
+        "tone": "info"
+      },
+      "text": [
+        {
+          "insert": "changedIds",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "resolution",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " are optional and additive: sidecars written before those fields existed still validate unchanged. The comments schema grows by adding optional fields, not by bumping "
+        },
+        {
+          "insert": "schemaVersion",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-40-comments-dangling-13": {
+      "id": "b-40-comments-dangling-13",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Dangling targets"
+        }
+      ],
+      "children": []
+    },
+    "b-40-comments-dangling-blocks-14": {
+      "id": "b-40-comments-dangling-blocks-14",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Because targets anchor by id, deletion — and the fresh ids minted by split and merge — can strand them. "
+        },
+        {
+          "insert": "detectDanglingTargets",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " flags comments whose targets no longer resolve: a block target dangles when its "
+        },
+        {
+          "insert": "blockId",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is missing from the document. Dangling comments are reported, not auto-deleted — the record of what was asked outlives the block it pointed at."
+        }
+      ],
+      "children": []
+    },
+    "b-40-comments-dangling-canvas-15": {
+      "id": "b-40-comments-dangling-canvas-15",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Canvas checks distinguish \"not loaded yet\" from \"loaded and absent\": while the canvas index is still loading, canvas-target checks are skipped entirely (block checks still run) — otherwise every canvas-object comment would flash \"target removed\" during load. Once loaded, a missing "
+        },
+        {
+          "insert": "canvasSrc",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "objectId",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", or "
+        },
+        {
+          "insert": "connectionId",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is genuinely dangling."
+        }
+      ],
+      "children": []
+    },
+    "b-40-comments-divider-16": {
+      "id": "b-40-comments-divider-16",
+      "type": "divider",
+      "props": {},
+      "children": []
+    },
+    "b-40-comments-closing-17": {
+      "id": "b-40-comments-closing-17",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The anchor contract comments depend on is defined in "
+        },
+        {
+          "insert": "the document & block tree",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/20-data-model/10-document-tree",
+              "label": "the document & block tree"
+            }
+          }
+        },
+        {
+          "insert": "; how comment writes are hashed and persisted next to content is part of "
+        },
+        {
+          "insert": "the save pipeline",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "docs/20-implementation/30-save-pipeline.md",
+              "label": "the save pipeline"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    }
+  }
+}

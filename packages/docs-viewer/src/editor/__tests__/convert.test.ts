@@ -434,3 +434,68 @@ describe("diffToOps", () => {
     }
   });
 });
+
+describe("convert: corrupted clipboard payloads never reach the doc", () => {
+  it('converts a docReference whose ref is the literal string "[object Object]" to plain text with no reference attribute', () => {
+    const doc = loadFixture();
+    const pm = docToPM(doc);
+    pm.content = [
+      {
+        type: "docParagraph",
+        attrs: { blockId: "p-corrupt", blockProps: {} },
+        content: [
+          {
+            type: "docBlockText",
+            content: [
+              { type: "text", text: "See " },
+              { type: "docReference", attrs: { ref: "[object Object]", label: "Manifesto" } },
+            ],
+          },
+        ],
+      },
+    ];
+
+    const back = pmToDoc(pm, doc, makeIdFactory("fresh"));
+    expect(back.blocks["p-corrupt"].text).toEqual([{ insert: "See " }, { insert: "Manifesto" }]);
+    expect(validateDocDocument(back).ok).toBe(true);
+  });
+
+  it("drops a structurally invalid reference object (bad kind / empty path) the same way", () => {
+    const doc = loadFixture();
+    const pm = docToPM(doc);
+    pm.content = [
+      {
+        type: "docParagraph",
+        attrs: { blockId: "p-corrupt", blockProps: {} },
+        content: [
+          {
+            type: "docBlockText",
+            content: [
+              { type: "docReference", attrs: { ref: { kind: "nope", path: "" }, label: "Chip" } },
+            ],
+          },
+        ],
+      },
+    ];
+
+    const back = pmToDoc(pm, doc, makeIdFactory("fresh"));
+    expect(back.blocks["p-corrupt"].text).toEqual([{ insert: "Chip" }]);
+    expect(validateDocDocument(back).ok).toBe(true);
+  });
+
+  it("drops corrupted blockProps/blockText (non-object/non-span-array) instead of emitting junk", () => {
+    const doc = loadFixture();
+    const pm = docToPM(doc);
+    pm.content = [
+      {
+        type: "docMermaid",
+        attrs: { blockId: "m-corrupt", blockProps: "[object Object]", blockText: "[object Object]" },
+      },
+    ];
+
+    const back = pmToDoc(pm, doc, makeIdFactory("fresh"));
+    expect(back.blocks["m-corrupt"].props).toEqual({});
+    expect(back.blocks["m-corrupt"].text).toBeUndefined();
+    expect(validateDocDocument(back).ok).toBe(true);
+  });
+});

@@ -1,0 +1,514 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-10-block-vocabulary-14-code",
+  "title": "code",
+  "root": "b-14-code-root",
+  "blocks": {
+    "b-14-code-root": {
+      "id": "b-14-code-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-14-code-title-1",
+        "b-14-code-lead-2",
+        "b-14-code-state-h-3",
+        "b-14-code-state-4",
+        "b-14-code-state-note-5",
+        "b-14-code-proj-h-6",
+        "b-14-code-proj-7",
+        "b-14-code-proj-example-8",
+        "b-14-code-actions-h-9",
+        "b-14-code-actions-note-10",
+        "b-14-code-actions-11",
+        "b-14-code-editor-h-12",
+        "b-14-code-editor-13",
+        "b-14-code-agent-h-14",
+        "b-14-code-agent-1-15",
+        "b-14-code-agent-2-16",
+        "b-14-code-theming-heading",
+        "b-14-code-theming-para",
+        "b-14-code-theming-table"
+      ]
+    },
+    "b-14-code-title-1": {
+      "id": "b-14-code-title-1",
+      "type": "heading",
+      "props": {
+        "level": 1
+      },
+      "text": [
+        {
+          "insert": "code"
+        }
+      ],
+      "children": []
+    },
+    "b-14-code-lead-2": {
+      "id": "b-14-code-lead-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The source-code block of the "
+        },
+        {
+          "insert": "block vocabulary",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-block-vocabulary/00-overview",
+              "label": "block vocabulary"
+            }
+          }
+        },
+        {
+          "insert": ", and one half of its documentation doctrine: state shown as real, annotated JSON. The source lives in the block's "
+        },
+        {
+          "insert": "text",
+          "attributes": {
+            "italic": true
+          }
+        },
+        {
+          "insert": "; structured line annotations live in "
+        },
+        {
+          "insert": "props",
+          "attributes": {
+            "italic": true
+          }
+        },
+        {
+          "insert": ". It is the only type owned by the "
+        },
+        {
+          "insert": "code",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " component."
+        }
+      ],
+      "children": []
+    },
+    "b-14-code-state-h-3": {
+      "id": "b-14-code-state-h-3",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "State"
+        }
+      ],
+      "children": []
+    },
+    "b-14-code-state-4": {
+      "id": "b-14-code-state-4",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "prop",
+          "type",
+          "required",
+          "notes"
+        ],
+        "rows": [
+          [
+            "language",
+            "string",
+            "no",
+            "Fence language tag, e.g. \"json\", \"ts\"."
+          ],
+          [
+            "annotations",
+            "array",
+            "no",
+            "Array of { lines, label?, note }: lines is a 1-indexed range string (\"4\", \"4-9\", \"1,4-6\"), label an optional short chip, note the annotation body."
+          ]
+        ]
+      },
+      "children": []
+    },
+    "b-14-code-state-note-5": {
+      "id": "b-14-code-state-note-5",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Carries delta text ("
+        },
+        {
+          "insert": "carriesText: true",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ") — but the source edits as flat plain text: the editor node's content is "
+        },
+        {
+          "insert": "text*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with marks disabled, so no bold/link/reference spans inside code."
+        }
+      ],
+      "children": []
+    },
+    "b-14-code-proj-h-6": {
+      "id": "b-14-code-proj-h-6",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Markdown render"
+        }
+      ],
+      "children": []
+    },
+    "b-14-code-proj-7": {
+      "id": "b-14-code-proj-7",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A fenced code block using "
+        },
+        {
+          "insert": "props.language",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " when present, followed by one blockquote line per annotation, each shaped like:"
+        }
+      ],
+      "children": []
+    },
+    "b-14-code-proj-example-8": {
+      "id": "b-14-code-proj-example-8",
+      "type": "code",
+      "props": {},
+      "text": [
+        {
+          "insert": "> **L4-9 (Validation):** Rejects orphan children."
+        }
+      ],
+      "children": []
+    },
+    "b-14-code-actions-h-9": {
+      "id": "b-14-code-actions-h-9",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Typed actions"
+        }
+      ],
+      "children": []
+    },
+    "b-14-code-actions-note-10": {
+      "id": "b-14-code-actions-note-10",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Annotations edit only through the two typed actions below; the source text stays on generic text ops. "
+        },
+        {
+          "insert": "setAnnotation",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " upserts keyed by the exact "
+        },
+        {
+          "insert": "lines",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " string; "
+        },
+        {
+          "insert": "removeAnnotation",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " rejects a key that does not exist."
+        }
+      ],
+      "children": []
+    },
+    "b-14-code-actions-11": {
+      "id": "b-14-code-actions-11",
+      "type": "interaction-surface",
+      "props": {
+        "operations": [
+          {
+            "name": "code.setAnnotation",
+            "description": "Upsert a line annotation keyed by its exact \"lines\" string (e.g. \"4-9\").",
+            "params": [
+              {
+                "name": "lines",
+                "type": "string",
+                "required": true
+              },
+              {
+                "name": "note",
+                "type": "string",
+                "required": true
+              },
+              {
+                "name": "label",
+                "type": "string",
+                "required": false
+              }
+            ],
+            "returns": "props patch: { annotations }"
+          },
+          {
+            "name": "code.removeAnnotation",
+            "description": "Remove the annotation whose \"lines\" key matches exactly.",
+            "params": [
+              {
+                "name": "lines",
+                "type": "string",
+                "required": true
+              }
+            ],
+            "returns": "props patch: { annotations }"
+          }
+        ],
+        "title": "code — annotation actions"
+      },
+      "children": []
+    },
+    "b-14-code-editor-h-12": {
+      "id": "b-14-code-editor-h-12",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "In the editor"
+        }
+      ],
+      "children": []
+    },
+    "b-14-code-editor-13": {
+      "id": "b-14-code-editor-13",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Slash menu: "
+        },
+        {
+          "insert": "Code Block",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": ". Input rule: three backticks plus an optional language tag. Annotations render as click-pairable side notes next to the fence. One display nicety: an annotation-free block with language "
+        },
+        {
+          "insert": "json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " pretty-prints at render time — display-only, the stored text is never mutated."
+        }
+      ],
+      "children": []
+    },
+    "b-14-code-agent-h-14": {
+      "id": "b-14-code-agent-h-14",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent notes"
+        }
+      ],
+      "children": []
+    },
+    "b-14-code-agent-1-15": {
+      "id": "b-14-code-agent-1-15",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Line numbers in "
+        },
+        {
+          "insert": "lines",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " are 1-indexed against the block text at the time you write them; re-check them after editing the source."
+        }
+      ],
+      "children": []
+    },
+    "b-14-code-agent-2-16": {
+      "id": "b-14-code-agent-2-16",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Annotated JSON + an "
+        },
+        {
+          "insert": "interaction-surface",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-block-vocabulary/50-interaction-surface",
+              "label": "interaction-surface"
+            }
+          }
+        },
+        {
+          "insert": " is the house style for documenting a system: the state, then the operations on it."
+        }
+      ],
+      "children": []
+    },
+    "b-14-code-theming-heading": {
+      "id": "b-14-code-theming-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Theming"
+        }
+      ],
+      "children": []
+    },
+    "b-14-code-theming-para": {
+      "id": "b-14-code-theming-para",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This block's theme file is "
+        },
+        {
+          "insert": "components/code.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in a theme folder ("
+        },
+        {
+          "insert": "themes/<id>/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "; see 20-implementation/40-theming). Every value is one string for both modes or a "
+        },
+        {
+          "insert": "{ light, dark }",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " pair, validated against "
+        },
+        {
+          "insert": "THEME_TOKEN_REGISTRY",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-14-code-theming-table": {
+      "id": "b-14-code-theming-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Key",
+          "CSS variable",
+          "Styles"
+        ],
+        "rows": [
+          [
+            "bg",
+            "--docs-code-block-bg",
+            "Block background"
+          ],
+          [
+            "border",
+            "--docs-code-block-border",
+            "Block border"
+          ],
+          [
+            "string",
+            "--syntax-string",
+            "Syntax: string literals"
+          ],
+          [
+            "number",
+            "--syntax-number",
+            "Syntax: numbers"
+          ],
+          [
+            "boolean",
+            "--syntax-boolean",
+            "Syntax: booleans"
+          ],
+          [
+            "null",
+            "--syntax-null",
+            "Syntax: null/nil tokens"
+          ],
+          [
+            "key",
+            "--syntax-key",
+            "Syntax: object keys / attributes"
+          ]
+        ]
+      },
+      "children": []
+    }
+  }
+}

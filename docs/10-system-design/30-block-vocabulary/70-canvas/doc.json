@@ -1,0 +1,658 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-10-block-vocabulary-24-canvas",
+  "title": "canvas",
+  "root": "b-24-canvas-root",
+  "blocks": {
+    "b-24-canvas-root": {
+      "id": "b-24-canvas-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-24-canvas-title-1",
+        "b-24-canvas-lead-2",
+        "b-24-canvas-state-h-3",
+        "b-24-canvas-state-4",
+        "b-24-canvas-state-note-5",
+        "b-24-canvas-proj-h-6",
+        "b-24-canvas-proj-7",
+        "b-24-canvas-actions-h-8",
+        "b-24-canvas-actions-note-9",
+        "b-24-canvas-actions-10",
+        "b-24-canvas-editor-h-11",
+        "b-24-canvas-editor-12",
+        "b-24-canvas-rendering-heading",
+        "b-24-canvas-rendering-inline",
+        "b-24-canvas-rendering-expanded",
+        "b-24-canvas-rendering-edit",
+        "b-24-canvas-rendering-portable",
+        "b-24-canvas-agent-h-13",
+        "b-24-canvas-agent-1-14",
+        "b-24-canvas-agent-2-15",
+        "b-24-canvas-theming-heading",
+        "b-24-canvas-theming-para",
+        "b-24-canvas-theming-table"
+      ]
+    },
+    "b-24-canvas-title-1": {
+      "id": "b-24-canvas-title-1",
+      "type": "heading",
+      "props": {
+        "level": 1
+      },
+      "text": [
+        {
+          "insert": "canvas"
+        }
+      ],
+      "children": []
+    },
+    "b-24-canvas-lead-2": {
+      "id": "b-24-canvas-lead-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The spatial-canvas block of the "
+        },
+        {
+          "insert": "block vocabulary",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-block-vocabulary/00-overview",
+              "label": "block vocabulary"
+            }
+          }
+        },
+        {
+          "insert": ". The block itself is only a reference — the canvas document, its objects, and its schema live in the external canvas system ("
+        },
+        {
+          "insert": "external/canvas",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", the vendored sibling project); the doc block points at one and optionally crops it to a named view."
+        }
+      ],
+      "children": []
+    },
+    "b-24-canvas-state-h-3": {
+      "id": "b-24-canvas-state-h-3",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "State"
+        }
+      ],
+      "children": []
+    },
+    "b-24-canvas-state-4": {
+      "id": "b-24-canvas-state-4",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "prop",
+          "type",
+          "required",
+          "notes"
+        ],
+        "rows": [
+          [
+            "canvasId",
+            "string (min length 1)",
+            "no",
+            "Canvas identity in the canvas system."
+          ],
+          [
+            "src",
+            "string (min length 1)",
+            "no",
+            "Legacy reference form; still accepted and used by the markdown render."
+          ],
+          [
+            "view",
+            "string",
+            "no",
+            "Named view crop within the canvas."
+          ],
+          [
+            "title",
+            "string",
+            "no",
+            "Display title."
+          ]
+        ]
+      },
+      "children": []
+    },
+    "b-24-canvas-state-note-5": {
+      "id": "b-24-canvas-state-note-5",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "No text ("
+        },
+        {
+          "insert": "carriesText: false",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ")."
+        }
+      ],
+      "children": []
+    },
+    "b-24-canvas-proj-h-6": {
+      "id": "b-24-canvas-proj-h-6",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Markdown render"
+        }
+      ],
+      "children": []
+    },
+    "b-24-canvas-proj-7": {
+      "id": "b-24-canvas-proj-7",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "An HTML-comment reference line — "
+        },
+        {
+          "insert": "<!-- canvas: <src-or-canvasId> [view=<view>] [title=\"<title>\"] -->",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", or "
+        },
+        {
+          "insert": "<!-- canvas: (missing source) -->",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " when no source is set. Chosen over a markdown image because a canvas is not an image asset; the comment form greps cleanly on "
+        },
+        {
+          "insert": "<!-- canvas:",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " without being misread as a broken image link."
+        }
+      ],
+      "children": []
+    },
+    "b-24-canvas-actions-h-8": {
+      "id": "b-24-canvas-actions-h-8",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Typed actions (forwarded)"
+        }
+      ],
+      "children": []
+    },
+    "b-24-canvas-actions-note-9": {
+      "id": "b-24-canvas-actions-note-9",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Five actions are lifted at module load from "
+        },
+        {
+          "insert": "CANVAS_AGENT_PATCH_OPERATIONS",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "@codecaine-ai/canvas/agent-schema",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — schema truth stays in the canvas package. They carry "
+        },
+        {
+          "insert": "forward: { authority: \"canvas\" }",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " instead of a local "
+        },
+        {
+          "insert": "apply",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ": the dispatcher validates params against the lifted TypeBox schema, then the server forwards the operation to the canvas authority rather than patching doc props."
+        }
+      ],
+      "children": []
+    },
+    "b-24-canvas-actions-10": {
+      "id": "b-24-canvas-actions-10",
+      "type": "interaction-surface",
+      "props": {
+        "operations": [
+          {
+            "name": "canvas.addObject",
+            "description": "Add a fully specified canvas object at its provided geometry; a section requires a nonblank title and known tint.",
+            "params": [
+              {
+                "name": "object",
+                "type": "CanvasObject",
+                "required": true
+              }
+            ],
+            "returns": "forwarded to the canvas authority"
+          },
+          {
+            "name": "canvas.updateObject",
+            "description": "Update an existing canvas object by ID, shallow-merging fields and deep-merging style fields; a resulting section requires a nonblank title and known tint.",
+            "params": [
+              {
+                "name": "objectId",
+                "type": "string",
+                "required": true
+              },
+              {
+                "name": "patch",
+                "type": "object",
+                "required": true
+              }
+            ],
+            "returns": "forwarded to the canvas authority"
+          },
+          {
+            "name": "canvas.addConnection",
+            "description": "Add a canvas connection with explicit endpoint object IDs and optional routing metadata.",
+            "params": [
+              {
+                "name": "connection",
+                "type": "CanvasConnection",
+                "required": true
+              }
+            ],
+            "returns": "forwarded to the canvas authority"
+          },
+          {
+            "name": "canvas.addAnnotation",
+            "description": "Add an annotation targeting a canvas object, connection, or region.",
+            "params": [
+              {
+                "name": "annotation",
+                "type": "CanvasAnnotation",
+                "required": true
+              }
+            ],
+            "returns": "forwarded to the canvas authority"
+          },
+          {
+            "name": "canvas.fitContainerToChildren",
+            "description": "Resize a container to enclose its current child objects with optional padding.",
+            "params": [
+              {
+                "name": "containerId",
+                "type": "string",
+                "required": true
+              },
+              {
+                "name": "padding",
+                "type": "number",
+                "required": false
+              }
+            ],
+            "returns": "forwarded to the canvas authority"
+          }
+        ],
+        "title": "canvas — forwarded patch operations"
+      },
+      "children": []
+    },
+    "b-24-canvas-editor-h-11": {
+      "id": "b-24-canvas-editor-h-11",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "In the editor"
+        }
+      ],
+      "children": []
+    },
+    "b-24-canvas-editor-12": {
+      "id": "b-24-canvas-editor-12",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Slash menu: "
+        },
+        {
+          "insert": "Canvas",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " (aliases: diagram, drawing). The block stays a non-editable atom leaf in ProseMirror. Its inline surface is a static section preview, and doc edit mode may add an Edit in Canvas Studio action that opens the dedicated canvas editor rather than making the doc block itself mutable."
+        }
+      ],
+      "children": []
+    },
+    "b-24-canvas-rendering-heading": {
+      "id": "b-24-canvas-rendering-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Host rendering contract"
+        }
+      ],
+      "children": []
+    },
+    "b-24-canvas-rendering-inline": {
+      "id": "b-24-canvas-rendering-inline",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Inline preview. The normal doc layout renders a deterministic SVG from the canvas preview endpoint. "
+        },
+        {
+          "insert": "view",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " maps to the stable canvas section id, so the card shows that section as its main render. The inline surface does not capture drag, pan, or wheel zoom."
+        }
+      ],
+      "children": []
+    },
+    "b-24-canvas-rendering-expanded": {
+      "id": "b-24-canvas-rendering-expanded",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Expanded viewer. A top-right full-screen action opens a same-window overlay containing the dedicated read-only embed route. Pan, wheel zoom, Fit, and +/− belong here; canvas mutation does not. Escape or the close action restores the surrounding document at the same place."
+        }
+      ],
+      "children": []
+    },
+    "b-24-canvas-rendering-edit": {
+      "id": "b-24-canvas-rendering-edit",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Editor handoff. The Edit in Canvas Studio affordance appears only in an authoring context. It opens separately—a new browser tab, or the system browser from Electron—so changing the canvas does not discard the reader's document position or unsaved doc state."
+        }
+      ],
+      "children": []
+    },
+    "b-24-canvas-rendering-portable": {
+      "id": "b-24-canvas-rendering-portable",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Portable host seam. "
+        },
+        {
+          "insert": "docs-viewer",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " supplies the canvas block slot; the host supplies its presentation. The workbench implementation pairs "
+        },
+        {
+          "insert": "/api/canvases/:id/preview.svg?section=<view>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " inline with "
+        },
+        {
+          "insert": "/embed/:id?view=<view>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " after expansion. Other React or webpage hosts can reproduce that same progression without importing the docs workbench."
+        }
+      ],
+      "children": []
+    },
+    "b-24-canvas-agent-h-13": {
+      "id": "b-24-canvas-agent-h-13",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent notes"
+        }
+      ],
+      "children": []
+    },
+    "b-24-canvas-agent-1-14": {
+      "id": "b-24-canvas-agent-1-14",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Doc-side props ("
+        },
+        {
+          "insert": "canvasId",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "view",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "title",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ") patch via "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "; canvas content changes go through the forwarded "
+        },
+        {
+          "insert": "canvas.*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " actions."
+        }
+      ],
+      "children": []
+    },
+    "b-24-canvas-agent-2-15": {
+      "id": "b-24-canvas-agent-2-15",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The canvas component is the only bundle using the "
+        },
+        {
+          "insert": "forward",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " action shape — "
+        },
+        {
+          "insert": "\"canvas\"",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is the single entry in the model's known-authorities list."
+        }
+      ],
+      "children": []
+    },
+    "b-24-canvas-theming-heading": {
+      "id": "b-24-canvas-theming-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Theming"
+        }
+      ],
+      "children": []
+    },
+    "b-24-canvas-theming-para": {
+      "id": "b-24-canvas-theming-para",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This block's theme file is "
+        },
+        {
+          "insert": "components/canvas.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in a theme folder ("
+        },
+        {
+          "insert": "themes/<id>/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "; see 20-implementation/40-theming). Every value is one string for both modes or a "
+        },
+        {
+          "insert": "{ light, dark }",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " pair, validated against "
+        },
+        {
+          "insert": "THEME_TOKEN_REGISTRY",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-24-canvas-theming-table": {
+      "id": "b-24-canvas-theming-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Key",
+          "CSS variable",
+          "Styles"
+        ],
+        "rows": [
+          [
+            "border",
+            "--docs-canvas-border",
+            "Embed container border"
+          ]
+        ]
+      },
+      "children": []
+    }
+  }
+}

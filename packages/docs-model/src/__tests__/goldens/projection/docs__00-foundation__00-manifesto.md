@@ -1,39 +1,147 @@
 # Manifesto
 
-This repository exists to make documentation the shared medium between humans and agents. Code is a lossy projection of intent. These docs keep the intent close enough to rebuild from it.
+The most important technology our species is not any specific entity.
 
-The agent-read markdown projection is the primary consumer of every document. An agent should never have to parse `doc.json` to read a doc. The JSON is the stable storage form; markdown is the reading contract.
+It is the ability to transfer of knowledge from one mind to another, so that the next mind is able to pick up where the previous left off.
 
-Humans get the same blocks rendered in the workbench. Both readers move through the system by progressive disclosure: intent first, concepts next, implementation only when the task calls for it. The structure should let a reader find the relevant subsystem without reading the whole manual.
+Every leap in that technology shortened the distance between minds. 
 
-> **Prime directive: Markdown is the contract** — Write every document for the agent that will read it as markdown. If the projection reads wrong, the document is wrong.
+- Writing let knowledge outlive its author
 
----
+- Diagrams let it cross languages
 
-## The authoring model
+- The internet gave everyone access to all the information around the world
 
-The authoring model is deliberately small: **fourteen block types, and no more**. A minimal vocabulary keeps the projection stable, the editor learnable, and the agent edit surface enumerable.
+- AI gives us the ability to sift through the mountains of information
 
-> State is an annotated JSON code block; the ways to change that state are an interaction-surface block.
+## The human interaction surface
 
-Text blocks edit as text. Object blocks edit through typed, discoverable actions. Discovery belongs in the system, not in tribal memory; `GET /api/blocks` exists so an agent can learn the available moves before it mutates state.
+Each step is the same move: a faster channel from one entity to another.
 
-This repo is the proving ground for that rule. Its own documentation must be clear to agents, pleasant for humans, and constrained enough that edits can be made by operation instead of by guesswork.
+This system exists because ideas are getting more and more complex, and we need a better way of representing them and then transferring them to other people (and AI).
 
-## The layers
+software needs that channel — and because there are now two kinds of readers on the other end of it.
 
-Foundation is the why. It captures the north star, the constraints, and the beliefs that should survive rewrites. This document belongs there because it says what docs-system is trying to preserve.
+## The gap
 
-System Design is the concept layer: the data model, the block vocabulary, and the mutation model. It says how the system should behave independent of any particular codebase.
+In the physical disciplines, the knowledge is written down.
 
-Implementation is the current projection into packages, routes, commands, and UI. It starts at the implementation overview, and it is expected to change as the code changes.
+- A car ships with a repair manual that can walk a stranger from symptom to torque spec. 
 
-A reader starts here and descends only as far as the task requires. If the task is about purpose, stay in Foundation. If it is about behavior, move into System Design. If it is about current mechanics, continue into Implementation.
+- A building leaves drawings detailed enough to renovate it a century later. 
+
+- etc
+
+Software does not have this
+
+- The extent to most software is API reference
+
+- You are lucky if there is a single diagram in the docs
+
+There were two excuses
+
+- The pace of change of code was near impossible to keep the docs up to date
+
+  - Many people working on project, the intent drifts
+
+  - Everyone needs to know how to use the docs tools 
+
+- The tools were never built for it
+
+  - Most diagramming and docs tools are half baked as it wasn't a huge priority given the above
+
+Agents ended both. 
+
+- Agents can easily upkeep the docs as you make changes
+
+- Tooling can now be easily made as what was once a whole product, has turned into a side project
+
+### Why we Need This
+
+2 major shifts have happened with the advent of AI
+
+1. One builder is now able to (and should be) working on multiple projects at a time
+
+2. The projects you work on have meaningfully scaled in complexity
+
+They can carry the upkeep — and they raised the stakes, because one builder now runs several projects at once, each with the complexity that used to take a team. Comprehensive documentation stopped being a virtue. It became load-bearing.
+
+## Docs Define the Function
+
+This repository treats documentation the way mathematics treats a definition. 
+
+The docs define the function; the code is one implementation of it
+
+- A projection of the intent into a particular language, framework, and moment. 
+
+- Many projections satisfy the same definition. 
+
+  - Swap the backend's language tomorrow: 
+
+    - The implementation docs are rewritten, 
+
+    - The system design barely moves, and the foundation does not move at all. 
+
+- The layers are ordered by how fast they are allowed to change.
+
+> Code is a lossy projection of intent. Read only the code, and the why has already been projected away — every reader after you, human or agent, is left reverse-engineering what you meant.
+
+So the corpus keeps three layers. 
+
+1. Foundation holds the intent
+
+  1. What this is and why it exists. 
+
+2. System Design holds the behavior
+
+  1. What the system does, independent of any codebase.
+
+3. Implementation describes the current projection, and is allowed to churn. 
+
+A reader starts at the top and descends only as far as the task requires.
+
+A definition implies an obligation
+
+- If the docs say what the system should do, the system must be held to them. 
+
+- This corpus already keeps itself mechanically honest — every document's bytes and rendered markdown are pinned by tests — and behavior-level verification against the docs is the frontier this project is walking toward.
+
+## Trust is the point
+
+Agents write more of the code every month. 
+
+That only scales on trust, and trust does not come from reviewing diffs faster. 
+
+It comes from the behavior and its reasoning being locked in
+
+- This is what the piece does, this is why it is this way
+
+- These are the decisions you do not quietly change. 
+
+- Written down, that turns autonomy from drift into expansion — the system builds on your design decisions instead of guessing past them.
+
+Slop is what intent transfer looks like when it fails. 
+
+- An agent that cannot find the why fills the gap with plausible guesses, and plausible guesses compound. 
+
+- The fix is not a stricter reviewer at the end of the pipeline; it is a sharper definition at the top. 
+
+- Defining the identity of the software — exactly, durably, in a form both kinds of readers consume well — is the work this system is built for.
 
 ---
 
 ## The conviction
 
-The docs are the durable artifact. The code is the current projection. When they disagree, the right question is not which file is newer; the right question is where the intent is most clearly preserved.
+The docs are the durable artifact. The code is the current projection. 
 
-If a better model arrives next year, you should be able to hand it Foundation plus System Design and get a better implementation back. That is the bet: intent outlives any one projection.
+When they disagree, the right question is not which file is newer — it is where the intent is most clearly preserved.
+
+When a better model arrives next year, hand it Foundation and System Design and you should get a better implementation back, with nothing lost in the handoff. 
+
+That is the bet: intent outlives any one projection.
+
+References: 
+
+- [Specs are the New Code](https://www.youtube.com/watch?v=8rABwKRsec4) (Sean Grove)
+
+- [Advanced Context Engineering for Coding Agents](https://github.com/humanlayer/advanced-context-engineering-for-coding-agents) (Dex Horthy).

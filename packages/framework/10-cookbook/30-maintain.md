@@ -1,107 +1,55 @@
 ---
 covers: How to maintain documentation alignment — update and audit workflows for ongoing changes.
-concepts: [maintain, write, audit, drift, alignment, chore, bugfix, refactor]
+concepts: [maintain, write, audit, drift, alignment]
 ---
 
 # Maintain: Keeping Docs Aligned
 
-When making changes to existing code—bug fixes, refactors, chores—documentation may drift from reality. The maintain workflow uses change context to find drift, then rewrites affected docs so they describe the current system.
-
----
-
-## When to Use
-
-- Bug fixes that change behavior
-- Refactoring that restructures code
-- Chores and minor updates
-- Periodic health checks
-- Before major releases
+When code changes — bug fixes, refactors, chores — find the drift, rewrite affected docs to describe the current system, and verify health.
 
 ---
 
 ## The Maintenance Workflow
 
 ```
-┌─────────────┐     ┌─────────────┐
-│    Write    │ ──▶ │   Audit     │
-│  (update)   │     │  (verify)   │
-└─────────────┘     └─────────────┘
+Write (update) → Audit (verify)
 ```
 
 ### Step 1: Write (Update Docs)
 
-**Purpose:** Update documentation to match current code using implementation notes.
-
-**Load:** `../30-workflows/50-write.md`
-
-**Input:** Provide notes describing what changed:
-- Implementation notes from the work you just completed
-- A summary of the refactor or bug fix
-- Description of new functionality added
-
-**Writing rule:** Treat notes as analysis input, not final wording. The finished docs should describe what exists now, not narrate the update path that produced it.
-
-**Process:**
-- Reads existing docs and source code
-- Shows what will be created/updated
-- Writes the documentation changes
-
-**Output:** Updated L2/L3 documentation aligned with current code and written as present-state documentation.
+- **Load:** `../30-workflows/50-write.md`
+- **Input:** Notes describing what changed (implementation notes, refactor summary).
+- **Rule:** Notes are analysis input, not final wording. Finished docs describe what exists now — never narrate the update path. Avoid "now", "no longer", "previously", "changed from" unless the doc is explicitly about migration history.
+- **Output:** Updated L2/L3 docs aligned with current code, edited through the workbench editor or docs-server API.
 
 ### Step 2: Audit (Verify Health)
 
-**Purpose:** Validate documentation structure, frontmatter, and overall health.
-
-**Load:** `../30-workflows/70-audit.md`
-
-**Checks:**
-- Frontmatter schema compliance
-- Required fields present
-- Numbering system followed
-- Cross-references valid
-- No orphaned docs
-
-**Output:** Health report with pass/fail per check.
-
----
+- **Load:** `../30-workflows/70-audit.md`
+- **Checks:** reference resolution (`docs links check`), structure and numbering, overview coverage, semantic drift (deep mode).
+- **Output:** Health report with pass/fail per check.
 
 ## Maintenance Triggers
 
 | Trigger | Action |
 |---------|--------|
 | After code change | Write with implementation notes |
-| After refactor | Write on refactored section |
-| Weekly/sprint boundary | Audit on active sections |
-| Before release | Full audit on entire `docs/` |
-
-## Quick vs Deep Audit
-
-| Mode | Scope | Checks |
-|------|-------|--------|
-| **Quick** | Single section | Frontmatter, structure |
-| **Deep** | Full `docs/` | Everything + cross-refs |
-
----
-
-## Drift Prevention
-
-To minimize maintenance burden:
-
-1. **Document as you code** — Don't accumulate debt
-2. **Write notes as you implement** — Capture context while fresh
-3. **Include docs in review** — Make docs part of "done"
-4. **Automate audits** — CI check for frontmatter schema
-
----
+| After refactor | Write on the refactored section |
+| Weekly/sprint boundary | Audit active sections |
+| Before release | Full audit on `docs/` |
 
 ## Common Drift Patterns
 
-| Pattern | Symptom | Fix |
-|---------|---------|-----|
-| **Renamed function** | Docstring references old name | Update L5 docstring |
-| **Moved file** | Code ref points to old path | Update `code-ref` in L3 |
-| **Deleted feature** | Doc exists for removed code | Remove orphaned doc |
-| **New parameter** | Docstring missing param | Update L5 docstring |
-| **Changed behavior** | Doc describes old behavior | Revise L3/L4 description |
+| Pattern | Fix |
+|---------|-----|
+| Renamed function | Update L5 docstring |
+| Moved file | Update code reference in L3; run `docs links check` |
+| Deleted feature | Remove the orphaned doc; run `docs backlinks rescan` |
+| New parameter | Update L5 docstring |
+| Changed behavior | Revise L3/L4 description |
 
-When revising drifted docs, replace outdated statements with current facts. Avoid phrases like "now", "no longer", "previously", or "changed from" unless the document is explicitly about migration history or version compatibility.
+## Drift Prevention
+
+1. Document as you code — don't accumulate debt.
+2. Write notes as you implement — capture context while fresh.
+3. Include docs in review — docs are part of "done".
+4. Run `docs links check` routinely.

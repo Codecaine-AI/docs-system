@@ -63,19 +63,9 @@ Read the descriptions below and pick the template that best fits the code you're
 
 ---
 
-## Philosophy: The Overview as Abstract
+## The Overview as Abstract
 
-Think of L2 overviews like **chapter abstracts** or **paper abstracts**. (See [10-philosophy.md](../../00-reference/10-philosophy.md#the-overview-as-abstract) for the full philosophy.)
-
-Before reading a chapter, you read the abstract. It gives you:
-- The problem being addressed
-- The approach taken
-- Key components or findings
-- What you'll learn by reading further
-
-After reading it, you have a mental model. The details you encounter later slot into a framework you already hold.
-
-**L2 overviews serve the same purpose.** After reading an L2 overview, you should be able to:
+Write L2 overviews like chapter abstracts. After reading an L2 overview, a reader should be able to:
 
 1. Explain the domain to a colleague
 2. Understand what you'll find if you go deeper

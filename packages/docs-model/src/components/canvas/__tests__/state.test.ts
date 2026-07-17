@@ -39,4 +39,16 @@ describe("canvas agent view", () => {
     const block: DocBlock = { id: "canvas-empty", type: "canvas", props: {}, children: [] };
     expect(canvasAgentView(block, context)).toBe("<!-- canvas: (missing src) -->");
   });
+
+  it("projects a central canvasId when no sidecar src is present", () => {
+    const block: DocBlock = {
+      id: "canvas-central",
+      type: "canvas",
+      props: { canvasId: "interaction-surfaces", view: "one-state-two-readers" },
+      children: [],
+    };
+    expect(canvasAgentView(block, context)).toBe(
+      "<!-- canvas: interaction-surfaces view=one-state-two-readers -->",
+    );
+  });
 });

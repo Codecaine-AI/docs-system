@@ -293,18 +293,13 @@ export const BUILTIN_THEMES: ThemeDefinition[] = [
   {
     id: "default",
     source: "builtin",
-    // Empty railDefaults are NOT omitted: normalizeSettings({}) yields the
-    // stock settings, so selecting Default is a full overlay reset.
+    // The ONLY built-in while Ford iterates on what the default theme IS.
+    // The repo's themes/default/ folder (auto-saved from the rail by the
+    // workbench) OVERRIDES this compiled-in fallback when present — see
+    // App.tsx resolveThemeById. Empty railDefaults still mean "selecting
+    // Default resets the overlay to the saved core theme" via
+    // normalizeSettings.
     manifest: { name: "Default", dark: false, railDefaults: {} },
-    components: {},
-  },
-  {
-    id: "dark",
-    source: "builtin",
-    // The same stock look with the dark palette — themes are being figured
-    // out iteratively (Ford), so the built-in catalogue stays minimal;
-    // richer looks belong in repo themes/ folders.
-    manifest: { name: "Dark", dark: true, railDefaults: {} },
     components: {},
   },
 ];

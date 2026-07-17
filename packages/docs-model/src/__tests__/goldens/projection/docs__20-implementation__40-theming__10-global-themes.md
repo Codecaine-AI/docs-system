@@ -1,6 +1,6 @@
 # Global themes
 
-A theme is a folder. Global built-ins (Default and Dark — the catalogue stays minimal while the theme identity is still being figured out) are compiled into the workbench; custom themes live in the repo's `themes/<id>/` directory (sibling of `docs/`), served by docs-server (`GET/POST /api/themes`) and listed in the style rail's Themes section.
+A theme is a folder. While the default theme's identity is being figured out, the picker shows ONLY Default: the rail auto-saves every change (debounced) into the repo's `themes/default/` folder, which overrides the compiled-in fallback — Default IS the living core theme, and selecting it restores the last saved look. Custom themes still live as folders in the repo's `themes/<id>/` directory (sibling of `docs/`), served by docs-server (`GET/POST /api/themes`) and listed in the style rail's Themes section.
 
 ## The folder format
 
@@ -32,7 +32,7 @@ Selecting a theme injects its compiled CSS layer (a light block and a dark block
 
 ## Creating themes
 
-- From the rail: Save current look as theme snapshots your knobs (base = the active theme) into a new `themes/<id>/` folder via `POST /api/themes`.
+- From the rail: every knob change auto-saves (1.5s debounce) into `themes/default/` via `POST /api/themes` — component overrides become real components/*.json files, the rest rides as railDefaults. Named save-as returns when the catalogue reopens.
 
 - By hand or by agent: create the folder directly — ids are lowercase slugs, content is validated tolerantly on load (unknown fields and keys are ignored, never fatal).
 

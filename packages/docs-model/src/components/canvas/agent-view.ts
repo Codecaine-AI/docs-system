@@ -6,11 +6,11 @@ import type { ComponentBundle } from "../types";
 export const canvasAgentView: ComponentBundle["agentView"] = (block) => {
   switch (block.type) {
     case "canvas": {
-      const src = stringProp(block, "src");
+      const source = stringProp(block, "src") ?? stringProp(block, "canvasId");
       const view = stringProp(block, "view");
       const title = stringProp(block, "title");
-      if (!src) return "<!-- canvas: (missing src) -->";
-      let comment = `<!-- canvas: ${src}`;
+      if (!source) return "<!-- canvas: (missing src) -->";
+      let comment = `<!-- canvas: ${source}`;
       if (view) comment += ` view=${view}`;
       if (title) comment += ` title="${title}"`;
       comment += " -->";

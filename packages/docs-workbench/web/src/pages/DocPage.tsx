@@ -567,6 +567,7 @@ export function DocPage({
         src={input.src ? resolveBundleCanvasSrc(path, input.src) : undefined}
         title={input.title}
         view={input.view}
+        showEditAction
       />
     ),
     [path],
@@ -687,7 +688,7 @@ export function DocPage({
 
       <div className="flex min-h-0 flex-1 overflow-hidden">
         <div className="min-h-0 min-w-0 flex-1 overflow-y-auto">
-          <div key={canvasEpoch} ref={contentRef} className="mx-auto w-full max-w-[var(--style-content-width,100ch)] px-[var(--style-content-margin,2rem)] pt-[var(--style-content-top,1.5rem)] pb-6">
+          <div key={canvasEpoch} ref={contentRef} className="mx-auto w-full max-w-[var(--style-content-width,100ch)] px-[var(--style-content-margin,2rem)] pt-[var(--style-content-top,1.5rem)] pb-[var(--style-content-bottom,1.5rem)]">
             {isStatic ? (
               // Static-export degradation: no write routes, so no editor —
               // the plain read-only renderer.

@@ -9,31 +9,76 @@
       "type": "paragraph",
       "props": {},
       "children": [
-        "b-00-manifesto-title-1",
-        "b-00-manifesto-north-star-2",
-        "pm-mrnr7bg2-1-smqaz1",
-        "b-00-manifesto-markdown-primary-3",
-        "b-00-manifesto-prime-directive-5",
-        "b-00-manifesto-divider-authoring-6",
-        "b-00-manifesto-authoring-heading-7",
-        "pm-mro31aco-2-otusry",
-        "b-00-manifesto-vocabulary-8",
-        "b-00-manifesto-model-quote-9",
-        "b-00-manifesto-edit-surface-10",
-        "b-00-manifesto-dogfood-11",
-        "b-00-manifesto-layers-heading-12",
-        "pm-mrnqs7fe-49-t40od6",
-        "b-00-manifesto-system-design-layer-14",
-        "b-00-manifesto-implementation-layer-15",
-        "b-00-manifesto-reader-path-16",
-        "b-00-manifesto-divider-conviction-17",
-        "b-00-manifesto-conviction-heading-18",
-        "b-00-manifesto-durable-artifact-19",
-        "b-00-manifesto-better-model-20"
+        "b-m2-title-1",
+        "b-m2-species-2",
+        "pm-mrp8188r-2788-wn1eyl",
+        "b-m2-lineage-3",
+        "pm-mrp8188r-2789-zxxhcd",
+        "pm-mrp8188r-2790-7rofu8",
+        "pm-mrp8188r-2791-gux0hw",
+        "pm-mrp8188r-2792-is59wa",
+        "pm-mrp9f073-1-8ek1px",
+        "pm-mrp8188r-2793-ig9w2s",
+        "b-m2-two-readers-intro-4",
+        "pm-mrp8188r-2794-r7vd9e",
+        "b-m2-gap-heading-5",
+        "b-m2-gap-physical-6",
+        "pm-mrp8188r-2795-jykqxb",
+        "pm-mrp8188r-2796-juucno",
+        "pm-mrp8188r-2797-ciaoa3",
+        "pm-mrp8188r-2798-qdefup",
+        "pm-mrp8188r-2799-ktkbyb",
+        "pm-mrp8188r-2800-x9zuhv",
+        "b-m2-gap-excuses-7",
+        "pm-mrp8188r-2801-jxg83x",
+        "pm-mrp8188r-2804-m40s4f",
+        "pm-mrp8188r-2806-zetj7z",
+        "pm-mrp8188r-2807-irnh0o",
+        "pm-mrp8188r-2808-v73le7",
+        "pm-mrp8188r-2809-87ygvx",
+        "pm-mrp8188r-2810-inp143",
+        "pm-mrp8188r-2811-8x7dtd",
+        "pm-mrp8188r-2812-xaktnw",
+        "pm-mrp8188r-2813-vzgukk",
+        "b-m2-define-heading-8",
+        "b-m2-define-math-9",
+        "pm-mrp8188r-2814-6bacgk",
+        "pm-mrp8188r-2815-d6cywe",
+        "pm-mrp8188r-2816-wyaeyc",
+        "pm-mrp8188r-2820-29ldi5",
+        "b-m2-define-lossy-10",
+        "b-m2-define-layers-11",
+        "pm-mrp8188r-2821-013hxd",
+        "pm-mrp8188r-2823-bturf9",
+        "pm-mrp8188r-2825-mnqmwr",
+        "pm-mrp8188r-2826-c7p4fu",
+        "b-m2-define-obligation-12",
+        "pm-mrp8188r-2827-a9pkca",
+        "pm-mrp8188r-2828-vhnu8s",
+        "b-m2-trust-heading-13",
+        "b-m2-trust-chain-14",
+        "pm-mrp8188r-2829-reu0y5",
+        "pm-mrp8188r-2830-shybmt",
+        "pm-mrp8188r-2831-6q1jmq",
+        "pm-mrp8188r-2832-5fbk24",
+        "pm-mrp8188r-2833-gvlrua",
+        "b-m2-trust-slop-15",
+        "pm-mrp8188r-2834-bpmkij",
+        "pm-mrp8188r-2835-mckutg",
+        "pm-mrp8188r-2836-i017ic",
+        "b-m2-divider-21",
+        "b-m2-conviction-heading-22",
+        "b-m2-conviction-durable-23",
+        "pm-mrp825fl-2842-dmjbpr",
+        "b-m2-conviction-bet-24",
+        "pm-mrp825fl-2843-ctj9xb",
+        "b-m2-credits-25",
+        "pm-mrp8188r-2837-8zswxr",
+        "pm-mrp8188r-2838-qr4d0t"
       ]
     },
-    "b-00-manifesto-title-1": {
-      "id": "b-00-manifesto-title-1",
+    "b-m2-title-1": {
+      "id": "b-m2-title-1",
       "type": "heading",
       "props": {
         "level": 1
@@ -45,272 +90,756 @@
       ],
       "children": []
     },
-    "b-00-manifesto-north-star-2": {
-      "id": "b-00-manifesto-north-star-2",
+    "b-m2-species-2": {
+      "id": "b-m2-species-2",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "This repository exists to make documentation the shared medium between humans and agents. Code is a lossy projection of intent. These docs keep the intent close enough to rebuild from it."
+          "insert": "The most important technology our species is not any specific entity."
         }
       ],
       "children": []
     },
-    "pm-mrnr7bg2-1-smqaz1": {
-      "id": "pm-mrnr7bg2-1-smqaz1",
+    "pm-mrp8188r-2788-wn1eyl": {
+      "id": "pm-mrp8188r-2788-wn1eyl",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "Humans get the same blocks rendered in the workbench. Both readers move through the system by progressive disclosure: intent first, concepts next, implementation only when the task calls for it. The structure should let a reader find the relevant subsystem without reading the whole manual."
+          "insert": "It is the ability to transfer of knowledge from one mind to another, so that the next mind is able to pick up where the previous left off."
         }
       ],
       "children": []
     },
-    "b-00-manifesto-markdown-primary-3": {
-      "id": "b-00-manifesto-markdown-primary-3",
+    "b-m2-lineage-3": {
+      "id": "b-m2-lineage-3",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "The agent-read markdown projection is the primary consumer of every document. An agent should never have to parse "
-        },
-        {
-          "insert": "doc.json",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " to read a doc. The JSON is the stable storage form; markdown is the reading contract."
+          "insert": "Every leap in that technology shortened the distance between minds. "
         }
       ],
       "children": []
     },
-    "b-00-manifesto-prime-directive-5": {
-      "id": "b-00-manifesto-prime-directive-5",
-      "type": "callout",
-      "props": {
-        "kind": "Prime directive",
-        "title": "Markdown is the contract",
-        "tone": "decision"
-      },
+    "pm-mrp8188r-2789-zxxhcd": {
+      "id": "pm-mrp8188r-2789-zxxhcd",
+      "type": "list-item",
+      "props": {},
       "text": [
         {
-          "insert": "Write every document for the agent that will read it as markdown. If the projection reads wrong, the document is wrong."
+          "insert": "Writing let knowledge outlive its author"
         }
       ],
       "children": []
     },
-    "b-00-manifesto-divider-authoring-6": {
-      "id": "b-00-manifesto-divider-authoring-6",
-      "type": "divider",
+    "pm-mrp8188r-2790-7rofu8": {
+      "id": "pm-mrp8188r-2790-7rofu8",
+      "type": "list-item",
       "props": {},
+      "text": [
+        {
+          "insert": "Diagrams let it cross languages"
+        }
+      ],
       "children": []
     },
-    "b-00-manifesto-authoring-heading-7": {
-      "id": "b-00-manifesto-authoring-heading-7",
+    "pm-mrp8188r-2791-gux0hw": {
+      "id": "pm-mrp8188r-2791-gux0hw",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The internet gave everyone access to all the information around the world"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrp8188r-2792-is59wa": {
+      "id": "pm-mrp8188r-2792-is59wa",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "AI gives us the ability to sift through the mountains of information"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrp9f073-1-8ek1px": {
+      "id": "pm-mrp9f073-1-8ek1px",
       "type": "heading",
       "props": {
         "level": 2
       },
       "text": [
         {
-          "insert": "The authoring model"
+          "insert": "The human interaction surface"
         }
       ],
       "children": []
     },
-    "pm-mro31aco-2-otusry": {
-      "id": "pm-mro31aco-2-otusry",
-      "type": "quote",
-      "props": {},
-      "text": [
-        {
-          "insert": "This is important"
-        }
-      ],
-      "children": []
-    },
-    "b-00-manifesto-vocabulary-8": {
-      "id": "b-00-manifesto-vocabulary-8",
+    "pm-mrp8188r-2793-ig9w2s": {
+      "id": "pm-mrp8188r-2793-ig9w2s",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "The authoring model is deliberately small: "
-        },
-        {
-          "insert": "fourteen block types, and no more",
-          "attributes": {
-            "bold": true
-          }
-        },
-        {
-          "insert": ". A minimal vocabulary keeps the projection stable, the editor learnable, and the agent edit surface enumerable."
+          "insert": "Each step is the same move: a faster channel from one entity to another."
         }
       ],
       "children": []
     },
-    "b-00-manifesto-model-quote-9": {
-      "id": "b-00-manifesto-model-quote-9",
-      "type": "quote",
-      "props": {},
-      "text": [
-        {
-          "insert": "State is an annotated JSON code block; the ways to change that state are an interaction-surface block."
-        }
-      ],
-      "children": []
-    },
-    "b-00-manifesto-edit-surface-10": {
-      "id": "b-00-manifesto-edit-surface-10",
+    "b-m2-two-readers-intro-4": {
+      "id": "b-m2-two-readers-intro-4",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "Text blocks edit as text. Object blocks edit through typed, discoverable actions. Discovery belongs in the system, not in tribal memory; "
-        },
-        {
-          "insert": "GET /api/blocks",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " exists so an agent can learn the available moves before it mutates state."
+          "insert": "This system exists because ideas are getting more and more complex, and we need a better way of representing them and then transferring them to other people (and AI)."
         }
       ],
       "children": []
     },
-    "b-00-manifesto-dogfood-11": {
-      "id": "b-00-manifesto-dogfood-11",
+    "pm-mrp8188r-2794-r7vd9e": {
+      "id": "pm-mrp8188r-2794-r7vd9e",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "This repo is the proving ground for that rule. Its own documentation must be clear to agents, pleasant for humans, and constrained enough that edits can be made by operation instead of by guesswork."
+          "insert": "software needs that channel — and because there are now two kinds of readers on the other end of it."
         }
       ],
       "children": []
     },
-    "b-00-manifesto-layers-heading-12": {
-      "id": "b-00-manifesto-layers-heading-12",
+    "b-m2-gap-heading-5": {
+      "id": "b-m2-gap-heading-5",
       "type": "heading",
       "props": {
         "level": 2
       },
       "text": [
         {
-          "insert": "The layers"
+          "insert": "The gap"
         }
       ],
       "children": []
     },
-    "pm-mrnqs7fe-49-t40od6": {
-      "id": "pm-mrnqs7fe-49-t40od6",
+    "b-m2-gap-physical-6": {
+      "id": "b-m2-gap-physical-6",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "Foundation is the why. It captures the north star, the constraints, and the beliefs that should survive rewrites. This document belongs there because it says what docs-system is trying to preserve."
+          "insert": "In the physical disciplines, the knowledge is written down."
         }
       ],
       "children": []
     },
-    "b-00-manifesto-system-design-layer-14": {
-      "id": "b-00-manifesto-system-design-layer-14",
+    "pm-mrp8188r-2795-jykqxb": {
+      "id": "pm-mrp8188r-2795-jykqxb",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A car ships with a repair manual that can walk a stranger from symptom to torque spec. "
+        }
+      ],
+      "children": []
+    },
+    "pm-mrp8188r-2796-juucno": {
+      "id": "pm-mrp8188r-2796-juucno",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A building leaves drawings detailed enough to renovate it a century later. "
+        }
+      ],
+      "children": []
+    },
+    "pm-mrp8188r-2797-ciaoa3": {
+      "id": "pm-mrp8188r-2797-ciaoa3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "etc"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrp8188r-2798-qdefup": {
+      "id": "pm-mrp8188r-2798-qdefup",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "System Design is the concept layer: the "
-        },
-        {
-          "insert": "data model",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "docs/10-system-design/00-data-model/00-overview.md",
-              "label": "data model"
-            }
-          }
-        },
-        {
-          "insert": ", the "
-        },
-        {
-          "insert": "block vocabulary",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "docs/10-system-design/10-block-vocabulary/00-overview.md",
-              "label": "block vocabulary"
-            }
-          }
-        },
-        {
-          "insert": ", and the "
-        },
-        {
-          "insert": "mutation model",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "docs/10-system-design/20-mutation-model.md",
-              "label": "mutation model"
-            }
-          }
-        },
-        {
-          "insert": ". It says how the system should behave independent of any particular codebase."
+          "insert": "Software does not have this"
         }
       ],
       "children": []
     },
-    "b-00-manifesto-implementation-layer-15": {
-      "id": "b-00-manifesto-implementation-layer-15",
+    "pm-mrp8188r-2799-ktkbyb": {
+      "id": "pm-mrp8188r-2799-ktkbyb",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The extent to most software is API reference"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrp8188r-2800-x9zuhv": {
+      "id": "pm-mrp8188r-2800-x9zuhv",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "You are lucky if there is a single diagram in the docs"
+        }
+      ],
+      "children": []
+    },
+    "b-m2-gap-excuses-7": {
+      "id": "b-m2-gap-excuses-7",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "Implementation is the current projection into packages, routes, commands, and UI. It starts at the "
-        },
-        {
-          "insert": "implementation overview",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "docs/20-implementation/00-overview.md",
-              "label": "implementation overview"
-            }
-          }
-        },
-        {
-          "insert": ", and it is expected to change as the code changes."
+          "insert": "There were two excuses"
         }
       ],
       "children": []
     },
-    "b-00-manifesto-reader-path-16": {
-      "id": "b-00-manifesto-reader-path-16",
+    "pm-mrp8188r-2801-jxg83x": {
+      "id": "pm-mrp8188r-2801-jxg83x",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The pace of change of code was near impossible to keep the docs up to date"
+        }
+      ],
+      "children": [
+        "pm-mrp8188r-2802-4e88l3",
+        "pm-mrp8188r-2803-9ql3fh"
+      ]
+    },
+    "pm-mrp8188r-2802-4e88l3": {
+      "id": "pm-mrp8188r-2802-4e88l3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Many people working on project, the intent drifts"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrp8188r-2803-9ql3fh": {
+      "id": "pm-mrp8188r-2803-9ql3fh",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Everyone needs to know how to use the docs tools "
+        }
+      ],
+      "children": []
+    },
+    "pm-mrp8188r-2804-m40s4f": {
+      "id": "pm-mrp8188r-2804-m40s4f",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The tools were never built for it"
+        }
+      ],
+      "children": [
+        "pm-mrp8188r-2805-i9m5xb"
+      ]
+    },
+    "pm-mrp8188r-2805-i9m5xb": {
+      "id": "pm-mrp8188r-2805-i9m5xb",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Most diagramming and docs tools are half baked as it wasn't a huge priority given the above"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrp8188r-2806-zetj7z": {
+      "id": "pm-mrp8188r-2806-zetj7z",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "A reader starts here and descends only as far as the task requires. If the task is about purpose, stay in Foundation. If it is about behavior, move into System Design. If it is about current mechanics, continue into Implementation."
+          "insert": "Agents ended both. "
         }
       ],
       "children": []
     },
-    "b-00-manifesto-divider-conviction-17": {
-      "id": "b-00-manifesto-divider-conviction-17",
+    "pm-mrp8188r-2807-irnh0o": {
+      "id": "pm-mrp8188r-2807-irnh0o",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Agents can easily upkeep the docs as you make changes"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrp8188r-2808-v73le7": {
+      "id": "pm-mrp8188r-2808-v73le7",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Tooling can now be easily made as what was once a whole product, has turned into a side project"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrp8188r-2809-87ygvx": {
+      "id": "pm-mrp8188r-2809-87ygvx",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Why we Need This"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrp8188r-2810-inp143": {
+      "id": "pm-mrp8188r-2810-inp143",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "2 major shifts have happened with the advent of AI"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrp8188r-2811-8x7dtd": {
+      "id": "pm-mrp8188r-2811-8x7dtd",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "One builder is now able to (and should be) working on multiple projects at a time"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrp8188r-2812-xaktnw": {
+      "id": "pm-mrp8188r-2812-xaktnw",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "The projects you work on have meaningfully scaled in complexity"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrp8188r-2813-vzgukk": {
+      "id": "pm-mrp8188r-2813-vzgukk",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "They can carry the upkeep — and they raised the stakes, because one builder now runs several projects at once, each with the complexity that used to take a team. Comprehensive documentation stopped being a virtue. It became load-bearing."
+        }
+      ],
+      "children": []
+    },
+    "b-m2-define-heading-8": {
+      "id": "b-m2-define-heading-8",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Docs Define the Function"
+        }
+      ],
+      "children": []
+    },
+    "b-m2-define-math-9": {
+      "id": "b-m2-define-math-9",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This repository treats documentation the way mathematics treats a definition. "
+        }
+      ],
+      "children": []
+    },
+    "pm-mrp8188r-2814-6bacgk": {
+      "id": "pm-mrp8188r-2814-6bacgk",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The docs define the function; the code is one implementation of it"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrp8188r-2815-d6cywe": {
+      "id": "pm-mrp8188r-2815-d6cywe",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A projection of the intent into a particular language, framework, and moment. "
+        }
+      ],
+      "children": []
+    },
+    "pm-mrp8188r-2816-wyaeyc": {
+      "id": "pm-mrp8188r-2816-wyaeyc",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Many projections satisfy the same definition. "
+        }
+      ],
+      "children": [
+        "pm-mrp8188r-2817-ppyo3v"
+      ]
+    },
+    "pm-mrp8188r-2817-ppyo3v": {
+      "id": "pm-mrp8188r-2817-ppyo3v",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Swap the backend's language tomorrow: "
+        }
+      ],
+      "children": [
+        "pm-mrp8188r-2818-pb22wm",
+        "pm-mrp8188r-2819-jyku2n"
+      ]
+    },
+    "pm-mrp8188r-2818-pb22wm": {
+      "id": "pm-mrp8188r-2818-pb22wm",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The implementation docs are rewritten, "
+        }
+      ],
+      "children": []
+    },
+    "pm-mrp8188r-2819-jyku2n": {
+      "id": "pm-mrp8188r-2819-jyku2n",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The system design barely moves, and the foundation does not move at all. "
+        }
+      ],
+      "children": []
+    },
+    "pm-mrp8188r-2820-29ldi5": {
+      "id": "pm-mrp8188r-2820-29ldi5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The layers are ordered by how fast they are allowed to change."
+        }
+      ],
+      "children": []
+    },
+    "b-m2-define-lossy-10": {
+      "id": "b-m2-define-lossy-10",
+      "type": "quote",
+      "props": {},
+      "text": [
+        {
+          "insert": "Code is a lossy projection of intent. Read only the code, and the why has already been projected away — every reader after you, human or agent, is left reverse-engineering what you meant."
+        }
+      ],
+      "children": []
+    },
+    "b-m2-define-layers-11": {
+      "id": "b-m2-define-layers-11",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "So the corpus keeps three layers. "
+        }
+      ],
+      "children": []
+    },
+    "pm-mrp8188r-2821-013hxd": {
+      "id": "pm-mrp8188r-2821-013hxd",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Foundation holds the intent"
+        }
+      ],
+      "children": [
+        "pm-mrp8188r-2822-wkdlah"
+      ]
+    },
+    "pm-mrp8188r-2822-wkdlah": {
+      "id": "pm-mrp8188r-2822-wkdlah",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "What this is and why it exists. "
+        }
+      ],
+      "children": []
+    },
+    "pm-mrp8188r-2823-bturf9": {
+      "id": "pm-mrp8188r-2823-bturf9",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "System Design holds the behavior"
+        }
+      ],
+      "children": [
+        "pm-mrp8188r-2824-fbonl6"
+      ]
+    },
+    "pm-mrp8188r-2824-fbonl6": {
+      "id": "pm-mrp8188r-2824-fbonl6",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "What the system does, independent of any codebase."
+        }
+      ],
+      "children": []
+    },
+    "pm-mrp8188r-2825-mnqmwr": {
+      "id": "pm-mrp8188r-2825-mnqmwr",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Implementation describes the current projection, and is allowed to churn. "
+        }
+      ],
+      "children": []
+    },
+    "pm-mrp8188r-2826-c7p4fu": {
+      "id": "pm-mrp8188r-2826-c7p4fu",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A reader starts at the top and descends only as far as the task requires."
+        }
+      ],
+      "children": []
+    },
+    "b-m2-define-obligation-12": {
+      "id": "b-m2-define-obligation-12",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A definition implies an obligation"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrp8188r-2827-a9pkca": {
+      "id": "pm-mrp8188r-2827-a9pkca",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "If the docs say what the system should do, the system must be held to them. "
+        }
+      ],
+      "children": []
+    },
+    "pm-mrp8188r-2828-vhnu8s": {
+      "id": "pm-mrp8188r-2828-vhnu8s",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "This corpus already keeps itself mechanically honest — every document's bytes and rendered markdown are pinned by tests — and behavior-level verification against the docs is the frontier this project is walking toward."
+        }
+      ],
+      "children": []
+    },
+    "b-m2-trust-heading-13": {
+      "id": "b-m2-trust-heading-13",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Trust is the point"
+        }
+      ],
+      "children": []
+    },
+    "b-m2-trust-chain-14": {
+      "id": "b-m2-trust-chain-14",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Agents write more of the code every month. "
+        }
+      ],
+      "children": []
+    },
+    "pm-mrp8188r-2829-reu0y5": {
+      "id": "pm-mrp8188r-2829-reu0y5",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "That only scales on trust, and trust does not come from reviewing diffs faster. "
+        }
+      ],
+      "children": []
+    },
+    "pm-mrp8188r-2830-shybmt": {
+      "id": "pm-mrp8188r-2830-shybmt",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "It comes from the behavior and its reasoning being locked in"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrp8188r-2831-6q1jmq": {
+      "id": "pm-mrp8188r-2831-6q1jmq",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "This is what the piece does, this is why it is this way"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrp8188r-2832-5fbk24": {
+      "id": "pm-mrp8188r-2832-5fbk24",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "These are the decisions you do not quietly change. "
+        }
+      ],
+      "children": []
+    },
+    "pm-mrp8188r-2833-gvlrua": {
+      "id": "pm-mrp8188r-2833-gvlrua",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Written down, that turns autonomy from drift into expansion — the system builds on your design decisions instead of guessing past them."
+        }
+      ],
+      "children": []
+    },
+    "b-m2-trust-slop-15": {
+      "id": "b-m2-trust-slop-15",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Slop is what intent transfer looks like when it fails. "
+        }
+      ],
+      "children": []
+    },
+    "pm-mrp8188r-2834-bpmkij": {
+      "id": "pm-mrp8188r-2834-bpmkij",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An agent that cannot find the why fills the gap with plausible guesses, and plausible guesses compound. "
+        }
+      ],
+      "children": []
+    },
+    "pm-mrp8188r-2835-mckutg": {
+      "id": "pm-mrp8188r-2835-mckutg",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The fix is not a stricter reviewer at the end of the pipeline; it is a sharper definition at the top. "
+        }
+      ],
+      "children": []
+    },
+    "pm-mrp8188r-2836-i017ic": {
+      "id": "pm-mrp8188r-2836-i017ic",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Defining the identity of the software — exactly, durably, in a form both kinds of readers consume well — is the work this system is built for."
+        }
+      ],
+      "children": []
+    },
+    "b-m2-divider-21": {
+      "id": "b-m2-divider-21",
       "type": "divider",
       "props": {},
       "children": []
     },
-    "b-00-manifesto-conviction-heading-18": {
-      "id": "b-00-manifesto-conviction-heading-18",
+    "b-m2-conviction-heading-22": {
+      "id": "b-m2-conviction-heading-22",
       "type": "heading",
       "props": {
         "level": 2
@@ -322,24 +851,91 @@
       ],
       "children": []
     },
-    "b-00-manifesto-durable-artifact-19": {
-      "id": "b-00-manifesto-durable-artifact-19",
+    "b-m2-conviction-durable-23": {
+      "id": "b-m2-conviction-durable-23",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "The docs are the durable artifact. The code is the current projection. When they disagree, the right question is not which file is newer; the right question is where the intent is most clearly preserved."
+          "insert": "The docs are the durable artifact. The code is the current projection. "
         }
       ],
       "children": []
     },
-    "b-00-manifesto-better-model-20": {
-      "id": "b-00-manifesto-better-model-20",
+    "pm-mrp825fl-2842-dmjbpr": {
+      "id": "pm-mrp825fl-2842-dmjbpr",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "If a better model arrives next year, you should be able to hand it Foundation plus System Design and get a better implementation back. That is the bet: intent outlives any one projection."
+          "insert": "When they disagree, the right question is not which file is newer — it is where the intent is most clearly preserved."
+        }
+      ],
+      "children": []
+    },
+    "b-m2-conviction-bet-24": {
+      "id": "b-m2-conviction-bet-24",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "When a better model arrives next year, hand it Foundation and System Design and you should get a better implementation back, with nothing lost in the handoff. "
+        }
+      ],
+      "children": []
+    },
+    "pm-mrp825fl-2843-ctj9xb": {
+      "id": "pm-mrp825fl-2843-ctj9xb",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "That is the bet: intent outlives any one projection."
+        }
+      ],
+      "children": []
+    },
+    "b-m2-credits-25": {
+      "id": "b-m2-credits-25",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "References: "
+        }
+      ],
+      "children": []
+    },
+    "pm-mrp8188r-2837-8zswxr": {
+      "id": "pm-mrp8188r-2837-8zswxr",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Specs are the New Code",
+          "attributes": {
+            "link": "https://www.youtube.com/watch?v=8rABwKRsec4"
+          }
+        },
+        {
+          "insert": " (Sean Grove)"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrp8188r-2838-qr4d0t": {
+      "id": "pm-mrp8188r-2838-qr4d0t",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Advanced Context Engineering for Coding Agents",
+          "attributes": {
+            "link": "https://github.com/humanlayer/advanced-context-engineering-for-coding-agents"
+          }
+        },
+        {
+          "insert": " (Dex Horthy)."
         }
       ],
       "children": []

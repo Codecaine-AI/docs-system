@@ -37,12 +37,13 @@ L2 Section Overviews get multiple archetypes because sections vary widely (servi
 ```
 40-templates/
 ├── 00-overview.md                    (this file)
-├── 10-foundation/                    Foundation zone templates
+├── 10-foundation/                    Foundation layer patterns (optional starting points)
 │   ├── 00-overview.md
-│   ├── 10-foundation-overview.md
-│   ├── 20-purpose.md
-│   ├── 30-principles.md
-│   └── 40-boundaries.md
+│   ├── 10-entry-point.md
+│   ├── 20-pattern-problem.md
+│   ├── 30-pattern-vision.md
+│   ├── 40-pattern-thinking.md
+│   └── 50-pattern-decisions.md
 ├── 20-L1-implementation-overview/    L1: Implementation overview + README
 │   ├── 00-overview.md
 │   ├── 10-generic.md
@@ -70,7 +71,7 @@ L2 Section Overviews get multiple archetypes because sections vary widely (servi
 ## Layer Overview
 
 ### [10-foundation/](10-foundation/00-overview.md)
-**Fixed-structure templates** for the Foundation zone. Purpose, principles, and boundaries — these documents have a standard structure that doesn't vary by project type.
+**Optional patterns** for the Foundation layer. Foundation structure is organic per project — these are starting points to borrow from, not a prescribed structure. Only the entry point is required.
 
 ### [20-L1-implementation-overview/](20-L1-implementation-overview/00-overview.md)
 **System architecture template** for the L1 implementation overview (`docs/20-implementation/00-overview.md`). Includes mental model, architecture diagram, and section index. Also contains the README template.

@@ -1,110 +1,62 @@
 ---
-covers: One-time initialization of docs/ with three-layer structure.
+covers: One-time initialization of docs/ with the three-layer structure.
 concepts: [init, initialization, setup, three-layers]
 ---
 
 # Docs Init Workflow
 
-One-time initialization of `docs/` in your project. Sets up the three-layer structure (Foundation/System Design/Implementation) with minimal starting files.
+One-time initialization of `docs/` in a project. Sets up the three-layer structure with minimal starting docs.
 
 ---
 
 ## Prerequisites Check
 
-First, verify docs-system is mounted:
+1. **`.claude/skills/docs-framework/` exists** (framework skill). If missing: mount docs-system first — see `99-appendix/10-setup-guide.md` for the submodule + skill-symlink steps.
+2. **`.claude/commands/docs/` exists** (slash commands). If missing: point the user at the setup guide.
 
-1. **Check `.claude/skills/docs-framework/` exists** (framework documentation)
-   - If missing: "Mount docs-system first — see `99-appendix/10-setup-guide.md` for the submodule + skill-symlink steps"
-
-2. **Check `.claude/commands/docs/` exists** (commands)
-   - If missing: "The `/docs:*` slash commands aren't installed — see `99-appendix/10-setup-guide.md`"
-
-If any prerequisites are missing, stop and instruct the user to complete setup per the setup guide.
+Stop and instruct the user to complete setup if either is missing.
 
 ## Initialization Steps
 
-If all prerequisites pass:
-
 ### 1. Show Project Structure
-Run: `eza --tree --level=2` (or `tree -L 2` if eza unavailable)
-- Exclude: node_modules, .git, build artifacts, __pycache__, etc.
+
+Run `eza --tree --level=2` (or `tree -L 2`), excluding node_modules, .git, build artifacts.
 
 ### 2. Check for Existing Documentation
 
-- Does `docs/` already exist?
-  - If yes with three-layer structure (`00-foundation/`, `10-system-design/`, `20-implementation/`): Report what exists, suggest `/docs:audit` to validate
-  - If yes without structure: "Found docs/ without framework structure. Run this init to set it up."
-  - If no: Proceed with creation
+- `docs/` exists with the three layers (`00-foundation/`, `10-system-design/`, `20-implementation/`) → report what exists, suggest `/docs:audit`.
+- `docs/` exists without the structure → run this init to set it up.
+- No `docs/` → proceed.
 
-### 3. Create Three-Zone Structure
+### 3. Create the Three-Layer Structure
 
-Create minimal starting files—Foundation structure will be determined by the interview:
+Create the minimal starting docs — through the workbench editor (`docs serve`) or the docs-server API; if seeding from markdown files, convert them with `docs migrate`:
 
-**Foundation Zone (minimal):**
-| File | Content |
-|------|---------|
-| `docs/00-foundation/00-overview.md` | Placeholder with note to run `/docs:interview-foundation` |
-
-```markdown
----
-covers: Understanding of what this project is and why it exists.
-type: overview
----
-
-# Foundation
-
-*This section will be populated after running `/docs:interview-foundation`.*
-
-The Foundation interview will explore:
-- What is this trying to BE?
-- What should it do extremely well?
-- How do you think about this problem?
-
-Structure will emerge from that conversation.
-```
-
-**System Design Zone:**
-| File | Template Source |
-|------|-----------------|
-| `docs/10-system-design/00-overview.md` | `.claude/skills/docs-framework/40-templates/30-L2-section-overview/10-generic.md` |
-
-**Implementation Zone:**
-| File | Template Source |
-|------|-----------------|
-| `docs/20-implementation/00-overview.md` | `.claude/skills/docs-framework/40-templates/20-L1-codebase-overview/10-generic.md` |
-
-**Drafts Directory:**
-| File | Purpose |
-|------|---------|
-| `docs/.drafts/.gitkeep` | Working directory for interviews |
+| Doc | Content |
+|-----|---------|
+| `docs/00-foundation/00-overview` | Placeholder noting that structure emerges from `/docs:interview-foundation` |
+| `docs/10-system-design/00-overview` | Design layer index (empty to start) |
+| `docs/20-implementation/00-overview` | Implementation overview seeded from `40-templates/20-L1-implementation-overview/10-generic.md` |
+| `docs/.drafts/.gitkeep` | Working directory for interview notes (plain markdown) |
 
 ### 4. Ask Source Directory
 
-Ask the user: "What is your main source code directory?"
-- Common patterns like `src/`, `app/`, `lib/`, or project root
-- Store this answer for `/docs:scaffold`
+Ask: "What is your main source code directory?" (`src/`, `app/`, `lib/`, or project root). Store the answer for `/docs:scaffold`.
 
 ### 5. Suggest Next Steps
 
 ```
-Documentation initialized successfully.
-
-Created:
-- docs/00-foundation/00-overview.md (placeholder - run interview to populate)
-- docs/10-system-design/00-overview.md (System design overview)
-- docs/20-implementation/00-overview.md (Implementation overview)
-- docs/.drafts/ (working directory for interviews)
+Documentation initialized.
 
 Next steps:
 1. Run /docs:interview-foundation — explore what you're building and why
 2. Run /docs:write foundation — generate Foundation docs from the interview
-3. Edit docs/20-implementation/00-overview.md to describe your codebase
+3. Fill in docs/20-implementation/00-overview to describe your codebase
 4. Run /docs:scaffold to map your source structure to documentation sections
 ```
 
-## Output Summary
+## Output
 
-Provide:
-- List of created files by zone
+- List of created docs by layer
 - Project structure visualization
 - Clear next steps (Foundation interview first, then structure)

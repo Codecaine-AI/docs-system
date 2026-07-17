@@ -158,7 +158,7 @@ your-project/
             └── canvas/                      # nested submodule — see the cycle caveat
 ```
 
-Each folder inside `docs/` holds `doc.json` bundles once you've run `docs migrate` (or once you author fresh content through `docs serve`'s Edit mode) — not raw `.md`/`.mdx` files. The three-layer directory shape below still applies; only the on-disk representation of each node changed. See [00-reference/20-architecture.md](../00-reference/20-architecture.md) for the bundle anatomy.
+Each folder inside `docs/` holds `doc.json` bundles once you've run `docs migrate` (or once you author fresh content through `docs serve`'s Edit mode) — not raw markdown files. The three-layer directory shape still applies; only the on-disk representation of each node changed. For the bundle anatomy and the rendered surfaces, see the docs-system corpus: `docs/10-system-design/00-interaction-surfaces`.
 
 ## One Repo, One Output
 
@@ -225,7 +225,6 @@ A host that also embeds this skill's content into its own backend skill library 
 
 ### Maintenance
 - **`/docs:audit`** - Check your documentation for structural issues and semantic drift
-- **`/docs:sync`** - Compare code structure to documentation and identify gaps
 
 ## CLI Commands (`bun run docs <command>`)
 

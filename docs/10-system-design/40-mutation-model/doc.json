@@ -1,0 +1,720 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-20-mutation-model",
+  "title": "The mutation model: ops, inverses, undo",
+  "root": "b-20-mutation-model-root",
+  "blocks": {
+    "b-20-mutation-model-root": {
+      "id": "b-20-mutation-model-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-20-mutation-model-title-1",
+        "b-20-mutation-model-opening-seven-2",
+        "b-20-mutation-model-opening-neighbors-3",
+        "b-20-mutation-model-op-algebra-4",
+        "b-20-mutation-model-op-algebra-intro-5",
+        "b-20-mutation-model-op-algebra-table-6",
+        "b-20-mutation-model-update-semantics-7",
+        "b-20-mutation-model-id-semantics-8",
+        "b-20-mutation-model-inverses-9",
+        "b-20-mutation-model-inverses-ledger-10",
+        "b-20-mutation-model-refusals-11",
+        "b-20-mutation-model-refusals-intro-12",
+        "b-20-mutation-model-expected-hash-13",
+        "b-20-mutation-model-draft-lock-14",
+        "b-10-save-pipeline-typed-block-actions-the-21",
+        "b-10-save-pipeline-structured-object-blocks-22",
+        "b-10-save-pipeline-block-action-examples-23",
+        "b-20-mutation-model-change-events-15",
+        "b-20-mutation-model-change-events-sse-16",
+        "b-20-mutation-model-dirty-suppression-17",
+        "b-10-save-pipeline-callout-dirty-suppress-20",
+        "b-20-mutation-model-discovery-18",
+        "b-20-mutation-model-discovery-surface-19",
+        "b-20-mutation-model-divider-20",
+        "b-20-mutation-model-closing-links-21"
+      ]
+    },
+    "b-20-mutation-model-title-1": {
+      "id": "b-20-mutation-model-title-1",
+      "type": "heading",
+      "props": {
+        "level": 1
+      },
+      "text": [
+        {
+          "insert": "The mutation model: ops, inverses, undo"
+        }
+      ],
+      "children": []
+    },
+    "b-20-mutation-model-opening-seven-2": {
+      "id": "b-20-mutation-model-opening-seven-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every document change is one of seven ops. Six are generic structural/text mutations; the seventh, "
+        },
+        {
+          "insert": "blockAction",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", is the typed-action bridge for component-owned actions. A successful apply always yields exact inverse ops, so undo is just another apply in the opposite direction."
+        }
+      ],
+      "children": []
+    },
+    "b-20-mutation-model-opening-neighbors-3": {
+      "id": "b-20-mutation-model-opening-neighbors-3",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The model is transport-agnostic: it defines the algebra, invariants, inverses, and refusal rules, not the UI or file write path. For the exact op surface, read "
+        },
+        {
+          "insert": "the data model — doc.json shapes",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/20-data-model/00-overview",
+              "label": "the data model — doc.json shapes"
+            }
+          }
+        },
+        {
+          "insert": ". For concrete wiring, read "
+        },
+        {
+          "insert": "the save pipeline — how bytes reach disk",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "docs/20-implementation/30-save-pipeline.md",
+              "label": "the save pipeline — how bytes reach disk"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-20-mutation-model-op-algebra-4": {
+      "id": "b-20-mutation-model-op-algebra-4",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The op algebra"
+        }
+      ],
+      "children": []
+    },
+    "b-20-mutation-model-op-algebra-intro-5": {
+      "id": "b-20-mutation-model-op-algebra-intro-5",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The six generic ops cover document structure and rich text. "
+        },
+        {
+          "insert": "blockAction",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is the seventh: it names a component-owned action, whose TypeBox params the dispatcher validates before apply, then expands to "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " semantics. Param issues use "
+        },
+        {
+          "insert": "$.params.<name>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and unknown extra params remain tolerated."
+        }
+      ],
+      "children": []
+    },
+    "b-20-mutation-model-op-algebra-table-6": {
+      "id": "b-20-mutation-model-op-algebra-table-6",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "op",
+          "semantic role"
+        ],
+        "density": "compact",
+        "rows": [
+          [
+            "insertBlock",
+            "Adds a fresh non-colliding block under an existing parent at an ordered child index."
+          ],
+          [
+            "updateBlock",
+            "Mutates an existing block in place: shallow-merge props and/or replace text while preserving the id."
+          ],
+          [
+            "deleteBlock",
+            "Removes a block subtree, or splices its children into the former slot when reparenting is requested."
+          ],
+          [
+            "moveBlock",
+            "Detaches a block and inserts it under another parent, rejecting moves that would create cycles."
+          ],
+          [
+            "splitBlock",
+            "Splits one text-bearing block into two sibling blocks; the new sibling gets a fresh id."
+          ],
+          [
+            "mergeBlocks",
+            "Combines contiguous siblings into one fresh block."
+          ],
+          [
+            "blockAction",
+            "Runs a component-owned typed action and applies its validated result as an updateBlock patch."
+          ]
+        ],
+        "title": "Seven mutation ops"
+      },
+      "children": []
+    },
+    "b-20-mutation-model-update-semantics-7": {
+      "id": "b-20-mutation-model-update-semantics-7",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is a shallow patch, not a replacement object. "
+        },
+        {
+          "insert": "props",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " keys merge one level deep; a key set to "
+        },
+        {
+          "insert": "undefined",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " removes that prop; "
+        },
+        {
+          "insert": "text",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " replaces the block's rich-text array wholesale when present. The block id is preserved, which keeps comment and backlink anchors stable through ordinary edits."
+        }
+      ],
+      "children": []
+    },
+    "b-20-mutation-model-id-semantics-8": {
+      "id": "b-20-mutation-model-id-semantics-8",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "splitBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "mergeBlocks",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " mint fresh ids because they change identity boundaries. "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " preserves the id because the same conceptual block remains in place."
+        }
+      ],
+      "children": []
+    },
+    "b-20-mutation-model-inverses-9": {
+      "id": "b-20-mutation-model-inverses-9",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Inverse ops and undo"
+        }
+      ],
+      "children": []
+    },
+    "b-20-mutation-model-inverses-ledger-10": {
+      "id": "b-20-mutation-model-inverses-ledger-10",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every successful apply returns exact inverse ops for the state it actually changed. Applying those inverses to the resulting document reverts the change, including order, props, text, and subtree placement. The undo ledger records the inverse batch under a "
+        },
+        {
+          "insert": "patch_id",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "; that patch id is the unit a user or agent undoes. A multi-op patch therefore rolls back as one conceptual edit instead of as individual low-level steps."
+        }
+      ],
+      "children": []
+    },
+    "b-20-mutation-model-refusals-11": {
+      "id": "b-20-mutation-model-refusals-11",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Refusing an apply"
+        }
+      ],
+      "children": []
+    },
+    "b-20-mutation-model-refusals-intro-12": {
+      "id": "b-20-mutation-model-refusals-intro-12",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A syntactically valid op batch can still be refused before bytes change: hash staleness, a draft lock, or strict props validation. For "
+        },
+        {
+          "insert": "insertBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", applyOp validates the resulting props against the owning component’s closed state schema; "
+        },
+        {
+          "insert": "blockAction",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " reaches the same gate through updateBlock. Nonconforming writes return "
+        },
+        {
+          "insert": "{ ok: false, issues }",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " at "
+        },
+        {
+          "insert": "$.op.props.<key>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". splitBlock and mergeBlocks are not revalidated because they copy existing props. Reads and loads remain tolerant: structural validation never rejects a document for props content."
+        },
+        {
+          "insert": " Undo replay is exempt from strict props validation because it restores a previously-accepted state."
+        }
+      ],
+      "children": []
+    },
+    "b-20-mutation-model-expected-hash-13": {
+      "id": "b-20-mutation-model-expected-hash-13",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "expected_hash",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — the content hash the change was computed against. If the current content has a different hash, the apply is rejected; over HTTP this is "
+        },
+        {
+          "insert": "409",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and nothing is written."
+        }
+      ],
+      "children": []
+    },
+    "b-20-mutation-model-draft-lock-14": {
+      "id": "b-20-mutation-model-draft-lock-14",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "draft lock — a per-session lock rejects a writer with a different session identity. Over HTTP this is "
+        },
+        {
+          "insert": "423",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-10-save-pipeline-typed-block-actions-the-21": {
+      "id": "b-10-save-pipeline-typed-block-actions-the-21",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Typed block actions (the seventh op)"
+        }
+      ],
+      "children": []
+    },
+    "b-10-save-pipeline-structured-object-blocks-22": {
+      "id": "b-10-save-pipeline-structured-object-blocks-22",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The code, structured-table, file-tree, and interaction-surface bundles expose 13 named actions for structured collections. A "
+        },
+        {
+          "insert": "blockAction",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " carries an action name plus params; the folded registry validates the TypeBox params before expanding it into an "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " props patch. Inverses, undo, strict resulting-props validation, and events stay on the same path. Discovery v2 at "
+        },
+        {
+          "insert": "GET /api/blocks",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " serves ops and component bundles, with state and params schemas verbatim as JSON Schema. Two of the thirteen, as signatures:"
+        }
+      ],
+      "children": []
+    },
+    "b-10-save-pipeline-block-action-examples-23": {
+      "id": "b-10-save-pipeline-block-action-examples-23",
+      "type": "interaction-surface",
+      "props": {
+        "operations": [
+          {
+            "name": "structured-table.updateCell",
+            "description": "Set one cell, addressing the column by name (column) or position (columnIndex)",
+            "params": [
+              {
+                "name": "rowIndex",
+                "type": "number",
+                "required": true
+              },
+              {
+                "name": "column",
+                "type": "string",
+                "required": false,
+                "description": "exactly one of column/columnIndex"
+              },
+              {
+                "name": "columnIndex",
+                "type": "number",
+                "required": false
+              },
+              {
+                "name": "value",
+                "type": "string",
+                "required": true
+              }
+            ],
+            "returns": "updateBlock props patch (standard inverse)",
+            "kind": "action"
+          },
+          {
+            "name": "code.setAnnotation",
+            "description": "Upsert a line annotation keyed by its exact \"lines\" string",
+            "params": [
+              {
+                "name": "lines",
+                "type": "string",
+                "required": true,
+                "description": "line range key, e.g. \"4-9\""
+              },
+              {
+                "name": "note",
+                "type": "string",
+                "required": true
+              },
+              {
+                "name": "label",
+                "type": "string",
+                "required": false
+              }
+            ],
+            "returns": "updateBlock props patch (standard inverse)",
+            "kind": "action"
+          }
+        ],
+        "title": "blockAction examples (2 of 13)"
+      },
+      "children": []
+    },
+    "b-20-mutation-model-change-events-15": {
+      "id": "b-20-mutation-model-change-events-15",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Change events"
+        }
+      ],
+      "children": []
+    },
+    "b-20-mutation-model-change-events-sse-16": {
+      "id": "b-20-mutation-model-change-events-sse-16",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A successful apply broadcasts an SSE change event carrying the ids of blocks whose content or placement changed. Consumers use that id set to flash the affected blocks; the event is a notification of the applied patch, not a second write path."
+        }
+      ],
+      "children": []
+    },
+    "b-20-mutation-model-dirty-suppression-17": {
+      "id": "b-20-mutation-model-dirty-suppression-17",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Auto-apply of incoming change events is held while a consumer has an unsaved or dirty draft. Remote changes therefore never clobber local work; if both sides touched overlapping state, the overlap appears as the "
+        },
+        {
+          "insert": "409",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " when the dirty draft is saved against its stale "
+        },
+        {
+          "insert": "expected_hash",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-10-save-pipeline-callout-dirty-suppress-20": {
+      "id": "b-10-save-pipeline-callout-dirty-suppress-20",
+      "type": "callout",
+      "props": {
+        "kind": "Gotcha",
+        "title": "Why didn't the live update apply?",
+        "tone": "info"
+      },
+      "text": [
+        {
+          "insert": "SSE auto-apply is suppressed while your editor is dirty or a save is in flight — incoming remote changes are held rather than clobbering your unsaved draft. Nothing is lost: once you save (or reload), any true overlap surfaces as the save-time 409 instead of a silent merge."
+        }
+      ],
+      "children": []
+    },
+    "b-20-mutation-model-discovery-18": {
+      "id": "b-20-mutation-model-discovery-18",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Discovery"
+        }
+      ],
+      "children": []
+    },
+    "b-20-mutation-model-discovery-surface-19": {
+      "id": "b-20-mutation-model-discovery-surface-19",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "GET /api/blocks",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " exposes "
+        },
+        {
+          "insert": "{ schemaVersion: 2, ops, components }",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Ops carry kernel descriptions. Each component has name, description, types, and actions; types contain "
+        },
+        {
+          "insert": "{ type, carriesText, state }",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and actions contain "
+        },
+        {
+          "insert": "{ action, description, params }",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". TypeBox state and params schemas are served verbatim as JSON Schema. There is no text/object category."
+        }
+      ],
+      "children": []
+    },
+    "b-20-mutation-model-divider-20": {
+      "id": "b-20-mutation-model-divider-20",
+      "type": "divider",
+      "props": {},
+      "children": []
+    },
+    "b-20-mutation-model-closing-links-21": {
+      "id": "b-20-mutation-model-closing-links-21",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Read this alongside "
+        },
+        {
+          "insert": "the data model — doc.json shapes",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/20-data-model/00-overview",
+              "label": "the data model — doc.json shapes"
+            }
+          }
+        },
+        {
+          "insert": " for the exact data shape and "
+        },
+        {
+          "insert": "the save pipeline — how bytes reach disk",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "docs/20-implementation/30-save-pipeline.md",
+              "label": "the save pipeline — how bytes reach disk"
+            }
+          }
+        },
+        {
+          "insert": " for the concrete write path."
+        }
+      ],
+      "children": []
+    }
+  }
+}

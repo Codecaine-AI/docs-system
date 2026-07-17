@@ -1,0 +1,810 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-00-data-model-10-document-tree",
+  "title": "The document & block tree",
+  "root": "b-10-document-tree-root",
+  "blocks": {
+    "b-10-document-tree-root": {
+      "id": "b-10-document-tree-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-10-document-tree-title-1",
+        "b-10-document-tree-lead-2",
+        "b-10-document-tree-envelope-3",
+        "b-10-document-tree-envelope-example-4",
+        "b-10-document-tree-the-block-5",
+        "b-10-document-tree-block-example-6",
+        "b-10-document-tree-ids-7",
+        "b-10-document-tree-id-rules-8",
+        "b-10-document-tree-anchor-contract-9",
+        "b-10-document-tree-legacy-10",
+        "b-10-document-tree-flavour-alias-11",
+        "b-10-document-tree-coercion-12",
+        "b-10-document-tree-invariants-13",
+        "b-10-document-tree-invariants-intro-14",
+        "b-10-document-tree-invariant-orphans-15",
+        "b-10-document-tree-invariant-single-parent-16",
+        "b-10-document-tree-invariant-root-17",
+        "b-10-document-tree-invariant-cycles-18",
+        "b-10-document-tree-invariant-reachable-19",
+        "b-10-document-tree-write-path-20",
+        "b-10-document-tree-ops-intro-21",
+        "b-10-document-tree-op-surface-22",
+        "b-10-document-tree-divider-23",
+        "b-10-document-tree-closing-24"
+      ]
+    },
+    "b-10-document-tree-title-1": {
+      "id": "b-10-document-tree-title-1",
+      "type": "heading",
+      "props": {
+        "level": 1
+      },
+      "text": [
+        {
+          "insert": "The document & block tree"
+        }
+      ],
+      "children": []
+    },
+    "b-10-document-tree-lead-2": {
+      "id": "b-10-document-tree-lead-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A "
+        },
+        {
+          "insert": "doc.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " document is a normalized block tree: a root pointer, a flat id-keyed "
+        },
+        {
+          "insert": "blocks",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " map, and ordered child-id arrays. There is no nesting in the JSON itself — tree order lives entirely in the "
+        },
+        {
+          "insert": "children",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " arrays. The vocabulary of valid block shapes stays deliberately small; see "
+        },
+        {
+          "insert": "the block vocabulary",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-block-vocabulary/00-overview",
+              "label": "the block vocabulary"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-10-document-tree-envelope-3": {
+      "id": "b-10-document-tree-envelope-3",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The document envelope"
+        }
+      ],
+      "children": []
+    },
+    "b-10-document-tree-envelope-example-4": {
+      "id": "b-10-document-tree-envelope-example-4",
+      "type": "code",
+      "props": {
+        "annotations": [
+          {
+            "lines": "5",
+            "label": "Root pointer",
+            "note": "The document root names a block shell. Both the viewer and the markdown render skip the root's own paragraph wrapper and walk only its children."
+          },
+          {
+            "lines": "6-15",
+            "label": "Normalized tree",
+            "note": "Storage is a flat id-keyed map; ordered children arrays carry tree order. A sibling reorder is localized to the children array under the deterministic serializer."
+          },
+          {
+            "lines": "8,17,24",
+            "label": "Anchor invariant",
+            "note": "The map key and block id match. Comments, patches, and backlinks anchor to ids; updateBlock preserves them, while split and merge mint fresh ids."
+          }
+        ],
+        "language": "json"
+      },
+      "text": [
+        {
+          "insert": "{\n  \"schemaVersion\": 1,\n  \"id\": \"example-data-shape\",\n  \"title\": \"Tiny doc\",\n  \"root\": \"b-example-root\",\n  \"blocks\": {\n    \"b-example-root\": {\n      \"id\": \"b-example-root\",\n      \"type\": \"paragraph\",\n      \"props\": {},\n      \"children\": [\n        \"b-example-title\",\n        \"b-example-body\"\n      ]\n    },\n    \"b-example-title\": {\n      \"id\": \"b-example-title\",\n      \"type\": \"heading\",\n      \"props\": { \"level\": 1 },\n      \"text\": [{ \"insert\": \"Tiny doc\" }],\n      \"children\": []\n    },\n    \"b-example-body\": {\n      \"id\": \"b-example-body\",\n      \"type\": \"paragraph\",\n      \"props\": {},\n      \"text\": [{ \"insert\": \"A normalized block tree.\" }],\n      \"children\": []\n    }\n  }\n}"
+        }
+      ],
+      "children": []
+    },
+    "b-10-document-tree-the-block-5": {
+      "id": "b-10-document-tree-the-block-5",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The block"
+        }
+      ],
+      "children": []
+    },
+    "b-10-document-tree-block-example-6": {
+      "id": "b-10-document-tree-block-example-6",
+      "type": "code",
+      "props": {
+        "annotations": [
+          {
+            "lines": "3",
+            "label": "Canonical type",
+            "note": "The canonical kind key is type — one of the 14 canonical block types. Legacy aliases and retired types are handled on read; see below."
+          },
+          {
+            "lines": "4-12",
+            "label": "Typed props",
+            "note": "Props are typed per block type: code uses language and annotations, heading uses level, image uses src/alt/caption, and so on. The per-type schemas are the block-state page."
+          },
+          {
+            "lines": "14-16",
+            "label": "Optional text",
+            "note": "text is present only on types that carry delta rich text; the span shape is the rich-text page."
+          },
+          {
+            "lines": "17",
+            "label": "Ordered children",
+            "note": "children is always present. It stores ordered child ids, even when the block has no children."
+          }
+        ],
+        "language": "json"
+      },
+      "text": [
+        {
+          "insert": "{\n  \"id\": \"b-example-code-7\",\n  \"type\": \"code\",\n  \"props\": {\n    \"language\": \"ts\",\n    \"annotations\": [\n      {\n        \"lines\": \"3-5\",\n        \"label\": \"Invariant\",\n        \"note\": \"Validation keeps shape errors explicit.\"\n      }\n    ]\n  },\n  \"text\": [\n    { \"insert\": \"export const stable = true;\\n\" }\n  ],\n  \"children\": []\n}"
+        }
+      ],
+      "children": []
+    },
+    "b-10-document-tree-ids-7": {
+      "id": "b-10-document-tree-ids-7",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Ids are anchors"
+        }
+      ],
+      "children": []
+    },
+    "b-10-document-tree-id-rules-8": {
+      "id": "b-10-document-tree-id-rules-8",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Document ids, block ids, and child references are all stable ASCII ids matching "
+        },
+        {
+          "insert": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,96}$",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Every block's "
+        },
+        {
+          "insert": "id",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " must equal its key in the "
+        },
+        {
+          "insert": "blocks",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " map — the id is stored twice on purpose, so a block stays self-describing when it travels without its map."
+        }
+      ],
+      "children": []
+    },
+    "b-10-document-tree-anchor-contract-9": {
+      "id": "b-10-document-tree-anchor-contract-9",
+      "type": "callout",
+      "props": {
+        "kind": "Anchor contract",
+        "tone": "info"
+      },
+      "text": [
+        {
+          "insert": "Comments, patches, and backlinks anchor to block ids, so id stability is a behavioral contract: "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "moveBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " preserve ids, while "
+        },
+        {
+          "insert": "splitBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "mergeBlocks",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " mint fresh ids for the blocks they create. Anything that anchors to a split or merged block must expect the anchor to dangle."
+        }
+      ],
+      "children": []
+    },
+    "b-10-document-tree-legacy-10": {
+      "id": "b-10-document-tree-legacy-10",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Legacy aliases and coercion on read"
+        }
+      ],
+      "children": []
+    },
+    "b-10-document-tree-flavour-alias-11": {
+      "id": "b-10-document-tree-flavour-alias-11",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The canonical kind key is "
+        },
+        {
+          "insert": "type",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". The BlockSuite-heritage "
+        },
+        {
+          "insert": "flavour",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " key is accepted on read as a legacy alias and normalized into "
+        },
+        {
+          "insert": "type",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "; if both keys are present they must agree. Writes always emit canonical "
+        },
+        {
+          "insert": "type",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-10-document-tree-coercion-12": {
+      "id": "b-10-document-tree-coercion-12",
+      "type": "callout",
+      "props": {
+        "kind": "Retired-type coercion",
+        "tone": "info"
+      },
+      "text": [
+        {
+          "insert": "After flavour aliasing, any block whose type is a string but not one of the 14 canonical types coerces to a "
+        },
+        {
+          "insert": "callout",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " instead of failing validation. The retired name survives as "
+        },
+        {
+          "insert": "props.kind",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " (unless the block already carries its own non-empty kind); props, text, and children carry over verbatim. This is deliberate resilience: it migrates the canvas sibling's semantic-card and legacy blocks with zero file rewrites — blocks canonicalize to the coerced form on next save."
+        }
+      ],
+      "children": []
+    },
+    "b-10-document-tree-invariants-13": {
+      "id": "b-10-document-tree-invariants-13",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Graph invariants"
+        }
+      ],
+      "children": []
+    },
+    "b-10-document-tree-invariants-intro-14": {
+      "id": "b-10-document-tree-invariants-intro-14",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "validateDocDocument",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " treats the tree as a real graph, not a bag of blocks. It is pure and never throws — failures come back as a typed issue list with JSONPath-style paths. Beyond per-block shape checks, five structural invariants hold:"
+        }
+      ],
+      "children": []
+    },
+    "b-10-document-tree-invariant-orphans-15": {
+      "id": "b-10-document-tree-invariant-orphans-15",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "No orphan references",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " — every id in a "
+        },
+        {
+          "insert": "children",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " array must resolve to a block in the map."
+        }
+      ],
+      "children": []
+    },
+    "b-10-document-tree-invariant-single-parent-16": {
+      "id": "b-10-document-tree-invariant-single-parent-16",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Single parent",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " — a block may be referenced as a child by at most one parent; shared children are rejected."
+        }
+      ],
+      "children": []
+    },
+    "b-10-document-tree-invariant-root-17": {
+      "id": "b-10-document-tree-invariant-root-17",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Root is nobody's child",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " — the root block must exist in "
+        },
+        {
+          "insert": "blocks",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and cannot appear in any children array."
+        }
+      ],
+      "children": []
+    },
+    "b-10-document-tree-invariant-cycles-18": {
+      "id": "b-10-document-tree-invariant-cycles-18",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "No cycles",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " — the walk from root must never revisit a block."
+        }
+      ],
+      "children": []
+    },
+    "b-10-document-tree-invariant-reachable-19": {
+      "id": "b-10-document-tree-invariant-reachable-19",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Everything reachable",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " — every non-root block must be reachable from the root exactly once; detached subtrees are rejected."
+        }
+      ],
+      "children": []
+    },
+    "b-10-document-tree-write-path-20": {
+      "id": "b-10-document-tree-write-path-20",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Seven ops, one write path"
+        }
+      ],
+      "children": []
+    },
+    "b-10-document-tree-ops-intro-21": {
+      "id": "b-10-document-tree-ops-intro-21",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Everything that changes a document is one of seven ops, and every successful apply returns exact inverse ops that become undo units. The full mutation concept lives in "
+        },
+        {
+          "insert": "the mutation model",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-mutation-model",
+              "label": "the mutation model"
+            }
+          }
+        },
+        {
+          "insert": "; this surface is the data shape."
+        }
+      ],
+      "children": []
+    },
+    "b-10-document-tree-op-surface-22": {
+      "id": "b-10-document-tree-op-surface-22",
+      "type": "interaction-surface",
+      "props": {
+        "operations": [
+          {
+            "name": "insertBlock",
+            "description": "Insert a fresh non-colliding block under parentId at index.",
+            "params": [
+              {
+                "name": "blockId",
+                "type": "string",
+                "required": true,
+                "description": "Stable id for the new block."
+              },
+              {
+                "name": "parentId",
+                "type": "string",
+                "required": true,
+                "description": "Existing parent block id."
+              },
+              {
+                "name": "index",
+                "type": "number",
+                "required": true,
+                "description": "Position within the parent's children."
+              },
+              {
+                "name": "blockType",
+                "type": "DocBlockType",
+                "required": true,
+                "description": "One of the 14 canonical block types."
+              },
+              {
+                "name": "props",
+                "type": "object",
+                "required": true,
+                "description": "Initial typed props."
+              },
+              {
+                "name": "text",
+                "type": "DeltaSpan[]",
+                "required": false,
+                "description": "Optional initial rich text."
+              }
+            ],
+            "returns": "{ doc, inverse: DocOp[] }"
+          },
+          {
+            "name": "updateBlock",
+            "description": "Shallow-merge props and/or replace text while preserving the block id.",
+            "params": [
+              {
+                "name": "blockId",
+                "type": "string",
+                "required": true,
+                "description": "Target block id."
+              },
+              {
+                "name": "props",
+                "type": "object",
+                "required": false,
+                "description": "Patch; a key set to undefined removes that prop."
+              },
+              {
+                "name": "text",
+                "type": "DeltaSpan[] | null",
+                "required": false,
+                "description": "Replacement text; null clears text."
+              }
+            ],
+            "returns": "{ doc, inverse: DocOp[] }"
+          },
+          {
+            "name": "deleteBlock",
+            "description": "Delete a block as a subtree, or splice its children into the parent.",
+            "params": [
+              {
+                "name": "blockId",
+                "type": "string",
+                "required": true,
+                "description": "Target block id."
+              },
+              {
+                "name": "mode",
+                "type": "\"subtree\" | \"reparent\"",
+                "required": false,
+                "description": "subtree is the default; reparent splices children into the former slot."
+              }
+            ],
+            "returns": "{ doc, inverse: DocOp[] }"
+          },
+          {
+            "name": "moveBlock",
+            "description": "Move a block under toParentId at toIndex, checking cycles.",
+            "params": [
+              {
+                "name": "blockId",
+                "type": "string",
+                "required": true,
+                "description": "Block being moved."
+              },
+              {
+                "name": "toParentId",
+                "type": "string",
+                "required": true,
+                "description": "Destination parent id."
+              },
+              {
+                "name": "toIndex",
+                "type": "number",
+                "required": true,
+                "description": "Destination child index after detach."
+              }
+            ],
+            "returns": "{ doc, inverse: DocOp[] }"
+          },
+          {
+            "name": "splitBlock",
+            "description": "Split a block's delta text at a character offset; the new sibling gets a fresh id.",
+            "params": [
+              {
+                "name": "blockId",
+                "type": "string",
+                "required": true,
+                "description": "Text block to split."
+              },
+              {
+                "name": "offset",
+                "type": "number",
+                "required": true,
+                "description": "Character offset in [0, textLength]."
+              }
+            ],
+            "returns": "{ doc, inverse: DocOp[] }"
+          },
+          {
+            "name": "mergeBlocks",
+            "description": "Merge two or more contiguous siblings in document order into a fresh block.",
+            "params": [
+              {
+                "name": "blockIds",
+                "type": "string[]",
+                "required": true,
+                "description": "The contiguous sibling ids to merge."
+              }
+            ],
+            "returns": "{ doc, inverse: DocOp[] }"
+          },
+          {
+            "name": "blockAction",
+            "description": "Resolve a named typed action and apply its validated result through updateBlock.",
+            "params": [
+              {
+                "name": "blockId",
+                "type": "string",
+                "required": true,
+                "description": "Target block id."
+              },
+              {
+                "name": "action",
+                "type": "string",
+                "required": true,
+                "description": "Registry key in the form <blockType>.<verb>."
+              },
+              {
+                "name": "params",
+                "type": "object",
+                "required": true,
+                "description": "Action-specific params validated by the action."
+              }
+            ],
+            "returns": "{ doc, inverse: DocOp[] }"
+          }
+        ],
+        "title": "DocOp kernel"
+      },
+      "children": []
+    },
+    "b-10-document-tree-divider-23": {
+      "id": "b-10-document-tree-divider-23",
+      "type": "divider",
+      "props": {},
+      "children": []
+    },
+    "b-10-document-tree-closing-24": {
+      "id": "b-10-document-tree-closing-24",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Continue with "
+        },
+        {
+          "insert": "rich text — delta spans and reference chips",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/20-data-model/20-rich-text",
+              "label": "rich text — delta spans and reference chips"
+            }
+          }
+        },
+        {
+          "insert": " for the span shape inside "
+        },
+        {
+          "insert": "text",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "per-type block state",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/20-data-model/30-block-state",
+              "label": "per-type block state"
+            }
+          }
+        },
+        {
+          "insert": " for what each type allows in "
+        },
+        {
+          "insert": "props",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "canonical bytes",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/20-data-model/50-canonical-bytes",
+              "label": "canonical bytes"
+            }
+          }
+        },
+        {
+          "insert": " for how this tree becomes deterministic bytes."
+        }
+      ],
+      "children": []
+    }
+  }
+}

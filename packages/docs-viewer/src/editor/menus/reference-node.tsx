@@ -23,7 +23,7 @@ import {
   useFloating,
   type ReferenceType,
 } from "@floating-ui/react";
-import type { SpectreRef } from "@codecaine-ai/docs-model/spectre-ref";
+import { validateSpectreRef, type SpectreRef } from "@codecaine-ai/docs-model/spectre-ref";
 import { useDocsClient, type DocsClient, type DocsTreeNode } from "../../client";
 
 /**
@@ -50,6 +50,24 @@ export type DocReferenceAttrs = {
   label: string;
 };
 
+/**
+ * Defensive parse of the JSON-encoded clipboard payload — null for missing,
+ * malformed, or non-SpectreRef data, so a corrupted span can never re-enter
+ * a doc as a junk reference. Validation is a GATE only: the parsed object is
+ * returned as-is (validateSpectreRef's cleaned copy carries explicit
+ * `undefined` optional keys, which would make diffToOps's key-counting
+ * deepEqual flag every pasted reference as changed).
+ */
+function parseReferencePayload(raw: string | null): SpectreRef | null {
+  if (!raw) return null;
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    return validateSpectreRef(parsed).ok ? (parsed as SpectreRef) : null;
+  } catch {
+    return null;
+  }
+}
+
 export const DocReference = Node.create({
   name: "docReference",
   group: "inline",
@@ -58,12 +76,40 @@ export const DocReference = Node.create({
   selectable: true,
   addAttributes() {
     return {
-      ref: { default: null as SpectreRef | null },
-      label: { default: "" },
+      ref: {
+        default: null as SpectreRef | null,
+        // The SpectreRef object must be explicitly JSON-encoded for the
+        // clipboard round trip — TipTap's default attribute rendering wrote
+        // it as `ref="[object Object]"`, which paste read back as that
+        // literal string and corrupted the saved doc.json span (the doc then
+        // failed validation on next load).
+        parseHTML: (element: HTMLElement) =>
+          parseReferencePayload(element.getAttribute("data-doc-reference-payload")),
+        renderHTML: (attributes: Record<string, unknown>) => {
+          const ref = attributes.ref as SpectreRef | null;
+          return ref ? { "data-doc-reference-payload": JSON.stringify(ref) } : {};
+        },
+      },
+      // Explicit parse keeps TipTap's default `fromString` coercion from
+      // turning an all-numeric label into a number.
+      label: {
+        default: "",
+        parseHTML: (element: HTMLElement) => element.getAttribute("label") ?? "",
+      },
     };
   },
   parseHTML() {
-    return [{ tag: "span[data-doc-reference]" }];
+    return [
+      {
+        tag: "span[data-doc-reference]",
+        // A span whose payload is missing or malformed (e.g. HTML copied
+        // before the JSON encoding existed) is NOT a reference — reject the
+        // rule so the span's label text pastes as plain text instead of a
+        // target-less chip.
+        getAttrs: (element) =>
+          parseReferencePayload(element.getAttribute("data-doc-reference-payload")) ? null : false,
+      },
+    ];
   },
   renderHTML({ node, HTMLAttributes }) {
     const ref = node.attrs.ref as SpectreRef | null;

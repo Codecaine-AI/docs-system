@@ -8,7 +8,8 @@ import type {
   DocDocument,
 } from "@codecaine-ai/docs-model/doc-schema";
 import type { DocOp, DocIdFactory } from "@codecaine-ai/docs-model/doc-ops";
-import type { SpectreRef } from "@codecaine-ai/docs-model/spectre-ref";
+import { validateSpectreRef, type SpectreRef } from "@codecaine-ai/docs-model/spectre-ref";
+import { isDeltaSpanArray, isRecord } from "./node-helpers";
 import { BLOCK_TYPE_TO_NODE_TYPE, NODE_TYPE_TO_BLOCK_TYPE, TEXT_BLOCK_TYPES } from "./schema";
 
 /**
@@ -222,9 +223,19 @@ function pmInlineToDelta(nodes: PMNode[]): DeltaSpan[] {
   const spans: DeltaSpan[] = [];
   for (const node of nodes) {
     if (node.type === "docReference") {
-      const ref = node.attrs?.ref as SpectreRef | undefined;
-      const label = (node.attrs?.label as string) ?? ref?.label ?? ref?.path ?? "";
+      // Defense in depth against corrupted clipboard payloads (the
+      // "[object Object]" incident): only a structurally valid SpectreRef may
+      // become a `reference` span attribute — anything else degrades to the
+      // chip's plain label text instead of writing a span that fails doc
+      // validation on the next load. Validation gates but never substitutes
+      // the object (see reference-node.tsx's parseReferencePayload for why).
+      const rawRef = node.attrs?.ref;
+      const ref = validateSpectreRef(rawRef).ok ? (rawRef as SpectreRef) : null;
+      const rawLabel = node.attrs?.label;
+      const label =
+        (typeof rawLabel === "string" ? rawLabel : undefined) ?? ref?.label ?? ref?.path ?? "";
       if (ref) spans.push({ insert: label, attributes: { reference: ref } });
+      else if (label) spans.push({ insert: label });
       continue;
     }
     if (node.type !== "text" || !node.text) continue;
@@ -257,7 +268,10 @@ function sameSpanAttrs(a: DeltaSpanAttributes | undefined, b: DeltaSpanAttribute
  * defines the attr.
  */
 function joinPropsFromNode(blockType: DocBlockType, attrs: Record<string, unknown>): Record<string, unknown> {
-  const blockProps = (attrs.blockProps as Record<string, unknown>) ?? {};
+  // Shape gate, not just a null check: a non-object `blockProps` (corrupted
+  // clipboard data) must yield empty props, never junk spread into the block.
+  const rawBlockProps = attrs.blockProps;
+  const blockProps = isRecord(rawBlockProps) ? rawBlockProps : {};
   const props: Record<string, unknown> = { ...blockProps };
   if (blockType === "heading" && typeof attrs.level === "number") props.level = attrs.level;
   if (blockType === "list-item" && typeof attrs.ordered === "boolean") props.ordered = attrs.ordered;
@@ -303,7 +317,10 @@ function pmNodeToBlock(
   const isTextBlock = (TEXT_BLOCK_TYPES as readonly string[]).includes(blockType);
 
   if (!isTextBlock) {
-    const blockText = attrs.blockText as DeltaSpan[] | null | undefined;
+    // Shape gate (not just truthiness): corrupted clipboard data must never
+    // ride into a block's `text` as a non-DeltaSpan[] value.
+    const rawBlockText = attrs.blockText;
+    const blockText = isDeltaSpanArray(rawBlockText) ? rawBlockText : null;
     blocks[id] = {
       id,
       type: blockType,

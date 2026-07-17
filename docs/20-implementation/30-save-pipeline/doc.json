@@ -79,7 +79,7 @@
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "docs/10-system-design/00-data-model/00-overview.md",
+              "path": "10-system-design/20-data-model/00-overview",
               "label": "the data model — doc.json shapes"
             }
           }
@@ -92,7 +92,7 @@
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "docs/10-system-design/20-mutation-model.md",
+              "path": "10-system-design/40-mutation-model",
               "label": "the mutation model — ops, inverses, undo"
             }
           }
@@ -258,7 +258,7 @@
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "docs/10-system-design/20-mutation-model.md",
+              "path": "10-system-design/40-mutation-model",
               "label": "the mutation model — ops, inverses, undo"
             }
           }
@@ -584,7 +584,7 @@
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "docs/10-system-design/20-mutation-model.md",
+              "path": "10-system-design/40-mutation-model",
               "label": "the mutation model — ops, inverses, undo"
             }
           }

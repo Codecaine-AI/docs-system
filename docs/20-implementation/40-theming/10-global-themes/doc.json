@@ -42,7 +42,16 @@
       "props": {},
       "text": [
         {
-          "insert": "A theme is a folder. Global built-ins (Default and Dark — the catalogue stays minimal while the theme identity is still being figured out) are compiled into the workbench; custom themes live in the repo's "
+          "insert": "A theme is a folder. While the default theme's identity is being figured out, the picker shows ONLY Default: the rail auto-saves every change (debounced) into the repo's "
+        },
+        {
+          "insert": "themes/default/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " folder, which overrides the compiled-in fallback — Default IS the living core theme, and selecting it restores the last saved look. Custom themes still live as folders in the repo's "
         },
         {
           "insert": "themes/<id>/",
@@ -230,16 +239,16 @@
       "props": {},
       "text": [
         {
-          "insert": "From the rail: Save current look as theme snapshots your knobs (base = the active theme) into a new "
+          "insert": "From the rail: every knob change auto-saves (1.5s debounce) into "
         },
         {
-          "insert": "themes/<id>/",
+          "insert": "themes/default/",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " folder via "
+          "insert": " via "
         },
         {
           "insert": "POST /api/themes",
@@ -248,7 +257,7 @@
           }
         },
         {
-          "insert": "."
+          "insert": " — component overrides become real components/*.json files, the rest rides as railDefaults. Named save-as returns when the catalogue reopens."
         }
       ],
       "children": []

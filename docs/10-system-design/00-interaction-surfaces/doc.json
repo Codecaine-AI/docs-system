@@ -1,0 +1,673 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-00-interaction-surfaces",
+  "title": "Interaction surfaces",
+  "root": "b-00-interaction-surfaces-root",
+  "blocks": {
+    "b-00-interaction-surfaces-root": {
+      "id": "b-00-interaction-surfaces-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-isurf-title-1",
+        "b-isurf-canvas-hero",
+        "pm-mrp81bx4-2839-23vo4v",
+        "pm-mrpfasf5-1-dsblal",
+        "pm-mrpe42kc-17-869urm",
+        "pm-mrpddwdu-766-1z1inz",
+        "pm-mrpddwdu-767-o2h9xx",
+        "pm-mrpddwdu-768-17aomg",
+        "pm-mrpddwdu-769-jbnmhs",
+        "pm-mrpfasf5-2-p1nfqi",
+        "pm-mrpfasf5-3-zz5vtb",
+        "pm-mrpd2dxn-75-25vx8w",
+        "pm-mrpddwdu-758-bfk1ce",
+        "pm-mrpddwdu-759-au9dee",
+        "pm-mrpddwdu-760-2e5vcv",
+        "pm-mrpddwdu-761-qj4gpg",
+        "pm-mrpddwdu-762-pil9qz",
+        "pm-mrpddwdu-763-0b5gwr",
+        "pm-mrpddwdu-770-6t9k90",
+        "pm-mrpddwdu-771-abom36",
+        "pm-mrpd2dxn-76-pozp6x",
+        "pm-mrpddwdu-772-kbyxiv",
+        "pm-mrpddwdu-773-gm490u",
+        "pm-mrpddwdu-774-2mf1ej",
+        "pm-mrpddwdu-775-lyb5t9",
+        "b-isurf-intro-2",
+        "b-isurf-state-heading-3",
+        "b-isurf-state-para-4",
+        "pm-mrpe42kc-18-es7q9q",
+        "pm-mrpe42kc-19-7m0of4",
+        "b-isurf-human-heading-6",
+        "b-isurf-human-editor-7",
+        "b-isurf-human-embed-8",
+        "b-isurf-agent-heading-9",
+        "b-isurf-agent-read-10",
+        "b-isurf-agent-write-11",
+        "b-isurf-symmetry-heading-13",
+        "b-isurf-symmetry-table-14",
+        "b-isurf-symmetry-para-15"
+      ]
+    },
+    "b-isurf-title-1": {
+      "id": "b-isurf-title-1",
+      "type": "heading",
+      "props": {
+        "level": 1
+      },
+      "text": [
+        {
+          "insert": "Interaction Surfaces"
+        }
+      ],
+      "children": []
+    },
+    "b-isurf-canvas-hero": {
+      "id": "b-isurf-canvas-hero",
+      "type": "canvas",
+      "props": {
+        "canvasId": "interaction-surfaces",
+        "title": "One state, two readers",
+        "view": "one-state-two-readers"
+      },
+      "children": []
+    },
+    "pm-mrp81bx4-2839-23vo4v": {
+      "id": "pm-mrp81bx4-2839-23vo4v",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The Issue"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrpfasf5-1-dsblal": {
+      "id": "pm-mrpfasf5-1-dsblal",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The issue is that people are trying to fit the same medium to both humans and agents, even though we have very different optimal information consumption methods"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrpe42kc-17-869urm": {
+      "id": "pm-mrpe42kc-17-869urm",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Humans",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": []
+    },
+    "pm-mrpddwdu-766-1z1inz": {
+      "id": "pm-mrpddwdu-766-1z1inz",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Text is a great medium, but people learn and understand much more when you can use multiple senses "
+        }
+      ],
+      "children": []
+    },
+    "pm-mrpddwdu-767-o2h9xx": {
+      "id": "pm-mrpddwdu-767-o2h9xx",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "HTML is good as this allows for making significantly better visualizations"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrpddwdu-768-17aomg": {
+      "id": "pm-mrpddwdu-768-17aomg",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Agents",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": []
+    },
+    "pm-mrpddwdu-769-jbnmhs": {
+      "id": "pm-mrpddwdu-769-jbnmhs",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Excel at text but lacking in the visual space"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrpfasf5-2-p1nfqi": {
+      "id": "pm-mrpfasf5-2-p1nfqi",
+      "type": "divider",
+      "props": {},
+      "children": []
+    },
+    "pm-mrpfasf5-3-zz5vtb": {
+      "id": "pm-mrpfasf5-3-zz5vtb",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Markdown has been the standard for interacting with agents, and for good reason"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrpd2dxn-75-25vx8w": {
+      "id": "pm-mrpd2dxn-75-25vx8w",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Models operate largely in a text based world and simple text system allow for huge gains"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrpddwdu-758-bfk1ce": {
+      "id": "pm-mrpddwdu-758-bfk1ce",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Markdown is not good for human readers, especially as the size of documents grows"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrpddwdu-759-au9dee": {
+      "id": "pm-mrpddwdu-759-au9dee",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "I have found myself many a time just not reading the MD docs at all as the UX for it is terrible"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrpddwdu-760-2e5vcv": {
+      "id": "pm-mrpddwdu-760-2e5vcv",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Recently HTML or MDX have been touted as the best way to do it, which has merrit, but has flaws"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrpddwdu-761-qj4gpg": {
+      "id": "pm-mrpddwdu-761-qj4gpg",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Extra tokens for HTML and no easy way to edit the components"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrpddwdu-762-pil9qz": {
+      "id": "pm-mrpddwdu-762-pil9qz",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Similar issue with MDX"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrpddwdu-763-0b5gwr": {
+      "id": "pm-mrpddwdu-763-0b5gwr",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The Solution"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrpddwdu-770-6t9k90": {
+      "id": "pm-mrpddwdu-770-6t9k90",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Shared State",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": []
+    },
+    "pm-mrpddwdu-771-abom36": {
+      "id": "pm-mrpddwdu-771-abom36",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The idea is to have a shared representation of the information, but then different ways to render the information to the desired audience."
+        }
+      ],
+      "children": []
+    },
+    "pm-mrpd2dxn-76-pozp6x": {
+      "id": "pm-mrpd2dxn-76-pozp6x",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every document is this system is a one canonical state (an id-keyed block tree) that neither reader touches directly. "
+        }
+      ],
+      "children": []
+    },
+    "pm-mrpddwdu-772-kbyxiv": {
+      "id": "pm-mrpddwdu-772-kbyxiv",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A human meets it as a Notion-style editor: "
+        }
+      ],
+      "children": []
+    },
+    "pm-mrpddwdu-773-gm490u": {
+      "id": "pm-mrpddwdu-773-gm490u",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "direct manipulation, drag, comments, themes. "
+        }
+      ],
+      "children": []
+    },
+    "pm-mrpddwdu-774-2mf1ej": {
+      "id": "pm-mrpddwdu-774-2mf1ej",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "An agent meets it as rendered MDX through the CLI"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrpddwdu-775-lyb5t9": {
+      "id": "pm-mrpddwdu-775-lyb5t9",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "stable, greppable, precisely addressable"
+        }
+      ],
+      "children": []
+    },
+    "b-isurf-intro-2": {
+      "id": "b-isurf-intro-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "One idea underpins everything else in this system: a document is a single canonical state with two kinds of readers, and each reader gets a surface engineered for how it consumes. A human should never have to read storage bytes; an agent should never have to drive a UI. Both work on the same truth, through the form that is optimal for them."
+        }
+      ],
+      "children": []
+    },
+    "b-isurf-state-heading-3": {
+      "id": "b-isurf-state-heading-3",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "The canonical state"
+        }
+      ],
+      "children": []
+    },
+    "b-isurf-state-para-4": {
+      "id": "b-isurf-state-para-4",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every document is a "
+        },
+        {
+          "insert": "doc.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " bundle: an id-keyed tree of blocks — the "
+        },
+        {
+          "insert": "data model",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/20-data-model/00-overview",
+              "label": "data model"
+            }
+          }
+        },
+        {
+          "insert": " — serialized to "
+        },
+        {
+          "insert": "canonical bytes",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/20-data-model/50-canonical-bytes",
+              "label": "canonical bytes"
+            }
+          }
+        },
+        {
+          "insert": ". "
+        }
+      ],
+      "children": []
+    },
+    "pm-mrpe42kc-18-es7q9q": {
+      "id": "pm-mrpe42kc-18-es7q9q",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "No reader consumes this form directly.",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " "
+        }
+      ],
+      "children": []
+    },
+    "pm-mrpe42kc-19-7m0of4": {
+      "id": "pm-mrpe42kc-19-7m0of4",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "It is built for precision, not reading: stable ids make every block addressable, canonical bytes make every change diffable and testable, and the whole tree is validated on every write."
+        }
+      ],
+      "children": []
+    },
+    "b-isurf-human-heading-6": {
+      "id": "b-isurf-human-heading-6",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The human interaction surface"
+        }
+      ],
+      "children": []
+    },
+    "b-isurf-human-editor-7": {
+      "id": "b-isurf-human-editor-7",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A human meets a document as a Notion-style editor in the "
+        },
+        {
+          "insert": "workbench",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/20-workbench",
+              "label": "workbench"
+            }
+          }
+        },
+        {
+          "insert": ", rendered by "
+        },
+        {
+          "insert": "docs-viewer",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-packages/40-docs-viewer",
+              "label": "docs-viewer"
+            }
+          }
+        },
+        {
+          "insert": ". Blocks appear as rich components — highlighted code, tables, callouts, media, embeds — and editing is direct manipulation: typing with markdown input rules, a slash menu for insertion, drag to reorder, marks for emphasis. Every edit becomes a typed operation against a block id, autosaved and broadcast live to other views."
+        }
+      ],
+      "children": []
+    },
+    "b-isurf-human-embed-8": {
+      "id": "b-isurf-human-embed-8",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The surface is embeddable and themable by design: a small set of core building blocks with an open token contract — see "
+        },
+        {
+          "insert": "theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/40-theming/00-overview",
+              "label": "theming"
+            }
+          }
+        },
+        {
+          "insert": " — so the same document renders in the workbench, an exported site, or any host page, and can be restyled without touching component code."
+        }
+      ],
+      "children": []
+    },
+    "b-isurf-agent-heading-9": {
+      "id": "b-isurf-agent-heading-9",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The agent interaction surface"
+        }
+      ],
+      "children": []
+    },
+    "b-isurf-agent-read-10": {
+      "id": "b-isurf-agent-read-10",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "An agent meets the same document as rendered markdown. "
+        },
+        {
+          "insert": "docs render <path>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " prints it; "
+        },
+        {
+          "insert": "docs grep <term>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " searches every doc as its render. The render is deterministic and pinned byte-for-byte by golden tests, which makes it a contract: an agent never parses "
+        },
+        {
+          "insert": "doc.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and never has to."
+        }
+      ],
+      "children": []
+    },
+    "b-isurf-agent-write-11": {
+      "id": "b-isurf-agent-write-11",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Writing is typed operations, not text patches: the "
+        },
+        {
+          "insert": "mutation model",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-mutation-model",
+              "label": "mutation model"
+            }
+          }
+        },
+        {
+          "insert": " addresses blocks by id, with hash preconditions and draft locks so concurrent editors fail loudly instead of clobbering each other. Discovery is built in — "
+        },
+        {
+          "insert": "GET /api/blocks",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " enumerates every block type and the actions it supports, so the available moves are learnable by machine rather than tribal memory."
+        }
+      ],
+      "children": [
+        "b-isurf-agent-direction-12"
+      ]
+    },
+    "b-isurf-agent-direction-12": {
+      "id": "b-isurf-agent-direction-12",
+      "type": "callout",
+      "props": {
+        "title": "Open direction: a richer agent render",
+        "tone": "warning"
+      },
+      "text": [
+        {
+          "insert": "Rendered markdown is the current contract. A richer render — MDX-like, keeping typed structure intact through the trip — is an open direction, deliberately unspecified until it earns its shape. The canonical state makes new renders cheap to add without disturbing existing readers."
+        }
+      ],
+      "children": []
+    },
+    "b-isurf-symmetry-heading-13": {
+      "id": "b-isurf-symmetry-heading-13",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Symmetry, in practice"
+        }
+      ],
+      "children": []
+    },
+    "b-isurf-symmetry-table-14": {
+      "id": "b-isurf-symmetry-table-14",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Interaction",
+          "Human surface",
+          "Agent surface"
+        ],
+        "rows": [
+          [
+            "Read",
+            "Blocks rendered as rich UI components",
+            "Deterministic markdown render (docs render)"
+          ],
+          [
+            "Search",
+            "Sidebar tree, backlinks, in-app navigation",
+            "docs grep across rendered docs"
+          ],
+          [
+            "Write",
+            "Direct manipulation in the editor",
+            "Typed block operations via CLI/API"
+          ],
+          [
+            "Safety",
+            "Autosave, live updates, single-use undo",
+            "Hash preconditions, draft locks"
+          ],
+          [
+            "Discovery",
+            "Slash menu and block UI",
+            "GET /api/blocks and the docs skill"
+          ]
+        ]
+      },
+      "children": []
+    },
+    "b-isurf-symmetry-para-15": {
+      "id": "b-isurf-symmetry-para-15",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Neither column is primary. A feature that improves one surface must not degrade the other; when the two pull in different directions, the canonical state grows whatever structure lets each surface stay optimal — that is the point of keeping state and surface separate."
+        }
+      ],
+      "children": []
+    }
+  }
+}

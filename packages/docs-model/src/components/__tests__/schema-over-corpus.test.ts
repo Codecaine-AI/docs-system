@@ -22,7 +22,7 @@ function corpusPaths(): string[] {
 describe("component state schemas over the document corpus", () => {
   it("accepts every block in the fixture and all repository docs", async () => {
     const docs = corpusPaths();
-    expect(docs, "expected the complete forty-three-document repository corpus").toHaveLength(43);
+    expect(docs, "expected the complete forty-five-document repository corpus").toHaveLength(45);
 
     for (const relativePath of [FIXTURE_PATH, ...docs]) {
       const bytes = await readFile(join(REPO_ROOT, relativePath), "utf8");

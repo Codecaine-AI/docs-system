@@ -59,6 +59,8 @@ export type StyleRailSettings = {
     contentMargin: number;
     /** Space above the doc's first block in px. */
     topPadding: number;
+    /** Space below the doc's last block in px. */
+    bottomPadding: number;
     /** --radius in px (theme default 0.5rem = 8). */
     radius: number;
     /** Border alpha/contrast multiplier; 1 = theme default. */
@@ -121,6 +123,8 @@ export type StyleRailSettings = {
     color: string | null;
     /** Thumb opacity (0-1). */
     opacity: number;
+    /** Clear inset around the thumb in px — lifts it off the window edge. */
+    padding: number;
   };
   /**
    * Per-component token overrides (file -> key -> hex), layered over the
@@ -146,6 +150,7 @@ export const DEFAULT_STYLE_RAIL_SETTINGS: StyleRailSettings = {
     contentWidth: 100,
     contentMargin: 32,
     topPadding: 24,
+    bottomPadding: 24,
     radius: 8,
     borderStrength: 1,
     backgroundTint: 0,
@@ -163,7 +168,7 @@ export const DEFAULT_STYLE_RAIL_SETTINGS: StyleRailSettings = {
   },
   highlight: { color: null, radius: 6, padding: 4, dragOpacity: 0.3, dropColor: null, dropWidth: 3, dropOpacity: 0.9, dropRadius: 2 },
   grip: { gap: 12, offsetY: 6, size: 18, color: null, fadeMs: 100 },
-  scrollbar: { width: 10, color: null, opacity: 1 },
+  scrollbar: { width: 10, color: null, opacity: 1, padding: 0 },
   components: {},
 };
 
@@ -328,6 +333,7 @@ export function normalizeSettings(raw: unknown): StyleRailSettings {
       contentWidth: clampNumber(layout.contentWidth ?? typography.contentWidth, 60, 140, d.layout.contentWidth),
       contentMargin: clampNumber(layout.contentMargin, 0, 96, d.layout.contentMargin),
       topPadding: clampNumber(layout.topPadding, 0, 240, d.layout.topPadding),
+      bottomPadding: clampNumber(layout.bottomPadding, 0, 600, d.layout.bottomPadding),
       radius: clampNumber(layout.radius, 0, 16, d.layout.radius),
       borderStrength: clampNumber(layout.borderStrength, 0, 2, d.layout.borderStrength),
       backgroundTint: clampNumber(layout.backgroundTint, 0, 12, d.layout.backgroundTint),
@@ -354,6 +360,7 @@ export function normalizeSettings(raw: unknown): StyleRailSettings {
       width: clampNumber(scrollbar.width, 4, 20, d.scrollbar.width),
       color: pickHexColor(scrollbar.color),
       opacity: clampNumber(scrollbar.opacity, 0.1, 1, d.scrollbar.opacity),
+      padding: clampNumber(scrollbar.padding, 0, 12, d.scrollbar.padding),
     },
     components: normalizeComponentOverrides(input.components),
     grain: {
@@ -478,6 +485,8 @@ export function styleRailVars(settings: StyleRailSettings): Record<string, strin
       layout.contentMargin === d.layout.contentMargin ? null : `${layout.contentMargin}px`,
     "--style-content-top":
       layout.topPadding === d.layout.topPadding ? null : `${layout.topPadding}px`,
+    "--style-content-bottom":
+      layout.bottomPadding === d.layout.bottomPadding ? null : `${layout.bottomPadding}px`,
 
     // Block highlight (changed-flash + node selection) and the drag
     // drop-line — consumed in index.css with theme-blue fallbacks.
@@ -509,6 +518,8 @@ export function styleRailVars(settings: StyleRailSettings): Record<string, strin
     "--docs-scrollbar-color": scrollbar.color,
     "--docs-scrollbar-opacity":
       scrollbar.opacity === d.scrollbar.opacity ? null : String(scrollbar.opacity),
+    "--docs-scrollbar-padding":
+      scrollbar.padding === d.scrollbar.padding ? null : `${scrollbar.padding}px`,
 
     "--radius": layout.radius === d.layout.radius ? null : `${layout.radius}px`,
     "--border": border,
@@ -1191,6 +1202,15 @@ export function StyleRail({
                     value={layout.topPadding}
                     valueLabel={`${layout.topPadding}px`}
                   />
+                  <SliderRow
+                    label="Bottom padding"
+                    max={600}
+                    min={0}
+                    onChange={(value) => patchLayout({ bottomPadding: value })}
+                    step={4}
+                    value={layout.bottomPadding}
+                    valueLabel={`${layout.bottomPadding}px`}
+                  />
                 </PanelSection>
                 <PanelSection title="Surfaces">
                   <SliderRow
@@ -1254,6 +1274,15 @@ export function StyleRail({
                     step={0.05}
                     value={settings.scrollbar.opacity}
                     valueLabel={`${Math.round(settings.scrollbar.opacity * 100)}%`}
+                  />
+                  <SliderRow
+                    label="Padding"
+                    max={12}
+                    min={0}
+                    onChange={(value) => patchScrollbar({ padding: value })}
+                    step={1}
+                    value={settings.scrollbar.padding}
+                    valueLabel={`${settings.scrollbar.padding}px`}
                   />
                 </PanelSection>
                 <PanelSection defaultOpen title="Editor">

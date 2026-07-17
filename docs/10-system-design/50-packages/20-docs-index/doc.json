@@ -1,0 +1,460 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-30-packages-20-docs-index",
+  "title": "docs-index — backlinks",
+  "root": "b-20-docs-index-root",
+  "blocks": {
+    "b-20-docs-index-root": {
+      "id": "b-20-docs-index-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-20-docs-index-title-1",
+        "b-20-docs-index-lead-2",
+        "b-20-docs-index-what-it-owns-3",
+        "b-20-docs-index-derived-index-4",
+        "b-20-docs-index-reference-operations-5",
+        "b-20-docs-index-why-separate-6",
+        "b-20-docs-index-runtime-boundary-7",
+        "b-20-docs-index-dependencies-8",
+        "b-20-docs-index-depends-on-9",
+        "b-20-docs-index-depended-on-10",
+        "b-20-docs-index-import-boundary-11",
+        "b-20-docs-index-using-alone-12",
+        "b-20-docs-index-direct-use-13",
+        "b-20-docs-index-boundary-review-14"
+      ]
+    },
+    "b-20-docs-index-title-1": {
+      "id": "b-20-docs-index-title-1",
+      "type": "heading",
+      "props": {
+        "level": 1
+      },
+      "text": [
+        {
+          "insert": "docs-index — backlinks"
+        }
+      ],
+      "children": []
+    },
+    "b-20-docs-index-lead-2": {
+      "id": "b-20-docs-index-lead-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "@codecaine-ai/docs-index",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is the Bun-only package that builds and queries the derived index of references between docs and from docs into source files. It also owns reference normalization and safe bundle moves that rewrite inbound references."
+        }
+      ],
+      "children": []
+    },
+    "b-20-docs-index-what-it-owns-3": {
+      "id": "b-20-docs-index-what-it-owns-3",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "What it owns"
+        }
+      ],
+      "children": []
+    },
+    "b-20-docs-index-derived-index-4": {
+      "id": "b-20-docs-index-derived-index-4",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The index implementation lives in "
+        },
+        {
+          "insert": "packages/docs-index/src/backlinks.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and stores its "
+        },
+        {
+          "insert": "bun:sqlite",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " database at "
+        },
+        {
+          "insert": "<docsRoot>/.index/backlinks.db",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Everything under "
+        },
+        {
+          "insert": "<docsRoot>/.index/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is derived state: it is gitignored and can always be rebuilt with "
+        },
+        {
+          "insert": "docs backlinks rescan",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-20-docs-index-reference-operations-5": {
+      "id": "b-20-docs-index-reference-operations-5",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/docs-index/src/move-doc.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " renames a document bundle and rewrites inbound references. "
+        },
+        {
+          "insert": "packages/docs-index/src/ref-match.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " normalizes "
+        },
+        {
+          "insert": ".md",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": ".mdx",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", bundle-folder, and "
+        },
+        {
+          "insert": "doc.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " path forms to one document identity. "
+        },
+        {
+          "insert": "packages/docs-index/src/paths.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " provides path-confinement helpers so none of these operations can escape the docs root."
+        }
+      ],
+      "children": []
+    },
+    "b-20-docs-index-why-separate-6": {
+      "id": "b-20-docs-index-why-separate-6",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why it is its own package"
+        }
+      ],
+      "children": []
+    },
+    "b-20-docs-index-runtime-boundary-7": {
+      "id": "b-20-docs-index-runtime-boundary-7",
+      "type": "callout",
+      "props": {
+        "kind": "Runtime boundary",
+        "title": "Bun forces the package boundary",
+        "tone": "decision"
+      },
+      "text": [
+        {
+          "insert": "bun:sqlite",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is a Bun-only builtin, so "
+        },
+        {
+          "insert": "@codecaine-ai/docs-index",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " can never be bundled into the browser. Keeping it out of "
+        },
+        {
+          "insert": "@codecaine-ai/docs-model",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "@codecaine-ai/docs-viewer",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is what keeps those packages browser-safe. That runtime constraint is the boundary."
+        }
+      ],
+      "children": []
+    },
+    "b-20-docs-index-dependencies-8": {
+      "id": "b-20-docs-index-dependencies-8",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Dependencies"
+        }
+      ],
+      "children": []
+    },
+    "b-20-docs-index-depends-on-9": {
+      "id": "b-20-docs-index-depends-on-9",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "It depends on "
+        },
+        {
+          "insert": "docs-model",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-packages/10-docs-model",
+              "label": "docs-model"
+            }
+          }
+        },
+        {
+          "insert": " for the shared "
+        },
+        {
+          "insert": "SpectreRef",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " reference type, and on "
+        },
+        {
+          "insert": "@codecaine-ai/canvas",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-20-docs-index-depended-on-10": {
+      "id": "b-20-docs-index-depended-on-10",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "It is depended on by "
+        },
+        {
+          "insert": "docs-server",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-packages/30-docs-server",
+              "label": "docs-server"
+            }
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "@codecaine-ai/docs-workbench",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "docs-cli",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-packages/60-docs-cli",
+              "label": "docs-cli"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-20-docs-index-import-boundary-11": {
+      "id": "b-20-docs-index-import-boundary-11",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Across the "
+        },
+        {
+          "insert": "seven-package split",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-packages/00-overview",
+              "label": "seven-package split"
+            }
+          }
+        },
+        {
+          "insert": ", the repo-root "
+        },
+        {
+          "insert": "import-boundaries.test.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " forbids every package root from importing host-app code."
+        }
+      ],
+      "children": []
+    },
+    "b-20-docs-index-using-alone-12": {
+      "id": "b-20-docs-index-using-alone-12",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Using it alone"
+        }
+      ],
+      "children": []
+    },
+    "b-20-docs-index-direct-use-13": {
+      "id": "b-20-docs-index-direct-use-13",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "No server is required. Scripts can use the package for link audits, backlink rebuilds, and bundle renames; the CLI commands "
+        },
+        {
+          "insert": "docs backlinks rescan",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "docs links check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " drive it directly."
+        }
+      ],
+      "children": []
+    },
+    "b-20-docs-index-boundary-review-14": {
+      "id": "b-20-docs-index-boundary-review-14",
+      "type": "callout",
+      "props": {
+        "kind": "Boundary under review",
+        "title": "Could this be part of docs-server?",
+        "tone": "info"
+      },
+      "text": [
+        {
+          "insert": "Folding "
+        },
+        {
+          "insert": "@codecaine-ai/docs-index",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " into "
+        },
+        {
+          "insert": "@codecaine-ai/docs-server",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is a live candidate: both are Bun-only server-side layers, and docs-server is the index's main consumer. The current split is a judgment call. It remains separate because the index is derived, rebuildable state with no HTTP surface and is useful from the CLI without running a server."
+        }
+      ],
+      "children": []
+    }
+  }
+}

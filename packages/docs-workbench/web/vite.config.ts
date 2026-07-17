@@ -24,6 +24,9 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   define: {
     __DOCS_STATIC__: JSON.stringify(isStatic),
+    __CANVAS_STUDIO_URL__: JSON.stringify(
+      process.env.CANVAS_STUDIO_URL ?? "http://localhost:3999",
+    ),
   },
   resolve: {
     // The canvas git submodule can carry its own node_modules; force a

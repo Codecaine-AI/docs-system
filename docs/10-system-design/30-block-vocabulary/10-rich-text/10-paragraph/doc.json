@@ -1,0 +1,432 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-10-block-vocabulary-10-paragraph",
+  "title": "paragraph",
+  "root": "b-10-paragraph-root",
+  "blocks": {
+    "b-10-paragraph-root": {
+      "id": "b-10-paragraph-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-10-paragraph-title-1",
+        "b-10-paragraph-lead-2",
+        "b-10-paragraph-state-h-3",
+        "b-10-paragraph-state-4",
+        "b-10-paragraph-proj-h-5",
+        "b-10-paragraph-proj-6",
+        "b-10-paragraph-editor-h-7",
+        "b-10-paragraph-editor-8",
+        "b-10-paragraph-agent-h-9",
+        "b-10-paragraph-agent-1-10",
+        "b-10-paragraph-agent-2-11",
+        "b-10-paragraph-theming-heading",
+        "b-10-paragraph-theming-para",
+        "b-10-paragraph-theming-table"
+      ]
+    },
+    "b-10-paragraph-title-1": {
+      "id": "b-10-paragraph-title-1",
+      "type": "heading",
+      "props": {
+        "level": 1
+      },
+      "text": [
+        {
+          "insert": "paragraph"
+        }
+      ],
+      "children": []
+    },
+    "b-10-paragraph-lead-2": {
+      "id": "b-10-paragraph-lead-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The default block of the "
+        },
+        {
+          "insert": "block vocabulary",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-block-vocabulary/00-overview",
+              "label": "block vocabulary"
+            }
+          }
+        },
+        {
+          "insert": ": rich text prose. Anything that is not structurally something else is a paragraph — leads, explanations, connective tissue between headings and object blocks."
+        }
+      ],
+      "children": []
+    },
+    "b-10-paragraph-state-h-3": {
+      "id": "b-10-paragraph-state-h-3",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "State"
+        }
+      ],
+      "children": []
+    },
+    "b-10-paragraph-state-4": {
+      "id": "b-10-paragraph-state-4",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "No props: "
+        },
+        {
+          "insert": "ParagraphState",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is a closed empty object ("
+        },
+        {
+          "insert": "additionalProperties: false",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "), so any prop is a validation error. It carries delta text ("
+        },
+        {
+          "insert": "carriesText: true",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "): an array of spans with optional "
+        },
+        {
+          "insert": "bold",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " / "
+        },
+        {
+          "insert": "italic",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " / "
+        },
+        {
+          "insert": "strike",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " / "
+        },
+        {
+          "insert": "code",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " marks, a "
+        },
+        {
+          "insert": "link",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " URL, or a "
+        },
+        {
+          "insert": "reference",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " chip (a shared SpectreRef pointing at a doc or code location)."
+        }
+      ],
+      "children": []
+    },
+    "b-10-paragraph-proj-h-5": {
+      "id": "b-10-paragraph-proj-h-5",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Markdown render"
+        }
+      ],
+      "children": []
+    },
+    "b-10-paragraph-proj-6": {
+      "id": "b-10-paragraph-proj-6",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A plain text line. Marks render as standard markdown syntax (code innermost, then bold/italic/strike, link outermost); "
+        },
+        {
+          "insert": "reference",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " marks render as plain text — label if present, else the reference path — because the agent surface is a greppable terminal artifact, not a rendered document. Two quirks worth knowing: a paragraph with empty text renders nothing at all, and the document root is itself a paragraph shell whose own line is always skipped — only its children render."
+        }
+      ],
+      "children": []
+    },
+    "b-10-paragraph-editor-h-7": {
+      "id": "b-10-paragraph-editor-h-7",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "In the editor"
+        }
+      ],
+      "children": []
+    },
+    "b-10-paragraph-editor-8": {
+      "id": "b-10-paragraph-editor-8",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Typing lands in a paragraph by default; the slash menu lists it as "
+        },
+        {
+          "insert": "Text",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": ". Markdown-shortcut input rules apply the inline marks as you type ("
+        },
+        {
+          "insert": "**bold**",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "*italic*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "~~strike~~",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "`code`",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "), and "
+        },
+        {
+          "insert": "Cmd+K",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " (or pasting a URL over a selection) applies a link mark."
+        }
+      ],
+      "children": []
+    },
+    "b-10-paragraph-agent-h-9": {
+      "id": "b-10-paragraph-agent-h-9",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent notes"
+        }
+      ],
+      "children": []
+    },
+    "b-10-paragraph-agent-1-10": {
+      "id": "b-10-paragraph-agent-1-10",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Edit through the generic text ops ("
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "splitBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "mergeBlocks",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ") — a paragraph has no typed actions and no props to patch."
+        }
+      ],
+      "children": []
+    },
+    "b-10-paragraph-agent-2-11": {
+      "id": "b-10-paragraph-agent-2-11",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An empty paragraph is invisible in "
+        },
+        {
+          "insert": "docs render",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " output; don't rely on it as a spacer."
+        }
+      ],
+      "children": []
+    },
+    "b-10-paragraph-theming-heading": {
+      "id": "b-10-paragraph-theming-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Theming"
+        }
+      ],
+      "children": []
+    },
+    "b-10-paragraph-theming-para": {
+      "id": "b-10-paragraph-theming-para",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This block's theme file is "
+        },
+        {
+          "insert": "components/paragraph.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in a theme folder ("
+        },
+        {
+          "insert": "themes/<id>/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "; see 20-implementation/40-theming). Every value is one string for both modes or a "
+        },
+        {
+          "insert": "{ light, dark }",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " pair, validated against "
+        },
+        {
+          "insert": "THEME_TOKEN_REGISTRY",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-10-paragraph-theming-table": {
+      "id": "b-10-paragraph-theming-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Key",
+          "CSS variable",
+          "Styles"
+        ],
+        "rows": [
+          [
+            "fg",
+            "--docs-paragraph-fg",
+            "Paragraph text color"
+          ]
+        ]
+      },
+      "children": []
+    }
+  }
+}

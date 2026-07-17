@@ -68,12 +68,71 @@ function topLevelBlockElement(view: EditorView, target: EventTarget | null): HTM
   return element.parentElement === view.dom ? (element as HTMLElement) : null;
 }
 
+/**
+ * A full-fidelity floating copy for `setDragImage`. Chromium snapshots the
+ * drag image AFTER the dragstart handler returns — by then the source block
+ * is already dimmed and highlight-stripped by the `.docs-block-dragging`
+ * rules, so snapshotting the block itself floated a washed-out fragment the
+ * drag-opacity knob couldn't reach (Ford, dogfood round 2). Instead the
+ * ENTIRE block is cloned into an offscreen body-level holder whose opacity
+ * is `--docs-drag-opacity` (index.css `.docs-drag-image`) — the knob now
+ * governs the whole floating block, text and backgrounds alike. The caller
+ * owns removal (dragend → hide()).
+ */
+export function buildDragGhost(block: HTMLElement): HTMLElement {
+  const holder = document.createElement("div");
+  // The holder lives at body level, OUTSIDE the host's typography wrapper —
+  // every scoped rule (.docs-markdown.prose font sizing, prose colors,
+  // heading fonts) would fall back to body defaults and the floating text
+  // visibly changed size on pickup (Ford, dogfood round 2). Carrying the
+  // wrapper's class list onto the holder re-establishes the cascade for the
+  // clone.
+  const context = block.closest(".docs-markdown");
+  holder.className =
+    context instanceof HTMLElement
+      ? `docs-drag-image ${context.className}`
+      : "docs-drag-image";
+  holder.style.position = "fixed";
+  holder.style.top = "-10000px";
+  holder.style.left = "0";
+  // Match the source width so text wraps identically in the snapshot.
+  holder.style.width = `${block.getBoundingClientRect().width}px`;
+  holder.style.pointerEvents = "none";
+  const clone = block.cloneNode(true) as HTMLElement;
+  clone.classList.remove("ProseMirror-selectednode");
+  holder.appendChild(clone);
+  document.body.appendChild(holder);
+  return holder;
+}
+
+/**
+ * The doc position OF the top-level block that `block` (a direct child of
+ * view.dom) renders. `posAtDOM(block, 0)` lands INSIDE a text block (border
+ * 1) but AT a leaf atom like image/video/canvas (border 0) — a bare `- 1`
+ * therefore missed every atom block and the grip never appeared for them
+ * (Ford, dogfood round 2). Resolving and taking `.before(1)` when the
+ * position is nested normalizes both shapes to the block's own position.
+ */
+export function topLevelBlockPos(view: EditorView, block: HTMLElement): number | null {
+  let inner: number;
+  try {
+    inner = view.posAtDOM(block, 0);
+  } catch {
+    return null;
+  }
+  if (inner < 0 || inner > view.state.doc.content.size) return null;
+  const $inner = view.state.doc.resolve(inner);
+  const pos = $inner.depth === 0 ? inner : $inner.before(1);
+  return view.state.doc.nodeAt(pos) ? pos : null;
+}
+
 class DragHandleView {
   private readonly handle: HTMLElement;
   private readonly container: HTMLElement;
   private blockPos: number | null = null;
   private blockElement: HTMLElement | null = null;
   private moveTimer: number | null = null;
+  private dragGhost: HTMLElement | null = null;
 
   constructor(private readonly view: EditorView) {
     // Where the handle LIVES only needs to be outside PM's own DOM (PM
@@ -107,17 +166,8 @@ class DragHandleView {
     const block = topLevelBlockElement(this.view, event.target);
     if (!block) return; // keep the current grip while over gaps/margins
     if (block === this.blockElement) return;
-    let pos: number;
-    try {
-      // Position at the very start INSIDE the block element, minus one =
-      // the position OF the block node itself.
-      pos = this.view.posAtDOM(block, 0) - 1;
-    } catch {
-      return;
-    }
-    if (pos < 0 || pos >= this.view.state.doc.content.size) return;
-    const node = this.view.state.doc.nodeAt(pos);
-    if (!node) return;
+    const pos = topLevelBlockPos(this.view, block);
+    if (pos === null) return;
     this.blockPos = pos;
     this.blockElement = block;
     if (this.moveTimer !== null) {
@@ -185,7 +235,10 @@ class DragHandleView {
     event.dataTransfer.effectAllowed = "copyMove";
     // Some browsers cancel drags carrying no data at all.
     event.dataTransfer.setData("text/plain", "​");
-    if (this.blockElement) event.dataTransfer.setDragImage(this.blockElement, 0, 0);
+    if (this.blockElement) {
+      this.dragGhost = buildDragGhost(this.blockElement);
+      event.dataTransfer.setDragImage(this.dragGhost, 0, 0);
+    }
     // Notion feel: while in flight the source block dims instead of
     // highlighting (index.css keys off this class); the highlight lands
     // with the drop, when dragend's hide() removes it and the mapped
@@ -202,6 +255,8 @@ class DragHandleView {
     this.handle.classList.remove("docs-drag-handle-visible");
     this.blockPos = null;
     this.blockElement = null;
+    this.dragGhost?.remove();
+    this.dragGhost = null;
   };
 
   destroy() {
@@ -210,6 +265,7 @@ class DragHandleView {
     this.handle.removeEventListener("click", this.onClick);
     this.container.removeEventListener("mouseleave", this.onContainerLeave);
     window.removeEventListener("scroll", this.hide, true);
+    this.dragGhost?.remove();
     this.handle.remove();
   }
 }

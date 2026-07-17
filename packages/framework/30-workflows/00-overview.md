@@ -4,11 +4,9 @@ type: overview
 concepts: [workflows, commands, init, scaffold, interview, write, annotate, audit]
 ---
 
-# Workflow Capability
+# Workflows
 
-The "How-To" guides for executing documentation tasks. These workflows are invoked via the `/docs:*` commands and cover the full documentation lifecycle from initialization to maintenance.
-
-Every workflow below reads and writes documentation content through the `docs` CLI (`bun run docs render`, `docs grep`, `docs links check`) rather than direct file reads — content is stored as `doc.json` bundles, not flat Markdown (see [00-reference/20-architecture.md](../00-reference/20-architecture.md)). `docs serve`, `docs export`, and `docs migrate` are the remaining CLI surface not tied to a specific `/docs:*` workflow — see `99-appendix/10-setup-guide.md` for the full command list.
+Step-by-step guides for documentation tasks, invoked via the `/docs:*` commands. Every workflow reads docs through the docs CLI (`bun run docs render`, `docs grep`) and writes them through the workbench editor or docs-server API — content is stored as `doc.json` bundles, never read directly. `docs serve`, `docs export`, and `docs migrate` are the remaining CLI surface not tied to a specific workflow — see `99-appendix/10-setup-guide.md` for the full command list.
 
 ---
 
@@ -23,7 +21,8 @@ Every workflow below reads and writes documentation content through the `docs` C
 ### Knowledge Extraction
 | Workflow | Command | Purpose |
 |----------|---------|---------|
-| [30-interview-foundation.md](30-interview-foundation.md) | `/docs:interview-foundation` | Extract purpose/principles |
+| [30-interview-foundation.md](30-interview-foundation.md) | `/docs:interview-foundation` | Extract intent and vision |
+| [35-interview-design.md](35-interview-design.md) | — (loaded via the produce cookbook) | Extract system-level architecture |
 | [40-interview-codebase.md](40-interview-codebase.md) | `/docs:interview-codebase` | Extract code understanding |
 
 ### Documentation Generation
@@ -35,4 +34,4 @@ Every workflow below reads and writes documentation content through the `docs` C
 ### Maintenance
 | Workflow | Command | Purpose |
 |----------|---------|---------|
-| [70-audit.md](70-audit.md) | `/docs:audit` | Validate structure, frontmatter, and health |
+| [70-audit.md](70-audit.md) | `/docs:audit` | Validate structure, references, and health |

@@ -1,0 +1,476 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-10-block-vocabulary-15-callout",
+  "title": "callout",
+  "root": "b-15-callout-root",
+  "blocks": {
+    "b-15-callout-root": {
+      "id": "b-15-callout-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-15-callout-title-1",
+        "b-15-callout-lead-2",
+        "b-15-callout-state-h-3",
+        "b-15-callout-state-4",
+        "b-15-callout-state-note-5",
+        "b-15-callout-proj-h-6",
+        "b-15-callout-proj-7",
+        "b-15-callout-coercion-h-8",
+        "b-15-callout-coercion-9",
+        "b-15-callout-editor-h-10",
+        "b-15-callout-editor-11",
+        "b-15-callout-agent-h-12",
+        "b-15-callout-agent-1-13",
+        "b-15-callout-agent-2-14",
+        "b-15-callout-theming-heading",
+        "b-15-callout-theming-para",
+        "b-15-callout-theming-table"
+      ]
+    },
+    "b-15-callout-title-1": {
+      "id": "b-15-callout-title-1",
+      "type": "heading",
+      "props": {
+        "level": 1
+      },
+      "text": [
+        {
+          "insert": "callout"
+        }
+      ],
+      "children": []
+    },
+    "b-15-callout-lead-2": {
+      "id": "b-15-callout-lead-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The labeled admonition of the "
+        },
+        {
+          "insert": "block vocabulary",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-block-vocabulary/00-overview",
+              "label": "block vocabulary"
+            }
+          }
+        },
+        {
+          "insert": " — decisions, risks, warnings, mental models — and the vocabulary's designated safety net: every retired or unknown block type coerces into a callout rather than failing validation."
+        }
+      ],
+      "children": []
+    },
+    "b-15-callout-state-h-3": {
+      "id": "b-15-callout-state-h-3",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "State"
+        }
+      ],
+      "children": []
+    },
+    "b-15-callout-state-4": {
+      "id": "b-15-callout-state-4",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "prop",
+          "type",
+          "required",
+          "notes"
+        ],
+        "rows": [
+          [
+            "tone",
+            "\"info\" / \"decision\" / \"risk\" / \"warning\" / \"success\"",
+            "no",
+            "Color/intent; the markdown render's label falls back to the uppercased tone (default INFO)."
+          ],
+          [
+            "kind",
+            "string",
+            "no",
+            "Free-form label chip; wins over tone in the markdown render. Coerced legacy types land their old type name here."
+          ],
+          [
+            "title",
+            "string",
+            "no",
+            "Optional bold title after the label."
+          ]
+        ]
+      },
+      "children": []
+    },
+    "b-15-callout-state-note-5": {
+      "id": "b-15-callout-state-note-5",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Carries delta text ("
+        },
+        {
+          "insert": "carriesText: true",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ") as the callout body."
+        }
+      ],
+      "children": []
+    },
+    "b-15-callout-proj-h-6": {
+      "id": "b-15-callout-proj-h-6",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Markdown render"
+        }
+      ],
+      "children": []
+    },
+    "b-15-callout-proj-7": {
+      "id": "b-15-callout-proj-7",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "> **<label>[: <title>]** — body",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " where the label is "
+        },
+        {
+          "insert": "props.kind",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " when present, otherwise the uppercased "
+        },
+        {
+          "insert": "props.tone",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " (default "
+        },
+        {
+          "insert": "INFO",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "). Always greppable on the leading token — "
+        },
+        {
+          "insert": "grep '> \\*\\*Decision'",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " finds every decision callout in a corpus. This page's own decision box below renders exactly that way."
+        }
+      ],
+      "children": []
+    },
+    "b-15-callout-coercion-h-8": {
+      "id": "b-15-callout-coercion-h-8",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The coercion target"
+        }
+      ],
+      "children": []
+    },
+    "b-15-callout-coercion-9": {
+      "id": "b-15-callout-coercion-9",
+      "type": "callout",
+      "props": {
+        "kind": "Decision",
+        "title": "Retired types never break a corpus",
+        "tone": "decision"
+      },
+      "text": [
+        {
+          "insert": "After legacy "
+        },
+        {
+          "insert": "flavour",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " aliasing, any block whose type is a string but not one of the 14 canonical types coerces to a callout, preserving the old type name as "
+        },
+        {
+          "insert": "props.kind",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " (unless the block already carries its own non-empty "
+        },
+        {
+          "insert": "kind",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "); props, text, and children carry over verbatim, and the block canonicalizes to the coerced form on its next save. One render rule covers them all."
+        }
+      ],
+      "children": []
+    },
+    "b-15-callout-editor-h-10": {
+      "id": "b-15-callout-editor-h-10",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "In the editor"
+        }
+      ],
+      "children": []
+    },
+    "b-15-callout-editor-11": {
+      "id": "b-15-callout-editor-11",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Slash menu: "
+        },
+        {
+          "insert": "Callout",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " (aliases: note, info, tip). No input rule — type "
+        },
+        {
+          "insert": "/callout",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " or convert an existing line."
+        }
+      ],
+      "children": []
+    },
+    "b-15-callout-agent-h-12": {
+      "id": "b-15-callout-agent-h-12",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent notes"
+        }
+      ],
+      "children": []
+    },
+    "b-15-callout-agent-1-13": {
+      "id": "b-15-callout-agent-1-13",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Prefer "
+        },
+        {
+          "insert": "kind",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " for semantic labels (\"Decision\", \"Boundary under review\") and "
+        },
+        {
+          "insert": "tone",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " for the visual register; the pair is how this corpus encodes decision records."
+        }
+      ],
+      "children": []
+    },
+    "b-15-callout-agent-2-14": {
+      "id": "b-15-callout-agent-2-14",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "No typed actions — patch "
+        },
+        {
+          "insert": "tone",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": "kind",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": "title",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " via "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", edit the body via text ops."
+        }
+      ],
+      "children": []
+    },
+    "b-15-callout-theming-heading": {
+      "id": "b-15-callout-theming-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Theming"
+        }
+      ],
+      "children": []
+    },
+    "b-15-callout-theming-para": {
+      "id": "b-15-callout-theming-para",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This block's theme file is "
+        },
+        {
+          "insert": "components/callout.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in a theme folder ("
+        },
+        {
+          "insert": "themes/<id>/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "; see 20-implementation/40-theming). Every value is one string for both modes or a "
+        },
+        {
+          "insert": "{ light, dark }",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " pair, validated against "
+        },
+        {
+          "insert": "THEME_TOKEN_REGISTRY",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-15-callout-theming-table": {
+      "id": "b-15-callout-theming-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Key",
+          "CSS variable",
+          "Styles"
+        ],
+        "rows": [
+          [
+            "border",
+            "--docs-viewer-callout-border",
+            "Card border"
+          ],
+          [
+            "fill",
+            "--docs-viewer-callout-fill",
+            "Card background"
+          ],
+          [
+            "fg",
+            "--docs-callout-fg",
+            "Body text color"
+          ]
+        ]
+      },
+      "children": []
+    }
+  }
+}

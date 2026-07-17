@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { dirname, join } from "node:path";
 
 import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
-import { serializeDocDocument } from "@codecaine-ai/docs-model/doc-schema";
+import { serializeDocDocument, validateDocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import { applyOps, type DocOp } from "@codecaine-ai/docs-model/doc-ops";
 import type {
   CommentsDocument,
@@ -30,8 +30,9 @@ import { recordDocPatch } from "./patch-ledger";
  * The docs mutation core: apply typed DocOps to a bundle's doc.json, and
  * add/resolve comments on its sidecar. Every mutation carries the full
  * contract: validate -> content-hash precondition (409) -> draft-lock
- * precondition (423) -> apply -> atomic persist -> record inverse in the
- * undo ledger -> (fire-and-forget) backlinks reindex. The entire
+ * precondition (423) -> apply -> full-document revalidation (422) ->
+ * atomic persist -> record inverse in the undo ledger -> (fire-and-forget)
+ * backlinks reindex. The entire
  * read-check-apply-write sequence runs inside `withPathLock`, keyed on the
  * target file's resolved absolute path, so two concurrent callers can never
  * both pass the hash check against the same pre-write state and race each
@@ -102,7 +103,27 @@ export async function applyDocOpsToBundle(
       return { ok: false, status: 400, detail: "Doc ops failed to apply", issues: result.issues };
     }
 
-    const serialized = serializeDocDocument(result.doc);
+    // Write gate (invariant): no accepted write may produce bytes that fail
+    // `validateDocDocument` on reload — a doc.json that saves but cannot load
+    // bricks the whole bundle in the UI. Op application is shallower than
+    // load-time validation (e.g. delta span `attributes` are copied verbatim,
+    // so a malformed `reference` sails through applyOps), so the FULL
+    // resulting document is revalidated here, in memory, before any bytes
+    // touch disk. Failure -> 422 with the validator's issues; the on-disk
+    // file is untouched. Persisting the validator's normalized `document`
+    // (not `result.doc`) also guarantees the written bytes are the canonical
+    // form the next load's hash derivation expects.
+    const validated = validateDocDocument(result.doc);
+    if (!validated.ok) {
+      return {
+        ok: false,
+        status: 422,
+        detail: "Doc ops produced an invalid document; save rejected.",
+        issues: validated.issues,
+      };
+    }
+
+    const serialized = serializeDocDocument(validated.document);
     await atomicWriteFile(loaded.jsonAbs, serialized);
     const hash = createContentHash(serialized);
     const patchId = randomUUID();
@@ -110,9 +131,9 @@ export async function applyDocOpsToBundle(
 
     // Best-effort backlinks re-index — fire-and-forget, must never fail or
     // delay the save this just committed to disk.
-    void indexDocSourceBestEffort(docsRoot, `${loaded.bundlePath}/doc.json`, result.doc);
+    void indexDocSourceBestEffort(docsRoot, `${loaded.bundlePath}/doc.json`, validated.document);
 
-    return { ok: true, doc: result.doc, hash, patchId, inverse: result.inverse };
+    return { ok: true, doc: validated.document, hash, patchId, inverse: result.inverse };
   });
 }
 

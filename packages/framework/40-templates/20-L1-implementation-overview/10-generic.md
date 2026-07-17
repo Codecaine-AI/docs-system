@@ -46,7 +46,7 @@ Template for `docs/20-implementation/00-overview.md`. This is the navigation hub
     ```
 
     ### Key Architectural Decisions
-    {Brief notes on major technical choices. For the "why" behind these decisions, see [Foundation/principles](../00-foundation/20-principles.md).}
+    {Brief notes on major technical choices. For the "why" behind these decisions, see [Foundation](../00-foundation/00-overview).}
 
     - **{Decision 1}**: {e.g., "PostgreSQL for persistence"}
     - **{Decision 2}**: {e.g., "Event sourcing for audit trail"}
@@ -79,9 +79,9 @@ Template for `docs/20-implementation/00-overview.md`. This is the navigation hub
     - **{Concern 2}**: See [{path-to-doc}]({path-to-doc})
 
     ## Related
-    - [Foundation](../00-foundation/00-overview.md) - Purpose, principles, and boundaries
-    - [System Design](../10-system-design/00-overview.md) - Architecture and design rationale
-    - [Appendix](./99-appendix/00-overview.md) - Setup guides and operational docs
+    - [Foundation](../00-foundation/00-overview) - Intent and boundaries
+    - [System Design](../10-system-design/00-overview) - Architecture and design rationale
+    - [Appendix](./99-appendix/00-overview) - Setup guides and operational docs
 
 </template>
 
@@ -93,9 +93,9 @@ This is the SKIM layer. An agent reading just the opening should understand the 
 ### The "Mental Model" Section
 This is critical for AI. If your app uses a specific pattern (e.g., Redux-style state management, Hexagonal Architecture), explicitly state it here. This prevents the AI from hallucinating standard MVC patterns where they don't exist.
 
-### Key Architectural Decisions vs Foundation/Principles
+### Key Architectural Decisions vs Foundation
 - **Here**: *What* technical decisions were made (PostgreSQL, event sourcing, etc.)
-- **Foundation/principles.md**: *Why* those decisions align with project values
+- **Foundation**: *Why* those decisions align with project values
 
 ### Section Index
 Unlike L2 overviews, the L1 index should describe the **Role** of the section, not just its contents.

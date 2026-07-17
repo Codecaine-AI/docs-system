@@ -113,15 +113,20 @@
 }
 
 /*
- * Scrollbars — width/color/opacity are style-rail knobs (Layout tab,
+ * Scrollbars — width/color/opacity/padding are style-rail knobs (Layout tab,
  * --docs-scrollbar-*). WebKit scrollbar styling (the only route to a px
  * width) is what the Electron shell renders; note Chromium IGNORES these
  * pseudo-elements if the standard scrollbar-color/width properties are set
  * anywhere on the element, so those must not reappear in @layer base.
+ *
+ * Padding is the transparent-border trick: the track grows by the inset on
+ * both sides (so the THUMB keeps the width the rail's Width slider says)
+ * and the thumb's background clips inside a transparent border — lifting it
+ * off the window edge, the content, and the track ends.
  */
 ::-webkit-scrollbar {
-  width: var(--docs-scrollbar-width, 10px);
-  height: var(--docs-scrollbar-width, 10px);
+  width: calc(var(--docs-scrollbar-width, 10px) + var(--docs-scrollbar-padding, 0px) * 2);
+  height: calc(var(--docs-scrollbar-width, 10px) + var(--docs-scrollbar-padding, 0px) * 2);
 }
 
 ::-webkit-scrollbar-thumb {
@@ -130,6 +135,8 @@
     var(--docs-scrollbar-color, var(--docs-icon-muted)) calc(var(--docs-scrollbar-opacity, 1) * 100%),
     transparent
   );
+  border: var(--docs-scrollbar-padding, 0px) solid transparent;
+  background-clip: padding-box;
   border-radius: 999px;
 }
 
@@ -488,6 +495,17 @@
 .docs-editor-prosemirror.docs-block-dragging .ProseMirror-selectednode {
   background-color: transparent;
   box-shadow: none;
+  opacity: var(--docs-drag-opacity, 0.3);
+}
+
+/*
+ * Floating drag copy (grip drag) — an offscreen full-fidelity clone built in
+ * drag-handle.ts (buildDragGhost) precisely so the browser's snapshot is NOT
+ * the already-dimmed source block. The drag-opacity knob therefore governs
+ * the ENTIRE floating block (text, backgrounds, embeds), and the source
+ * ghost above dims with the same knob.
+ */
+.docs-drag-image {
   opacity: var(--docs-drag-opacity, 0.3);
 }
 
