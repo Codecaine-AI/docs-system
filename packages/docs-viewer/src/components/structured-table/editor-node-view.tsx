@@ -2,7 +2,9 @@
 
 import { NodeViewWrapper, type ReactNodeViewProps } from "@tiptap/react";
 import { useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
+import { tableCellToPlainText, type TableCell } from "@codecaine-ai/docs-model";
 import { isRecord } from "../../editor/core/node-helpers";
+import { isTableCellValue } from "./cell-content";
 import { STRUCTURED_TABLE_LABEL } from "./StructuredTableDocsBlock";
 import { AddButtons } from "./editor/AddButtons";
 import { AddDragPreview } from "./editor/AddDragPreview";
@@ -89,12 +91,11 @@ function parseTableProps(
 ): { title?: string; data: TableData } | null {
   const { columns, rows } = props;
   if (!Array.isArray(columns) || columns.length === 0) return null;
-  if (!columns.every((column): column is string => typeof column === "string")) return null;
+  if (!columns.every(isTableCellValue)) return null;
   if (!Array.isArray(rows)) return null;
   if (
     !rows.every(
-      (row): row is string[] =>
-        Array.isArray(row) && row.every((cell) => typeof cell === "string"),
+      (row): row is TableCell[] => Array.isArray(row) && row.every(isTableCellValue),
     )
   ) {
     return null;
@@ -560,10 +561,15 @@ export function StructuredTableNodeView({ node, updateAttributes, editor }: Reac
   if (showFurniture && surface && drag && dragRegionRect) {
     const surfaceRect = surface.getBoundingClientRect();
     reorderPreview = {
+      // The floating preview is text-only — marks don't need to survive a
+      // half-second drag ghost, but a span cell must still show its words.
       cells:
         drag.axis === "column"
-          ? [data.columns[drag.index] ?? "", ...data.rows.map((row) => row[drag.index] ?? "")]
-          : [...(data.rows[drag.index] ?? [])],
+          ? [
+              tableCellToPlainText(data.columns[drag.index] ?? ""),
+              ...data.rows.map((row) => tableCellToPlainText(row[drag.index] ?? "")),
+            ]
+          : (data.rows[drag.index] ?? []).map(tableCellToPlainText),
       position: {
         left: drag.pointerX - surfaceRect.left + 12,
         top: drag.pointerY - surfaceRect.top + 12,

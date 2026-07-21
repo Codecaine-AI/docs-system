@@ -1,0 +1,998 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-10-block-vocabulary-25-state-shape",
+  "title": "state-shape",
+  "root": "b-25-state-shape-root",
+  "blocks": {
+    "b-25-state-shape-root": {
+      "id": "b-25-state-shape-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-25-state-shape-lead-2",
+        "b-25-state-shape-example-heading",
+        "b-25-state-shape-example-intro",
+        "b-25-state-shape-example-block",
+        "b-25-state-shape-state-h-3",
+        "b-25-state-shape-state-4",
+        "b-25-state-shape-state-note-5",
+        "b-25-state-shape-actions-h-9",
+        "b-25-state-shape-actions-note-10",
+        "b-25-state-shape-actions-11",
+        "b-25-state-shape-renderers-heading",
+        "b-25-state-shape-editor-13",
+        "b-25-state-shape-proj-7",
+        "b-25-state-shape-proj-example-8",
+        "b-25-state-shape-proj-example-json",
+        "b-25-state-shape-agent-h-14",
+        "b-25-state-shape-agent-1-15",
+        "b-25-state-shape-agent-2-16",
+        "b-25-state-shape-theming-heading",
+        "b-25-state-shape-theming-para",
+        "b-25-state-shape-theming-table",
+        "b-25-state-shape-theming-linking"
+      ]
+    },
+    "b-25-state-shape-lead-2": {
+      "id": "b-25-state-shape-lead-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The object-shape block of the "
+        },
+        {
+          "insert": "block vocabulary"
+        },
+        {
+          "insert": ", and the state carrier of its documentation doctrine: a state-shape shows what a structure's state looks like — a recursive field tree of name, type, optionality, and meaning — beside a linked JSON example instance of that shape. An "
+        },
+        {
+          "insert": "interaction-surface",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/60-interaction-surface"
+            }
+          }
+        },
+        {
+          "insert": " lists the operations on that state; "
+        },
+        {
+          "insert": "code",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/20-code-block"
+            }
+          }
+        },
+        {
+          "insert": " blocks carry annotated source evidence."
+        }
+      ],
+      "children": []
+    },
+    "b-25-state-shape-example-heading": {
+      "id": "b-25-state-shape-example-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Example"
+        }
+      ],
+      "children": []
+    },
+    "b-25-state-shape-example-intro": {
+      "id": "b-25-state-shape-example-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A live instance: a compact theme shape beside its linked JSON example pane. The shape that documents this block's own state sits under State below."
+        }
+      ],
+      "children": []
+    },
+    "b-25-state-shape-example-block": {
+      "id": "b-25-state-shape-example-block",
+      "type": "state-shape",
+      "props": {
+        "example": "{\n  \"accent\": \"#6d4cf0\",\n  \"headerBg\": {\n    \"light\": \"#f5f2ff\",\n    \"dark\": \"#262040\"\n  },\n  \"slider\": {\n    \"kind\": \"length\",\n    \"max\": 24\n  }\n}",
+        "fields": [
+          {
+            "name": "accent",
+            "type": "string",
+            "description": "Accent rule color."
+          },
+          {
+            "name": "headerBg",
+            "type": "string | { light, dark }",
+            "required": false,
+            "description": "Header row background; one value or a per-mode pair."
+          },
+          {
+            "name": "slider",
+            "type": "object",
+            "required": false,
+            "description": "Numeric control metadata.",
+            "fields": [
+              {
+                "name": "kind",
+                "type": "\"color\" | \"length\" | \"number\""
+              },
+              {
+                "name": "max",
+                "type": "number",
+                "required": false
+              }
+            ]
+          }
+        ],
+        "name": "TableTheme"
+      },
+      "children": []
+    },
+    "b-25-state-shape-state-h-3": {
+      "id": "b-25-state-shape-state-h-3",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "State"
+        }
+      ],
+      "children": []
+    },
+    "b-25-state-shape-state-4": {
+      "id": "b-25-state-shape-state-4",
+      "type": "state-shape",
+      "props": {
+        "example": "{\n  \"name\": \"StateShapeState\",\n  \"source\": {\n    \"path\": \"packages/docs-model/src/components/state-shape/state.ts\",\n    \"symbol\": \"StateShapeState\"\n  },\n  \"fields\": [\n    {\n      \"name\": \"name\",\n      \"type\": \"string\",\n      \"required\": false,\n      \"description\": \"Bold header-line label.\"\n    },\n    {\n      \"name\": \"source\",\n      \"type\": \"object\",\n      \"required\": false,\n      \"fields\": [\n        {\n          \"name\": \"path\",\n          \"type\": \"string\"\n        },\n        {\n          \"name\": \"symbol\",\n          \"type\": \"string\",\n          \"required\": false\n        }\n      ]\n    }\n  ]\n}",
+        "fields": [
+          {
+            "name": "name",
+            "type": "string",
+            "required": false,
+            "description": "Bold header-line label; usually the type name."
+          },
+          {
+            "name": "description",
+            "type": "string",
+            "required": false,
+            "description": "Prose summary of the shape; not part of the markdown render."
+          },
+          {
+            "name": "source",
+            "type": "object",
+            "required": false,
+            "description": "Defining source location; renders as an em-dash suffix on the header line.",
+            "fields": [
+              {
+                "name": "path",
+                "type": "string",
+                "description": "Path of the defining source file."
+              },
+              {
+                "name": "symbol",
+                "type": "string",
+                "required": false,
+                "description": "Symbol within that file; renders as a #symbol suffix."
+              }
+            ]
+          },
+          {
+            "name": "fields",
+            "type": "Field[]",
+            "description": "The recursive field tree, in document order.",
+            "fields": [
+              {
+                "name": "name",
+                "type": "string",
+                "description": "Field name; unique among siblings — dot-path addressing depends on it."
+              },
+              {
+                "name": "type",
+                "type": "string",
+                "required": false,
+                "description": "Type text, rendered after a colon."
+              },
+              {
+                "name": "required",
+                "type": "boolean",
+                "required": false,
+                "description": "false = optional and renders a ? suffix; omitted or true reads as required."
+              },
+              {
+                "name": "description",
+                "type": "string",
+                "required": false,
+                "description": "One-liner rendered as a # suffix."
+              },
+              {
+                "name": "fields",
+                "type": "Field[]",
+                "required": false,
+                "description": "Child fields, rendered two spaces deeper; the node recurses."
+              }
+            ]
+          },
+          {
+            "name": "example",
+            "type": "string",
+            "required": false,
+            "description": "JSON text of an example instance of this shape; renders as the linked example pane."
+          }
+        ],
+        "name": "StateShapeState",
+        "source": {
+          "path": "packages/docs-model/src/components/state-shape/state.ts",
+          "symbol": "StateShapeState"
+        }
+      },
+      "children": []
+    },
+    "b-25-state-shape-state-note-5": {
+      "id": "b-25-state-shape-state-note-5",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "No text ("
+        },
+        {
+          "insert": "carriesText: false",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ")."
+        }
+      ],
+      "children": []
+    },
+    "b-25-state-shape-actions-h-9": {
+      "id": "b-25-state-shape-actions-h-9",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Typed actions"
+        }
+      ],
+      "children": []
+    },
+    "b-25-state-shape-actions-note-10": {
+      "id": "b-25-state-shape-actions-note-10",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Four actions: three maintain the "
+        },
+        {
+          "insert": "fields",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " tree, addressed by dot-path over sibling-unique field names — "
+        },
+        {
+          "insert": "\"operations.params\"",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " names the "
+        },
+        {
+          "insert": "params",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " field under "
+        },
+        {
+          "insert": "operations",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "\"\"",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " (or an omitted path) the root array. "
+        },
+        {
+          "insert": "addField",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " rejects a duplicate sibling name; "
+        },
+        {
+          "insert": "updateField",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " renames via "
+        },
+        {
+          "insert": "patch.name",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", clears "
+        },
+        {
+          "insert": "type",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": "required",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": "description",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with "
+        },
+        {
+          "insert": "null",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and replaces the whole subtree via "
+        },
+        {
+          "insert": "patch.fields",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " ("
+        },
+        {
+          "insert": "null",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " removes it); "
+        },
+        {
+          "insert": "removeField",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " takes the subtree with it. "
+        },
+        {
+          "insert": "setExample",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " sets or clears the JSON example — "
+        },
+        {
+          "insert": "example",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " must parse as JSON; "
+        },
+        {
+          "insert": "null",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " clears it."
+        }
+      ],
+      "children": []
+    },
+    "b-25-state-shape-actions-11": {
+      "id": "b-25-state-shape-actions-11",
+      "type": "interaction-surface",
+      "props": {
+        "operations": [
+          {
+            "name": "state-shape.addField",
+            "description": "Insert a field ({ name, type?, required?, description?, fields? }) under the parent named by path; index defaults to the end.",
+            "params": [
+              {
+                "name": "field",
+                "type": "Field",
+                "required": true,
+                "description": "The field to insert.",
+                "fields": [
+                  {
+                    "name": "name",
+                    "type": "string"
+                  },
+                  {
+                    "name": "type",
+                    "type": "string",
+                    "required": false
+                  },
+                  {
+                    "name": "required",
+                    "type": "boolean",
+                    "required": false,
+                    "description": "false = optional"
+                  },
+                  {
+                    "name": "description",
+                    "type": "string",
+                    "required": false
+                  },
+                  {
+                    "name": "fields",
+                    "type": "Field[]",
+                    "required": false,
+                    "description": "Nested children — the node recurses"
+                  }
+                ]
+              },
+              {
+                "name": "path",
+                "type": "string",
+                "required": false,
+                "description": "Dot-path of the PARENT field; \"\" or omitted inserts into the root fields array."
+              },
+              {
+                "name": "index",
+                "type": "integer",
+                "required": false,
+                "description": "Insert position among the parent's fields; default end."
+              }
+            ],
+            "returns": "props patch: { fields }"
+          },
+          {
+            "name": "state-shape.updateField",
+            "description": "Patch the field at path (rename via patch.name; null clears type/required/description; patch.fields replaces the subtree, null removes it).",
+            "params": [
+              {
+                "name": "path",
+                "type": "string",
+                "required": true,
+                "description": "Dot-path of the field to patch, e.g. \"operations.params\"."
+              },
+              {
+                "name": "patch",
+                "type": "object",
+                "required": true,
+                "description": "Partial field; patch.name renames, null clears.",
+                "fields": [
+                  {
+                    "name": "name",
+                    "type": "string",
+                    "required": false,
+                    "description": "Rename; must stay unique among siblings."
+                  },
+                  {
+                    "name": "type",
+                    "type": "string | null",
+                    "required": false
+                  },
+                  {
+                    "name": "required",
+                    "type": "boolean | null",
+                    "required": false
+                  },
+                  {
+                    "name": "description",
+                    "type": "string | null",
+                    "required": false
+                  },
+                  {
+                    "name": "fields",
+                    "type": "Field[] | null",
+                    "required": false,
+                    "description": "Replaces the subtree; null removes it."
+                  }
+                ]
+              }
+            ],
+            "returns": "props patch: { fields }"
+          },
+          {
+            "name": "state-shape.removeField",
+            "description": "Remove the field at path, together with its entire subtree.",
+            "params": [
+              {
+                "name": "path",
+                "type": "string",
+                "required": true,
+                "description": "Dot-path of the field to remove, e.g. \"operations.params\"."
+              }
+            ],
+            "returns": "props patch: { fields }"
+          },
+          {
+            "name": "state-shape.setExample",
+            "description": "Set the JSON example instance rendered beside the field tree (example must parse as JSON; null clears it).",
+            "params": [
+              {
+                "name": "example",
+                "type": "string | null",
+                "required": true,
+                "description": "JSON text of an example instance of this shape; null clears the example."
+              }
+            ],
+            "returns": "props patch: { example }"
+          }
+        ],
+        "title": "state-shape — actions"
+      },
+      "children": []
+    },
+    "b-25-state-shape-renderers-heading": {
+      "id": "b-25-state-shape-renderers-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Renderers"
+        }
+      ],
+      "children": []
+    },
+    "b-25-state-shape-editor-13": {
+      "id": "b-25-state-shape-editor-13",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "In the editor: a non-editable atom leaf node rendered by "
+        },
+        {
+          "insert": "StateShapeDocsBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". No slash-menu entry today — shapes enter through agent ops or existing content."
+        }
+      ],
+      "children": []
+    },
+    "b-25-state-shape-proj-7": {
+      "id": "b-25-state-shape-proj-7",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "In the markdown render: a "
+        },
+        {
+          "insert": "**<name>**",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " bold line — "
+        },
+        {
+          "insert": " — <path>#<symbol>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " suffixed when a source is present — then a bare fence, one field per line in document order: two-space indent per nesting depth, a "
+        },
+        {
+          "insert": "?",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " suffix when "
+        },
+        {
+          "insert": "required: false",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": ": <type>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " after the name, "
+        },
+        {
+          "insert": "# <description>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " at the end of the line. When an "
+        },
+        {
+          "insert": "example",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is present, a blank line and a fenced "
+        },
+        {
+          "insert": "json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " code block follow, holding the example pretty-printed through the shared "
+        },
+        {
+          "insert": "printJsonLines",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " canon:"
+        }
+      ],
+      "children": []
+    },
+    "b-25-state-shape-proj-example-8": {
+      "id": "b-25-state-shape-proj-example-8",
+      "type": "code",
+      "props": {},
+      "text": [
+        {
+          "insert": "title?: string\ncolumns: TableCell[]  # Header cells\n  insert: string\n  attributes?: DeltaSpanAttributes\nrows: TableCell[][]"
+        }
+      ],
+      "children": []
+    },
+    "b-25-state-shape-proj-example-json": {
+      "id": "b-25-state-shape-proj-example-json",
+      "type": "code",
+      "props": {
+        "language": "json"
+      },
+      "text": [
+        {
+          "insert": "{\n  \"title\": \"Latency by route\",\n  \"columns\": [\n    {\n      \"insert\": \"Route\"\n    },\n    {\n      \"insert\": \"p95\"\n    }\n  ],\n  \"rows\": [\n    [\n      {\n        \"insert\": \"/docs\"\n      },\n      {\n        \"insert\": \"120 ms\"\n      }\n    ]\n  ]\n}"
+        }
+      ],
+      "children": []
+    },
+    "b-25-state-shape-agent-h-14": {
+      "id": "b-25-state-shape-agent-h-14",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent notes"
+        }
+      ],
+      "children": []
+    },
+    "b-25-state-shape-agent-1-15": {
+      "id": "b-25-state-shape-agent-1-15",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "When documenting a system, lead with one of these carrying both the shape and a real example instance ("
+        },
+        {
+          "insert": "setExample",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "), then an "
+        },
+        {
+          "insert": "interaction-surface",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/60-interaction-surface"
+            }
+          }
+        },
+        {
+          "insert": " for the operations: state first, then operations. A "
+        },
+        {
+          "insert": "code",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/20-code-block"
+            }
+          }
+        },
+        {
+          "insert": " block below is only for material that is not an instance of the shape — a real source listing, for example."
+        }
+      ],
+      "children": []
+    },
+    "b-25-state-shape-agent-2-16": {
+      "id": "b-25-state-shape-agent-2-16",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Field order is document order — "
+        },
+        {
+          "insert": "addField",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " appends by default and inserts at "
+        },
+        {
+          "insert": "index",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " when given, so curated ordering survives edits."
+        }
+      ],
+      "children": []
+    },
+    "b-25-state-shape-theming-heading": {
+      "id": "b-25-state-shape-theming-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Theming"
+        }
+      ],
+      "children": []
+    },
+    "b-25-state-shape-theming-para": {
+      "id": "b-25-state-shape-theming-para",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This block's theme file is "
+        },
+        {
+          "insert": "components/state-shape.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in a theme folder ("
+        },
+        {
+          "insert": "themes/<id>/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "; see 20-implementation/40-theming). Every value is one string for both modes or a "
+        },
+        {
+          "insert": "{ light, dark }",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " pair, validated against "
+        },
+        {
+          "insert": "THEME_TOKEN_REGISTRY",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-25-state-shape-theming-table": {
+      "id": "b-25-state-shape-theming-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Key",
+          "CSS variable",
+          "Styles"
+        ],
+        "rows": [
+          [
+            "border",
+            "--docs-shape-border",
+            "Container border"
+          ],
+          [
+            "bg",
+            "--docs-shape-bg",
+            "Container background"
+          ],
+          [
+            "name",
+            "--docs-shape-name",
+            "Shape name in the header line"
+          ],
+          [
+            "type",
+            "--docs-shape-type",
+            "Field type text"
+          ],
+          [
+            "muted",
+            "--docs-shape-muted",
+            "Muted detail text — optionality markers and descriptions"
+          ],
+          [
+            "rule",
+            "--docs-shape-rule",
+            "Rule between the header line and the field tree"
+          ]
+        ]
+      },
+      "children": []
+    },
+    "b-25-state-shape-theming-linking": {
+      "id": "b-25-state-shape-theming-linking",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Example-pane and range-chip linking styles come from the shared linking theme component ("
+        },
+        {
+          "insert": "components/linking.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "), registered once for every linked panel: Zebra stripe ("
+        },
+        {
+          "insert": "zebra",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " → "
+        },
+        {
+          "insert": "--docs-zebra",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "), Link highlight ("
+        },
+        {
+          "insert": "highlight",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " → "
+        },
+        {
+          "insert": "--docs-link-bg",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "), Pin & rail ("
+        },
+        {
+          "insert": "pin",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " → "
+        },
+        {
+          "insert": "--docs-link-pin",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ")."
+        }
+      ],
+      "children": []
+    }
+  }
+}

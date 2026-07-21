@@ -54,8 +54,22 @@ function TreeNode({
           <FolderIcon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
           <span className="truncate">{node.name}</span>
         </button>
+        {/* Full-width children keep guide offsets aligned with row padding. */}
         {open && (node.children?.length ?? 0) > 0 && (
-          <div>
+          <div className="relative">
+            <span
+              aria-hidden
+              data-docs-tree-guide
+              className="pointer-events-none absolute inset-y-0"
+              style={{
+                left: `calc(${depth * 12 + 14}px - var(--docs-sidebar-guide-width, 1px) / 2)`,
+                width: "var(--docs-sidebar-guide-width, 1px)",
+                background: "var(--docs-sidebar-guide-color, var(--border))",
+                opacity: "var(--docs-sidebar-guide-opacity, 0.6)",
+                display: "var(--docs-sidebar-guide-display, block)",
+                zIndex: 1,
+              }}
+            />
             {node.children!.map((child) => (
               <TreeNode
                 key={child.path}
@@ -109,8 +123,22 @@ function TreeNode({
             <span className="truncate">{node.name}</span>
           </a>
         </div>
+        {/* Full-width children keep guide offsets aligned with row padding. */}
         {open && hasChildren && (
-          <div>
+          <div className="relative">
+            <span
+              aria-hidden
+              data-docs-tree-guide
+              className="pointer-events-none absolute inset-y-0"
+              style={{
+                left: `calc(${depth * 12 + 14}px - var(--docs-sidebar-guide-width, 1px) / 2)`,
+                width: "var(--docs-sidebar-guide-width, 1px)",
+                background: "var(--docs-sidebar-guide-color, var(--border))",
+                opacity: "var(--docs-sidebar-guide-opacity, 0.6)",
+                display: "var(--docs-sidebar-guide-display, block)",
+                zIndex: 1,
+              }}
+            />
             {node.children!.map((child) => (
               <TreeNode
                 key={child.path}

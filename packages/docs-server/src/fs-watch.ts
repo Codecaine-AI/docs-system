@@ -56,7 +56,7 @@ const DEFAULT_POLL_INTERVAL_MS = 1000;
  *  - dotfile / dot-directory / node_modules segments -> null (`.index/`!)
  *  - atomic-write temp files -> null
  *  - `*.canvas.json` -> the canvas rel path itself (what canvas events use)
- *  - `doc.json` / `comments.json` -> the containing bundle folder
+ *  - `doc.json` / `annotations.json` -> the containing bundle folder
  *  - anything else (assets, dir events) -> the nearest enclosing bundle
  *    folder (a dir with doc.json), falling back to the rel path as-is.
  *
@@ -77,7 +77,7 @@ export function changeTargetForRelPath(docsRoot: string, relPath: string): strin
   if (base.toLowerCase().endsWith(".canvas.json")) return normalized;
 
   const parent = segments.slice(0, -1).join("/");
-  if (base === "doc.json" || base === "comments.json") return parent;
+  if (base === "doc.json" || base === "annotations.json") return parent;
 
   // A directory event on a bundle folder itself.
   if (existsSync(join(docsRoot, normalized, "doc.json"))) return normalized;

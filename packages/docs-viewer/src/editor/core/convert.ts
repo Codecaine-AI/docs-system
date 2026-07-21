@@ -264,6 +264,68 @@ function sameSpanAttrs(a: DeltaSpanAttributes | undefined, b: DeltaSpanAttribute
   return true;
 }
 
+// ---------------------------------------------------------------------------
+// Structured-table cell conversion (text + marks only)
+// ---------------------------------------------------------------------------
+
+/**
+ * Converts a structured-table cell's DeltaSpan[] into PM inline content for
+ * the per-cell mini editor: plain `text` nodes with marks, with "\n" inside a
+ * span's insert becoming a `hardBreak` node CARRYING THE SPAN'S MARKS (so a
+ * bolded run containing a newline round-trips to the identical span list).
+ * Cells never contain reference atoms — the model forbids them — so a
+ * reference span defensively degrades to its plain insert text. Newlines are
+ * REAL content here (Shift-Enter hard breaks), never flowed to spaces like
+ * prose blocks.
+ */
+export function cellDeltaToPMInline(spans: DeltaSpan[] | undefined): PMNode[] {
+  if (!spans || spans.length === 0) return [];
+  const out: PMNode[] = [];
+  for (const span of spans) {
+    if (span.insert.length === 0) continue;
+    const attrs = span.attributes?.reference ? undefined : span.attributes;
+    const marks = marksForSpan(attrs);
+    const segments = span.insert.split("\n");
+    segments.forEach((segment, index) => {
+      if (index > 0) {
+        out.push(marks.length > 0 ? { type: "hardBreak", marks } : { type: "hardBreak" });
+      }
+      if (segment.length === 0) return;
+      out.push(
+        marks.length > 0 ? { type: "text", text: segment, marks } : { type: "text", text: segment },
+      );
+    });
+  }
+  return out;
+}
+
+/**
+ * Inverse of `cellDeltaToPMInline`: the mini cell editor's inline content
+ * back into DeltaSpan[]. `hardBreak` nodes become "\n" inserts keeping their
+ * marks; adjacent same-attribute spans merge. Callers finish with docs-model's
+ * `normalizeTableCell` (unmarked -> plain string, empty -> "").
+ */
+export function pmInlineToCellDelta(nodes: PMNode[]): DeltaSpan[] {
+  const spans: DeltaSpan[] = [];
+  const append = (text: string, attrs: DeltaSpanAttributes | undefined) => {
+    const prev = spans[spans.length - 1];
+    if (prev && sameSpanAttrs(prev.attributes, attrs)) {
+      spans[spans.length - 1] = { ...prev, insert: prev.insert + text };
+    } else {
+      spans.push(attrs ? { insert: text, attributes: attrs } : { insert: text });
+    }
+  };
+  for (const node of nodes) {
+    if (node.type === "hardBreak") {
+      append("\n", marksToAttributes(node.marks));
+      continue;
+    }
+    if (node.type !== "text" || !node.text) continue;
+    append(node.text, marksToAttributes(node.marks));
+  }
+  return spans;
+}
+
 /**
  * Rejoins a node's promoted PM attrs (level/ordered/language) back into a
  * flat `props` object alongside `blockProps`. `null` is the "not present in
@@ -496,7 +558,7 @@ function indexByParentAmong(doc: DocDocument, keepIds: Set<string>): Map<string,
  *    SILENTLY DROP the block type change. Unreachable from today's editor
  *    (input rules reset `blockId`, so a retyped block already arrives as
  *    delete+insert), but a future block type-preserving "turn into" command
- *    would hit this. Fresh id per §8.3: comment/backlink targets anchored
+ *    would hit this. Fresh id per §8.3: annotation/backlink targets anchored
  *    to the old id become detectably dangling rather than silently
  *    re-anchoring to a different-typed block.
  * 2. DELETED with surviving escapees: the block is gone from the edited doc

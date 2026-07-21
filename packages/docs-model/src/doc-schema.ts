@@ -35,6 +35,7 @@ export const DOC_BLOCK_TYPES = [
   "structured-table",
   "file-tree",
   "interaction-surface",
+  "state-shape",
   // diagram & media
   "mermaid",
   "canvas",
@@ -68,7 +69,7 @@ export type DeltaSpan = {
 };
 
 export type DocBlock = {
-  /** Stable — comments, patches, and backlinks anchor here (§8.3). */
+  /** Stable — annotations, patches, and backlinks anchor here (§8.3). */
   id: string;
   type: DocBlockType;
   /** Typed per block type: {level}, {status}, {src, view}, ... */

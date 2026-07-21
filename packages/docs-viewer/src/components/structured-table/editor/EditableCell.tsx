@@ -1,27 +1,206 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, type RefObject } from "react";
+import { Extension, Node, type Editor } from "@tiptap/core";
+import { EditorContent, useEditor, useEditorState } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import type { TableCell } from "@codecaine-ai/docs-model";
+import { INLINE_CODE_CLASSES } from "../../../render/block-classes";
 import { cn } from "../../../ui/cn";
-import { placeCaretAtEnd, selectAllContents } from "./caret";
+import { DocItalic, DocStrike } from "../../rich-text/editor-marks";
+import type { PMNode } from "../../../editor/core/convert";
+import { pmDocToTableCell, tableCellEquals, tableCellToPMDoc } from "../cell-content";
+import { renderTableCell } from "../cell-render";
 
 export type CellNavigation = "next" | "previous" | "down";
 
 const COMMIT_DEBOUNCE_MS = 300;
 
+export type EditableCellProps = {
+  value: TableCell;
+  editable: boolean;
+  ariaLabel: string;
+  /**
+   * Muted ghost label shown while the cell is EMPTY, edit mode only (header
+   * cells pass "Column N"; body cells pass nothing). Driven by the mini
+   * editor's isEmpty — it hides the instant a character lands and returns
+   * the instant the cell clears.
+   */
+  placeholder?: string;
+  onCommit: (value: TableCell) => void;
+  onNavigate: (move: CellNavigation) => void;
+  /** Focus/blur passthrough so the grid can report the focused cell (focus notches, whole-cell ring live on the enclosing th/td). */
+  onFocusChange?: (focused: boolean) => void;
+  /** Editor-history passthroughs: Mod-Z/Mod-Shift-Z/Mod-Y inside a cell commit any pending edit, then run these instead of dying inside the cell's own (history-less) editor. */
+  onUndo?: () => void;
+  onRedo?: () => void;
+  registerElement: (element: HTMLDivElement | null) => void;
+};
+
 /**
- * Plain-text editable cell for the structured-table grid. The schema is
- * `string[][]` — no rich text — so this is an uncontrolled
- * `contenteditable="plaintext-only"` island inside the node view's
- * non-editable wrapper (TipTap's default `stopEvent` already keeps events
- * from editable targets away from ProseMirror; the handlers below
- * stopPropagation as well so editor-level DOM listeners — keymap, slash
- * menu — never fire while typing here). Commits are debounced while typing
- * so the editor's auto-save catches mid-typing changes, and flushed on
- * blur/Tab/Enter/Escape.
+ * Structured-table cell: a rich-text island inside the node view's
+ * non-editable wrapper. In edit mode each cell hosts its OWN tiny TipTap
+ * instance (single-paragraph doc; bold/italic/strike/inline-code/link marks —
+ * the exact mark set and StarterKit config the main editor uses, so
+ * shortcuts and markdown input rules behave identically); in read mode it
+ * renders the cell statically through the shared inline-span renderer.
+ * TipTap's default `stopEvent` keeps events from this editable island away
+ * from the OUTER ProseMirror editor; the wrapper's React handlers
+ * stopPropagation as well so editor-level listeners above the React root
+ * (window keymaps, slash menu) never fire while typing here. Commits are
+ * debounced while typing so the editor's auto-save catches mid-typing
+ * changes, and flushed on blur/Tab/Enter/Escape.
  */
-export function EditableCell({
+export function EditableCell(props: EditableCellProps) {
+  return props.editable ? <EditingCell {...props} /> : <StaticCell {...props} />;
+}
+
+/** Mini-editor lookup by its registered (ProseMirror) element — used by the grid's programmatic focus routing and by tests. */
+const CELL_EDITORS = new WeakMap<HTMLElement, Editor>();
+
+export function getCellEditor(element: HTMLElement): Editor | undefined {
+  return CELL_EDITORS.get(element);
+}
+
+/** The classes the plaintext island carried, now on the mini editor's ProseMirror element (the focus ring lives on the enclosing th/td via :focus-within). */
+const CELL_TEXT_CLASSES =
+  "min-h-[1.55em] whitespace-pre-wrap break-words rounded-sm outline-none cursor-text";
+
+/** Single-paragraph document: a cell is one flow of rich text; in-cell newlines are hard breaks, never extra paragraphs. */
+const CellDocument = Node.create({ name: "doc", topNode: true, content: "paragraph" });
+
+type CellHandlers = {
+  commit: () => void;
+  navigate: (move: CellNavigation) => void;
+  undo?: () => void;
+  redo?: () => void;
+};
+
+/**
+ * Cell keymap. Tab/Shift-Tab/Enter commit + hand navigation to the grid;
+ * Escape commits + blurs; Shift-Enter stays with the HardBreak extension
+ * (an in-cell newline, preserving the plaintext island's behavior).
+ * Mod-Z/Mod-Shift-Z/Mod-Y commit the pending edit, then run the OUTER
+ * editor's history — the mini editor registers no history of its own
+ * (StarterKit `undoRedo: false`), so undo/redo stays document-level; the
+ * bindings still return true so the browser's native contenteditable undo
+ * never fires either. Mod-A needs no binding: TipTap core's own Mod-A
+ * select-all is scoped to this editor's single-paragraph doc.
+ */
+function cellKeymap(handlers: RefObject<CellHandlers | null>) {
+  const run = (action: (h: CellHandlers) => void) => () => {
+    const h = handlers.current;
+    if (h) action(h);
+    return true;
+  };
+  return Extension.create({
+    name: "cellKeymap",
+    addKeyboardShortcuts() {
+      return {
+        Tab: run((h) => {
+          h.commit();
+          h.navigate("next");
+        }),
+        "Shift-Tab": run((h) => {
+          h.commit();
+          h.navigate("previous");
+        }),
+        Enter: run((h) => {
+          h.commit();
+          h.navigate("down");
+        }),
+        Escape: ({ editor }) => {
+          handlers.current?.commit();
+          // Direct DOM blur, not commands.blur() — TipTap defers that a
+          // frame (rAF), and the blur must land synchronously so focus
+          // state is coherent for whatever the keystroke's caller does next
+          // (matches the old island's elementRef.blur()).
+          (editor.view.dom as HTMLElement).blur();
+          return true;
+        },
+        "Mod-z": run((h) => {
+          h.commit();
+          h.undo?.();
+        }),
+        "Mod-Shift-z": run((h) => {
+          h.commit();
+          h.redo?.();
+        }),
+        "Mod-y": run((h) => {
+          h.commit();
+          h.redo?.();
+        }),
+      };
+    },
+  });
+}
+
+/**
+ * The cell's extension set mirrors DocEditor's StarterKit config for the
+ * shared pieces so mark behavior matches the main editor exactly:
+ * - inline `code` gets the same Notion-style chip classes as the read surface;
+ * - italic/strike re-register WITHOUT markdown typing shortcuts (DocItalic/
+ *   DocStrike — bold + inline code are the only auto-converting marks, per
+ *   the main editor's policy);
+ * - link keeps autolink/openOnClick off like the main editor, but
+ *   linkOnPaste ON: the main editor turns it off only because its own
+ *   LinkEditor paste plugin owns paste-URL-over-selection, and cells have no
+ *   link UI in v1 — the stock extension supplies the same Notion semantics.
+ * Everything block-level is disabled; `undoRedo: false` is load-bearing (see
+ * cellKeymap).
+ */
+function buildCellExtensions(handlers: RefObject<CellHandlers | null>) {
+  return [
+    CellDocument,
+    StarterKit.configure({
+      blockquote: false,
+      bulletList: false,
+      code: { HTMLAttributes: { class: INLINE_CODE_CLASSES } },
+      codeBlock: false,
+      document: false,
+      dropcursor: false,
+      gapcursor: false,
+      heading: false,
+      horizontalRule: false,
+      italic: false,
+      link: {
+        openOnClick: false,
+        autolink: false,
+        linkOnPaste: true,
+        HTMLAttributes: { class: "text-primary underline underline-offset-2" },
+      },
+      listItem: false,
+      listKeymap: false,
+      orderedList: false,
+      strike: false,
+      trailingNode: false,
+      underline: false,
+      undoRedo: false,
+    }),
+    DocItalic,
+    DocStrike,
+    cellKeymap(handlers),
+  ];
+}
+
+/** Read-mode cell: static inline-mark rendering, same element contract (role/aria/classes) so grid measurement and queries keep working. */
+function StaticCell({ value, ariaLabel, registerElement }: EditableCellProps) {
+  return (
+    <div
+      ref={registerElement}
+      role="textbox"
+      aria-multiline="true"
+      aria-readonly="true"
+      aria-label={ariaLabel}
+      className="min-h-[1.55em] whitespace-pre-wrap break-words rounded-sm outline-none"
+    >
+      {renderTableCell(value)}
+    </div>
+  );
+}
+
+function EditingCell({
   value,
-  editable,
   ariaLabel,
   placeholder,
   onCommit,
@@ -30,59 +209,15 @@ export function EditableCell({
   onUndo,
   onRedo,
   registerElement,
-}: {
-  value: string;
-  editable: boolean;
-  ariaLabel: string;
-  /**
-   * Muted ghost label shown while the cell is EMPTY, edit mode only (header
-   * cells pass "Column N"; body cells pass nothing). Pure CSS via `:empty`,
-   * so it hides the instant a character lands and returns the instant the
-   * cell clears — no debounce lag — and the caret simply types over it.
-   */
-  placeholder?: string;
-  onCommit: (value: string) => void;
-  onNavigate: (move: CellNavigation) => void;
-  /** Focus/blur passthrough so the grid can report the focused cell (focus notches, whole-cell ring live on the enclosing th/td). */
-  onFocusChange?: (focused: boolean) => void;
-  /** Editor-history passthroughs: Mod-Z/Mod-Shift-Z/Mod-Y inside a cell commit any pending edit, then run these instead of dying at the island's stopPropagation. */
-  onUndo?: () => void;
-  onRedo?: () => void;
-  registerElement: (element: HTMLDivElement | null) => void;
-}) {
-  const elementRef = useRef<HTMLDivElement | null>(null);
-  const committedRef = useRef(value);
+}: EditableCellProps) {
+  const committedRef = useRef<TableCell>(value);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const onCommitRef = useRef(onCommit);
-  onCommitRef.current = onCommit;
+  const editorInstanceRef = useRef<Editor | null>(null);
 
-  // External value changes never touch the DOM of a focused cell that holds a
-  // PENDING local edit — React never renders the text as children, so typing
-  // and reconciliation can't fight over the caret. A focused cell whose DOM
-  // still equals the previously committed text is CLEAN, though: structural
-  // moves and undo/redo may legitimately change its value out from under it,
-  // so sync the DOM anyway and drop the caret at the end of the new text.
-  useEffect(() => {
-    const element = elementRef.current;
-    if (!element) return;
-    const previousCommitted = committedRef.current;
-    committedRef.current = value;
-    if (element.textContent === value) return;
-    if (element.ownerDocument.activeElement === element) {
-      if (element.textContent !== previousCommitted) return;
-      element.textContent = value;
-      placeCaretAtEnd(element);
-      return;
-    }
-    element.textContent = value;
-  }, [value]);
-
-  useEffect(
-    () => () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    },
-    [],
-  );
+  // Latest-render closures for callbacks referenced from stable contexts
+  // (the editor's event handlers and the keymap extension).
+  const latestRef = useRef({ onCommit, onNavigate, onFocusChange, onUndo, onRedo, registerElement });
+  latestRef.current = { onCommit, onNavigate, onFocusChange, onUndo, onRedo, registerElement };
 
   const clearPending = () => {
     if (timerRef.current) {
@@ -93,110 +228,149 @@ export function EditableCell({
 
   const commit = () => {
     clearPending();
-    const element = elementRef.current;
-    if (!element) return;
-    const text = element.textContent ?? "";
-    if (text === committedRef.current) return;
-    committedRef.current = text;
-    onCommitRef.current(text);
+    const editor = editorInstanceRef.current;
+    if (!editor || editor.isDestroyed) return;
+    const next = pmDocToTableCell(editor.getJSON() as PMNode);
+    if (tableCellEquals(next, committedRef.current)) return;
+    committedRef.current = next;
+    latestRef.current.onCommit(next);
   };
 
   const scheduleCommit = () => {
     clearPending();
     timerRef.current = setTimeout(() => {
       timerRef.current = null;
-      commit();
+      commitRef.current();
     }, COMMIT_DEBOUNCE_MS);
   };
 
-  const handleInput = () => {
-    // Clearing a plaintext-only island can leave a stray <br> (select-all +
-    // delete): textContent reads "" but `:empty` no longer matches, so the
-    // ghost placeholder would never come back. Normalize to a truly empty
-    // element before the debounce.
-    const element = elementRef.current;
-    if (element && element.firstChild && element.textContent === "") {
-      element.replaceChildren();
-    }
-    scheduleCommit();
+  const commitRef = useRef(commit);
+  commitRef.current = commit;
+  const scheduleCommitRef = useRef(scheduleCommit);
+  scheduleCommitRef.current = scheduleCommit;
+
+  const handlersRef = useRef<CellHandlers | null>(null);
+  handlersRef.current = {
+    commit,
+    navigate: (move) => latestRef.current.onNavigate(move),
+    undo: onUndo ? () => latestRef.current.onUndo?.() : undefined,
+    redo: onRedo ? () => latestRef.current.onRedo?.() : undefined,
   };
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    event.stopPropagation();
-    // Undo/redo must still reach the editor's history: commit any pending
-    // edit synchronously (so it lands as its own history step), then hand off.
-    if (event.metaKey || event.ctrlKey) {
-      const key = event.key.toLowerCase();
-      // Mod-A: stopPropagation blocks PM's keymap, but the browser's NATIVE
-      // select-all applies to the outer editing host and would select the
-      // whole document through this island — typing afterward replaces it
-      // all. Scope the selection to this cell instead (mirrors AFFiNE's
-      // table-cell selectAll); repeated presses just keep the cell selection.
-      if (key === "a") {
-        event.preventDefault();
-        if (elementRef.current) selectAllContents(elementRef.current);
-        return;
-      }
-      const history =
-        key === "z" ? (event.shiftKey ? onRedo : onUndo) : key === "y" ? onRedo : null;
-      if (history) {
-        event.preventDefault();
-        commit();
-        history();
-        return;
-      }
-    }
-    if (event.key === "Tab") {
-      event.preventDefault();
-      commit();
-      onNavigate(event.shiftKey ? "previous" : "next");
-      return;
-    }
-    if (event.key === "Enter" && !event.shiftKey) {
-      event.preventDefault();
-      commit();
-      onNavigate("down");
-      return;
-    }
-    // Shift-Enter falls through: plaintext-only contenteditable inserts a
-    // literal newline, which `whitespace-pre-wrap` renders.
-    if (event.key === "Escape") {
-      event.preventDefault();
-      commit();
-      elementRef.current?.blur();
-    }
-  };
+  const extensions = useMemo(() => buildCellExtensions(handlersRef), []);
+
+  const editor = useEditor(
+    {
+      extensions,
+      content: tableCellToPMDoc(committedRef.current) as unknown as Record<string, unknown>,
+      editorProps: {
+        attributes: {
+          class: CELL_TEXT_CLASSES,
+          role: "textbox",
+          "aria-multiline": "true",
+          "aria-label": ariaLabel,
+        },
+      },
+      onUpdate: () => scheduleCommitRef.current(),
+      onFocus: () => latestRef.current.onFocusChange?.(true),
+      onBlur: () => {
+        commitRef.current();
+        latestRef.current.onFocusChange?.(false);
+      },
+    },
+    [],
+  );
+  editorInstanceRef.current = editor;
+
+  const isEmpty = useEditorState({
+    editor,
+    selector: (ctx) => ctx.editor?.isEmpty ?? true,
+  });
+
+  // Register the ProseMirror element as THE cell element: the grid focuses
+  // it (Tab/Enter navigation, post-add caret routing) and the node view
+  // measures it for the overlay furniture, exactly like the old island div.
+  // Layout effect, not passive: the birth flash measures freshly added cells
+  // in ITS layout effect within the same commit, and cells must already be
+  // in the registry by then (child/earlier-sibling layout effects run first).
+  useLayoutEffect(() => {
+    if (!editor) return;
+    const dom = editor.view.dom as HTMLDivElement;
+    CELL_EDITORS.set(dom, editor);
+    latestRef.current.registerElement(dom);
+    return () => {
+      CELL_EDITORS.delete(dom);
+      latestRef.current.registerElement(null);
+    };
+  }, [editor]);
+
+  // Keep the positional aria-label current (row moves renumber cells).
+  useEffect(() => {
+    if (!editor || editor.isDestroyed) return;
+    editor.setOptions({
+      editorProps: {
+        attributes: {
+          class: CELL_TEXT_CLASSES,
+          role: "textbox",
+          "aria-multiline": "true",
+          "aria-label": ariaLabel,
+        },
+      },
+    });
+  }, [editor, ariaLabel]);
+
+  // External value changes never touch the content of a focused cell that
+  // holds a PENDING local edit — typing and reconciliation can't fight over
+  // the caret. A focused cell whose content still equals the previously
+  // committed value is CLEAN, though: structural moves and undo/redo may
+  // legitimately change its value out from under it, so sync the editor
+  // anyway and drop the caret at the end of the new text.
+  useEffect(() => {
+    const previousCommitted = committedRef.current;
+    committedRef.current = value;
+    if (!editor || editor.isDestroyed) return;
+    const current = pmDocToTableCell(editor.getJSON() as PMNode);
+    if (tableCellEquals(current, value)) return;
+    if (editor.view.hasFocus() && !tableCellEquals(current, previousCommitted)) return;
+    clearPending();
+    const wasFocused = editor.view.hasFocus();
+    editor.commands.setContent(tableCellToPMDoc(value) as unknown as Record<string, unknown>, {
+      emitUpdate: false,
+    });
+    if (wasFocused) editor.commands.focus("end");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value, editor]);
+
+  useEffect(
+    () => () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    },
+    [],
+  );
 
   return (
     <div
-      ref={(element) => {
-        elementRef.current = element;
-        registerElement(element);
-      }}
-      contentEditable={editable ? "plaintext-only" : false}
-      suppressContentEditableWarning
-      role="textbox"
-      aria-multiline="true"
-      aria-label={ariaLabel}
-      className={cn(
-        // The focus treatment lives on the enclosing th/td (whole-cell accent
-        // ring via :focus-within in TableGrid), not on this inner island.
-        "min-h-[1.55em] whitespace-pre-wrap break-words rounded-sm outline-none",
-        editable && "cursor-text",
-        editable &&
-          placeholder != null &&
-          "empty:before:text-muted-foreground/60 empty:before:content-[attr(data-placeholder)]",
-      )}
-      data-placeholder={editable && placeholder != null ? placeholder : undefined}
-      onInput={handleInput}
-      onFocus={() => onFocusChange?.(true)}
-      onBlur={() => {
-        commit();
-        onFocusChange?.(false);
-      }}
-      onKeyDown={handleKeyDown}
+      className="relative cursor-text"
+      // stopPropagation keeps the keystroke/paste/mousedown from
+      // editor-level listeners above the React root (window keymaps, menus);
+      // the OUTER ProseMirror never sees events from this editable island
+      // thanks to the node view's default stopEvent.
+      onKeyDown={(event) => event.stopPropagation()}
       onPaste={(event) => event.stopPropagation()}
       onMouseDown={(event) => event.stopPropagation()}
-    />
+    >
+      {placeholder != null && isEmpty && (
+        <span
+          aria-hidden="true"
+          data-cell-placeholder=""
+          className={cn(
+            "pointer-events-none absolute left-0 top-0 select-none text-muted-foreground/60",
+          )}
+        >
+          {placeholder}
+        </span>
+      )}
+      <EditorContent editor={editor} />
+    </div>
   );
 }

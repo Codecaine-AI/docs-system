@@ -1,5 +1,3 @@
-# The document & block tree
-
 A `doc.json` document is a normalized block tree: a root pointer, a flat id-keyed `blocks` map, and ordered child-id arrays. There is no nesting in the JSON itself — tree order lives entirely in the `children` arrays. The vocabulary of valid block shapes stays deliberately small; see the block vocabulary.
 
 ## The document envelope
@@ -68,31 +66,47 @@ A `doc.json` document is a normalized block tree: a root pointer, a flat id-keye
 > **L14-16 (Optional text):** text is present only on types that carry delta rich text; the span shape is the rich-text page.
 > **L17 (Ordered children):** children is always present. It stores ordered child ids, even when the block has no children.
 
+The kind key is `type`; the legacy `flavour` alias is accepted on read and normalized. An unknown type name coerces to a callout with the name kept in `props.kind` — nothing fails validation for being old.
+
 ## Ids are anchors
 
 Document ids, block ids, and child references are all stable ASCII ids matching `^[A-Za-z0-9][A-Za-z0-9_.:-]{0,96}$`. Every block's `id` must equal its key in the `blocks` map — the id is stored twice on purpose, so a block stays self-describing when it travels without its map.
 
-> **Anchor contract** — Comments, patches, and backlinks anchor to block ids, so id stability is a behavioral contract: `updateBlock` and `moveBlock` preserve ids, while `splitBlock` and `mergeBlocks` mint fresh ids for the blocks they create. Anything that anchors to a split or merged block must expect the anchor to dangle.
-
-## Legacy aliases and coercion on read
-
-The canonical kind key is `type`. The BlockSuite-heritage `flavour` key is accepted on read as a legacy alias and normalized into `type`; if both keys are present they must agree. Writes always emit canonical `type`.
-
-> **Retired-type coercion** — After flavour aliasing, any block whose type is a string but not one of the 14 canonical types coerces to a `callout` instead of failing validation. The retired name survives as `props.kind` (unless the block already carries its own non-empty kind); props, text, and children carry over verbatim. This is deliberate resilience: it migrates the canvas sibling's semantic-card and legacy blocks with zero file rewrites — blocks canonicalize to the coerced form on next save.
+> **Anchor contract** — Annotations, patches, and backlinks anchor to block ids, so id stability is a behavioral contract: `updateBlock` and `moveBlock` preserve ids, while `splitBlock` and `mergeBlocks` mint fresh ids for the blocks they create. Anything that anchors to a split or merged block must expect the anchor to dangle.
 
 ## Graph invariants
 
 `validateDocDocument` treats the tree as a real graph, not a bag of blocks. It is pure and never throws — failures come back as a typed issue list with JSONPath-style paths. Beyond per-block shape checks, five structural invariants hold:
 
-- **No orphan references** — every id in a `children` array must resolve to a block in the map.
+- **No orphan references**
 
-- **Single parent** — a block may be referenced as a child by at most one parent; shared children are rejected.
+  - Every id in a `children` array must resolve to a block in the map.
 
-- **Root is nobody's child** — the root block must exist in `blocks` and cannot appear in any children array.
+- **Single parent**
 
-- **No cycles** — the walk from root must never revisit a block.
+  - A block may be referenced as a child by at most one parent; shared children are rejected.
 
-- **Everything reachable** — every non-root block must be reachable from the root exactly once; detached subtrees are rejected.
+- **Root is nobody's child**
+
+  - The root block must exist in `blocks` and cannot appear in any children array.
+
+- **No cycles**
+
+  - The walk from root must never revisit a block.
+
+- **Everything reachable**
+
+  - Every non-root block must be reachable from the root exactly once; detached subtrees are rejected.
+
+## Nesting
+
+Any block may parent any block — the invariants constrain the graph, not the pairing. Convention keeps the tree flat:
+
+- List-items nest: a list-item's children render as indented sub-bullets.
+
+- Callouts group: a callout may hold the blocks that support it.
+
+- Everything else stays flat. The editor lands block drops and block-run pastes at top level, never inside a neighbor — depth is authored deliberately, not created by accident.
 
 ## Seven ops, one write path
 
@@ -102,14 +116,30 @@ Everything that changes a document is one of seven ops, and every successful app
 
 ```
 insertBlock(blockId: string, parentId: string, index: number, blockType: DocBlockType, props: object, text?: DeltaSpan[]) -> { doc, inverse: DocOp[] }  # Insert a fresh non-colliding block under parentId at index.
+  blockId: string  # Stable id for the new block.
+  parentId: string  # Existing parent block id.
+  index: number  # Position within the parent's children.
+  blockType: DocBlockType  # One of the 14 canonical block types.
+  props: object  # Initial typed props.
+  text?: DeltaSpan[]  # Optional initial rich text.
 updateBlock(blockId: string, props?: object, text?: DeltaSpan[] | null) -> { doc, inverse: DocOp[] }  # Shallow-merge props and/or replace text while preserving the block id.
+  blockId: string  # Target block id.
+  props?: object  # Patch; a key set to undefined removes that prop.
+  text?: DeltaSpan[] | null  # Replacement text; null clears text.
 deleteBlock(blockId: string, mode?: "subtree" | "reparent") -> { doc, inverse: DocOp[] }  # Delete a block as a subtree, or splice its children into the parent.
+  blockId: string  # Target block id.
+  mode?: "subtree" | "reparent"  # subtree is the default; reparent splices children into the former slot.
 moveBlock(blockId: string, toParentId: string, toIndex: number) -> { doc, inverse: DocOp[] }  # Move a block under toParentId at toIndex, checking cycles.
+  blockId: string  # Block being moved.
+  toParentId: string  # Destination parent id.
+  toIndex: number  # Destination child index after detach.
 splitBlock(blockId: string, offset: number) -> { doc, inverse: DocOp[] }  # Split a block's delta text at a character offset; the new sibling gets a fresh id.
+  blockId: string  # Text block to split.
+  offset: number  # Character offset in [0, textLength].
 mergeBlocks(blockIds: string[]) -> { doc, inverse: DocOp[] }  # Merge two or more contiguous siblings in document order into a fresh block.
-blockAction(blockId: string, action: string, params: object) -> { doc, inverse: DocOp[] }  # Resolve a named typed action and apply its validated result through updateBlock.
+  blockIds: string[]  # The contiguous sibling ids to merge.
+componentAction(blockId: string, action: string, params: object) -> { doc, inverse: DocOp[] }  # Resolve a named typed action and apply its validated result through updateBlock.
+  blockId: string  # Target block id.
+  action: string  # Registry key in the form <blockType>.<verb>.
+  params: object  # Action-specific params validated by the action.
 ```
-
----
-
-Continue with rich text — delta spans and reference chips for the span shape inside `text`, per-type block state for what each type allows in `props`, and canonical bytes for how this tree becomes deterministic bytes.

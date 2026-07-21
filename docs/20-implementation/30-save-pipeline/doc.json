@@ -91,7 +91,7 @@
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "10-system-design/30-data-model/60-mutation-model"
+              "path": "10-system-design/30-data-model/50-mutation-model"
             }
           }
         },
@@ -255,7 +255,7 @@
           "insert": " batch. The diff is a small batch of the model's six generic structural/text ops; the vocabulary's seventh op, "
         },
         {
-          "insert": "blockAction",
+          "insert": "componentAction",
           "attributes": {
             "code": true
           }
@@ -268,7 +268,7 @@
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "10-system-design/30-data-model/60-mutation-model"
+              "path": "10-system-design/30-data-model/50-mutation-model"
             }
           }
         },
@@ -609,7 +609,7 @@
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "10-system-design/30-data-model/60-mutation-model"
+              "path": "10-system-design/30-data-model/50-mutation-model"
             }
           }
         },

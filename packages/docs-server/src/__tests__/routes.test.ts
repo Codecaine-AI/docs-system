@@ -15,7 +15,7 @@ import type { DocsChangeEvent } from "../docs-events";
  * Route-factory CONTRACT tests: the write routes must mirror the reference
  * host's `/projects/:id/docs/*` semantics — `expected_hash` -> 409 with
  * current/expected hashes, foreign draft lock -> 423 with `held_by`,
- * comments add/resolve shapes, single-use undo that fails loudly.
+ * annotations add/resolve shapes, single-use undo that fails loudly.
  */
 
 const SAMPLE_DOC = {
@@ -79,12 +79,12 @@ describe("createDocsRoutes (write contracts)", () => {
       path: string;
       document_path: string;
       doc_hash: string;
-      comments: unknown;
+      annotations: unknown;
     };
     expect(bundle.path).toBe("guide");
     expect(bundle.document_path).toBe("docs/guide");
     expect(bundle.doc_hash).toBeTruthy();
-    expect(bundle.comments).toBeNull();
+    expect(bundle.annotations).toBeNull();
   });
 
   test("POST /api/ops applies, returns patch_id, and 409s on a stale expected_hash", async () => {
@@ -118,7 +118,7 @@ describe("createDocsRoutes (write contracts)", () => {
     expect(staleBody.expected_hash).toBe(doc_hash);
   });
 
-  test("POST /api/ops applies a typed blockAction end-to-end and 400s a bogus action", async () => {
+  test("POST /api/ops applies a typed componentAction end-to-end and 400s a bogus action", async () => {
     // A bundle whose doc carries a structured file-tree block.
     await mkdir(join(docsRoot, "ft"), { recursive: true });
     await writeFile(
@@ -149,7 +149,7 @@ describe("createDocsRoutes (write contracts)", () => {
       path: "ft",
       ops: [
         {
-          type: "blockAction",
+          type: "componentAction",
           blockId: "tree1",
           action: "file-tree.addEntry",
           params: { path: "src/index.ts", note: "entrypoint", change: "added" },
@@ -180,7 +180,7 @@ describe("createDocsRoutes (write contracts)", () => {
     // A bogus action name yields the standard 400 op-validation shape.
     const badRes = await postJson("/api/ops", {
       path: "ft",
-      ops: [{ type: "blockAction", blockId: "tree1", action: "file-tree.nope", params: {} }],
+      ops: [{ type: "componentAction", blockId: "tree1", action: "file-tree.nope", params: {} }],
       expected_hash: okBody.hash,
       session_id: "session-a",
     });
@@ -188,7 +188,7 @@ describe("createDocsRoutes (write contracts)", () => {
     const badBody = (await badRes.json()) as { detail: string; issues: unknown };
     expect(badBody.detail).toBe("Doc ops failed to apply");
     expect(badBody.issues).toEqual([
-      { path: "$.op.action", message: 'Unknown block action: "file-tree.nope".' },
+      { path: "$.op.action", message: 'Unknown component action: "file-tree.nope".' },
     ]);
   });
 
@@ -245,8 +245,8 @@ describe("createDocsRoutes (write contracts)", () => {
     expect(afterRelease.status).toBe(200);
   });
 
-  test("comments add (201) then resolve, with shapes intact", async () => {
-    const addRes = await postJson("/api/comments", {
+  test("annotations add (201) then resolve, with shapes intact", async () => {
+    const addRes = await postJson("/api/annotations", {
       path: "guide",
       target: { kind: "block", blockId: "h1" },
       body: "Please review",
@@ -255,32 +255,37 @@ describe("createDocsRoutes (write contracts)", () => {
     });
     expect(addRes.status).toBe(201);
     const added = (await addRes.json()) as {
-      comment: { id: string; status: string };
+      annotation: { id: string; status: string };
       hash: string;
     };
-    expect(added.comment.status).toBe("open");
+    expect(added.annotation.status).toBe("open");
     expect(added.hash).toBeTruthy();
 
-    const listRes = await get("/api/comments?path=guide");
+    // The sidecar is written to annotations.json with the annotations key.
+    const sidecarRaw = await readFile(join(docsRoot, "guide", "annotations.json"), "utf8");
+    expect(JSON.parse(sidecarRaw)).toMatchObject({ schemaVersion: 1 });
+    expect(sidecarRaw).toContain('"annotations"');
+
+    const listRes = await get("/api/annotations?path=guide");
     expect(listRes.status).toBe(200);
     const listed = (await listRes.json()) as {
-      comments: { comments: Array<{ id: string }> };
+      annotations: { annotations: Array<{ id: string }> };
       hash: string | null;
     };
-    expect(listed.comments.comments).toHaveLength(1);
+    expect(listed.annotations.annotations).toHaveLength(1);
 
-    const resolveRes = await postJson(`/api/comments/${added.comment.id}/resolve`, {
+    const resolveRes = await postJson(`/api/annotations/${added.annotation.id}/resolve`, {
       path: "guide",
       expected_hash: added.hash,
     });
     expect(resolveRes.status).toBe(200);
     const resolved = (await resolveRes.json()) as {
-      comments: { comments: Array<{ status: string }> };
+      annotations: { annotations: Array<{ status: string }> };
       hash: string;
     };
-    expect(resolved.comments.comments[0]?.status).toBe("resolved");
+    expect(resolved.annotations.annotations[0]?.status).toBe("resolved");
 
-    const missingRes = await postJson("/api/comments/nope/resolve", { path: "guide" });
+    const missingRes = await postJson("/api/annotations/nope/resolve", { path: "guide" });
     expect(missingRes.status).toBe(404);
   });
 
@@ -456,7 +461,7 @@ describe("GET /api/blocks (edit-surface discovery)", () => {
     "moveBlock",
     "splitBlock",
     "mergeBlocks",
-    "blockAction",
+    "componentAction",
   ] as const;
   const COMPONENT_NAMES = [
     "rich-text",

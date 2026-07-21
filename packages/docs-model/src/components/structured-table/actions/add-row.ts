@@ -2,7 +2,12 @@
 
 import { Type } from "@sinclair/typebox";
 import { defineComponentAction } from "../../define";
-import { normalizeRow, readTableColumns, readTableRows } from "../lib";
+import {
+  normalizeRow,
+  parseTableCellInput,
+  readTableColumns,
+  readTableRows,
+} from "../lib";
 
 export const addRow = defineComponentAction({
   action: "structured-table.addRow",
@@ -12,7 +17,8 @@ export const addRow = defineComponentAction({
   params: Type.Object(
     {
       cells: Type.Array(Type.String(), {
-        description: "Cell strings, in column order.",
+        description:
+          "Cell values (inline markdown; plain text stays plain), in column order.",
       }),
       index: Type.Optional(
         Type.Integer({
@@ -38,7 +44,7 @@ export const addRow = defineComponentAction({
     }
 
     const next = [...rows];
-    next.splice(index, 0, normalizeRow(params.cells, columns.length));
+    next.splice(index, 0, normalizeRow(params.cells.map(parseTableCellInput), columns.length));
     return { ok: true, props: { rows: next } };
   },
 });

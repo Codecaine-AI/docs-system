@@ -10,17 +10,19 @@
       "props": {},
       "children": [
         "b-21-file-tree-lead-2",
+        "b-21-file-tree-example-heading",
+        "b-21-file-tree-example-intro",
+        "b-21-file-tree-example-block",
         "b-21-file-tree-state-h-3",
         "b-21-file-tree-state-4",
         "b-21-file-tree-entry-state-5",
         "b-21-file-tree-state-note-6",
-        "b-21-file-tree-proj-h-7",
-        "b-21-file-tree-proj-8",
         "b-21-file-tree-actions-h-9",
         "b-21-file-tree-actions-note-10",
         "b-21-file-tree-actions-11",
-        "b-21-file-tree-editor-h-12",
+        "b-21-file-tree-renderers-heading",
         "b-21-file-tree-editor-13",
+        "b-21-file-tree-proj-8",
         "b-21-file-tree-agent-h-14",
         "b-21-file-tree-agent-1-15",
         "b-21-file-tree-agent-2-16",
@@ -53,6 +55,60 @@
           "insert": "-command drawing, with notes and per-entry change markers for describing repo slices and refactors."
         }
       ],
+      "children": []
+    },
+    "b-21-file-tree-example-heading": {
+      "id": "b-21-file-tree-example-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Example"
+        }
+      ],
+      "children": []
+    },
+    "b-21-file-tree-example-intro": {
+      "id": "b-21-file-tree-example-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A live instance: a refactor slice of this block's own source folder."
+        }
+      ],
+      "children": []
+    },
+    "b-21-file-tree-example-block": {
+      "id": "b-21-file-tree-example-block",
+      "type": "file-tree",
+      "props": {
+        "entries": [
+          {
+            "path": "packages/docs-model/src/components/file-tree/state.ts",
+            "note": "entry schema + tolerant read"
+          },
+          {
+            "path": "packages/docs-model/src/components/file-tree/agent-view.ts",
+            "change": "modified",
+            "note": "tree drawing"
+          },
+          {
+            "path": "packages/docs-model/src/components/file-tree/actions/update-entry.ts",
+            "change": "added"
+          },
+          {
+            "path": "packages/docs-model/src/components/file-tree/lib.ts",
+            "change": "renamed",
+            "from": "packages/docs-model/src/components/file-tree/render.ts"
+          },
+          {
+            "path": "packages/docs-model/src/components/file-tree/manifest.ts"
+          }
+        ]
+      },
       "children": []
     },
     "b-21-file-tree-state-h-3": {
@@ -151,120 +207,6 @@
         },
         {
           "insert": "). Directories don't need their own entries — they are derived from path prefixes."
-        }
-      ],
-      "children": []
-    },
-    "b-21-file-tree-proj-h-7": {
-      "id": "b-21-file-tree-proj-h-7",
-      "type": "heading",
-      "props": {
-        "level": 2
-      },
-      "text": [
-        {
-          "insert": "Markdown render"
-        }
-      ],
-      "children": []
-    },
-    "b-21-file-tree-proj-8": {
-      "id": "b-21-file-tree-proj-8",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "An optional "
-        },
-        {
-          "insert": "**<title>**",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " bold line, then a literal tree rendering inside a bare fence: "
-        },
-        {
-          "insert": "├──",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "/"
-        },
-        {
-          "insert": "└──",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "/"
-        },
-        {
-          "insert": "│",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " guides, directories first then alphabetical (deterministic codepoint order), notes appended as "
-        },
-        {
-          "insert": "# note",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ". Change markers prefix the line — "
-        },
-        {
-          "insert": "+",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " added, "
-        },
-        {
-          "insert": "-",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " removed, "
-        },
-        {
-          "insert": "~",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " modified, "
-        },
-        {
-          "insert": ">",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " renamed (rendered as "
-        },
-        {
-          "insert": "{from} -> {name}",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ") — and when any entry carries a marker, unmarked lines are padded with two spaces so the guides stay aligned."
         }
       ],
       "children": []
@@ -441,15 +383,15 @@
       },
       "children": []
     },
-    "b-21-file-tree-editor-h-12": {
-      "id": "b-21-file-tree-editor-h-12",
+    "b-21-file-tree-renderers-heading": {
+      "id": "b-21-file-tree-renderers-heading",
       "type": "heading",
       "props": {
         "level": 2
       },
       "text": [
         {
-          "insert": "In the editor"
+          "insert": "Renderers"
         }
       ],
       "children": []
@@ -460,7 +402,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A non-editable atom leaf node rendered by "
+          "insert": "In the editor: a non-editable atom leaf node rendered by "
         },
         {
           "insert": "FileTreeDocsBlock",
@@ -470,6 +412,107 @@
         },
         {
           "insert": ". No slash-menu entry today — file trees enter through agent ops or existing content."
+        }
+      ],
+      "children": []
+    },
+    "b-21-file-tree-proj-8": {
+      "id": "b-21-file-tree-proj-8",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "In the markdown render: an optional "
+        },
+        {
+          "insert": "**<title>**",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " bold line, then a literal tree rendering inside a bare fence: "
+        },
+        {
+          "insert": "├──",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": "└──",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": "│",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " guides, directories first then alphabetical (deterministic codepoint order), notes appended as "
+        },
+        {
+          "insert": "# note",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Change markers prefix the line — "
+        },
+        {
+          "insert": "+",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " added, "
+        },
+        {
+          "insert": "-",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " removed, "
+        },
+        {
+          "insert": "~",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " modified, "
+        },
+        {
+          "insert": ">",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " renamed (rendered as "
+        },
+        {
+          "insert": "{from} -> {name}",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ") — and when any entry carries a marker, unmarked lines are padded with two spaces so the guides stay aligned."
         }
       ],
       "children": []

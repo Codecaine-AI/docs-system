@@ -62,8 +62,8 @@ beforeAll(async () => {
     JSON.stringify(DOC_JSON("doc-guide", "Guide")),
   );
   await writeFile(
-    join(docsRoot, "10-guide", "comments.json"),
-    JSON.stringify({ schemaVersion: 1, comments: [] }),
+    join(docsRoot, "10-guide", "annotations.json"),
+    JSON.stringify({ schemaVersion: 1, annotations: [] }),
   );
   await writeFile(
     join(docsRoot, "10-guide", "assets", "canvases", "flow.canvas.json"),
@@ -138,8 +138,8 @@ describe("GET /api/bundle", () => {
     expect(body.document_path).toBe("docs/10-guide");
     expect((body.doc as any).id).toBe("doc-guide");
     expect(typeof body.doc_hash).toBe("string");
-    expect((body.comments as any).schemaVersion).toBe(1);
-    expect(typeof body.comments_hash).toBe("string");
+    expect((body.annotations as any).schemaVersion).toBe(1);
+    expect(typeof body.annotations_hash).toBe("string");
   });
 
   test("accepts <bundle>/doc.json form and normalizes the path", async () => {
@@ -159,7 +159,7 @@ describe("GET /api/bundle", () => {
       "../outside",
       "..%2F..%2Fetc%2Fpasswd",
       "/etc/passwd",
-      "10-guide/comments.json",
+      "10-guide/annotations.json",
       "10-guide/assets/canvases/flow.canvas.json",
     ]) {
       const response = await get(`/api/bundle?path=${encodeURIComponent(path)}`);

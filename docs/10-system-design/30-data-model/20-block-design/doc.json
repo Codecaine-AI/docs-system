@@ -1,0 +1,613 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-30-data-model-20-block-design",
+  "title": "Block design",
+  "root": "b-bd-root",
+  "blocks": {
+    "b-bd-root": {
+      "id": "b-bd-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-bd-intro-1",
+        "b-bd-laidout-h-2",
+        "b-bd-laidout-tree-3",
+        "b-bd-contract-h-4",
+        "b-bd-state-5",
+        "b-bd-actions-8",
+        "b-bd-docrender-11",
+        "b-bd-agentrender-13",
+        "b-bd-theme-15",
+        "b-bd-adapter-32",
+        "b-bd-perfamily-36",
+        "b-bd-adding-h-17",
+        "b-bd-add-1-18",
+        "b-bd-add-2-19",
+        "b-bd-add-3-20",
+        "b-bd-add-4-21",
+        "b-bd-add-5-22",
+        "b-bd-closed-23",
+        "b-bd-why-h-24",
+        "b-bd-why-component-25",
+        "b-bd-why-closed-27",
+        "b-bd-why-two-29"
+      ]
+    },
+    "b-bd-intro-1": {
+      "id": "b-bd-intro-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A block type is a component with a closed contract: it owns its state schema, its update logic, its renderer on each surface, and its theme. This page states that contract and the path for adding a new block type. What each type is for — with an example — is the "
+        },
+        {
+          "insert": "block vocabulary",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary"
+            }
+          }
+        },
+        {
+          "insert": "'s story."
+        }
+      ],
+      "children": []
+    },
+    "b-bd-laidout-h-2": {
+      "id": "b-bd-laidout-h-2",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Structure"
+        }
+      ],
+      "children": []
+    },
+    "b-bd-laidout-tree-3": {
+      "id": "b-bd-laidout-tree-3",
+      "type": "file-tree",
+      "props": {
+        "entries": [
+          {
+            "path": "packages/docs-model/src/components/structured-table/state.ts",
+            "note": "the state schema — closed TypeBox props"
+          },
+          {
+            "path": "packages/docs-model/src/components/structured-table/actions/",
+            "note": "typed actions — the update logic, as data"
+          },
+          {
+            "path": "packages/docs-model/src/components/structured-table/agent-view.ts",
+            "note": "the agent renderer — state → markdown"
+          },
+          {
+            "path": "packages/docs-viewer/src/components/structured-table/descriptor.tsx",
+            "note": "the doc renderer — state → the editor component"
+          },
+          {
+            "path": "themes/default/components/structured-table.json",
+            "note": "the theme — the component's style knobs"
+          }
+        ],
+        "title": "one component, every home (structured-table)"
+      },
+      "children": []
+    },
+    "b-bd-contract-h-4": {
+      "id": "b-bd-contract-h-4",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The contract"
+        }
+      ],
+      "children": []
+    },
+    "b-bd-state-5": {
+      "id": "b-bd-state-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "State schema",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/10-state-schema"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-bd-state-sub1-6",
+        "b-bd-state-sub2-7",
+        "b-bd-state-sub3-31"
+      ]
+    },
+    "b-bd-state-sub1-6": {
+      "id": "b-bd-state-sub1-6",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A closed TypeBox schema over "
+        },
+        {
+          "insert": "props",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — unknown keys and wrong shapes are rejected at validation, not discovered at render."
+        }
+      ],
+      "children": []
+    },
+    "b-bd-state-sub2-7": {
+      "id": "b-bd-state-sub2-7",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The schema is the block's whole state; nothing renders that the schema does not declare."
+        }
+      ],
+      "children": []
+    },
+    "b-bd-state-sub3-31": {
+      "id": "b-bd-state-sub3-31",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Text is no exception: delta spans are the "
+        },
+        {
+          "insert": "rich text",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/10-rich-text"
+            }
+          }
+        },
+        {
+          "insert": " family's state, held in the block's dedicated text field."
+        }
+      ],
+      "children": []
+    },
+    "b-bd-actions-8": {
+      "id": "b-bd-actions-8",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Typed actions",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/20-typed-actions"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-bd-actions-sub1-9",
+        "b-bd-actions-sub2-10"
+      ]
+    },
+    "b-bd-actions-sub1-9": {
+      "id": "b-bd-actions-sub1-9",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The update logic: every state change is an action — data, not code calls — keyed "
+        },
+        {
+          "insert": "<type>.<verb>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " so any surface can list and invoke them."
+        }
+      ],
+      "children": []
+    },
+    "b-bd-actions-sub2-10": {
+      "id": "b-bd-actions-sub2-10",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An action returns a props patch, which is what makes inverses — and undo — free."
+        }
+      ],
+      "children": []
+    },
+    "b-bd-docrender-11": {
+      "id": "b-bd-docrender-11",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Doc renderer",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/30-doc-renderer"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-bd-docrender-sub1-12"
+      ]
+    },
+    "b-bd-docrender-sub1-12": {
+      "id": "b-bd-docrender-sub1-12",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The Notion-style component a human reads and edits — including the in-place editing node view where the type supports it."
+        }
+      ],
+      "children": []
+    },
+    "b-bd-agentrender-13": {
+      "id": "b-bd-agentrender-13",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Agent renderer",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/40-agent-renderer"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-bd-agentrender-sub1-14"
+      ]
+    },
+    "b-bd-agentrender-sub1-14": {
+      "id": "b-bd-agentrender-sub1-14",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The markdown view an agent reads — the same state rendered to stable, greppable text."
+        }
+      ],
+      "children": []
+    },
+    "b-bd-theme-15": {
+      "id": "b-bd-theme-15",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/50-theming"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-bd-theme-sub1-16"
+      ]
+    },
+    "b-bd-theme-sub1-16": {
+      "id": "b-bd-theme-sub1-16",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The component ships its style capabilities as theme knobs, resolvable per theme — never hardcoded looks."
+        }
+      ],
+      "children": []
+    },
+    "b-bd-adapter-32": {
+      "id": "b-bd-adapter-32",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Agent adapter",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/60-agent-adapter"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-bd-adapter-sub1-33",
+        "b-bd-adapter-sub2-34",
+        "b-bd-adapter-sub3-35"
+      ]
+    },
+    "b-bd-adapter-sub1-33": {
+      "id": "b-bd-adapter-sub1-33",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "How an agent edits the type when it processes an annotation. The default is generic: typed ops over the doc render — most types need nothing more."
+        }
+      ],
+      "children": []
+    },
+    "b-bd-adapter-sub2-34": {
+      "id": "b-bd-adapter-sub2-34",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Complex types — canvas, sequence — declare their own agent: a context loader that assembles what that agent needs, and writeback through the type's own actions."
+        }
+      ],
+      "children": []
+    },
+    "b-bd-adapter-sub3-35": {
+      "id": "b-bd-adapter-sub3-35",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Target design: the adapter lands with annotate mode. The rest of the contract exists today."
+        }
+      ],
+      "children": []
+    },
+    "b-bd-perfamily-36": {
+      "id": "b-bd-perfamily-36",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The contract is generic; the instances are not. Each block family defines how every element works for it in its "
+        },
+        {
+          "insert": "block vocabulary",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary"
+            }
+          }
+        },
+        {
+          "insert": " doc — inline where short, subpages where a family needs depth."
+        }
+      ],
+      "children": []
+    },
+    "b-bd-adding-h-17": {
+      "id": "b-bd-adding-h-17",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Adding a block type"
+        }
+      ],
+      "children": []
+    },
+    "b-bd-add-1-18": {
+      "id": "b-bd-add-1-18",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Define the state schema and its typed actions."
+        }
+      ],
+      "children": []
+    },
+    "b-bd-add-2-19": {
+      "id": "b-bd-add-2-19",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Write the agent renderer: state to markdown."
+        }
+      ],
+      "children": []
+    },
+    "b-bd-add-3-20": {
+      "id": "b-bd-add-3-20",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Write the doc renderer, with a node view when the block edits in place."
+        }
+      ],
+      "children": []
+    },
+    "b-bd-add-4-21": {
+      "id": "b-bd-add-4-21",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Ship the component's theme file."
+        }
+      ],
+      "children": []
+    },
+    "b-bd-add-5-22": {
+      "id": "b-bd-add-5-22",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Register the bundle; discovery ("
+        },
+        {
+          "insert": "GET /api/blocks",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ") serves the new type's schema and actions to every surface."
+        }
+      ],
+      "children": []
+    },
+    "b-bd-closed-23": {
+      "id": "b-bd-closed-23",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The set stays closed. Both surfaces know every block they will ever meet, and discovery exists so an agent learns the roster — schemas and actions included — without reading code."
+        }
+      ],
+      "children": []
+    },
+    "b-bd-why-h-24": {
+      "id": "b-bd-why-h-24",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why"
+        }
+      ],
+      "children": []
+    },
+    "b-bd-why-component-25": {
+      "id": "b-bd-why-component-25",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A block is a component, not a snippet",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-bd-why-component-sub-26"
+      ]
+    },
+    "b-bd-why-component-sub-26": {
+      "id": "b-bd-why-component-sub-26",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "State, logic, renderers, and theme travel together; adding a type touches one bundle per home, not scattered files."
+        }
+      ],
+      "children": []
+    },
+    "b-bd-why-closed-27": {
+      "id": "b-bd-why-closed-27",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Closed schemas keep the tree safe",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-bd-why-closed-sub-28"
+      ]
+    },
+    "b-bd-why-closed-sub-28": {
+      "id": "b-bd-why-closed-sub-28",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A block cannot hold state its type did not declare; corruption is refused at the door."
+        }
+      ],
+      "children": []
+    },
+    "b-bd-why-two-29": {
+      "id": "b-bd-why-two-29",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Two renderers by design",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-bd-why-two-sub-30"
+      ]
+    },
+    "b-bd-why-two-sub-30": {
+      "id": "b-bd-why-two-sub-30",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every type answers both readers from one state — the "
+        },
+        {
+          "insert": "translation layer",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/20-translation-layer"
+            }
+          }
+        },
+        {
+          "insert": "'s promise, kept per block."
+        }
+      ],
+      "children": []
+    }
+  }
+}

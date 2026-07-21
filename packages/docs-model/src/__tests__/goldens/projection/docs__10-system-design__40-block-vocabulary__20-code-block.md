@@ -1,4 +1,20 @@
-The source-code block of the block vocabulary, and one half of its documentation doctrine: state shown as real, annotated JSON. The source lives in the block's *text*; structured line annotations live in *props*. It is the only type owned by the `code` component.
+The source-code block of the block vocabulary, and the source-evidence surface of its documentation doctrine: the language-tagged block for real, annotated source listings. State examples live inside state-shape blocks; code carries the evidence. The source lives in the block's *text*; structured line annotations live in *props*. It is the only type owned by the `code` component.
+
+## Example
+
+A live instance of the type — a small annotated listing:
+
+```typescript
+export function requireRoot(doc: DocDocument): DocBlock {
+  const root = doc.blocks[doc.root];
+  if (!root) {
+    throw new Error(`missing root block: ${doc.root}`);
+  }
+  return root;
+}
+```
+> **L3-5 (Guard):** Rejects a document whose root pointer names no block — the tree invariant every reader assumes.
+> **L6:** Callers get the resolved root shell, never the raw id.
 
 ## State
 
@@ -8,14 +24,6 @@ The source-code block of the block vocabulary, and one half of its documentation
 | annotations | array | no | Array of { lines, label?, note }: lines is a 1-indexed range string ("4", "4-9", "1,4-6"), label an optional short chip, note the annotation body. |
 
 Carries delta text (`carriesText: true`) — but the source edits as flat plain text: the editor node's content is `text*` with marks disabled, so no bold/link/reference spans inside code.
-
-## Markdown render
-
-A fenced code block using `props.language` when present, followed by one blockquote line per annotation, each shaped like:
-
-```
-> **L4-9 (Validation):** Rejects orphan children.
-```
 
 ## Typed actions
 
@@ -28,15 +36,21 @@ code.setAnnotation(lines: string, note: string, label?: string) -> props patch: 
 code.removeAnnotation(lines: string) -> props patch: { annotations }  # Remove the annotation whose "lines" key matches exactly.
 ```
 
-## In the editor
+## Renderers
 
-Slash menu: **Code Block**. Input rule: three backticks plus an optional language tag. Annotations render as click-pairable side notes next to the fence. One display nicety: an annotation-free block with language `json` pretty-prints at render time — display-only, the stored text is never mutated.
+In the editor: slash menu **Code Block**. Input rule: three backticks plus an optional language tag. Annotations render as click-pairable side notes next to the fence. One display nicety: an annotation-free block with language `json` pretty-prints at render time — display-only, the stored text is never mutated.
+
+The agent-facing markdown projection: a fenced code block using `props.language` when present, followed by one blockquote line per annotation, each shaped like:
+
+```
+> **L4-9 (Validation):** Rejects orphan children.
+```
 
 ## Agent notes
 
 - Line numbers in `lines` are 1-indexed against the block text at the time you write them; re-check them after editing the source.
 
-- Annotated JSON + an interaction-surface is the house style for documenting a system: the state, then the operations on it.
+- The house style for documenting a system: a state-shape carrying both the shape and an example instance, then an interaction-surface for the operations. Code blocks enter as source evidence — annotated listings of the defining source, not state examples.
 
 ## Theming
 

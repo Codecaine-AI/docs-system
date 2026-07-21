@@ -10,26 +10,28 @@
       "props": {},
       "children": [
         "b-20-structured-table-lead-2",
+        "b-20-structured-table-example-h",
+        "b-20-structured-table-example-intro",
+        "b-20-structured-table-example-block",
         "b-20-structured-table-state-h-3",
         "b-20-structured-table-state-4",
         "b-20-structured-table-state-note-5",
-        "b-20-structured-table-proj-h-6",
-        "b-20-structured-table-proj-7",
         "b-20-structured-table-actions-h-8",
         "b-20-structured-table-actions-note-9",
         "b-20-structured-table-actions-10",
-        "b-20-structured-table-editor-h-11",
+        "b-20-structured-table-proj-h-6",
         "b-20-structured-table-editor-12",
+        "b-20-structured-table-proj-7",
+        "b-20-structured-table-editing-heading",
+        "b-20-structured-table-editing-para-1",
+        "b-20-structured-table-editing-para-2",
+        "b-20-structured-table-editing-para-3",
         "b-20-structured-table-agent-h-13",
         "b-20-structured-table-agent-1-14",
         "b-20-structured-table-agent-2-15",
         "b-20-structured-table-theming-heading",
         "b-20-structured-table-theming-para",
-        "b-20-structured-table-theming-table",
-        "b-20-structured-table-editing-heading",
-        "b-20-structured-table-editing-para-1",
-        "b-20-structured-table-editing-para-2",
-        "b-20-structured-table-editing-para-3"
+        "b-20-structured-table-theming-table"
       ]
     },
     "b-20-structured-table-lead-2": {
@@ -38,15 +40,85 @@
       "props": {},
       "text": [
         {
-          "insert": "The typed table of the "
-        },
-        {
-          "insert": "block vocabulary"
-        },
-        {
-          "insert": ": a columns × rows grid of strings kept in props, not prose. Use it for index tables, comparison matrices, and anything an agent should edit cell-by-cell instead of re-flowing text."
+          "insert": "The typed table of the block vocabulary: a columns × rows grid of rich-text cells kept in props, not prose — each cell is a plain string or a span array carrying inline marks. Use it for index tables, comparison matrices, and anything an agent should edit cell-by-cell instead of re-flowing text."
         }
       ],
+      "children": []
+    },
+    "b-20-structured-table-example-h": {
+      "id": "b-20-structured-table-example-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Example"
+        }
+      ],
+      "children": []
+    },
+    "b-20-structured-table-example-intro": {
+      "id": "b-20-structured-table-example-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A live instance of the type — the default theme's structured-table overrides, with code-marked CSS-variable cells:"
+        }
+      ],
+      "children": []
+    },
+    "b-20-structured-table-example-block": {
+      "id": "b-20-structured-table-example-block",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Key",
+          "CSS variable",
+          "Value"
+        ],
+        "density": "compact",
+        "rows": [
+          [
+            "headerRuleWidth",
+            [
+              {
+                "insert": "--docs-table-header-rule-width",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "1.5px"
+          ],
+          [
+            "cellPaddingY",
+            [
+              {
+                "insert": "--docs-table-cell-pad-y",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "12px"
+          ],
+          [
+            "rowRuleOpacity",
+            [
+              {
+                "insert": "--docs-table-row-rule-opacity",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "0.8"
+          ]
+        ],
+        "title": "Default theme — structured-table overrides"
+      },
       "children": []
     },
     "b-20-structured-table-state-h-3": {
@@ -77,19 +149,19 @@
             "title",
             "string",
             "no",
-            "Optional bold caption above the table."
+            "Optional bold caption above the table. Always a plain string — no marks."
           ],
           [
             "columns",
-            "string[]",
+            "TableCell[]",
             "yes",
-            "Header names, in order."
+            "Header names, in order. A TableCell is a plain string or a DeltaSpan[] carrying inline marks."
           ],
           [
             "rows",
-            "string[][]",
+            "TableCell[][]",
             "yes",
-            "One string array per row; actions normalize each row to the column count."
+            "One cell array per row; actions normalize each row to the column count. Unmarked cells are stored as the plain string (canonical)."
           ],
           [
             "density",
@@ -116,49 +188,16 @@
           }
         },
         {
-          "insert": ") — the whole block is typed props. Cells are plain strings: no marks, no reference chips inside a table."
-        }
-      ],
-      "children": []
-    },
-    "b-20-structured-table-proj-h-6": {
-      "id": "b-20-structured-table-proj-h-6",
-      "type": "heading",
-      "props": {
-        "level": 2
-      },
-      "text": [
-        {
-          "insert": "Markdown render"
-        }
-      ],
-      "children": []
-    },
-    "b-20-structured-table-proj-7": {
-      "id": "b-20-structured-table-proj-7",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "An optional "
+          "insert": ") — the whole block is typed props. Cells — body and header alike — carry the inline mark set: bold, italic, strike, code, and link; "
         },
         {
-          "insert": "**<title>**",
+          "insert": "reference",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " bold line, then a markdown pipe table: header row, "
-        },
-        {
-          "insert": "---",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " separator row, one line per row. A title-only or table-only block renders just the part it has."
+          "insert": " chips are still rejected. An unmarked cell is stored as the plain string (canonical form): a span-array cell with zero attributed spans fails validation, and an all-plain table is byte-identical to what it was before marks existed."
         }
       ],
       "children": []
@@ -227,7 +266,88 @@
           }
         },
         {
-          "insert": " to the column count."
+          "insert": " to the column count. Cell-content params ("
+        },
+        {
+          "insert": "value",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "cells",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "name",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "fill",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ") are inline markdown, parsed to spans by the shared inline tokenizer; unmarked input is stored as the plain string. Links the parser classifies as doc or source references downgrade to plain "
+        },
+        {
+          "insert": "link",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " marks ("
+        },
+        {
+          "insert": "href",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " = path plus a "
+        },
+        {
+          "insert": "#section",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "#L<line>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", or "
+        },
+        {
+          "insert": "#<symbol>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " suffix). Column addressing and the duplicate-name check compare the header's plain text."
         }
       ],
       "children": []
@@ -239,7 +359,7 @@
         "operations": [
           {
             "name": "structured-table.addRow",
-            "description": "Insert a row (cells padded/truncated to the column count); index defaults to the end.",
+            "description": "Insert a row (cells are inline markdown, padded/truncated to the column count); index defaults to the end.",
             "params": [
               {
                 "name": "cells",
@@ -268,7 +388,7 @@
           },
           {
             "name": "structured-table.updateCell",
-            "description": "Set one cell, addressing the column by name (column) or position (columnIndex).",
+            "description": "Set one cell to inline markdown, addressing the column by name (column) or position (columnIndex).",
             "params": [
               {
                 "name": "rowIndex",
@@ -295,7 +415,7 @@
           },
           {
             "name": "structured-table.addColumn",
-            "description": "Insert a column (default at the end), extending every row with the fill value.",
+            "description": "Insert a column (default at the end), extending every row with the fill value; name and fill are inline markdown.",
             "params": [
               {
                 "name": "name",
@@ -337,15 +457,15 @@
       },
       "children": []
     },
-    "b-20-structured-table-editor-h-11": {
-      "id": "b-20-structured-table-editor-h-11",
+    "b-20-structured-table-proj-h-6": {
+      "id": "b-20-structured-table-proj-h-6",
       "type": "heading",
       "props": {
         "level": 2
       },
       "text": [
         {
-          "insert": "In the editor"
+          "insert": "Renderers"
         }
       ],
       "children": []
@@ -356,7 +476,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A non-editable atom leaf node with its own React render surface ("
+          "insert": "In the editor, a non-editable atom leaf node with its own React render surface ("
         },
         {
           "insert": "StructuredTableDocsBlock",
@@ -366,6 +486,270 @@
         },
         {
           "insert": "). There is no slash-menu entry today — structured tables enter a document through agent ops or existing content."
+        }
+      ],
+      "children": []
+    },
+    "b-20-structured-table-proj-7": {
+      "id": "b-20-structured-table-proj-7",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The agent-facing markdown projection: an optional "
+        },
+        {
+          "insert": "**<title>**",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " bold line, then a markdown pipe table: header row, "
+        },
+        {
+          "insert": "---",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " separator row, one line per row. A title-only or table-only block renders just the part it has. Cell marks render as inline markdown — "
+        },
+        {
+          "insert": "**bold**",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "*italic*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "~~strike~~",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "`code`",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "[text](href)",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — so table reads round-trip with table writes."
+        }
+      ],
+      "children": []
+    },
+    "b-20-structured-table-editing-heading": {
+      "id": "b-20-structured-table-editing-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Editing"
+        }
+      ],
+      "children": []
+    },
+    "b-20-structured-table-editing-para-1": {
+      "id": "b-20-structured-table-editing-para-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Notion-style grid controls, revealed on hover. Add bars sit just outside the right edge (column) and bottom edge (row), with a corner square that adds both: click adds one, dragging adds several live (ghost preview plus a count) or removes trailing empty columns/rows. Hovering a column shows a six-dot grab handle above it; body rows get one on the left. Clicking a handle selects the whole column or row (a single accent outline) and opens its menu — insert left/right or above/below, move, duplicate, clear contents, delete — while dragging past a small dead zone reorders it: a semi-transparent preview follows the cursor, the source dims, and an accent drop-indicator line marks the target gap. After a single add, focus lands in the new column's header cell or the new row's first cell, the added region flashes accent briefly, and empty header cells show a muted \"Column N\" placeholder (edit mode only, renumbered with position)."
+        }
+      ],
+      "children": []
+    },
+    "b-20-structured-table-editing-para-2": {
+      "id": "b-20-structured-table-editing-para-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each cell hosts its own mini rich-text editor: a single paragraph carrying the five cell marks, with hard breaks as in-cell newlines. Marks apply through the main editor's keyboard shortcuts ("
+        },
+        {
+          "insert": "Cmd+B",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "Cmd+I",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", strike, "
+        },
+        {
+          "insert": "Cmd+E",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " for code); input rules auto-convert "
+        },
+        {
+          "insert": "**bold**",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and backtick code while typing — the italic and strike input rules are off, matching the main editor. Pasting a URL over a selection creates a link; there is no other link UI and no floating toolbar. "
+        },
+        {
+          "insert": "Tab",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": "Shift-Tab",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " move between cells (header first, wrapping across rows), "
+        },
+        {
+          "insert": "Enter",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " moves down the column, "
+        },
+        {
+          "insert": "Shift-Enter",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " inserts a newline, "
+        },
+        {
+          "insert": "Escape",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " exits. "
+        },
+        {
+          "insert": "Cmd+A",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " selects only the cell's contents, never the document; "
+        },
+        {
+          "insert": "Cmd+Z",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " / "
+        },
+        {
+          "insert": "Cmd+Shift+Z",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " commit pending text and forward to the editor's history, so table edits undo and redo like any other. The focused cell draws a 2px accent outline plus small gray notches on its column's top edge and row's left edge."
+        }
+      ],
+      "children": []
+    },
+    "b-20-structured-table-editing-para-3": {
+      "id": "b-20-structured-table-editing-para-3",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The header row is the "
+        },
+        {
+          "insert": "columns",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " array: it has a column handle but no row handle (it cannot be moved or deleted), and the last remaining column cannot be deleted. Structural actions first commit any focused cell's pending text and apply to the freshest data, so cell edits are never lost or duplicated by a move. Every edit lands as a single "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " replacing "
+        },
+        {
+          "insert": "columns",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": "rows",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " through the standard op pipeline — validation, undo ledger, auto-save — and agent-facing mutations stay on the typed actions above."
         }
       ],
       "children": []
@@ -579,169 +963,6 @@
           ]
         ]
       },
-      "children": []
-    },
-    "b-20-structured-table-editing-heading": {
-      "id": "b-20-structured-table-editing-heading",
-      "type": "heading",
-      "props": {
-        "level": 2
-      },
-      "text": [
-        {
-          "insert": "Editing"
-        }
-      ],
-      "children": []
-    },
-    "b-20-structured-table-editing-para-1": {
-      "id": "b-20-structured-table-editing-para-1",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "Notion-style grid controls, revealed on hover. Add bars sit just outside the right edge (column) and bottom edge (row), with a corner square that adds both: click adds one, dragging adds several live (ghost preview plus a count) or removes trailing empty columns/rows. Hovering a column shows a six-dot grab handle above it; body rows get one on the left. Clicking a handle selects the whole column or row (a single accent outline) and opens its menu — insert left/right or above/below, move, duplicate, clear contents, delete — while dragging past a small dead zone reorders it: a semi-transparent preview follows the cursor, the source dims, and an accent drop-indicator line marks the target gap. After a single add, focus lands in the new column's header cell or the new row's first cell, the added region flashes accent briefly, and empty header cells show a muted \"Column N\" placeholder (edit mode only, renumbered with position)."
-        }
-      ],
-      "children": []
-    },
-    "b-20-structured-table-editing-para-2": {
-      "id": "b-20-structured-table-editing-para-2",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "Cells edit in place as plain text — the schema stays "
-        },
-        {
-          "insert": "string[][]",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", no rich text. "
-        },
-        {
-          "insert": "Tab",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "/"
-        },
-        {
-          "insert": "Shift-Tab",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " move between cells (header first, wrapping across rows), "
-        },
-        {
-          "insert": "Enter",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " moves down the column, "
-        },
-        {
-          "insert": "Shift-Enter",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " inserts a newline, "
-        },
-        {
-          "insert": "Escape",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " exits. "
-        },
-        {
-          "insert": "Cmd+A",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " selects only the cell's contents, never the document; "
-        },
-        {
-          "insert": "Cmd+Z",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " / "
-        },
-        {
-          "insert": "Cmd+Shift+Z",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " commit pending text and forward to the editor's history, so table edits undo and redo like any other. The focused cell draws a 2px accent outline plus small gray notches on its column's top edge and row's left edge."
-        }
-      ],
-      "children": []
-    },
-    "b-20-structured-table-editing-para-3": {
-      "id": "b-20-structured-table-editing-para-3",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "The header row is the "
-        },
-        {
-          "insert": "columns",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " array: it has a column handle but no row handle (it cannot be moved or deleted), and the last remaining column cannot be deleted. Structural actions first commit any focused cell's pending text and apply to the freshest data, so cell edits are never lost or duplicated by a move. Every edit lands as a single "
-        },
-        {
-          "insert": "updateBlock",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " replacing "
-        },
-        {
-          "insert": "columns",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "/"
-        },
-        {
-          "insert": "rows",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " through the standard op pipeline — validation, undo ledger, auto-save — and agent-facing mutations stay on the typed actions above."
-        }
-      ],
       "children": []
     }
   }

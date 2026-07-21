@@ -3,7 +3,13 @@
 import { Type } from "@sinclair/typebox";
 import type { DocValidationIssue } from "../../../doc-schema";
 import { defineComponentAction } from "../../define";
-import { normalizeRow, readTableColumns, readTableRows } from "../lib";
+import {
+  normalizeRow,
+  parseTableCellInput,
+  readTableColumns,
+  readTableRows,
+  tableCellToPlainText,
+} from "../lib";
 
 export const addColumn = defineComponentAction({
   action: "structured-table.addColumn",
@@ -14,7 +20,8 @@ export const addColumn = defineComponentAction({
     {
       name: Type.String({
         minLength: 1,
-        description: "New column name (must not already exist).",
+        description:
+          "New column name, as inline markdown (its plain text must not match an existing column).",
       }),
       index: Type.Optional(
         Type.Integer({
@@ -23,7 +30,8 @@ export const addColumn = defineComponentAction({
       ),
       fill: Type.Optional(
         Type.String({
-          description: 'Cell value for existing rows; default "".',
+          description:
+            'Cell value for existing rows (inline markdown; plain text stays plain); default "".',
         }),
       ),
     },
@@ -31,7 +39,9 @@ export const addColumn = defineComponentAction({
   apply(block, params) {
     const issues: DocValidationIssue[] = [];
     const columns = readTableColumns(block);
-    if (columns.includes(params.name)) {
+    const name = parseTableCellInput(params.name);
+    const nameText = tableCellToPlainText(name);
+    if (columns.some((column) => tableCellToPlainText(column) === nameText)) {
       issues.push({
         path: "$.params.name",
         message: `Column "${params.name}" already exists.`,
@@ -46,9 +56,9 @@ export const addColumn = defineComponentAction({
     }
     if (issues.length > 0) return { ok: false, issues };
 
-    const fill = params.fill ?? "";
+    const fill = parseTableCellInput(params.fill ?? "");
     const nextColumns = [...columns];
-    nextColumns.splice(index, 0, params.name);
+    nextColumns.splice(index, 0, name);
     const nextRows = readTableRows(block).map((row) => {
       const padded = normalizeRow(row, columns.length);
       padded.splice(index, 0, fill);

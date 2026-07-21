@@ -10,7 +10,7 @@
 
 - Block editing. The TipTap-based `DocEditor` lives at `packages/docs-viewer/src/editor/DocEditor.tsx`. It composes the slash menu, Markdown input rules, reference chips, link authoring in `packages/docs-viewer/src/editor/menus/link-editor.tsx`, video paste/drop in `packages/docs-viewer/src/editor/input/video-embed.ts`, and opt-in Notion-style auto-save. Video files upload through the host's `uploadAsset` slot.
 
-- Precise targeting and comments. `DocTargetingLayer` in `packages/docs-viewer/src/annotate/doc-targeting-layer.tsx` provides the hover outline, block-type chip, and pinpoint click used by humans and agents to identify one block specifically. `packages/docs-viewer/src/annotate/Plannotator.tsx` provides Plannotator-style comment composition while leaving persistence callbacks to the host.
+- Precise targeting and annotations. `DocTargetingLayer` in `packages/docs-viewer/src/annotate/doc-targeting-layer.tsx` provides the hover outline, block-type chip, and pinpoint click used by humans and agents to identify one block specifically. `packages/docs-viewer/src/annotate/Plannotator.tsx` provides Plannotator-style annotation composition while leaving persistence callbacks to the host.
 
 - Host integration. `DocsClientProvider` in `packages/docs-viewer/src/client.tsx` is the seam for injecting the host's API client and canvas-embed component. Viewer components never talk to a server directly, and the host owns canvas presentation policy. The workbench uses a static section SVG inline, promotes an explicit expansion to a full-screen read-only iframe, and exposes the separate Studio editor only in authoring contexts; another host can implement the same contract with different chrome.
 

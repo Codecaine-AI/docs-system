@@ -189,7 +189,20 @@
       "props": {},
       "text": [
         {
-          "insert": "Generic text ops only — no typed actions, no props."
+          "insert": "Generic text ops only"
+        }
+      ],
+      "children": [
+        "b-13-quote-agent-1-10-gloss"
+      ]
+    },
+    "b-13-quote-agent-1-10-gloss": {
+      "id": "b-13-quote-agent-1-10-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "No typed actions, no props."
         }
       ],
       "children": []

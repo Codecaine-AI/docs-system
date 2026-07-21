@@ -20,7 +20,7 @@
 
 `createDocsRoutes(store)` in `packages/docs-server/src/routes.ts` is an embeddable Elysia `/api/*` route factory that any host app can mount. Its notable routes are:
 
-- `GET /api/blocks` serves a static discovery document for the full agent edit surface: the generic ops and every typed block action.
+- `GET /api/blocks` serves a static discovery document for the full agent edit surface: the generic ops and every typed component action.
 
 - `POST /api/ops` is the one write path. Canvas actions enter through it but are not handled locally; docs-server forwards them to the canvas authority.
 

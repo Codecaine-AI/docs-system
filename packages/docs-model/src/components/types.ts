@@ -17,9 +17,15 @@ export type BlockStateDefinition = {
   schema: TObject;
   /** Per-type fact (D10): does this type carry delta text? */
   carriesText: boolean;
+  /**
+   * Optional custom invariants beyond the schema (canonical-form rules etc.).
+   * Runs only after the schema passes; issue paths must be built on
+   * `basePath` (e.g. `${basePath}.rows[1][2]`).
+   */
+  check?(props: Record<string, unknown>, basePath: string): DocValidationIssue[];
 };
 
-export type BlockActionResult =
+export type ComponentActionResult =
   | { ok: true; props: Record<string, unknown> }   // shallow-merge patch; a key set to undefined removes that prop
   | { ok: false; issues: DocValidationIssue[] };
 
@@ -29,7 +35,7 @@ export type ComponentAction<P extends TObject = TObject> = {
   description: string;
   params: P;                      // validated by the DISPATCHER before apply; served verbatim in P2
 } & (
-  | { apply(block: DocBlock, params: Static<P>): BlockActionResult }
+  | { apply(block: DocBlock, params: Static<P>): ComponentActionResult }
   | { forward: { authority: string } }
 );
 

@@ -2,19 +2,14 @@
 
 import type { DocBlock } from "../../doc-schema";
 import { stringProp } from "../projection-utils";
+import { fieldLines } from "../shared/field";
+import type { Field } from "../shared/field";
 import type { ComponentBundle } from "../types";
-
-type InteractionSurfaceParam = {
-  name: string;
-  type?: string;
-  required?: boolean;
-  description?: string;
-};
 
 type InteractionSurfaceOperation = {
   name: string;
   description?: string;
-  params?: InteractionSurfaceParam[];
+  params?: Field[];
   returns?: string;
   kind?: "action" | "query" | "event";
 };
@@ -23,6 +18,24 @@ const INTERACTION_SURFACE_KINDS = ["action", "query", "event"] as const;
 
 function isInteractionSurfaceKind(value: unknown): value is "action" | "query" | "event" {
   return typeof value === "string" && (INTERACTION_SURFACE_KINDS as readonly string[]).includes(value);
+}
+
+function readParams(raw: unknown): Field[] {
+  return (Array.isArray(raw) ? raw : [])
+    .filter(
+      (param): param is Record<string, unknown> =>
+        !!param && typeof param === "object" && typeof (param as { name?: unknown }).name === "string",
+    )
+    .map((param) => {
+      const field: Field = { name: param.name as string };
+      if (typeof param.type === "string" && param.type.trim()) field.type = param.type.trim();
+      if (typeof param.required === "boolean") field.required = param.required;
+      if (typeof param.description === "string" && param.description.trim()) {
+        field.description = param.description.trim();
+      }
+      if (Array.isArray(param.fields)) field.fields = readParams(param.fields);
+      return field;
+    });
 }
 
 function interactionSurfaceOperations(block: DocBlock): InteractionSurfaceOperation[] {
@@ -39,20 +52,7 @@ function interactionSurfaceOperations(block: DocBlock): InteractionSurfaceOperat
         typeof entry.description === "string" && entry.description.trim()
           ? entry.description.trim()
           : undefined,
-      params: (Array.isArray(entry.params) ? entry.params : [])
-        .filter(
-          (param): param is Record<string, unknown> =>
-            !!param && typeof param === "object" && typeof (param as { name?: unknown }).name === "string",
-        )
-        .map((param) => ({
-          name: param.name as string,
-          type: typeof param.type === "string" && param.type.trim() ? param.type.trim() : undefined,
-          required: typeof param.required === "boolean" ? param.required : undefined,
-          description:
-            typeof param.description === "string" && param.description.trim()
-              ? param.description.trim()
-              : undefined,
-        })),
+      params: readParams(entry.params),
       returns: typeof entry.returns === "string" && entry.returns.trim() ? entry.returns.trim() : undefined,
       kind: isInteractionSurfaceKind(entry.kind) ? entry.kind : undefined,
     }));
@@ -63,10 +63,14 @@ function interactionSurfaceOperations(block: DocBlock): InteractionSurfaceOperat
  * `[kind] name(param: type, optional?: type) -> returns  # description` —
  * the `[kind]` prefix only for query/event, ` -> returns` and
  * `  # description` only when present. One line per operation, document order.
+ * Beneath a signature line, each param that carries a description or nested
+ * fields adds indented detail lines in the shared field-line grammar
+ * (two-space indent per depth, `<name><?>: <type>  # <description>`); params
+ * with neither emit nothing extra.
  */
 function projectInteractionSurface(block: DocBlock): string {
   const title = stringProp(block, "title");
-  const lines = interactionSurfaceOperations(block).map((operation) => {
+  const lines = interactionSurfaceOperations(block).flatMap((operation) => {
     const kindPrefix =
       operation.kind === "query" || operation.kind === "event" ? `[${operation.kind}] ` : "";
     const params = (operation.params ?? [])
@@ -77,7 +81,10 @@ function projectInteractionSurface(block: DocBlock): string {
       .join(", ");
     const returns = operation.returns ? ` -> ${operation.returns}` : "";
     const description = operation.description ? `  # ${operation.description}` : "";
-    return `${kindPrefix}${operation.name}(${params})${returns}${description}`;
+    const detailLines = (operation.params ?? [])
+      .filter((param) => param.description || (param.fields && param.fields.length > 0))
+      .flatMap((param) => fieldLines([param], 1));
+    return [`${kindPrefix}${operation.name}(${params})${returns}${description}`, ...detailLines];
   });
   const fence = lines.length > 0 ? "```\n" + lines.join("\n") + "\n```" : "";
   if (title && fence) return `**${title}**\n\n${fence}`;

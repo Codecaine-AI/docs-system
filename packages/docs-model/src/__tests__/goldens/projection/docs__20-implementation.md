@@ -52,7 +52,7 @@ detail.
 ## Where content lives
 
 A document is a **bundle**: a folder holding `doc.json` (the block tree),
-optional `comments.json` (annotations), and an `assets/` folder for images
+optional `annotations.json` (annotations), and an `assets/` folder for images
 and canvas sidecars. Bundles live in a `docs/` tree owned by whichever
 project the docs are *about* — the canvas repo has `canvas/docs/`, and this
 repo has its own `docs/` (the one you are reading right now).
@@ -61,7 +61,7 @@ Markdown is an on-ramp, not the storage format: `docs migrate` converts an
 existing `.md`/`.mdx` tree into bundles once, and from then on the workbench
 (or an agent driving the ops API) edits `doc.json` directly. Edits are
 expressed in a seven-op kernel — six generic structural/text ops plus
-`blockAction`, which invokes one of 13 typed actions on structured blocks
+`componentAction`, which invokes one of 13 typed actions on structured blocks
 (tables, file trees, interaction surfaces, code annotations) — and an agent
 can discover the whole edit surface from `GET /api/blocks`.
 

@@ -1,7 +1,7 @@
 /**
  * In-process async mutex keyed by absolute file path. Bun runs as a single
  * process, so this is sufficient to serialize the read-check-write critical
- * section of every mutating docs/canvas/comments route — no cross-process
+ * section of every mutating docs/canvas/annotations route — no cross-process
  * coordination needed.
  */
 

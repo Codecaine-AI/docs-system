@@ -29,6 +29,10 @@ const ACTION_KEYS = [
   "sequence.setProgram",
   "sequence.setStyle",
   "sequence.setTitle",
+  "state-shape.addField",
+  "state-shape.removeField",
+  "state-shape.setExample",
+  "state-shape.updateField",
   "structured-table.addColumn",
   "structured-table.addRow",
   "structured-table.removeColumn",
@@ -75,7 +79,7 @@ function syntheticAction(
 
 describe("component registry", () => {
   it("imports ../index with a healthy registry", () => {
-    expect(ALL_COMPONENTS).toHaveLength(8);
+    expect(ALL_COMPONENTS).toHaveLength(9);
     expect(collectRegistryIssues(ALL_COMPONENTS)).toEqual([]);
   });
 
@@ -91,7 +95,7 @@ describe("component registry", () => {
     }
   });
 
-  it("registers the 13 legacy, 5 canvas, and 3 sequence action keys", () => {
+  it("registers the 13 legacy, 5 canvas, 3 sequence, and 4 state-shape action keys", () => {
     expect([...ACTION_REGISTRY.keys()].sort()).toEqual([...ACTION_KEYS]);
   });
 

@@ -3,10 +3,18 @@ import { join } from "node:path";
 import { describe, expect, it } from "bun:test";
 import { ALL_COMPONENTS } from "@codecaine-ai/docs-model";
 
+/**
+ * Shared layers under components/ that are NOT block components: folders of
+ * primitives composed by several sibling components. Every other folder must
+ * mirror a docs-model component name exactly.
+ */
+const SHARED_LAYER_FOLDERS = ["linked-panels"];
+
 const componentsDir = join(import.meta.dir, "../components");
 const componentFolders = (await readdir(componentsDir, { withFileTypes: true }))
   .filter((entry) => entry.isDirectory())
   .map((entry) => entry.name)
+  .filter((name) => !SHARED_LAYER_FOLDERS.includes(name))
   .sort();
 const modelComponents = ALL_COMPONENTS.map((component) => component.manifest.name).sort();
 

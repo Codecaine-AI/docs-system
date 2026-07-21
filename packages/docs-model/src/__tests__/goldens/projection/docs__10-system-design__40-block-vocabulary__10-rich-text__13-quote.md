@@ -14,7 +14,9 @@ Slash menu: **Quote**. Input rule: `>` plus a space at the start of a line.
 
 ## Agent notes
 
-- Generic text ops only — no typed actions, no props.
+- Generic text ops only
+
+  - No typed actions, no props.
 
 - In the rendered markdown, quote lines share the `> ` prefix with callout, mermaid, and video renders; grep for `> \*\*` to isolate the labeled families from plain quotes.
 

@@ -3,26 +3,27 @@
 /**
  * Plannotator v1 (M2 Checkpoint 5, TG5.3).
  *
- * A comment/annotation surface over a doc's `comments.json` (D_comments —
- * comments are workflow state and live ONLY in the bundle's comments.json,
- * never inside doc.json/.canvas.json). Supports two target kinds, matching
- * `CommentTarget` in `docs-model/comments-schema.ts`:
+ * An annotation surface over a doc's `annotations.json` (annotations are
+ * workflow state and live ONLY in the bundle's annotations.json, never
+ * inside doc.json/.canvas.json). An annotation marks a spot in the doc and
+ * requests a change; agents process them. Supports two target kinds,
+ * matching `AnnotationTarget` in `docs-model/annotations-schema.ts`:
  *  - `block`: a doc block, selected by clicking through DocBlockRenderer's
  *    block wrappers (each block renders with `data-block-id`).
  *  - `canvas-object`: an object/connection/region on an embedded canvas,
  *    selected via the canvas viewer's object-click surface.
  *
  * This component is intentionally decoupled from the exact backend HTTP
- * contract (still being finalized as of this writing) — callers supply
- * `comments` + async `onAddComment`/`onResolveComment` callbacks, so the
- * host (DocsActionPane) owns the fetch/mutation wiring and can adapt to
- * whatever the comments routes end up shaped like without Plannotator
- * itself changing.
+ * contract — callers supply `annotations` + async
+ * `onAddAnnotation`/`onResolveAnnotation` callbacks, so the host
+ * (DocsActionPane) owns the fetch/mutation wiring and can adapt to whatever
+ * the annotations routes end up shaped like without Plannotator itself
+ * changing.
  *
  * Dangling targets (block deleted, canvas object removed) never crash —
- * `detectDanglingTargets` is used to compute a per-comment "target removed"
- * flag, and such comments render a clearly-marked inert state instead of
- * throwing or silently disappearing.
+ * `detectDanglingTargets` is used to compute a per-annotation "target
+ * removed" flag, and such annotations render a clearly-marked inert state
+ * instead of throwing or silently disappearing.
  */
 
 import { useMemo, useState } from "react";
@@ -34,12 +35,12 @@ import { cn } from "../ui/cn";
 import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import {
   detectDanglingTargets,
-  type CommentIntent,
-  type CommentTarget,
-  type DocComment,
-} from "@codecaine-ai/docs-model/comments-schema";
+  type AnnotationIntent,
+  type AnnotationTarget,
+  type DocAnnotation,
+} from "@codecaine-ai/docs-model/annotations-schema";
 
-/** What's currently selected as a comment target, before it's submitted. */
+/** What's currently selected as an annotation target, before it's submitted. */
 export type PlannotatorSelection =
   | { kind: "block"; blockId: string; label?: string }
   | {
@@ -52,34 +53,34 @@ export type PlannotatorSelection =
     };
 
 export interface PlannotatorProps {
-  /** All comments for the current doc bundle (raw, unfiltered by status). */
-  comments: DocComment[];
-  /** The doc being commented on, for dangling block-target detection. Null while loading. */
+  /** All annotations for the current doc bundle (raw, unfiltered by status). */
+  annotations: DocAnnotation[];
+  /** The doc being annotated, for dangling block-target detection. Null while loading. */
   document: DocDocument | null;
   /**
    * Canvas object/connection id sets keyed by canvas src, for dangling
    * canvas-object-target detection. Pass undefined/null while the index is
    * still LOADING — canvas-target checks are then skipped entirely (see
    * `detectDanglingTargets`). Once loaded, omit entries for srcs that
-   * failed to resolve and those comments surface as dangling.
+   * failed to resolve and those annotations surface as dangling.
    */
   canvases?: Record<string, { objectIds: ReadonlySet<string>; connectionIds: ReadonlySet<string> }> | null;
   /** Current pending selection (set by the host in response to a block/canvas-object click). */
   selection: PlannotatorSelection | null;
   /** Clears the pending selection (e.g. composer cancel). */
   onClearSelection: () => void;
-  /** Submits a new comment against `selection`. Host performs the actual API call. */
-  onAddComment: (input: { target: CommentTarget; body: string; intent: CommentIntent }) => Promise<void>;
-  /** Marks a comment resolved. Host performs the actual API call. */
-  onResolveComment: (commentId: string) => Promise<void>;
-  /** Jumps the viewer to a comment's target (scroll to block / focus canvas object). */
-  onFocusTarget?: (target: CommentTarget) => void;
+  /** Submits a new annotation against `selection`. Host performs the actual API call. */
+  onAddAnnotation: (input: { target: AnnotationTarget; body: string; intent: AnnotationIntent }) => Promise<void>;
+  /** Marks an annotation resolved. Host performs the actual API call. */
+  onResolveAnnotation: (annotationId: string) => Promise<void>;
+  /** Jumps the viewer to an annotation's target (scroll to block / focus canvas object). */
+  onFocusTarget?: (target: AnnotationTarget) => void;
   /**
-   * Kicks off an agent run for an `agent-request` comment. Host performs the
-   * actual API call (runDocAgentRequest). Optional — omit to not render the
-   * Run-agent button at all.
+   * Kicks off an agent run for an `agent-request` annotation. Host performs
+   * the actual API call (runDocAgentRequest). Optional — omit to not render
+   * the Run-agent button at all.
    */
-  onRunAgent?: (commentId: string) => Promise<
+  onRunAgent?: (annotationId: string) => Promise<
     | { ok: true; summary: string; patchId: string; changedIds: string[] }
     | { ok: false; detail: string }
   >;
@@ -98,12 +99,12 @@ export interface PlannotatorProps {
   className?: string;
 }
 
-const INTENT_OPTIONS: Array<{ value: CommentIntent; label: string; hint: string }> = [
-  { value: "note", label: "Note", hint: "Just a comment — no action requested." },
+const INTENT_OPTIONS: Array<{ value: AnnotationIntent; label: string; hint: string }> = [
+  { value: "note", label: "Note", hint: "Just a note — no action requested." },
   { value: "agent-request", label: "Agent request", hint: "Ask an agent to act on this." },
 ];
 
-function targetKey(target: CommentTarget): string {
+function targetKey(target: AnnotationTarget): string {
   if (target.kind === "block") return `block:${target.blockId}`;
   if (target.objectId) return `canvas-object:${target.canvasSrc}:obj:${target.objectId}`;
   if (target.connectionId) return `canvas-object:${target.canvasSrc}:conn:${target.connectionId}`;
@@ -113,7 +114,7 @@ function targetKey(target: CommentTarget): string {
   return `canvas-object:${target.canvasSrc}`;
 }
 
-function selectionToTarget(selection: PlannotatorSelection): CommentTarget {
+function selectionToTarget(selection: PlannotatorSelection): AnnotationTarget {
   if (selection.kind === "block") return { kind: "block", blockId: selection.blockId };
   return {
     kind: "canvas-object",
@@ -124,7 +125,7 @@ function selectionToTarget(selection: PlannotatorSelection): CommentTarget {
   };
 }
 
-function targetLabel(target: CommentTarget): string {
+function targetLabel(target: AnnotationTarget): string {
   if (target.kind === "block") return `Block ${target.blockId}`;
   if (target.objectId) return `Canvas object ${target.objectId}`;
   if (target.connectionId) return `Canvas connection ${target.connectionId}`;
@@ -132,26 +133,26 @@ function targetLabel(target: CommentTarget): string {
   return `Canvas ${target.canvasSrc}`;
 }
 
-/** Groups comments by target so the marker list can show one entry with an open-count per target. */
-function groupByTarget(comments: DocComment[]): Map<string, DocComment[]> {
-  const groups = new Map<string, DocComment[]>();
-  for (const comment of comments) {
-    const key = targetKey(comment.target);
+/** Groups annotations by target so the marker list can show one entry with an open-count per target. */
+function groupByTarget(annotations: DocAnnotation[]): Map<string, DocAnnotation[]> {
+  const groups = new Map<string, DocAnnotation[]>();
+  for (const annotation of annotations) {
+    const key = targetKey(annotation.target);
     const existing = groups.get(key);
-    if (existing) existing.push(comment);
-    else groups.set(key, [comment]);
+    if (existing) existing.push(annotation);
+    else groups.set(key, [annotation]);
   }
   return groups;
 }
 
 export default function Plannotator({
-  comments,
+  annotations,
   document,
   canvases,
   selection,
   onClearSelection,
-  onAddComment,
-  onResolveComment,
+  onAddAnnotation,
+  onResolveAnnotation,
   onFocusTarget,
   onRunAgent,
   onUndoPatch,
@@ -159,7 +160,7 @@ export default function Plannotator({
   className,
 }: PlannotatorProps) {
   const [body, setBody] = useState("");
-  const [intent, setIntent] = useState<CommentIntent>("note");
+  const [intent, setIntent] = useState<AnnotationIntent>("note");
   const [error, setError] = useState<string | null>(null);
   const [runningAgentIds, setRunningAgentIds] = useState<Set<string>>(new Set());
   const [undoingPatchIds, setUndoingPatchIds] = useState<Set<string>>(new Set());
@@ -167,76 +168,76 @@ export default function Plannotator({
   const [agentErrors, setAgentErrors] = useState<Record<string, string>>({});
 
   const danglingIds = useMemo(() => {
-    const dangling = detectDanglingTargets({ schemaVersion: 1, comments }, document, canvases);
-    return new Map(dangling.map((entry) => [entry.commentId, entry.reason]));
-  }, [comments, document, canvases]);
+    const dangling = detectDanglingTargets({ schemaVersion: 1, annotations }, document, canvases);
+    return new Map(dangling.map((entry) => [entry.annotationId, entry.reason]));
+  }, [annotations, document, canvases]);
 
-  const groups = useMemo(() => groupByTarget(comments), [comments]);
+  const groups = useMemo(() => groupByTarget(annotations), [annotations]);
 
   const submit = async () => {
     if (!selection || !body.trim()) return;
     setError(null);
     try {
-      await onAddComment({ target: selectionToTarget(selection), body: body.trim(), intent });
+      await onAddAnnotation({ target: selectionToTarget(selection), body: body.trim(), intent });
       setBody("");
       setIntent("note");
       onClearSelection();
     } catch (submitError) {
-      setError(submitError instanceof Error ? submitError.message : "Failed to add comment.");
+      setError(submitError instanceof Error ? submitError.message : "Failed to add annotation.");
     }
   };
 
-  const runAgent = async (commentId: string) => {
+  const runAgent = async (annotationId: string) => {
     if (!onRunAgent) return;
-    setRunningAgentIds((prev) => new Set(prev).add(commentId));
+    setRunningAgentIds((prev) => new Set(prev).add(annotationId));
     setAgentErrors((prev) => {
       const next = { ...prev };
-      delete next[commentId];
+      delete next[annotationId];
       return next;
     });
     try {
-      const result = await onRunAgent(commentId);
+      const result = await onRunAgent(annotationId);
       if (!result.ok) {
-        setAgentErrors((prev) => ({ ...prev, [commentId]: result.detail }));
+        setAgentErrors((prev) => ({ ...prev, [annotationId]: result.detail }));
       }
     } catch (runError) {
       setAgentErrors((prev) => ({
         ...prev,
-        [commentId]: runError instanceof Error ? runError.message : "Failed to run agent.",
+        [annotationId]: runError instanceof Error ? runError.message : "Failed to run agent.",
       }));
     } finally {
       setRunningAgentIds((prev) => {
         const next = new Set(prev);
-        next.delete(commentId);
+        next.delete(annotationId);
         return next;
       });
     }
   };
 
-  const undoPatch = async (commentId: string, patchId: string, changedIds?: string[]) => {
+  const undoPatch = async (annotationId: string, patchId: string, changedIds?: string[]) => {
     if (!onUndoPatch) return;
-    setUndoingPatchIds((prev) => new Set(prev).add(commentId));
+    setUndoingPatchIds((prev) => new Set(prev).add(annotationId));
     setAgentErrors((prev) => {
       const next = { ...prev };
-      delete next[commentId];
+      delete next[annotationId];
       return next;
     });
     try {
       const result = await onUndoPatch(patchId, changedIds);
       if (result.ok) {
-        setUndonePatchIds((prev) => new Set(prev).add(commentId));
+        setUndonePatchIds((prev) => new Set(prev).add(annotationId));
       } else {
-        setAgentErrors((prev) => ({ ...prev, [commentId]: result.detail }));
+        setAgentErrors((prev) => ({ ...prev, [annotationId]: result.detail }));
       }
     } catch (undoError) {
       setAgentErrors((prev) => ({
         ...prev,
-        [commentId]: undoError instanceof Error ? undoError.message : "Failed to undo patch.",
+        [annotationId]: undoError instanceof Error ? undoError.message : "Failed to undo patch.",
       }));
     } finally {
       setUndoingPatchIds((prev) => {
         const next = new Set(prev);
-        next.delete(commentId);
+        next.delete(annotationId);
         return next;
       });
     }
@@ -251,7 +252,7 @@ export default function Plannotator({
         >
           <div className="flex items-center justify-between gap-2">
             <span className="text-xs font-medium text-muted-foreground">
-              Commenting on: {selection.label ?? targetLabel(selectionToTarget(selection))}
+              Annotating: {selection.label ?? targetLabel(selectionToTarget(selection))}
             </span>
             <Button type="button" variant="ghost" size="xs" onClick={onClearSelection}>
               Cancel
@@ -293,7 +294,7 @@ export default function Plannotator({
             placeholder={
               intent === "agent-request"
                 ? "Describe what you want an agent to do..."
-                : "Add a comment..."
+                : "Add an annotation..."
             }
             className="min-h-20 resize-none text-sm"
           />
@@ -308,7 +309,7 @@ export default function Plannotator({
               onClick={() => void submit()}
             >
               <MessageSquarePlusIcon className="h-3.5 w-3.5" />
-              {isSubmitting ? "Posting..." : "Post comment"}
+              {isSubmitting ? "Posting..." : "Post annotation"}
             </Button>
           </div>
         </div>
@@ -317,14 +318,14 @@ export default function Plannotator({
       <div className="flex flex-col gap-3" data-plannotator="list">
         {groups.size === 0 && (
           <div className="text-sm text-muted-foreground">
-            No comments yet. Select a block or canvas object to start one.
+            No annotations yet. Select a block or canvas object to start one.
           </div>
         )}
 
         {Array.from(groups.entries()).map(([key, group]) => {
-          const openCount = group.filter((c) => c.status === "open").length;
+          const openCount = group.filter((a) => a.status === "open").length;
           const target = group[0].target;
-          const dangling = group.find((c) => danglingIds.has(c.id));
+          const dangling = group.find((a) => danglingIds.has(a.id));
 
           return (
             <div
@@ -359,62 +360,62 @@ export default function Plannotator({
               )}
 
               <div className="flex flex-col gap-2">
-                {group.map((comment) => (
+                {group.map((annotation) => (
                   <div
-                    key={comment.id}
-                    className="flex flex-col gap-1 rounded border bg-muted/20 p-2"
-                    data-plannotator-comment-id={comment.id}
-                    data-plannotator-comment-status={comment.status}
+                    key={annotation.id}
+                    className="flex flex-col gap-1 rounded-sm border bg-muted/20 p-2"
+                    data-plannotator-annotation-id={annotation.id}
+                    data-plannotator-annotation-status={annotation.status}
                   >
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                        <span className="font-medium text-foreground">{comment.author}</span>
-                        {comment.intent === "agent-request" && (
+                        <span className="font-medium text-foreground">{annotation.author}</span>
+                        {annotation.intent === "agent-request" && (
                           <Badge variant="outline" className="gap-1">
                             <SparklesIcon className="h-3 w-3" />
                             Agent request
                           </Badge>
                         )}
-                        <span>{new Date(comment.createdAt).toLocaleString()}</span>
+                        <span>{new Date(annotation.createdAt).toLocaleString()}</span>
                       </div>
-                      {comment.status === "open" && (
+                      {annotation.status === "open" && (
                         <Button
                           type="button"
                           size="xs"
                           variant="ghost"
-                          onClick={() => void onResolveComment(comment.id)}
+                          onClick={() => void onResolveAnnotation(annotation.id)}
                         >
                           <CheckIcon className="h-3.5 w-3.5" />
                           Resolve
                         </Button>
                       )}
-                      {comment.status === "resolved" && (
+                      {annotation.status === "resolved" && (
                         <Badge variant="secondary" className="gap-1">
                           <CheckIcon className="h-3 w-3" />
                           Resolved
                         </Badge>
                       )}
-                      {comment.intent === "agent-request" &&
-                        comment.status === "open" &&
-                        !comment.agentRun &&
+                      {annotation.intent === "agent-request" &&
+                        annotation.status === "open" &&
+                        !annotation.agentRun &&
                         onRunAgent && (
                           <Button
                             type="button"
                             size="xs"
                             variant="ghost"
-                            disabled={runningAgentIds.has(comment.id)}
-                            onClick={() => void runAgent(comment.id)}
+                            disabled={runningAgentIds.has(annotation.id)}
+                            onClick={() => void runAgent(annotation.id)}
                           >
                             <SparklesIcon className="h-3.5 w-3.5" />
-                            {runningAgentIds.has(comment.id) ? "Running..." : "Run agent"}
+                            {runningAgentIds.has(annotation.id) ? "Running..." : "Run agent"}
                           </Button>
                         )}
                     </div>
-                    <p className="whitespace-pre-wrap text-sm">{comment.body}</p>
-                    {comment.agentRun && (
+                    <p className="whitespace-pre-wrap text-sm">{annotation.body}</p>
+                    {annotation.agentRun && (
                       <div className="flex items-center justify-between gap-2">
                         <div className="text-xs text-muted-foreground">
-                          Agent run: {comment.agentRun.summary}
+                          Agent run: {annotation.agentRun.summary}
                         </div>
                         {onUndoPatch && (
                           <Button
@@ -422,28 +423,28 @@ export default function Plannotator({
                             size="xs"
                             variant="ghost"
                             disabled={
-                              undoingPatchIds.has(comment.id) || undonePatchIds.has(comment.id)
+                              undoingPatchIds.has(annotation.id) || undonePatchIds.has(annotation.id)
                             }
                             onClick={() =>
                               void undoPatch(
-                                comment.id,
-                                comment.agentRun!.patchId,
-                                comment.agentRun!.changedIds,
+                                annotation.id,
+                                annotation.agentRun!.patchId,
+                                annotation.agentRun!.changedIds,
                               )
                             }
                           >
-                            {undonePatchIds.has(comment.id)
+                            {undonePatchIds.has(annotation.id)
                               ? "Undone"
-                              : undoingPatchIds.has(comment.id)
+                              : undoingPatchIds.has(annotation.id)
                                 ? "Undoing..."
                                 : "Undo"}
                           </Button>
                         )}
                       </div>
                     )}
-                    {agentErrors[comment.id] && (
+                    {agentErrors[annotation.id] && (
                       <div className="text-xs text-destructive" data-plannotator-agent-error="">
-                        {agentErrors[comment.id]}
+                        {agentErrors[annotation.id]}
                       </div>
                     )}
                   </div>

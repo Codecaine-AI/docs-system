@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from "bun:test";
-import { cleanup, createEvent, fireEvent, render } from "@testing-library/react";
+import { act, cleanup, createEvent, fireEvent, render } from "@testing-library/react";
 import type { ReactNodeViewProps } from "@tiptap/react";
+import type { TableCell } from "@codecaine-ai/docs-model";
 import {
   HANDLE_OFFSET_CALC,
   StructuredTableNodeView,
@@ -12,7 +13,7 @@ import {
   SelectionOverlay,
   paddedRectStyle,
 } from "../components/structured-table/editor/SelectionOverlay";
-import { EditableCell } from "../components/structured-table/editor/EditableCell";
+import { EditableCell, getCellEditor } from "../components/structured-table/editor/EditableCell";
 import { unionRect } from "../components/structured-table/editor/geometry";
 import {
   buildColumnMenuItems,
@@ -104,6 +105,21 @@ function mockRect(element: Element, rect: PlainRect) {
 
 function query(container: HTMLElement, selector: string): HTMLElement | null {
   return container.querySelector<HTMLElement>(selector);
+}
+
+/** Replace a cell's mini-editor content, as typing does (emits update -> pending debounced commit). */
+function typeInto(cell: HTMLElement, text: string) {
+  cell.focus();
+  const editor = getCellEditor(cell)!;
+  act(() => {
+    editor.commands.setContent(
+      {
+        type: "doc",
+        content: [{ type: "paragraph", content: text ? [{ type: "text", text }] : [] }],
+      },
+      { emitUpdate: true },
+    );
+  });
 }
 
 /** mousedown on a handle then mouseup within the dead zone = click (opens the menu). */
@@ -722,8 +738,7 @@ describe("structured-table stale-commit protection", () => {
     const cell = container.querySelectorAll<HTMLElement>('[role="textbox"]')[2]!; // row 0, col 0
     cell.focus();
     expect(document.activeElement).toBe(cell);
-    cell.textContent = "typed";
-    fireEvent.input(cell); // pending debounce — must NOT be lost by the move
+    typeInto(cell, "typed"); // pending debounce — must NOT be lost by the move
 
     fireEvent.mouseEnter(container.querySelectorAll("tbody td")[0]!);
     clickHandle(query(container, "[data-table-row-handle]")!);
@@ -766,8 +781,10 @@ describe("structured-table stale-commit protection", () => {
     const { container, history } = renderView();
     const cell = container.querySelectorAll<HTMLElement>('[role="textbox"]')[2]!;
     cell.focus();
-    fireEvent.keyDown(cell, { key: "z", metaKey: true });
-    fireEvent.keyDown(cell, { key: "z", metaKey: true, shiftKey: true });
+    // prosemirror-keymap resolves "Mod-" to Ctrl outside macOS (happy-dom's
+    // navigator is not a Mac), so the test drives the Ctrl chords.
+    fireEvent.keyDown(cell, { key: "z", ctrlKey: true });
+    fireEvent.keyDown(cell, { key: "z", ctrlKey: true, shiftKey: true });
     fireEvent.keyDown(cell, { key: "y", ctrlKey: true });
     expect(history).toEqual(["undo", "redo", "redo"]);
   });
@@ -785,7 +802,7 @@ describe("structured-table stale-commit protection", () => {
 
 describe("EditableCell external-value sync", () => {
   const noop = () => {};
-  const cellProps = (value: string, onCommit: (next: string) => void = noop) => ({
+  const cellProps = (value: TableCell, onCommit: (next: TableCell) => void = noop) => ({
     value,
     editable: true,
     ariaLabel: "cell",
@@ -794,7 +811,7 @@ describe("EditableCell external-value sync", () => {
     registerElement: noop,
   });
 
-  it("syncs a focused-but-CLEAN cell's DOM when the external value changes", () => {
+  it("syncs a focused-but-CLEAN cell's content when the external value changes", () => {
     const { container, rerender } = render(<EditableCell {...cellProps("a")} />);
     const element = container.querySelector<HTMLElement>('[role="textbox"]')!;
     element.focus();
@@ -803,14 +820,21 @@ describe("EditableCell external-value sync", () => {
     expect(element.textContent).toBe("b");
   });
 
-  it("never touches a focused cell's DOM while it holds a pending local edit", () => {
-    const commits: string[] = [];
-    const onCommit = (next: string) => commits.push(next);
+  it("syncs marked external values into the cell editor's rendered marks", () => {
+    const { container, rerender } = render(<EditableCell {...cellProps("a")} />);
+    const element = container.querySelector<HTMLElement>('[role="textbox"]')!;
+    rerender(
+      <EditableCell {...cellProps([{ insert: "a", attributes: { bold: true } }])} />,
+    );
+    expect(element.querySelector("strong")?.textContent).toBe("a");
+  });
+
+  it("never touches a focused cell's content while it holds a pending local edit", () => {
+    const commits: TableCell[] = [];
+    const onCommit = (next: TableCell) => commits.push(next);
     const { container, rerender } = render(<EditableCell {...cellProps("a", onCommit)} />);
     const element = container.querySelector<HTMLElement>('[role="textbox"]')!;
-    element.focus();
-    element.textContent = "a-typed";
-    fireEvent.input(element);
+    typeInto(element, "a-typed");
     rerender(<EditableCell {...cellProps("b", onCommit)} />);
     expect(element.textContent).toBe("a-typed"); // caret protection intact
     // Blur commits the pending text (committedRef tracks the external "b").
@@ -829,29 +853,30 @@ describe("EditableCell external-value sync", () => {
     const { container } = render(<EditableCell {...cellProps("hello")} />);
     const element = container.querySelector<HTMLElement>('[role="textbox"]')!;
     element.focus();
+    const editor = getCellEditor(element)!;
 
     // stopPropagation must keep the keystroke from any editor-level listener.
     const leaks: KeyboardEvent[] = [];
     const listen = (event: KeyboardEvent) => leaks.push(event);
     document.addEventListener("keydown", listen);
     try {
-      const event = createEvent.keyDown(element, { key: "a", metaKey: true });
+      const event = createEvent.keyDown(element, { key: "a", ctrlKey: true });
       fireEvent(element, event);
       // preventDefault blocks the browser's native select-all on the outer
-      // editing host — the confirmed whole-document data-loss path.
+      // editing host — the confirmed whole-document data-loss path. (The
+      // mini editor's own PM keymap handles Mod-A and prevents the default.)
       expect(event.defaultPrevented).toBe(true);
       expect(leaks).toEqual([]);
 
-      const selection = window.getSelection()!;
-      expect(element.contains(selection.anchorNode)).toBe(true);
-      expect(element.contains(selection.focusNode)).toBe(true);
-      expect(selection.toString()).toBe("hello");
+      // The selection is the mini editor's own all-selection — its bounds
+      // are the cell's single-paragraph doc, nothing beyond it.
+      const selection = editor.state.selection;
+      expect(editor.state.doc.textBetween(selection.from, selection.to)).toBe("hello");
 
       // A second consecutive press keeps the cell-scoped selection.
-      fireEvent.keyDown(element, { key: "a", metaKey: true });
-      const again = window.getSelection()!;
-      expect(element.contains(again.anchorNode)).toBe(true);
-      expect(element.contains(again.focusNode)).toBe(true);
+      fireEvent.keyDown(element, { key: "a", ctrlKey: true });
+      const again = editor.state.selection;
+      expect(editor.state.doc.textBetween(again.from, again.to)).toBe("hello");
     } finally {
       document.removeEventListener("keydown", listen);
     }

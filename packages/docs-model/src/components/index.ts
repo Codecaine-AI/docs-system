@@ -9,6 +9,7 @@ import { interactionSurfaceComponent } from "./interaction-surface";
 import { mermaidComponent } from "./mermaid";
 import { richTextComponent } from "./rich-text";
 import { sequenceComponent } from "./sequence";
+import { stateShapeComponent } from "./state-shape";
 import { structuredTableComponent } from "./structured-table";
 import type {
   BlockStateDefinition,
@@ -28,7 +29,28 @@ export { codeComponent } from "./code";
 export { mermaidComponent } from "./mermaid";
 export { fileTreeComponent } from "./file-tree";
 export { structuredTableComponent } from "./structured-table";
+export {
+  normalizeRow,
+  normalizeTableCell,
+  parseTableCellInput,
+  readTableColumns,
+  readTableRows,
+  tableCellToMarkdown,
+  tableCellToPlainText,
+} from "./structured-table";
+export type { TableCell } from "./structured-table";
 export { interactionSurfaceComponent } from "./interaction-surface";
+export { stateShapeComponent } from "./state-shape";
+export {
+  readStateShapeExample,
+  readStateShapeFields,
+  readStateShapeSource,
+} from "./state-shape";
+export type { StateShapeSource } from "./state-shape";
+export { FieldSchema, cloneField, fieldLines, readFields } from "./shared/field";
+export type { Field } from "./shared/field";
+export { printJsonLines } from "./shared/json-lines";
+export type { JsonLineRange, JsonLinesResult } from "./shared/json-lines";
 export { canvasComponent } from "./canvas";
 export { sequenceComponent } from "./sequence";
 
@@ -39,6 +61,7 @@ export const ALL_COMPONENTS: readonly ComponentBundle[] = [
   fileTreeComponent,
   structuredTableComponent,
   interactionSurfaceComponent,
+  stateShapeComponent,
   canvasComponent,
   sequenceComponent,
 ];

@@ -2,7 +2,7 @@ Every doc and folder carries a two-digit prefix, and every listing — sidebar, 
 
 This page states the scheme, the reserved ranges, and what running out of gap space actually means.
 
-## How it's laid out
+## Structure
 
 ```
 00-foundation/  # 00 — early/foundational slot, used sparingly

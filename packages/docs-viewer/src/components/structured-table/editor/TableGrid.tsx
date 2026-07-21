@@ -14,8 +14,9 @@ import {
   TABLE_ROW_RULE_CLASSES,
   TABLE_WRAPPER_CLASSES,
 } from "../table-classes";
+import type { TableCell } from "@codecaine-ai/docs-model";
 import { placeCaretAtEnd } from "./caret";
-import { EditableCell, type CellNavigation } from "./EditableCell";
+import { EditableCell, getCellEditor, type CellNavigation } from "./EditableCell";
 import type { TableData } from "./mutations";
 
 /** Row coordinate of the header row in hover/focus positions (body rows are 0-based). */
@@ -61,6 +62,18 @@ export const EDITOR_CELL_FOCUS_CLASS =
 
 /** Focus a cell island with the caret ready at the end of its text — shared with the node view's post-add focus routing. */
 export function focusCellElement(element: HTMLElement) {
+  // Rich cells route through their mini editor so ProseMirror's own
+  // selection state moves with the DOM caret; the DOM-range path stays as
+  // the fallback for any plain registered element.
+  const editor = getCellEditor(element);
+  if (editor && !editor.isDestroyed) {
+    // focus("end") places the PM selection synchronously but defers the DOM
+    // focus a frame (TipTap's rAF) — view.focus() makes it land NOW, so
+    // grid navigation reads coherent focus state immediately.
+    editor.commands.focus("end");
+    editor.view.focus();
+    return;
+  }
   element.focus();
   placeCaretAtEnd(element);
 }
@@ -85,8 +98,8 @@ export function TableGrid({
 }: {
   data: TableData;
   editable: boolean;
-  onCommitHeader: (columnIndex: number, value: string) => void;
-  onCommitCell: (rowIndex: number, columnIndex: number, value: string) => void;
+  onCommitHeader: (columnIndex: number, value: TableCell) => void;
+  onCommitCell: (rowIndex: number, columnIndex: number, value: TableCell) => void;
   onHoverCell: (rowIndex: number | null, columnIndex: number | null) => void;
   /** Reports the focused cell (header row = HEADER_ROW), or (null, null) on blur — drives the node view's focus notches. */
   onFocusCell?: (rowIndex: number | null, columnIndex: number | null) => void;

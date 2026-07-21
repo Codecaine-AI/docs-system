@@ -12,7 +12,7 @@
  *    shows a floating chip with the resolved target's type + label,
  *  - pinpoint mode: click resolves the block into a `ResolvedDocsTarget`
  *    (either reported to the host via `onTargetSelect`, or handled by the
- *    built-in annotation toolbar -> comment/delete popover flow),
+ *    built-in annotation toolbar -> change-request/delete popover flow),
  *  - add mode: click opens the canvas-insert popover (`onInsertCanvas`),
  *  - select mode: text selections become `text_range` targets,
  *  - the selected-target ring overlay (uncontrolled after a click, or
@@ -82,7 +82,7 @@ export const DOC_TARGETING_CSS = `
   .docs-markdown [data-docs-target],
   .docs-markdown [data-mdx-block],
   .docs-markdown [data-docs-block-type] {
-    border-radius: 6px;
+    border-radius: calc(var(--radius, 8px) - 2px);
   }
   .docs-markdown.docs-mode-select [data-docs-target],
   .docs-markdown.docs-mode-select [data-mdx-block],
@@ -105,15 +105,15 @@ export const DOC_TARGETING_CSS = `
   .docs-target-selected {
     outline: 2px solid var(--primary);
     outline-offset: 4px;
-    border-radius: 6px;
+    border-radius: calc(var(--radius, 8px) - 2px);
     background: color-mix(in oklab, var(--primary) 5%, transparent);
   }
   .docs-annotation-mark {
-    border-radius: 3px;
+    border-radius: max(0px, calc(var(--radius, 8px) - 5px));
     cursor: pointer;
     padding: 0.05em 0.12em;
   }
-  .docs-annotation-comment {
+  .docs-annotation-change-request {
     background: color-mix(in oklab, var(--primary) 18%, transparent);
     box-shadow: inset 0 -2px 0 color-mix(in oklab, var(--primary) 55%, transparent);
   }
@@ -138,7 +138,7 @@ export const DOC_TARGETING_CSS = `
  */
 export interface DocsAnnotationView {
   id: string;
-  /** `"delete"` renders the strikethrough treatment; anything else the comment treatment. */
+  /** `"delete"` renders the strikethrough treatment; anything else the change-request treatment. */
   intent: string;
   /** Only `"queued"` (or the currently selected id) renders a mark. */
   status: string;
@@ -217,7 +217,7 @@ export interface DocTargeting {
   selectedTarget: ResolvedDocsTarget | null;
   /** Absolutely-positioned overlays (hover chip + selected ring); the container must be `position: relative`. */
   overlays: ReactNode;
-  /** Fixed-position overlay UI (annotation toolbar, comment + canvas-insert popovers). */
+  /** Fixed-position overlay UI (annotation toolbar, change-request + canvas-insert popovers). */
   overlayUi: ReactNode;
   /** The layer's `<style>` element (`DOC_TARGETING_CSS`). */
   styles: ReactNode;
@@ -236,7 +236,7 @@ type TargetToolbarState = {
   label: string;
 };
 
-type CommentPopoverState = {
+type AnnotationPopoverState = {
   anchor: DocsAnchor;
   element: HTMLElement;
   contextText: string;
@@ -434,7 +434,7 @@ function wrapRangeWithAnnotation(
       "docs-annotation-mark",
       annotation.intent === "delete"
         ? "docs-annotation-delete"
-        : "docs-annotation-comment",
+        : "docs-annotation-change-request",
       isFocused && "docs-annotation-focused",
     );
     try {
@@ -632,7 +632,7 @@ export function useDocTargeting<A extends DocsAnnotationView = DocsAnnotationVie
 }: DocTargetingOptions<A>): DocTargeting {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [targetToolbar, setTargetToolbar] = useState<TargetToolbarState | null>(null);
-  const [commentPopover, setCommentPopover] = useState<CommentPopoverState | null>(null);
+  const [annotationPopover, setAnnotationPopover] = useState<AnnotationPopoverState | null>(null);
   const [canvasInsertPopover, setCanvasInsertPopover] =
     useState<CanvasInsertPopoverState | null>(null);
   const [hoverTarget, setHoverTarget] = useState<ResolvedDocsTarget | null>(null);
@@ -722,13 +722,13 @@ export function useDocTargeting<A extends DocsAnnotationView = DocsAnnotationVie
       if (onTargetSelect) {
         if (!isControlledSelection) setInternalSelectedTarget(target);
         setTargetToolbar(null);
-        setCommentPopover(null);
+        setAnnotationPopover(null);
         setCanvasInsertPopover(null);
         onTargetSelect(target);
         return;
       }
       setInternalSelectedTarget(target);
-      setCommentPopover(null);
+      setAnnotationPopover(null);
       setCanvasInsertPopover(null);
       setTargetToolbar({
         anchor: target.anchor,
@@ -746,7 +746,7 @@ export function useDocTargeting<A extends DocsAnnotationView = DocsAnnotationVie
       setHoverTarget(null);
       setInternalSelectedTarget(target);
       setTargetToolbar(null);
-      setCommentPopover(null);
+      setAnnotationPopover(null);
       setCanvasInsertPopover({
         anchor: target.anchor,
         element: target.element,
@@ -772,7 +772,7 @@ export function useDocTargeting<A extends DocsAnnotationView = DocsAnnotationVie
       event.preventDefault();
       event.stopPropagation();
       setTargetToolbar(null);
-      setCommentPopover(null);
+      setAnnotationPopover(null);
       setCanvasInsertPopover(null);
       setHoverTarget(null);
       setInternalSelectedTarget(null);
@@ -832,7 +832,7 @@ export function useDocTargeting<A extends DocsAnnotationView = DocsAnnotationVie
         setHoverTarget(null);
         return;
       }
-      if (!canTarget || targetToolbar || commentPopover) return;
+      if (!canTarget || targetToolbar || annotationPopover) return;
       if (canvasInsertPopover) return;
       const root = containerRef.current;
       if (!root) return;
@@ -860,7 +860,7 @@ export function useDocTargeting<A extends DocsAnnotationView = DocsAnnotationVie
     },
     [
       targetToolbar,
-      commentPopover,
+      annotationPopover,
       canvasInsertPopover,
       canTarget,
       doc,
@@ -937,14 +937,14 @@ export function useDocTargeting<A extends DocsAnnotationView = DocsAnnotationVie
       resolution_target: "agent",
     });
     setTargetToolbar(null);
-    setCommentPopover(null);
+    setAnnotationPopover(null);
     setInternalSelectedTarget(null);
     window.getSelection()?.removeAllRanges();
   };
 
-  const requestComment = () => {
+  const requestAnnotation = () => {
     if (!targetToolbar) return;
-    setCommentPopover({
+    setAnnotationPopover({
       anchor: targetToolbar.anchor,
       element: targetToolbar.element,
       contextText: targetToolbar.anchor.text_quote,
@@ -961,22 +961,22 @@ export function useDocTargeting<A extends DocsAnnotationView = DocsAnnotationVie
     window.getSelection()?.removeAllRanges();
   };
 
-  const submitCommentAnnotation = (body: string) => {
+  const submitChangeRequestAnnotation = (body: string) => {
     const trimmed = body.trim();
-    if (!commentPopover || !trimmed || !onCreateAnnotation) return;
+    if (!annotationPopover || !trimmed || !onCreateAnnotation) return;
     onCreateAnnotation({
       intent: "change_request",
       body: trimmed,
-      anchor: commentPopover.anchor,
+      anchor: annotationPopover.anchor,
       resolution_target: "agent",
     });
-    setCommentPopover(null);
+    setAnnotationPopover(null);
     setInternalSelectedTarget(null);
     window.getSelection()?.removeAllRanges();
   };
 
-  const closeCommentPopover = () => {
-    setCommentPopover(null);
+  const closeAnnotationPopover = () => {
+    setAnnotationPopover(null);
     setInternalSelectedTarget(null);
     window.getSelection()?.removeAllRanges();
   };
@@ -1061,7 +1061,7 @@ export function useDocTargeting<A extends DocsAnnotationView = DocsAnnotationVie
   // Doc switch: drop all transient targeting state.
   useEffect(() => {
     setTargetToolbar(null);
-    setCommentPopover(null);
+    setAnnotationPopover(null);
     setCanvasInsertPopover(null);
     setHoverTarget(null);
     setInternalSelectedTarget(null);
@@ -1076,7 +1076,7 @@ export function useDocTargeting<A extends DocsAnnotationView = DocsAnnotationVie
   useEffect(() => {
     if (resetToken === undefined) return;
     setTargetToolbar(null);
-    setCommentPopover(null);
+    setAnnotationPopover(null);
     setCanvasInsertPopover(null);
     setHoverTarget(null);
     setInternalSelectedTarget(null);
@@ -1112,16 +1112,16 @@ export function useDocTargeting<A extends DocsAnnotationView = DocsAnnotationVie
           target={targetToolbar}
           isLoading={isAnnotationLoading}
           onDelete={submitDeleteAnnotation}
-          onRequestComment={requestComment}
+          onRequestAnnotation={requestAnnotation}
           onClose={closeTargetToolbar}
         />
       )}
-      {commentPopover && (
-        <DocsCommentPopover
-          state={commentPopover}
+      {annotationPopover && (
+        <DocsAnnotationPopover
+          state={annotationPopover}
           isLoading={isAnnotationLoading}
-          onSubmit={submitCommentAnnotation}
-          onClose={closeCommentPopover}
+          onSubmit={submitChangeRequestAnnotation}
+          onClose={closeAnnotationPopover}
         />
       )}
       {canvasInsertPopover && (
@@ -1197,13 +1197,13 @@ function DocsAnnotationToolbar({
   target,
   isLoading,
   onDelete,
-  onRequestComment,
+  onRequestAnnotation,
   onClose,
 }: {
   target: TargetToolbarState;
   isLoading?: boolean;
   onDelete: () => void;
-  onRequestComment: () => void;
+  onRequestAnnotation: () => void;
   onClose: () => void;
 }) {
   const [copied, setCopied] = useState(false);
@@ -1294,10 +1294,10 @@ function DocsAnnotationToolbar({
           type="button"
           variant="ghost"
           size="icon-sm"
-          aria-label="Add comment"
-          title="Add comment"
+          aria-label="Add annotation"
+          title="Add annotation"
           disabled={isLoading}
-          onClick={onRequestComment}
+          onClick={onRequestAnnotation}
         >
           <MessageSquareIcon className="h-4 w-4" />
         </Button>
@@ -1317,13 +1317,13 @@ function DocsAnnotationToolbar({
   );
 }
 
-function DocsCommentPopover({
+function DocsAnnotationPopover({
   state,
   isLoading,
   onSubmit,
   onClose,
 }: {
-  state: CommentPopoverState;
+  state: AnnotationPopoverState;
   isLoading?: boolean;
   onSubmit: (text: string) => void;
   onClose: () => void;
@@ -1411,7 +1411,7 @@ function DocsCommentPopover({
           }
         }}
         rows={4}
-        placeholder="Add a comment..."
+        placeholder="Add an annotation..."
         className="min-h-24 resize-none text-sm"
       />
       <div className="flex justify-end gap-2">

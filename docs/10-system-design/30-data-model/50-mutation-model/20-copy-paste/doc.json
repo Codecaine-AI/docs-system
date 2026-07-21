@@ -1,0 +1,317 @@
+{
+  "schemaVersion": 1,
+  "id": "dm-mutation-20-copy-paste",
+  "title": "Copy & paste",
+  "root": "b-cp-root",
+  "blocks": {
+    "b-cp-root": {
+      "id": "b-cp-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-cp-intro-1",
+        "b-cp-rule-h-2",
+        "b-cp-copy-3",
+        "b-cp-toplevel-4",
+        "b-cp-freshids-5",
+        "b-cp-external-6",
+        "b-cp-gate-7",
+        "b-cp-why-h-8",
+        "b-cp-why-structure-9",
+        "b-cp-why-untrusted-10"
+      ]
+    },
+    "b-cp-intro-1": {
+      "id": "b-cp-intro-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Copy and paste move structure, not strings. The clipboard carries typed block payloads, and a paste becomes ordinary typed operations — so nothing pasted can bypass validation."
+        }
+      ],
+      "children": []
+    },
+    "b-cp-rule-h-2": {
+      "id": "b-cp-rule-h-2",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The rule"
+        }
+      ],
+      "children": []
+    },
+    "b-cp-copy-3": {
+      "id": "b-cp-copy-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Copy carries structure",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-cp-copy-s1",
+        "b-cp-copy-s2"
+      ]
+    },
+    "b-cp-copy-s1": {
+      "id": "b-cp-copy-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A block selection ships a closed, top-level slice — whole blocks, never fragments of a neighbor."
+        }
+      ],
+      "children": []
+    },
+    "b-cp-copy-s2": {
+      "id": "b-cp-copy-s2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Block props, atom text, and references travel as typed JSON payloads in the clipboard markup ("
+        },
+        {
+          "insert": "data-block-props",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "data-block-text",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", the reference payload), never as lossy HTML alone."
+        }
+      ],
+      "children": []
+    },
+    "b-cp-toplevel-4": {
+      "id": "b-cp-toplevel-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Block runs land at top level",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-cp-toplevel-s1",
+        "b-cp-toplevel-s2",
+        "b-cp-toplevel-s3"
+      ]
+    },
+    "b-cp-toplevel-s1": {
+      "id": "b-cp-toplevel-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An empty caret block is replaced; at a block's start or end the run inserts before or after; mid-text, the block splits around it."
+        }
+      ],
+      "children": []
+    },
+    "b-cp-toplevel-s2": {
+      "id": "b-cp-toplevel-s2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Never accidental nesting — depth is authored deliberately, not created by a paste."
+        }
+      ],
+      "children": []
+    },
+    "b-cp-toplevel-s3": {
+      "id": "b-cp-toplevel-s3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Inline and partial-selection pastes merge into the caret block as marked text, the way a text editor would."
+        }
+      ],
+      "children": []
+    },
+    "b-cp-freshids-5": {
+      "id": "b-cp-freshids-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The copy is a new block",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-cp-freshids-s1"
+      ]
+    },
+    "b-cp-freshids-s1": {
+      "id": "b-cp-freshids-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Pasted blocks mint fresh ids; the original keeps its identity, so anchors and annotations stay with the source."
+        }
+      ],
+      "children": []
+    },
+    "b-cp-external-6": {
+      "id": "b-cp-external-6",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "External content converts",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-cp-external-s1"
+      ]
+    },
+    "b-cp-external-s1": {
+      "id": "b-cp-external-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "HTML from outside lands as separate typed blocks — headings, paragraphs, list items — not one merged blob."
+        }
+      ],
+      "children": []
+    },
+    "b-cp-gate-7": {
+      "id": "b-cp-gate-7",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Nothing bypasses the gate",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-cp-gate-s1",
+        "b-cp-gate-s2"
+      ]
+    },
+    "b-cp-gate-s1": {
+      "id": "b-cp-gate-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A paste persists as ordinary ops, and the save validates the entire resulting document before bytes reach disk."
+        }
+      ],
+      "children": []
+    },
+    "b-cp-gate-s2": {
+      "id": "b-cp-gate-s2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Malformed clipboard data degrades to plain text instead of writing a span that fails validation later."
+        }
+      ],
+      "children": []
+    },
+    "b-cp-why-h-8": {
+      "id": "b-cp-why-h-8",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why"
+        }
+      ],
+      "children": []
+    },
+    "b-cp-why-structure-9": {
+      "id": "b-cp-why-structure-9",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Structure is the point",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-cp-why-structure-s1"
+      ]
+    },
+    "b-cp-why-structure-s1": {
+      "id": "b-cp-why-structure-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A paste that flattened blocks would make the human surface a text editor with pictures; structure surviving the clipboard is what keeps both surfaces honest."
+        }
+      ],
+      "children": []
+    },
+    "b-cp-why-untrusted-10": {
+      "id": "b-cp-why-untrusted-10",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The clipboard is untrusted input",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-cp-why-untrusted-s1"
+      ]
+    },
+    "b-cp-why-untrusted-s1": {
+      "id": "b-cp-why-untrusted-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Anything can put anything on a clipboard. Defensive parsing plus the validation gate means the worst paste costs formatting, never document integrity."
+        }
+      ],
+      "children": []
+    }
+  }
+}

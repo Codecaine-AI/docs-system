@@ -7,7 +7,7 @@ export type DraftLockKey = { kind: "doc" | "canvas" | "sequence"; path: string }
  *  - the UI's draft-lock routes send the docs/-prefixed `document_path`
  *    (e.g. `"docs/00-foundation/10-purpose"`) because that is what the doc
  *    routes return as `document_path`;
- *  - mutation-time guards (`applyDocOpsToBundle`, comment writes,
+ *  - mutation-time guards (`applyDocOpsToBundle`, annotation writes,
  *    `canvas_apply_patch`, the canvas PUT/POST routes) key on the bare
  *    docs-root-relative path (bundle path or canvas sidecar rel path);
  *  - explicit `.../doc.json` or `*.doc.json` file paths also appear.

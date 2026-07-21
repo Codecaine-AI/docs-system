@@ -9,8 +9,8 @@ import { isDocBlockType } from "./doc-schema";
 /**
  * Typed block op vocabulary (M2 tracer, design record §4.5 + §8.3).
  *
- * Seven ops: the six generic structural/text ops plus `blockAction`, the
- * typed-action bridge. A blockAction resolves a named action from the
+ * Seven ops: the six generic structural/text ops plus `componentAction`, the
+ * typed-action bridge. A componentAction resolves a named action from the
  * components action registry, validates its params, runs `apply()`
  * against the target block, and executes the resulting shallow-merge props
  * patch through the EXISTING updateBlock code path — so merge semantics are
@@ -18,11 +18,11 @@ import { isDocBlockType } from "./doc-schema";
  *
  * Id-stability contract (§8.3 — system invariant, locked by
  * __tests__/doc-ops.contract.test.ts):
- * - updateBlock PRESERVES the block id — comment/patch/backlink targets stay valid.
+ * - updateBlock PRESERVES the block id — annotation/patch/backlink targets stay valid.
  * - splitBlock / mergeBlocks MINT fresh ids via the injected id factory and
  *   never reuse an existing id (applyOp re-mints on collision).
- * - deleteBlock leaves dangling comment targets DETECTABLE (see
- *   comments-schema detectDanglingTargets) — never re-anchored, never a crash.
+ * - deleteBlock leaves dangling annotation targets DETECTABLE (see
+ *   annotations-schema detectDanglingTargets) — never re-anchored, never a crash.
  *
  * Every applyOp returns exact inverse op(s): applying `inverse` in order to
  * the resulting doc restores the original doc structurally. M3 stores these
@@ -83,7 +83,7 @@ export type DocOp =
       blockIds: string[];
     }
   | {
-      type: "blockAction";
+      type: "componentAction";
       blockId: string;
       /** Registry key, "<blockType>.<verb>" — see the components registry. */
       action: string;
@@ -553,19 +553,19 @@ export function applyOp(
       return { ok: true, doc: withBlocks(doc, blocks), inverse };
     }
 
-    case "blockAction": {
+    case "componentAction": {
       const action = ACTION_REGISTRY.get(op.action);
       if (!action) {
-        return fail("$.op.action", `Unknown block action: "${String(op.action)}".`);
+        return fail("$.op.action", `Unknown component action: "${String(op.action)}".`);
       }
       const block = doc.blocks[op.blockId];
       if (!block) {
-        return fail("$.op.blockId", `blockAction target "${op.blockId}" does not exist.`);
+        return fail("$.op.blockId", `componentAction target "${op.blockId}" does not exist.`);
       }
       if (block.type !== action.blockType) {
         return fail(
           "$.op.blockId",
-          `blockAction "${op.action}" targets "${action.blockType}" blocks, but "${op.blockId}" is a "${block.type}".`,
+          `componentAction "${op.action}" targets "${action.blockType}" blocks, but "${op.blockId}" is a "${block.type}".`,
         );
       }
       const params = op.params ?? {};

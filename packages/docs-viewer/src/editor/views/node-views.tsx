@@ -13,6 +13,7 @@ import {
   DocInteractionSurface,
   DocMermaid,
   DocSequence,
+  DocStateShape,
   DocStructuredTable,
   DocVideo,
   NODE_TYPE_TO_BLOCK_TYPE,
@@ -23,7 +24,8 @@ import { useDocEditorNodeViewContext } from "./node-view-context";
 
 /**
  * Atom-node React views for the structured/atomic block types (divider,
- * image, video, canvas, file-tree, interaction-surface, mermaid; the
+ * image, video, canvas, file-tree, interaction-surface, state-shape,
+ * mermaid; the
  * structured table has its own editable view below). Rather than
  * reimplementing each block type's presentation, every view here reconstructs
  * the minimal `DocBlock` the block-registry descriptor's `render` expects
@@ -125,6 +127,12 @@ export const DocInteractionSurfaceWithView = DocInteractionSurface.extend({
   },
 });
 
+export const DocStateShapeWithView = DocStateShape.extend({
+  addNodeView() {
+    return ReactNodeViewRenderer(AtomBlockView);
+  },
+});
+
 export const DocMermaidWithView = DocMermaid.extend({
   addNodeView() {
     return ReactNodeViewRenderer(AtomBlockView);
@@ -141,6 +149,7 @@ export const ATOM_BLOCK_NODES_WITH_VIEWS = [
   DocFileTreeWithView,
   DocStructuredTableWithView,
   DocInteractionSurfaceWithView,
+  DocStateShapeWithView,
   DocMermaidWithView,
 ];
 

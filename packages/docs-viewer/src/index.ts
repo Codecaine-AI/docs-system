@@ -39,9 +39,9 @@ export {
   type DocTargetingCreateAnnotationInput,
   type DocsAnnotationView,
 } from "./annotate/doc-targeting-layer";
-export { default as DocsBlockLibrary } from "./render/DocsBlockLibrary";
 export { default as DocEditor, type DocEditorProps } from "./editor/DocEditor";
 export { DocPeekPanel, type DocPeekPanelProps } from "./peek/DocPeekPanel";
+export * from "./components/linked-panels";
 export {
   DOC_REFERENCE_NAVIGATE_EVENT,
   type DocReferenceNavigateDetail,

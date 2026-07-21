@@ -8,15 +8,12 @@ import { removeColumn } from "./actions/remove-column";
 import { removeRow } from "./actions/remove-row";
 import { updateCell } from "./actions/update-cell";
 import { manifest } from "./manifest";
-import { StructuredTableState } from "./state";
+import { structuredTableState } from "./state";
 
 export const structuredTableComponent: ComponentBundle = {
   manifest,
   states: {
-    "structured-table": {
-      schema: StructuredTableState,
-      carriesText: false,
-    },
+    "structured-table": structuredTableState,
   },
   actions: [addRow, removeRow, updateCell, addColumn, removeColumn],
   agentView: structuredTableAgentView,
@@ -29,4 +26,20 @@ export { removeColumn } from "./actions/remove-column";
 export { removeRow } from "./actions/remove-row";
 export { updateCell } from "./actions/update-cell";
 export { manifest } from "./manifest";
-export { StructuredTableState, structuredTableState } from "./state";
+export {
+  StructuredTableState,
+  TableCellSchema,
+  checkStructuredTableProps,
+  structuredTableState,
+} from "./state";
+export {
+  normalizeRow,
+  normalizeTableCell,
+  parseTableCellInput,
+  readTableColumns,
+  readTableRows,
+  resolveColumn,
+  tableCellToMarkdown,
+  tableCellToPlainText,
+} from "./lib";
+export type { TableCell } from "./lib";

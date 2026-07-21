@@ -1,7 +1,10 @@
 import { afterEach, describe, expect, it } from "bun:test";
-import { cleanup, fireEvent, render } from "@testing-library/react";
+import { act, cleanup, fireEvent, render } from "@testing-library/react";
+import type { Editor } from "@tiptap/core";
 import type { ReactNodeViewProps } from "@tiptap/react";
+import type { TableCell } from "@codecaine-ai/docs-model";
 import { StructuredTableNodeView } from "../components/structured-table/editor-node-view";
+import { getCellEditor } from "../components/structured-table/editor/EditableCell";
 import {
   HEADER_ROW,
   TableGrid,
@@ -24,8 +27,8 @@ const DATA: TableData = {
 const noop = () => {};
 
 function renderGrid(overrides?: {
-  onCommitHeader?: (columnIndex: number, value: string) => void;
-  onCommitCell?: (rowIndex: number, columnIndex: number, value: string) => void;
+  onCommitHeader?: (columnIndex: number, value: TableCell) => void;
+  onCommitCell?: (rowIndex: number, columnIndex: number, value: TableCell) => void;
   onHoverCell?: (rowIndex: number | null, columnIndex: number | null) => void;
   data?: TableData;
 }) {
@@ -45,10 +48,39 @@ function gridCells(container: HTMLElement): HTMLElement[] {
   return Array.from(container.querySelectorAll<HTMLElement>('[role="textbox"]'));
 }
 
+/** Replace a cell's mini-editor content, as typing does (emits update -> debounced commit). */
 function typeInto(cell: HTMLElement, text: string) {
   cell.focus();
-  cell.textContent = text;
-  fireEvent.input(cell);
+  const editor = getCellEditor(cell)!;
+  act(() => {
+    editor.commands.setContent(
+      {
+        type: "doc",
+        content: [
+          { type: "paragraph", content: text ? [{ type: "text", text }] : [] },
+        ],
+      },
+      { emitUpdate: true },
+    );
+  });
+}
+
+/** Fire one typed character through PM's handleTextInput so input rules run (same technique as input-rules.test.ts). */
+function typeChar(editor: Editor, triggerChar: string) {
+  const { from, to } = editor.state.selection;
+  let handled = false;
+  editor.view.someProp("handleTextInput", (handler) => {
+    handled =
+      handler(
+        editor.view,
+        from,
+        to,
+        triggerChar,
+        () => editor.view.state.tr.insertText(triggerChar, from, to),
+      ) || handled;
+    return handled;
+  });
+  if (!handled) editor.commands.insertContent(triggerChar);
 }
 
 describe("TableGrid", () => {
@@ -101,6 +133,30 @@ describe("TableGrid", () => {
     ]);
   });
 
+  it("renders span cells with inline mark elements in edit mode", () => {
+    const { container } = renderGrid({
+      data: {
+        columns: [[{ insert: "Stage", attributes: { bold: true } }], "Owner"],
+        rows: [
+          [
+            [
+              { insert: "Al", attributes: { italic: true } },
+              { insert: "pha", attributes: { code: true } },
+            ],
+            [{ insert: "ford", attributes: { link: "https://example.com" } }],
+          ],
+        ],
+      },
+    });
+    const cells = gridCells(container);
+    expect(cells[0]!.querySelector("strong")?.textContent).toBe("Stage");
+    expect(cells[2]!.querySelector("em")?.textContent).toBe("Al");
+    expect(cells[2]!.querySelector("code")?.textContent).toBe("pha");
+    const link = cells[3]!.querySelector("a")!;
+    expect(link.getAttribute("href")).toBe("https://example.com");
+    expect(link.textContent).toBe("ford");
+  });
+
   it("reports hover coordinates per cell and clears on leave", () => {
     const hovers: Array<[number | null, number | null]> = [];
     const { container } = renderGrid({
@@ -121,7 +177,7 @@ describe("TableGrid", () => {
   });
 
   it("commits an edited body cell on blur with row/column coordinates", () => {
-    const commits: Array<[number, number, string]> = [];
+    const commits: Array<[number, number, TableCell]> = [];
     const { container } = renderGrid({
       onCommitCell: (row, col, value) => commits.push([row, col, value]),
     });
@@ -134,7 +190,7 @@ describe("TableGrid", () => {
   });
 
   it("commits header edits through onCommitHeader", () => {
-    const commits: Array<[number, string]> = [];
+    const commits: Array<[number, TableCell]> = [];
     const { container } = renderGrid({
       onCommitHeader: (col, value) => commits.push([col, value]),
     });
@@ -146,8 +202,34 @@ describe("TableGrid", () => {
     expect(commits).toEqual([[0, "Phase"]]);
   });
 
+  it("commits marked content as DeltaSpan[], unmarked as the plain string", () => {
+    const commits: TableCell[] = [];
+    const { container } = renderGrid({
+      onCommitCell: (_row, _col, value) => commits.push(value),
+    });
+
+    const cell = gridCells(container)[2]!;
+    const editor = getCellEditor(cell)!;
+    cell.focus();
+    act(() => {
+      editor.chain().selectAll().toggleBold().run();
+    });
+    fireEvent.blur(cell);
+    expect(commits).toEqual([[{ insert: "Alpha", attributes: { bold: true } }]]);
+
+    cell.focus();
+    act(() => {
+      editor.chain().selectAll().unsetBold().run();
+    });
+    fireEvent.blur(cell);
+    expect(commits).toEqual([
+      [{ insert: "Alpha", attributes: { bold: true } }],
+      "Alpha",
+    ]);
+  });
+
   it("commits on a debounce while typing, without duplicate commits on blur", async () => {
-    const commits: string[] = [];
+    const commits: TableCell[] = [];
     const { container } = renderGrid({
       onCommitCell: (_row, _col, value) => commits.push(value),
     });
@@ -186,7 +268,7 @@ describe("TableGrid", () => {
   });
 
   it("Enter moves down the same column and commits; Escape blurs", () => {
-    const commits: Array<[number, number, string]> = [];
+    const commits: Array<[number, number, TableCell]> = [];
     const { container } = renderGrid({
       onCommitCell: (row, col, value) => commits.push([row, col, value]),
     });
@@ -203,6 +285,60 @@ describe("TableGrid", () => {
 
     fireEvent.keyDown(cells[5]!, { key: "Escape" });
     expect(document.activeElement).not.toBe(cells[5]!);
+  });
+
+  it("markdown input rules: **bold** and `code` auto-convert; *italic* stays literal (main-editor policy)", () => {
+    const { container } = renderGrid();
+    const cell = gridCells(container)[2]!;
+    const editor = getCellEditor(cell)!;
+
+    typeInto(cell, "**bold*");
+    act(() => {
+      editor.commands.focus("end");
+      typeChar(editor, "*");
+    });
+    let inline = (editor.getJSON().content as Array<{ content?: unknown[] }>)[0]!
+      .content as Array<{ text?: string; marks?: Array<{ type: string }> }>;
+    expect(inline.some((n) => n.text === "bold" && n.marks?.[0]?.type === "bold")).toBe(true);
+
+    typeInto(cell, "`mono");
+    act(() => {
+      editor.commands.focus("end");
+      typeChar(editor, "`");
+    });
+    inline = (editor.getJSON().content as Array<{ content?: unknown[] }>)[0]!
+      .content as Array<{ text?: string; marks?: Array<{ type: string }> }>;
+    expect(inline.some((n) => n.text === "mono" && n.marks?.[0]?.type === "code")).toBe(true);
+
+    // Italic/strike typing shortcuts are stripped (DocItalic/DocStrike):
+    // "*italic*" must stay literal, exactly like the main editor.
+    typeInto(cell, "*italic");
+    act(() => {
+      editor.commands.focus("end");
+      typeChar(editor, "*");
+    });
+    inline = (editor.getJSON().content as Array<{ content?: unknown[] }>)[0]!
+      .content as Array<{ text?: string; marks?: Array<{ type: string }> }>;
+    expect(inline.map((n) => n.text).join("")).toBe("*italic*");
+    expect(inline.every((n) => !n.marks)).toBe(true);
+  });
+
+  it("Shift-Enter inserts an in-cell hard break that commits as a newline", () => {
+    const commits: TableCell[] = [];
+    const { container } = renderGrid({
+      onCommitCell: (_row, _col, value) => commits.push(value),
+    });
+    const cell = gridCells(container)[2]!;
+    const editor = getCellEditor(cell)!;
+    act(() => {
+      editor.commands.focus("end");
+    });
+    fireEvent.keyDown(cell, { key: "Enter", shiftKey: true });
+    act(() => {
+      editor.commands.insertContent("two");
+    });
+    fireEvent.blur(cell);
+    expect(commits).toEqual(["Alpha\ntwo"]);
   });
 
   it("keeps the pure navigation math consistent at the boundaries", () => {
@@ -265,6 +401,17 @@ describe("StructuredTableNodeView", () => {
     ]);
   });
 
+  it("accepts span cells in block props and renders their marks", () => {
+    const { props } = nodeViewProps({
+      columns: [[{ insert: "A", attributes: { bold: true } }], "B"],
+      rows: [[[{ insert: "x", attributes: { strike: true } }], "y"]],
+    });
+    const { container } = render(<StructuredTableNodeView {...props} />);
+    const cells = gridCells(container as HTMLElement);
+    expect(cells[0]!.querySelector("strong")?.textContent).toBe("A");
+    expect(cells[2]!.querySelector("s")?.textContent).toBe("x");
+  });
+
   it("funnels cell edits into one updateAttributes call preserving title and density", () => {
     const { props, calls } = nodeViewProps({
       title: "Rollout",
@@ -306,12 +453,38 @@ describe("StructuredTableNodeView", () => {
     ]);
   });
 
+  it("commits a marked cell edit as DeltaSpan[] in blockProps", () => {
+    const { props, calls } = nodeViewProps({
+      columns: ["A", "B"],
+      rows: [["x", "y"]],
+    });
+    const { container } = render(<StructuredTableNodeView {...props} />);
+
+    const cell = gridCells(container as HTMLElement)[2]!;
+    const editor = getCellEditor(cell)!;
+    cell.focus();
+    act(() => {
+      editor.chain().selectAll().toggleItalic().run();
+    });
+    fireEvent.blur(cell);
+
+    expect(calls).toEqual([
+      {
+        blockProps: {
+          columns: ["A", "B"],
+          rows: [[[{ insert: "x", attributes: { italic: true } }], "y"]],
+        },
+      },
+    ]);
+  });
+
   it("renders the invalid-block placeholder instead of crashing on malformed props", () => {
     for (const blockProps of [
       {},
       { columns: [], rows: [] },
       { columns: ["A"], rows: "nope" },
       { columns: [1, 2], rows: [] },
+      { columns: ["A"], rows: [[{ not: "a span" }]] },
     ]) {
       const { props } = nodeViewProps(blockProps as Record<string, unknown>);
       const { container, unmount } = render(<StructuredTableNodeView {...props} />);

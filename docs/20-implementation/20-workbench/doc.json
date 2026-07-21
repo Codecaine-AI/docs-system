@@ -495,7 +495,7 @@
       },
       "text": [
         {
-          "insert": "compose a comment (with an intent) in the side pane; resolve from the"
+          "insert": "compose an annotation (with an intent) in the side pane; resolve from the"
         }
       ],
       "children": []
@@ -517,10 +517,10 @@
       "props": {},
       "text": [
         {
-          "insert": "Comments live in the bundle's "
+          "insert": "Annotations live in the bundle's "
         },
         {
-          "insert": "comments.json",
+          "insert": "annotations.json",
           "attributes": {
             "code": true
           }
@@ -539,7 +539,7 @@
       },
       "text": [
         {
-          "insert": "Block library"
+          "insert": "Block catalog"
         }
       ],
       "children": []
@@ -550,22 +550,19 @@
       "props": {},
       "text": [
         {
-          "insert": "#/blocks",
+          "insert": "The block catalog lives in the corpus, not the workbench: the per-type reference pages under "
+        },
+        {
+          "insert": "block vocabulary",
           "attributes": {
-            "code": true
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary"
+            }
           }
         },
         {
-          "insert": " opens a searchable catalog of all 14 block types — one live\nexample per type, navigated by a scroll-spy sidebar, with the exact\n"
-        },
-        {
-          "insert": "doc.json",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " source expandable under each example. Examples render through\nthe same read surface as real docs, so it also shows the read-surface\nniceties: code blocks are syntax-highlighted and JSON code is\npretty-printed at render time (display-only — the stored text is never\nrewritten)."
+          "insert": " cover every block type, each with live examples and its doc.json shape."
         }
       ],
       "children": []
@@ -595,7 +592,7 @@
           }
         },
         {
-          "insert": " produces the same UI with everything mutable removed: no mode\nswitcher, no editor, no comments pane, no SSE — a plain read-only site that\nworks from any static host or subpath."
+          "insert": " produces the same UI with everything mutable removed: no mode\nswitcher, no editor, no annotations pane, no SSE — a plain read-only site that\nworks from any static host or subpath."
         }
       ],
       "children": []

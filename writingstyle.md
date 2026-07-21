@@ -15,11 +15,12 @@ Write matter-of-fact: short declarative sentences that state what is, in the ord
 ## Structure
 
 - Bullets and sub-bullets are the default shape. Break material down until each line carries one fact; nest a sub-bullet under its parent instead of packing a second idea into the line. Prose paragraphs are for the few ideas that genuinely flow.
-- A bold-lead bullet carries its label only. The facts go in sub-bullets beneath it — never `**Label** — content` on one line.
+- A bullet never reads `lead — gloss` on one line. The lead — a bold label, a link, or a short phrase — is the parent bullet by itself; the gloss and every fact go in sub-bullets beneath it. This applies to index lists, why-sections, invariant lists — everywhere.
 - Multi-step work is a numbered list; each step is one bounded action.
 - Lists cap at about five items. Past that, split the list or rank it.
 - Tangents move to their own home and get a link, not a sidebar.
 - Headings carry the skim path; a section should scan in one screen.
+- Standards and design docs share one section flow and one set of heading names: `Structure` (show the thing — a file tree or annotated code), then `The rule`, then `Why`.
 
 ## Titles and openings
 

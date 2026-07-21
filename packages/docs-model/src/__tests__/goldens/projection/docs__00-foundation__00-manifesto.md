@@ -124,7 +124,9 @@ Slop is what intent transfer looks like when it fails.
 
 - The fix is not a stricter reviewer at the end of the pipeline; it is a sharper definition at the top. 
 
-- Defining the identity of the software — exactly, durably, in a form both kinds of readers consume well — is the work this system is built for.
+- Defining the identity of the software
+
+  - Exactly, durably, in a form both kinds of readers consume well — is the work this system is built for.
 
 ---
 

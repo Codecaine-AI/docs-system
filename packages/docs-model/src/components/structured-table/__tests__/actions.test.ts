@@ -4,7 +4,7 @@ import { describe, expect, it } from "bun:test";
 import type { Static, TObject } from "@sinclair/typebox";
 import type { DocBlock, DocValidationIssue } from "../../../doc-schema";
 import { checkParams } from "../../define";
-import type { BlockActionResult, ComponentAction } from "../../types";
+import type { ComponentActionResult, ComponentAction } from "../../types";
 import { addColumn } from "../actions/add-column";
 import { addRow } from "../actions/add-row";
 import { removeColumn } from "../actions/remove-column";
@@ -32,10 +32,10 @@ function run<P extends TObject>(
   action: ComponentAction<P>,
   block: DocBlock,
   params: Record<string, unknown>,
-): BlockActionResult {
+): ComponentActionResult {
   const before = JSON.stringify(block);
   const issues = checkParams(action, params);
-  let result: BlockActionResult;
+  let result: ComponentActionResult;
   if (issues.length > 0) {
     result = { ok: false, issues };
   } else if ("apply" in action) {
@@ -47,12 +47,12 @@ function run<P extends TObject>(
   return result;
 }
 
-function mustOk(result: BlockActionResult): Record<string, unknown> {
+function mustOk(result: ComponentActionResult): Record<string, unknown> {
   if (!result.ok) throw new Error(`Expected ok, got issues: ${JSON.stringify(result.issues)}`);
   return result.props;
 }
 
-function mustFail(result: BlockActionResult, path: string): DocValidationIssue {
+function mustFail(result: ComponentActionResult, path: string): DocValidationIssue {
   expect(result.ok).toBe(false);
   if (result.ok) throw new Error("Expected action to fail.");
   expect(result.issues.length).toBeGreaterThan(0);
@@ -78,6 +78,15 @@ describe("structured-table.addRow", () => {
       ["a", "b"],
       ["answer", "42"],
       ["question", "unknown"],
+    ]);
+  });
+
+  it("parses markdown cells to spans and keeps plain cells plain", () => {
+    const props = mustOk(run(addRow, tableBlock(), { cells: ["**a**", "plain"] }));
+    expect(props.rows).toEqual([
+      ["answer", "42"],
+      ["question", "unknown"],
+      [[{ insert: "a", attributes: { bold: true } }], "plain"],
     ]);
   });
 
@@ -177,6 +186,53 @@ describe("structured-table.updateCell", () => {
     expect(issue.message).toBe('"columnIndex" must be an integer in [0, 1].');
   });
 
+  it("stores a markdown value as normalized spans", () => {
+    const props = mustOk(
+      run(updateCell, tableBlock(), { rowIndex: 0, column: "Value", value: "**42** exactly" }),
+    );
+    expect(props.rows).toEqual([
+      ["answer", [{ insert: "42", attributes: { bold: true } }, { insert: " exactly" }]],
+      ["question", "unknown"],
+    ]);
+  });
+
+  it("stores a plain value as a plain string (existing plain tables stay plain)", () => {
+    const props = mustOk(
+      run(updateCell, tableBlock(), { rowIndex: 0, column: "Value", value: "still plain" }),
+    );
+    expect(props.rows).toEqual([
+      ["answer", "still plain"],
+      ["question", "unknown"],
+    ]);
+  });
+
+  it("downgrades link-reference markdown to a plain link mark", () => {
+    const props = mustOk(
+      run(updateCell, tableBlock(), {
+        rowIndex: 0,
+        column: "Value",
+        value: "[fn](src/foo.ts#L42)",
+      }),
+    );
+    expect(props.rows).toEqual([
+      ["answer", [{ insert: "fn", attributes: { link: "src/foo.ts#L42" } }]],
+      ["question", "unknown"],
+    ]);
+  });
+
+  it("addresses a marked column header by its plain-text name", () => {
+    const block = tableBlock();
+    block.props.columns = [
+      [{ insert: "Name", attributes: { bold: true } }],
+      "Value",
+    ];
+    const props = mustOk(run(updateCell, block, { rowIndex: 0, column: "Name", value: "x" }));
+    expect(props.rows).toEqual([
+      ["x", "42"],
+      ["question", "unknown"],
+    ]);
+  });
+
   it("rejects an out-of-range rowIndex and a missing value", () => {
     const issue = mustFail(
       run(updateCell, tableBlock(), { rowIndex: 5, column: "Name", value: "x" }),
@@ -206,9 +262,26 @@ describe("structured-table.addColumn", () => {
     ]);
   });
 
+  it("parses a markdown name and fill to spans", () => {
+    const props = mustOk(run(addColumn, tableBlock(), { name: "`Id`", fill: "*n/a*" }));
+    expect(props.columns).toEqual([
+      "Name",
+      "Value",
+      [{ insert: "Id", attributes: { code: true } }],
+    ]);
+    expect(props.rows).toEqual([
+      ["answer", "42", [{ insert: "n/a", attributes: { italic: true } }]],
+      ["question", "unknown", [{ insert: "n/a", attributes: { italic: true } }]],
+    ]);
+  });
+
   it("rejects a duplicate column name", () => {
     const issue = mustFail(run(addColumn, tableBlock(), { name: "Name" }), "$.params.name");
     expect(issue.message).toBe('Column "Name" already exists.');
+  });
+
+  it("rejects a markdown name whose plain text duplicates an existing column", () => {
+    mustFail(run(addColumn, tableBlock(), { name: "**Name**" }), "$.params.name");
   });
 
   it("rejects an out-of-range index", () => {

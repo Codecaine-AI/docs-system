@@ -22,7 +22,7 @@ UX without reimplementing any of it.
 | Package | Owns | Never owns |
 |---|---|---|
 | [`packages/docs-model`](packages/docs-model) | The `doc.json` schema, block vocabulary, mutation ops, Markdown projection. Pure TypeScript. | React, DOM, I/O of any kind. |
-| [`packages/docs-viewer`](packages/docs-viewer) | **All** doc-viewing/editing UX: `DocBlockRenderer` and the block renderers (`src/render`), the TipTap editor (`src/editor`), inline reference chips, the side-peek panel (`src/peek`), annotation/targeting (`src/annotate`), the block library. | HTTP, URLs, routing, persistence. It never knows *where* data comes from or *where* navigation goes. |
+| [`packages/docs-viewer`](packages/docs-viewer) | **All** doc-viewing/editing UX: `DocBlockRenderer` and the block renderers (`src/render`), the TipTap editor (`src/editor`), inline reference chips, the side-peek panel (`src/peek`), annotation/targeting (`src/annotate`). | HTTP, URLs, routing, persistence. It never knows *where* data comes from or *where* navigation goes. |
 | [`packages/docs-workbench`](packages/docs-workbench) | Being a host: the `docs serve`/`docs export` server (`src/`), the `DocsClient` implementation over its API (`web/src/data/client.ts`), URL/hash routing (`web/src/shell/App.tsx`), the app shell — sidebar and StyleRail (`web/src/shell/`), theming dev tools (`web/src/theme`), the save loop, Electron packaging (`electron/`). | Doc-viewing/editing UX. If a feature is about viewing or editing docs, it defaults into `docs-viewer`. |
 
 The workbench should stay **thin**. When a feature lands there, the

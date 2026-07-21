@@ -18,7 +18,7 @@
       "letterSpacing": 0.005
     },
     "layout": {
-      "contentWidth": 80,
+      "contentWidth": 88,
       "contentMargin": 0,
       "topPadding": 88,
       "titlePadding": 50,
@@ -32,7 +32,11 @@
       "textColor": null,
       "font": "sans",
       "fontSize": 15,
-      "padding": 4
+      "padding": 4,
+      "guides": true,
+      "guideColor": null,
+      "guideWidth": 1,
+      "guideOpacity": 0.6
     },
     "highlight": {
       "color": null,

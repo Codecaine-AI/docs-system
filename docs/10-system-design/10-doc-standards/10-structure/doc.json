@@ -96,7 +96,7 @@
       },
       "text": [
         {
-          "insert": "How it's laid out"
+          "insert": "Structure"
         }
       ],
       "children": []
@@ -204,7 +204,20 @@
       "props": {},
       "text": [
         {
-          "insert": "The ladder is the same in every layer — L1–L3 structure foundation and system design exactly as they structure implementation."
+          "insert": "The ladder is the same in every layer"
+        }
+      ],
+      "children": [
+        "b-sub-ladder-same-6-gloss"
+      ]
+    },
+    "b-sub-ladder-same-6-gloss": {
+      "id": "b-sub-ladder-same-6-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "L1–L3 structure foundation and system design exactly as they structure implementation."
         }
       ],
       "children": []
@@ -479,7 +492,20 @@
       "props": {},
       "text": [
         {
-          "insert": "Each level rules the next in or out — no scattered hunting."
+          "insert": "Each level rules the next in or out"
+        }
+      ],
+      "children": [
+        "pm-mruqiaw3-74-v2osif-gloss"
+      ]
+    },
+    "pm-mruqiaw3-74-v2osif-gloss": {
+      "id": "pm-mruqiaw3-74-v2osif-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "No scattered hunting."
         }
       ],
       "children": []

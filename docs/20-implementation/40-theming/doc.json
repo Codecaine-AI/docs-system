@@ -300,7 +300,20 @@
       "props": {},
       "text": [
         {
-          "insert": "Global themes — the theme-folder format, built-ins, selection semantics, save-as."
+          "insert": "Global themes"
+        }
+      ],
+      "children": [
+        "b-theming-overview-section-global-14-gloss"
+      ]
+    },
+    "b-theming-overview-section-global-14-gloss": {
+      "id": "b-theming-overview-section-global-14-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The theme-folder format, built-ins, selection semantics, save-as."
         }
       ],
       "children": []
@@ -311,7 +324,20 @@
       "props": {},
       "text": [
         {
-          "insert": "Component themes — the per-surface token files and the closed registry that validates them."
+          "insert": "Component themes"
+        }
+      ],
+      "children": [
+        "b-theming-overview-section-component-15-gloss"
+      ]
+    },
+    "b-theming-overview-section-component-15-gloss": {
+      "id": "b-theming-overview-section-component-15-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The per-surface token files and the closed registry that validates them."
         }
       ],
       "children": []
@@ -322,7 +348,20 @@
       "props": {},
       "text": [
         {
-          "insert": "Fonts — per-surface font tokens and custom font loading."
+          "insert": "Fonts"
+        }
+      ],
+      "children": [
+        "b-theming-overview-section-fonts-16-gloss"
+      ]
+    },
+    "b-theming-overview-section-fonts-16-gloss": {
+      "id": "b-theming-overview-section-fonts-16-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Per-surface font tokens and custom font loading."
         }
       ],
       "children": []
@@ -333,7 +372,20 @@
       "props": {},
       "text": [
         {
-          "insert": "System UI — what is deliberately fixed, and the full map of every style-rail knob."
+          "insert": "System UI"
+        }
+      ],
+      "children": [
+        "b-theming-overview-section-system-17-gloss"
+      ]
+    },
+    "b-theming-overview-section-system-17-gloss": {
+      "id": "b-theming-overview-section-system-17-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "What is deliberately fixed, and the full map of every style-rail knob."
         }
       ],
       "children": []

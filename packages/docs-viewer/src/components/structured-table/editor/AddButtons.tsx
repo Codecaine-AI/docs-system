@@ -13,7 +13,7 @@ export const ADD_BAR_TOOLTIP_DELAY_MS = 400;
 const TOOLTIP_CLASSES =
   // w-max: the bars are only 16px wide, so an absolutely positioned tooltip
   // would otherwise shrink-to-fit against that containing block.
-  "pointer-events-none absolute z-50 w-max whitespace-nowrap rounded px-2 py-1 text-xs shadow-md bg-neutral-800 text-neutral-100 dark:bg-neutral-200 dark:text-neutral-900";
+  "pointer-events-none absolute z-50 w-max whitespace-nowrap rounded-sm px-2 py-1 text-xs shadow-md bg-neutral-800 text-neutral-100 dark:bg-neutral-200 dark:text-neutral-900";
 
 function barVisibility(forced: boolean): string {
   return forced ? "opacity-100" : "opacity-0 hover:opacity-100";

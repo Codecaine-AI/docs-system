@@ -57,7 +57,7 @@ const SAMPLE_CANVAS = {
 };
 
 const ADD_OBJECT_OP = {
-  type: "blockAction",
+  type: "componentAction",
   blockId: "canvas-1",
   action: "canvas.addObject",
   params: {
@@ -176,7 +176,7 @@ describe("POST /api/ops forwarded canvas actions", () => {
     const response = await postJson("/api/ops", {
       path: BUNDLE_PATH,
       ops: [{
-        type: "blockAction",
+        type: "componentAction",
         blockId: "canvas-1",
         action: "canvas.updateObject",
         params: { objectId: "obj-1", patch: { label: "Updated step" } },
@@ -204,7 +204,7 @@ describe("POST /api/ops forwarded canvas actions", () => {
     const response = await postJson("/api/ops", {
       path: BUNDLE_PATH,
       ops: [{
-        type: "blockAction",
+        type: "componentAction",
         blockId: "canvas-1",
         action: "canvas.addConnection",
         params: {
@@ -236,7 +236,7 @@ describe("POST /api/ops forwarded canvas actions", () => {
     const response = await postJson("/api/ops", {
       path: BUNDLE_PATH,
       ops: [{
-        type: "blockAction",
+        type: "componentAction",
         blockId: "canvas-1",
         action: "canvas.addAnnotation",
         params: {
@@ -289,7 +289,7 @@ describe("POST /api/ops forwarded canvas actions", () => {
     const response = await postJson("/api/ops", {
       path: BUNDLE_PATH,
       ops: [{
-        type: "blockAction",
+        type: "componentAction",
         blockId: "canvas-1",
         action: "canvas.fitContainerToChildren",
         params: { containerId: "container-1", padding: 20 },
@@ -350,7 +350,7 @@ describe("POST /api/ops forwarded canvas actions", () => {
     try {
       forwardedPromise = store.forwardCanvasAction(
         BUNDLE_PATH,
-        ADD_OBJECT_OP as Extract<DocOp, { type: "blockAction" }>,
+        ADD_OBJECT_OP as Extract<DocOp, { type: "componentAction" }>,
         undefined,
         undefined,
         "agent-session",
@@ -552,7 +552,7 @@ describe("POST /api/ops forwarded canvas actions", () => {
       path: BUNDLE_PATH,
       ops: [
         {
-          type: "blockAction",
+          type: "componentAction",
           blockId: "canvas-1",
           action: "canvas.addObject",
           params: {},

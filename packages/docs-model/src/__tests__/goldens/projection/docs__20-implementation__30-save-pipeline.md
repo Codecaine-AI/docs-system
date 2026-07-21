@@ -12,7 +12,7 @@ This page is the wiring view. For the stored `doc.json` shape, see the data mode
 
 ## 2. Diff to ops (docs-viewer → docs-model)
 
-On save (debounce fire, `Cmd+S`, blur, or unmount), the editor calls `pmToDoc`/`diffToOps` in `packages/docs-viewer/src/editor/core/convert.ts`: the current ProseMirror JSON becomes a `DocDocument` and is diffed against `baseDocRef.current` into a `DocOp[]` batch. The diff is a small batch of the model's six generic structural/text ops; the vocabulary's seventh op, `blockAction`, is the typed-action bridge for agents and lives in the mutation model — ops, inverses, undo; the editor's diff never emits it. A no-op edit diffs to zero ops and no request is sent.
+On save (debounce fire, `Cmd+S`, blur, or unmount), the editor calls `pmToDoc`/`diffToOps` in `packages/docs-viewer/src/editor/core/convert.ts`: the current ProseMirror JSON becomes a `DocDocument` and is diffed against `baseDocRef.current` into a `DocOp[]` batch. The diff is a small batch of the model's six generic structural/text ops; the vocabulary's seventh op, `componentAction`, is the typed-action bridge for agents and lives in the mutation model — ops, inverses, undo; the editor's diff never emits it. A no-op edit diffs to zero ops and no request is sent.
 
 The workbench surfaces the loop as a header indicator in `packages/docs-workbench/web/src/pages/DocPage.tsx`: `DocEditor` reports through `onSaveStateChange`, `DocPage` writes `data-docs-save-state`, and the rendered buckets are idle (`Not saved` while work is dirty), saving (`Saving...`), saved (`Saved`), and error (`Not saved` with the conflict message nearby).
 

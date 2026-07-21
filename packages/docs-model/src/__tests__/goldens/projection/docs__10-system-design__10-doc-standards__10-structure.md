@@ -8,7 +8,7 @@ A tree of bundle folders descending L1–L6
 
 This page states the depth ladder, the folder rules, and why the shape holds.
 
-## How it's laid out
+## Structure
 
 ```
 10-system-design/  # L1 — the layer's parent doc: summary plus an index of every section
@@ -32,7 +32,9 @@ Six levels — three in the doc tree, three in the source:
 | L5 | Function docstrings | The function's contract: purpose, inputs, outputs, side effects, errors |
 | L6 | The code | The implementation itself — read only after L4/L5 confirm you are in the right place |
 
-- The ladder is the same in every layer — L1–L3 structure foundation and system design exactly as they structure implementation.
+- The ladder is the same in every layer
+
+  - L1–L3 structure foundation and system design exactly as they structure implementation.
 
 - The doc tree stays at three levels; a subsection appears only when a section genuinely subdivides.
 
@@ -66,7 +68,9 @@ Six levels — three in the doc tree, three in the source:
 
     - The concept doc points at a source file; the file's header says whether to keep going; docstrings answer for each function.
 
-    - Each level rules the next in or out — no scattered hunting.
+    - Each level rules the next in or out
+
+      - No scattered hunting.
 
 - **A clear place for everything**
 

@@ -7,9 +7,9 @@ import { checkParams } from "./define";
 import { fileTreeComponent } from "./file-tree";
 import { interactionSurfaceComponent } from "./interaction-surface";
 import { structuredTableComponent } from "./structured-table";
-import type { BlockActionResult, ComponentAction } from "./types";
+import type { ComponentActionResult, ComponentAction } from "./types";
 
-export type BlockActionDefinition = {
+export type ComponentActionDefinition = {
   /** Registry key: "<blockType>.<verb>". */
   action: string;
   blockType: DocBlockType;
@@ -18,7 +18,7 @@ export type BlockActionDefinition = {
   /** TypeBox schema; this is the discovery and parameter contract. */
   params: TObject;
   /** Pure: validates params itself and never mutates the input block. */
-  apply(block: DocBlock, params: Record<string, unknown>): BlockActionResult;
+  apply(block: DocBlock, params: Record<string, unknown>): ComponentActionResult;
 };
 
 export const LEGACY_ACTION_ORDER: readonly string[] = [
@@ -43,13 +43,13 @@ const LEGACY_ACTION_REGISTRY: ReadonlyMap<string, ComponentAction> = new Map(
   ),
 );
 
-export function toLegacyDefinition(action: ComponentAction): BlockActionDefinition {
+export function toLegacyDefinition(action: ComponentAction): ComponentActionDefinition {
   return {
     action: action.action,
     blockType: action.blockType,
     description: action.description,
     params: action.params,
-    apply(block, params): BlockActionResult {
+    apply(block, params): ComponentActionResult {
       const issues = checkParams(action, params);
       if (issues.length > 0) return { ok: false, issues };
       if ("apply" in action) return action.apply(block, params);
@@ -66,20 +66,20 @@ export function toLegacyDefinition(action: ComponentAction): BlockActionDefiniti
   };
 }
 
-export const BLOCK_ACTIONS: ReadonlyMap<string, BlockActionDefinition> = new Map(
+export const COMPONENT_ACTIONS: ReadonlyMap<string, ComponentActionDefinition> = new Map(
   LEGACY_ACTION_ORDER.map((key) => {
     const action = LEGACY_ACTION_REGISTRY.get(key);
-    if (!action) throw new Error(`Legacy block action "${key}" is not registered.`);
+    if (!action) throw new Error(`Legacy component action "${key}" is not registered.`);
     return [key, toLegacyDefinition(action)] as const;
   }),
 );
 
-export function getBlockAction(action: string): BlockActionDefinition | undefined {
-  return BLOCK_ACTIONS.get(action);
+export function getComponentAction(action: string): ComponentActionDefinition | undefined {
+  return COMPONENT_ACTIONS.get(action);
 }
 
-export function listBlockActions(blockType?: DocBlockType): BlockActionDefinition[] {
-  const all = [...BLOCK_ACTIONS.values()];
+export function listComponentActions(blockType?: DocBlockType): ComponentActionDefinition[] {
+  const all = [...COMPONENT_ACTIONS.values()];
   return blockType === undefined ? all : all.filter((definition) => definition.blockType === blockType);
 }
 

@@ -5,11 +5,11 @@ import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import { serializeDocDocument, validateDocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import { applyOps, type DocOp } from "@codecaine-ai/docs-model/doc-ops";
 import type {
-  CommentsDocument,
-  CommentTarget,
-  DocComment,
-} from "@codecaine-ai/docs-model/comments-schema";
-import { validateCommentsDocument } from "@codecaine-ai/docs-model/comments-schema";
+  AnnotationsDocument,
+  AnnotationTarget,
+  DocAnnotation,
+} from "@codecaine-ai/docs-model/annotations-schema";
+import { validateAnnotationsDocument } from "@codecaine-ai/docs-model/annotations-schema";
 import { resolveDocBundleJsonPath } from "@codecaine-ai/docs-index/paths";
 
 import { withPathLock } from "./path-mutex";
@@ -17,18 +17,19 @@ import { atomicWriteFile } from "./atomic-write";
 import { createContentHash } from "./content-hash";
 import { draftLockStore, type DraftLockInfo } from "./draft-locks";
 import {
-  isValidCommentTarget,
+  ANNOTATIONS_SIDECAR_FILENAME,
+  isValidAnnotationTarget,
   loadDocBundle,
   normalizeBundlePath,
-  readCommentsSidecar,
-  writeCommentsSidecar,
+  readAnnotationsSidecar,
+  writeAnnotationsSidecar,
 } from "./bundle";
 import { indexDocSourceBestEffort } from "./backlinks-cache";
 import { recordDocPatch } from "./patch-ledger";
 
 /**
  * The docs mutation core: apply typed DocOps to a bundle's doc.json, and
- * add/resolve comments on its sidecar. Every mutation carries the full
+ * add/resolve annotations on its sidecar. Every mutation carries the full
  * contract: validate -> content-hash precondition (409) -> draft-lock
  * precondition (423) -> apply -> full-document revalidation (422) ->
  * atomic persist -> record inverse in the undo ledger -> (fire-and-forget)
@@ -138,31 +139,36 @@ export async function applyDocOpsToBundle(
 }
 
 // ---------------------------------------------------------------------------
-// Comments
+// Annotations
 // ---------------------------------------------------------------------------
 
-export type BundleCommentsReadResult =
-  | { ok: true; comments: CommentsDocument; hash: string | null }
+/** A bundle's `annotations.json` sidecar path (write target and path-lock key). */
+function annotationsSidecarAbs(jsonAbs: string): string {
+  return join(dirname(jsonAbs), ANNOTATIONS_SIDECAR_FILENAME);
+}
+
+export type BundleAnnotationsReadResult =
+  | { ok: true; annotations: AnnotationsDocument; hash: string | null }
   | { ok: false; status: number; detail: string };
 
-/** Reads a bundle's comments sidecar ("no comments.json yet" is a valid empty state). */
-export async function getBundleComments(
+/** Reads a bundle's annotations sidecar ("no annotations.json yet" is a valid empty state). */
+export async function getBundleAnnotations(
   docsRoot: string,
   path: string,
-): Promise<BundleCommentsReadResult> {
+): Promise<BundleAnnotationsReadResult> {
   const jsonAbs = resolveDocBundleJsonPath(docsRoot, path);
   if (!jsonAbs) {
     return { ok: false, status: 400, detail: `Invalid docs path: ${path}` };
   }
-  const commentsAbs = join(dirname(jsonAbs), "comments.json");
-  const result = await readCommentsSidecar(commentsAbs);
+  const annotationsAbs = annotationsSidecarAbs(jsonAbs);
+  const result = await readAnnotationsSidecar(annotationsAbs);
   if ("error" in result) {
     return { ok: false, status: result.error.status, detail: result.error.detail };
   }
-  return { ok: true, comments: result.comments, hash: result.hash };
+  return { ok: true, annotations: result.annotations, hash: result.hash };
 }
 
-export type AddBundleCommentInput = {
+export type AddBundleAnnotationInput = {
   target: unknown;
   body: string;
   intent: "note" | "agent-request";
@@ -170,8 +176,8 @@ export type AddBundleCommentInput = {
   expectedHash?: string;
 };
 
-export type AddBundleCommentResult =
-  | { ok: true; comment: DocComment; comments: CommentsDocument; hash: string }
+export type AddBundleAnnotationResult =
+  | { ok: true; annotation: DocAnnotation; annotations: AnnotationsDocument; hash: string }
   | {
       ok: false;
       status: number;
@@ -181,25 +187,25 @@ export type AddBundleCommentResult =
       held_by?: DraftLockInfo;
     };
 
-/** Adds a comment to a bundle's sidecar (hash precondition + draft-lock guard). */
-export async function addBundleComment(
+/** Adds an annotation to a bundle's sidecar (hash precondition + draft-lock guard). */
+export async function addBundleAnnotation(
   docsRoot: string,
   path: string,
-  input: AddBundleCommentInput,
+  input: AddBundleAnnotationInput,
   sessionId?: string,
-): Promise<AddBundleCommentResult> {
+): Promise<AddBundleAnnotationResult> {
   const jsonAbs = resolveDocBundleJsonPath(docsRoot, path);
   if (!jsonAbs) {
     return { ok: false, status: 400, detail: `Invalid docs path: ${path}` };
   }
-  if (!isValidCommentTarget(input.target)) {
-    return { ok: false, status: 400, detail: "Comment target is invalid" };
+  if (!isValidAnnotationTarget(input.target)) {
+    return { ok: false, status: 400, detail: "Annotation target is invalid" };
   }
-  const commentsAbs = join(dirname(jsonAbs), "comments.json");
+  const annotationsAbs = annotationsSidecarAbs(jsonAbs);
   const bundlePath = normalizeBundlePath(path);
 
-  return withPathLock(commentsAbs, async (): Promise<AddBundleCommentResult> => {
-    const existing = await readCommentsSidecar(commentsAbs);
+  return withPathLock(annotationsAbs, async (): Promise<AddBundleAnnotationResult> => {
+    const existing = await readAnnotationsSidecar(annotationsAbs);
     if ("error" in existing) {
       return { ok: false, status: existing.error.status, detail: existing.error.detail };
     }
@@ -207,7 +213,7 @@ export async function addBundleComment(
       return {
         ok: false,
         status: 409,
-        detail: "Comments sidecar is stale; reload before adding a comment.",
+        detail: "Annotations sidecar is stale; reload before adding an annotation.",
         current_hash: existing.hash ?? undefined,
         expected_hash: input.expectedHash,
       };
@@ -223,36 +229,36 @@ export async function addBundleComment(
       };
     }
 
-    const comment: DocComment = {
+    const annotation: DocAnnotation = {
       id: randomUUID(),
-      target: input.target as CommentTarget,
+      target: input.target as AnnotationTarget,
       body: input.body,
       intent: input.intent,
       author: input.author,
       status: "open",
       createdAt: new Date().toISOString(),
     };
-    const nextDocument: CommentsDocument = {
+    const nextDocument: AnnotationsDocument = {
       schemaVersion: 1,
-      comments: [...existing.comments.comments, comment],
+      annotations: [...existing.annotations.annotations, annotation],
     };
-    const validated = validateCommentsDocument(nextDocument);
+    const validated = validateAnnotationsDocument(nextDocument);
     if (!validated.ok) {
       return {
         ok: false,
         status: 422,
-        detail: `Comment failed schema validation: ${validated.issues
+        detail: `Annotation failed schema validation: ${validated.issues
           .map((issue) => `${issue.path}: ${issue.message}`)
           .join("; ")}`,
       };
     }
-    const written = await writeCommentsSidecar(commentsAbs, validated.document);
-    return { ok: true, comment, comments: validated.document, hash: written.hash };
+    const written = await writeAnnotationsSidecar(annotationsAbs, validated.document);
+    return { ok: true, annotation, annotations: validated.document, hash: written.hash };
   });
 }
 
-export type ResolveBundleCommentResult =
-  | { ok: true; comments: CommentsDocument; hash: string }
+export type ResolveBundleAnnotationResult =
+  | { ok: true; annotations: AnnotationsDocument; hash: string }
   | {
       ok: false;
       status: number;
@@ -263,27 +269,27 @@ export type ResolveBundleCommentResult =
     };
 
 /**
- * Flips a comment to `resolved` (with an optional resolution note persisted
- * on the comment's additive `resolution` field). Hash precondition +
- * draft-lock guard, inside the sidecar's path lock.
+ * Flips an annotation to `resolved` (with an optional resolution note
+ * persisted on the annotation's additive `resolution` field). Hash
+ * precondition + draft-lock guard, inside the sidecar's path lock.
  */
-export async function resolveBundleComment(
+export async function resolveBundleAnnotation(
   docsRoot: string,
   path: string,
-  commentId: string,
+  annotationId: string,
   expectedHash: string | undefined,
   sessionId?: string,
   response?: string,
-): Promise<ResolveBundleCommentResult> {
+): Promise<ResolveBundleAnnotationResult> {
   const jsonAbs = resolveDocBundleJsonPath(docsRoot, path);
   if (!jsonAbs) {
     return { ok: false, status: 400, detail: `Invalid docs path: ${path}` };
   }
-  const commentsAbs = join(dirname(jsonAbs), "comments.json");
+  const annotationsAbs = annotationsSidecarAbs(jsonAbs);
   const bundlePath = normalizeBundlePath(path);
 
-  return withPathLock(commentsAbs, async (): Promise<ResolveBundleCommentResult> => {
-    const existing = await readCommentsSidecar(commentsAbs);
+  return withPathLock(annotationsAbs, async (): Promise<ResolveBundleAnnotationResult> => {
+    const existing = await readAnnotationsSidecar(annotationsAbs);
     if ("error" in existing) {
       return { ok: false, status: existing.error.status, detail: existing.error.detail };
     }
@@ -291,14 +297,16 @@ export async function resolveBundleComment(
       return {
         ok: false,
         status: 409,
-        detail: "Comments sidecar is stale; reload before resolving.",
+        detail: "Annotations sidecar is stale; reload before resolving.",
         current_hash: existing.hash ?? undefined,
         expected_hash: expectedHash,
       };
     }
-    const commentIndex = existing.comments.comments.findIndex((comment) => comment.id === commentId);
-    if (commentIndex < 0) {
-      return { ok: false, status: 404, detail: `Comment not found: ${commentId}` };
+    const annotationIndex = existing.annotations.annotations.findIndex(
+      (annotation) => annotation.id === annotationId,
+    );
+    if (annotationIndex < 0) {
+      return { ok: false, status: 404, detail: `Annotation not found: ${annotationId}` };
     }
 
     const lockCheck = draftLockStore.checkForMutation({ kind: "doc", path: bundlePath }, sessionId);
@@ -311,33 +319,33 @@ export async function resolveBundleComment(
       };
     }
 
-    const nextComments = existing.comments.comments.map((comment, index) =>
-      index === commentIndex
+    const nextAnnotations = existing.annotations.annotations.map((annotation, index) =>
+      index === annotationIndex
         ? {
-            ...comment,
+            ...annotation,
             status: "resolved" as const,
             ...(response !== undefined ? { resolution: response } : {}),
           }
-        : comment,
+        : annotation,
     );
-    const nextDocument: CommentsDocument = { schemaVersion: 1, comments: nextComments };
-    const validated = validateCommentsDocument(nextDocument);
+    const nextDocument: AnnotationsDocument = { schemaVersion: 1, annotations: nextAnnotations };
+    const validated = validateAnnotationsDocument(nextDocument);
     if (!validated.ok) {
       return {
         ok: false,
         status: 422,
-        detail: `Comment failed schema validation: ${validated.issues
+        detail: `Annotation failed schema validation: ${validated.issues
           .map((issue) => `${issue.path}: ${issue.message}`)
           .join("; ")}`,
       };
     }
-    const written = await writeCommentsSidecar(commentsAbs, validated.document);
-    return { ok: true, comments: validated.document, hash: written.hash };
+    const written = await writeAnnotationsSidecar(annotationsAbs, validated.document);
+    return { ok: true, annotations: validated.document, hash: written.hash };
   });
 }
 
 export type AttachAgentRunInput = {
-  commentId: string;
+  annotationId: string;
   sessionId: string;
   patchId: string;
   summary: string;
@@ -345,21 +353,21 @@ export type AttachAgentRunInput = {
 };
 
 export type AttachAgentRunResult =
-  | { ok: true; comment: DocComment; comments: CommentsDocument; hash: string }
+  | { ok: true; annotation: DocAnnotation; annotations: AnnotationsDocument; hash: string }
   | { ok: false; status: number; detail: string };
 
 /**
- * Records a completed agent run on its originating comment
+ * Records a completed agent run on its originating annotation
  * (`agentRun: {sessionId, patchId, summary, changedIds}`) and flips the
- * comment to `resolved`. No `expectedHash`/draft-lock precondition here: by
- * the time this is called, the host route has ALREADY applied the agent's
+ * annotation to `resolved`. No `expectedHash`/draft-lock precondition here:
+ * by the time this is called, the host route has ALREADY applied the agent's
  * mutation via `doc_update_blocks`/`canvas_apply_patch` (which enforce the
  * hash + draft-lock preconditions on the DOC/CANVAS being edited) — this
- * step only writes to `comments.json`, a different file. Still runs inside
- * `withPathLock` on the sidecar so it can't race a concurrent comment
- * mutation.
+ * step only writes to `annotations.json`, a different file. Still runs
+ * inside `withPathLock` on the sidecar so it can't race a concurrent
+ * annotation mutation.
  */
-export async function attachAgentRunToComment(
+export async function attachAgentRunToAnnotation(
   docsRoot: string,
   path: string,
   input: AttachAgentRunInput,
@@ -368,25 +376,25 @@ export async function attachAgentRunToComment(
   if (!jsonAbs) {
     return { ok: false, status: 400, detail: `Invalid docs path: ${path}` };
   }
-  const commentsAbs = join(dirname(jsonAbs), "comments.json");
+  const annotationsAbs = annotationsSidecarAbs(jsonAbs);
 
-  return withPathLock(commentsAbs, async (): Promise<AttachAgentRunResult> => {
-    const existing = await readCommentsSidecar(commentsAbs);
+  return withPathLock(annotationsAbs, async (): Promise<AttachAgentRunResult> => {
+    const existing = await readAnnotationsSidecar(annotationsAbs);
     if ("error" in existing) {
       return { ok: false, status: existing.error.status, detail: existing.error.detail };
     }
-    const commentIndex = existing.comments.comments.findIndex(
-      (comment) => comment.id === input.commentId,
+    const annotationIndex = existing.annotations.annotations.findIndex(
+      (annotation) => annotation.id === input.annotationId,
     );
-    if (commentIndex < 0) {
-      return { ok: false, status: 404, detail: `Comment not found: ${input.commentId}` };
+    if (annotationIndex < 0) {
+      return { ok: false, status: 404, detail: `Annotation not found: ${input.annotationId}` };
     }
 
-    let updatedComment: DocComment | undefined;
-    const nextComments = existing.comments.comments.map((comment, index) => {
-      if (index !== commentIndex) return comment;
-      updatedComment = {
-        ...comment,
+    let updatedAnnotation: DocAnnotation | undefined;
+    const nextAnnotations = existing.annotations.annotations.map((annotation, index) => {
+      if (index !== annotationIndex) return annotation;
+      updatedAnnotation = {
+        ...annotation,
         status: "resolved" as const,
         agentRun: {
           sessionId: input.sessionId,
@@ -395,23 +403,28 @@ export async function attachAgentRunToComment(
           changedIds: input.changedIds,
         },
       };
-      return updatedComment;
+      return updatedAnnotation;
     });
-    const nextDocument: CommentsDocument = { schemaVersion: 1, comments: nextComments };
-    const validated = validateCommentsDocument(nextDocument);
+    const nextDocument: AnnotationsDocument = { schemaVersion: 1, annotations: nextAnnotations };
+    const validated = validateAnnotationsDocument(nextDocument);
     if (!validated.ok) {
       return {
         ok: false,
         status: 422,
-        detail: `Comment failed schema validation: ${validated.issues
+        detail: `Annotation failed schema validation: ${validated.issues
           .map((issue) => `${issue.path}: ${issue.message}`)
           .join("; ")}`,
       };
     }
-    const written = await writeCommentsSidecar(commentsAbs, validated.document);
-    if (!updatedComment) {
-      return { ok: false, status: 500, detail: "Failed to attach agent run to comment" };
+    const written = await writeAnnotationsSidecar(annotationsAbs, validated.document);
+    if (!updatedAnnotation) {
+      return { ok: false, status: 500, detail: "Failed to attach agent run to annotation" };
     }
-    return { ok: true, comment: updatedComment, comments: validated.document, hash: written.hash };
+    return {
+      ok: true,
+      annotation: updatedAnnotation,
+      annotations: validated.document,
+      hash: written.hash,
+    };
   });
 }

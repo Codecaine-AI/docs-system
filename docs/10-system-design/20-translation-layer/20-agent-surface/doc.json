@@ -1,0 +1,273 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-20-interaction-surfaces-20-agent-surface",
+  "title": "Agent surface",
+  "root": "b-asurf-root",
+  "blocks": {
+    "b-asurf-root": {
+      "id": "b-asurf-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-asurf-intro-1",
+        "pm-mruslbt4-3-zf4evd",
+        "b-asurf-read-h-2",
+        "b-asurf-read-code-3",
+        "b-asurf-read-pinned-4",
+        "b-asurf-read-greppable-5",
+        "b-asurf-write-h-6",
+        "b-asurf-write-ops-7",
+        "b-asurf-write-locks-8",
+        "b-asurf-write-gate-9",
+        "b-asurf-why-h-10",
+        "b-asurf-why-text-11",
+        "b-asurf-why-typed-13"
+      ]
+    },
+    "b-asurf-intro-1": {
+      "id": "b-asurf-intro-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "An agent meets the same document as rendered markdown and writes through typed operations. "
+        }
+      ],
+      "children": []
+    },
+    "pm-mruslbt4-3-zf4evd": {
+      "id": "pm-mruslbt4-3-zf4evd",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This page states the read contract and the write contract."
+        }
+      ],
+      "children": []
+    },
+    "b-asurf-read-h-2": {
+      "id": "b-asurf-read-h-2",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Reading"
+        }
+      ],
+      "children": []
+    },
+    "b-asurf-read-code-3": {
+      "id": "b-asurf-read-code-3",
+      "type": "code",
+      "props": {
+        "annotations": [
+          {
+            "lines": "1",
+            "label": "Render",
+            "note": "Prints the doc as stable markdown — title, then body."
+          },
+          {
+            "lines": "2",
+            "label": "Grep",
+            "note": "Searches every doc as its rendered text, not its bytes."
+          }
+        ],
+        "language": "bash"
+      },
+      "text": [
+        {
+          "insert": "docs render 10-system-design/10-doc-standards/10-structure\ndocs grep \"depth ladder\""
+        }
+      ],
+      "children": []
+    },
+    "b-asurf-read-pinned-4": {
+      "id": "b-asurf-read-pinned-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The render is part of the contract: every doc's markdown is pinned byte-for-byte by golden tests."
+        }
+      ],
+      "children": []
+    },
+    "b-asurf-read-greppable-5": {
+      "id": "b-asurf-read-greppable-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Structure is greppable"
+        }
+      ],
+      "children": [
+        "b-asurf-read-greppable-5-gloss"
+      ]
+    },
+    "b-asurf-read-greppable-5-gloss": {
+      "id": "b-asurf-read-greppable-5-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Headings, labeled callouts, and reference names are all plain text in the render."
+        }
+      ],
+      "children": []
+    },
+    "b-asurf-write-h-6": {
+      "id": "b-asurf-write-h-6",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Writing"
+        }
+      ],
+      "children": []
+    },
+    "b-asurf-write-ops-7": {
+      "id": "b-asurf-write-ops-7",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Writes are typed operations addressed by block id — never text patches. The "
+        },
+        {
+          "insert": "mutation model",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/50-mutation-model"
+            }
+          }
+        },
+        {
+          "insert": " defines them."
+        }
+      ],
+      "children": []
+    },
+    "b-asurf-write-locks-8": {
+      "id": "b-asurf-write-locks-8",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Hash preconditions and draft locks keep concurrent writers off each other."
+        }
+      ],
+      "children": []
+    },
+    "b-asurf-write-gate-9": {
+      "id": "b-asurf-write-gate-9",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every save is validated before anything persists; an invalid write is rejected whole, and the file is untouched."
+        }
+      ],
+      "children": []
+    },
+    "b-asurf-why-h-10": {
+      "id": "b-asurf-why-h-10",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why"
+        }
+      ],
+      "children": []
+    },
+    "b-asurf-why-text-11": {
+      "id": "b-asurf-why-text-11",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Agents live in text",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-asurf-why-text-sub-12"
+      ]
+    },
+    "b-asurf-why-text-sub-12": {
+      "id": "b-asurf-why-text-sub-12",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Plain markdown through plain commands"
+        }
+      ],
+      "children": [
+        "b-asurf-why-text-sub-12-gloss"
+      ]
+    },
+    "b-asurf-why-text-sub-12-gloss": {
+      "id": "b-asurf-why-text-sub-12-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "No special tooling between the agent and the docs, and nothing to learn beyond the shell."
+        }
+      ],
+      "children": []
+    },
+    "b-asurf-why-typed-13": {
+      "id": "b-asurf-why-typed-13",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Typed writes cannot corrupt",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-asurf-why-typed-sub1-14",
+        "b-asurf-why-typed-sub2-15"
+      ]
+    },
+    "b-asurf-why-typed-sub1-14": {
+      "id": "b-asurf-why-typed-sub1-14",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An operation is validated against the schema before it lands."
+        }
+      ],
+      "children": []
+    },
+    "b-asurf-why-typed-sub2-15": {
+      "id": "b-asurf-why-typed-sub2-15",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A text patch could break the state in ways a reader only finds later; a rejected op breaks nothing."
+        }
+      ],
+      "children": []
+    }
+  }
+}

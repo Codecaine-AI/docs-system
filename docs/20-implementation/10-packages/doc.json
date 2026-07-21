@@ -79,9 +79,19 @@
               "path": "20-implementation/10-packages/10-docs-model"
             }
           }
-        },
+        }
+      ],
+      "children": [
+        "b-00-overview-model-role-5-gloss"
+      ]
+    },
+    "b-00-overview-model-role-5-gloss": {
+      "id": "b-00-overview-model-role-5-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
-          "insert": " — the pure-TypeScript format definition: schema, 7-op mutation kernel and inverses, seven component bundles for 14 block types, and Markdown conversion in both directions."
+          "insert": "The pure-TypeScript format definition: schema, 7-op mutation kernel and inverses, seven component bundles for 14 block types, and Markdown conversion in both directions."
         }
       ],
       "children": []
@@ -99,9 +109,19 @@
               "path": "20-implementation/10-packages/20-docs-index"
             }
           }
-        },
+        }
+      ],
+      "children": [
+        "b-00-overview-index-role-6-gloss"
+      ]
+    },
+    "b-00-overview-index-role-6-gloss": {
+      "id": "b-00-overview-index-role-6-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
-          "insert": " — the derived "
+          "insert": "The derived "
         },
         {
           "insert": "bun:sqlite",
@@ -128,9 +148,19 @@
               "path": "20-implementation/10-packages/30-docs-server"
             }
           }
-        },
+        }
+      ],
+      "children": [
+        "b-00-overview-server-role-7-gloss"
+      ]
+    },
+    "b-00-overview-server-role-7-gloss": {
+      "id": "b-00-overview-server-role-7-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
-          "insert": " — the React-free mutation authority: atomic mutexed writes, hash preconditions, draft locks, undo, change events, embeddable Elysia routes, block discovery, and canvas-op forwarding."
+          "insert": "The React-free mutation authority: atomic mutexed writes, hash preconditions, draft locks, undo, change events, embeddable Elysia routes, block discovery, and canvas-op forwarding."
         }
       ],
       "children": []
@@ -148,9 +178,19 @@
               "path": "20-implementation/10-packages/40-docs-viewer"
             }
           }
-        },
+        }
+      ],
+      "children": [
+        "b-00-overview-viewer-role-8-gloss"
+      ]
+    },
+    "b-00-overview-viewer-role-8-gloss": {
+      "id": "b-00-overview-viewer-role-8-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
-          "insert": " — the browser-pure React renderer and editor: mirrored component folders, TipTap editing, targeting, and the client-provider seam."
+          "insert": "The browser-pure React renderer and editor: mirrored component folders, TipTap editing, targeting, and the client-provider seam."
         }
       ],
       "children": []
@@ -168,9 +208,19 @@
               "path": "20-implementation/10-packages/50-docs-workbench"
             }
           }
-        },
+        }
+      ],
+      "children": [
+        "b-00-overview-workbench-role-9-gloss"
+      ]
+    },
+    "b-00-overview-workbench-role-9-gloss": {
+      "id": "b-00-overview-workbench-role-9-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
-          "insert": " — the thin composition shell: an Elysia server around docs-server, a Vite SPA around docs-viewer, Edit/Annotate modes, and static export."
+          "insert": "The thin composition shell: an Elysia server around docs-server, a Vite SPA around docs-viewer, Edit/Annotate modes, and static export."
         }
       ],
       "children": []
@@ -188,9 +238,19 @@
               "path": "20-implementation/10-packages/60-docs-cli"
             }
           }
-        },
+        }
+      ],
+      "children": [
+        "b-00-overview-cli-role-10-gloss"
+      ]
+    },
+    "b-00-overview-cli-role-10-gloss": {
+      "id": "b-00-overview-cli-role-10-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
-          "insert": " — the agent dialect and human entry point for render, grep, backlink rescan, link checks, migration, serve, and export."
+          "insert": "The agent dialect and human entry point for render, grep, backlink rescan, link checks, migration, serve, and export."
         }
       ],
       "children": []
@@ -208,9 +268,19 @@
               "path": "20-implementation/10-packages/70-framework"
             }
           }
-        },
+        }
+      ],
+      "children": [
+        "b-00-overview-framework-role-11-gloss"
+      ]
+    },
+    "b-00-overview-framework-role-11-gloss": {
+      "id": "b-00-overview-framework-role-11-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
-          "insert": " — the zero-dependency, zero-code methodology: manual, templates, and a skill definition distributed for host repos to symlink into agent tooling."
+          "insert": "The zero-dependency, zero-code methodology: manual, templates, and a skill definition distributed for host repos to symlink into agent tooling."
         }
       ],
       "children": []
@@ -228,9 +298,19 @@
               "path": "20-implementation/10-packages/80-external-canvas"
             }
           }
-        },
+        }
+      ],
+      "children": [
+        "b-00-overview-canvas-role-12-gloss"
+      ]
+    },
+    "b-00-overview-canvas-role-12-gloss": {
+      "id": "b-00-overview-canvas-role-12-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
-          "insert": " — a vendored neighboring project whose inner workspace packages supply canvas schemas and embeds; it is not one of the seven."
+          "insert": "A vendored neighboring project whose inner workspace packages supply canvas schemas and embeds; it is not one of the seven."
         }
       ],
       "children": []

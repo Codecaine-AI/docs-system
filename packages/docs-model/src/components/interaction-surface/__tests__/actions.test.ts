@@ -3,7 +3,7 @@
 import { describe, expect, it } from "bun:test";
 import type { DocBlock } from "../../../doc-schema";
 import { checkParams } from "../../define";
-import type { BlockActionResult, ComponentAction } from "../../types";
+import type { ComponentActionResult, ComponentAction } from "../../types";
 import { addOperation } from "../actions/add-operation";
 import { removeOperation } from "../actions/remove-operation";
 import { updateOperation } from "../actions/update-operation";
@@ -39,7 +39,7 @@ function run(
   action: ComponentAction,
   block: DocBlock,
   params: Record<string, unknown>,
-): BlockActionResult {
+): ComponentActionResult {
   const before = JSON.stringify(block);
   const issues = checkParams(action, params);
   const result = issues.length > 0
@@ -51,12 +51,12 @@ function run(
   return result;
 }
 
-function mustOk(result: BlockActionResult): Record<string, unknown> {
+function mustOk(result: ComponentActionResult): Record<string, unknown> {
   if (!result.ok) throw new Error(`Expected ok, got issues: ${JSON.stringify(result.issues)}`);
   return result.props;
 }
 
-function mustFail(result: BlockActionResult, path: string): void {
+function mustFail(result: ComponentActionResult, path: string): void {
   expect(result.ok).toBe(false);
   if (result.ok) return;
   expect(result.issues.map((issue) => issue.path)).toContain(path);
@@ -86,6 +86,35 @@ describe("interaction-surface.addOperation component action", () => {
       params: [{ name: "path", type: "string", required: true, description: "Exact path" }],
       returns: "props patch",
       kind: "action",
+    });
+  });
+
+  it("appends an operation with nested param fields verbatim", () => {
+    const props = mustOk(run(addOperation, surfaceBlock(), {
+      name: "state-shape.addField",
+      params: [
+        {
+          name: "field",
+          type: "Field",
+          fields: [
+            { name: "name", type: "string" },
+            { name: "fields", type: "Field[]", required: false, fields: [{ name: "name" }] },
+          ],
+        },
+      ],
+    }));
+    expect((props.operations as unknown[]).at(-1)).toEqual({
+      name: "state-shape.addField",
+      params: [
+        {
+          name: "field",
+          type: "Field",
+          fields: [
+            { name: "name", type: "string" },
+            { name: "fields", type: "Field[]", required: false, fields: [{ name: "name" }] },
+          ],
+        },
+      ],
     });
   });
 
@@ -139,6 +168,23 @@ describe("interaction-surface.updateOperation component action", () => {
       name: "file-tree.addEntry",
       patch: { name: "file-tree.removeEntry" },
     }), "$.params.patch.name");
+  });
+
+  it("replaces params with a nested field tree", () => {
+    const props = mustOk(run(updateOperation, surfaceBlock(), {
+      name: "file-tree.removeEntry",
+      patch: {
+        params: [
+          { name: "target", type: "Entry", fields: [{ name: "path", type: "string" }] },
+        ],
+      },
+    }));
+    expect((props.operations as unknown[])[1]).toEqual({
+      name: "file-tree.removeEntry",
+      params: [
+        { name: "target", type: "Entry", fields: [{ name: "path", type: "string" }] },
+      ],
+    });
   });
 
   it("rejects a malformed patch params element at the precise path", () => {

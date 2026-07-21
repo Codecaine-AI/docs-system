@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "10-system-design-00-data-model",
-  "title": "The data model — one format, five shapes",
+  "title": "The data model",
   "root": "b-00-overview-root",
   "blocks": {
     "b-00-overview-root": {
@@ -9,101 +9,148 @@
       "type": "paragraph",
       "props": {},
       "children": [
-        "b-00-overview-title-1",
-        "b-00-overview-lead-2",
-        "b-00-overview-scope-3",
-        "b-00-overview-five-shapes-4",
-        "b-00-overview-document-tree-5",
-        "b-00-overview-rich-text-6",
-        "b-00-overview-block-state-7",
-        "b-00-overview-comments-8",
-        "b-00-overview-canonical-bytes-9",
-        "b-00-overview-mental-model-10",
-        "b-00-overview-neighbors-11",
-        "b-00-overview-neighbors-intro-12"
+        "b-dm2-opener-1",
+        "pm-mrutq8v1-31-puyomo",
+        "pm-mrutq8v1-33-sqikfr",
+        "pm-mrutq8v1-35-n5hqjq",
+        "b-dm2-pure-2",
+        "pm-mrutq8v1-36-en5ri1",
+        "b-dm2-shapes-h-3",
+        "b-dm2-idx-tree-4",
+        "b-dm2-idx-state-6",
+        "b-dm2-idx-comments-7",
+        "b-dm2-idx-bytes-8",
+        "b-dm2-behavior-h-9",
+        "b-dm2-idx-mutation-10",
+        "b-dm2-neighbors-h-12",
+        "b-dm2-neighbors-13"
       ]
     },
-    "b-00-overview-title-1": {
-      "id": "b-00-overview-title-1",
-      "type": "heading",
-      "props": {
-        "level": 1
-      },
-      "text": [
-        {
-          "insert": "The data model — one format, five shapes"
-        }
-      ],
-      "children": []
-    },
-    "b-00-overview-lead-2": {
-      "id": "b-00-overview-lead-2",
+    "b-dm2-opener-1": {
+      "id": "b-dm2-opener-1",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "The docs system has one on-disk content format: "
-        },
+          "insert": "The docs system has one on-disk content format"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrutq8v1-31-puyomo": {
+      "id": "pm-mrutq8v1-31-puyomo",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
           "insert": "doc.json",
           "attributes": {
             "code": true
           }
-        },
+        }
+      ],
+      "children": [
+        "pm-mrutq8v1-32-7an6u6"
+      ]
+    },
+    "pm-mrutq8v1-32-7an6u6": {
+      "id": "pm-mrutq8v1-32-7an6u6",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
-          "insert": ", a normalized block tree, plus a "
-        },
+          "insert": "a normalized block tree"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrutq8v1-33-sqikfr": {
+      "id": "pm-mrutq8v1-33-sqikfr",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
-          "insert": "comments.json",
+          "insert": "annotations.json",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " sidecar per bundle. Agents read through a pure markdown render and write through the same seven-op kernel the editor uses. That keeps reading greppable, writing enumerable, and file bytes deterministic enough for reviewable diffs."
+          "insert": " "
+        }
+      ],
+      "children": [
+        "pm-mrutq8v1-34-ds5ajz"
+      ]
+    },
+    "pm-mrutq8v1-34-ds5ajz": {
+      "id": "pm-mrutq8v1-34-ds5ajz",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "sidecar per bundle "
         }
       ],
       "children": []
     },
-    "b-00-overview-scope-3": {
-      "id": "b-00-overview-scope-3",
+    "pm-mrutq8v1-35-n5hqjq": {
+      "id": "pm-mrutq8v1-35-n5hqjq",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "This section is system-agnostic: it describes shapes and invariants, not transport wiring. Everything here is defined in pure TypeScript in "
+          "insert": "Four shapes describe the state; one behavior model describes every change. "
+        }
+      ],
+      "children": []
+    },
+    "b-dm2-pure-2": {
+      "id": "b-dm2-pure-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This section describes shapes and invariants, not transport wiring. "
+        }
+      ],
+      "children": []
+    },
+    "pm-mrutq8v1-36-en5ri1": {
+      "id": "pm-mrutq8v1-36-en5ri1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Everything here is defined in "
         },
         {
           "insert": "packages/docs-model",
           "attributes": {
-            "code": true,
             "reference": {
               "kind": "source",
               "path": "packages/docs-model"
             }
           }
-        },
-        {
-          "insert": " — no React, no filesystem, no HTTP — so the browser, the Bun server, and the CLI share one definition. The model decomposes into five shapes, and each gets its own page."
         }
       ],
       "children": []
     },
-    "b-00-overview-five-shapes-4": {
-      "id": "b-00-overview-five-shapes-4",
+    "b-dm2-shapes-h-3": {
+      "id": "b-dm2-shapes-h-3",
       "type": "heading",
       "props": {
         "level": 2
       },
       "text": [
         {
-          "insert": "The five shapes"
+          "insert": "The four shapes"
         }
       ],
       "children": []
     },
-    "b-00-overview-document-tree-5": {
-      "id": "b-00-overview-document-tree-5",
+    "b-dm2-idx-tree-4": {
+      "id": "b-dm2-idx-tree-4",
       "type": "list-item",
       "props": {},
       "text": [
@@ -115,151 +162,158 @@
               "path": "10-system-design/30-data-model/10-document-tree"
             }
           }
-        },
-        {
-          "insert": " — the envelope, the flat id-keyed "
-        },
-        {
-          "insert": "blocks",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " map, ordered children arrays, stable anchor ids, graph invariants, and the seven-op write surface."
         }
       ],
-      "children": []
+      "children": [
+        "b-dm2-idx-tree-4-gloss"
+      ]
     },
-    "b-00-overview-rich-text-6": {
-      "id": "b-00-overview-rich-text-6",
+    "b-dm2-idx-tree-4-gloss": {
+      "id": "b-dm2-idx-tree-4-gloss",
       "type": "list-item",
       "props": {},
       "text": [
         {
-          "insert": "Rich text",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "10-system-design/30-data-model/20-rich-text"
-            }
-          }
-        },
-        {
-          "insert": " — delta spans, the four boolean marks, outbound links, and the shared SpectreRef reference chip."
+          "insert": "The envelope, the flat id-keyed blocks map, ordered children arrays, stable anchor ids, and the graph invariants."
         }
       ],
       "children": []
     },
-    "b-00-overview-block-state-7": {
-      "id": "b-00-overview-block-state-7",
+    "b-dm2-idx-state-6": {
+      "id": "b-dm2-idx-state-6",
       "type": "list-item",
       "props": {},
       "text": [
         {
-          "insert": "Per-type block state",
+          "insert": "Block design",
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "10-system-design/30-data-model/30-block-state"
+              "path": "10-system-design/30-data-model/20-block-design"
             }
           }
-        },
-        {
-          "insert": " — seven component bundles owning the 14 types, closed TypeBox state schemas for "
-        },
-        {
-          "insert": "props",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", typed actions as data, and the "
-        },
-        {
-          "insert": "GET /api/blocks",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " discovery payload."
         }
       ],
-      "children": []
+      "children": [
+        "b-dm2-idx-state-6-gloss"
+      ]
     },
-    "b-00-overview-comments-8": {
-      "id": "b-00-overview-comments-8",
+    "b-dm2-idx-state-6-gloss": {
+      "id": "b-dm2-idx-state-6-gloss",
       "type": "list-item",
       "props": {},
       "text": [
         {
-          "insert": "Comments & targets",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "10-system-design/30-data-model/40-comments"
-            }
-          }
-        },
-        {
-          "insert": " — the "
-        },
-        {
-          "insert": "comments.json",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " sidecar: block and canvas-object anchors, intents, agent runs, and dangling-target detection."
+          "insert": "The block contract: every type owns its state schema, typed actions, doc renderer, agent renderer, and theme — and the path for adding a custom component."
         }
       ],
       "children": []
     },
-    "b-00-overview-canonical-bytes-9": {
-      "id": "b-00-overview-canonical-bytes-9",
+    "b-dm2-idx-comments-7": {
+      "id": "b-dm2-idx-comments-7",
       "type": "list-item",
       "props": {},
       "text": [
         {
-          "insert": "Canonical bytes",
+          "insert": "Annotations",
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "10-system-design/30-data-model/50-canonical-bytes"
+              "path": "10-system-design/30-data-model/30-annotations"
             }
           }
-        },
+        }
+      ],
+      "children": [
+        "b-dm2-idx-comments-7-gloss"
+      ]
+    },
+    "b-dm2-idx-comments-7-gloss": {
+      "id": "b-dm2-idx-comments-7-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
-          "insert": " — the deterministic serializer, the markdown render map, and the SHA-256 content hashes that make write preconditions possible."
+          "insert": "The annotations.json sidecar: the human-to-agent request channel — anchors, intents, agent-run receipts, dangling-target detection."
         }
       ],
       "children": []
     },
-    "b-00-overview-mental-model-10": {
-      "id": "b-00-overview-mental-model-10",
-      "type": "callout",
+    "b-dm2-idx-bytes-8": {
+      "id": "b-dm2-idx-bytes-8",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Serialization",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/40-serialization"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-dm2-idx-bytes-8-gloss"
+      ]
+    },
+    "b-dm2-idx-bytes-8-gloss": {
+      "id": "b-dm2-idx-bytes-8-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "How a document is said: the deterministic serializer, the markdown render map, and the content hashes that make write preconditions possible."
+        }
+      ],
+      "children": []
+    },
+    "b-dm2-behavior-h-9": {
+      "id": "b-dm2-behavior-h-9",
+      "type": "heading",
       "props": {
-        "kind": "Mental model",
-        "tone": "decision"
+        "level": 2
       },
       "text": [
         {
-          "insert": "SHAPES LIVE HERE, BEHAVIOR LIVES NEXT DOOR.",
-          "attributes": {
-            "bold": true
-          }
-        },
-        {
-          "insert": " If you can hold five shapes in your head — document, span, state, comment, bytes — you can read or write anything in the system. How those shapes change over time (ops, inverses, undo) and how they reach disk (locks, hashes, atomic writes) are separate pages."
+          "insert": "The behavior model"
         }
       ],
       "children": []
     },
-    "b-00-overview-neighbors-11": {
-      "id": "b-00-overview-neighbors-11",
+    "b-dm2-idx-mutation-10": {
+      "id": "b-dm2-idx-mutation-10",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The mutation model",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/50-mutation-model"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-dm2-idx-mutation-10-gloss"
+      ]
+    },
+    "b-dm2-idx-mutation-10-gloss": {
+      "id": "b-dm2-idx-mutation-10-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "How the shapes change: the seven-op algebra, inverses, undo and redo, copy and paste, and what a refused write looks like."
+        }
+      ],
+      "children": []
+    },
+    "b-dm2-neighbors-h-12": {
+      "id": "b-dm2-neighbors-h-12",
       "type": "heading",
       "props": {
         "level": 2
@@ -271,16 +325,16 @@
       ],
       "children": []
     },
-    "b-00-overview-neighbors-intro-12": {
-      "id": "b-00-overview-neighbors-intro-12",
+    "b-dm2-neighbors-13": {
+      "id": "b-dm2-neighbors-13",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "Read this section alongside "
+          "insert": "The roster of block types — what each is for, with an example — is the "
         },
         {
-          "insert": "the block vocabulary — what each of the 14 types is for",
+          "insert": "block vocabulary",
           "attributes": {
             "reference": {
               "kind": "doc",
@@ -289,31 +343,19 @@
           }
         },
         {
-          "insert": ", "
+          "insert": "'s subject; type counts live there. How bytes reach disk is the "
         },
         {
-          "insert": "the mutation model — ops, inverses, undo",
+          "insert": "save pipeline",
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "10-system-design/30-data-model/60-mutation-model"
+              "path": "20-implementation/30-save-pipeline"
             }
           }
         },
         {
-          "insert": ", and "
-        },
-        {
-          "insert": "the save pipeline — how bytes reach disk",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "docs/20-implementation/30-save-pipeline.md"
-            }
-          }
-        },
-        {
-          "insert": "."
+          "insert": "'s."
         }
       ],
       "children": []

@@ -61,25 +61,19 @@ conversation lives in ("do this, do this, do this"):
 
 - canvas objects inside embedded canvases are selectable the same way;
 
-- compose a comment (with an intent) in the side pane; resolve from the
+- compose an annotation (with an intent) in the side pane; resolve from the
 
   list; dangling targets (block deleted since) are detected and labeled.
 
-Comments live in the bundle's `comments.json` sidecar with the same
+Annotations live in the bundle's `annotations.json` sidecar with the same
 hash-precondition write path as doc edits.
 
-## Block library
+## Block catalog
 
-`#/blocks` opens a searchable catalog of all 14 block types — one live
-example per type, navigated by a scroll-spy sidebar, with the exact
-`doc.json` source expandable under each example. Examples render through
-the same read surface as real docs, so it also shows the read-surface
-niceties: code blocks are syntax-highlighted and JSON code is
-pretty-printed at render time (display-only — the stored text is never
-rewritten).
+The block catalog lives in the corpus, not the workbench: the per-type reference pages under block vocabulary cover every block type, each with live examples and its doc.json shape.
 
 ## Static export
 
 `docs export` produces the same UI with everything mutable removed: no mode
-switcher, no editor, no comments pane, no SSE — a plain read-only site that
+switcher, no editor, no annotations pane, no SSE — a plain read-only site that
 works from any static host or subpath.

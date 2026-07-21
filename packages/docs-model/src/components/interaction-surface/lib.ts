@@ -1,20 +1,13 @@
 "use client";
 
-import type { InteractionSurfaceOperation, InteractionSurfaceParam } from "./state";
-
-/** Builds a plain-JSON param object with only the defined keys. */
-function operationParamToProps(param: InteractionSurfaceParam): Record<string, unknown> {
-  const out: Record<string, unknown> = { name: param.name };
-  if (param.type !== undefined) out.type = param.type;
-  if (param.required !== undefined) out.required = param.required;
-  if (param.description !== undefined) out.description = param.description;
-  return out;
-}
+import { cloneField } from "../shared/field";
+import type { InteractionSurfaceOperation } from "./state";
 
 function operationToProps(operation: InteractionSurfaceOperation): Record<string, unknown> {
   const out: Record<string, unknown> = { name: operation.name };
   if (operation.description !== undefined) out.description = operation.description;
-  if (operation.params !== undefined) out.params = operation.params.map(operationParamToProps);
+  // cloneField builds plain-JSON param objects (recursively) with only the defined keys.
+  if (operation.params !== undefined) out.params = operation.params.map(cloneField);
   if (operation.returns !== undefined) out.returns = operation.returns;
   if (operation.kind !== undefined) out.kind = operation.kind;
   return out;

@@ -18,7 +18,7 @@ import { DocPage } from "../pages/DocPage";
  * Workbench integration tests: the REAL serve app (docs-server routes over a
  * temp docs tree) handles every request — `globalThis.fetch` is stubbed to
  * route the SPA's relative URLs straight into `app.handle`, so the ops
- * 409/423 paths, the comment create/resolve contract, undo single-use, and
+ * 409/423 paths, the annotation create/resolve contract, undo single-use, and
  * the SSE fetch-stream fallback are all exercised end-to-end with no
  * network. (Mirrors the fake-DocsClient injection pattern of the
  * docs-viewer suites, but with the genuine backend behind the seam.)
@@ -56,7 +56,7 @@ const BUNDLES: Array<[string, string]> = [
   ["10-guide", "Guide"],
   ["30-stale", "Stale"],
   ["40-locked", "Locked"],
-  ["50-comments", "Comments"],
+  ["50-annotations", "Annotations"],
   ["55-hover", "Hover"],
   ["60-live", "Live"],
   ["65-autosave", "Autosave"],
@@ -181,7 +181,7 @@ afterEach(() => {
 });
 
 describe("workbench shell", () => {
-  it("renders the tree, doc header, mode switcher, and block-library nav", async () => {
+  it("renders the tree, doc header, and mode switcher", async () => {
     window.location.hash = "#/10-guide";
     render(<App />);
 
@@ -200,7 +200,6 @@ describe("workbench shell", () => {
       expect(document.querySelector('[data-doc-editor="true"]')).toBeTruthy();
     });
     expect(saveStateAttr()).toBe("saved");
-    expect(screen.getByText("Block library")).toBeTruthy();
   });
 
   it("renders a legacy overview route and replaces its hash with the section route", async () => {
@@ -525,34 +524,34 @@ describe("page title rename", () => {
 });
 
 describe("annotate mode", () => {
-  it("creates a comment against a clicked block and resolves it", async () => {
-    renderDocPage("50-comments");
+  it("creates an annotation against a clicked block and resolves it", async () => {
+    renderDocPage("50-annotations");
     await waitFor(() => {
-      expect(screen.getByText("Hello from Comments")).toBeTruthy();
+      expect(screen.getByText("Hello from Annotations")).toBeTruthy();
     });
     fireEvent.click(screen.getByRole("button", { name: "Annotate mode" }));
-    // level 2: the comments PANE header — the fixture's page title (h1)
-    // also reads "Comments" since the R2-D11 page-title furniture.
-    expect(screen.getByRole("heading", { name: "Comments", level: 2 })).toBeTruthy();
+    // level 2: the annotations PANE header — the fixture's page title (h1)
+    // also reads "Annotations" since the R2-D11 page-title furniture.
+    expect(screen.getByRole("heading", { name: "Annotations", level: 2 })).toBeTruthy();
 
     // Click the paragraph block -> composer opens against it.
     const block = document.querySelector('[data-block-id="para-1"]');
     expect(block).toBeTruthy();
     fireEvent.click(block!);
     await waitFor(() => {
-      expect(screen.getByText(/Commenting on:/)).toBeTruthy();
+      expect(screen.getByText(/Annotating:/)).toBeTruthy();
     });
 
-    fireEvent.change(screen.getByPlaceholderText("Add a comment..."), {
+    fireEvent.change(screen.getByPlaceholderText("Add an annotation..."), {
       target: { value: "Tighten this paragraph." },
     });
-    fireEvent.click(screen.getByRole("button", { name: /Post comment/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Post annotation/ }));
 
-    // Successful post closes the composer and lists the comment. (Boolean
+    // Successful post closes the composer and lists the annotation. (Boolean
     // coercion keeps failure output small — element dumps here are huge.)
     await waitFor(
       () => {
-        expect(!!screen.queryByText(/Commenting on:/)).toBe(false);
+        expect(!!screen.queryByText(/Annotating:/)).toBe(false);
         expect(!!screen.getByText("Tighten this paragraph.")).toBe(true);
       },
       { timeout: 5000 },
@@ -560,9 +559,9 @@ describe("annotate mode", () => {
     // "1 open" renders in both the pane header and the target group badge.
     expect(screen.getAllByText("1 open").length).toBeGreaterThanOrEqual(1);
 
-    // Persisted to the bundle's comments sidecar.
-    const commentsRaw = await readFile(join(docsRoot, "50-comments", "comments.json"), "utf8");
-    expect(commentsRaw).toContain("Tighten this paragraph.");
+    // Persisted to the bundle's annotations sidecar.
+    const annotationsRaw = await readFile(join(docsRoot, "50-annotations", "annotations.json"), "utf8");
+    expect(annotationsRaw).toContain("Tighten this paragraph.");
 
     fireEvent.click(screen.getByRole("button", { name: /Resolve/ }));
     await waitFor(
@@ -571,7 +570,7 @@ describe("annotate mode", () => {
       },
       { timeout: 5000 },
     );
-    const resolvedRaw = await readFile(join(docsRoot, "50-comments", "comments.json"), "utf8");
+    const resolvedRaw = await readFile(join(docsRoot, "50-annotations", "annotations.json"), "utf8");
     expect(resolvedRaw).toContain('"resolved"');
   });
 
@@ -597,7 +596,7 @@ describe("annotate mode", () => {
     // (real block id, block type-labelled) and draws the selected ring.
     fireEvent.click(block!);
     await waitFor(() => {
-      expect(screen.getByText("Commenting on: Paragraph: Hello from Hover")).toBeTruthy();
+      expect(screen.getByText("Annotating: Paragraph: Hello from Hover")).toBeTruthy();
     });
     expect(!!document.querySelector('[data-docs-target-overlay="selected"]')).toBe(true);
     expect(
@@ -607,32 +606,32 @@ describe("annotate mode", () => {
     // Composer cancel clears the controlled selection -> ring disappears.
     fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
     await waitFor(() => {
-      expect(!!screen.queryByText(/Commenting on:/)).toBe(false);
+      expect(!!screen.queryByText(/Annotating:/)).toBe(false);
       expect(!!document.querySelector('[data-docs-target-overlay="selected"]')).toBe(false);
     });
 
-    // The layer-selected target round-trips through the comment store: post
-    // a comment and it lands against the clicked block id.
+    // The layer-selected target round-trips through the annotation store: post
+    // an annotation and it lands against the clicked block id.
     fireEvent.click(block!);
     await waitFor(() => {
-      expect(screen.getByText(/Commenting on:/)).toBeTruthy();
+      expect(screen.getByText(/Annotating:/)).toBeTruthy();
     });
-    fireEvent.change(screen.getByPlaceholderText("Add a comment..."), {
-      target: { value: "Layer-selected comment." },
+    fireEvent.change(screen.getByPlaceholderText("Add an annotation..."), {
+      target: { value: "Layer-selected annotation." },
     });
-    fireEvent.click(screen.getByRole("button", { name: /Post comment/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Post annotation/ }));
     // Wait for the composer to CLOSE (not just for the text — the textarea's
     // own content matches it immediately): a closed composer means the POST
     // round-tripped and the sidecar write is on disk.
     await waitFor(
       () => {
-        expect(!!screen.queryByText(/Commenting on:/)).toBe(false);
-        expect(!!screen.getByText("Layer-selected comment.")).toBe(true);
+        expect(!!screen.queryByText(/Annotating:/)).toBe(false);
+        expect(!!screen.getByText("Layer-selected annotation.")).toBe(true);
       },
       { timeout: 5000 },
     );
-    const commentsRaw = await readFile(join(docsRoot, "55-hover", "comments.json"), "utf8");
-    expect(commentsRaw).toContain('"blockId": "para-1"');
+    const annotationsRaw = await readFile(join(docsRoot, "55-hover", "annotations.json"), "utf8");
+    expect(annotationsRaw).toContain('"blockId": "para-1"');
   });
 });
 

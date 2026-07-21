@@ -3,7 +3,7 @@
 import { describe, expect, it } from "bun:test";
 import type { DocBlock } from "../../../doc-schema";
 import { checkParams } from "../../define";
-import type { BlockActionResult, ComponentAction } from "../../types";
+import type { ComponentActionResult, ComponentAction } from "../../types";
 import { removeAnnotation } from "../actions/remove-annotation";
 import { setAnnotation } from "../actions/set-annotation";
 
@@ -22,7 +22,7 @@ function codeBlock(): DocBlock {
   };
 }
 
-function run(action: ComponentAction, block: DocBlock, params: Record<string, unknown>): BlockActionResult {
+function run(action: ComponentAction, block: DocBlock, params: Record<string, unknown>): ComponentActionResult {
   const before = JSON.stringify(block);
   const issues = checkParams(action, params);
   const result = issues.length > 0
@@ -34,12 +34,12 @@ function run(action: ComponentAction, block: DocBlock, params: Record<string, un
   return result;
 }
 
-function mustOk(result: BlockActionResult): Record<string, unknown> {
+function mustOk(result: ComponentActionResult): Record<string, unknown> {
   if (!result.ok) throw new Error(`Expected ok, got issues: ${JSON.stringify(result.issues)}`);
   return result.props;
 }
 
-function mustFail(result: BlockActionResult, path: string): void {
+function mustFail(result: ComponentActionResult, path: string): void {
   expect(result.ok).toBe(false);
   if (result.ok) return;
   expect(result.issues.map((issue) => issue.path)).toContain(path);

@@ -4,7 +4,7 @@
  * One id per browser tab, persisted in sessionStorage so it survives SPA
  * reloads but is never shared across tabs. This single id is used for:
  *
- *  - `session_id` on every mutation (`/api/ops`, comments) — the server
+ *  - `session_id` on every mutation (`/api/ops`, annotations) — the server
  *    records it as the change event's `actor`, so the SSE stream can be
  *    filtered for self-echoes;
  *  - draft-lock ownership (`/api/draft-lock/*`). The server's mutation

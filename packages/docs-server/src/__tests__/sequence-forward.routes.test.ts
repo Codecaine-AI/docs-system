@@ -58,7 +58,7 @@ const SAMPLE_SEQUENCE = {
 };
 
 const SET_TITLE_OP = {
-  type: "blockAction",
+  type: "componentAction",
   blockId: "sequence-1",
   action: "sequence.setTitle",
   params: { title: "Renamed flow" },
@@ -300,7 +300,7 @@ describe("sequence sidecar routes + forwarded sequence actions", () => {
     const response = await postJson("/api/ops", {
       path: BUNDLE_PATH,
       ops: [{
-        type: "blockAction",
+        type: "componentAction",
         blockId: "sequence-1",
         action: "sequence.setProgram",
         params: { program },
@@ -323,7 +323,7 @@ describe("sequence sidecar routes + forwarded sequence actions", () => {
     const response = await postJson("/api/ops", {
       path: BUNDLE_PATH,
       ops: [{
-        type: "blockAction",
+        type: "componentAction",
         blockId: "sequence-1",
         action: "sequence.setProgram",
         params: { program: "utter nonsense" },
@@ -337,7 +337,7 @@ describe("sequence sidecar routes + forwarded sequence actions", () => {
     const response = await postJson("/api/ops", {
       path: BUNDLE_PATH,
       ops: [{
-        type: "blockAction",
+        type: "componentAction",
         blockId: "sequence-1",
         action: "sequence.setStyle",
         params: { style: { accent: "#ff0000" } },
@@ -435,7 +435,7 @@ describe("sequence sidecar routes + forwarded sequence actions", () => {
     const response = await postJson("/api/ops", {
       path: BUNDLE_PATH,
       ops: [{
-        type: "blockAction",
+        type: "componentAction",
         blockId: "sequence-1",
         action: "sequence.setTitle",
         params: {},

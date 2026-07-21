@@ -45,9 +45,9 @@ async function waitFor(predicate: () => boolean, timeoutMs = 5000): Promise<void
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 describe("fs-watch: changeTargetForRelPath filter/mapping", () => {
-  test("doc.json and comments.json map to their bundle folder", () => {
+  test("doc.json and annotations.json map to their bundle folder", () => {
     expect(changeTargetForRelPath(docsRoot, "10-guide/doc.json")).toBe("10-guide");
-    expect(changeTargetForRelPath(docsRoot, "10-guide/comments.json")).toBe("10-guide");
+    expect(changeTargetForRelPath(docsRoot, "10-guide/annotations.json")).toBe("10-guide");
     expect(changeTargetForRelPath(docsRoot, "20-section/30-topic/doc.json")).toBe(
       "20-section/30-topic",
     );

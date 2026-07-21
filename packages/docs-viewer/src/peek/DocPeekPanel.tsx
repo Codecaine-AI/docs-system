@@ -92,7 +92,7 @@ export function DocPeekPanel({ projectId, onNavigate, resolveAssetSrc }: DocPeek
               onClick={close}
               aria-label="Close preview"
               title="Close preview"
-              className="shrink-0 rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+              className="shrink-0 rounded-sm p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
             >
               <XIcon aria-hidden className="h-4 w-4" />
             </button>
@@ -101,7 +101,7 @@ export function DocPeekPanel({ projectId, onNavigate, resolveAssetSrc }: DocPeek
               onClick={openInFull}
               aria-label="Open in full"
               title="Open in full"
-              className="shrink-0 rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+              className="shrink-0 rounded-sm p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
             >
               <ExternalLinkIcon aria-hidden className="h-4 w-4" />
             </button>

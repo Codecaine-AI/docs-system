@@ -1,6 +1,8 @@
 "use client";
 
+import type { TableCell } from "@codecaine-ai/docs-model";
 import { cn } from "../../ui/cn";
+import { renderTableCell } from "./cell-render";
 import {
   TABLE_BODY_CELL_TEXT_CLASSES,
   TABLE_CELL_SPACING_CLASS,
@@ -19,7 +21,7 @@ import {
 export const STRUCTURED_TABLE_LABEL = "Structured Table";
 
 export const STRUCTURED_TABLE_AGENT_DESCRIPTION =
-  'A structured table rendered from typed props: { title?: string; density?: "compact" | "normal" | "relaxed"; columns: string[]; rows: string[][] }. `columns` is the header row; each entry in `rows` is one body row whose cells align positionally with `columns` (short rows are padded with empty cells). `density` is accepted for schema compatibility; visual spacing is controlled by theme tokens.';
+  'A structured table rendered from typed props: { title?: string; density?: "compact" | "normal" | "relaxed"; columns: TableCell[]; rows: TableCell[][] }. A TableCell is a plain string (canonical for unmarked content) or a DeltaSpan[] carrying bold/italic/strike/code/link marks (never reference). `columns` is the header row; each entry in `rows` is one body row whose cells align positionally with `columns` (short rows are padded with empty cells). `density` is accepted for schema compatibility; visual spacing is controlled by theme tokens.';
 
 export type StructuredTableDensity = "compact" | "normal" | "relaxed";
 
@@ -38,8 +40,8 @@ export function StructuredTableBlock({
   id: string;
   title?: string;
   density?: StructuredTableDensity;
-  columns: string[];
-  rows: string[][];
+  columns: TableCell[];
+  rows: TableCell[][];
 }) {
   return (
     <section
@@ -54,7 +56,7 @@ export function StructuredTableBlock({
             <tr>
               {columns.map((column, columnIndex) => (
                 <th
-                  key={`${column}-${columnIndex}`}
+                  key={columnIndex}
                   className={cn(
                     TABLE_CELL_SPACING_CLASS,
                     TABLE_HEADER_CELL_TEXT_CLASSES,
@@ -63,7 +65,7 @@ export function StructuredTableBlock({
                       : TABLE_COLUMN_GAP_CLASS,
                   )}
                 >
-                  {column}
+                  {renderTableCell(column)}
                 </th>
               ))}
             </tr>
@@ -77,9 +79,9 @@ export function StructuredTableBlock({
                   rowIndex !== rows.length - 1 && TABLE_ROW_RULE_CLASSES,
                 )}
               >
-                {columns.map((column, columnIndex) => (
+                {columns.map((_, columnIndex) => (
                   <td
-                    key={`${column}-${columnIndex}`}
+                    key={columnIndex}
                     className={cn(
                       TABLE_CELL_SPACING_CLASS,
                       TABLE_BODY_CELL_TEXT_CLASSES,
@@ -88,7 +90,7 @@ export function StructuredTableBlock({
                         : TABLE_COLUMN_GAP_CLASS,
                     )}
                   >
-                    {row[columnIndex] ?? ""}
+                    {renderTableCell(row[columnIndex] ?? "")}
                   </td>
                 ))}
               </tr>

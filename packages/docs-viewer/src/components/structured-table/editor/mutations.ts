@@ -1,14 +1,21 @@
 "use client";
 
-export type TableData = { columns: string[]; rows: string[][] };
+import type { TableCell } from "@codecaine-ai/docs-model";
 
-function normalizeRow(row: string[], length: number, fill = ""): string[] {
+/**
+ * The editable grid's data shape. Cells (headers AND body) are docs-model
+ * `TableCell` values: a plain string when unmarked (canonical), a DeltaSpan[]
+ * when carrying inline marks. Structural fills stay the plain empty string.
+ */
+export type TableData = { columns: TableCell[]; rows: TableCell[][] };
+
+function normalizeRow(row: TableCell[], length: number, fill: TableCell = ""): TableCell[] {
   const next = row.slice(0, length);
   while (next.length < length) next.push(fill);
   return next;
 }
 
-function normalizeRows(rows: string[][], length: number): string[][] {
+function normalizeRows(rows: TableCell[][], length: number): TableCell[][] {
   return rows.map((row) => normalizeRow(row, length));
 }
 
@@ -27,7 +34,7 @@ export function addRow(data: TableData, index?: number): TableData {
   return { columns: [...data.columns], rows };
 }
 
-export function addColumn(data: TableData, index?: number, name = ""): TableData {
+export function addColumn(data: TableData, index?: number, name: TableCell = ""): TableData {
   const at = index ?? data.columns.length;
   if (!Number.isInteger(at) || at < 0 || at > data.columns.length) return data;
   const columns = [...data.columns];
@@ -140,7 +147,7 @@ export function updateCell(
   data: TableData,
   rowIndex: number,
   columnIndex: number,
-  value: string,
+  value: TableCell,
 ): TableData {
   if (!Number.isInteger(rowIndex) || rowIndex < 0 || rowIndex > data.rows.length - 1) {
     return data;
@@ -160,7 +167,7 @@ export function updateCell(
 export function updateHeader(
   data: TableData,
   columnIndex: number,
-  value: string,
+  value: TableCell,
 ): TableData {
   if (
     !Number.isInteger(columnIndex) ||

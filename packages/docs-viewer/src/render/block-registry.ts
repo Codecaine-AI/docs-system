@@ -10,6 +10,7 @@ import { descriptors as interactionSurfaceDescriptors } from "../components/inte
 import { descriptors as mermaidDescriptors } from "../components/mermaid/descriptor";
 import { descriptors as richTextDescriptors } from "../components/rich-text/descriptors";
 import { descriptors as sequenceDescriptors } from "../components/sequence/descriptor";
+import { descriptors as stateShapeDescriptors } from "../components/state-shape/descriptor";
 import { descriptors as structuredTableDescriptors } from "../components/structured-table/descriptor";
 
 export type DocBlockRenderContext = {
@@ -63,6 +64,7 @@ const COMPONENT_DESCRIPTORS: readonly DocBlockDescriptor[][] = [
   fileTreeDescriptors,
   structuredTableDescriptors,
   interactionSurfaceDescriptors,
+  stateShapeDescriptors,
   canvasDescriptors,
   sequenceDescriptors,
 ];

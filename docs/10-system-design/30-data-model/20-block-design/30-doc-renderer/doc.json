@@ -1,0 +1,254 @@
+{
+  "schemaVersion": 1,
+  "id": "dm-block-design-30-doc-renderer",
+  "title": "Doc renderer",
+  "root": "b-bdd-root",
+  "blocks": {
+    "b-bdd-root": {
+      "id": "b-bdd-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-bdd-intro-1",
+        "b-bdd-laidout-h-2",
+        "b-bdd-code-3",
+        "b-bdd-rule-h-4",
+        "b-bdd-schema-5",
+        "b-bdd-modes-6",
+        "b-bdd-tokens-7",
+        "b-bdd-why-h-8",
+        "b-bdd-why-components-9",
+        "b-bdd-why-survives-10"
+      ]
+    },
+    "b-bdd-intro-1": {
+      "id": "b-bdd-intro-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every type ships the component a human reads and edits. This page states what the doc renderer owes: schema state in, a rich, themable, defensive component out."
+        }
+      ],
+      "children": []
+    },
+    "b-bdd-laidout-h-2": {
+      "id": "b-bdd-laidout-h-2",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Structure"
+        }
+      ],
+      "children": []
+    },
+    "b-bdd-code-3": {
+      "id": "b-bdd-code-3",
+      "type": "code",
+      "props": {
+        "annotations": [
+          {
+            "lines": "4-7",
+            "label": "Defensive by contract",
+            "note": "The renderer re-checks its data; anything malformed renders the invalid-block placeholder — never a crash, never a guess."
+          }
+        ],
+        "language": "typescript"
+      },
+      "text": [
+        {
+          "insert": "// trimmed from packages/docs-viewer/src/components/structured-table/descriptor.tsx\nfunction structuredTableData(block: DocBlock): StructuredTableData | null {\n  const { columns, rows } = block.props;\n  if (!Array.isArray(columns) || columns.length === 0) return null;\n  if (!columns.every((col): col is string => typeof col === \"string\")) return null;\n  if (!Array.isArray(rows)) return null;\n  // ...null means: render invalidBlockPlaceholder instead\n}"
+        }
+      ],
+      "children": []
+    },
+    "b-bdd-rule-h-4": {
+      "id": "b-bdd-rule-h-4",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The rule"
+        }
+      ],
+      "children": []
+    },
+    "b-bdd-schema-5": {
+      "id": "b-bdd-schema-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Schema state only",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-bdd-schema-s1"
+      ]
+    },
+    "b-bdd-schema-s1": {
+      "id": "b-bdd-schema-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Nothing renders that the state schema does not declare; the renderer adds no state of its own."
+        }
+      ],
+      "children": []
+    },
+    "b-bdd-modes-6": {
+      "id": "b-bdd-modes-6",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Read and edit",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-bdd-modes-s1",
+        "b-bdd-modes-s2"
+      ]
+    },
+    "b-bdd-modes-s1": {
+      "id": "b-bdd-modes-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A read rendering for every surface, and — where the type edits in place — a node view with the type's own interactions."
+        }
+      ],
+      "children": []
+    },
+    "b-bdd-modes-s2": {
+      "id": "b-bdd-modes-s2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Structural behavior (drag, select, delete) comes from the editor for free; the renderer supplies only what is specific to the type."
+        }
+      ],
+      "children": []
+    },
+    "b-bdd-tokens-7": {
+      "id": "b-bdd-tokens-7",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Themed through tokens",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-bdd-tokens-s1"
+      ]
+    },
+    "b-bdd-tokens-s1": {
+      "id": "b-bdd-tokens-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Looks come from the component's theme knobs, resolved per theme — see "
+        },
+        {
+          "insert": "theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/50-theming"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-bdd-why-h-8": {
+      "id": "b-bdd-why-h-8",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why"
+        }
+      ],
+      "children": []
+    },
+    "b-bdd-why-components-9": {
+      "id": "b-bdd-why-components-9",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The human surface is components, not text",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-bdd-why-components-s1"
+      ]
+    },
+    "b-bdd-why-components-s1": {
+      "id": "b-bdd-why-components-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Rich rendering is the human half of the translation layer — the reason a table is a table and not a wall of pipes."
+        }
+      ],
+      "children": []
+    },
+    "b-bdd-why-survives-10": {
+      "id": "b-bdd-why-survives-10",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A bad block never takes the page down",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-bdd-why-survives-s1"
+      ]
+    },
+    "b-bdd-why-survives-s1": {
+      "id": "b-bdd-why-survives-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Defensive rendering isolates damage to one placeholder block; the document around it stays readable and editable."
+        }
+      ],
+      "children": []
+    }
+  }
+}

@@ -72,7 +72,7 @@ describe("projectToMarkdown — the all-block-type sample fixture", () => {
 
   it("projects a callout with kind winning over tone, greppable on '> **Decision'", () => {
     expect(markdown).toContain(
-      "> **Decision: Heads up** — Comments live in comments.json, never in doc.json.",
+      "> **Decision: Heads up** — Annotations live in annotations.json, never in doc.json.",
     );
     expect(markdown.match(/^> \*\*Decision/m)).not.toBeNull();
     // kind wins: the tone-derived label must not appear for this block.
@@ -112,6 +112,7 @@ describe("projectToMarkdown — the all-block-type sample fixture", () => {
       "**File-tree block surface**\n\n" +
         "```\n" +
         "file-tree.addEntry(path: string, note?: string, change?: string) -> props patch  # Append a path entry to the tree\n" +
+        "  path: string  # /-separated path\n" +
         "file-tree.updateEntry(path: string, newPath?: string) -> props patch  # Patch note/change/from, or rename via newPath\n" +
         "file-tree.removeEntry(path: string)\n" +
         "```",

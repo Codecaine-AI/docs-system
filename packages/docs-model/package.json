@@ -9,7 +9,7 @@
     ".": "./src/index.ts",
     "./doc-schema": "./src/doc-schema.ts",
     "./doc-ops": "./src/doc-ops.ts",
-    "./comments-schema": "./src/comments-schema.ts",
+    "./annotations-schema": "./src/annotations-schema.ts",
     "./delta-markdown": "./src/delta-markdown.ts",
     "./project-markdown": "./src/project-markdown.ts",
     "./markdown-to-delta": "./src/markdown-to-delta.ts",

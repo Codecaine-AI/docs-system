@@ -807,7 +807,20 @@
       "props": {},
       "text": [
         {
-          "insert": "Defining the identity of the software — exactly, durably, in a form both kinds of readers consume well — is the work this system is built for."
+          "insert": "Defining the identity of the software"
+        }
+      ],
+      "children": [
+        "pm-mrp8188r-2836-i017ic-gloss"
+      ]
+    },
+    "pm-mrp8188r-2836-i017ic-gloss": {
+      "id": "pm-mrp8188r-2836-i017ic-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Exactly, durably, in a form both kinds of readers consume well — is the work this system is built for."
         }
       ],
       "children": []

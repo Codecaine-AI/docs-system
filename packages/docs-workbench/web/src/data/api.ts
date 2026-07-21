@@ -2,11 +2,11 @@ import type { DocsTreeNode, DraftLockKind, AcquireDraftLockResult } from "@codec
 import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import type { DocOp } from "@codecaine-ai/docs-model/doc-ops";
 import type {
-  CommentIntent,
-  CommentTarget,
-  CommentsDocument,
-  DocComment,
-} from "@codecaine-ai/docs-model/comments-schema";
+  AnnotationIntent,
+  AnnotationTarget,
+  AnnotationsDocument,
+  DocAnnotation,
+} from "@codecaine-ai/docs-model/annotations-schema";
 
 import { getSessionId } from "./session";
 
@@ -14,7 +14,7 @@ import { getSessionId } from "./session";
  * Data layer for the standalone docs workbench, with two build-time variants:
  *
  *  - serve mode (IS_STATIC === false): the full read+write `/api/*` surface
- *    of @codecaine-ai/docs-server (ops with hash preconditions, comments,
+ *    of @codecaine-ai/docs-server (ops with hash preconditions, annotations,
  *    draft locks, undo, SSE change events).
  *  - static/export mode (IS_STATIC === true): fetches the pregenerated JSON
  *    the exporter emitted under `data/` (tree.json, per-bundle snapshots,
@@ -40,8 +40,8 @@ export type BundlePayload = {
   document_path: string;
   doc: unknown;
   doc_hash: string;
-  comments: CommentsDocument | null;
-  comments_hash: string | null;
+  annotations: AnnotationsDocument | null;
+  annotations_hash: string | null;
 };
 
 export type CanvasPayload = {
@@ -247,28 +247,28 @@ export async function applyDocOps(
 }
 
 // ---------------------------------------------------------------------------
-// Comments (serve only)
+// Annotations (serve only)
 // ---------------------------------------------------------------------------
 
-export type CommentsPayload = { comments: CommentsDocument; hash: string | null };
+export type AnnotationsPayload = { annotations: AnnotationsDocument; hash: string | null };
 
-export async function getComments(path: string): Promise<CommentsPayload> {
-  assertWritable("Loading comments");
-  return fetchJson(`api/comments?path=${encodeURIComponent(bundlePathOf(path))}`);
+export async function getAnnotations(path: string): Promise<AnnotationsPayload> {
+  assertWritable("Loading annotations");
+  return fetchJson(`api/annotations?path=${encodeURIComponent(bundlePathOf(path))}`);
 }
 
-export async function addComment(
+export async function addAnnotation(
   path: string,
   input: {
-    target: CommentTarget;
+    target: AnnotationTarget;
     body: string;
-    intent: CommentIntent;
+    intent: AnnotationIntent;
     author: string;
     expectedHash?: string | null;
   },
-): Promise<{ comment: DocComment; comments: CommentsDocument; hash: string }> {
-  assertWritable("Commenting");
-  return postJson(`api/comments`, {
+): Promise<{ annotation: DocAnnotation; annotations: AnnotationsDocument; hash: string }> {
+  assertWritable("Annotating");
+  return postJson(`api/annotations`, {
     path: bundlePathOf(path),
     target: input.target,
     body: input.body,
@@ -279,13 +279,13 @@ export async function addComment(
   });
 }
 
-export async function resolveComment(
+export async function resolveAnnotation(
   path: string,
-  commentId: string,
+  annotationId: string,
   expectedHash?: string | null,
-): Promise<{ comments: CommentsDocument; hash: string }> {
-  assertWritable("Resolving comments");
-  return postJson(`api/comments/${encodeURIComponent(commentId)}/resolve`, {
+): Promise<{ annotations: AnnotationsDocument; hash: string }> {
+  assertWritable("Resolving annotations");
+  return postJson(`api/annotations/${encodeURIComponent(annotationId)}/resolve`, {
     path: bundlePathOf(path),
     expected_hash: expectedHash ?? undefined,
     session_id: getSessionId(),

@@ -1,6 +1,8 @@
-Docs point at code with typed source references; code never points back. This page states the source-link object, how paths are written, and why the docs side pays all of the maintenance.
+Docs point at code with typed source references; code never points back. 
 
-## How it's laid out
+This page states the source-link object, how paths are written, and why the docs side pays all of the maintenance.
+
+## Structure
 
 ```json
 {
@@ -47,7 +49,9 @@ Docs point at code with typed source references; code never points back. This pa
 
   - When code moves or renames, the doc updates; `docs links check` reports references whose target no longer exists.
 
-  - No generated navigation scripts — list files and explain briefly.
+  - No generated navigation scripts
+
+    - List files and explain briefly.
 
 What the code itself carries — file headers, docstrings, inline comments — is in-code docs's subject.
 

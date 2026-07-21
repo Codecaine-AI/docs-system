@@ -115,10 +115,43 @@ describe("StructuredTableBlock", () => {
     expect(screen.queryByText("compact")).toBeNull();
   });
 
+  it("renders span cells with the shared inline mark elements", () => {
+    const { container } = render(
+      <StructuredTableBlock
+        id="tbl-marks"
+        columns={[[{ insert: "Stage", attributes: { bold: true } }], "Owner"]}
+        rows={[
+          [
+            [
+              { insert: "Al", attributes: { italic: true } },
+              { insert: "pha", attributes: { strike: true } },
+            ],
+            [{ insert: "npm i", attributes: { code: true } }],
+          ],
+          [[{ insert: "docs", attributes: { link: "https://example.com" } }], "plain"],
+        ]}
+      />,
+    );
+
+    expect(container.querySelector("thead strong")?.textContent).toBe("Stage");
+    expect(container.querySelector("tbody em")?.textContent).toBe("Al");
+    expect(container.querySelector("tbody del")?.textContent).toBe("pha");
+    const code = container.querySelector("tbody code")!;
+    expect(code.textContent).toBe("npm i");
+    expect(code.className.length).toBeGreaterThan(0);
+    const link = container.querySelector("tbody a")!;
+    expect(link.getAttribute("href")).toBe("https://example.com");
+    expect(link.textContent).toBe("docs");
+    expect(link.className).toContain("underline");
+    // Plain cells still render as raw text, no wrappers.
+    expect(screen.getByText("plain").tagName).toBe("TD");
+  });
+
   it("exports the label and an agent description covering the structured props", () => {
     expect(STRUCTURED_TABLE_LABEL).toBe("Structured Table");
-    expect(STRUCTURED_TABLE_AGENT_DESCRIPTION).toContain("columns: string[]");
-    expect(STRUCTURED_TABLE_AGENT_DESCRIPTION).toContain("rows: string[][]");
+    expect(STRUCTURED_TABLE_AGENT_DESCRIPTION).toContain("columns: TableCell[]");
+    expect(STRUCTURED_TABLE_AGENT_DESCRIPTION).toContain("rows: TableCell[][]");
+    expect(STRUCTURED_TABLE_AGENT_DESCRIPTION).toContain("DeltaSpan[]");
     expect(STRUCTURED_TABLE_AGENT_DESCRIPTION).toContain("density");
   });
 });

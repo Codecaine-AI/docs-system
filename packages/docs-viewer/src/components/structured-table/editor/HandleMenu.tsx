@@ -208,7 +208,7 @@ export function HandleMenu({
           type="button"
           disabled={item.disabled}
           onClick={() => onApply(item)}
-          className="flex w-full items-center rounded px-2 py-1.5 text-left hover:bg-muted disabled:cursor-default disabled:opacity-40 disabled:hover:bg-transparent"
+          className="flex w-full items-center rounded-sm px-2 py-1.5 text-left hover:bg-muted disabled:cursor-default disabled:opacity-40 disabled:hover:bg-transparent"
         >
           {item.label}
         </button>

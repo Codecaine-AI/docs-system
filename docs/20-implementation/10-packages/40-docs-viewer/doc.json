@@ -312,7 +312,7 @@
       },
       "text": [
         {
-          "insert": "Precise targeting and comments. "
+          "insert": "Precise targeting and annotations. "
         },
         {
           "insert": "DocTargetingLayer",
@@ -347,7 +347,7 @@
           }
         },
         {
-          "insert": " provides Plannotator-style comment composition while leaving persistence callbacks to the host."
+          "insert": " provides Plannotator-style annotation composition while leaving persistence callbacks to the host."
         }
       ],
       "children": []

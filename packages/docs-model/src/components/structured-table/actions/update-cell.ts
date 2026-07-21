@@ -5,6 +5,7 @@ import type { DocValidationIssue } from "../../../doc-schema";
 import { defineComponentAction } from "../../define";
 import {
   normalizeRow,
+  parseTableCellInput,
   readTableColumns,
   readTableRows,
   resolveColumn,
@@ -30,7 +31,10 @@ export const updateCell = defineComponentAction({
           description: "Column position — exactly one of column/columnIndex.",
         }),
       ),
-      value: Type.String({ description: "New cell value." }),
+      value: Type.String({
+        description:
+          "New cell value, as inline markdown (bold/italic/strike/code/links); plain text stays plain.",
+      }),
     },
   ),
   apply(block, params) {
@@ -48,7 +52,7 @@ export const updateCell = defineComponentAction({
 
     const next = rows.map((row) => [...row]);
     const row = normalizeRow(next[params.rowIndex], columns.length);
-    row[columnIndex as number] = params.value;
+    row[columnIndex as number] = parseTableCellInput(params.value);
     next[params.rowIndex] = row;
     return { ok: true, props: { rows: next } };
   },

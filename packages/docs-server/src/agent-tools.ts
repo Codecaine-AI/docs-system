@@ -1,5 +1,5 @@
 /**
- * Typed action tools — the ONLY mutation authority for docs/canvas/comments.
+ * Typed action tools — the ONLY mutation authority for docs/canvas/annotations.
  * Host UI routes AND agent runtimes converge on these exact functions, so
  * every caller gets the same preconditions (content-hash check + draft-lock
  * check), the same per-path serialization (`withPathLock`), the same atomic
@@ -19,7 +19,7 @@ import { readFile, stat } from "node:fs/promises";
 import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import type { DocOp } from "@codecaine-ai/docs-model/doc-ops";
 import { projectToMarkdown } from "@codecaine-ai/docs-model/project-markdown";
-import type { CommentsDocument, DocComment } from "@codecaine-ai/docs-model/comments-schema";
+import type { AnnotationsDocument, DocAnnotation } from "@codecaine-ai/docs-model/annotations-schema";
 import { fitContainerToChildren } from "@codecaine-ai/canvas/geometry";
 import {
   validateInteractiveCanvasDocument,
@@ -45,10 +45,10 @@ import {
   resolveSequenceSidecarRootRelativeWritePath,
 } from "./confine";
 import {
-  addBundleComment,
+  addBundleAnnotation,
   applyDocOpsToBundle,
-  getBundleComments,
-  resolveBundleComment,
+  getBundleAnnotations,
+  resolveBundleAnnotation,
   type ApplyDocOpsResult,
 } from "./doc-ops";
 import {
@@ -662,41 +662,44 @@ export async function undo_patch(docsRoot: string, patchId: string): Promise<Und
 }
 
 // ---------------------------------------------------------------------------
-// comment_list / comment_resolve
+// annotation_list / annotation_resolve
 // ---------------------------------------------------------------------------
 
-export type CommentListResult =
-  | { ok: true; comments: DocComment[]; hash: string | null }
+export type AnnotationListResult =
+  | { ok: true; annotations: DocAnnotation[]; hash: string | null }
   | { ok: false; status: number; detail: string };
 
-/** `comment_list(docPath)` — pass-through to `getBundleComments`. */
-export async function comment_list(docsRoot: string, docPath: string): Promise<CommentListResult> {
-  const result = await getBundleComments(docsRoot, docPath);
+/** `annotation_list(docPath)` — pass-through to `getBundleAnnotations`. */
+export async function annotation_list(
+  docsRoot: string,
+  docPath: string,
+): Promise<AnnotationListResult> {
+  const result = await getBundleAnnotations(docsRoot, docPath);
   if (!result.ok) return result;
-  return { ok: true, comments: result.comments.comments, hash: result.hash };
+  return { ok: true, annotations: result.annotations.annotations, hash: result.hash };
 }
 
-export type CommentResolveResult =
-  | { ok: true; comments: CommentsDocument; hash: string }
+export type AnnotationResolveResult =
+  | { ok: true; annotations: AnnotationsDocument; hash: string }
   | { ok: false; status: number; detail: string; current_hash?: string; held_by?: DraftLockInfo };
 
 /**
- * `comment_resolve(commentId, response?)` — pass-through to
- * `resolveBundleComment`. `response` (an optional agent/human note on why
- * the comment resolved) is persisted onto the comment's additive
+ * `annotation_resolve(annotationId, response?)` — pass-through to
+ * `resolveBundleAnnotation`. `response` (an optional agent/human note on why
+ * the annotation resolved) is persisted onto the annotation's additive
  * `resolution` field alongside the status flip.
  */
-export async function comment_resolve(
+export async function annotation_resolve(
   docsRoot: string,
   docPath: string,
-  commentId: string,
+  annotationId: string,
   expectedHash: string | undefined,
   actor?: string,
   response?: string,
-): Promise<CommentResolveResult> {
-  return resolveBundleComment(docsRoot, docPath, commentId, expectedHash, actor, response);
+): Promise<AnnotationResolveResult> {
+  return resolveBundleAnnotation(docsRoot, docPath, annotationId, expectedHash, actor, response);
 }
 
 // Re-export so callers only need to import from this one module for the
 // whole typed-tool surface.
-export { addBundleComment };
+export { addBundleAnnotation };

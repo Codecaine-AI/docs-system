@@ -5,12 +5,18 @@ import { useState } from "react";
 import {
   DEFAULT_STYLE_RAIL_SETTINGS,
   StyleRail,
+  applyStyleRailVars,
   loadStyleRailSettings,
   normalizeSettings,
   saveStyleRailSettings,
   styleRailVars,
   type StyleRailSettings,
 } from "../shell/StyleRail";
+import {
+  THEME_TOKEN_REGISTRY,
+  compileThemeCss,
+  readThemeDefinition,
+} from "../theme/theme-folders";
 
 const STORAGE_KEY = "docs-style-rail-settings.v1";
 
@@ -403,10 +409,33 @@ describe("style rail sidebar settings", () => {
       font: "sans",
       fontSize: 14,
       padding: 4,
+      guides: true,
+      guideColor: null,
+      guideWidth: 1,
+      guideOpacity: 0.6,
     });
     expect(normalizeSettings({ accent: "purple" }).sidebar).toEqual(
       DEFAULT_STYLE_RAIL_SETTINGS.sidebar,
     );
+    expect(
+      normalizeSettings({
+        sidebar: {
+          textColor: "#123456",
+          font: "mono",
+          fontSize: 16,
+          padding: 8,
+        },
+      }).sidebar,
+    ).toEqual({
+      textColor: "#123456",
+      font: "mono",
+      fontSize: 16,
+      padding: 8,
+      guides: true,
+      guideColor: null,
+      guideWidth: 1,
+      guideOpacity: 0.6,
+    });
 
     expect(
       normalizeSettings({
@@ -415,6 +444,10 @@ describe("style rail sidebar settings", () => {
           font: "serif",
           fontSize: 99,
           padding: -1,
+          guides: false,
+          guideColor: "#ABCDEF",
+          guideWidth: 99,
+          guideOpacity: -1,
         },
       }).sidebar,
     ).toEqual({
@@ -422,6 +455,10 @@ describe("style rail sidebar settings", () => {
       font: "serif",
       fontSize: 20,
       padding: 0,
+      guides: false,
+      guideColor: "#abcdef",
+      guideWidth: 4,
+      guideOpacity: 0.05,
     });
 
     expect(
@@ -431,6 +468,10 @@ describe("style rail sidebar settings", () => {
           font: "display",
           fontSize: 0,
           padding: 99,
+          guides: "false",
+          guideColor: "not-a-color",
+          guideWidth: 0,
+          guideOpacity: 99,
         },
       }).sidebar,
     ).toEqual({
@@ -438,6 +479,10 @@ describe("style rail sidebar settings", () => {
       font: "sans",
       fontSize: 10,
       padding: 16,
+      guides: true,
+      guideColor: null,
+      guideWidth: 1,
+      guideOpacity: 1,
     });
   });
 
@@ -448,11 +493,19 @@ describe("style rail sidebar settings", () => {
       font: defaultVars["--docs-sidebar-font"],
       fontSize: defaultVars["--docs-sidebar-font-size"],
       padding: defaultVars["--docs-sidebar-item-py"],
+      guideDisplay: defaultVars["--docs-sidebar-guide-display"],
+      guideColor: defaultVars["--docs-sidebar-guide-color"],
+      guideWidth: defaultVars["--docs-sidebar-guide-width"],
+      guideOpacity: defaultVars["--docs-sidebar-guide-opacity"],
     }).toEqual({
       textColor: null,
       font: null,
       fontSize: null,
       padding: null,
+      guideDisplay: null,
+      guideColor: null,
+      guideWidth: null,
+      guideOpacity: null,
     });
 
     const vars = styleRailVars(
@@ -461,6 +514,10 @@ describe("style rail sidebar settings", () => {
         font: "mono",
         fontSize: 17,
         padding: 9,
+        guides: false,
+        guideColor: "#654321",
+        guideWidth: 2.5,
+        guideOpacity: 0.35,
       }),
     );
     expect(vars["--docs-sidebar-item-fg"]).toBe("#123456");
@@ -469,9 +526,13 @@ describe("style rail sidebar settings", () => {
     );
     expect(vars["--docs-sidebar-font-size"]).toBe("17px");
     expect(vars["--docs-sidebar-item-py"]).toBe("9px");
+    expect(vars["--docs-sidebar-guide-display"]).toBe("none");
+    expect(vars["--docs-sidebar-guide-color"]).toBe("#654321");
+    expect(vars["--docs-sidebar-guide-width"]).toBe("2.5px");
+    expect(vars["--docs-sidebar-guide-opacity"]).toBe("0.35");
   });
 
-  it("renders the Sidebar section and its five controls in the Layout tab", () => {
+  it("renders the Sidebar section and its nine controls in the Layout tab", () => {
     render(<RailHarness />);
     fireEvent.click(screen.getByRole("button", { name: "Layout" }));
     const sidebarToggle = screen.getByRole("button", { name: "Sidebar" });
@@ -500,10 +561,108 @@ describe("style rail sidebar settings", () => {
     expect(padding).toHaveProperty("max", "16");
     expect(padding).toHaveProperty("step", "1");
     expect(padding).toHaveProperty("value", "4");
+
+    const indentGuides = sidebarSection.getByLabelText("Indent guides") as HTMLInputElement;
+    expect(indentGuides).toHaveProperty("type", "checkbox");
+    expect(indentGuides).toHaveProperty("checked", true);
+    expect(sidebarSection.getByText("Guide color")).toBeTruthy();
+
+    const guideWidth = sidebarSection.getByLabelText(/Guide width/) as HTMLInputElement;
+    expect(guideWidth).toHaveProperty("min", "1");
+    expect(guideWidth).toHaveProperty("max", "4");
+    expect(guideWidth).toHaveProperty("step", "0.5");
+    expect(guideWidth).toHaveProperty("value", "1");
+
+    const guideOpacity = sidebarSection.getByLabelText(/Guide opacity/) as HTMLInputElement;
+    expect(guideOpacity).toHaveProperty("min", "0.05");
+    expect(guideOpacity).toHaveProperty("max", "1");
+    expect(guideOpacity).toHaveProperty("step", "0.05");
+    expect(guideOpacity).toHaveProperty("value", "0.6");
   });
 });
 
 describe("style rail component token kinds", () => {
+  it("removes radius properties when their knobs sit at defaults", () => {
+    const root = document.documentElement;
+    for (const property of [
+      "--radius",
+      "--docs-highlight-radius",
+      "--docs-dropcursor-radius",
+      "--docs-table-handle-radius",
+    ]) {
+      root.style.setProperty(property, "99px");
+    }
+
+    applyStyleRailVars({
+      ...DEFAULT_STYLE_RAIL_SETTINGS,
+      components: {
+        surfaces: { radius: "8px" },
+        "structured-table": { handleRadius: "3px" },
+      },
+    });
+
+    expect(root.style.getPropertyValue("--radius")).toBe("");
+    expect(root.style.getPropertyValue("--docs-highlight-radius")).toBe("");
+    expect(root.style.getPropertyValue("--docs-dropcursor-radius")).toBe("");
+    expect(root.style.getPropertyValue("--docs-table-handle-radius")).toBe("");
+  });
+
+  it("keeps non-default section overrides when component tokens are absent or default", () => {
+    const settings: StyleRailSettings = {
+      ...DEFAULT_STYLE_RAIL_SETTINGS,
+      layout: {
+        ...DEFAULT_STYLE_RAIL_SETTINGS.layout,
+        radius: 12,
+        borderStrength: 1.5,
+      },
+      components: {},
+    };
+    const vars = styleRailVars(settings);
+
+    expect(vars["--radius"]).toBe("12px");
+    expect(vars["--border"]).toContain("color-mix(");
+    expect(
+      styleRailVars({
+        ...settings,
+        components: { surfaces: { radius: "8px" } },
+      })["--radius"],
+    ).toBe("12px");
+
+    applyStyleRailVars(settings);
+    expect(document.documentElement.style.getPropertyValue("--radius")).toBe("12px");
+    expect(document.documentElement.style.getPropertyValue("--border")).toContain("color-mix(");
+    applyStyleRailVars(DEFAULT_STYLE_RAIL_SETTINGS);
+  });
+
+  it("loads and compiles the global surface radius token", () => {
+    expect(THEME_TOKEN_REGISTRY.surfaces.radius).toEqual({
+      vars: ["--radius"],
+      kind: "length",
+      min: 0,
+      max: 16,
+      step: 1,
+      unit: "px",
+      defaultValue: 8,
+    });
+
+    const theme = readThemeDefinition(
+      "rounded",
+      {
+        name: "Rounded",
+        components: {
+          surfaces: { radius: { light: "4px", dark: "12px" } },
+        },
+      },
+      "repo",
+    );
+
+    expect(theme?.components.surfaces).toEqual({
+      radius: { light: "4px", dark: "12px" },
+    });
+    expect(compileThemeCss(theme!)).toContain("--radius: 4px;");
+    expect(compileThemeCss(theme!)).toContain("--radius: 12px;");
+  });
+
   it("normalizes and applies color, length, and number overrides", () => {
     const settings = normalizeSettings({
       components: {
@@ -623,5 +782,439 @@ describe("style rail component token kinds", () => {
       "--docs-table-handle-offset": "16px",
       "--docs-table-selection-pad": "4px",
     });
+  });
+});
+
+describe("style rail code block tokens", () => {
+  it("registers the five sidebar-facing code color tokens", () => {
+    const code = THEME_TOKEN_REGISTRY.code;
+    expect(code.languageFg).toEqual({ vars: ["--docs-code-lang-fg"], kind: "color" });
+    expect(code.annotationAccent).toEqual({
+      vars: ["--docs-code-annotation-accent"],
+      kind: "color",
+    });
+    expect(code.gutterFg).toEqual({ vars: ["--docs-code-gutter-fg"], kind: "color" });
+    expect(code.gutterBg).toEqual({ vars: ["--docs-code-gutter-bg"], kind: "color" });
+    expect(code.zebra).toEqual({ vars: ["--docs-code-zebra"], kind: "color" });
+  });
+
+  it("registers the rule and zebra-intensity tokens with structured-table kinds", () => {
+    const code = THEME_TOKEN_REGISTRY.code;
+    expect(code.rule).toEqual({ vars: ["--docs-code-rule"], kind: "color" });
+    expect(code.ruleWidth).toEqual({
+      vars: ["--docs-code-rule-width"],
+      kind: "length",
+      min: 0,
+      max: 4,
+      step: 0.5,
+      unit: "px",
+      defaultValue: 1,
+    });
+    expect(code.ruleOpacity).toEqual({
+      vars: ["--docs-code-rule-opacity"],
+      kind: "number",
+      min: 0,
+      max: 1,
+      step: 0.05,
+      defaultValue: 0.5,
+    });
+    expect(code.zebraOpacity).toEqual({
+      vars: ["--docs-code-zebra-opacity"],
+      kind: "number",
+      min: 0,
+      max: 1,
+      step: 0.05,
+      defaultValue: 1,
+    });
+  });
+
+  it("normalizes and applies rule width/opacity and zebra opacity overrides", () => {
+    const settings = normalizeSettings({
+      components: {
+        code: {
+          rule: "#123123",
+          ruleWidth: "2px",
+          ruleOpacity: "0.35",
+          zebraOpacity: "0.7",
+          badRuleWidth: "9px",
+        },
+      },
+    });
+
+    expect(settings.components).toEqual({
+      code: {
+        rule: "#123123",
+        ruleWidth: "2px",
+        ruleOpacity: "0.35",
+        zebraOpacity: "0.7",
+      },
+    });
+    expect(styleRailVars(settings)).toMatchObject({
+      "--docs-code-rule": "#123123",
+      "--docs-code-rule-width": "2px",
+      "--docs-code-rule-opacity": "0.35",
+      "--docs-code-zebra-opacity": "0.7",
+    });
+
+    // Out-of-range values are dropped, mirroring structured-table behavior.
+    expect(
+      normalizeSettings({
+        components: { code: { ruleWidth: "9px", ruleOpacity: "2" } },
+      }).components,
+    ).toEqual({});
+  });
+
+  it("preserves rule/zebra unit-bearing values through localStorage", () => {
+    const settings = normalizeSettings({
+      components: {
+        code: {
+          ruleWidth: "1.5px",
+          zebraOpacity: "0.6",
+        },
+      },
+    });
+
+    saveStyleRailSettings(settings);
+    expect(loadStyleRailSettings().components.code).toEqual({
+      ruleWidth: "1.5px",
+      zebraOpacity: "0.6",
+    });
+  });
+
+  it("normalizes and applies code color overrides onto their CSS vars", () => {
+    const settings = normalizeSettings({
+      components: {
+        code: {
+          languageFg: "#112233",
+          annotationAccent: "#0EA5E9",
+          gutterFg: "#445566",
+          gutterBg: "#778899",
+          zebra: "#AABBCC",
+          unknown: "#000000",
+        },
+      },
+    });
+
+    expect(settings.components).toEqual({
+      code: {
+        languageFg: "#112233",
+        annotationAccent: "#0ea5e9",
+        gutterFg: "#445566",
+        gutterBg: "#778899",
+        zebra: "#aabbcc",
+      },
+    });
+    expect(styleRailVars(settings)).toMatchObject({
+      "--docs-code-lang-fg": "#112233",
+      "--docs-code-annotation-accent": "#0ea5e9",
+      "--docs-code-gutter-fg": "#445566",
+      "--docs-code-gutter-bg": "#778899",
+      "--docs-code-zebra": "#aabbcc",
+    });
+  });
+
+  it("preserves code color overrides through localStorage", () => {
+    const settings = normalizeSettings({
+      components: {
+        code: {
+          languageFg: "#112233",
+          zebra: "#aabbcc",
+        },
+      },
+    });
+
+    saveStyleRailSettings(settings);
+    expect(loadStyleRailSettings().components.code).toEqual({
+      languageFg: "#112233",
+      zebra: "#aabbcc",
+    });
+  });
+
+  it("renders the code component color knobs with their sidebar labels", () => {
+    render(<RailHarness />);
+    fireEvent.click(screen.getByRole("button", { name: "Components" }));
+    const codeToggle = screen.getByRole("button", { name: "Code" });
+    fireEvent.click(codeToggle);
+    const codeSection = within(codeToggle.closest("section")!);
+
+    for (const label of [
+      "Language badge",
+      "Annotation accent",
+      "Line numbers",
+      "Gutter background",
+      "Zebra stripe",
+      "Rules",
+    ]) {
+      expect(codeSection.getByText(label)).toBeTruthy();
+    }
+  });
+
+  it("renders metadata-driven code rule/zebra sliders and stores their units", () => {
+    render(<RailHarness />);
+    fireEvent.click(screen.getByRole("button", { name: "Components" }));
+    fireEvent.click(screen.getByRole("button", { name: "Code" }));
+
+    const width = screen.getByLabelText(/Rule width/) as HTMLInputElement;
+    const opacity = screen.getByLabelText(/Rule opacity/) as HTMLInputElement;
+    const zebraOpacity = screen.getByLabelText(/Zebra opacity/) as HTMLInputElement;
+    expect(width).toHaveProperty("min", "0");
+    expect(width).toHaveProperty("max", "4");
+    expect(width).toHaveProperty("step", "0.5");
+    expect(width).toHaveProperty("value", "1");
+    expect(opacity).toHaveProperty("min", "0");
+    expect(opacity).toHaveProperty("max", "1");
+    expect(opacity).toHaveProperty("step", "0.05");
+    expect(opacity).toHaveProperty("value", "0.5");
+    expect(zebraOpacity).toHaveProperty("min", "0");
+    expect(zebraOpacity).toHaveProperty("max", "1");
+    expect(zebraOpacity).toHaveProperty("step", "0.05");
+    expect(zebraOpacity).toHaveProperty("value", "1");
+
+    fireEvent.change(width, { target: { value: "2" } });
+    fireEvent.change(zebraOpacity, { target: { value: "0.6" } });
+    expect(JSON.parse(screen.getByTestId("component-settings").textContent ?? "null")).toEqual({
+      code: {
+        ruleWidth: "2px",
+        zebraOpacity: "0.6",
+      },
+    });
+  });
+});
+
+describe("style rail shared linking tokens", () => {
+  it("registers the linked-panels tokens once, under the shared linking entry", () => {
+    const linking = THEME_TOKEN_REGISTRY.linking;
+    expect(linking.zebra).toEqual({ vars: ["--docs-zebra"], kind: "color" });
+    expect(linking.highlight).toEqual({ vars: ["--docs-link-bg"], kind: "color" });
+    expect(linking.pin).toEqual({ vars: ["--docs-link-pin"], kind: "color" });
+  });
+
+  it("normalizes and applies linking color overrides onto their CSS vars", () => {
+    const settings = normalizeSettings({
+      components: {
+        linking: {
+          zebra: "#AABBCC",
+          highlight: "#EEE6D2",
+          pin: "#B48F2E",
+          unknown: "#000000",
+        },
+      },
+    });
+
+    expect(settings.components).toEqual({
+      linking: {
+        zebra: "#aabbcc",
+        highlight: "#eee6d2",
+        pin: "#b48f2e",
+      },
+    });
+    expect(styleRailVars(settings)).toMatchObject({
+      "--docs-zebra": "#aabbcc",
+      "--docs-link-bg": "#eee6d2",
+      "--docs-link-pin": "#b48f2e",
+    });
+  });
+
+  it("renders the Linked panels knobs with their sidebar labels", () => {
+    render(<RailHarness />);
+    fireEvent.click(screen.getByRole("button", { name: "Components" }));
+    const linkingToggle = screen.getByRole("button", { name: "Linked panels" });
+    fireEvent.click(linkingToggle);
+    const linkingSection = within(linkingToggle.closest("section")!);
+
+    for (const label of ["Zebra stripe", "Link highlight", "Pin & rail"]) {
+      expect(linkingSection.getByText(label)).toBeTruthy();
+    }
+  });
+});
+
+describe("style rail interaction-surface tokens", () => {
+  it("registers every restyled interaction-surface var under the interaction-surface entry", () => {
+    const entry = THEME_TOKEN_REGISTRY["interaction-surface"];
+    expect(entry.border).toEqual({ vars: ["--docs-interaction-border"], kind: "color" });
+    expect(entry.bg).toEqual({ vars: ["--docs-interaction-bg"], kind: "color" });
+    expect(entry.rule).toEqual({ vars: ["--docs-interaction-rule"], kind: "color" });
+    expect(entry.headerBg).toEqual({ vars: ["--docs-interaction-header-bg"], kind: "color" });
+    expect(entry.headerFg).toEqual({ vars: ["--docs-interaction-header-fg"], kind: "color" });
+    expect(entry.sigName).toEqual({ vars: ["--docs-interaction-sig-name"], kind: "color" });
+    expect(entry.sigType).toEqual({ vars: ["--docs-interaction-sig-type"], kind: "color" });
+    expect(entry.sigPunct).toEqual({ vars: ["--docs-interaction-sig-punct"], kind: "color" });
+    expect(entry.noteName).toEqual({ vars: ["--docs-interaction-note-name"], kind: "color" });
+    expect(entry.noteType).toEqual({ vars: ["--docs-interaction-note-type"], kind: "color" });
+    expect(entry.noteFg).toEqual({ vars: ["--docs-interaction-note-fg"], kind: "color" });
+    expect(entry.childRule).toEqual({ vars: ["--docs-interaction-child-rule"], kind: "color" });
+    expect(entry.rowPad).toEqual({
+      vars: ["--docs-interaction-row-pad"],
+      kind: "length",
+      min: 4,
+      max: 16,
+      step: 1,
+      unit: "px",
+      defaultValue: 8,
+    });
+    expect(entry.opGap).toEqual({
+      vars: ["--docs-interaction-op-gap"],
+      kind: "length",
+      min: 6,
+      max: 28,
+      step: 1,
+      unit: "px",
+      defaultValue: 14,
+    });
+  });
+
+  it("normalizes and applies interaction-surface overrides onto their CSS vars", () => {
+    const settings = normalizeSettings({
+      components: {
+        "interaction-surface": {
+          rule: "#112233",
+          headerBg: "#AABBCC",
+          sigName: "#0E7490",
+          noteFg: "#445566",
+          childRule: "#778899",
+          rowPad: "10px",
+          opGap: 20,
+          unknown: "#000000",
+        },
+      },
+    });
+
+    expect(settings.components).toEqual({
+      "interaction-surface": {
+        rule: "#112233",
+        headerBg: "#aabbcc",
+        sigName: "#0e7490",
+        noteFg: "#445566",
+        childRule: "#778899",
+        rowPad: "10px",
+        opGap: "20px",
+      },
+    });
+    expect(styleRailVars(settings)).toMatchObject({
+      "--docs-interaction-rule": "#112233",
+      "--docs-interaction-header-bg": "#aabbcc",
+      "--docs-interaction-sig-name": "#0e7490",
+      "--docs-interaction-note-fg": "#445566",
+      "--docs-interaction-child-rule": "#778899",
+      "--docs-interaction-row-pad": "10px",
+      "--docs-interaction-op-gap": "20px",
+    });
+  });
+
+  it("renders the Interaction surface knobs with their sidebar labels", () => {
+    render(<RailHarness />);
+    fireEvent.click(screen.getByRole("button", { name: "Components" }));
+    const toggle = screen.getByRole("button", { name: "Interaction surface" });
+    fireEvent.click(toggle);
+    const section = within(toggle.closest("section")!);
+
+    for (const label of [
+      "Border",
+      "Background",
+      "Rules",
+      "Header background",
+      "Header text",
+      "Signature name",
+      "Signature type",
+      "Signature punctuation",
+      "Note name",
+      "Note type",
+      "Note text",
+      "Child rule",
+      "Row padding",
+      "Card gap",
+    ]) {
+      expect(section.getByText(label)).toBeTruthy();
+    }
+
+    const rowPad = section.getByLabelText(/Row padding/) as HTMLInputElement;
+    expect(rowPad).toHaveProperty("min", "4");
+    expect(rowPad).toHaveProperty("max", "16");
+    expect(rowPad).toHaveProperty("value", "8");
+    const opGap = section.getByLabelText(/Card gap/) as HTMLInputElement;
+    expect(opGap).toHaveProperty("min", "6");
+    expect(opGap).toHaveProperty("max", "28");
+    expect(opGap).toHaveProperty("value", "14");
+  });
+});
+
+describe("style rail state-shape tokens", () => {
+  it("registers every restyled state-shape var under the state-shape entry", () => {
+    const entry = THEME_TOKEN_REGISTRY["state-shape"];
+    expect(entry.border).toEqual({ vars: ["--docs-shape-border"], kind: "color" });
+    expect(entry.bg).toEqual({ vars: ["--docs-shape-bg"], kind: "color" });
+    expect(entry.name).toEqual({ vars: ["--docs-shape-name"], kind: "color" });
+    expect(entry.type).toEqual({ vars: ["--docs-shape-type"], kind: "color" });
+    expect(entry.muted).toEqual({ vars: ["--docs-shape-muted"], kind: "color" });
+    expect(entry.rule).toEqual({ vars: ["--docs-shape-rule"], kind: "color" });
+    expect(entry.headerBg).toEqual({ vars: ["--docs-shape-header-bg"], kind: "color" });
+    expect(entry.descFg).toEqual({ vars: ["--docs-shape-desc-fg"], kind: "color" });
+    expect(entry.childRule).toEqual({ vars: ["--docs-shape-child-rule"], kind: "color" });
+    expect(entry.rowPad).toEqual({
+      vars: ["--docs-shape-row-pad"],
+      kind: "length",
+      min: 4,
+      max: 16,
+      step: 1,
+      unit: "px",
+      defaultValue: 9,
+    });
+  });
+
+  it("normalizes and applies state-shape overrides onto their CSS vars", () => {
+    const settings = normalizeSettings({
+      components: {
+        "state-shape": {
+          headerBg: "#AABBCC",
+          descFg: "#112233",
+          childRule: "#445566",
+          rowPad: "12px",
+          unknown: "#000000",
+        },
+      },
+    });
+
+    expect(settings.components).toEqual({
+      "state-shape": {
+        headerBg: "#aabbcc",
+        descFg: "#112233",
+        childRule: "#445566",
+        rowPad: "12px",
+      },
+    });
+    expect(styleRailVars(settings)).toMatchObject({
+      "--docs-shape-header-bg": "#aabbcc",
+      "--docs-shape-desc-fg": "#112233",
+      "--docs-shape-child-rule": "#445566",
+      "--docs-shape-row-pad": "12px",
+    });
+  });
+
+  it("renders the State shape knobs with their sidebar labels", () => {
+    render(<RailHarness />);
+    fireEvent.click(screen.getByRole("button", { name: "Components" }));
+    const toggle = screen.getByRole("button", { name: "State shape" });
+    fireEvent.click(toggle);
+    const section = within(toggle.closest("section")!);
+
+    for (const label of [
+      "Border",
+      "Background",
+      "Names",
+      "Types",
+      "Muted fill",
+      "Rules",
+      "Header background",
+      "Description text",
+      "Child rule",
+      "Row padding",
+    ]) {
+      expect(section.getByText(label)).toBeTruthy();
+    }
+
+    const rowPad = section.getByLabelText(/Row padding/) as HTMLInputElement;
+    expect(rowPad).toHaveProperty("min", "4");
+    expect(rowPad).toHaveProperty("max", "16");
+    expect(rowPad).toHaveProperty("value", "9");
   });
 });

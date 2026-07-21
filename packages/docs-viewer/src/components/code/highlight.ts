@@ -151,6 +151,17 @@ function resolveLanguage(code: string, language?: string): string | null {
 }
 
 /**
+ * The language a surface should DISPLAY for a code block (header badge text):
+ * the same resolution highlighting uses — the declared language when a
+ * registered grammar (or alias) matches, else the JSON sniff (so sniffed JSON
+ * shows "json"), else null (no badge). Kept as a thin export over the
+ * internal resolution so badges can never disagree with tokenization.
+ */
+export function resolveDisplayLanguage(code: string, language?: string): string | null {
+  return resolveLanguage(code, language);
+}
+
+/**
  * Highlight `code` and return ONE HTML string per input line (always exactly
  * `code.split("\n").length` entries, so callers' 1-indexed line numbering is
  * unaffected by highlighting). Each line contains hljs token `<span>`s styled

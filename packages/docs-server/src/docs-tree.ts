@@ -10,7 +10,7 @@ import { extname, join } from "node:path";
  *
  * A directory containing `doc.json` is a DOC NODE (`kind: "bundle"`, label =
  * folder name, path = the bundle folder — exactly what `/api/bundle`
- * accepts). Its doc.json/comments.json/assets internals are never exposed as
+ * accepts). Its doc.json/annotations.json/assets internals are never exposed as
  * tree entries; genuine subdirectories inside it still appear as children,
  * so a bundle can nest other docs. While markdown twins still exist:
  *  - a sibling `.md`/`.mdx` twin sharing the bundle folder's stem is

@@ -1,0 +1,308 @@
+{
+  "schemaVersion": 1,
+  "id": "dm-mutation-10-undo-redo",
+  "title": "Undo & redo",
+  "root": "b-ur-root",
+  "blocks": {
+    "b-ur-root": {
+      "id": "b-ur-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-ur-intro-1",
+        "b-ur-structure-h-2",
+        "b-ur-code-3",
+        "b-ur-rule-h-4",
+        "b-ur-inverse-5",
+        "b-ur-ledger-6",
+        "b-ur-redo-7",
+        "b-ur-local-8",
+        "b-ur-why-h-9",
+        "b-ur-why-trust-10",
+        "b-ur-why-one-11"
+      ]
+    },
+    "b-ur-intro-1": {
+      "id": "b-ur-intro-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Undo is part of the algebra, not a feature bolted on: every successful apply returns exact inverse ops, and everything else follows. Two layers share that mechanism — the patch ledger for applied changes, and the editor's local history for typing."
+        }
+      ],
+      "children": []
+    },
+    "b-ur-structure-h-2": {
+      "id": "b-ur-structure-h-2",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Structure"
+        }
+      ],
+      "children": []
+    },
+    "b-ur-code-3": {
+      "id": "b-ur-code-3",
+      "type": "code",
+      "props": {
+        "annotations": [
+          {
+            "lines": "2",
+            "label": "The change",
+            "note": "A shallow props patch, as applied."
+          },
+          {
+            "lines": "5",
+            "label": "The exact inverse",
+            "note": "Returned by the same apply — the prior value, not a guess. Applying it reverts the change."
+          }
+        ],
+        "language": "json"
+      },
+      "text": [
+        {
+          "insert": "// an applied op and the inverse the apply returned\n{ \"type\": \"updateBlock\", \"blockId\": \"b-x\", \"props\": { \"density\": \"compact\" } }\n\n// inverse\n{ \"type\": \"updateBlock\", \"blockId\": \"b-x\", \"props\": { \"density\": \"normal\" } }"
+        }
+      ],
+      "children": []
+    },
+    "b-ur-rule-h-4": {
+      "id": "b-ur-rule-h-4",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The rule"
+        }
+      ],
+      "children": []
+    },
+    "b-ur-inverse-5": {
+      "id": "b-ur-inverse-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every apply returns its inverses",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-ur-inverse-s1",
+        "b-ur-inverse-s2"
+      ]
+    },
+    "b-ur-inverse-s1": {
+      "id": "b-ur-inverse-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Exact for the state actually changed — applying them reverts order, props, text, and subtree placement."
+        }
+      ],
+      "children": []
+    },
+    "b-ur-inverse-s2": {
+      "id": "b-ur-inverse-s2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Inverses come from the apply itself, so they are never stale reconstructions."
+        }
+      ],
+      "children": []
+    },
+    "b-ur-ledger-6": {
+      "id": "b-ur-ledger-6",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The patch ledger",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-ur-ledger-s1",
+        "b-ur-ledger-s2"
+      ]
+    },
+    "b-ur-ledger-s1": {
+      "id": "b-ur-ledger-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every applied batch is recorded as a patch with its inverses; "
+        },
+        {
+          "insert": "POST /api/undo",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " reverses a patch by id — document, canvas, and sequence writes alike."
+        }
+      ],
+      "children": []
+    },
+    "b-ur-ledger-s2": {
+      "id": "b-ur-ledger-s2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Any surface can undo any patch: a human undoing an agent's change and an agent undoing its own are the same call."
+        }
+      ],
+      "children": []
+    },
+    "b-ur-redo-7": {
+      "id": "b-ur-redo-7",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Redo is undoing the undo",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-ur-redo-s1"
+      ]
+    },
+    "b-ur-redo-s1": {
+      "id": "b-ur-redo-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An undo lands as a patch like any other, with inverses of its own — reversing it restores the change. No separate redo machinery exists, because none is needed."
+        }
+      ],
+      "children": []
+    },
+    "b-ur-local-8": {
+      "id": "b-ur-local-8",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Keystroke history stays local",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-ur-local-s1",
+        "b-ur-local-s2"
+      ]
+    },
+    "b-ur-local-s1": {
+      "id": "b-ur-local-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The editor keeps its own typing history, with redo, scoped to the session."
+        }
+      ],
+      "children": []
+    },
+    "b-ur-local-s2": {
+      "id": "b-ur-local-s2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "It reaches the ledger only as saved op batches — the ledger never sees half-typed states."
+        }
+      ],
+      "children": []
+    },
+    "b-ur-why-h-9": {
+      "id": "b-ur-why-h-9",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why"
+        }
+      ],
+      "children": []
+    },
+    "b-ur-why-trust-10": {
+      "id": "b-ur-why-trust-10",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Inverses make trust cheap",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-ur-why-trust-s1"
+      ]
+    },
+    "b-ur-why-trust-s1": {
+      "id": "b-ur-why-trust-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An agent can act boldly when every patch reverses exactly; review becomes cheap because reverting is."
+        }
+      ],
+      "children": []
+    },
+    "b-ur-why-one-11": {
+      "id": "b-ur-why-one-11",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "One mechanism for every writer",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-ur-why-one-s1"
+      ]
+    },
+    "b-ur-why-one-s1": {
+      "id": "b-ur-why-one-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Human edits and agent edits produce the same kind of patch, so one ledger serves both — no privileged writer."
+        }
+      ],
+      "children": []
+    }
+  }
+}

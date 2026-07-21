@@ -1,0 +1,228 @@
+{
+  "schemaVersion": 1,
+  "id": "dm-block-design-40-agent-renderer",
+  "title": "Agent renderer",
+  "root": "b-bdg-root",
+  "blocks": {
+    "b-bdg-root": {
+      "id": "b-bdg-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-bdg-intro-1",
+        "b-bdg-laidout-h-2",
+        "b-bdg-code-3",
+        "b-bdg-rule-h-4",
+        "b-bdg-pure-5",
+        "b-bdg-grep-6",
+        "b-bdg-why-h-8",
+        "b-bdg-why-contract-9",
+        "b-bdg-why-native-10"
+      ]
+    },
+    "b-bdg-intro-1": {
+      "id": "b-bdg-intro-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every type ships the markdown view an agent reads: the same state, rendered to stable text. This page states the agent renderer's obligations."
+        }
+      ],
+      "children": []
+    },
+    "b-bdg-laidout-h-2": {
+      "id": "b-bdg-laidout-h-2",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Structure"
+        }
+      ],
+      "children": []
+    },
+    "b-bdg-code-3": {
+      "id": "b-bdg-code-3",
+      "type": "code",
+      "props": {
+        "annotations": [
+          {
+            "lines": "2",
+            "label": "State in, string out",
+            "note": "A pure function of the block — no I/O, no surface knowledge."
+          },
+          {
+            "lines": "5",
+            "label": "Degrade, never throw",
+            "note": "Malformed props render best-effort text; the agent surface never crashes on a bad block."
+          }
+        ],
+        "language": "typescript"
+      },
+      "text": [
+        {
+          "insert": "// trimmed from packages/docs-model/src/components/structured-table/agent-view.ts\nfunction projectStructuredTable(block: DocBlock): string {\n  const columns = readStringArray(block.props.columns);\n  const rows = readRows(block.props.rows);\n  // emits a GitHub markdown table: header, separator, one line per row\n}"
+        }
+      ],
+      "children": []
+    },
+    "b-bdg-rule-h-4": {
+      "id": "b-bdg-rule-h-4",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The rule"
+        }
+      ],
+      "children": []
+    },
+    "b-bdg-pure-5": {
+      "id": "b-bdg-pure-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Pure and stable",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-bdg-pure-s1",
+        "b-bdg-pure-s2"
+      ]
+    },
+    "b-bdg-pure-s1": {
+      "id": "b-bdg-pure-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Same block, same bytes — every type's render is pinned byte-for-byte by golden tests."
+        }
+      ],
+      "children": []
+    },
+    "b-bdg-pure-s2": {
+      "id": "b-bdg-pure-s2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Purity is what makes the pin possible: nothing environmental leaks into the output."
+        }
+      ],
+      "children": []
+    },
+    "b-bdg-grep-6": {
+      "id": "b-bdg-grep-6",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Greppable output",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-bdg-grep-s1"
+      ]
+    },
+    "b-bdg-grep-s1": {
+      "id": "b-bdg-grep-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Structure survives as plain text — headers, labels, and values an agent can find with "
+        },
+        {
+          "insert": "docs grep",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", no parsing required."
+        }
+      ],
+      "children": []
+    },
+    "b-bdg-why-h-8": {
+      "id": "b-bdg-why-h-8",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why"
+        }
+      ],
+      "children": []
+    },
+    "b-bdg-why-contract-9": {
+      "id": "b-bdg-why-contract-9",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The render is a contract",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-bdg-why-contract-s1"
+      ]
+    },
+    "b-bdg-why-contract-s1": {
+      "id": "b-bdg-why-contract-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An agent scripts against the render; a golden diff — not a surprised agent — is where a change shows up first."
+        }
+      ],
+      "children": []
+    },
+    "b-bdg-why-native-10": {
+      "id": "b-bdg-why-native-10",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Text is the agent's native medium",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-bdg-why-native-s1"
+      ]
+    },
+    "b-bdg-why-native-s1": {
+      "id": "b-bdg-why-native-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The agent half of the translation layer: the best representation for the reader, not a compromise shared with humans."
+        }
+      ],
+      "children": []
+    }
+  }
+}

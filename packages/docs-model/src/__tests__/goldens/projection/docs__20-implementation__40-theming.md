@@ -41,10 +41,18 @@ index.css  # tier 3 — app CSS consuming tokens; :root font defaults
 
 ## In this section
 
-- Global themes — the theme-folder format, built-ins, selection semantics, save-as.
+- Global themes
 
-- Component themes — the per-surface token files and the closed registry that validates them.
+  - The theme-folder format, built-ins, selection semantics, save-as.
 
-- Fonts — per-surface font tokens and custom font loading.
+- Component themes
 
-- System UI — what is deliberately fixed, and the full map of every style-rail knob.
+  - The per-surface token files and the closed registry that validates them.
+
+- Fonts
+
+  - Per-surface font tokens and custom font loading.
+
+- System UI
+
+  - What is deliberately fixed, and the full map of every style-rail knob.

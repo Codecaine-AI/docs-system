@@ -1,23 +1,43 @@
-# The data model — one format, five shapes
+The docs system has one on-disk content format
 
-The docs system has one on-disk content format: `doc.json`, a normalized block tree, plus a `comments.json` sidecar per bundle. Agents read through a pure markdown render and write through the same seven-op kernel the editor uses. That keeps reading greppable, writing enumerable, and file bytes deterministic enough for reviewable diffs.
+- `doc.json`
 
-This section is system-agnostic: it describes shapes and invariants, not transport wiring. Everything here is defined in pure TypeScript in `packages/docs-model` — no React, no filesystem, no HTTP — so the browser, the Bun server, and the CLI share one definition. The model decomposes into five shapes, and each gets its own page.
+  - a normalized block tree
 
-## The five shapes
+- `annotations.json` 
 
-- The document & block tree — the envelope, the flat id-keyed `blocks` map, ordered children arrays, stable anchor ids, graph invariants, and the seven-op write surface.
+  - sidecar per bundle 
 
-- Rich text — delta spans, the four boolean marks, outbound links, and the shared SpectreRef reference chip.
+Four shapes describe the state; one behavior model describes every change. 
 
-- Per-type block state — seven component bundles owning the 14 types, closed TypeBox state schemas for `props`, typed actions as data, and the `GET /api/blocks` discovery payload.
+This section describes shapes and invariants, not transport wiring. 
 
-- Comments & targets — the `comments.json` sidecar: block and canvas-object anchors, intents, agent runs, and dangling-target detection.
+Everything here is defined in packages/docs-model
 
-- Canonical bytes — the deterministic serializer, the markdown render map, and the SHA-256 content hashes that make write preconditions possible.
+## The four shapes
 
-> **Mental model** — **SHAPES LIVE HERE, BEHAVIOR LIVES NEXT DOOR.** If you can hold five shapes in your head — document, span, state, comment, bytes — you can read or write anything in the system. How those shapes change over time (ops, inverses, undo) and how they reach disk (locks, hashes, atomic writes) are separate pages.
+- The document & block tree
+
+  - The envelope, the flat id-keyed blocks map, ordered children arrays, stable anchor ids, and the graph invariants.
+
+- Block design
+
+  - The block contract: every type owns its state schema, typed actions, doc renderer, agent renderer, and theme — and the path for adding a custom component.
+
+- Annotations
+
+  - The annotations.json sidecar: the human-to-agent request channel — anchors, intents, agent-run receipts, dangling-target detection.
+
+- Serialization
+
+  - How a document is said: the deterministic serializer, the markdown render map, and the content hashes that make write preconditions possible.
+
+## The behavior model
+
+- The mutation model
+
+  - How the shapes change: the seven-op algebra, inverses, undo and redo, copy and paste, and what a refused write looks like.
 
 ## Neighbors
 
-Read this section alongside the block vocabulary — what each of the 14 types is for, the mutation model — ops, inverses, undo, and the save pipeline — how bytes reach disk.
+The roster of block types — what each is for, with an example — is the block vocabulary's subject; type counts live there. How bytes reach disk is the save pipeline's.

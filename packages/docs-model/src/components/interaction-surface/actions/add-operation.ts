@@ -2,19 +2,15 @@
 
 import { Type } from "@sinclair/typebox";
 import { defineComponentAction } from "../../define";
+import { FieldSchema, cloneField } from "../../shared/field";
+import type { Field } from "../../shared/field";
 import { operationsPatch } from "../lib";
 import {
   readInteractionSurfaceOperations,
-  type InteractionSurfaceParam,
   type InteractionSurfaceOperation,
 } from "../state";
 
-export const ActionOperationParamSchema = Type.Object({
-  name: Type.String({ minLength: 1 }),
-  type: Type.Optional(Type.String()),
-  required: Type.Optional(Type.Boolean()),
-  description: Type.Optional(Type.String()),
-});
+export const ActionOperationParamSchema = FieldSchema;
 
 export const addOperation = defineComponentAction({
   action: "interaction-surface.addOperation",
@@ -31,7 +27,8 @@ export const addOperation = defineComponentAction({
     ),
     params: Type.Optional(
       Type.Array(ActionOperationParamSchema, {
-        description: "Signature params: [{ name, type?, required?, description? }].",
+        description:
+          "Signature params: [{ name, type?, required?, description?, fields? }] (fields nests recursively).",
       }),
     ),
     returns: Type.Optional(
@@ -64,13 +61,7 @@ export const addOperation = defineComponentAction({
     const operation: InteractionSurfaceOperation = { name: params.name };
     if (params.description !== undefined) operation.description = params.description;
     if (params.params !== undefined) {
-      operation.params = params.params.map((rawParam) => {
-        const param: InteractionSurfaceParam = { name: rawParam.name };
-        if (rawParam.type !== undefined) param.type = rawParam.type;
-        if (rawParam.required !== undefined) param.required = rawParam.required;
-        if (rawParam.description !== undefined) param.description = rawParam.description;
-        return param;
-      });
+      operation.params = (params.params as Field[]).map(cloneField);
     }
     if (params.returns !== undefined) operation.returns = params.returns;
     if (params.kind !== undefined) operation.kind = params.kind;

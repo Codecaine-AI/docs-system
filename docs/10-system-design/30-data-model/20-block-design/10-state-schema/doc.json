@@ -1,0 +1,283 @@
+{
+  "schemaVersion": 1,
+  "id": "dm-block-design-10-state-schema",
+  "title": "State schema",
+  "root": "b-bds-root",
+  "blocks": {
+    "b-bds-root": {
+      "id": "b-bds-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-bds-intro-1",
+        "b-bds-laidout-h-2",
+        "b-bds-code-3",
+        "b-bds-rule-h-4",
+        "b-bds-closed-5",
+        "b-bds-additive-6",
+        "b-bds-jobs-7",
+        "b-bds-why-h-8",
+        "b-bds-why-door-9",
+        "b-bds-why-agents-10"
+      ]
+    },
+    "b-bds-intro-1": {
+      "id": "b-bds-intro-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every block type declares a closed schema over its "
+        },
+        {
+          "insert": "props",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — the type's whole state, and the only state it may hold. This page states what a schema owes and what a good one looks like."
+        }
+      ],
+      "children": []
+    },
+    "b-bds-laidout-h-2": {
+      "id": "b-bds-laidout-h-2",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Structure"
+        }
+      ],
+      "children": []
+    },
+    "b-bds-code-3": {
+      "id": "b-bds-code-3",
+      "type": "code",
+      "props": {
+        "annotations": [
+          {
+            "lines": "14",
+            "label": "Closed",
+            "note": "Unknown keys are a validation error — a block cannot hold state its type did not declare."
+          },
+          {
+            "lines": "19",
+            "label": "Per-type fact",
+            "note": "carriesText declares whether the type uses the block's delta text field."
+          }
+        ],
+        "language": "typescript"
+      },
+      "text": [
+        {
+          "insert": "export const StructuredTableState = Type.Object(\n  {\n    title: Type.Optional(Type.String()),\n    columns: Type.Array(Type.String()),\n    rows: Type.Array(Type.Array(Type.String())),\n    density: Type.Optional(\n      Type.Union([\n        Type.Literal(\"compact\"),\n        Type.Literal(\"normal\"),\n        Type.Literal(\"relaxed\"),\n      ]),\n    ),\n  },\n  { additionalProperties: false },\n);\n\nexport const structuredTableState: BlockStateDefinition = {\n  schema: StructuredTableState,\n  carriesText: false,\n};"
+        }
+      ],
+      "children": []
+    },
+    "b-bds-rule-h-4": {
+      "id": "b-bds-rule-h-4",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The rule"
+        }
+      ],
+      "children": []
+    },
+    "b-bds-closed-5": {
+      "id": "b-bds-closed-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Closed over props",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-bds-closed-s1"
+      ]
+    },
+    "b-bds-closed-s1": {
+      "id": "b-bds-closed-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "additionalProperties: false",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — wrong shapes and unknown keys are rejected at validation, not discovered at render."
+        }
+      ],
+      "children": []
+    },
+    "b-bds-additive-6": {
+      "id": "b-bds-additive-6",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Optional means additive",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-bds-additive-s1"
+      ]
+    },
+    "b-bds-additive-s1": {
+      "id": "b-bds-additive-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "New capabilities land as optional fields with safe defaults; documents written before the field existed keep validating unchanged."
+        }
+      ],
+      "children": []
+    },
+    "b-bds-jobs-7": {
+      "id": "b-bds-jobs-7",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "One schema, three jobs",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-bds-jobs-s1",
+        "b-bds-jobs-s2",
+        "b-bds-jobs-s3"
+      ]
+    },
+    "b-bds-jobs-s1": {
+      "id": "b-bds-jobs-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Validation — every load, save, and action patch checks against it."
+        }
+      ],
+      "children": []
+    },
+    "b-bds-jobs-s2": {
+      "id": "b-bds-jobs-s2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Discovery — "
+        },
+        {
+          "insert": "GET /api/blocks",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " serves it verbatim as JSON Schema."
+        }
+      ],
+      "children": []
+    },
+    "b-bds-jobs-s3": {
+      "id": "b-bds-jobs-s3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Editing — the doc renderer trusts it: what validates is exactly what can render."
+        }
+      ],
+      "children": []
+    },
+    "b-bds-why-h-8": {
+      "id": "b-bds-why-h-8",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why"
+        }
+      ],
+      "children": []
+    },
+    "b-bds-why-door-9": {
+      "id": "b-bds-why-door-9",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Corruption is refused at the door",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-bds-why-door-s1"
+      ]
+    },
+    "b-bds-why-door-s1": {
+      "id": "b-bds-why-door-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every write path converges on the same validator, so a malformed block can never reach disk."
+        }
+      ],
+      "children": []
+    },
+    "b-bds-why-agents-10": {
+      "id": "b-bds-why-agents-10",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Agents read schemas, not code",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-bds-why-agents-s1"
+      ]
+    },
+    "b-bds-why-agents-s1": {
+      "id": "b-bds-why-agents-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An agent learns exactly what state is legal from discovery — no source archaeology, no guessing."
+        }
+      ],
+      "children": []
+    }
+  }
+}

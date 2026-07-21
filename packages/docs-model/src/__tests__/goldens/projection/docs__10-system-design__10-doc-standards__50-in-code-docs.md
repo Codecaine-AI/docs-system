@@ -1,6 +1,16 @@
-Documentation does not stop at the doc tree. Below the doc tree it continues into the source in three units — file headers, function docstrings, inline comments — finishing the descent the depth ladder starts: section, doc, file, function, code.
+Documentation does not stop at the doc tree. 
 
-## How it's laid out
+Below the doc tree it continues into the source in three units
+
+- File headers
+
+- Function docstrings
+
+- Inline comments 
+
+Finishing the descent the depth ladder starts: section, doc, file, function, code.
+
+## Structure
 
 ```typescript
 // packages/docs-viewer/src/render/doc-title.ts
@@ -22,7 +32,11 @@ No unit carries doc links: code linking is one-way, and the source stays ignoran
 
 - **File header**
 
-  - The top of a source file states the file's contract: responsibilities, dependencies, invariants. A reader knows what the file holds before any code scrolls past. Kept under 50 lines.
+  - The top of a source file states the file's contract: responsibilities, dependencies, invariants. 
+
+  - A reader knows what the file holds before any code scrolls past. 
+
+  - Kept under 50 lines.
 
 - **Function docstrings**
 
@@ -44,8 +58,12 @@ No unit carries doc links: code linking is one-way, and the source stays ignoran
 
 - **Files churn too fast for doc bundles**
 
-  - The doc tree stops at L3, one doc per concept. The lower rungs live in the source, so they move, diff, and review with the code they describe.
+  - The doc tree stops at L3, one doc per concept. 
+
+  - The lower rungs live in the source, so they move, diff, and review with the code they describe.
 
 - **The flow pays off at the file**
 
-  - A reader leaves the docs with the question framed; the first screenful confirms or rules the file out. Code is read last, and only where the task lives.
+  - A reader leaves the docs with the question framed; the first screenful confirms or rules the file out. 
+
+  - Code is read last, and only where the task lives.

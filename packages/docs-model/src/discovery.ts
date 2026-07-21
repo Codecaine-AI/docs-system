@@ -70,9 +70,9 @@ const OPS: readonly BlocksDiscoveryOp[] = [
       "Merge two or more contiguous sibling blocks (in document order) into a single block with a freshly minted id.",
   },
   {
-    op: "blockAction",
+    op: "componentAction",
     description:
-      "Run a named typed action from the block-actions registry against a structured block; the validated result applies as a shallow-merge updateBlock patch (same inverse/undo path).",
+      "Run a named typed action from the component-actions registry against a structured block; the validated result applies as a shallow-merge updateBlock patch (same inverse/undo path).",
   },
 ];
 

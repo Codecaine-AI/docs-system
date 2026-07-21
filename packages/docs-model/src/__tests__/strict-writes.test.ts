@@ -154,9 +154,9 @@ describe("strict component-state writes", () => {
     expect(doc.blocks.root.children).toEqual(["target"]);
   });
 
-  it("runs a valid blockAction through strict updateBlock validation", () => {
+  it("runs a valid componentAction through strict updateBlock validation", () => {
     const result = applyOp(docWith("file-tree", { entries: [{ path: "src/main.ts" }] }), {
-      type: "blockAction",
+      type: "componentAction",
       blockId: "target",
       action: "file-tree.addEntry",
       params: { path: "src/index.ts", change: "added" },
@@ -169,10 +169,10 @@ describe("strict component-state writes", () => {
     ]);
   });
 
-  it("forwards the validation option through blockAction's updateBlock", () => {
+  it("forwards the validation option through componentAction's updateBlock", () => {
     const original = docWith("file-tree", { entries: [], legacy: true });
     const op = {
-      type: "blockAction" as const,
+      type: "componentAction" as const,
       blockId: "target",
       action: "file-tree.addEntry",
       params: { path: "src/index.ts", change: "added" },
@@ -189,9 +189,9 @@ describe("strict component-state writes", () => {
     });
   });
 
-  it("keeps blockAction parameter failures at $.params.*", () => {
+  it("keeps componentAction parameter failures at $.params.*", () => {
     const result = applyOp(docWith("file-tree", { entries: [] }), {
-      type: "blockAction",
+      type: "componentAction",
       blockId: "target",
       action: "file-tree.addEntry",
       params: { path: 42 },
@@ -201,7 +201,7 @@ describe("strict component-state writes", () => {
 
   it("refuses to apply a forwarded canvas action as a doc op", () => {
     const result = applyOp(docWith("canvas", { canvasId: "canvas-main" }), {
-      type: "blockAction",
+      type: "componentAction",
       blockId: "target",
       action: "canvas.addObject",
       params: {

@@ -77,7 +77,7 @@ describe("rich-text component agent view", () => {
     expect(richTextAgentView(fixtureBlock("root"), context)).toBeNull();
     expect(richTextAgentView(fixtureBlock("divider-1"), context)).toBe("---");
     expect(richTextAgentView(fixtureBlock("callout-1"), context)).toBe(
-      "> **Decision: Heads up** — Comments live in comments.json, never in doc.json.",
+      "> **Decision: Heads up** — Annotations live in annotations.json, never in doc.json.",
     );
     expect(richTextAgentView(fixtureBlock("image-1"), context)).toBe(
       "![Sample image](./assets/images/sample.png)\n*A bundled asset image (D30).*",

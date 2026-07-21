@@ -1,21 +1,21 @@
 /**
  * §8.3 id-stability contract tests — SYSTEM GUARDRAIL.
  *
- * Comments, agent patches, container views, and cross-doc links all anchor to
- * stable block ids. These tests lock the op vocabulary's invariants:
- *   1. updateBlock preserves the id (comment targets stay valid),
+ * Annotations, agent patches, container views, and cross-doc links all anchor
+ * to stable block ids. These tests lock the op vocabulary's invariants:
+ *   1. updateBlock preserves the id (annotation targets stay valid),
  *   2. split/merge mint fresh non-colliding ids and never reuse any existing
  *      or previously-seen id,
- *   3. deleteBlock leaves comment targets resolvable as "removed" via
+ *   3. deleteBlock leaves annotation targets resolvable as "removed" via
  *      detectDanglingTargets (not a crash, not re-anchoring),
  *   4. applyOp then inverse == exact original doc for EVERY op type.
  *
  * Do not weaken these assertions; downstream milestones (M3 undo units,
- * Plannotator comments, backlinks) depend on them.
+ * Plannotator annotations, backlinks) depend on them.
  */
 import { describe, expect, it } from "bun:test";
-import type { CommentsDocument } from "../comments-schema";
-import { detectDanglingTargets } from "../comments-schema";
+import type { AnnotationsDocument } from "../annotations-schema";
+import { detectDanglingTargets } from "../annotations-schema";
 import type { DocOp } from "../doc-ops";
 import { applyOp, applyOps } from "../doc-ops";
 import type { DocBlock, DocDocument } from "../doc-schema";
@@ -87,7 +87,7 @@ function expectSameDoc(actual: DocDocument, expected: DocDocument) {
 }
 
 describe("contract 1 — updateBlock preserves the block id", () => {
-  it("keeps the id across props and text updates so comment targets stay valid", () => {
+  it("keeps the id across props and text updates so annotation targets stay valid", () => {
     const doc = baseDoc();
     const { doc: updated } = mustApply(doc, {
       type: "updateBlock",
@@ -103,10 +103,10 @@ describe("contract 1 — updateBlock preserves the block id", () => {
     // Same set of ids before and after — update never mints or drops ids.
     expect(Object.keys(updated.blocks).sort()).toEqual(Object.keys(doc.blocks).sort());
 
-    // A block-target comment on h1 still resolves (not dangling).
-    const comments: CommentsDocument = {
+    // A block-target annotation on h1 still resolves (not dangling).
+    const annotations: AnnotationsDocument = {
       schemaVersion: 1,
-      comments: [
+      annotations: [
         {
           id: "cm_h1",
           target: { kind: "block", blockId: "h1" },
@@ -118,7 +118,7 @@ describe("contract 1 — updateBlock preserves the block id", () => {
         },
       ],
     };
-    expect(detectDanglingTargets(comments, updated, {})).toEqual([]);
+    expect(detectDanglingTargets(annotations, updated, {})).toEqual([]);
   });
 });
 
@@ -221,10 +221,10 @@ describe("contract 2 — split/merge mint fresh, never-reused ids", () => {
   });
 });
 
-describe("contract 3 — deleteBlock leaves comment targets detectable as removed", () => {
-  const commentsOn = (blockId: string): CommentsDocument => ({
+describe("contract 3 — deleteBlock leaves annotation targets detectable as removed", () => {
+  const annotationsOn = (blockId: string): AnnotationsDocument => ({
     schemaVersion: 1,
-    comments: [
+    annotations: [
       {
         id: `cm_${blockId}`,
         target: { kind: "block", blockId },
@@ -242,13 +242,13 @@ describe("contract 3 — deleteBlock leaves comment targets detectable as remove
     const { doc: deleted } = mustApply(doc, { type: "deleteBlock", blockId: "list", mode: "subtree" });
 
     for (const targetId of ["list", "li1", "li2"]) {
-      const dangling = detectDanglingTargets(commentsOn(targetId), deleted, {});
+      const dangling = detectDanglingTargets(annotationsOn(targetId), deleted, {});
       expect(dangling).toHaveLength(1);
-      expect(dangling[0].commentId).toBe(`cm_${targetId}`);
+      expect(dangling[0].annotationId).toBe(`cm_${targetId}`);
       expect(dangling[0].reason).toContain(targetId);
     }
     // Untouched targets do NOT get re-anchored or flagged.
-    expect(detectDanglingTargets(commentsOn("p1"), deleted, {})).toEqual([]);
+    expect(detectDanglingTargets(annotationsOn("p1"), deleted, {})).toEqual([]);
     expect(validateDocDocument(deleted).ok).toBe(true);
   });
 
@@ -256,9 +256,9 @@ describe("contract 3 — deleteBlock leaves comment targets detectable as remove
     const doc = baseDoc();
     const { doc: deleted } = mustApply(doc, { type: "deleteBlock", blockId: "list", mode: "reparent" });
 
-    expect(detectDanglingTargets(commentsOn("list"), deleted, {})).toHaveLength(1);
-    expect(detectDanglingTargets(commentsOn("li1"), deleted, {})).toEqual([]);
-    expect(detectDanglingTargets(commentsOn("li2"), deleted, {})).toEqual([]);
+    expect(detectDanglingTargets(annotationsOn("list"), deleted, {})).toHaveLength(1);
+    expect(detectDanglingTargets(annotationsOn("li1"), deleted, {})).toEqual([]);
+    expect(detectDanglingTargets(annotationsOn("li2"), deleted, {})).toEqual([]);
     // Children were spliced into the grandparent at the deleted slot.
     expect(deleted.blocks.root.children).toEqual(["h1", "p1", "p2", "li1", "li2", "quote"]);
     expect(validateDocDocument(deleted).ok).toBe(true);
@@ -431,7 +431,7 @@ describe("pre-apply validation — ops that would break invariants are rejected"
   });
 });
 
-describe("blockAction op — typed actions through the kernel", () => {
+describe("componentAction op — typed actions through the kernel", () => {
   function objectDoc(): DocDocument {
     return {
       schemaVersion: 1,
@@ -460,7 +460,7 @@ describe("blockAction op — typed actions through the kernel", () => {
   it("applies the action's props patch and returns an updateBlock inverse", () => {
     const doc = objectDoc();
     const { doc: next, inverse } = mustApply(doc, {
-      type: "blockAction",
+      type: "componentAction",
       blockId: "tree",
       action: "file-tree.addEntry",
       params: { path: "src/c.ts", change: "added" },
@@ -481,13 +481,13 @@ describe("blockAction op — typed actions through the kernel", () => {
     const doc = objectDoc();
     const result = applyOps(doc, [
       {
-        type: "blockAction",
+        type: "componentAction",
         blockId: "tree",
         action: "file-tree.updateEntry",
         params: { path: "src/b.ts", newPath: "src/b2.ts", change: "renamed", from: "src/b.ts" },
       },
       {
-        type: "blockAction",
+        type: "componentAction",
         blockId: "table",
         action: "structured-table.addColumn",
         params: { name: "Notes", fill: "-" },
@@ -505,9 +505,22 @@ describe("blockAction op — typed actions through the kernel", () => {
     expectSameDoc(undone.doc, doc);
   });
 
-  it("fails on an unknown action", () => {
+  it('rejects the retired "blockAction" op type as unknown (clean break, no aliasing)', () => {
     const result = applyOp(objectDoc(), {
       type: "blockAction",
+      blockId: "tree",
+      action: "file-tree.addEntry",
+      params: { path: "src/c.ts", change: "added" },
+    } as unknown as DocOp);
+    expect(result.ok).toBe(false);
+    if (result.ok) throw new Error("expected failure");
+    expect(result.issues[0].path).toBe("$.op.type");
+    expect(result.issues[0].message).toBe("Unknown doc op type: blockAction");
+  });
+
+  it("fails on an unknown action", () => {
+    const result = applyOp(objectDoc(), {
+      type: "componentAction",
       blockId: "tree",
       action: "file-tree.nope",
       params: {},
@@ -519,7 +532,7 @@ describe("blockAction op — typed actions through the kernel", () => {
 
   it("fails when the target block is missing", () => {
     const result = applyOp(objectDoc(), {
-      type: "blockAction",
+      type: "componentAction",
       blockId: "ghost",
       action: "file-tree.addEntry",
       params: { path: "x.ts" },
@@ -531,7 +544,7 @@ describe("blockAction op — typed actions through the kernel", () => {
 
   it("fails when the block's type does not match the action's blockType", () => {
     const result = applyOp(objectDoc(), {
-      type: "blockAction",
+      type: "componentAction",
       blockId: "p",
       action: "file-tree.addEntry",
       params: { path: "x.ts" },
@@ -544,7 +557,7 @@ describe("blockAction op — typed actions through the kernel", () => {
 
   it("propagates the action's own param validation issues", () => {
     const result = applyOp(objectDoc(), {
-      type: "blockAction",
+      type: "componentAction",
       blockId: "tree",
       action: "file-tree.addEntry",
       params: { path: "src/a.ts" },
@@ -558,7 +571,7 @@ describe("blockAction op — typed actions through the kernel", () => {
     const doc = objectDoc();
     const snapshot = serializeDocDocument(doc);
     mustApply(doc, {
-      type: "blockAction",
+      type: "componentAction",
       blockId: "table",
       action: "structured-table.updateCell",
       params: { rowIndex: 0, column: "Value", value: "43" },

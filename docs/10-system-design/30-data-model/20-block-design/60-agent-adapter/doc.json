@@ -1,0 +1,259 @@
+{
+  "schemaVersion": 1,
+  "id": "dm-block-design-60-agent-adapter",
+  "title": "Agent adapter",
+  "root": "b-bdaa-root",
+  "blocks": {
+    "b-bdaa-root": {
+      "id": "b-bdaa-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-bdaa-intro-1",
+        "pm-mrv2k8le-1-94gmaz",
+        "b-bdaa-design-h-2",
+        "b-bdaa-default-3",
+        "b-bdaa-own-4",
+        "b-bdaa-disc-5",
+        "b-bdaa-direction-6",
+        "b-bdaa-why-h-7",
+        "b-bdaa-why-knows-8",
+        "b-bdaa-why-queue-9"
+      ]
+    },
+    "b-bdaa-intro-1": {
+      "id": "b-bdaa-intro-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "How an agent edits a type when it processes an "
+        },
+        {
+          "insert": "annotation",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/30-annotations"
+            }
+          }
+        },
+        {
+          "insert": ". "
+        }
+      ],
+      "children": []
+    },
+    "pm-mrv2k8le-1-94gmaz": {
+      "id": "pm-mrv2k8le-1-94gmaz",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This is the contract's target-design element: the shape is settled, the wiring lands with annotate mode."
+        }
+      ],
+      "children": []
+    },
+    "b-bdaa-design-h-2": {
+      "id": "b-bdaa-design-h-2",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The design"
+        }
+      ],
+      "children": []
+    },
+    "b-bdaa-default-3": {
+      "id": "b-bdaa-default-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Default: generic ops",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-bdaa-default-s1"
+      ]
+    },
+    "b-bdaa-default-s1": {
+      "id": "b-bdaa-default-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Most types need nothing declared: the agent reads the doc render and edits through the generic ops and the type's actions."
+        }
+      ],
+      "children": []
+    },
+    "b-bdaa-own-4": {
+      "id": "b-bdaa-own-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Complex types bring their own agent",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-bdaa-own-s1",
+        "b-bdaa-own-s2",
+        "b-bdaa-own-s3"
+      ]
+    },
+    "b-bdaa-own-s1": {
+      "id": "b-bdaa-own-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Canvas and sequence declare a processing agent of their own."
+        }
+      ],
+      "children": []
+    },
+    "b-bdaa-own-s2": {
+      "id": "b-bdaa-own-s2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A context loader assembles what that agent needs — the canvas file, the sequence source — instead of the doc render alone."
+        }
+      ],
+      "children": []
+    },
+    "b-bdaa-own-s3": {
+      "id": "b-bdaa-own-s3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Writeback goes through the type's own actions, so validation and undo hold no matter who edits."
+        }
+      ],
+      "children": []
+    },
+    "b-bdaa-disc-5": {
+      "id": "b-bdaa-disc-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Discovery advertises the adapter",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-bdaa-disc-s1"
+      ]
+    },
+    "b-bdaa-disc-s1": {
+      "id": "b-bdaa-disc-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The annotation router learns from the registry which agent handles which type — routing is data, not hardcoded knowledge."
+        }
+      ],
+      "children": []
+    },
+    "b-bdaa-direction-6": {
+      "id": "b-bdaa-direction-6",
+      "type": "callout",
+      "props": {
+        "kind": "Direction",
+        "title": "Lands with annotate mode",
+        "tone": "warning"
+      },
+      "text": [
+        {
+          "insert": "No adapter is implemented yet. The five other contract elements exist today; the adapter is the settled design for the execute step of the annotations lifecycle."
+        }
+      ],
+      "children": []
+    },
+    "b-bdaa-why-h-7": {
+      "id": "b-bdaa-why-h-7",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why"
+        }
+      ],
+      "children": []
+    },
+    "b-bdaa-why-knows-8": {
+      "id": "b-bdaa-why-knows-8",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each type knows how it changes",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-bdaa-why-knows-s1"
+      ]
+    },
+    "b-bdaa-why-knows-s1": {
+      "id": "b-bdaa-why-knows-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Editing a sequence diagram and editing a paragraph are different crafts; the contract makes that a per-type declaration instead of a special case."
+        }
+      ],
+      "children": []
+    },
+    "b-bdaa-why-queue-9": {
+      "id": "b-bdaa-why-queue-9",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "One queue, many specialists",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-bdaa-why-queue-s1"
+      ]
+    },
+    "b-bdaa-why-queue-s1": {
+      "id": "b-bdaa-why-queue-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The annotations queue stays uniform while execution specializes — one lifecycle, per-type hands."
+        }
+      ],
+      "children": []
+    }
+  }
+}

@@ -83,7 +83,7 @@ export function AddDragPreview({
       <div
         data-table-add-drag-label=""
         className={cn(
-          "pointer-events-none absolute z-50 whitespace-nowrap rounded px-2 py-1 text-xs shadow-md",
+          "pointer-events-none absolute z-50 whitespace-nowrap rounded-sm px-2 py-1 text-xs shadow-md",
           "bg-neutral-800 text-neutral-100 dark:bg-neutral-200 dark:text-neutral-900",
         )}
         style={{ left: labelPosition.left, top: labelPosition.top }}

@@ -1,0 +1,715 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-30-data-model-40-annotations",
+  "title": "Annotations",
+  "root": "b-ann-root",
+  "blocks": {
+    "b-ann-root": {
+      "id": "b-ann-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-ann-intro-1",
+        "pm-mruwavol-1-4mo7xu",
+        "b-ann-laidout-h-2",
+        "b-ann-example-3",
+        "b-ann-fields-h-4",
+        "b-ann-fields-intro-5",
+        "b-ann-fields-table-6",
+        "b-ann2-targets-h-1",
+        "b-ann2-targets-lead-2",
+        "b-ann2-tk-block-3",
+        "b-ann2-tk-range-4",
+        "b-ann2-tk-point-5",
+        "b-ann2-tk-element-6",
+        "b-ann2-oneshape-7",
+        "b-ann-lifecycle-h-12",
+        "b-ann-life-queue-13",
+        "b-ann-life-receipt-15",
+        "b-ann-life-exec-27",
+        "b-ann-life-kept-18",
+        "b-ann-direction-21",
+        "b-ann-additive-22",
+        "b-ann-shared-23",
+        "b-ann-dangling-h-24",
+        "b-ann-dangling-blocks-25",
+        "b-ann-dangling-canvas-26"
+      ]
+    },
+    "b-ann-intro-1": {
+      "id": "b-ann-intro-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "An annotation marks a spot in a doc and says what should change there. It is the human-to-agent channel: this system is one person working with agents, and annotations carry the requests. "
+        }
+      ],
+      "children": []
+    },
+    "pm-mruwavol-1-4mo7xu": {
+      "id": "pm-mruwavol-1-4mo7xu",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "They never live inside "
+        },
+        {
+          "insert": "doc.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — each bundle may carry an "
+        },
+        {
+          "insert": "annotations.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " sidecar, so annotation churn never touches content bytes or content hashes."
+        }
+      ],
+      "children": []
+    },
+    "b-ann-laidout-h-2": {
+      "id": "b-ann-laidout-h-2",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Structure"
+        }
+      ],
+      "children": []
+    },
+    "b-ann-example-3": {
+      "id": "b-ann-example-3",
+      "type": "code",
+      "props": {
+        "annotations": [
+          {
+            "lines": "3",
+            "label": "The canonical key",
+            "note": "The sidecar is annotations.json with an annotations array — the only accepted shape."
+          },
+          {
+            "lines": "25-30",
+            "label": "The receipt",
+            "note": "The agent run that handled the request — session, patch, summary, and exactly which ids changed."
+          }
+        ],
+        "language": "json"
+      },
+      "text": [
+        {
+          "insert": "{\n  \"schemaVersion\": 1,\n  \"annotations\": [\n    {\n      \"id\": \"a-example-1\",\n      \"target\": { \"kind\": \"block\", \"blockId\": \"b-example-body\" },\n      \"body\": \"Tighten this paragraph.\",\n      \"intent\": \"agent-request\",\n      \"author\": \"ford\",\n      \"status\": \"open\",\n      \"createdAt\": \"2026-07-15T09:30:00Z\"\n    },\n    {\n      \"id\": \"a-example-2\",\n      \"target\": {\n        \"kind\": \"canvas-object\",\n        \"canvasSrc\": \"assets/flow.canvas.json\",\n        \"objectId\": \"node-auth\"\n      },\n      \"body\": \"Rename this node to match the doc.\",\n      \"intent\": \"agent-request\",\n      \"author\": \"ford\",\n      \"status\": \"resolved\",\n      \"createdAt\": \"2026-07-15T09:31:00Z\",\n      \"agentRun\": {\n        \"sessionId\": \"s-20260715-a\",\n        \"patchId\": \"p-114\",\n        \"summary\": \"Renamed node-auth to Session Manager.\",\n        \"changedIds\": [\"node-auth\"]\n      },\n      \"resolution\": \"Renamed as asked.\"\n    }\n  ]\n}"
+        }
+      ],
+      "children": []
+    },
+    "b-ann-fields-h-4": {
+      "id": "b-ann-fields-h-4",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The annotation"
+        }
+      ],
+      "children": []
+    },
+    "b-ann-fields-intro-5": {
+      "id": "b-ann-fields-intro-5",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Annotation ids follow the same stable-ASCII id rule as block ids and must be unique within the sidecar. Validation is the same style as the document validator: pure, no throw, typed issue list."
+        }
+      ],
+      "children": []
+    },
+    "b-ann-fields-table-6": {
+      "id": "b-ann-fields-table-6",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "field",
+          "shape",
+          "meaning"
+        ],
+        "density": "compact",
+        "rows": [
+          [
+            "id",
+            "stable ASCII id, unique in the sidecar",
+            "Identity for resolve/edit flows."
+          ],
+          [
+            "target",
+            "block | canvas-object",
+            "What the annotation is about; see targets below."
+          ],
+          [
+            "body",
+            "string",
+            "The request — what should change."
+          ],
+          [
+            "intent",
+            "\"note\" | \"agent-request\"",
+            "Margin note vs work item for an agent."
+          ],
+          [
+            "author",
+            "non-empty string",
+            "Who wrote it."
+          ],
+          [
+            "status",
+            "\"open\" | \"resolved\"",
+            "Lifecycle; resolved annotations stay in the file."
+          ],
+          [
+            "createdAt",
+            "string timestamp",
+            "When it was created."
+          ],
+          [
+            "agentRun?",
+            "{ sessionId, patchId, summary, changedIds? }",
+            "Receipt of the agent run that handled the request."
+          ],
+          [
+            "resolution?",
+            "string",
+            "Optional note persisted when resolving with a response."
+          ]
+        ]
+      },
+      "children": []
+    },
+    "b-ann2-targets-h-1": {
+      "id": "b-ann2-targets-h-1",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The target"
+        }
+      ],
+      "children": []
+    },
+    "b-ann2-targets-lead-2": {
+      "id": "b-ann2-targets-lead-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A target addresses anything a reader can point at. The annotation shape is the same for every one of them — what differs is how it gets processed, and that is the block type's business, not the annotation's."
+        }
+      ],
+      "children": []
+    },
+    "b-ann2-tk-block-3": {
+      "id": "b-ann2-tk-block-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "block",
+          "attributes": {
+            "code": true
+          }
+        }
+      ],
+      "children": [
+        "b-ann2-tk-block-s1"
+      ]
+    },
+    "b-ann2-tk-block-s1": {
+      "id": "b-ann2-tk-block-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A whole block by id; survives edits and moves because the generic ops preserve ids."
+        }
+      ],
+      "children": []
+    },
+    "b-ann2-tk-range-4": {
+      "id": "b-ann2-tk-range-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "text_range",
+          "attributes": {
+            "code": true
+          }
+        }
+      ],
+      "children": [
+        "b-ann2-tk-range-s1"
+      ]
+    },
+    "b-ann2-tk-range-s1": {
+      "id": "b-ann2-tk-range-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A span inside a block's text: offsets plus the quoted text and its surrounding context, so the anchor can re-attach after edits."
+        }
+      ],
+      "children": []
+    },
+    "b-ann2-tk-point-5": {
+      "id": "b-ann2-tk-point-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "visual_point",
+          "attributes": {
+            "code": true
+          }
+        }
+      ],
+      "children": [
+        "b-ann2-tk-point-s1"
+      ]
+    },
+    "b-ann2-tk-point-s1": {
+      "id": "b-ann2-tk-point-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A coordinate on a visual surface — a spot on a canvas or an image."
+        }
+      ],
+      "children": []
+    },
+    "b-ann2-tk-element-6": {
+      "id": "b-ann2-tk-element-6",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "custom_element",
+          "attributes": {
+            "code": true
+          }
+        }
+      ],
+      "children": [
+        "b-ann2-tk-element-s1",
+        "b-ann2-tk-element-s2"
+      ]
+    },
+    "b-ann2-tk-element-s1": {
+      "id": "b-ann2-tk-element-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An element inside a complex component — a canvas object, a connection, a sequence participant — by element id and type."
+        }
+      ],
+      "children": []
+    },
+    "b-ann2-tk-element-s2": {
+      "id": "b-ann2-tk-element-s2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The sidecar's canvas-object target ("
+        },
+        {
+          "insert": "canvasSrc",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " plus exactly one selector: "
+        },
+        {
+          "insert": "objectId",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "connectionId",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", or a region rectangle) is this kind's persisted form today."
+        }
+      ],
+      "children": []
+    },
+    "b-ann2-oneshape-7": {
+      "id": "b-ann2-oneshape-7",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The shape never specializes: an annotation on a sequence diagram looks exactly like an annotation on a paragraph. Special cases are handled at processing time by the type's "
+        },
+        {
+          "insert": "agent adapter",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/60-agent-adapter"
+            }
+          }
+        },
+        {
+          "insert": ". The sidecar schema persists block and canvas-object targets today; the remaining kinds land additively, under the same optional-fields growth rule."
+        }
+      ],
+      "children": []
+    },
+    "b-ann-lifecycle-h-12": {
+      "id": "b-ann-lifecycle-h-12",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The lifecycle"
+        }
+      ],
+      "children": []
+    },
+    "b-ann-life-queue-13": {
+      "id": "b-ann-life-queue-13",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Open annotations are the work queue",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-ann-life-queue-sub-14"
+      ]
+    },
+    "b-ann-life-queue-sub-14": {
+      "id": "b-ann-life-queue-sub-14",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "You mark spots and state requests; the set of open annotations is what the agent works through."
+        }
+      ],
+      "children": []
+    },
+    "b-ann-life-receipt-15": {
+      "id": "b-ann-life-receipt-15",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A handled request carries its receipt",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-ann-life-receipt-sub1-16",
+        "b-ann-life-receipt-sub2-17"
+      ]
+    },
+    "b-ann-life-receipt-sub1-16": {
+      "id": "b-ann-life-receipt-sub1-16",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "agentRun",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " records the session and patch that produced the change, a human-readable summary, and optionally "
+        },
+        {
+          "insert": "changedIds",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — the exact block or canvas-object ids touched."
+        }
+      ],
+      "children": []
+    },
+    "b-ann-life-receipt-sub2-17": {
+      "id": "b-ann-life-receipt-sub2-17",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An open viewer can flash exactly those targets without re-diffing."
+        }
+      ],
+      "children": []
+    },
+    "b-ann-life-exec-27": {
+      "id": "b-ann-life-exec-27",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Execution is per-type",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-ann-life-exec-sub-28"
+      ]
+    },
+    "b-ann-life-exec-sub-28": {
+      "id": "b-ann-life-exec-sub-28",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "How the agent edits the target is the block type's business — the agent adapter in "
+        },
+        {
+          "insert": "block design",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design"
+            }
+          }
+        },
+        {
+          "insert": ". Canvas and sequence bring their own agents."
+        }
+      ],
+      "children": []
+    },
+    "b-ann-life-kept-18": {
+      "id": "b-ann-life-kept-18",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Resolved annotations stay",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-ann-life-kept-sub1-19",
+        "b-ann-life-kept-sub2-20"
+      ]
+    },
+    "b-ann-life-kept-sub1-19": {
+      "id": "b-ann-life-kept-sub1-19",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Resolving persists an optional "
+        },
+        {
+          "insert": "resolution",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " note; nothing is deleted."
+        }
+      ],
+      "children": []
+    },
+    "b-ann-life-kept-sub2-20": {
+      "id": "b-ann-life-kept-sub2-20",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The kept record is reference material — real request-to-change pairs, including for building eval sets."
+        }
+      ],
+      "children": []
+    },
+    "b-ann-direction-21": {
+      "id": "b-ann-direction-21",
+      "type": "callout",
+      "props": {
+        "kind": "Direction",
+        "title": "Annotate mode is not wired up yet",
+        "tone": "warning"
+      },
+      "text": [
+        {
+          "insert": "The surface flow — leave annotations, an AI processes them and reports back — is the target design, not current behavior. The shapes and validation for all of it exist today; the processing loop does not."
+        }
+      ],
+      "children": []
+    },
+    "b-ann-additive-22": {
+      "id": "b-ann-additive-22",
+      "type": "callout",
+      "props": {
+        "kind": "Compatibility",
+        "tone": "info"
+      },
+      "text": [
+        {
+          "insert": "changedIds",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "resolution",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " are optional and additive: sidecars written before those fields existed still validate unchanged. The schema grows by adding optional fields, not by bumping "
+        },
+        {
+          "insert": "schemaVersion",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-ann-shared-23": {
+      "id": "b-ann-shared-23",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The name is deliberately shared across packages: the canvas package's own agent processes annotations on canvas objects through this same concept and shape — one vocabulary everywhere annotations appear."
+        }
+      ],
+      "children": []
+    },
+    "b-ann-dangling-h-24": {
+      "id": "b-ann-dangling-h-24",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Dangling targets"
+        }
+      ],
+      "children": []
+    },
+    "b-ann-dangling-blocks-25": {
+      "id": "b-ann-dangling-blocks-25",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Because targets anchor by id, deletion — and the fresh ids minted by split and merge — can strand them. "
+        },
+        {
+          "insert": "detectDanglingTargets",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " flags annotations whose targets no longer resolve: a block target dangles when its blockId is missing from the document. Dangling annotations are reported, not auto-deleted — the record of what was asked outlives the block it pointed at."
+        }
+      ],
+      "children": []
+    },
+    "b-ann-dangling-canvas-26": {
+      "id": "b-ann-dangling-canvas-26",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Canvas checks distinguish \"not loaded yet\" from \"loaded and absent\": while the canvas index is still loading, canvas-target checks are skipped entirely (block checks still run) — otherwise every canvas-object annotation would flash \"target removed\" during load. Once loaded, a missing "
+        },
+        {
+          "insert": "canvasSrc",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "objectId",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", or "
+        },
+        {
+          "insert": "connectionId",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is genuinely dangling."
+        }
+      ],
+      "children": []
+    }
+  }
+}

@@ -102,9 +102,19 @@
           "attributes": {
             "bold": true
           }
-        },
+        }
+      ],
+      "children": [
+        "b-sdov-docarch-li-foundation-4-gloss"
+      ]
+    },
+    "b-sdov-docarch-li-foundation-4-gloss": {
+      "id": "b-sdov-docarch-li-foundation-4-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
-          "insert": " — why the system exists"
+          "insert": "Why the system exists."
         }
       ],
       "children": []
@@ -119,9 +129,19 @@
           "attributes": {
             "bold": true
           }
-        },
+        }
+      ],
+      "children": [
+        "b-sdov-docarch-li-design-5-gloss"
+      ]
+    },
+    "b-sdov-docarch-li-design-5-gloss": {
+      "id": "b-sdov-docarch-li-design-5-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
-          "insert": " — what the system does and WHY"
+          "insert": "What the system does and WHY."
         }
       ],
       "children": []
@@ -136,9 +156,19 @@
           "attributes": {
             "bold": true
           }
-        },
+        }
+      ],
+      "children": [
+        "b-sdov-docarch-li-impl-6-gloss"
+      ]
+    },
+    "b-sdov-docarch-li-impl-6-gloss": {
+      "id": "b-sdov-docarch-li-impl-6-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
-          "insert": " — how the code delivers it today"
+          "insert": "How the code delivers it today."
         }
       ],
       "children": []
@@ -162,7 +192,7 @@
       },
       "text": [
         {
-          "insert": "Interaction surfaces"
+          "insert": "Translation layer"
         }
       ],
       "children": []
@@ -184,11 +214,11 @@
       "props": {},
       "text": [
         {
-          "insert": "Interaction surfaces",
+          "insert": "Translation layer",
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "10-system-design/20-interaction-surfaces"
+              "path": "10-system-design/20-translation-layer"
             }
           }
         },
@@ -208,9 +238,19 @@
           "attributes": {
             "bold": true
           }
-        },
+        }
+      ],
+      "children": [
+        "b-sdov-surfaces-li-human-103-gloss"
+      ]
+    },
+    "b-sdov-surfaces-li-human-103-gloss": {
+      "id": "b-sdov-surfaces-li-human-103-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
-          "insert": " — a Notion-style editor in the workbench."
+          "insert": "A Notion-style editor in the workbench."
         }
       ],
       "children": []
@@ -225,9 +265,19 @@
           "attributes": {
             "bold": true
           }
-        },
+        }
+      ],
+      "children": [
+        "b-sdov-surfaces-li-agent-104-gloss"
+      ]
+    },
+    "b-sdov-surfaces-li-agent-104-gloss": {
+      "id": "b-sdov-surfaces-li-agent-104-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
-          "insert": " — rendered markdown and typed operations through the CLI."
+          "insert": "Rendered markdown and typed operations through the CLI."
         }
       ],
       "children": []
@@ -309,7 +359,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Blocks carry typed state; comments anchor to blocks and spans."
+          "insert": "Blocks carry typed state; annotations anchor to blocks and spans."
         }
       ],
       "children": []

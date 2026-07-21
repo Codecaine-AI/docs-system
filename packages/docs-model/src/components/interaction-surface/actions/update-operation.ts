@@ -2,6 +2,8 @@
 
 import { Type } from "@sinclair/typebox";
 import { defineComponentAction } from "../../define";
+import { cloneField } from "../../shared/field";
+import type { Field } from "../../shared/field";
 import { operationsPatch } from "../lib";
 import {
   readInteractionSurfaceOperations,
@@ -48,13 +50,7 @@ export const updateOperation = defineComponentAction({
     const operationParams: InteractionSurfaceParam[] | null | undefined =
       patch.params === undefined || patch.params === null
         ? patch.params
-        : patch.params.map((rawParam) => {
-            const param: InteractionSurfaceParam = { name: rawParam.name };
-            if (rawParam.type !== undefined) param.type = rawParam.type;
-            if (rawParam.required !== undefined) param.required = rawParam.required;
-            if (rawParam.description !== undefined) param.description = rawParam.description;
-            return param;
-          });
+        : (patch.params as Field[]).map(cloneField);
     const returns = patch.returns;
     const kind = patch.kind;
 

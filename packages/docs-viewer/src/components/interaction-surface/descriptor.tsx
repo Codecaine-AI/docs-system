@@ -21,6 +21,33 @@ function isPlainRecord(value: unknown): value is Record<string, unknown> {
 
 const INTERACTION_SURFACE_KINDS = ["action", "query", "event"] as const;
 
+/** Strict recursive param read (params are shared Field nodes): any malformed entry invalidates the whole block. */
+function interactionSurfaceParams(raw: unknown): InteractionSurfaceOperation["params"] | null {
+  if (!Array.isArray(raw)) return null;
+  const params: NonNullable<InteractionSurfaceOperation["params"]> = [];
+  for (const param of raw) {
+    if (!isPlainRecord(param)) return null;
+    if (typeof param.name !== "string" || !param.name.trim()) return null;
+    if (param.type !== undefined && typeof param.type !== "string") return null;
+    if (param.required !== undefined && typeof param.required !== "boolean") return null;
+    if (param.description !== undefined && typeof param.description !== "string") return null;
+    let nested: InteractionSurfaceOperation["params"];
+    if (param.fields !== undefined) {
+      const parsed = interactionSurfaceParams(param.fields);
+      if (!parsed) return null;
+      nested = parsed;
+    }
+    params.push({
+      name: param.name,
+      ...(param.type !== undefined ? { type: param.type } : {}),
+      ...(param.required !== undefined ? { required: param.required } : {}),
+      ...(param.description !== undefined ? { description: param.description } : {}),
+      ...(nested !== undefined ? { fields: nested } : {}),
+    });
+  }
+  return params;
+}
+
 function interactionSurfaceOperations(block: DocBlock): InteractionSurfaceOperation[] | null {
   const raw = block.props.operations;
   if (!Array.isArray(raw) || raw.length === 0) return null;
@@ -39,21 +66,9 @@ function interactionSurfaceOperations(block: DocBlock): InteractionSurfaceOperat
     }
     let operationParams: InteractionSurfaceOperation["params"];
     if (params !== undefined) {
-      if (!Array.isArray(params)) return null;
-      operationParams = [];
-      for (const param of params) {
-        if (!isPlainRecord(param)) return null;
-        if (typeof param.name !== "string" || !param.name.trim()) return null;
-        if (param.type !== undefined && typeof param.type !== "string") return null;
-        if (param.required !== undefined && typeof param.required !== "boolean") return null;
-        if (param.description !== undefined && typeof param.description !== "string") return null;
-        operationParams.push({
-          name: param.name,
-          ...(param.type !== undefined ? { type: param.type } : {}),
-          ...(param.required !== undefined ? { required: param.required } : {}),
-          ...(param.description !== undefined ? { description: param.description } : {}),
-        });
-      }
+      const parsed = interactionSurfaceParams(params);
+      if (!parsed) return null;
+      operationParams = parsed;
     }
     operations.push({
       name,

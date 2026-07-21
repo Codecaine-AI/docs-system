@@ -18,18 +18,18 @@ import {
   type DocProjectionResult,
 } from "./bundle";
 import {
-  addBundleComment,
+  addBundleAnnotation,
   applyDocOpsToBundle,
-  attachAgentRunToComment,
-  getBundleComments,
-  resolveBundleComment,
-  type AddBundleCommentInput,
-  type AddBundleCommentResult,
+  attachAgentRunToAnnotation,
+  getBundleAnnotations,
+  resolveBundleAnnotation,
+  type AddBundleAnnotationInput,
+  type AddBundleAnnotationResult,
   type ApplyDocOpsResult,
   type AttachAgentRunInput,
   type AttachAgentRunResult,
-  type BundleCommentsReadResult,
-  type ResolveBundleCommentResult,
+  type BundleAnnotationsReadResult,
+  type ResolveBundleAnnotationResult,
 } from "./doc-ops";
 import {
   readDocAsset,
@@ -68,19 +68,19 @@ import {
   type SequenceSidecarByDocPathLoadResult,
 } from "./sequence-sidecar";
 import {
+  annotation_list,
+  annotation_resolve,
   canvas_apply_patch,
   canvas_get,
-  comment_list,
-  comment_resolve,
   doc_get,
   sequence_apply_patch,
   sequence_get,
   undo_patch,
+  type AnnotationListResult,
+  type AnnotationResolveResult,
   type CanvasApplyPatchResult,
   type CanvasAgentPatchOperation,
   type CanvasGetResult,
-  type CommentListResult,
-  type CommentResolveResult,
   type DocGetResult,
   type SequenceAgentPatchOperation,
   type SequenceApplyPatchResult,
@@ -126,7 +126,7 @@ export interface DocsStore {
   tree(): Promise<DocsTreeNode[]>;
   bundle(path: string): Promise<DocBundleLoadResult | DocBundleLoadError>;
   projection(path: string): Promise<DocProjectionResult | DocBundleLoadError>;
-  comments(path: string): Promise<BundleCommentsReadResult>;
+  annotations(path: string): Promise<BundleAnnotationsReadResult>;
   docGet(path: string): Promise<DocGetResult>;
   canvasGet(src: string): Promise<CanvasGetResult>;
   canvasByDocPath(
@@ -138,7 +138,7 @@ export interface DocsStore {
     docPath: string,
     src: string,
   ): Promise<SequenceSidecarByDocPathLoadResult | SequenceSidecarByDocPathError>;
-  commentList(path: string): Promise<CommentListResult>;
+  annotationList(path: string): Promise<AnnotationListResult>;
   readAsset(path: string): Promise<ReadDocAssetResult>;
   backlinks(target: string): Promise<BacklinkRow[]>;
 
@@ -151,37 +151,37 @@ export interface DocsStore {
   ): Promise<ApplyDocOpsResult>;
   forwardCanvasAction(
     path: string,
-    op: Extract<DocOp, { type: "blockAction" }>,
+    op: Extract<DocOp, { type: "componentAction" }>,
     expectedDocHash?: string,
     expectedCanvasHash?: string,
     sessionId?: string,
   ): Promise<ForwardCanvasActionResult>;
   forwardSequenceAction(
     path: string,
-    op: Extract<DocOp, { type: "blockAction" }>,
+    op: Extract<DocOp, { type: "componentAction" }>,
     expectedDocHash?: string,
     expectedSequenceHash?: string,
     sessionId?: string,
   ): Promise<ForwardSequenceActionResult>;
-  addComment(
+  addAnnotation(
     path: string,
-    input: AddBundleCommentInput,
+    input: AddBundleAnnotationInput,
     sessionId?: string,
-  ): Promise<AddBundleCommentResult>;
-  resolveComment(
+  ): Promise<AddBundleAnnotationResult>;
+  resolveAnnotation(
     path: string,
-    commentId: string,
+    annotationId: string,
     expectedHash?: string,
     sessionId?: string,
     response?: string,
-  ): Promise<ResolveBundleCommentResult>;
-  commentResolve(
+  ): Promise<ResolveBundleAnnotationResult>;
+  annotationResolve(
     path: string,
-    commentId: string,
+    annotationId: string,
     expectedHash: string | undefined,
     actor?: string,
     response?: string,
-  ): Promise<CommentResolveResult>;
+  ): Promise<AnnotationResolveResult>;
   attachAgentRun(path: string, input: AttachAgentRunInput): Promise<AttachAgentRunResult>;
   uploadAsset(input: UploadDocAssetInput): Promise<UploadDocAssetResult>;
   uploadVideoAsset(input: UploadDocAssetInput): Promise<UploadDocAssetResult>;
@@ -233,7 +233,7 @@ export type ForwardCanvasActionResult =
 async function forwardCanvasAction(
   docsRoot: string,
   path: string,
-  op: Extract<DocOp, { type: "blockAction" }>,
+  op: Extract<DocOp, { type: "componentAction" }>,
   expectedDocHash?: string,
   expectedCanvasHash?: string,
   sessionId?: string,
@@ -269,7 +269,7 @@ async function forwardCanvasAction(
 
     const block = loaded.document.blocks[op.blockId];
     if (!block) {
-      const message = `blockAction target "${op.blockId}" does not exist.`;
+      const message = `componentAction target "${op.blockId}" does not exist.`;
       return {
         ok: false,
         status: 400,
@@ -278,7 +278,7 @@ async function forwardCanvasAction(
       };
     }
     if (block.type !== "canvas") {
-      const message = `blockAction "${op.action}" targets "canvas" blocks, but "${op.blockId}" is a "${block.type}".`;
+      const message = `componentAction "${op.action}" targets "canvas" blocks, but "${op.blockId}" is a "${block.type}".`;
       return {
         ok: false,
         status: 400,
@@ -373,14 +373,14 @@ export type ForwardSequenceActionResult =
 
 /**
  * Sequence counterpart of `forwardCanvasAction`: routes a doc-level
- * `blockAction` whose action forwards to the "sequence" authority onto the
+ * `componentAction` whose action forwards to the "sequence" authority onto the
  * referenced sidecar via `sequence_apply_patch`, under the doc bundle's path
  * lock with the doc-hash precondition checked first.
  */
 async function forwardSequenceAction(
   docsRoot: string,
   path: string,
-  op: Extract<DocOp, { type: "blockAction" }>,
+  op: Extract<DocOp, { type: "componentAction" }>,
   expectedDocHash?: string,
   expectedSequenceHash?: string,
   sessionId?: string,
@@ -416,7 +416,7 @@ async function forwardSequenceAction(
 
     const block = loaded.document.blocks[op.blockId];
     if (!block) {
-      const message = `blockAction target "${op.blockId}" does not exist.`;
+      const message = `componentAction target "${op.blockId}" does not exist.`;
       return {
         ok: false,
         status: 400,
@@ -425,7 +425,7 @@ async function forwardSequenceAction(
       };
     }
     if (block.type !== "sequence") {
-      const message = `blockAction "${op.action}" targets "sequence" blocks, but "${op.blockId}" is a "${block.type}".`;
+      const message = `componentAction "${op.action}" targets "sequence" blocks, but "${op.blockId}" is a "${block.type}".`;
       return {
         ok: false,
         status: 400,
@@ -512,13 +512,13 @@ export function createDocsStore(docsRoot: string): DocsStore {
     tree: () => walkDocsDir(root),
     bundle: (path) => loadDocBundle(root, path),
     projection: (path) => loadDocProjection(root, path),
-    comments: (path) => getBundleComments(root, path),
+    annotations: (path) => getBundleAnnotations(root, path),
     docGet: (path) => doc_get(root, path),
     canvasGet: (src) => canvas_get(root, src),
     canvasByDocPath: (docPath, src) => loadCanvasSidecarByDocPath(root, docPath, src),
     sequenceGet: (src) => sequence_get(root, src),
     sequenceByDocPath: (docPath, src) => loadSequenceSidecarByDocPath(root, docPath, src),
-    commentList: (path) => comment_list(root, path),
+    annotationList: (path) => annotation_list(root, path),
     readAsset: (path) => readDocAsset(root, path),
     backlinks: async (target) => queryInboundTolerant(await getBacklinksDb(root), target),
 
@@ -528,12 +528,12 @@ export function createDocsStore(docsRoot: string): DocsStore {
       forwardCanvasAction(root, path, op, expectedDocHash, expectedCanvasHash, sessionId),
     forwardSequenceAction: (path, op, expectedDocHash, expectedSequenceHash, sessionId) =>
       forwardSequenceAction(root, path, op, expectedDocHash, expectedSequenceHash, sessionId),
-    addComment: (path, input, sessionId) => addBundleComment(root, path, input, sessionId),
-    resolveComment: (path, commentId, expectedHash, sessionId, response) =>
-      resolveBundleComment(root, path, commentId, expectedHash, sessionId, response),
-    commentResolve: (path, commentId, expectedHash, actor, response) =>
-      comment_resolve(root, path, commentId, expectedHash, actor, response),
-    attachAgentRun: (path, input) => attachAgentRunToComment(root, path, input),
+    addAnnotation: (path, input, sessionId) => addBundleAnnotation(root, path, input, sessionId),
+    resolveAnnotation: (path, annotationId, expectedHash, sessionId, response) =>
+      resolveBundleAnnotation(root, path, annotationId, expectedHash, sessionId, response),
+    annotationResolve: (path, annotationId, expectedHash, actor, response) =>
+      annotation_resolve(root, path, annotationId, expectedHash, actor, response),
+    attachAgentRun: (path, input) => attachAgentRunToAnnotation(root, path, input),
     uploadAsset: (input) => uploadDocAsset(root, input),
     uploadVideoAsset: (input) => uploadDocVideoAsset(root, input),
     saveCanvasSidecar: (input) => saveCanvasSidecar(root, input),

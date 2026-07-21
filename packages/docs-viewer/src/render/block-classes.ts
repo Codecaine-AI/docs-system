@@ -63,11 +63,11 @@ export const LIST_ITEM_CHILDREN_CLASSES = "";
  * vars let a themed host recolor it; the fallbacks are Notion's own values.
  */
 export const INLINE_CODE_CLASSES =
-  "not-prose rounded bg-[var(--docs-inline-code-bg,rgba(135,131,120,0.15))] px-[0.35em] py-[0.1em] font-mono text-[0.85em] text-[var(--docs-inline-code-fg,#eb5757)]";
+  "not-prose rounded-sm bg-[var(--docs-inline-code-bg,rgba(135,131,120,0.15))] px-[0.35em] py-[0.1em] font-mono text-[0.85em] text-[var(--docs-inline-code-fg,#eb5757)]";
 
-/** `code` — the `<pre>` element (the inner `<code>` is unstyled on both surfaces). Border/background follow the per-block-type tokens; the fallbacks equal the old `border` + `bg-muted/30` utilities so unthemed hosts render unchanged. */
+/** `code` — the outer FRAME element on every surface (header band + scroll body live inside it — see components/code/CodeShell.tsx; padding and scrolling moved in there too). Border/background follow the per-block-type tokens; the fallbacks equal the old `border` + `bg-muted/30` utilities so unthemed hosts render unchanged. */
 export const CODE_BLOCK_CLASSES =
-  "not-prose my-4 overflow-auto rounded-md border border-[color:var(--docs-code-block-border,var(--border))] bg-[color:var(--docs-code-block-bg,color-mix(in_srgb,var(--muted)_30%,transparent))] p-3 font-mono text-xs leading-relaxed";
+  "not-prose my-4 overflow-hidden rounded-md border border-[color:var(--docs-code-block-border,var(--border))] bg-[color:var(--docs-code-block-bg,color-mix(in_srgb,var(--muted)_30%,transparent))] font-mono text-xs leading-[20px]";
 
 /** `quote` — the `<blockquote>` element. Border/text colors follow the per-block-type tokens; the fallbacks equal the old `border-primary/40` + `text-muted-foreground` utilities. */
 export const QUOTE_CLASSES =

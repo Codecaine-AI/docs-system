@@ -8,7 +8,7 @@
  * (directly contains doc.json) or a SECTION (does not). Bundles are not
  * leaves: a section's introduction is the section folder's own doc.json, and
  * child doc directories beneath it are structure-checked and recursed into.
- * Inside a bundle, doc.json, comments.json, index.md/index.mdx, and the
+ * Inside a bundle, doc.json, annotations.json, index.md/index.mdx, and the
  * assets/ and canvases/ directories are the document's own reserved material,
  * not corpus children. Dotfiles (`.index` etc.) and node_modules are skipped;
  * plain files sitting in sections are ignored.
@@ -247,7 +247,7 @@ async function auditDirectory(
  * `docs audit [docsRoot]`: walks the parent-doc bundle tree. A section's
  * introduction is its folder's own doc.json; bundles are not leaves, so their
  * child doc directories receive sibling checks and are recursively audited.
- * The bundle-owned entries doc.json, comments.json, index.md/index.mdx,
+ * The bundle-owned entries doc.json, annotations.json, index.md/index.mdx,
  * assets/, and canvases/ are not child doc directories.
  *
  * Structural errors are E1–E5, including E3 when a non-root, non-bundle

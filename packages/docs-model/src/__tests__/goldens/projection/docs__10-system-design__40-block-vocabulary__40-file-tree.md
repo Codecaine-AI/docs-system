@@ -1,5 +1,23 @@
 The annotated path tree of the block vocabulary: a flat list of path entries in props that renders — on both surfaces — as a `tree`-command drawing, with notes and per-entry change markers for describing repo slices and refactors.
 
+## Example
+
+A live instance: a refactor slice of this block's own source folder.
+
+```
+  packages/
+  └── docs-model/
+      └── src/
+          └── components/
+              └── file-tree/
+                  ├── actions/
++                 │   └── update-entry.ts
+~                 ├── agent-view.ts  # tree drawing
+>                 ├── packages/docs-model/src/components/file-tree/render.ts -> lib.ts
+                  ├── manifest.ts
+                  └── state.ts  # entry schema + tolerant read
+```
+
 ## State
 
 | prop | type | required | notes |
@@ -18,10 +36,6 @@ The annotated path tree of the block vocabulary: a flat list of path entries in 
 
 No text (`carriesText: false`). Directories don't need their own entries — they are derived from path prefixes.
 
-## Markdown render
-
-An optional `**<title>**` bold line, then a literal tree rendering inside a bare fence: `├──`/`└──`/`│` guides, directories first then alphabetical (deterministic codepoint order), notes appended as `# note`. Change markers prefix the line — `+` added, `-` removed, `~` modified, `>` renamed (rendered as `{from} -> {name}`) — and when any entry carries a marker, unmarked lines are padded with two spaces so the guides stay aligned.
-
 ## Typed actions
 
 Ordering is stable by design: `addEntry` appends (and rejects a duplicate path), `updateEntry` patches or renames in place (`newPath` keeps position; `null` clears `note`/`change`/`from`), `removeEntry` deletes by exact path.
@@ -34,9 +48,11 @@ file-tree.removeEntry(path: string) -> props patch: { entries }  # Remove the en
 file-tree.updateEntry(path: string, note?: string | null, change?: string | null, from?: string | null, newPath?: string) -> props patch: { entries }  # Patch an entry's note/change/from, or rename it via newPath (in place).
 ```
 
-## In the editor
+## Renderers
 
-A non-editable atom leaf node rendered by `FileTreeDocsBlock`. No slash-menu entry today — file trees enter through agent ops or existing content.
+In the editor: a non-editable atom leaf node rendered by `FileTreeDocsBlock`. No slash-menu entry today — file trees enter through agent ops or existing content.
+
+In the markdown render: an optional `**<title>**` bold line, then a literal tree rendering inside a bare fence: `├──`/`└──`/`│` guides, directories first then alphabetical (deterministic codepoint order), notes appended as `# note`. Change markers prefix the line — `+` added, `-` removed, `~` modified, `>` renamed (rendered as `{from} -> {name}`) — and when any entry carries a marker, unmarked lines are padded with two spaces so the guides stay aligned.
 
 ## Agent notes
 

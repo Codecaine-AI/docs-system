@@ -4,7 +4,7 @@ import { describe, expect, it } from "bun:test";
 import type { Static, TObject } from "@sinclair/typebox";
 import type { DocBlock } from "../../../doc-schema";
 import { checkParams } from "../../define";
-import type { BlockActionResult, ComponentAction } from "../../types";
+import type { ComponentActionResult, ComponentAction } from "../../types";
 import { addEntry } from "../actions/add-entry";
 import { removeEntry } from "../actions/remove-entry";
 import { updateEntry } from "../actions/update-entry";
@@ -28,7 +28,7 @@ function run<P extends TObject>(
   action: ComponentAction<P>,
   block: DocBlock,
   params: Record<string, unknown>,
-): BlockActionResult {
+): ComponentActionResult {
   const before = JSON.stringify(block);
   const issues = checkParams(action, params);
   const result = issues.length > 0
@@ -40,13 +40,13 @@ function run<P extends TObject>(
   return result;
 }
 
-function mustOk(result: BlockActionResult): Record<string, unknown> {
+function mustOk(result: ComponentActionResult): Record<string, unknown> {
   if (!result.ok) throw new Error(`Expected ok, got issues: ${JSON.stringify(result.issues)}`);
   return result.props;
 }
 
 function mustFail(
-  result: BlockActionResult,
+  result: ComponentActionResult,
   path: string,
   message?: string,
 ): void {

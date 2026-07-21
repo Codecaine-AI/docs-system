@@ -4,7 +4,7 @@ import { Fragment, useMemo, type ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import remarkGfm from "remark-gfm";
-import type { DeltaSpan, DocBlock, DocDocument } from "@codecaine-ai/docs-model/doc-schema";
+import type { DocBlock, DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import type { DocBlockRenderContext } from "./block-registry";
 import { getDocBlockDescriptor } from "./block-registry";
 import {
@@ -13,7 +13,7 @@ import {
   useCanvasEmbed,
   useSequenceEmbed,
 } from "../client";
-import { INLINE_CODE_CLASSES } from "./block-classes";
+import { renderDeltaSpans } from "./delta-spans";
 import { resolveBundleCanvasSrc, resolveBundleSequenceSrc } from "./bundle-src";
 
 // Re-exported beside the renderer so hosts already importing this module
@@ -38,7 +38,7 @@ export interface DocBlockRendererProps {
    * `resolveBundleCanvasSrc` to root-relative form — served by
    * `/docs/canvas-by-src` from the bundle's OWN assets copy, which survives
    * twin retirement. The canonical form is also what `onCanvasObjectSelect`
-   * reports as `canvasSrc`, so comment targets stay unambiguous across docs.
+   * reports as `canvasSrc`, so annotation targets stay unambiguous across docs.
    */
   bundlePath?: string | null;
   /**
@@ -81,56 +81,10 @@ function MarkdownContent({ content }: { content: string }) {
   );
 }
 
-/**
- * Delta spans -> inline React. Marks nest deterministically: reference/link
- * outermost, then bold/italic/strike, code innermost.
- */
-export function renderDeltaSpans(text: DeltaSpan[] | undefined): ReactNode {
-  if (!text || text.length === 0) return null;
-  return text.map((span, index) => {
-    let node: ReactNode = span.insert;
-    const attrs = span.attributes;
-    if (attrs) {
-      if (attrs.code) {
-        node = (
-          <code className={INLINE_CODE_CLASSES}>{node}</code>
-        );
-      }
-      if (attrs.bold) node = <strong>{node}</strong>;
-      if (attrs.italic) node = <em>{node}</em>;
-      if (attrs.strike) node = <del>{node}</del>;
-      if (attrs.link) {
-        node = (
-          <a
-            href={attrs.link}
-            target="_blank"
-            rel="noreferrer"
-            className="text-primary underline underline-offset-2"
-          >
-            {node}
-          </a>
-        );
-      } else if (attrs.reference) {
-        // Doc/code mention chip (D27) — inert in the tracer; deep-link
-        // navigation arrives with the Plannotator/backlinks work.
-        node = (
-          <span
-            data-spectre-ref="true"
-            data-ref-kind={attrs.reference.kind}
-            data-ref-path={attrs.reference.path}
-            data-ref-symbol={attrs.reference.symbol}
-            data-ref-section={attrs.reference.section}
-            title={attrs.reference.path}
-            className="inline-flex items-center gap-1 rounded border border-primary/30 bg-primary/5 px-1 py-0.5 font-mono text-[0.85em] text-foreground"
-          >
-            {attrs.reference.label ?? node}
-          </span>
-        );
-      }
-    }
-    return <Fragment key={index}>{node}</Fragment>;
-  });
-}
+// renderDeltaSpans now lives in delta-spans.tsx so components can render
+// inline spans without importing this module (import-cycle avoidance);
+// re-exported here because the public export path is frozen.
+export { renderDeltaSpans };
 
 function UnknownBlockTypeBlock({ block }: { block: DocBlock }) {
   return (

@@ -220,7 +220,7 @@ function ReferenceChipView({ node }: ReactNodeViewProps) {
           id={tooltipId}
           role="tooltip"
           style={floatingStyles}
-          className="pointer-events-none z-50 max-w-[min(32rem,calc(100vw-1rem))] break-all rounded bg-foreground px-2 py-1 text-[11px] leading-tight text-background shadow-sm"
+          className="pointer-events-none z-50 max-w-[min(32rem,calc(100vw-1rem))] break-all rounded-sm bg-foreground px-2 py-1 text-[11px] leading-tight text-background shadow-sm"
         >
           {attrs.ref.path}
         </span>
@@ -530,7 +530,7 @@ export function ReferenceMentionPopover({
               event.preventDefault();
               chooseDoc(entry);
             }}
-            className="flex w-full flex-col items-start rounded px-2 py-1.5 text-left hover:bg-muted data-[selected=true]:bg-muted"
+            className="flex w-full flex-col items-start rounded-sm px-2 py-1.5 text-left hover:bg-muted data-[selected=true]:bg-muted"
           >
             <span className="font-medium">{entry.label}</span>
             <span className="text-xs text-muted-foreground">{entry.path}</span>
@@ -544,7 +544,7 @@ export function ReferenceMentionPopover({
               event.preventDefault();
               chooseCustomPath();
             }}
-            className="flex w-full flex-col items-start rounded border-t px-2 py-1.5 text-left hover:bg-muted data-[selected=true]:bg-muted"
+            className="flex w-full flex-col items-start rounded-sm border-t px-2 py-1.5 text-left hover:bg-muted data-[selected=true]:bg-muted"
           >
             <span className="font-medium">Reference source path "{query}"</span>
             <span className="text-xs text-muted-foreground">Insert as a source reference</span>

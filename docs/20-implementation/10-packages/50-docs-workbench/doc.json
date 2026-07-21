@@ -237,25 +237,15 @@
           }
         },
         {
-          "insert": ". The page also surfaces live SSE change flashes and one-click undo, while "
+          "insert": ". The page also surfaces live SSE change flashes and one-click undo. The block-type catalog is the per-type reference pages under "
         },
         {
-          "insert": "packages/docs-workbench/web/src/pages/BlocksPage.tsx",
+          "insert": "block vocabulary",
           "attributes": {
-            "code": true,
             "reference": {
-              "kind": "source",
-              "path": "packages/docs-workbench/web/src/pages/BlocksPage.tsx"
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary"
             }
-          }
-        },
-        {
-          "insert": " exposes the block library at "
-        },
-        {
-          "insert": "#/blocks",
-          "attributes": {
-            "code": true
           }
         },
         {

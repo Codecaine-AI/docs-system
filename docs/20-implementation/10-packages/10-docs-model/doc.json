@@ -242,7 +242,7 @@
           "insert": ", and "
         },
         {
-          "insert": "blockAction",
+          "insert": "componentAction",
           "attributes": {
             "code": true
           }
@@ -301,17 +301,17 @@
       "props": {},
       "text": [
         {
-          "insert": "packages/docs-model/src/comments-schema.ts",
+          "insert": "packages/docs-model/src/annotations-schema.ts",
           "attributes": {
             "code": true,
             "reference": {
               "kind": "source",
-              "path": "packages/docs-model/src/comments-schema.ts"
+              "path": "packages/docs-model/src/annotations-schema.ts"
             }
           }
         },
         {
-          "insert": " defines comments whose targets anchor to document blocks or canvas objects."
+          "insert": " defines annotations whose targets anchor to document blocks or canvas objects."
         }
       ],
       "children": []

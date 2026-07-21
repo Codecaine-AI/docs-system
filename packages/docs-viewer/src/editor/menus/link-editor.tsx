@@ -361,7 +361,7 @@ export function LinkEditorPopover({ editor }: { editor: Editor }) {
             closeWithoutChanges();
           }
         }}
-        className="h-7 min-w-0 flex-1 rounded bg-transparent px-2 text-sm text-foreground outline-none placeholder:text-muted-foreground"
+        className="h-7 min-w-0 flex-1 rounded-sm bg-transparent px-2 text-sm text-foreground outline-none placeholder:text-muted-foreground"
       />
       {state.href !== "" && (
         <button
@@ -373,7 +373,7 @@ export function LinkEditorPopover({ editor }: { editor: Editor }) {
             event.preventDefault();
             applyLinkAtRange(editor, state.from, state.to, "");
           }}
-          className="shrink-0 rounded border px-1.5 py-0.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+          className="shrink-0 rounded-sm border px-1.5 py-0.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
         >
           Remove
         </button>

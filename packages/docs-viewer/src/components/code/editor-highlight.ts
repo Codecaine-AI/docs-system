@@ -25,7 +25,8 @@ export const docCodeBlockHighlightPluginKey = new PluginKey<DecorationSet>(
   "docCodeBlockHighlight",
 );
 
-function buildDecorations(state: EditorState): DecorationSet {
+/** Exported for tests — the plugin below is the only runtime caller. */
+export function buildDecorations(state: EditorState): DecorationSet {
   const decorations: Decoration[] = [];
   state.doc.descendants((node, pos) => {
     if (node.type.name !== "docCodeBlock") return true;

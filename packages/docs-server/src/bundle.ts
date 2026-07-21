@@ -3,8 +3,8 @@ import { dirname, join, resolve } from "node:path";
 
 import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import { serializeDocDocument, validateDocDocument } from "@codecaine-ai/docs-model/doc-schema";
-import type { CommentsDocument, CommentTarget } from "@codecaine-ai/docs-model/comments-schema";
-import { validateCommentsDocument } from "@codecaine-ai/docs-model/comments-schema";
+import type { AnnotationsDocument, AnnotationTarget } from "@codecaine-ai/docs-model/annotations-schema";
+import { validateAnnotationsDocument } from "@codecaine-ai/docs-model/annotations-schema";
 import { projectToMarkdown } from "@codecaine-ai/docs-model/project-markdown";
 import { resolveDocBundleJsonPath } from "@codecaine-ai/docs-index/paths";
 
@@ -12,13 +12,17 @@ import { atomicWriteFile } from "./atomic-write";
 import { createContentHash } from "./content-hash";
 
 /**
- * Doc-bundle loading + comments sidecar read/write. This is the single
+ * Doc-bundle loading + annotations sidecar read/write. This is the single
  * source of truth for the bundle wire shapes — both the standalone serve
  * app's `GET /api/bundle` and any host app's project-scoped bundle routes
- * delegate here, so responses stay shape-identical everywhere.
+ * delegate here, so responses stay shape-identical everywhere. The sidecar
+ * file is `annotations.json`, full stop.
  */
 
 export { createContentHash };
+
+/** The annotations sidecar filename (sibling of a bundle's doc.json). */
+export const ANNOTATIONS_SIDECAR_FILENAME = "annotations.json";
 
 /**
  * Normalizes a `docs/`-relative bundle reference (folder, `doc.json` path,
@@ -41,21 +45,22 @@ export type DocBundleLoadResult = {
   docsRootResolved: string;
   bundlePath: string;
   jsonAbs: string;
-  commentsAbs: string;
+  /** Canonical annotations sidecar path (annotations.json) — where writes go. */
+  annotationsAbs: string;
   raw: string;
   document: DocDocument;
   docHash: string;
-  comments: CommentsDocument | null;
-  commentsHash: string | null;
+  annotations: AnnotationsDocument | null;
+  annotationsHash: string | null;
 };
 
 export type DocBundleLoadError = { error: { status: number; detail: string } };
 
 /**
  * Loads + validates a doc bundle's `doc.json` together with its sibling
- * `comments.json`, if present, from the SAME bundle folder. `comments.json`
- * absence is a valid empty state, not an error; presence with invalid
- * content IS a clear error (never silently dropped).
+ * `annotations.json`, if present, from the SAME bundle folder.
+ * `annotations.json` absence is a valid empty state, not an error; presence
+ * with invalid content IS a clear error (never silently dropped).
  */
 export async function loadDocBundle(
   docsRoot: string,
@@ -94,38 +99,41 @@ export async function loadDocBundle(
 
   const docsRootResolved = resolve(docsRoot);
   const bundlePath = normalizeBundlePath(path);
-  const commentsAbs = join(dirname(jsonAbs), "comments.json");
+  const annotationsAbs = join(dirname(jsonAbs), ANNOTATIONS_SIDECAR_FILENAME);
 
-  let comments: CommentsDocument | null = null;
-  let commentsHash: string | null = null;
-  let commentsRaw: string | null = null;
+  let annotations: AnnotationsDocument | null = null;
+  let annotationsHash: string | null = null;
+  let annotationsRaw: string | null = null;
   try {
-    commentsRaw = await readFile(commentsAbs, "utf8");
+    annotationsRaw = await readFile(annotationsAbs, "utf8");
   } catch {
-    commentsRaw = null;
+    annotationsRaw = null;
   }
-  if (commentsRaw !== null) {
-    let commentsParsed: unknown;
+  if (annotationsRaw !== null) {
+    let annotationsParsed: unknown;
     try {
-      commentsParsed = JSON.parse(commentsRaw);
+      annotationsParsed = JSON.parse(annotationsRaw);
     } catch {
-      return {
-        error: { status: 422, detail: `Comments sidecar is not valid JSON: ${path}/comments.json` },
-      };
-    }
-    const commentsValidated = validateCommentsDocument(commentsParsed);
-    if (!commentsValidated.ok) {
       return {
         error: {
           status: 422,
-          detail: `Comments sidecar failed schema validation: ${commentsValidated.issues
+          detail: `Annotations sidecar is not valid JSON: ${path}/${ANNOTATIONS_SIDECAR_FILENAME}`,
+        },
+      };
+    }
+    const annotationsValidated = validateAnnotationsDocument(annotationsParsed);
+    if (!annotationsValidated.ok) {
+      return {
+        error: {
+          status: 422,
+          detail: `Annotations sidecar failed schema validation: ${annotationsValidated.issues
             .map((issue) => `${issue.path}: ${issue.message}`)
             .join("; ")}`,
         },
       };
     }
-    comments = commentsValidated.document;
-    commentsHash = createContentHash(commentsRaw);
+    annotations = annotationsValidated.document;
+    annotationsHash = createContentHash(annotationsRaw);
   }
 
   return {
@@ -133,12 +141,12 @@ export async function loadDocBundle(
     docsRootResolved,
     bundlePath,
     jsonAbs,
-    commentsAbs,
+    annotationsAbs,
     raw,
     document: validated.document,
     docHash: createContentHash(serializeDocDocument(validated.document)),
-    comments,
-    commentsHash,
+    annotations,
+    annotationsHash,
   };
 }
 
@@ -152,8 +160,8 @@ export function bundleResponse(loaded: DocBundleLoadResult) {
     document_path: `docs/${loaded.bundlePath}`,
     doc: loaded.document,
     doc_hash: loaded.docHash,
-    comments: loaded.comments,
-    comments_hash: loaded.commentsHash,
+    annotations: loaded.annotations,
+    annotations_hash: loaded.annotationsHash,
   };
 }
 
@@ -170,61 +178,61 @@ export async function loadDocProjection(
 }
 
 // ---------------------------------------------------------------------------
-// Comments sidecar primitives
+// Annotations sidecar primitives
 // ---------------------------------------------------------------------------
 
-export const EMPTY_COMMENTS_DOCUMENT: CommentsDocument = { schemaVersion: 1, comments: [] };
+export const EMPTY_ANNOTATIONS_DOCUMENT: AnnotationsDocument = { schemaVersion: 1, annotations: [] };
 
 /**
- * Reads + validates a bundle's `comments.json` sidecar directly (the GET
- * comments route uses this rather than `loadDocBundle`, since fetching
- * comments shouldn't require the doc.json to itself be valid). Absence is a
- * valid empty state — never a 404.
+ * Reads + validates a bundle's `annotations.json` sidecar directly (the GET
+ * annotations route uses this rather than `loadDocBundle`, since fetching
+ * annotations shouldn't require the doc.json to itself be valid). Absence is
+ * a valid empty state — never a 404.
  */
-export async function readCommentsSidecar(
-  commentsAbs: string,
+export async function readAnnotationsSidecar(
+  annotationsAbs: string,
 ): Promise<
-  | { ok: true; comments: CommentsDocument; hash: string | null }
+  | { ok: true; annotations: AnnotationsDocument; hash: string | null }
   | { error: { status: number; detail: string } }
 > {
   let raw: string;
   try {
-    raw = await readFile(commentsAbs, "utf8");
+    raw = await readFile(annotationsAbs, "utf8");
   } catch {
-    return { ok: true, comments: EMPTY_COMMENTS_DOCUMENT, hash: null };
+    return { ok: true, annotations: EMPTY_ANNOTATIONS_DOCUMENT, hash: null };
   }
   let parsed: unknown;
   try {
     parsed = JSON.parse(raw);
   } catch {
-    return { error: { status: 422, detail: "Comments sidecar is not valid JSON" } };
+    return { error: { status: 422, detail: "Annotations sidecar is not valid JSON" } };
   }
-  const validated = validateCommentsDocument(parsed);
+  const validated = validateAnnotationsDocument(parsed);
   if (!validated.ok) {
     return {
       error: {
         status: 422,
-        detail: `Comments sidecar failed schema validation: ${validated.issues
+        detail: `Annotations sidecar failed schema validation: ${validated.issues
           .map((issue) => `${issue.path}: ${issue.message}`)
           .join("; ")}`,
       },
     };
   }
-  return { ok: true, comments: validated.document, hash: createContentHash(raw) };
+  return { ok: true, annotations: validated.document, hash: createContentHash(raw) };
 }
 
-/** Atomically persists a comments document; returns content + hash. */
-export async function writeCommentsSidecar(
-  commentsAbs: string,
-  document: CommentsDocument,
+/** Atomically persists an annotations document; returns content + hash. */
+export async function writeAnnotationsSidecar(
+  annotationsAbs: string,
+  document: AnnotationsDocument,
 ): Promise<{ content: string; hash: string }> {
   const content = `${JSON.stringify(document, null, 2)}\n`;
-  await atomicWriteFile(commentsAbs, content);
+  await atomicWriteFile(annotationsAbs, content);
   return { content, hash: createContentHash(content) };
 }
 
-/** Structural check for a comment target (block or canvas-object). */
-export function isValidCommentTarget(value: unknown): value is CommentTarget {
+/** Structural check for an annotation target (block or canvas-object). */
+export function isValidAnnotationTarget(value: unknown): value is AnnotationTarget {
   if (!value || typeof value !== "object") return false;
   const record = value as Record<string, unknown>;
   if (record.kind === "block") {

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "bun:test";
-import { cleanup, fireEvent, render } from "@testing-library/react";
+import { act, cleanup, fireEvent, render } from "@testing-library/react";
 import type { ReactNodeViewProps } from "@tiptap/react";
 import { useState } from "react";
 import { StructuredTableNodeView } from "../components/structured-table/editor-node-view";
@@ -8,7 +8,7 @@ import {
   columnsFlashRange,
   rowsFlashRange,
 } from "../components/structured-table/editor/BirthFlash";
-import { EditableCell } from "../components/structured-table/editor/EditableCell";
+import { EditableCell, getCellEditor } from "../components/structured-table/editor/EditableCell";
 import {
   buildColumnMenuItems,
   buildRowMenuItems,
@@ -168,7 +168,8 @@ describe("post-add focus target", () => {
     clickBar(query(container, "[data-table-add-column]")!);
     const active = document.activeElement as HTMLElement;
     expect(active.getAttribute("aria-label")).toBe("Column 3 header");
-    fireEvent.keyDown(active, { key: "z", metaKey: true });
+    // prosemirror-keymap resolves "Mod-" to Ctrl outside macOS (happy-dom).
+    fireEvent.keyDown(active, { key: "z", ctrlKey: true });
     expect(history).toContain("undo");
   });
 });
@@ -302,24 +303,25 @@ describe("header ghost placeholder", () => {
     );
   }
 
-  it("header cells carry a position-based ghost label; body cells never", () => {
-    const { container } = renderGrid({ columns: ["", "B"], rows: [["", ""]] });
-    const headers = container.querySelectorAll<HTMLElement>('thead [role="textbox"]');
-    expect(headers[0]!.getAttribute("data-placeholder")).toBe("Column 1");
-    expect(headers[1]!.getAttribute("data-placeholder")).toBe("Column 2");
-    // Shown via :empty CSS — no debounce lag, hidden the instant text lands.
-    expect(headers[0]!.className).toContain(
-      "empty:before:content-[attr(data-placeholder)]",
+  /** Ghost labels of the container's header cells (null where no ghost shows). */
+  function headerGhosts(container: HTMLElement): Array<string | null> {
+    return Array.from(container.querySelectorAll<HTMLElement>("thead th")).map(
+      (th) => th.querySelector("[data-cell-placeholder]")?.textContent ?? null,
     );
-    expect(headers[0]!.className).toContain("empty:before:text-muted-foreground/60");
+  }
 
-    for (const body of container.querySelectorAll<HTMLElement>('tbody [role="textbox"]')) {
-      expect(body.getAttribute("data-placeholder")).toBeNull();
+  it("EMPTY header cells carry a position-based ghost label; body cells never", () => {
+    const { container } = renderGrid({ columns: ["", "B"], rows: [["", ""]] });
+    // Only the empty header shows its ghost; a filled header shows none.
+    expect(headerGhosts(container)).toEqual(["Column 1", null]);
+    for (const td of container.querySelectorAll<HTMLElement>("tbody td")) {
+      expect(td.querySelector("[data-cell-placeholder]")).toBeNull();
     }
   });
 
   it("numbering follows the column's current position after a reorder", () => {
     const { container, rerender } = renderGrid({ columns: ["", "B"], rows: [] });
+    expect(headerGhosts(container)).toEqual(["Column 1", null]);
     rerender(
       <TableGrid
         data={{ columns: ["B", ""], rows: [] }}
@@ -329,24 +331,22 @@ describe("header ghost placeholder", () => {
         onHoverCell={noop}
       />,
     );
-    const headers = container.querySelectorAll<HTMLElement>('thead [role="textbox"]');
     // The empty column moved to position 2 — its ghost says so.
-    expect(headers[0]!.getAttribute("data-placeholder")).toBe("Column 1");
-    expect(headers[1]!.getAttribute("data-placeholder")).toBe("Column 2");
+    expect(headerGhosts(container)).toEqual([null, "Column 2"]);
   });
 
   it("read mode renders no placeholder at all", () => {
     const grid = renderGrid({ columns: ["", "B"], rows: [["", ""]] }, false);
-    expect(grid.container.querySelectorAll("[data-placeholder]").length).toBe(0);
+    expect(grid.container.querySelectorAll("[data-cell-placeholder]").length).toBe(0);
 
     const read = render(
       <StructuredTableBlock id="tbl-1" columns={["", "B"]} rows={[["", ""]]} />,
     );
-    expect(read.container.querySelectorAll("[data-placeholder]").length).toBe(0);
+    expect(read.container.querySelectorAll("[data-cell-placeholder]").length).toBe(0);
     expect(read.container.textContent).not.toContain("Column 1");
   });
 
-  it("normalizes a stray <br> left by clearing so :empty (and the ghost) returns", () => {
+  it("the ghost hides when text lands and returns when the cell clears", () => {
     const { container } = render(
       <EditableCell
         value=""
@@ -359,15 +359,18 @@ describe("header ghost placeholder", () => {
       />,
     );
     const cell = container.querySelector<HTMLElement>('[role="textbox"]')!;
-    cell.focus();
-    cell.textContent = "Name";
-    fireEvent.input(cell);
-    expect(cell.childNodes.length).toBe(1);
+    expect(container.querySelector("[data-cell-placeholder]")?.textContent).toBe("Column 1");
 
-    // Select-all + delete leaves a lone <br> in real browsers — without
-    // normalization the element is no longer :empty and the ghost stays gone.
-    cell.innerHTML = "<br>";
-    fireEvent.input(cell);
-    expect(cell.childNodes.length).toBe(0);
+    const editor = getCellEditor(cell)!;
+    act(() => {
+      editor.commands.insertContentAt(1, "Name");
+    });
+    expect(container.querySelector("[data-cell-placeholder]")).toBeNull();
+
+    // Select-all + delete: the ghost must come straight back.
+    act(() => {
+      editor.chain().selectAll().deleteSelection().run();
+    });
+    expect(container.querySelector("[data-cell-placeholder]")?.textContent).toBe("Column 1");
   });
 });

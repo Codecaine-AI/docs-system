@@ -26,4 +26,20 @@ describe("interaction-surface component state", () => {
   it("rejects a stray top-level property", () => {
     expect(Value.Check(InteractionSurfaceState, { ...fixtureBlock.props, stray: true })).toBe(false);
   });
+
+  it("accepts nested param fields (shared recursive Field node)", () => {
+    const operations = structuredClone(fixtureBlock.props.operations) as Array<Record<string, unknown>>;
+    (operations[0].params as Array<Record<string, unknown>>)[0].fields = [
+      { name: "segment", type: "string", fields: [{ name: "leaf", required: false }] },
+    ];
+    expect(Value.Check(InteractionSurfaceState, { ...fixtureBlock.props, operations })).toBe(true);
+  });
+
+  it("rejects a stray property on a nested param field", () => {
+    const operations = structuredClone(fixtureBlock.props.operations) as Array<Record<string, unknown>>;
+    (operations[0].params as Array<Record<string, unknown>>)[0].fields = [
+      { name: "segment", stray: true },
+    ];
+    expect(Value.Check(InteractionSurfaceState, { ...fixtureBlock.props, operations })).toBe(false);
+  });
 });

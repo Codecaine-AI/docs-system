@@ -23,6 +23,7 @@ const CARRIES_TEXT = {
   "structured-table": false,
   "file-tree": false,
   "interaction-surface": false,
+  "state-shape": false,
   canvas: false,
   sequence: false,
 } as const;
@@ -44,6 +45,10 @@ const ACTION_KEYS = [
   "sequence.setProgram",
   "sequence.setStyle",
   "sequence.setTitle",
+  "state-shape.addField",
+  "state-shape.removeField",
+  "state-shape.setExample",
+  "state-shape.updateField",
   "structured-table.addColumn",
   "structured-table.addRow",
   "structured-table.removeColumn",
@@ -58,7 +63,7 @@ const OP_NAMES = [
   "moveBlock",
   "splitBlock",
   "mergeBlocks",
-  "blockAction",
+  "componentAction",
 ] as const;
 
 const OP_DESCRIPTIONS = [
@@ -68,7 +73,7 @@ const OP_DESCRIPTIONS = [
   "Move a block under toParentId at toIndex — the index within the destination children AFTER the block is detached.",
   "Split a block's delta text at a character offset in [0, textLength] into two blocks; the new sibling gets a freshly minted id.",
   "Merge two or more contiguous sibling blocks (in document order) into a single block with a freshly minted id.",
-  "Run a named typed action from the block-actions registry against a structured block; the validated result applies as a shallow-merge updateBlock patch (same inverse/undo path).",
+  "Run a named typed action from the component-actions registry against a structured block; the validated result applies as a shallow-merge updateBlock patch (same inverse/undo path).",
 ] as const;
 
 describe("buildBlocksDiscovery", () => {

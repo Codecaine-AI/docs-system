@@ -23,7 +23,7 @@ import { DocPage } from "../pages/DocPage";
  *   DOCS_SMOKE_ROOT="/path/to/some/docs" \
  *     bun test packages/docs-workbench/web/src/__tests__/live-smoke.test.tsx
  *
- * The tree is COPIED into a temp dir first — writes (ops saves, comments,
+ * The tree is COPIED into a temp dir first — writes (ops saves, annotations,
  * undo) never touch the source. Skipped entirely when the env var is unset,
  * so `bun test` stays hermetic.
  */
@@ -39,7 +39,7 @@ let realFetch: typeof fetch;
 
 /** First bundle path (folder containing doc.json) under the smoke root. */
 let bundlePath = "";
-/** A block id from that bundle's doc.json, used as the comment target. */
+/** A block id from that bundle's doc.json, used as the annotation target. */
 let firstBlockId = "";
 
 async function findFirstBundle(root: string, rel = ""): Promise<string | null> {
@@ -244,7 +244,7 @@ describe("live smoke (real server, real docs copy)", () => {
   );
 
   smokeIt(
-    "a comment creates against a real block and resolves",
+    "an annotation creates against a real block and resolves",
     async () => {
       renderDocPage();
       await waitFor(
@@ -267,21 +267,21 @@ describe("live smoke (real server, real docs copy)", () => {
 
       fireEvent.click(block!);
       await waitFor(() => {
-        expect(!!screen.getByText(/Commenting on:/)).toBe(true);
+        expect(!!screen.getByText(/Annotating:/)).toBe(true);
       });
-      fireEvent.change(screen.getByPlaceholderText("Add a comment..."), {
-        target: { value: "Live smoke comment." },
+      fireEvent.change(screen.getByPlaceholderText("Add an annotation..."), {
+        target: { value: "Live smoke annotation." },
       });
-      fireEvent.click(screen.getByRole("button", { name: /Post comment/ }));
+      fireEvent.click(screen.getByRole("button", { name: /Post annotation/ }));
       await waitFor(
         () => {
-          expect(!!screen.queryByText(/Commenting on:/)).toBe(false);
-          expect(!!screen.getByText("Live smoke comment.")).toBe(true);
+          expect(!!screen.queryByText(/Annotating:/)).toBe(false);
+          expect(!!screen.getByText("Live smoke annotation.")).toBe(true);
         },
         { timeout: 10000 },
       );
-      const commentsRaw = await readFile(join(smokeRoot, bundlePath, "comments.json"), "utf8");
-      expect(commentsRaw).toContain("Live smoke comment.");
+      const annotationsRaw = await readFile(join(smokeRoot, bundlePath, "annotations.json"), "utf8");
+      expect(annotationsRaw).toContain("Live smoke annotation.");
 
       fireEvent.click(screen.getByRole("button", { name: /Resolve/ }));
       await waitFor(

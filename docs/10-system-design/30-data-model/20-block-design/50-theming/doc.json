@@ -1,0 +1,242 @@
+{
+  "schemaVersion": 1,
+  "id": "dm-block-design-50-theming",
+  "title": "Theming",
+  "root": "b-bdt-root",
+  "blocks": {
+    "b-bdt-root": {
+      "id": "b-bdt-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-bdt-intro-1",
+        "b-bdt-laidout-h-2",
+        "b-bdt-code-3",
+        "b-bdt-rule-h-4",
+        "b-bdt-file-5",
+        "b-bdt-typed-6",
+        "b-bdt-resolve-7",
+        "b-bdt-why-h-8",
+        "b-bdt-why-state-9",
+        "b-bdt-why-rail-10"
+      ]
+    },
+    "b-bdt-intro-1": {
+      "id": "b-bdt-intro-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every type ships its style capabilities as theme knobs — never hardcoded looks. This page states the component theme contract."
+        }
+      ],
+      "children": []
+    },
+    "b-bdt-laidout-h-2": {
+      "id": "b-bdt-laidout-h-2",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Structure"
+        }
+      ],
+      "children": []
+    },
+    "b-bdt-code-3": {
+      "id": "b-bdt-code-3",
+      "type": "code",
+      "props": {
+        "annotations": [
+          {
+            "lines": "1-7",
+            "label": "Knobs, not CSS",
+            "note": "Each key is a typed knob (color, length, number) the style rail can edit live; the renderer consumes them as tokens."
+          }
+        ],
+        "language": "json"
+      },
+      "text": [
+        {
+          "insert": "// themes/default/components/structured-table.json\n{\n  \"headerRuleWidth\": \"1.5px\",\n  \"cellPaddingY\": \"12px\",\n  \"rowRuleOpacity\": \"0.8\",\n  \"handleOffset\": \"16px\",\n  \"selectionPadding\": \"4px\"\n}"
+        }
+      ],
+      "children": []
+    },
+    "b-bdt-rule-h-4": {
+      "id": "b-bdt-rule-h-4",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The rule"
+        }
+      ],
+      "children": []
+    },
+    "b-bdt-file-5": {
+      "id": "b-bdt-file-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "One theme file per type",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-bdt-file-s1"
+      ]
+    },
+    "b-bdt-file-s1": {
+      "id": "b-bdt-file-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The component declares its knobs and their defaults; a theme overrides values, never invents knobs."
+        }
+      ],
+      "children": []
+    },
+    "b-bdt-typed-6": {
+      "id": "b-bdt-typed-6",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Knobs are typed",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-bdt-typed-s1"
+      ]
+    },
+    "b-bdt-typed-s1": {
+      "id": "b-bdt-typed-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Color, length, and number kinds — so the style rail can render the right control for every knob without knowing the component."
+        }
+      ],
+      "children": []
+    },
+    "b-bdt-resolve-7": {
+      "id": "b-bdt-resolve-7",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Resolution is layered",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-bdt-resolve-s1",
+        "b-bdt-resolve-s2"
+      ]
+    },
+    "b-bdt-resolve-s1": {
+      "id": "b-bdt-resolve-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A repo theme folder overrides the compiled-in defaults; the live theme auto-saves edits back into it."
+        }
+      ],
+      "children": []
+    },
+    "b-bdt-resolve-s2": {
+      "id": "b-bdt-resolve-s2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The renderer consumes resolved tokens only — it cannot tell where a value came from."
+        }
+      ],
+      "children": []
+    },
+    "b-bdt-why-h-8": {
+      "id": "b-bdt-why-h-8",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why"
+        }
+      ],
+      "children": []
+    },
+    "b-bdt-why-state-9": {
+      "id": "b-bdt-why-state-9",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Looks are state, not code",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-bdt-why-state-s1"
+      ]
+    },
+    "b-bdt-why-state-s1": {
+      "id": "b-bdt-why-state-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Restyling a block type is a data change, reviewable and revertible like any other."
+        }
+      ],
+      "children": []
+    },
+    "b-bdt-why-rail-10": {
+      "id": "b-bdt-why-rail-10",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "One rail edits every block",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-bdt-why-rail-s1"
+      ]
+    },
+    "b-bdt-why-rail-s1": {
+      "id": "b-bdt-why-rail-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Typed knobs make theming uniform: new block types get rail support the moment they ship a theme file."
+        }
+      ],
+      "children": []
+    }
+  }
+}

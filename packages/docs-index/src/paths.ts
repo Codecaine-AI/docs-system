@@ -26,7 +26,7 @@ export function resolveDocBundleJsonPath(docsRoot: string, path: string): string
   // Only doc-bundle shapes are accepted: a bundle folder (doc.json is
   // appended), an explicit `<bundle>/doc.json` path, or a flat `*.doc.json`
   // file (the docs-cli's standalone-doc shape). Any OTHER `.json` path
-  // (comments.json, *.canvas.json, arbitrary JSON) is rejected — those have
+  // (annotations.json, *.canvas.json, arbitrary JSON) is rejected — those have
   // their own narrowly-scoped resolvers and must never be loadable as a doc
   // bundle through this shared resolver.
   const isDocJsonShape =

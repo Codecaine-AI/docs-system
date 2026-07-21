@@ -3,23 +3,16 @@
 import type { DocBlock } from "../../doc-schema";
 import { stringProp } from "../projection-utils";
 import type { ComponentBundle } from "../types";
+import { readTableColumns, readTableRows, tableCellToMarkdown } from "./lib";
 
 function projectStructuredTable(block: DocBlock): string {
   const title = stringProp(block, "title");
-  const rawColumns = block.props.columns;
-  const columns = Array.isArray(rawColumns)
-    ? rawColumns.filter((column): column is string => typeof column === "string")
-    : [];
-  const rawRows = block.props.rows;
-  const rows = Array.isArray(rawRows)
-    ? rawRows
-        .filter((row): row is unknown[] => Array.isArray(row))
-        .map((row) =>
-          row.map((cell) =>
-            typeof cell === "string" ? cell : String(cell ?? ""),
-          ),
-        )
-    : [];
+  // Defensive reads (junk-tolerant, like the rest of the projection):
+  // plain-string cells pass through VERBATIM — the pipe-table projection is
+  // byte-identical to the pre-rich-cell form for all-plain tables — and span
+  // cells render their marks as inline markdown.
+  const columns = readTableColumns(block).map(tableCellToMarkdown);
+  const rows = readTableRows(block).map((row) => row.map(tableCellToMarkdown));
 
   const tableLines: string[] = [];
   if (columns.length > 0) {

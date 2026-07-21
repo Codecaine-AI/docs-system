@@ -60,35 +60,36 @@ export {
   type ThemeListEntry,
 } from "./themes";
 
-// Bundle + comments primitives
+// Bundle + annotations primitives
 export {
-  EMPTY_COMMENTS_DOCUMENT,
+  ANNOTATIONS_SIDECAR_FILENAME,
+  EMPTY_ANNOTATIONS_DOCUMENT,
   bundleResponse,
-  isValidCommentTarget,
+  isValidAnnotationTarget,
   loadDocBundle,
   loadDocProjection,
   normalizeBundlePath,
-  readCommentsSidecar,
-  writeCommentsSidecar,
+  readAnnotationsSidecar,
+  writeAnnotationsSidecar,
   type DocBundleLoadError,
   type DocBundleLoadResult,
   type DocProjectionResult,
 } from "./bundle";
 
-// Doc ops + comments mutations
+// Doc ops + annotations mutations
 export {
-  addBundleComment,
+  addBundleAnnotation,
   applyDocOpsToBundle,
-  attachAgentRunToComment,
-  getBundleComments,
-  resolveBundleComment,
-  type AddBundleCommentInput,
-  type AddBundleCommentResult,
+  attachAgentRunToAnnotation,
+  getBundleAnnotations,
+  resolveBundleAnnotation,
+  type AddBundleAnnotationInput,
+  type AddBundleAnnotationResult,
   type ApplyDocOpsResult,
   type AttachAgentRunInput,
   type AttachAgentRunResult,
-  type BundleCommentsReadResult,
-  type ResolveBundleCommentResult,
+  type BundleAnnotationsReadResult,
+  type ResolveBundleAnnotationResult,
 } from "./doc-ops";
 
 // Assets
@@ -152,10 +153,10 @@ export {
 
 // Typed agent tools + undo ledger
 export {
+  annotation_list,
+  annotation_resolve,
   canvas_apply_patch,
   canvas_get,
-  comment_list,
-  comment_resolve,
   deleteStoredPatch,
   doc_get,
   doc_update_blocks,
@@ -166,11 +167,11 @@ export {
   sequence_apply_patch,
   sequence_get,
   undo_patch,
+  type AnnotationListResult,
+  type AnnotationResolveResult,
   type CanvasAgentPatchOperation,
   type CanvasApplyPatchResult,
   type CanvasGetResult,
-  type CommentListResult,
-  type CommentResolveResult,
   type DocGetResult,
   type DocUpdateBlocksResult,
   type SequenceAgentPatchOperation,

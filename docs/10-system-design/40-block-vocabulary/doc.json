@@ -25,6 +25,15 @@
         "b-00-vocab-overview-pages-rich-14",
         "b-00-vocab-overview-pages-object-15",
         "b-00-vocab-overview-pages-media-16",
+        "b-00-vocab-overview-refpage-h-19",
+        "b-00-vocab-overview-refpage-intro-20",
+        "b-00-vocab-overview-refpage-lead-21",
+        "b-00-vocab-overview-refpage-example-22",
+        "b-00-vocab-overview-refpage-state-23",
+        "b-00-vocab-overview-refpage-actions-24",
+        "b-00-vocab-overview-refpage-renderers-25",
+        "b-00-vocab-overview-refpage-agent-26",
+        "b-00-vocab-overview-refpage-theming-27",
         "b-00-vocab-overview-actions-h-17",
         "b-00-vocab-overview-actions-18"
       ]
@@ -112,7 +121,7 @@
       "type": "callout",
       "props": {
         "kind": "Decision",
-        "title": "Fourteen types and no more",
+        "title": "Sixteen types and no more",
         "tone": "decision"
       },
       "text": [
@@ -135,7 +144,7 @@
           }
         },
         {
-          "insert": ": exactly fourteen type strings. A small vocabulary keeps the render stable, the editor learnable, and the agent edit surface enumerable."
+          "insert": ": exactly sixteen type strings. A small vocabulary keeps the render stable, the editor learnable, and the agent edit surface enumerable."
         }
       ],
       "children": []
@@ -146,7 +155,7 @@
       "props": {},
       "text": [
         {
-          "insert": "For documenting agentic systems, two of those types carry the whole model:"
+          "insert": "For documenting agentic systems, three of those types carry the whole model:"
         }
       ],
       "children": []
@@ -157,7 +166,7 @@
       "props": {},
       "text": [
         {
-          "insert": "State is an annotated JSON code block; the ways to change that state are an interaction-surface block."
+          "insert": "A state-shape block carries the shape of state and an example instance side by side; an interaction-surface block lists the operations that change or query it; annotated code blocks hold the source evidence."
         }
       ],
       "children": []
@@ -228,7 +237,7 @@
           }
         },
         {
-          "insert": " aliasing, any block whose type is a string but not one of the 14 canonical types coerces to a "
+          "insert": " aliasing, any block whose type is a string but not one of the 16 canonical types coerces to a "
         },
         {
           "insert": "callout",
@@ -271,7 +280,7 @@
       },
       "text": [
         {
-          "insert": "Three groups, seven components"
+          "insert": "Three groups, nine components"
         }
       ],
       "children": []
@@ -291,7 +300,7 @@
           }
         },
         {
-          "insert": " declares the fourteen types in three commented groups: "
+          "insert": " declares the sixteen types in three commented groups: "
         },
         {
           "insert": "core text & structure",
@@ -309,7 +318,7 @@
           }
         },
         {
-          "insert": " (structured-table, file-tree, interaction-surface), and "
+          "insert": " (structured-table, file-tree, interaction-surface, state-shape), and "
         },
         {
           "insert": "diagram & media",
@@ -318,7 +327,7 @@
           }
         },
         {
-          "insert": " (mermaid, canvas, image, video). Second, seven component bundles in "
+          "insert": " (mermaid, canvas, sequence, image, video). Second, nine component bundles in "
         },
         {
           "insert": "components/<name>/",
@@ -327,7 +336,7 @@
           }
         },
         {
-          "insert": " own the fourteen types exactly once: rich-text owns the eight text-flow types (including image and video), while code, mermaid, file-tree, structured-table, interaction-surface, and canvas each own their namesake."
+          "insert": " own the sixteen types exactly once: rich-text owns the eight text-flow types (including image and video), while code, mermaid, file-tree, structured-table, interaction-surface, state-shape, canvas, and sequence each own their namesake."
         }
       ],
       "children": []
@@ -356,7 +365,7 @@
           }
         },
         {
-          "insert": " (typed-props state carriers: the structured / engineering trio plus mermaid and canvas), and the 30s are the "
+          "insert": " (typed-props state carriers: the structured / engineering four plus mermaid, sequence, and canvas), and the 30s are the "
         },
         {
           "insert": "media blocks",
@@ -365,7 +374,7 @@
           }
         },
         {
-          "insert": " (image and video). Same fourteen types, sliced by how an agent edits them: rich-text blocks edit through delta text, object blocks through typed props and actions, media blocks through asset references."
+          "insert": " (image and video). Same sixteen types, sliced by how an agent edits them: rich-text blocks edit through delta text, object blocks through typed props and actions, media blocks through asset references."
         }
       ],
       "children": []
@@ -378,7 +387,7 @@
       },
       "text": [
         {
-          "insert": "The 14 block types"
+          "insert": "The 16 block types"
         }
       ],
       "children": []
@@ -455,6 +464,12 @@
             "Operation signatures ({ name, description?, params?, returns?, kind? }) describing how a system is changed or queried."
           ],
           [
+            "state-shape",
+            "object",
+            "state-shape",
+            "Recursive field tree ({ name, type?, required?, description?, fields? }) describing the shape of a structure's state; optional source link."
+          ],
+          [
             "mermaid",
             "object",
             "mermaid",
@@ -465,6 +480,12 @@
             "object",
             "canvas",
             "Embedded interactive canvas; props.canvasId (or legacy src) plus an optional view crop."
+          ],
+          [
+            "sequence",
+            "object",
+            "sequence",
+            "UML-style sequence diagram; props.src (or sequenceId) points at a SequenceDocument, optional props.title."
           ],
           [
             "image",
@@ -630,11 +651,23 @@
           "insert": " · "
         },
         {
+          "insert": "state-shape",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/50-state-shape"
+            }
+          }
+        },
+        {
+          "insert": " · "
+        },
+        {
           "insert": "interaction-surface",
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "10-system-design/40-block-vocabulary/50-interaction-surface"
+              "path": "10-system-design/40-block-vocabulary/60-interaction-surface"
             }
           }
         },
@@ -646,7 +679,7 @@
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "10-system-design/40-block-vocabulary/60-sequence"
+              "path": "10-system-design/40-block-vocabulary/70-sequence"
             }
           }
         },
@@ -658,7 +691,7 @@
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "10-system-design/40-block-vocabulary/70-canvas"
+              "path": "10-system-design/40-block-vocabulary/80-canvas"
             }
           }
         }
@@ -703,6 +736,158 @@
       ],
       "children": []
     },
+    "b-00-vocab-overview-refpage-h-19": {
+      "id": "b-00-vocab-overview-refpage-h-19",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Reference page structure"
+        }
+      ],
+      "children": []
+    },
+    "b-00-vocab-overview-refpage-intro-20": {
+      "id": "b-00-vocab-overview-refpage-intro-20",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every type page follows one section order:"
+        }
+      ],
+      "children": []
+    },
+    "b-00-vocab-overview-refpage-lead-21": {
+      "id": "b-00-vocab-overview-refpage-lead-21",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Lead",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " — opening paragraphs, no heading: what the block is and its doctrine position."
+        }
+      ],
+      "children": []
+    },
+    "b-00-vocab-overview-refpage-example-22": {
+      "id": "b-00-vocab-overview-refpage-example-22",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Example",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " — a live block of the documented type."
+        }
+      ],
+      "children": []
+    },
+    "b-00-vocab-overview-refpage-state-23": {
+      "id": "b-00-vocab-overview-refpage-state-23",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "State",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " — the state structure: shape, props, "
+        },
+        {
+          "insert": "carriesText",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-00-vocab-overview-refpage-actions-24": {
+      "id": "b-00-vocab-overview-refpage-actions-24",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Typed actions",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " — the block's action verbs, or one line stating there are none."
+        }
+      ],
+      "children": []
+    },
+    "b-00-vocab-overview-refpage-renderers-25": {
+      "id": "b-00-vocab-overview-refpage-renderers-25",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Renderers",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " — the doc renderer first, then the agent markdown projection with its example fence."
+        }
+      ],
+      "children": []
+    },
+    "b-00-vocab-overview-refpage-agent-26": {
+      "id": "b-00-vocab-overview-refpage-agent-26",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Agent notes",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " — authoring guidance for agents."
+        }
+      ],
+      "children": []
+    },
+    "b-00-vocab-overview-refpage-theming-27": {
+      "id": "b-00-vocab-overview-refpage-theming-27",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Theming",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " — the type's theme surface."
+        }
+      ],
+      "children": []
+    },
     "b-00-vocab-overview-actions-h-17": {
       "id": "b-00-vocab-overview-actions-h-17",
       "type": "heading",
@@ -740,10 +925,10 @@
           }
         },
         {
-          "insert": " markdown render. Four bundles expose 13 typed actions — code (2), structured-table (5), file-tree (3), interaction-surface (3) — and canvas forwards 5 more to the external canvas authority. Actions ride the generic op kernel as "
+          "insert": " markdown render. Five bundles expose 17 typed actions — code (2), structured-table (5), file-tree (3), interaction-surface (3), state-shape (4) — canvas forwards 5 more to the external canvas authority, and sequence forwards 3 to the sequence engine. Actions ride the generic op kernel as "
         },
         {
-          "insert": "blockAction",
+          "insert": "componentAction",
           "attributes": {
             "code": true
           }
@@ -756,7 +941,7 @@
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "10-system-design/30-data-model/60-mutation-model"
+              "path": "10-system-design/30-data-model/50-mutation-model"
             }
           }
         },

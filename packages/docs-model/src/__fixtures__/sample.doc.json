@@ -21,6 +21,7 @@
         "table-1",
         "tree-1",
         "interaction-surface-1",
+        "state-shape-1",
         "mermaid-1",
         "canvas-1",
         "sequence-1",
@@ -209,7 +210,7 @@
       },
       "text": [
         {
-          "insert": "Comments live in comments.json, never in doc.json."
+          "insert": "Annotations live in annotations.json, never in doc.json."
         }
       ],
       "children": []
@@ -327,6 +328,60 @@
           }
         ],
         "title": "File-tree block surface"
+      },
+      "children": []
+    },
+    "state-shape-1": {
+      "id": "state-shape-1",
+      "type": "state-shape",
+      "props": {
+        "description": "One operation signature of the interaction-surface block state.",
+        "example": "{\"name\":\"file-tree.addEntry\",\"description\":\"Append a path entry to the tree\",\"params\":[{\"name\":\"path\"},{\"name\":\"note\",\"required\":false}],\"returns\":\"props patch\",\"kind\":\"action\"}",
+        "fields": [
+          {
+            "name": "name",
+            "type": "string",
+            "description": "Operation signature name, e.g. \"file-tree.addEntry\""
+          },
+          {
+            "name": "description",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "params",
+            "type": "Field[]",
+            "required": false,
+            "description": "Signature params, one recursive field node each",
+            "fields": [
+              {
+                "name": "name",
+                "type": "string"
+              },
+              {
+                "name": "required",
+                "type": "boolean",
+                "required": false,
+                "description": "false marks the param optional"
+              }
+            ]
+          },
+          {
+            "name": "returns",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "kind",
+            "type": "\"action\" | \"query\" | \"event\"",
+            "required": false
+          }
+        ],
+        "name": "InteractionSurfaceOperation",
+        "source": {
+          "path": "packages/docs-model/src/components/interaction-surface/state.ts",
+          "symbol": "InteractionSurfaceOperation"
+        }
       },
       "children": []
     },

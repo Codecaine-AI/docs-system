@@ -85,6 +85,14 @@ export type StyleRailSettings = {
     fontSize: number;
     /** Row vertical padding in px. */
     padding: number;
+    /** Whether expanded tree groups show vertical indent guides. */
+    guides: boolean;
+    /** Indent guide color; null = theme border. */
+    guideColor: string | null;
+    /** Indent guide thickness in px. */
+    guideWidth: number;
+    /** Indent guide opacity (0-1). */
+    guideOpacity: number;
   };
   grain: {
     enabled: boolean;
@@ -219,7 +227,16 @@ export const DEFAULT_STYLE_RAIL_SETTINGS: StyleRailSettings = {
     backgroundTint: 0,
     sidebarTint: 0,
   },
-  sidebar: { textColor: null, font: "sans", fontSize: 14, padding: 4 },
+  sidebar: {
+    textColor: null,
+    font: "sans",
+    fontSize: 14,
+    padding: 4,
+    guides: true,
+    guideColor: null,
+    guideWidth: 1,
+    guideOpacity: 0.6,
+  },
   grain: {
     enabled: true,
     opacity: 0.15,
@@ -289,6 +306,8 @@ const COMPONENT_PICKER_FILES = [
   "file-tree",
   "structured-table",
   "interaction-surface",
+  "state-shape",
+  "linking",
   "mermaid",
   "canvas",
   "surfaces",
@@ -300,6 +319,8 @@ const COMPONENT_LABELS: Record<string, string> = {
   "file-tree": "File tree",
   "structured-table": "Structured table",
   "interaction-surface": "Interaction surface",
+  "state-shape": "State shape",
+  linking: "Linked panels",
   surfaces: "Shared surfaces",
 };
 
@@ -319,9 +340,23 @@ const TOKEN_KEY_LABELS: Record<string, string> = {
   rowRule: "Row rule",
   rowRuleWidth: "Row rule width",
   rowRuleOpacity: "Row rule opacity",
+  name: "Names",
+  type: "Types",
+  rule: "Rules",
+  sigName: "Signature name",
+  sigType: "Signature type",
+  sigPunct: "Signature punctuation",
+  noteName: "Note name",
+  noteType: "Note type",
+  noteFg: "Note text",
+  descFg: "Description text",
+  childRule: "Child rule",
+  rowPad: "Row padding",
+  opGap: "Card gap",
   cellPaddingY: "Row padding",
   cellPaddingX: "Column gap",
   fontSize: "Text size",
+  radius: "Corner radius",
   handleRadius: "Handle radius",
   handleOffset: "Handle offset",
   selectionPadding: "Selection padding",
@@ -333,6 +368,16 @@ const TOKEN_KEY_LABELS: Record<string, string> = {
   key: "Keys",
   muted: "Muted fill",
   icon: "Icons",
+  languageFg: "Language badge",
+  annotationAccent: "Annotation accent",
+  gutterFg: "Line numbers",
+  gutterBg: "Gutter background",
+  zebra: "Zebra stripe",
+  highlight: "Link highlight",
+  pin: "Pin & rail",
+  ruleWidth: "Rule width",
+  ruleOpacity: "Rule opacity",
+  zebraOpacity: "Zebra opacity",
 };
 
 /** "file-tree" -> "File tree" when no explicit label exists. */
@@ -484,6 +529,10 @@ export function normalizeSettings(raw: unknown): StyleRailSettings {
       font: pickOption(sidebar.font, FONT_OPTIONS, d.sidebar.font),
       fontSize: clampNumber(sidebar.fontSize, 10, 20, d.sidebar.fontSize),
       padding: clampNumber(sidebar.padding, 0, 16, d.sidebar.padding),
+      guides: typeof sidebar.guides === "boolean" ? sidebar.guides : d.sidebar.guides,
+      guideColor: pickHexColor(sidebar.guideColor),
+      guideWidth: clampNumber(sidebar.guideWidth, 1, 4, d.sidebar.guideWidth),
+      guideOpacity: clampNumber(sidebar.guideOpacity, 0.05, 1, d.sidebar.guideOpacity),
     },
     highlight: {
       color: pickHexColor(highlight.color),
@@ -638,19 +687,29 @@ export function styleRailVars(settings: StyleRailSettings): Record<string, strin
         : null;
 
   // Per-component overrides ride the same overlay: each file/key writes
-  // every CSS var THEME_TOKEN_REGISTRY maps it to. Spread LAST so a
-  // component override beats a section knob's null (remove) entry for any
-  // shared variable.
+  // every CSS var THEME_TOKEN_REGISTRY maps it to. Seed nulls so removing
+  // an override also removes its former inline property; registry defaults
+  // likewise defer to the active theme stylesheet. The merge below lets a
+  // custom component value beat a section knob, but not a seeded null.
   const componentVars: Record<string, string | null> = {};
+  for (const tokens of Object.values(THEME_TOKEN_REGISTRY)) {
+    for (const token of Object.values(tokens)) {
+      for (const cssVar of token.vars) componentVars[cssVar] = null;
+    }
+  }
   for (const [file, tokens] of Object.entries(components)) {
     for (const [key, value] of Object.entries(tokens)) {
-      for (const cssVar of THEME_TOKEN_REGISTRY[file]?.[key]?.vars ?? []) {
-        componentVars[cssVar] = value;
+      const token = THEME_TOKEN_REGISTRY[file]?.[key];
+      if (!token) continue;
+      const atDefault = token.kind !== "color"
+        && value === `${token.defaultValue}${token.unit ?? ""}`;
+      for (const cssVar of token.vars) {
+        componentVars[cssVar] = atDefault ? null : value;
       }
     }
   }
 
-  return {
+  const vars: Record<string, string | null> = {
     "--accent": accented ? accentBg : null,
     "--accent-foreground": accented ? accentText : null,
     "--ring": accented ? accentPill : null,
@@ -694,6 +753,16 @@ export function styleRailVars(settings: StyleRailSettings): Record<string, strin
       sidebarSettings.fontSize === d.sidebar.fontSize ? null : `${sidebarSettings.fontSize}px`,
     "--docs-sidebar-item-py":
       sidebarSettings.padding === d.sidebar.padding ? null : `${sidebarSettings.padding}px`,
+    "--docs-sidebar-guide-display": sidebarSettings.guides ? null : "none",
+    "--docs-sidebar-guide-color": sidebarSettings.guideColor,
+    "--docs-sidebar-guide-width":
+      sidebarSettings.guideWidth === d.sidebar.guideWidth
+        ? null
+        : `${sidebarSettings.guideWidth}px`,
+    "--docs-sidebar-guide-opacity":
+      sidebarSettings.guideOpacity === d.sidebar.guideOpacity
+        ? null
+        : String(sidebarSettings.guideOpacity),
 
     // Block highlight (changed-flash + node selection) and the drag
     // drop-line — consumed in index.css with theme-blue fallbacks.
@@ -794,8 +863,12 @@ export function styleRailVars(settings: StyleRailSettings): Record<string, strin
     "--style-soften-icon-blur": `${softening.icons * 0.08}px`,
     "--style-soften-icon-glow": `${softening.icons * 0.24}px`,
     "--style-soften-icon-opacity": String(1 - softening.icons * 0.04),
-    ...componentVars,
   };
+
+  for (const [key, value] of Object.entries(componentVars)) {
+    if (value !== null || vars[key] == null) vars[key] = value;
+  }
+  return vars;
 }
 
 export function applyStyleRailVars(settings: StyleRailSettings) {
@@ -1669,6 +1742,35 @@ export function StyleRail({
                     step={1}
                     value={settings.sidebar.padding}
                     valueLabel={`${settings.sidebar.padding}px`}
+                  />
+                  <ToggleRow
+                    checked={settings.sidebar.guides}
+                    label="Indent guides"
+                    onChange={(value) => patchSidebar({ guides: value })}
+                  />
+                  <ColorRow
+                    defaultExpr="var(--border)"
+                    label="Guide color"
+                    onChange={(value) => patchSidebar({ guideColor: value })}
+                    value={settings.sidebar.guideColor}
+                  />
+                  <SliderRow
+                    label="Guide width"
+                    max={4}
+                    min={1}
+                    onChange={(value) => patchSidebar({ guideWidth: value })}
+                    step={0.5}
+                    value={settings.sidebar.guideWidth}
+                    valueLabel={`${settings.sidebar.guideWidth}px`}
+                  />
+                  <SliderRow
+                    label="Guide opacity"
+                    max={1}
+                    min={0.05}
+                    onChange={(value) => patchSidebar({ guideOpacity: value })}
+                    step={0.05}
+                    value={settings.sidebar.guideOpacity}
+                    valueLabel={`${Math.round(settings.sidebar.guideOpacity * 100)}%`}
                   />
                 </PanelSection>
                 <PanelSection title="Scrollbar">

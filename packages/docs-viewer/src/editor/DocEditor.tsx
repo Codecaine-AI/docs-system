@@ -696,7 +696,7 @@ export default function DocEditor({
                 {onReloadDoc && (
                   <button
                     type="button"
-                    className="rounded border border-destructive/40 px-1.5 py-0.5 font-medium hover:bg-destructive/10"
+                    className="rounded-sm border border-destructive/40 px-1.5 py-0.5 font-medium hover:bg-destructive/10"
                     onClick={onReloadDoc}
                   >
                     Reload doc

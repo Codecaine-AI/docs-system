@@ -587,7 +587,7 @@ function SlashMenuRow({
       <span
         data-doc-slash-menu-icon="true"
         aria-hidden="true"
-        className="flex h-7 w-7 shrink-0 items-center justify-center rounded border bg-popover"
+        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm border bg-popover"
       >
         {Icon ? <Icon className="h-[18px] w-[18px]" /> : null}
       </span>

@@ -1,0 +1,273 @@
+{
+  "schemaVersion": 1,
+  "id": "dm-block-design-20-typed-actions",
+  "title": "Typed actions",
+  "root": "b-bda-root",
+  "blocks": {
+    "b-bda-root": {
+      "id": "b-bda-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-bda-intro-1",
+        "b-bda-laidout-h-2",
+        "b-bda-code-3",
+        "b-bda-rule-h-4",
+        "b-bda-key-5",
+        "b-bda-pure-6",
+        "b-bda-only-7",
+        "b-bda-why-h-8",
+        "b-bda-why-travel-9",
+        "b-bda-why-undo-10"
+      ]
+    },
+    "b-bda-intro-1": {
+      "id": "b-bda-intro-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every custom state change to a block is a typed action: data, not a method call. This page states the action shape and its obligations."
+        }
+      ],
+      "children": []
+    },
+    "b-bda-laidout-h-2": {
+      "id": "b-bda-laidout-h-2",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Structure"
+        }
+      ],
+      "children": []
+    },
+    "b-bda-code-3": {
+      "id": "b-bda-code-3",
+      "type": "code",
+      "props": {
+        "annotations": [
+          {
+            "lines": "3",
+            "label": "The key",
+            "note": "<type>.<verb> — any surface can list and resolve actions without inspecting code."
+          },
+          {
+            "lines": "6-9",
+            "label": "Params are schema",
+            "note": "TypeBox, served verbatim by discovery and validated at apply time."
+          },
+          {
+            "lines": "10",
+            "label": "A patch, not a mutation",
+            "note": "apply returns a shallow-merge props patch — which is what makes the inverse, and undo, free."
+          }
+        ],
+        "language": "typescript"
+      },
+      "text": [
+        {
+          "insert": "// trimmed from packages/docs-model/src/components/file-tree/actions/add-entry.ts\nexport const addEntry = defineComponentAction({\n  action: \"file-tree.addEntry\",\n  blockType: \"file-tree\",\n  description: \"Append a path entry to the file tree.\",\n  params: Type.Object({\n    path: Type.String({ minLength: 1 }),\n    note: Type.Optional(Type.String()),\n  }),\n  apply: (block, params) => ({ entries: [...readFileTreeEntries(block), toEntry(params)] }),\n});"
+        }
+      ],
+      "children": []
+    },
+    "b-bda-rule-h-4": {
+      "id": "b-bda-rule-h-4",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The rule"
+        }
+      ],
+      "children": []
+    },
+    "b-bda-key-5": {
+      "id": "b-bda-key-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Keyed and discoverable",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-bda-key-s1"
+      ]
+    },
+    "b-bda-key-s1": {
+      "id": "b-bda-key-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "<type>.<verb>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " key plus a params schema is the whole public surface; discovery lists both."
+        }
+      ],
+      "children": []
+    },
+    "b-bda-pure-6": {
+      "id": "b-bda-pure-6",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Apply is pure",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-bda-pure-s1",
+        "b-bda-pure-s2"
+      ]
+    },
+    "b-bda-pure-s1": {
+      "id": "b-bda-pure-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Block in, props patch out — no I/O, no side effects."
+        }
+      ],
+      "children": []
+    },
+    "b-bda-pure-s2": {
+      "id": "b-bda-pure-s2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The patch validates against the state schema before anything persists."
+        }
+      ],
+      "children": []
+    },
+    "b-bda-only-7": {
+      "id": "b-bda-only-7",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The only custom write path",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-bda-only-s1"
+      ]
+    },
+    "b-bda-only-s1": {
+      "id": "b-bda-only-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Beyond the generic ops, a block's state changes only through its actions — there is no third path."
+        }
+      ],
+      "children": []
+    },
+    "b-bda-why-h-8": {
+      "id": "b-bda-why-h-8",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why"
+        }
+      ],
+      "children": []
+    },
+    "b-bda-why-travel-9": {
+      "id": "b-bda-why-travel-9",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Data can travel",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-bda-why-travel-s1"
+      ]
+    },
+    "b-bda-why-travel-s1": {
+      "id": "b-bda-why-travel-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An action invocation serializes: the editor, the CLI, an agent, and a test all speak the same shape."
+        }
+      ],
+      "children": []
+    },
+    "b-bda-why-undo-10": {
+      "id": "b-bda-why-undo-10",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Undo is free",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-bda-why-undo-s1"
+      ]
+    },
+    "b-bda-why-undo-s1": {
+      "id": "b-bda-why-undo-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A patch plus the prior props is an exact inverse; the "
+        },
+        {
+          "insert": "mutation model",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/50-mutation-model"
+            }
+          }
+        },
+        {
+          "insert": " turns that into undo units."
+        }
+      ],
+      "children": []
+    }
+  }
+}

@@ -253,7 +253,7 @@
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "10-system-design/30-data-model/60-mutation-model"
+              "path": "10-system-design/30-data-model/50-mutation-model"
             }
           }
         },
@@ -342,7 +342,7 @@
           }
         },
         {
-          "insert": " serves a static discovery document for the full agent edit surface: the generic ops and every typed block action."
+          "insert": " serves a static discovery document for the full agent edit surface: the generic ops and every typed component action."
         }
       ],
       "children": []

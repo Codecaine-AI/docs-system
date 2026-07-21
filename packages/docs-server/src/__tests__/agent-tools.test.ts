@@ -5,14 +5,14 @@ import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import {
   canvas_apply_patch,
   canvas_get,
-  comment_list,
-  comment_resolve,
+  annotation_list,
+  annotation_resolve,
   doc_get,
   doc_update_blocks,
   getStoredPatch,
   undo_patch,
 } from "../agent-tools";
-import { addBundleComment } from "../index";
+import { addBundleAnnotation } from "../index";
 import { draftLockStore } from "../draft-locks";
 
 const SAMPLE_DOC = {
@@ -458,11 +458,11 @@ describe("agent-tools: canvas_get / canvas_apply_patch (TG9.1)", () => {
   });
 });
 
-describe("agent-tools: comment_list / comment_resolve (TG9.1)", () => {
+describe("agent-tools: annotation_list / annotation_resolve (TG9.1)", () => {
   let docsRoot: string;
 
   beforeEach(async () => {
-    docsRoot = await mkdtemp(join(tmpdir(), "spectre-agent-tools-comments-"));
+    docsRoot = await mkdtemp(join(tmpdir(), "spectre-agent-tools-annotations-"));
     await mkdir(join(docsRoot, "guide"), { recursive: true });
     await writeFile(join(docsRoot, "guide", "doc.json"), JSON.stringify(SAMPLE_DOC), "utf8");
   });
@@ -471,14 +471,14 @@ describe("agent-tools: comment_list / comment_resolve (TG9.1)", () => {
     await rm(docsRoot, { recursive: true, force: true });
   });
 
-  test("comment_list returns an empty list for a bundle with no comments.json", async () => {
-    const result = await comment_list(docsRoot, "guide");
+  test("annotation_list returns an empty list for a bundle with no annotations.json", async () => {
+    const result = await annotation_list(docsRoot, "guide");
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.comments).toEqual([]);
+    if (result.ok) expect(result.annotations).toEqual([]);
   });
 
-  test("comment_list reflects an added comment, and comment_resolve resolves it", async () => {
-    const added = await addBundleComment(docsRoot, "guide", {
+  test("annotation_list reflects an added annotation, and annotation_resolve resolves it", async () => {
+    const added = await addBundleAnnotation(docsRoot, "guide", {
       target: { kind: "block", blockId: "h1" },
       body: "Please rewrite this heading.",
       intent: "agent-request",
@@ -487,28 +487,28 @@ describe("agent-tools: comment_list / comment_resolve (TG9.1)", () => {
     expect(added.ok).toBe(true);
     if (!added.ok) return;
 
-    const listed = await comment_list(docsRoot, "guide");
+    const listed = await annotation_list(docsRoot, "guide");
     expect(listed.ok).toBe(true);
     if (listed.ok) {
-      expect(listed.comments).toHaveLength(1);
-      expect(listed.comments[0]?.status).toBe("open");
+      expect(listed.annotations).toHaveLength(1);
+      expect(listed.annotations[0]?.status).toBe("open");
     }
 
-    const resolved = await comment_resolve(docsRoot, "guide", added.comment.id, added.hash, "agent-session");
+    const resolved = await annotation_resolve(docsRoot, "guide", added.annotation.id, added.hash, "agent-session");
     expect(resolved.ok).toBe(true);
     if (resolved.ok) {
-      expect(resolved.comments.comments[0]?.status).toBe("resolved");
+      expect(resolved.annotations.annotations[0]?.status).toBe("resolved");
     }
   });
 
-  test("comment_resolve returns 404 for an unknown comment id", async () => {
-    const result = await comment_resolve(docsRoot, "guide", "does-not-exist", undefined, "agent-session");
+  test("annotation_resolve returns 404 for an unknown annotation id", async () => {
+    const result = await annotation_resolve(docsRoot, "guide", "does-not-exist", undefined, "agent-session");
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.status).toBe(404);
   });
 
-  test("comment_resolve persists the optional response as the comment's resolution note", async () => {
-    const added = await addBundleComment(docsRoot, "guide", {
+  test("annotation_resolve persists the optional response as the annotation's resolution note", async () => {
+    const added = await addBundleAnnotation(docsRoot, "guide", {
       target: { kind: "block", blockId: "h1" },
       body: "Please rewrite this heading.",
       intent: "agent-request",
@@ -517,30 +517,30 @@ describe("agent-tools: comment_list / comment_resolve (TG9.1)", () => {
     expect(added.ok).toBe(true);
     if (!added.ok) return;
 
-    const resolved = await comment_resolve(
+    const resolved = await annotation_resolve(
       docsRoot,
       "guide",
-      added.comment.id,
+      added.annotation.id,
       added.hash,
       "agent-session",
       "Rewrote the heading per the request.",
     );
     expect(resolved.ok).toBe(true);
     if (resolved.ok) {
-      expect(resolved.comments.comments[0]?.status).toBe("resolved");
-      expect(resolved.comments.comments[0]?.resolution).toBe("Rewrote the heading per the request.");
+      expect(resolved.annotations.annotations[0]?.status).toBe("resolved");
+      expect(resolved.annotations.annotations[0]?.resolution).toBe("Rewrote the heading per the request.");
     }
 
     // The note survives the schema-validated round-trip on disk (the
     // validator must preserve the additive `resolution` field rather than
     // stripping unknown keys).
-    const onDisk = JSON.parse(await readFile(join(docsRoot, "guide", "comments.json"), "utf8")) as {
-      comments: Array<{ resolution?: string; status: string }>;
+    const onDisk = JSON.parse(await readFile(join(docsRoot, "guide", "annotations.json"), "utf8")) as {
+      annotations: Array<{ resolution?: string; status: string }>;
     };
-    expect(onDisk.comments[0]?.resolution).toBe("Rewrote the heading per the request.");
+    expect(onDisk.annotations[0]?.resolution).toBe("Rewrote the heading per the request.");
 
-    const relisted = await comment_list(docsRoot, "guide");
+    const relisted = await annotation_list(docsRoot, "guide");
     expect(relisted.ok).toBe(true);
-    if (relisted.ok) expect(relisted.comments[0]?.resolution).toBe("Rewrote the heading per the request.");
+    if (relisted.ok) expect(relisted.annotations[0]?.resolution).toBe("Rewrote the heading per the request.");
   });
 });

@@ -22,11 +22,11 @@ packages/
         └── project-markdown.ts  # Document-to-Markdown render.
 ```
 
-`packages/docs-model/src/doc-ops.ts` defines the seven-op mutation kernel: `insertBlock`, `updateBlock`, `deleteBlock`, `moveBlock`, `splitBlock`, `mergeBlocks`, and `blockAction`. Its pure `applyOp(doc, op) -> { doc, inverse }` returns the inverse that powers undo in docs-server.
+`packages/docs-model/src/doc-ops.ts` defines the seven-op mutation kernel: `insertBlock`, `updateBlock`, `deleteBlock`, `moveBlock`, `splitBlock`, `mergeBlocks`, and `componentAction`. Its pure `applyOp(doc, op) -> { doc, inverse }` returns the inverse that powers undo in docs-server.
 
 The seven bundles under `packages/docs-model/src/components/<name>/` are rich-text, code, structured-table, file-tree, interaction-surface, mermaid, and canvas. Together they own all 14 block types; each separates its manifest, state, actions, and agent view. `packages/docs-model/src/components/index.ts` folds them into the registry used by validation, discovery, rendering, and typed actions.
 
-`packages/docs-model/src/comments-schema.ts` defines comments whose targets anchor to document blocks or canvas objects.
+`packages/docs-model/src/annotations-schema.ts` defines annotations whose targets anchor to document blocks or canvas objects.
 
 `packages/docs-model/src/project-markdown.ts` and `packages/docs-model/src/markdown-to-delta.ts` cover Markdown conversion in both directions: documents render to Markdown, and edited inline Markdown parses back to delta spans. `serializeDocDocument` produces canonical on-disk bytes deterministically; golden tests assert byte equality.
 

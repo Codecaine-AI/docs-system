@@ -1,4 +1,5 @@
 import { describe, expect, it } from "bun:test";
+import type { DeltaSpan } from "@codecaine-ai/docs-model/doc-schema";
 import {
   addColumn,
   addRow,
@@ -271,5 +272,39 @@ describe("updateHeader", () => {
     const input = table();
     expect(updateHeader(input, 3, "x")).toBe(input);
     expect(updateHeader(input, -1, "x")).toBe(input);
+  });
+});
+
+describe("TableCell (span) cells", () => {
+  const BOLD: DeltaSpan[] = [{ insert: "Ada", attributes: { bold: true } }];
+
+  it("updateCell and updateHeader accept DeltaSpan[] values", () => {
+    const withSpan = updateCell(table(), 0, 0, BOLD);
+    expect(withSpan.rows[0][0]).toEqual(BOLD);
+    const header = updateHeader(table(), 1, [{ insert: "Role", attributes: { italic: true } }]);
+    expect(header.columns[1]).toEqual([{ insert: "Role", attributes: { italic: true } }]);
+  });
+
+  it("structural mutations carry span cells along and fill with plain \"\"", () => {
+    const base: TableData = {
+      columns: [BOLD, "Role"],
+      rows: [[BOLD, "Engineer"]],
+    };
+    const added = addColumn(base, 1);
+    expect(added.columns).toEqual([BOLD, "", "Role"]);
+    expect(added.rows[0]).toEqual([BOLD, "", "Engineer"]);
+
+    const moved = moveColumn(added, 0, 2);
+    expect(moved.columns).toEqual(["", "Role", BOLD]);
+    expect(moved.rows[0]).toEqual(["", "Engineer", BOLD]);
+
+    const dup = duplicateRow(base, 0);
+    expect(dup.rows).toEqual([
+      [BOLD, "Engineer"],
+      [BOLD, "Engineer"],
+    ]);
+
+    const cleared = clearRow(base, 0);
+    expect(cleared.rows[0]).toEqual(["", ""]);
   });
 });

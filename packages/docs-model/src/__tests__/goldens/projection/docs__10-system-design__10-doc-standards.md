@@ -8,9 +8,9 @@ The structure defined in these standards is built for many agents at once.
 
 | Layer | Holds | Changes |
 | --- | --- | --- |
-| 00-foundation | Core idea behind the system and why it exists | Rarely |
-| 10-system-design | Behavior, implementation-agnostic | When behavior changes |
-| 20-implementation | Functionality, decisions, etc. of the current code | With the code |
+| `00-foundation` | Core idea behind the system and why it exists | Rarely |
+| `10-system-design` | Behavior, implementation-agnostic | When behavior changes |
+| `20-implementation` | Functionality, decisions, etc. of the current code | With the code |
 
 ## The "Why" Travels with Every Decision
 
@@ -37,12 +37,22 @@ Every decision in these docs carries its why
 
 Five standards, one concern each. Every one shows how things are laid out, states the rule, and defends it.
 
-- Structure — the three layers, the depth ladder, folders and parent docs, and when a topic earns a folder.
+- Structure
 
-- Numbering — two-digit prefixes, reading order in the filesystem, gaps, and the one named deviation.
+  - The three layers, the depth ladder, folders and parent docs, and when a topic earns a folder.
 
-- Cross-doc linking — reference spans, canonical-home targets, and the restraint rules against overlinking.
+- Numbering
 
-- Code linking — one-way doc-to-code references by full path, updated when code moves.
+  - Two-digit prefixes, reading order in the filesystem, gaps, and the one named deviation.
 
-- In-code docs — file headers, docstrings, and inline comments: where documentation continues into the source.
+- Cross-doc linking
+
+  - Reference spans, canonical-home targets, and the restraint rules against overlinking.
+
+- Code linking
+
+  - One-way doc-to-code references by full path, updated when code moves.
+
+- In-code docs
+
+  - File headers, docstrings, and inline comments: where documentation continues into the source.

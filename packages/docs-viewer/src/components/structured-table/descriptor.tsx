@@ -1,6 +1,8 @@
 import { createElement } from "react";
 import type { DocBlock } from "@codecaine-ai/docs-model/doc-schema";
+import type { TableCell } from "@codecaine-ai/docs-model";
 import type { DocBlockDescriptor } from "../../render/block-registry";
+import { isTableCellValue } from "./cell-content";
 import {
   STRUCTURAL_OPS,
   blockAttrs,
@@ -18,19 +20,18 @@ import {
 type StructuredTableData = {
   title?: string;
   density?: StructuredTableDensity;
-  columns: string[];
-  rows: string[][];
+  columns: TableCell[];
+  rows: TableCell[][];
 };
 
 function structuredTableData(block: DocBlock): StructuredTableData | null {
   const { columns, rows } = block.props;
   if (!Array.isArray(columns) || columns.length === 0) return null;
-  if (!columns.every((column): column is string => typeof column === "string")) return null;
+  if (!columns.every(isTableCellValue)) return null;
   if (!Array.isArray(rows)) return null;
   if (
     !rows.every(
-      (row): row is string[] =>
-        Array.isArray(row) && row.every((cell) => typeof cell === "string"),
+      (row): row is TableCell[] => Array.isArray(row) && row.every(isTableCellValue),
     )
   ) {
     return null;

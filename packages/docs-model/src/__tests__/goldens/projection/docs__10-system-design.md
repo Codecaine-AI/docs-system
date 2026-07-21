@@ -6,23 +6,33 @@ The documentation has a strict layout allowing every new piece of knowledge has 
 
 Doc standards holds the structure and the standards that keep it that way.
 
-- **Foundation** — why the system exists
+- **Foundation**
 
-- **Design** — what the system does and WHY
+  - Why the system exists.
 
-- **Implementation** — how the code delivers it today
+- **Design**
+
+  - What the system does and WHY.
+
+- **Implementation**
+
+  - How the code delivers it today.
 
 The standards — directory structure, numbering, titles and openings, linking — are child docs there, each rule paired with its rationale.
 
-## Interaction surfaces
+## Translation layer
 
 Each doc is a canonical JSON object with two rendering surfaces, one per reader type.
 
-Interaction surfaces defines both.
+Translation layer defines both.
 
-- **Humans** — a Notion-style editor in the workbench.
+- **Humans**
 
-- **Agents** — rendered markdown and typed operations through the CLI.
+  - A Notion-style editor in the workbench.
+
+- **Agents**
+
+  - Rendered markdown and typed operations through the CLI.
 
 - Neither reader edits the file through read / write commands
 
@@ -34,7 +44,7 @@ The data model is the actual data structure under the hood.
 
 - A document is a tree of blocks; rich text is attributed spans inside them.
 
-- Blocks carry typed state; comments anchor to blocks and spans.
+- Blocks carry typed state; annotations anchor to blocks and spans.
 
 - Canonical bytes: the same state always serializes to the same file.
 

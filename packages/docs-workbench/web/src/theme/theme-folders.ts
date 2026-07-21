@@ -77,8 +77,8 @@ const color = (...vars: string[]): ThemeTokenDefinition => ({ vars, kind: "color
  *
  * The file names mirror the frozen 14-type BLOCK VOCABULARY exactly (one
  * theme file per block type; each type's vocabulary doc states its keys),
- * plus four non-block files: shell, surfaces, inline-code (the text mark),
- * and editor-controls.
+ * plus five non-block files: shell, surfaces, inline-code (the text mark),
+ * editor-controls, and linking (the shared linked-panels layer).
  */
 export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefinition>> = {
   // -- non-block surfaces ---------------------------------------------------
@@ -100,6 +100,15 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
     border: color("--border", "--input", "--sidebar-border", "--docs-border-default"),
     muted: color("--muted", "--docs-surface-muted"),
     icon: color("--docs-icon-muted"),
+    radius: {
+      vars: ["--radius"],
+      kind: "length",
+      min: 0,
+      max: 16,
+      step: 1,
+      unit: "px",
+      defaultValue: 8,
+    },
   },
   "inline-code": {
     fg: color("--docs-inline-code-fg"),
@@ -109,6 +118,15 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
     highlight: color("--docs-highlight-color"),
     dropLine: color("--docs-dropcursor-color"),
     grip: color("--docs-grip-color"),
+  },
+  // The shared linked-panels layer (docs-viewer components/linked-panels):
+  // zebra stripe on even code lines, the lit-extent background wash, and
+  // the pin/rail accent — consumed by the state-shape, interaction-surface,
+  // and code blocks. Registered ONCE here, not per component.
+  linking: {
+    zebra: color("--docs-zebra"),
+    highlight: color("--docs-link-bg"),
+    pin: color("--docs-link-pin"),
   },
   // -- one file per block-vocabulary type ------------------------------------
   paragraph: {
@@ -132,6 +150,37 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
     boolean: color("--syntax-boolean"),
     null: color("--syntax-null"),
     key: color("--syntax-key"),
+    languageFg: color("--docs-code-lang-fg"),
+    annotationAccent: color("--docs-code-annotation-accent"),
+    gutterFg: color("--docs-code-gutter-fg"),
+    gutterBg: color("--docs-code-gutter-bg"),
+    zebra: color("--docs-code-zebra"),
+    rule: color("--docs-code-rule"),
+    ruleWidth: {
+      vars: ["--docs-code-rule-width"],
+      kind: "length",
+      min: 0,
+      max: 4,
+      step: 0.5,
+      unit: "px",
+      defaultValue: 1,
+    },
+    ruleOpacity: {
+      vars: ["--docs-code-rule-opacity"],
+      kind: "number",
+      min: 0,
+      max: 1,
+      step: 0.05,
+      defaultValue: 0.5,
+    },
+    zebraOpacity: {
+      vars: ["--docs-code-zebra-opacity"],
+      kind: "number",
+      min: 0,
+      max: 1,
+      step: 0.05,
+      defaultValue: 1,
+    },
   },
   callout: {
     border: color("--docs-viewer-callout-border"),
@@ -251,6 +300,58 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
   "interaction-surface": {
     border: color("--docs-interaction-border"),
     bg: color("--docs-interaction-bg"),
+    rule: color("--docs-interaction-rule"),
+    headerBg: color("--docs-interaction-header-bg"),
+    headerFg: color("--docs-interaction-header-fg"),
+    sigName: color("--docs-interaction-sig-name"),
+    sigType: color("--docs-interaction-sig-type"),
+    sigPunct: color("--docs-interaction-sig-punct"),
+    noteName: color("--docs-interaction-note-name"),
+    noteType: color("--docs-interaction-note-type"),
+    noteFg: color("--docs-interaction-note-fg"),
+    childRule: color("--docs-interaction-child-rule"),
+    rowPad: {
+      vars: ["--docs-interaction-row-pad"],
+      kind: "length",
+      min: 4,
+      max: 16,
+      step: 1,
+      unit: "px",
+      defaultValue: 8,
+    },
+    opGap: {
+      vars: ["--docs-interaction-op-gap"],
+      kind: "length",
+      min: 6,
+      max: 28,
+      step: 1,
+      unit: "px",
+      defaultValue: 14,
+    },
+  },
+  // The --docs-shape-* tokens tone the state-shape structure tree (heading,
+  // field name/type, muted notes, hairlines, card frame); the example pane's
+  // furniture (zebra, link wash, pin rail) rides the shared linked-panels
+  // tokens in the "linking" folder instead.
+  "state-shape": {
+    border: color("--docs-shape-border"),
+    bg: color("--docs-shape-bg"),
+    name: color("--docs-shape-name"),
+    type: color("--docs-shape-type"),
+    muted: color("--docs-shape-muted"),
+    rule: color("--docs-shape-rule"),
+    headerBg: color("--docs-shape-header-bg"),
+    descFg: color("--docs-shape-desc-fg"),
+    childRule: color("--docs-shape-child-rule"),
+    rowPad: {
+      vars: ["--docs-shape-row-pad"],
+      kind: "length",
+      min: 4,
+      max: 16,
+      step: 1,
+      unit: "px",
+      defaultValue: 9,
+    },
   },
   mermaid: {
     border: color("--docs-mermaid-border"),

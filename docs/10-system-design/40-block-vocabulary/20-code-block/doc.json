@@ -10,17 +10,19 @@
       "props": {},
       "children": [
         "b-14-code-lead-2",
+        "b-14-code-example-h",
+        "b-14-code-example-intro",
+        "b-14-code-example-block",
         "b-14-code-state-h-3",
         "b-14-code-state-4",
         "b-14-code-state-note-5",
-        "b-14-code-proj-h-6",
-        "b-14-code-proj-7",
-        "b-14-code-proj-example-8",
         "b-14-code-actions-h-9",
         "b-14-code-actions-note-10",
         "b-14-code-actions-11",
-        "b-14-code-editor-h-12",
+        "b-14-code-proj-h-6",
         "b-14-code-editor-13",
+        "b-14-code-proj-7",
+        "b-14-code-proj-example-8",
         "b-14-code-agent-h-14",
         "b-14-code-agent-1-15",
         "b-14-code-agent-2-16",
@@ -41,7 +43,19 @@
           "insert": "block vocabulary"
         },
         {
-          "insert": ", and one half of its documentation doctrine: state shown as real, annotated JSON. The source lives in the block's "
+          "insert": ", and the source-evidence surface of its documentation doctrine: the language-tagged block for real, annotated source listings. State examples live inside "
+        },
+        {
+          "insert": "state-shape",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/50-state-shape"
+            }
+          }
+        },
+        {
+          "insert": " blocks; code carries the evidence. The source lives in the block's "
         },
         {
           "insert": "text",
@@ -69,6 +83,54 @@
         },
         {
           "insert": " component."
+        }
+      ],
+      "children": []
+    },
+    "b-14-code-example-h": {
+      "id": "b-14-code-example-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Example"
+        }
+      ],
+      "children": []
+    },
+    "b-14-code-example-intro": {
+      "id": "b-14-code-example-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A live instance of the type — a small annotated listing:"
+        }
+      ],
+      "children": []
+    },
+    "b-14-code-example-block": {
+      "id": "b-14-code-example-block",
+      "type": "code",
+      "props": {
+        "annotations": [
+          {
+            "lines": "3-5",
+            "label": "Guard",
+            "note": "Rejects a document whose root pointer names no block — the tree invariant every reader assumes."
+          },
+          {
+            "lines": "6",
+            "note": "Callers get the resolved root shell, never the raw id."
+          }
+        ],
+        "language": "typescript"
+      },
+      "text": [
+        {
+          "insert": "export function requireRoot(doc: DocDocument): DocBlock {\n  const root = doc.blocks[doc.root];\n  if (!root) {\n    throw new Error(`missing root block: ${doc.root}`);\n  }\n  return root;\n}"
         }
       ],
       "children": []
@@ -138,50 +200,6 @@
         },
         {
           "insert": " with marks disabled, so no bold/link/reference spans inside code."
-        }
-      ],
-      "children": []
-    },
-    "b-14-code-proj-h-6": {
-      "id": "b-14-code-proj-h-6",
-      "type": "heading",
-      "props": {
-        "level": 2
-      },
-      "text": [
-        {
-          "insert": "Markdown render"
-        }
-      ],
-      "children": []
-    },
-    "b-14-code-proj-7": {
-      "id": "b-14-code-proj-7",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "A fenced code block using "
-        },
-        {
-          "insert": "props.language",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " when present, followed by one blockquote line per annotation, each shaped like:"
-        }
-      ],
-      "children": []
-    },
-    "b-14-code-proj-example-8": {
-      "id": "b-14-code-proj-example-8",
-      "type": "code",
-      "props": {},
-      "text": [
-        {
-          "insert": "> **L4-9 (Validation):** Rejects orphan children."
         }
       ],
       "children": []
@@ -281,15 +299,15 @@
       },
       "children": []
     },
-    "b-14-code-editor-h-12": {
-      "id": "b-14-code-editor-h-12",
+    "b-14-code-proj-h-6": {
+      "id": "b-14-code-proj-h-6",
       "type": "heading",
       "props": {
         "level": 2
       },
       "text": [
         {
-          "insert": "In the editor"
+          "insert": "Renderers"
         }
       ],
       "children": []
@@ -300,7 +318,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Slash menu: "
+          "insert": "In the editor: slash menu "
         },
         {
           "insert": "Code Block",
@@ -319,6 +337,37 @@
         },
         {
           "insert": " pretty-prints at render time — display-only, the stored text is never mutated."
+        }
+      ],
+      "children": []
+    },
+    "b-14-code-proj-7": {
+      "id": "b-14-code-proj-7",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The agent-facing markdown projection: a fenced code block using "
+        },
+        {
+          "insert": "props.language",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " when present, followed by one blockquote line per annotation, each shaped like:"
+        }
+      ],
+      "children": []
+    },
+    "b-14-code-proj-example-8": {
+      "id": "b-14-code-proj-example-8",
+      "type": "code",
+      "props": {},
+      "text": [
+        {
+          "insert": "> **L4-9 (Validation):** Rejects orphan children."
         }
       ],
       "children": []
@@ -362,19 +411,31 @@
       "props": {},
       "text": [
         {
-          "insert": "Annotated JSON + an "
+          "insert": "The house style for documenting a system: a "
+        },
+        {
+          "insert": "state-shape",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/50-state-shape"
+            }
+          }
+        },
+        {
+          "insert": " carrying both the shape and an example instance, then an "
         },
         {
           "insert": "interaction-surface",
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "10-system-design/40-block-vocabulary/50-interaction-surface"
+              "path": "10-system-design/40-block-vocabulary/60-interaction-surface"
             }
           }
         },
         {
-          "insert": " is the house style for documenting a system: the state, then the operations on it."
+          "insert": " for the operations. Code blocks enter as source evidence — annotated listings of the defining source, not state examples."
         }
       ],
       "children": []

@@ -1,5 +1,5 @@
 <current_state>
-<last_updated>2026-07-20 (round 2, THIRD SITTING CLOSED: R2-D13 restructure + standards migration, R2-D14 docs audit, R2-D15 copy-out fix, R2-D16 block-paste fix; corpus 53, suite 1086/4/0. NEXT SITTING = the content read-through, resuming at the manifesto)</last_updated>
+<last_updated>2026-07-21 (round 2, FOURTH+FIFTH SITTINGS: the doc-by-doc walkthrough rebuilt system design — doc-standards 5 children, translation-layer sectionified, data-model complete (block-design 6 children, annotations rename incl. CODE, serialization, mutation-model split, componentAction rename incl. CODE). Corpus 60. NEXT THREAD: resume walkthrough at 40-block-vocabulary)</last_updated>
 
 <status>
     - DOC-STANDARDS RESTRUCTURE (2026-07-20, fourth sitting, doc-by-doc
@@ -108,6 +108,196 @@
       Backlinks 51 sources / 177 refs (was 112 — source refs now
       indexed); links 0 stale. NOTE: pre-existing fs-watch.ts FSWatcher
       typecheck error on committed code, untouched.
+    - INTERACTION SURFACES SECTION-IFIED (2026-07-21, Ford's interview
+      calls: idea+issue stay in overview / paragraph-first opening /
+      richer-render callout DROPPED): .tmp/sectionify-interaction-
+      surfaces.ts. Overview = opener para + canvas + Ford's "The Issue"
+      VERBATIM + deduped Solution (3 paras; paste dupes gone) + surfaces
+      index + symmetry table. NEW 10-human-surface + 20-agent-surface
+      (each: reading / writing-or-editing / why in the bullet pattern;
+      agent doc has a docs render/grep code example; both ref the
+      mutation model as the ops home). Corpus 51→53 (!!— CORPUS_PATHS
+      cascade target moved AGAIN, parallel-owned: needs 53 with
+      doc-standards + surfaces children paths). Goldens 53, backlinks
+      53/177, links 0 stale, audit W4 canvas-opener RESOLVED (3 errors
+      remain = parallel session's docs/assets).
+    - DATA-MODEL PASS OPENED (2026-07-21, Ford: GO SLOWER — "the core
+      underpinning", things changed a lot; per-doc interviews + code
+      fact-checks). Interview calls: (1) overview = FIVE SHAPES + ONE
+      BEHAVIOR MODEL (landed, .tmp/rewrite-datamodel-overview.ts —
+      mutation model no longer a "neighbor"; title "The data model");
+      (2) 60-mutation-model WILL SPLIT into a subsection — overview =
+      op algebra, children = undo-redo + copy-paste interaction logic
+      (land when the walk reaches it); (3) 30-block-state WILL BECOME
+      the custom-component anatomy guide — each component owns state,
+      renderer, update logic; near a how-to-add-a-component guide;
+      (4) counts PINNED TO TARGET STATE (14 types, sequence in, mermaid
+      retiring — "In flight" callout in the overview; code currently has
+      15 types/8 bundles until the parallel session's retirement lands);
+      type counts delegated to block vocabulary. FACT-CHECKED: 7 ops
+      correct (insert/update/delete/move/split/merge/blockAction).
+      Walk continues: 10-document-tree next, then 20-rich-text,
+      30-block-state, 40-comments, 50-canonical-bytes, 60-mutation-model.
+    - BULLET STANDARD GENERALIZED (2026-07-21, Ford w/ screenshots:
+      five-shapes index = bad, numbering Why = good): NO "lead — gloss"
+      bullets ANYWHERE — the lead (bold label / link / short phrase) is
+      the parent bullet alone, gloss + facts are sub-bullets.
+      writingstyle.md rule broadened ("applies to index lists,
+      why-sections, invariant lists — everywhere").
+      .tmp/bullet-split-sweep.ts (DRY=1 previewed, then run): 46 splits
+      corpus-wide — all section-overview index bullets, document-tree
+      invariants, package roles, theming sections, sd-overview's
+      Foundation/Design/Implementation + Humans/Agents bullets (Ford's
+      own, covered by his general directive), one manifesto bullet.
+      Goldens 53, backlinks 53/174, links 0 stale.
+    - DATA-MODEL REORDER (2026-07-21, Ford: tree → BLOCK DESIGN → rich
+      text; rich text = a kind of block, and data-model speaks
+      REPRESENTATION): /api/move 30-block-state→20-block-design,
+      20-rich-text→30-rich-text. 20-block-design FULLY REWRITTEN
+      (.tmp/block-design-and-richtext.ts) as the block contract — state
+      schema / typed actions / doc renderer / agent renderer / THEME
+      (Ford's list) laid out over structured-table's real files +
+      numbered add-a-block-type path + discovery + why. 30-rich-text
+      NARROWED to representation: label-less SpectreRef example +
+      span-text display note, marks→bullets, carriers de-counted
+      (sequence not mermaid), render-fallback claim fixed, dup H1 +
+      closing nav dropped. Overview index reordered/relabeled. FORD LIVE
+      EDITS honored: he bulletized the overview opener and DELETED both
+      callouts (Reading guide + In flight) — the in-flight
+      mermaid→sequence note is gone with them, his call. Goldens 53,
+      backlinks 53/170, links 0 stale. Walk: 40-comments next, then
+      50-canonical-bytes, 60-mutation-model (split into subsection
+      still planned).
+    - COMMENTS → ANNOTATIONS (2026-07-21, Ford's interview: this is NOT
+      Notion comments — one person + agents; you annotate something TO
+      HAVE IT CHANGED; name must be consistent with canvas's
+      annotation-processing agent; FULL rename now, annotate mode wiring
+      later). LANDED docs-side: 40-comments → 40-annotations (move +
+      full rewrite — request-channel framing, annotations.json example
+      w/ agentRun receipt, target-design lifecycle w/ queue/eval-record
+      bullets + "not wired" Direction callout); data-model overview
+      index relabeled; corpus prose sweep 16 replacements (in-code/HTML
+      comments untouched). CODE RENAME delegated to a Fable worker
+      (no-codex rule stated): annotations-schema.ts (+ comments-schema
+      compat re-export, exports-map key KEPT), sidecar annotations.json
+      w/ comments.json read-fallback, legacy "comments" top-level key
+      normalizes on read, /api/annotations canonical + /api/comments
+      aliases, viewer/workbench strings + tests. TRANSIENT: links check
+      1 stale (docs ref → annotations-schema.ts) until the worker
+      lands; self-heals. Walk after this: 50-canonical-bytes, then the
+      60-mutation-model SPLIT (subsection: op algebra overview +
+      undo-redo + copy-paste children).
+    - NO-LEGACY OVERRIDE (2026-07-21, Ford: "Comments is dead. Remove
+      everything to do with it"): worker re-directed mid-run — NO
+      comments-schema compat re-export (exports-map key REMOVED, freeze
+      explicitly overridden by Ford), NO /api/comments aliases, NO
+      comments.json read fallback, NO legacy "comments" sidecar key
+      (now a clean validation error). Annotations doc's legacy-key note
+      scrubbed.
+    - SERIALIZATION RENAME + SPANS TO FAMILY + AGENT ADAPTER
+      (2026-07-21, Ford's brainstorm answers): 50-canonical-bytes →
+      50-SERIALIZATION ("how we say the document"; content read still
+      pending). 30-data-model/30-rich-text DELETED — Ford: delta spans
+      are the rich-text FAMILY'S internal state, like canvas/code own
+      theirs — representation moved verbatim into the family overview
+      (40-block-vocabulary/10-rich-text, "The state: delta spans"
+      section; its type bullets also split per the bullet standard).
+      Data-model = FOUR shapes + behavior (gap at 30 kept; Ford's pm
+      "Five shapes" opener updated to Four). Corpus 53→52 (!— cascade
+      target moved again: 52 docs, minus 30-rich-text, plus
+      40-annotations/50-serialization renames). BLOCK-DESIGN CONTRACT
+      grew the AGENT ADAPTER (6th element, target-design marked:
+      default generic ops; canvas/sequence own agent + context loader +
+      action writeback); annotations lifecycle gained "Execution is
+      per-type" pointing at it. Goldens 52, backlinks 52/169, links 0
+      stale.
+    - ANNOTATIONS CODE RENAME LANDED (2026-07-21, Fable worker, no
+      codex, ~175 tool uses): annotations-schema.ts (comments-schema
+      DELETED, exports key removed per Ford's freeze override),
+      annotations.json only (no fallback), /api/annotations only (no
+      alias routes), agent tools annotation_list/resolve, viewer
+      Plannotator + workbench ActionPane/DocPage strings "Annotations",
+      all tests renamed + a comments-key-fails-cleanly test. Suites:
+      viewer 459/0, cli 105/0, index 39/0, model 343/4 (all
+      pre-existing parallel-owned), server 124/3 (assets-video 415s
+      VERIFIED pre-existing via stash baseline), workbench 64/1 (export
+      vite timeout, verified pre-existing). Spot-verified: zero comment
+      remnants, exports map clean.
+    - DATA-MODEL RENUMBERED (Ford): 40-annotations→30, 50-serialization
+      →40, 60-mutation-model→50 (server moves, 11 inbound sources
+      auto-rewritten). BLOCK-DESIGN SECTIONIFIED (Ford: 6 children;
+      .tmp/blockdesign-sectionify.ts): 10-state-schema, 20-typed-actions,
+      30-doc-renderer, 40-agent-renderer, 50-theming, 60-agent-adapter —
+      each grounded in real code excerpts (structured-table state.ts +
+      agent-view + descriptor + theme json, file-tree addEntry); overview
+      contract bullets are now the child index + a per-family
+      instantiation note (EACH FAMILY defines how every element works
+      for it in its block-vocabulary doc — inline if short, subpages if
+      deep; THAT restructure lands when the walk reaches
+      40-block-vocabulary). Corpus 52→58. Cascade target now: 58 docs,
+      data-model children 10/20(+6)/30/40/50. Goldens 58, backlinks
+      58/179, links 0 stale. Remaining in data-model walk: Ford's
+      content read of 40-serialization, then the 50-mutation-model
+      SPLIT (op algebra overview + undo-redo + copy-paste children).
+    - blockAction → componentAction (2026-07-21, Ford: the six generic
+      ops say Block; the seventh is a CUSTOM action on a COMPONENT type;
+      componentAction chosen — matches defineComponentAction). Full
+      wire-format, NO legacy acceptance (precedent: flavour→type,
+      comments→annotations). CODE rename delegated to a Fable worker
+      (no-codex rule stated; rejected-legacy test specified; running).
+      CORPUS swept: 11 replacements incl. an interaction-surface block
+      title ("blockAction examples (2 of 13)" → "componentAction
+      examples" — stale count died too); zero remain; goldens 60
+      regen, links 0 stale. WORKER LANDED clean: doc-ops union +
+      discovery + components compat vocabulary (BLOCK_ACTIONS→
+      COMPONENT_ACTIONS etc.) + server forward-handlers + all tests;
+      NEW rejected-legacy test ("blockAction" op → Unknown doc op type,
+      typed issue). Suites: model 344/4-pre-existing, server 124/3-pre,
+      viewer 459/0, cli 105/0, index 39/0, workbench 64/1-pre. Prose
+      stragglers ("Typed block actions" heading, docs-server doc line)
+      swept after.
+    - MUTATION MODEL SPLIT LANDED (2026-07-21, Ford pinned both
+      contracts): 50-mutation-model is a SECTION — overview (algebra/
+      refusal/actions de-counted/events/discovery + interactions index)
+      + 10-undo-redo (two layers: exact inverses, patch ledger undo-by-
+      id across doc/canvas/sequence, redo = undoing the undo, local
+      keystroke history) + 20-copy-paste (typed clipboard payloads,
+      top-level block-run pastes, fresh ids, external HTML → blocks,
+      validation gate). Corpus 58→60 (cascade target: 60 docs).
+      DATA-MODEL WALK COMPLETE pending Ford's reads. Goldens 60,
+      backlinks 60/179, links 0 stale.
+    - SERIALIZATION TRIMMED (2026-07-21, Ford confused by the in-doc
+      render section — rightly): per-type markdown-render table REMOVED
+      (misplaced since block-design/40-agent-renderer exists; the stale
+      mermaid row died with it), replaced by a one-para pointer to agent
+      renderer + agent surface; serializer + key orders + hashes kept.
+      Goldens 58, links 0 stale.
+    - ANNOTATION TARGETS CANONICALIZED (2026-07-21, Ford: two kinds is
+      outdated; one canonical shape, adapter handles special processing):
+      the doc's target section now lists FOUR kinds from the REAL viewer
+      targeting layer (block / text_range / visual_point /
+      custom_element — canvas-object = custom_element's persisted form),
+      plus the "shape never specializes" principle with an adapter
+      pointer. Sidecar schema (code) still persists block+canvas-object
+      only — doc says so; schema growth is additive, NOT landed as code
+      in this pass. Goldens 58, backlinks 58/180, links 0 stale.
+    - HEADING CONVENTION (2026-07-21, Ford): "How it's laid out" →
+      "Structure" corpus-wide (10 swept; Ford had already hand-renamed
+      cross-doc-linking + in-code-docs — zero remain). writingstyle.md
+      records the shared flow: Structure → The rule → Why. Goldens 58
+      regen, links 0 stale.
+    - RENAMED → 20-TRANSLATION-LAYER (2026-07-21, Ford: "interaction
+      surfaces" out — the idea is a TRANSLATION LAYER between humans and
+      AI; non-gimmicky). /api/move rename + .tmp/rename-translation-
+      layer.ts: title "Translation layer", opener reframed in the
+      approved translation language ("each reader meets it through a
+      renderer that speaks its language"), inside-section child ref
+      paths re-swept (the known /api/move subtree gap), sd-overview H2 +
+      link text → "Translation layer". Children keep human-surface/
+      agent-surface names. Canvas board title "One state, two readers"
+      unchanged. CORPUS_PATHS cascade target (parallel-owned) is now:
+      53 docs, 10-doc-standards/* + 20-translation-layer/* paths.
+      Goldens 53, backlinks 53/177, links 0 stale.
     - FOURTH SITTING (2026-07-20, read-through) IN PROGRESS: baseline was
       1086/4/0 after manifesto-golden regen. Ford rewrote the system-design
       overview three times with the agent (final: primer, H2 per piece +
@@ -573,27 +763,37 @@
 </completed>
 
 <in_progress>
-    - THE CORE OF ROUND 2 IS NOW THE ACTIVE WORK: the per-doc CONTENT
-      read-through, in the NEW 53-doc tree. Ford's stated mode
-      (2026-07-20): he walks the docs in order, REWORDING/REWRITING as
-      he goes — "right now it's not really laid out properly" — with the
-      agent landing directives per doc. He believes the manifesto is
-      up to date (note: audit W1 says it carries FIVE level-1 headings —
-      worth a look while he's in it). Walk order = the new tree:
-      00-manifesto → 10-system-design/00-overview → 10-interaction-
-      surfaces → 20-doc-architecture (overview + 7 standards docs, ALL
-      unread new authorship) → 30-data-model (7) → 40-block-vocabulary
-      (16) → 50-package-boundaries (new) → 20-implementation (…). Ledger
-      rows carry the per-doc annotations (vocab sweep / title strip /
-      audit Wn / needs-read).
-    - Zero READ verdicts recorded so far in round 2; the nine 2026-07-20
-      docs (spine overview, 7 standards, package-boundaries) plus the
-      reframed Package map are agent-authored and unread.
-    - Awaiting Ford's visual checks (re-give plans from 07-20 chat if
-      needed): R2-D15 copy-out (band copy → paste out), R2-D16 block
-      paste structure (blocks re-separate, H1 survives, mid-text split,
-      inline pastes still merge), and carried older items: D12 title
-      rename, borderless band rect, page-title look on kept-H1 docs.
+    - THE DOC-BY-DOC WALKTHROUGH (Ford + agent, the core of round 2).
+      THE LOOP per doc: read from disk → short summary → INTERVIEW Ford
+      (AskUserQuestion w/ concrete options + previews; thorough, he asked
+      for it) → rewrite from his answers via canonical-serializer .tmp
+      scripts → regen goldens over disk truth → backlinks rescan → links
+      check → ledger verdict → next doc. His live workbench edits are
+      disk truth (expect pm-* blocks appearing mid-loop; honor deletions).
+    - POSITION: system design is DONE through data-model (all landed,
+      most "Needs Ford read" in the ledger). NEXT: 40-block-vocabulary —
+      section overview interview first; then per-family CONTRACT
+      INSTANTIATION (Ford's directive: each family defines how each of
+      the six block-design contract elements works FOR IT — state schema,
+      typed actions, doc renderer, agent renderer, theme, agent adapter —
+      inline if short, subpages if deep); reconcile mermaid→sequence
+      doc-side (pin to target state, sequence session owns code); resolve
+      the old "written primarily for agents" lead + wrong numbering-axis
+      claim (flagged in ledger). After vocabulary: 50-package-boundaries,
+      then 20-implementation (10-packages 9 docs, 20-workbench,
+      30-save-pipeline vs docs-server dedupe, 40-theming 5, 99-appendix),
+      and 00-manifesto (Ford believes current; audit W1 5 H1s stands).
+    - CONVENTIONS NOW CANON (writingstyle.md): bullets/sub-bullets
+      default, NO "lead — gloss" one-liners, bold-label parents, section
+      flow "Structure → The rule → Why", titles/openings section,
+      SCAN/SKIM/READ. Link objects: doc ref {kind,path} span-text=name;
+      source refs typed + verified (dirs legal).
+    - PARALLEL THREADS live in this repo (2026-07-21): sequence-block
+      session (owns CORPUS_PATHS/counts cascade — target 60 docs + new
+      paths — plus file-tree state.ts, docs/assets audit errors); three
+      NEW threads Ford is spawning: structured-table inline styling,
+      interaction-surface/schema-rendering rethink, code-block
+      annotations-in-edit-mode bug. Watch for concurrent edits.
 </in_progress>
 
 <next_actions>

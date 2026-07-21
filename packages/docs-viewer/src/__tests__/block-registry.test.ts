@@ -314,13 +314,24 @@ describe("structured-table / interaction-surface — props-driven descriptors", 
     expect(html).toContain('data-interaction-operation="file-tree.addEntry"');
     expect(html).toContain("Append a path entry");
     expect(html).toContain("File-tree block surface");
-    // The signature is colorized token-by-token (data-sig-token spans), but
-    // its flat text is still the full `name(params) -> returns` signature.
+    // The signature is colorized token-by-token (data-sig-token spans) and
+    // rendered code-block-like: `name(` opening line, one indented param per
+    // line (trailing commas, `?` for required: false), `) -> returns` close.
     const signatureText = html.replace(/<[^>]+>/g, "").replace(/&gt;/g, ">");
-    expect(signatureText).toContain(
-      "file-tree.addEntry(path: string, note?: string) -> props patch",
-    );
+    // Operations title themselves with the bare verb — namespace stripped.
+    expect(signatureText).toContain("addEntry(");
+    expect(signatureText).not.toContain("file-tree.addEntry(");
+    expect(signatureText).toContain("  path: string,");
+    expect(signatureText).toContain("  note?: string,");
+    expect(signatureText).toContain(") -> props patch");
+    // Zero-param operations stay on one line.
+    expect(signatureText).toContain("entries() -> FileTreeEntry[]");
     expect(html).toContain('data-sig-token="name"');
+    // The signature renders through numbered CodeLines rows in a bare card
+    // (no header bar); the description sits in the notes pane.
+    expect(html).toContain("data-code-line");
+    expect(html).not.toContain("data-card-shell");
+    expect(html).toContain('data-op-note="description"');
     expect(html).toContain(">query<");
     expect(html).not.toContain("Invalid Interaction Surface block");
   });

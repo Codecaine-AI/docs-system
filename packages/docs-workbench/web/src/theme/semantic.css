@@ -106,6 +106,20 @@
   --docs-quote-border: var(--docs-viewer-callout-border);
   --docs-code-block-bg: color-mix(in srgb, var(--muted) 30%, transparent);
   --docs-code-block-border: var(--border);
+  --docs-code-lang-fg: var(--color-text-blue);
+  --docs-code-annotation-accent: #0ea5e9;
+  --docs-code-gutter-fg: var(--muted-foreground);
+  /* Opaque on purpose (mixed over --background): the gutter is sticky above
+     horizontally-scrolled code. The default matches the block bg composited
+     over the page background, so no gutter band is visible at rest. */
+  --docs-code-gutter-bg: color-mix(in srgb, var(--muted) 30%, var(--background));
+  --docs-code-zebra: color-mix(in srgb, var(--muted) 20%, transparent);
+  --docs-code-zebra-opacity: 1;
+  /* Internal rules: header separator, code/notes column divider, dividers
+     between notes. */
+  --docs-code-rule: var(--border);
+  --docs-code-rule-width: 1px;
+  --docs-code-rule-opacity: 0.5;
   --docs-callout-fg: var(--docs-viewer-text-body);
   --docs-divider-color: var(--border);
   --docs-image-border: var(--border);
@@ -126,7 +140,10 @@
   --docs-table-cell-pad-y: 10px;
   --docs-table-cell-pad-x: 16px;
   --docs-table-font-size: 14px;
-  --docs-table-handle-radius: 3px;
+  /* Component corner radii derive from the global --radius token. */
+  --docs-table-handle-radius: max(0px, calc(var(--radius) - 5px));
+  --docs-highlight-radius: max(0px, calc(var(--radius) - 2px));
+  --docs-dropcursor-radius: max(0px, calc(var(--radius) - 6px));
   --docs-table-handle-offset: 12px;
   --docs-table-selection-pad: 3px;
   /* Editor interaction accent (selection outlines, drop indicators, focus
@@ -135,6 +152,41 @@
   --docs-editor-accent: var(--color-accent-blue);
   --docs-interaction-border: var(--border);
   --docs-interaction-bg: var(--background);
+  --docs-interaction-rule: var(--border);
+  --docs-interaction-header-bg: color-mix(in srgb, var(--muted) 35%, transparent);
+  --docs-interaction-header-fg: var(--foreground);
+  --docs-interaction-sig-name: #0e7490;
+  --docs-interaction-sig-type: #b45309;
+  --docs-interaction-sig-punct: var(--muted-foreground);
+  --docs-interaction-note-name: var(--foreground);
+  --docs-interaction-note-type: var(--muted-foreground);
+  --docs-interaction-note-fg: color-mix(in srgb, var(--foreground) 72%, transparent);
+  --docs-interaction-child-rule: color-mix(in srgb, var(--border) 50%, transparent);
+  --docs-interaction-row-pad: 8px;
+  --docs-interaction-op-gap: 14px;
+  /* State-shape card + field-row tokens; name/type carry the same cyan/amber
+     hues the interaction-surface signature tokens use (cyan-700/amber-700
+     light, cyan-300/amber-300 dark), and the interaction-surface param rows
+     share the field-row tokens through the shared FieldRows component. */
+  --docs-shape-border: var(--border);
+  --docs-shape-bg: var(--background);
+  --docs-shape-name: var(--foreground);
+  --docs-shape-type: #b45309;
+  --docs-shape-muted: var(--muted-foreground);
+  --docs-shape-rule: var(--border);
+  --docs-shape-header-bg: color-mix(in srgb, var(--muted) 35%, transparent);
+  --docs-shape-desc-fg: color-mix(in srgb, var(--foreground) 72%, transparent);
+  --docs-shape-child-rule: color-mix(in srgb, var(--docs-shape-rule, var(--border)) 50%, transparent);
+  --docs-shape-row-pad: 9px;
+  /* Shared linked-panels layer (docs-viewer components/linked-panels;
+     theme-folders.ts "linking" entry): zebra stripe on even code lines,
+     lit-extent background wash, and the pin/rail accent — one token set
+     for the state-shape, interaction-surface, and code blocks. The pin
+     hue adapts the approved mockup's gold (#b48f2e paper / #d4af4a ink)
+     to this palette; the wash mixes off the pin so the two knobs track. */
+  --docs-zebra: color-mix(in srgb, var(--muted) 20%, transparent);
+  --docs-link-bg: color-mix(in srgb, var(--docs-link-pin) 14%, transparent);
+  --docs-link-pin: #b48f2e;
   --docs-mermaid-border: var(--border);
   --docs-mermaid-bg: transparent;
   --docs-canvas-border: var(--border);
@@ -241,6 +293,20 @@
   --docs-quote-border: var(--docs-viewer-callout-border);
   --docs-code-block-bg: color-mix(in srgb, var(--muted) 30%, transparent);
   --docs-code-block-border: var(--border);
+  --docs-code-lang-fg: var(--color-text-blue);
+  --docs-code-annotation-accent: #38bdf8;
+  --docs-code-gutter-fg: var(--muted-foreground);
+  /* Opaque on purpose (mixed over --background): the gutter is sticky above
+     horizontally-scrolled code. The default matches the block bg composited
+     over the page background, so no gutter band is visible at rest. */
+  --docs-code-gutter-bg: color-mix(in srgb, var(--muted) 30%, var(--background));
+  --docs-code-zebra: color-mix(in srgb, var(--muted) 20%, transparent);
+  --docs-code-zebra-opacity: 1;
+  /* Internal rules: header separator, code/notes column divider, dividers
+     between notes. */
+  --docs-code-rule: var(--border);
+  --docs-code-rule-width: 1px;
+  --docs-code-rule-opacity: 0.5;
   --docs-callout-fg: var(--docs-viewer-text-body);
   --docs-divider-color: var(--border);
   --docs-image-border: var(--border);
@@ -261,7 +327,10 @@
   --docs-table-cell-pad-y: 10px;
   --docs-table-cell-pad-x: 16px;
   --docs-table-font-size: 14px;
-  --docs-table-handle-radius: 3px;
+  /* Component corner radii derive from the global --radius token. */
+  --docs-table-handle-radius: max(0px, calc(var(--radius) - 5px));
+  --docs-highlight-radius: max(0px, calc(var(--radius) - 2px));
+  --docs-dropcursor-radius: max(0px, calc(var(--radius) - 6px));
   --docs-table-handle-offset: 12px;
   --docs-table-selection-pad: 3px;
   /* Editor interaction accent (selection outlines, drop indicators, focus
@@ -270,6 +339,41 @@
   --docs-editor-accent: var(--color-accent-blue);
   --docs-interaction-border: var(--border);
   --docs-interaction-bg: var(--background);
+  --docs-interaction-rule: var(--border);
+  --docs-interaction-header-bg: color-mix(in srgb, var(--muted) 35%, transparent);
+  --docs-interaction-header-fg: var(--foreground);
+  --docs-interaction-sig-name: #67e8f9;
+  --docs-interaction-sig-type: #fcd34d;
+  --docs-interaction-sig-punct: var(--muted-foreground);
+  --docs-interaction-note-name: var(--foreground);
+  --docs-interaction-note-type: var(--muted-foreground);
+  --docs-interaction-note-fg: color-mix(in srgb, var(--foreground) 72%, transparent);
+  --docs-interaction-child-rule: color-mix(in srgb, var(--border) 50%, transparent);
+  --docs-interaction-row-pad: 8px;
+  --docs-interaction-op-gap: 14px;
+  /* State-shape card + field-row tokens; name/type carry the same cyan/amber
+     hues the interaction-surface signature tokens use (cyan-700/amber-700
+     light, cyan-300/amber-300 dark), and the interaction-surface param rows
+     share the field-row tokens through the shared FieldRows component. */
+  --docs-shape-border: var(--border);
+  --docs-shape-bg: var(--background);
+  --docs-shape-name: var(--foreground);
+  --docs-shape-type: #fcd34d;
+  --docs-shape-muted: var(--muted-foreground);
+  --docs-shape-rule: var(--border);
+  --docs-shape-header-bg: color-mix(in srgb, var(--muted) 35%, transparent);
+  --docs-shape-desc-fg: color-mix(in srgb, var(--foreground) 72%, transparent);
+  --docs-shape-child-rule: color-mix(in srgb, var(--docs-shape-rule, var(--border)) 50%, transparent);
+  --docs-shape-row-pad: 9px;
+  /* Shared linked-panels layer (docs-viewer components/linked-panels;
+     theme-folders.ts "linking" entry): zebra stripe on even code lines,
+     lit-extent background wash, and the pin/rail accent — one token set
+     for the state-shape, interaction-surface, and code blocks. The pin
+     hue adapts the approved mockup's gold (#b48f2e paper / #d4af4a ink)
+     to this palette; the wash mixes off the pin so the two knobs track. */
+  --docs-zebra: color-mix(in srgb, var(--muted) 20%, transparent);
+  --docs-link-bg: color-mix(in srgb, var(--docs-link-pin) 18%, transparent);
+  --docs-link-pin: #d4af4a;
   --docs-mermaid-border: var(--border);
   --docs-mermaid-bg: transparent;
   --docs-canvas-border: var(--border);

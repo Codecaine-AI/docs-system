@@ -57,7 +57,7 @@
       },
       "text": [
         {
-          "insert": "How it's laid out"
+          "insert": "Structure"
         }
       ],
       "children": []
@@ -329,7 +329,20 @@
       "props": {},
       "text": [
         {
-          "insert": "No generated navigation scripts — list files and explain briefly."
+          "insert": "No generated navigation scripts"
+        }
+      ],
+      "children": [
+        "b-cl2-mv-sub2-19-gloss"
+      ]
+    },
+    "b-cl2-mv-sub2-19-gloss": {
+      "id": "b-cl2-mv-sub2-19-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "List files and explain briefly."
         }
       ],
       "children": []

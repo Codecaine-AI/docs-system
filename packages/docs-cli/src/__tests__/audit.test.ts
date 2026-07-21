@@ -261,11 +261,11 @@ describe("E4 — bundle validity", () => {
 });
 
 describe("bundle-reserved entries", () => {
-  test("ignores assets, canvases, comments.json, and index twins inside a bundle", async () => {
+  test("ignores assets, canvases, annotations.json, and index twins inside a bundle", async () => {
     await writeBundle("10-design", doc("design"));
     await mkdir(path.join(tempDir, "10-design", "assets"), { recursive: true });
     await mkdir(path.join(tempDir, "10-design", "canvases"), { recursive: true });
-    await writeFile(path.join(tempDir, "10-design", "comments.json"), "{}\n");
+    await writeFile(path.join(tempDir, "10-design", "annotations.json"), "{}\n");
     await writeFile(path.join(tempDir, "10-design", "index.md"), "# Projected markdown\n");
     await writeFile(path.join(tempDir, "10-design", "index.mdx"), "# Projected MDX\n");
 

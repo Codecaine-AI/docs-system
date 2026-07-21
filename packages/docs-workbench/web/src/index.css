@@ -273,7 +273,7 @@
 
 .docs-markdown :where(code:not(pre code)) {
   background: var(--docs-inline-code-bg);
-  border-radius: 4px;
+  border-radius: calc(var(--radius) - 4px);
   padding: 0.1em 0.35em;
   color: var(--docs-inline-code-fg);
 }
@@ -537,7 +537,7 @@
 
 [data-block-id] {
   transition: background 0.1s ease;
-  border-radius: 3px;
+  border-radius: max(0px, calc(var(--radius) - 5px));
 }
 
 /*
@@ -610,7 +610,7 @@
       calc(var(--docs-dragselect-opacity, 0.12) * 100%),
     transparent
   );
-  border-radius: 2px;
+  border-radius: max(0px, calc(var(--radius) - 6px));
 }
 
 /*
@@ -659,7 +659,7 @@
   justify-content: center;
   width: var(--docs-grip-size, 18px);
   height: calc(var(--docs-grip-size, 18px) * 4 / 3);
-  border-radius: 4px;
+  border-radius: calc(var(--radius) - 4px);
   color: var(--docs-grip-color, var(--docs-icon-muted));
   cursor: grab;
   user-select: none;

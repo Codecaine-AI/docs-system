@@ -1,6 +1,8 @@
-Docs link to docs with typed reference spans — tracked by the backlinks index, held at zero stale, rewritten when targets move — never with raw paths in prose. This page states the reference object, which directions links run, and the restraint rules against overlinking.
+Docs link to docs with typed reference spans — tracked by the backlinks index, held at zero stale, rewritten when targets move — never with raw paths in prose. 
 
-## How it's laid out
+This page states the reference object, which directions links run, and the restraint rules against overlinking.
+
+## Structure
 
 ```json
 {
@@ -55,8 +57,6 @@ Docs link to docs with typed reference spans — tracked by the backlinks index,
   - Two docs each pointing at the other for the full explanation means neither owns it.
 
   - One doc owns the substance; the other references it.
-
-> **Decision: Top-down, with canonical-home crossings** — Decided 2026-07-20: navigation runs top-down — parents introduce children, and no doc links to its own ancestors. Substance may cross sections, but only at a concept's canonical home. Overlinking is held down by the restraint rules above, not by banning cross-links. This closes the earlier open call on strict top-down versus observed up-references; the block-vocabulary type pages' upward references were removed under it.
 
 ## Why
 

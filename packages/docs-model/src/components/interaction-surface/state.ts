@@ -2,18 +2,16 @@
 
 import { Type } from "@sinclair/typebox";
 import type { DocBlock } from "../../doc-schema";
+import { FieldSchema, readFields } from "../shared/field";
+import type { Field } from "../shared/field";
 import type { BlockStateDefinition } from "../types";
 
 export const INTERACTION_SURFACE_KINDS = ["action", "query", "event"] as const;
 
 export type InteractionSurfaceKind = (typeof INTERACTION_SURFACE_KINDS)[number];
 
-export type InteractionSurfaceParam = {
-  name: string;
-  type?: string;
-  required?: boolean;
-  description?: string;
-};
+/** Operation params are shared recursive Field nodes (see ../shared/field). */
+export type InteractionSurfaceParam = Field;
 
 export type InteractionSurfaceOperation = {
   /** Operation signature name, e.g. "file-tree.addEntry". */
@@ -24,15 +22,7 @@ export type InteractionSurfaceOperation = {
   kind?: InteractionSurfaceKind;
 };
 
-export const InteractionSurfaceParamSchema = Type.Object(
-  {
-    name: Type.String(),
-    type: Type.Optional(Type.String()),
-    required: Type.Optional(Type.Boolean()),
-    description: Type.Optional(Type.String()),
-  },
-  { additionalProperties: false },
-);
+export const InteractionSurfaceParamSchema = FieldSchema;
 
 export const InteractionSurfaceOperationSchema = Type.Object(
   {
@@ -87,16 +77,7 @@ export function readInteractionSurfaceOperations(block: DocBlock): InteractionSu
       operation.description = item.description;
     }
     if (Array.isArray(item.params)) {
-      const params: InteractionSurfaceParam[] = [];
-      for (const rawParam of item.params) {
-        if (!isRecord(rawParam) || typeof rawParam.name !== "string" || rawParam.name.length === 0) continue;
-        const param: InteractionSurfaceParam = { name: rawParam.name };
-        if (typeof rawParam.type === "string") param.type = rawParam.type;
-        if (typeof rawParam.required === "boolean") param.required = rawParam.required;
-        if (typeof rawParam.description === "string") param.description = rawParam.description;
-        params.push(param);
-      }
-      operation.params = params;
+      operation.params = readFields(item.params);
     }
     if (typeof item.returns === "string" && item.returns.length > 0) operation.returns = item.returns;
     if (isInteractionSurfaceKind(item.kind)) operation.kind = item.kind;

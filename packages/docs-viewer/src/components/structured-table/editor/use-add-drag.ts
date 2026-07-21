@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
+import { tableCellToPlainText, type TableCell } from "@codecaine-ai/docs-model";
 import { addColumn, addRow, removeColumn, removeRow, type TableData } from "./mutations";
 import { DRAG_DEAD_ZONE_PX } from "./use-reorder-drag";
 
@@ -21,23 +22,27 @@ export type ActiveAddDrag = {
   pointerY: number;
 };
 
-/** Trailing columns whose header and every body cell are "" — the only ones a leftward add-bar drag may remove. */
+/** Content-free cell: the canonical "" plus (defensively) a span cell whose inserts are all empty. */
+function isEmptyCell(cell: TableCell | undefined): boolean {
+  return tableCellToPlainText(cell ?? "") === "";
+}
+
+/** Trailing columns whose header and every body cell are empty — the only ones a leftward add-bar drag may remove. */
 export function trailingEmptyColumns(data: TableData): number {
   let count = 0;
   for (let col = data.columns.length - 1; col >= 0; col--) {
-    const empty =
-      data.columns[col] === "" && data.rows.every((row) => (row[col] ?? "") === "");
+    const empty = isEmptyCell(data.columns[col]) && data.rows.every((row) => isEmptyCell(row[col]));
     if (!empty) break;
     count++;
   }
   return count;
 }
 
-/** Trailing rows whose every cell is "" — the only ones an upward add-bar drag may remove. */
+/** Trailing rows whose every cell is empty — the only ones an upward add-bar drag may remove. */
 export function trailingEmptyRows(data: TableData): number {
   let count = 0;
   for (let row = data.rows.length - 1; row >= 0; row--) {
-    if (!data.rows[row].every((cell) => cell === "")) break;
+    if (!data.rows[row].every((cell) => isEmptyCell(cell))) break;
     count++;
   }
   return count;

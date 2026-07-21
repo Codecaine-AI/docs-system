@@ -10,10 +10,10 @@ import { MessageSquareIcon, PencilIcon, Undo2Icon } from "lucide-react";
 import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import type { DocOp } from "@codecaine-ai/docs-model/doc-ops";
 import type {
-  CommentIntent,
-  CommentTarget,
-  CommentsDocument,
-} from "@codecaine-ai/docs-model/comments-schema";
+  AnnotationIntent,
+  AnnotationTarget,
+  AnnotationsDocument,
+} from "@codecaine-ai/docs-model/annotations-schema";
 import DocBlockRenderer, {
   // Shared with the side-peek panel so the two surfaces cannot drift apart.
   DOC_SURFACE_TYPOGRAPHY_CLASSES,
@@ -37,12 +37,12 @@ import {
   IS_STATIC,
   applyDocOps,
   assetUrl,
-  addComment,
+  addAnnotation,
   getBacklinks,
   getBundle,
   getCanvasBySrc,
   moveDoc,
-  resolveComment,
+  resolveAnnotation,
   subscribeDocsEvents,
   undoPatch,
   uploadVideoAsset,
@@ -67,7 +67,7 @@ import { StandaloneSequenceEmbed } from "./SequenceEmbed";
  *    footer renders below the editor.
  *  - ANNOTATE: Plannotator over blocks and canvas objects — click a
  *    `[data-block-id]` wrapper or a canvas object to select it, compose a
- *    comment in the side pane, resolve from the list. Dangling targets are
+ *    annotation in the side pane, resolve from the list. Dangling targets are
  *    detected against the live doc + a lazily-fetched canvas object index.
  *
  * Live changes: an `/api/events` SSE subscription refreshes the open bundle
@@ -88,7 +88,7 @@ import { StandaloneSequenceEmbed } from "./SequenceEmbed";
  */
 
 /** Static author label — the standalone app has no identity concept. */
-const COMMENT_AUTHOR = "you";
+const ANNOTATION_AUTHOR = "you";
 
 type WorkbenchMode = "edit" | "annotate";
 
@@ -119,15 +119,15 @@ function canvasBlockIdsForSrc(
   return ids;
 }
 
-/** Canvas srcs referenced by the doc's canvas blocks + existing comment targets. */
+/** Canvas srcs referenced by the doc's canvas blocks + existing annotation targets. */
 function referencedCanvasSrcs(
   doc: DocDocument | null,
-  comments: CommentsDocument | null,
+  annotations: AnnotationsDocument | null,
   bundlePath: string,
 ): string[] {
   const srcs = new Set<string>();
-  for (const comment of comments?.comments ?? []) {
-    if (comment.target.kind === "canvas-object") srcs.add(comment.target.canvasSrc);
+  for (const annotation of annotations?.annotations ?? []) {
+    if (annotation.target.kind === "canvas-object") srcs.add(annotation.target.canvasSrc);
   }
   if (doc) {
     for (const block of Object.values(doc.blocks)) {
@@ -181,8 +181,8 @@ export function DocPage({
   onDocMoved,
 }: DocPageProps) {
   const [bundle, setBundle] = useState<BundleState | null>(null);
-  const [comments, setComments] = useState<CommentsDocument | null>(null);
-  const [commentsHash, setCommentsHash] = useState<string | null>(null);
+  const [annotations, setAnnotations] = useState<AnnotationsDocument | null>(null);
+  const [annotationsHash, setAnnotationsHash] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [backlinks, setBacklinks] = useState<BacklinkRow[]>([]);
@@ -192,7 +192,7 @@ export function DocPage({
   const [selection, setSelection] = useState<PlannotatorSelection | null>(null);
   const [canvasIndex, setCanvasIndex] = useState<CanvasIndex | undefined>(undefined);
   const [paneError, setPaneError] = useState<string | null>(null);
-  const [isCommentSubmitting, setIsCommentSubmitting] = useState(false);
+  const [isAnnotationSubmitting, setIsAnnotationSubmitting] = useState(false);
 
   const [lastPatch, setLastPatch] = useState<{ patchId: string; changedIds: string[] } | null>(
     null,
@@ -247,7 +247,7 @@ export function DocPage({
   const { highlightedIds, flash } = useTransientHighlights();
 
   // ---------------------------------------------------------------------
-  // Bundle + comments loading
+  // Bundle + annotations loading
   // ---------------------------------------------------------------------
 
   const loadSeqRef = useRef(0);
@@ -272,8 +272,8 @@ export function DocPage({
         if (seq !== loadSeqRef.current) return;
         expectedHashRef.current = payload.doc_hash;
         setBundle({ doc: payload.doc as DocDocument, hash: payload.doc_hash });
-        setComments(payload.comments ?? { schemaVersion: 1, comments: [] });
-        setCommentsHash(payload.comments_hash);
+        setAnnotations(payload.annotations ?? { schemaVersion: 1, annotations: [] });
+        setAnnotationsHash(payload.annotations_hash);
         setError(null);
       } catch (loadError) {
         if (seq !== loadSeqRef.current) return;
@@ -289,8 +289,8 @@ export function DocPage({
 
   useEffect(() => {
     setBundle(null);
-    setComments(null);
-    setCommentsHash(null);
+    setAnnotations(null);
+    setAnnotationsHash(null);
     setBacklinks([]);
     setMode("edit");
     setSaveState("saved");
@@ -387,8 +387,8 @@ export function DocPage({
 
   const doc = bundle?.doc ?? null;
   const canvasSrcs = useMemo(
-    () => referencedCanvasSrcs(doc, comments, path),
-    [doc, comments, path],
+    () => referencedCanvasSrcs(doc, annotations, path),
+    [doc, annotations, path],
   );
 
   useEffect(() => {
@@ -483,46 +483,46 @@ export function DocPage({
   }, [fetchBundle]);
 
   // ---------------------------------------------------------------------
-  // Comments
+  // Annotations
   // ---------------------------------------------------------------------
 
-  const commentsHashRef = useRef(commentsHash);
-  commentsHashRef.current = commentsHash;
+  const annotationsHashRef = useRef(annotationsHash);
+  annotationsHashRef.current = annotationsHash;
 
-  const handleAddComment = useCallback(
-    async (input: { target: CommentTarget; body: string; intent: CommentIntent }) => {
-      setIsCommentSubmitting(true);
+  const handleAddAnnotation = useCallback(
+    async (input: { target: AnnotationTarget; body: string; intent: AnnotationIntent }) => {
+      setIsAnnotationSubmitting(true);
       try {
-        const response = await addComment(path, {
+        const response = await addAnnotation(path, {
           ...input,
-          author: COMMENT_AUTHOR,
-          expectedHash: commentsHashRef.current,
+          author: ANNOTATION_AUTHOR,
+          expectedHash: annotationsHashRef.current,
         });
-        setComments(response.comments);
-        setCommentsHash(response.hash);
+        setAnnotations(response.annotations);
+        setAnnotationsHash(response.hash);
         setPaneError(null);
-      } catch (commentError) {
+      } catch (annotationError) {
         // Refresh so a retry runs against the current hash, then surface the
         // failure in Plannotator's composer (it catches and displays).
         void fetchBundleRef.current();
-        throw commentError;
+        throw annotationError;
       } finally {
-        setIsCommentSubmitting(false);
+        setIsAnnotationSubmitting(false);
       }
     },
     [path],
   );
 
-  const handleResolveComment = useCallback(
-    async (commentId: string) => {
+  const handleResolveAnnotation = useCallback(
+    async (annotationId: string) => {
       try {
-        const response = await resolveComment(path, commentId, commentsHashRef.current);
-        setComments(response.comments);
-        setCommentsHash(response.hash);
+        const response = await resolveAnnotation(path, annotationId, annotationsHashRef.current);
+        setAnnotations(response.annotations);
+        setAnnotationsHash(response.hash);
         setPaneError(null);
       } catch (resolveError) {
         setPaneError(
-          resolveError instanceof Error ? resolveError.message : "Failed to resolve comment.",
+          resolveError instanceof Error ? resolveError.message : "Failed to resolve annotation.",
         );
         void fetchBundleRef.current();
       }
@@ -531,7 +531,7 @@ export function DocPage({
   );
 
   const handleFocusTarget = useCallback(
-    (target: CommentTarget) => {
+    (target: AnnotationTarget) => {
       const container = contentRef.current;
       const ids: string[] = [];
       let scrollTo: Element | null = null;
@@ -736,7 +736,7 @@ export function DocPage({
                   data-docs-mode={value}
                   onClick={() => handleModeChange(value)}
                   className={cn(
-                    "inline-flex items-center gap-1 rounded px-2 py-1 text-xs font-medium transition-colors",
+                    "inline-flex items-center gap-1 rounded-sm px-2 py-1 text-xs font-medium transition-colors",
                     mode === value
                       ? "bg-background text-foreground shadow-sm ring-1 ring-primary/30"
                       : "text-muted-foreground hover:text-foreground",
@@ -881,22 +881,22 @@ export function DocPage({
               "shrink-0 overflow-hidden border-l bg-sidebar/40 transition-[width] duration-300 ease-in-out",
               mode === "annotate" ? "w-[360px]" : "w-0 border-transparent",
             )}
-            aria-label="Comments pane"
+            aria-label="Annotations pane"
             aria-hidden={mode !== "annotate"}
             data-docs-action-pane={mode === "annotate" ? "" : undefined}
           >
             {mode === "annotate" && (
               <div className="h-full w-[360px] overflow-y-auto p-3">
                 <ActionPane
-                  comments={comments?.comments ?? []}
+                  annotations={annotations?.annotations ?? []}
                   document={doc}
                   canvases={canvasIndex}
                   selection={selection}
                   onClearSelection={() => setSelection(null)}
-                  onAddComment={handleAddComment}
-                  onResolveComment={handleResolveComment}
+                  onAddAnnotation={handleAddAnnotation}
+                  onResolveAnnotation={handleResolveAnnotation}
                   onFocusTarget={handleFocusTarget}
-                  isSubmitting={isCommentSubmitting}
+                  isSubmitting={isAnnotationSubmitting}
                   error={paneError}
                 />
               </div>

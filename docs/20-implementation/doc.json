@@ -275,7 +275,7 @@
           "insert": " (the block tree),\noptional "
         },
         {
-          "insert": "comments.json",
+          "insert": "annotations.json",
           "attributes": {
             "code": true
           }
@@ -384,7 +384,7 @@
           "insert": " directly. Edits are\nexpressed in a seven-op kernel — six generic structural/text ops plus\n"
         },
         {
-          "insert": "blockAction",
+          "insert": "componentAction",
           "attributes": {
             "code": true
           }

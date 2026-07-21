@@ -37,12 +37,12 @@ const BLOCKS_DISCOVERY = buildBlocksDiscovery();
  * Elysia plugin, mounted under `/api/*`. Read routes keep the exact
  * paths/response shapes the standalone read-only serve app exposed; write
  * routes mirror the reference host's `/projects/:id/docs/*` contracts
- * (ops with `expected_hash` -> 409, draft locks -> 423, comments, assets,
+ * (ops with `expected_hash` -> 409, draft locks -> 423, annotations, assets,
  * move, undo, SSE change events) minus the project scoping.
  *
  * Route table:
  *   GET  /api/tree                          -> { tree }
- *   GET  /api/bundle?path=                  -> { path, document_path, doc, doc_hash, comments, comments_hash }
+ *   GET  /api/bundle?path=                  -> { path, document_path, doc, doc_hash, annotations, annotations_hash }
  *   GET  /api/markdown?path=                -> { markdown }
  *   GET  /api/canvas?src=                   -> { canvas_path, canvas_document_path, content_hash, canvas }
  *   GET  /api/canvas-by-doc?path=&src=      -> doc-relative sidecar read
@@ -55,9 +55,9 @@ const BLOCKS_DISCOVERY = buildBlocksDiscovery();
  *   GET  /api/themes/:themeId               -> { theme: { id, manifest, components } } | 404
  *   POST /api/themes                        -> 201 { theme } | 400 (writes themes/<id>/ folder) | 403 themeLocked
  *   POST /api/ops                           -> doc ops or one forwarded canvas/sequence action | 400/409/423
- *   GET  /api/comments?path=                -> { comments, hash }
- *   POST /api/comments                      -> 201 { comment, comments, hash } | 409/423
- *   POST /api/comments/:commentId/resolve   -> { comments, hash } | 404/409/423
+ *   GET  /api/annotations?path=             -> { annotations, hash }
+ *   POST /api/annotations                   -> 201 { annotation, annotations, hash } | 409/423
+ *   POST /api/annotations/:annotationId/resolve -> { annotations, hash } | 404/409/423
  *   POST /api/draft-lock/acquire            -> { ok, lock } | 423 { ok:false, reason, heldBy }
  *   POST /api/draft-lock/heartbeat          -> same as acquire
  *   POST /api/draft-lock/release            -> { ok: true }
@@ -344,7 +344,7 @@ export function createDocsRoutes(store: DocsStore, options?: { themeLocked?: boo
       async ({ body, set }) => {
         const ops = body.ops as DocOp[];
         const forwardedOps = ops.filter((op) => {
-          if (op.type !== "blockAction") return false;
+          if (op.type !== "componentAction") return false;
           const action = ACTION_REGISTRY.get(op.action);
           return !!action && "forward" in action;
         });
@@ -358,7 +358,7 @@ export function createDocsRoutes(store: DocsStore, options?: { themeLocked?: boo
               ],
             };
           }
-          const op = forwardedOps[0] as Extract<DocOp, { type: "blockAction" }>;
+          const op = forwardedOps[0] as Extract<DocOp, { type: "componentAction" }>;
           const forwardedAction = ACTION_REGISTRY.get(op.action);
           const authority =
             forwardedAction && "forward" in forwardedAction
@@ -464,23 +464,23 @@ export function createDocsRoutes(store: DocsStore, options?: { themeLocked?: boo
       },
     )
 
-    // -- comments ---------------------------------------------------------------
+    // -- annotations ------------------------------------------------------------
     .get(
-      "/api/comments",
+      "/api/annotations",
       async ({ query, set }) => {
-        const result = await store.comments(query.path);
+        const result = await store.annotations(query.path);
         if (!result.ok) {
           set.status = result.status;
           return { detail: result.detail };
         }
-        return { comments: result.comments, hash: result.hash };
+        return { annotations: result.annotations, hash: result.hash };
       },
       { query: t.Object({ path: t.String({ minLength: 1 }) }) },
     )
     .post(
-      "/api/comments",
+      "/api/annotations",
       async ({ body, set }) => {
-        const result = await store.addComment(
+        const result = await store.addAnnotation(
           body.path,
           {
             target: body.target,
@@ -501,7 +501,7 @@ export function createDocsRoutes(store: DocsStore, options?: { themeLocked?: boo
           };
         }
         set.status = 201;
-        return { comment: result.comment, comments: result.comments, hash: result.hash };
+        return { annotation: result.annotation, annotations: result.annotations, hash: result.hash };
       },
       {
         body: t.Object({
@@ -516,11 +516,11 @@ export function createDocsRoutes(store: DocsStore, options?: { themeLocked?: boo
       },
     )
     .post(
-      "/api/comments/:commentId/resolve",
+      "/api/annotations/:annotationId/resolve",
       async ({ params, body, set }) => {
-        const result = await store.resolveComment(
+        const result = await store.resolveAnnotation(
           body.path,
-          params.commentId,
+          params.annotationId,
           body.expected_hash,
           body.session_id,
         );
@@ -533,7 +533,7 @@ export function createDocsRoutes(store: DocsStore, options?: { themeLocked?: boo
             held_by: result.held_by,
           };
         }
-        return { comments: result.comments, hash: result.hash };
+        return { annotations: result.annotations, hash: result.hash };
       },
       {
         body: t.Object({
