@@ -34,12 +34,16 @@ export {
   inferAssetContentType,
   inferDocsFormat,
   isAllowedAssetRelativePath,
+  MAX_SEQUENCE_FILE_BYTES,
   isAllowedCanvasSidecarPath,
   isAllowedDocsFilePath,
+  isAllowedSequenceSidecarPath,
   isSafeCanvasMdxId,
   resolveAssetRootRelativePath,
   resolveCanvasSidecarRelativePath,
   resolveCanvasSidecarRootRelativePath,
+  resolveSequenceSidecarRelativePath,
+  resolveSequenceSidecarRootRelativePath,
   resolveStaticFilePath,
   type DocsFormat,
 } from "./confine";
@@ -127,6 +131,25 @@ export {
   type SaveCanvasSidecarResult,
 } from "./canvas-sidecar";
 
+// Sequence sidecars (doc-relative)
+export {
+  createSequenceSidecar,
+  deleteSequenceSidecar,
+  loadSequenceSidecarByDocPath,
+  saveSequenceSidecar,
+  sequenceSidecarResponse,
+  validateSequencePayload,
+  type CreateSequenceSidecarInput,
+  type CreateSequenceSidecarResult,
+  type DeleteSequenceSidecarInput,
+  type DeleteSequenceSidecarResult,
+  type SaveSequenceSidecarInput,
+  type SaveSequenceSidecarResult,
+  type SequenceSidecarByDocPathError,
+  type SequenceSidecarByDocPathLoadResult,
+  type SequenceSidecarWireResponse,
+} from "./sequence-sidecar";
+
 // Typed agent tools + undo ledger
 export {
   canvas_apply_patch,
@@ -139,6 +162,9 @@ export {
   getStoredPatch,
   recordCanvasPatch,
   recordDocPatch,
+  recordSequencePatch,
+  sequence_apply_patch,
+  sequence_get,
   undo_patch,
   type CanvasAgentPatchOperation,
   type CanvasApplyPatchResult,
@@ -147,6 +173,9 @@ export {
   type CommentResolveResult,
   type DocGetResult,
   type DocUpdateBlocksResult,
+  type SequenceAgentPatchOperation,
+  type SequenceApplyPatchResult,
+  type SequenceGetResult,
   type StoredPatch,
   type UndoPatchResult,
 } from "./agent-tools";

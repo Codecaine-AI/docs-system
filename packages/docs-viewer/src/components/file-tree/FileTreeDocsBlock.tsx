@@ -21,7 +21,6 @@ export type FileTreeEntry = {
 
 type FileTreeData = {
   id?: string;
-  title?: string;
   entries: FileTreeEntry[];
 };
 
@@ -233,7 +232,7 @@ export class FileTreeDocsBlock extends DocsMdxBlock<FileTreeData> {
   readonly targetKind = "file-tree";
   readonly label = "File Tree";
   readonly agentDescription =
-    "A `tree`-command-style file/module tree with a diff story, rendered from typed props: { title?: string; entries: Array<{ path: string (\"/\"-separated, no leading \"./\"; a trailing \"/\" marks an explicit directory); note?: string; change?: \"added\"|\"removed\"|\"modified\"|\"renamed\"; from?: string (old path, for renamed) }> }. Directories are derived from path prefixes and sort before files (then alphabetical); `note` renders as a muted `# note` comment after the name; `change` tints the row and adds a +/-/~/> gutter marker; renamed entries render `from → name` with the old path struck through. Derived directories carry no change state — only explicit entries do.";
+    "A `tree`-command-style file/module tree with a diff story, rendered from typed props: { entries: Array<{ path: string (\"/\"-separated, no leading \"./\"; a trailing \"/\" marks an explicit directory); note?: string; change?: \"added\"|\"removed\"|\"modified\"|\"renamed\"; from?: string (old path, for renamed) }> }. Directories are derived from path prefixes and sort before files (then alphabetical); `note` renders as a muted `# note` comment after the name; `change` tints the row and adds a +/-/~/> gutter marker; renamed entries render `from → name` with the old path struck through. Derived directories carry no change state — only explicit entries do.";
 
   render(block: DocsMdxParsedBlock<FileTreeData>) {
     const { data } = block;
@@ -246,9 +245,6 @@ export class FileTreeDocsBlock extends DocsMdxBlock<FileTreeData> {
         data-docs-block-type={this.type}
         data-source-id={data.id}
       >
-        {data.title && (
-          <div className="mb-1.5 text-sm font-medium text-foreground">{data.title}</div>
-        )}
         <div className="overflow-x-auto rounded-md border border-[color:var(--docs-file-tree-border,var(--border))] bg-background py-2 font-mono text-xs leading-6">
           {rows.length === 0 ? (
             <div className="px-3 text-muted-foreground">(no entries)</div>

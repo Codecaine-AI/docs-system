@@ -9,9 +9,12 @@ import type { DocsStore } from "./store";
 import { bundleResponse, createContentHash } from "./bundle";
 import {
   MAX_CANVAS_FILE_BYTES,
+  MAX_SEQUENCE_FILE_BYTES,
   resolveCanvasSidecarRootRelativePath,
+  resolveSequenceSidecarRootRelativePath,
 } from "./confine";
 import { validateCanvasPayload } from "./canvas-sidecar";
+import { validateSequencePayload } from "./sequence-sidecar";
 import type { DocsChangeEvent } from "./docs-events";
 import { isValidThemeId, listRepoThemes, readRepoTheme, themesRootFor, writeRepoTheme } from "./themes";
 
@@ -43,13 +46,15 @@ const BLOCKS_DISCOVERY = buildBlocksDiscovery();
  *   GET  /api/markdown?path=                -> { markdown }
  *   GET  /api/canvas?src=                   -> { canvas_path, canvas_document_path, content_hash, canvas }
  *   GET  /api/canvas-by-doc?path=&src=      -> doc-relative sidecar read
+ *   GET  /api/sequence?src=                 -> { sequence_path, sequence_document_path, content_hash, sequence }
+ *   GET  /api/sequence-by-doc?path=&src=    -> doc-relative sequence sidecar read
  *   GET  /api/asset?path=                   -> raw asset bytes
  *   GET  /api/backlinks?target=             -> { target, backlinks }
  *   GET  /api/blocks                        -> { schemaVersion, ops, components } (static edit-surface discovery)
  *   GET  /api/themes                        -> { themes: [{ id, name }] } (repo themes/ folders)
  *   GET  /api/themes/:themeId               -> { theme: { id, manifest, components } } | 404
- *   POST /api/themes                        -> 201 { theme } | 400 (writes themes/<id>/ folder)
- *   POST /api/ops                           -> doc ops or one forwarded canvas action | 400/409/423
+ *   POST /api/themes                        -> 201 { theme } | 400 (writes themes/<id>/ folder) | 403 themeLocked
+ *   POST /api/ops                           -> doc ops or one forwarded canvas/sequence action | 400/409/423
  *   GET  /api/comments?path=                -> { comments, hash }
  *   POST /api/comments                      -> 201 { comment, comments, hash } | 409/423
  *   POST /api/comments/:commentId/resolve   -> { comments, hash } | 404/409/423
@@ -59,11 +64,19 @@ const BLOCKS_DISCOVERY = buildBlocksDiscovery();
  *   POST /api/assets (multipart)            -> 201 { src, path, document_path, content_type, size, filename }
  *   POST /api/assets/video (multipart)      -> 201 same shape; strict video allowlist, 64MB cap, assets/videos/
  *   POST /api/move                          -> { moved, rewrittenSources, failures }
- *   POST /api/undo                          -> { ok, doc|canvas, hash } | 404/409
+ *   POST /api/undo                          -> { ok, doc|canvas|sequence, hash } | 404/409
  *   PUT  /api/canvas                        -> save existing doc-relative sidecar | 409/423
  *   POST /api/canvas                        -> 201 create sidecar (+ optional MDX insert) | 409/423
  *   DELETE /api/canvas?path=&src=           -> { path, canvas_path, mdx_content_hash?, deleted }
+ *   PUT  /api/sequence                      -> save existing doc-relative sequence sidecar | 409/423
+ *   POST /api/sequence                      -> 201 create sequence sidecar | 409/423
+ *   DELETE /api/sequence?path=&src=         -> { path, sequence_path, deleted }
  *   GET  /api/events                        -> SSE change-event stream
+ *
+ * `options.themeLocked` marks this host a theme CONSUMER (`docs-cli serve
+ * --theme-locked`): POST /api/themes is refused with 403 before any
+ * validation or write — the primary docs-system app owns the themes/ folder.
+ * Theme READS stay open; locked viewers still inherit the repo theme.
  *
  * NOTE (SSE): Elysia treats an async generator handler as a stream natively;
  * yields wrapped with the `sse()` helper flip the response into SSE mode
@@ -71,7 +84,7 @@ const BLOCKS_DISCOVERY = buildBlocksDiscovery();
  * it manually via `set.headers`, Bun merges the two into
  * "text/event-stream, text/plain" which browsers' EventSource rejects.
  */
-export function createDocsRoutes(store: DocsStore) {
+export function createDocsRoutes(store: DocsStore, options?: { themeLocked?: boolean }) {
   return new Elysia({ name: "docs-server-routes" })
     // -- reads ---------------------------------------------------------------
     .get("/api/tree", async ({ set }) => {
@@ -180,6 +193,77 @@ export function createDocsRoutes(store: DocsStore) {
       },
     )
     .get(
+      "/api/sequence",
+      async ({ query, set }) => {
+        const src = query.src;
+        const sequenceRelPath = resolveSequenceSidecarRootRelativePath(store.docsRoot, src);
+        if (!sequenceRelPath) {
+          set.status = 400;
+          return { detail: `Invalid sequence sidecar path: ${src}` };
+        }
+        const sequenceAbs = join(store.docsRoot, sequenceRelPath);
+        let st;
+        try {
+          st = await stat(sequenceAbs);
+        } catch {
+          set.status = 404;
+          return { detail: `Sequence sidecar not found: ${src}` };
+        }
+        if (!st.isFile()) {
+          set.status = 404;
+          return { detail: `Sequence sidecar is not a file: ${src}` };
+        }
+        if (st.size > MAX_SEQUENCE_FILE_BYTES) {
+          set.status = 413;
+          return { detail: `Sequence sidecar exceeds size cap: ${src}` };
+        }
+        const sequenceContent = await readFile(sequenceAbs, "utf8");
+        let sequence: unknown;
+        try {
+          sequence = JSON.parse(sequenceContent);
+        } catch {
+          set.status = 400;
+          return { detail: `Sequence sidecar is invalid JSON: ${src}` };
+        }
+        const payloadValidation = validateSequencePayload(sequence);
+        if (!payloadValidation.ok) {
+          set.status = 400;
+          return { detail: payloadValidation.detail };
+        }
+        return {
+          sequence_path: sequenceRelPath,
+          sequence_document_path: `docs/${sequenceRelPath}`,
+          content_hash: createContentHash(sequenceContent),
+          sequence,
+        };
+      },
+      { query: t.Object({ src: t.String({ minLength: 1 }) }) },
+    )
+    .get(
+      "/api/sequence-by-doc",
+      async ({ query, set }) => {
+        const loaded = await store.sequenceByDocPath(query.path, query.src);
+        if ("error" in loaded) {
+          set.status = loaded.error.status;
+          return { detail: loaded.error.detail };
+        }
+        return {
+          path: loaded.docPath,
+          document_path: `docs/${loaded.docPath}`,
+          sequence_path: loaded.sequenceRelPath,
+          sequence_document_path: `docs/${loaded.sequenceRelPath}`,
+          content_hash: loaded.sequenceContentHash,
+          sequence: loaded.sequence,
+        };
+      },
+      {
+        query: t.Object({
+          path: t.String({ minLength: 1 }),
+          src: t.String({ minLength: 1 }),
+        }),
+      },
+    )
+    .get(
       "/api/asset",
       async ({ query, set }) => {
         const result = await store.readAsset(query.path);
@@ -227,6 +311,14 @@ export function createDocsRoutes(store: DocsStore) {
       return { theme };
     })
     .post("/api/themes", async ({ body, set }) => {
+      if (options?.themeLocked) {
+        // Refused BEFORE validation: on a locked serve no payload, however
+        // well-formed, may touch themes/ — the primary app owns the theme.
+        set.status = 403;
+        return {
+          detail: "Theme is locked on this serve: edit the theme in the primary docs-system app.",
+        };
+      }
       const payload = body as { id?: unknown; manifest?: unknown; components?: unknown };
       if (typeof payload.id !== "string" || !isValidThemeId(payload.id)) {
         set.status = 400;
@@ -267,6 +359,43 @@ export function createDocsRoutes(store: DocsStore) {
             };
           }
           const op = forwardedOps[0] as Extract<DocOp, { type: "blockAction" }>;
+          const forwardedAction = ACTION_REGISTRY.get(op.action);
+          const authority =
+            forwardedAction && "forward" in forwardedAction
+              ? forwardedAction.forward.authority
+              : undefined;
+
+          if (authority === "sequence") {
+            const result = await store.forwardSequenceAction(
+              body.path,
+              op,
+              body.expected_hash,
+              body.expected_sequence_hash,
+              body.session_id,
+            );
+            if (!result.ok) {
+              set.status = result.status;
+              return {
+                detail: result.detail,
+                current_hash: result.current_hash,
+                expected_hash: result.expected_hash,
+                issues: result.issues,
+                held_by: result.held_by,
+              };
+            }
+            store.publishChange({
+              path: result.sequenceRelPath,
+              changedIds: result.changedIds,
+              patchId: result.patchId,
+              actor: body.session_id ?? "anonymous",
+            });
+            return {
+              sequence: result.sequence,
+              sequence_hash: result.sequenceHash,
+              patch_id: result.patchId,
+            };
+          }
+
           const result = await store.forwardCanvasAction(
             body.path,
             op,
@@ -329,6 +458,7 @@ export function createDocsRoutes(store: DocsStore) {
           ops: t.Array(t.Any(), { minItems: 1 }),
           expected_hash: t.Optional(t.String()),
           expected_canvas_hash: t.Optional(t.String()),
+          expected_sequence_hash: t.Optional(t.String()),
           session_id: t.Optional(t.String()),
         }),
       },
@@ -429,7 +559,7 @@ export function createDocsRoutes(store: DocsStore) {
       {
         body: t.Object({
           path: t.String({ minLength: 1 }),
-          kind: t.Union([t.Literal("doc"), t.Literal("canvas")]),
+          kind: t.Union([t.Literal("doc"), t.Literal("canvas"), t.Literal("sequence")]),
           sessionId: t.String({ minLength: 1 }),
         }),
       },
@@ -448,7 +578,7 @@ export function createDocsRoutes(store: DocsStore) {
       {
         body: t.Object({
           path: t.String({ minLength: 1 }),
-          kind: t.Union([t.Literal("doc"), t.Literal("canvas")]),
+          kind: t.Union([t.Literal("doc"), t.Literal("canvas"), t.Literal("sequence")]),
           sessionId: t.String({ minLength: 1 }),
         }),
       },
@@ -463,7 +593,7 @@ export function createDocsRoutes(store: DocsStore) {
       {
         body: t.Object({
           path: t.String({ minLength: 1 }),
-          kind: t.Union([t.Literal("doc"), t.Literal("canvas")]),
+          kind: t.Union([t.Literal("doc"), t.Literal("canvas"), t.Literal("sequence")]),
           sessionId: t.String({ minLength: 1 }),
         }),
       },
@@ -553,6 +683,9 @@ export function createDocsRoutes(store: DocsStore) {
         });
         if (result.kind === "doc") {
           return { ok: true, doc: result.doc, hash: result.hash };
+        }
+        if (result.kind === "sequence") {
+          return { ok: true, sequence: result.sequence, hash: result.hash };
         }
         return { ok: true, canvas: result.canvas, hash: result.hash };
       },
@@ -670,6 +803,91 @@ export function createDocsRoutes(store: DocsStore) {
           remove_reference: t.Optional(t.String()),
           canvas_id: t.Optional(t.String()),
           original_hash: t.Optional(t.String()),
+        }),
+      },
+    )
+
+    // -- doc-relative sequence sidecars ----------------------------------------
+    .put(
+      "/api/sequence",
+      async ({ body, set }) => {
+        const result = await store.saveSequenceSidecar({
+          docPath: body.path,
+          src: body.src,
+          sequence: body.sequence,
+          originalHash: body.original_hash,
+          sessionId: body.session_id,
+        });
+        if (!result.ok) {
+          set.status = result.status;
+          return {
+            detail: result.detail,
+            current_hash: result.current_hash,
+            original_hash: result.original_hash,
+            held_by: result.held_by,
+          };
+        }
+        return result.response;
+      },
+      {
+        body: t.Object({
+          path: t.String({ minLength: 1 }),
+          src: t.String({ minLength: 1 }),
+          original_hash: t.Optional(t.String()),
+          sequence: t.Any(),
+          session_id: t.Optional(t.String()),
+        }),
+      },
+    )
+    .post(
+      "/api/sequence",
+      async ({ body, set }) => {
+        const result = await store.createSequenceSidecar({
+          docPath: body.path,
+          src: body.src,
+          sequence: body.sequence,
+          originalHash: body.original_hash,
+          sessionId: body.session_id,
+        });
+        if (!result.ok) {
+          set.status = result.status;
+          return {
+            detail: result.detail,
+            current_hash: result.current_hash,
+            original_hash: result.original_hash,
+            held_by: result.held_by,
+          };
+        }
+        set.status = 201;
+        return result.response;
+      },
+      {
+        body: t.Object({
+          path: t.String({ minLength: 1 }),
+          src: t.String({ minLength: 1 }),
+          sequence: t.Any(),
+          original_hash: t.Optional(t.String()),
+          session_id: t.Optional(t.String()),
+        }),
+      },
+    )
+    .delete(
+      "/api/sequence",
+      async ({ query, set }) => {
+        const result = await store.deleteSequenceSidecar({
+          docPath: query.path,
+          src: query.src,
+        });
+        if (!result.ok) {
+          set.status = result.status;
+          return { detail: result.detail };
+        }
+        return result.response;
+      },
+      {
+        query: t.Object({
+          path: t.String({ minLength: 1 }),
+          src: t.String({ minLength: 1 }),
         }),
       },
     )

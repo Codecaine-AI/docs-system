@@ -14,7 +14,6 @@ function fileTreeBlock(): DocBlock {
     id: "b1",
     type: "file-tree",
     props: {
-      title: "Layout",
       entries: [
         { path: "src/a.ts", note: "alpha", change: "added" },
         { path: "src/b.ts" },

@@ -6,7 +6,7 @@ concepts: [standards, layers, numbering, linking]
 
 # Standards
 
-Imperative structure rules for `docs/`. Follow them when creating or reorganizing docs.
+Imperative structure rules for `docs/`. Follow them when creating or reorganizing docs. These files are operational copies; the canonical standards (rule and rationale) live in the corpus at `docs/10-system-design/10-doc-standards/`.
 
 ---
 
@@ -30,4 +30,6 @@ Linking between docs via reference spans.
 ### [50-code-linking.md](50-code-linking.md)
 Referencing code from docs.
 
-Rationale: docs/10-system-design/10-doc-architecture
+Writing style is not a standard: it lives in `writingstyle.md` at the repo root, loaded by whoever is writing docs.
+
+Canonical: docs/10-system-design/10-doc-standards — the corpus doc owns these standards (rule and rationale); the files here are operational copies.

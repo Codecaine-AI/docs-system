@@ -14,6 +14,7 @@ import type { DocBlockRenderContext } from "../../render/block-registry";
  */
 export type DocEditorNodeViewContextValue = {
   renderCanvas?: DocBlockRenderContext["renderCanvas"];
+  renderSequence?: DocBlockRenderContext["renderSequence"];
   resolveAssetSrc?: DocBlockRenderContext["resolveAssetSrc"];
 };
 

@@ -8,6 +8,7 @@ import { fileTreeComponent } from "./file-tree";
 import { interactionSurfaceComponent } from "./interaction-surface";
 import { mermaidComponent } from "./mermaid";
 import { richTextComponent } from "./rich-text";
+import { sequenceComponent } from "./sequence";
 import { structuredTableComponent } from "./structured-table";
 import type {
   BlockStateDefinition,
@@ -29,6 +30,7 @@ export { fileTreeComponent } from "./file-tree";
 export { structuredTableComponent } from "./structured-table";
 export { interactionSurfaceComponent } from "./interaction-surface";
 export { canvasComponent } from "./canvas";
+export { sequenceComponent } from "./sequence";
 
 export const ALL_COMPONENTS: readonly ComponentBundle[] = [
   richTextComponent,
@@ -38,6 +40,7 @@ export const ALL_COMPONENTS: readonly ComponentBundle[] = [
   structuredTableComponent,
   interactionSurfaceComponent,
   canvasComponent,
+  sequenceComponent,
 ];
 
 export const COMPONENT_BY_TYPE: ReadonlyMap<DocBlockType, ComponentBundle> = new Map(

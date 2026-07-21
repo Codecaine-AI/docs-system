@@ -6,9 +6,10 @@ import {
   Plugin,
   TextSelection,
   type EditorState,
+  type Selection,
   type Transaction,
 } from "@tiptap/pm/state";
-import type { Node as PMNode, Slice } from "@tiptap/pm/model";
+import { Slice, type Node as PMNode } from "@tiptap/pm/model";
 import { Decoration, DecorationSet } from "@tiptap/pm/view";
 import type { EditorView } from "@tiptap/pm/view";
 import { topLevelBlockPos } from "./drag-handle";
@@ -21,7 +22,9 @@ import { dragSelectPluginKey, type DragSelectRange } from "./drag-select-state";
  * text — and drag: a screenshot-style rectangle draws from the press point,
  * and every top-level block it touches joins a contiguous multi-block
  * selection (soft highlight via node decorations,
- * `.docs-block-multi-selected` — same look as the grip's NodeSelection).
+ * `.docs-block-multi-selected` — same look as the grip's NodeSelection),
+ * backed by a REAL ProseMirror selection over the same run so the clipboard
+ * works (rangeSelection below; R2-D15).
  * Presses ON text stay ProseMirror's native text selection; presses on
  * embeds/node views stay the block's own interactions. The listener sits on
  * the editor's scroll region (nearest scrollable ancestor), so the band can
@@ -79,6 +82,31 @@ export function blockRangeForRect(
     if (to === null || pos + node.nodeSize > to) to = pos + node.nodeSize;
   }
   return from !== null && to !== null ? { from, to } : null;
+}
+
+/**
+ * The REAL ProseMirror selection backing an active band range. The band's
+ * node decorations alone are invisible to the clipboard (R2-D15: the
+ * highlight looked selected but Cmd+C copied nothing — the DOM selection was
+ * still a stale collapsed caret), so every range set/update also lands a
+ * genuine selection. Baseline is TextSelection.between across the run's
+ * boundaries: the anchor walks forward to the first text position inside the
+ * first block, the head walks backward to the last text position inside the
+ * last block, and Selection.content() — the slice copy serializes — is an
+ * open slice that carries every banded block with its node types (exactly
+ * what a native cross-block text selection copies). When the run offers no
+ * such text span (an atom-only run, a single empty block), fall back to a
+ * NodeSelection on the first block so copy still grabs a real block.
+ * Exported for tests.
+ */
+export function rangeSelection(doc: PMNode, range: { from: number; to: number }): Selection {
+  const selection = TextSelection.between(doc.resolve(range.from), doc.resolve(range.to));
+  if (!selection.empty && selection.from >= range.from && selection.to <= range.to) {
+    return selection;
+  }
+  const node = doc.nodeAt(range.from);
+  if (node && NodeSelection.isSelectable(node)) return NodeSelection.create(doc, range.from);
+  return selection;
 }
 
 /**
@@ -248,7 +276,15 @@ class DragSelectView {
     this.anchor = null;
     this.active = false;
     this.rectEl.style.display = "none";
-    if (wasActive || !anchor) return;
+    if (wasActive || !anchor) {
+      // A band range just landed: mousedown's preventDefault may have left
+      // focus elsewhere, and Cmd+C/Cmd+X need the editor to own the DOM
+      // selection. PM's focus() re-syncs the stored selection without
+      // scrolling (it focuses with preventScroll; nothing here dispatches
+      // a scrollIntoView).
+      if (wasActive && dragSelectPluginKey.getState(this.view.state)) this.view.focus();
+      return;
+    }
     // Plain click (below the drag threshold): clear any selection, and when
     // the press was within the editor column, hand the caret back — the
     // mousedown preventDefault suppressed PM's own placement. Margin clicks
@@ -337,7 +373,12 @@ export const DocDragSelect = Extension.create({
       Escape: () => {
         const range = dragSelectPluginKey.getState(this.editor.state);
         if (!range) return false;
-        this.editor.view.dispatch(this.editor.state.tr.setMeta(dragSelectPluginKey, null));
+        const tr = this.editor.state.tr.setMeta(dragSelectPluginKey, null);
+        // Deselect for REAL too: the range's backing selection collapses to
+        // a caret at the run's head, so Escape both looks and acts like a
+        // deselect (a spanning selection left behind would still copy).
+        tr.setSelection(TextSelection.near(tr.doc.resolve(range.from), 1));
+        this.editor.view.dispatch(tr);
         return true;
       },
       Backspace: deleteRange,
@@ -361,7 +402,36 @@ export const DocDragSelect = Extension.create({
             return value;
           },
         },
+        // Every meta that sets/updates the range lands a REAL selection over
+        // it in the same dispatch cycle (applyTransaction folds this in
+        // before the view updates) — the decorations alone are invisible to
+        // the clipboard (R2-D15). One enforcement point covers the band's
+        // mousemove, the multi-block grip drop (moveRangeTr), the grip's
+        // dragstart flag, and the dragend reset. Null metas (Escape,
+        // dissolve, plain click) manage their own selection and pass through.
+        appendTransaction(transactions, _oldState, newState) {
+          if (!transactions.some((tr) => tr.getMeta(dragSelectPluginKey))) return null;
+          const range = dragSelectPluginKey.getState(newState);
+          if (!range) return null;
+          const selection = rangeSelection(newState.doc, range);
+          return selection.eq(newState.selection) ? null : newState.tr.setSelection(selection);
+        },
         props: {
+          // A band copy means WHOLE BLOCKS (R2-D16). The backing selection is
+          // a TextSelection walked to the run's text bounds, so its slice is
+          // OPEN at both ends — pasted, PM would merge the first block's text
+          // into the caret block (a banded H1 stopped being a heading) and,
+          // for a single banded block, drop the block type entirely. When the
+          // copied selection IS the band's backing selection, copy the run's
+          // closed top-level slice instead: complete blocks, `data-pm-slice`
+          // "0 0", which block-paste.ts (and any same-schema editor) pastes
+          // as intact blocks.
+          transformCopied(slice, view) {
+            const range = dragSelectPluginKey.getState(view.state);
+            if (!range) return slice;
+            if (!rangeSelection(view.state.doc, range).eq(view.state.selection)) return slice;
+            return new Slice(view.state.doc.slice(range.from, range.to).content, 0, 0);
+          },
           decorations(state) {
             const range = dragSelectPluginKey.getState(state);
             if (!range) return null;

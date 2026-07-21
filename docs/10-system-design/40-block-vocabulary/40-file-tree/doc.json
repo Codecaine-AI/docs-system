@@ -1,0 +1,651 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-10-block-vocabulary-21-file-tree",
+  "title": "file-tree",
+  "root": "b-21-file-tree-root",
+  "blocks": {
+    "b-21-file-tree-root": {
+      "id": "b-21-file-tree-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-21-file-tree-lead-2",
+        "b-21-file-tree-state-h-3",
+        "b-21-file-tree-state-4",
+        "b-21-file-tree-entry-state-5",
+        "b-21-file-tree-state-note-6",
+        "b-21-file-tree-proj-h-7",
+        "b-21-file-tree-proj-8",
+        "b-21-file-tree-actions-h-9",
+        "b-21-file-tree-actions-note-10",
+        "b-21-file-tree-actions-11",
+        "b-21-file-tree-editor-h-12",
+        "b-21-file-tree-editor-13",
+        "b-21-file-tree-agent-h-14",
+        "b-21-file-tree-agent-1-15",
+        "b-21-file-tree-agent-2-16",
+        "b-21-file-tree-theming-heading",
+        "b-21-file-tree-theming-para",
+        "b-21-file-tree-theming-table"
+      ]
+    },
+    "b-21-file-tree-lead-2": {
+      "id": "b-21-file-tree-lead-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The annotated path tree of the "
+        },
+        {
+          "insert": "block vocabulary"
+        },
+        {
+          "insert": ": a flat list of path entries in props that renders — on both surfaces — as a "
+        },
+        {
+          "insert": "tree",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "-command drawing, with notes and per-entry change markers for describing repo slices and refactors."
+        }
+      ],
+      "children": []
+    },
+    "b-21-file-tree-state-h-3": {
+      "id": "b-21-file-tree-state-h-3",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "State"
+        }
+      ],
+      "children": []
+    },
+    "b-21-file-tree-state-4": {
+      "id": "b-21-file-tree-state-4",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "prop",
+          "type",
+          "required",
+          "notes"
+        ],
+        "rows": [
+          [
+            "title",
+            "string",
+            "no",
+            "Optional bold caption above the tree."
+          ],
+          [
+            "entries",
+            "array",
+            "yes",
+            "Array of { path, note?, change?, from? } — see below."
+          ]
+        ]
+      },
+      "children": []
+    },
+    "b-21-file-tree-entry-state-5": {
+      "id": "b-21-file-tree-entry-state-5",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "prop",
+          "type",
+          "required",
+          "notes"
+        ],
+        "rows": [
+          [
+            "path",
+            "string",
+            "yes",
+            "/-separated, no leading \"./\"; a trailing \"/\" marks an explicit directory."
+          ],
+          [
+            "note",
+            "string",
+            "no",
+            "Short annotation rendered after the path."
+          ],
+          [
+            "change",
+            "\"added\" / \"removed\" / \"modified\" / \"renamed\"",
+            "no",
+            "Diff marker for the entry."
+          ],
+          [
+            "from",
+            "string",
+            "no",
+            "Previous path, used with change: \"renamed\"."
+          ]
+        ],
+        "title": "One entry"
+      },
+      "children": []
+    },
+    "b-21-file-tree-state-note-6": {
+      "id": "b-21-file-tree-state-note-6",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "No text ("
+        },
+        {
+          "insert": "carriesText: false",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "). Directories don't need their own entries — they are derived from path prefixes."
+        }
+      ],
+      "children": []
+    },
+    "b-21-file-tree-proj-h-7": {
+      "id": "b-21-file-tree-proj-h-7",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Markdown render"
+        }
+      ],
+      "children": []
+    },
+    "b-21-file-tree-proj-8": {
+      "id": "b-21-file-tree-proj-8",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "An optional "
+        },
+        {
+          "insert": "**<title>**",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " bold line, then a literal tree rendering inside a bare fence: "
+        },
+        {
+          "insert": "├──",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": "└──",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": "│",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " guides, directories first then alphabetical (deterministic codepoint order), notes appended as "
+        },
+        {
+          "insert": "# note",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Change markers prefix the line — "
+        },
+        {
+          "insert": "+",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " added, "
+        },
+        {
+          "insert": "-",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " removed, "
+        },
+        {
+          "insert": "~",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " modified, "
+        },
+        {
+          "insert": ">",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " renamed (rendered as "
+        },
+        {
+          "insert": "{from} -> {name}",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ") — and when any entry carries a marker, unmarked lines are padded with two spaces so the guides stay aligned."
+        }
+      ],
+      "children": []
+    },
+    "b-21-file-tree-actions-h-9": {
+      "id": "b-21-file-tree-actions-h-9",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Typed actions"
+        }
+      ],
+      "children": []
+    },
+    "b-21-file-tree-actions-note-10": {
+      "id": "b-21-file-tree-actions-note-10",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Ordering is stable by design: "
+        },
+        {
+          "insert": "addEntry",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " appends (and rejects a duplicate path), "
+        },
+        {
+          "insert": "updateEntry",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " patches or renames in place ("
+        },
+        {
+          "insert": "newPath",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " keeps position; "
+        },
+        {
+          "insert": "null",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " clears "
+        },
+        {
+          "insert": "note",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": "change",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": "from",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "), "
+        },
+        {
+          "insert": "removeEntry",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " deletes by exact path."
+        }
+      ],
+      "children": []
+    },
+    "b-21-file-tree-actions-11": {
+      "id": "b-21-file-tree-actions-11",
+      "type": "interaction-surface",
+      "props": {
+        "operations": [
+          {
+            "name": "file-tree.addEntry",
+            "description": "Append a path entry (optional note and change marker) to the file tree.",
+            "params": [
+              {
+                "name": "path",
+                "type": "string",
+                "required": true
+              },
+              {
+                "name": "note",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "change",
+                "type": "string",
+                "required": false
+              }
+            ],
+            "returns": "props patch: { entries }"
+          },
+          {
+            "name": "file-tree.removeEntry",
+            "description": "Remove the entry with the given path from the file tree.",
+            "params": [
+              {
+                "name": "path",
+                "type": "string",
+                "required": true
+              }
+            ],
+            "returns": "props patch: { entries }"
+          },
+          {
+            "name": "file-tree.updateEntry",
+            "description": "Patch an entry's note/change/from, or rename it via newPath (in place).",
+            "params": [
+              {
+                "name": "path",
+                "type": "string",
+                "required": true
+              },
+              {
+                "name": "note",
+                "type": "string | null",
+                "required": false
+              },
+              {
+                "name": "change",
+                "type": "string | null",
+                "required": false
+              },
+              {
+                "name": "from",
+                "type": "string | null",
+                "required": false
+              },
+              {
+                "name": "newPath",
+                "type": "string",
+                "required": false
+              }
+            ],
+            "returns": "props patch: { entries }"
+          }
+        ],
+        "title": "file-tree — entry actions"
+      },
+      "children": []
+    },
+    "b-21-file-tree-editor-h-12": {
+      "id": "b-21-file-tree-editor-h-12",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "In the editor"
+        }
+      ],
+      "children": []
+    },
+    "b-21-file-tree-editor-13": {
+      "id": "b-21-file-tree-editor-13",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A non-editable atom leaf node rendered by "
+        },
+        {
+          "insert": "FileTreeDocsBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". No slash-menu entry today — file trees enter through agent ops or existing content."
+        }
+      ],
+      "children": []
+    },
+    "b-21-file-tree-agent-h-14": {
+      "id": "b-21-file-tree-agent-h-14",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent notes"
+        }
+      ],
+      "children": []
+    },
+    "b-21-file-tree-agent-1-15": {
+      "id": "b-21-file-tree-agent-1-15",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Malformed entries are skipped on read, not repaired — keep paths exact ("
+        },
+        {
+          "insert": "removeEntry",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": "updateEntry",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " match the "
+        },
+        {
+          "insert": "path",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " string literally)."
+        }
+      ],
+      "children": []
+    },
+    "b-21-file-tree-agent-2-16": {
+      "id": "b-21-file-tree-agent-2-16",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The rename marker is the whole diff story: set "
+        },
+        {
+          "insert": "change: \"renamed\"",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " plus "
+        },
+        {
+          "insert": "from",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and the markdown render draws "
+        },
+        {
+          "insert": "old -> new",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " on one line."
+        }
+      ],
+      "children": []
+    },
+    "b-21-file-tree-theming-heading": {
+      "id": "b-21-file-tree-theming-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Theming"
+        }
+      ],
+      "children": []
+    },
+    "b-21-file-tree-theming-para": {
+      "id": "b-21-file-tree-theming-para",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This block's theme file is "
+        },
+        {
+          "insert": "components/file-tree.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in a theme folder ("
+        },
+        {
+          "insert": "themes/<id>/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "; see 20-implementation/40-theming). Every value is one string for both modes or a "
+        },
+        {
+          "insert": "{ light, dark }",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " pair, validated against "
+        },
+        {
+          "insert": "THEME_TOKEN_REGISTRY",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-21-file-tree-theming-table": {
+      "id": "b-21-file-tree-theming-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Key",
+          "CSS variable",
+          "Styles"
+        ],
+        "rows": [
+          [
+            "border",
+            "--docs-file-tree-border",
+            "Container border"
+          ],
+          [
+            "note",
+            "--docs-file-tree-note-fg",
+            "Per-entry note text color"
+          ]
+        ]
+      },
+      "children": []
+    }
+  }
+}

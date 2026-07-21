@@ -171,17 +171,17 @@ const LIBRARY_FAMILIES: LibraryFamily[] = [
             language: "json",
             annotations: [
               {
-                lines: "3",
+                lines: "2",
                 label: "Flat entries",
                 note: "State is a flat entry list — directories derive from path prefixes, so there is no nested tree to keep consistent.",
               },
               {
-                lines: "4",
+                lines: "3",
                 label: "Change markers",
                 note: 'Diff state rides on each entry as a "change" marker instead of a separate changeset.',
               },
               {
-                lines: "6",
+                lines: "5",
                 label: "Rename provenance",
                 note: '"from" keeps the old path, so a rename stays one entry instead of a remove plus an add.',
               },
@@ -191,7 +191,6 @@ const LIBRARY_FAMILIES: LibraryFamily[] = [
             span(
               [
                 "{",
-                '  "title": "Agent runtime layout",',
                 '  "entries": [',
                 '    { "path": "src/runtime/dispatch.ts", "change": "added", "note": "tool-call routing" },',
                 '    { "path": "src/agents/planner.ts", "change": "renamed",',
@@ -248,7 +247,6 @@ const LIBRARY_FAMILIES: LibraryFamily[] = [
       entry("file-tree", [
         block("file-tree-1", "file-tree", {
           props: {
-            title: "Agent runtime layout",
             entries: [
               // Explicit trailing-"/" directory entry with a note.
               { path: "src/runtime/", note: "agent runtime core" },
@@ -354,6 +352,17 @@ const LIBRARY_FAMILIES: LibraryFamily[] = [
         // canvasEmbed slot get the neutral "embed unavailable" card.
         block("canvas-1", "canvas", {
           props: { canvasId: "synthetic", title: "Synthetic fixture canvas" },
+        }),
+      ]),
+      entry("sequence", [
+        // Renders through the host-injected `sequenceEmbed` slot
+        // (DocsClientProvider) like any sequence block; hosts without a
+        // sequenceEmbed slot get the neutral "embed unavailable" card.
+        block("sequence-1", "sequence", {
+          props: {
+            src: "examples/login-flow.sequence.json",
+            title: "Login flow",
+          },
         }),
       ]),
       entry("image", [

@@ -53,6 +53,14 @@ export interface DocsServeAppOptions {
    * `runServe` turns it on.
    */
   watchFs?: boolean;
+  /**
+   * Serve as a theme CONSUMER (`docs-cli serve --theme-locked`): the docs
+   * routes refuse theme writes, and `GET /api/serve-config` tells the SPA
+   * to pin the repo default theme and hide the style rail. Set by secondary
+   * apps whose theme is authored in the primary docs-system checkout —
+   * without it each origin's localStorage rail state wins and viewers drift.
+   */
+  themeLocked?: boolean;
 }
 
 /**
@@ -87,7 +95,14 @@ export function createDocsServeApp(options: DocsServeAppOptions) {
   primeBacklinksDb(docsRoot, backlinksReady.then((result) => result.db));
 
   const store = createDocsStore(docsRoot);
-  const app = new Elysia().use(createDocsRoutes(store));
+  const themeLocked = !!options.themeLocked;
+  const app = new Elysia()
+    .use(createDocsRoutes(store, { themeLocked }))
+    // Serve config lives at the WORKBENCH level, not in the docs-server
+    // route table: themeLocked is a property of this serve invocation, not
+    // of the docs tree, so hosts embedding createDocsRoutes directly are
+    // untouched. The SPA reads it once at boot to pick its theme path.
+    .get("/api/serve-config", () => ({ themeLocked }));
 
   if (options.watchFs) {
     // External edits (hand edits, agents, CLI writes) surface as the same

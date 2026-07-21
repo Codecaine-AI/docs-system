@@ -1,0 +1,391 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-30-packages-60-docs-cli",
+  "title": "docs-cli — the agent dialect",
+  "root": "b-60-docs-cli-root",
+  "blocks": {
+    "b-60-docs-cli-root": {
+      "id": "b-60-docs-cli-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-60-docs-cli-title-1",
+        "b-60-docs-cli-lead-2",
+        "b-60-docs-cli-owns-heading-3",
+        "b-60-docs-cli-command-table-4",
+        "b-60-docs-cli-separate-heading-5",
+        "b-60-docs-cli-stable-dialect-6",
+        "b-60-docs-cli-dependencies-heading-7",
+        "b-60-docs-cli-dependencies-8",
+        "b-60-docs-cli-alone-heading-9",
+        "b-60-docs-cli-alone-10",
+        "b-60-docs-cli-boundary-review-11"
+      ]
+    },
+    "b-60-docs-cli-title-1": {
+      "id": "b-60-docs-cli-title-1",
+      "type": "heading",
+      "props": {
+        "level": 1
+      },
+      "text": [
+        {
+          "insert": "docs-cli — the agent dialect"
+        }
+      ],
+      "children": []
+    },
+    "b-60-docs-cli-lead-2": {
+      "id": "b-60-docs-cli-lead-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "@codecaine-ai/docs-cli",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is the stable agent command dialect and the human entry point for docs-system. It is the only package that exposes a binary: "
+        },
+        {
+          "insert": "docs-cli",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " maps to "
+        },
+        {
+          "insert": "./src/index.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " at "
+        },
+        {
+          "insert": "packages/docs-cli/src/index.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-cli/src/index.ts"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-60-docs-cli-owns-heading-3": {
+      "id": "b-60-docs-cli-owns-heading-3",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "What it owns"
+        }
+      ],
+      "children": []
+    },
+    "b-60-docs-cli-command-table-4": {
+      "id": "b-60-docs-cli-command-table-4",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "command",
+          "what it does"
+        ],
+        "density": "compact",
+        "rows": [
+          [
+            "render <path>",
+            "Renders a bundle to agent-readable markdown. An agent never parses doc.json directly."
+          ],
+          [
+            "grep <term> [pathPrefix]",
+            "Searches across bundles."
+          ],
+          [
+            "backlinks rescan [docsRoot]",
+            "Rebuilds the derived docs-index database."
+          ],
+          [
+            "links check [docsRoot]",
+            "Checks reference integrity and exits non-zero on broken references."
+          ],
+          [
+            "audit [docsRoot]",
+            "Machine-checks corpus structural standards. Errors (numbering, missing parent docs, invalid doc.json) exit non-zero; warnings are informational."
+          ],
+          [
+            "migrate [repoRoot]",
+            "Migrates markdown to bundles non-destructively by default, writing doc.json alongside .mdx sources. Deletion requires both --retire-twins and --yes-delete-markdown."
+          ],
+          [
+            "serve",
+            "Runs the workbench as a static SPA, or with --dev for HMR."
+          ],
+          [
+            "export --out <dir>",
+            "Produces a fully static read-only site."
+          ]
+        ],
+        "title": "Command surface"
+      },
+      "children": []
+    },
+    "b-60-docs-cli-separate-heading-5": {
+      "id": "b-60-docs-cli-separate-heading-5",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why it is its own package"
+        }
+      ],
+      "children": []
+    },
+    "b-60-docs-cli-stable-dialect-6": {
+      "id": "b-60-docs-cli-stable-dialect-6",
+      "type": "callout",
+      "props": {
+        "kind": "Forcing constraint",
+        "title": "Keep the command dialect stable",
+        "tone": "decision"
+      },
+      "text": [
+        {
+          "insert": "Agents read with "
+        },
+        {
+          "insert": "docs render",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", discover with "
+        },
+        {
+          "insert": "docs grep",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and verify integrity with "
+        },
+        {
+          "insert": "docs links check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". That command surface must remain scriptable and stable independently of how the app shell evolves. "
+        },
+        {
+          "insert": "docs-cli",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is also the only package with a bin."
+        }
+      ],
+      "children": []
+    },
+    "b-60-docs-cli-dependencies-heading-7": {
+      "id": "b-60-docs-cli-dependencies-heading-7",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Dependencies"
+        }
+      ],
+      "children": []
+    },
+    "b-60-docs-cli-dependencies-8": {
+      "id": "b-60-docs-cli-dependencies-8",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "It depends on "
+        },
+        {
+          "insert": "docs-model",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " for rendering, "
+        },
+        {
+          "insert": "docs-index",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/10-packages/20-docs-index"
+            }
+          }
+        },
+        {
+          "insert": " for backlinks/links, and "
+        },
+        {
+          "insert": "docs-workbench",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/10-packages/50-docs-workbench"
+            }
+          }
+        },
+        {
+          "insert": " for serve/export. Nothing depends on "
+        },
+        {
+          "insert": "docs-cli",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "; it is a leaf."
+        }
+      ],
+      "children": []
+    },
+    "b-60-docs-cli-alone-heading-9": {
+      "id": "b-60-docs-cli-alone-heading-9",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Using it alone"
+        }
+      ],
+      "children": []
+    },
+    "b-60-docs-cli-alone-10": {
+      "id": "b-60-docs-cli-alone-10",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Agents use "
+        },
+        {
+          "insert": "render",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "grep",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "links check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " constantly without starting a server. "
+        },
+        {
+          "insert": "migrate",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is a one-time adoption tool. Host repositories invoke the CLI through their submodule mount."
+        }
+      ],
+      "children": []
+    },
+    "b-60-docs-cli-boundary-review-11": {
+      "id": "b-60-docs-cli-boundary-review-11",
+      "type": "callout",
+      "props": {
+        "kind": "Boundary under review",
+        "title": "The split is not forced",
+        "tone": "info"
+      },
+      "text": [
+        {
+          "insert": "Merging "
+        },
+        {
+          "insert": "docs-cli",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " into "
+        },
+        {
+          "insert": "docs-workbench",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/10-packages/50-docs-workbench"
+            }
+          }
+        },
+        {
+          "insert": " is a live candidate: "
+        },
+        {
+          "insert": "serve",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "export",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " already just drive the workbench, and the two packages ship together. The current split is a judgment call between command dialect and app shell, not a forced boundary."
+        }
+      ],
+      "children": []
+    }
+  }
+}

@@ -38,6 +38,7 @@ export const DOC_BLOCK_TYPES = [
   // diagram & media
   "mermaid",
   "canvas",
+  "sequence",
   "image",
   "video",
 ] as const;

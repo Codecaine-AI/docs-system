@@ -14,6 +14,9 @@
  * simply omits them and the components degrade gracefully (e.g. DocEditor
  * skips draft-lock acquire/heartbeat/release entirely when the client can't
  * provide them — the backend hash precondition remains the real safety net).
+ * The same applies to read affordances beyond the tree: `getDocBundle` feeds
+ * the doc-reference side peek (DocPeekPanel), and hosts that omit it get
+ * plain full navigation from reference chips instead of an inline preview.
  */
 
 import { createContext, useContext, type ComponentType, type ReactNode } from "react";
@@ -62,6 +65,19 @@ export interface DocsClient {
    * empty list when it fails or when no client is provided at all.
    */
   getDocsTree(projectId: string): Promise<{ tree: DocsTreeNode[] }>;
+
+  /**
+   * Loads the parsed doc.json payload for a docs-root-relative bundle path,
+   * or null when no such bundle exists. This is the side peek's data seam
+   * (see ./peek): the host supplies the fetching, the viewer stays HTTP-free
+   * and validates the payload itself before rendering. `documentPath`, when
+   * the backend knows it, is forwarded to DocBlockRenderer for canvas-embed
+   * wiring. OPTIONAL — without it, peek intents downgrade to full navigation.
+   */
+  getDocBundle?(
+    projectId: string,
+    path: string,
+  ): Promise<{ doc: unknown; documentPath?: string } | null>;
 
   /**
    * Acquires a draft lock for a doc/canvas so only one session edits at a
@@ -135,31 +151,76 @@ export function CanvasEmbedUnavailable({ title, src }: { title?: string; src?: s
 }
 
 // ---------------------------------------------------------------------------
+// Sequence embed slot
+// ---------------------------------------------------------------------------
+
+/**
+ * Prop surface of the injected sequence embed — mirrors `CanvasEmbedProps`,
+ * so the host can pass its sequence viewer component (or any stand-in)
+ * straight through.
+ */
+export type SequenceEmbedProps = {
+  projectId?: string | null;
+  documentPath?: string | null;
+  sequenceId?: string;
+  /** Sequence sidecar src (already bundle-canonicalized by DocBlockRenderer). */
+  src?: string;
+  id: string;
+  title?: string;
+};
+
+export type SequenceEmbedComponent = ComponentType<SequenceEmbedProps>;
+
+/** Neutral fallback rendered where a sequence diagram would embed when no `SequenceEmbedComponent` is provided. */
+export function SequenceEmbedUnavailable({ title, src }: { title?: string; src?: string }) {
+  return (
+    <div
+      data-sequence-embed-unavailable="true"
+      className="rounded-md border border-dashed bg-muted/30 p-4 text-sm text-muted-foreground"
+    >
+      <div className="font-medium">Sequence embed unavailable</div>
+      <div className="mt-0.5 text-xs">
+        {title ?? "Sequence diagram"}
+        {src ? ` (${src})` : ""} — no sequence renderer is wired into this viewer.
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Provider + hooks
 // ---------------------------------------------------------------------------
 
 type DocsIntegrationContextValue = {
   client: DocsClient | null;
   canvasEmbed: CanvasEmbedComponent | null;
+  sequenceEmbed: SequenceEmbedComponent | null;
 };
 
 const DocsIntegrationContext = createContext<DocsIntegrationContextValue>({
   client: null,
   canvasEmbed: null,
+  sequenceEmbed: null,
 });
 
 export function DocsClientProvider({
   client,
   canvasEmbed,
+  sequenceEmbed,
   children,
 }: {
   client?: DocsClient | null;
   canvasEmbed?: CanvasEmbedComponent | null;
+  sequenceEmbed?: SequenceEmbedComponent | null;
   children: ReactNode;
 }) {
   return (
     <DocsIntegrationContext.Provider
-      value={{ client: client ?? null, canvasEmbed: canvasEmbed ?? null }}
+      value={{
+        client: client ?? null,
+        canvasEmbed: canvasEmbed ?? null,
+        sequenceEmbed: sequenceEmbed ?? null,
+      }}
     >
       {children}
     </DocsIntegrationContext.Provider>
@@ -174,4 +235,9 @@ export function useDocsClient(): DocsClient | null {
 /** The host-provided canvas embed component, or null (fallback card renders). */
 export function useCanvasEmbed(): CanvasEmbedComponent | null {
   return useContext(DocsIntegrationContext).canvasEmbed;
+}
+
+/** The host-provided sequence embed component, or null (fallback card renders). */
+export function useSequenceEmbed(): SequenceEmbedComponent | null {
+  return useContext(DocsIntegrationContext).sequenceEmbed;
 }

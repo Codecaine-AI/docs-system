@@ -18,7 +18,24 @@ export const DocHeading = Node.create({
     // DocBlock's `props`, so a heading block that never set `level` doesn't
     // grow a spurious `props.level` on round trip. The renderer/editing UI
     // still treats a null level as level 2 for display purposes.
-    return { ...nodeBlockAttrs, level: { default: null as number | null } };
+    //
+    // Clipboard encoding is the TAG NAME (h1..h6), never an attribute:
+    // TipTap's default attr rendering leaked `level="1"` into copy HTML and
+    // parsed it back as the STRING "1" (overriding the parse rule's numeric
+    // level), which corrupted `props.level` on save. renderHTML emits
+    // nothing; parseHTML derives the number from the tag, so external
+    // h1..h6 paste correctly too.
+    return {
+      ...nodeBlockAttrs,
+      level: {
+        default: null as number | null,
+        parseHTML: (element: HTMLElement) => {
+          const match = /^H([1-6])$/.exec(element.tagName);
+          return match ? Number(match[1]) : null;
+        },
+        renderHTML: () => ({}),
+      },
+    };
   },
   parseHTML() {
     return [1, 2, 3, 4, 5, 6].map((level) => ({ tag: `h${level}`, attrs: { level } }));

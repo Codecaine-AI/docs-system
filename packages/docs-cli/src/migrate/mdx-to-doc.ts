@@ -485,10 +485,9 @@ const COMPONENT_TAG_TO_BLOCK_TYPE: Record<string, ComponentMapper> = {
     },
     text: textInsert(body.trim(), ctx),
   }),
-  FileTree: (attrs, body) => ({
+  FileTree: (_attrs, body) => ({
     type: "file-tree",
     props: {
-      title: strAttr(attrs, "title"),
       entries: parseFileTreeEntries(body),
     },
   }),

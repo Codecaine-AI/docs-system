@@ -1,5 +1,6 @@
 import type { DocOp } from "@codecaine-ai/docs-model/doc-ops";
 import type { InteractiveCanvasDocument } from "@codecaine-ai/canvas/schema";
+import type { SequenceDocument } from "@codecaine-ai/sequence/schema";
 
 /**
  * Shared patch/inverse store (undo ledger). A stored patch is EITHER a
@@ -21,6 +22,13 @@ export type StoredPatch =
       kind: "canvas";
       path: string;
       priorSnapshot: InteractiveCanvasDocument;
+      hashAfterApply: string;
+      createdAt: string;
+    }
+  | {
+      kind: "sequence";
+      path: string;
+      priorSnapshot: SequenceDocument;
       hashAfterApply: string;
       createdAt: string;
     };
@@ -50,6 +58,21 @@ export function recordCanvasPatch(
 ): void {
   patchesById.set(patchId, {
     kind: "canvas",
+    path,
+    priorSnapshot,
+    hashAfterApply,
+    createdAt: new Date().toISOString(),
+  });
+}
+
+export function recordSequencePatch(
+  patchId: string,
+  path: string,
+  priorSnapshot: SequenceDocument,
+  hashAfterApply: string,
+): void {
+  patchesById.set(patchId, {
+    kind: "sequence",
     path,
     priorSnapshot,
     hashAfterApply,

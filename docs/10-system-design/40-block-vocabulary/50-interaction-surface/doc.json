@@ -1,0 +1,580 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-10-block-vocabulary-22-interaction-surface",
+  "title": "interaction-surface",
+  "root": "b-22-interaction-surface-root",
+  "blocks": {
+    "b-22-interaction-surface-root": {
+      "id": "b-22-interaction-surface-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-22-interaction-surface-lead-2",
+        "b-22-interaction-surface-state-h-3",
+        "b-22-interaction-surface-state-4",
+        "b-22-interaction-surface-op-state-5",
+        "b-22-interaction-surface-state-note-6",
+        "b-22-interaction-surface-proj-h-7",
+        "b-22-interaction-surface-proj-8",
+        "b-22-interaction-surface-proj-example-9",
+        "b-22-interaction-surface-actions-h-10",
+        "b-22-interaction-surface-actions-note-11",
+        "b-22-interaction-surface-actions-12",
+        "b-22-interaction-surface-editor-h-13",
+        "b-22-interaction-surface-editor-14",
+        "b-22-interaction-surface-agent-h-15",
+        "b-22-interaction-surface-agent-1-16",
+        "b-22-interaction-surface-agent-2-17",
+        "b-22-interaction-surface-theming-heading",
+        "b-22-interaction-surface-theming-para",
+        "b-22-interaction-surface-theming-table"
+      ]
+    },
+    "b-22-interaction-surface-lead-2": {
+      "id": "b-22-interaction-surface-lead-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The operation list of the "
+        },
+        {
+          "insert": "block vocabulary"
+        },
+        {
+          "insert": ", and the other half of its documentation doctrine: where an annotated "
+        },
+        {
+          "insert": "code",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/20-code-block"
+            }
+          }
+        },
+        {
+          "insert": " block shows what a system's state "
+        },
+        {
+          "insert": "is",
+          "attributes": {
+            "italic": true
+          }
+        },
+        {
+          "insert": ", an interaction-surface lists the named operations by which that state is changed or queried."
+        }
+      ],
+      "children": []
+    },
+    "b-22-interaction-surface-state-h-3": {
+      "id": "b-22-interaction-surface-state-h-3",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "State"
+        }
+      ],
+      "children": []
+    },
+    "b-22-interaction-surface-state-4": {
+      "id": "b-22-interaction-surface-state-4",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "prop",
+          "type",
+          "required",
+          "notes"
+        ],
+        "rows": [
+          [
+            "title",
+            "string",
+            "no",
+            "Optional bold caption above the surface."
+          ],
+          [
+            "operations",
+            "array",
+            "yes",
+            "Array of { name, description?, params?, returns?, kind? } — see below."
+          ]
+        ]
+      },
+      "children": []
+    },
+    "b-22-interaction-surface-op-state-5": {
+      "id": "b-22-interaction-surface-op-state-5",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "prop",
+          "type",
+          "required",
+          "notes"
+        ],
+        "rows": [
+          [
+            "name",
+            "string",
+            "yes",
+            "Operation signature name, e.g. \"file-tree.addEntry\"."
+          ],
+          [
+            "description",
+            "string",
+            "no",
+            "One-liner rendered as a # suffix."
+          ],
+          [
+            "params",
+            "array",
+            "no",
+            "[{ name, type?, required?, description? }] — required: false renders a ? suffix."
+          ],
+          [
+            "returns",
+            "string",
+            "no",
+            "What the operation returns/yields."
+          ],
+          [
+            "kind",
+            "\"action\" / \"query\" / \"event\"",
+            "no",
+            "Defaults to action; only query/event render a [kind] prefix."
+          ]
+        ],
+        "title": "One operation"
+      },
+      "children": []
+    },
+    "b-22-interaction-surface-state-note-6": {
+      "id": "b-22-interaction-surface-state-note-6",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "No text ("
+        },
+        {
+          "insert": "carriesText: false",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ")."
+        }
+      ],
+      "children": []
+    },
+    "b-22-interaction-surface-proj-h-7": {
+      "id": "b-22-interaction-surface-proj-h-7",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Markdown render"
+        }
+      ],
+      "children": []
+    },
+    "b-22-interaction-surface-proj-8": {
+      "id": "b-22-interaction-surface-proj-8",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "An optional "
+        },
+        {
+          "insert": "**<title>**",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " bold line, then a bare fence with one signature line per operation, in document order:"
+        }
+      ],
+      "children": []
+    },
+    "b-22-interaction-surface-proj-example-9": {
+      "id": "b-22-interaction-surface-proj-example-9",
+      "type": "code",
+      "props": {},
+      "text": [
+        {
+          "insert": "[query] table.rowCount() -> number  # How many rows the table has\ntable.addRow(cells: string[], index?: number) -> props patch  # Insert a row"
+        }
+      ],
+      "children": []
+    },
+    "b-22-interaction-surface-actions-h-10": {
+      "id": "b-22-interaction-surface-actions-h-10",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Typed actions"
+        }
+      ],
+      "children": []
+    },
+    "b-22-interaction-surface-actions-note-11": {
+      "id": "b-22-interaction-surface-actions-note-11",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Yes — the surface documents itself: three actions maintain the "
+        },
+        {
+          "insert": "operations",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " array. "
+        },
+        {
+          "insert": "addOperation",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " rejects a duplicate name; "
+        },
+        {
+          "insert": "updateOperation",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " renames via "
+        },
+        {
+          "insert": "patch.name",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and clears "
+        },
+        {
+          "insert": "description",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": "params",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": "returns",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": "kind",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with "
+        },
+        {
+          "insert": "null",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-22-interaction-surface-actions-12": {
+      "id": "b-22-interaction-surface-actions-12",
+      "type": "interaction-surface",
+      "props": {
+        "operations": [
+          {
+            "name": "interaction-surface.addOperation",
+            "description": "Append an operation signature ({ name, description?, params?, returns?, kind? }) to the surface.",
+            "params": [
+              {
+                "name": "name",
+                "type": "string",
+                "required": true
+              },
+              {
+                "name": "description",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "params",
+                "type": "array",
+                "required": false
+              },
+              {
+                "name": "returns",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "kind",
+                "type": "string",
+                "required": false
+              }
+            ],
+            "returns": "props patch: { operations }"
+          },
+          {
+            "name": "interaction-surface.updateOperation",
+            "description": "Patch an operation (rename via patch.name; null clears description/params/returns/kind).",
+            "params": [
+              {
+                "name": "name",
+                "type": "string",
+                "required": true
+              },
+              {
+                "name": "patch",
+                "type": "object",
+                "required": true
+              }
+            ],
+            "returns": "props patch: { operations }"
+          },
+          {
+            "name": "interaction-surface.removeOperation",
+            "description": "Remove the operation with the given name from the surface.",
+            "params": [
+              {
+                "name": "name",
+                "type": "string",
+                "required": true
+              }
+            ],
+            "returns": "props patch: { operations }"
+          }
+        ],
+        "title": "interaction-surface — operation actions"
+      },
+      "children": []
+    },
+    "b-22-interaction-surface-editor-h-13": {
+      "id": "b-22-interaction-surface-editor-h-13",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "In the editor"
+        }
+      ],
+      "children": []
+    },
+    "b-22-interaction-surface-editor-14": {
+      "id": "b-22-interaction-surface-editor-14",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A non-editable atom leaf node rendered by "
+        },
+        {
+          "insert": "InteractionSurfaceDocsBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". No slash-menu entry today — surfaces enter through agent ops or existing content."
+        }
+      ],
+      "children": []
+    },
+    "b-22-interaction-surface-agent-h-15": {
+      "id": "b-22-interaction-surface-agent-h-15",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent notes"
+        }
+      ],
+      "children": []
+    },
+    "b-22-interaction-surface-agent-1-16": {
+      "id": "b-22-interaction-surface-agent-1-16",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "When documenting a system, pair one of these with an annotated "
+        },
+        {
+          "insert": "code",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/20-code-block"
+            }
+          }
+        },
+        {
+          "insert": " block: state first, then the operations on it."
+        }
+      ],
+      "children": []
+    },
+    "b-22-interaction-surface-agent-2-17": {
+      "id": "b-22-interaction-surface-agent-2-17",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Operation order is document order — "
+        },
+        {
+          "insert": "addOperation",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " appends, and "
+        },
+        {
+          "insert": "updateOperation",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " patches in place, so curated ordering survives edits."
+        }
+      ],
+      "children": []
+    },
+    "b-22-interaction-surface-theming-heading": {
+      "id": "b-22-interaction-surface-theming-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Theming"
+        }
+      ],
+      "children": []
+    },
+    "b-22-interaction-surface-theming-para": {
+      "id": "b-22-interaction-surface-theming-para",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This block's theme file is "
+        },
+        {
+          "insert": "components/interaction-surface.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in a theme folder ("
+        },
+        {
+          "insert": "themes/<id>/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "; see 20-implementation/40-theming). Every value is one string for both modes or a "
+        },
+        {
+          "insert": "{ light, dark }",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " pair, validated against "
+        },
+        {
+          "insert": "THEME_TOKEN_REGISTRY",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-22-interaction-surface-theming-table": {
+      "id": "b-22-interaction-surface-theming-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Key",
+          "CSS variable",
+          "Styles"
+        ],
+        "rows": [
+          [
+            "border",
+            "--docs-interaction-border",
+            "Container border"
+          ],
+          [
+            "bg",
+            "--docs-interaction-bg",
+            "Container background"
+          ]
+        ]
+      },
+      "children": []
+    }
+  }
+}

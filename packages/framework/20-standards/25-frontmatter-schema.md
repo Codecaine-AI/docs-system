@@ -24,4 +24,4 @@ The plain markdown files in this skill package (not the corpus) keep YAML frontm
 | `concepts` | Optional. Short keyword tags (≤30 chars each). |
 | `type` | `overview` on `00-overview.md` files; `standard` where applicable. |
 
-Rationale: docs/10-system-design/10-doc-architecture
+Canonical: writingstyle.md (repo root) — titles/openings guidance lives there as authoring style, not a corpus standard; this file is the operational copy.

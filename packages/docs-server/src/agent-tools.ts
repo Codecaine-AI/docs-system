@@ -26,6 +26,12 @@ import {
   type InteractiveCanvasDocument,
 } from "@codecaine-ai/canvas/schema";
 import type { CanvasAgentPatchOperation } from "@codecaine-ai/canvas/actions";
+import { applySequenceOperations } from "@codecaine-ai/sequence";
+import {
+  validateSequenceDocument,
+  type SequenceDocument,
+} from "@codecaine-ai/sequence/schema";
+import type { SequenceAgentPatchOperation } from "@codecaine-ai/sequence/agent-schema";
 
 import { withPathLock } from "./path-mutex";
 import { atomicWriteFile } from "./atomic-write";
@@ -35,6 +41,8 @@ import { loadDocBundle } from "./bundle";
 import {
   resolveCanvasSidecarRootRelativePath,
   resolveCanvasSidecarRootRelativeWritePath,
+  resolveSequenceSidecarRootRelativePath,
+  resolveSequenceSidecarRootRelativeWritePath,
 } from "./confine";
 import {
   addBundleComment,
@@ -47,6 +55,7 @@ import {
   deleteStoredPatch,
   getStoredPatch,
   recordCanvasPatch,
+  recordSequencePatch,
 } from "./patch-ledger";
 
 // Re-export the ledger surface so tool consumers only need this module.
@@ -55,6 +64,7 @@ export {
   getStoredPatch,
   recordCanvasPatch,
   recordDocPatch,
+  recordSequencePatch,
   type StoredPatch,
 } from "./patch-ledger";
 
@@ -353,12 +363,203 @@ export async function canvas_apply_patch(
 }
 
 // ---------------------------------------------------------------------------
+// sequence_get
+// ---------------------------------------------------------------------------
+
+export type SequenceGetResult =
+  | { ok: true; sequence: SequenceDocument; hash: string; sequenceRelPath: string }
+  | { ok: false; status: number; detail: string };
+
+type SequenceSidecarLoad =
+  | { ok: true; sequence: SequenceDocument; raw: string; hash: string }
+  | { ok: false; status: number; detail: string };
+
+/**
+ * Shared stat -> read -> parse -> validate loader for a sequence sidecar's
+ * ALREADY-RESOLVED absolute path — the sequence counterpart of
+ * `loadCanvasSidecar`, with the identical error taxonomy (404 missing / 422
+ * bad JSON / 422 schema).
+ */
+async function loadSequenceSidecar(
+  sequenceAbs: string,
+  sequencePath: string,
+): Promise<SequenceSidecarLoad> {
+  let raw: string;
+  try {
+    const st = await stat(sequenceAbs);
+    if (!st.isFile()) {
+      return { ok: false, status: 404, detail: `Sequence sidecar is not a file: ${sequencePath}` };
+    }
+    raw = await readFile(sequenceAbs, "utf8");
+  } catch {
+    return { ok: false, status: 404, detail: `Sequence sidecar not found: ${sequencePath}` };
+  }
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    return { ok: false, status: 422, detail: `Sequence sidecar is not valid JSON: ${sequencePath}` };
+  }
+  const validated = validateSequenceDocument(parsed);
+  if (!validated.ok) {
+    return {
+      ok: false,
+      status: 422,
+      detail: `Sequence sidecar failed schema validation: ${validated.errors.join("; ")}`,
+    };
+  }
+  return { ok: true, sequence: parsed as SequenceDocument, raw, hash: createContentHash(raw) };
+}
+
+/** `sequence_get(sequencePath)` — root-relative sequence sidecar read, mirrors `canvas_get`. */
+export async function sequence_get(
+  docsRoot: string,
+  sequencePath: string,
+): Promise<SequenceGetResult> {
+  const sequenceRelPath = resolveSequenceSidecarRootRelativePath(docsRoot, sequencePath);
+  if (!sequenceRelPath) {
+    return { ok: false, status: 400, detail: `Invalid sequence sidecar path: ${sequencePath}` };
+  }
+  const sequenceAbs = join(docsRoot, sequenceRelPath);
+  const loaded = await loadSequenceSidecar(sequenceAbs, sequencePath);
+  if (!loaded.ok) {
+    return loaded;
+  }
+  return {
+    ok: true,
+    sequence: loaded.sequence,
+    hash: loaded.hash,
+    sequenceRelPath,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// sequence_apply_patch
+// ---------------------------------------------------------------------------
+
+// Wire-format operation vocabulary — reuses the sequence package's
+// `SequenceAgentPatchOperation` union, re-exported here so tool consumers
+// only need to import from `agent-tools.ts`.
+export type { SequenceAgentPatchOperation };
+
+export type SequenceApplyPatchResult =
+  | {
+      ok: true;
+      sequence: SequenceDocument;
+      hash: string;
+      patchId: string;
+      changedIds: string[];
+    }
+  | {
+      ok: false;
+      status: number;
+      detail: string;
+      current_hash?: string;
+      expected_hash?: string;
+      held_by?: DraftLockInfo;
+      issues?: unknown;
+    };
+
+/**
+ * `sequence_apply_patch(sequencePath, operations[], expectedHash, actor)` —
+ * the sequence-side counterpart to `canvas_apply_patch`, carrying the SAME
+ * mutation contract: validate -> hash precondition -> draft-lock
+ * precondition -> apply (`applySequenceOperations`) -> atomic persist ->
+ * store inverse (full prior snapshot) -> return. Entire read-check-write
+ * sequence runs inside `withPathLock` keyed on the resolved absolute sidecar
+ * path.
+ *
+ * `changedIds` is always empty: sequence operations are whole-document
+ * (setProgram/setStyle/setTitle), so there is no per-object change set the
+ * way canvas patches have.
+ */
+export async function sequence_apply_patch(
+  docsRoot: string,
+  sequencePath: string,
+  operations: SequenceAgentPatchOperation[],
+  expectedHash: string | undefined,
+  actor?: string,
+): Promise<SequenceApplyPatchResult> {
+  const sequenceRelPath = await resolveSequenceSidecarRootRelativeWritePath(docsRoot, sequencePath);
+  if (!sequenceRelPath) {
+    return { ok: false, status: 400, detail: `Invalid sequence sidecar path: ${sequencePath}` };
+  }
+  const sequenceAbs = join(docsRoot, sequenceRelPath);
+
+  return withPathLock(sequenceAbs, async (): Promise<SequenceApplyPatchResult> => {
+    const loaded = await loadSequenceSidecar(sequenceAbs, sequencePath);
+    if (!loaded.ok) {
+      return loaded;
+    }
+    const currentHash = loaded.hash;
+    if (expectedHash && expectedHash !== currentHash) {
+      return {
+        ok: false,
+        status: 409,
+        detail: "Sequence sidecar is stale; reload before applying a patch.",
+        current_hash: currentHash,
+        expected_hash: expectedHash,
+      };
+    }
+
+    const lockCheck = draftLockStore.checkForMutation(
+      { kind: "sequence", path: sequenceRelPath },
+      actor,
+    );
+    if (lockCheck.blocked) {
+      return {
+        ok: false,
+        status: 423,
+        detail: "Draft in progress — another session is editing this file.",
+        held_by: lockCheck.heldBy,
+      };
+    }
+
+    const priorSnapshot = loaded.sequence;
+    const applied = applySequenceOperations(loaded.sequence, operations);
+    if (!applied.ok) {
+      return {
+        ok: false,
+        status: 400,
+        detail: "Sequence patch failed to apply.",
+        issues: applied.errors.map((message) => ({ path: "$.params", message })),
+      };
+    }
+
+    const revalidated = validateSequenceDocument(applied.document);
+    if (!revalidated.ok) {
+      return {
+        ok: false,
+        status: 400,
+        detail: "Sequence patch produced an invalid document",
+        issues: revalidated.errors.map((message) => ({ path: "$", message })),
+      };
+    }
+
+    const content = `${JSON.stringify(applied.document, null, 2)}\n`;
+    await atomicWriteFile(sequenceAbs, content);
+    const hash = createContentHash(content);
+    const patchId = randomUUID();
+    recordSequencePatch(patchId, sequenceRelPath, priorSnapshot, hash);
+
+    return {
+      ok: true,
+      sequence: applied.document,
+      hash,
+      patchId,
+      changedIds: [],
+    };
+  });
+}
+
+// ---------------------------------------------------------------------------
 // undo_patch
 // ---------------------------------------------------------------------------
 
 export type UndoPatchResult =
   | { ok: true; kind: "doc"; doc: DocDocument; hash: string }
   | { ok: true; kind: "canvas"; canvas: InteractiveCanvasDocument; hash: string }
+  | { ok: true; kind: "sequence"; sequence: SequenceDocument; hash: string }
   | { ok: false; status: number; detail: string; current_hash?: string };
 
 /**
@@ -407,6 +608,32 @@ export async function undo_patch(docsRoot: string, patchId: string): Promise<Und
     }
     deleteStoredPatch(patchId);
     return { ok: true, kind: "doc", doc: result.doc, hash: result.hash };
+  }
+
+  if (stored.kind === "sequence") {
+    const sequenceAbs = join(docsRoot, stored.path);
+    return withPathLock(sequenceAbs, async (): Promise<UndoPatchResult> => {
+      let raw: string;
+      try {
+        raw = await readFile(sequenceAbs, "utf8");
+      } catch {
+        return { ok: false, status: 404, detail: `Sequence sidecar not found: ${stored.path}` };
+      }
+      const currentHash = createContentHash(raw);
+      if (currentHash !== stored.hashAfterApply) {
+        return {
+          ok: false,
+          status: 409,
+          detail: "Cannot undo: the sequence changed since this patch was applied.",
+          current_hash: currentHash,
+        };
+      }
+      const content = `${JSON.stringify(stored.priorSnapshot, null, 2)}\n`;
+      await atomicWriteFile(sequenceAbs, content);
+      const hash = createContentHash(content);
+      deleteStoredPatch(patchId);
+      return { ok: true, kind: "sequence", sequence: stored.priorSnapshot, hash };
+    });
   }
 
   const canvasAbs = join(docsRoot, stored.path);

@@ -10,6 +10,7 @@
   },
   "exports": {
     ".": "./src/index.ts",
+    "./audit": "./src/audit.ts",
     "./migrate/mdx-to-doc": "./src/migrate/mdx-to-doc.ts",
     "./migrate/inline-to-delta": "./src/migrate/inline-to-delta.ts",
     "./migrate/run": "./src/migrate/run.ts"

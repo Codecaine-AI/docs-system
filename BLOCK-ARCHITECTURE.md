@@ -461,7 +461,6 @@ export const FileTreeEntry = Type.Object({
 });
 
 export const FileTreeState = Type.Object({
-  title: Type.Optional(Type.String()),
   entries: Type.Array(FileTreeEntry),
 });
 export type FileTreeState = Static<typeof FileTreeState>;

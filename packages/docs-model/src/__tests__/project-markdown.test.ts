@@ -122,10 +122,9 @@ describe("projectToMarkdown — the all-block-type sample fixture", () => {
     expect(markdown).toContain("> **Mermaid: Mermaid sample** — flowchart LR");
   });
 
-  it("projects a file-tree as a bold title plus a fenced tree rendering with guides, markers, and notes", () => {
+  it("projects a file-tree as a fenced tree rendering with guides, markers, and notes", () => {
     expect(markdown).toContain(
-      "**Module layout**\n\n" +
-        "```\n" +
+      "```\n" +
         "  src/\n" +
         "  ├── components/\n" +
         "  │   └── docs/\n" +
@@ -373,12 +372,12 @@ describe("projectToMarkdown — structural edge cases", () => {
 });
 
 describe("projectToMarkdown — file-tree tree rendering", () => {
-  function treeDoc(entries: unknown[], title?: string): DocDocument {
+  function treeDoc(entries: unknown[]): DocDocument {
     return docWith(
       {
         t: block("t", {
           type: "file-tree",
-          props: title ? { title, entries } : { entries },
+          props: { entries },
         }),
       },
       ["t"],
@@ -433,10 +432,5 @@ describe("projectToMarkdown — file-tree tree rendering", () => {
       treeDoc([{ path: "src/new-name.ts", change: "renamed", from: "src/old-name.ts" }]),
     );
     expect(md).toContain("  src/\n> └── src/old-name.ts -> new-name.ts");
-  });
-
-  it("puts the title as a bold line above the fence", () => {
-    const md = projectToMarkdown(treeDoc([{ path: "a.ts" }], "Layout"));
-    expect(md).toContain("**Layout**\n\n```\na.ts\n```");
   });
 });

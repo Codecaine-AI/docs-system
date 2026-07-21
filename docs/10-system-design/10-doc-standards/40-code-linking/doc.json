@@ -1,0 +1,467 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-10-doc-standards-40-code-linking",
+  "title": "Code linking",
+  "root": "b-clink-root",
+  "blocks": {
+    "b-clink-root": {
+      "id": "b-clink-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-cl2-intro-1",
+        "pm-mrurzwgo-2-iczpvt",
+        "b-cl2-laidout-h-2",
+        "b-cl2-code-3",
+        "b-cl2-obj-4",
+        "b-cl2-rule-h-7",
+        "b-cl2-oneway-8",
+        "b-cl2-paths-10",
+        "b-cl2-inline-13",
+        "b-cl2-related-15",
+        "b-cl2-moves-17",
+        "b-cl2-incode-20",
+        "b-cl2-why-h-21",
+        "b-cl2-why-bill-22",
+        "b-cl2-why-claim-25",
+        "b-cl2-why-inline-27"
+      ]
+    },
+    "b-cl2-intro-1": {
+      "id": "b-cl2-intro-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Docs point at code with typed source references; code never points back. "
+        }
+      ],
+      "children": []
+    },
+    "pm-mrurzwgo-2-iczpvt": {
+      "id": "pm-mrurzwgo-2-iczpvt",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This page states the source-link object, how paths are written, and why the docs side pays all of the maintenance."
+        }
+      ],
+      "children": []
+    },
+    "b-cl2-laidout-h-2": {
+      "id": "b-cl2-laidout-h-2",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "How it's laid out"
+        }
+      ],
+      "children": []
+    },
+    "b-cl2-code-3": {
+      "id": "b-cl2-code-3",
+      "type": "code",
+      "props": {
+        "annotations": [
+          {
+            "lines": "6",
+            "label": "A different object",
+            "note": "kind \"source\" targets a repo file — resolved against the filesystem, not the docs lookup a doc link uses."
+          },
+          {
+            "lines": "7",
+            "label": "Full path, checkable",
+            "note": "Repo-relative from the root — docs links check verifies the file exists."
+          }
+        ],
+        "language": "json"
+      },
+      "text": [
+        {
+          "insert": "{\n  \"insert\": \"packages/docs-viewer/src/render/doc-title.ts\",\n  \"attributes\": {\n    \"code\": true,\n    \"reference\": {\n      \"kind\": \"source\",\n      \"path\": \"packages/docs-viewer/src/render/doc-title.ts\"\n    }\n  }\n}"
+        }
+      ],
+      "children": []
+    },
+    "b-cl2-obj-4": {
+      "id": "b-cl2-obj-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A source link is its own object",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-cl2-obj-sub1-5",
+        "b-cl2-obj-sub2-6"
+      ]
+    },
+    "b-cl2-obj-sub1-5": {
+      "id": "b-cl2-obj-sub1-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "kind",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ": "
+        },
+        {
+          "insert": "\"source\"",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with a repo-relative path — optionally a symbol and line."
+        }
+      ],
+      "children": []
+    },
+    "b-cl2-obj-sub2-6": {
+      "id": "b-cl2-obj-sub2-6",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs links check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " verifies the target file exists; a doc link resolves through the docs lookup instead."
+        }
+      ],
+      "children": []
+    },
+    "b-cl2-rule-h-7": {
+      "id": "b-cl2-rule-h-7",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The rule"
+        }
+      ],
+      "children": []
+    },
+    "b-cl2-oneway-8": {
+      "id": "b-cl2-oneway-8",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "One-way, doc to code",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-cl2-ow-sub1-9"
+      ]
+    },
+    "b-cl2-ow-sub1-9": {
+      "id": "b-cl2-ow-sub1-9",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "No doc links in code comments; the source stays ignorant of the docs."
+        }
+      ],
+      "children": []
+    },
+    "b-cl2-paths-10": {
+      "id": "b-cl2-paths-10",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Full paths",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-cl2-paths-sub1-11",
+        "b-cl2-paths-sub2-12"
+      ]
+    },
+    "b-cl2-paths-sub1-11": {
+      "id": "b-cl2-paths-sub1-11",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "src/auth/session/manager.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — never bare filenames, function names without paths, or vague pointers."
+        }
+      ],
+      "children": []
+    },
+    "b-cl2-paths-sub2-12": {
+      "id": "b-cl2-paths-sub2-12",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The typed reference carries the path, so the claim is machine-checkable."
+        }
+      ],
+      "children": []
+    },
+    "b-cl2-inline-13": {
+      "id": "b-cl2-inline-13",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Inline, with context",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-cl2-inline-sub1-14"
+      ]
+    },
+    "b-cl2-inline-sub1-14": {
+      "id": "b-cl2-inline-sub1-14",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Introduce a path where the concept is discussed, with enough context to say why the file matters."
+        }
+      ],
+      "children": []
+    },
+    "b-cl2-related-15": {
+      "id": "b-cl2-related-15",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Related Files only at four plus",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-cl2-rel-sub1-16"
+      ]
+    },
+    "b-cl2-rel-sub1-16": {
+      "id": "b-cl2-rel-sub1-16",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A full-path list with one-line purposes, at the end, only when a doc references four or more files."
+        }
+      ],
+      "children": []
+    },
+    "b-cl2-moves-17": {
+      "id": "b-cl2-moves-17",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Code moves, docs update",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-cl2-mv-sub1-18",
+        "b-cl2-mv-sub2-19"
+      ]
+    },
+    "b-cl2-mv-sub1-18": {
+      "id": "b-cl2-mv-sub1-18",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "When code moves or renames, the doc updates; "
+        },
+        {
+          "insert": "docs links check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " reports references whose target no longer exists."
+        }
+      ],
+      "children": []
+    },
+    "b-cl2-mv-sub2-19": {
+      "id": "b-cl2-mv-sub2-19",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "No generated navigation scripts — list files and explain briefly."
+        }
+      ],
+      "children": []
+    },
+    "b-cl2-incode-20": {
+      "id": "b-cl2-incode-20",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "What the code itself carries — file headers, docstrings, inline comments — is "
+        },
+        {
+          "insert": "in-code docs",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/10-doc-standards/50-in-code-docs"
+            }
+          }
+        },
+        {
+          "insert": "'s subject."
+        }
+      ],
+      "children": []
+    },
+    "b-cl2-why-h-21": {
+      "id": "b-cl2-why-h-21",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why"
+        }
+      ],
+      "children": []
+    },
+    "b-cl2-why-bill-22": {
+      "id": "b-cl2-why-bill-22",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The maintenance bill lands where it can be paid",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-cl2-bill-sub1-23",
+        "b-cl2-bill-sub2-24"
+      ]
+    },
+    "b-cl2-bill-sub1-23": {
+      "id": "b-cl2-bill-sub1-23",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Docs know about code, so a refactor ends with a docs pass."
+        }
+      ],
+      "children": []
+    },
+    "b-cl2-bill-sub2-24": {
+      "id": "b-cl2-bill-sub2-24",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The code never waits on one and never carries stale doc paths outward."
+        }
+      ],
+      "children": []
+    },
+    "b-cl2-why-claim-25": {
+      "id": "b-cl2-why-claim-25",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A full path is a checkable claim",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-cl2-claim-sub1-26"
+      ]
+    },
+    "b-cl2-claim-sub1-26": {
+      "id": "b-cl2-claim-sub1-26",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A bare filename is a vibe; a typed path is verified, and a reader opens it without a search."
+        }
+      ],
+      "children": []
+    },
+    "b-cl2-why-inline-27": {
+      "id": "b-cl2-why-inline-27",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Inline beats a link farm",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-cl2-inl-sub1-28"
+      ]
+    },
+    "b-cl2-inl-sub1-28": {
+      "id": "b-cl2-inl-sub1-28",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The reader arrives at the path with the question already framed."
+        }
+      ],
+      "children": []
+    }
+  }
+}

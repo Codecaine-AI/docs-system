@@ -1,0 +1,201 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-30-packages-70-framework",
+  "title": "framework — the loadable skill",
+  "root": "b-70-framework-root",
+  "blocks": {
+    "b-70-framework-root": {
+      "id": "b-70-framework-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-fw2-title-1",
+        "b-fw2-intro-2",
+        "b-fw2-owns-heading-3",
+        "b-fw2-owns-para-4",
+        "b-fw2-not-heading-5",
+        "b-fw2-not-para-6",
+        "b-fw2-package-heading-7",
+        "b-fw2-package-para-8",
+        "b-fw2-boundary-callout-9",
+        "b-fw2-northstar-callout-10"
+      ]
+    },
+    "b-fw2-title-1": {
+      "id": "b-fw2-title-1",
+      "type": "heading",
+      "props": {
+        "level": 1
+      },
+      "text": [
+        {
+          "insert": "framework — the loadable skill"
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-intro-2": {
+      "id": "b-fw2-intro-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "@codecaine-ai/docs-framework-skill",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is the agent-loadable skill for working inside a docs corpus: how to navigate it, produce new docs, and maintain existing ones. It is deliberately imperative and rationale-free — rules, workflows, and templates an agent loads and follows at authoring time."
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-owns-heading-3": {
+      "id": "b-fw2-owns-heading-3",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "What it owns"
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-owns-para-4": {
+      "id": "b-fw2-owns-para-4",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "At "
+        },
+        {
+          "insert": "packages/framework/",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/framework"
+            }
+          }
+        },
+        {
+          "insert": ": the "
+        },
+        {
+          "insert": "SKILL.md",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " entry point host repositories symlink into their agent tooling, the intent cookbook (navigate / produce / maintain), the imperative structure standards (layers, numbering, linking), document templates, and maintenance workflows."
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-not-heading-5": {
+      "id": "b-fw2-not-heading-5",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "What it deliberately does not own"
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-not-para-6": {
+      "id": "b-fw2-not-para-6",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The why. Every structural rule's rationale lives in "
+        },
+        {
+          "insert": "doc standards",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/10-doc-standards"
+            }
+          }
+        },
+        {
+          "insert": "; the intent behind the whole system lives in the "
+        },
+        {
+          "insert": "manifesto",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "00-foundation/00-manifesto"
+            }
+          }
+        },
+        {
+          "insert": ". The skill states rules; the corpus defends them. When a structural decision changes, both update in the same change — the design doc carries the reasoning, the skill carries the new instruction."
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-package-heading-7": {
+      "id": "b-fw2-package-heading-7",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why it is a package at all"
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-package-para-8": {
+      "id": "b-fw2-package-para-8",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Distribution convenience, honestly. Being a workspace package lets a host repository resolve, version, and symlink the methodology like any other dependency. It has zero dependencies, imports nothing, and ships in no runtime — a running docs installation behaves identically whether the package is present or absent."
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-boundary-callout-9": {
+      "id": "b-fw2-boundary-callout-9",
+      "type": "callout",
+      "props": {
+        "title": "Boundary under review: this may not need to be a package",
+        "tone": "decision"
+      },
+      "text": [
+        {
+          "insert": "Framework-as-package is itself under review. The same material could live as plain repository content or use its own distribution channel; the packaging is a convenience, not an architectural layer."
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-northstar-callout-10": {
+      "id": "b-fw2-northstar-callout-10",
+      "type": "callout",
+      "props": {
+        "title": "North star: the skill as a render",
+        "tone": "info"
+      },
+      "text": [
+        {
+          "insert": "By this system's own model, the skill is a render of the corpus: the canonical rules and their reasons live in the docs, and the skill is the authoring surface an agent loads. Generating the skill from the corpus — so the two can never drift — is the intended end state."
+        }
+      ],
+      "children": []
+    }
+  }
+}

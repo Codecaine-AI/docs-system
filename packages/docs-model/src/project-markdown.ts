@@ -55,8 +55,8 @@ import type { DocBlock, DocDocument } from "./doc-schema";
  *   query/event operations (actions are the default and render bare).
  * - `mermaid` -> a labeled blockquote:
  *   `> **Mermaid: <title>** — <body>`.
- * - `file-tree` -> optional `**<title>**` bold line, then a literal
- *   tree-command rendering inside a bare fenced ``` block: a nested tree
+ * - `file-tree` -> a literal tree-command rendering inside a bare fenced
+ *   ``` block: a nested tree
  *   derived from the v2 entry paths (`{ path, note?, change?, from? }`) with
  *   `├──`/`└──`/`│` guides. Directories come from path prefixes (an explicit
  *   trailing-`/` entry is respected as a directory) and render with a

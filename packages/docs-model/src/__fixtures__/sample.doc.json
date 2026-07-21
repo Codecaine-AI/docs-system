@@ -23,6 +23,7 @@
         "interaction-surface-1",
         "mermaid-1",
         "canvas-1",
+        "sequence-1",
         "image-1",
         "video-1"
       ]
@@ -99,8 +100,7 @@
             "reference": {
               "kind": "source",
               "path": "apps/frontend/src/lib/docs-model/doc-schema.ts",
-              "symbol": "validateDocDocument",
-              "label": "doc-schema.ts"
+              "symbol": "validateDocDocument"
             }
           }
         },
@@ -265,8 +265,7 @@
           {
             "path": "README.md"
           }
-        ],
-        "title": "Module layout"
+        ]
       },
       "children": []
     },
@@ -351,6 +350,15 @@
         "src": "./assets/canvases/sample.canvas.json",
         "title": "Architecture overview",
         "view": "container-architecture"
+      },
+      "children": []
+    },
+    "sequence-1": {
+      "id": "sequence-1",
+      "type": "sequence",
+      "props": {
+        "src": "./assets/sequences/sample.sequence.json",
+        "title": "Login flow"
       },
       "children": []
     },

@@ -145,8 +145,8 @@
           ],
           [
             "structured-table.json",
-            "border, headerBg, headerFg, headerRule(+Width/Opacity), rowRule(+Width/Opacity), cellPaddingY/X, fontSize",
-            "Header + row rules, spacing, text size"
+            "border, headerBg, headerFg, headerRule(+Width/Opacity), rowRule(+Width/Opacity), cellPaddingY/X, fontSize, handleRadius/Offset, selectionPadding",
+            "Header + row rules, spacing, text size + editor handle/selection furniture"
           ],
           [
             "interaction-surface.json",
@@ -227,7 +227,16 @@
           }
         },
         {
-          "insert": ". Keep this page's table in sync when the registry grows."
+          "insert": ". Keep this page's table in sync when the registry grows. The editor furniture accent for the structured-table controls is the semantic variable "
+        },
+        {
+          "insert": "--docs-editor-accent",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " (light rgb(0, 120, 223), dark rgb(82, 156, 202)), defined in the workbench semantic layer and consumed with a hex fallback."
         }
       ],
       "children": []

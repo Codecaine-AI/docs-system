@@ -22,7 +22,7 @@ export const FileTreeEntrySchema = Type.Object(
 );
 
 export const FileTreeState = Type.Object(
-  { title: Type.Optional(Type.String()), entries: Type.Array(FileTreeEntrySchema) },
+  { entries: Type.Array(FileTreeEntrySchema) },
   { additionalProperties: false },
 );
 

@@ -77,7 +77,7 @@ describe("checkParams", () => {
 describe("collectRegistryIssues", () => {
   it("reports every canonical type missing from an empty registry", () => {
     const issues = collectRegistryIssues([]);
-    expect(issues).toHaveLength(14);
+    expect(issues).toHaveLength(15);
     for (const type of DOC_BLOCK_TYPES) {
       expect(issues.some((issue) => issue.includes(type))).toBe(true);
     }

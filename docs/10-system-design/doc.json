@@ -1,0 +1,434 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design",
+  "title": "System design — overview",
+  "root": "b-sd-overview-root",
+  "blocks": {
+    "b-sd-overview-root": {
+      "id": "b-sd-overview-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-sdov-docarch-h-2",
+        "b-sdov-docarch-p-3",
+        "pm-mrtq81uh-19-qu48f4",
+        "pm-mrtq81uh-20-ogo0ro",
+        "b-sdov-docarch-li-foundation-4",
+        "b-sdov-docarch-li-design-5",
+        "b-sdov-docarch-li-impl-6",
+        "b-sdov-docarch-standards-p-7",
+        "b-sdov-surfaces-h-101",
+        "b-sdov-surfaces-p-102",
+        "pm-mrtqc2gp-6-s5nj3c",
+        "b-sdov-surfaces-li-human-103",
+        "b-sdov-surfaces-li-agent-104",
+        "b-sdov-surfaces-li-contract-105",
+        "b-sdov-datamodel-h-106",
+        "b-sdov-datamodel-p-107",
+        "b-sdov-datamodel-li-tree-108",
+        "b-sdov-datamodel-li-state-109",
+        "b-sdov-datamodel-li-bytes-110",
+        "b-sdov-datamodel-li-mutation-111",
+        "b-sdov-vocab-h-112",
+        "b-sdov-vocab-p-113",
+        "b-sdov-vocab-li-closed-114",
+        "b-sdov-vocab-li-docs-115",
+        "b-sdov-boundaries-h-116",
+        "b-sdov-boundaries-p-117"
+      ]
+    },
+    "b-sdov-docarch-h-2": {
+      "id": "b-sdov-docarch-h-2",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Docs Architecture"
+        }
+      ],
+      "children": []
+    },
+    "b-sdov-docarch-p-3": {
+      "id": "b-sdov-docarch-p-3",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The documentation has a strict layout allowing every new piece of knowledge has one clear home"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrtq81uh-19-qu48f4": {
+      "id": "pm-mrtq81uh-19-qu48f4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "This ensures agents making changes lands it where it belongs instead of scattering sloppy docs."
+        }
+      ],
+      "children": []
+    },
+    "pm-mrtq81uh-20-ogo0ro": {
+      "id": "pm-mrtq81uh-20-ogo0ro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Doc standards",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/10-doc-standards"
+            }
+          }
+        },
+        {
+          "insert": " holds the structure and the standards that keep it that way."
+        }
+      ],
+      "children": []
+    },
+    "b-sdov-docarch-li-foundation-4": {
+      "id": "b-sdov-docarch-li-foundation-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Foundation",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " — why the system exists"
+        }
+      ],
+      "children": []
+    },
+    "b-sdov-docarch-li-design-5": {
+      "id": "b-sdov-docarch-li-design-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Design",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " — what the system does and WHY"
+        }
+      ],
+      "children": []
+    },
+    "b-sdov-docarch-li-impl-6": {
+      "id": "b-sdov-docarch-li-impl-6",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Implementation",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " — how the code delivers it today"
+        }
+      ],
+      "children": []
+    },
+    "b-sdov-docarch-standards-p-7": {
+      "id": "b-sdov-docarch-standards-p-7",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The standards — directory structure, numbering, titles and openings, linking — are child docs there, each rule paired with its rationale."
+        }
+      ],
+      "children": []
+    },
+    "b-sdov-surfaces-h-101": {
+      "id": "b-sdov-surfaces-h-101",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Interaction surfaces"
+        }
+      ],
+      "children": []
+    },
+    "b-sdov-surfaces-p-102": {
+      "id": "b-sdov-surfaces-p-102",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each doc is a canonical JSON object with two rendering surfaces, one per reader type."
+        }
+      ],
+      "children": []
+    },
+    "pm-mrtqc2gp-6-s5nj3c": {
+      "id": "pm-mrtqc2gp-6-s5nj3c",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Interaction surfaces",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/20-interaction-surfaces"
+            }
+          }
+        },
+        {
+          "insert": " defines both."
+        }
+      ],
+      "children": []
+    },
+    "b-sdov-surfaces-li-human-103": {
+      "id": "b-sdov-surfaces-li-human-103",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Humans",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " — a Notion-style editor in the workbench."
+        }
+      ],
+      "children": []
+    },
+    "b-sdov-surfaces-li-agent-104": {
+      "id": "b-sdov-surfaces-li-agent-104",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Agents",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " — rendered markdown and typed operations through the CLI."
+        }
+      ],
+      "children": []
+    },
+    "b-sdov-surfaces-li-contract-105": {
+      "id": "b-sdov-surfaces-li-contract-105",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Neither reader edits the file through read / write commands"
+        }
+      ],
+      "children": [
+        "pm-mrtqc2gq-7-cbrb54"
+      ]
+    },
+    "pm-mrtqc2gq-7-cbrb54": {
+      "id": "pm-mrtqc2gq-7-cbrb54",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every change lands as a typed operation against the same state."
+        }
+      ],
+      "children": []
+    },
+    "b-sdov-datamodel-h-106": {
+      "id": "b-sdov-datamodel-h-106",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Data model"
+        }
+      ],
+      "children": []
+    },
+    "b-sdov-datamodel-p-107": {
+      "id": "b-sdov-datamodel-p-107",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "data model",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model"
+            }
+          }
+        },
+        {
+          "insert": " is the actual data structure under the hood."
+        }
+      ],
+      "children": []
+    },
+    "b-sdov-datamodel-li-tree-108": {
+      "id": "b-sdov-datamodel-li-tree-108",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A document is a tree of blocks; rich text is attributed spans inside them."
+        }
+      ],
+      "children": []
+    },
+    "b-sdov-datamodel-li-state-109": {
+      "id": "b-sdov-datamodel-li-state-109",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Blocks carry typed state; comments anchor to blocks and spans."
+        }
+      ],
+      "children": []
+    },
+    "b-sdov-datamodel-li-bytes-110": {
+      "id": "b-sdov-datamodel-li-bytes-110",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Canonical bytes: the same state always serializes to the same file."
+        }
+      ],
+      "children": []
+    },
+    "b-sdov-datamodel-li-mutation-111": {
+      "id": "b-sdov-datamodel-li-mutation-111",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "State changes only through typed operations, validated before anything persists."
+        }
+      ],
+      "children": []
+    },
+    "b-sdov-vocab-h-112": {
+      "id": "b-sdov-vocab-h-112",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Block vocabulary"
+        }
+      ],
+      "children": []
+    },
+    "b-sdov-vocab-p-113": {
+      "id": "b-sdov-vocab-p-113",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "block vocabulary",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary"
+            }
+          }
+        },
+        {
+          "insert": " explains all fourteen block types, with an example of each."
+        }
+      ],
+      "children": []
+    },
+    "b-sdov-vocab-li-closed-114": {
+      "id": "b-sdov-vocab-li-closed-114",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The set is closed: both surfaces know every block they will ever meet."
+        }
+      ],
+      "children": []
+    },
+    "b-sdov-vocab-li-docs-115": {
+      "id": "b-sdov-vocab-li-docs-115",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each type's doc lists its props and typed actions, and shows the block in use."
+        }
+      ],
+      "children": []
+    },
+    "b-sdov-boundaries-h-116": {
+      "id": "b-sdov-boundaries-h-116",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Package boundaries"
+        }
+      ],
+      "children": []
+    },
+    "b-sdov-boundaries-p-117": {
+      "id": "b-sdov-boundaries-p-117",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The implementation is cut into seven packages. "
+        },
+        {
+          "insert": "Package boundaries",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-package-boundaries"
+            }
+          }
+        },
+        {
+          "insert": " records which seams are forced by runtimes and which are judgment calls."
+        }
+      ],
+      "children": []
+    }
+  }
+}

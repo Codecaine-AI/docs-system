@@ -51,6 +51,13 @@ export type CanvasPayload = {
   canvas: unknown;
 };
 
+export type SequencePayload = {
+  sequence_path: string;
+  sequence_document_path: string;
+  content_hash: string | null;
+  sequence: unknown;
+};
+
 export type BacklinkRow = {
   sourcePath: string;
   sourceBlockId: string;
@@ -147,6 +154,19 @@ export async function getCanvasBySrc(src: string): Promise<CanvasPayload> {
     };
   }
   return fetchJson(`api/canvas?src=${encodeURIComponent(src)}`);
+}
+
+export async function getSequenceBySrc(src: string): Promise<SequencePayload> {
+  if (IS_STATIC) {
+    const sequence = await fetchJson<unknown>(`data/files/${encodePathSegments(src)}`);
+    return {
+      sequence_path: src,
+      sequence_document_path: `docs/${src}`,
+      content_hash: null,
+      sequence,
+    };
+  }
+  return fetchJson(`api/sequence?src=${encodeURIComponent(src)}`);
 }
 
 /** URL an `image` block's docs-root-relative src is served at. */
@@ -487,6 +507,26 @@ export function subscribeDocsEvents(
     return () => source.close();
   }
   return subscribeViaFetchStream(`api/events`, deliver);
+}
+
+// ---------------------------------------------------------------------------
+// Serve config
+// ---------------------------------------------------------------------------
+
+/**
+ * Workbench-level serve flags (today just `themeLocked` — see App's locked
+ * boot path). Fails OPEN to unlocked: static exports have no server, and an
+ * older serve without the route must keep today's behavior — only a serve
+ * that positively answers locked gets the locked theme path.
+ */
+export async function getServeConfig(): Promise<{ themeLocked: boolean }> {
+  if (IS_STATIC) return { themeLocked: false };
+  try {
+    const config = await fetchJson<{ themeLocked?: unknown }>(`api/serve-config`);
+    return { themeLocked: config.themeLocked === true };
+  } catch {
+    return { themeLocked: false };
+  }
 }
 
 // ---------------------------------------------------------------------------

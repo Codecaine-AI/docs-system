@@ -109,6 +109,49 @@ function findTextRange(editor: Editor, text: string): { from: number; to: number
   return range;
 }
 
+describe("reference chip", () => {
+  it("shows the target path as a tooltip without opening a hover card", async () => {
+    const path = "10-system-design/10-doc-architecture/10-hierarchy-layers";
+    const doc: DocDocument = {
+      schemaVersion: 1,
+      id: "reference-tooltip",
+      root: "root",
+      blocks: {
+        root: { id: "root", type: "paragraph", props: {}, children: ["p1"] },
+        p1: {
+          id: "p1",
+          type: "paragraph",
+          props: {},
+          text: [
+            {
+              insert: "Hierarchy layers",
+              attributes: { reference: { kind: "doc", path, label: "Hierarchy layers" } },
+            },
+          ],
+          children: [],
+        },
+      },
+    };
+    const { container } = renderWithClient(
+      <DocEditor document={doc} onApplyOps={async () => ({ ok: true })} />,
+    );
+
+    const chip = await waitFor(() => {
+      const element = container.querySelector<HTMLElement>("[data-doc-reference='true']");
+      expect(element).toBeTruthy();
+      return element!;
+    });
+
+    expect(chip.title).toBe("");
+    fireEvent.mouseEnter(chip);
+    const tooltip = await screen.findByRole("tooltip", {}, { timeout: 200 });
+    expect(tooltip.textContent).toBe(path);
+    expect(screen.queryByText("Go to reference")).toBeNull();
+    fireEvent.mouseLeave(chip);
+    await waitFor(() => expect(screen.queryByRole("tooltip")).toBeNull());
+  });
+});
+
 describe("DocEditor save boundary", () => {
   it("editing one paragraph's text saves exactly one updateBlock op", async () => {
     const doc = loadFixture();

@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -108,5 +109,26 @@ describe("theme folder routes", () => {
   test("GET of an unknown theme is a 404", async () => {
     const missing = await app.handle(new Request("http://localhost/api/themes/nope"));
     expect(missing.status).toBe(404);
+  });
+
+  test("POST is refused with 403 on a theme-locked serve, before any write", async () => {
+    const locked = createDocsRoutes(createDocsStore(docsRoot), { themeLocked: true });
+    const refused = await locked.handle(
+      new Request("http://localhost/api/themes", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ id: "my-theme", manifest: { name: "My Theme" } }),
+      }),
+    );
+    expect(refused.status).toBe(403);
+    const body = (await refused.json()) as { detail: string };
+    expect(body.detail).toContain("locked");
+    // The refusal precedes validation AND the write: a valid payload leaves
+    // no theme folder behind, and theme reads stay open (locked viewers
+    // still inherit the repo theme).
+    expect(existsSync(join(themesRootFor(docsRoot), "my-theme"))).toBe(false);
+    const list = await locked.handle(new Request("http://localhost/api/themes"));
+    expect(list.status).toBe(200);
+    expect(await list.json()).toEqual({ themes: [] });
   });
 });

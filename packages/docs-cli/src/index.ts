@@ -18,6 +18,16 @@ async function fileExists(filePath: string): Promise<boolean> {
   }
 }
 
+/** Like fileExists but also accepts directories — source refs may target a package root. */
+async function pathExists(target: string): Promise<boolean> {
+  try {
+    await stat(target);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 async function directoryExists(dirPath: string): Promise<boolean> {
   try {
     const stats = await stat(dirPath);
@@ -223,14 +233,16 @@ export async function linksCheckCommand(docsRootArg?: string): Promise<StaleLink
       continue;
     }
 
-    // kind === "source": a plain repo-relative file path.
+    // kind === "source": a plain repo-relative path. Directories are legal
+    // targets — a code link may anchor on a package root (cross-doc-linking
+    // standard, 2026-07-21), not only on a single file.
     const sourceCandidate = path.join(repoRoot, row.target_path);
-    if (!(await fileExists(sourceCandidate))) {
+    if (!(await pathExists(sourceCandidate))) {
       stale.push({
         sourcePath: row.source_path,
         sourceBlockId: row.source_block_id,
         targetPath: row.target_path,
-        reason: `Source file not found at ${row.target_path}`,
+        reason: `Source path not found at ${row.target_path}`,
       });
     }
   }
@@ -245,8 +257,9 @@ function usage(): string {
     "  docs-cli grep <term> [pathPrefix]",
     "  docs-cli backlinks rescan [docsRoot]",
     "  docs-cli links check [docsRoot]",
+    "  docs-cli audit [docsRoot]",
     "  docs-cli migrate [repoRoot] [--drafts] [--dry-run]",
-    "  docs-cli serve [--root <path>] [--port <port>] [--ui-port <port>] [--host <addr>] [--dev] [--rebuild]",
+    "  docs-cli serve [--root <path>] [--port <port>] [--ui-port <port>] [--host <addr>] [--dev] [--rebuild] [--theme-locked]",
     "  docs-cli export [--root <path>] --out <dir> [--rebuild]",
     "",
     "migrate is NON-DESTRUCTIVE by default: it writes doc.json bundles",
@@ -372,6 +385,22 @@ async function main() {
       return;
     }
 
+    if (command === "audit") {
+      // Structural-standards audit (./audit.ts): errors are invariants and
+      // fail the run; warnings are conventions, printed but exit 0.
+      const { auditCommand } = await import("./audit");
+      const report = await auditCommand(args[0]);
+      for (const finding of report.findings) {
+        console.log(
+          `${finding.severity === "error" ? "ERROR" : "WARN"} ${finding.checkId} ${finding.path} — ${finding.message}`,
+        );
+      }
+      if (report.findings.length > 0) console.log("");
+      console.log(`${report.errorCount} error(s), ${report.warningCount} warning(s)`);
+      process.exitCode = report.errorCount > 0 ? 1 : 0;
+      return;
+    }
+
     if (command === "migrate") {
       await migrateCommand(args);
       return;
@@ -379,10 +408,14 @@ async function main() {
 
     if (command === "serve") {
       // Standalone read-only docs server + viewer SPA (packages/docs-workbench).
-      //   docs-cli serve [--root <path>] [--port <port>] [--ui-port <port>] [--host <addr>] [--dev] [--rebuild]
+      //   docs-cli serve [--root <path>] [--port <port>] [--ui-port <port>] [--host <addr>] [--dev] [--rebuild] [--theme-locked]
       // Default mode vite-builds the SPA once (cached) and serves API + SPA
       // from one port; --dev spawns `vite dev` with an /api proxy instead.
       // Binds loopback unless --host is given (the docs tree may be private).
+      // --theme-locked marks this serve a theme CONSUMER: the viewer always
+      // applies the repo default theme, the style rail is hidden, and theme
+      // writes are refused — secondary apps serving their docs with this
+      // framework inherit the primary docs-system theme instead of drifting.
       const root = path.resolve(flagValue(args, "--root") ?? "docs");
       const port = Number(flagValue(args, "--port") ?? "4800");
       if (!Number.isInteger(port) || port <= 0 || port > 65535) {
@@ -405,6 +438,7 @@ async function main() {
         hostname: flagValue(args, "--host"),
         dev: args.includes("--dev"),
         forceBuild: args.includes("--rebuild"),
+        themeLocked: args.includes("--theme-locked"),
       });
       return;
     }

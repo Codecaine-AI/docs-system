@@ -1,0 +1,540 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-10-doc-standards-10-structure",
+  "title": "Structure",
+  "root": "b-struct-root",
+  "blocks": {
+    "b-struct-root": {
+      "id": "b-struct-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-sub-intro-1",
+        "pm-mruqiaw2-66-x15rfx",
+        "pm-mruqiaw2-67-z3y9lb",
+        "pm-mruqiaw3-68-aoxz5o",
+        "pm-mruqiaw3-69-afcp2a",
+        "b-sub-laidout-heading-2",
+        "b-sub-laidout-tree-3",
+        "b-sub-ladder-heading-4",
+        "b-sub-ladder-lead-5",
+        "b-struct-ladder-table-10",
+        "b-sub-ladder-same-6",
+        "b-sub-ladder-three-7",
+        "b-sub-ladder-source-8",
+        "b-struct-folders-heading-12",
+        "b-struct-bundle-13",
+        "b-struct-mirror-14",
+        "b-struct-parent-15",
+        "b-struct-threshold-16",
+        "b-struct-why-heading-22",
+        "b-swhy-disk-1",
+        "b-swhy-progressive-4",
+        "b-swhy-place-7"
+      ]
+    },
+    "b-sub-intro-1": {
+      "id": "b-sub-intro-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Within every layer, the docs keep the same substructure."
+        }
+      ],
+      "children": []
+    },
+    "pm-mruqiaw2-66-x15rfx": {
+      "id": "pm-mruqiaw2-66-x15rfx",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A tree of bundle folders descending L1–L6"
+        }
+      ],
+      "children": []
+    },
+    "pm-mruqiaw2-67-z3y9lb": {
+      "id": "pm-mruqiaw2-67-z3y9lb",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Three levels in the doc tree"
+        }
+      ],
+      "children": []
+    },
+    "pm-mruqiaw3-68-aoxz5o": {
+      "id": "pm-mruqiaw3-68-aoxz5o",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Three in the source"
+        }
+      ],
+      "children": []
+    },
+    "pm-mruqiaw3-69-afcp2a": {
+      "id": "pm-mruqiaw3-69-afcp2a",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This page states the depth ladder, the folder rules, and why the shape holds."
+        }
+      ],
+      "children": []
+    },
+    "b-sub-laidout-heading-2": {
+      "id": "b-sub-laidout-heading-2",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "How it's laid out"
+        }
+      ],
+      "children": []
+    },
+    "b-sub-laidout-tree-3": {
+      "id": "b-sub-laidout-tree-3",
+      "type": "file-tree",
+      "props": {
+        "entries": [
+          {
+            "path": "10-system-design/",
+            "note": "L1 — the layer's parent doc: summary plus an index of every section"
+          },
+          {
+            "path": "10-system-design/10-doc-standards/",
+            "note": "L2 — a section: the folder is itself a doc introducing its children"
+          },
+          {
+            "path": "10-system-design/10-doc-standards/10-structure/",
+            "note": "L3 — a concept doc: one coherent idea (this one)"
+          },
+          {
+            "path": "20-implementation/30-save-pipeline/",
+            "note": "a single doc — one concept covers it"
+          },
+          {
+            "path": "20-implementation/40-theming/",
+            "note": "a folder — themes split four ways"
+          }
+        ]
+      },
+      "children": []
+    },
+    "b-sub-ladder-heading-4": {
+      "id": "b-sub-ladder-heading-4",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The depth ladder"
+        }
+      ],
+      "children": []
+    },
+    "b-sub-ladder-lead-5": {
+      "id": "b-sub-ladder-lead-5",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Six levels — three in the doc tree, three in the source:"
+        }
+      ],
+      "children": []
+    },
+    "b-struct-ladder-table-10": {
+      "id": "b-struct-ladder-table-10",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Level",
+          "Lives at",
+          "Carries"
+        ],
+        "rows": [
+          [
+            "L1",
+            "A layer's parent doc (00-foundation, 10-system-design, 20-implementation)",
+            "Layer summary plus a section index linking every L2"
+          ],
+          [
+            "L2",
+            "XX-section (the section's parent doc)",
+            "Section scope and its children, one line each"
+          ],
+          [
+            "L3",
+            "A concept doc",
+            "One coherent idea — atomic, link-rich, code-connected"
+          ],
+          [
+            "L4",
+            "Top of a source file",
+            "The file's contract: responsibilities, dependencies, invariants — kept under 50 lines"
+          ],
+          [
+            "L5",
+            "Function docstrings",
+            "The function's contract: purpose, inputs, outputs, side effects, errors"
+          ],
+          [
+            "L6",
+            "The code",
+            "The implementation itself — read only after L4/L5 confirm you are in the right place"
+          ]
+        ]
+      },
+      "children": []
+    },
+    "b-sub-ladder-same-6": {
+      "id": "b-sub-ladder-same-6",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The ladder is the same in every layer — L1–L3 structure foundation and system design exactly as they structure implementation."
+        }
+      ],
+      "children": []
+    },
+    "b-sub-ladder-three-7": {
+      "id": "b-sub-ladder-three-7",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The doc tree stays at three levels; a subsection appears only when a section genuinely subdivides."
+        }
+      ],
+      "children": []
+    },
+    "b-sub-ladder-source-8": {
+      "id": "b-sub-ladder-source-8",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Below L3 the rungs live in the source — "
+        },
+        {
+          "insert": "in-code docs",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/10-doc-standards/50-in-code-docs"
+            }
+          }
+        },
+        {
+          "insert": " owns them."
+        }
+      ],
+      "children": []
+    },
+    "b-struct-folders-heading-12": {
+      "id": "b-struct-folders-heading-12",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Folders and bundles"
+        }
+      ],
+      "children": []
+    },
+    "b-struct-bundle-13": {
+      "id": "b-struct-bundle-13",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A doc is a folder containing "
+        },
+        {
+          "insert": "doc.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — "
+        },
+        {
+          "insert": "10-authentication/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " holding a bundle, not "
+        },
+        {
+          "insert": "10-authentication.md",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". The folder name is the doc's address; the bundle inside is its state."
+        }
+      ],
+      "children": []
+    },
+    "b-struct-mirror-14": {
+      "id": "b-struct-mirror-14",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Implementation mirrors the source: "
+        },
+        {
+          "insert": "src/core/workflow/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " documents at "
+        },
+        {
+          "insert": "docs/20-implementation/10-core/10-workflow/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Cross-cutting concerns — logging, caching, error handling — get one primary home, never a scatter."
+        }
+      ],
+      "children": []
+    },
+    "b-struct-parent-15": {
+      "id": "b-struct-parent-15",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A section folder is itself a document: it carries its own "
+        },
+        {
+          "insert": "doc.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — the parent doc — introducing its immediate children, one level deep, one line each."
+        }
+      ],
+      "children": [
+        "b-struct-abstract-sub-34"
+      ]
+    },
+    "b-struct-abstract-sub-34": {
+      "id": "b-struct-abstract-sub-34",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An abstract, not a table of contents: after reading it, a reader can explain the domain and descends only where the task lives."
+        }
+      ],
+      "children": []
+    },
+    "b-struct-threshold-16": {
+      "id": "b-struct-threshold-16",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A topic becomes a folder when it needs about three related docs or has clear room to grow; until then it stays a single doc. A folder holding only its parent doc plus one child collapses back into a single doc."
+        }
+      ],
+      "children": []
+    },
+    "b-struct-why-heading-22": {
+      "id": "b-struct-why-heading-22",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why"
+        }
+      ],
+      "children": []
+    },
+    "b-swhy-disk-1": {
+      "id": "b-swhy-disk-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "On disk, next to the code",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "pm-mruqiaw3-70-eulpj5"
+      ]
+    },
+    "pm-mruqiaw3-70-eulpj5": {
+      "id": "pm-mruqiaw3-70-eulpj5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every doc is a folder in the repo, versioned with the source it describes."
+        }
+      ],
+      "children": [
+        "b-swhy-disk-sub1-2",
+        "b-swhy-disk-sub2-3"
+      ]
+    },
+    "b-swhy-disk-sub1-2": {
+      "id": "b-swhy-disk-sub1-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An agent reads and edits it with plain file access — no special tooling."
+        }
+      ],
+      "children": []
+    },
+    "b-swhy-disk-sub2-3": {
+      "id": "b-swhy-disk-sub2-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Docs and code change in the same place, so they track together."
+        }
+      ],
+      "children": []
+    },
+    "b-swhy-progressive-4": {
+      "id": "b-swhy-progressive-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Progressive disclosure",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "pm-mruqiaw3-71-ysc304"
+      ]
+    },
+    "pm-mruqiaw3-71-ysc304": {
+      "id": "pm-mruqiaw3-71-ysc304",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Read only what the task needs."
+        }
+      ],
+      "children": [
+        "pm-mruqiaw3-73-9f25vw",
+        "pm-mruqiaw3-74-v2osif"
+      ]
+    },
+    "pm-mruqiaw3-73-9f25vw": {
+      "id": "pm-mruqiaw3-73-9f25vw",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The concept doc points at a source file; the file's header says whether to keep going; docstrings answer for each function."
+        }
+      ],
+      "children": []
+    },
+    "pm-mruqiaw3-74-v2osif": {
+      "id": "pm-mruqiaw3-74-v2osif",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each level rules the next in or out — no scattered hunting."
+        }
+      ],
+      "children": []
+    },
+    "b-swhy-place-7": {
+      "id": "b-swhy-place-7",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A clear place for everything",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "pm-mruqiaw3-72-wt6df5"
+      ]
+    },
+    "pm-mruqiaw3-72-wt6df5": {
+      "id": "pm-mruqiaw3-72-wt6df5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The structure answers where a thing lives and where a new thing goes."
+        }
+      ],
+      "children": [
+        "b-swhy-place-sub1-8",
+        "b-swhy-place-sub2-9"
+      ]
+    },
+    "b-swhy-place-sub1-8": {
+      "id": "b-swhy-place-sub1-8",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A human files and finds by walking the numbered tree."
+        }
+      ],
+      "children": []
+    },
+    "b-swhy-place-sub2-9": {
+      "id": "b-swhy-place-sub2-9",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An agent searches along the same explicit structure instead of guessing."
+        }
+      ],
+      "children": []
+    }
+  }
+}

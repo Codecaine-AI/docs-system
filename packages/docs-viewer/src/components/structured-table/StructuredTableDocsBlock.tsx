@@ -1,6 +1,20 @@
 "use client";
 
 import { cn } from "../../ui/cn";
+import {
+  TABLE_BODY_CELL_TEXT_CLASSES,
+  TABLE_CELL_SPACING_CLASS,
+  TABLE_COLUMN_GAP_CLASS,
+  TABLE_ELEMENT_CLASSES,
+  TABLE_HEAD_CLASSES,
+  TABLE_HEADER_CELL_TEXT_CLASSES,
+  TABLE_LAST_COLUMN_CLASS,
+  TABLE_ROW_HOVER_CLASSES,
+  TABLE_ROW_RULE_CLASSES,
+  TABLE_SECTION_CLASSES,
+  TABLE_TITLE_CLASSES,
+  TABLE_WRAPPER_CLASSES,
+} from "./table-classes";
 
 export const STRUCTURED_TABLE_LABEL = "Structured Table";
 
@@ -8,11 +22,6 @@ export const STRUCTURED_TABLE_AGENT_DESCRIPTION =
   'A structured table rendered from typed props: { title?: string; density?: "compact" | "normal" | "relaxed"; columns: string[]; rows: string[][] }. `columns` is the header row; each entry in `rows` is one body row whose cells align positionally with `columns` (short rows are padded with empty cells). `density` is accepted for schema compatibility; visual spacing is controlled by theme tokens.';
 
 export type StructuredTableDensity = "compact" | "normal" | "relaxed";
-
-const CELL_SPACING_CLASS =
-  "py-[length:var(--docs-table-cell-pad-y,10px)] pl-0";
-const COLUMN_GAP_CLASS =
-  "pr-[length:var(--docs-table-cell-pad-x,16px)]";
 
 /**
  * Structured table block. Data arrives as structured props (no body parsing):
@@ -34,24 +43,24 @@ export function StructuredTableBlock({
 }) {
   return (
     <section
-      className="not-prose my-4"
+      className={TABLE_SECTION_CLASSES}
       data-docs-block-type="structured-table"
       data-source-id={id}
     >
-      {title && (
-        <div className="mb-1.5 text-sm font-medium text-foreground">{title}</div>
-      )}
-      <div className="overflow-auto rounded-md border border-[color:var(--docs-table-border,transparent)] bg-background">
-        <table className="w-full border-collapse text-left leading-[1.55]">
-          <thead className="border-b border-solid border-b-[length:var(--docs-table-header-rule-width,1.5px)] border-b-[color:color-mix(in_srgb,var(--docs-table-header-rule,var(--docs-table-header-fg,currentColor))_calc(var(--docs-table-header-rule-opacity,0.5)*100%),transparent)] bg-[color:var(--docs-table-header-bg,transparent)] text-[color:var(--docs-table-header-fg,currentColor)]">
+      {title && <div className={TABLE_TITLE_CLASSES}>{title}</div>}
+      <div className={TABLE_WRAPPER_CLASSES}>
+        <table className={TABLE_ELEMENT_CLASSES}>
+          <thead className={TABLE_HEAD_CLASSES}>
             <tr>
               {columns.map((column, columnIndex) => (
                 <th
                   key={`${column}-${columnIndex}`}
                   className={cn(
-                    CELL_SPACING_CLASS,
-                    "align-top text-[length:calc(var(--docs-table-font-size,14px)-1px)] font-medium",
-                    columnIndex === columns.length - 1 ? "pr-0" : COLUMN_GAP_CLASS,
+                    TABLE_CELL_SPACING_CLASS,
+                    TABLE_HEADER_CELL_TEXT_CLASSES,
+                    columnIndex === columns.length - 1
+                      ? TABLE_LAST_COLUMN_CLASS
+                      : TABLE_COLUMN_GAP_CLASS,
                   )}
                 >
                   {column}
@@ -64,18 +73,19 @@ export function StructuredTableBlock({
               <tr
                 key={`${id}-row-${rowIndex}`}
                 className={cn(
-                  "transition-colors hover:bg-muted/20",
-                  rowIndex !== rows.length - 1 &&
-                    "border-b border-solid border-b-[length:var(--docs-table-row-rule-width,1px)] border-b-[color:color-mix(in_srgb,var(--docs-table-row-rule,var(--border))_calc(var(--docs-table-row-rule-opacity,1)*100%),transparent)]",
+                  TABLE_ROW_HOVER_CLASSES,
+                  rowIndex !== rows.length - 1 && TABLE_ROW_RULE_CLASSES,
                 )}
               >
                 {columns.map((column, columnIndex) => (
                   <td
                     key={`${column}-${columnIndex}`}
                     className={cn(
-                      CELL_SPACING_CLASS,
-                      "align-top text-[length:var(--docs-table-font-size,14px)]",
-                      columnIndex === columns.length - 1 ? "pr-0" : COLUMN_GAP_CLASS,
+                      TABLE_CELL_SPACING_CLASS,
+                      TABLE_BODY_CELL_TEXT_CLASSES,
+                      columnIndex === columns.length - 1
+                        ? TABLE_LAST_COLUMN_CLASS
+                        : TABLE_COLUMN_GAP_CLASS,
                     )}
                   >
                     {row[columnIndex] ?? ""}

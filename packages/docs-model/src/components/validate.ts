@@ -9,6 +9,7 @@ import { fileTreeComponent } from "./file-tree";
 import { interactionSurfaceComponent } from "./interaction-surface";
 import { mermaidComponent } from "./mermaid";
 import { richTextComponent } from "./rich-text";
+import { sequenceComponent } from "./sequence";
 import { structuredTableComponent } from "./structured-table";
 import type { ComponentBundle } from "./types";
 
@@ -20,6 +21,7 @@ const COMPONENTS: readonly ComponentBundle[] = [
   structuredTableComponent,
   interactionSurfaceComponent,
   canvasComponent,
+  sequenceComponent,
 ];
 
 const stateChecks = new Map(

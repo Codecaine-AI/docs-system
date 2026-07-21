@@ -1,0 +1,106 @@
+{
+  "version": 1,
+  "id": "agent-edit-flow",
+  "title": "Agent edit flow",
+  "participants": [
+    {
+      "id": "agent",
+      "name": "agent",
+      "kind": "actor"
+    },
+    {
+      "id": "server",
+      "name": "server",
+      "kind": "participant",
+      "label": "docs-server"
+    },
+    {
+      "id": "sidecar",
+      "name": "sidecar",
+      "kind": "participant",
+      "label": "Sidecar store"
+    },
+    {
+      "id": "workbench",
+      "name": "workbench",
+      "kind": "participant",
+      "label": "Workbench"
+    }
+  ],
+  "items": [
+    {
+      "kind": "message",
+      "id": "m1",
+      "from": "agent",
+      "to": "server",
+      "line": "sync",
+      "text": "POST /api/ops (sequence.setProgram)"
+    },
+    {
+      "kind": "fragment",
+      "id": "f1",
+      "op": "alt",
+      "operands": [
+        {
+          "guard": "stale hash",
+          "items": [
+            {
+              "kind": "message",
+              "id": "m2",
+              "from": "server",
+              "to": "agent",
+              "line": "return",
+              "text": "409 conflict"
+            }
+          ]
+        },
+        {
+          "items": [
+            {
+              "kind": "message",
+              "id": "m3",
+              "from": "server",
+              "to": "sidecar",
+              "line": "sync",
+              "text": "validate + atomic write"
+            },
+            {
+              "kind": "message",
+              "id": "m4",
+              "from": "sidecar",
+              "to": "server",
+              "line": "return",
+              "text": "new hash"
+            },
+            {
+              "kind": "message",
+              "id": "m5",
+              "from": "server",
+              "to": "workbench",
+              "line": "async",
+              "text": "SSE: sequence updated"
+            },
+            {
+              "kind": "message",
+              "id": "m6",
+              "from": "server",
+              "to": "agent",
+              "line": "return",
+              "text": "200 + patch id"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "note",
+      "id": "n1",
+      "anchor": "server",
+      "side": "right",
+      "text": "every write lands in the patch ledger, so POST /api/undo can replay the inverse"
+    }
+  ],
+  "style": {
+    "accent": "#C77D2E"
+  }
+}

@@ -30,6 +30,10 @@ describe("file-tree state", () => {
     expect(Value.Check(FileTreeState, props)).toBe(false);
   });
 
+  it("rejects the removed title property", () => {
+    expect(Value.Check(FileTreeState, { ...treeFixture.props, title: "Layout" })).toBe(false);
+  });
+
   it("rejects a stray top-level property", () => {
     expect(Value.Check(FileTreeState, { ...treeFixture.props, stray: true })).toBe(false);
   });
@@ -38,8 +42,6 @@ describe("file-tree state", () => {
 describe("file-tree agent view", () => {
   it("renders the fixture byte-for-byte", () => {
     const expected = [
-      "**Module layout**",
-      "",
       "```",
       "  src/",
       "  ├── components/",

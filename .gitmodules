@@ -1,3 +1,6 @@
 [submodule "external/canvas"]
 	path = external/canvas
 	url = https://github.com/Codecaine-AI/canvas.git
+[submodule "external/sequence"]
+	path = external/sequence
+	url = https://github.com/Codecaine-AI/sequence.git

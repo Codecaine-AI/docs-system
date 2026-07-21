@@ -63,15 +63,16 @@ export function validateSpectreRef(value: unknown, path = "$"): SpectreRefValida
   }
   if (issues.length > 0) return { ok: false, issues };
 
-  return {
-    ok: true,
-    ref: {
-      kind: value.kind as "doc" | "source",
-      path: value.path as string,
-      symbol: typeof value.symbol === "string" ? value.symbol : undefined,
-      line: isFiniteNumber(value.line) ? value.line : undefined,
-      section: typeof value.section === "string" ? value.section : undefined,
-      label: typeof value.label === "string" ? value.label : undefined,
-    },
+  // Only defined keys — undefined-valued props would survive into the
+  // in-memory doc (serialization drops them, but key-counting equality in
+  // the editor's diff would see phantom differences).
+  const ref: SpectreRef = {
+    kind: value.kind as "doc" | "source",
+    path: value.path as string,
   };
+  if (typeof value.symbol === "string") ref.symbol = value.symbol;
+  if (isFiniteNumber(value.line)) ref.line = value.line;
+  if (typeof value.section === "string") ref.section = value.section;
+  if (typeof value.label === "string") ref.label = value.label;
+  return { ok: true, ref };
 }

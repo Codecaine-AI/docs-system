@@ -24,6 +24,7 @@ const CARRIES_TEXT = {
   "file-tree": false,
   "interaction-surface": false,
   canvas: false,
+  sequence: false,
 } as const;
 
 const ACTION_KEYS = [
@@ -40,6 +41,9 @@ const ACTION_KEYS = [
   "interaction-surface.addOperation",
   "interaction-surface.removeOperation",
   "interaction-surface.updateOperation",
+  "sequence.setProgram",
+  "sequence.setStyle",
+  "sequence.setTitle",
   "structured-table.addColumn",
   "structured-table.addRow",
   "structured-table.removeColumn",
@@ -121,6 +125,18 @@ describe("buildBlocksDiscovery", () => {
       "canvas.addConnection",
       "canvas.addAnnotation",
       "canvas.fitContainerToChildren",
+    ]);
+  });
+
+  it("serves the three sequence actions in lifted descriptor order", () => {
+    const sequence = buildBlocksDiscovery().components.find(
+      (component) => component.name === "sequence",
+    );
+
+    expect(sequence?.actions.map((entry) => entry.action)).toEqual([
+      "sequence.setProgram",
+      "sequence.setStyle",
+      "sequence.setTitle",
     ]);
   });
 

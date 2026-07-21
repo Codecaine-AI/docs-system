@@ -26,7 +26,13 @@
       "radius": 8,
       "borderStrength": 1,
       "backgroundTint": 0,
-      "sidebarTint": 0
+      "sidebarTint": 10
+    },
+    "sidebar": {
+      "textColor": null,
+      "font": "sans",
+      "fontSize": 15,
+      "padding": 4
     },
     "highlight": {
       "color": null,
@@ -61,6 +67,22 @@
       "color": null,
       "opacity": 0.7,
       "padding": 6
+    },
+    "peek": {
+      "width": 50,
+      "durationMs": 300,
+      "padding": 3,
+      "dividerColor": null,
+      "dividerWidth": 2.5,
+      "dividerStyle": "solid"
+    },
+    "reference": {
+      "color": "#262626",
+      "underlineColor": null,
+      "iconSize": 18,
+      "iconColor": "#9c9c9c",
+      "iconGap": 4,
+      "iconPosition": "before"
     },
     "grain": {
       "enabled": true,

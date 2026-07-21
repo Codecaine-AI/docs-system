@@ -11,6 +11,6 @@ This folder intentionally holds no doctrine.
 The philosophy and structural rationale that used to live here moved into the host corpus:
 
 - Intent and philosophy: `docs/00-foundation/00-manifesto`
-- Structural decisions and their rationale: `docs/10-system-design/10-doc-architecture`
+- Structural standards and their rationale: `docs/10-system-design/10-doc-standards/` (each standard is a child doc)
 
 Read them with `docs render <path>`.

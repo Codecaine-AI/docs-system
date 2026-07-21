@@ -79,20 +79,20 @@ docs-framework/
 
 ## Where the Why Lives
 
-This skill is imperative: it says what to do, not why. Rationale lives in the host corpus:
+This skill is operational: it says what to do. The canonical standards — rule, setup, and rationale together — live in the host corpus:
 
-- `docs/10-system-design/10-doc-architecture` — every structural decision (layers, folders-with-overviews, numbering, linking, doc↔code references) with its rationale
+- `docs/10-system-design/10-doc-standards/` — every structural standard (structure, numbering, cross-doc linking, code linking, in-code docs) as child docs of one section; titles/openings guidance lives in `writingstyle.md` at the repo root
 - `docs/00-foundation/00-manifesto` — the intent: knowledge transfer between humans and AI; docs define behavior; code is the projection of specs
 
-When a structural decision changes, update both together: the corpus design doc (why) and this skill (how).
+The `20-standards/` files here are operational copies, retained until a context loader renders standards directly from the corpus (the declared direction). When a standard changes, the corpus doc changes first and the copy here is synced in the same change.
 
 ## Reference
 
 | Topic | Location |
 |-------|----------|
-| Structural rationale | `docs/10-system-design/10-doc-architecture` (host corpus) |
+| Structural standards (canonical) | `docs/10-system-design/10-doc-standards/` (host corpus) |
 | Intent and philosophy | `docs/00-foundation/00-manifesto` (host corpus) |
-| State model and interaction surfaces | `docs/10-system-design/00-interaction-surfaces` (host corpus) |
-| Standards | `20-standards/` |
+| State model and interaction surfaces | `docs/10-system-design/20-interaction-surfaces` (host corpus) |
+| Standards (operational copies) | `20-standards/` |
 | Workflows | `30-workflows/` |
 | Templates | `40-templates/` |

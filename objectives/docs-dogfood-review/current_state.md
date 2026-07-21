@@ -1,7 +1,264 @@
 <current_state>
-<last_updated>2026-07-17 evening (round 2, second sitting closed: R2-D3..D12 landed — canvas embed de-framing, drag-select, page titles, drop-nesting root-cause fix)</last_updated>
+<last_updated>2026-07-20 (round 2, THIRD SITTING CLOSED: R2-D13 restructure + standards migration, R2-D14 docs audit, R2-D15 copy-out fix, R2-D16 block-paste fix; corpus 53, suite 1086/4/0. NEXT SITTING = the content read-through, resuming at the manifesto)</last_updated>
 
 <status>
+    - DOC-STANDARDS RESTRUCTURE (2026-07-20, fourth sitting, doc-by-doc
+      loop): Ford interviewed per doc; the section was RENAMED
+      10-doc-architecture → 10-doc-standards (his standing call, resolved)
+      and rebuilt to FIVE children: 10-structure (hierarchy-layers +
+      directory-structure MERGED; depth ladder GENERALIZED to every layer
+      — his call, it was implementation-pinned), 20-numbering (was 30),
+      30-cross-doc-linking (was 50-doc-linking; REWRITTEN around his four
+      link rules: canonical home only, first mention, no ancestor links,
+      link-as-claim; 50-doc-linking OPEN CALL RESOLVED via Decision
+      callout "top-down with canonical-home crossings" — the 14
+      block-vocab type-page up-references were unwrapped to plain text),
+      40-code-linking (was 60; + pointer to in-code docs), 50-in-code-docs
+      (NEW: file headers / docstrings / inline comments = the L4/L5
+      story). 40-titles-and-openings DELETED — ported to writingstyle.md
+      ("Titles and openings" section; Ford: style, not structure).
+      SECTION OVERVIEW fully rewritten earlier same sitting from his
+      framing (bet / many-agents scale rationale / layers table /
+      why-travels-with-decisions / file-tree of corpus shape).
+      Corpus 52 → 51. Moves via /api/move (section rename + 3 child
+      renumbers; NOTE: /api/move does NOT rewrite refs INSIDE the moved
+      subtree — swept by script). Scripts: .tmp/rewrite-docarch-overview-
+      v2.ts, .tmp/generalize-hier-ladder.ts (superseded by the merge),
+      .tmp/restructure-doc-standards.ts. Framework pointer lines re-pathed
+      (SKILL.md 5-standards list; 25-frontmatter-schema → writingstyle.md);
+      framework copy CONTENT still describes the old 6-doc split — sync
+      pending Ford / Phase C. Pipeline: goldens 51 regen, backlinks
+      51/114, links 0 stale, audit 3 errors (all the parallel session's
+      docs/assets) / 4 warnings (pre-existing W1+W4s). CASCADE NOTE for
+      the parallel session (or safe to do here if it stalls):
+      CORPUS_PATHS + counts now need 51 with the 10-doc-standards paths.
+    - LAID-OUT RESHAPE (same sitting, Ford's follow-up directive): the five
+      standards docs dropped their "In this corpus" prose sections; each
+      now flows "How it's laid out" (a REAL component: file-tree in
+      structure/numbering + the overview, annotated JSON code blocks in
+      cross-doc-linking/code-linking, an annotated TS header+docstring
+      excerpt in in-code-docs) → The rule → Why. Corpus facts moved into
+      component notes. GOTCHA: file-tree entries without a trailing "/"
+      render as FILES and sort after directories (00-foundation fell to
+      the bottom) — all tree entries now carry the "/" directory marker
+      (.tmp/tree-entries-dirslash.ts). Goldens 51, backlinks 51/114,
+      links 0 stale after reshape.
+    - DE-CORPUS + BULLETIZE (2026-07-21, Ford's directives: "Docs
+      Inception" self-reference out; bullets/sub-bullets are the writing
+      default): .tmp/decorpus-bulletize.ts swept "the corpus" phrasing to
+      "the docs"/"the doc tree" across the doc-standards section (14
+      replacements + 1 code-annotation note); every why-section is now
+      bold-lead fact bullets; in-code-docs' reading-flow para is a lead
+      bullet with 3 sub-bullets; the parent-doc abstract nests under its
+      rule bullet. writingstyle.md gained the bullets-and-sub-bullets
+      default rule (Structure section, first bullet). FORD LIVE EDITS
+      honored as disk truth: overview opener merged (H1 gone, bet folded
+      into first para), structure intro rebuilt with his Layer/Depth
+      bullets, litmus paragraph DELETED by him (bulletization skipped).
+      FLAGGED to Ford, not fixed: structure intro grammar slip "Every
+      doc's home is decided on two axes decide it". Goldens 51, backlinks
+      51/114, links 0 stale.
+    - SUBSTRUCTURE REFOCUS (2026-07-21, after Ford REWROTE the doc-
+      standards overview himself — layers table + why-bullets + sub-
+      bullets now live THERE): 10-structure refocused on L1–L6
+      (.tmp/structure-substructure-focus.ts) — layers section removed,
+      tree annotated L1/L2/L3, ladder table + 3 bullets, folders rules,
+      4 why bullets; Ford's litmus + purity deletions honored; his
+      two-axes intro replaced per the refocus (nested pm sub-bullets
+      dropped — workbench undo holds them; grammar-slip flag now moot).
+      20-numbering tree now shows mechanics incl. a marked hypothetical
+      25-new-standard mid-gap insertion. Goldens 51, backlinks 51/113,
+      links 0 stale. NOTE: purity test (design stays code-agnostic) now
+      lives NOWHERE after Ford deleted the callout — flag if he wants it
+      back somewhere (overview table row? structure why?).
+    - WHY SECTIONS FROM FORD'S DICTATION (2026-07-21, .tmp/why-sections-
+      ford.ts): STRUCTURE why = 3 lead bullets w/ subs — on disk next to
+      the code (plain file access, no special tooling, tracks with the
+      source), progressive disclosure (concept doc → file header →
+      docstrings; each level rules the next in or out), a clear place
+      for everything (humans walk the numbered tree; agents search the
+      same explicit structure). NUMBERING why = human-first/agent-second:
+      "Ordered for human reading" replaces the old read-order bullet
+      (Ford's misplaced "docs live alongside the repo" sub moved to
+      structure's on-disk bullet); NEW "A clean search path for agents";
+      his "Insertion is local" + "Exhaustion is a signal" kept VERBATIM.
+      Goldens 51, backlinks 51/112, links 0 stale.
+    - LINK OBJECTS + BULLET PATTERN (2026-07-21, Ford's directives at the
+      linking docs; numbering + structure APPROVED by him): doc ref =
+      {kind:"doc", path} — NO label field, the span text inlines the
+      target's name; code links = typed {kind:"source", path} spans
+      verified by links check. LANDED: (1) CODE — delta-markdown.ts
+      renders references span-text-first (and wraps inline marks, so
+      code-marked source refs keep backticks); convert.ts strips legacy
+      `label` from refs on save; reference-node.tsx no longer writes
+      label on insert; validateSpectreRef emits only DEFINED keys (the
+      old undefined-materializing rebuild made key-counting diff equality
+      see phantom edits); docs-cli links check now accepts DIRECTORY
+      source targets (package roots legal). (2) SWEEP (.tmp/link-objects-
+      and-bullets.ts): 112 labels dropped corpus-wide; 66 real-path code
+      spans → code+source-ref (existsSync-gated, hypothetical paths left
+      plain); fixture sample.doc.json label dropped. (3) DOCS — 30-cross-
+      doc-linking + 40-code-linking rewritten around the objects with
+      laid-out JSON examples; bold-label bullet pattern (label-only top
+      bullets, facts as sub-bullets — writingstyle.md rule added) applied
+      there + numbering/in-code-docs why+rule leads. TESTS: viewer 459/0
+      (delta-markdown + convert fixtures updated to label-less refs);
+      docs-model 4 fail = ALL parallel-owned (2 CORPUS_PATHS ENOENT,
+      count 53≠51, file-tree strict-write vs their uncommitted state.ts).
+      Backlinks 51 sources / 177 refs (was 112 — source refs now
+      indexed); links 0 stale. NOTE: pre-existing fs-watch.ts FSWatcher
+      typecheck error on committed code, untouched.
+    - FOURTH SITTING (2026-07-20, read-through) IN PROGRESS: baseline was
+      1086/4/0 after manifesto-golden regen. Ford rewrote the system-design
+      overview three times with the agent (final: primer, H2 per piece +
+      bullets, no in-doc H1). MID-SITTING RACE: a PARALLEL SESSION moved
+      ALL section overviews to folder-level doc.json (00-overview dirs
+      GONE: 10-system-design, 20-implementation, 20-doc-architecture,
+      30-data-model, 40-block-vocabulary, 10-rich-text, 40-theming, …)
+      and relaxed audit W3/W5 in docs-cli. Inbound refs were rewritten
+      (links 0 stale), goldens regenerated to disk (this session), but
+      CORPUS_PATHS in goldens.test.ts still pins old 00-overview paths →
+      docs-model suite RED (2 ENOENT fails) until that session finishes
+      its cascade. Ford chose: land v3 at the new folder-level path, leave
+      the cascade to the mover. If the parallel session stalls, finishing
+      CORPUS_PATHS + count here is safe and idempotent. Audit now 0 errors
+      / 3 warnings (W1 manifesto 5 H1s, W4 interaction-surfaces canvas
+      opener, W4 appendix heading opener). Open with Ford: rename
+      "doc architecture" → "doc standards"?
+    - SECTION REORDER (same sitting, Ford): doc-architecture now goes FIRST
+      in system design — /api/move swapped 20-doc-architecture→10-doc-
+      architecture and 10-interaction-surfaces→20-interaction-surfaces
+      (failures:[] both); descendant-ref sweep (.tmp/sweep-docarch-
+      renumber.ts) fixed the doc-arch overview's child refs; 30-numbering's
+      example span order swapped; framework .md pointer paths swept (10
+      files). System-design overview v4: doc-arch section first with Ford's
+      rationale. Doc-arch overview OPENER REWRITTEN (.tmp/rewrite-docarch-
+      opener.ts) with Ford's framing: docs define the function w/o code;
+      hand docs to a stronger model → better system, code = output; the
+      structure answers "this changes here, so it goes like this". Kept:
+      three layers, obligation blocks, standards callout + body. Ledger
+      re-pathed for renumber + folder-level moves. Pipeline: goldens 53
+      regen, backlinks 129, links 0 stale, audit 0/3. docs-model suite:
+      339 pass / 5 fail — 2 = stale CORPUS_PATHS (parallel session's
+      cascade, now also needs my renumber), 3 = parallel session's
+      IN-FLIGHT sequence-block registry work (buildBlocksDiscovery x2,
+      collectRegistryIssues; external/sequence submodule + docs-model
+      components/sequence appeared mid-sitting; transient module-resolve
+      breakage cleared on its own).
+    - MATTER-OF-FACT PASS (same sitting): Ford hand-rewrote the overview's
+      Docs Architecture section as the style exemplar (short declarative
+      sentences, fact bullets, no flourishes; opener paragraph deleted —
+      page now starts at the H2, audit W4 flags it, his call). Agent
+      matched the four remaining sections via .tmp/matter-of-fact-sd-tail
+      .ts (splice from surfaces-H2 down; Ford's blocks untouched). His
+      framing kept: "each doc is a canonical JSON object with two
+      rendering surfaces, one per reader type". Grammar slip left in his
+      para ("allowing every new piece of knowledge has one clear home") —
+      flagged to him. NEW AUDIT ERRORS (parallel session): docs/assets +
+      docs/assets/sequences fail E2/E4 (non-numbered, no doc.json) — the
+      sequence workstream parked assets inside the corpus root; needs
+      that session to move them or the audit to learn an assets exemption.
+    - WRITING STYLE HOME (Ford's call, same sitting): writing style is
+      AGENT GUIDANCE, NOT system design. Top-level writingstyle.md is the
+      one home (register + structure + block conventions + anti-patterns
+      + why, ported in full). DELETED: the corpus 70-writing-standards
+      bundle (corpus 53→52; goldens 52 regen; backlinks 127; links 0
+      stale) and framework 20-standards/60-writing-standards.md (existed
+      ~minutes). Doc-arch overview: "Six standards", writing-standards
+      list item dropped; sd-overview enumeration + SKILL.md L84 updated;
+      20-standards/00-overview.md notes the writingstyle.md pointer.
+      Cascade note: count assertion + CORPUS_PATHS now need 52/no-70-
+      writing-standards (parallel session owns that file).
+    - R2-D16 (2026-07-20, after D15): BLOCK PASTE STRUCTURE FIXED. Ford:
+      pasted content lost layout — H1s died, everything merged into one
+      giant block. Clipboard HTML was FINE (data-pm-slice intact); the
+      structure died at PM's paste FITTING: text blocks' "docBlockText
+      block*" content lets replaceSelection nest pasted siblings into
+      the caret block's child slot (same schema trap as the D10
+      staircase), and D15's open band slices even dropped a lone banded
+      H1's type. FIX: new editor/input/block-paste.ts (DocBlockPaste —
+      block-run pastes insert whole blocks at TOP LEVEL: empty caret
+      replaced, start/end insert before/after, mid-text splits; inline/
+      partial pastes keep PM default merge); drag-select transformCopied
+      ships the band's CLOSED top-level slice; heading level now encoded
+      by h1..h6 tag only and listItem ordered via data-doc-ordered
+      (fixes latent string-typed level/ordered attr leak). External
+      multi-block HTML pastes also improved (h2+p+p, ol/li land as
+      separate blocks). 9 new tests (clipboard-block-paste.test.ts);
+      no existing assertions changed. Suite 1086/4/0 after regen (below).
+      Awaiting Ford's visual check.
+    - GOLDEN REGEN (post-D16): manifesto + 20-implementation/00-overview
+      + 30-save-pipeline + component-themes doc.json changed on disk =
+      Ford's live edits during his copy/paste testing; goldens
+      regenerated over disk truth (the standing convention), backlinks
+      53/135, links 0 stale, audit 0 errors / 6 warnings.
+    - R2-D15 (2026-07-20, same sitting): COPY-OUT BUG FIXED. Ford
+      reported copy dead (paste-in fine). Root cause: the R2-D9 band
+      multi-selection was decorations-only — no real PM selection, and
+      the preventDefaulted mousedown left the editor unfocused, so Cmd+C
+      copied a stale collapsed caret. Fix in drag-select.ts: new
+      exported rangeSelection() (TextSelection.between walked to
+      text bounds; NodeSelection fallback for atom-only runs); an
+      appendTransaction on the plugin now backs EVERY range meta
+      (band, grip multi-drop, dragstart) with a real selection;
+      view.focus() on band mouseup; Escape collapses selection + clears
+      state. Decorations/geometry/UX unchanged; cut works via PM
+      defaults. Electron shell + R2-D2 clipboard serializers + the
+      parallel session's structured-table diff all EXONERATED by
+      diagnosis. 6 new tests (copied-slice regression). Suite 1077/4/0.
+      NOTE (deliberate): shouldStartBand NOT loosened — off-glyph
+      presses (run-out beside a line, empty paragraph, gaps) still start
+      the band per Ford's R2-D9 screenshot-drag ask; now those band
+      selections COPY correctly. If Ford wants off-glyph presses to do
+      native text selection instead, that's a follow-up predicate
+      change. Awaiting Ford's visual check.
+    - THIRD SITTING (2026-07-20): R2-D13 + R2-D14 LANDED — the corpus was
+      RESTRUCTURED to Ford's 6-step narrative flow and the framework
+      standards were migrated into first-class system-design docs.
+      NEW TREE: 10-system-design/{00-overview (NEW spine doc),
+      10-interaction-surfaces (was 00), 20-doc-architecture/ (now a
+      SECTION: 00-overview = ex-10-doc-architecture reworked + SEVEN new
+      standards docs 10-hierarchy-layers, 20-directory-structure,
+      30-numbering, 40-titles-and-openings, 50-doc-linking,
+      60-code-linking, 70-writing-standards — each doc = rule + setup +
+      rationale, authored from packages/framework/20-standards + cookbook
+      + scattered type-page standards), 30-data-model/ (was 20; gained
+      60-mutation-model, was top-level 40), 40-block-vocabulary/ (was 30),
+      50-package-boundaries (NEW design doc: why seven, forcing
+      constraints, 3 boundary-review callouts, schema authority)};
+      20-implementation/10-packages/ (the nine ex-50-packages docs;
+      00-overview reframed as "Package map"); 10-package-map DELETED
+      (absorbed). Corpus 45→53. 34 bundle moves via /api/move (all
+      failures:[] clean); all inbound refs auto-rewritten.
+    - FRAMEWORK CONTRACT FLIPPED (R2-D13): the corpus standards docs are
+      CANONICAL (rule AND rationale); packages/framework/20-standards/*
+      are operational copies — every Rationale: line now reads
+      "Canonical: docs/… — this file is the operational copy"; SKILL.md
+      "Where the Why Lives" rewritten to match. Cookbook/workflows/
+      templates unchanged (operational, per Ford). PHASE C (planned, not
+      started): a context loader that renders standards straight from the
+      corpus per phase, after which the copies die.
+    - R2-D14: NEW `bun run docs audit docs` in docs-cli — E1-E4
+      structural errors (dup prefixes, non-numbered entries, missing
+      00-overview in multi-child sections [root exempt], invalid
+      bundles; exit 1) + W1-W5 convention warnings (multi-H1, missing
+      alt, 00-slot non-overview, non-paragraph opener, dense numbering;
+      exit 0). 20 fixture tests; framework scripts/audit.py DELETED,
+      30-workflows/70-audit.md rewritten. Live corpus: 0 errors,
+      6 warnings (manifesto has FIVE H1s; interaction-surfaces opens
+      with a canvas block; 99-appendix opener) — read-through fodder.
+    - Suite state: make check 1071 pass / 4 skip / 0 fail (1075 tests;
+      first run showed the documented stale-SPA 5000ms flake, cleared by
+      make spa). Links 0 stale; backlinks 53 sources / 135 refs; goldens
+      53 regenerated; CORPUS_PATHS + count assertion (fifty-three)
+      updated. Ledger fully re-pathed with 53 rows + 9 new
+      "needs Ford's read" rows.
+    - PROCESS NOTE: all work by Fable sub-agents (mover, 2 authors,
+      framework retargeter, audit builder, cascade). Two workers
+      initially launched codex exec per global CLAUDE.md; both were
+      stopped, reverted codex output, and redid the work directly —
+      final diffs are 100% Fable-authored. Worker prompts must state the
+      no-codex objective rule EXPLICITLY up front.
     - ROUND 2 in progress, SECOND SITTING CLOSED (2026-07-17 evening).
       This sitting landed ten directives, R2-D3..R2-D12 (full detail per
       directive in <completed>): canvas embed de-framed + content-fitted
@@ -28,13 +285,17 @@
       45 sources / 119 refs. Corpus still 45 docs; content changed by:
       staircase repair (00-interaction-surfaces), 21 title-strips, and
       Ford's own live edits (goldens regenerated over disk truth ~6x).
-    - UNCOMMITTED SCOPE NOW SPANS TWO REPOS: everything above in
-      docs-system, PLUS the canvas sibling repo
-      (~/Github Repos/Codecaine/canvas, on main with Ford's own changes):
-      fit=content renderer option (static-svg.ts, types.ts,
-      canvas-file-api.ts, 2 renderer tests) and the restructured
-      canvases/interaction-surfaces.canvas.json. Commit strategy is
-      OVERDUE — see next_actions.
+    - COMMITS LANDED (reconciled 2026-07-17 third sitting): Ford committed
+      the sitting's work himself — docs-system 74209d8 "changes" (16:03)
+      + 24dc1b7 "bump" (17:26) capture R2-D1..D12; canvas repo da2e096
+      "updates" captures fit=content (static-svg.ts, types.ts,
+      canvas-file-api.ts) plus an unrelated layout-lab app. STILL
+      UNCOMMITTED: docs-system — a 2-line doc-comment edit in
+      StyleRail.tsx (components override comment, likely the parallel
+      theme session's); canvas repo — the D8 containment restructure of
+      canvases/interaction-surfaces.canvas.json (the committed version is
+      the older combined-label layout). Commit strategy is no longer
+      overdue.
     - NEW CANON VOCABULARY (unchanged from first sitting, memory saved):
       "projection" = specs→code ONLY; per-reader forms are RENDERED
       INTERACTION SURFACES (human = workbench editor, agent = rendered
@@ -312,29 +573,55 @@
 </completed>
 
 <in_progress>
-    - THE CORE OF ROUND 2 IS STILL OPEN: the per-doc CONTENT read-through.
-      Ford reads each doc in the workbench for accuracy/voice and issues
-      directives; the ledger walk resumes at docs/00-foundation/00-manifesto
-      and proceeds in tree order (00-interaction-surfaces →
-      10-doc-architecture → 20-data-model → …). This second sitting was
-      consumed ENTIRELY by editor/UX directives (D3-D12) — zero ledger
-      READ verdicts were recorded; rows still say "needs Ford's read".
-    - Ford was actively editing 00-interaction-surfaces this sitting (The
-      Issue / The Solution / Shared State sections are his live text) and
-      may still be mid-rewrite of the manifesto opening. Two mid-edit
-      artifacts were deliberately left in the manifesto for him earlier:
-      the broken opening sentence ("…our species is not any specific
-      entity.") and the orphaned fragment "software needs that channel —
-      and because…". Verify they're still relevant before flagging.
-    - Awaiting Ford's visual check (fresh session should ask): D12 title
-      rename (the click fix landed AFTER his last test — plan in chat
-      history; re-give it), the borderless drag-select rect, and the
-      page-title look across docs that kept a richer opening H1.
+    - THE CORE OF ROUND 2 IS NOW THE ACTIVE WORK: the per-doc CONTENT
+      read-through, in the NEW 53-doc tree. Ford's stated mode
+      (2026-07-20): he walks the docs in order, REWORDING/REWRITING as
+      he goes — "right now it's not really laid out properly" — with the
+      agent landing directives per doc. He believes the manifesto is
+      up to date (note: audit W1 says it carries FIVE level-1 headings —
+      worth a look while he's in it). Walk order = the new tree:
+      00-manifesto → 10-system-design/00-overview → 10-interaction-
+      surfaces → 20-doc-architecture (overview + 7 standards docs, ALL
+      unread new authorship) → 30-data-model (7) → 40-block-vocabulary
+      (16) → 50-package-boundaries (new) → 20-implementation (…). Ledger
+      rows carry the per-doc annotations (vocab sweep / title strip /
+      audit Wn / needs-read).
+    - Zero READ verdicts recorded so far in round 2; the nine 2026-07-20
+      docs (spine overview, 7 standards, package-boundaries) plus the
+      reframed Package map are agent-authored and unread.
+    - Awaiting Ford's visual checks (re-give plans from 07-20 chat if
+      needed): R2-D15 copy-out (band copy → paste out), R2-D16 block
+      paste structure (blocks re-separate, H1 survives, mid-text split,
+      inline pastes still merge), and carried older items: D12 title
+      rename, borderless band rect, page-title look on kept-H1 docs.
 </in_progress>
 
 <next_actions>
-    - FIRST: Ford re-tests the D12 title rename (click title → caret in;
-      rename → sidebar follows, prefix kept; Escape reverts). If he
+    - FIRST (next sitting): resume the read-through at 00-manifesto and
+      walk the new tree in order. Per doc: Ford reads + rewords/rewrites
+      (his live edits are disk truth — regen goldens over them at each
+      close), issues directives, agent lands them, ledger row gets a
+      verdict. Standing sub-decisions to collect as he passes: the
+      50-doc-linking open call (strict top-down vs up-references), kept
+      opening H1s (page title + H1 stack), the block-vocabulary
+      overview's wrong numbering-axis claim, audit W1/W4 findings,
+      70-framework "what it owns" wording (predates standards
+      migration), save-pipeline vs 30-docs-server dedupe.
+    - COMMIT (still pending, Ford's call): the ENTIRE third sitting is
+      uncommitted — R2-D13 moves (git shows D + untracked pairs), 9 new
+      + 1 deleted bundles, goldens, framework edits, docs-cli audit,
+      D15/D16 viewer fixes — PLUS the parallel session's structured-
+      table/viewer work. Do NOT blend them into one commit blindly;
+      suggest: one commit for the restructure+standards+audit batch,
+      one for D15+D16 clipboard fixes, structured-table rides with its
+      own session.
+    - PHASE C (approved direction, not scheduled): context loader that
+      renders standards from the corpus per phase (authoring / code-
+      writing); then delete the framework operational copies.
+    - Audit warnings to resolve during read-through: manifesto 5 H1s,
+      interaction-surfaces canvas opener, 99-appendix heading opener.
+    - Carried: Ford re-tests the D12 title rename (click title → caret
+      in; rename → sidebar follows, prefix kept; Escape reverts). If he
       renames a REAL corpus doc and keeps it, the agent must run the
       rename cascade: CORPUS_PATHS in goldens.test.ts, golden file
       rename/regen, backlinks rescan, links check.
@@ -343,13 +630,10 @@
       row gets a verdict. Also collect his per-doc call on kept opening
       H1s (page title + richer H1 now stack — retitle folder, reword H1,
       or leave).
-    - COMMIT STRATEGY (overdue, Ford's call): the uncommitted tree now
-      holds R2-D1..D12 in docs-system plus fit=content + the restructured
-      interaction-surfaces canvas in the CANVAS sibling repo. Suggest:
-      one docs-system commit for R2-D1/D2 (foundation + paste fix), one
-      for the D3-D12 editor/UX batch, one canvas-repo commit for
-      fit=content + the canvas doc; D19's themes/default/ rides with the
-      theme workstream (parallel session's note).
+    - COMMIT STRATEGY: resolved — Ford committed both repos 2026-07-17
+      (docs-system 74209d8+24dc1b7, canvas da2e096). Leftovers: the D8
+      canvas.json restructure is still uncommitted in the canvas repo,
+      and a 2-line StyleRail.tsx comment edit sits in docs-system.
     - Ford still to explicitly test from round 1: @-references, video
       drop, dark-mode sweep (scrollbar, grip, highlight), D18 grip
       click/fade, D19 Default living theme.

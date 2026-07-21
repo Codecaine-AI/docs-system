@@ -31,8 +31,6 @@ export const double = () =>
 | answer | 42 |
 | question | unknown |
 
-**Module layout**
-
 ```
   src/
   ├── components/
@@ -58,6 +56,8 @@ file-tree.removeEntry(path: string)
 >   A[Doc] --> B[Render]
 
 <!-- canvas: ./assets/canvases/sample.canvas.json view=container-architecture title="Architecture overview" -->
+
+<!-- sequence: ./assets/sequences/sample.sequence.json title="Login flow" -->
 
 ![Sample image](./assets/images/sample.png)
 *A bundled asset image (D30).*

@@ -22,6 +22,7 @@ import { SlashMenu, SlashMenuPopover } from "./menus/SlashMenu";
 import { DocReference, ReferenceMention, ReferenceMentionPopover } from "./menus/reference-node";
 import { LinkEditor, LinkEditorPopover } from "./menus/link-editor";
 import { buildDocInputRules } from "./input/input-rules";
+import { DocBlockPaste } from "./input/block-paste";
 import { VideoDropHandler, type UploadVideoAsset } from "./input/video-embed";
 import { ChangedFlash, setChangedFlashIds } from "./decorations/changed-flash";
 import { DocKeymap } from "./input/keymap";
@@ -63,6 +64,7 @@ export type DocEditorProps = {
   projectId?: string | null;
   documentPath?: string | null;
   renderCanvas?: DocBlockRenderContext["renderCanvas"];
+  renderSequence?: DocBlockRenderContext["renderSequence"];
   resolveAssetSrc?: DocBlockRenderContext["resolveAssetSrc"];
   /**
    * Host-injected asset uploader (same host-capability slot family as
@@ -127,6 +129,7 @@ export default function DocEditor({
   projectId,
   documentPath,
   renderCanvas,
+  renderSequence,
   resolveAssetSrc,
   uploadAsset,
   onApplyOps,
@@ -313,6 +316,11 @@ export default function DocEditor({
       // provider-URL PASTE path runs inside LinkEditor's handlePaste — see
       // input/video-embed.ts).
       DocVideoDrop,
+      // Block-shaped pastes (a copied run of blocks, in-app or cross-page)
+      // insert at the TOP LEVEL as whole blocks — PM's default fit would
+      // nest them into the caret block's `block*` slot and merge the first
+      // block's text (R2-D16; see input/block-paste.ts).
+      DocBlockPaste,
       DocInputRules,
       ChangedFlash,
       // Notion-style Enter/Backspace behavior (sibling paragraph after a
@@ -638,8 +646,8 @@ export default function DocEditor({
   }, [isDirty, projectId, documentPath, sessionId, client]);
 
   const nodeViewContextValue = useMemo(
-    () => ({ renderCanvas, resolveAssetSrc }),
-    [renderCanvas, resolveAssetSrc],
+    () => ({ renderCanvas, renderSequence, resolveAssetSrc }),
+    [renderCanvas, renderSequence, resolveAssetSrc],
   );
 
   if (!editor) return null;

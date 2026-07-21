@@ -1,6 +1,6 @@
 import type { DocBlock } from "@codecaine-ai/docs-model/doc-schema";
 import type { DocBlockDescriptor } from "../../render/block-registry";
-import { mdxAdapterDescriptor, stringProp } from "../../render/descriptor-helpers";
+import { mdxAdapterDescriptor } from "../../render/descriptor-helpers";
 import { FileTreeDocsBlock } from "./FileTreeDocsBlock";
 
 const FILE_TREE_CHANGES = ["added", "removed", "modified", "renamed"] as const;
@@ -29,7 +29,6 @@ export const descriptors: DocBlockDescriptor[] = [
     block: new FileTreeDocsBlock(),
     data: (block) => ({
       id: block.id,
-      title: stringProp(block, "title"),
       entries: fileTreeEntries(block),
     }),
   }),

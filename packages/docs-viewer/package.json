@@ -10,6 +10,7 @@
     "./client": "./src/client.tsx",
     "./bundle-src": "./src/render/bundle-src.ts",
     "./doc-block-renderer": "./src/render/DocBlockRenderer.tsx",
+    "./doc-peek-panel": "./src/peek/DocPeekPanel.tsx",
     "./plannotator": "./src/annotate/Plannotator.tsx",
     "./docs-block-library": "./src/render/DocsBlockLibrary.tsx",
     "./doc-targeting-layer": "./src/annotate/doc-targeting-layer.tsx",

@@ -19,6 +19,13 @@ export interface RunServeOptions {
   uiPort?: number;
   /** Rebuild the SPA even when a build already exists. */
   forceBuild?: boolean;
+  /**
+   * Serve as a theme CONSUMER: the viewer pins the repo default theme,
+   * hides the style rail, and the server refuses theme writes. For
+   * secondary apps that serve their docs with this framework but must
+   * inherit the primary docs-system theme rather than tune their own.
+   */
+  themeLocked?: boolean;
   log?: (message: string) => void;
 }
 
@@ -33,7 +40,14 @@ export async function runServe(options: RunServeOptions): Promise<void> {
   }
 
   if (options.dev) {
-    startDocsServe({ docsRoot, port, hostname, staticDir: null, watchFs: true });
+    startDocsServe({
+      docsRoot,
+      port,
+      hostname,
+      staticDir: null,
+      watchFs: true,
+      themeLocked: options.themeLocked,
+    });
     log(`[docs-workbench] API listening on http://${displayHost}:${port} (docs root: ${docsRoot})`);
     log(`[docs-workbench] Starting vite dev server (proxying /api -> :${port})...`);
     const viteArgs =
@@ -61,7 +75,14 @@ export async function runServe(options: RunServeOptions): Promise<void> {
   }
 
   const staticDir = await ensureSpaBuilt({ mode: "serve", force: options.forceBuild, log });
-  startDocsServe({ docsRoot, port, hostname, staticDir, watchFs: true });
+  startDocsServe({
+    docsRoot,
+    port,
+    hostname,
+    staticDir,
+    watchFs: true,
+    themeLocked: options.themeLocked,
+  });
   log(`[docs-workbench] Serving docs from ${docsRoot}`);
   log(`[docs-workbench] http://${displayHost}:${port}`);
 }

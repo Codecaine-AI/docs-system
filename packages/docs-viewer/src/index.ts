@@ -12,6 +12,7 @@
 export * from "./client";
 export * from "./annotate/annotations";
 export * from "./render/bundle-src";
+export * from "./render/doc-title";
 export * from "./render/block-registry";
 export * from "./annotate/docs-targeting";
 export * from "./annotate/useTransientHighlights";
@@ -40,3 +41,11 @@ export {
 } from "./annotate/doc-targeting-layer";
 export { default as DocsBlockLibrary } from "./render/DocsBlockLibrary";
 export { default as DocEditor, type DocEditorProps } from "./editor/DocEditor";
+export { DocPeekPanel, type DocPeekPanelProps } from "./peek/DocPeekPanel";
+export {
+  DOC_REFERENCE_NAVIGATE_EVENT,
+  type DocReferenceNavigateDetail,
+  type DocReferenceNavigateIntent,
+  type DocPeekState,
+  type DocPeekLoadState,
+} from "./peek/peek-state";

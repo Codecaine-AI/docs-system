@@ -11,7 +11,8 @@
     "packages/docs-server",
     "packages/docs-viewer",
     "packages/docs-workbench",
-    "external/canvas/packages/*"
+    "external/canvas/packages/*",
+    "external/sequence/packages/*"
   ],
   "scripts": {
     "docs": "bun packages/docs-cli/src/index.ts",

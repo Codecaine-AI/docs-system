@@ -1,7 +1,6 @@
 "use client";
 
 import type { DocBlock } from "../../doc-schema";
-import { stringProp } from "../projection-utils";
 import type { ComponentBundle } from "../types";
 
 type FileTreeChange = "added" | "removed" | "modified" | "renamed";
@@ -49,7 +48,6 @@ type FileTreeNode = {
  * sort, change-marker line prefixes, `  # note` suffixes.
  */
 function projectFileTree(block: DocBlock): string {
-  const title = stringProp(block, "title");
   const entries = fileTreeEntries(block);
 
   const root: FileTreeNode = { name: "", explicitDir: true, children: new Map() };
@@ -102,8 +100,7 @@ function projectFileTree(block: DocBlock): string {
   // Top-level nodes render flat (no guide); their descendants get guides.
   for (const top of sortChildren(root)) render(top, "", "");
 
-  const fence = "```\n" + lines.join("\n") + "\n```";
-  return title ? `**${title}**\n\n${fence}` : fence;
+  return "```\n" + lines.join("\n") + "\n```";
 }
 
 export const fileTreeAgentView: ComponentBundle["agentView"] = (block) => {

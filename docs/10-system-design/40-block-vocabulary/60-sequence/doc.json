@@ -1,0 +1,293 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-10-block-vocabulary-23-sequence",
+  "title": "sequence",
+  "root": "b-23-sequence-root",
+  "blocks": {
+    "b-23-sequence-root": {
+      "id": "b-23-sequence-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-23-sequence-lead-2",
+        "b-23-sequence-callout-3",
+        "b-23-sequence-program-4",
+        "b-23-sequence-embed-8",
+        "b-23-sequence-lang-5",
+        "b-23-sequence-program-6",
+        "b-23-sequence-studio-7"
+      ]
+    },
+    "b-23-sequence-lead-2": {
+      "id": "b-23-sequence-lead-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The sequence-diagram block of the "
+        },
+        {
+          "insert": "block vocabulary"
+        },
+        {
+          "insert": ": UML-style sequence diagrams rendered from a structured "
+        },
+        {
+          "insert": "SequenceDocument",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". The JSON document is the source of truth; a compact text program is the agent-facing projection — agents rewrite the whole program, and the language carries no styling, no coordinates, and no ids. The engine lives in the standalone sequence repo ("
+        },
+        {
+          "insert": "github.com/Codecaine-AI/sequence",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", a sibling checkout today, a future submodule at "
+        },
+        {
+          "insert": "external/sequence",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "external/sequence"
+            }
+          }
+        },
+        {
+          "insert": "); the docs-system block integration is upcoming."
+        }
+      ],
+      "children": []
+    },
+    "b-23-sequence-callout-3": {
+      "id": "b-23-sequence-callout-3",
+      "type": "callout",
+      "props": {
+        "title": "Replaces mermaid",
+        "tone": "info"
+      },
+      "text": [
+        {
+          "insert": "This block replaces the retired mermaid block. Sequence diagrams use this system; every other diagram type belongs to the "
+        },
+        {
+          "insert": "canvas",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/70-canvas"
+            }
+          }
+        },
+        {
+          "insert": " block."
+        }
+      ],
+      "children": []
+    },
+    "b-23-sequence-program-4": {
+      "id": "b-23-sequence-program-4",
+      "type": "code",
+      "props": {},
+      "text": [
+        {
+          "insert": "participant 1 text=user kind=actor\nparticipant 2 text=login label=\"Login page\"\nparticipant 3 text=db label=\"Database server\" stereotype=servlet\n\nseq\n  1 > 2 text=\"input(username, password)\"\n  2 > 3 text=\"fetch(username, password)\"\n  alt guard=fetching\n    3 --> 2 text=\"end fetching\"\n    2 > 1 text=success\n  else\n    2 --> 1 text=\"incorrect input\"\n  opt guard=\"needs confirmation\"\n    2 -> 3 text=confirm\n  note over=2 text=\"validates first\""
+        }
+      ],
+      "children": []
+    },
+    "b-23-sequence-embed-8": {
+      "id": "b-23-sequence-embed-8",
+      "type": "sequence",
+      "props": {
+        "src": "assets/sequences/login-flow.sequence.json",
+        "title": "Login flow"
+      },
+      "children": []
+    },
+    "b-23-sequence-lang-5": {
+      "id": "b-23-sequence-lang-5",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Language essentials: numbers are participant identity, "
+        },
+        {
+          "insert": "text=",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is a display name. Arrows are "
+        },
+        {
+          "insert": ">",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " sync, "
+        },
+        {
+          "insert": "->",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " async, "
+        },
+        {
+          "insert": "-->",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " return. "
+        },
+        {
+          "insert": "alt",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": "opt",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": "loop",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " fragments take "
+        },
+        {
+          "insert": "guard=",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and nest by indentation alone — there is no "
+        },
+        {
+          "insert": "end",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " keyword. "
+        },
+        {
+          "insert": "note",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " attaches "
+        },
+        {
+          "insert": "over",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": "left",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": "right",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " of a participant; activations are derived automatically. Styling lives in the document's separate style section, "
+        },
+        {
+          "insert": "never",
+          "attributes": {
+            "italic": true
+          }
+        },
+        {
+          "insert": " in the program."
+        }
+      ],
+      "children": []
+    },
+    "b-23-sequence-program-6": {
+      "id": "b-23-sequence-program-6",
+      "type": "code",
+      "props": {},
+      "text": [
+        {
+          "insert": "title \"Order distribution\"\nparticipant 1 text=order label=Order\nparticipant 2 text=careful label=\"Careful distributor\"\nparticipant 3 text=regular label=\"Regular distributor\"\nparticipant 4 text=messenger label=Messenger\n\nseq\n  loop guard=\"for each line item\"\n    alt guard=\"value > $15,000\"\n      1 > 2 text=dispatch\n    else\n      1 > 3 text=dispatch\n  opt guard=\"needs confirmation\"\n    1 -> 4 text=confirm"
+        }
+      ],
+      "children": []
+    },
+    "b-23-sequence-studio-7": {
+      "id": "b-23-sequence-studio-7",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Testing today happens in the sequence studio: run "
+        },
+        {
+          "insert": "bun run dev:studio",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in the sequence repo and open "
+        },
+        {
+          "insert": "http://localhost:3998",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    }
+  }
+}

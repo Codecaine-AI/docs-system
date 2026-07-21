@@ -29,4 +29,4 @@ concepts: [numbering, prefix, ordering, insertion]
 - Mixed formats (`1-intro`, `02-setup`, `section-3`).
 - `00-` on anything but an overview; `99-` on anything but appendix/meta.
 
-Rationale: docs/10-system-design/10-doc-architecture
+Canonical: docs/10-system-design/10-doc-standards/20-numbering — the corpus doc owns this standard (rule and rationale); this file is the operational copy.

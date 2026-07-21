@@ -1,26 +1,62 @@
-The most important technology our species is not any specific entity.
+# Intro
 
-It is the ability to transfer of knowledge from one mind to another, so that the next mind is able to pick up where the previous left off.
+The most powerful ability of our species is the ability to transfer of knowledge from one mind to another
+
+- This allowing so the next mind is able to pick up where the previous left off.
 
 Every leap in that technology shortened the distance between minds. 
 
-- Writing let knowledge outlive its author
+- Spoken / Physical language
 
-- Diagrams let it cross languages
+  - Transmission of knowledge from person to person
 
-- The internet gave everyone access to all the information around the world
+    - 1 to 1 knowledge transfer
 
-- AI gives us the ability to sift through the mountains of information
+    - Don't eat this berry, it kill you
 
-## The human interaction surface
+- Written language 
 
-Each step is the same move: a faster channel from one entity to another.
+  - Mass transmission capability
 
-This system exists because ideas are getting more and more complex, and we need a better way of representing them and then transferring them to other people (and AI).
+    - 1 to many possiblility
 
-software needs that channel — and because there are now two kinds of readers on the other end of it.
+    - Knowledge can outlive the author
 
-## The gap
+      - IE, don't need to tell everyone not to eat the berry
+
+- Diagrams
+
+  - 1 to many
+
+  - Conveys an idea
+
+  - Cross languages
+
+- The Internet 
+
+  - Near free access to all the information around the world
+
+  - New forms of media allowed for various flavors of 1 to many and many to many distribution
+
+- AI 
+
+  - Gives us the ability to sift through the mountains of information
+
+# The Issue
+
+In the age of AI, the ideas we need to represent are rapidly gaining in complexity
+
+- Before a system could be service that needs to balance users and such
+
+- Now everything is becoming and massively complex autonomous distributed system
+
+Simple mermaid diagrams and hacky flowcharts done in Excalibur no longer fit the bill required to do these massive projects.
+
+Further, as AI integrates to greater and greater capacities in our workflows, it can introduce slop and drift that we need to be able to fight against. 
+
+We need to be able to clearly represent ideas about what the system is designed to do so that the AI will follow our desired intent. 
+
+# The Gap
 
 In the physical disciplines, the knowledge is written down.
 
@@ -32,7 +68,7 @@ In the physical disciplines, the knowledge is written down.
 
 Software does not have this
 
-- The extent to most software is API reference
+- Most software is API reference
 
 - You are lucky if there is a single diagram in the docs
 
@@ -54,7 +90,7 @@ Agents ended both.
 
 - Tooling can now be easily made as what was once a whole product, has turned into a side project
 
-### Why we Need This
+# Why we Need This
 
 2 major shifts have happened with the advent of AI
 
@@ -62,59 +98,23 @@ Agents ended both.
 
 2. The projects you work on have meaningfully scaled in complexity
 
-They can carry the upkeep — and they raised the stakes, because one builder now runs several projects at once, each with the complexity that used to take a team. Comprehensive documentation stopped being a virtue. It became load-bearing.
+They can carry the upkeep — and they raised the stakes, because one builder now runs several projects at once, each with the complexity that used to take a team. 
 
-## Docs Define the Function
-
-This repository treats documentation the way mathematics treats a definition. 
-
-The docs define the function; the code is one implementation of it
-
-- A projection of the intent into a particular language, framework, and moment. 
-
-- Many projections satisfy the same definition. 
-
-  - Swap the backend's language tomorrow: 
-
-    - The implementation docs are rewritten, 
-
-    - The system design barely moves, and the foundation does not move at all. 
-
-- The layers are ordered by how fast they are allowed to change.
-
-> Code is a lossy projection of intent. Read only the code, and the why has already been projected away — every reader after you, human or agent, is left reverse-engineering what you meant.
-
-So the corpus keeps three layers. 
-
-1. Foundation holds the intent
-
-  1. What this is and why it exists. 
-
-2. System Design holds the behavior
-
-  1. What the system does, independent of any codebase.
-
-3. Implementation describes the current projection, and is allowed to churn. 
-
-A reader starts at the top and descends only as far as the task requires.
-
-A definition implies an obligation
-
-- If the docs say what the system should do, the system must be held to them. 
-
-- This corpus already keeps itself mechanically honest — every document's bytes and rendered markdown are pinned by tests — and behavior-level verification against the docs is the frontier this project is walking toward.
+Comprehensive documentation has become a non negotiatable.
 
 ## Trust is the point
 
-Agents write more of the code every month. 
+Agents will continue to write more and more code. 
 
-That only scales on trust, and trust does not come from reviewing diffs faster. 
+That only scales on trust.
 
-It comes from the behavior and its reasoning being locked in
+Trust does not come from reviewing diffs faster.
 
-- This is what the piece does, this is why it is this way
+Trust comes from knowing that the outputted code will match the initial intent you gave to the system. 
 
-- These are the decisions you do not quietly change. 
+The underpinning idea here is our current documentation pieces do not actually fully capture our design and intent, and thus agents fail to be effective
+
+- It is not their fault though as they are provided inferior intent
 
 - Written down, that turns autonomy from drift into expansion — the system builds on your design decisions instead of guessing past them.
 
@@ -128,7 +128,7 @@ Slop is what intent transfer looks like when it fails.
 
 ---
 
-## The conviction
+# The Conviction
 
 The docs are the durable artifact. The code is the current projection. 
 

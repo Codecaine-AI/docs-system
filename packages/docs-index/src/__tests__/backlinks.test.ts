@@ -400,6 +400,34 @@ describe("backlinks: queryInboundTolerant (heterogeneous stored forms)", () => {
     expect(rows).toHaveLength(3);
   });
 
+  test("finds a legacy 00-overview target when queried by the new section path", () => {
+    upsertForSource(db, "source-a/doc.json", [
+      {
+        sourceBlockId: "p1",
+        targetKind: "doc",
+        targetPath: "docs/10-system-design/00-overview.md",
+      },
+    ]);
+
+    const rows = queryInboundTolerant(db, "10-system-design");
+    expect(rows).toHaveLength(1);
+    expect(rows[0].targetPath).toBe("docs/10-system-design/00-overview.md");
+  });
+
+  test("finds a new canonical target when queried by its legacy 00-overview path", () => {
+    upsertForSource(db, "source-b/doc.json", [
+      {
+        sourceBlockId: "p1",
+        targetKind: "doc",
+        targetPath: "10-system-design",
+      },
+    ]);
+
+    const rows = queryInboundTolerant(db, "10-system-design/00-overview");
+    expect(rows).toHaveLength(1);
+    expect(rows[0].targetPath).toBe("10-system-design");
+  });
+
   test("still matches exact source-kind targets verbatim", () => {
     upsertForSource(db, "a/doc.json", [
       { sourceBlockId: "p1", targetKind: "source", targetPath: "apps/frontend/src/lib/types.ts" },

@@ -23,6 +23,7 @@
     "@codecaine-ai/docs-model": "workspace:*",
     "@codecaine-ai/docs-server": "workspace:*",
     "@codecaine-ai/docs-viewer": "workspace:*",
+    "@codecaine-ai/sequence": "workspace:*",
     "elysia": "^1.2.0",
     "lucide-react": "^0.563.0",
     "react": "^19",

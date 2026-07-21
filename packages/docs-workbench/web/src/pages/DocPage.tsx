@@ -15,6 +15,8 @@ import type {
   CommentsDocument,
 } from "@codecaine-ai/docs-model/comments-schema";
 import DocBlockRenderer, {
+  // Shared with the side-peek panel so the two surfaces cannot drift apart.
+  DOC_SURFACE_TYPOGRAPHY_CLASSES,
   type DocBlockSaveResult,
 } from "@codecaine-ai/docs-viewer/doc-block-renderer";
 import DocEditor, {
@@ -26,6 +28,7 @@ import { useTransientHighlights } from "@codecaine-ai/docs-viewer/use-transient-
 import {
   resolveBundleAssetSrc,
   resolveBundleCanvasSrc,
+  resolveBundleSequenceSrc,
 } from "@codecaine-ai/docs-viewer/bundle-src";
 import { cn } from "@codecaine-ai/docs-viewer/ui/cn";
 
@@ -48,6 +51,7 @@ import {
 import { docSegmentFromTitle, docTitleFromPath } from "../lib/doc-title";
 import { ActionPane } from "./ActionPane";
 import { StandaloneCanvasEmbed } from "./CanvasEmbed";
+import { StandaloneSequenceEmbed } from "./SequenceEmbed";
 
 /**
  * One doc bundle as a full workbench (standalone), two modes:
@@ -622,6 +626,18 @@ export function DocPage({
     [path],
   );
 
+  const renderEditorSequence = useCallback(
+    (input: { id: string; sequenceId?: string; src?: string; title?: string }) => (
+      <StandaloneSequenceEmbed
+        id={input.id}
+        sequenceId={input.sequenceId}
+        src={input.src ? resolveBundleSequenceSrc(path, input.src) : undefined}
+        title={input.title}
+      />
+    ),
+    [path],
+  );
+
   const handleModeChange = useCallback((next: WorkbenchMode) => {
     setMode(next);
     if (next !== "annotate") setSelection(null);
@@ -768,7 +784,7 @@ export function DocPage({
             {isStatic ? (
               // Static-export degradation: no write routes, so no editor —
               // the plain read-only renderer.
-              <div className="docs-markdown prose prose-sm dark:prose-invert relative max-w-none font-sans text-sm leading-[1.7]">
+              <div className={DOC_SURFACE_TYPOGRAPHY_CLASSES}>
                 <DocBlockRenderer
                   document={doc}
                   projectId="local"
@@ -778,7 +794,7 @@ export function DocPage({
                 />
               </div>
             ) : mode === "edit" ? (
-              <div className="docs-markdown prose prose-sm dark:prose-invert relative max-w-none font-sans text-sm leading-[1.7]">
+              <div className={DOC_SURFACE_TYPOGRAPHY_CLASSES}>
                 <DocEditor
                   // Keyed by path so navigating away UNMOUNTS this instance
                   // while its onApplyOps still closes over the old path —
@@ -789,6 +805,7 @@ export function DocPage({
                   projectId="local"
                   documentPath={path}
                   renderCanvas={renderEditorCanvas}
+                  renderSequence={renderEditorSequence}
                   resolveAssetSrc={resolveAssetSrc}
                   uploadAsset={handleUploadAsset}
                   onApplyOps={handleApplyOps}
@@ -809,7 +826,7 @@ export function DocPage({
                 canvasIndex={canvasIndex}
                 selectedTargetId={selectedTargetId}
                 onTargetSelect={handleTargetSelect}
-                className="docs-markdown prose prose-sm dark:prose-invert relative max-w-none font-sans text-sm leading-[1.7]"
+                className={DOC_SURFACE_TYPOGRAPHY_CLASSES}
               >
                 <DocBlockRenderer
                   document={doc}

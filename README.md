@@ -30,6 +30,16 @@ larger system.
 | [`packages/docs-cli`](packages/docs-cli) | The `docs` CLI: `render`, `grep`, `backlinks rescan`, `links check`, `migrate`, `serve`, `export`. |
 | [`external/canvas`](external/canvas) | Git submodule ([`Codecaine-AI/canvas`](https://github.com/Codecaine-AI/canvas)) powering canvas embeds inside the workbench. Lives under `external/` (not `packages/`) because it is a sibling Codecaine project the docs system *supports*, not a part of it. See the caveat below before cloning recursively. |
 
+### Package separation
+
+`docs-viewer` is the embeddable product — all doc-viewing/editing UX lives
+there — and `docs-workbench` is one thin host of it (data via the
+`DocsClient` seam, navigation via callbacks). The rule: if a website
+embedding the viewer would still want it, it goes in `docs-viewer`; if it's
+about where the app runs or where data comes from, it goes in the host. See
+[`VIEWER-HOST-SEPARATION.md`](VIEWER-HOST-SEPARATION.md) before placing a new
+feature in either package.
+
 ---
 
 ## Quickstart
@@ -107,8 +117,10 @@ workbench is a complete, self-contained read+write app.
 
 - `docs-model` is React-free.
 - No package under `packages/` may import host-app code.
+- `docs-viewer` never imports `docs-workbench` (dependency direction is
+  workbench → viewer → model; see [`VIEWER-HOST-SEPARATION.md`](VIEWER-HOST-SEPARATION.md)).
 
-Both are enforced by [`import-boundaries.test.ts`](import-boundaries.test.ts) at the repo root.
+All are enforced by [`import-boundaries.test.ts`](import-boundaries.test.ts) at the repo root.
 
 ### Canvas submodule cycle caveat
 

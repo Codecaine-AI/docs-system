@@ -38,7 +38,7 @@ describe("deltaToMarkdownInline", () => {
     expect(deltaToMarkdownInline([{ insert: "doc-schema.ts", attributes: {} }])).toBe("doc-schema.ts");
   });
 
-  it("falls back to reference path, then insert text, when label is absent", () => {
+  it("renders a label-less reference as its span text, falling back to the path", () => {
     expect(
       deltaToMarkdownInline([
         {
@@ -46,7 +46,23 @@ describe("deltaToMarkdownInline", () => {
           attributes: { reference: { kind: "source", path: "some/path.ts" } },
         },
       ]),
+    ).toBe("raw text");
+    expect(
+      deltaToMarkdownInline([
+        { insert: "", attributes: { reference: { kind: "source", path: "some/path.ts" } } },
+      ]),
     ).toBe("some/path.ts");
+  });
+
+  it("keeps inline marks on reference spans (a typed code path keeps its backticks)", () => {
+    expect(
+      deltaToMarkdownInline([
+        {
+          insert: "packages/x/y.ts",
+          attributes: { code: true, reference: { kind: "source", path: "packages/x/y.ts" } },
+        },
+      ]),
+    ).toBe("`packages/x/y.ts`");
   });
 
   it("handles empty/undefined input", () => {

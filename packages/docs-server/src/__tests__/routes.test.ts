@@ -466,6 +466,7 @@ describe("GET /api/blocks (edit-surface discovery)", () => {
     "structured-table",
     "interaction-surface",
     "canvas",
+    "sequence",
   ] as const;
   const ACTION_KEYS = [
     "canvas.addAnnotation",
@@ -481,6 +482,9 @@ describe("GET /api/blocks (edit-surface discovery)", () => {
     "interaction-surface.addOperation",
     "interaction-surface.removeOperation",
     "interaction-surface.updateOperation",
+    "sequence.setProgram",
+    "sequence.setStyle",
+    "sequence.setTitle",
     "structured-table.addColumn",
     "structured-table.addRow",
     "structured-table.removeColumn",
@@ -520,11 +524,11 @@ describe("GET /api/blocks (edit-surface discovery)", () => {
     }
   });
 
-  test("lists all components and partitions the 14 canonical block types", async () => {
+  test("lists all components and partitions the 15 canonical block types", async () => {
     const { body } = await getBlocks();
     const { DOC_BLOCK_TYPES } = await import("@codecaine-ai/docs-model/doc-schema");
 
-    expect(body.components).toHaveLength(7);
+    expect(body.components).toHaveLength(8);
     expect(body.components.map((component) => component.name)).toEqual([...COMPONENT_NAMES]);
 
     const servedTypes = body.components.flatMap((component) =>

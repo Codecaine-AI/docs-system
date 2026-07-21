@@ -4,6 +4,7 @@ import { dirname, join, resolve } from "node:path";
 import type { DocOp } from "@codecaine-ai/docs-model/doc-ops";
 import { ACTION_REGISTRY, checkParams } from "@codecaine-ai/docs-model";
 import type { InteractiveCanvasDocument } from "@codecaine-ai/canvas/schema";
+import type { SequenceDocument } from "@codecaine-ai/sequence/schema";
 import { queryInboundTolerant, type BacklinkRow } from "@codecaine-ai/docs-index/backlinks";
 import { moveDocBundle, type MoveDocDeps, type MoveDocResult } from "@codecaine-ai/docs-index/move-doc";
 import { resolveDocBundleJsonPath } from "@codecaine-ai/docs-index/paths";
@@ -53,11 +54,27 @@ import {
   type SaveCanvasSidecarResult,
 } from "./canvas-sidecar";
 import {
+  createSequenceSidecar,
+  deleteSequenceSidecar,
+  loadSequenceSidecarByDocPath,
+  saveSequenceSidecar,
+  type CreateSequenceSidecarInput,
+  type CreateSequenceSidecarResult,
+  type DeleteSequenceSidecarInput,
+  type DeleteSequenceSidecarResult,
+  type SaveSequenceSidecarInput,
+  type SaveSequenceSidecarResult,
+  type SequenceSidecarByDocPathError,
+  type SequenceSidecarByDocPathLoadResult,
+} from "./sequence-sidecar";
+import {
   canvas_apply_patch,
   canvas_get,
   comment_list,
   comment_resolve,
   doc_get,
+  sequence_apply_patch,
+  sequence_get,
   undo_patch,
   type CanvasApplyPatchResult,
   type CanvasAgentPatchOperation,
@@ -65,10 +82,16 @@ import {
   type CommentListResult,
   type CommentResolveResult,
   type DocGetResult,
+  type SequenceAgentPatchOperation,
+  type SequenceApplyPatchResult,
+  type SequenceGetResult,
   type UndoPatchResult,
 } from "./agent-tools";
 import { draftLockStore, type DraftLockInfo, type DraftLockStore } from "./draft-locks";
-import { resolveCanvasSidecarRelativePath } from "./confine";
+import {
+  resolveCanvasSidecarRelativePath,
+  resolveSequenceSidecarRelativePath,
+} from "./confine";
 import { withPathLock } from "./path-mutex";
 import {
   publishDocsChangeEvent,
@@ -110,6 +133,11 @@ export interface DocsStore {
     docPath: string,
     src: string,
   ): Promise<CanvasSidecarByDocPathLoadResult | CanvasSidecarByDocPathError>;
+  sequenceGet(src: string): Promise<SequenceGetResult>;
+  sequenceByDocPath(
+    docPath: string,
+    src: string,
+  ): Promise<SequenceSidecarByDocPathLoadResult | SequenceSidecarByDocPathError>;
   commentList(path: string): Promise<CommentListResult>;
   readAsset(path: string): Promise<ReadDocAssetResult>;
   backlinks(target: string): Promise<BacklinkRow[]>;
@@ -128,6 +156,13 @@ export interface DocsStore {
     expectedCanvasHash?: string,
     sessionId?: string,
   ): Promise<ForwardCanvasActionResult>;
+  forwardSequenceAction(
+    path: string,
+    op: Extract<DocOp, { type: "blockAction" }>,
+    expectedDocHash?: string,
+    expectedSequenceHash?: string,
+    sessionId?: string,
+  ): Promise<ForwardSequenceActionResult>;
   addComment(
     path: string,
     input: AddBundleCommentInput,
@@ -153,12 +188,21 @@ export interface DocsStore {
   saveCanvasSidecar(input: SaveCanvasSidecarInput): Promise<SaveCanvasSidecarResult>;
   createCanvasSidecar(input: CreateCanvasSidecarInput): Promise<CreateCanvasSidecarResult>;
   deleteCanvasSidecar(input: DeleteCanvasSidecarInput): Promise<DeleteCanvasSidecarResult>;
+  saveSequenceSidecar(input: SaveSequenceSidecarInput): Promise<SaveSequenceSidecarResult>;
+  createSequenceSidecar(input: CreateSequenceSidecarInput): Promise<CreateSequenceSidecarResult>;
+  deleteSequenceSidecar(input: DeleteSequenceSidecarInput): Promise<DeleteSequenceSidecarResult>;
   applyCanvasPatch(
     src: string,
     operations: CanvasAgentPatchOperation[],
     expectedHash?: string,
     actor?: string,
   ): Promise<CanvasApplyPatchResult>;
+  applySequencePatch(
+    src: string,
+    operations: SequenceAgentPatchOperation[],
+    expectedHash?: string,
+    actor?: string,
+  ): Promise<SequenceApplyPatchResult>;
   undoPatch(patchId: string): Promise<UndoPatchResult>;
   moveDoc(fromPath: string, toPath: string): Promise<MoveDocResult>;
 
@@ -308,6 +352,153 @@ async function forwardCanvasAction(
   });
 }
 
+export type ForwardSequenceActionResult =
+  | {
+      ok: true;
+      sequence: SequenceDocument;
+      sequenceHash: string;
+      patchId: string;
+      changedIds: string[];
+      sequenceRelPath: string;
+    }
+  | {
+      ok: false;
+      status: number;
+      detail: string;
+      current_hash?: string;
+      expected_hash?: string;
+      held_by?: DraftLockInfo;
+      issues?: unknown;
+    };
+
+/**
+ * Sequence counterpart of `forwardCanvasAction`: routes a doc-level
+ * `blockAction` whose action forwards to the "sequence" authority onto the
+ * referenced sidecar via `sequence_apply_patch`, under the doc bundle's path
+ * lock with the doc-hash precondition checked first.
+ */
+async function forwardSequenceAction(
+  docsRoot: string,
+  path: string,
+  op: Extract<DocOp, { type: "blockAction" }>,
+  expectedDocHash?: string,
+  expectedSequenceHash?: string,
+  sessionId?: string,
+): Promise<ForwardSequenceActionResult> {
+  const docAbs = resolveDocBundleJsonPath(docsRoot, path);
+  if (!docAbs) {
+    return { ok: false, status: 400, detail: `Invalid docs path: ${path}` };
+  }
+
+  return withPathLock(docAbs, async (): Promise<ForwardSequenceActionResult> => {
+    const loaded = await loadDocBundle(docsRoot, path);
+    if ("error" in loaded) {
+      return { ok: false, status: loaded.error.status, detail: loaded.error.detail };
+    }
+    if (expectedDocHash && expectedDocHash !== loaded.docHash) {
+      return {
+        ok: false,
+        status: 409,
+        detail: "Doc bundle is stale; reload before applying ops.",
+        current_hash: loaded.docHash,
+        expected_hash: expectedDocHash,
+      };
+    }
+
+    const action = ACTION_REGISTRY.get(op.action);
+    if (!action || !("forward" in action) || action.forward.authority !== "sequence") {
+      return {
+        ok: false,
+        status: 400,
+        detail: `Action "${op.action}" is not forwarded to the sequence authority.`,
+      };
+    }
+
+    const block = loaded.document.blocks[op.blockId];
+    if (!block) {
+      const message = `blockAction target "${op.blockId}" does not exist.`;
+      return {
+        ok: false,
+        status: 400,
+        detail: message,
+        issues: [{ path: "$.op.blockId", message }],
+      };
+    }
+    if (block.type !== "sequence") {
+      const message = `blockAction "${op.action}" targets "sequence" blocks, but "${op.blockId}" is a "${block.type}".`;
+      return {
+        ok: false,
+        status: 400,
+        detail: message,
+        issues: [{ path: "$.op.blockId", message }],
+      };
+    }
+
+    const params = op.params ?? {};
+    const issues = checkParams(action, params);
+    if (issues.length > 0) {
+      return {
+        ok: false,
+        status: 400,
+        detail: "Sequence action params failed validation.",
+        issues,
+      };
+    }
+
+    const source = block.props.src ?? block.props.sequenceId;
+    if (!block.props.src && typeof block.props.sequenceId === "string") {
+      return {
+        ok: false,
+        status: 400,
+        detail:
+          "Central sequence references are not routable by this server yet; only sidecar sequences are supported.",
+      };
+    }
+    if (typeof source !== "string" || source.length === 0) {
+      return {
+        ok: false,
+        status: 400,
+        detail: `Sequence block "${op.blockId}" is missing a resolvable sequenceId or src.`,
+      };
+    }
+
+    // Same synthetic-filename trick as the canvas forward: bundle docs have
+    // no markdown filename, so a synthetic `doc.mdx` supplies only the
+    // directory context to the shared doc-relative resolver.
+    const docPath = loaded.bundlePath ? `${loaded.bundlePath}/doc.mdx` : "doc.mdx";
+    const sequenceRelPath = resolveSequenceSidecarRelativePath(docPath, source);
+    if (!sequenceRelPath) {
+      return {
+        ok: false,
+        status: 400,
+        detail: `Invalid sequence sidecar path for ${path}: ${source}`,
+      };
+    }
+
+    const operation = {
+      ...params,
+      type: op.action.slice("sequence.".length),
+    } as SequenceAgentPatchOperation;
+    const applied = await sequence_apply_patch(
+      docsRoot,
+      sequenceRelPath,
+      [operation],
+      expectedSequenceHash,
+      sessionId,
+    );
+    if (!applied.ok) return applied;
+
+    return {
+      ok: true,
+      sequence: applied.sequence,
+      sequenceHash: applied.hash,
+      patchId: applied.patchId,
+      changedIds: applied.changedIds,
+      sequenceRelPath,
+    };
+  });
+}
+
 export function createDocsStore(docsRoot: string): DocsStore {
   const root = resolve(docsRoot);
   // Change events are channeled per resolved docs root, so every store (and
@@ -325,6 +516,8 @@ export function createDocsStore(docsRoot: string): DocsStore {
     docGet: (path) => doc_get(root, path),
     canvasGet: (src) => canvas_get(root, src),
     canvasByDocPath: (docPath, src) => loadCanvasSidecarByDocPath(root, docPath, src),
+    sequenceGet: (src) => sequence_get(root, src),
+    sequenceByDocPath: (docPath, src) => loadSequenceSidecarByDocPath(root, docPath, src),
     commentList: (path) => comment_list(root, path),
     readAsset: (path) => readDocAsset(root, path),
     backlinks: async (target) => queryInboundTolerant(await getBacklinksDb(root), target),
@@ -333,6 +526,8 @@ export function createDocsStore(docsRoot: string): DocsStore {
       applyDocOpsToBundle(root, path, ops, expectedHash, sessionId),
     forwardCanvasAction: (path, op, expectedDocHash, expectedCanvasHash, sessionId) =>
       forwardCanvasAction(root, path, op, expectedDocHash, expectedCanvasHash, sessionId),
+    forwardSequenceAction: (path, op, expectedDocHash, expectedSequenceHash, sessionId) =>
+      forwardSequenceAction(root, path, op, expectedDocHash, expectedSequenceHash, sessionId),
     addComment: (path, input, sessionId) => addBundleComment(root, path, input, sessionId),
     resolveComment: (path, commentId, expectedHash, sessionId, response) =>
       resolveBundleComment(root, path, commentId, expectedHash, sessionId, response),
@@ -344,8 +539,13 @@ export function createDocsStore(docsRoot: string): DocsStore {
     saveCanvasSidecar: (input) => saveCanvasSidecar(root, input),
     createCanvasSidecar: (input) => createCanvasSidecar(root, input),
     deleteCanvasSidecar: (input) => deleteCanvasSidecar(root, input),
+    saveSequenceSidecar: (input) => saveSequenceSidecar(root, input),
+    createSequenceSidecar: (input) => createSequenceSidecar(root, input),
+    deleteSequenceSidecar: (input) => deleteSequenceSidecar(root, input),
     applyCanvasPatch: (src, operations, expectedHash, actor) =>
       canvas_apply_patch(root, src, operations, expectedHash, actor),
+    applySequencePatch: (src, operations, expectedHash, actor) =>
+      sequence_apply_patch(root, src, operations, expectedHash, actor),
     undoPatch: (patchId) => undo_patch(root, patchId),
 
     moveDoc: async (fromPath, toPath) => {

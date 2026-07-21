@@ -9,6 +9,7 @@ import { descriptors as fileTreeDescriptors } from "../components/file-tree/desc
 import { descriptors as interactionSurfaceDescriptors } from "../components/interaction-surface/descriptor";
 import { descriptors as mermaidDescriptors } from "../components/mermaid/descriptor";
 import { descriptors as richTextDescriptors } from "../components/rich-text/descriptors";
+import { descriptors as sequenceDescriptors } from "../components/sequence/descriptor";
 import { descriptors as structuredTableDescriptors } from "../components/structured-table/descriptor";
 
 export type DocBlockRenderContext = {
@@ -24,6 +25,13 @@ export type DocBlockRenderContext = {
     canvasId?: string;
     src?: string;
     view?: string;
+    title?: string;
+  }) => ReactNode;
+  /** Sequence embed by id or sidecar src (mirrors `renderCanvas`). */
+  renderSequence?: (input: {
+    id: string;
+    sequenceId?: string;
+    src?: string;
     title?: string;
   }) => ReactNode;
   /** Resolves a bundle-relative image/video src to a fetchable URL. */
@@ -56,6 +64,7 @@ const COMPONENT_DESCRIPTORS: readonly DocBlockDescriptor[][] = [
   structuredTableDescriptors,
   interactionSurfaceDescriptors,
   canvasDescriptors,
+  sequenceDescriptors,
 ];
 
 function buildRegistry(): Map<DocBlockType, DocBlockDescriptor> {

@@ -28,18 +28,22 @@ function TreeNode({
   selectedPath: string | null;
 }) {
   const [open, setOpen] = useState(depth === 0 || containsPath(node, selectedPath));
-  const indent = { paddingLeft: `${depth * 12 + 8}px` };
+  const rowStyle = {
+    paddingLeft: `${depth * 12 + 8}px`,
+    paddingTop: "var(--docs-sidebar-item-py, 4px)",
+    paddingBottom: "var(--docs-sidebar-item-py, 4px)",
+  };
 
   if (node.kind === "dir") {
     return (
       <div>
         <button
           type="button"
-          style={indent}
+          style={rowStyle}
           onClick={() => setOpen((prev) => !prev)}
           data-docs-tree-kind="dir"
           data-docs-tree-path={node.path}
-          className="flex w-full items-center gap-1 py-1 pr-2 text-left text-sm hover:bg-muted/50"
+          className="flex w-full items-center gap-1 pr-2 text-left hover:bg-muted/50"
           aria-expanded={open}
         >
           {open ? (
@@ -73,10 +77,10 @@ function TreeNode({
       <div>
         <div
           className={cn(
-            "flex w-full items-center gap-1 py-1 pr-2 text-sm hover:bg-muted/50",
+            "flex w-full items-center gap-1 pr-2 hover:bg-muted/50",
             isSelected && "bg-muted font-medium",
           )}
-          style={indent}
+          style={rowStyle}
         >
           {hasChildren ? (
             <button
@@ -98,7 +102,7 @@ function TreeNode({
             href={`#/${node.path}`}
             data-docs-tree-kind="bundle"
             data-docs-tree-path={node.path}
-            className="flex min-w-0 flex-1 items-center gap-1 text-left text-foreground no-underline"
+            className="flex min-w-0 flex-1 items-center gap-1 text-left no-underline"
             title={node.path}
           >
             <FileTextIcon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
@@ -123,14 +127,14 @@ function TreeNode({
 
   return (
     <div
-      style={indent}
+      style={rowStyle}
       data-docs-tree-kind="file"
       data-docs-tree-path={node.path}
-      className="flex items-center gap-1 truncate py-1 pr-2 text-sm text-muted-foreground/60"
+      className="flex items-center gap-1 truncate pr-2 opacity-60"
       title={`${node.path} (legacy markdown file — not renderable standalone)`}
     >
       <span className="w-3 shrink-0" />
-      <FileTextIcon className="h-3.5 w-3.5 shrink-0 opacity-50" />
+      <FileTextIcon className="h-3.5 w-3.5 shrink-0 text-muted-foreground opacity-50" />
       <span className="truncate">{node.name}</span>
     </div>
   );
@@ -144,7 +148,15 @@ export function Sidebar({
   selectedPath: string | null;
 }) {
   return (
-    <nav className="flex h-full min-h-0 flex-col overflow-y-auto py-2 pr-1" aria-label="Docs tree">
+    <nav
+      className="flex h-full min-h-0 flex-col overflow-y-auto py-2 pr-1"
+      aria-label="Docs tree"
+      style={{
+        fontFamily: "var(--docs-sidebar-font, inherit)",
+        fontSize: "var(--docs-sidebar-font-size, 0.875rem)",
+        color: "var(--docs-sidebar-item-fg, var(--foreground))",
+      }}
+    >
       {tree.map((node) => (
         <TreeNode key={node.path} node={node} depth={0} selectedPath={selectedPath} />
       ))}

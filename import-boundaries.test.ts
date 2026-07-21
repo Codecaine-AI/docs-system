@@ -82,6 +82,27 @@ describe("import boundaries", () => {
     expect(violations).toEqual([]);
   });
 
+  test("docs-model imports sequence only through the agent-schema leaf", () => {
+    const violations: string[] = [];
+    const sequenceRoot = join(repoRoot, "external/sequence");
+    const agentSchema = join(sequenceRoot, "packages/sequence/src/agent-schema");
+    for (const file of walk(join(repoRoot, "packages/docs-model/src"))) {
+      for (const spec of importSpecifiers(readFileSync(file, "utf8"))) {
+        const resolved = resolve(dirname(file), spec);
+        const sequenceRelative = relative(sequenceRoot, resolved);
+        const isSequencePath = sequenceRelative !== "" && sequenceRelative !== ".." && !sequenceRelative.startsWith("../");
+        const isAgentSchema = resolved === agentSchema || resolved === `${agentSchema}.ts`;
+        if (
+          (spec.startsWith("@codecaine-ai/sequence") && spec !== "@codecaine-ai/sequence/agent-schema") ||
+          (isSequencePath && !isAgentSchema)
+        ) {
+          violations.push(`${file.slice(repoRoot.length + 1)} -> ${spec}`);
+        }
+      }
+    }
+    expect(violations).toEqual([]);
+  });
+
   test("docs-model imports canvas only through the agent-schema leaf", () => {
     const violations: string[] = [];
     const canvasRoot = join(repoRoot, "external/canvas");

@@ -56,10 +56,13 @@ export function wrapMarkdownMarks(text: string, attrs: DeltaSpan["attributes"]):
  * - bold/italic/strike/code/link marks render as standard markdown syntax
  *   (nesting order: code innermost, then bold/italic/strike, link outermost
  *   of those, matching DocBlockRenderer's inline React nesting).
- * - `reference` marks render PLAIN — label if present, else the reference
- *   path, else the raw inserted text — no link syntax. This is a v1 scope
+ * - `reference` marks render PLAIN — the span's own text (which by the
+ *   cross-doc-linking standard is the target doc's name), else the legacy
+ *   label, else the reference path — no link syntax. This is a v1 scope
  *   decision (D35): the projection is meant to be grepped, and a bracketed
  *   pseudo-link to a repo-relative path is not clickable in a terminal.
+ *   Inline marks (e.g. `code` on a source-path reference) still wrap the
+ *   display text so a typed code link keeps its backticks.
  */
 export function deltaToMarkdownInline(spans: DeltaSpan[] | undefined): string {
   if (!spans || spans.length === 0) return "";
@@ -67,7 +70,8 @@ export function deltaToMarkdownInline(spans: DeltaSpan[] | undefined): string {
     .map((span) => {
       const attrs = span.attributes;
       if (attrs?.reference) {
-        return attrs.reference.label ?? attrs.reference.path ?? span.insert;
+        const display = span.insert || attrs.reference.label || attrs.reference.path;
+        return wrapMarkdownMarks(display, attrs);
       }
       return wrapMarkdownMarks(span.insert, attrs);
     })

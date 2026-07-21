@@ -13,6 +13,7 @@ import { isSafeRelativePath } from "@codecaine-ai/docs-index/paths";
 
 export const MAX_DOC_FILE_BYTES = 5 * 1024 * 1024;
 export const MAX_CANVAS_FILE_BYTES = 1024 * 1024;
+export const MAX_SEQUENCE_FILE_BYTES = 1024 * 1024;
 export const MAX_ASSET_BYTES = 20 * 1024 * 1024;
 /** Video uploads get a higher cap than generic assets — screen recordings routinely exceed 20MB. */
 export const MAX_VIDEO_ASSET_BYTES = 64 * 1024 * 1024;
@@ -128,6 +129,87 @@ export async function resolveCanvasSidecarRootRelativeWritePath(
     return null;
   }
   return canvasRelPath;
+}
+
+/** Sequence sidecar path predicate: `.sequence.json` under an `assets/sequences/` segment. */
+export function isAllowedSequenceSidecarPath(src: string): boolean {
+  const normalized = src.replace(/^\.\/+/, "").replaceAll("\\", "/");
+  if (!isSafeRelativePath(normalized)) return false;
+  if (!normalized.toLowerCase().endsWith(".sequence.json")) return false;
+  return normalized.includes("assets/sequences/");
+}
+
+/**
+ * Resolves a sequence sidecar `src` RELATIVE TO a referencing doc's own
+ * directory, exactly mirroring `resolveCanvasSidecarRelativePath`. Returns
+ * the docs-root-relative sidecar path or null when the src is malformed or
+ * escapes the docs root.
+ */
+export function resolveSequenceSidecarRelativePath(docPath: string, src: string): string | null {
+  if (!isSafeRelativePath(docPath) || !isAllowedDocsFilePath(docPath)) return null;
+  if (!isAllowedSequenceSidecarPath(src)) return null;
+  const docDir = dirname(docPath) === "." ? "" : dirname(docPath);
+  const normalizedSrc = src.replace(/^\.\/+/, "").replaceAll("\\", "/");
+  const sequenceRelPath = normalize(join(docDir, normalizedSrc)).replaceAll("\\", "/");
+  if (!isSafeRelativePath(sequenceRelPath)) return null;
+  if (!sequenceRelPath.toLowerCase().endsWith(".sequence.json")) return null;
+  if (!sequenceRelPath.includes("assets/sequences/")) return null;
+  return sequenceRelPath;
+}
+
+/**
+ * Resolves a docs-ROOT-relative sequence sidecar `src` (the doc.json
+ * "sequence" block type's cross-doc form) to its docs-root-relative path, or
+ * null when the src is malformed or escapes `docsRoot`.
+ */
+export function resolveSequenceSidecarRootRelativePath(
+  docsRoot: string,
+  src: string,
+): string | null {
+  if (!isAllowedSequenceSidecarPath(src)) return null;
+  const normalizedSrc = src.replace(/^\.\/+/, "").replaceAll("\\", "/");
+  const sequenceRelPath = normalize(normalizedSrc).replaceAll("\\", "/");
+  if (!isSafeRelativePath(sequenceRelPath)) return null;
+  if (!sequenceRelPath.toLowerCase().endsWith(".sequence.json")) return null;
+  if (!sequenceRelPath.includes("assets/sequences/")) return null;
+
+  const abs = join(docsRoot, sequenceRelPath);
+  const resolved = resolve(abs);
+  const docsRootResolved = resolve(docsRoot);
+  if (resolved !== docsRootResolved && !resolved.startsWith(docsRootResolved + sep)) {
+    return null;
+  }
+  return sequenceRelPath;
+}
+
+/**
+ * Write-safe sequence resolver — the sequence counterpart of
+ * `resolveCanvasSidecarRootRelativeWritePath`: canonicalizes the target's
+ * deepest existing ancestor and requires it to remain under the canonical
+ * docs root, rejecting symlink escapes.
+ */
+export async function resolveSequenceSidecarRootRelativeWritePath(
+  docsRoot: string,
+  src: string,
+): Promise<string | null> {
+  const sequenceRelPath = resolveSequenceSidecarRootRelativePath(docsRoot, src);
+  if (!sequenceRelPath) return null;
+
+  let docsRootReal: string;
+  try {
+    docsRootReal = await realpath(docsRoot);
+  } catch {
+    return null;
+  }
+
+  const ancestorReal = await realpathDeepestExistingAncestor(
+    resolve(join(docsRoot, sequenceRelPath)),
+  );
+  if (!ancestorReal) return null;
+  if (ancestorReal !== docsRootReal && !ancestorReal.startsWith(docsRootReal + sep)) {
+    return null;
+  }
+  return sequenceRelPath;
 }
 
 /** Docs-asset path predicate: under `assets/images/`, `assets/videos/`, or `assets/attachments/`. */

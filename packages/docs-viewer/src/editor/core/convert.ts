@@ -234,8 +234,13 @@ function pmInlineToDelta(nodes: PMNode[]): DeltaSpan[] {
       const rawLabel = node.attrs?.label;
       const label =
         (typeof rawLabel === "string" ? rawLabel : undefined) ?? ref?.label ?? ref?.path ?? "";
-      if (ref) spans.push({ insert: label, attributes: { reference: ref } });
-      else if (label) spans.push({ insert: label });
+      if (ref) {
+        // The saved object is path-identity only (cross-doc-linking standard):
+        // display text lives in the span insert; a legacy `label` field on a
+        // loaded ref is dropped here so saves converge on the new shape.
+        const { label: _legacyLabel, ...refOut } = ref;
+        spans.push({ insert: label, attributes: { reference: refOut } });
+      } else if (label) spans.push({ insert: label });
       continue;
     }
     if (node.type !== "text" || !node.text) continue;

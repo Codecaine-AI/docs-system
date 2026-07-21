@@ -180,7 +180,11 @@
         {
           "insert": "../canvas/docs",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "../canvas/docs"
+            }
           }
         },
         {
@@ -314,7 +318,11 @@
         {
           "insert": ".claude/launch.json",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": ".claude/launch.json"
+            }
           }
         },
         {
@@ -508,7 +516,11 @@
         {
           "insert": "docs/",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "docs"
+            }
           }
         },
         {

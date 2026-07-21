@@ -1,0 +1,104 @@
+{
+  "version": 1,
+  "id": "viewer-host-seam",
+  "title": "Viewer / host embed seam",
+  "participants": [
+    {
+      "id": "host",
+      "name": "host",
+      "kind": "participant",
+      "label": "Workbench (host)"
+    },
+    {
+      "id": "viewer",
+      "name": "viewer",
+      "kind": "participant",
+      "label": "docs-viewer"
+    },
+    {
+      "id": "embed",
+      "name": "embed",
+      "kind": "participant",
+      "label": "SequenceEmbed"
+    },
+    {
+      "id": "engine",
+      "name": "engine",
+      "kind": "participant",
+      "label": "Sequence engine"
+    }
+  ],
+  "items": [
+    {
+      "kind": "message",
+      "id": "m1",
+      "from": "host",
+      "to": "viewer",
+      "line": "sync",
+      "text": "DocsClientProvider injects sequenceEmbed"
+    },
+    {
+      "kind": "fragment",
+      "id": "f1",
+      "op": "opt",
+      "operands": [
+        {
+          "guard": "no sequenceEmbed injected",
+          "items": [
+            {
+              "kind": "message",
+              "id": "m2",
+              "from": "viewer",
+              "to": "host",
+              "line": "return",
+              "text": "SequenceEmbedUnavailable card"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "message",
+      "id": "m3",
+      "from": "viewer",
+      "to": "embed",
+      "line": "sync",
+      "text": "useSequenceEmbed -> render(src, title)"
+    },
+    {
+      "kind": "message",
+      "id": "m4",
+      "from": "embed",
+      "to": "host",
+      "line": "sync",
+      "text": "GET /api/sequence?src=..."
+    },
+    {
+      "kind": "message",
+      "id": "m5",
+      "from": "host",
+      "to": "embed",
+      "line": "return",
+      "text": "sidecar JSON + content hash"
+    },
+    {
+      "kind": "message",
+      "id": "m6",
+      "from": "embed",
+      "to": "engine",
+      "line": "sync",
+      "text": "validateSequenceDocument"
+    },
+    {
+      "kind": "message",
+      "id": "m7",
+      "from": "engine",
+      "to": "embed",
+      "line": "return",
+      "text": "render SVG (SequenceViewer)"
+    }
+  ],
+  "style": {
+    "accent": "#5B7FBD"
+  }
+}

@@ -23,4 +23,4 @@ concepts: [linking, references, anchor-text, navigation, backlinks]
 - Sibling links across sections.
 - Two docs each deferring to the other for the full explanation.
 
-Rationale: docs/10-system-design/10-doc-architecture
+Canonical: docs/10-system-design/10-doc-standards/30-cross-doc-linking — the corpus doc owns this standard (rule and rationale); this file is the operational copy.

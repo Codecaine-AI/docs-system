@@ -33,7 +33,11 @@
         {
           "insert": "themes/default/",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "themes/default"
+            }
           }
         },
         {
@@ -51,7 +55,11 @@
         {
           "insert": "docs/",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "docs"
+            }
           }
         },
         {
@@ -230,7 +238,11 @@
         {
           "insert": "themes/default/",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "themes/default"
+            }
           }
         },
         {

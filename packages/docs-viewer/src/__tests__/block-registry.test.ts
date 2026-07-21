@@ -105,7 +105,6 @@ describe("file-tree — mdx adapter + tree rendering", () => {
 
   it("nests flat paths and renders tree-style guide glyphs", () => {
     const html = renderTree({
-      title: "Layout",
       entries: [
         { path: "src/runtime/registry.ts" },
         { path: "src/runtime/dispatch.ts" },
@@ -115,8 +114,6 @@ describe("file-tree — mdx adapter + tree rendering", () => {
     expect(html).toContain('data-docs-block-type="file-tree"');
     expect(html).toContain('data-source-id="tree-1"');
     expect(html).toContain('class="not-prose my-4"');
-    expect(html).toContain("Layout");
-    expect(html).toContain('class="mb-1.5 text-sm font-medium text-foreground"');
     expect(html).not.toContain("File Tree");
     expect(html).not.toContain("3 entries");
     // Derived directories from prefixes + guide glyphs at each depth.
@@ -130,6 +127,11 @@ describe("file-tree — mdx adapter + tree rendering", () => {
     // Derived dirs render with a trailing slash and no entry attribute.
     expect(html).toContain(">runtime/</span>");
     expect(html).not.toContain('data-docs-file-tree-entry="src/"');
+  });
+
+  it("does not render a legacy title prop", () => {
+    const html = renderTree({ title: "Layout", entries: [{ path: "src/index.ts" }] });
+    expect(html).not.toContain("Layout");
   });
 
   it("sorts directories before files, then alphabetically", () => {

@@ -1,0 +1,504 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-30-packages",
+  "title": "Package map",
+  "root": "b-00-overview-root",
+  "blocks": {
+    "b-00-overview-root": {
+      "id": "b-00-overview-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-00-overview-title-1",
+        "b-00-overview-lead-2",
+        "b-00-overview-model-role-5",
+        "b-00-overview-index-role-6",
+        "b-00-overview-server-role-7",
+        "b-00-overview-viewer-role-8",
+        "b-00-overview-workbench-role-9",
+        "b-00-overview-cli-role-10",
+        "b-00-overview-framework-role-11",
+        "b-00-overview-canvas-role-12",
+        "b-00-overview-makefile-31",
+        "b-00-overview-enforcement-28",
+        "b-00-overview-import-test-29",
+        "b-00-overview-component-mirror-30",
+        "b-00-overview-seq-heading-32",
+        "b-00-overview-seq-intro-33",
+        "b-00-overview-seq-agent-34",
+        "b-00-overview-seq-seam-35",
+        "b-00-overview-seq-order-36"
+      ]
+    },
+    "b-00-overview-title-1": {
+      "id": "b-00-overview-title-1",
+      "type": "heading",
+      "props": {
+        "level": 1
+      },
+      "text": [
+        {
+          "insert": "Package map"
+        }
+      ],
+      "children": []
+    },
+    "b-00-overview-lead-2": {
+      "id": "b-00-overview-lead-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The as-built inventory: every workspace package, what it owns today, and the tests that keep the seams honest. Why the boundaries sit where they do — the runtime constraints, the judgment calls, the live merge candidates — is design, not inventory: see "
+        },
+        {
+          "insert": "Package boundaries",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-package-boundaries"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-00-overview-model-role-5": {
+      "id": "b-00-overview-model-role-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs-model",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/10-packages/10-docs-model"
+            }
+          }
+        },
+        {
+          "insert": " — the pure-TypeScript format definition: schema, 7-op mutation kernel and inverses, seven component bundles for 14 block types, and Markdown conversion in both directions."
+        }
+      ],
+      "children": []
+    },
+    "b-00-overview-index-role-6": {
+      "id": "b-00-overview-index-role-6",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs-index",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/10-packages/20-docs-index"
+            }
+          }
+        },
+        {
+          "insert": " — the derived "
+        },
+        {
+          "insert": "bun:sqlite",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " backlink index, plus move-doc rename rewriting and path confinement."
+        }
+      ],
+      "children": []
+    },
+    "b-00-overview-server-role-7": {
+      "id": "b-00-overview-server-role-7",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs-server",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/10-packages/30-docs-server"
+            }
+          }
+        },
+        {
+          "insert": " — the React-free mutation authority: atomic mutexed writes, hash preconditions, draft locks, undo, change events, embeddable Elysia routes, block discovery, and canvas-op forwarding."
+        }
+      ],
+      "children": []
+    },
+    "b-00-overview-viewer-role-8": {
+      "id": "b-00-overview-viewer-role-8",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs-viewer",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/10-packages/40-docs-viewer"
+            }
+          }
+        },
+        {
+          "insert": " — the browser-pure React renderer and editor: mirrored component folders, TipTap editing, targeting, and the client-provider seam."
+        }
+      ],
+      "children": []
+    },
+    "b-00-overview-workbench-role-9": {
+      "id": "b-00-overview-workbench-role-9",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs-workbench",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/10-packages/50-docs-workbench"
+            }
+          }
+        },
+        {
+          "insert": " — the thin composition shell: an Elysia server around docs-server, a Vite SPA around docs-viewer, Edit/Annotate modes, and static export."
+        }
+      ],
+      "children": []
+    },
+    "b-00-overview-cli-role-10": {
+      "id": "b-00-overview-cli-role-10",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs-cli",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/10-packages/60-docs-cli"
+            }
+          }
+        },
+        {
+          "insert": " — the agent dialect and human entry point for render, grep, backlink rescan, link checks, migration, serve, and export."
+        }
+      ],
+      "children": []
+    },
+    "b-00-overview-framework-role-11": {
+      "id": "b-00-overview-framework-role-11",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "framework",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/10-packages/70-framework"
+            }
+          }
+        },
+        {
+          "insert": " — the zero-dependency, zero-code methodology: manual, templates, and a skill definition distributed for host repos to symlink into agent tooling."
+        }
+      ],
+      "children": []
+    },
+    "b-00-overview-canvas-role-12": {
+      "id": "b-00-overview-canvas-role-12",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "external/canvas",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/10-packages/80-external-canvas"
+            }
+          }
+        },
+        {
+          "insert": " — a vendored neighboring project whose inner workspace packages supply canvas schemas and embeds; it is not one of the seven."
+        }
+      ],
+      "children": []
+    },
+    "b-00-overview-makefile-31": {
+      "id": "b-00-overview-makefile-31",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The repo-root "
+        },
+        {
+          "insert": "Makefile",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " wraps common commands: "
+        },
+        {
+          "insert": "make test",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "make typecheck",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "make check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "make serve",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "make dev",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "make canvas",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "make spa",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-00-overview-enforcement-28": {
+      "id": "b-00-overview-enforcement-28",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Enforcement"
+        }
+      ],
+      "children": []
+    },
+    "b-00-overview-import-test-29": {
+      "id": "b-00-overview-import-test-29",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The boundaries are tested, not aspirational. At the repo root, "
+        },
+        {
+          "insert": "import-boundaries.test.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " enforces three rules: none of the seven package "
+        },
+        {
+          "insert": "src",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " roots may import host-app code through "
+        },
+        {
+          "insert": "@spectre/*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", the "
+        },
+        {
+          "insert": "@/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " alias, or a reach into a host "
+        },
+        {
+          "insert": "apps/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " directory; docs-model may not import "
+        },
+        {
+          "insert": "react",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "react-dom",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", or "
+        },
+        {
+          "insert": "@tiptap/*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "; and docs-model may import canvas only through "
+        },
+        {
+          "insert": "@codecaine-ai/canvas/agent-schema",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-00-overview-component-mirror-30": {
+      "id": "b-00-overview-component-mirror-30",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "component-mirror.test.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " separately keeps docs-viewer's component folders in a 1:1 mirror with docs-model's component bundles."
+        }
+      ],
+      "children": []
+    },
+    "b-00-overview-seq-heading-32": {
+      "id": "b-00-overview-seq-heading-32",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Sequence examples"
+        }
+      ],
+      "children": []
+    },
+    "b-00-overview-seq-intro-33": {
+      "id": "b-00-overview-seq-intro-33",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Live examples of the new sequence block, each rendered from a sidecar document under "
+        },
+        {
+          "insert": "assets/sequences/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ": the first two diagram this repo's own agent save pipeline and viewer/host embed seam; the third is the UML combined-fragment reference flow."
+        }
+      ],
+      "children": []
+    },
+    "b-00-overview-seq-agent-34": {
+      "id": "b-00-overview-seq-agent-34",
+      "type": "sequence",
+      "props": {
+        "src": "assets/sequences/agent-edit-flow.sequence.json",
+        "title": "Agent edit flow"
+      },
+      "children": []
+    },
+    "b-00-overview-seq-seam-35": {
+      "id": "b-00-overview-seq-seam-35",
+      "type": "sequence",
+      "props": {
+        "src": "assets/sequences/viewer-host-seam.sequence.json",
+        "title": "Viewer / host embed seam"
+      },
+      "children": []
+    },
+    "b-00-overview-seq-order-36": {
+      "id": "b-00-overview-seq-order-36",
+      "type": "sequence",
+      "props": {
+        "src": "assets/sequences/order-distribution.sequence.json",
+        "title": "Order distribution"
+      },
+      "children": []
+    }
+  }
+}

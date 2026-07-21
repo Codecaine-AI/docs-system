@@ -52,4 +52,4 @@ The web of knowledge continues from the doc tree into the source:
 - Write L4/L5 with `30-workflows/60-annotate.md`; templates in `40-templates/50-L4-file-header/` and `40-templates/60-L5-docstring/`.
 - Keep `README.md` at the repo root as the human landing page linking into `docs/`.
 
-Rationale: docs/10-system-design/10-doc-architecture
+Canonical: docs/10-system-design/10-doc-standards/10-structure — the corpus doc owns this standard (rule and rationale); this file is the operational copy.

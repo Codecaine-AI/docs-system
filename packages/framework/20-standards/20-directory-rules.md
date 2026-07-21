@@ -45,4 +45,4 @@ docs/
 - Over-nesting (`10-app/10-backend/10-services/10-user/...`).
 - Folders without a `00-overview` doc.
 
-Rationale: docs/10-system-design/10-doc-architecture
+Canonical: docs/10-system-design/10-doc-standards/10-structure — the corpus doc owns this standard (rule and rationale); this file is the operational copy.

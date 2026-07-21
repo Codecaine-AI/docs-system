@@ -203,6 +203,18 @@ describe("workbench shell", () => {
     expect(screen.getByText("Block library")).toBeTruthy();
   });
 
+  it("renders a legacy overview route and replaces its hash with the section route", async () => {
+    window.location.hash = "#/10-guide/00-overview";
+    const historyLength = window.history.length;
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Hello from Guide")).toBeTruthy();
+      expect(window.location.hash).toBe("#/10-guide");
+    });
+    expect(window.history.length).toBe(historyLength);
+  });
+
   it("static mode renders read-only: no mode switcher, no undo, content still renders", async () => {
     renderDocPage("10-guide", { isStatic: true });
     await waitFor(() => {

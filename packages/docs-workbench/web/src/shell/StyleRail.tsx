@@ -28,6 +28,10 @@ export type AccentFamily =
 export type FontChoice = "sans" | "serif" | "mono";
 /** "body" = follow the body font (no independent override). */
 export type NumberFontChoice = FontChoice | "body";
+/** Border style for the side-peek divider — --docs-peek-divider-style. */
+export type PeekDividerStyle = "solid" | "dashed" | "dotted" | "double";
+/** Placement of the file icon relative to a reference label. */
+export type ReferenceIconPosition = "before" | "after";
 /** auto resolves to overlay in light mode and screen in dark mode. */
 export type GrainBlendMode = "auto" | "multiply" | "screen" | "overlay" | "normal";
 
@@ -71,6 +75,16 @@ export type StyleRailSettings = {
     backgroundTint: number;
     /** % of gray mixed into the sidebar surface. */
     sidebarTint: number;
+  };
+  sidebar: {
+    /** Nav text color; null = theme foreground. */
+    textColor: string | null;
+    /** Nav font family. */
+    font: FontChoice;
+    /** Nav text size in px. */
+    fontSize: number;
+    /** Row vertical padding in px. */
+    padding: number;
   };
   grain: {
     enabled: boolean;
@@ -146,9 +160,37 @@ export type StyleRailSettings = {
     /** Clear inset around the thumb in px — lifts it off the window edge. */
     padding: number;
   };
+  peek: {
+    /** Side-peek open width in rem — --docs-peek-width (unset = the viewer's responsive min()). */
+    width: number;
+    /** Width transition duration in ms — --docs-peek-duration. */
+    durationMs: number;
+    /** Peek body horizontal padding in rem — --docs-peek-padding. */
+    padding: number;
+    /** Divider color; null = theme border — --docs-peek-divider-color. */
+    dividerColor: string | null;
+    /** Divider thickness in px — --docs-peek-divider-width. */
+    dividerWidth: number;
+    /** Divider border style — --docs-peek-divider-style. */
+    dividerStyle: PeekDividerStyle;
+  };
+  reference: {
+    /** Doc-reference chip rest color; null = theme muted foreground — --docs-ref-color. */
+    color: string | null;
+    /** Chip hover underline color; null = foreground at 40% — --docs-ref-underline-color. */
+    underlineColor: string | null;
+    /** File icon size in px — --docs-ref-icon-size. */
+    iconSize: number;
+    /** File icon color; null = follow the reference text — --docs-ref-icon-color. */
+    iconColor: string | null;
+    /** Space between icon and label in px — --docs-ref-icon-gap. */
+    iconGap: number;
+    /** Whether the icon leads or trails the label — --docs-ref-icon-direction. */
+    iconPosition: ReferenceIconPosition;
+  };
   /**
-   * Per-component token overrides (file -> key -> hex), layered over the
-   * active theme — the SAME vocabulary a theme folder's components/*.json
+   * Per-component token overrides (file -> key -> serialized token value),
+   * layered over the active theme — the SAME vocabulary a theme folder's components/*.json
    * files carry (THEME_TOKEN_REGISTRY). Sparse: absent = follow the theme.
    */
   components: Record<string, Record<string, string>>;
@@ -177,6 +219,7 @@ export const DEFAULT_STYLE_RAIL_SETTINGS: StyleRailSettings = {
     backgroundTint: 0,
     sidebarTint: 0,
   },
+  sidebar: { textColor: null, font: "sans", fontSize: 14, padding: 4 },
   grain: {
     enabled: true,
     opacity: 0.15,
@@ -192,6 +235,22 @@ export const DEFAULT_STYLE_RAIL_SETTINGS: StyleRailSettings = {
   list: { discSize: 6, circleSize: 6, circleThickness: 1.5, squareSize: 5, indent: 24 },
   grip: { gap: 12, offsetY: 6, size: 18, color: null, fadeMs: 100 },
   scrollbar: { width: 10, color: null, opacity: 1, padding: 0 },
+  peek: {
+    width: 48,
+    durationMs: 300,
+    padding: 1.5,
+    dividerColor: null,
+    dividerWidth: 1,
+    dividerStyle: "solid",
+  },
+  reference: {
+    color: null,
+    underlineColor: null,
+    iconSize: 12,
+    iconColor: null,
+    iconGap: 2,
+    iconPosition: "before",
+  },
   components: {},
 };
 
@@ -263,6 +322,9 @@ const TOKEN_KEY_LABELS: Record<string, string> = {
   cellPaddingY: "Row padding",
   cellPaddingX: "Column gap",
   fontSize: "Text size",
+  handleRadius: "Handle radius",
+  handleOffset: "Handle offset",
+  selectionPadding: "Selection padding",
   color: "Color",
   string: "Strings",
   number: "Numbers",
@@ -282,6 +344,21 @@ function componentLabel(file: string): string {
 const NUMBER_FONT_OPTIONS: Array<{ id: NumberFontChoice; label: string }> = [
   { id: "body", label: "Body font" },
   ...FONT_OPTIONS,
+];
+
+const PEEK_DIVIDER_STYLE_OPTIONS: Array<{ id: PeekDividerStyle; label: string }> = [
+  { id: "solid", label: "Solid" },
+  { id: "dashed", label: "Dashed" },
+  { id: "dotted", label: "Dotted" },
+  { id: "double", label: "Double" },
+];
+
+const REFERENCE_ICON_POSITION_OPTIONS: Array<{
+  id: ReferenceIconPosition;
+  label: string;
+}> = [
+  { id: "before", label: "Before text" },
+  { id: "after", label: "After text" },
 ];
 
 const BLEND_OPTIONS: Array<{ id: GrainBlendMode; label: string }> = [
@@ -364,12 +441,15 @@ export function normalizeSettings(raw: unknown): StyleRailSettings {
   };
   const typography = input.typography ?? ({} as NonNullable<typeof input.typography>);
   const layout = { ...input.surfaces, ...input.layout } as Partial<StyleRailSettings["layout"]>;
+  const sidebar = input.sidebar ?? ({} as Partial<StyleRailSettings["sidebar"]>);
   const grain = input.grain ?? d.grain;
   const softening = grain.softening ?? d.grain.softening;
   const colors = input.colors ?? d.colors;
   const highlight = input.highlight ?? ({} as Partial<StyleRailSettings["highlight"]>);
   const grip = input.grip ?? ({} as Partial<StyleRailSettings["grip"]>);
   const scrollbar = input.scrollbar ?? ({} as Partial<StyleRailSettings["scrollbar"]>);
+  const peek = input.peek ?? ({} as Partial<StyleRailSettings["peek"]>);
+  const reference = input.reference ?? ({} as Partial<StyleRailSettings["reference"]>);
   const dragSelect = input.dragSelect ?? ({} as Partial<StyleRailSettings["dragSelect"]>);
   const list = input.list ?? ({} as Partial<StyleRailSettings["list"]>);
   return {
@@ -398,6 +478,12 @@ export function normalizeSettings(raw: unknown): StyleRailSettings {
       borderStrength: clampNumber(layout.borderStrength, 0, 2, d.layout.borderStrength),
       backgroundTint: clampNumber(layout.backgroundTint, 0, 12, d.layout.backgroundTint),
       sidebarTint: clampNumber(layout.sidebarTint, 0, 60, d.layout.sidebarTint),
+    },
+    sidebar: {
+      textColor: pickHexColor(sidebar.textColor),
+      font: pickOption(sidebar.font, FONT_OPTIONS, d.sidebar.font),
+      fontSize: clampNumber(sidebar.fontSize, 10, 20, d.sidebar.fontSize),
+      padding: clampNumber(sidebar.padding, 0, 16, d.sidebar.padding),
     },
     highlight: {
       color: pickHexColor(highlight.color),
@@ -438,6 +524,26 @@ export function normalizeSettings(raw: unknown): StyleRailSettings {
       opacity: clampNumber(scrollbar.opacity, 0.1, 1, d.scrollbar.opacity),
       padding: clampNumber(scrollbar.padding, 0, 12, d.scrollbar.padding),
     },
+    peek: {
+      width: clampNumber(peek.width, 24, 80, d.peek.width),
+      durationMs: clampNumber(peek.durationMs, 0, 800, d.peek.durationMs),
+      padding: clampNumber(peek.padding, 0, 4, d.peek.padding),
+      dividerColor: pickHexColor(peek.dividerColor),
+      dividerWidth: clampNumber(peek.dividerWidth, 0, 8, d.peek.dividerWidth),
+      dividerStyle: pickOption(peek.dividerStyle, PEEK_DIVIDER_STYLE_OPTIONS, d.peek.dividerStyle),
+    },
+    reference: {
+      color: pickHexColor(reference.color),
+      underlineColor: pickHexColor(reference.underlineColor),
+      iconSize: clampNumber(reference.iconSize, 8, 28, d.reference.iconSize),
+      iconColor: pickHexColor(reference.iconColor),
+      iconGap: clampNumber(reference.iconGap, 0, 16, d.reference.iconGap),
+      iconPosition: pickOption(
+        reference.iconPosition,
+        REFERENCE_ICON_POSITION_OPTIONS,
+        d.reference.iconPosition,
+      ),
+    },
     components: normalizeComponentOverrides(input.components),
     grain: {
       enabled: typeof grain.enabled === "boolean" ? grain.enabled : d.grain.enabled,
@@ -464,6 +570,19 @@ export function loadStyleRailSettings(): StyleRailSettings {
   }
 }
 
+/**
+ * True when this browser has rail settings persisted. A fresh browser must
+ * seed from the repo's saved default theme, not the compiled-in stock
+ * settings — see the boot seed in App.tsx.
+ */
+export function hasStoredStyleRailSettings(): boolean {
+  try {
+    return window.localStorage.getItem(STORAGE_KEY) !== null;
+  } catch {
+    return false;
+  }
+}
+
 export function saveStyleRailSettings(settings: StyleRailSettings) {
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
@@ -479,7 +598,7 @@ export function saveStyleRailSettings(settings: StyleRailSettings) {
  */
 export function styleRailVars(settings: StyleRailSettings): Record<string, string | null> {
   const d = DEFAULT_STYLE_RAIL_SETTINGS;
-  const { accent, colors, typography, layout, grain, highlight, dragSelect, list, grip, scrollbar, components } = settings;
+  const { accent, colors, typography, layout, sidebar: sidebarSettings, grain, highlight, dragSelect, list, grip, scrollbar, peek, reference, components } = settings;
   const { softening } = grain;
 
   const accented = accent !== d.accent;
@@ -566,6 +685,16 @@ export function styleRailVars(settings: StyleRailSettings): Record<string, strin
     "--style-title-padding":
       layout.titlePadding === d.layout.titlePadding ? null : `${layout.titlePadding}px`,
 
+    // Docs-tree sidebar typography and row rhythm. Defaults remove the
+    // overrides so the nav keeps following the active theme and base CSS.
+    "--docs-sidebar-item-fg": sidebarSettings.textColor,
+    "--docs-sidebar-font":
+      sidebarSettings.font === d.sidebar.font ? null : FONT_STACKS[sidebarSettings.font],
+    "--docs-sidebar-font-size":
+      sidebarSettings.fontSize === d.sidebar.fontSize ? null : `${sidebarSettings.fontSize}px`,
+    "--docs-sidebar-item-py":
+      sidebarSettings.padding === d.sidebar.padding ? null : `${sidebarSettings.padding}px`,
+
     // Block highlight (changed-flash + node selection) and the drag
     // drop-line — consumed in index.css with theme-blue fallbacks.
     "--docs-highlight-color": highlight.color,
@@ -614,6 +743,29 @@ export function styleRailVars(settings: StyleRailSettings): Record<string, strin
       scrollbar.opacity === d.scrollbar.opacity ? null : String(scrollbar.opacity),
     "--docs-scrollbar-padding":
       scrollbar.padding === d.scrollbar.padding ? null : `${scrollbar.padding}px`,
+
+    // Side-peek panel + doc-reference chip — consumed by docs-viewer
+    // (DocPeekPanel / the inline reference chip); semantic.css carries the
+    // canonical defaults, so a knob at default removes its override and the
+    // theme-tracking token (e.g. var(--border)) stays authoritative.
+    "--docs-peek-width": peek.width === d.peek.width ? null : `${peek.width}rem`,
+    "--docs-peek-duration":
+      peek.durationMs === d.peek.durationMs ? null : `${peek.durationMs}ms`,
+    "--docs-peek-padding": peek.padding === d.peek.padding ? null : `${peek.padding}rem`,
+    "--docs-peek-divider-color": peek.dividerColor,
+    "--docs-peek-divider-width":
+      peek.dividerWidth === d.peek.dividerWidth ? null : `${peek.dividerWidth}px`,
+    "--docs-peek-divider-style":
+      peek.dividerStyle === d.peek.dividerStyle ? null : peek.dividerStyle,
+    "--docs-ref-color": reference.color,
+    "--docs-ref-underline-color": reference.underlineColor,
+    "--docs-ref-icon-size":
+      reference.iconSize === d.reference.iconSize ? null : `${reference.iconSize}px`,
+    "--docs-ref-icon-color": reference.iconColor,
+    "--docs-ref-icon-gap":
+      reference.iconGap === d.reference.iconGap ? null : `${reference.iconGap}px`,
+    "--docs-ref-icon-direction":
+      reference.iconPosition === d.reference.iconPosition ? null : "row-reverse",
 
     "--radius": layout.radius === d.layout.radius ? null : `${layout.radius}px`,
     "--border": border,
@@ -956,6 +1108,8 @@ export function StyleRail({
     onSettingsChange({ ...settings, typography: { ...typography, ...patch } });
   const patchLayout = (patch: Partial<StyleRailSettings["layout"]>) =>
     onSettingsChange({ ...settings, layout: { ...layout, ...patch } });
+  const patchSidebar = (patch: Partial<StyleRailSettings["sidebar"]>) =>
+    onSettingsChange({ ...settings, sidebar: { ...settings.sidebar, ...patch } });
   const patchGrain = (patch: Partial<StyleRailSettings["grain"]>) =>
     onSettingsChange({ ...settings, grain: { ...grain, ...patch } });
   const patchSoftening = (patch: Partial<StyleRailSettings["grain"]["softening"]>) =>
@@ -970,6 +1124,10 @@ export function StyleRail({
     onSettingsChange({ ...settings, dragSelect: { ...settings.dragSelect, ...patch } });
   const patchList = (patch: Partial<StyleRailSettings["list"]>) =>
     onSettingsChange({ ...settings, list: { ...settings.list, ...patch } });
+  const patchPeek = (patch: Partial<StyleRailSettings["peek"]>) =>
+    onSettingsChange({ ...settings, peek: { ...settings.peek, ...patch } });
+  const patchReference = (patch: Partial<StyleRailSettings["reference"]>) =>
+    onSettingsChange({ ...settings, reference: { ...settings.reference, ...patch } });
   const patchComponent = (file: string, key: string, value: string | null) => {
     const fileTokens = { ...(settings.components[file] ?? {}) };
     if (value === null) delete fileTokens[key];
@@ -1270,6 +1428,52 @@ export function StyleRail({
                     </PanelSection>
                   ))}
                 </PanelSection>
+                <PanelSection title="References">
+                  <ColorRow
+                    defaultExpr="var(--docs-ref-color)"
+                    label="Text color"
+                    onChange={(value) => patchReference({ color: value })}
+                    value={settings.reference.color}
+                  />
+                  <ColorRow
+                    defaultExpr="var(--docs-ref-underline-color)"
+                    label="Hover underline"
+                    onChange={(value) => patchReference({ underlineColor: value })}
+                    value={settings.reference.underlineColor}
+                  />
+                  <PanelSection nested title="Icon">
+                    <ColorRow
+                      defaultExpr="var(--docs-ref-color)"
+                      label="Color"
+                      onChange={(value) => patchReference({ iconColor: value })}
+                      value={settings.reference.iconColor}
+                    />
+                    <SliderRow
+                      label="Size"
+                      max={28}
+                      min={8}
+                      onChange={(value) => patchReference({ iconSize: value })}
+                      step={1}
+                      value={settings.reference.iconSize}
+                      valueLabel={`${settings.reference.iconSize}px`}
+                    />
+                    <SliderRow
+                      label="Spacing"
+                      max={16}
+                      min={0}
+                      onChange={(value) => patchReference({ iconGap: value })}
+                      step={1}
+                      value={settings.reference.iconGap}
+                      valueLabel={`${settings.reference.iconGap}px`}
+                    />
+                    <SelectRow
+                      label="Position"
+                      onChange={(value) => patchReference({ iconPosition: value })}
+                      options={REFERENCE_ICON_POSITION_OPTIONS}
+                      value={settings.reference.iconPosition}
+                    />
+                  </PanelSection>
+                </PanelSection>
                 <PanelSection title="Background effect">
                   <ToggleRow
                     checked={grain.enabled}
@@ -1429,6 +1633,44 @@ export function StyleRail({
                     valueLabel={`${layout.sidebarTint}%`}
                   />
                 </PanelSection>
+                <PanelSection title="Sidebar">
+                  <ColorRow
+                    defaultExpr="var(--color-bg-sidebar)"
+                    label="Background"
+                    onChange={(value) => patchColors({ sidebar: value })}
+                    value={colors.sidebar}
+                  />
+                  <ColorRow
+                    defaultExpr="var(--foreground)"
+                    label="Text color"
+                    onChange={(value) => patchSidebar({ textColor: value })}
+                    value={settings.sidebar.textColor}
+                  />
+                  <SelectRow
+                    label="Font"
+                    onChange={(value) => patchSidebar({ font: value })}
+                    options={FONT_OPTIONS}
+                    value={settings.sidebar.font}
+                  />
+                  <SliderRow
+                    label="Text size"
+                    max={20}
+                    min={10}
+                    onChange={(value) => patchSidebar({ fontSize: value })}
+                    step={1}
+                    value={settings.sidebar.fontSize}
+                    valueLabel={`${settings.sidebar.fontSize}px`}
+                  />
+                  <SliderRow
+                    label="Padding"
+                    max={16}
+                    min={0}
+                    onChange={(value) => patchSidebar({ padding: value })}
+                    step={1}
+                    value={settings.sidebar.padding}
+                    valueLabel={`${settings.sidebar.padding}px`}
+                  />
+                </PanelSection>
                 <PanelSection title="Scrollbar">
                   <SliderRow
                     label="Width"
@@ -1463,6 +1705,58 @@ export function StyleRail({
                     value={settings.scrollbar.padding}
                     valueLabel={`${settings.scrollbar.padding}px`}
                   />
+                </PanelSection>
+                <PanelSection title="Side peek">
+                  <SliderRow
+                    label="Width"
+                    max={80}
+                    min={24}
+                    onChange={(value) => patchPeek({ width: value })}
+                    step={1}
+                    value={settings.peek.width}
+                    valueLabel={`${settings.peek.width}rem`}
+                  />
+                  <SliderRow
+                    label="Animation"
+                    max={800}
+                    min={0}
+                    onChange={(value) => patchPeek({ durationMs: value })}
+                    step={10}
+                    value={settings.peek.durationMs}
+                    valueLabel={`${settings.peek.durationMs}ms`}
+                  />
+                  <SliderRow
+                    label="Padding"
+                    max={4}
+                    min={0}
+                    onChange={(value) => patchPeek({ padding: value })}
+                    step={0.25}
+                    value={settings.peek.padding}
+                    valueLabel={`${settings.peek.padding}rem`}
+                  />
+                  <PanelSection nested title="Divider">
+                    <ColorRow
+                      defaultExpr="var(--docs-peek-divider-color)"
+                      label="Color"
+                      onChange={(value) => patchPeek({ dividerColor: value })}
+                      value={settings.peek.dividerColor}
+                    />
+                    <SliderRow
+                      label="Thickness"
+                      max={8}
+                      min={0}
+                      onChange={(value) => patchPeek({ dividerWidth: value })}
+                      step={0.5}
+                      value={settings.peek.dividerWidth}
+                      valueLabel={`${settings.peek.dividerWidth}px`}
+                    />
+                    <SelectRow
+                      label="Style"
+                      onChange={(value) => patchPeek({ dividerStyle: value })}
+                      options={PEEK_DIVIDER_STYLE_OPTIONS}
+                      value={settings.peek.dividerStyle}
+                    />
+                  </PanelSection>
                 </PanelSection>
                 <PanelSection defaultOpen title="Editor">
                   <PanelSection nested title="Highlight">

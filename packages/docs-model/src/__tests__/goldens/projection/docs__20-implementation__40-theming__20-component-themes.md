@@ -18,7 +18,7 @@ Each visual surface has its own token file inside a theme folder: `components/<s
 | image.json | border, caption | Image border + caption text |
 | video.json | border, caption | Video frame border + caption text |
 | file-tree.json | border, note | Container border + entry notes |
-| structured-table.json | border, headerBg, headerFg, headerRule(+Width/Opacity), rowRule(+Width/Opacity), cellPaddingY/X, fontSize | Header + row rules, spacing, text size |
+| structured-table.json | border, headerBg, headerFg, headerRule(+Width/Opacity), rowRule(+Width/Opacity), cellPaddingY/X, fontSize, handleRadius/Offset, selectionPadding | Header + row rules, spacing, text size + editor handle/selection furniture |
 | interaction-surface.json | border, bg | Container border + background |
 | mermaid.json | border, bg | Container border + background |
 | canvas.json | border | Embed container border |
@@ -33,4 +33,4 @@ Each visual surface has its own token file inside a theme folder: `components/<s
 
 ## Extending the vocabulary
 
-Adding a themable property is a three-step change: define the token in both blocks of `semantic.css`, consume it via `var(--docs-...)` at the use site, and add the file/key mapping to `THEME_TOKEN_REGISTRY`. Keep this page's table in sync when the registry grows.
+Adding a themable property is a three-step change: define the token in both blocks of `semantic.css`, consume it via `var(--docs-...)` at the use site, and add the file/key mapping to `THEME_TOKEN_REGISTRY`. Keep this page's table in sync when the registry grows. The editor furniture accent for the structured-table controls is the semantic variable `--docs-editor-accent` (light rgb(0, 120, 223), dark rgb(82, 156, 202)), defined in the workbench semantic layer and consumed with a hex fallback.

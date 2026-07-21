@@ -18,6 +18,7 @@ import { DocFileTree } from "../../components/file-tree/editor-nodes";
 import { DocStructuredTable } from "../../components/structured-table/editor-nodes";
 import { DocInteractionSurface } from "../../components/interaction-surface/editor-nodes";
 import { DocCanvas } from "../../components/canvas/editor-nodes";
+import { DocSequence } from "../../components/sequence/editor-nodes";
 import { blockAttrs as sharedBlockAttrs } from "./node-helpers";
 
 export {
@@ -33,6 +34,7 @@ export {
   DocMermaid,
   DocParagraph,
   DocQuote,
+  DocSequence,
   DocStructuredTable,
   DocVideo,
 };
@@ -108,6 +110,7 @@ export const ATOM_BLOCK_TYPES = [
   "image",
   "video",
   "canvas",
+  "sequence",
   "file-tree",
   "structured-table",
   "interaction-surface",
@@ -126,6 +129,7 @@ export const NODE_TYPE_TO_BLOCK_TYPE: Record<string, DocBlockType> = {
   docImage: "image",
   docVideo: "video",
   docCanvas: "canvas",
+  docSequence: "sequence",
   docFileTree: "file-tree",
   docStructuredTable: "structured-table",
   docInteractionSurface: "interaction-surface",
@@ -184,6 +188,7 @@ export const ATOM_BLOCK_NODES = [
   DocImage,
   DocVideo,
   DocCanvas,
+  DocSequence,
   DocFileTree,
   DocStructuredTable,
   DocInteractionSurface,

@@ -26,7 +26,25 @@ export const DocListItem = Node.create({
     // `null` (not `false`) is the "absent in source props" sentinel — see
     // DocHeading's `level` attr for why this matters for round-trip
     // losslessness. Rendered/edited as unordered when null.
-    return { ...nodeBlockAttrs, ordered: { default: null as boolean | null } };
+    //
+    // Clipboard encoding rides the marker-contract attribute the node's
+    // renderHTML already emits (`data-doc-ordered`), never a raw `ordered`
+    // attr: TipTap's default attr rendering leaked `ordered="true"` and
+    // parsed it back as the STRING "true". External `<ol>/<ul>` paste maps
+    // through the nearest list ancestor.
+    return {
+      ...nodeBlockAttrs,
+      ordered: {
+        default: null as boolean | null,
+        parseHTML: (element: HTMLElement) => {
+          if (element.getAttribute("data-doc-ordered") === "true") return true;
+          if (element.getAttribute("data-doc-bullet") === "true") return null;
+          const list = element.closest("ol, ul");
+          return list?.tagName === "OL" ? true : null;
+        },
+        renderHTML: () => ({}),
+      },
+    };
   },
   parseHTML() {
     // The serialized editor `<li>` carries a marker `<span>` before its

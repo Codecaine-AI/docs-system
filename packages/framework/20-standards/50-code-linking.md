@@ -22,4 +22,4 @@ concepts: [code-linking, references, file-paths]
 - Elaborate navigation scripts ("start here, then read, for debugging see...") — list files, explain briefly.
 - Doc links embedded in code comments.
 
-Rationale: docs/10-system-design/10-doc-architecture
+Canonical: docs/10-system-design/10-doc-standards/40-code-linking — the corpus doc owns this standard (rule and rationale); this file is the operational copy.

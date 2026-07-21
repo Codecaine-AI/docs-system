@@ -10,6 +10,7 @@ import {
 import {
   useCallback,
   useEffect,
+  useId,
   useMemo,
   useRef,
   useState,
@@ -24,7 +25,13 @@ import {
   type ReferenceType,
 } from "@floating-ui/react";
 import { validateSpectreRef, type SpectreRef } from "@codecaine-ai/docs-model/spectre-ref";
+import { FileTextIcon } from "lucide-react";
 import { useDocsClient, type DocsClient, type DocsTreeNode } from "../../client";
+import {
+  DOC_REFERENCE_NAVIGATE_EVENT,
+  type DocReferenceNavigateDetail,
+  type DocReferenceNavigateIntent,
+} from "../../peek/peek-state";
 
 /**
  * Inline reference (mention) node — the doc.json `DeltaSpan.attributes.reference`
@@ -129,44 +136,59 @@ export const DocReference = Node.create({
 });
 
 /**
- * Hover hook: shows a small popup with the reference's target info and a
- * "navigate" affordance. Navigation is a no-op stub in v1 (emits a
- * CustomEvent so a host page can opt in — CP8 scope doesn't include a
- * doc-to-doc router) but the target info + open affordance are real so
- * backlinks/mentions read as first-class citizens.
+ * The chip's compact, fast tooltip exposes the target path. Clicks dispatch
+ * `DOC_REFERENCE_NAVIGATE_EVENT` on `document` with a
+ * `DocReferenceNavigateDetail` (see ../../peek/peek-state): a plain click on
+ * a doc ref carries intent "peek" (DocPeekPanel opens a read-only side
+ * preview), while Cmd/Ctrl-click and source refs (no doc.json to preview)
+ * carry intent "navigate" — the host performs full navigation.
  */
 function ReferenceChipView({ node }: ReactNodeViewProps) {
   const attrs = node.attrs as DocReferenceAttrs;
-  const [open, setOpen] = useState(false);
-  const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const tooltipId = useId();
+  const [tooltipOpen, setTooltipOpen] = useState(false);
+  const tooltipTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { refs, floatingStyles } = useFloating({
-    open,
-    onOpenChange: setOpen,
+    open: tooltipOpen,
+    onOpenChange: setTooltipOpen,
     placement: "top",
     whileElementsMounted: autoUpdate,
-    middleware: [offsetMiddleware(6), flip(), shift({ padding: 8 })],
+    middleware: [offsetMiddleware(5), flip(), shift({ padding: 8 })],
   });
 
   useEffect(() => {
     return () => {
-      if (hoverTimer.current) clearTimeout(hoverTimer.current);
+      if (tooltipTimer.current) clearTimeout(tooltipTimer.current);
     };
   }, []);
 
-  const openSoon = () => {
-    if (hoverTimer.current) clearTimeout(hoverTimer.current);
-    hoverTimer.current = setTimeout(() => setOpen(true), 150);
-  };
-  const closeSoon = () => {
-    if (hoverTimer.current) clearTimeout(hoverTimer.current);
-    hoverTimer.current = setTimeout(() => setOpen(false), 100);
+  const showTooltipSoon = () => {
+    if (tooltipTimer.current) clearTimeout(tooltipTimer.current);
+    tooltipTimer.current = setTimeout(() => setTooltipOpen(true), 50);
   };
 
-  const navigate = (event: ReactMouseEvent) => {
+  const hideTooltip = () => {
+    if (tooltipTimer.current) clearTimeout(tooltipTimer.current);
+    tooltipTimer.current = null;
+    setTooltipOpen(false);
+  };
+
+  // stopPropagation alongside preventDefault so ProseMirror's click/selection
+  // handling doesn't fight the chip click.
+  const dispatchNavigate = (event: ReactMouseEvent, intent: DocReferenceNavigateIntent) => {
     event.preventDefault();
+    event.stopPropagation();
     document.dispatchEvent(
-      new CustomEvent("spectre:doc-reference-navigate", { detail: attrs.ref }),
+      new CustomEvent<DocReferenceNavigateDetail>(DOC_REFERENCE_NAVIGATE_EVENT, {
+        detail: { ref: attrs.ref, intent },
+      }),
     );
+  };
+
+  const handleChipClick = (event: ReactMouseEvent) => {
+    const wantsFullNavigation =
+      event.metaKey || event.ctrlKey || attrs.ref?.kind !== "doc";
+    dispatchNavigate(event, wantsFullNavigation ? "navigate" : "peek");
   };
 
   return (
@@ -176,35 +198,31 @@ function ReferenceChipView({ node }: ReactNodeViewProps) {
         data-doc-reference="true"
         data-ref-kind={attrs.ref?.kind}
         data-ref-path={attrs.ref?.path}
-        title={attrs.ref?.path}
-        onMouseEnter={openSoon}
-        onMouseLeave={closeSoon}
-        onClick={navigate}
-        className="inline-flex cursor-pointer items-center gap-1 rounded border border-primary/30 bg-primary/5 px-1 py-0.5 font-mono text-[0.85em] text-foreground"
+        aria-describedby={tooltipOpen ? tooltipId : undefined}
+        onBlur={hideTooltip}
+        onClick={handleChipClick}
+        onFocus={() => setTooltipOpen(true)}
+        onMouseEnter={showTooltipSoon}
+        onMouseLeave={hideTooltip}
+        className="group inline-flex cursor-pointer items-center gap-[var(--docs-ref-icon-gap,2px)] [flex-direction:var(--docs-ref-icon-direction,row)] text-[color:var(--docs-ref-color,var(--muted-foreground))]"
       >
-        {attrs.label || attrs.ref?.label || attrs.ref?.path}
+        <FileTextIcon
+          aria-hidden
+          className="shrink-0 text-[color:var(--docs-ref-icon-color,currentColor)] [height:var(--docs-ref-icon-size,12px)] [width:var(--docs-ref-icon-size,12px)]"
+        />
+        <span className="underline-offset-2 group-hover:underline group-hover:decoration-[color:var(--docs-ref-underline-color,color-mix(in_srgb,var(--foreground)_40%,transparent))]">
+          {attrs.label || attrs.ref?.label || attrs.ref?.path}
+        </span>
       </span>
-      {open && attrs.ref && (
+      {tooltipOpen && attrs.ref?.path && (
         <span
           ref={refs.setFloating}
+          id={tooltipId}
+          role="tooltip"
           style={floatingStyles}
-          onMouseEnter={openSoon}
-          onMouseLeave={closeSoon}
-          className="z-50 rounded-md border bg-popover p-2 text-xs text-popover-foreground shadow-md"
+          className="pointer-events-none z-50 max-w-[min(32rem,calc(100vw-1rem))] break-all rounded bg-foreground px-2 py-1 text-[11px] leading-tight text-background shadow-sm"
         >
-          <div className="font-medium">{attrs.ref.label ?? attrs.ref.path}</div>
-          <div className="mt-0.5 text-muted-foreground">
-            {attrs.ref.kind === "doc" ? "Doc" : "Source"}: {attrs.ref.path}
-            {attrs.ref.line !== undefined ? `:${attrs.ref.line}` : ""}
-            {attrs.ref.symbol ? ` (${attrs.ref.symbol})` : ""}
-          </div>
-          <button
-            type="button"
-            onClick={navigate}
-            className="mt-1 rounded border px-1.5 py-0.5 text-[11px] font-medium hover:bg-muted"
-          >
-            Go to reference
-          </button>
+          {attrs.ref.path}
         </span>
       )}
     </NodeViewWrapper>
@@ -463,12 +481,12 @@ export function ReferenceMentionPopover({
 
   const chooseDoc = useCallback(
     (entry: ReferencePickerEntry) => {
-      insertReference(editor, state.from, state.to, { kind: "doc", path: entry.path, label: entry.label }, entry.label);
+      insertReference(editor, state.from, state.to, { kind: "doc", path: entry.path }, entry.label);
     },
     [editor, state.from, state.to],
   );
   const chooseCustomPath = useCallback(() => {
-    insertReference(editor, state.from, state.to, { kind: "source", path: query, label: query }, query);
+    insertReference(editor, state.from, state.to, { kind: "source", path: query }, query);
   }, [editor, state.from, state.to, query]);
 
   useEffect(() => {

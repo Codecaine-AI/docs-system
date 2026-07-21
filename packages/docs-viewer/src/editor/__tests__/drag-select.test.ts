@@ -1,12 +1,13 @@
 import { afterEach, describe, expect, it } from "bun:test";
 import { Editor, type AnyExtension, type JSONContent } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
-import { NodeSelection } from "@tiptap/pm/state";
+import { NodeSelection, TextSelection } from "@tiptap/pm/state";
 import { ATOM_BLOCK_NODES, TEXT_BLOCK_NODES } from "../core/schema";
 import {
   DocDragSelect,
   dropBlockSliceTr,
   moveRangeTr,
+  rangeSelection,
   shouldStartBand,
   topLevelDropPos,
 } from "../views/drag-select";
@@ -140,6 +141,104 @@ describe("drag-select plugin state", () => {
     const texts = blocks(editor).map(({ pos }) => editor.state.doc.nodeAt(pos)?.textContent);
     expect(texts).toEqual(["keep-head", "keep-tail"]);
     expect(dragSelectPluginKey.getState(editor.state)).toBeNull();
+  });
+});
+
+describe("band range backs a real selection (R2-D15)", () => {
+  it("setting a range lands a real selection spanning the banded blocks", () => {
+    const editor = createEditor([
+      paragraph("one", "b1"),
+      paragraph("two", "b2"),
+      paragraph("three", "b3"),
+    ]);
+    const range = rangeOver(editor, 1, 2);
+    setRange(editor, range);
+
+    const selection = editor.state.selection;
+    expect(selection.empty).toBe(false);
+    expect(selection.from).toBeGreaterThanOrEqual(range.from);
+    expect(selection.to).toBeLessThanOrEqual(range.to);
+    // Anchor inside the FIRST banded block, head inside the LAST — the
+    // selection's top-level footprint is exactly the banded run.
+    expect(selection.$from.before(1)).toBe(range.from);
+    expect(selection.$to.after(1)).toBe(range.to);
+  });
+
+  it("the copied slice carries the banded blocks' content (Cmd+C regression)", () => {
+    const editor = createEditor([
+      paragraph("one", "b1"),
+      paragraph("two", "b2"),
+      paragraph("three", "b3"),
+    ]);
+    setRange(editor, rangeOver(editor, 1, 2));
+
+    // Selection.content() is the slice PM's copy serializes to the clipboard.
+    const slice = editor.state.selection.content();
+    expect(slice.size).toBeGreaterThan(0);
+    const text = slice.content.textBetween(0, slice.content.size, "\n");
+    expect(text).toContain("two");
+    expect(text).toContain("three");
+    expect(text).not.toContain("one");
+  });
+
+  it("an atom-only range falls back to a NodeSelection on the block", () => {
+    const editor = createEditor([
+      { type: "docCanvas", attrs: { blockId: "b1", blockProps: { canvasId: "board" } } },
+      paragraph("after", "b2"),
+    ]);
+    setRange(editor, rangeOver(editor, 0, 0));
+
+    const selection = editor.state.selection;
+    expect(selection).toBeInstanceOf(NodeSelection);
+    expect((selection as NodeSelection).node.type.name).toBe("docCanvas");
+    expect(selection.content().size).toBeGreaterThan(0);
+  });
+
+  it("Escape collapses the real selection to a caret at the range start", () => {
+    const editor = createEditor([
+      paragraph("one", "b1"),
+      paragraph("two", "b2"),
+      paragraph("three", "b3"),
+    ]);
+    const range = rangeOver(editor, 1, 2);
+    setRange(editor, range);
+    expect(editor.state.selection.empty).toBe(false);
+
+    expect(keydown(editor, "Escape")).toBe(true);
+    expect(dragSelectPluginKey.getState(editor.state)).toBeNull();
+    expect(editor.state.selection.empty).toBe(true);
+    // Caret sits inside the block the range started on.
+    expect(editor.state.selection.$from.before(1)).toBe(range.from);
+  });
+
+  it("a multi-block grip drop lands the real selection on the moved run", () => {
+    const editor = createEditor([
+      paragraph("A", "b1"),
+      paragraph("B", "b2"),
+      paragraph("C", "b3"),
+      paragraph("D", "b4"),
+    ]);
+    setRange(editor, rangeOver(editor, 1, 2));
+    const tr = moveRangeTr(editor.state, rangeOver(editor, 1, 2), editor.state.doc.content.size);
+    editor.view.dispatch(tr!);
+
+    const after = dragSelectPluginKey.getState(editor.state)!;
+    const selection = editor.state.selection;
+    expect(selection.empty).toBe(false);
+    expect(selection.$from.before(1)).toBe(after.from);
+    expect(selection.$to.after(1)).toBe(after.to);
+    const text = selection.content().content.textBetween(0, selection.content().content.size, "\n");
+    expect(text).toContain("B");
+    expect(text).toContain("C");
+  });
+
+  it("rangeSelection prefers TextSelection.between across text blocks", () => {
+    const editor = createEditor([paragraph("head", "b1"), paragraph("tail", "b2")]);
+    const range = rangeOver(editor, 0, 1);
+    const selection = rangeSelection(editor.state.doc, range);
+    expect(selection).toBeInstanceOf(TextSelection);
+    expect(selection.$from.before(1)).toBe(range.from);
+    expect(selection.$to.after(1)).toBe(range.to);
   });
 });
 

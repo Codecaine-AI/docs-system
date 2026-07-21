@@ -5,6 +5,7 @@ import * as fileTreeEditorNodes from "../components/file-tree/editor-nodes";
 import * as interactionSurfaceEditorNodes from "../components/interaction-surface/editor-nodes";
 import * as mermaidEditorNodes from "../components/mermaid/editor-nodes";
 import * as richTextEditorNodes from "../components/rich-text/editor-nodes";
+import * as sequenceEditorNodes from "../components/sequence/editor-nodes";
 import * as structuredTableEditorNodes from "../components/structured-table/editor-nodes";
 import {
   ATOM_BLOCK_NODES,
@@ -21,6 +22,7 @@ const componentNodeModules = [
   structuredTableEditorNodes,
   interactionSurfaceEditorNodes,
   canvasEditorNodes,
+  sequenceEditorNodes,
 ];
 
 describe("component editor nodes", () => {
@@ -39,6 +41,7 @@ describe("component editor nodes", () => {
       "docImage",
       "docVideo",
       "docCanvas",
+      "docSequence",
       "docFileTree",
       "docStructuredTable",
       "docInteractionSurface",
@@ -65,6 +68,7 @@ describe("component editor nodes", () => {
       image: "docImage",
       video: "docVideo",
       canvas: "docCanvas",
+      sequence: "docSequence",
       "file-tree": "docFileTree",
       "structured-table": "docStructuredTable",
       "interaction-surface": "docInteractionSurface",

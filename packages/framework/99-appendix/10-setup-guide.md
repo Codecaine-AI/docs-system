@@ -158,7 +158,7 @@ your-project/
             └── canvas/                      # nested submodule — see the cycle caveat
 ```
 
-Each folder inside `docs/` holds `doc.json` bundles once you've run `docs migrate` (or once you author fresh content through `docs serve`'s Edit mode) — not raw markdown files. The three-layer directory shape still applies; only the on-disk representation of each node changed. For the bundle anatomy and the rendered surfaces, see the docs-system corpus: `docs/10-system-design/00-interaction-surfaces`.
+Each folder inside `docs/` holds `doc.json` bundles once you've run `docs migrate` (or once you author fresh content through `docs serve`'s Edit mode) — not raw markdown files. The three-layer directory shape still applies; only the on-disk representation of each node changed. For the bundle anatomy and the rendered surfaces, see the docs-system corpus: `docs/10-system-design/20-interaction-surfaces`.
 
 ## One Repo, One Output
 

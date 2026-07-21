@@ -12,17 +12,19 @@ import {
   DocImage,
   DocInteractionSurface,
   DocMermaid,
+  DocSequence,
   DocStructuredTable,
   DocVideo,
   NODE_TYPE_TO_BLOCK_TYPE,
 } from "../core/schema";
 import { CodeBlockNodeView } from "../../components/code/editor-node-view";
+import { StructuredTableNodeView } from "../../components/structured-table/editor-node-view";
 import { useDocEditorNodeViewContext } from "./node-view-context";
 
 /**
  * Atom-node React views for the structured/atomic block types (divider,
- * image, video, canvas, file-tree, structured-table, interaction-surface,
- * mermaid). Rather than
+ * image, video, canvas, file-tree, interaction-surface, mermaid; the
+ * structured table has its own editable view below). Rather than
  * reimplementing each block type's presentation, every view here reconstructs
  * the minimal `DocBlock` the block-registry descriptor's `render` expects
  * from the PM node's `blockId`/`blockProps` attrs and calls it directly —
@@ -34,7 +36,7 @@ import { useDocEditorNodeViewContext } from "./node-view-context";
  * stubs).
  */
 function AtomBlockView({ node }: ReactNodeViewProps) {
-  const { renderCanvas, resolveAssetSrc } = useDocEditorNodeViewContext();
+  const { renderCanvas, renderSequence, resolveAssetSrc } = useDocEditorNodeViewContext();
   const blockType = NODE_TYPE_TO_BLOCK_TYPE[node.type.name];
   const descriptor = blockType ? getDocBlockDescriptor(blockType) : null;
   if (!descriptor || !blockType) {
@@ -62,6 +64,7 @@ function AtomBlockView({ node }: ReactNodeViewProps) {
     renderChildren: () => null,
     renderMarkdown: (markdown) => <Fragment>{markdown}</Fragment>,
     renderCanvas,
+    renderSequence,
     resolveAssetSrc,
   };
   return (
@@ -95,15 +98,24 @@ export const DocCanvasWithView = DocCanvas.extend({
   },
 });
 
+export const DocSequenceWithView = DocSequence.extend({
+  addNodeView() {
+    return ReactNodeViewRenderer(AtomBlockView);
+  },
+});
+
 export const DocFileTreeWithView = DocFileTree.extend({
   addNodeView() {
     return ReactNodeViewRenderer(AtomBlockView);
   },
 });
 
+// The structured table swaps in its own editable node view (in-place cell
+// editing; see components/structured-table/editor-node-view.tsx) instead of
+// the read-only AtomBlockView the other atoms share.
 export const DocStructuredTableWithView = DocStructuredTable.extend({
   addNodeView() {
-    return ReactNodeViewRenderer(AtomBlockView);
+    return ReactNodeViewRenderer(StructuredTableNodeView);
   },
 });
 
@@ -125,6 +137,7 @@ export const ATOM_BLOCK_NODES_WITH_VIEWS = [
   DocImageWithView,
   DocVideoWithView,
   DocCanvasWithView,
+  DocSequenceWithView,
   DocFileTreeWithView,
   DocStructuredTableWithView,
   DocInteractionSurfaceWithView,

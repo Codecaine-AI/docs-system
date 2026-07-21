@@ -3,7 +3,7 @@
 import { DOC_BLOCK_TYPES } from "../doc-schema";
 import type { ComponentBundle } from "./types";
 
-export const KNOWN_AUTHORITIES = ["canvas"] as const;
+export const KNOWN_AUTHORITIES = ["canvas", "sequence"] as const;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -203,7 +203,12 @@ export function collectRegistryIssues(bundles: readonly ComponentBundle[]): stri
         issues,
       );
 
-      if ("forward" in action && !KNOWN_AUTHORITIES.includes(action.forward.authority as "canvas")) {
+      if (
+        "forward" in action &&
+        !KNOWN_AUTHORITIES.includes(
+          action.forward.authority as (typeof KNOWN_AUTHORITIES)[number],
+        )
+      ) {
         issues.push(
           `Component "${bundleName}" action "${action.action}" has unknown forward authority "${action.forward.authority}".`,
         );

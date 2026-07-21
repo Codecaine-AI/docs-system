@@ -1,0 +1,444 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-20-doc-architecture-30-numbering",
+  "title": "Numbering",
+  "root": "b-num-root",
+  "blocks": {
+    "b-num-root": {
+      "id": "b-num-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-num-intro-1",
+        "pm-mruqahhh-21-ai4418",
+        "b-num-laidout-heading-15",
+        "b-num-laidout-tree-16",
+        "b-num-rule-heading-2",
+        "b-num-rule-prefix-3",
+        "b-num-rule-gap-4",
+        "b-num-rule-midgap-5",
+        "b-num-rule-exhaust-6",
+        "b-num-rule-table-7",
+        "b-num-rule-anti-8",
+        "b-num-why-heading-12",
+        "b-nwhy-human-1",
+        "b-num-why-local-18",
+        "b-nwhy-agent-3",
+        "b-num-why-exhaust-19"
+      ]
+    },
+    "b-num-intro-1": {
+      "id": "b-num-intro-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every doc and folder carries a two-digit prefix, and every listing — sidebar, terminal, render — sorts by it identically. "
+        }
+      ],
+      "children": []
+    },
+    "pm-mruqahhh-21-ai4418": {
+      "id": "pm-mruqahhh-21-ai4418",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This page states the scheme, the reserved ranges, and what running out of gap space actually means."
+        }
+      ],
+      "children": []
+    },
+    "b-num-laidout-heading-15": {
+      "id": "b-num-laidout-heading-15",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "How it's laid out"
+        }
+      ],
+      "children": []
+    },
+    "b-num-laidout-tree-16": {
+      "id": "b-num-laidout-tree-16",
+      "type": "file-tree",
+      "props": {
+        "entries": [
+          {
+            "path": "00-foundation/",
+            "note": "00 — early/foundational slot, used sparingly"
+          },
+          {
+            "path": "10-system-design/",
+            "note": "top-level sections gap by ten: 10-, 20-, 30-…"
+          },
+          {
+            "path": "10-system-design/10-doc-standards/10-structure/",
+            "note": "children start at 10"
+          },
+          {
+            "path": "10-system-design/10-doc-standards/20-numbering/",
+            "note": "siblings continue 20-, 30-, 40-…"
+          },
+          {
+            "path": "10-system-design/10-doc-standards/25-new-standard/",
+            "note": "← a mid-gap insertion lands here; nothing renumbers (hypothetical)"
+          },
+          {
+            "path": "10-system-design/40-block-vocabulary/10-rich-text/",
+            "note": "the named deviation: type pages run 10–17 dense, one family as a unit"
+          },
+          {
+            "path": "20-implementation/99-appendix/",
+            "note": "99 — appendix and meta only"
+          }
+        ]
+      },
+      "children": []
+    },
+    "b-num-rule-heading-2": {
+      "id": "b-num-rule-heading-2",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The rule"
+        }
+      ],
+      "children": []
+    },
+    "b-num-rule-prefix-3": {
+      "id": "b-num-rule-prefix-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Prefix every doc and directory with two digits and a hyphen: "
+        },
+        {
+          "insert": "XX-lowercase-hyphenated-name",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-num-rule-gap-4": {
+      "id": "b-num-rule-gap-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Leave gaps of ten ("
+        },
+        {
+          "insert": "10-",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "20-",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "30-",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ") so a new doc can be inserted without renumbering anything."
+        }
+      ],
+      "children": []
+    },
+    "b-num-rule-midgap-5": {
+      "id": "b-num-rule-midgap-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Insert mid-gap first — "
+        },
+        {
+          "insert": "25-",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " between "
+        },
+        {
+          "insert": "20-",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "30-",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — before considering any reorganization."
+        }
+      ],
+      "children": []
+    },
+    "b-num-rule-exhaust-6": {
+      "id": "b-num-rule-exhaust-6",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "When the gaps are exhausted, the number line is telling you the section has outgrown its shape: reorganize into a subfolder rather than packing consecutive numbers."
+        }
+      ],
+      "children": []
+    },
+    "b-num-rule-table-7": {
+      "id": "b-num-rule-table-7",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Range    ",
+          "Reserved for"
+        ],
+        "rows": [
+          [
+            "00–09",
+            "Early or foundational content, used sparingly — 00 is a plain sort prefix, not a reserved slot; new sections start children at 10"
+          ],
+          [
+            "10–89",
+            "Main content"
+          ],
+          [
+            "90–98",
+            "Late or supplementary content"
+          ],
+          [
+            "99",
+            "Appendix and meta (20-implementation/99-appendix/)"
+          ]
+        ]
+      },
+      "children": []
+    },
+    "b-num-rule-anti-8": {
+      "id": "b-num-rule-anti-8",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Violations look like: consecutive numbers with no gaps, mixed formats ("
+        },
+        {
+          "insert": "1-intro",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "02-setup",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "section-3",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "), "
+        },
+        {
+          "insert": "99-",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " on anything but appendix material."
+        }
+      ],
+      "children": []
+    },
+    "b-num-why-heading-12": {
+      "id": "b-num-why-heading-12",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why"
+        }
+      ],
+      "children": []
+    },
+    "b-nwhy-human-1": {
+      "id": "b-nwhy-human-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Ordered for human reading",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-nwhy-human-1-sub",
+        "b-nwhy-human-sub1-2"
+      ]
+    },
+    "b-nwhy-human-1-sub": {
+      "id": "b-nwhy-human-1-sub",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The numbers are for people first."
+        }
+      ],
+      "children": []
+    },
+    "b-nwhy-human-sub1-2": {
+      "id": "b-nwhy-human-sub1-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Prefixes put reading order in the filesystem itself — sidebar, terminal, and render agree without a manifest."
+        }
+      ],
+      "children": []
+    },
+    "b-num-why-local-18": {
+      "id": "b-num-why-local-18",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Insertion is local",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "pm-mruqahhh-23-2v0bj8"
+      ]
+    },
+    "pm-mruqahhh-23-2v0bj8": {
+      "id": "pm-mruqahhh-23-2v0bj8",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A new doc lands mid-gap and nothing else moves, which matters when paths are reference targets."
+        }
+      ],
+      "children": []
+    },
+    "b-nwhy-agent-3": {
+      "id": "b-nwhy-agent-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A clean search path for agents",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-nwhy-agent-3-sub",
+        "b-nwhy-agent-sub1-4"
+      ]
+    },
+    "b-nwhy-agent-3-sub": {
+      "id": "b-nwhy-agent-3-sub",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Second to human reading, and just as real."
+        }
+      ],
+      "children": []
+    },
+    "b-nwhy-agent-sub1-4": {
+      "id": "b-nwhy-agent-sub1-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The same explicit order tells an agent where to search and where to land a change — structure instead of hand-waving."
+        }
+      ],
+      "children": []
+    },
+    "b-num-why-exhaust-19": {
+      "id": "b-num-why-exhaust-19",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Exhaustion is a signal",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "pm-mruqahhh-24-8u667j"
+      ]
+    },
+    "pm-mruqahhh-24-8u667j": {
+      "id": "pm-mruqahhh-24-8u667j",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The moment you cannot number a doc, the section needs a subfolder. Packing consecutive numbers silences that signal."
+        }
+      ],
+      "children": []
+    }
+  }
+}

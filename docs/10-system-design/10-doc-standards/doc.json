@@ -1,0 +1,341 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-10-doc-architecture",
+  "title": "Doc standards",
+  "root": "b-10-doc-architecture-root",
+  "blocks": {
+    "b-10-doc-architecture-root": {
+      "id": "b-10-doc-architecture-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-da3-title-1",
+        "b-da3-scale-lead-3",
+        "pm-mruq0c12-107-u8o42s",
+        "b-da3-layers-heading-7",
+        "b-da3-layers-table-8",
+        "b-da3-why-heading-10",
+        "b-da3-why-para-11",
+        "pm-mruq0c12-108-dfykqf",
+        "pm-mruq0c12-109-0j73yx",
+        "b-da3-shape-heading-12",
+        "b-da3-shape-tree-13",
+        "b-darch-standards-heading-27",
+        "b-darch-standards-intro-28",
+        "b-ds-std-structure-1",
+        "b-ds-std-numbering-2",
+        "b-ds-std-xlink-3",
+        "b-ds-std-clink-4",
+        "b-ds-std-icd-5"
+      ]
+    },
+    "b-da3-title-1": {
+      "id": "b-da3-title-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Documentation defines what a system should do without the code. "
+        }
+      ],
+      "children": []
+    },
+    "b-da3-scale-lead-3": {
+      "id": "b-da3-scale-lead-3",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The structure defined in these standards is built for many agents at once. "
+        }
+      ],
+      "children": []
+    },
+    "pm-mruq0c12-107-u8o42s": {
+      "id": "pm-mruq0c12-107-u8o42s",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "With 10, 20, or 100+ agents working a codebase, every change needs one canonical place to land"
+        }
+      ],
+      "children": []
+    },
+    "b-da3-layers-heading-7": {
+      "id": "b-da3-layers-heading-7",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The Three Layers"
+        }
+      ],
+      "children": []
+    },
+    "b-da3-layers-table-8": {
+      "id": "b-da3-layers-table-8",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Layer",
+          "Holds",
+          "Changes"
+        ],
+        "rows": [
+          [
+            "00-foundation",
+            "Core idea behind the system and why it exists",
+            "Rarely"
+          ],
+          [
+            "10-system-design",
+            "Behavior, implementation-agnostic",
+            "When behavior changes"
+          ],
+          [
+            "20-implementation",
+            "Functionality, decisions, etc. of the current code",
+            "With the code"
+          ]
+        ]
+      },
+      "children": []
+    },
+    "b-da3-why-heading-10": {
+      "id": "b-da3-why-heading-10",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The \"Why\" Travels with Every Decision"
+        }
+      ],
+      "children": []
+    },
+    "b-da3-why-para-11": {
+      "id": "b-da3-why-para-11",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every decision in these docs carries its why"
+        }
+      ],
+      "children": []
+    },
+    "pm-mruq0c12-108-dfykqf": {
+      "id": "pm-mruq0c12-108-dfykqf",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The what can be re-derived from the system; the why cannot"
+        }
+      ],
+      "children": []
+    },
+    "pm-mruq0c12-109-0j73yx": {
+      "id": "pm-mruq0c12-109-0j73yx",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Recorded, it does two jobs"
+        }
+      ],
+      "children": [
+        "pm-mruq0c12-110-6eqeyi",
+        "pm-mruq0c12-111-fquofo"
+      ]
+    },
+    "pm-mruq0c12-110-6eqeyi": {
+      "id": "pm-mruq0c12-110-6eqeyi",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A returning human sees exactly why a choice was made a month ago and easily re-onboard to the project"
+        }
+      ],
+      "children": []
+    },
+    "pm-mruq0c12-111-fquofo": {
+      "id": "pm-mruq0c12-111-fquofo",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An agent checking its work against the docs cannot overturn deliberate intent by accident"
+        }
+      ],
+      "children": []
+    },
+    "b-da3-shape-heading-12": {
+      "id": "b-da3-shape-heading-12",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The shape on disk"
+        }
+      ],
+      "children": []
+    },
+    "b-da3-shape-tree-13": {
+      "id": "b-da3-shape-tree-13",
+      "type": "file-tree",
+      "props": {
+        "entries": [
+          {
+            "path": "00-foundation/",
+            "note": "intent — what this is and why; every change is compared against it"
+          },
+          {
+            "path": "10-system-design/",
+            "note": "behavior — implementation-agnostic; what the system does and why"
+          },
+          {
+            "path": "10-system-design/10-doc-standards/",
+            "note": "this section — the structure itself, plus five standards docs"
+          },
+          {
+            "path": "20-implementation/",
+            "note": "the current code — mirrors the source tree, churns with it"
+          }
+        ]
+      },
+      "children": []
+    },
+    "b-darch-standards-heading-27": {
+      "id": "b-darch-standards-heading-27",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The Standards"
+        }
+      ],
+      "children": []
+    },
+    "b-darch-standards-intro-28": {
+      "id": "b-darch-standards-intro-28",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Five standards, one concern each. Every one shows how things are laid out, states the rule, and defends it."
+        }
+      ],
+      "children": []
+    },
+    "b-ds-std-structure-1": {
+      "id": "b-ds-std-structure-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Structure",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/10-doc-standards/10-structure"
+            }
+          }
+        },
+        {
+          "insert": " — the three layers, the depth ladder, folders and parent docs, and when a topic earns a folder."
+        }
+      ],
+      "children": []
+    },
+    "b-ds-std-numbering-2": {
+      "id": "b-ds-std-numbering-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Numbering",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/10-doc-standards/20-numbering"
+            }
+          }
+        },
+        {
+          "insert": " — two-digit prefixes, reading order in the filesystem, gaps, and the one named deviation."
+        }
+      ],
+      "children": []
+    },
+    "b-ds-std-xlink-3": {
+      "id": "b-ds-std-xlink-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Cross-doc linking",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/10-doc-standards/30-cross-doc-linking"
+            }
+          }
+        },
+        {
+          "insert": " — reference spans, canonical-home targets, and the restraint rules against overlinking."
+        }
+      ],
+      "children": []
+    },
+    "b-ds-std-clink-4": {
+      "id": "b-ds-std-clink-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Code linking",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/10-doc-standards/40-code-linking"
+            }
+          }
+        },
+        {
+          "insert": " — one-way doc-to-code references by full path, updated when code moves."
+        }
+      ],
+      "children": []
+    },
+    "b-ds-std-icd-5": {
+      "id": "b-ds-std-icd-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "In-code docs",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/10-doc-standards/50-in-code-docs"
+            }
+          }
+        },
+        {
+          "insert": " — file headers, docstrings, and inline comments: where documentation continues into the source."
+        }
+      ],
+      "children": []
+    }
+  }
+}

@@ -79,8 +79,7 @@
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "10-system-design/20-data-model/00-overview",
-              "label": "the data model — doc.json shapes"
+              "path": "10-system-design/30-data-model"
             }
           }
         },
@@ -92,8 +91,7 @@
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "10-system-design/40-mutation-model",
-              "label": "the mutation model — ops, inverses, undo"
+              "path": "10-system-design/30-data-model/60-mutation-model"
             }
           }
         },
@@ -133,7 +131,11 @@
         {
           "insert": "packages/docs-viewer/src/editor/DocEditor.tsx",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/editor/DocEditor.tsx"
+            }
           }
         },
         {
@@ -142,7 +144,11 @@
         {
           "insert": "packages/docs-viewer/src/editor/core/schema.ts",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/editor/core/schema.ts"
+            }
           }
         },
         {
@@ -211,7 +217,11 @@
         {
           "insert": "packages/docs-viewer/src/editor/core/convert.ts",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/editor/core/convert.ts"
+            }
           }
         },
         {
@@ -258,8 +268,7 @@
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "10-system-design/40-mutation-model",
-              "label": "the mutation model — ops, inverses, undo"
+              "path": "10-system-design/30-data-model/60-mutation-model"
             }
           }
         },
@@ -280,7 +289,11 @@
         {
           "insert": "packages/docs-workbench/web/src/pages/DocPage.tsx",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/pages/DocPage.tsx"
+            }
           }
         },
         {
@@ -412,7 +425,11 @@
         {
           "insert": "packages/docs-workbench/web/src/data/api.ts",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/data/api.ts"
+            }
           }
         },
         {
@@ -430,7 +447,11 @@
         {
           "insert": "packages/docs-server/src/routes.ts",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-server/src/routes.ts"
+            }
           }
         },
         {
@@ -478,7 +499,11 @@
         {
           "insert": "packages/docs-server/src/doc-ops.ts",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-server/src/doc-ops.ts"
+            }
           }
         },
         {
@@ -584,8 +609,7 @@
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "10-system-design/40-mutation-model",
-              "label": "the mutation model — ops, inverses, undo"
+              "path": "10-system-design/30-data-model/60-mutation-model"
             }
           }
         },
@@ -708,7 +732,11 @@
         {
           "insert": "packages/docs-viewer/src/editor/decorations/changed-flash.ts",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/editor/decorations/changed-flash.ts"
+            }
           }
         },
         {

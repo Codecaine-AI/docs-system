@@ -7,9 +7,20 @@ import remarkGfm from "remark-gfm";
 import type { DeltaSpan, DocBlock, DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import type { DocBlockRenderContext } from "./block-registry";
 import { getDocBlockDescriptor } from "./block-registry";
-import { CanvasEmbedUnavailable, useCanvasEmbed } from "../client";
+import {
+  CanvasEmbedUnavailable,
+  SequenceEmbedUnavailable,
+  useCanvasEmbed,
+  useSequenceEmbed,
+} from "../client";
 import { INLINE_CODE_CLASSES } from "./block-classes";
-import { resolveBundleCanvasSrc } from "./bundle-src";
+import { resolveBundleCanvasSrc, resolveBundleSequenceSrc } from "./bundle-src";
+
+// Re-exported beside the renderer so hosts already importing this module
+// (`@codecaine-ai/docs-viewer/doc-block-renderer` — the exports-map keys are
+// frozen) can wrap it in the canonical doc-surface typography without a new
+// entry point.
+export { DOC_SURFACE_TYPOGRAPHY_CLASSES } from "./block-classes";
 
 /**
  * The doc.json read surface: walks a validated DocDocument from its root and
@@ -149,6 +160,11 @@ export default function DocBlockRenderer({
   // "canvas embed unavailable" card instead.
   const CanvasEmbed = useCanvasEmbed();
 
+  // Sequence embedding mirrors the canvas slot: the host-injected
+  // `SequenceEmbedComponent` (DocsClientProvider's `sequenceEmbed`), with a
+  // neutral "sequence embed unavailable" card when no renderer is wired.
+  const SequenceEmbed = useSequenceEmbed();
+
   // Stable identity per prop set — a fresh closure every render would give
   // every canvas block a new `renderCanvas` and defeat descendant
   // memoization.
@@ -178,6 +194,27 @@ export default function DocBlockRenderer({
     [bundlePath, projectId, documentPath, onCanvasObjectSelect, CanvasEmbed],
   );
 
+  // Stable identity per prop set, mirroring `renderCanvasEmbed`.
+  const renderSequenceEmbed = useMemo<DocBlockRenderContext["renderSequence"]>(
+    () => (input) => {
+      const sequenceSrc = input.src ? resolveBundleSequenceSrc(bundlePath, input.src) : undefined;
+      if (!SequenceEmbed) {
+        return <SequenceEmbedUnavailable title={input.title} src={sequenceSrc} />;
+      }
+      return (
+        <SequenceEmbed
+          projectId={projectId}
+          documentPath={documentPath}
+          id={input.id}
+          sequenceId={input.sequenceId}
+          src={sequenceSrc}
+          title={input.title}
+        />
+      );
+    },
+    [bundlePath, projectId, documentPath, SequenceEmbed],
+  );
+
   // One shared ctx + renderBlock pair per (document, canvas, asset) triple
   // instead of a fresh ctx object (with fresh renderChildren/renderText/
   // renderMarkdown closures) per block per render. `ctx.renderChildren` and
@@ -191,6 +228,7 @@ export default function DocBlockRenderer({
       ),
       renderMarkdown: (markdown) => <MarkdownContent content={markdown} />,
       renderCanvas: renderCanvasEmbed,
+      renderSequence: renderSequenceEmbed,
       resolveAssetSrc,
     };
     function renderBlock(blockId: string): ReactNode {
@@ -201,7 +239,7 @@ export default function DocBlockRenderer({
       return <Fragment key={blockId}>{descriptor.render(block, ctx)}</Fragment>;
     }
     return renderBlock;
-  }, [document, renderCanvasEmbed, resolveAssetSrc]);
+  }, [document, renderCanvasEmbed, renderSequenceEmbed, resolveAssetSrc]);
 
   const root = document.blocks[document.root];
   if (!root) return null;

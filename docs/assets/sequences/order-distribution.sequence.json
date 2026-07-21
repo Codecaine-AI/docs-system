@@ -1,0 +1,100 @@
+{
+  "version": 1,
+  "id": "combined-fragments",
+  "title": "Order distribution",
+  "participants": [
+    {
+      "id": "p1",
+      "name": "order",
+      "kind": "participant",
+      "label": "Order"
+    },
+    {
+      "id": "p2",
+      "name": "careful",
+      "kind": "participant",
+      "label": "Careful distributor"
+    },
+    {
+      "id": "p3",
+      "name": "regular",
+      "kind": "participant",
+      "label": "Regular distributor"
+    },
+    {
+      "id": "p4",
+      "name": "messenger",
+      "kind": "participant",
+      "label": "Messenger"
+    }
+  ],
+  "items": [
+    {
+      "kind": "fragment",
+      "id": "f1",
+      "op": "loop",
+      "operands": [
+        {
+          "guard": "for each line item",
+          "items": [
+            {
+              "kind": "fragment",
+              "id": "f2",
+              "op": "alt",
+              "operands": [
+                {
+                  "guard": "value > $15,000",
+                  "items": [
+                    {
+                      "kind": "message",
+                      "id": "m1",
+                      "from": "p1",
+                      "to": "p2",
+                      "line": "sync",
+                      "text": "dispatch"
+                    }
+                  ]
+                },
+                {
+                  "items": [
+                    {
+                      "kind": "message",
+                      "id": "m2",
+                      "from": "p1",
+                      "to": "p3",
+                      "line": "sync",
+                      "text": "dispatch"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "fragment",
+      "id": "f3",
+      "op": "opt",
+      "operands": [
+        {
+          "guard": "needs confirmation",
+          "items": [
+            {
+              "kind": "message",
+              "id": "m3",
+              "from": "p1",
+              "to": "p4",
+              "line": "async",
+              "text": "confirm"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "style": {
+    "fragmentAccent": "#5B7FBD"
+  }
+}

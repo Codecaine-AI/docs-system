@@ -20,6 +20,12 @@
  * this form directly; old ones are tolerated by the matcher below and
  * normalized to it whenever move-doc rewrites them.
  *
+ * The former section-intro convention stored a section's own document in a
+ * trailing `00-overview` child bundle. Sections now carry `doc.json` directly,
+ * so that trailing segment is retired: legacy references such as
+ * `10-system-design/00-overview` identify `10-system-design`. The matcher keeps
+ * those references working while the old directories are removed.
+ *
  * The matcher intentionally does NOT touch `kind === "source"` refs — those
  * are plain repo-relative file paths (e.g. `apps/frontend/src/.../types.ts`)
  * with no bundle concept, compared by exact string equality elsewhere.
@@ -43,6 +49,17 @@ function stripBundleSuffix(path: string): string {
   return normalized;
 }
 
+/** Collapses retired trailing `/00-overview` segments without collapsing the docs root. */
+function collapseLegacyOverviewSuffix(path: string): string {
+  let normalized = path;
+  while (normalized.endsWith("/00-overview")) {
+    const parent = normalized.slice(0, -"/00-overview".length);
+    if (parent.length === 0) break;
+    normalized = parent;
+  }
+  return normalized;
+}
+
 /**
  * Normalizes any accepted on-disk form of a doc reference path down to the
  * canonical docs-root-relative bundle path (no `docs/` prefix, no extension,
@@ -58,9 +75,14 @@ function stripBundleSuffix(path: string): string {
  *  - `docs/00-foundation/10-purpose/doc.json` (post-migration bundle form)
  *  - `docs/00-foundation/10-purpose` (bundle folder, docs/-prefixed)
  *  - `00-foundation/10-purpose` (already canonical)
+ *  - `docs/00-foundation/10-purpose/00-overview.md` (retired section-intro
+ *    convention; trailing `00-overview` segments collapse to their parent)
+ *
+ * The collapse is exact, lowercase, and trailing-only; it repeats defensively
+ * but never changes a bare `00-overview` into the empty docs-root path.
  */
 export function normalizeDocRefPath(path: string): string {
-  return stripBundleSuffix(stripDocsPrefix(path));
+  return collapseLegacyOverviewSuffix(stripBundleSuffix(stripDocsPrefix(path)));
 }
 
 /**
@@ -72,6 +94,20 @@ export function sameDocRef(a: string, b: string): boolean {
   return normalizeDocRefPath(a) === normalizeDocRefPath(b);
 }
 
+/** Builds the eight accepted stored aliases for one docs-root-relative base path. */
+function storedForms(basePath: string): string[] {
+  return [
+    basePath,
+    `docs/${basePath}`,
+    `${basePath}.md`,
+    `docs/${basePath}.md`,
+    `${basePath}.mdx`,
+    `docs/${basePath}.mdx`,
+    `${basePath}/doc.json`,
+    `docs/${basePath}/doc.json`,
+  ];
+}
+
 /**
  * Every on-disk alias a canonical bundle path might appear as in the
  * backlinks index's `target_path` column (which stores whatever raw string
@@ -79,18 +115,14 @@ export function sameDocRef(a: string, b: string): boolean {
  * Callers needing a tolerant index lookup query each form and union the
  * results, since sqlite can't do the tolerant-match itself (see this
  * module's doc). Shared by move-doc's inbound discovery and the backlinks
- * read route (`queryInboundTolerant` in backlinks.ts).
+ * read route (`queryInboundTolerant` in backlinks.ts). The returned aliases
+ * also include the retired trailing `/00-overview` forms so backlinks stored
+ * before that convention's removal remain discoverable.
  */
 export function candidateStoredForms(canonicalPath: string): string[] {
   return [
-    canonicalPath,
-    `docs/${canonicalPath}`,
-    `${canonicalPath}.md`,
-    `docs/${canonicalPath}.md`,
-    `${canonicalPath}.mdx`,
-    `docs/${canonicalPath}.mdx`,
-    `${canonicalPath}/doc.json`,
-    `docs/${canonicalPath}/doc.json`,
+    ...storedForms(canonicalPath),
+    ...storedForms(`${canonicalPath}/00-overview`),
   ];
 }
 

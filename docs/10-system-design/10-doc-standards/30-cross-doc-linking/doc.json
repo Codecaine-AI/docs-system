@@ -1,0 +1,539 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-10-doc-standards-30-cross-doc-linking",
+  "title": "Cross-doc linking",
+  "root": "b-dlink-root",
+  "blocks": {
+    "b-dlink-root": {
+      "id": "b-dlink-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-xl2-intro-1",
+        "pm-mrurzsxw-1-g0jett",
+        "b-xl2-laidout-h-2",
+        "b-xl2-code-3",
+        "b-xl2-obj-4",
+        "b-xl2-text-7",
+        "b-xl2-rule-h-9",
+        "b-xl2-spans-10",
+        "b-xl2-home-12",
+        "b-xl2-ancestors-15",
+        "b-xl2-claim-17",
+        "b-xl2-deferral-21",
+        "b-xl2-why-h-24",
+        "b-xl2-why-rot-25",
+        "b-xl2-why-name-27",
+        "b-xl2-why-tree-29",
+        "b-xl2-why-restraint-31",
+        "b-xl2-why-home-34"
+      ]
+    },
+    "b-xl2-intro-1": {
+      "id": "b-xl2-intro-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Docs link to docs with typed reference spans — tracked by the backlinks index, held at zero stale, rewritten when targets move — never with raw paths in prose. "
+        }
+      ],
+      "children": []
+    },
+    "pm-mrurzsxw-1-g0jett": {
+      "id": "pm-mrurzsxw-1-g0jett",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This page states the reference object, which directions links run, and the restraint rules against overlinking."
+        }
+      ],
+      "children": []
+    },
+    "b-xl2-laidout-h-2": {
+      "id": "b-xl2-laidout-h-2",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Structure"
+        }
+      ],
+      "children": []
+    },
+    "b-xl2-code-3": {
+      "id": "b-xl2-code-3",
+      "type": "code",
+      "props": {
+        "annotations": [
+          {
+            "lines": "2",
+            "label": "The doc's name",
+            "note": "The span text inlines the target's name — it is the display on both surfaces; the object carries no label."
+          },
+          {
+            "lines": "6",
+            "label": "The lookup key",
+            "note": "The docs path the backlinks index tracks; moving the target rewrites it here."
+          }
+        ],
+        "language": "json"
+      },
+      "text": [
+        {
+          "insert": "{\n  \"insert\": \"structure\",\n  \"attributes\": {\n    \"reference\": {\n      \"kind\": \"doc\",\n      \"path\": \"10-system-design/10-doc-standards/10-structure\"\n    }\n  }\n}"
+        }
+      ],
+      "children": []
+    },
+    "b-xl2-obj-4": {
+      "id": "b-xl2-obj-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The object is the path",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-xl2-obj-sub1-5",
+        "b-xl2-obj-sub2-6"
+      ]
+    },
+    "b-xl2-obj-sub1-5": {
+      "id": "b-xl2-obj-sub1-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "kind",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ": "
+        },
+        {
+          "insert": "\"doc\"",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " plus the target's docs path — nothing else."
+        }
+      ],
+      "children": []
+    },
+    "b-xl2-obj-sub2-6": {
+      "id": "b-xl2-obj-sub2-6",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The backlinks index tracks every reference; "
+        },
+        {
+          "insert": "docs links check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " holds them at zero stale; moving a doc rewrites its inbound paths."
+        }
+      ],
+      "children": []
+    },
+    "b-xl2-text-7": {
+      "id": "b-xl2-text-7",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The text is the doc's name",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-xl2-text-sub1-8"
+      ]
+    },
+    "b-xl2-text-sub1-8": {
+      "id": "b-xl2-text-sub1-8",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The span text inlines the target's name, so a reference reads as prose on both surfaces."
+        }
+      ],
+      "children": []
+    },
+    "b-xl2-rule-h-9": {
+      "id": "b-xl2-rule-h-9",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The rule"
+        }
+      ],
+      "children": []
+    },
+    "b-xl2-spans-10": {
+      "id": "b-xl2-spans-10",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Reference spans, never raw paths",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-xl2-spans-sub1-11"
+      ]
+    },
+    "b-xl2-spans-sub1-11": {
+      "id": "b-xl2-spans-sub1-11",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A plain path in prose is invisible to the system and is not a link."
+        }
+      ],
+      "children": []
+    },
+    "b-xl2-home-12": {
+      "id": "b-xl2-home-12",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "One canonical home",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-xl2-home-sub1-13",
+        "b-xl2-home-sub2-14"
+      ]
+    },
+    "b-xl2-home-sub1-13": {
+      "id": "b-xl2-home-sub1-13",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Link to the concept's home doc, never into another section's internals."
+        }
+      ],
+      "children": []
+    },
+    "b-xl2-home-sub2-14": {
+      "id": "b-xl2-home-sub2-14",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "What crosses a boundary is referenced at the boundary."
+        }
+      ],
+      "children": []
+    },
+    "b-xl2-ancestors-15": {
+      "id": "b-xl2-ancestors-15",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "No ancestor links",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-xl2-anc-sub1-16"
+      ]
+    },
+    "b-xl2-anc-sub1-16": {
+      "id": "b-xl2-anc-sub1-16",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The tree already provides them: parent docs link down, children do not link up."
+        }
+      ],
+      "children": []
+    },
+    "b-xl2-claim-17": {
+      "id": "b-xl2-claim-17",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A link is a claim",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-xl2-claim-sub1-18",
+        "b-xl2-claim-sub2-19",
+        "b-xl2-claim-sub3-20"
+      ]
+    },
+    "b-xl2-claim-sub1-18": {
+      "id": "b-xl2-claim-sub1-18",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "It says the reader may need the target for the task at hand."
+        }
+      ],
+      "children": []
+    },
+    "b-xl2-claim-sub2-19": {
+      "id": "b-xl2-claim-sub2-19",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Link the first mention in a doc, not every mention."
+        }
+      ],
+      "children": []
+    },
+    "b-xl2-claim-sub3-20": {
+      "id": "b-xl2-claim-sub3-20",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Decorative links are cut."
+        }
+      ],
+      "children": []
+    },
+    "b-xl2-deferral-21": {
+      "id": "b-xl2-deferral-21",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "No mutual deferral",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-xl2-def-sub1-22",
+        "b-xl2-def-sub2-23"
+      ]
+    },
+    "b-xl2-def-sub1-22": {
+      "id": "b-xl2-def-sub1-22",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Two docs each pointing at the other for the full explanation means neither owns it."
+        }
+      ],
+      "children": []
+    },
+    "b-xl2-def-sub2-23": {
+      "id": "b-xl2-def-sub2-23",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "One doc owns the substance; the other references it."
+        }
+      ],
+      "children": []
+    },
+    "b-xl2-why-h-24": {
+      "id": "b-xl2-why-h-24",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why"
+        }
+      ],
+      "children": []
+    },
+    "b-xl2-why-rot-25": {
+      "id": "b-xl2-why-rot-25",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Tracked links cannot rot",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-xl2-rot-sub1-26"
+      ]
+    },
+    "b-xl2-rot-sub1-26": {
+      "id": "b-xl2-rot-sub1-26",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A link the system tracks is held at zero stale, so a reader can trust every one they follow."
+        }
+      ],
+      "children": []
+    },
+    "b-xl2-why-name-27": {
+      "id": "b-xl2-why-name-27",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The name is the prose",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-xl2-name-sub1-28"
+      ]
+    },
+    "b-xl2-name-sub1-28": {
+      "id": "b-xl2-name-sub1-28",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A reference reads as the target's name mid-sentence — no bracket noise on either surface."
+        }
+      ],
+      "children": []
+    },
+    "b-xl2-why-tree-29": {
+      "id": "b-xl2-why-tree-29",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A tree for navigation, a web for substance",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-xl2-tree-sub1-30"
+      ]
+    },
+    "b-xl2-tree-sub1-30": {
+      "id": "b-xl2-tree-sub1-30",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Parent docs stay the one place navigation happens, so moving through the docs feels the same everywhere."
+        }
+      ],
+      "children": []
+    },
+    "b-xl2-why-restraint-31": {
+      "id": "b-xl2-why-restraint-31",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Restraint keeps links meaningful",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-xl2-res-sub1-32",
+        "b-xl2-res-sub2-33"
+      ]
+    },
+    "b-xl2-res-sub1-32": {
+      "id": "b-xl2-res-sub1-32",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "When every link is a claim of need, a reader can afford to follow them."
+        }
+      ],
+      "children": []
+    },
+    "b-xl2-res-sub2-33": {
+      "id": "b-xl2-res-sub2-33",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Docs that link everything rank nothing."
+        }
+      ],
+      "children": []
+    },
+    "b-xl2-why-home-34": {
+      "id": "b-xl2-why-home-34",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "One home per concept",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-xl2-home2-sub1-35"
+      ]
+    },
+    "b-xl2-home2-sub1-35": {
+      "id": "b-xl2-home2-sub1-35",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every link points at the concept's one home."
+        }
+      ],
+      "children": []
+    }
+  }
+}

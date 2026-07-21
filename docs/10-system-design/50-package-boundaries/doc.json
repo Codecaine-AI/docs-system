@@ -1,0 +1,556 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-50-package-boundaries",
+  "title": "Package boundaries",
+  "root": "b-50-package-boundaries-root",
+  "blocks": {
+    "b-50-package-boundaries-root": {
+      "id": "b-50-package-boundaries-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-pkgb-title-1",
+        "b-pkgb-lead-2",
+        "b-pkgb-why-heading-3",
+        "b-pkgb-why-para-4",
+        "b-pkgb-chain-heading-5",
+        "b-pkgb-chain-graph-6",
+        "b-pkgb-chain-para-7",
+        "b-pkgb-need-heading-8",
+        "b-pkgb-need-para-9",
+        "b-pkgb-mental-model-10",
+        "b-pkgb-forced-heading-11",
+        "b-pkgb-forced-intro-12",
+        "b-pkgb-why-model-13",
+        "b-pkgb-why-index-14",
+        "b-pkgb-why-server-15",
+        "b-pkgb-why-viewer-16",
+        "b-pkgb-why-workbench-17",
+        "b-pkgb-why-cli-18",
+        "b-pkgb-why-framework-19",
+        "b-pkgb-why-canvas-20",
+        "b-pkgb-review-heading-21",
+        "b-pkgb-review-index-22",
+        "b-pkgb-review-cli-23",
+        "b-pkgb-review-framework-24",
+        "b-pkgb-authority-heading-25",
+        "b-pkgb-authority-para-26",
+        "b-pkgb-asbuilt-para-27"
+      ]
+    },
+    "b-pkgb-title-1": {
+      "id": "b-pkgb-title-1",
+      "type": "heading",
+      "props": {
+        "level": 1
+      },
+      "text": [
+        {
+          "insert": "Package boundaries"
+        }
+      ],
+      "children": []
+    },
+    "b-pkgb-lead-2": {
+      "id": "b-pkgb-lead-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The package split is where this system says the code is allowed to be cut. It is a map of runtime and ownership boundaries, not a list of pieces a user assembles by hand: some seams isolate genuinely incompatible environments and would survive any rewrite; others are current judgment calls, named as such and open to collapse."
+        }
+      ],
+      "children": []
+    },
+    "b-pkgb-why-heading-3": {
+      "id": "b-pkgb-why-heading-3",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why seven"
+        }
+      ],
+      "children": []
+    },
+    "b-pkgb-why-para-4": {
+      "id": "b-pkgb-why-para-4",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The count is six code packages plus one methodology package. The defensible splits follow incompatible runtimes first: one definition of the document format has to exist identically in the browser, on a Bun server, and inside a CLI, and no single artifact can serve all three unless it stays free of every environment's dependencies. The remaining seams expose current responsibilities and distribution choices rather than hard constraints — real boundaries today, but boundaries this page treats as decisions, not facts of nature."
+        }
+      ],
+      "children": []
+    },
+    "b-pkgb-chain-heading-5": {
+      "id": "b-pkgb-chain-heading-5",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The dependency chain"
+        }
+      ],
+      "children": []
+    },
+    "b-pkgb-chain-graph-6": {
+      "id": "b-pkgb-chain-graph-6",
+      "type": "mermaid",
+      "props": {
+        "caption": "Arrows read: depends on. framework has no edges — it is methodology, not runtime. external/canvas sits outside the graph as a vendored neighbor.",
+        "title": "Who depends on whom"
+      },
+      "text": [
+        {
+          "insert": "flowchart BT\n  model[\"docs-model\\nthe format\"]\n  index[\"docs-index\\nbacklinks (bun:sqlite)\"]\n  server[\"docs-server\\nmutation authority\"]\n  viewer[\"docs-viewer\\nReact render + edit\"]\n  workbench[\"docs-workbench\\ncomposition shell\"]\n  cli[\"docs-cli\\nagent dialect\"]\n  index --> model\n  server --> index\n  server --> model\n  viewer --> model\n  workbench --> server\n  workbench --> viewer\n  workbench --> index\n  cli --> workbench\n  cli --> index\n  cli --> model"
+        }
+      ],
+      "children": []
+    },
+    "b-pkgb-chain-para-7": {
+      "id": "b-pkgb-chain-para-7",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The chain is the design claim, not a build detail: the format depends on nothing, the index and server depend only on the format, the viewer sees the format and nothing else, and only the composition and interface layers — workbench and cli — are allowed to see everything. Dependency points one way, so a change in any layer can only ripple upward, never into the schema beneath it."
+        }
+      ],
+      "children": []
+    },
+    "b-pkgb-need-heading-8": {
+      "id": "b-pkgb-need-heading-8",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "What you actually need together"
+        }
+      ],
+      "children": []
+    },
+    "b-pkgb-need-para-9": {
+      "id": "b-pkgb-need-para-9",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The seven-way split describes ownership, not deployment. What runs together is smaller:"
+        }
+      ],
+      "children": []
+    },
+    "b-pkgb-mental-model-10": {
+      "id": "b-pkgb-mental-model-10",
+      "type": "callout",
+      "props": {
+        "kind": "Mental model",
+        "tone": "decision"
+      },
+      "text": [
+        {
+          "insert": "A RUNNING DOCS INSTALLATION",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " = "
+        },
+        {
+          "insert": "docs-model + docs-index + docs-server + docs-viewer",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", composed by "
+        },
+        {
+          "insert": "docs-workbench",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". "
+        },
+        {
+          "insert": "AN AGENT INTERACTING WITH IT",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " speaks the "
+        },
+        {
+          "insert": "docs-cli",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " dialect. "
+        },
+        {
+          "insert": "framework",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is methodology, not runtime; a running installation works identically without it."
+        }
+      ],
+      "children": []
+    },
+    "b-pkgb-forced-heading-11": {
+      "id": "b-pkgb-forced-heading-11",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Forced boundaries vs judgment calls"
+        }
+      ],
+      "children": []
+    },
+    "b-pkgb-forced-intro-12": {
+      "id": "b-pkgb-forced-intro-12",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each boundary earns its place for exactly one reason, and the reasons split cleanly in two. Forced boundaries follow from runtime incompatibilities and survive package renames and reorganizations. Judgment calls are defensible drawings of responsibility that could land elsewhere."
+        }
+      ],
+      "children": []
+    },
+    "b-pkgb-why-model-13": {
+      "id": "b-pkgb-why-model-13",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs-model — one format, three runtimes.",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " Browser, Bun server, and CLI must share one definition of "
+        },
+        {
+          "insert": "doc.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "; pure TypeScript with no React, filesystem, or network access is what makes that possible. Forced."
+        }
+      ],
+      "children": []
+    },
+    "b-pkgb-why-index-14": {
+      "id": "b-pkgb-why-index-14",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs-index — Bun-only.",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " "
+        },
+        {
+          "insert": "bun:sqlite",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " cannot be bundled into the browser, so the derived backlink index lives outside the viewer. Forced out of the browser; separate from the server by judgment."
+        }
+      ],
+      "children": []
+    },
+    "b-pkgb-why-server-15": {
+      "id": "b-pkgb-why-server-15",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs-server — embeddable without React.",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " The mutation authority must drop into host applications that have no UI stack. Forced."
+        }
+      ],
+      "children": []
+    },
+    "b-pkgb-why-viewer-16": {
+      "id": "b-pkgb-why-viewer-16",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs-viewer — browser-pure.",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " The render-and-edit surface must lift into any host React app with docs-model as its only docs dependency. Forced."
+        }
+      ],
+      "children": []
+    },
+    "b-pkgb-why-workbench-17": {
+      "id": "b-pkgb-why-workbench-17",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs-workbench — the composition point.",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " It deliberately reunites server and viewer at the runnable-product boundary instead of weakening either package's constraints. Judgment, and by design."
+        }
+      ],
+      "children": []
+    },
+    "b-pkgb-why-cli-18": {
+      "id": "b-pkgb-why-cli-18",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs-cli — the stable dialect.",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " Agents and humans get one command surface that outlives internal reshuffles. Judgment: "
+        },
+        {
+          "insert": "serve",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "export",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " already drive the workbench."
+        }
+      ],
+      "children": []
+    },
+    "b-pkgb-why-framework-19": {
+      "id": "b-pkgb-why-framework-19",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "framework — distribution convenience.",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " Zero dependencies, zero runtime code; packaging the methodology just lets host repos resolve and symlink it like any dependency. Judgment."
+        }
+      ],
+      "children": []
+    },
+    "b-pkgb-why-canvas-20": {
+      "id": "b-pkgb-why-canvas-20",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "canvas — not an eighth package.",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " "
+        },
+        {
+          "insert": "external/canvas",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "external/canvas"
+            }
+          }
+        },
+        {
+          "insert": " is its own project, vendored under "
+        },
+        {
+          "insert": "external/",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "external"
+            }
+          }
+        },
+        {
+          "insert": "; only its inner packages join the workspace so embeds resolve. Forced."
+        }
+      ],
+      "children": []
+    },
+    "b-pkgb-review-heading-21": {
+      "id": "b-pkgb-review-heading-21",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Boundaries under review"
+        }
+      ],
+      "children": []
+    },
+    "b-pkgb-review-index-22": {
+      "id": "b-pkgb-review-index-22",
+      "type": "callout",
+      "props": {
+        "title": "Boundary under review: fold docs-index into docs-server",
+        "tone": "decision"
+      },
+      "text": [
+        {
+          "insert": "Keeping the index out of the browser is forced; keeping it out of the server is not. The index is derived, rebuildable state that only the server and CLI consume — it may belong inside the mutation authority."
+        }
+      ],
+      "children": []
+    },
+    "b-pkgb-review-cli-23": {
+      "id": "b-pkgb-review-cli-23",
+      "type": "callout",
+      "props": {
+        "title": "Boundary under review: merge docs-cli and docs-workbench",
+        "tone": "decision"
+      },
+      "text": [
+        {
+          "insert": "serve",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "export",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " already drive the workbench, so the interface package and the composition package may be one package wearing two entry points."
+        }
+      ],
+      "children": []
+    },
+    "b-pkgb-review-framework-24": {
+      "id": "b-pkgb-review-framework-24",
+      "type": "callout",
+      "props": {
+        "title": "Boundary under review: unpackage framework",
+        "tone": "decision"
+      },
+      "text": [
+        {
+          "insert": "The methodology has no runtime; a running installation behaves identically without it. Packaging is a distribution channel, and the channel could change without touching the architecture."
+        }
+      ],
+      "children": []
+    },
+    "b-pkgb-authority-heading-25": {
+      "id": "b-pkgb-authority-heading-25",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Schema authority"
+        }
+      ],
+      "children": []
+    },
+    "b-pkgb-authority-para-26": {
+      "id": "b-pkgb-authority-para-26",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "One claim outranks the rest of this page: docs-model's types are the canonical definition of the system, and every other package is machinery around them. The server enforces the types, the viewer renders them, the index derives from them, the CLI speaks them. Cut the packages differently tomorrow and the system survives; change the types and every package follows."
+        }
+      ],
+      "children": []
+    },
+    "b-pkgb-asbuilt-para-27": {
+      "id": "b-pkgb-asbuilt-para-27",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "How the split stands in code today — every package, what it owns, and the tests that hold these boundaries — is the "
+        },
+        {
+          "insert": "as-built package map",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/10-packages"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    }
+  }
+}

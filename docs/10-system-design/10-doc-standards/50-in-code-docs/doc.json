@@ -1,0 +1,416 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-10-doc-standards-50-in-code-docs",
+  "title": "In-code docs",
+  "root": "b-icd-root",
+  "blocks": {
+    "b-icd-root": {
+      "id": "b-icd-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-icd-intro-1",
+        "pm-mrus1k93-39-hg04w1",
+        "pm-mrus1k93-40-ar1dpr",
+        "pm-mrus1k93-41-6n8wc7",
+        "pm-mrus1k93-42-wx0121",
+        "pm-mrus1k93-43-10tvsc",
+        "b-icd-laidout-heading-12",
+        "b-icd-laidout-code-13",
+        "b-icd-laidout-oneway-14",
+        "b-icd-rule-heading-2",
+        "b-icd-header-3",
+        "b-icd-docstring-4",
+        "b-icd-comments-5",
+        "b-icd-flow-lead-15",
+        "b-icd-why-heading-9",
+        "b-icd-why-churn-19",
+        "b-icd-why-flow-20"
+      ]
+    },
+    "b-icd-intro-1": {
+      "id": "b-icd-intro-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Documentation does not stop at the doc tree. "
+        }
+      ],
+      "children": []
+    },
+    "pm-mrus1k93-39-hg04w1": {
+      "id": "pm-mrus1k93-39-hg04w1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Below the doc tree it continues into the source in three units"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrus1k93-40-ar1dpr": {
+      "id": "pm-mrus1k93-40-ar1dpr",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "File headers"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrus1k93-41-6n8wc7": {
+      "id": "pm-mrus1k93-41-6n8wc7",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Function docstrings"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrus1k93-42-wx0121": {
+      "id": "pm-mrus1k93-42-wx0121",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Inline comments "
+        }
+      ],
+      "children": []
+    },
+    "pm-mrus1k93-43-10tvsc": {
+      "id": "pm-mrus1k93-43-10tvsc",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Finishing the descent the depth ladder starts: section, doc, file, function, code."
+        }
+      ],
+      "children": []
+    },
+    "b-icd-laidout-heading-12": {
+      "id": "b-icd-laidout-heading-12",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Structure"
+        }
+      ],
+      "children": []
+    },
+    "b-icd-laidout-code-13": {
+      "id": "b-icd-laidout-code-13",
+      "type": "code",
+      "props": {
+        "annotations": [
+          {
+            "lines": "2-6",
+            "label": "L4 — the file's contract",
+            "note": "What the file owns and why it lives here, before any code scrolls past."
+          },
+          {
+            "lines": "8",
+            "label": "L5 — the function's contract",
+            "note": "A docstring on everything non-obvious: purpose, inputs, outputs, side effects, errors."
+          }
+        ],
+        "language": "typescript"
+      },
+      "text": [
+        {
+          "insert": "// packages/docs-viewer/src/render/doc-title.ts\n/**\n * The fixed page title shown above every doc: derived from the SAME name\n * the sidebar shows — the bundle folder's last segment — so the page and\n * the tree read as one thing. Pure string logic, no React.\n */\n\n/** Words that stay lowercase mid-title (first and last word always cap). */\nconst MINOR_WORDS = new Set([\"a\", \"an\", \"and\", \"as\", \"at\", \"but\", \"by\", …]);"
+        }
+      ],
+      "children": []
+    },
+    "b-icd-laidout-oneway-14": {
+      "id": "b-icd-laidout-oneway-14",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "No unit carries doc links: "
+        },
+        {
+          "insert": "code linking",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/10-doc-standards/40-code-linking"
+            }
+          }
+        },
+        {
+          "insert": " is one-way, and the source stays ignorant of the docs."
+        }
+      ],
+      "children": []
+    },
+    "b-icd-rule-heading-2": {
+      "id": "b-icd-rule-heading-2",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The rule"
+        }
+      ],
+      "children": []
+    },
+    "b-icd-header-3": {
+      "id": "b-icd-header-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "File header",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-icd-header-3-sub",
+        "pm-mrus1k93-44-gl19me",
+        "pm-mrus1k93-45-j8eupq"
+      ]
+    },
+    "b-icd-header-3-sub": {
+      "id": "b-icd-header-3-sub",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The top of a source file states the file's contract: responsibilities, dependencies, invariants. "
+        }
+      ],
+      "children": []
+    },
+    "pm-mrus1k93-44-gl19me": {
+      "id": "pm-mrus1k93-44-gl19me",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A reader knows what the file holds before any code scrolls past. "
+        }
+      ],
+      "children": []
+    },
+    "pm-mrus1k93-45-j8eupq": {
+      "id": "pm-mrus1k93-45-j8eupq",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Kept under 50 lines."
+        }
+      ],
+      "children": []
+    },
+    "b-icd-docstring-4": {
+      "id": "b-icd-docstring-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Function docstrings",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-icd-docstring-4-sub"
+      ]
+    },
+    "b-icd-docstring-4-sub": {
+      "id": "b-icd-docstring-4-sub",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A non-obvious function states its contract: purpose, inputs, outputs, side effects, errors."
+        }
+      ],
+      "children": []
+    },
+    "b-icd-comments-5": {
+      "id": "b-icd-comments-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Inline comments",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-icd-comments-5-sub"
+      ]
+    },
+    "b-icd-comments-5-sub": {
+      "id": "b-icd-comments-5-sub",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Explain the why of a non-obvious move as the code goes, never restating what the line already says."
+        }
+      ],
+      "children": []
+    },
+    "b-icd-flow-lead-15": {
+      "id": "b-icd-flow-lead-15",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each unit answers the question a parent doc answers one level up — is the thing I need below this point?"
+        }
+      ],
+      "children": [
+        "b-icd-flow-header-16",
+        "b-icd-flow-docstring-17",
+        "b-icd-flow-comments-18"
+      ]
+    },
+    "b-icd-flow-header-16": {
+      "id": "b-icd-flow-header-16",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The header rules the file in or out."
+        }
+      ],
+      "children": []
+    },
+    "b-icd-flow-docstring-17": {
+      "id": "b-icd-flow-docstring-17",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Docstrings rule the function in or out."
+        }
+      ],
+      "children": []
+    },
+    "b-icd-flow-comments-18": {
+      "id": "b-icd-flow-comments-18",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Comments carry the reader through what remains."
+        }
+      ],
+      "children": []
+    },
+    "b-icd-why-heading-9": {
+      "id": "b-icd-why-heading-9",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why"
+        }
+      ],
+      "children": []
+    },
+    "b-icd-why-churn-19": {
+      "id": "b-icd-why-churn-19",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Files churn too fast for doc bundles",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-icd-why-churn-19-sub",
+        "pm-mrus1k93-46-m7brh2"
+      ]
+    },
+    "b-icd-why-churn-19-sub": {
+      "id": "b-icd-why-churn-19-sub",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The doc tree stops at L3, one doc per concept. "
+        }
+      ],
+      "children": []
+    },
+    "pm-mrus1k93-46-m7brh2": {
+      "id": "pm-mrus1k93-46-m7brh2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The lower rungs live in the source, so they move, diff, and review with the code they describe."
+        }
+      ],
+      "children": []
+    },
+    "b-icd-why-flow-20": {
+      "id": "b-icd-why-flow-20",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The flow pays off at the file",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-icd-why-flow-20-sub",
+        "pm-mrus1k93-47-qbdwr9"
+      ]
+    },
+    "b-icd-why-flow-20-sub": {
+      "id": "b-icd-why-flow-20-sub",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A reader leaves the docs with the question framed; the first screenful confirms or rules the file out. "
+        }
+      ],
+      "children": []
+    },
+    "pm-mrus1k93-47-qbdwr9": {
+      "id": "pm-mrus1k93-47-qbdwr9",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Code is read last, and only where the task lives."
+        }
+      ],
+      "children": []
+    }
+  }
+}

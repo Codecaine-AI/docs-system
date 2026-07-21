@@ -126,11 +126,32 @@
   --docs-table-cell-pad-y: 10px;
   --docs-table-cell-pad-x: 16px;
   --docs-table-font-size: 14px;
+  --docs-table-handle-radius: 3px;
+  --docs-table-handle-offset: 12px;
+  --docs-table-selection-pad: 3px;
+  /* Editor interaction accent (selection outlines, drop indicators, focus
+     rings, drag furniture) — full-strength blue; the bg/pill tiers are
+     background washes and must never be used for editor outlines. */
+  --docs-editor-accent: var(--color-accent-blue);
   --docs-interaction-border: var(--border);
   --docs-interaction-bg: var(--background);
   --docs-mermaid-border: var(--border);
   --docs-mermaid-bg: transparent;
   --docs-canvas-border: var(--border);
+  /* Side-peek panel + inline doc-reference chip (docs-viewer DocPeekPanel /
+     reference chip); color tokens stay references so they track the theme. */
+  --docs-peek-width: min(48rem, 45vw);
+  --docs-peek-duration: 300ms;
+  --docs-peek-divider-color: var(--border);
+  --docs-peek-divider-width: 1px;
+  --docs-peek-divider-style: solid;
+  --docs-peek-padding: 1.5rem;
+  --docs-ref-color: var(--muted-foreground);
+  --docs-ref-underline-color: color-mix(in srgb, var(--foreground) 40%, transparent);
+  --docs-ref-icon-size: 12px;
+  --docs-ref-icon-color: currentColor;
+  --docs-ref-icon-gap: 2px;
+  --docs-ref-icon-direction: row;
   --docs-viewer-callout-fill: var(--color-bg-orange);
   --docs-viewer-inline-fill: var(--color-bg-gray);
   --docs-inline-code-bg: rgba(135, 131, 120, 0.15);
@@ -240,11 +261,32 @@
   --docs-table-cell-pad-y: 10px;
   --docs-table-cell-pad-x: 16px;
   --docs-table-font-size: 14px;
+  --docs-table-handle-radius: 3px;
+  --docs-table-handle-offset: 12px;
+  --docs-table-selection-pad: 3px;
+  /* Editor interaction accent (selection outlines, drop indicators, focus
+     rings, drag furniture) — full-strength blue; the bg/pill tiers are
+     background washes and must never be used for editor outlines. */
+  --docs-editor-accent: var(--color-accent-blue);
   --docs-interaction-border: var(--border);
   --docs-interaction-bg: var(--background);
   --docs-mermaid-border: var(--border);
   --docs-mermaid-bg: transparent;
   --docs-canvas-border: var(--border);
+  /* Side-peek panel + inline doc-reference chip (docs-viewer DocPeekPanel /
+     reference chip); color tokens stay references so they track the theme. */
+  --docs-peek-width: min(48rem, 45vw);
+  --docs-peek-duration: 300ms;
+  --docs-peek-divider-color: var(--border);
+  --docs-peek-divider-width: 1px;
+  --docs-peek-divider-style: solid;
+  --docs-peek-padding: 1.5rem;
+  --docs-ref-color: var(--muted-foreground);
+  --docs-ref-underline-color: color-mix(in srgb, var(--foreground) 40%, transparent);
+  --docs-ref-icon-size: 12px;
+  --docs-ref-icon-color: currentColor;
+  --docs-ref-icon-gap: 2px;
+  --docs-ref-icon-direction: row;
   --docs-viewer-callout-fill: var(--color-bg-orange);
   --docs-viewer-inline-fill: var(--color-bg-gray);
   --docs-inline-code-bg: rgba(135, 131, 120, 0.15);

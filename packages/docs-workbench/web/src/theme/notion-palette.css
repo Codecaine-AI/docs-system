@@ -36,6 +36,9 @@
   --color-text-blue: #0B6E99;
   --color-bg-blue: #DDEBF1;
   --color-pill-blue: rgba(0,120,223,0.2);
+  /* Full-strength selection blue (the pill hue at alpha 1) — Notion's
+     interactive accent; bg/pill tiers are far too pale for outlines. */
+  --color-accent-blue: rgb(0,120,223);
 
   --color-text-purple: #6940A5;
   --color-bg-purple: #EAE4F2;
@@ -80,6 +83,9 @@
   --color-text-blue: #529CCA;
   --color-bg-blue: #364954;
   --color-pill-blue: rgba(82,156,202,0.5);
+  /* Full-strength selection blue (the pill hue at alpha 1) — Notion's
+     interactive accent; bg/pill tiers are far too pale for outlines. */
+  --color-accent-blue: rgb(82,156,202);
 
   --color-text-purple: #9A6DD7;
   --color-bg-purple: #443F57;

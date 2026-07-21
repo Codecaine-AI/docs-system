@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@codecaine-ai/canvas": "workspace:*",
+    "@codecaine-ai/sequence": "workspace:*",
     "@sinclair/typebox": "^0.34"
   },
   "devDependencies": {

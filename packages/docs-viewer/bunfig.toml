@@ -1,0 +1,7 @@
+# bun only reads the bunfig nearest to the cwd, so running `bun test` from
+# this package directory used to skip the ROOT test preloads (happy-dom
+# global registration + React de-dup) and every component test died with
+# "document is not defined". This file re-points at the same root preloads
+# so package-local `bun test` runs behave exactly like root runs.
+[test]
+preload = ["../../happydom.ts", "../../react-dedup.ts"]

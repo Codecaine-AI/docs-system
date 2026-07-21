@@ -26,6 +26,9 @@ const ACTION_KEYS = [
   "interaction-surface.addOperation",
   "interaction-surface.removeOperation",
   "interaction-surface.updateOperation",
+  "sequence.setProgram",
+  "sequence.setStyle",
+  "sequence.setTitle",
   "structured-table.addColumn",
   "structured-table.addRow",
   "structured-table.removeColumn",
@@ -72,7 +75,7 @@ function syntheticAction(
 
 describe("component registry", () => {
   it("imports ../index with a healthy registry", () => {
-    expect(ALL_COMPONENTS).toHaveLength(7);
+    expect(ALL_COMPONENTS).toHaveLength(8);
     expect(collectRegistryIssues(ALL_COMPONENTS)).toEqual([]);
   });
 
@@ -88,7 +91,7 @@ describe("component registry", () => {
     }
   });
 
-  it("registers the 13 legacy and 5 canvas action keys", () => {
+  it("registers the 13 legacy, 5 canvas, and 3 sequence action keys", () => {
     expect([...ACTION_REGISTRY.keys()].sort()).toEqual([...ACTION_KEYS]);
   });
 

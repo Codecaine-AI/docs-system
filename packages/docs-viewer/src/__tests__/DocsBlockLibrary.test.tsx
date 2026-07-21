@@ -109,7 +109,7 @@ describe("DocsBlockLibrary", () => {
       screen.getByText(
         (_content, element) =>
           element?.tagName === "CODE" &&
-          element.textContent === '  "title": "Agent runtime layout",',
+          element.textContent === '  "entries": [',
       ),
     ).toBeTruthy();
 

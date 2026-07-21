@@ -17,6 +17,16 @@
  * dynamically-built class names would silently produce no CSS.
  */
 
+/**
+ * Doc-surface typography wrapper — the container class string a host puts
+ * around `DocBlockRenderer`/`DocEditor` so a doc reads as a doc. The single
+ * source of truth for doc-surface typography: the workbench DocPage imports
+ * it around all three of its doc surfaces and the peek panel wraps its
+ * preview in it, so every surface renders docs identically by construction.
+ */
+export const DOC_SURFACE_TYPOGRAPHY_CLASSES =
+  "docs-markdown prose prose-sm dark:prose-invert relative max-w-none font-sans text-sm leading-[1.7]";
+
 /** `paragraph` — the `<p>` element. */
 export const PARAGRAPH_CLASSES = "my-3 text-sm leading-[1.7]";
 

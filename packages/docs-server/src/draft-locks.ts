@@ -1,4 +1,4 @@
-export type DraftLockKey = { kind: "doc" | "canvas"; path: string };
+export type DraftLockKey = { kind: "doc" | "canvas" | "sequence"; path: string };
 
 /**
  * Canonical draft-lock path derivation. Callers reach the lock store with

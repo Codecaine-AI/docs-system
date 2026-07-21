@@ -9,17 +9,22 @@
       "type": "paragraph",
       "props": {},
       "children": [
+        "pm-mrtgc8ad-1229-3dg2fd",
         "b-m2-species-2",
-        "pm-mrp8188r-2788-wn1eyl",
+        "pm-mrtgc8ad-1230-0p7q9q",
         "b-m2-lineage-3",
         "pm-mrp8188r-2789-zxxhcd",
+        "pm-mrtgc8ad-1234-b3xnnd",
         "pm-mrp8188r-2790-7rofu8",
         "pm-mrp8188r-2791-gux0hw",
         "pm-mrp8188r-2792-is59wa",
         "pm-mrp9f073-1-8ek1px",
-        "pm-mrp8188r-2793-ig9w2s",
-        "b-m2-two-readers-intro-4",
-        "pm-mrp8188r-2794-r7vd9e",
+        "pm-mrtgc8ad-1245-bt4bij",
+        "pm-mrtgc8ad-1246-l9iouk",
+        "pm-mrtgc8ad-1247-s3v19p",
+        "pm-mrtgc8ad-1248-rzgequ",
+        "pm-mrtgc8ad-1249-j618qz",
+        "pm-mrtgc8ad-1250-lh26kn",
         "b-m2-gap-heading-5",
         "b-m2-gap-physical-6",
         "pm-mrp8188r-2795-jykqxb",
@@ -39,27 +44,14 @@
         "pm-mrp8188r-2811-8x7dtd",
         "pm-mrp8188r-2812-xaktnw",
         "pm-mrp8188r-2813-vzgukk",
-        "b-m2-define-heading-8",
-        "b-m2-define-math-9",
-        "pm-mrp8188r-2814-6bacgk",
-        "pm-mrp8188r-2815-d6cywe",
-        "pm-mrp8188r-2816-wyaeyc",
-        "pm-mrp8188r-2820-29ldi5",
-        "b-m2-define-lossy-10",
-        "b-m2-define-layers-11",
-        "pm-mrp8188r-2821-013hxd",
-        "pm-mrp8188r-2823-bturf9",
-        "pm-mrp8188r-2825-mnqmwr",
-        "pm-mrp8188r-2826-c7p4fu",
-        "b-m2-define-obligation-12",
-        "pm-mrp8188r-2827-a9pkca",
-        "pm-mrp8188r-2828-vhnu8s",
-        "b-m2-trust-heading-13",
+        "pm-mrtgc8ad-1251-0zwfp2",
+        "pm-mrtgc8ad-1253-tqwwdv",
         "b-m2-trust-chain-14",
         "pm-mrp8188r-2829-reu0y5",
-        "pm-mrp8188r-2830-shybmt",
-        "pm-mrp8188r-2831-6q1jmq",
-        "pm-mrp8188r-2832-5fbk24",
+        "pm-mrtif752-80-y8t8e4",
+        "pm-mrtif752-81-11zpi8",
+        "pm-mrtif752-82-zc6fla",
+        "pm-mrtif752-83-y0y0y3",
         "pm-mrp8188r-2833-gvlrua",
         "b-m2-trust-slop-15",
         "pm-mrp8188r-2834-bpmkij",
@@ -76,24 +68,37 @@
         "pm-mrp8188r-2838-qr4d0t"
       ]
     },
+    "pm-mrtgc8ad-1229-3dg2fd": {
+      "id": "pm-mrtgc8ad-1229-3dg2fd",
+      "type": "heading",
+      "props": {
+        "level": 1
+      },
+      "text": [
+        {
+          "insert": "Intro"
+        }
+      ],
+      "children": []
+    },
     "b-m2-species-2": {
       "id": "b-m2-species-2",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "The most important technology our species is not any specific entity."
+          "insert": "The most powerful ability of our species is the ability to transfer of knowledge from one mind to another"
         }
       ],
       "children": []
     },
-    "pm-mrp8188r-2788-wn1eyl": {
-      "id": "pm-mrp8188r-2788-wn1eyl",
-      "type": "paragraph",
+    "pm-mrtgc8ad-1230-0p7q9q": {
+      "id": "pm-mrtgc8ad-1230-0p7q9q",
+      "type": "list-item",
       "props": {},
       "text": [
         {
-          "insert": "It is the ability to transfer of knowledge from one mind to another, so that the next mind is able to pick up where the previous left off."
+          "insert": "This allowing so the next mind is able to pick up where the previous left off."
         }
       ],
       "children": []
@@ -115,7 +120,107 @@
       "props": {},
       "text": [
         {
-          "insert": "Writing let knowledge outlive its author"
+          "insert": "Spoken / Physical language"
+        }
+      ],
+      "children": [
+        "pm-mrtgc8ad-1231-z2a7aq"
+      ]
+    },
+    "pm-mrtgc8ad-1231-z2a7aq": {
+      "id": "pm-mrtgc8ad-1231-z2a7aq",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Transmission of knowledge from person to person"
+        }
+      ],
+      "children": [
+        "pm-mrtgc8ad-1232-q571fb",
+        "pm-mrtgc8ad-1233-pdbtmn"
+      ]
+    },
+    "pm-mrtgc8ad-1232-q571fb": {
+      "id": "pm-mrtgc8ad-1232-q571fb",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "1 to 1 knowledge transfer"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrtgc8ad-1233-pdbtmn": {
+      "id": "pm-mrtgc8ad-1233-pdbtmn",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Don't eat this berry, it kill you"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrtgc8ad-1234-b3xnnd": {
+      "id": "pm-mrtgc8ad-1234-b3xnnd",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Written language "
+        }
+      ],
+      "children": [
+        "pm-mrtgc8ad-1235-3f3zbx"
+      ]
+    },
+    "pm-mrtgc8ad-1235-3f3zbx": {
+      "id": "pm-mrtgc8ad-1235-3f3zbx",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Mass transmission capability"
+        }
+      ],
+      "children": [
+        "pm-mrtgc8ad-1236-hccuoc",
+        "pm-mrtgc8ad-1237-8n7r6p"
+      ]
+    },
+    "pm-mrtgc8ad-1236-hccuoc": {
+      "id": "pm-mrtgc8ad-1236-hccuoc",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "1 to many possiblility"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrtgc8ad-1237-8n7r6p": {
+      "id": "pm-mrtgc8ad-1237-8n7r6p",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Knowledge can outlive the author"
+        }
+      ],
+      "children": [
+        "pm-mrtgc8ad-1238-8yfezw"
+      ]
+    },
+    "pm-mrtgc8ad-1238-8yfezw": {
+      "id": "pm-mrtgc8ad-1238-8yfezw",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "IE, don't need to tell everyone not to eat the berry"
         }
       ],
       "children": []
@@ -126,7 +231,44 @@
       "props": {},
       "text": [
         {
-          "insert": "Diagrams let it cross languages"
+          "insert": "Diagrams"
+        }
+      ],
+      "children": [
+        "pm-mrtgc8ad-1239-kqt255",
+        "pm-mrtgc8ad-1240-ol7vjv",
+        "pm-mrtgc8ad-1241-yx271a"
+      ]
+    },
+    "pm-mrtgc8ad-1239-kqt255": {
+      "id": "pm-mrtgc8ad-1239-kqt255",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "1 to many"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrtgc8ad-1240-ol7vjv": {
+      "id": "pm-mrtgc8ad-1240-ol7vjv",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Conveys an idea"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrtgc8ad-1241-yx271a": {
+      "id": "pm-mrtgc8ad-1241-yx271a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Cross languages"
         }
       ],
       "children": []
@@ -137,7 +279,32 @@
       "props": {},
       "text": [
         {
-          "insert": "The internet gave everyone access to all the information around the world"
+          "insert": "The Internet "
+        }
+      ],
+      "children": [
+        "pm-mrtgc8ad-1242-ck8vvh",
+        "pm-mrtgc8ad-1243-9ydjmo"
+      ]
+    },
+    "pm-mrtgc8ad-1242-ck8vvh": {
+      "id": "pm-mrtgc8ad-1242-ck8vvh",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Near free access to all the information around the world"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrtgc8ad-1243-9ydjmo": {
+      "id": "pm-mrtgc8ad-1243-9ydjmo",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "New forms of media allowed for various flavors of 1 to many and many to many distribution"
         }
       ],
       "children": []
@@ -148,7 +315,20 @@
       "props": {},
       "text": [
         {
-          "insert": "AI gives us the ability to sift through the mountains of information"
+          "insert": "AI "
+        }
+      ],
+      "children": [
+        "pm-mrtgc8ad-1244-kqr3nq"
+      ]
+    },
+    "pm-mrtgc8ad-1244-kqr3nq": {
+      "id": "pm-mrtgc8ad-1244-kqr3nq",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Gives us the ability to sift through the mountains of information"
         }
       ],
       "children": []
@@ -157,44 +337,77 @@
       "id": "pm-mrp9f073-1-8ek1px",
       "type": "heading",
       "props": {
-        "level": 2
+        "level": 1
       },
       "text": [
         {
-          "insert": "The human interaction surface"
+          "insert": "The Issue"
         }
       ],
       "children": []
     },
-    "pm-mrp8188r-2793-ig9w2s": {
-      "id": "pm-mrp8188r-2793-ig9w2s",
+    "pm-mrtgc8ad-1245-bt4bij": {
+      "id": "pm-mrtgc8ad-1245-bt4bij",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "Each step is the same move: a faster channel from one entity to another."
+          "insert": "In the age of AI, the ideas we need to represent are rapidly gaining in complexity"
         }
       ],
       "children": []
     },
-    "b-m2-two-readers-intro-4": {
-      "id": "b-m2-two-readers-intro-4",
-      "type": "paragraph",
+    "pm-mrtgc8ad-1246-l9iouk": {
+      "id": "pm-mrtgc8ad-1246-l9iouk",
+      "type": "list-item",
       "props": {},
       "text": [
         {
-          "insert": "This system exists because ideas are getting more and more complex, and we need a better way of representing them and then transferring them to other people (and AI)."
+          "insert": "Before a system could be service that needs to balance users and such"
         }
       ],
       "children": []
     },
-    "pm-mrp8188r-2794-r7vd9e": {
-      "id": "pm-mrp8188r-2794-r7vd9e",
+    "pm-mrtgc8ad-1247-s3v19p": {
+      "id": "pm-mrtgc8ad-1247-s3v19p",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Now everything is becoming and massively complex autonomous distributed system"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrtgc8ad-1248-rzgequ": {
+      "id": "pm-mrtgc8ad-1248-rzgequ",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "software needs that channel — and because there are now two kinds of readers on the other end of it."
+          "insert": "Simple mermaid diagrams and hacky flowcharts done in Excalibur no longer fit the bill required to do these massive projects."
+        }
+      ],
+      "children": []
+    },
+    "pm-mrtgc8ad-1249-j618qz": {
+      "id": "pm-mrtgc8ad-1249-j618qz",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Further, as AI integrates to greater and greater capacities in our workflows, it can introduce slop and drift that we need to be able to fight against. "
+        }
+      ],
+      "children": []
+    },
+    "pm-mrtgc8ad-1250-lh26kn": {
+      "id": "pm-mrtgc8ad-1250-lh26kn",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "We need to be able to clearly represent ideas about what the system is designed to do so that the AI will follow our desired intent. "
         }
       ],
       "children": []
@@ -203,11 +416,11 @@
       "id": "b-m2-gap-heading-5",
       "type": "heading",
       "props": {
-        "level": 2
+        "level": 1
       },
       "text": [
         {
-          "insert": "The gap"
+          "insert": "The Gap"
         }
       ],
       "children": []
@@ -273,7 +486,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The extent to most software is API reference"
+          "insert": "Most software is API reference"
         }
       ],
       "children": []
@@ -397,7 +610,7 @@
       "id": "pm-mrp8188r-2809-87ygvx",
       "type": "heading",
       "props": {
-        "level": 3
+        "level": 1
       },
       "text": [
         {
@@ -449,254 +662,24 @@
       "props": {},
       "text": [
         {
-          "insert": "They can carry the upkeep — and they raised the stakes, because one builder now runs several projects at once, each with the complexity that used to take a team. Comprehensive documentation stopped being a virtue. It became load-bearing."
+          "insert": "They can carry the upkeep — and they raised the stakes, because one builder now runs several projects at once, each with the complexity that used to take a team. "
         }
       ],
       "children": []
     },
-    "b-m2-define-heading-8": {
-      "id": "b-m2-define-heading-8",
-      "type": "heading",
-      "props": {
-        "level": 2
-      },
-      "text": [
-        {
-          "insert": "Docs Define the Function"
-        }
-      ],
-      "children": []
-    },
-    "b-m2-define-math-9": {
-      "id": "b-m2-define-math-9",
+    "pm-mrtgc8ad-1251-0zwfp2": {
+      "id": "pm-mrtgc8ad-1251-0zwfp2",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "This repository treats documentation the way mathematics treats a definition. "
+          "insert": "Comprehensive documentation has become a non negotiatable."
         }
       ],
       "children": []
     },
-    "pm-mrp8188r-2814-6bacgk": {
-      "id": "pm-mrp8188r-2814-6bacgk",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "The docs define the function; the code is one implementation of it"
-        }
-      ],
-      "children": []
-    },
-    "pm-mrp8188r-2815-d6cywe": {
-      "id": "pm-mrp8188r-2815-d6cywe",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "A projection of the intent into a particular language, framework, and moment. "
-        }
-      ],
-      "children": []
-    },
-    "pm-mrp8188r-2816-wyaeyc": {
-      "id": "pm-mrp8188r-2816-wyaeyc",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Many projections satisfy the same definition. "
-        }
-      ],
-      "children": [
-        "pm-mrp8188r-2817-ppyo3v"
-      ]
-    },
-    "pm-mrp8188r-2817-ppyo3v": {
-      "id": "pm-mrp8188r-2817-ppyo3v",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Swap the backend's language tomorrow: "
-        }
-      ],
-      "children": [
-        "pm-mrp8188r-2818-pb22wm",
-        "pm-mrp8188r-2819-jyku2n"
-      ]
-    },
-    "pm-mrp8188r-2818-pb22wm": {
-      "id": "pm-mrp8188r-2818-pb22wm",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "The implementation docs are rewritten, "
-        }
-      ],
-      "children": []
-    },
-    "pm-mrp8188r-2819-jyku2n": {
-      "id": "pm-mrp8188r-2819-jyku2n",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "The system design barely moves, and the foundation does not move at all. "
-        }
-      ],
-      "children": []
-    },
-    "pm-mrp8188r-2820-29ldi5": {
-      "id": "pm-mrp8188r-2820-29ldi5",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "The layers are ordered by how fast they are allowed to change."
-        }
-      ],
-      "children": []
-    },
-    "b-m2-define-lossy-10": {
-      "id": "b-m2-define-lossy-10",
-      "type": "quote",
-      "props": {},
-      "text": [
-        {
-          "insert": "Code is a lossy projection of intent. Read only the code, and the why has already been projected away — every reader after you, human or agent, is left reverse-engineering what you meant."
-        }
-      ],
-      "children": []
-    },
-    "b-m2-define-layers-11": {
-      "id": "b-m2-define-layers-11",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "So the corpus keeps three layers. "
-        }
-      ],
-      "children": []
-    },
-    "pm-mrp8188r-2821-013hxd": {
-      "id": "pm-mrp8188r-2821-013hxd",
-      "type": "list-item",
-      "props": {
-        "ordered": true
-      },
-      "text": [
-        {
-          "insert": "Foundation holds the intent"
-        }
-      ],
-      "children": [
-        "pm-mrp8188r-2822-wkdlah"
-      ]
-    },
-    "pm-mrp8188r-2822-wkdlah": {
-      "id": "pm-mrp8188r-2822-wkdlah",
-      "type": "list-item",
-      "props": {
-        "ordered": true
-      },
-      "text": [
-        {
-          "insert": "What this is and why it exists. "
-        }
-      ],
-      "children": []
-    },
-    "pm-mrp8188r-2823-bturf9": {
-      "id": "pm-mrp8188r-2823-bturf9",
-      "type": "list-item",
-      "props": {
-        "ordered": true
-      },
-      "text": [
-        {
-          "insert": "System Design holds the behavior"
-        }
-      ],
-      "children": [
-        "pm-mrp8188r-2824-fbonl6"
-      ]
-    },
-    "pm-mrp8188r-2824-fbonl6": {
-      "id": "pm-mrp8188r-2824-fbonl6",
-      "type": "list-item",
-      "props": {
-        "ordered": true
-      },
-      "text": [
-        {
-          "insert": "What the system does, independent of any codebase."
-        }
-      ],
-      "children": []
-    },
-    "pm-mrp8188r-2825-mnqmwr": {
-      "id": "pm-mrp8188r-2825-mnqmwr",
-      "type": "list-item",
-      "props": {
-        "ordered": true
-      },
-      "text": [
-        {
-          "insert": "Implementation describes the current projection, and is allowed to churn. "
-        }
-      ],
-      "children": []
-    },
-    "pm-mrp8188r-2826-c7p4fu": {
-      "id": "pm-mrp8188r-2826-c7p4fu",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "A reader starts at the top and descends only as far as the task requires."
-        }
-      ],
-      "children": []
-    },
-    "b-m2-define-obligation-12": {
-      "id": "b-m2-define-obligation-12",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "A definition implies an obligation"
-        }
-      ],
-      "children": []
-    },
-    "pm-mrp8188r-2827-a9pkca": {
-      "id": "pm-mrp8188r-2827-a9pkca",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "If the docs say what the system should do, the system must be held to them. "
-        }
-      ],
-      "children": []
-    },
-    "pm-mrp8188r-2828-vhnu8s": {
-      "id": "pm-mrp8188r-2828-vhnu8s",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "This corpus already keeps itself mechanically honest — every document's bytes and rendered markdown are pinned by tests — and behavior-level verification against the docs is the frontier this project is walking toward."
-        }
-      ],
-      "children": []
-    },
-    "b-m2-trust-heading-13": {
-      "id": "b-m2-trust-heading-13",
+    "pm-mrtgc8ad-1253-tqwwdv": {
+      "id": "pm-mrtgc8ad-1253-tqwwdv",
       "type": "heading",
       "props": {
         "level": 2
@@ -714,7 +697,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Agents write more of the code every month. "
+          "insert": "Agents will continue to write more and more code. "
         }
       ],
       "children": []
@@ -725,40 +708,51 @@
       "props": {},
       "text": [
         {
-          "insert": "That only scales on trust, and trust does not come from reviewing diffs faster. "
+          "insert": "That only scales on trust."
         }
       ],
       "children": []
     },
-    "pm-mrp8188r-2830-shybmt": {
-      "id": "pm-mrp8188r-2830-shybmt",
+    "pm-mrtif752-80-y8t8e4": {
+      "id": "pm-mrtif752-80-y8t8e4",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "It comes from the behavior and its reasoning being locked in"
+          "insert": "Trust does not come from reviewing diffs faster."
         }
       ],
       "children": []
     },
-    "pm-mrp8188r-2831-6q1jmq": {
-      "id": "pm-mrp8188r-2831-6q1jmq",
-      "type": "list-item",
+    "pm-mrtif752-81-11zpi8": {
+      "id": "pm-mrtif752-81-11zpi8",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "This is what the piece does, this is why it is this way"
+          "insert": "Trust comes from knowing that the outputted code will match the initial intent you gave to the system. "
         }
       ],
       "children": []
     },
-    "pm-mrp8188r-2832-5fbk24": {
-      "id": "pm-mrp8188r-2832-5fbk24",
+    "pm-mrtif752-82-zc6fla": {
+      "id": "pm-mrtif752-82-zc6fla",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The underpinning idea here is our current documentation pieces do not actually fully capture our design and intent, and thus agents fail to be effective"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrtif752-83-y0y0y3": {
+      "id": "pm-mrtif752-83-y0y0y3",
       "type": "list-item",
       "props": {},
       "text": [
         {
-          "insert": "These are the decisions you do not quietly change. "
+          "insert": "It is not their fault though as they are provided inferior intent"
         }
       ],
       "children": []
@@ -828,11 +822,11 @@
       "id": "b-m2-conviction-heading-22",
       "type": "heading",
       "props": {
-        "level": 2
+        "level": 1
       },
       "text": [
         {
-          "insert": "The conviction"
+          "insert": "The Conviction"
         }
       ],
       "children": []
