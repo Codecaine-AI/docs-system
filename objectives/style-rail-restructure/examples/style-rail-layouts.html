@@ -1,0 +1,1072 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<title>Style Rail — Layout Explorations</title>
+<style>
+  :root {
+    --bg: #f7f7f8;
+    --surface: #ffffff;
+    --ink: #1d1d1f;
+    --muted: #6e6e73;
+    --faint: #9b9ba0;
+    --hairline: rgba(0, 0, 0, 0.08);
+    --hairline-strong: rgba(0, 0, 0, 0.14);
+    --accent: #0071e3;
+    --accent-soft: rgba(0, 113, 227, 0.12);
+    --track: rgba(0, 0, 0, 0.12);
+    --well: rgba(0, 0, 0, 0.045);
+    --dot-grid: rgba(0, 0, 0, 0.10);
+    --shadow: 0 1px 2px rgba(0,0,0,.05), 0 12px 32px rgba(0,0,0,.07);
+    --radius: 12px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #161618;
+      --surface: #1f1f22;
+      --ink: #f5f5f7;
+      --muted: #98989d;
+      --faint: #6e6e73;
+      --hairline: rgba(255, 255, 255, 0.10);
+      --hairline-strong: rgba(255, 255, 255, 0.18);
+      --accent: #3e9bff;
+      --accent-soft: rgba(62, 155, 255, 0.16);
+      --track: rgba(255, 255, 255, 0.16);
+      --well: rgba(255, 255, 255, 0.05);
+      --dot-grid: rgba(255, 255, 255, 0.09);
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 12px 32px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #161618; --surface: #1f1f22; --ink: #f5f5f7; --muted: #98989d;
+    --faint: #6e6e73; --hairline: rgba(255,255,255,0.10); --hairline-strong: rgba(255,255,255,0.18);
+    --accent: #3e9bff; --accent-soft: rgba(62,155,255,0.16); --track: rgba(255,255,255,0.16);
+    --well: rgba(255,255,255,0.05); --dot-grid: rgba(255,255,255,0.09);
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 12px 32px rgba(0,0,0,.35);
+  }
+  :root[data-theme="light"] {
+    --bg: #f7f7f8; --surface: #ffffff; --ink: #1d1d1f; --muted: #6e6e73;
+    --faint: #9b9ba0; --hairline: rgba(0,0,0,0.08); --hairline-strong: rgba(0,0,0,0.14);
+    --accent: #0071e3; --accent-soft: rgba(0,113,227,0.12); --track: rgba(0,0,0,0.12);
+    --well: rgba(0,0,0,0.045); --dot-grid: rgba(0,0,0,0.10);
+    --shadow: 0 1px 2px rgba(0,0,0,.05), 0 12px 32px rgba(0,0,0,.07);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  code, .mono { font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace; font-size: 0.85em; }
+
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 56px 32px 96px; }
+
+  /* ---------- document chrome ---------- */
+  .doc-head { max-width: 640px; margin-bottom: 8px; }
+  .doc-head h1 {
+    font-size: 34px; font-weight: 700; letter-spacing: -0.022em;
+    margin: 0 0 10px; line-height: 1.15; text-wrap: balance;
+  }
+  .doc-head p { color: var(--muted); margin: 0; }
+  .eyebrow {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--accent); margin: 0 0 14px;
+  }
+
+  .decisions {
+    margin: 36px 0 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+  }
+  .decision {
+    background: var(--surface); border: 1px solid var(--hairline); border-radius: var(--radius);
+    padding: 14px 16px;
+  }
+  .decision b { display: block; font-size: 13px; margin-bottom: 2px; }
+  .decision span { font-size: 13px; color: var(--muted); }
+
+  /* ---------- variation sections ---------- */
+  .variation { margin-top: 84px; }
+  .var-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 6px; }
+  .var-letter {
+    font-size: 13px; font-weight: 700; color: var(--accent);
+    background: var(--accent-soft); border-radius: 7px; padding: 3px 9px;
+    letter-spacing: 0.02em;
+  }
+  .var-head h2 { font-size: 23px; font-weight: 700; letter-spacing: -0.017em; margin: 0; }
+  .var-sub { color: var(--muted); margin: 0 0 26px; max-width: 640px; }
+
+  .var-body { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 36px; align-items: start; }
+  @media (max-width: 980px) { .var-body { grid-template-columns: 1fr; } }
+
+  .artboard {
+    background:
+      radial-gradient(var(--dot-grid) 1px, transparent 1px) 0 0 / 18px 18px,
+      var(--well);
+    border: 1px solid var(--hairline);
+    border-radius: 16px;
+    padding: 32px;
+    display: flex; gap: 28px; align-items: flex-start;
+    overflow-x: auto;
+  }
+  .artboard-note {
+    align-self: center; color: var(--faint); font-size: 22px; flex: none;
+  }
+
+  .notes h3 {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.11em; text-transform: uppercase;
+    color: var(--muted); margin: 0 0 8px;
+  }
+  .notes ul { margin: 0 0 22px; padding-left: 18px; }
+  .notes li { font-size: 13.5px; margin-bottom: 6px; color: var(--ink); }
+  .notes li::marker { color: var(--faint); }
+
+  /* ---------- shared panel anatomy ---------- */
+  .panel {
+    width: 576px; flex: none;
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    font-size: 13px;
+    display: flex; flex-direction: column;
+    height: 660px;
+    position: relative;
+  }
+  .panel.short { height: 660px; }
+  .p-fade {
+    position: absolute; left: 0; right: 0; bottom: 0; height: 56px;
+    background: linear-gradient(to bottom, transparent, var(--surface));
+    pointer-events: none;
+  }
+  .p-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 18px 12px;
+    flex: none;
+  }
+  .p-title { font-size: 11px; font-weight: 700; letter-spacing: 0.18em; color: var(--ink); }
+  .p-head-icons { display: flex; gap: 8px; color: var(--faint); }
+  .p-scroll { overflow: hidden; flex: 1; }
+
+  .seg {
+    display: flex; background: var(--well); border-radius: 8px; padding: 2px;
+    margin: 0 18px 6px; flex: none;
+  }
+  .seg > div {
+    flex: 1; text-align: center; padding: 5px 0; border-radius: 6px;
+    font-size: 12.5px; font-weight: 500; color: var(--muted);
+  }
+  .seg > .on {
+    background: var(--surface); color: var(--ink); font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0,0,0,.12);
+  }
+
+  .sec-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase;
+    color: var(--muted); padding: 18px 18px 6px;
+  }
+
+  .row {
+    display: flex; align-items: center; gap: 10px;
+    min-height: 42px; padding: 0 18px;
+  }
+  .row + .row { border-top: 1px solid var(--hairline); }
+  .row .lbl { flex: 1; font-size: 13px; }
+  .row .val { color: var(--muted); font-size: 12.5px; }
+  .row .chev { color: var(--faint); font-size: 14px; }
+  .row.compact { min-height: 30px; }
+  .row.compact .lbl { font-size: 12.5px; }
+
+  .group { border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); }
+  .card-group {
+    margin: 6px 14px; border: 1px solid var(--hairline); border-radius: 10px; overflow: hidden;
+  }
+  .card-group .row { padding: 0 14px; }
+
+  .swatch {
+    width: 22px; height: 22px; border-radius: 6px; flex: none;
+    border: 1px solid var(--hairline-strong);
+  }
+  .swatch.sm { width: 14px; height: 14px; border-radius: 4px; }
+  .swatch-strip { display: flex; gap: 4px; }
+  .hex { color: var(--muted); font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 11px; }
+
+  .slider { display: flex; align-items: center; gap: 8px; width: 190px; flex: none; }
+  .slider .track { flex: 1; height: 3px; border-radius: 2px; background: var(--track); position: relative; }
+  .slider .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 2px; background: var(--accent); }
+  .slider .thumb {
+    position: absolute; top: 50%; width: 15px; height: 15px; border-radius: 50%;
+    background: #fff; border: 0.5px solid rgba(0,0,0,.15);
+    box-shadow: 0 1px 3px rgba(0,0,0,.25); transform: translate(-50%, -50%);
+  }
+  .slider .num { font-size: 11.5px; color: var(--muted); min-width: 34px; text-align: right; font-variant-numeric: tabular-nums; }
+
+  .switch { width: 34px; height: 20px; border-radius: 10px; background: var(--track); position: relative; flex: none; }
+  .switch.on { background: #34c759; }
+  .switch::after {
+    content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px;
+    border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.25);
+  }
+  .switch.on::after { left: auto; right: 2px; }
+
+  .selectbox {
+    display: flex; align-items: center; gap: 6px;
+    border: 1px solid var(--hairline-strong); border-radius: 7px;
+    padding: 3px 8px 3px 10px; font-size: 12px; color: var(--ink); background: var(--surface);
+  }
+  .selectbox span:last-child { color: var(--faint); font-size: 10px; }
+
+  .ov-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex: none; }
+  .ov-dot.empty { background: transparent; border: 1px solid var(--hairline-strong); }
+
+  .p-foot {
+    flex: none; border-top: 1px solid var(--hairline);
+    display: flex; gap: 8px; padding: 12px 18px;
+  }
+  .p-foot .btn {
+    flex: 1; text-align: center; font-size: 12.5px; font-weight: 500;
+    border: 1px solid var(--hairline-strong); border-radius: 8px; padding: 6px 0;
+    color: var(--ink);
+  }
+  .p-foot .btn.quiet { border-color: transparent; color: var(--muted); }
+
+  .searchbox {
+    margin: 4px 18px 10px; display: flex; align-items: center; gap: 8px;
+    background: var(--well); border-radius: 8px; padding: 6px 10px;
+    color: var(--faint); font-size: 12.5px; flex: none;
+  }
+
+  /* ---------- A: two-pane ---------- */
+  .twopane { display: flex; flex: 1; min-height: 0; border-top: 1px solid var(--hairline); }
+  .tp-rail {
+    width: 168px; flex: none; border-right: 1px solid var(--hairline);
+    padding: 10px 8px; overflow: hidden; position: relative;
+  }
+  .tp-rail .rail-label {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase;
+    color: var(--faint); padding: 10px 10px 4px;
+  }
+  .tp-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 10px; border-radius: 7px; font-size: 12.5px; color: var(--ink);
+  }
+  .tp-item .glyph { width: 15px; text-align: center; color: var(--muted); font-size: 12px; }
+  .tp-item.on { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+  .tp-item.on .glyph { color: var(--accent); }
+  .tp-detail { flex: 1; min-width: 0; display: flex; flex-direction: column; overflow: hidden; }
+  .tp-detail-head { padding: 16px 18px 4px; flex: none; }
+  .tp-detail-head h4 { margin: 0; font-size: 15px; font-weight: 700; letter-spacing: -0.01em; }
+  .tp-detail-head p { margin: 2px 0 0; font-size: 12px; color: var(--muted); }
+  .rail-fade {
+    position: absolute; left: 0; right: 0; bottom: 0; height: 48px;
+    background: linear-gradient(to bottom, transparent, var(--surface)); pointer-events: none;
+  }
+
+  /* ---------- B: drill-in ---------- */
+  .back-crumb {
+    display: flex; align-items: center; gap: 4px; color: var(--accent);
+    font-size: 13px; font-weight: 500; padding: 12px 18px 0;
+  }
+  .page-title { font-size: 19px; font-weight: 700; letter-spacing: -0.015em; padding: 4px 18px 10px; }
+
+  /* ---------- C: inspector foldouts ---------- */
+  .fold-head {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 18px; background: var(--well);
+    border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline);
+    font-size: 12px; font-weight: 600;
+  }
+  .fold-head + .fold-head { border-top: none; }
+  .fold-head .tri { color: var(--muted); font-size: 9px; width: 10px; }
+  .fold-head .count { margin-left: auto; color: var(--faint); font-weight: 400; font-size: 11px; }
+
+  /* ---------- D: specimen ---------- */
+  .chips { display: flex; gap: 6px; padding: 4px 18px 12px; overflow: hidden; flex: none; }
+  .chip {
+    flex: none; font-size: 12px; padding: 4px 11px; border-radius: 999px;
+    border: 1px solid var(--hairline-strong); color: var(--muted); white-space: nowrap;
+  }
+  .chip.on { background: var(--ink); color: var(--surface); border-color: var(--ink); font-weight: 600; }
+  .specimen {
+    margin: 0 18px 4px; border: 1px solid var(--hairline); border-radius: 10px;
+    background:
+      radial-gradient(var(--dot-grid) 1px, transparent 1px) 0 0 / 14px 14px,
+      var(--well);
+    padding: 22px 20px; flex: none;
+  }
+  .spec-callout {
+    background: var(--surface); border-radius: 8px;
+    border-left: 3px solid var(--accent);
+    padding: 12px 14px; display: flex; gap: 10px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.06);
+  }
+  .spec-callout .ico { color: var(--accent); font-size: 14px; }
+  .spec-lines { flex: 1; display: flex; flex-direction: column; gap: 6px; padding-top: 3px; }
+  .tl { height: 7px; border-radius: 4px; background: var(--track); }
+  .tl.w60 { width: 60%; } .tl.w85 { width: 85%; } .tl.w40 { width: 40%; } .tl.w70 { width: 70%; }
+  .tl.head { height: 9px; background: var(--hairline-strong); }
+  .spec-meta {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 20px 0; font-size: 11px; color: var(--faint); flex: none;
+  }
+
+  /* ---------- E: gallery ---------- */
+  .gallery {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 8px 18px;
+  }
+  .g-card {
+    border: 1px solid var(--hairline); border-radius: 10px; overflow: hidden;
+    background: var(--surface);
+  }
+  .g-card.on { border-color: var(--accent); box-shadow: 0 0 0 2.5px var(--accent-soft); }
+  .g-thumb {
+    height: 64px; background: var(--well); padding: 10px 12px;
+    display: flex; flex-direction: column; gap: 5px; justify-content: center;
+  }
+  .g-name {
+    font-size: 11.5px; font-weight: 500; padding: 6px 10px;
+    border-top: 1px solid var(--hairline);
+    display: flex; align-items: center; gap: 5px;
+  }
+  .g-code { background: #2a2a30; border-radius: 5px; height: 100%; padding: 8px 9px; display: flex; flex-direction: column; gap: 4px; }
+  .g-code .tl { background: rgba(255,255,255,.28); height: 5px; }
+  .g-callout { border-left: 3px solid var(--accent); background: var(--surface); border-radius: 4px; height: 100%; padding: 7px 9px; display: flex; flex-direction: column; gap: 4px; justify-content: center; }
+  .g-table { display: flex; flex-direction: column; gap: 3px; height: 100%; justify-content: center; }
+  .g-table .tr { display: flex; gap: 3px; }
+  .g-table .td { flex: 1; height: 8px; border-radius: 2px; background: var(--track); }
+  .g-table .tr:first-child .td { background: var(--hairline-strong); }
+  .g-quote { border-left: 3px solid var(--hairline-strong); padding-left: 8px; display: flex; flex-direction: column; gap: 5px; justify-content: center; height: 100%; }
+
+  /* ---------- round 2 ---------- */
+  .r2-head { margin-top: 110px; padding-top: 48px; border-top: 1px solid var(--hairline-strong); max-width: 640px; }
+  .r2-head h2 { font-size: 27px; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 10px; }
+  .r2-head p { color: var(--muted); margin: 0; }
+
+  .doc-ghost {
+    flex: none; width: 150px; height: 660px; align-self: flex-start;
+    background: var(--surface); border: 1px solid var(--hairline);
+    border-radius: 10px; padding: 22px 16px;
+    display: flex; flex-direction: column; gap: 9px;
+    opacity: 0.75;
+  }
+  .doc-ghost .cap { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); margin-bottom: 6px; }
+  .ghost-callout {
+    border-left: 3px solid var(--accent); background: var(--accent-soft);
+    border-radius: 5px; padding: 8px 9px; display: flex; flex-direction: column; gap: 5px; margin: 4px 0;
+  }
+
+  .twopane.mirror { flex-direction: row-reverse; }
+  .twopane.mirror .tp-rail { border-right: none; border-left: 1px solid var(--hairline); }
+
+  .icon-rail {
+    width: 46px; flex: none; border-left: 1px solid var(--hairline);
+    display: flex; flex-direction: column; align-items: center; padding: 12px 0; gap: 6px;
+  }
+  .ir-item {
+    width: 32px; height: 32px; border-radius: 8px; position: relative;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted); font-size: 14px;
+  }
+  .ir-item.on { background: var(--accent-soft); color: var(--accent); }
+  .ir-dot { position: absolute; top: 3px; right: 3px; width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+  .ir-sep { width: 22px; height: 1px; background: var(--hairline); margin: 5px 0; }
+  .ir-tip {
+    position: absolute; right: 42px; top: 50%; transform: translateY(-50%);
+    background: var(--ink); color: var(--surface); font-size: 11px; font-weight: 500;
+    padding: 3px 8px; border-radius: 6px; white-space: nowrap;
+  }
+
+  .picker-btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    border: 1px solid var(--hairline-strong); border-radius: 8px;
+    padding: 5px 11px; font-size: 13px; font-weight: 600;
+  }
+  .picker-btn .dn { color: var(--faint); font-size: 10px; }
+  .popover {
+    position: absolute; top: 96px; left: 18px; width: 236px; z-index: 5;
+    background: var(--surface); border: 1px solid var(--hairline);
+    border-radius: 10px; box-shadow: var(--shadow); padding: 6px;
+  }
+  .pop-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 5px 9px; border-radius: 6px; font-size: 12.5px;
+  }
+  .pop-item.on { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+  .pop-item .cnt { margin-left: auto; font-size: 11px; color: var(--faint); }
+  .pop-search {
+    display: flex; align-items: center; gap: 6px; color: var(--faint);
+    font-size: 12px; padding: 5px 9px 7px; border-bottom: 1px solid var(--hairline); margin-bottom: 4px;
+  }
+
+  .specimen.compact { padding: 14px 16px; }
+
+  /* ---------- recommendation ---------- */
+  .rec {
+    margin-top: 96px; background: var(--surface); border: 1px solid var(--hairline);
+    border-radius: 16px; padding: 32px 36px;
+  }
+  .rec h2 { font-size: 21px; font-weight: 700; letter-spacing: -0.015em; margin: 0 0 6px; }
+  .rec > p { color: var(--muted); margin: 0 0 20px; max-width: 640px; }
+  .rec-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+  .rec-item { border-top: 2px solid var(--accent); padding-top: 10px; }
+  .rec-item b { font-size: 13.5px; display: block; margin-bottom: 3px; }
+  .rec-item span { font-size: 13px; color: var(--muted); }
+</style>
+
+<div class="wrap">
+  <header class="doc-head">
+    <p class="eyebrow">docs-workbench · StyleRail</p>
+    <h1>Style rail layout explorations</h1>
+    <p>Five layouts for the style sidebar, rendered at the proposed width. Shared premise: it stays a docked, flag-off-able panel — wider, calmer, and organized so "we're looking at callouts, adjust them" is a two-click thought. Direction: Apple simplicity with Unity-inspector density where it earns its keep.</p>
+  </header>
+
+  <div class="decisions">
+    <div class="decision"><b>Width: 36rem fixed</b><span>576px, up from 30rem / 480px. No drag handle. Every mockup below is rendered at this width.</span></div>
+    <div class="decision"><b>Still a sidebar</b><span>Docked right, pushes the doc, removable via theme-lock flag. No takeover mode.</span></div>
+    <div class="decision"><b>One control anatomy</b><span>All five variations share the same rows, swatches, sliders, switches — only the navigation differs.</span></div>
+    <div class="decision"><b>Override dots</b><span>A blue dot marks any token changed from theme default — visible at every level, borrowed from Unity/Xcode.</span></div>
+  </div>
+
+  <!-- ================= A ================= -->
+  <section class="variation">
+    <div class="var-head"><span class="var-letter">A</span><h2>Two-pane rail</h2></div>
+    <p class="var-sub">macOS System Settings, in miniature. A persistent category rail on the left; the selected category's controls fill the rest. Nothing is ever more than one click away, and the rail doubles as a map of the whole theming surface.</p>
+    <div class="var-body">
+      <div class="artboard">
+        <div class="panel">
+          <div class="p-head"><span class="p-title">STYLE</span><div class="p-head-icons"><span>⌕</span><span>⇥</span></div></div>
+          <div class="twopane">
+            <div class="tp-rail">
+              <div class="rail-label">Theme</div>
+              <div class="tp-item"><span class="glyph">◧</span>Presets</div>
+              <div class="tp-item"><span class="glyph">◉</span>Colors <span class="ov-dot" style="margin-left:auto"></span></div>
+              <div class="tp-item"><span class="glyph">Aa</span>Typography</div>
+              <div class="tp-item"><span class="glyph">▤</span>Background</div>
+              <div class="tp-item"><span class="glyph">⇱</span>References</div>
+              <div class="rail-label">Blocks</div>
+              <div class="tp-item"><span class="glyph">¶</span>Paragraph</div>
+              <div class="tp-item"><span class="glyph">H</span>Heading</div>
+              <div class="tp-item on"><span class="glyph">◆</span>Callout <span class="ov-dot" style="margin-left:auto;background:currentColor"></span></div>
+              <div class="tp-item"><span class="glyph">❝</span>Quote</div>
+              <div class="tp-item"><span class="glyph">⌘</span>Code</div>
+              <div class="tp-item"><span class="glyph">▦</span>Structured table</div>
+              <div class="tp-item"><span class="glyph">⌥</span>File tree</div>
+              <div class="tp-item"><span class="glyph">⧉</span>Interaction surface</div>
+              <div class="tp-item"><span class="glyph">◫</span>State shape</div>
+              <div class="rail-fade"></div>
+            </div>
+            <div class="tp-detail">
+              <div class="tp-detail-head">
+                <h4>Callout</h4>
+                <p>3 overrides · layered over Default theme</p>
+              </div>
+              <div class="sec-label">Color</div>
+              <div class="group">
+                <div class="row"><span class="ov-dot"></span><span class="lbl">Background</span><span class="hex">#F2F7FF</span><span class="swatch" style="background:#f2f7ff"></span></div>
+                <div class="row"><span class="ov-dot"></span><span class="lbl">Accent bar</span><span class="hex">#0071E3</span><span class="swatch" style="background:#0071e3"></span></div>
+                <div class="row"><span class="ov-dot empty"></span><span class="lbl">Text</span><span class="hex">theme</span><span class="swatch" style="background:#1d1d1f"></span></div>
+              </div>
+              <div class="sec-label">Shape</div>
+              <div class="group">
+                <div class="row"><span class="ov-dot"></span><span class="lbl">Corner radius</span>
+                  <div class="slider"><div class="track"><div class="fill" style="width:45%"></div><div class="thumb" style="left:45%"></div></div><span class="num">8px</span></div></div>
+                <div class="row"><span class="ov-dot empty"></span><span class="lbl">Padding</span>
+                  <div class="slider"><div class="track"><div class="fill" style="width:60%"></div><div class="thumb" style="left:60%"></div></div><span class="num">14px</span></div></div>
+                <div class="row"><span class="ov-dot empty"></span><span class="lbl">Icon size</span>
+                  <div class="slider"><div class="track"><div class="fill" style="width:35%"></div><div class="thumb" style="left:35%"></div></div><span class="num">16px</span></div></div>
+              </div>
+              <div class="row" style="border-top:1px solid var(--hairline)"><span class="lbl" style="color:var(--accent);font-size:12.5px">Reset Callout to theme</span></div>
+            </div>
+          </div>
+          <div class="p-foot"><div class="btn">Export</div><div class="btn">Import</div><div class="btn quiet">Reset all</div></div>
+        </div>
+      </div>
+      <div class="notes">
+        <h3>How it works</h3>
+        <ul>
+          <li>Rail groups: <b>Theme</b> (globals) and <b>Blocks</b> (the 18 component overrides), one scroll.</li>
+          <li>Override dots in the rail show where you've diverged from the theme — the map shows state, not just names.</li>
+          <li>Detail header states the layering: "3 overrides · layered over Default theme."</li>
+        </ul>
+        <h3>Wins</h3>
+        <ul>
+          <li>Zero burying — every destination visible at once.</li>
+          <li>Fastest block-to-block hopping (Callout → Quote is one click).</li>
+          <li>The closest fit to "Apple and Unity had a baby": Settings chassis, inspector contents.</li>
+        </ul>
+        <h3>Costs</h3>
+        <ul>
+          <li>Rail eats ~170px; detail pane gets ~400px — sliders fit, but it's the tightest variation.</li>
+          <li>18 block entries make the rail itself scroll.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= B ================= -->
+  <section class="variation">
+    <div class="var-head"><span class="var-letter">B</span><h2>Drill-in pages</h2></div>
+    <p class="var-sub">iOS Settings / WordPress-customizer navigation: a calm root menu where every row shows its current value, and tapping pushes a focused page with a back chevron. One thing on screen at a time.</p>
+    <div class="var-body">
+      <div class="artboard">
+        <div class="panel">
+          <div class="p-head"><span class="p-title">STYLE</span><div class="p-head-icons"><span>⇥</span></div></div>
+          <div class="seg"><div class="on">Theme</div><div>Layout</div></div>
+          <div class="p-scroll">
+            <div class="sec-label">Theme</div>
+            <div class="card-group">
+              <div class="row"><span class="lbl">Preset</span><span class="val">Default</span><span class="chev">›</span></div>
+              <div class="row"><span class="lbl">Colors</span>
+                <span class="swatch-strip"><span class="swatch sm" style="background:#1d1d1f"></span><span class="swatch sm" style="background:#0071e3"></span><span class="swatch sm" style="background:#f7f7f8"></span><span class="swatch sm" style="background:#34c759"></span></span>
+                <span class="chev">›</span></div>
+              <div class="row"><span class="lbl">Typography</span><span class="val">Sans · 16px</span><span class="chev">›</span></div>
+              <div class="row"><span class="lbl">Background effect</span><span class="val">Grain · 4%</span><span class="chev">›</span></div>
+            </div>
+            <div class="sec-label">Blocks</div>
+            <div class="card-group">
+              <div class="row"><span class="lbl">Paragraph</span><span class="chev">›</span></div>
+              <div class="row"><span class="ov-dot"></span><span class="lbl">Heading</span><span class="val">1 override</span><span class="chev">›</span></div>
+              <div class="row"><span class="ov-dot"></span><span class="lbl">Callout</span><span class="val">3 overrides</span><span class="chev">›</span></div>
+              <div class="row"><span class="lbl">Quote</span><span class="chev">›</span></div>
+              <div class="row"><span class="lbl">Code</span><span class="chev">›</span></div>
+              <div class="row"><span class="lbl">Structured table</span><span class="chev">›</span></div>
+            </div>
+            <div class="sec-label">Library</div>
+            <div class="card-group">
+              <div class="row"><span class="lbl">References</span><span class="chev">›</span></div>
+            </div>
+          </div>
+          <div class="p-fade"></div>
+          <div class="p-foot"><div class="btn">Export</div><div class="btn">Import</div><div class="btn quiet">Reset all</div></div>
+        </div>
+
+        <div class="artboard-note">→</div>
+
+        <div class="panel">
+          <div class="back-crumb">‹ Blocks</div>
+          <div class="page-title">Callout</div>
+          <div class="p-scroll">
+            <div class="sec-label">Color</div>
+            <div class="card-group">
+              <div class="row"><span class="ov-dot"></span><span class="lbl">Background</span><span class="hex">#F2F7FF</span><span class="swatch" style="background:#f2f7ff"></span></div>
+              <div class="row"><span class="ov-dot"></span><span class="lbl">Accent bar</span><span class="hex">#0071E3</span><span class="swatch" style="background:#0071e3"></span></div>
+              <div class="row"><span class="ov-dot empty"></span><span class="lbl">Border</span><span class="hex">theme</span><span class="swatch" style="background:#e4e4e7"></span></div>
+              <div class="row"><span class="ov-dot empty"></span><span class="lbl">Text</span><span class="hex">theme</span><span class="swatch" style="background:#1d1d1f"></span></div>
+            </div>
+            <div class="sec-label">Shape</div>
+            <div class="card-group">
+              <div class="row"><span class="ov-dot"></span><span class="lbl">Corner radius</span>
+                <div class="slider"><div class="track"><div class="fill" style="width:45%"></div><div class="thumb" style="left:45%"></div></div><span class="num">8px</span></div></div>
+              <div class="row"><span class="ov-dot empty"></span><span class="lbl">Padding</span>
+                <div class="slider"><div class="track"><div class="fill" style="width:60%"></div><div class="thumb" style="left:60%"></div></div><span class="num">14px</span></div></div>
+              <div class="row"><span class="ov-dot empty"></span><span class="lbl">Icon size</span>
+                <div class="slider"><div class="track"><div class="fill" style="width:35%"></div><div class="thumb" style="left:35%"></div></div><span class="num">16px</span></div></div>
+            </div>
+            <div class="sec-label">Behavior</div>
+            <div class="card-group">
+              <div class="row"><span class="lbl">Show icon</span><div class="switch on"></div></div>
+              <div class="row"><span class="lbl">Tint text with accent</span><div class="switch"></div></div>
+            </div>
+            <div class="row"><span class="lbl" style="color:var(--accent);font-size:12.5px">Reset Callout to theme</span></div>
+          </div>
+          <div class="p-fade"></div>
+          <div class="p-foot"><div class="btn">Export</div><div class="btn">Import</div><div class="btn quiet">Reset all</div></div>
+        </div>
+      </div>
+      <div class="notes">
+        <h3>How it works</h3>
+        <ul>
+          <li>Root = grouped cards (Theme / Blocks / Library). Every row previews its value: swatch strips for Colors, "Sans · 16px", "3 overrides".</li>
+          <li>Push page owns the full 576px — the roomiest editing surface of any variation.</li>
+          <li>Back chevron + slide transition; breadcrumb stays one level deep.</li>
+        </ul>
+        <h3>Wins</h3>
+        <ul>
+          <li>Calmest possible root — the current wall of 18 chevrons becomes a tidy summary.</li>
+          <li>Full width for controls; long labels and wide sliders never fight.</li>
+          <li>Familiar to everyone who owns a phone.</li>
+        </ul>
+        <h3>Costs</h3>
+        <ul>
+          <li>Block-to-block hopping is 3 taps (back → scroll → tap). Worst for comparison workflows.</li>
+          <li>You lose sight of the whole while editing one thing.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= C ================= -->
+  <section class="variation">
+    <div class="var-head"><span class="var-letter">C</span><h2>Dense inspector</h2></div>
+    <p class="var-sub">The Unity answer: one scroll, foldout sections, compact rows, a filter field that cuts across everything. No navigation at all — density and search replace it. Power-user mode.</p>
+    <div class="var-body">
+      <div class="artboard">
+        <div class="panel">
+          <div class="p-head"><span class="p-title">STYLE</span><div class="p-head-icons"><span>⇥</span></div></div>
+          <div class="seg"><div class="on">Theme</div><div>Layout</div></div>
+          <div class="searchbox"><span>⌕</span><span>Filter properties — try "radius"</span></div>
+          <div class="p-scroll">
+            <div class="fold-head"><span class="tri">▼</span>Colors<span class="count">6 tokens · 1 override</span></div>
+            <div class="row compact"><span class="ov-dot"></span><span class="lbl">Accent</span><span class="hex">#0071E3</span><span class="swatch sm" style="background:#0071e3"></span></div>
+            <div class="row compact"><span class="ov-dot empty"></span><span class="lbl">Background</span><span class="hex">#F7F7F8</span><span class="swatch sm" style="background:#f7f7f8"></span></div>
+            <div class="row compact"><span class="ov-dot empty"></span><span class="lbl">Text</span><span class="hex">#1D1D1F</span><span class="swatch sm" style="background:#1d1d1f"></span></div>
+            <div class="fold-head"><span class="tri">▶</span>Typography<span class="count">8 tokens</span></div>
+            <div class="fold-head"><span class="tri">▶</span>Background effect<span class="count">3 tokens</span></div>
+            <div class="fold-head"><span class="tri">▼</span>Callout<span class="count">9 tokens · 3 overrides</span></div>
+            <div class="row compact"><span class="ov-dot"></span><span class="lbl">Background</span><span class="hex">#F2F7FF</span><span class="swatch sm" style="background:#f2f7ff"></span></div>
+            <div class="row compact"><span class="ov-dot"></span><span class="lbl">Accent bar</span><span class="hex">#0071E3</span><span class="swatch sm" style="background:#0071e3"></span></div>
+            <div class="row compact"><span class="ov-dot"></span><span class="lbl">Corner radius</span>
+              <div class="slider" style="width:150px"><div class="track"><div class="fill" style="width:45%"></div><div class="thumb" style="left:45%"></div></div><span class="num">8px</span></div></div>
+            <div class="row compact"><span class="ov-dot empty"></span><span class="lbl">Padding</span>
+              <div class="slider" style="width:150px"><div class="track"><div class="fill" style="width:60%"></div><div class="thumb" style="left:60%"></div></div><span class="num">14px</span></div></div>
+            <div class="row compact"><span class="ov-dot empty"></span><span class="lbl">Show icon</span><div class="switch on"></div></div>
+            <div class="fold-head"><span class="tri">▶</span>Heading<span class="count">7 tokens · 1 override</span></div>
+            <div class="fold-head"><span class="tri">▶</span>Paragraph<span class="count">6 tokens</span></div>
+            <div class="fold-head"><span class="tri">▶</span>Quote<span class="count">5 tokens</span></div>
+            <div class="fold-head"><span class="tri">▶</span>Code<span class="count">11 tokens</span></div>
+            <div class="fold-head"><span class="tri">▶</span>Structured table<span class="count">12 tokens</span></div>
+            <div class="fold-head"><span class="tri">▶</span>File tree<span class="count">6 tokens</span></div>
+          </div>
+          <div class="p-fade"></div>
+          <div class="p-foot"><div class="btn">Export</div><div class="btn">Import</div><div class="btn quiet">Reset all</div></div>
+        </div>
+      </div>
+      <div class="notes">
+        <h3>How it works</h3>
+        <ul>
+          <li>Every section is a foldout with a token count and override count in the header — closed sections still tell you their state.</li>
+          <li>The filter field searches token names across all sections: type "radius" and only radius rows remain.</li>
+          <li>Compact 30px rows; controls inline, right-aligned.</li>
+        </ul>
+        <h3>Wins</h3>
+        <ul>
+          <li>No modes, no navigation stack — Cmd-F thinking.</li>
+          <li>Filter is the killer feature: cross-cutting edits ("all radii", "all accents") that no other layout can do.</li>
+          <li>Most information per pixel; genuine Unity DNA.</li>
+        </ul>
+        <h3>Costs</h3>
+        <ul>
+          <li>Least Apple of the five — density reads as "engine editor," not Settings.</li>
+          <li>With many foldouts open it degenerates back into today's long scroll.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= D ================= -->
+  <section class="variation">
+    <div class="var-head"><span class="var-letter">D</span><h2>Specimen-first editor</h2></div>
+    <p class="var-sub">Built around the sentence you said: "we are looking at callouts." A live specimen of the selected block is pinned at the top of the panel, controls sit under it, and a chip strip switches blocks. The panel becomes a little workbench for one block at a time.</p>
+    <div class="var-body">
+      <div class="artboard">
+        <div class="panel">
+          <div class="p-head"><span class="p-title">STYLE</span><div class="p-head-icons"><span>⇥</span></div></div>
+          <div class="seg"><div>Theme</div><div class="on">Blocks</div><div>Layout</div></div>
+          <div class="chips">
+            <span class="chip">Heading</span>
+            <span class="chip">Paragraph</span>
+            <span class="chip on">Callout</span>
+            <span class="chip">Quote</span>
+            <span class="chip">Code</span>
+            <span class="chip">Table</span>
+            <span class="chip">File tree</span>
+          </div>
+          <div class="specimen">
+            <div class="spec-callout">
+              <span class="ico">◆</span>
+              <div class="spec-lines"><div class="tl head w60"></div><div class="tl w85"></div><div class="tl w70"></div></div>
+            </div>
+          </div>
+          <div class="spec-meta"><span>Live specimen — edits apply to the doc behind</span><span class="mono">callout.json</span></div>
+          <div class="p-scroll">
+            <div class="sec-label">Color</div>
+            <div class="group">
+              <div class="row"><span class="ov-dot"></span><span class="lbl">Background</span><span class="hex">#F2F7FF</span><span class="swatch" style="background:#f2f7ff"></span></div>
+              <div class="row"><span class="ov-dot"></span><span class="lbl">Accent bar</span><span class="hex">#0071E3</span><span class="swatch" style="background:#0071e3"></span></div>
+              <div class="row"><span class="ov-dot empty"></span><span class="lbl">Text</span><span class="hex">theme</span><span class="swatch" style="background:#1d1d1f"></span></div>
+            </div>
+            <div class="sec-label">Shape</div>
+            <div class="group">
+              <div class="row"><span class="ov-dot"></span><span class="lbl">Corner radius</span>
+                <div class="slider"><div class="track"><div class="fill" style="width:45%"></div><div class="thumb" style="left:45%"></div></div><span class="num">8px</span></div></div>
+              <div class="row"><span class="ov-dot empty"></span><span class="lbl">Padding</span>
+                <div class="slider"><div class="track"><div class="fill" style="width:60%"></div><div class="thumb" style="left:60%"></div></div><span class="num">14px</span></div></div>
+            </div>
+          </div>
+          <div class="p-fade"></div>
+          <div class="p-foot"><div class="btn">Export</div><div class="btn">Import</div><div class="btn quiet">Reset all</div></div>
+        </div>
+      </div>
+      <div class="notes">
+        <h3>How it works</h3>
+        <ul>
+          <li>Three segments: <b>Theme</b> (globals), <b>Blocks</b> (this view), <b>Layout</b>.</li>
+          <li>The specimen is a real render of the block on a neutral artboard — it moves as you drag sliders, even if no callout is on screen in the doc.</li>
+          <li>Chips scroll horizontally; the active block's token file is named in the footer of the specimen.</li>
+        </ul>
+        <h3>Wins</h3>
+        <ul>
+          <li>Directly answers "we're looking at callouts" — subject and controls share one frame.</li>
+          <li>You can style a block the current doc doesn't contain.</li>
+          <li>Tightest feedback loop of the five; feels like a product, not a settings page.</li>
+        </ul>
+        <h3>Costs</h3>
+        <ul>
+          <li>Specimen costs ~140px of vertical space forever.</li>
+          <li>Chip strip hides blocks past the fold; 18 chips need overflow handling.</li>
+          <li>Needs per-block specimen fixtures — real build cost.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= E ================= -->
+  <section class="variation">
+    <div class="var-head"><span class="var-letter">E</span><h2>Visual gallery</h2></div>
+    <p class="var-sub">Blocks as thumbnails, not names. The root is a grid of live micro-previews — each card is the block rendered small, in its current styled state. Click one to focus it. Browsing your theme looks like your theme.</p>
+    <div class="var-body">
+      <div class="artboard">
+        <div class="panel">
+          <div class="p-head"><span class="p-title">STYLE</span><div class="p-head-icons"><span>⇥</span></div></div>
+          <div class="seg"><div>Theme</div><div class="on">Blocks</div><div>Layout</div></div>
+          <div class="p-scroll">
+            <div class="gallery">
+              <div class="g-card">
+                <div class="g-thumb"><div class="tl head w60"></div><div class="tl w85"></div><div class="tl w70"></div></div>
+                <div class="g-name">Paragraph</div>
+              </div>
+              <div class="g-card">
+                <div class="g-thumb" style="justify-content:center"><div class="tl head" style="width:70%;height:12px"></div><div class="tl w40"></div></div>
+                <div class="g-name"><span class="ov-dot"></span>Heading</div>
+              </div>
+              <div class="g-card on">
+                <div class="g-thumb"><div class="g-callout"><div class="tl w60"></div><div class="tl w85"></div></div></div>
+                <div class="g-name"><span class="ov-dot"></span>Callout</div>
+              </div>
+              <div class="g-card">
+                <div class="g-thumb"><div class="g-quote"><div class="tl w85"></div><div class="tl w60"></div></div></div>
+                <div class="g-name">Quote</div>
+              </div>
+              <div class="g-card">
+                <div class="g-thumb" style="padding:8px"><div class="g-code"><div class="tl w40"></div><div class="tl w70"></div><div class="tl w60"></div></div></div>
+                <div class="g-name">Code</div>
+              </div>
+              <div class="g-card">
+                <div class="g-thumb"><div class="g-table"><div class="tr"><div class="td"></div><div class="td"></div><div class="td"></div></div><div class="tr"><div class="td"></div><div class="td"></div><div class="td"></div></div><div class="tr"><div class="td"></div><div class="td"></div><div class="td"></div></div></div></div>
+                <div class="g-name">Structured table</div>
+              </div>
+              <div class="g-card">
+                <div class="g-thumb" style="gap:3px;padding-left:16px"><div class="tl w40"></div><div class="tl w60" style="margin-left:12px"></div><div class="tl w40" style="margin-left:12px"></div><div class="tl w60" style="margin-left:24px"></div></div>
+                <div class="g-name">File tree</div>
+              </div>
+              <div class="g-card">
+                <div class="g-thumb" style="flex-direction:row;align-items:center;gap:6px"><div class="tl" style="width:22%;height:20px"></div><span style="color:var(--faint);font-size:10px">→</span><div class="tl" style="width:22%;height:20px"></div><span style="color:var(--faint);font-size:10px">→</span><div class="tl" style="width:22%;height:20px"></div></div>
+                <div class="g-name">Waterfall</div>
+              </div>
+              <div class="g-card">
+                <div class="g-thumb" style="align-items:center"><div style="width:70%;height:100%;border:1px dashed var(--hairline-strong);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--faint);font-size:9px">canvas</div></div>
+                <div class="g-name">Canvas</div>
+              </div>
+            </div>
+            <div class="sec-label">Callout — quick edits</div>
+            <div class="group">
+              <div class="row"><span class="ov-dot"></span><span class="lbl">Background</span><span class="hex">#F2F7FF</span><span class="swatch" style="background:#f2f7ff"></span></div>
+              <div class="row"><span class="ov-dot"></span><span class="lbl">Accent bar</span><span class="hex">#0071E3</span><span class="swatch" style="background:#0071e3"></span></div>
+              <div class="row"><span class="lbl" style="color:var(--accent);font-size:12.5px">All Callout properties…</span><span class="chev">›</span></div>
+            </div>
+          </div>
+          <div class="p-fade"></div>
+          <div class="p-foot"><div class="btn">Export</div><div class="btn">Import</div><div class="btn quiet">Reset all</div></div>
+        </div>
+      </div>
+      <div class="notes">
+        <h3>How it works</h3>
+        <ul>
+          <li>Each card is the block rendered tiny with the <i>current</i> theme — restyle Code dark and its thumbnail goes dark.</li>
+          <li>Selecting a card pins its quick-edit rows below the grid; "All properties…" drills into the full set.</li>
+          <li>Override dots live on card labels.</li>
+        </ul>
+        <h3>Wins</h3>
+        <ul>
+          <li>The theme is browsable at a glance — the grid <i>is</i> a theme preview.</li>
+          <li>Recognition beats recall: you find "that boxy one" without knowing it's called Interaction surface.</li>
+          <li>Most distinctive of the five; nobody else's style panel looks like this.</li>
+        </ul>
+        <h3>Costs</h3>
+        <ul>
+          <li>Thumbnails are the whole cost: 18 live micro-renders to build and keep honest.</li>
+          <li>Grid + quick edits + full drill-in = three layers of UI.</li>
+          <li>Slowest to a specific slider if you already know what you want.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= round 2 ================= -->
+  <header class="r2-head">
+    <p class="eyebrow">Round 2</p>
+    <h2>A × D, fixed for a right-docked panel</h2>
+    <p>Feedback from round 1: A and D won — the two panes, the clean sliders, the preview colors. The flaw: A puts its rail on the panel's left, so when the panel docks right, the navigation lands mid-screen, wedged between the doc and the controls it drives. Three fixes below, each shown next to a ghost of the doc so the adjacency reads. All three keep D's specimen.</p>
+  </header>
+
+  <!-- ================= F ================= -->
+  <section class="variation">
+    <div class="var-head"><span class="var-letter">F</span><h2>Mirrored two-pane + specimen</h2></div>
+    <p class="var-sub">A, flipped. The rail hugs the screen edge; controls sit directly beside the doc they change. D's specimen rides on top of the detail pane as a compact strip. Selection flows edge → controls → doc.</p>
+    <div class="var-body">
+      <div class="artboard">
+        <div class="doc-ghost">
+          <div class="cap">Doc</div>
+          <div class="tl head w60"></div>
+          <div class="tl w85"></div><div class="tl w70"></div><div class="tl w85"></div>
+          <div class="ghost-callout"><div class="tl w60"></div><div class="tl w85"></div></div>
+          <div class="tl w70"></div><div class="tl w85"></div><div class="tl w40"></div>
+        </div>
+        <div class="panel">
+          <div class="p-head"><span class="p-title">STYLE</span><div class="p-head-icons"><span>⌕</span><span>⇥</span></div></div>
+          <div class="twopane mirror">
+            <div class="tp-rail">
+              <div class="rail-label">Theme</div>
+              <div class="tp-item"><span class="glyph">◧</span>Presets</div>
+              <div class="tp-item"><span class="glyph">◉</span>Colors <span class="ov-dot" style="margin-left:auto"></span></div>
+              <div class="tp-item"><span class="glyph">Aa</span>Typography</div>
+              <div class="tp-item"><span class="glyph">▤</span>Background</div>
+              <div class="rail-label">Blocks</div>
+              <div class="tp-item"><span class="glyph">¶</span>Paragraph</div>
+              <div class="tp-item"><span class="glyph">H</span>Heading <span class="ov-dot" style="margin-left:auto"></span></div>
+              <div class="tp-item on"><span class="glyph">◆</span>Callout <span class="ov-dot" style="margin-left:auto;background:currentColor"></span></div>
+              <div class="tp-item"><span class="glyph">❝</span>Quote</div>
+              <div class="tp-item"><span class="glyph">⌘</span>Code</div>
+              <div class="tp-item"><span class="glyph">▦</span>Structured table</div>
+              <div class="tp-item"><span class="glyph">⌥</span>File tree</div>
+              <div class="tp-item"><span class="glyph">⧉</span>Interaction surface</div>
+              <div class="rail-fade"></div>
+            </div>
+            <div class="tp-detail">
+              <div class="tp-detail-head">
+                <h4>Callout</h4>
+                <p>3 overrides · layered over Default theme</p>
+              </div>
+              <div class="specimen compact" style="margin:10px 18px 0">
+                <div class="spec-callout">
+                  <span class="ico">◆</span>
+                  <div class="spec-lines"><div class="tl head w60"></div><div class="tl w85"></div></div>
+                </div>
+              </div>
+              <div class="sec-label">Color</div>
+              <div class="group">
+                <div class="row"><span class="ov-dot"></span><span class="lbl">Background</span><span class="hex">#F2F7FF</span><span class="swatch" style="background:#f2f7ff"></span></div>
+                <div class="row"><span class="ov-dot"></span><span class="lbl">Accent bar</span><span class="hex">#0071E3</span><span class="swatch" style="background:#0071e3"></span></div>
+                <div class="row"><span class="ov-dot empty"></span><span class="lbl">Text</span><span class="hex">theme</span><span class="swatch" style="background:#1d1d1f"></span></div>
+              </div>
+              <div class="sec-label">Shape</div>
+              <div class="group">
+                <div class="row"><span class="ov-dot"></span><span class="lbl">Corner radius</span>
+                  <div class="slider"><div class="track"><div class="fill" style="width:45%"></div><div class="thumb" style="left:45%"></div></div><span class="num">8px</span></div></div>
+                <div class="row"><span class="ov-dot empty"></span><span class="lbl">Padding</span>
+                  <div class="slider"><div class="track"><div class="fill" style="width:60%"></div><div class="thumb" style="left:60%"></div></div><span class="num">14px</span></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="p-foot"><div class="btn">Export</div><div class="btn">Import</div><div class="btn quiet">Reset all</div></div>
+        </div>
+      </div>
+      <div class="notes">
+        <h3>How it works</h3>
+        <ul>
+          <li>Same rail as A — Theme + Blocks groups, override dots — moved to the panel's right edge, flush with the screen.</li>
+          <li>Detail pane sits adjacent to the doc; the specimen strip (~90px) is the compact form of D's, collapsible.</li>
+          <li>Selection flow reads outside-in: edge rail → controls → live doc.</li>
+        </ul>
+        <h3>Wins</h3>
+        <ul>
+          <li>Keeps everything you liked in A: visible map, labels, one-click block hopping.</li>
+          <li>Screen-edge rail is the easiest target on the screen to hit (edges have infinite depth for the cursor).</li>
+          <li>Controls and doc are neighbors — tweak-and-watch happens in one eye span.</li>
+        </ul>
+        <h3>Costs</h3>
+        <ul>
+          <li>Rail-right is less conventional; first-run it reads slightly RTL.</li>
+          <li>Detail pane stays ~400px — same as A, fine for current controls.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= G ================= -->
+  <section class="variation">
+    <div class="var-head"><span class="var-letter">G</span><h2>Icon rail + chips</h2></div>
+    <p class="var-sub">The rail shrinks to a 46px icon strip on the screen edge — six top-level categories, tooltips for labels. Inside Blocks, D takes over: chip strip, specimen, controls at nearly full panel width. The quietest chrome of any variation.</p>
+    <div class="var-body">
+      <div class="artboard">
+        <div class="doc-ghost">
+          <div class="cap">Doc</div>
+          <div class="tl head w60"></div>
+          <div class="tl w85"></div><div class="tl w70"></div><div class="tl w85"></div>
+          <div class="ghost-callout"><div class="tl w60"></div><div class="tl w85"></div></div>
+          <div class="tl w70"></div><div class="tl w85"></div><div class="tl w40"></div>
+        </div>
+        <div class="panel">
+          <div class="p-head"><span class="p-title">STYLE</span><div class="p-head-icons"><span>⌕</span><span>⇥</span></div></div>
+          <div style="display:flex;flex:1;min-height:0;border-top:1px solid var(--hairline)">
+            <div class="tp-detail">
+              <div class="chips" style="padding-top:12px">
+                <span class="chip">Heading</span>
+                <span class="chip">Paragraph</span>
+                <span class="chip on">Callout</span>
+                <span class="chip">Quote</span>
+                <span class="chip">Code</span>
+                <span class="chip">Table</span>
+                <span class="chip">File tree</span>
+              </div>
+              <div class="specimen compact">
+                <div class="spec-callout">
+                  <span class="ico">◆</span>
+                  <div class="spec-lines"><div class="tl head w60"></div><div class="tl w85"></div><div class="tl w70"></div></div>
+                </div>
+              </div>
+              <div class="spec-meta"><span>Live specimen</span><span class="mono">callout.json</span></div>
+              <div class="sec-label">Color</div>
+              <div class="group">
+                <div class="row"><span class="ov-dot"></span><span class="lbl">Background</span><span class="hex">#F2F7FF</span><span class="swatch" style="background:#f2f7ff"></span></div>
+                <div class="row"><span class="ov-dot"></span><span class="lbl">Accent bar</span><span class="hex">#0071E3</span><span class="swatch" style="background:#0071e3"></span></div>
+                <div class="row"><span class="ov-dot empty"></span><span class="lbl">Text</span><span class="hex">theme</span><span class="swatch" style="background:#1d1d1f"></span></div>
+              </div>
+              <div class="sec-label">Shape</div>
+              <div class="group">
+                <div class="row"><span class="ov-dot"></span><span class="lbl">Corner radius</span>
+                  <div class="slider"><div class="track"><div class="fill" style="width:45%"></div><div class="thumb" style="left:45%"></div></div><span class="num">8px</span></div></div>
+                <div class="row"><span class="ov-dot empty"></span><span class="lbl">Padding</span>
+                  <div class="slider"><div class="track"><div class="fill" style="width:60%"></div><div class="thumb" style="left:60%"></div></div><span class="num">14px</span></div></div>
+              </div>
+            </div>
+            <div class="icon-rail">
+              <div class="ir-item"><span>◧</span></div>
+              <div class="ir-item"><span>◉</span><span class="ir-dot"></span></div>
+              <div class="ir-item" style="font-size:12px"><span>Aa</span></div>
+              <div class="ir-sep"></div>
+              <div class="ir-item on"><span>▦</span><span class="ir-dot"></span><span class="ir-tip">Blocks</span></div>
+              <div class="ir-sep"></div>
+              <div class="ir-item"><span>▤</span></div>
+              <div class="ir-item"><span>⇱</span></div>
+            </div>
+          </div>
+          <div class="p-foot"><div class="btn">Export</div><div class="btn">Import</div><div class="btn quiet">Reset all</div></div>
+        </div>
+      </div>
+      <div class="notes">
+        <h3>How it works</h3>
+        <ul>
+          <li>Icon rail carries only the six top-level categories: Presets, Colors, Typography, Blocks, Background, References. Tooltips name them; dots mark overrides.</li>
+          <li>Blocks category is pure D inside: chips, specimen, full-width rows (~510px of control space).</li>
+          <li>Structurally it's A's chassis with the rail collapsed to icons.</li>
+        </ul>
+        <h3>Wins</h3>
+        <ul>
+          <li>Most control width of the two-pane family — long labels, wide sliders, room to grow.</li>
+          <li>Quietest, most Apple chrome; the panel is almost all content.</li>
+          <li>Same edge-rail ergonomics as F.</li>
+        </ul>
+        <h3>Costs</h3>
+        <ul>
+          <li>Six icons must be learned; tooltips carry the load at first.</li>
+          <li>Blocks return to chips — 18 chips overflow, so block hopping regresses vs F's list.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= H ================= -->
+  <section class="variation">
+    <div class="var-head"><span class="var-letter">H</span><h2>No rail — picker menu</h2></div>
+    <p class="var-sub">D taken all the way: no side rail at all. A picker button names the current block; clicking it opens a searchable menu of all 18 blocks with their override counts. The menu is the map — it just isn't pinned open.</p>
+    <div class="var-body">
+      <div class="artboard">
+        <div class="panel">
+          <div class="p-head"><span class="p-title">STYLE</span><div class="p-head-icons"><span>⇥</span></div></div>
+          <div class="seg"><div>Theme</div><div class="on">Blocks</div><div>Layout</div></div>
+          <div class="row" style="min-height:46px">
+            <span class="picker-btn"><span style="color:var(--accent)">◆</span>Callout<span class="dn">▾</span></span>
+            <span class="val" style="margin-left:10px">3 overrides</span>
+          </div>
+          <div class="popover">
+            <div class="pop-search"><span>⌕</span><span>Find a block…</span></div>
+            <div class="pop-item"><span class="glyph">¶</span>Paragraph</div>
+            <div class="pop-item"><span class="glyph">H</span>Heading<span class="cnt">1</span></div>
+            <div class="pop-item on"><span class="glyph">◆</span>Callout<span class="cnt">3</span></div>
+            <div class="pop-item"><span class="glyph">❝</span>Quote</div>
+            <div class="pop-item"><span class="glyph">⌘</span>Code</div>
+            <div class="pop-item"><span class="glyph">▦</span>Structured table</div>
+            <div class="pop-item"><span class="glyph">⌥</span>File tree</div>
+            <div class="pop-item"><span class="glyph">⧉</span>Interaction surface</div>
+          </div>
+          <div class="p-scroll">
+            <div class="specimen compact">
+              <div class="spec-callout">
+                <span class="ico">◆</span>
+                <div class="spec-lines"><div class="tl head w60"></div><div class="tl w85"></div><div class="tl w70"></div></div>
+              </div>
+            </div>
+            <div class="sec-label">Color</div>
+            <div class="group">
+              <div class="row"><span class="ov-dot"></span><span class="lbl">Background</span><span class="hex">#F2F7FF</span><span class="swatch" style="background:#f2f7ff"></span></div>
+              <div class="row"><span class="ov-dot"></span><span class="lbl">Accent bar</span><span class="hex">#0071E3</span><span class="swatch" style="background:#0071e3"></span></div>
+              <div class="row"><span class="ov-dot empty"></span><span class="lbl">Text</span><span class="hex">theme</span><span class="swatch" style="background:#1d1d1f"></span></div>
+            </div>
+            <div class="sec-label">Shape</div>
+            <div class="group">
+              <div class="row"><span class="ov-dot"></span><span class="lbl">Corner radius</span>
+                <div class="slider"><div class="track"><div class="fill" style="width:45%"></div><div class="thumb" style="left:45%"></div></div><span class="num">8px</span></div></div>
+              <div class="row"><span class="ov-dot empty"></span><span class="lbl">Padding</span>
+                <div class="slider"><div class="track"><div class="fill" style="width:60%"></div><div class="thumb" style="left:60%"></div></div><span class="num">14px</span></div></div>
+            </div>
+          </div>
+          <div class="p-fade"></div>
+          <div class="p-foot"><div class="btn">Export</div><div class="btn">Import</div><div class="btn quiet">Reset all</div></div>
+        </div>
+      </div>
+      <div class="notes">
+        <h3>How it works</h3>
+        <ul>
+          <li>Segments stay (Theme / Blocks / Layout). Inside Blocks, the picker button + menu replaces all rail and chip navigation.</li>
+          <li>Menu rows carry glyphs and override counts — the status map from A's rail, on demand.</li>
+          <li>Search inside the menu; typeahead selects.</li>
+        </ul>
+        <h3>Wins</h3>
+        <ul>
+          <li>Full 576px for controls — nothing else claims permanent space.</li>
+          <li>Scales past 18 blocks without layout strain.</li>
+          <li>Simplest to build: closest to today's structure, no pane management.</li>
+        </ul>
+        <h3>Costs</h3>
+        <ul>
+          <li>The map hides between clicks — no ambient sense of the whole theme.</li>
+          <li>Block hop = two interactions (open, choose). Worst of round 2 for browsing.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= recommendation ================= -->
+  <section class="rec">
+    <h2>Recommendation — build F</h2>
+    <p>F keeps everything that made A win (the always-visible map, labels, one-click block hopping) and everything that made D win (the specimen, the tight feedback loop), while the mirrored rail dissolves the docked-right awkwardness — navigation lives on the screen edge, controls sit beside the doc. If real controls make F's ~400px detail pane feel tight, G is the pressure valve: same skeleton, rail collapses to icons. H's searchable picker menu is worth keeping in the drawer for when the block count outgrows a rail.</p>
+    <div class="rec-grid">
+      <div class="rec-item"><b>1 · Chassis</b><span>Width 30rem → 36rem; StyleRail becomes mirrored two-pane (detail left, rail right). Rail groups: Theme / Blocks.</span></div>
+      <div class="rec-item"><b>2 · State surfacing</b><span>Override dots + counts everywhere. The token registry already knows defaults, so "diverged" is computable today.</span></div>
+      <div class="rec-item"><b>3 · Rail previews</b><span>Swatch strip on Colors, "Sans · 16px" on Typography, override counts on blocks — rows carry their values.</span></div>
+      <div class="rec-item"><b>4 · Specimen strip</b><span>Compact live render above a selected block's controls. Needs per-block fixtures — ship after the chassis lands.</span></div>
+    </div>
+  </section>
+</div>
+
+</body>
+</html>

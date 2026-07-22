@@ -1,0 +1,134 @@
+{
+  "accent": "blue",
+  "colors": {
+    "background": null,
+    "sidebar": null,
+    "text": null
+  },
+  "typography": {
+    "bodyFont": "sans",
+    "headingFont": "sans",
+    "codeFont": "mono",
+    "numberFont": "body",
+    "fontSize": 16,
+    "lineHeight": 1.5,
+    "letterSpacing": 0.005
+  },
+  "layout": {
+    "contentWidth": 88,
+    "contentMargin": 0,
+    "topPadding": 88,
+    "titlePadding": 50,
+    "bottomPadding": 300,
+    "radius": 4,
+    "borderStrength": 1,
+    "backgroundTint": 0,
+    "sidebarTint": 10
+  },
+  "sidebar": {
+    "textColor": null,
+    "font": "sans",
+    "fontSize": 15,
+    "padding": 4,
+    "guides": true,
+    "guideColor": null,
+    "guideWidth": 1,
+    "guideOpacity": 0.6
+  },
+  "highlight": {
+    "color": null,
+    "radius": 1,
+    "padding": 4,
+    "dragOpacity": 0.2,
+    "dropColor": "#bcdae7",
+    "dropWidth": 6,
+    "dropOpacity": 0.7,
+    "dropRadius": 1
+  },
+  "dragSelect": {
+    "color": null,
+    "opacity": 0.12
+  },
+  "list": {
+    "discSize": 6,
+    "circleSize": 6,
+    "circleThickness": 1.5,
+    "squareSize": 6,
+    "indent": 24
+  },
+  "grip": {
+    "gap": 12,
+    "offsetY": 2,
+    "size": 20,
+    "color": null,
+    "fadeMs": 100
+  },
+  "scrollbar": {
+    "width": 7,
+    "color": null,
+    "opacity": 0.7,
+    "padding": 6
+  },
+  "peek": {
+    "width": 50,
+    "durationMs": 300,
+    "padding": 3,
+    "dividerColor": null,
+    "dividerWidth": 2.5,
+    "dividerStyle": "solid"
+  },
+  "reference": {
+    "color": "#262626",
+    "underlineColor": null,
+    "iconSize": 18,
+    "iconColor": "#9c9c9c",
+    "iconGap": 4,
+    "iconPosition": "before"
+  },
+  "grain": {
+    "enabled": true,
+    "opacity": 0.15,
+    "frequency": 1.1,
+    "contrast": 1.2,
+    "blendMode": "auto",
+    "softening": {
+      "background": 1,
+      "font": 0.8,
+      "icons": 0.8
+    }
+  },
+  "components": {
+    "code": {
+      "ruleOpacity": "0.9",
+      "zebraOpacity": "1"
+    },
+    "interaction-surface": {
+      "rowPad": "8px",
+      "opGap": "14px"
+    },
+    "state-shape": {
+      "rowPad": "9px"
+    },
+    "structured-table": {
+      "headerRuleWidth": "1.5px",
+      "cellPaddingY": "12px",
+      "rowRuleOpacity": "0.8",
+      "handleOffset": "16px",
+      "selectionPadding": "4px"
+    },
+    "surfaces": {
+      "border": "#8f8f8f"
+    },
+    "waterfall": {
+      "stroke": "1.5px",
+      "arrowSize": "7px",
+      "rowGap": "9px",
+      "arrowGap": "8px",
+      "noteTextSize": "12px",
+      "lineHeight": "20px",
+      "indent": "37px",
+      "noteBg": "#ffffff",
+      "rail": "#8a8a8a"
+    }
+  }
+}
