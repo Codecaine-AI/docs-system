@@ -38,7 +38,7 @@
       },
       "text": [
         {
-          "insert": "docs-viewer — rendering and editing"
+          "insert": "docs-viewer — Rendering and Editing"
         }
       ],
       "children": []
@@ -62,7 +62,7 @@
       },
       "text": [
         {
-          "insert": "What it owns"
+          "insert": "What It Owns"
         }
       ],
       "children": []
@@ -395,7 +395,7 @@
       },
       "text": [
         {
-          "insert": "Why it is its own package"
+          "insert": "Why It Is Its Own Package"
         }
       ],
       "children": []
@@ -684,7 +684,7 @@
       },
       "text": [
         {
-          "insert": "Using it alone"
+          "insert": "Using It Alone"
         }
       ],
       "children": []

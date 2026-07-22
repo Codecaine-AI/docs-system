@@ -22,7 +22,7 @@ themes/
         └── structured-table.json  # the theme — the component's style knobs
 ```
 
-## The contract
+## The Contract
 
 - State schema
 
@@ -60,7 +60,7 @@ themes/
 
 The contract is generic; the instances are not. Each block family defines how every element works for it in its block vocabulary doc — inline where short, subpages where a family needs depth.
 
-## Adding a block type
+## Adding a Block Type
 
 1. Define the state schema and its typed actions.
 

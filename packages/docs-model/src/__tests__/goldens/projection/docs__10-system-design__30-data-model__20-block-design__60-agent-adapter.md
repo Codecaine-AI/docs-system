@@ -2,7 +2,7 @@ How an agent edits a type when it processes an annotation.
 
 This is the contract's target-design element: the shape is settled, the wiring lands with annotate mode.
 
-## The design
+## The Design
 
 - **Default: generic ops**
 

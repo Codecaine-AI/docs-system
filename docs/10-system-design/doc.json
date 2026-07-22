@@ -192,7 +192,7 @@
       },
       "text": [
         {
-          "insert": "Translation layer"
+          "insert": "Translation Layer"
         }
       ],
       "children": []
@@ -314,7 +314,7 @@
       },
       "text": [
         {
-          "insert": "Data model"
+          "insert": "Data Model"
         }
       ],
       "children": []
@@ -394,7 +394,7 @@
       },
       "text": [
         {
-          "insert": "Block vocabulary"
+          "insert": "Block Vocabulary"
         }
       ],
       "children": []
@@ -452,7 +452,7 @@
       },
       "text": [
         {
-          "insert": "Package boundaries"
+          "insert": "Package Boundaries"
         }
       ],
       "children": []

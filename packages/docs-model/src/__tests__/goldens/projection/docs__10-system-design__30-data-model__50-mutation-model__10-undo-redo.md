@@ -12,7 +12,7 @@ Undo is part of the algebra, not a feature bolted on: every successful apply ret
 > **L2 (The change):** A shallow props patch, as applied.
 > **L5 (The exact inverse):** Returned by the same apply — the prior value, not a guess. Applying it reverts the change.
 
-## The rule
+## The Rule
 
 - **Every apply returns its inverses**
 

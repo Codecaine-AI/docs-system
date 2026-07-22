@@ -10,25 +10,73 @@
       "props": {},
       "children": [
         "b-14-code-lead-2",
+        "b-codefam-doctrine",
         "b-14-code-example-h",
         "b-14-code-example-intro",
         "b-14-code-example-block",
         "b-14-code-state-h-3",
+        "b-codefam-state-carrier",
+        "b-codefam-state-src",
         "b-14-code-state-4",
-        "b-14-code-state-note-5",
+        "b-codefam-ranges-h",
+        "b-codefam-ranges-1",
+        "b-codefam-ranges-2",
+        "b-codefam-ranges-3",
+        "b-codefam-tolerant-h",
+        "b-codefam-tolerant-1",
+        "b-codefam-tolerant-2",
         "b-14-code-actions-h-9",
         "b-14-code-actions-note-10",
+        "b-codefam-act-set",
+        "b-codefam-act-remove",
         "b-14-code-actions-11",
+        "b-codefam-apply-intro",
+        "b-codefam-apply-src",
         "b-14-code-proj-h-6",
-        "b-14-code-editor-13",
+        "b-codefam-render-lead",
+        "b-codefam-shell-h",
+        "b-codefam-shell-header",
+        "b-codefam-shell-gutter",
+        "b-codefam-shell-zebra",
+        "b-codefam-shell-notes",
+        "b-codefam-shell-principle",
+        "b-codefam-20px-h",
+        "b-codefam-20px-1",
+        "b-codefam-20px-2",
+        "b-codefam-pairing-h",
+        "b-codefam-pairing-1",
+        "b-codefam-pairing-2",
+        "b-codefam-pairing-3",
+        "b-codefam-pairing-4",
+        "b-codefam-pairing-5",
+        "b-codefam-entry-h",
+        "b-codefam-entry-1",
+        "b-codefam-entry-2",
+        "b-codefam-entry-3",
+        "b-codefam-hl-h",
+        "b-codefam-hl-1",
+        "b-codefam-hl-2",
+        "b-codefam-hl-3",
+        "b-codefam-hl-4",
+        "b-14-code-agent-h-14",
         "b-14-code-proj-7",
         "b-14-code-proj-example-8",
-        "b-14-code-agent-h-14",
+        "b-codefam-agentr-1",
+        "b-codefam-agentr-2",
         "b-14-code-agent-1-15",
         "b-14-code-agent-2-16",
         "b-14-code-theming-heading",
         "b-14-code-theming-para",
-        "b-14-code-theming-table"
+        "b-14-code-theming-table",
+        "b-codefam-theme-1",
+        "b-codefam-theme-2",
+        "b-codefam-theme-3",
+        "b-codefam-theme-4",
+        "b-codefam-adapter-h",
+        "b-codefam-adapter-p",
+        "b-codefam-adapter-1",
+        "b-codefam-adapter-2",
+        "b-codefam-adapter-3"
       ]
     },
     "b-14-code-lead-2": {
@@ -37,13 +85,74 @@
       "props": {},
       "text": [
         {
-          "insert": "The source-code block of the "
+          "insert": "The code component owns a single block type, "
         },
         {
-          "insert": "block vocabulary"
+          "insert": "code",
+          "attributes": {
+            "code": true
+          }
         },
         {
-          "insert": ", and the source-evidence surface of its documentation doctrine: the language-tagged block for real, annotated source listings. State examples live inside "
+          "insert": " — the language-tagged block for real, annotated source listings in the "
+        },
+        {
+          "insert": "Block vocabulary",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary"
+            }
+          }
+        },
+        {
+          "insert": ". The source lives in the block's delta text; the language tag and structured line annotations live in "
+        },
+        {
+          "insert": "props",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". The model contract lives in "
+        },
+        {
+          "insert": "packages/docs-model/src/components/code/",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/components/code"
+            }
+          }
+        },
+        {
+          "insert": "; every doc surface lives in "
+        },
+        {
+          "insert": "packages/docs-viewer/src/components/code/",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/components/code"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-doctrine": {
+      "id": "b-codefam-doctrine",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "In the documentation doctrine the type is the source-evidence surface: "
         },
         {
           "insert": "state-shape",
@@ -55,34 +164,7 @@
           }
         },
         {
-          "insert": " blocks; code carries the evidence. The source lives in the block's "
-        },
-        {
-          "insert": "text",
-          "attributes": {
-            "italic": true
-          }
-        },
-        {
-          "insert": "; structured line annotations live in "
-        },
-        {
-          "insert": "props",
-          "attributes": {
-            "italic": true
-          }
-        },
-        {
-          "insert": ". It is the only type owned by the "
-        },
-        {
-          "insert": "code",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " component."
+          "insert": " blocks carry state examples, code blocks carry the evidence — annotated listings of the defining source."
         }
       ],
       "children": []
@@ -143,7 +225,92 @@
       },
       "text": [
         {
-          "insert": "State"
+          "insert": "State Schema"
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-state-carrier": {
+      "id": "b-codefam-state-carrier",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The type declares "
+        },
+        {
+          "insert": "carriesText: true",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "packages/docs-model/src/components/code/state.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/components/code/state.ts"
+            }
+          }
+        },
+        {
+          "insert": ": the delta text is the source payload itself, not prose. The editor schema sets "
+        },
+        {
+          "insert": "marks: \"\"",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " on the node ("
+        },
+        {
+          "insert": "packages/docs-viewer/src/components/code/editor-nodes.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/components/code/editor-nodes.ts"
+            }
+          }
+        },
+        {
+          "insert": "), so the spans are plain inserts — no bold, link, or reference marks inside code. Everything else is props, defined by two closed TypeBox schemas:"
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-state-src": {
+      "id": "b-codefam-state-src",
+      "type": "code",
+      "props": {
+        "annotations": [
+          {
+            "lines": "1-4",
+            "label": "Annotation shape",
+            "note": "lines and note are required strings, label optional. Closed object: an unknown key is a validation refusal, not a pass-through."
+          },
+          {
+            "lines": "6-9",
+            "label": "Block props",
+            "note": "Both props optional — a bare code block is valid. Every write revalidates the array items against the annotation shape."
+          },
+          {
+            "lines": "11",
+            "label": "Text carrier",
+            "note": "carriesText: true — the one non-prose text carrier in the vocabulary."
+          }
+        ],
+        "language": "typescript"
+      },
+      "text": [
+        {
+          "insert": "export const CodeAnnotationSchema = Type.Object(\n  { lines: Type.String(), label: Type.Optional(Type.String()), note: Type.String() },\n  { additionalProperties: false },\n);\n\nexport const CodeState = Type.Object(\n  { language: Type.Optional(Type.String()), annotations: Type.Optional(Type.Array(CodeAnnotationSchema)) },\n  { additionalProperties: false },\n);\n\nexport const codeState: BlockStateDefinition = { schema: CodeState, carriesText: true };"
         }
       ],
       "children": []
@@ -163,43 +330,255 @@
             "language",
             "string",
             "no",
-            "Fence language tag, e.g. \"json\", \"ts\"."
+            "Fence tag for highlighting and the header label, e.g. \"json\", \"ts\". Written by the editor's language picker."
           ],
           [
             "annotations",
             "array",
             "no",
-            "Array of { lines, label?, note }: lines is a 1-indexed range string (\"4\", \"4-9\", \"1,4-6\"), label an optional short chip, note the annotation body."
+            "Array of { lines, label?, note }: lines is a 1-indexed range string and the entry's identity key, label an optional short heading on the note, note the annotation body."
           ]
         ]
       },
       "children": []
     },
-    "b-14-code-state-note-5": {
-      "id": "b-14-code-state-note-5",
-      "type": "paragraph",
+    "b-codefam-ranges-h": {
+      "id": "b-codefam-ranges-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Line Ranges"
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-ranges-1": {
+      "id": "b-codefam-ranges-1",
+      "type": "list-item",
       "props": {},
       "text": [
         {
-          "insert": "Carries delta text ("
-        },
-        {
-          "insert": "carriesText: true",
+          "insert": "lines",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": ") — but the source edits as flat plain text: the editor node's content is "
+          "insert": " is a 1-indexed range string: \"4\" covers one line, \"4-9\" a span, \"1,4-6\" a comma list."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-ranges-2": {
+      "id": "b-codefam-ranges-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The exact string is the annotation's identity key."
+        }
+      ],
+      "children": [
+        "b-codefam-ranges-2a"
+      ]
+    },
+    "b-codefam-ranges-2a": {
+      "id": "b-codefam-ranges-2a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Both typed actions and the pairing engine key on it; two annotations can never share a key — "
         },
         {
-          "insert": "text*",
+          "insert": "setAnnotation",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " with marks disabled, so no bold/link/reference spans inside code."
+          "insert": " replaces in place."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-ranges-3": {
+      "id": "b-codefam-ranges-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "expandLineRange",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "packages/docs-viewer/src/components/code/annotations.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/components/code/annotations.ts"
+            }
+          }
+        },
+        {
+          "insert": " expands a key into the covered line set."
+        }
+      ],
+      "children": [
+        "b-codefam-ranges-3a"
+      ]
+    },
+    "b-codefam-ranges-3a": {
+      "id": "b-codefam-ranges-3a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Parts clamp to the text's line count; unparseable parts contribute nothing — bad input never crashes a render."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-tolerant-h": {
+      "id": "b-codefam-tolerant-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Tolerant Reads"
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-tolerant-1": {
+      "id": "b-codefam-tolerant-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Two tolerant readers, one per package."
+        }
+      ],
+      "children": [
+        "b-codefam-tolerant-1a",
+        "b-codefam-tolerant-1b"
+      ]
+    },
+    "b-codefam-tolerant-1a": {
+      "id": "b-codefam-tolerant-1a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "readCodeAnnotations",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " ("
+        },
+        {
+          "insert": "packages/docs-model/src/components/code/state.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/components/code/state.ts"
+            }
+          }
+        },
+        {
+          "insert": ") feeds the typed actions."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-tolerant-1b": {
+      "id": "b-codefam-tolerant-1b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "parseCodeAnnotations",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " ("
+        },
+        {
+          "insert": "packages/docs-viewer/src/components/code/annotations.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/components/code/annotations.ts"
+            }
+          }
+        },
+        {
+          "insert": ") feeds every doc surface, so edit and read mode can never disagree about which entries are renderable."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-tolerant-2": {
+      "id": "b-codefam-tolerant-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Both skip entries missing a non-empty "
+        },
+        {
+          "insert": "lines",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " or "
+        },
+        {
+          "insert": "note",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " string instead of failing."
+        }
+      ],
+      "children": [
+        "b-codefam-tolerant-2a"
+      ]
+    },
+    "b-codefam-tolerant-2a": {
+      "id": "b-codefam-tolerant-2a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "parseCodeAnnotations",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " returns null when nothing renderable remains, so a surface branches on \"has annotations at all\" with one check."
         }
       ],
       "children": []
@@ -212,7 +591,7 @@
       },
       "text": [
         {
-          "insert": "Typed actions"
+          "insert": "Typed Actions"
         }
       ],
       "children": []
@@ -223,16 +602,54 @@
       "props": {},
       "text": [
         {
-          "insert": "Annotations edit only through the two typed actions below; the source text stays on generic text ops. "
+          "insert": "The component registers exactly two typed actions, both built with "
         },
         {
-          "insert": "setAnnotation",
+          "insert": "defineComponentAction",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " upserts keyed by the exact "
+          "insert": " against block type "
+        },
+        {
+          "insert": "code",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Annotations edit only through them; the source text stays on generic text ops — no typed action touches the delta."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-act-set": {
+      "id": "b-codefam-act-set",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "code.setAnnotation",
+          "attributes": {
+            "code": true
+          }
+        }
+      ],
+      "children": [
+        "b-codefam-act-set-a",
+        "b-codefam-act-set-b",
+        "b-codefam-act-set-c"
+      ]
+    },
+    "b-codefam-act-set-a": {
+      "id": "b-codefam-act-set-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Upserts keyed by the exact "
         },
         {
           "insert": "lines",
@@ -241,16 +658,112 @@
           }
         },
         {
-          "insert": " string; "
+          "insert": " string: replaces in place when the key exists, appends otherwise."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-act-set-b": {
+      "id": "b-codefam-act-set-b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A "
         },
         {
-          "insert": "removeAnnotation",
+          "insert": "label",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " rejects a key that does not exist."
+          "insert": " omitted from params stays omitted in the stored entry."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-act-set-c": {
+      "id": "b-codefam-act-set-c",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Defined in "
+        },
+        {
+          "insert": "packages/docs-model/src/components/code/actions/set-annotation.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/components/code/actions/set-annotation.ts"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-act-remove": {
+      "id": "b-codefam-act-remove",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "code.removeAnnotation",
+          "attributes": {
+            "code": true
+          }
+        }
+      ],
+      "children": [
+        "b-codefam-act-remove-a",
+        "b-codefam-act-remove-b"
+      ]
+    },
+    "b-codefam-act-remove-a": {
+      "id": "b-codefam-act-remove-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Refuses a key that does not exist — the failure reports issue path "
+        },
+        {
+          "insert": "$.params.lines",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " instead of silently no-opping."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-act-remove-b": {
+      "id": "b-codefam-act-remove-b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Defined in "
+        },
+        {
+          "insert": "packages/docs-model/src/components/code/actions/remove-annotation.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/components/code/actions/remove-annotation.ts"
+            }
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []
@@ -299,6 +812,47 @@
       },
       "children": []
     },
+    "b-codefam-apply-intro": {
+      "id": "b-codefam-apply-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The upsert body in full:"
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-apply-src": {
+      "id": "b-codefam-apply-src",
+      "type": "code",
+      "props": {
+        "annotations": [
+          {
+            "lines": "4",
+            "label": "Tolerant read",
+            "note": "Malformed stored entries drop before the upsert — one bad entry never wedges the block."
+          },
+          {
+            "lines": "5-8",
+            "label": "Exact-key upsert",
+            "note": "The lines string is the identity: replace when it exists, append when it does not."
+          },
+          {
+            "lines": "9",
+            "label": "Props patch",
+            "note": "A shallow-merge patch replacing the whole annotations array; executing it is the adapter's job."
+          }
+        ],
+        "language": "typescript"
+      },
+      "text": [
+        {
+          "insert": "apply(block, { lines, note, label }) {\n  const annotation: CodeAnnotation = { lines, note };\n  if (label !== undefined) annotation.label = label;\n  const annotations = readCodeAnnotations(block);\n  const index = annotations.findIndex((candidate) => candidate.lines === lines);\n  const next = [...annotations];\n  if (index === -1) next.push(annotation);\n  else next[index] = annotation;\n  return { ok: true, props: { annotations: next } };\n}"
+        }
+      ],
+      "children": []
+    },
     "b-14-code-proj-h-6": {
       "id": "b-14-code-proj-h-6",
       "type": "heading",
@@ -307,18 +861,496 @@
       },
       "text": [
         {
-          "insert": "Renderers"
+          "insert": "Doc Renderer"
         }
       ],
       "children": []
     },
-    "b-14-code-editor-13": {
-      "id": "b-14-code-editor-13",
+    "b-codefam-render-lead": {
+      "id": "b-codefam-render-lead",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "In the editor: slash menu "
+          "insert": "Three surfaces, one shell: the plain read surface ("
+        },
+        {
+          "insert": "packages/docs-viewer/src/components/code/descriptor.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/components/code/descriptor.tsx"
+            }
+          }
+        },
+        {
+          "insert": "), the annotated read surface ("
+        },
+        {
+          "insert": "packages/docs-viewer/src/components/code/CodeAnnotations.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/components/code/CodeAnnotations.tsx"
+            }
+          }
+        },
+        {
+          "insert": "), and the edit surface ("
+        },
+        {
+          "insert": "packages/docs-viewer/src/components/code/editor-node-view.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/components/code/editor-node-view.tsx"
+            }
+          }
+        },
+        {
+          "insert": "). Shared furniture — header row, sticky gutter, zebra striping, notes aside — comes from "
+        },
+        {
+          "insert": "packages/docs-viewer/src/components/code/CodeShell.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/components/code/CodeShell.tsx"
+            }
+          }
+        },
+        {
+          "insert": " and the class constants in "
+        },
+        {
+          "insert": "packages/docs-viewer/src/components/code/classes.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/components/code/classes.ts"
+            }
+          }
+        },
+        {
+          "insert": ", so the three surfaces look identical."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-shell-h": {
+      "id": "b-codefam-shell-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Shared Shell"
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-shell-header": {
+      "id": "b-codefam-shell-header",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Header row."
+        }
+      ],
+      "children": [
+        "b-codefam-shell-header-a",
+        "b-codefam-shell-header-b"
+      ]
+    },
+    "b-codefam-shell-header-a": {
+      "id": "b-codefam-shell-header-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Quiet uppercase language label left, ghost copy button right — no pill, no background."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-shell-header-b": {
+      "id": "b-codefam-shell-header-b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The copy button appears on block hover or focus and copies the surface's exact displayed source."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-shell-gutter": {
+      "id": "b-codefam-shell-gutter",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Gutter."
+        }
+      ],
+      "children": [
+        "b-codefam-shell-gutter-a",
+        "b-codefam-shell-gutter-b"
+      ]
+    },
+    "b-codefam-shell-gutter-a": {
+      "id": "b-codefam-shell-gutter-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A sticky 3rem column that stays put under horizontal scroll; numbers render at 55% strength at rest."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-shell-gutter-b": {
+      "id": "b-codefam-shell-gutter-b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Its background must be opaque (it is sticky) but defaults to a mix matching the block background, so no band is perceptible."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-shell-zebra": {
+      "id": "b-codefam-shell-zebra",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Zebra."
+        }
+      ],
+      "children": [
+        "b-codefam-shell-zebra-a"
+      ]
+    },
+    "b-codefam-shell-zebra-a": {
+      "id": "b-codefam-shell-zebra-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "One absolute layer behind the code column; the gradient period is two 20px lines, aligned to line 1 by construction."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-shell-notes": {
+      "id": "b-codefam-shell-notes",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Notes aside."
+        }
+      ],
+      "children": [
+        "b-codefam-shell-notes-a",
+        "b-codefam-shell-notes-b"
+      ]
+    },
+    "b-codefam-shell-notes-a": {
+      "id": "b-codefam-shell-notes-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A 320px right column at lg widths, stacked below the code when narrow."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-shell-notes-b": {
+      "id": "b-codefam-shell-notes-b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Notes are plain prose rows with a hairline rule between items — never zebra; each note's "
+        },
+        {
+          "insert": "lines",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " key rides in its title attribute."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-shell-principle": {
+      "id": "b-codefam-shell-principle",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Design principle: one surface, one accent, interaction reveals the rest."
+        }
+      ],
+      "children": [
+        "b-codefam-shell-principle-a"
+      ]
+    },
+    "b-codefam-shell-principle-a": {
+      "id": "b-codefam-shell-principle-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "At rest an annotated range shows only the 2px accent bar plus accent line numbers; the tint appears when its pair is lit."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-20px-h": {
+      "id": "b-codefam-20px-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "The 20px Line"
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-20px-1": {
+      "id": "b-codefam-20px-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "CODE_LINE_HEIGHT_PX = 20",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "packages/docs-viewer/src/components/code/classes.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/components/code/classes.ts"
+            }
+          }
+        },
+        {
+          "insert": " is a layout constant, not a theme token."
+        }
+      ],
+      "children": [
+        "b-codefam-20px-1a"
+      ]
+    },
+    "b-codefam-20px-1a": {
+      "id": "b-codefam-20px-1a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The zebra gradient period, the gutter row height, and every annotation overlay's top and height are computed from it, so it must never drift per host."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-20px-2": {
+      "id": "b-codefam-20px-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Soft wrap is off on every surface."
+        }
+      ],
+      "children": [
+        "b-codefam-20px-2a"
+      ]
+    },
+    "b-codefam-20px-2a": {
+      "id": "b-codefam-20px-2a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The edit surface forces "
+        },
+        {
+          "insert": "white-space: pre",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " on its content node; wrapping would break every line-geometry computation."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-pairing-h": {
+      "id": "b-codefam-pairing-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Annotation Pairing"
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-pairing-1": {
+      "id": "b-codefam-pairing-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The annotated read surface keeps a per-line grid, so every annotated line is a click and focus target."
+        }
+      ],
+      "children": [
+        "b-codefam-pairing-1a"
+      ]
+    },
+    "b-codefam-pairing-1a": {
+      "id": "b-codefam-pairing-1a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Pairing runs on the shared LinkGroup engine — one group per block, keyed by the annotation's "
+        },
+        {
+          "insert": "lines",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " string."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-pairing-2": {
+      "id": "b-codefam-pairing-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Hovering or focusing a note or an annotated line lights the pair's full extent: background wash, a 3px pin rail from first through last covered line, pin-color bold numbers."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-pairing-3": {
+      "id": "b-codefam-pairing-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Clicking (or Enter/Space) pins the pair — it survives hover-out — and Escape clears it."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-pairing-4": {
+      "id": "b-codefam-pairing-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Overlapping annotations resolve each line to the earliest covering note."
+        }
+      ],
+      "children": [
+        "b-codefam-pairing-4a"
+      ]
+    },
+    "b-codefam-pairing-4a": {
+      "id": "b-codefam-pairing-4a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "annotationLineRuns",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and the read surface share the rule, so overlay geometry and click-to-pair can never disagree."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-pairing-5": {
+      "id": "b-codefam-pairing-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The edit surface pairs from the notes side only."
+        }
+      ],
+      "children": [
+        "b-codefam-pairing-5a"
+      ]
+    },
+    "b-codefam-pairing-5a": {
+      "id": "b-codefam-pairing-5a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Clicking a note sticky-toggles its pair and scrolls the range's first line into view; clicks in the code just place the cursor."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-entry-h": {
+      "id": "b-codefam-entry-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Editor Entry"
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-entry-1": {
+      "id": "b-codefam-entry-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Slash menu: "
         },
         {
           "insert": "Code Block",
@@ -327,16 +1359,279 @@
           }
         },
         {
-          "insert": ". Input rule: three backticks plus an optional language tag. Annotations render as click-pairable side notes next to the fence. One display nicety: an annotation-free block with language "
+          "insert": " (aliases "
         },
         {
-          "insert": "json",
+          "insert": "codeblock",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " pretty-prints at render time — display-only, the stored text is never mutated."
+          "insert": ", "
+        },
+        {
+          "insert": "code",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "```",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ")."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-entry-2": {
+      "id": "b-codefam-entry-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Input rule ("
+        },
+        {
+          "insert": "packages/docs-viewer/src/components/code/input-rules.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/components/code/input-rules.ts"
+            }
+          }
+        },
+        {
+          "insert": "): the paragraph converts the moment the third backtick lands — no trailing space, no typed language tag."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-entry-3": {
+      "id": "b-codefam-entry-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The header label is the language picker."
+        }
+      ],
+      "children": [
+        "b-codefam-entry-3a",
+        "b-codefam-entry-3b"
+      ]
+    },
+    "b-codefam-entry-3a": {
+      "id": "b-codefam-entry-3a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Choosing a language writes the block's "
+        },
+        {
+          "insert": "language",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " attr, persisted to "
+        },
+        {
+          "insert": "props.language",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " on save."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-entry-3b": {
+      "id": "b-codefam-entry-3b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "\"auto\" clears it and falls back to detection, showing the sniffed language when one resolves."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-hl-h": {
+      "id": "b-codefam-hl-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Highlighting and JSON Display"
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-hl-1": {
+      "id": "b-codefam-hl-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Highlighting ("
+        },
+        {
+          "insert": "packages/docs-viewer/src/components/code/highlight.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/components/code/highlight.ts"
+            }
+          }
+        },
+        {
+          "insert": ") uses highlight.js core with a curated set of 13 registered grammars — never the all-languages bundle."
+        }
+      ],
+      "children": [
+        "b-codefam-hl-1a"
+      ]
+    },
+    "b-codefam-hl-1a": {
+      "id": "b-codefam-hl-1a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "bash, css, diff, go, javascript, json, markdown, python, rust, sql, typescript, xml, yaml — plus each grammar's aliases (ts, tsx, js, sh, yml, md, py…)."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-hl-2": {
+      "id": "b-codefam-hl-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "One resolution serves the header label and the tokens."
+        }
+      ],
+      "children": [
+        "b-codefam-hl-2a"
+      ]
+    },
+    "b-codefam-hl-2a": {
+      "id": "b-codefam-hl-2a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The declared language when a grammar or alias matches, else a JSON sniff, else escaped plain text with no label — the label can never disagree with tokenization."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-hl-3": {
+      "id": "b-codefam-hl-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Token colors come from the host's "
+        },
+        {
+          "insert": ".hljs-*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " rules, mapped to the "
+        },
+        {
+          "insert": "--syntax-*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " theme vars for light and dark."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-hl-4": {
+      "id": "b-codefam-hl-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "JSON pretty-printing is display-only; the stored text is never mutated."
+        }
+      ],
+      "children": [
+        "b-codefam-hl-4a",
+        "b-codefam-hl-4b"
+      ]
+    },
+    "b-codefam-hl-4a": {
+      "id": "b-codefam-hl-4a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "prettyPrintIfJson",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " re-renders one-liner JSON as the nested 2-space form when the language is json/jsonc, or is undeclared and the text sniffs as JSON."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-hl-4b": {
+      "id": "b-codefam-hl-4b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "On the annotated surface it runs before line-splitting, so "
+        },
+        {
+          "insert": "lines",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " ranges address the pretty-printed form — author JSON as pretty multi-line text so ranges are stable against the transform."
+        }
+      ],
+      "children": []
+    },
+    "b-14-code-agent-h-14": {
+      "id": "b-14-code-agent-h-14",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent Renderer"
         }
       ],
       "children": []
@@ -347,7 +1642,20 @@
       "props": {},
       "text": [
         {
-          "insert": "The agent-facing markdown projection: a fenced code block using "
+          "insert": "On the agent surface ("
+        },
+        {
+          "insert": "packages/docs-model/src/components/code/agent-view.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/components/code/agent-view.ts"
+            }
+          }
+        },
+        {
+          "insert": ") the block renders as a fenced markdown block: the fence tag is "
         },
         {
           "insert": "props.language",
@@ -356,7 +1664,7 @@
           }
         },
         {
-          "insert": " when present, followed by one blockquote line per annotation, each shaped like:"
+          "insert": " (a bare fence when unset), the body is the delta text as plain text. Annotations follow the fence, one blockquote line per entry:"
         }
       ],
       "children": []
@@ -372,15 +1680,51 @@
       ],
       "children": []
     },
-    "b-14-code-agent-h-14": {
-      "id": "b-14-code-agent-h-14",
-      "type": "heading",
-      "props": {
-        "level": 2
-      },
+    "b-codefam-agentr-1": {
+      "id": "b-codefam-agentr-1",
+      "type": "list-item",
+      "props": {},
       "text": [
         {
-          "insert": "Agent notes"
+          "insert": "The L-prefixed range is the annotation's "
+        },
+        {
+          "insert": "lines",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " key; the label rides in parentheses and drops cleanly when absent."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-agentr-2": {
+      "id": "b-codefam-agentr-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Entries missing a "
+        },
+        {
+          "insert": "lines",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " or "
+        },
+        {
+          "insert": "note",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " string drop from the projection — the same tolerant read as the doc surfaces."
         }
       ],
       "children": []
@@ -448,7 +1792,7 @@
       },
       "text": [
         {
-          "insert": "Theming"
+          "insert": "Theme"
         }
       ],
       "children": []
@@ -459,12 +1803,16 @@
       "props": {},
       "text": [
         {
-          "insert": "This block's theme file is "
+          "insert": "The theme file is "
         },
         {
-          "insert": "components/code.json",
+          "insert": "themes/default/components/code.json",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "themes/default/components/code.json"
+            }
           }
         },
         {
@@ -477,7 +1825,7 @@
           }
         },
         {
-          "insert": "; see 20-implementation/40-theming). Every value is one string for both modes or a "
+          "insert": "). Every value is one string for both modes or a "
         },
         {
           "insert": "{ light, dark }",
@@ -495,6 +1843,31 @@
           }
         },
         {
+          "insert": " in "
+        },
+        {
+          "insert": "packages/docs-workbench/web/src/theme/theme-folders.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/theme/theme-folders.ts"
+            }
+          }
+        },
+        {
+          "insert": ". The contract element is "
+        },
+        {
+          "insert": "Theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/50-theming"
+            }
+          }
+        },
+        {
           "insert": "."
         }
       ],
@@ -507,46 +1880,451 @@
         "columns": [
           "Key",
           "CSS variable",
+          "Kind",
           "Styles"
         ],
         "rows": [
           [
             "bg",
             "--docs-code-block-bg",
+            "color",
             "Block background"
           ],
           [
             "border",
             "--docs-code-block-border",
-            "Block border"
+            "color",
+            "Block frame border"
           ],
           [
             "string",
             "--syntax-string",
+            "color",
             "Syntax: string literals"
           ],
           [
             "number",
             "--syntax-number",
+            "color",
             "Syntax: numbers"
           ],
           [
             "boolean",
             "--syntax-boolean",
+            "color",
             "Syntax: booleans"
           ],
           [
             "null",
             "--syntax-null",
+            "color",
             "Syntax: null/nil tokens"
           ],
           [
             "key",
             "--syntax-key",
+            "color",
             "Syntax: object keys / attributes"
+          ],
+          [
+            "languageFg",
+            "--docs-code-lang-fg",
+            "color",
+            "Language-picker affordance on block hover (edit surface)"
+          ],
+          [
+            "annotationAccent",
+            "--docs-code-annotation-accent",
+            "color",
+            "Annotation accent: gutter bar, accent numbers, lit tint"
+          ],
+          [
+            "gutterFg",
+            "--docs-code-gutter-fg",
+            "color",
+            "Gutter numbers and the copy button"
+          ],
+          [
+            "gutterBg",
+            "--docs-code-gutter-bg",
+            "color",
+            "Sticky gutter background (defaults to a mix matching the block bg)"
+          ],
+          [
+            "zebra",
+            "--docs-code-zebra",
+            "color",
+            "Even-line stripe color"
+          ],
+          [
+            "rule",
+            "--docs-code-rule",
+            "color",
+            "Internal hairlines: header rule, column divider, note dividers"
+          ],
+          [
+            "ruleWidth",
+            "--docs-code-rule-width",
+            "length 0–4px",
+            "Hairline width (step 0.5, default 1px)"
+          ],
+          [
+            "ruleOpacity",
+            "--docs-code-rule-opacity",
+            "number 0–1",
+            "Hairline opacity (step 0.05, default 0.5)"
+          ],
+          [
+            "zebraOpacity",
+            "--docs-code-zebra-opacity",
+            "number 0–1",
+            "Zebra layer opacity (step 0.05, default 1)"
           ]
         ]
       },
+      "children": []
+    },
+    "b-codefam-theme-1": {
+      "id": "b-codefam-theme-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The three knobs are the registry's only non-color code tokens."
+        }
+      ],
+      "children": [
+        "b-codefam-theme-1a"
+      ]
+    },
+    "b-codefam-theme-1a": {
+      "id": "b-codefam-theme-1a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every internal hairline — header rule, code/notes column divider, note dividers — runs through the one rule token set."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-theme-2": {
+      "id": "b-codefam-theme-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The default theme sets "
+        },
+        {
+          "insert": "ruleOpacity",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " 0.9 and "
+        },
+        {
+          "insert": "zebraOpacity",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " 1; every other key falls through to the fixed fallbacks in "
+        },
+        {
+          "insert": "packages/docs-viewer/src/components/code/classes.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/components/code/classes.ts"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-theme-3": {
+      "id": "b-codefam-theme-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The annotated read surface additionally rides the shared linked-panels tokens."
+        }
+      ],
+      "children": [
+        "b-codefam-theme-3a"
+      ]
+    },
+    "b-codefam-theme-3a": {
+      "id": "b-codefam-theme-3a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "--docs-zebra",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "--docs-link-bg",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "--docs-link-pin",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " are registered once under the registry's "
+        },
+        {
+          "insert": "linking",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " entry, not per component."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-theme-4": {
+      "id": "b-codefam-theme-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The 20px line height is a layout constant, deliberately not a token."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-adapter-h": {
+      "id": "b-codefam-adapter-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent Adapter"
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-adapter-p": {
+      "id": "b-codefam-adapter-p",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The family uses the default adapter: no agent of its own, and nothing forwards to an external authority — both typed actions carry a local "
+        },
+        {
+          "insert": "apply",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". The contract element is "
+        },
+        {
+          "insert": "Agent adapter",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/60-agent-adapter"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-adapter-1": {
+      "id": "b-codefam-adapter-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An agent edit arrives as a "
+        },
+        {
+          "insert": "componentAction",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " op — the seventh op in the vocabulary, alongside "
+        },
+        {
+          "insert": "insertBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "deleteBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "moveBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "splitBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "mergeBlocks",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-adapter-2": {
+      "id": "b-codefam-adapter-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The op kernel ("
+        },
+        {
+          "insert": "packages/docs-model/src/doc-ops.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/doc-ops.ts"
+            }
+          }
+        },
+        {
+          "insert": ") resolves the action from the registry, validates its params, runs "
+        },
+        {
+          "insert": "apply",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " against the target block, and executes the returned "
+        },
+        {
+          "insert": "{ annotations }",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " patch through the existing "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " path."
+        }
+      ],
+      "children": [
+        "b-codefam-adapter-2a"
+      ]
+    },
+    "b-codefam-adapter-2a": {
+      "id": "b-codefam-adapter-2a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Merge semantics stay single-sourced, and the inverse comes back as the usual "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " inverse."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-adapter-3": {
+      "id": "b-codefam-adapter-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " preserves the block id, so annotation and backlink targets survive every annotation edit."
+        }
+      ],
       "children": []
     }
   }

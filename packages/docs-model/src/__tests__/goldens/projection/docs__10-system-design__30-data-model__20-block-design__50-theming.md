@@ -14,7 +14,7 @@ Every type ships its style capabilities as theme knobs — never hardcoded looks
 ```
 > **L1-7 (Knobs, not CSS):** Each key is a typed knob (color, length, number) the style rail can edit live; the renderer consumes them as tokens.
 
-## The rule
+## The Rule
 
 - **One theme file per type**
 

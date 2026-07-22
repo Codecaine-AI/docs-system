@@ -10,23 +10,51 @@
       "props": {},
       "children": [
         "b-23-sequence-lead-2",
-        "b-23-sequence-callout-3",
+        "b-seqfam-lead-3",
         "b-23-sequence-example-h",
         "b-23-sequence-example-intro",
         "b-23-sequence-embed-8",
         "b-23-sequence-program-4",
-        "b-23-sequence-state-h",
-        "b-23-sequence-state-note",
-        "b-23-sequence-actions-h",
-        "b-23-sequence-actions-note",
-        "b-23-sequence-renderers-h",
-        "b-23-sequence-renderers-note",
-        "b-23-sequence-studio-7",
-        "b-23-sequence-agent-h",
+        "b-seqfam-state-h",
+        "b-seqfam-state-intro",
+        "b-seqfam-state-shape",
+        "b-seqfam-state-li-text",
+        "b-seqfam-state-li-src",
+        "b-seqfam-actions-h",
+        "b-seqfam-actions-intro",
+        "b-seqfam-actions-surface",
+        "b-seqfam-actions-apply",
+        "b-seqfam-actions-li-program",
+        "b-seqfam-actions-li-style",
+        "b-seqfam-actions-li-title",
+        "b-seqfam-lang-h",
         "b-23-sequence-lang-5",
         "b-23-sequence-program-6",
-        "b-23-sequence-theming-h",
-        "b-23-sequence-theming-note"
+        "b-seqfam-docrender-h",
+        "b-seqfam-docrender-intro",
+        "b-seqfam-docrender-li-slot",
+        "b-seqfam-docrender-li-host",
+        "b-seqfam-docrender-li-editor",
+        "b-seqfam-agentrender-h",
+        "b-seqfam-agentrender-intro",
+        "b-seqfam-agentrender-code",
+        "b-seqfam-agentrender-li-form",
+        "b-seqfam-agentrender-li-content",
+        "b-seqfam-theme-h",
+        "b-seqfam-theme-intro",
+        "b-seqfam-theme-li-hook",
+        "b-seqfam-theme-li-engine",
+        "b-seqfam-theme-li-channel",
+        "b-seqfam-adapter-h",
+        "b-seqfam-adapter-intro",
+        "b-seqfam-adapter-steps",
+        "b-seqfam-adapter-step-1",
+        "b-seqfam-adapter-step-2",
+        "b-seqfam-adapter-step-3",
+        "b-seqfam-adapter-step-4",
+        "b-seqfam-adapter-li-undo",
+        "b-seqfam-adapter-li-authority",
+        "b-seqfam-adapter-li-agent"
       ]
     },
     "b-23-sequence-lead-2": {
@@ -35,13 +63,46 @@
       "props": {},
       "text": [
         {
-          "insert": "The sequence-diagram block of the "
+          "insert": "The sequence component owns one type of the "
         },
         {
-          "insert": "block vocabulary"
+          "insert": "Block vocabulary",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary"
+            }
+          }
         },
         {
-          "insert": ": UML-style sequence diagrams rendered from a structured "
+          "insert": ": "
+        },
+        {
+          "insert": "sequence",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", the UML-style sequence-diagram block. The block is only a reference — "
+        },
+        {
+          "insert": "src",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " (or "
+        },
+        {
+          "insert": "sequenceId",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ") points at a "
         },
         {
           "insert": "SequenceDocument",
@@ -50,16 +111,7 @@
           }
         },
         {
-          "insert": ". The JSON document is the source of truth; a compact text program is the agent-facing projection — agents rewrite the whole program, and the language carries no styling, no coordinates, and no ids. The engine lives in the standalone sequence repo ("
-        },
-        {
-          "insert": "github.com/Codecaine-AI/sequence",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", a sibling checkout today, a future submodule at "
+          "insert": " owned by the external sequence engine ("
         },
         {
           "insert": "external/sequence",
@@ -72,21 +124,7 @@
           }
         },
         {
-          "insert": "); the docs-system block integration is upcoming."
-        }
-      ],
-      "children": []
-    },
-    "b-23-sequence-callout-3": {
-      "id": "b-23-sequence-callout-3",
-      "type": "callout",
-      "props": {
-        "title": "Replaces mermaid",
-        "tone": "info"
-      },
-      "text": [
-        {
-          "insert": "This block replaces the retired mermaid block. Sequence diagrams use this system; every other diagram type belongs to the "
+          "insert": "); participants, messages, and style never enter the doc. Sequence diagrams are this block's whole territory — every other diagram type belongs to the "
         },
         {
           "insert": "canvas",
@@ -99,6 +137,35 @@
         },
         {
           "insert": " block."
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-lead-3": {
+      "id": "b-seqfam-lead-3",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The family is the vocabulary's flagship non-default agent-adapter case: its three typed actions carry "
+        },
+        {
+          "insert": "forward: { authority: \"sequence\" }",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " instead of a local "
+        },
+        {
+          "insert": "apply",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", so diagram edits route to the sequence engine and come back validated. The JSON document is the source of truth; a compact text program is the agent-facing projection — agents rewrite the whole program, and the language carries no styling, no coordinates, and no ids."
         }
       ],
       "children": []
@@ -131,7 +198,7 @@
           }
         },
         {
-          "insert": " — followed by the agent-facing program projection of the same document:"
+          "insert": " — followed by the program projection of the same document:"
         }
       ],
       "children": []
@@ -156,62 +223,115 @@
       ],
       "children": []
     },
-    "b-23-sequence-state-h": {
-      "id": "b-23-sequence-state-h",
+    "b-seqfam-state-h": {
+      "id": "b-seqfam-state-h",
       "type": "heading",
       "props": {
         "level": 2
       },
       "text": [
         {
-          "insert": "State"
+          "insert": "State Schema"
         }
       ],
       "children": []
     },
-    "b-23-sequence-state-note": {
-      "id": "b-23-sequence-state-note",
+    "b-seqfam-state-intro": {
+      "id": "b-seqfam-state-intro",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "Three optional props — "
-        },
-        {
-          "insert": "sequenceId",
+          "insert": "SequenceState",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": ", "
+          "insert": " in the component's "
         },
         {
-          "insert": "src",
+          "insert": "state.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/components/sequence/state.ts"
+            }
+          }
+        },
+        {
+          "insert": " is a closed schema ("
+        },
+        {
+          "insert": "additionalProperties: false",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": ", "
-        },
-        {
-          "insert": "title",
-          "attributes": {
-            "code": true
+          "insert": ") of three optional props:"
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-state-shape": {
+      "id": "b-seqfam-state-shape",
+      "type": "state-shape",
+      "props": {
+        "example": "{\n  \"src\": \"assets/sequences/login-flow.sequence.json\",\n  \"title\": \"Login flow\"\n}",
+        "fields": [
+          {
+            "name": "sequenceId",
+            "type": "string (min length 1)",
+            "required": false,
+            "description": "Central reference to a diagram living in Sequence Studio."
+          },
+          {
+            "name": "src",
+            "type": "string (min length 1)",
+            "required": false,
+            "description": "Sidecar path — docs-root-relative, or bundle-relative with a ./ prefix."
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "required": false,
+            "description": "Display title."
           }
-        },
-        {
-          "insert": " — and no text ("
-        },
+        ],
+        "name": "SequenceState",
+        "source": {
+          "path": "packages/docs-model/src/components/sequence/state.ts",
+          "symbol": "SequenceState"
+        }
+      },
+      "children": []
+    },
+    "b-seqfam-state-li-text": {
+      "id": "b-seqfam-state-li-text",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
           "insert": "carriesText: false",
           "attributes": {
             "code": true
           }
-        },
+        }
+      ],
+      "children": [
+        "b-seqfam-state-li-text-1",
+        "b-seqfam-state-li-text-2"
+      ]
+    },
+    "b-seqfam-state-li-text-1": {
+      "id": "b-seqfam-state-li-text-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
-          "insert": "); participants and messages live in the referenced "
+          "insert": "The block carries no delta text: participants, messages, fragments, and style live in the referenced "
         },
         {
           "insert": "SequenceDocument",
@@ -225,53 +345,95 @@
       ],
       "children": []
     },
-    "b-23-sequence-actions-h": {
-      "id": "b-23-sequence-actions-h",
+    "b-seqfam-state-li-text-2": {
+      "id": "b-seqfam-state-li-text-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The program is a projection of that document, not a stored payload — nothing diagram-shaped is in the doc to drift."
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-state-li-src": {
+      "id": "b-seqfam-state-li-src",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "src",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " over "
+        },
+        {
+          "insert": "sequenceId",
+          "attributes": {
+            "code": true
+          }
+        }
+      ],
+      "children": [
+        "b-seqfam-state-li-src-1"
+      ]
+    },
+    "b-seqfam-state-li-src-1": {
+      "id": "b-seqfam-state-li-src-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "When both are set, the agent projection and the embed read "
+        },
+        {
+          "insert": "src",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " first."
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-actions-h": {
+      "id": "b-seqfam-actions-h",
       "type": "heading",
       "props": {
         "level": 2
       },
       "text": [
         {
-          "insert": "Typed actions (forwarded)"
+          "insert": "Typed Actions"
         }
       ],
       "children": []
     },
-    "b-23-sequence-actions-note": {
-      "id": "b-23-sequence-actions-note",
+    "b-seqfam-actions-intro": {
+      "id": "b-seqfam-actions-intro",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "Three actions — "
+          "insert": "Three actions, lifted at module load in "
         },
         {
-          "insert": "sequence.setProgram",
+          "insert": "actions/lift.ts",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/components/sequence/actions/lift.ts"
+            }
           }
         },
         {
-          "insert": ", "
-        },
-        {
-          "insert": "sequence.setStyle",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "sequence.setTitle",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " — lifted at module load from "
+          "insert": " from "
         },
         {
           "insert": "SEQUENCE_AGENT_PATCH_OPERATIONS",
@@ -280,16 +442,38 @@
           }
         },
         {
-          "insert": " in "
+          "insert": " in the engine's "
         },
         {
-          "insert": "@codecaine-ai/sequence/agent-schema",
+          "insert": "agent-schema.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "external/sequence/packages/sequence/src/agent-schema.ts"
+            }
+          }
+        },
+        {
+          "insert": " — schema truth stays in the sequence package; the lift strips only the envelope discriminant and prefixes the family name. Each rides a "
+        },
+        {
+          "insert": "componentAction",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " and carrying "
+          "insert": " op as "
+        },
+        {
+          "insert": "sequence.<verb>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and carries "
         },
         {
           "insert": "forward: { authority: \"sequence\" }",
@@ -307,83 +491,15 @@
           }
         },
         {
-          "insert": "."
-        }
-      ],
-      "children": []
-    },
-    "b-23-sequence-renderers-h": {
-      "id": "b-23-sequence-renderers-h",
-      "type": "heading",
-      "props": {
-        "level": 2
-      },
-      "text": [
-        {
-          "insert": "Renderers"
-        }
-      ],
-      "children": []
-    },
-    "b-23-sequence-renderers-note": {
-      "id": "b-23-sequence-renderers-note",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "In the doc renderer the block fills through the host's "
+          "insert": " — the forwarded shape of "
         },
         {
-          "insert": "renderSequence",
+          "insert": "Typed actions",
           "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " slot (a placeholder card names the source otherwise); the markdown projection is a comment line — "
-        },
-        {
-          "insert": "<!-- sequence: <src-or-sequenceId> [title=\"<title>\"] -->",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", or "
-        },
-        {
-          "insert": "<!-- sequence: (missing src) -->",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " when no source is set."
-        }
-      ],
-      "children": []
-    },
-    "b-23-sequence-studio-7": {
-      "id": "b-23-sequence-studio-7",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "Testing today happens in the sequence studio: run "
-        },
-        {
-          "insert": "bun run dev:studio",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " in the sequence repo and open "
-        },
-        {
-          "insert": "http://localhost:3998",
-          "attributes": {
-            "code": true
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/20-typed-actions"
+            }
           }
         },
         {
@@ -392,15 +508,226 @@
       ],
       "children": []
     },
-    "b-23-sequence-agent-h": {
-      "id": "b-23-sequence-agent-h",
+    "b-seqfam-actions-surface": {
+      "id": "b-seqfam-actions-surface",
+      "type": "interaction-surface",
+      "props": {
+        "operations": [
+          {
+            "name": "sequence.setProgram",
+            "description": "Replace diagram structure with a complete whole-program rewrite: every participant and item, never a patch. Styling never appears in the program.",
+            "params": [
+              {
+                "name": "program",
+                "type": "string",
+                "required": true
+              }
+            ],
+            "returns": "forwarded to the sequence authority"
+          },
+          {
+            "name": "sequence.setStyle",
+            "description": "Deep-merge visual style one level: element groups (surface, participant, lifeline, message, activation, fragment, note) merge per-field; null clears a field or a whole group; omitted fields are preserved.",
+            "params": [
+              {
+                "name": "style",
+                "type": "SequenceStylePatch",
+                "required": true
+              }
+            ],
+            "returns": "forwarded to the sequence authority"
+          },
+          {
+            "name": "sequence.setTitle",
+            "description": "Set the document title without changing structure or style.",
+            "params": [
+              {
+                "name": "title",
+                "type": "string",
+                "required": true
+              }
+            ],
+            "returns": "forwarded to the sequence authority"
+          }
+        ],
+        "title": "sequence — forwarded patch operations"
+      },
+      "children": []
+    },
+    "b-seqfam-actions-apply": {
+      "id": "b-seqfam-actions-apply",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "applySequenceOperations",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in the engine's "
+        },
+        {
+          "insert": "actions.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "external/sequence/packages/sequence/src/actions.ts"
+            }
+          }
+        },
+        {
+          "insert": " gives each verb its semantics:"
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-actions-li-program": {
+      "id": "b-seqfam-actions-li-program",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "setProgram",
+          "attributes": {
+            "code": true
+          }
+        }
+      ],
+      "children": [
+        "b-seqfam-actions-li-program-1",
+        "b-seqfam-actions-li-program-2"
+      ]
+    },
+    "b-seqfam-actions-li-program-1": {
+      "id": "b-seqfam-actions-li-program-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The program parses with "
+        },
+        {
+          "insert": "parseSequenceProgram",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "; a parse failure rejects the patch with per-line errors."
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-actions-li-program-2": {
+      "id": "b-seqfam-actions-li-program-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The document's "
+        },
+        {
+          "insert": "id",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and stored "
+        },
+        {
+          "insert": "style",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " always survive the rewrite."
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-actions-li-style": {
+      "id": "b-seqfam-actions-li-style",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "setStyle",
+          "attributes": {
+            "code": true
+          }
+        }
+      ],
+      "children": [
+        "b-seqfam-actions-li-style-1"
+      ]
+    },
+    "b-seqfam-actions-li-style-1": {
+      "id": "b-seqfam-actions-li-style-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "mergeSequenceStyle",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ": shortcut fields replace, element groups merge per-field, "
+        },
+        {
+          "insert": "null",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " deletes a field or drops a whole group."
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-actions-li-title": {
+      "id": "b-seqfam-actions-li-title",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "setTitle",
+          "attributes": {
+            "code": true
+          }
+        }
+      ],
+      "children": [
+        "b-seqfam-actions-li-title-1"
+      ]
+    },
+    "b-seqfam-actions-li-title-1": {
+      "id": "b-seqfam-actions-li-title-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Replaces the title string; structure and style stay untouched."
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-lang-h": {
+      "id": "b-seqfam-lang-h",
       "type": "heading",
       "props": {
-        "level": 2
+        "level": 3
       },
       "text": [
         {
-          "insert": "Agent notes"
+          "insert": "The Program Language"
         }
       ],
       "children": []
@@ -553,26 +880,519 @@
       ],
       "children": []
     },
-    "b-23-sequence-theming-h": {
-      "id": "b-23-sequence-theming-h",
+    "b-seqfam-docrender-h": {
+      "id": "b-seqfam-docrender-h",
       "type": "heading",
       "props": {
         "level": 2
       },
       "text": [
         {
-          "insert": "Theming"
+          "insert": "Doc Renderer"
         }
       ],
       "children": []
     },
-    "b-23-sequence-theming-note": {
-      "id": "b-23-sequence-theming-note",
+    "b-seqfam-docrender-intro": {
+      "id": "b-seqfam-docrender-intro",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "No theme component yet — "
+          "insert": "The viewer descriptor in "
+        },
+        {
+          "insert": "packages/docs-viewer/src/components/sequence/descriptor.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/components/sequence/descriptor.tsx"
+            }
+          }
+        },
+        {
+          "insert": " renders the block through the host's "
+        },
+        {
+          "insert": "renderSequence",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " slot; with no host wired, a dashed placeholder card names the source instead."
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-docrender-li-slot": {
+      "id": "b-seqfam-docrender-li-slot",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Slot chain"
+        }
+      ],
+      "children": [
+        "b-seqfam-docrender-li-slot-1",
+        "b-seqfam-docrender-li-slot-2"
+      ]
+    },
+    "b-seqfam-docrender-li-slot-1": {
+      "id": "b-seqfam-docrender-li-slot-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "DocBlockRenderer",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " ("
+        },
+        {
+          "insert": "DocBlockRenderer.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/render/DocBlockRenderer.tsx"
+            }
+          }
+        },
+        {
+          "insert": ") builds "
+        },
+        {
+          "insert": "renderSequence",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " from "
+        },
+        {
+          "insert": "DocsClientProvider",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "'s "
+        },
+        {
+          "insert": "sequenceEmbed",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " slot — the sequence counterpart of the canvas embed slot."
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-docrender-li-slot-2": {
+      "id": "b-seqfam-docrender-li-slot-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "resolveBundleSequenceSrc",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " canonicalizes the src first: a "
+        },
+        {
+          "insert": "./",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " prefix resolves against the doc bundle's own assets; anything else is docs-root-relative."
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-docrender-li-host": {
+      "id": "b-seqfam-docrender-li-host",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Workbench host"
+        }
+      ],
+      "children": [
+        "b-seqfam-docrender-li-host-1",
+        "b-seqfam-docrender-li-host-2"
+      ]
+    },
+    "b-seqfam-docrender-li-host-1": {
+      "id": "b-seqfam-docrender-li-host-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "StandaloneSequenceEmbed",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " ("
+        },
+        {
+          "insert": "SequenceEmbed.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/pages/SequenceEmbed.tsx"
+            }
+          }
+        },
+        {
+          "insert": ") loads the sidecar through the serve/export data layer, validates with "
+        },
+        {
+          "insert": "validateSequenceDocument",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and renders the read-only "
+        },
+        {
+          "insert": "SequenceViewer",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "external/sequence/packages/sequence/src/SequenceViewer.tsx"
+            }
+          }
+        },
+        {
+          "insert": " — no editing, no saving."
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-docrender-li-host-2": {
+      "id": "b-seqfam-docrender-li-host-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A "
+        },
+        {
+          "insert": "sequenceId",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " without a "
+        },
+        {
+          "insert": "src",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " renders an Open in Sequence Studio affordance instead of an inline diagram."
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-docrender-li-editor": {
+      "id": "b-seqfam-docrender-li-editor",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Editor surface"
+        }
+      ],
+      "children": [
+        "b-seqfam-docrender-li-editor-1"
+      ]
+    },
+    "b-seqfam-docrender-li-editor-1": {
+      "id": "b-seqfam-docrender-li-editor-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The block is a non-editable atom leaf ("
+        },
+        {
+          "insert": "docSequence",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "editor-nodes.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/components/sequence/editor-nodes.ts"
+            }
+          }
+        },
+        {
+          "insert": "); the shared atom node view reuses the same descriptor and slot, so edit mode shows the same embed as reading."
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-agentrender-h": {
+      "id": "b-seqfam-agentrender-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent Renderer"
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-agentrender-intro": {
+      "id": "b-seqfam-agentrender-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The markdown projection in "
+        },
+        {
+          "insert": "agent-view.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/components/sequence/agent-view.ts"
+            }
+          }
+        },
+        {
+          "insert": " is one comment line — a greppable reference, not the diagram:"
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-agentrender-code": {
+      "id": "b-seqfam-agentrender-code",
+      "type": "code",
+      "props": {},
+      "text": [
+        {
+          "insert": "<!-- sequence: assets/sequences/login-flow.sequence.json title=\"Login flow\" -->"
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-agentrender-li-form": {
+      "id": "b-seqfam-agentrender-li-form",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The comment form"
+        }
+      ],
+      "children": [
+        "b-seqfam-agentrender-li-form-1",
+        "b-seqfam-agentrender-li-form-2"
+      ]
+    },
+    "b-seqfam-agentrender-li-form-1": {
+      "id": "b-seqfam-agentrender-li-form-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "src",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " wins over "
+        },
+        {
+          "insert": "sequenceId",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " as the source; "
+        },
+        {
+          "insert": "title=\"…\"",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " appends only when a title is set."
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-agentrender-li-form-2": {
+      "id": "b-seqfam-agentrender-li-form-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "<!-- sequence: (missing src) -->",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " when no source is set."
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-agentrender-li-content": {
+      "id": "b-seqfam-agentrender-li-content",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Content lives behind the reference"
+        }
+      ],
+      "children": [
+        "b-seqfam-agentrender-li-content-1",
+        "b-seqfam-agentrender-li-content-2"
+      ]
+    },
+    "b-seqfam-agentrender-li-content-1": {
+      "id": "b-seqfam-agentrender-li-content-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An agent that needs the diagram reads the "
+        },
+        {
+          "insert": "SequenceDocument",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with "
+        },
+        {
+          "insert": "sequence_get",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " ("
+        },
+        {
+          "insert": "agent-tools.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-server/src/agent-tools.ts"
+            }
+          }
+        },
+        {
+          "insert": ") and writes back through the forwarded actions."
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-agentrender-li-content-2": {
+      "id": "b-seqfam-agentrender-li-content-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "parseSequenceProgram",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "serializeSequenceProgram",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " ("
+        },
+        {
+          "insert": "language/index.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "external/sequence/packages/sequence/src/language/index.ts"
+            }
+          }
+        },
+        {
+          "insert": ") round-trip document and program, so the compact program is the agent-facing text of the diagram."
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-theme-h": {
+      "id": "b-seqfam-theme-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Theme"
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-theme-intro": {
+      "id": "b-seqfam-theme-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The docs theme owns nothing here: "
         },
         {
           "insert": "THEME_TOKEN_REGISTRY",
@@ -581,16 +1401,95 @@
           }
         },
         {
-          "insert": " carries no sequence entry; the viewer placeholder reads "
+          "insert": " ("
         },
         {
-          "insert": "--docs-sequence-border",
+          "insert": "theme-folders.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/theme/theme-folders.ts"
+            }
+          }
+        },
+        {
+          "insert": ") has no sequence entry, and the default theme folder ships no "
+        },
+        {
+          "insert": "components/sequence.json",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " with a "
+          "insert": ". Diagram visuals live in the "
+        },
+        {
+          "insert": "SequenceDocument",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "'s own "
+        },
+        {
+          "insert": "style",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " section, edited through "
+        },
+        {
+          "insert": "sequence.setStyle",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — see "
+        },
+        {
+          "insert": "Theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/50-theming"
+            }
+          }
+        },
+        {
+          "insert": " for the contract this deviates from."
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-theme-li-hook": {
+      "id": "b-seqfam-theme-li-hook",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "--docs-sequence-border",
+          "attributes": {
+            "code": true
+          }
+        }
+      ],
+      "children": [
+        "b-seqfam-theme-li-hook-1"
+      ]
+    },
+    "b-seqfam-theme-li-hook-1": {
+      "id": "b-seqfam-theme-li-hook-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The one doc-side hook: the placeholder card's border color, unregistered in the token registry, falling back to "
         },
         {
           "insert": "--border",
@@ -599,7 +1498,444 @@
           }
         },
         {
-          "insert": " fallback."
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-theme-li-engine": {
+      "id": "b-seqfam-theme-li-engine",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Engine-side painting"
+        }
+      ],
+      "children": [
+        "b-seqfam-theme-li-engine-1",
+        "b-seqfam-theme-li-engine-2"
+      ]
+    },
+    "b-seqfam-theme-li-engine-1": {
+      "id": "b-seqfam-theme-li-engine-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The renderer paints from "
+        },
+        {
+          "insert": "--seq-*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " CSS variables with its own defaults ("
+        },
+        {
+          "insert": "theme.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "external/sequence/packages/sequence/src/theme.ts"
+            }
+          }
+        },
+        {
+          "insert": ")."
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-theme-li-engine-2": {
+      "id": "b-seqfam-theme-li-engine-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Document style overrides field by field: shortcut fields ("
+        },
+        {
+          "insert": "accent",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "fragmentAccent",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "participantFill",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "scale",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ") apply first; per-element groups override them per field."
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-theme-li-channel": {
+      "id": "b-seqfam-theme-li-channel",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "One styling channel"
+        }
+      ],
+      "children": [
+        "b-seqfam-theme-li-channel-1"
+      ]
+    },
+    "b-seqfam-theme-li-channel-1": {
+      "id": "b-seqfam-theme-li-channel-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "setStyle",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is the only way style changes; styling never rides the program."
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-adapter-h": {
+      "id": "b-seqfam-adapter-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent Adapter"
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-adapter-intro": {
+      "id": "b-seqfam-adapter-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The flagship non-default case of "
+        },
+        {
+          "insert": "Agent adapter",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/60-agent-adapter"
+            }
+          }
+        },
+        {
+          "insert": ": the sequence engine is the external authority, and the block's actions forward to it instead of patching props locally. Doc-side props ("
+        },
+        {
+          "insert": "src",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "sequenceId",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "title",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ") still edit through the generic ops; diagram content never does."
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-adapter-steps": {
+      "id": "b-seqfam-adapter-steps",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A forwarded action travels four steps:"
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-adapter-step-1": {
+      "id": "b-seqfam-adapter-step-1",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "The dispatcher validates params against the lifted TypeBox schema, then refuses to apply the op locally: a forwarded action \"cannot be applied as a doc op\" ("
+        },
+        {
+          "insert": "doc-ops.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/doc-ops.ts"
+            }
+          }
+        },
+        {
+          "insert": ")."
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-adapter-step-2": {
+      "id": "b-seqfam-adapter-step-2",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "forwardSequenceAction",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " ("
+        },
+        {
+          "insert": "store.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-server/src/store.ts"
+            }
+          }
+        },
+        {
+          "insert": ") takes over under the doc bundle's path lock: doc-hash precondition first, then the target block must exist and be a "
+        },
+        {
+          "insert": "sequence",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " block."
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-adapter-step-3": {
+      "id": "b-seqfam-adapter-step-3",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "The block's "
+        },
+        {
+          "insert": "src",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " resolves doc-relative to the sidecar path. Only sidecar references route; a central "
+        },
+        {
+          "insert": "sequenceId",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " reference is rejected."
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-adapter-step-4": {
+      "id": "b-seqfam-adapter-step-4",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "sequence_apply_patch",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " ("
+        },
+        {
+          "insert": "agent-tools.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-server/src/agent-tools.ts"
+            }
+          }
+        },
+        {
+          "insert": ") applies through "
+        },
+        {
+          "insert": "applySequenceOperations",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", persists atomically, and stores the full prior snapshot as the undo inverse."
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-adapter-li-undo": {
+      "id": "b-seqfam-adapter-li-undo",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Validation and undo hold for every editor"
+        }
+      ],
+      "children": [
+        "b-seqfam-adapter-li-undo-1"
+      ]
+    },
+    "b-seqfam-adapter-li-undo-1": {
+      "id": "b-seqfam-adapter-li-undo-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Human, host, or agent — every content write goes through the engine's own operations, so schema validation and the inverse snapshot apply no matter who edits."
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-adapter-li-authority": {
+      "id": "b-seqfam-adapter-li-authority",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A registered authority"
+        }
+      ],
+      "children": [
+        "b-seqfam-adapter-li-authority-1"
+      ]
+    },
+    "b-seqfam-adapter-li-authority-1": {
+      "id": "b-seqfam-adapter-li-authority-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "\"sequence\"",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is one of the two entries in the model's "
+        },
+        {
+          "insert": "KNOWN_AUTHORITIES",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " ("
+        },
+        {
+          "insert": "checks.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/components/checks.ts"
+            }
+          }
+        },
+        {
+          "insert": "); boot checks reject any action forwarding anywhere else."
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-adapter-li-agent": {
+      "id": "b-seqfam-adapter-li-agent",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The processing agent"
+        }
+      ],
+      "children": [
+        "b-seqfam-adapter-li-agent-1"
+      ]
+    },
+    "b-seqfam-adapter-li-agent-1": {
+      "id": "b-seqfam-adapter-li-agent-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The adapter contract's target design adds a sequence-specialist processing agent whose context loader assembles the sequence source instead of the doc render alone; its writeback path is the forwarding above."
         }
       ],
       "children": []

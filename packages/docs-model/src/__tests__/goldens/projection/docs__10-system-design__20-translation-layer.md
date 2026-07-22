@@ -40,7 +40,7 @@ The key idea we need to accept is that AI and humans consume information differe
 
 ## The Solution
 
-<!-- canvas: interaction-surfaces view=one-state-two-readers title="One state, two readers" -->
+<!-- canvas: ./assets/canvases/interaction-surfaces.canvas.json view=one-state-two-readers title="One state, two readers" -->
 
 Every document is a `doc.json` bundle: an id-keyed tree of blocks — the data model — serialized to serialization. 
 
@@ -48,7 +48,7 @@ No reader consumes this form directly**.**
 
 It is built for precision, not reading: stable ids make every block addressable, canonical bytes make every change diffable and testable, and the whole tree is validated on every write.
 
-## The surfaces
+## The Surfaces
 
 - Human surface
 
@@ -58,7 +58,7 @@ It is built for precision, not reading: stable ids make every block addressable,
 
   - Rendered markdown and typed operations through the CLI.
 
-## Symmetry, in practice
+## Symmetry, in Practice
 
 | Interaction | Human surface | Agent surface |
 | --- | --- | --- |

@@ -10,13 +10,16 @@
       "props": {},
       "children": [
         "b-31-video-lead-2",
+        "b-31-video-example-h-20",
+        "b-31-video-example-intro-21",
+        "b-31-video-example-embed-22",
         "b-31-video-state-h-3",
         "b-31-video-state-4",
         "b-31-video-state-note-5",
-        "b-31-video-proj-h-6",
-        "b-31-video-proj-7",
         "b-31-video-editor-h-8",
         "b-31-video-editor-9",
+        "b-31-video-proj-h-6",
+        "b-31-video-proj-7",
         "b-31-video-agent-h-10",
         "b-31-video-agent-1-11",
         "b-31-video-agent-2-12",
@@ -34,7 +37,13 @@
           "insert": "The video block of the "
         },
         {
-          "insert": "block vocabulary"
+          "insert": "block vocabulary",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary"
+            }
+          }
         },
         {
           "insert": ": either a bundle-local file ("
@@ -60,6 +69,58 @@
       ],
       "children": []
     },
+    "b-31-video-example-h-20": {
+      "id": "b-31-video-example-h-20",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Example"
+        }
+      ],
+      "children": []
+    },
+    "b-31-video-example-intro-21": {
+      "id": "b-31-video-example-intro-21",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A "
+        },
+        {
+          "insert": "url",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "-only block — external YouTube URL, no bundle asset. The player is the "
+        },
+        {
+          "insert": "youtube-nocookie",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " embed."
+        }
+      ],
+      "children": []
+    },
+    "b-31-video-example-embed-22": {
+      "id": "b-31-video-example-embed-22",
+      "type": "video",
+      "props": {
+        "caption": "Blender Foundation's open-movie short, embedded from an external URL.",
+        "title": "Big Buck Bunny",
+        "url": "https://www.youtube.com/watch?v=YE7VzlLtp-4"
+      },
+      "children": []
+    },
     "b-31-video-state-h-3": {
       "id": "b-31-video-state-h-3",
       "type": "heading",
@@ -68,7 +129,7 @@
       },
       "text": [
         {
-          "insert": "State"
+          "insert": "State Schema"
         }
       ],
       "children": []
@@ -150,66 +211,6 @@
       ],
       "children": []
     },
-    "b-31-video-proj-h-6": {
-      "id": "b-31-video-proj-h-6",
-      "type": "heading",
-      "props": {
-        "level": 2
-      },
-      "text": [
-        {
-          "insert": "Markdown render"
-        }
-      ],
-      "children": []
-    },
-    "b-31-video-proj-7": {
-      "id": "b-31-video-proj-7",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "A labeled blockquote in the callout family's shape: "
-        },
-        {
-          "insert": "> **Video[: <title>]** — <url ?? src>[ — <caption>]",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " — external "
-        },
-        {
-          "insert": "url",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " wins over the bundle-relative "
-        },
-        {
-          "insert": "src",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", the same precedence the render surface applies. Chosen over a markdown link because the target may be a bare provider URL; the leading "
-        },
-        {
-          "insert": "> **Video",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " token greps cleanly."
-        }
-      ],
-      "children": []
-    },
     "b-31-video-editor-h-8": {
       "id": "b-31-video-editor-h-8",
       "type": "heading",
@@ -218,7 +219,7 @@
       },
       "text": [
         {
-          "insert": "In the editor"
+          "insert": "Doc Renderer"
         }
       ],
       "children": []
@@ -270,11 +271,75 @@
         {
           "insert": "VideoDocsBlock",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/components/rich-text/VideoDocsBlock.tsx"
+            }
           }
         },
         {
           "insert": ") renders the player."
+        }
+      ],
+      "children": []
+    },
+    "b-31-video-proj-h-6": {
+      "id": "b-31-video-proj-h-6",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent Renderer"
+        }
+      ],
+      "children": []
+    },
+    "b-31-video-proj-7": {
+      "id": "b-31-video-proj-7",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A labeled blockquote in the callout family's shape: "
+        },
+        {
+          "insert": "> **Video[: <title>]** — <url ?? src>[ — <caption>]",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — external "
+        },
+        {
+          "insert": "url",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " wins over the bundle-relative "
+        },
+        {
+          "insert": "src",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", the same precedence the render surface applies. Chosen over a markdown link because the target may be a bare provider URL; the leading "
+        },
+        {
+          "insert": "> **Video",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " token greps cleanly."
         }
       ],
       "children": []
@@ -287,7 +352,7 @@
       },
       "text": [
         {
-          "insert": "Agent notes"
+          "insert": "Agent Notes"
         }
       ],
       "children": []
@@ -358,7 +423,7 @@
       },
       "text": [
         {
-          "insert": "Theming"
+          "insert": "Theme"
         }
       ],
       "children": []
@@ -387,7 +452,19 @@
           }
         },
         {
-          "insert": "; see 20-implementation/40-theming). Every value is one string for both modes or a "
+          "insert": "; see "
+        },
+        {
+          "insert": "Theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/40-theming"
+            }
+          }
+        },
+        {
+          "insert": "). Every value is one string for both modes or a "
         },
         {
           "insert": "{ light, dark }",
@@ -401,7 +478,11 @@
         {
           "insert": "THEME_TOKEN_REGISTRY",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/theme/theme-folders.ts"
+            }
           }
         },
         {

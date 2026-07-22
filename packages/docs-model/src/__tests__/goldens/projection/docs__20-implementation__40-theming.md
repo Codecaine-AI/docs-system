@@ -1,8 +1,8 @@
-# Theming: overview
+# Theming: Overview
 
 Theming is a first-class feature of the workbench: every visual decision resolves through one canonical token contract, so the whole system — colors, fonts, editor controls — restyles without touching component code. This section lays out the structure: who decides what, where each file lives, and exactly what can and cannot be changed.
 
-## Who decides what
+## Who Decides What
 
 | Layer | Who sets it | Examples | Where |
 | --- | --- | --- | --- |
@@ -12,7 +12,7 @@ Theming is a first-class feature of the workbench: every visual decision resolve
 
 > **INFO: Precedence** — Theme files define; the user overlay overrides; the system UI is out of reach of both. A rail knob at its default removes its override, so the theme (and below it, the default token files) stays authoritative.
 
-## The three token tiers
+## The Three Token Tiers
 
 - Palette — `theme/notion-palette.css`. Raw color values as `--color-*` variables, defined twice: a light block and a dark block. The only place raw hex/rgba theme colors are allowed.
 
@@ -22,7 +22,7 @@ Theming is a first-class feature of the workbench: every visual decision resolve
 
 > **INFO: The one rule** — Consumers never branch on light versus dark. A mode flip only swaps the tier 1 and tier 2 definitions; everything downstream re-resolves automatically.
 
-## Where the files live
+## Where the Files Live
 
 ```
 ../
@@ -39,7 +39,7 @@ theme/
 index.css  # tier 3 — app CSS consuming tokens; :root font defaults
 ```
 
-## In this section
+## In This Section
 
 - Global themes
 

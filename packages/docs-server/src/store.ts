@@ -44,12 +44,15 @@ import {
   deleteCanvasSidecar,
   loadCanvasSidecarByDocPath,
   saveCanvasSidecar,
+  saveCanvasSidecarBySrc,
   type CanvasSidecarByDocPathError,
   type CanvasSidecarByDocPathLoadResult,
   type CreateCanvasSidecarInput,
   type CreateCanvasSidecarResult,
   type DeleteCanvasSidecarInput,
   type DeleteCanvasSidecarResult,
+  type SaveCanvasSidecarBySrcInput,
+  type SaveCanvasSidecarBySrcResult,
   type SaveCanvasSidecarInput,
   type SaveCanvasSidecarResult,
 } from "./canvas-sidecar";
@@ -186,6 +189,7 @@ export interface DocsStore {
   uploadAsset(input: UploadDocAssetInput): Promise<UploadDocAssetResult>;
   uploadVideoAsset(input: UploadDocAssetInput): Promise<UploadDocAssetResult>;
   saveCanvasSidecar(input: SaveCanvasSidecarInput): Promise<SaveCanvasSidecarResult>;
+  saveCanvasSidecarBySrc(input: SaveCanvasSidecarBySrcInput): Promise<SaveCanvasSidecarBySrcResult>;
   createCanvasSidecar(input: CreateCanvasSidecarInput): Promise<CreateCanvasSidecarResult>;
   deleteCanvasSidecar(input: DeleteCanvasSidecarInput): Promise<DeleteCanvasSidecarResult>;
   saveSequenceSidecar(input: SaveSequenceSidecarInput): Promise<SaveSequenceSidecarResult>;
@@ -537,6 +541,7 @@ export function createDocsStore(docsRoot: string): DocsStore {
     uploadAsset: (input) => uploadDocAsset(root, input),
     uploadVideoAsset: (input) => uploadDocVideoAsset(root, input),
     saveCanvasSidecar: (input) => saveCanvasSidecar(root, input),
+    saveCanvasSidecarBySrc: (input) => saveCanvasSidecarBySrc(root, input),
     createCanvasSidecar: (input) => createCanvasSidecar(root, input),
     deleteCanvasSidecar: (input) => deleteCanvasSidecar(root, input),
     saveSequenceSidecar: (input) => saveSequenceSidecar(root, input),

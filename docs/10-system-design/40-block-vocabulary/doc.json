@@ -1,123 +1,50 @@
 {
   "schemaVersion": 1,
   "id": "10-system-design-10-block-vocabulary",
-  "title": "Block vocabulary — overview",
-  "root": "b-00-vocab-overview-root",
+  "title": "Block vocabulary",
+  "root": "b-vocab-ov-root",
   "blocks": {
-    "b-00-vocab-overview-root": {
-      "id": "b-00-vocab-overview-root",
+    "b-vocab-ov-root": {
+      "id": "b-vocab-ov-root",
       "type": "paragraph",
       "props": {},
       "children": [
-        "b-00-vocab-overview-title-1",
-        "b-00-vocab-overview-lead-2",
-        "b-00-vocab-overview-fourteen-3",
-        "b-00-vocab-overview-doctrine-intro-4",
-        "b-00-vocab-overview-doctrine-5",
-        "b-00-vocab-overview-flavour-history-6",
-        "b-00-vocab-overview-coercion-7",
-        "b-00-vocab-overview-groups-h-8",
-        "b-00-vocab-overview-groups-model-9",
-        "b-00-vocab-overview-groups-pages-10",
-        "b-00-vocab-overview-index-h-11",
-        "b-00-vocab-overview-index-12",
-        "b-00-vocab-overview-pages-intro-13",
-        "b-00-vocab-overview-pages-rich-14",
-        "b-00-vocab-overview-pages-object-15",
-        "b-00-vocab-overview-pages-media-16",
-        "b-00-vocab-overview-refpage-h-19",
-        "b-00-vocab-overview-refpage-intro-20",
-        "b-00-vocab-overview-refpage-lead-21",
-        "b-00-vocab-overview-refpage-example-22",
-        "b-00-vocab-overview-refpage-state-23",
-        "b-00-vocab-overview-refpage-actions-24",
-        "b-00-vocab-overview-refpage-renderers-25",
-        "b-00-vocab-overview-refpage-agent-26",
-        "b-00-vocab-overview-refpage-theming-27",
-        "b-00-vocab-overview-actions-h-17",
-        "b-00-vocab-overview-actions-18"
+        "b-vocab-ov-opener",
+        "b-vocab-ov-cap",
+        "b-vocab-ov-doctrine-intro",
+        "b-vocab-ov-doctrine",
+        "b-vocab-ov-types-h",
+        "b-vocab-ov-types-table",
+        "b-vocab-ov-fam-h",
+        "b-vocab-ov-fam-rich",
+        "b-vocab-ov-fam-code",
+        "b-vocab-ov-fam-table",
+        "b-vocab-ov-fam-tree",
+        "b-vocab-ov-fam-state",
+        "b-vocab-ov-fam-surface",
+        "b-vocab-ov-fam-sequence",
+        "b-vocab-ov-fam-canvas",
+        "b-vocab-ov-fam-waterfall",
+        "b-vocab-ov-skel-h",
+        "b-vocab-ov-skel-intro",
+        "b-vocab-ov-skel-opener",
+        "b-vocab-ov-skel-contract",
+        "b-vocab-ov-skel-depth"
       ]
     },
-    "b-00-vocab-overview-title-1": {
-      "id": "b-00-vocab-overview-title-1",
-      "type": "heading",
-      "props": {
-        "level": 1
-      },
-      "text": [
-        {
-          "insert": "Block vocabulary"
-        }
-      ],
-      "children": []
-    },
-    "b-00-vocab-overview-lead-2": {
-      "id": "b-00-vocab-overview-lead-2",
+    "b-vocab-ov-opener": {
+      "id": "b-vocab-ov-opener",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "These docs are written primarily for "
-        },
-        {
-          "insert": "agents",
-          "attributes": {
-            "bold": true
-          }
-        },
-        {
-          "insert": " to read. The markdown render ("
-        },
-        {
-          "insert": "projectToMarkdown",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " in docs-model, driving the "
-        },
-        {
-          "insert": "docs render",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " / "
-        },
-        {
-          "insert": "docs grep",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " CLI and the backend "
-        },
-        {
-          "insert": "GET /api/markdown",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ") is the agent surface: every block type defines a deterministic, greppable markdown form, so an agent never has to parse "
-        },
-        {
-          "insert": "doc.json",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " just to read a document. The workbench renders the human view from the same blocks."
+          "insert": "Every block type defines two forms of itself: a rich component in the workbench and a deterministic, greppable markdown form on the agent surface. The vocabulary is the set of sixteen types both renders speak, grouped into nine component families. These pages are the per-family reference."
         }
       ],
       "children": []
     },
-    "b-00-vocab-overview-fourteen-3": {
-      "id": "b-00-vocab-overview-fourteen-3",
+    "b-vocab-ov-cap": {
+      "id": "b-vocab-ov-cap",
       "type": "callout",
       "props": {
         "kind": "Decision",
@@ -126,7 +53,7 @@
       },
       "text": [
         {
-          "insert": "The author surface stays deliberately minimal. The source of truth is "
+          "insert": "The source of truth is "
         },
         {
           "insert": "DOC_BLOCK_TYPES",
@@ -140,7 +67,11 @@
         {
           "insert": "doc-schema.ts",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/doc-schema.ts"
+            }
           }
         },
         {
@@ -149,8 +80,8 @@
       ],
       "children": []
     },
-    "b-00-vocab-overview-doctrine-intro-4": {
-      "id": "b-00-vocab-overview-doctrine-intro-4",
+    "b-vocab-ov-doctrine-intro": {
+      "id": "b-vocab-ov-doctrine-intro",
       "type": "paragraph",
       "props": {},
       "text": [
@@ -160,8 +91,8 @@
       ],
       "children": []
     },
-    "b-00-vocab-overview-doctrine-5": {
-      "id": "b-00-vocab-overview-doctrine-5",
+    "b-vocab-ov-doctrine": {
+      "id": "b-vocab-ov-doctrine",
       "type": "quote",
       "props": {},
       "text": [
@@ -171,411 +102,161 @@
       ],
       "children": []
     },
-    "b-00-vocab-overview-flavour-history-6": {
-      "id": "b-00-vocab-overview-flavour-history-6",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "Naming history, in one line: a block's kind field is "
-        },
-        {
-          "insert": "type",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " — the BlockSuite-heritage key "
-        },
-        {
-          "insert": "flavour",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " went through a full wire-format rename and survives only as a READ alias that validation normalizes into "
-        },
-        {
-          "insert": "type",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "; writes always emit canonical "
-        },
-        {
-          "insert": "type",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "."
-        }
-      ],
-      "children": []
-    },
-    "b-00-vocab-overview-coercion-7": {
-      "id": "b-00-vocab-overview-coercion-7",
-      "type": "callout",
-      "props": {
-        "kind": "Decision",
-        "title": "Retired types never break a corpus",
-        "tone": "decision"
-      },
-      "text": [
-        {
-          "insert": "Validation never rejects a retired or unknown block type. After legacy "
-        },
-        {
-          "insert": "flavour",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " aliasing, any block whose type is a string but not one of the 16 canonical types coerces to a "
-        },
-        {
-          "insert": "callout",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "10-system-design/40-block-vocabulary/10-rich-text/14-callout"
-            }
-          }
-        },
-        {
-          "insert": ", preserving the old type name as "
-        },
-        {
-          "insert": "props.kind",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " (unless the block already carries its own non-empty "
-        },
-        {
-          "insert": "kind",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "); props, text, and children carry over verbatim. That is how the canvas sibling's semantic cards (requirement, decision, constraint, ...) load with zero file rewrites — coerced blocks simply canonicalize on their next save."
-        }
-      ],
-      "children": []
-    },
-    "b-00-vocab-overview-groups-h-8": {
-      "id": "b-00-vocab-overview-groups-h-8",
+    "b-vocab-ov-types-h": {
+      "id": "b-vocab-ov-types-h",
       "type": "heading",
       "props": {
         "level": 2
       },
       "text": [
         {
-          "insert": "Three groups, nine components"
+          "insert": "The Sixteen Types"
         }
       ],
       "children": []
     },
-    "b-00-vocab-overview-groups-model-9": {
-      "id": "b-00-vocab-overview-groups-model-9",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "The model has no runtime category constant — the grouping lives in two places. First, "
-        },
-        {
-          "insert": "DOC_BLOCK_TYPES",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " declares the sixteen types in three commented groups: "
-        },
-        {
-          "insert": "core text & structure",
-          "attributes": {
-            "italic": true
-          }
-        },
-        {
-          "insert": " (paragraph, heading, list-item, quote, code, callout, divider), "
-        },
-        {
-          "insert": "structured / engineering",
-          "attributes": {
-            "italic": true
-          }
-        },
-        {
-          "insert": " (structured-table, file-tree, interaction-surface, state-shape), and "
-        },
-        {
-          "insert": "diagram & media",
-          "attributes": {
-            "italic": true
-          }
-        },
-        {
-          "insert": " (mermaid, canvas, sequence, image, video). Second, nine component bundles in "
-        },
-        {
-          "insert": "components/<name>/",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " own the sixteen types exactly once: rich-text owns the eight text-flow types (including image and video), while code, mermaid, file-tree, structured-table, interaction-surface, state-shape, canvas, and sequence each own their namesake."
-        }
-      ],
-      "children": []
-    },
-    "b-00-vocab-overview-groups-pages-10": {
-      "id": "b-00-vocab-overview-groups-pages-10",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "These pages file the types on a third, reader-facing axis that follows the folder numbering: the 10s are the "
-        },
-        {
-          "insert": "rich-text blocks",
-          "attributes": {
-            "bold": true
-          }
-        },
-        {
-          "insert": " (the seven core text & structure types), the 20s are the "
-        },
-        {
-          "insert": "object blocks",
-          "attributes": {
-            "bold": true
-          }
-        },
-        {
-          "insert": " (typed-props state carriers: the structured / engineering four plus mermaid, sequence, and canvas), and the 30s are the "
-        },
-        {
-          "insert": "media blocks",
-          "attributes": {
-            "bold": true
-          }
-        },
-        {
-          "insert": " (image and video). Same sixteen types, sliced by how an agent edits them: rich-text blocks edit through delta text, object blocks through typed props and actions, media blocks through asset references."
-        }
-      ],
-      "children": []
-    },
-    "b-00-vocab-overview-index-h-11": {
-      "id": "b-00-vocab-overview-index-h-11",
-      "type": "heading",
-      "props": {
-        "level": 2
-      },
-      "text": [
-        {
-          "insert": "The 16 block types"
-        }
-      ],
-      "children": []
-    },
-    "b-00-vocab-overview-index-12": {
-      "id": "b-00-vocab-overview-index-12",
+    "b-vocab-ov-types-table": {
+      "id": "b-vocab-ov-types-table",
       "type": "structured-table",
       "props": {
         "columns": [
           "type",
-          "group",
-          "component",
+          "family",
           "purpose"
         ],
         "rows": [
           [
             "paragraph",
-            "rich text",
             "rich-text",
             "Rich text prose (delta spans); the default block."
           ],
           [
             "heading",
-            "rich text",
             "rich-text",
             "Section heading; props.level picks h1-h6 (default 2)."
           ],
           [
             "list-item",
-            "rich text",
             "rich-text",
             "Bullet (or ordered) item; nesting via child list-item blocks."
           ],
           [
             "quote",
-            "rich text",
             "rich-text",
             "A block quote of rich text."
           ],
           [
-            "code",
-            "rich text",
-            "code",
-            "Source code in text; props.language plus optional props.annotations side notes."
-          ],
-          [
             "callout",
-            "rich text",
             "rich-text",
             "Highlighted note; props.tone colors it, free-form props.kind labels the chip."
           ],
           [
             "divider",
-            "rich text",
             "rich-text",
             "A horizontal rule separating sections."
           ],
           [
-            "structured-table",
-            "object",
-            "structured-table",
-            "Typed table from props.columns (string[]) and props.rows (string[][])."
-          ],
-          [
-            "file-tree",
-            "object",
-            "file-tree",
-            "Rendered tree of props.entries: { path, note?, change?, from? }."
-          ],
-          [
-            "interaction-surface",
-            "object",
-            "interaction-surface",
-            "Operation signatures ({ name, description?, params?, returns?, kind? }) describing how a system is changed or queried."
-          ],
-          [
-            "state-shape",
-            "object",
-            "state-shape",
-            "Recursive field tree ({ name, type?, required?, description?, fields? }) describing the shape of a structure's state; optional source link."
-          ],
-          [
-            "mermaid",
-            "object",
-            "mermaid",
-            "Mermaid diagram; the source lives in the block's text."
-          ],
-          [
-            "canvas",
-            "object",
-            "canvas",
-            "Embedded interactive canvas; props.canvasId (or legacy src) plus an optional view crop."
-          ],
-          [
-            "sequence",
-            "object",
-            "sequence",
-            "UML-style sequence diagram; props.src (or sequenceId) points at a SequenceDocument, optional props.title."
-          ],
-          [
             "image",
-            "media",
             "rich-text",
             "Image from the bundle's assets/images/; props: src, alt, caption."
           ],
           [
             "video",
-            "media",
             "rich-text",
             "Bundle video (src) or external URL (url); YouTube/Vimeo/Loom embed privacy-friendly players."
+          ],
+          [
+            "code",
+            "code",
+            "Source code in text; props.language plus optional props.annotations side notes."
+          ],
+          [
+            "structured-table",
+            "structured-table",
+            "Typed table from props.columns (string[]) and props.rows (string[][])."
+          ],
+          [
+            "file-tree",
+            "file-tree",
+            "Rendered tree of props.entries: { path, note?, change?, from? }."
+          ],
+          [
+            "state-shape",
+            "state-shape",
+            "Recursive field tree ({ name, type?, required?, description?, fields? }) describing the shape of a structure's state; optional source link."
+          ],
+          [
+            "interaction-surface",
+            "interaction-surface",
+            "Operation signatures ({ name, description?, params?, returns?, kind? }) describing how a system is changed or queried."
+          ],
+          [
+            "sequence",
+            "sequence",
+            "UML-style sequence diagram; props.src (or sequenceId) points at a SequenceDocument, optional props.title."
+          ],
+          [
+            "canvas",
+            "canvas",
+            "Embedded interactive canvas; props.canvasId (or legacy src) plus an optional view crop."
+          ],
+          [
+            "waterfall",
+            "waterfall",
+            "Process-flow waterfall; props.source holds the arrow-tree notation text, optional props.title."
           ]
         ]
       },
       "children": []
     },
-    "b-00-vocab-overview-pages-intro-13": {
-      "id": "b-00-vocab-overview-pages-intro-13",
-      "type": "paragraph",
-      "props": {},
+    "b-vocab-ov-fam-h": {
+      "id": "b-vocab-ov-fam-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
       "text": [
         {
-          "insert": "Each type has its own reference page:"
+          "insert": "The Families"
         }
       ],
       "children": []
     },
-    "b-00-vocab-overview-pages-rich-14": {
-      "id": "b-00-vocab-overview-pages-rich-14",
+    "b-vocab-ov-fam-rich": {
+      "id": "b-vocab-ov-fam-rich",
       "type": "list-item",
       "props": {},
       "text": [
         {
-          "insert": "Rich text (10s):",
-          "attributes": {
-            "bold": true
-          }
-        },
-        {
-          "insert": " "
-        },
-        {
-          "insert": "paragraph",
+          "insert": "Rich text",
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "10-system-design/40-block-vocabulary/10-rich-text/10-paragraph"
+              "path": "10-system-design/40-block-vocabulary/10-rich-text"
             }
           }
-        },
+        }
+      ],
+      "children": [
+        "b-vocab-ov-fam-rich-types"
+      ]
+    },
+    "b-vocab-ov-fam-rich-types": {
+      "id": "b-vocab-ov-fam-rich-types",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
-          "insert": " · "
-        },
-        {
-          "insert": "heading",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "10-system-design/40-block-vocabulary/10-rich-text/11-heading"
-            }
-          }
-        },
-        {
-          "insert": " · "
-        },
-        {
-          "insert": "list-item",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "10-system-design/40-block-vocabulary/10-rich-text/12-list-item"
-            }
-          }
-        },
-        {
-          "insert": " · "
-        },
-        {
-          "insert": "quote",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "10-system-design/40-block-vocabulary/10-rich-text/13-quote"
-            }
-          }
-        },
-        {
-          "insert": " · "
-        },
+          "insert": "paragraph · heading · list-item · quote · callout · divider · image · video"
+        }
+      ],
+      "children": []
+    },
+    "b-vocab-ov-fam-code": {
+      "id": "b-vocab-ov-fam-code",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
           "insert": "code",
           "attributes": {
@@ -584,48 +265,15 @@
               "path": "10-system-design/40-block-vocabulary/20-code-block"
             }
           }
-        },
-        {
-          "insert": " · "
-        },
-        {
-          "insert": "callout",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "10-system-design/40-block-vocabulary/10-rich-text/14-callout"
-            }
-          }
-        },
-        {
-          "insert": " · "
-        },
-        {
-          "insert": "divider",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "10-system-design/40-block-vocabulary/10-rich-text/15-divider"
-            }
-          }
         }
       ],
       "children": []
     },
-    "b-00-vocab-overview-pages-object-15": {
-      "id": "b-00-vocab-overview-pages-object-15",
+    "b-vocab-ov-fam-table": {
+      "id": "b-vocab-ov-fam-table",
       "type": "list-item",
       "props": {},
       "text": [
-        {
-          "insert": "Object (20s):",
-          "attributes": {
-            "bold": true
-          }
-        },
-        {
-          "insert": " "
-        },
         {
           "insert": "structured-table",
           "attributes": {
@@ -634,10 +282,15 @@
               "path": "10-system-design/40-block-vocabulary/30-structured-table"
             }
           }
-        },
-        {
-          "insert": " · "
-        },
+        }
+      ],
+      "children": []
+    },
+    "b-vocab-ov-fam-tree": {
+      "id": "b-vocab-ov-fam-tree",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
           "insert": "file-tree",
           "attributes": {
@@ -646,10 +299,15 @@
               "path": "10-system-design/40-block-vocabulary/40-file-tree"
             }
           }
-        },
-        {
-          "insert": " · "
-        },
+        }
+      ],
+      "children": []
+    },
+    "b-vocab-ov-fam-state": {
+      "id": "b-vocab-ov-fam-state",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
           "insert": "state-shape",
           "attributes": {
@@ -658,10 +316,15 @@
               "path": "10-system-design/40-block-vocabulary/50-state-shape"
             }
           }
-        },
-        {
-          "insert": " · "
-        },
+        }
+      ],
+      "children": []
+    },
+    "b-vocab-ov-fam-surface": {
+      "id": "b-vocab-ov-fam-surface",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
           "insert": "interaction-surface",
           "attributes": {
@@ -670,10 +333,15 @@
               "path": "10-system-design/40-block-vocabulary/60-interaction-surface"
             }
           }
-        },
-        {
-          "insert": " · "
-        },
+        }
+      ],
+      "children": []
+    },
+    "b-vocab-ov-fam-sequence": {
+      "id": "b-vocab-ov-fam-sequence",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
           "insert": "sequence",
           "attributes": {
@@ -682,10 +350,15 @@
               "path": "10-system-design/40-block-vocabulary/70-sequence"
             }
           }
-        },
-        {
-          "insert": " · "
-        },
+        }
+      ],
+      "children": []
+    },
+    "b-vocab-ov-fam-canvas": {
+      "id": "b-vocab-ov-fam-canvas",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
           "insert": "canvas",
           "attributes": {
@@ -698,255 +371,160 @@
       ],
       "children": []
     },
-    "b-00-vocab-overview-pages-media-16": {
-      "id": "b-00-vocab-overview-pages-media-16",
+    "b-vocab-ov-fam-waterfall": {
+      "id": "b-vocab-ov-fam-waterfall",
       "type": "list-item",
       "props": {},
       "text": [
         {
-          "insert": "Media (30s):",
-          "attributes": {
-            "bold": true
-          }
-        },
-        {
-          "insert": " "
-        },
-        {
-          "insert": "image",
+          "insert": "waterfall",
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "10-system-design/40-block-vocabulary/10-rich-text/16-image"
-            }
-          }
-        },
-        {
-          "insert": " · "
-        },
-        {
-          "insert": "video",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "10-system-design/40-block-vocabulary/10-rich-text/17-video"
+              "path": "10-system-design/40-block-vocabulary/90-waterfall"
             }
           }
         }
       ],
       "children": []
     },
-    "b-00-vocab-overview-refpage-h-19": {
-      "id": "b-00-vocab-overview-refpage-h-19",
+    "b-vocab-ov-skel-h": {
+      "id": "b-vocab-ov-skel-h",
       "type": "heading",
       "props": {
         "level": 2
       },
       "text": [
         {
-          "insert": "Reference page structure"
+          "insert": "Page Structure"
         }
       ],
       "children": []
     },
-    "b-00-vocab-overview-refpage-intro-20": {
-      "id": "b-00-vocab-overview-refpage-intro-20",
+    "b-vocab-ov-skel-intro": {
+      "id": "b-vocab-ov-skel-intro",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "Every type page follows one section order:"
+          "insert": "Every family page follows one skeleton; the deep story of how a component operates lives on the family's own page, not here."
         }
       ],
       "children": []
     },
-    "b-00-vocab-overview-refpage-lead-21": {
-      "id": "b-00-vocab-overview-refpage-lead-21",
+    "b-vocab-ov-skel-opener": {
+      "id": "b-vocab-ov-skel-opener",
       "type": "list-item",
       "props": {},
       "text": [
         {
-          "insert": "Lead",
+          "insert": "Opener",
           "attributes": {
             "bold": true
           }
-        },
-        {
-          "insert": " — opening paragraphs, no heading: what the block is and its doctrine position."
         }
       ],
-      "children": []
+      "children": [
+        "b-vocab-ov-skel-opener-sub"
+      ]
     },
-    "b-00-vocab-overview-refpage-example-22": {
-      "id": "b-00-vocab-overview-refpage-example-22",
+    "b-vocab-ov-skel-opener-sub": {
+      "id": "b-vocab-ov-skel-opener-sub",
       "type": "list-item",
       "props": {},
       "text": [
         {
-          "insert": "Example",
-          "attributes": {
-            "bold": true
-          }
-        },
-        {
-          "insert": " — a live block of the documented type."
+          "insert": "What the family is and which types it owns."
         }
       ],
       "children": []
     },
-    "b-00-vocab-overview-refpage-state-23": {
-      "id": "b-00-vocab-overview-refpage-state-23",
+    "b-vocab-ov-skel-contract": {
+      "id": "b-vocab-ov-skel-contract",
       "type": "list-item",
       "props": {},
       "text": [
         {
-          "insert": "State",
+          "insert": "Six contract sections",
           "attributes": {
             "bold": true
           }
-        },
-        {
-          "insert": " — the state structure: shape, props, "
-        },
-        {
-          "insert": "carriesText",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "."
         }
       ],
-      "children": []
+      "children": [
+        "b-vocab-ov-skel-contract-sub1",
+        "b-vocab-ov-skel-contract-sub2"
+      ]
     },
-    "b-00-vocab-overview-refpage-actions-24": {
-      "id": "b-00-vocab-overview-refpage-actions-24",
+    "b-vocab-ov-skel-contract-sub1": {
+      "id": "b-vocab-ov-skel-contract-sub1",
       "type": "list-item",
       "props": {},
       "text": [
         {
-          "insert": "Typed actions",
-          "attributes": {
-            "bold": true
-          }
+          "insert": "One H2 per element of the "
         },
         {
-          "insert": " — the block's action verbs, or one line stating there are none."
-        }
-      ],
-      "children": []
-    },
-    "b-00-vocab-overview-refpage-renderers-25": {
-      "id": "b-00-vocab-overview-refpage-renderers-25",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Renderers",
-          "attributes": {
-            "bold": true
-          }
-        },
-        {
-          "insert": " — the doc renderer first, then the agent markdown projection with its example fence."
-        }
-      ],
-      "children": []
-    },
-    "b-00-vocab-overview-refpage-agent-26": {
-      "id": "b-00-vocab-overview-refpage-agent-26",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Agent notes",
-          "attributes": {
-            "bold": true
-          }
-        },
-        {
-          "insert": " — authoring guidance for agents."
-        }
-      ],
-      "children": []
-    },
-    "b-00-vocab-overview-refpage-theming-27": {
-      "id": "b-00-vocab-overview-refpage-theming-27",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Theming",
-          "attributes": {
-            "bold": true
-          }
-        },
-        {
-          "insert": " — the type's theme surface."
-        }
-      ],
-      "children": []
-    },
-    "b-00-vocab-overview-actions-h-17": {
-      "id": "b-00-vocab-overview-actions-h-17",
-      "type": "heading",
-      "props": {
-        "level": 2
-      },
-      "text": [
-        {
-          "insert": "Typed actions, in one paragraph"
-        }
-      ],
-      "children": []
-    },
-    "b-00-vocab-overview-actions-18": {
-      "id": "b-00-vocab-overview-actions-18",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "Every bundle supplies a manifest, closed TypeBox state schemas with a per-type "
-        },
-        {
-          "insert": "carriesText",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " fact, one file per action verb, and an "
-        },
-        {
-          "insert": "agent-view.ts",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " markdown render. Five bundles expose 17 typed actions — code (2), structured-table (5), file-tree (3), interaction-surface (3), state-shape (4) — canvas forwards 5 more to the external canvas authority, and sequence forwards 3 to the sequence engine. Actions ride the generic op kernel as "
-        },
-        {
-          "insert": "componentAction",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " ops; the kernel, hash preconditions, and undo are the "
-        },
-        {
-          "insert": "mutation model",
+          "insert": "Block design",
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "10-system-design/30-data-model/50-mutation-model"
+              "path": "10-system-design/30-data-model/20-block-design"
             }
           }
         },
         {
-          "insert": "'s story, not this one. The per-type pages document each block's actions where they exist."
+          "insert": " contract: state schema, typed actions, doc renderer, agent renderer, theme, agent adapter."
+        }
+      ],
+      "children": []
+    },
+    "b-vocab-ov-skel-contract-sub2": {
+      "id": "b-vocab-ov-skel-contract-sub2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each section states how that element works for this family."
+        }
+      ],
+      "children": []
+    },
+    "b-vocab-ov-skel-depth": {
+      "id": "b-vocab-ov-skel-depth",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Depth",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-vocab-ov-skel-depth-sub1",
+        "b-vocab-ov-skel-depth-sub2"
+      ]
+    },
+    "b-vocab-ov-skel-depth-sub1": {
+      "id": "b-vocab-ov-skel-depth-sub1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Inline when short; a subpage when deep."
+        }
+      ],
+      "children": []
+    },
+    "b-vocab-ov-skel-depth-sub2": {
+      "id": "b-vocab-ov-skel-depth-sub2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Rich text keeps per-type reference pages as subpages."
         }
       ],
       "children": []

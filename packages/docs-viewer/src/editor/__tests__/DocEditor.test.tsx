@@ -143,6 +143,9 @@ describe("reference chip", () => {
     });
 
     expect(chip.title).toBe("");
+    expect(chip.classList.contains("items-baseline")).toBe(true);
+    expect(chip.classList.contains("items-center")).toBe(false);
+    expect(chip.querySelector("svg")?.classList.contains("self-center")).toBe(true);
     fireEvent.mouseEnter(chip);
     const tooltip = await screen.findByRole("tooltip", {}, { timeout: 200 });
     expect(tooltip.textContent).toBe(path);

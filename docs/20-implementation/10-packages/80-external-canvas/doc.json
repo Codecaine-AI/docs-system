@@ -30,7 +30,7 @@
       },
       "text": [
         {
-          "insert": "external/canvas — a supported neighbor"
+          "insert": "external/canvas — a Supported Neighbor"
         }
       ],
       "children": []
@@ -67,7 +67,7 @@
       },
       "text": [
         {
-          "insert": "How it is wired in"
+          "insert": "How It Is Wired In"
         }
       ],
       "children": []
@@ -122,7 +122,7 @@
       },
       "text": [
         {
-          "insert": "Why it lives under external/, not packages/"
+          "insert": "Why It Lives Under External/, Not Packages/"
         }
       ],
       "children": []
@@ -163,7 +163,7 @@
       },
       "text": [
         {
-          "insert": "Where the docs system touches it"
+          "insert": "Where the Docs System Touches It"
         }
       ],
       "children": []

@@ -46,13 +46,14 @@
         "b-rtfam-actions-note-33",
         "b-rtfam-renderers-h-34",
         "b-rtfam-renderers-doc-35",
-        "b-20-rich-text-bridges-14",
+        "b-rtfam-agentrender-h-40",
         "b-20-rich-text-bridges-out-15",
         "b-20-rich-text-bridges-in-16",
-        "b-rtfam-agent-h-36",
         "b-rtfam-agent-note-37",
         "b-rtfam-theming-h-38",
-        "b-rich-text-overview-theming-note-12"
+        "b-rich-text-overview-theming-note-12",
+        "b-rtfam-adapter-h-41",
+        "b-rtfam-adapter-p-42"
       ]
     },
     "b-rich-text-overview-intro-2": {
@@ -87,7 +88,10 @@
         {
           "insert": "paragraph",
           "attributes": {
-            "code": true
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/10-rich-text/10-paragraph"
+            }
           }
         }
       ],
@@ -114,7 +118,10 @@
         {
           "insert": "heading",
           "attributes": {
-            "code": true
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/10-rich-text/11-heading"
+            }
           }
         }
       ],
@@ -141,7 +148,10 @@
         {
           "insert": "list-item",
           "attributes": {
-            "code": true
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/10-rich-text/12-list-item"
+            }
           }
         }
       ],
@@ -168,7 +178,10 @@
         {
           "insert": "quote",
           "attributes": {
-            "code": true
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/10-rich-text/13-quote"
+            }
           }
         }
       ],
@@ -195,7 +208,10 @@
         {
           "insert": "callout",
           "attributes": {
-            "code": true
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/10-rich-text/14-callout"
+            }
           }
         }
       ],
@@ -222,7 +238,10 @@
         {
           "insert": "divider",
           "attributes": {
-            "code": true
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/10-rich-text/15-divider"
+            }
           }
         }
       ],
@@ -249,7 +268,10 @@
         {
           "insert": "image",
           "attributes": {
-            "code": true
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/10-rich-text/16-image"
+            }
           }
         }
       ],
@@ -276,7 +298,10 @@
         {
           "insert": "video",
           "attributes": {
-            "code": true
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/10-rich-text/17-video"
+            }
           }
         }
       ],
@@ -327,7 +352,7 @@
       },
       "text": [
         {
-          "insert": "A level-3 heading"
+          "insert": "A level-3 Heading"
         }
       ],
       "children": []
@@ -463,7 +488,7 @@
       },
       "text": [
         {
-          "insert": "State"
+          "insert": "State Schema"
         }
       ],
       "children": []
@@ -495,16 +520,16 @@
             "note": "link is the external URL mark on the span that carries it."
           },
           {
-            "lines": "11-15",
+            "lines": "11-14",
             "label": "Reference chip",
-            "note": "reference carries the shared SpectreRef identity for doc mentions and canvas links alike: kind is doc or source, path is corpus-relative, and label is display text."
+            "note": "reference carries the shared SpectreRef identity for doc mentions and canvas links alike: kind is doc or source, path is corpus-relative. The span's insert is the display text."
           }
         ],
         "language": "json"
       },
       "text": [
         {
-          "insert": "[\n  { \"insert\": \"Read \" },\n  { \"insert\": \"doc.json\", \"attributes\": { \"code\": true } },\n  { \"insert\": \" with \" },\n  { \"insert\": \"stable anchors\", \"attributes\": { \"bold\": true, \"italic\": true } },\n  { \"insert\": \" and a link\", \"attributes\": { \"link\": \"https://example.com/docs\" } },\n  { \"insert\": \" to \" },\n  {\n    \"insert\": \"the block vocabulary\",\n    \"attributes\": {\n      \"reference\": {\n        \"kind\": \"doc\",\n        \"path\": \"10-system-design/40-block-vocabulary\",\n        \"label\": \"the block vocabulary\"\n      }\n    }\n  },\n  { \"insert\": \".\" }\n]"
+          "insert": "[\n  { \"insert\": \"Read \" },\n  { \"insert\": \"doc.json\", \"attributes\": { \"code\": true } },\n  { \"insert\": \" with \" },\n  { \"insert\": \"stable anchors\", \"attributes\": { \"bold\": true, \"italic\": true } },\n  { \"insert\": \" and a link\", \"attributes\": { \"link\": \"https://example.com/docs\" } },\n  { \"insert\": \" to \" },\n  {\n    \"insert\": \"the block vocabulary\",\n    \"attributes\": {\n      \"reference\": {\n        \"kind\": \"doc\",\n        \"path\": \"10-system-design/40-block-vocabulary\"\n      }\n    }\n  },\n  { \"insert\": \".\" }\n]"
         }
       ],
       "children": []
@@ -517,7 +542,7 @@
       },
       "text": [
         {
-          "insert": "The four marks"
+          "insert": "The Four Marks"
         }
       ],
       "children": []
@@ -617,7 +642,7 @@
       },
       "text": [
         {
-          "insert": "Links and reference chips"
+          "insert": "Links and Reference Chips"
         }
       ],
       "children": []
@@ -656,7 +681,7 @@
       },
       "text": [
         {
-          "insert": "SpectreRef — the shared reference identity"
+          "insert": "SpectreRef — the Shared Reference Identity"
         }
       ],
       "children": []
@@ -679,7 +704,7 @@
           {
             "lines": "4-6",
             "label": "Optional precision",
-            "note": "symbol, line, and section narrow the target; label is the display text the chip shows."
+            "note": "symbol, line, and section narrow the target."
           }
         ],
         "language": "json"
@@ -754,7 +779,7 @@
       },
       "text": [
         {
-          "insert": "Which types carry text"
+          "insert": "Which Types Carry Text"
         }
       ],
       "children": []
@@ -783,15 +808,6 @@
           }
         },
         {
-          "insert": " and "
-        },
-        {
-          "insert": "sequence",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
           "insert": " the delta text is the source payload, and marks are not meaningful there."
         }
       ],
@@ -815,12 +831,12 @@
           ],
           [
             "true",
-            "code, sequence",
-            "Source payload: the fenced code body or diagram source; spans are plain inserts."
+            "code",
+            "Source payload: the fenced code body; spans are plain inserts."
           ],
           [
             "false",
-            "divider, image, video, structured-table, file-tree, interaction-surface, canvas",
+            "divider, image, video, structured-table, file-tree, state-shape, interaction-surface, sequence, canvas",
             "No text key; all state lives in typed props."
           ]
         ],
@@ -836,7 +852,7 @@
       },
       "text": [
         {
-          "insert": "Typed actions"
+          "insert": "Typed Actions"
         }
       ],
       "children": []
@@ -869,7 +885,7 @@
       },
       "text": [
         {
-          "insert": "Renderers"
+          "insert": "Doc Renderer"
         }
       ],
       "children": []
@@ -898,15 +914,15 @@
       ],
       "children": []
     },
-    "b-20-rich-text-bridges-14": {
-      "id": "b-20-rich-text-bridges-14",
+    "b-rtfam-agentrender-h-40": {
+      "id": "b-rtfam-agentrender-h-40",
       "type": "heading",
       "props": {
-        "level": 3
+        "level": 2
       },
       "text": [
         {
-          "insert": "Markdown bridges"
+          "insert": "Agent Renderer"
         }
       ],
       "children": []
@@ -982,26 +998,13 @@
       ],
       "children": []
     },
-    "b-rtfam-agent-h-36": {
-      "id": "b-rtfam-agent-h-36",
-      "type": "heading",
-      "props": {
-        "level": 2
-      },
-      "text": [
-        {
-          "insert": "Agent notes"
-        }
-      ],
-      "children": []
-    },
     "b-rtfam-agent-note-37": {
       "id": "b-rtfam-agent-note-37",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "Family-wide agent guidance is the markdown bridge above; per-type agent notes live on each type page."
+          "insert": "Per-type agent guidance lives on each type page."
         }
       ],
       "children": []
@@ -1014,7 +1017,7 @@
       },
       "text": [
         {
-          "insert": "Theming"
+          "insert": "Theme"
         }
       ],
       "children": []
@@ -1025,7 +1028,55 @@
       "props": {},
       "text": [
         {
-          "insert": "Each type has its own theme file (see the Theming section at the end of every type doc, and 20-implementation/40-theming for the system)."
+          "insert": "Each type has its own theme file — see the Theme section on every type page, and "
+        },
+        {
+          "insert": "Theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/40-theming"
+            }
+          }
+        },
+        {
+          "insert": " for the system."
+        }
+      ],
+      "children": []
+    },
+    "b-rtfam-adapter-h-41": {
+      "id": "b-rtfam-adapter-h-41",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent Adapter"
+        }
+      ],
+      "children": []
+    },
+    "b-rtfam-adapter-p-42": {
+      "id": "b-rtfam-adapter-p-42",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The family uses the default adapter: no agent of its own. Edits arrive as generic ops over blocks and delta text; nothing forwards to an external authority. The contract is "
+        },
+        {
+          "insert": "Agent adapter",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/60-agent-adapter"
+            }
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []

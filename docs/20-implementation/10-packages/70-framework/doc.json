@@ -29,7 +29,7 @@
       },
       "text": [
         {
-          "insert": "framework — the loadable skill"
+          "insert": "Framework — the Loadable Skill"
         }
       ],
       "children": []
@@ -59,7 +59,7 @@
       },
       "text": [
         {
-          "insert": "What it owns"
+          "insert": "What It Owns"
         }
       ],
       "children": []
@@ -105,7 +105,7 @@
       },
       "text": [
         {
-          "insert": "What it deliberately does not own"
+          "insert": "What It Deliberately Does Not Own"
         }
       ],
       "children": []
@@ -153,7 +153,7 @@
       },
       "text": [
         {
-          "insert": "Why it is a package at all"
+          "insert": "Why It Is a Package at All"
         }
       ],
       "children": []

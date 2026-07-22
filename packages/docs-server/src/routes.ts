@@ -13,7 +13,7 @@ import {
   resolveCanvasSidecarRootRelativePath,
   resolveSequenceSidecarRootRelativePath,
 } from "./confine";
-import { validateCanvasPayload } from "./canvas-sidecar";
+import { listCanvasSidecars, validateCanvasPayload } from "./canvas-sidecar";
 import { validateSequencePayload } from "./sequence-sidecar";
 import type { DocsChangeEvent } from "./docs-events";
 import { isValidThemeId, listRepoThemes, readRepoTheme, themesRootFor, writeRepoTheme } from "./themes";
@@ -33,6 +33,19 @@ import { isValidThemeId, listRepoThemes, readRepoTheme, themesRootFor, writeRepo
 const BLOCKS_DISCOVERY = buildBlocksDiscovery();
 
 /**
+ * Permissive dev CORS. This server is a LOCAL DEV TOOL serving a repo on the
+ * developer's own machine; cross-origin editor SPAs (e.g. Canvas Studio, a
+ * separate Vite app on another port) call `/api/*` directly, so every origin
+ * is allowed to read and write. Do not ship this policy on anything exposed
+ * beyond localhost.
+ */
+const CORS_HEADERS = {
+  "access-control-allow-origin": "*",
+  "access-control-allow-methods": "GET, PUT, POST, DELETE, OPTIONS",
+  "access-control-allow-headers": "Content-Type",
+} as const;
+
+/**
  * `createDocsRoutes(store)` — the full docs read+write HTTP surface as an
  * Elysia plugin, mounted under `/api/*`. Read routes keep the exact
  * paths/response shapes the standalone read-only serve app exposed; write
@@ -45,6 +58,7 @@ const BLOCKS_DISCOVERY = buildBlocksDiscovery();
  *   GET  /api/bundle?path=                  -> { path, document_path, doc, doc_hash, annotations, annotations_hash }
  *   GET  /api/markdown?path=                -> { markdown }
  *   GET  /api/canvas?src=                   -> { canvas_path, canvas_document_path, content_hash, canvas }
+ *   GET  /api/canvases                      -> { canvases: [{ src, canvas_path, id, title, updated_at }] }
  *   GET  /api/canvas-by-doc?path=&src=      -> doc-relative sidecar read
  *   GET  /api/sequence?src=                 -> { sequence_path, sequence_document_path, content_hash, sequence }
  *   GET  /api/sequence-by-doc?path=&src=    -> doc-relative sequence sidecar read
@@ -65,7 +79,12 @@ const BLOCKS_DISCOVERY = buildBlocksDiscovery();
  *   POST /api/assets/video (multipart)      -> 201 same shape; strict video allowlist, 64MB cap, assets/videos/
  *   POST /api/move                          -> { moved, rewrittenSources, failures }
  *   POST /api/undo                          -> { ok, doc|canvas|sequence, hash } | 404/409
- *   PUT  /api/canvas                        -> save existing doc-relative sidecar | 409/423
+ *   PUT  /api/canvas                        -> save existing sidecar | 409/423. Two body forms:
+ *                                              {path, src, ...} = doc-relative (src resolved against
+ *                                              the referencing doc's directory); {src, ...} with no
+ *                                              path = src-rooted (docs-root-relative src, the form
+ *                                              Canvas Studio saves after GET /api/canvases; response
+ *                                              carries path/document_path as explicit nulls)
  *   POST /api/canvas                        -> 201 create sidecar (+ optional MDX insert) | 409/423
  *   DELETE /api/canvas?path=&src=           -> { path, canvas_path, mdx_content_hash?, deleted }
  *   PUT  /api/sequence                      -> save existing doc-relative sequence sidecar | 409/423
@@ -86,6 +105,18 @@ const BLOCKS_DISCOVERY = buildBlocksDiscovery();
  */
 export function createDocsRoutes(store: DocsStore, options?: { themeLocked?: boolean }) {
   return new Elysia({ name: "docs-server-routes" })
+    // -- dev CORS (see CORS_HEADERS above) -------------------------------------
+    // onRequest runs before routing, so success, validation-error, and 404
+    // responses all carry the headers — verified for both the standalone
+    // plugin and hosts mounting it via .use().
+    .onRequest(({ set }) => {
+      Object.assign(set.headers, CORS_HEADERS);
+    })
+    .options(
+      "/api/*",
+      () => new Response(null, { status: 204, headers: CORS_HEADERS }),
+    )
+
     // -- reads ---------------------------------------------------------------
     .get("/api/tree", async ({ set }) => {
       try {
@@ -168,6 +199,19 @@ export function createDocsRoutes(store: DocsStore, options?: { themeLocked?: boo
       },
       { query: t.Object({ src: t.String({ minLength: 1 }) }) },
     )
+    // Read-only inventory of every addressable canvas sidecar under the docs
+    // root — external canvas editors (Canvas Studio) list canvases here, then
+    // read/save each via GET /api/canvas?src= and PUT /api/canvas.
+    .get("/api/canvases", async ({ set }) => {
+      try {
+        return { canvases: await listCanvasSidecars(store.docsRoot) };
+      } catch (error) {
+        set.status = 500;
+        return {
+          detail: `Failed to scan canvas sidecars: ${error instanceof Error ? error.message : String(error)}`,
+        };
+      }
+    })
     .get(
       "/api/canvas-by-doc",
       async ({ query, set }) => {
@@ -696,17 +740,27 @@ export function createDocsRoutes(store: DocsStore, options?: { themeLocked?: boo
       },
     )
 
-    // -- doc-relative canvas sidecars ------------------------------------------
+    // -- canvas sidecars: PUT save (doc-relative or src-rooted), POST/DELETE doc-relative --
     .put(
       "/api/canvas",
       async ({ body, set }) => {
-        const result = await store.saveCanvasSidecar({
-          docPath: body.path,
-          src: body.src,
-          canvas: body.canvas,
-          originalHash: body.original_hash,
-          sessionId: body.session_id,
-        });
+        // No `path` => src-rooted form: `src` is docs-root-relative, exactly
+        // the value GET /api/canvases lists and GET /api/canvas?src= reads.
+        const result =
+          body.path === undefined
+            ? await store.saveCanvasSidecarBySrc({
+                src: body.src,
+                canvas: body.canvas,
+                originalHash: body.original_hash,
+                sessionId: body.session_id,
+              })
+            : await store.saveCanvasSidecar({
+                docPath: body.path,
+                src: body.src,
+                canvas: body.canvas,
+                originalHash: body.original_hash,
+                sessionId: body.session_id,
+              });
         if (!result.ok) {
           set.status = result.status;
           return {
@@ -720,7 +774,7 @@ export function createDocsRoutes(store: DocsStore, options?: { themeLocked?: boo
       },
       {
         body: t.Object({
-          path: t.String({ minLength: 1 }),
+          path: t.Optional(t.String({ minLength: 1 })),
           src: t.String({ minLength: 1 }),
           original_hash: t.Optional(t.String()),
           canvas: t.Any(),

@@ -1,7 +1,127 @@
 <current_state>
-<last_updated>2026-07-21 (round 2, FOURTH+FIFTH SITTINGS: the doc-by-doc walkthrough rebuilt system design — doc-standards 5 children, translation-layer sectionified, data-model complete (block-design 6 children, annotations rename incl. CODE, serialization, mutation-model split, componentAction rename incl. CODE). Corpus 60. NEXT THREAD: resume walkthrough at 40-block-vocabulary)</last_updated>
+<last_updated>2026-07-21 (round 2, SIXTH SITTING: block-vocabulary walk opened — section overview REWRITTEN from Ford's interview. Corpus 61 ON DISK (brief said 60 — parallel vocab-refpage session landed + committed 3308b4d: family pages restructured 16:45–17:03, 70-sequence in, 60-mermaid page gone, 50-state-shape in). NEXT: per-family contract instantiation, starting 10-rich-text)</last_updated>
 
 <status>
+    - VOCAB OVERVIEW REWRITTEN (2026-07-21, sixth sitting, .tmp/rewrite-
+      vocab-overview.ts): Ford's interview calls — two-renders opener
+      (the "written primarily for agents" audience claim RESOLVED),
+      Decision callout "Fifteen types and no more" (pinned to TARGET
+      state doc-side; code still has 16 types/9 bundles incl. mermaid
+      until the sequence session's retirement lands), doctrine quote
+      KEPT, 15-row type table (type/family/purpose, family order),
+      8-family index matching the real tree (the wrong 10s/20s/30s
+      numbering-axis claim RESOLVED — died with the "Three groups, nine
+      components" section), NEW "Page structure" H2 = the six-H2
+      contract skeleton every family page follows (Opener / six contract
+      sections / depth: inline-or-subpage; Ford: overview stays simple,
+      the family pages explain "extremely deeply how they operate").
+      DROPPED per Ford's keep-question: naming-history line, coercion
+      callout (lives in 10-document-tree), typed-actions paragraph
+      (counts VERIFIED correct against code before removal: 17 actions —
+      code 2 / structured-table 5 / file-tree 3 / interaction-surface 3 /
+      state-shape 4 — canvas forwards 5, sequence forwards 3). Title
+      "Block vocabulary", dup H1 dropped. INTERVIEW ALSO PINNED: family
+      pages get the FIXED SIX-H2 skeleton (state schema / typed actions /
+      doc renderer / agent renderer / theme / agent adapter; short =
+      bullets inline, deep = subpage; rich-text keeps per-type pages as
+      subpages). Pipeline: goldens 61 regen, backlinks 61/183, links 0
+      stale. NOTE: make dev was relaunched this sitting, then the
+      Electron window exited cleanly mid-sitting (someone closed it) —
+      ports 4803/4804 free at close of this step.
+    - RICH-TEXT FAMILY PAGE CONFORMED (2026-07-21, sixth sitting,
+      .tmp/richtext-family-skeleton.ts; Ford's interview — all four
+      recommended options taken): six-H2 skeleton applied (State schema /
+      Typed actions / Doc renderer / Agent renderer / Theme / Agent
+      adapter) — "Markdown bridges" H3 + "Agent notes" H2 folded into
+      Agent renderer, NEW Agent adapter section (default adapter: generic
+      ops, no own agent, ref to block-design/60-agent-adapter); Example
+      section KEPT after the type index (Ford: show the thing first);
+      the 8 type-index bullets now LINK to their per-type subpages;
+      the all-vocabulary carriers table STAYS on this page (rich text =
+      home of the text model). FACT FIXES against code: sequence
+      carriesText is FALSE in sequence/state.ts — moved to the false
+      row, only `code` carries a text payload now; state-shape added to
+      the false row (was missing); stale ref `label` removed from the
+      delta-spans example + two annotation notes (the span's insert is
+      the display text); theming pointer became a real doc ref.
+      Pipeline: goldens 61, backlinks 62/193 (the +1 source is a new
+      untracked translation-layer/assets/ dir from a parallel thread —
+      not this session's), links 0 stale. Walk next: the 8 rich-text
+      type pages (10-paragraph … 17-video), then 20-code-block onward.
+    - TITLE CASE HEADINGS (2026-07-21, Ford's directive at the type-page
+      interview: "first letter of each word in the header capitalized…
+      generally I want this writing style set up like that"):
+      writingstyle.md Structure section gained the rule — headings are
+      Title Case, minor words (a an and as at but by for in nor of on or
+      per the to via vs — mirrors docTitleFromPath's MINOR_WORDS) stay
+      lowercase mid-heading, only a word's FIRST letter ever changes
+      (acronyms/camelCase/code spans/identifier-looking words with
+      internal -/._ untouched), body text unaffected; the shared section
+      flow is now "Structure → The Rule → Why". SWEEP
+      (.tmp/titlecase-headings-sweep.ts, DRY=1 previewed): 146 headings
+      across 51 docs. The 8 rich-text type pages EXCLUDED (the batch
+      worker owns them and emits Title Case directly). Gotcha found in
+      dry run: unskipped identifier words got mangled ("/api/ops" →
+      "/Api/ops", "docs-viewer" → "Docs-viewer") — fixed via the
+      internal-punctuation skip before the real run.
+    - RICH-TEXT TYPE PAGES BATCH (2026-07-21, LANDED): Ford's calls —
+      batch all 8 (no per-page interviews); contract-aligned Title Case
+      skeleton per page: State Schema / Doc Renderer (was "In the
+      editor") / Agent Renderer (was "Markdown render") / Agent Notes /
+      Theme, lead first; Example ONLY where the type isn't self-evident
+      (callout kind/tone variants, image if an asset exists, video
+      embed) and REMOVED elsewhere; fact-check every claim; fix the
+      stale "label if present" reference-render claim everywhere.
+      Fable worker landed all 8 clean via
+      .tmp/richtext-type-pages-batch.ts — per-page detail in the
+      ledger rows. Real fixes: input-rule truth (only **bold** + `code`
+      auto-convert), Cmd+K popover, divider third-hyphen rule, image
+      has no props UI, callout Example added, video YouTube Example
+      added (eyeball), image Example skipped (no assets/ dir).
+    - VOCAB FAN-OUT LANDED (2026-07-21, Ford: "do this in parallel
+      fanning out fable sub agents"): SEVEN parallel Fable workers, one
+      per family page (20-code-block, 30-structured-table, 40-file-tree,
+      50-state-shape, 60-interaction-surface, 70-sequence, 80-canvas),
+      no-codex rule stated in every prompt; all hit a session limit
+      mid-run ("resets 6:40pm") and were RESUMED via SendMessage with
+      context intact — all seven then landed clean, byte-canonical, one
+      .tmp/<family>-family-contract.ts script each. All pages now carry
+      the six-H2 Title Case contract skeleton. Standout fixes (full
+      detail per ledger row): code theme table 7→16 keys; state-shape
+      6→10 (+ drift-proof computed agent fences, also file-tree);
+      interaction-surface Doc Renderer was WHOLLY stale vs the rebuilt
+      card render, theme 2→14; sequence documented the full forwarding
+      path + killed all pre-integration/mermaid prose; canvas removed
+      phantom endpoints (preview.svg, /embed/:id) + fixed
+      known-authorities to canvas+sequence + real example props.
+      CROSS-PAGE FLAGS FOR FORD (also in ledger rows): (1) Theme
+      sections split on link target — block-design/50-theming
+      (file-tree, code, sequence) vs 20-implementation/40-theming
+      (rich-text, canvas; structured-table links both) — pick one;
+      (2) State Schema block choice: sequence dogfoods a state-shape
+      block, canvas uses structured-table/JSON — uniformity call;
+      (3) no theme ships interaction-surface.json or state-shape.json
+      or sequence/canvas component themes — pages state conventions the
+      files don't exist for yet; (4) code-side staleness found:
+      doc-schema.ts "14 canonical types" comment, mermaid component dir
+      + agent-view still in code, StateShapeDocsBlock.tsx chips JSDoc,
+      20-code-block doc id "...14-code"; (5) 40-docs-viewer package doc
+      still mentions mermaid (that walk is later). PIPELINE (once, after
+      all workers): 17 vocab docs verified canonical
+      (.tmp/verify-vocab-batch-canonical.ts), goldens 61 regen, links 0
+      stale, backlinks 62/346 (workers added ~150 typed refs), audit =
+      only pre-existing items (assets errors parallel-owned, W4s
+      Ford's calls). BLOCK-VOCABULARY SECTION WALK COMPLETE pending
+      Ford's reads.
+    - PARALLEL LANDINGS RECONCILED (2026-07-21): commit 3308b4d captured
+      the vocab-refpage restructure (.tmp/restructure-vocab-* +
+      vocab-refpage-standard.ts — NOT this session's) across 20-code-block
+      (renamed from 20-code), 30-structured-table, 40-file-tree,
+      50-state-shape, 60-interaction-surface, 70-sequence (NEW),
+      80-canvas; 60-mermaid page DELETED. Corpus truth = 61 docs.
+      20-workbench + 50-docs-workbench also touched 17:03 (another
+      thread). CORPUS_PATHS/count cascade remains parallel-owned; target
+      is now 61 with these paths.
     - DOC-STANDARDS RESTRUCTURE (2026-07-20, fourth sitting, doc-by-doc
       loop): Ford interviewed per doc; the section was RENAMED
       10-doc-architecture → 10-doc-standards (his standing call, resolved)
@@ -770,19 +890,28 @@
       scripts → regen goldens over disk truth → backlinks rescan → links
       check → ledger verdict → next doc. His live workbench edits are
       disk truth (expect pm-* blocks appearing mid-loop; honor deletions).
-    - POSITION: system design is DONE through data-model (all landed,
-      most "Needs Ford read" in the ledger). NEXT: 40-block-vocabulary —
-      section overview interview first; then per-family CONTRACT
-      INSTANTIATION (Ford's directive: each family defines how each of
-      the six block-design contract elements works FOR IT — state schema,
-      typed actions, doc renderer, agent renderer, theme, agent adapter —
-      inline if short, subpages if deep); reconcile mermaid→sequence
-      doc-side (pin to target state, sequence session owns code); resolve
-      the old "written primarily for agents" lead + wrong numbering-axis
-      claim (flagged in ledger). After vocabulary: 50-package-boundaries,
-      then 20-implementation (10-packages 9 docs, 20-workbench,
-      30-save-pipeline vs docs-server dedupe, 40-theming 5, 99-appendix),
-      and 00-manifesto (Ford believes current; audit W1 5 H1s stands).
+    - POSITION: system design is DONE through data-model; the
+      40-block-vocabulary SECTION OVERVIEW is done (2026-07-21 interview,
+      see status — audience lead + numbering-axis flags RESOLVED,
+      mermaid→sequence pinned doc-side). NEXT: per-family CONTRACT
+      INSTANTIATION walk, in tree order — 10-rich-text (family overview +
+      8 per-type subpages), 20-code-block, 30-structured-table,
+      40-file-tree, 50-state-shape, 60-interaction-surface, 70-sequence,
+      80-canvas. The PINNED skeleton (Ford's interview): every family
+      page = opener (what the family is, which types it owns) + SIX H2s
+      in contract order — State schema / Typed actions / Doc renderer /
+      Agent renderer / Theme / Agent adapter — each stating how that
+      element works for THIS family; inline when short, subpage when
+      deep; rich-text keeps per-type reference pages as subpages.
+      DONE 2026-07-21 (same sitting, Ford's fan-out directive): all
+      seven family pages + all eight type pages landed via parallel
+      Fable workers — see the VOCAB FAN-OUT status entry + ledger rows.
+      The ENTIRE 40-block-vocabulary section is now walked, pending
+      Ford's reads + the cross-page flags. NEXT in the walk:
+      50-package-boundaries, then 20-implementation (10-packages 9 docs,
+      20-workbench, 30-save-pipeline vs docs-server dedupe, 40-theming 5,
+      99-appendix), and 00-manifesto (Ford believes current; audit W1
+      5 H1s stands).
     - CONVENTIONS NOW CANON (writingstyle.md): bullets/sub-bullets
       default, NO "lead — gloss" one-liners, bold-label parents, section
       flow "Structure → The rule → Why", titles/openings section,
@@ -841,9 +970,9 @@
 
 <risks_or_open_questions>
     - OPEN (Ford calls) from R2-D1:
-      - 30-block-vocabulary/00-overview still opens "written primarily for
-        agents to read" — audience claim vs the symmetric-surfaces stance
-        (sweep left it deliberately; flagged in ledger).
+      - RESOLVED 2026-07-21: the block-vocabulary overview's "written
+        primarily for agents" lead — replaced by the two-renders opener
+        in the sixth-sitting rewrite.
       - framework 40-templates: example skeletons still show covers/concepts
         YAML that bundles don't carry (aspirational — strip or keep?).
       - framework 40-templates/30-L2-section-overview/system-overview.md:

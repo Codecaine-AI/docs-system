@@ -90,7 +90,7 @@ Agents ended both.
 
 - Tooling can now be easily made as what was once a whole product, has turned into a side project
 
-# Why we Need This
+# Why We Need This
 
 2 major shifts have happened with the advent of AI
 
@@ -102,7 +102,7 @@ They can carry the upkeep — and they raised the stakes, because one builder no
 
 Comprehensive documentation has become a non negotiatable.
 
-## Trust is the point
+## Trust Is the Point
 
 Agents will continue to write more and more code. 
 

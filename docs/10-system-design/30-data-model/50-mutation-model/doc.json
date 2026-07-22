@@ -111,7 +111,7 @@
       },
       "text": [
         {
-          "insert": "The interactions"
+          "insert": "The Interactions"
         }
       ],
       "children": []
@@ -184,7 +184,7 @@
       },
       "text": [
         {
-          "insert": "The op algebra"
+          "insert": "The Op Algebra"
         }
       ],
       "children": []
@@ -357,7 +357,7 @@
       },
       "text": [
         {
-          "insert": "Inverse ops and undo"
+          "insert": "Inverse Ops and Undo"
         }
       ],
       "children": []
@@ -390,7 +390,7 @@
       },
       "text": [
         {
-          "insert": "Refusing an apply"
+          "insert": "Refusing an Apply"
         }
       ],
       "children": []
@@ -512,7 +512,7 @@
       },
       "text": [
         {
-          "insert": "Component actions (the seventh op)"
+          "insert": "Component Actions (the Seventh Op)"
         }
       ],
       "children": []
@@ -608,7 +608,7 @@
       },
       "text": [
         {
-          "insert": "Change events"
+          "insert": "Change Events"
         }
       ],
       "children": []

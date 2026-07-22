@@ -13,10 +13,10 @@
         "b-11-heading-state-h-3",
         "b-11-heading-state-4",
         "b-11-heading-state-note-5",
-        "b-11-heading-proj-h-6",
-        "b-11-heading-proj-7",
         "b-11-heading-editor-h-8",
         "b-11-heading-editor-9",
+        "b-11-heading-proj-h-6",
+        "b-11-heading-proj-7",
         "b-11-heading-agent-h-10",
         "b-11-heading-agent-1-11",
         "b-11-heading-agent-2-12",
@@ -34,7 +34,13 @@
           "insert": "The section heading of the "
         },
         {
-          "insert": "block vocabulary"
+          "insert": "block vocabulary",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary"
+            }
+          }
         },
         {
           "insert": ". Use it to give documents a greppable outline — "
@@ -59,7 +65,7 @@
       },
       "text": [
         {
-          "insert": "State"
+          "insert": "State Schema"
         }
       ],
       "children": []
@@ -114,54 +120,6 @@
       ],
       "children": []
     },
-    "b-11-heading-proj-h-6": {
-      "id": "b-11-heading-proj-h-6",
-      "type": "heading",
-      "props": {
-        "level": 2
-      },
-      "text": [
-        {
-          "insert": "Markdown render"
-        }
-      ],
-      "children": []
-    },
-    "b-11-heading-proj-7": {
-      "id": "b-11-heading-proj-7",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "#",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " through "
-        },
-        {
-          "insert": "######",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " per "
-        },
-        {
-          "insert": "props.level",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", followed by the inline text. Out-of-range or non-integer levels fall back to 2 rather than failing."
-        }
-      ],
-      "children": []
-    },
     "b-11-heading-editor-h-8": {
       "id": "b-11-heading-editor-h-8",
       "type": "heading",
@@ -170,7 +128,7 @@
       },
       "text": [
         {
-          "insert": "In the editor"
+          "insert": "Doc Renderer"
         }
       ],
       "children": []
@@ -267,6 +225,54 @@
       ],
       "children": []
     },
+    "b-11-heading-proj-h-6": {
+      "id": "b-11-heading-proj-h-6",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent Renderer"
+        }
+      ],
+      "children": []
+    },
+    "b-11-heading-proj-7": {
+      "id": "b-11-heading-proj-7",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "#",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " through "
+        },
+        {
+          "insert": "######",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " per "
+        },
+        {
+          "insert": "props.level",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", followed by the inline text. Out-of-range or non-integer levels fall back to 2 rather than failing."
+        }
+      ],
+      "children": []
+    },
     "b-11-heading-agent-h-10": {
       "id": "b-11-heading-agent-h-10",
       "type": "heading",
@@ -275,7 +281,7 @@
       },
       "text": [
         {
-          "insert": "Agent notes"
+          "insert": "Agent Notes"
         }
       ],
       "children": []
@@ -306,7 +312,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Convention in this corpus: one "
+          "insert": "Corpus convention: at most one "
         },
         {
           "insert": "level: 1",
@@ -315,7 +321,16 @@
           }
         },
         {
-          "insert": " heading per document, as the title line."
+          "insert": " heading per doc. The page title is furniture rendered above the body, so most docs have none; sections use "
+        },
+        {
+          "insert": "level: 2",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []
@@ -328,7 +343,7 @@
       },
       "text": [
         {
-          "insert": "Theming"
+          "insert": "Theme"
         }
       ],
       "children": []
@@ -357,7 +372,19 @@
           }
         },
         {
-          "insert": "; see 20-implementation/40-theming). Every value is one string for both modes or a "
+          "insert": "; see "
+        },
+        {
+          "insert": "Theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/40-theming"
+            }
+          }
+        },
+        {
+          "insert": "). Every value is one string for both modes or a "
         },
         {
           "insert": "{ light, dark }",
@@ -371,7 +398,11 @@
         {
           "insert": "THEME_TOKEN_REGISTRY",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/theme/theme-folders.ts"
+            }
           }
         },
         {

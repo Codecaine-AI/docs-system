@@ -12,10 +12,10 @@
         "b-10-paragraph-lead-2",
         "b-10-paragraph-state-h-3",
         "b-10-paragraph-state-4",
-        "b-10-paragraph-proj-h-5",
-        "b-10-paragraph-proj-6",
         "b-10-paragraph-editor-h-7",
         "b-10-paragraph-editor-8",
+        "b-10-paragraph-proj-h-5",
+        "b-10-paragraph-proj-6",
         "b-10-paragraph-agent-h-9",
         "b-10-paragraph-agent-1-10",
         "b-10-paragraph-agent-2-11",
@@ -33,7 +33,13 @@
           "insert": "The default block of the "
         },
         {
-          "insert": "block vocabulary"
+          "insert": "block vocabulary",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary"
+            }
+          }
         },
         {
           "insert": ": rich text prose. Anything that is not structurally something else is a paragraph — leads, explanations, connective tissue between headings and object blocks."
@@ -49,7 +55,7 @@
       },
       "text": [
         {
-          "insert": "State"
+          "insert": "State Schema"
         }
       ],
       "children": []
@@ -146,39 +152,6 @@
       ],
       "children": []
     },
-    "b-10-paragraph-proj-h-5": {
-      "id": "b-10-paragraph-proj-h-5",
-      "type": "heading",
-      "props": {
-        "level": 2
-      },
-      "text": [
-        {
-          "insert": "Markdown render"
-        }
-      ],
-      "children": []
-    },
-    "b-10-paragraph-proj-6": {
-      "id": "b-10-paragraph-proj-6",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "A plain text line. Marks render as standard markdown syntax (code innermost, then bold/italic/strike, link outermost); "
-        },
-        {
-          "insert": "reference",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " marks render as plain text — label if present, else the reference path — because the agent surface is a greppable terminal artifact, not a rendered document. Two quirks worth knowing: a paragraph with empty text renders nothing at all, and the document root is itself a paragraph shell whose own line is always skipped — only its children render."
-        }
-      ],
-      "children": []
-    },
     "b-10-paragraph-editor-h-7": {
       "id": "b-10-paragraph-editor-h-7",
       "type": "heading",
@@ -187,7 +160,7 @@
       },
       "text": [
         {
-          "insert": "In the editor"
+          "insert": "Doc Renderer"
         }
       ],
       "children": []
@@ -207,7 +180,7 @@
           }
         },
         {
-          "insert": ". Markdown-shortcut input rules apply the inline marks as you type ("
+          "insert": ". Markdown-shortcut input rules auto-convert only "
         },
         {
           "insert": "**bold**",
@@ -216,25 +189,7 @@
           }
         },
         {
-          "insert": ", "
-        },
-        {
-          "insert": "*italic*",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "~~strike~~",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
+          "insert": " and "
         },
         {
           "insert": "`code`",
@@ -243,7 +198,25 @@
           }
         },
         {
-          "insert": "), and "
+          "insert": " as you type — italic and strike deliberately have no typing shortcut, though their "
+        },
+        {
+          "insert": "Cmd+I",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " / "
+        },
+        {
+          "insert": "Cmd+Shift+S",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " keybindings and paste conversion still apply the marks. "
         },
         {
           "insert": "Cmd+K",
@@ -252,7 +225,40 @@
           }
         },
         {
-          "insert": " (or pasting a URL over a selection) applies a link mark."
+          "insert": " on a non-empty selection opens the link popover; pasting a URL over a selection applies the link mark directly."
+        }
+      ],
+      "children": []
+    },
+    "b-10-paragraph-proj-h-5": {
+      "id": "b-10-paragraph-proj-h-5",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent Renderer"
+        }
+      ],
+      "children": []
+    },
+    "b-10-paragraph-proj-6": {
+      "id": "b-10-paragraph-proj-6",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A plain text line. Marks render as standard markdown syntax (code innermost, then bold/italic/strike, link outermost); "
+        },
+        {
+          "insert": "reference",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " spans render as plain text — the span's own insert (by the linking standard, the target's name), falling back to the reference path — because the agent surface is a greppable terminal artifact, not a rendered document. Two quirks worth knowing: a paragraph with empty text renders nothing at all, and the document root is itself a paragraph shell whose own line is always skipped — only its children render."
         }
       ],
       "children": []
@@ -265,7 +271,7 @@
       },
       "text": [
         {
-          "insert": "Agent notes"
+          "insert": "Agent Notes"
         }
       ],
       "children": []
@@ -336,7 +342,7 @@
       },
       "text": [
         {
-          "insert": "Theming"
+          "insert": "Theme"
         }
       ],
       "children": []
@@ -365,7 +371,19 @@
           }
         },
         {
-          "insert": "; see 20-implementation/40-theming). Every value is one string for both modes or a "
+          "insert": "; see "
+        },
+        {
+          "insert": "Theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/40-theming"
+            }
+          }
+        },
+        {
+          "insert": "). Every value is one string for both modes or a "
         },
         {
           "insert": "{ light, dark }",
@@ -379,7 +397,11 @@
         {
           "insert": "THEME_TOKEN_REGISTRY",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/theme/theme-folders.ts"
+            }
           }
         },
         {

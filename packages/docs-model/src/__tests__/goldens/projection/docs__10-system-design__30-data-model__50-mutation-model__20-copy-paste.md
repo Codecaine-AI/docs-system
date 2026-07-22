@@ -1,6 +1,6 @@
 Copy and paste move structure, not strings. The clipboard carries typed block payloads, and a paste becomes ordinary typed operations — so nothing pasted can bypass validation.
 
-## The rule
+## The Rule
 
 - **Copy carries structure**
 

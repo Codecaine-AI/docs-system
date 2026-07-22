@@ -282,7 +282,7 @@
       "id": "b-isurf-canvas-hero",
       "type": "canvas",
       "props": {
-        "canvasId": "interaction-surfaces",
+        "src": "./assets/canvases/interaction-surfaces.canvas.json",
         "title": "One state, two readers",
         "view": "one-state-two-readers"
       },
@@ -371,7 +371,7 @@
       },
       "text": [
         {
-          "insert": "The surfaces"
+          "insert": "The Surfaces"
         }
       ],
       "children": []
@@ -444,7 +444,7 @@
       },
       "text": [
         {
-          "insert": "Symmetry, in practice"
+          "insert": "Symmetry, in Practice"
         }
       ],
       "children": []

@@ -8,6 +8,7 @@ import * as richTextEditorNodes from "../components/rich-text/editor-nodes";
 import * as sequenceEditorNodes from "../components/sequence/editor-nodes";
 import * as stateShapeEditorNodes from "../components/state-shape/editor-nodes";
 import * as structuredTableEditorNodes from "../components/structured-table/editor-nodes";
+import * as waterfallEditorNodes from "../components/waterfall/editor-nodes";
 import {
   ATOM_BLOCK_NODES,
   BLOCK_TYPE_TO_NODE_TYPE,
@@ -25,6 +26,7 @@ const componentNodeModules = [
   stateShapeEditorNodes,
   canvasEditorNodes,
   sequenceEditorNodes,
+  waterfallEditorNodes,
 ];
 
 describe("component editor nodes", () => {
@@ -49,6 +51,7 @@ describe("component editor nodes", () => {
       "docInteractionSurface",
       "docStateShape",
       "docMermaid",
+      "docWaterfall",
     ]);
   });
 
@@ -77,6 +80,7 @@ describe("component editor nodes", () => {
       "interaction-surface": "docInteractionSurface",
       "state-shape": "docStateShape",
       mermaid: "docMermaid",
+      waterfall: "docWaterfall",
     });
 
     for (const node of componentNodes) {

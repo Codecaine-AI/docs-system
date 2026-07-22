@@ -14,7 +14,7 @@ This section describes shapes and invariants, not transport wiring.
 
 Everything here is defined in packages/docs-model
 
-## The four shapes
+## The Four Shapes
 
 - The document & block tree
 
@@ -32,7 +32,7 @@ Everything here is defined in packages/docs-model
 
   - How a document is said: the deterministic serializer, the markdown render map, and the content hashes that make write preconditions possible.
 
-## The behavior model
+## The Behavior Model
 
 - The mutation model
 

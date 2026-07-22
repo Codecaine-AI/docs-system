@@ -1,8 +1,8 @@
-# System UI and the knob map
+# System UI and the Knob Map
 
 Not everything is themable, on purpose. The system UI — the workbench's own furniture — stays fixed so every theme still FEELS like the same tool. This page draws that line explicitly, then maps every style-rail knob to what it actually writes.
 
-## Deliberately fixed
+## Deliberately Fixed
 
 | Fixed UI | Value | Where it lives |
 | --- | --- | --- |
@@ -14,7 +14,7 @@ Not everything is themable, on purpose. The system UI — the workbench's own fu
 
 > **DECISION: Moving the line** — Promoting any of these to themable is a deliberate decision: add a tier-2 token + registry entry (see Component themes), never a one-off knob. The default answer is no — a consistent workbench frame is a feature.
 
-## The style-rail knob map
+## The style-rail Knob Map
 
 The rail has two tabs — Theme (identity: themes, colors, typography, components, background effect) and Layout (geometry: column, surfaces, editor controls) — each a stack of collapsible sections whose open state persists per user. Every knob writes CSS variables onto the root element (a knob at its default removes the override). The full inventory:
 

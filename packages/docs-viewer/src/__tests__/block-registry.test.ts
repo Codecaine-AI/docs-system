@@ -59,6 +59,7 @@ describe("block registry", () => {
     expect(getDocBlockDescriptor("interaction-surface")?.label).toBe("Interaction Surface");
     expect(getDocBlockDescriptor("interaction-surface")?.targetKind).toBe("interaction-surface");
     expect(getDocBlockDescriptor("mermaid")?.label).toBe("Mermaid");
+    expect(getDocBlockDescriptor("waterfall")?.label).toBe("Waterfall");
   });
 
   it("returns null for unknown and retired block types", () => {

@@ -13,10 +13,10 @@
         "b-12-list-item-state-h-3",
         "b-12-list-item-state-4",
         "b-12-list-item-state-note-5",
-        "b-12-list-item-proj-h-6",
-        "b-12-list-item-proj-7",
         "b-12-list-item-editor-h-8",
         "b-12-list-item-editor-9",
+        "b-12-list-item-proj-h-6",
+        "b-12-list-item-proj-7",
         "b-12-list-item-agent-h-10",
         "b-12-list-item-agent-1-11",
         "b-12-list-item-agent-2-12",
@@ -34,7 +34,13 @@
           "insert": "The list block of the "
         },
         {
-          "insert": "block vocabulary"
+          "insert": "block vocabulary",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary"
+            }
+          }
         },
         {
           "insert": ". There is no wrapping list container type: a list is simply a run of consecutive "
@@ -68,7 +74,7 @@
       },
       "text": [
         {
-          "insert": "State"
+          "insert": "State Schema"
         }
       ],
       "children": []
@@ -114,57 +120,6 @@
       ],
       "children": []
     },
-    "b-12-list-item-proj-h-6": {
-      "id": "b-12-list-item-proj-h-6",
-      "type": "heading",
-      "props": {
-        "level": 2
-      },
-      "text": [
-        {
-          "insert": "Markdown render"
-        }
-      ],
-      "children": []
-    },
-    "b-12-list-item-proj-7": {
-      "id": "b-12-list-item-proj-7",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "A "
-        },
-        {
-          "insert": "-",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " bullet, or "
-        },
-        {
-          "insert": "1.",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " numbering when "
-        },
-        {
-          "insert": "props.ordered === true",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", indented two spaces per nesting depth. Numbering is computed per consecutive run of list-item siblings: a non-list sibling resets the run, so an ordered list always restarts at 1 after an interruption. A list-item's children render as nested list lines (depth + 1) instead of flowing back to depth zero."
-        }
-      ],
-      "children": []
-    },
     "b-12-list-item-editor-h-8": {
       "id": "b-12-list-item-editor-h-8",
       "type": "heading",
@@ -173,7 +128,7 @@
       },
       "text": [
         {
-          "insert": "In the editor"
+          "insert": "Doc Renderer"
         }
       ],
       "children": []
@@ -252,6 +207,57 @@
       ],
       "children": []
     },
+    "b-12-list-item-proj-h-6": {
+      "id": "b-12-list-item-proj-h-6",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent Renderer"
+        }
+      ],
+      "children": []
+    },
+    "b-12-list-item-proj-7": {
+      "id": "b-12-list-item-proj-7",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A "
+        },
+        {
+          "insert": "-",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " bullet, or "
+        },
+        {
+          "insert": "1.",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " numbering when "
+        },
+        {
+          "insert": "props.ordered === true",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", indented two spaces per nesting depth. Numbering is computed per consecutive run of list-item siblings: a non-list sibling resets the run, so an ordered list always restarts at 1 after an interruption. A list-item's children render as nested list lines (depth + 1) instead of flowing back to depth zero."
+        }
+      ],
+      "children": []
+    },
     "b-12-list-item-agent-h-10": {
       "id": "b-12-list-item-agent-h-10",
       "type": "heading",
@@ -260,7 +266,7 @@
       },
       "text": [
         {
-          "insert": "Agent notes"
+          "insert": "Agent Notes"
         }
       ],
       "children": []
@@ -313,7 +319,7 @@
       },
       "text": [
         {
-          "insert": "Theming"
+          "insert": "Theme"
         }
       ],
       "children": []
@@ -342,7 +348,19 @@
           }
         },
         {
-          "insert": "; see 20-implementation/40-theming). Every value is one string for both modes or a "
+          "insert": "; see "
+        },
+        {
+          "insert": "Theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/40-theming"
+            }
+          }
+        },
+        {
+          "insert": "). Every value is one string for both modes or a "
         },
         {
           "insert": "{ light, dark }",
@@ -356,7 +374,11 @@
         {
           "insert": "THEME_TOKEN_REGISTRY",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/theme/theme-folders.ts"
+            }
           }
         },
         {

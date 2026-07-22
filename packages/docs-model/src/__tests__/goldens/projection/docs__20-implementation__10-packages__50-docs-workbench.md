@@ -1,8 +1,8 @@
-# docs-workbench — the app
+# docs-workbench — the App
 
 @codecaine-ai/docs-workbench is the standalone runnable docs app and its thin composition shell. It joins the write side to the render side in an Elysia-served Vite SPA without moving either side's responsibilities into the app.
 
-## What it owns
+## What It Owns
 
 The runnable is deliberately small: roughly a dozen source files under `packages/docs-workbench/src/` plus the Vite SPA under `packages/docs-workbench/web/`. The package owns composition and app behavior, not the server's route semantics or the viewer's rendering primitives.
 
@@ -14,7 +14,7 @@ The runnable is deliberately small: roughly a dozen source files under `packages
 
 The `packages/docs-workbench/electron/` directory contains a thin Electron shell that wraps the same server+SPA for a desktop app.
 
-## Why it is its own package
+## Why It Is Its Own Package
 
 > **Package decision: The write and render sides meet here** — This package is the composition point: it is the only place where the docs-server write side and the docs-viewer render side are allowed to meet. Keeping that composition in a thin package makes it non-load-bearing: hosts that embed either piece individually do not pay for the app shell, and the shell can be rebuilt without changing any layer beneath it. The boundary exists because this is a deliverable app, not a library.
 
@@ -28,7 +28,7 @@ The docs-cli package depends on docs-workbench: its `serve` and `export` command
 
 > **Boundary under review: The CLI and app shell may converge** — Merging docs-cli and docs-workbench is a live candidate. The CLI already depends on the workbench for serve and export, and the two ship together in practice. The current split is a judgment call between command surface and app shell, not a forced boundary.
 
-## Using it alone
+## Using It Alone
 
 It is the thing you run. Use `docs serve --root docs --port 4802` or `make serve` to serve a docs root on `:4802`; the development setup puts Vite HMR on `:4803`.
 

@@ -1,8 +1,8 @@
-# docs-viewer — rendering and editing
+# docs-viewer — Rendering and Editing
 
 @codecaine-ai/docs-viewer is the browser-only React layer for rendering, editing, and precisely targeting doc.json bundles. It turns docs-model data into interactive UI while leaving storage, transport, and application composition to the host.
 
-## What it owns
+## What It Owns
 
 - Read-only render. `DocBlockRenderer` in `packages/docs-viewer/src/render/DocBlockRenderer.tsx` walks a bundle from its root and delegates every block to `packages/docs-viewer/src/render/block-registry.ts`. The registry maps exactly the fourteen canonical types to one descriptor each; those types are defined by the block vocabulary.
 
@@ -14,7 +14,7 @@
 
 - Host integration. `DocsClientProvider` in `packages/docs-viewer/src/client.tsx` is the seam for injecting the host's API client and canvas-embed component. Viewer components never talk to a server directly, and the host owns canvas presentation policy. The workbench uses a static section SVG inline, promotes an explicit expansion to a full-screen read-only iframe, and exposes the separate Studio editor only in authoring contexts; another host can implement the same contract with different chrome.
 
-## Why it is its own package
+## Why It Is Its Own Package
 
 > **Forcing constraint: Browser purity in both directions** — docs-model must stay React-free, so the React renderer and editor cannot live there; `import-boundaries.test.ts` enforces that side. docs-viewer depends on the model but not on SQLite, `fs`, Elysia, or any server or storage package, so it remains liftable into any host React app. This boundary is forced, not a judgment call.
 
@@ -28,7 +28,7 @@ The split protects both reuse targets at once: the model package stays free of b
 
 - Workspace downstream: docs-workbench depends on docs-viewer and wraps it in the SPA.
 
-## Using it alone
+## Using It Alone
 
 In another React application, wrap the viewer surfaces with `DocsClientProvider` and supply that host's API client plus a canvas-embed component when the document needs one. Pass a bundle to `DocBlockRenderer` for read-only rendering.
 

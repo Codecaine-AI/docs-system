@@ -12,10 +12,10 @@
         "b-16-divider-lead-2",
         "b-16-divider-state-h-3",
         "b-16-divider-state-4",
-        "b-16-divider-proj-h-5",
-        "b-16-divider-proj-6",
         "b-16-divider-editor-h-7",
         "b-16-divider-editor-8",
+        "b-16-divider-proj-h-5",
+        "b-16-divider-proj-6",
         "b-16-divider-agent-h-9",
         "b-16-divider-agent-1-10",
         "b-16-divider-theming-heading",
@@ -32,7 +32,13 @@
           "insert": "The horizontal rule of the "
         },
         {
-          "insert": "block vocabulary"
+          "insert": "block vocabulary",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary"
+            }
+          }
         },
         {
           "insert": ": a visual section break with no content of its own."
@@ -48,7 +54,7 @@
       },
       "text": [
         {
-          "insert": "State"
+          "insert": "State Schema"
         }
       ],
       "children": []
@@ -73,6 +79,70 @@
       ],
       "children": []
     },
+    "b-16-divider-editor-h-7": {
+      "id": "b-16-divider-editor-h-7",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Doc Renderer"
+        }
+      ],
+      "children": []
+    },
+    "b-16-divider-editor-8": {
+      "id": "b-16-divider-editor-8",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Slash menu: "
+        },
+        {
+          "insert": "Divider",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " (aliases: hr, separator, "
+        },
+        {
+          "insert": "---",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "). Input rule: typing "
+        },
+        {
+          "insert": "---",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " converts the moment the third hyphen lands — no trailing space, matching Notion. It is one of the non-editable atom leaf nodes ("
+        },
+        {
+          "insert": "ATOM_BLOCK_TYPES",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/editor/core/schema.ts"
+            }
+          }
+        },
+        {
+          "insert": " in the viewer's editor schema) — the cursor steps over it, never into it."
+        }
+      ],
+      "children": []
+    },
     "b-16-divider-proj-h-5": {
       "id": "b-16-divider-proj-h-5",
       "type": "heading",
@@ -81,7 +151,7 @@
       },
       "text": [
         {
-          "insert": "Markdown render"
+          "insert": "Agent Renderer"
         }
       ],
       "children": []
@@ -106,57 +176,6 @@
       ],
       "children": []
     },
-    "b-16-divider-editor-h-7": {
-      "id": "b-16-divider-editor-h-7",
-      "type": "heading",
-      "props": {
-        "level": 2
-      },
-      "text": [
-        {
-          "insert": "In the editor"
-        }
-      ],
-      "children": []
-    },
-    "b-16-divider-editor-8": {
-      "id": "b-16-divider-editor-8",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "Slash menu: "
-        },
-        {
-          "insert": "Divider",
-          "attributes": {
-            "bold": true
-          }
-        },
-        {
-          "insert": " (aliases: hr, separator). Input rule: "
-        },
-        {
-          "insert": "---",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " plus a space. It is one of the non-editable atom leaf nodes ("
-        },
-        {
-          "insert": "ATOM_BLOCK_TYPES",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " in the viewer's editor schema) — the cursor steps over it, never into it."
-        }
-      ],
-      "children": []
-    },
     "b-16-divider-agent-h-9": {
       "id": "b-16-divider-agent-h-9",
       "type": "heading",
@@ -165,7 +184,7 @@
       },
       "text": [
         {
-          "insert": "Agent notes"
+          "insert": "Agent Notes"
         }
       ],
       "children": []
@@ -198,7 +217,7 @@
       },
       "text": [
         {
-          "insert": "Theming"
+          "insert": "Theme"
         }
       ],
       "children": []
@@ -227,7 +246,19 @@
           }
         },
         {
-          "insert": "; see 20-implementation/40-theming). Every value is one string for both modes or a "
+          "insert": "; see "
+        },
+        {
+          "insert": "Theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/40-theming"
+            }
+          }
+        },
+        {
+          "insert": "). Every value is one string for both modes or a "
         },
         {
           "insert": "{ light, dark }",
@@ -241,7 +272,11 @@
         {
           "insert": "THEME_TOKEN_REGISTRY",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/theme/theme-folders.ts"
+            }
           }
         },
         {

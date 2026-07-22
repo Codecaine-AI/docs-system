@@ -23,7 +23,7 @@
       "topPadding": 88,
       "titlePadding": 50,
       "bottomPadding": 300,
-      "radius": 8,
+      "radius": 4,
       "borderStrength": 1,
       "backgroundTint": 0,
       "sidebarTint": 10

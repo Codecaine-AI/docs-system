@@ -20,7 +20,8 @@ Write matter-of-fact: short declarative sentences that state what is, in the ord
 - Lists cap at about five items. Past that, split the list or rank it.
 - Tangents move to their own home and get a link, not a sidebar.
 - Headings carry the skim path; a section should scan in one screen.
-- Standards and design docs share one section flow and one set of heading names: `Structure` (show the thing — a file tree or annotated code), then `The rule`, then `Why`.
+- Headings are Title Case: the first letter of every word is capitalized, except minor words (a, an, and, as, at, but, by, for, in, nor, of, on, or, per, the, to, via, vs) which stay lowercase mid-heading. Only a word's first letter changes — acronyms, camelCase identifiers, and code-marked spans keep their exact form. Body text is unaffected: mid-sentence words are never capitalized for style.
+- Standards and design docs share one section flow and one set of heading names: `Structure` (show the thing — a file tree or annotated code), then `The Rule`, then `Why`.
 
 ## Titles and openings
 

@@ -41,7 +41,7 @@
       },
       "text": [
         {
-          "insert": "The save pipeline: keystroke to disk"
+          "insert": "The Save Pipeline: Keystroke to Disk"
         }
       ],
       "children": []
@@ -174,7 +174,7 @@
       },
       "text": [
         {
-          "insert": "2. Diff to ops (docs-viewer → docs-model)"
+          "insert": "2. Diff to Ops (docs-viewer → docs-model)"
         }
       ],
       "children": []
@@ -656,7 +656,7 @@
       },
       "text": [
         {
-          "insert": "4. Reconciliation (back in the editor)"
+          "insert": "4. Reconciliation (Back in the Editor)"
         }
       ],
       "children": []
@@ -698,7 +698,7 @@
       },
       "text": [
         {
-          "insert": "Change flashes and ProseMirror ownership"
+          "insert": "Change Flashes and ProseMirror Ownership"
         }
       ],
       "children": []
@@ -753,7 +753,7 @@
       },
       "text": [
         {
-          "insert": "Upload route: video assets"
+          "insert": "Upload Route: Video Assets"
         }
       ],
       "children": []

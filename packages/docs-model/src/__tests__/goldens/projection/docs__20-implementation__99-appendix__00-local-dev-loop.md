@@ -1,6 +1,6 @@
-# Local development loop
+# Local Development Loop
 
-## Iterating on the tooling (this repo)
+## Iterating on the Tooling (This Repo)
 
 The key separation: **docs content** and **docs tooling** version
 independently.
@@ -29,7 +29,7 @@ To work on *these* docs instead: `make dev` — the self-docs workbench with vit
 HMR on `:4803`, THE loop for layout/UI iteration (see the Makefile table
 below).
 
-## Everyday commands (the Makefile)
+## Everyday Commands (the Makefile)
 
 The root `Makefile` wraps the loop into short targets (`make help` lists
 them; ports match `.claude/launch.json`):
@@ -49,7 +49,7 @@ them; ports match `.claude/launch.json`):
 
 > **Gotcha: make serve does not hot-reload** — Plain serve builds the SPA once and caches it at startup, so tooling/source changes will not appear until you restart it (or rebuild the cache with make spa). Editing doc content is fine — that flows through the API live. For source iteration, use make dev.
 
-## Shipping tooling to a consuming repo
+## Shipping Tooling to a Consuming Repo
 
 Consuming repos (e.g. canvas) mount this repo as a submodule at
 `tools/docs-framework` and run the CLI through it. Bump the pin when you
@@ -79,7 +79,7 @@ The workbench web tests run the real serve app over a temp docs tree with
 `fetch` stubbed straight into the route handler — the 409/423/undo/SSE
 paths are exercised end-to-end with no network.
 
-## Authoring new docs
+## Authoring New Docs
 
 Write markdown under a `docs/` tree and run `docs migrate` once to convert
 it to bundles, or create pages directly in the workbench's Edit mode.

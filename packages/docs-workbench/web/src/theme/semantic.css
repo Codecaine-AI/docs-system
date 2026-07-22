@@ -187,6 +187,25 @@
   --docs-zebra: color-mix(in srgb, var(--muted) 20%, transparent);
   --docs-link-bg: color-mix(in srgb, var(--docs-link-pin) 14%, transparent);
   --docs-link-pin: #b48f2e;
+  /* Waterfall block (docs-viewer waterfall/WaterfallDocsBlock). The rail is
+     OPAQUE on purpose — the elbow and stem strokes overlap where sublayers
+     stack, so any alpha doubles up at the joins. Deep ink (depth >= 3 lines)
+     derives from ink so the two track together. */
+  --docs-waterfall-ink: var(--docs-viewer-text-body);
+  --docs-waterfall-deep-ink: color-mix(in srgb, var(--docs-waterfall-ink) 78%, transparent);
+  --docs-waterfall-rail: #b3b1ad;
+  --docs-waterfall-note-fg: var(--docs-waterfall-ink);
+  --docs-waterfall-note-bg: transparent;
+  --docs-waterfall-note-border: var(--border);
+  --docs-waterfall-code-bg: var(--muted);
+  --docs-waterfall-indent: 36px;
+  --docs-waterfall-row-gap: 7px;
+  --docs-waterfall-arrow-gap: 4px;
+  --docs-waterfall-line-height: 22px;
+  --docs-waterfall-text-size: 12.5px;
+  --docs-waterfall-note-text-size: var(--docs-waterfall-text-size);
+  --docs-waterfall-arrow-size: 6px;
+  --docs-waterfall-stroke: 1.5px;
   --docs-mermaid-border: var(--border);
   --docs-mermaid-bg: transparent;
   --docs-canvas-border: var(--border);
@@ -374,6 +393,25 @@
   --docs-zebra: color-mix(in srgb, var(--muted) 20%, transparent);
   --docs-link-bg: color-mix(in srgb, var(--docs-link-pin) 18%, transparent);
   --docs-link-pin: #d4af4a;
+  /* Waterfall block (docs-viewer waterfall/WaterfallDocsBlock). The rail is
+     OPAQUE on purpose — the elbow and stem strokes overlap where sublayers
+     stack, so any alpha doubles up at the joins. Deep ink (depth >= 3 lines)
+     derives from ink so the two track together. */
+  --docs-waterfall-ink: var(--docs-viewer-text-body);
+  --docs-waterfall-deep-ink: color-mix(in srgb, var(--docs-waterfall-ink) 78%, transparent);
+  --docs-waterfall-rail: #5d6266;
+  --docs-waterfall-note-fg: var(--docs-waterfall-ink);
+  --docs-waterfall-note-bg: transparent;
+  --docs-waterfall-note-border: var(--border);
+  --docs-waterfall-code-bg: var(--muted);
+  --docs-waterfall-indent: 36px;
+  --docs-waterfall-row-gap: 7px;
+  --docs-waterfall-arrow-gap: 4px;
+  --docs-waterfall-line-height: 22px;
+  --docs-waterfall-text-size: 12.5px;
+  --docs-waterfall-note-text-size: var(--docs-waterfall-text-size);
+  --docs-waterfall-arrow-size: 6px;
+  --docs-waterfall-stroke: 1.5px;
   --docs-mermaid-border: var(--border);
   --docs-mermaid-bg: transparent;
   --docs-canvas-border: var(--border);

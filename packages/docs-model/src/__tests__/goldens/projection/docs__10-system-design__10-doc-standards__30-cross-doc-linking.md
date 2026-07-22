@@ -28,7 +28,7 @@ This page states the reference object, which directions links run, and the restr
 
   - The span text inlines the target's name, so a reference reads as prose on both surfaces.
 
-## The rule
+## The Rule
 
 - **Reference spans, never raw paths**
 

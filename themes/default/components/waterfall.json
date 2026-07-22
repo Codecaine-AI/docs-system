@@ -1,0 +1,11 @@
+{
+  "stroke": "1.5px",
+  "arrowSize": "7px",
+  "rowGap": "9px",
+  "arrowGap": "8px",
+  "noteTextSize": "12px",
+  "lineHeight": "20px",
+  "indent": "37px",
+  "noteBg": "#ffffff",
+  "rail": "#8a8a8a"
+}

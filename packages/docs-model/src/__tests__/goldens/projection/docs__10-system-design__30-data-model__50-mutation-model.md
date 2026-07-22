@@ -4,7 +4,7 @@ The model is transport-agnostic: it defines the algebra, invariants, inverses, a
 
 The point is standardization. Components define what can change — their own actions. This model defines how any change behaves: validated, inverted, recorded, broadcast. A table cell edit and a file-tree entry undo the same way, not because they share code, but because both are ops.
 
-## The interactions
+## The Interactions
 
 - Undo & redo
 
@@ -14,7 +14,7 @@ The point is standardization. Components define what can change — their own ac
 
   - Typed clipboard payloads, top-level block-run pastes, fresh ids for copies, and the validation gate.
 
-## The op algebra
+## The Op Algebra
 
 The six generic ops cover document structure and rich text. `componentAction` is the seventh: it names a component-owned action, whose TypeBox params the dispatcher validates before apply, then expands to `updateBlock` semantics. Param issues use `$.params.<name>`, and unknown extra params remain tolerated.
 
@@ -34,11 +34,11 @@ The six generic ops cover document structure and rich text. `componentAction` is
 
 `splitBlock` and `mergeBlocks` mint fresh ids because they change identity boundaries. `updateBlock` preserves the id because the same conceptual block remains in place.
 
-## Inverse ops and undo
+## Inverse Ops and Undo
 
 Every successful apply returns exact inverse ops for the state it actually changed. Applying those inverses to the resulting document reverts the change, including order, props, text, and subtree placement. The undo ledger records the inverse batch under a `patch_id`; that patch id is the unit a user or agent undoes. A multi-op patch therefore rolls back as one conceptual edit instead of as individual low-level steps.
 
-## Refusing an apply
+## Refusing an Apply
 
 A syntactically valid op batch can still be refused before bytes change: hash staleness, a draft lock, or strict props validation. For `insertBlock` and `updateBlock`, applyOp validates the resulting props against the owning component’s closed state schema; `componentAction` reaches the same gate through updateBlock. Nonconforming writes return `{ ok: false, issues }` at `$.op.props.<key>`. splitBlock and mergeBlocks are not revalidated because they copy existing props. Reads and loads remain tolerant: structural validation never rejects a document for props content. Undo replay is exempt from strict props validation because it restores a previously-accepted state.
 
@@ -46,7 +46,7 @@ A syntactically valid op batch can still be refused before bytes change: hash st
 
 - draft lock — a per-session lock rejects a writer with a different session identity. Over HTTP this is `423`.
 
-## Component actions (the seventh op)
+## Component Actions (the Seventh Op)
 
 The structured bundles — tables, file trees, interaction surfaces, code, and the diagram types — expose named actions for their collections. A `componentAction` carries an action name plus params; the folded registry validates the params schema, applies, and returns the same inverse-op contract as every generic op. Discovery lists the current roster.
 
@@ -59,7 +59,7 @@ code.setAnnotation(lines: string, note: string, label?: string) -> updateBlock p
   lines: string  # line range key, e.g. "4-9"
 ```
 
-## Change events
+## Change Events
 
 A successful apply broadcasts an SSE change event carrying the ids of blocks whose content or placement changed. Consumers use that id set to flash the affected blocks; the event is a notification of the applied patch, not a second write path.
 

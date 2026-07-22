@@ -11,6 +11,7 @@ import { richTextComponent } from "./rich-text";
 import { sequenceComponent } from "./sequence";
 import { stateShapeComponent } from "./state-shape";
 import { structuredTableComponent } from "./structured-table";
+import { waterfallComponent } from "./waterfall";
 import type {
   BlockStateDefinition,
   ComponentAction,
@@ -53,6 +54,14 @@ export { printJsonLines } from "./shared/json-lines";
 export type { JsonLineRange, JsonLinesResult } from "./shared/json-lines";
 export { canvasComponent } from "./canvas";
 export { sequenceComponent } from "./sequence";
+export { waterfallComponent } from "./waterfall";
+export {
+  parseWaterfall,
+  readWaterfallStepTree,
+  readWaterfallSteps,
+  serializeWaterfall,
+} from "./waterfall";
+export type { WaterfallNode, WaterfallStep } from "./waterfall";
 
 export const ALL_COMPONENTS: readonly ComponentBundle[] = [
   richTextComponent,
@@ -64,6 +73,7 @@ export const ALL_COMPONENTS: readonly ComponentBundle[] = [
   stateShapeComponent,
   canvasComponent,
   sequenceComponent,
+  waterfallComponent,
 ];
 
 export const COMPONENT_BY_TYPE: ReadonlyMap<DocBlockType, ComponentBundle> = new Map(

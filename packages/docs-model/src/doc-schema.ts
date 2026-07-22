@@ -12,7 +12,7 @@ import { validateSpectreRef } from "./spectre-ref";
  *   bundles — e.g. the canvas sibling project's docs — keep validating;
  *   writes always emit canonical `type`.
  * - LEGACY TYPE COERCION: after the `flavour` aliasing above, any block whose
- *   type is a string but NOT one of the 14 canonical types coerces to a
+ *   type is a string but NOT one of the 17 canonical types coerces to a
  *   `callout` instead of failing validation. The retired/unknown type name is
  *   preserved as `props.kind` (unless the block already carries a non-empty
  *   string `props.kind` of its own); props, text, and children carry over
@@ -42,6 +42,7 @@ export const DOC_BLOCK_TYPES = [
   "sequence",
   "image",
   "video",
+  "waterfall",
 ] as const;
 
 export type DocBlockType = (typeof DOC_BLOCK_TYPES)[number];

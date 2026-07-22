@@ -43,7 +43,7 @@
       },
       "text": [
         {
-          "insert": "Local development loop"
+          "insert": "Local Development Loop"
         }
       ],
       "children": []
@@ -56,7 +56,7 @@
       },
       "text": [
         {
-          "insert": "Iterating on the tooling (this repo)"
+          "insert": "Iterating on the Tooling (This Repo)"
         }
       ],
       "children": []
@@ -284,7 +284,7 @@
       },
       "text": [
         {
-          "insert": "Everyday commands (the Makefile)"
+          "insert": "Everyday Commands (the Makefile)"
         }
       ],
       "children": []
@@ -401,7 +401,7 @@
       },
       "text": [
         {
-          "insert": "Shipping tooling to a consuming repo"
+          "insert": "Shipping Tooling to a Consuming Repo"
         }
       ],
       "children": []
@@ -500,7 +500,7 @@
       },
       "text": [
         {
-          "insert": "Authoring new docs"
+          "insert": "Authoring New Docs"
         }
       ],
       "children": []

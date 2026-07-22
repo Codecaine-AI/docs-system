@@ -20,7 +20,7 @@ Doc standards holds the structure and the standards that keep it that way.
 
 The standards — directory structure, numbering, titles and openings, linking — are child docs there, each rule paired with its rationale.
 
-## Translation layer
+## Translation Layer
 
 Each doc is a canonical JSON object with two rendering surfaces, one per reader type.
 
@@ -38,7 +38,7 @@ Translation layer defines both.
 
   - Every change lands as a typed operation against the same state.
 
-## Data model
+## Data Model
 
 The data model is the actual data structure under the hood.
 
@@ -50,7 +50,7 @@ The data model is the actual data structure under the hood.
 
 - State changes only through typed operations, validated before anything persists.
 
-## Block vocabulary
+## Block Vocabulary
 
 The block vocabulary explains all fourteen block types, with an example of each.
 
@@ -58,6 +58,6 @@ The block vocabulary explains all fourteen block types, with an example of each.
 
 - Each type's doc lists its props and typed actions, and shows the block in use.
 
-## Package boundaries
+## Package Boundaries
 
 The implementation is cut into seven packages. Package boundaries records which seams are forced by runtimes and which are judgment calls.

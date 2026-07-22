@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Maximize2Icon, PencilIcon, XIcon } from "lucide-react";
+import { ExternalLinkIcon, Maximize2Icon, PencilIcon, XIcon } from "lucide-react";
 import type { CanvasEmbedProps } from "@codecaine-ai/docs-viewer/client";
 import {
   InteractiveCanvasViewer,
@@ -12,18 +12,18 @@ import {
 import { getCanvasBySrc } from "../data/api";
 
 /**
- * Read-only standalone counterpart of Spectre's CanvasSidecarEmbed, wired
- * into DocBlockRenderer through DocsClientProvider's `canvasEmbed` slot.
+ * Read-only standalone canvas embed, wired into DocBlockRenderer through
+ * DocsClientProvider's `canvasEmbed` slot.
  *
  *  - `src` (docs-root-relative, already bundle-canonicalized by
- *    DocBlockRenderer) loads through the serve/export canvas data layer and
- *    renders with InteractiveCanvasViewer (view-cropping + object select
- *    supported).
- *  - `canvasId === "synthetic"` renders the canvas package's synthetic
- *    fixture — the same fallback Spectre uses without a project backend.
- *  - any other `canvasId` renders its section-cropped static preview inline;
- *    explicit expansion opens Canvas Studio's interactive `/embed/:id`
- *    route full-screen while the source board remains editable in Studio.
+ *    DocBlockRenderer) loads through the serve/export canvas data layer.
+ *  - `canvasId === "synthetic"` uses the canvas package's bundled fixture.
+ *  - loaded canvases render as inert inline previews (bare static viewer in a
+ *    rounded border) that open an in-app full-screen viewer with real pan and
+ *    zoom; annotation targeting keeps inline clicks live so canvas objects
+ *    remain selectable.
+ *  - any other `canvasId` has no docs-server backing board, so it renders an
+ *    honest unavailable card with a link to Canvas Studio.
  *
  * No editing, no saving — this viewer is read-only by design.
  */
@@ -48,6 +48,15 @@ export function StandaloneCanvasEmbed({
   const [isLoading, setIsLoading] = useState(false);
   const [viewerOpen, setViewerOpen] = useState(false);
   const loadSeqRef = useRef(0);
+  const studioOrigin =
+    typeof __CANVAS_STUDIO_URL__ !== "undefined"
+      ? __CANVAS_STUDIO_URL__
+      : "http://localhost:3999";
+  const studioUrl = new URL("/", studioOrigin);
+  /** Deep link into Studio's editor for sidecar canvases; plain root otherwise. */
+  const studioEditUrl = src
+    ? `${studioUrl.toString()}?src=${encodeURIComponent(src)}`
+    : studioUrl.toString();
 
   useEffect(() => {
     if (!src) return;
@@ -89,113 +98,28 @@ export function StandaloneCanvasEmbed({
   }, [viewerOpen]);
 
   if (canvasId && canvasId !== "synthetic" && !src) {
-    const studioOrigin =
-      typeof __CANVAS_STUDIO_URL__ !== "undefined"
-        ? __CANVAS_STUDIO_URL__
-        : "http://localhost:3999";
-    const embedUrl = new URL(`/embed/${encodeURIComponent(canvasId)}`, studioOrigin);
-    const editorUrl = new URL(`/canvas/${encodeURIComponent(canvasId)}`, studioOrigin);
-    const previewUrl = new URL(
-      `/api/canvases/${encodeURIComponent(canvasId)}/preview.svg`,
-      studioOrigin,
-    );
-    if (view) embedUrl.searchParams.set("view", view);
-    if (view) previewUrl.searchParams.set("section", view);
-    // Section previews fit the member objects (no frame, tight padding) —
-    // the docs page supplies its own framing (R2-D3/D4).
-    if (view) previewUrl.searchParams.set("fit", "content");
-    previewUrl.searchParams.set("w", "1280");
-
-    const fullscreenViewer = viewerOpen && typeof window.document !== "undefined"
-      ? createPortal(
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-label={`${title ?? canvasId} canvas viewer`}
-            className="fixed inset-0 z-[100] flex flex-col bg-background"
-          >
-            <header className="flex h-14 shrink-0 items-center justify-between gap-3 border-b bg-background px-4">
-              <div className="min-w-0">
-                <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                  Canvas viewer
-                </div>
-                <div className="truncate text-sm font-medium">{title ?? canvasId}</div>
-              </div>
-              <div className="flex items-center gap-2">
-                {showEditAction ? (
-                  <a
-                    href={editorUrl.toString()}
-                    target="_blank"
-                    rel="noreferrer"
-                    aria-label="Edit in Canvas"
-                    title="Edit in Canvas (opens in a new window)"
-                    className="inline-flex h-9 items-center gap-2 rounded-md border px-3 text-sm font-medium text-foreground hover:bg-muted"
-                  >
-                    <PencilIcon className="h-4 w-4" />
-                    Edit in Canvas
-                  </a>
-                ) : null}
-                <button
-                  type="button"
-                  aria-label="Close canvas viewer"
-                  title="Close"
-                  onClick={() => setViewerOpen(false)}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-md border text-foreground hover:bg-muted"
-                >
-                  <XIcon className="h-4 w-4" />
-                </button>
-              </div>
-            </header>
-            <iframe
-              src={embedUrl.toString()}
-              title={`${title ?? canvasId} viewer`}
-              sandbox="allow-same-origin allow-scripts"
-              className="min-h-0 flex-1 border-0 bg-[#F5F5F5]"
-            />
-          </div>,
-          window.document.body,
-        )
-      : null;
-
     return (
-      <>
-        <section
-          className="group relative not-prose my-4 overflow-hidden rounded-md border bg-background"
-          data-docs-block-type="canvas"
-          data-source-id={id}
-          data-canvas-id={canvasId}
+      <section
+        className="not-prose my-4 rounded-md border bg-background p-4 text-sm"
+        data-docs-block-type="canvas"
+        data-source-id={id}
+        data-canvas-id={canvasId}
+      >
+        <div className="font-medium text-foreground">{title ?? canvasId}</div>
+        <div className="mt-1 text-muted-foreground">
+          This block references central board &quot;{canvasId}&quot;, which isn&apos;t stored in
+          this docs repo — canvas embeds render from .canvas.json sidecars in the docs tree.
+        </div>
+        <a
+          href={studioUrl.toString()}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-3 inline-flex h-8 items-center gap-2 rounded-md border px-2.5 text-sm font-medium text-foreground hover:bg-muted"
         >
-          <img
-            src={previewUrl.toString()}
-            alt={title ?? `Canvas ${canvasId}`}
-            draggable={false}
-            className="block h-auto w-full select-none"
-          />
-          <div className="absolute right-2 top-2 flex items-center gap-2 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
-            {showEditAction ? (
-              <a
-                href={editorUrl.toString()}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex h-8 items-center gap-2 rounded-md border bg-background/90 px-2.5 text-sm font-medium text-foreground shadow-sm backdrop-blur hover:bg-muted"
-              >
-                <PencilIcon className="h-4 w-4" />
-                Edit in Canvas
-              </a>
-            ) : null}
-            <button
-              type="button"
-              aria-label="Open canvas viewer"
-              title="Open full-screen viewer"
-              onClick={() => setViewerOpen(true)}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-md border bg-background/90 text-foreground shadow-sm backdrop-blur hover:bg-muted"
-            >
-              <Maximize2Icon className="h-4 w-4" />
-            </button>
-          </div>
-        </section>
-        {fullscreenViewer}
-      </>
+          <ExternalLinkIcon className="h-4 w-4" />
+          Open Canvas Studio
+        </a>
+      </section>
     );
   }
 
@@ -231,11 +155,125 @@ export function StandaloneCanvasEmbed({
     );
   }
 
+  const viewerDocument = { ...document, title: title ?? document.title };
+  const viewerTitle = viewerDocument.title ?? viewerDocument.id;
+  // Inline renders are always the bare static viewer inside this embed's
+  // single rounded border — the viewer itself carries no framing. Annotation
+  // targeting wires onObjectSelect so canvas objects stay selectable; the
+  // inert path wraps the same render and adds the full-screen affordance.
+  const inlineViewer = (
+    <div className="not-prose my-4 overflow-hidden rounded-md border">
+      <InteractiveCanvasViewer
+        document={viewerDocument}
+        view={view}
+        onObjectSelect={onObjectSelect}
+      />
+    </div>
+  );
+  const fullscreenViewer =
+    viewerOpen && typeof window.document !== "undefined"
+      ? createPortal(
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={`${viewerTitle} canvas viewer`}
+            className="fixed inset-0 z-[100] flex flex-col bg-background"
+          >
+            <header className="flex h-14 shrink-0 items-center justify-between gap-3 border-b bg-background px-4">
+              <div className="min-w-0">
+                <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                  Canvas viewer
+                </div>
+                <div className="truncate text-sm font-medium">{viewerTitle}</div>
+              </div>
+              <div className="flex items-center gap-2">
+                {showEditAction ? (
+                  <a
+                    href={studioEditUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label="Edit in Canvas"
+                    title="Edit in Canvas (opens in a new window)"
+                    className="inline-flex h-9 items-center gap-2 rounded-md border px-3 text-sm font-medium text-foreground hover:bg-muted"
+                  >
+                    <PencilIcon className="h-4 w-4" />
+                    Edit in Canvas
+                  </a>
+                ) : null}
+                <button
+                  type="button"
+                  aria-label="Close canvas viewer"
+                  title="Close"
+                  onClick={() => setViewerOpen(false)}
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-md border text-foreground hover:bg-muted"
+                >
+                  <XIcon className="h-4 w-4" />
+                </button>
+              </div>
+            </header>
+            <div className="min-h-0 flex-1 bg-muted/30 p-4">
+              <InteractiveCanvasViewer
+                document={viewerDocument}
+                view={view}
+                interactive
+                onObjectSelect={onObjectSelect}
+              />
+            </div>
+          </div>,
+          window.document.body,
+        )
+      : null;
+
   return (
-    <InteractiveCanvasViewer
-      document={{ ...document, title: title ?? document.title }}
-      view={view}
-      onObjectSelect={onObjectSelect}
-    />
+    <>
+      <div
+        className="group relative"
+        data-docs-block-type="canvas"
+        data-source-id={id}
+        data-canvas-id={canvasId}
+      >
+        {onObjectSelect ? (
+          inlineViewer
+        ) : (
+          <>
+            <div inert aria-hidden="true" className="pointer-events-none">
+              {inlineViewer}
+            </div>
+            <button
+              type="button"
+              aria-label={`Open ${viewerTitle} in full-screen viewer`}
+              title="Open full-screen viewer"
+              onClick={() => setViewerOpen(true)}
+              className="absolute inset-0 z-10 cursor-zoom-in rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            />
+          </>
+        )}
+        <div className="absolute right-2 top-6 z-20 flex items-center gap-2 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+          {showEditAction ? (
+            <a
+              href={studioEditUrl}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Edit in Canvas"
+              title="Edit in Canvas (opens in a new window)"
+              className="inline-flex h-8 items-center gap-2 rounded-md border bg-background/90 px-2.5 text-sm font-medium text-foreground shadow-sm backdrop-blur hover:bg-muted"
+            >
+              <PencilIcon className="h-4 w-4" />
+              Edit in Canvas
+            </a>
+          ) : null}
+          <button
+            type="button"
+            aria-label="Open canvas viewer"
+            title="Open full-screen viewer"
+            onClick={() => setViewerOpen(true)}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md border bg-background/90 text-foreground shadow-sm backdrop-blur hover:bg-muted"
+          >
+            <Maximize2Icon className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+      {fullscreenViewer}
+    </>
   );
 }

@@ -1,6 +1,6 @@
 The section heading of the block vocabulary. Use it to give documents a greppable outline — `docs grep '^## '` finds every second-level section in a corpus.
 
-## State
+## State Schema
 
 | prop | type | required | notes |
 | --- | --- | --- | --- |
@@ -8,23 +8,23 @@ The section heading of the block vocabulary. Use it to give documents a greppabl
 
 Carries delta text (`carriesText: true`) with the full mark set. The schema is closed: `level` is the only prop.
 
-## Markdown render
-
-`#` through `######` per `props.level`, followed by the inline text. Out-of-range or non-integer levels fall back to 2 rather than failing.
-
-## In the editor
+## Doc Renderer
 
 Slash menu: **Heading 1**-**3** as top-level entries, with levels 4-6 under an **Other Headings** submenu. Input rules convert `#`, `##`, or `###` plus a space at the start of a line (levels 4-6 have no input rule). One round-trip subtlety: the editor keeps a `null` level sentinel for headings whose source props never set `level`, so editing one doesn't grow a spurious `props.level` on save.
 
-## Agent notes
+## Agent Renderer
+
+`#` through `######` per `props.level`, followed by the inline text. Out-of-range or non-integer levels fall back to 2 rather than failing.
+
+## Agent Notes
 
 - Set the level with a plain `updateBlock` props patch; there are no typed actions.
 
-- Convention in this corpus: one `level: 1` heading per document, as the title line.
+- Corpus convention: at most one `level: 1` heading per doc. The page title is furniture rendered above the body, so most docs have none; sections use `level: 2`.
 
-## Theming
+## Theme
 
-This block's theme file is `components/heading.json` in a theme folder (`themes/<id>/`; see 20-implementation/40-theming). Every value is one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY`.
+This block's theme file is `components/heading.json` in a theme folder (`themes/<id>/`; see Theming). Every value is one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY`.
 
 | Key | CSS variable | Styles |
 | --- | --- | --- |

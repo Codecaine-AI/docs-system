@@ -13,10 +13,10 @@
         "b-30-image-state-h-3",
         "b-30-image-state-4",
         "b-30-image-state-note-5",
-        "b-30-image-proj-h-6",
-        "b-30-image-proj-7",
         "b-30-image-editor-h-8",
         "b-30-image-editor-9",
+        "b-30-image-proj-h-6",
+        "b-30-image-proj-7",
         "b-30-image-agent-h-10",
         "b-30-image-agent-1-11",
         "b-30-image-agent-2-12",
@@ -34,7 +34,13 @@
           "insert": "The image block of the "
         },
         {
-          "insert": "block vocabulary"
+          "insert": "block vocabulary",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary"
+            }
+          }
         },
         {
           "insert": ": a picture from the bundle's assets, with alt text and an optional caption. Owned by the rich-text component (it lives in the text flow), but carries no text of its own."
@@ -50,7 +56,7 @@
       },
       "text": [
         {
-          "insert": "State"
+          "insert": "State Schema"
         }
       ],
       "children": []
@@ -117,6 +123,102 @@
       ],
       "children": []
     },
+    "b-30-image-editor-h-8": {
+      "id": "b-30-image-editor-h-8",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Doc Renderer"
+        }
+      ],
+      "children": []
+    },
+    "b-30-image-editor-9": {
+      "id": "b-30-image-editor-9",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Slash menu: "
+        },
+        {
+          "insert": "Image",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " (aliases: picture, photo) — inserts an empty block that renders a missing-"
+        },
+        {
+          "insert": "src",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " placeholder card. A non-editable atom leaf node with no props UI in the editor: set "
+        },
+        {
+          "insert": "src",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": "alt",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": "caption",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " through agent ops. Asset uploads go through the server's generic "
+        },
+        {
+          "insert": "POST /api/assets",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " route, which stores "
+        },
+        {
+          "insert": "image/*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " files under the bundle's "
+        },
+        {
+          "insert": "assets/images/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
     "b-30-image-proj-h-6": {
       "id": "b-30-image-proj-h-6",
       "type": "heading",
@@ -125,7 +227,7 @@
       },
       "text": [
         {
-          "insert": "Markdown render"
+          "insert": "Agent Renderer"
         }
       ],
       "children": []
@@ -168,39 +270,6 @@
       ],
       "children": []
     },
-    "b-30-image-editor-h-8": {
-      "id": "b-30-image-editor-h-8",
-      "type": "heading",
-      "props": {
-        "level": 2
-      },
-      "text": [
-        {
-          "insert": "In the editor"
-        }
-      ],
-      "children": []
-    },
-    "b-30-image-editor-9": {
-      "id": "b-30-image-editor-9",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "Slash menu: "
-        },
-        {
-          "insert": "Image",
-          "attributes": {
-            "bold": true
-          }
-        },
-        {
-          "insert": " (aliases: picture, photo). A non-editable atom leaf node; the image itself is not text-editable, and its props edit through the block's UI or agent ops."
-        }
-      ],
-      "children": []
-    },
     "b-30-image-agent-h-10": {
       "id": "b-30-image-agent-h-10",
       "type": "heading",
@@ -209,7 +278,7 @@
       },
       "text": [
         {
-          "insert": "Agent notes"
+          "insert": "Agent Notes"
         }
       ],
       "children": []
@@ -298,7 +367,7 @@
       },
       "text": [
         {
-          "insert": "Theming"
+          "insert": "Theme"
         }
       ],
       "children": []
@@ -327,7 +396,19 @@
           }
         },
         {
-          "insert": "; see 20-implementation/40-theming). Every value is one string for both modes or a "
+          "insert": "; see "
+        },
+        {
+          "insert": "Theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/40-theming"
+            }
+          }
+        },
+        {
+          "insert": "). Every value is one string for both modes or a "
         },
         {
           "insert": "{ light, dark }",
@@ -341,7 +422,11 @@
         {
           "insert": "THEME_TOKEN_REGISTRY",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/theme/theme-folders.ts"
+            }
           }
         },
         {

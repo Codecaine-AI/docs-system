@@ -12,10 +12,10 @@
         "b-13-quote-lead-2",
         "b-13-quote-state-h-3",
         "b-13-quote-state-4",
-        "b-13-quote-proj-h-5",
-        "b-13-quote-proj-6",
         "b-13-quote-editor-h-7",
         "b-13-quote-editor-8",
+        "b-13-quote-proj-h-5",
+        "b-13-quote-proj-6",
         "b-13-quote-agent-h-9",
         "b-13-quote-agent-1-10",
         "b-13-quote-agent-2-11",
@@ -33,7 +33,13 @@
           "insert": "The block quote of the "
         },
         {
-          "insert": "block vocabulary"
+          "insert": "block vocabulary",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary"
+            }
+          }
         },
         {
           "insert": ": rich text set apart for emphasis or citation. For labeled, toned admonitions use a "
@@ -61,7 +67,7 @@
       },
       "text": [
         {
-          "insert": "State"
+          "insert": "State Schema"
         }
       ],
       "children": []
@@ -95,39 +101,6 @@
       ],
       "children": []
     },
-    "b-13-quote-proj-h-5": {
-      "id": "b-13-quote-proj-h-5",
-      "type": "heading",
-      "props": {
-        "level": 2
-      },
-      "text": [
-        {
-          "insert": "Markdown render"
-        }
-      ],
-      "children": []
-    },
-    "b-13-quote-proj-6": {
-      "id": "b-13-quote-proj-6",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "A "
-        },
-        {
-          "insert": ">",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "-prefixed blockquote line (every line of the text gets the prefix)."
-        }
-      ],
-      "children": []
-    },
     "b-13-quote-editor-h-7": {
       "id": "b-13-quote-editor-h-7",
       "type": "heading",
@@ -136,7 +109,7 @@
       },
       "text": [
         {
-          "insert": "In the editor"
+          "insert": "Doc Renderer"
         }
       ],
       "children": []
@@ -170,6 +143,39 @@
       ],
       "children": []
     },
+    "b-13-quote-proj-h-5": {
+      "id": "b-13-quote-proj-h-5",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent Renderer"
+        }
+      ],
+      "children": []
+    },
+    "b-13-quote-proj-6": {
+      "id": "b-13-quote-proj-6",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A "
+        },
+        {
+          "insert": ">",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "-prefixed blockquote line (every line of the text gets the prefix)."
+        }
+      ],
+      "children": []
+    },
     "b-13-quote-agent-h-9": {
       "id": "b-13-quote-agent-h-9",
       "type": "heading",
@@ -178,7 +184,7 @@
       },
       "text": [
         {
-          "insert": "Agent notes"
+          "insert": "Agent Notes"
         }
       ],
       "children": []
@@ -222,7 +228,7 @@
           }
         },
         {
-          "insert": " prefix with callout, mermaid, and video renders; grep for "
+          "insert": " prefix with callout and video renders; grep for "
         },
         {
           "insert": "> \\*\\*",
@@ -244,7 +250,7 @@
       },
       "text": [
         {
-          "insert": "Theming"
+          "insert": "Theme"
         }
       ],
       "children": []
@@ -273,7 +279,19 @@
           }
         },
         {
-          "insert": "; see 20-implementation/40-theming). Every value is one string for both modes or a "
+          "insert": "; see "
+        },
+        {
+          "insert": "Theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/40-theming"
+            }
+          }
+        },
+        {
+          "insert": "). Every value is one string for both modes or a "
         },
         {
           "insert": "{ light, dark }",
@@ -287,7 +305,11 @@
         {
           "insert": "THEME_TOKEN_REGISTRY",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/theme/theme-folders.ts"
+            }
           }
         },
         {

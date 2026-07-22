@@ -19,7 +19,7 @@ This page states the depth ladder, the folder rules, and why the shape holds.
 └── 40-theming/  # a folder — themes split four ways
 ```
 
-## The depth ladder
+## The Depth Ladder
 
 Six levels — three in the doc tree, three in the source:
 
@@ -40,7 +40,7 @@ Six levels — three in the doc tree, three in the source:
 
 - Below L3 the rungs live in the source — in-code docs owns them.
 
-## Folders and bundles
+## Folders and Bundles
 
 - A doc is a folder containing `doc.json` — `10-authentication/` holding a bundle, not `10-authentication.md`. The folder name is the doc's address; the bundle inside is its state.
 

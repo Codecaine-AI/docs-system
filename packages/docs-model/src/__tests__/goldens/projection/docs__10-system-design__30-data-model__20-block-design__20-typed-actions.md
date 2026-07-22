@@ -19,7 +19,7 @@ export const addEntry = defineComponentAction({
 > **L6-9 (Params are schema):** TypeBox, served verbatim by discovery and validated at apply time.
 > **L10 (A patch, not a mutation):** apply returns a shallow-merge props patch — which is what makes the inverse, and undo, free.
 
-## The rule
+## The Rule
 
 - **Keyed and discoverable**
 

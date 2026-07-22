@@ -204,11 +204,11 @@ function ReferenceChipView({ node }: ReactNodeViewProps) {
         onFocus={() => setTooltipOpen(true)}
         onMouseEnter={showTooltipSoon}
         onMouseLeave={hideTooltip}
-        className="group inline-flex cursor-pointer items-center gap-[var(--docs-ref-icon-gap,2px)] [flex-direction:var(--docs-ref-icon-direction,row)] text-[color:var(--docs-ref-color,var(--muted-foreground))]"
+        className="group inline-flex cursor-pointer items-baseline gap-[var(--docs-ref-icon-gap,2px)] [flex-direction:var(--docs-ref-icon-direction,row)] text-[color:var(--docs-ref-color,var(--muted-foreground))]"
       >
         <FileTextIcon
           aria-hidden
-          className="shrink-0 text-[color:var(--docs-ref-icon-color,currentColor)] [height:var(--docs-ref-icon-size,12px)] [width:var(--docs-ref-icon-size,12px)]"
+          className="self-center shrink-0 text-[color:var(--docs-ref-icon-color,currentColor)] [height:var(--docs-ref-icon-size,12px)] [width:var(--docs-ref-icon-size,12px)]"
         />
         <span className="underline-offset-2 group-hover:underline group-hover:decoration-[color:var(--docs-ref-underline-color,color-mix(in_srgb,var(--foreground)_40%,transparent))]">
           {attrs.label || attrs.ref?.label || attrs.ref?.path}

@@ -25,7 +25,7 @@ This page states the source-link object, how paths are written, and why the docs
 
   - `docs links check` verifies the target file exists; a doc link resolves through the docs lookup instead.
 
-## The rule
+## The Rule
 
 - **One-way, doc to code**
 

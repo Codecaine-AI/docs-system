@@ -105,7 +105,7 @@ export {
   type UploadDocVideoAssetResult,
 } from "./assets";
 
-// Canvas sidecars (doc-relative) + MDX reference helpers
+// Canvas sidecars (doc-relative + src-rooted) + MDX reference helpers
 export {
   appendCanvasReferenceToContent,
   canvasMdxReference,
@@ -113,14 +113,21 @@ export {
   createCanvasSidecar,
   deleteCanvasSidecar,
   insertCanvasReferenceIntoContent,
+  listCanvasSidecars,
   loadCanvasSidecarByDocPath,
+  loadCanvasSidecarBySrc,
   loadDocsSourceFile,
   removeCanvasReferenceFromContent,
   saveCanvasSidecar,
+  saveCanvasSidecarBySrc,
   validateCanvasPayload,
   type CanvasReferenceInsertPosition,
   type CanvasSidecarByDocPathError,
   type CanvasSidecarByDocPathLoadResult,
+  type CanvasSidecarBySrcError,
+  type CanvasSidecarBySrcLoadResult,
+  type CanvasSidecarBySrcWireResponse,
+  type CanvasSidecarListEntry,
   type CanvasSidecarWireResponse,
   type CreateCanvasSidecarInput,
   type CreateCanvasSidecarResult,
@@ -128,6 +135,8 @@ export {
   type DeleteCanvasSidecarResult,
   type DocsSourceFileLoadError,
   type DocsSourceFileLoadResult,
+  type SaveCanvasSidecarBySrcInput,
+  type SaveCanvasSidecarBySrcResult,
   type SaveCanvasSidecarInput,
   type SaveCanvasSidecarResult,
 } from "./canvas-sidecar";

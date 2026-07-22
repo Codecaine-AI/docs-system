@@ -1,4 +1,4 @@
-The annotated path tree of the block vocabulary: a flat list of path entries in props that renders — on both surfaces — as a `tree`-command drawing, with notes and per-entry change markers for describing repo slices and refactors.
+The file-tree component owns one block type, `file-tree`: the vocabulary's annotated path tree. A flat list of path entries in props renders — on both surfaces — as a `tree`-command drawing, with per-entry notes and change markers for describing repo slices and refactors. State and actions live in `packages/docs-model/src/components/file-tree/`; the doc render lives in `packages/docs-viewer/src/components/file-tree/`.
 
 ## Example
 
@@ -18,12 +18,9 @@ A live instance: a refactor slice of this block's own source folder.
                   └── state.ts  # entry schema + tolerant read
 ```
 
-## State
+## State Schema
 
-| prop | type | required | notes |
-| --- | --- | --- | --- |
-| title | string | no | Optional bold caption above the tree. |
-| entries | array | yes | Array of { path, note?, change?, from? } — see below. |
+All state is one props key: `entries`, an array of path entries validated by the closed `FileTreeState` schema in `state.ts`. The type carries no delta text (`carriesText: false`) and no title prop — every fact lives in `entries`. The contract is State schema.
 
 **One entry**
 
@@ -34,11 +31,41 @@ A live instance: a refactor slice of this block's own source folder.
 | change | "added" / "removed" / "modified" / "renamed" | no | Diff marker for the entry. |
 | from | string | no | Previous path, used with change: "renamed". |
 
-No text (`carriesText: false`). Directories don't need their own entries — they are derived from path prefixes.
+- Path rules
 
-## Typed actions
+  - `path` is /-separated; `validateTreePath` in `lib.ts` rejects a leading "./", a leading "/", and empty segments on every action write.
 
-Ordering is stable by design: `addEntry` appends (and rejects a duplicate path), `updateEntry` patches or renames in place (`newPath` keeps position; `null` clears `note`/`change`/`from`), `removeEntry` deletes by exact path.
+  - Directories need no entries of their own — they are derived from path prefixes, and a derived directory carries no note or change state.
+
+  - An entry authored as a file is promoted to a directory when later entries nest beneath it.
+
+> **Gotcha** — The trailing "/" is the directory marker. An entry without it renders as a file — and files sort after directories — so a bare directory path lands styled and ordered as a file. Author an explicit directory as `path/`.
+
+- Tolerant read
+
+  - `readFileTreeEntries` skips an entry whose `path` is missing or empty and drops wrong-typed `note`/`change`/`from` values; nothing is repaired.
+
+  - Actions match the `path` string literally — keep paths exact.
+
+## Typed Actions
+
+Three actions — one file each under `actions/` — are the type's whole custom write surface. `addEntry` is the Structure excerpt on Typed actions.
+
+- `addEntry`
+
+  - Appends to the end of `entries`; a duplicate path is an error.
+
+  - Params are `path` plus optional `note` and `change` — `from` enters only through `updateEntry`.
+
+- `updateEntry`
+
+  - Patches `note`/`change`/`from` in place; `null` clears a field.
+
+  - `newPath` renames without moving — the entry keeps its array position; a `newPath` that collides with another entry is an error.
+
+- `removeEntry`
+
+  - Deletes by exact path; a missing path is an error, not a no-op.
 
 **file-tree — entry actions**
 
@@ -48,23 +75,73 @@ file-tree.removeEntry(path: string) -> props patch: { entries }  # Remove the en
 file-tree.updateEntry(path: string, note?: string | null, change?: string | null, from?: string | null, newPath?: string) -> props patch: { entries }  # Patch an entry's note/change/from, or rename it via newPath (in place).
 ```
 
-## Renderers
+Every `apply` is pure — entries in, a props patch `{ entries }` out — and the patch revalidates against `FileTreeState` before anything persists.
 
-In the editor: a non-editable atom leaf node rendered by `FileTreeDocsBlock`. No slash-menu entry today — file trees enter through agent ops or existing content.
+## Doc Renderer
 
-In the markdown render: an optional `**<title>**` bold line, then a literal tree rendering inside a bare fence: `├──`/`└──`/`│` guides, directories first then alphabetical (deterministic codepoint order), notes appended as `# note`. Change markers prefix the line — `+` added, `-` removed, `~` modified, `>` renamed (rendered as `{from} -> {name}`) — and when any entry carries a marker, unmarked lines are padded with two spaces so the guides stay aligned.
+`FileTreeDocsBlock` (`FileTreeDocsBlock.tsx`) draws the block on the doc surface — reader and editor alike — as a bordered monospace panel: a `.` root line, then one row per node with `tree`-style guides (`├──`, `└──`, `│`). An empty `entries` array renders a `(no entries)` placeholder. The contract is Doc renderer.
 
-## Agent notes
+- Ordering
 
-- Malformed entries are skipped on read, not repaired — keep paths exact (`removeEntry`/`updateEntry` match the `path` string literally).
+  - Directories sort first at every level, then names in ascending codepoint order; directory names render with a trailing "/".
 
-- The rename marker is the whole diff story: set `change: "renamed"` plus `from` and the markdown render draws `old -> new` on one line.
+  - The order matches the agent render exactly — the two surfaces agree by design.
 
-## Theming
+- Change markers
 
-This block's theme file is `components/file-tree.json` in a theme folder (`themes/<id>/`; see 20-implementation/40-theming). Every value is one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY`.
+  - A change tints the row and puts its marker in the gutter: `+` added (emerald), `-` removed (rose, name struck through), `~` modified (amber), `>` renamed (sky).
+
+  - A renamed row draws the old `from` path struck through, then `→`, then the new name.
+
+- Notes
+
+  - `note` renders as a muted `# note` comment after the name, truncated at 48ch with the full text on hover.
+
+- In the editor
+
+  - `file-tree` is an atom leaf node (`ATOM_BLOCK_TYPES` in `schema.ts`): read-only, rendered by the same `FileTreeDocsBlock` through the shared atom node view.
+
+  - No slash-menu entry — file trees enter through agent ops or existing content.
+
+## Agent Renderer
+
+`projectFileTree` in `agent-view.ts` renders the same tree as literal text inside a bare fence — the greppable form an agent reads. The Example block above projects to:
+
+```text
+  packages/
+  └── docs-model/
+      └── src/
+          └── components/
+              └── file-tree/
+                  ├── actions/
++                 │   └── update-entry.ts
+~                 ├── agent-view.ts  # tree drawing
+>                 ├── packages/docs-model/src/components/file-tree/render.ts -> lib.ts
+                  ├── manifest.ts
+                  └── state.ts  # entry schema + tolerant read
+```
+> **L9 (Renamed):** A renamed entry draws the full old path, an ASCII ->, then the new leaf name — the whole diff story on one line.
+> **L10-11 (Marker padding):** Entries in this tree carry markers, so unmarked lines pad with two spaces and the guides stay aligned.
+
+- Ordering and guides match the doc render; top-level nodes render flat, with no `.` root line.
+
+- Notes append as `  # note`; directory names keep the trailing "/".
+
+- Change markers prefix the line: `+` added, `-` removed, `~` modified, `>` renamed.
+
+- The render is pure and pinned byte-for-byte by goldens; the obligations are Agent renderer.
+
+## Theme
+
+This block's theme file is `components/file-tree.json` in a theme folder (`themes/<id>/`). Every value is one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY` in `theme-folders.ts`. The contract is Theming.
 
 | Key | CSS variable | Styles |
 | --- | --- | --- |
 | border | --docs-file-tree-border | Container border |
 | note | --docs-file-tree-note-fg | Per-entry note text color |
+
+The registry carries exactly these two keys for `file-tree`, both colors. The diff row tints and guide colors are fixed styles, not tokens.
+
+## Agent Adapter
+
+The family uses the default adapter: no agent of its own, no forwarding to an external authority. All three actions declare `apply`, so agent edits ride the generic op stream as `componentAction` ops — `{ type: "componentAction", blockId, action: "file-tree.addEntry", params }` — which resolve the action from the registry, validate params, and land as an `updateBlock` props patch with the usual inverse. The contract is Agent adapter.

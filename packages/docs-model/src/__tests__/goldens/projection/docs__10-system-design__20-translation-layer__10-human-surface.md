@@ -22,7 +22,7 @@ This page states what the surface owes a human reader and how a human's edits re
 
 No edit touches the file. Every change the surface makes lands as a typed operation against the canonical state — the mutation model defines them.
 
-## Theming and embedding
+## Theming and Embedding
 
 - The surface is themable through an open token contract — colors, fonts, spacing — and the theme evolves live while editing.
 

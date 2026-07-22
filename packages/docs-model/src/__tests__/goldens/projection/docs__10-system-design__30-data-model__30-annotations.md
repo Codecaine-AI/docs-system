@@ -43,7 +43,7 @@ They never live inside `doc.json` — each bundle may carry an `annotations.json
 > **L3 (The canonical key):** The sidecar is annotations.json with an annotations array — the only accepted shape.
 > **L25-30 (The receipt):** The agent run that handled the request — session, patch, summary, and exactly which ids changed.
 
-## The annotation
+## The Annotation
 
 Annotation ids follow the same stable-ASCII id rule as block ids and must be unique within the sidecar. Validation is the same style as the document validator: pure, no throw, typed issue list.
 
@@ -59,7 +59,7 @@ Annotation ids follow the same stable-ASCII id rule as block ids and must be uni
 | agentRun? | { sessionId, patchId, summary, changedIds? } | Receipt of the agent run that handled the request. |
 | resolution? | string | Optional note persisted when resolving with a response. |
 
-## The target
+## The Target
 
 A target addresses anything a reader can point at. The annotation shape is the same for every one of them — what differs is how it gets processed, and that is the block type's business, not the annotation's.
 
@@ -83,7 +83,7 @@ A target addresses anything a reader can point at. The annotation shape is the s
 
 The shape never specializes: an annotation on a sequence diagram looks exactly like an annotation on a paragraph. Special cases are handled at processing time by the type's agent adapter. The sidecar schema persists block and canvas-object targets today; the remaining kinds land additively, under the same optional-fields growth rule.
 
-## The lifecycle
+## The Lifecycle
 
 - **Open annotations are the work queue**
 
@@ -111,7 +111,7 @@ The shape never specializes: an annotation on a sequence diagram looks exactly l
 
 The name is deliberately shared across packages: the canvas package's own agent processes annotations on canvas objects through this same concept and shape — one vocabulary everywhere annotations appear.
 
-## Dangling targets
+## Dangling Targets
 
 Because targets anchor by id, deletion — and the fresh ids minted by split and merge — can strand them. `detectDanglingTargets` flags annotations whose targets no longer resolve: a block target dangles when its blockId is missing from the document. Dangling annotations are reported, not auto-deleted — the record of what was asked outlives the block it pointed at.
 

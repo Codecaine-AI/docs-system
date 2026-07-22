@@ -33,7 +33,7 @@
       },
       "text": [
         {
-          "insert": "docs-system: system architecture"
+          "insert": "docs-system: System Architecture"
         }
       ],
       "children": []
@@ -196,7 +196,7 @@
       },
       "text": [
         {
-          "insert": "The pipeline at a glance"
+          "insert": "The Pipeline at a Glance"
         }
       ],
       "children": []
@@ -243,7 +243,7 @@
       },
       "text": [
         {
-          "insert": "Where content lives"
+          "insert": "Where Content Lives"
         }
       ],
       "children": []
@@ -412,7 +412,7 @@
       },
       "text": [
         {
-          "insert": "Reading these docs"
+          "insert": "Reading These Docs"
         }
       ],
       "children": []

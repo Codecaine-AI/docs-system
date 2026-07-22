@@ -28,7 +28,7 @@ const MINOR_WORDS = new Set(["a", "an", "and", "as", "at", "but", "by", …]);
 
 No unit carries doc links: code linking is one-way, and the source stays ignorant of the docs.
 
-## The rule
+## The Rule
 
 - **File header**
 

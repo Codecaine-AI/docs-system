@@ -1,4 +1,4 @@
-# Package map
+# Package Map
 
 The as-built inventory: every workspace package, what it owns today, and the tests that keep the seams honest. Why the boundaries sit where they do — the runtime constraints, the judgment calls, the live merge candidates — is design, not inventory: see Package boundaries.
 
@@ -42,7 +42,7 @@ The boundaries are tested, not aspirational. At the repo root, `import-boundarie
 
 `component-mirror.test.ts` separately keeps docs-viewer's component folders in a 1:1 mirror with docs-model's component bundles.
 
-## Sequence examples
+## Sequence Examples
 
 Live examples of the new sequence block, each rendered from a sidecar document under `assets/sequences/`: the first two diagram this repo's own agent save pipeline and viewer/host embed seam; the third is the UML combined-fragment reference flow.
 

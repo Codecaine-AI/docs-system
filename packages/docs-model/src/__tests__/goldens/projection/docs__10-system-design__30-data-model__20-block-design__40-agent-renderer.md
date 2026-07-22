@@ -13,7 +13,7 @@ function projectStructuredTable(block: DocBlock): string {
 > **L2 (State in, string out):** A pure function of the block — no I/O, no surface knowledge.
 > **L5 (Degrade, never throw):** Malformed props render best-effort text; the agent surface never crashes on a bad block.
 
-## The rule
+## The Rule
 
 - **Pure and stable**
 

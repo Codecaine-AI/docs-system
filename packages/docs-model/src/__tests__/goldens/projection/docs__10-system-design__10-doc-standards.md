@@ -12,7 +12,7 @@ The structure defined in these standards is built for many agents at once.
 | `10-system-design` | Behavior, implementation-agnostic | When behavior changes |
 | `20-implementation` | Functionality, decisions, etc. of the current code | With the code |
 
-## The "Why" Travels with Every Decision
+## The "Why" Travels With Every Decision
 
 Every decision in these docs carries its why
 
@@ -24,7 +24,7 @@ Every decision in these docs carries its why
 
   - An agent checking its work against the docs cannot overturn deliberate intent by accident
 
-## The shape on disk
+## The Shape on Disk
 
 ```
 00-foundation/  # intent — what this is and why; every change is compared against it

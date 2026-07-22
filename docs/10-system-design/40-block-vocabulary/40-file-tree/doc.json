@@ -14,21 +14,37 @@
         "b-21-file-tree-example-intro",
         "b-21-file-tree-example-block",
         "b-21-file-tree-state-h-3",
-        "b-21-file-tree-state-4",
+        "b-ftfam-state-lead",
         "b-21-file-tree-entry-state-5",
-        "b-21-file-tree-state-note-6",
+        "b-ftfam-path-rules",
+        "b-ftfam-dir-gotcha",
+        "b-ftfam-tolerant",
         "b-21-file-tree-actions-h-9",
-        "b-21-file-tree-actions-note-10",
+        "b-ftfam-actions-intro",
+        "b-ftfam-act-add",
+        "b-ftfam-act-update",
+        "b-ftfam-act-remove",
         "b-21-file-tree-actions-11",
+        "b-ftfam-actions-close",
         "b-21-file-tree-renderers-heading",
-        "b-21-file-tree-editor-13",
-        "b-21-file-tree-proj-8",
+        "b-ftfam-docr-lead",
+        "b-ftfam-docr-order",
+        "b-ftfam-docr-changes",
+        "b-ftfam-docr-notes",
+        "b-ftfam-docr-editor",
         "b-21-file-tree-agent-h-14",
-        "b-21-file-tree-agent-1-15",
-        "b-21-file-tree-agent-2-16",
+        "b-ftfam-agentr-lead",
+        "b-ftfam-agentr-code",
+        "b-ftfam-agentr-1",
+        "b-ftfam-agentr-2",
+        "b-ftfam-agentr-3",
+        "b-ftfam-agentr-4",
         "b-21-file-tree-theming-heading",
         "b-21-file-tree-theming-para",
-        "b-21-file-tree-theming-table"
+        "b-21-file-tree-theming-table",
+        "b-ftfam-theme-note",
+        "b-ftfam-adapter-h",
+        "b-ftfam-adapter-p"
       ]
     },
     "b-21-file-tree-lead-2": {
@@ -37,13 +53,16 @@
       "props": {},
       "text": [
         {
-          "insert": "The annotated path tree of the "
+          "insert": "The file-tree component owns one block type, "
         },
         {
-          "insert": "block vocabulary"
+          "insert": "file-tree",
+          "attributes": {
+            "code": true
+          }
         },
         {
-          "insert": ": a flat list of path entries in props that renders — on both surfaces — as a "
+          "insert": ": the vocabulary's annotated path tree. A flat list of path entries in props renders — on both surfaces — as a "
         },
         {
           "insert": "tree",
@@ -52,7 +71,33 @@
           }
         },
         {
-          "insert": "-command drawing, with notes and per-entry change markers for describing repo slices and refactors."
+          "insert": "-command drawing, with per-entry notes and change markers for describing repo slices and refactors. State and actions live in "
+        },
+        {
+          "insert": "packages/docs-model/src/components/file-tree/",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/components/file-tree"
+            }
+          }
+        },
+        {
+          "insert": "; the doc render lives in "
+        },
+        {
+          "insert": "packages/docs-viewer/src/components/file-tree/",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/components/file-tree"
+            }
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []
@@ -119,36 +164,81 @@
       },
       "text": [
         {
-          "insert": "State"
+          "insert": "State Schema"
         }
       ],
       "children": []
     },
-    "b-21-file-tree-state-4": {
-      "id": "b-21-file-tree-state-4",
-      "type": "structured-table",
-      "props": {
-        "columns": [
-          "prop",
-          "type",
-          "required",
-          "notes"
-        ],
-        "rows": [
-          [
-            "title",
-            "string",
-            "no",
-            "Optional bold caption above the tree."
-          ],
-          [
-            "entries",
-            "array",
-            "yes",
-            "Array of { path, note?, change?, from? } — see below."
-          ]
-        ]
-      },
+    "b-ftfam-state-lead": {
+      "id": "b-ftfam-state-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "All state is one props key: "
+        },
+        {
+          "insert": "entries",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", an array of path entries validated by the closed "
+        },
+        {
+          "insert": "FileTreeState",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " schema in "
+        },
+        {
+          "insert": "state.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/components/file-tree/state.ts"
+            }
+          }
+        },
+        {
+          "insert": ". The type carries no delta text ("
+        },
+        {
+          "insert": "carriesText: false",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ") and no title prop — every fact lives in "
+        },
+        {
+          "insert": "entries",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". The contract is "
+        },
+        {
+          "insert": "State schema",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/10-state-schema"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
       "children": []
     },
     "b-21-file-tree-entry-state-5": {
@@ -191,82 +281,141 @@
       },
       "children": []
     },
-    "b-21-file-tree-state-note-6": {
-      "id": "b-21-file-tree-state-note-6",
-      "type": "paragraph",
+    "b-ftfam-path-rules": {
+      "id": "b-ftfam-path-rules",
+      "type": "list-item",
       "props": {},
       "text": [
         {
-          "insert": "No text ("
-        },
+          "insert": "Path rules"
+        }
+      ],
+      "children": [
+        "b-ftfam-path-rules-1",
+        "b-ftfam-path-rules-2",
+        "b-ftfam-path-rules-3"
+      ]
+    },
+    "b-ftfam-path-rules-1": {
+      "id": "b-ftfam-path-rules-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
-          "insert": "carriesText: false",
+          "insert": "path",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": "). Directories don't need their own entries — they are derived from path prefixes."
+          "insert": " is /-separated; "
+        },
+        {
+          "insert": "validateTreePath",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "lib.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/components/file-tree/lib.ts"
+            }
+          }
+        },
+        {
+          "insert": " rejects a leading \"./\", a leading \"/\", and empty segments on every action write."
         }
       ],
       "children": []
     },
-    "b-21-file-tree-actions-h-9": {
-      "id": "b-21-file-tree-actions-h-9",
-      "type": "heading",
+    "b-ftfam-path-rules-2": {
+      "id": "b-ftfam-path-rules-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Directories need no entries of their own — they are derived from path prefixes, and a derived directory carries no note or change state."
+        }
+      ],
+      "children": []
+    },
+    "b-ftfam-path-rules-3": {
+      "id": "b-ftfam-path-rules-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An entry authored as a file is promoted to a directory when later entries nest beneath it."
+        }
+      ],
+      "children": []
+    },
+    "b-ftfam-dir-gotcha": {
+      "id": "b-ftfam-dir-gotcha",
+      "type": "callout",
       "props": {
-        "level": 2
+        "kind": "Gotcha",
+        "tone": "warning"
       },
       "text": [
         {
-          "insert": "Typed actions"
+          "insert": "The trailing \"/\" is the directory marker. An entry without it renders as a file — and files sort after directories — so a bare directory path lands styled and ordered as a file. Author an explicit directory as "
+        },
+        {
+          "insert": "path/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []
     },
-    "b-21-file-tree-actions-note-10": {
-      "id": "b-21-file-tree-actions-note-10",
-      "type": "paragraph",
+    "b-ftfam-tolerant": {
+      "id": "b-ftfam-tolerant",
+      "type": "list-item",
       "props": {},
       "text": [
         {
-          "insert": "Ordering is stable by design: "
-        },
+          "insert": "Tolerant read"
+        }
+      ],
+      "children": [
+        "b-ftfam-tolerant-1",
+        "b-ftfam-tolerant-2"
+      ]
+    },
+    "b-ftfam-tolerant-1": {
+      "id": "b-ftfam-tolerant-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
-          "insert": "addEntry",
+          "insert": "readFileTreeEntries",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " appends (and rejects a duplicate path), "
+          "insert": " skips an entry whose "
         },
         {
-          "insert": "updateEntry",
+          "insert": "path",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " patches or renames in place ("
-        },
-        {
-          "insert": "newPath",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " keeps position; "
-        },
-        {
-          "insert": "null",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " clears "
+          "insert": " is missing or empty and drops wrong-typed "
         },
         {
           "insert": "note",
@@ -293,16 +442,295 @@
           }
         },
         {
-          "insert": "), "
+          "insert": " values; nothing is repaired."
+        }
+      ],
+      "children": []
+    },
+    "b-ftfam-tolerant-2": {
+      "id": "b-ftfam-tolerant-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Actions match the "
         },
         {
-          "insert": "removeEntry",
+          "insert": "path",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " deletes by exact path."
+          "insert": " string literally — keep paths exact."
+        }
+      ],
+      "children": []
+    },
+    "b-21-file-tree-actions-h-9": {
+      "id": "b-21-file-tree-actions-h-9",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Typed Actions"
+        }
+      ],
+      "children": []
+    },
+    "b-ftfam-actions-intro": {
+      "id": "b-ftfam-actions-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Three actions — one file each under "
+        },
+        {
+          "insert": "actions/",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/components/file-tree/actions"
+            }
+          }
+        },
+        {
+          "insert": " — are the type's whole custom write surface. "
+        },
+        {
+          "insert": "addEntry",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is the Structure excerpt on "
+        },
+        {
+          "insert": "Typed actions",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/20-typed-actions"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-ftfam-act-add": {
+      "id": "b-ftfam-act-add",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "addEntry",
+          "attributes": {
+            "code": true
+          }
+        }
+      ],
+      "children": [
+        "b-ftfam-act-add-1",
+        "b-ftfam-act-add-2"
+      ]
+    },
+    "b-ftfam-act-add-1": {
+      "id": "b-ftfam-act-add-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Appends to the end of "
+        },
+        {
+          "insert": "entries",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "; a duplicate path is an error."
+        }
+      ],
+      "children": []
+    },
+    "b-ftfam-act-add-2": {
+      "id": "b-ftfam-act-add-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Params are "
+        },
+        {
+          "insert": "path",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " plus optional "
+        },
+        {
+          "insert": "note",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "change",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — "
+        },
+        {
+          "insert": "from",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " enters only through "
+        },
+        {
+          "insert": "updateEntry",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-ftfam-act-update": {
+      "id": "b-ftfam-act-update",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "updateEntry",
+          "attributes": {
+            "code": true
+          }
+        }
+      ],
+      "children": [
+        "b-ftfam-act-update-1",
+        "b-ftfam-act-update-2"
+      ]
+    },
+    "b-ftfam-act-update-1": {
+      "id": "b-ftfam-act-update-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Patches "
+        },
+        {
+          "insert": "note",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": "change",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": "from",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in place; "
+        },
+        {
+          "insert": "null",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " clears a field."
+        }
+      ],
+      "children": []
+    },
+    "b-ftfam-act-update-2": {
+      "id": "b-ftfam-act-update-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "newPath",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " renames without moving — the entry keeps its array position; a "
+        },
+        {
+          "insert": "newPath",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " that collides with another entry is an error."
+        }
+      ],
+      "children": []
+    },
+    "b-ftfam-act-remove": {
+      "id": "b-ftfam-act-remove",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "removeEntry",
+          "attributes": {
+            "code": true
+          }
+        }
+      ],
+      "children": [
+        "b-ftfam-act-remove-1"
+      ]
+    },
+    "b-ftfam-act-remove-1": {
+      "id": "b-ftfam-act-remove-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Deletes by exact path; a missing path is an error, not a no-op."
         }
       ],
       "children": []
@@ -383,6 +811,44 @@
       },
       "children": []
     },
+    "b-ftfam-actions-close": {
+      "id": "b-ftfam-actions-close",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every "
+        },
+        {
+          "insert": "apply",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is pure — entries in, a props patch "
+        },
+        {
+          "insert": "{ entries }",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " out — and the patch revalidates against "
+        },
+        {
+          "insert": "FileTreeState",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " before anything persists."
+        }
+      ],
+      "children": []
+    },
     "b-21-file-tree-renderers-heading": {
       "id": "b-21-file-tree-renderers-heading",
       "type": "heading",
@@ -391,19 +857,16 @@
       },
       "text": [
         {
-          "insert": "Renderers"
+          "insert": "Doc Renderer"
         }
       ],
       "children": []
     },
-    "b-21-file-tree-editor-13": {
-      "id": "b-21-file-tree-editor-13",
+    "b-ftfam-docr-lead": {
+      "id": "b-ftfam-docr-lead",
       "type": "paragraph",
       "props": {},
       "text": [
-        {
-          "insert": "In the editor: a non-editable atom leaf node rendered by "
-        },
         {
           "insert": "FileTreeDocsBlock",
           "attributes": {
@@ -411,27 +874,38 @@
           }
         },
         {
-          "insert": ". No slash-menu entry today — file trees enter through agent ops or existing content."
-        }
-      ],
-      "children": []
-    },
-    "b-21-file-tree-proj-8": {
-      "id": "b-21-file-tree-proj-8",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "In the markdown render: an optional "
+          "insert": " ("
         },
         {
-          "insert": "**<title>**",
+          "insert": "FileTreeDocsBlock.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/components/file-tree/FileTreeDocsBlock.tsx"
+            }
+          }
+        },
+        {
+          "insert": ") draws the block on the doc surface — reader and editor alike — as a bordered monospace panel: a "
+        },
+        {
+          "insert": ".",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " bold line, then a literal tree rendering inside a bare fence: "
+          "insert": " root line, then one row per node with "
+        },
+        {
+          "insert": "tree",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "-style guides ("
         },
         {
           "insert": "├──",
@@ -440,7 +914,7 @@
           }
         },
         {
-          "insert": "/"
+          "insert": ", "
         },
         {
           "insert": "└──",
@@ -449,7 +923,7 @@
           }
         },
         {
-          "insert": "/"
+          "insert": ", "
         },
         {
           "insert": "│",
@@ -458,7 +932,193 @@
           }
         },
         {
-          "insert": " guides, directories first then alphabetical (deterministic codepoint order), notes appended as "
+          "insert": "). An empty "
+        },
+        {
+          "insert": "entries",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " array renders a "
+        },
+        {
+          "insert": "(no entries)",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " placeholder. The contract is "
+        },
+        {
+          "insert": "Doc renderer",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/30-doc-renderer"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-ftfam-docr-order": {
+      "id": "b-ftfam-docr-order",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Ordering"
+        }
+      ],
+      "children": [
+        "b-ftfam-docr-order-1",
+        "b-ftfam-docr-order-2"
+      ]
+    },
+    "b-ftfam-docr-order-1": {
+      "id": "b-ftfam-docr-order-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Directories sort first at every level, then names in ascending codepoint order; directory names render with a trailing \"/\"."
+        }
+      ],
+      "children": []
+    },
+    "b-ftfam-docr-order-2": {
+      "id": "b-ftfam-docr-order-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The order matches the agent render exactly — the two surfaces agree by design."
+        }
+      ],
+      "children": []
+    },
+    "b-ftfam-docr-changes": {
+      "id": "b-ftfam-docr-changes",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Change markers"
+        }
+      ],
+      "children": [
+        "b-ftfam-docr-changes-1",
+        "b-ftfam-docr-changes-2"
+      ]
+    },
+    "b-ftfam-docr-changes-1": {
+      "id": "b-ftfam-docr-changes-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A change tints the row and puts its marker in the gutter: "
+        },
+        {
+          "insert": "+",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " added (emerald), "
+        },
+        {
+          "insert": "-",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " removed (rose, name struck through), "
+        },
+        {
+          "insert": "~",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " modified (amber), "
+        },
+        {
+          "insert": ">",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " renamed (sky)."
+        }
+      ],
+      "children": []
+    },
+    "b-ftfam-docr-changes-2": {
+      "id": "b-ftfam-docr-changes-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A renamed row draws the old "
+        },
+        {
+          "insert": "from",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " path struck through, then "
+        },
+        {
+          "insert": "→",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", then the new name."
+        }
+      ],
+      "children": []
+    },
+    "b-ftfam-docr-notes": {
+      "id": "b-ftfam-docr-notes",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Notes"
+        }
+      ],
+      "children": [
+        "b-ftfam-docr-notes-1"
+      ]
+    },
+    "b-ftfam-docr-notes-1": {
+      "id": "b-ftfam-docr-notes-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "note",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " renders as a muted "
         },
         {
           "insert": "# note",
@@ -467,7 +1127,199 @@
           }
         },
         {
-          "insert": ". Change markers prefix the line — "
+          "insert": " comment after the name, truncated at 48ch with the full text on hover."
+        }
+      ],
+      "children": []
+    },
+    "b-ftfam-docr-editor": {
+      "id": "b-ftfam-docr-editor",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "In the editor"
+        }
+      ],
+      "children": [
+        "b-ftfam-docr-editor-1",
+        "b-ftfam-docr-editor-2"
+      ]
+    },
+    "b-ftfam-docr-editor-1": {
+      "id": "b-ftfam-docr-editor-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "file-tree",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is an atom leaf node ("
+        },
+        {
+          "insert": "ATOM_BLOCK_TYPES",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "schema.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/editor/core/schema.ts"
+            }
+          }
+        },
+        {
+          "insert": "): read-only, rendered by the same "
+        },
+        {
+          "insert": "FileTreeDocsBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " through the shared atom node view."
+        }
+      ],
+      "children": []
+    },
+    "b-ftfam-docr-editor-2": {
+      "id": "b-ftfam-docr-editor-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "No slash-menu entry — file trees enter through agent ops or existing content."
+        }
+      ],
+      "children": []
+    },
+    "b-21-file-tree-agent-h-14": {
+      "id": "b-21-file-tree-agent-h-14",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent Renderer"
+        }
+      ],
+      "children": []
+    },
+    "b-ftfam-agentr-lead": {
+      "id": "b-ftfam-agentr-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "projectFileTree",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "agent-view.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/components/file-tree/agent-view.ts"
+            }
+          }
+        },
+        {
+          "insert": " renders the same tree as literal text inside a bare fence — the greppable form an agent reads. The Example block above projects to:"
+        }
+      ],
+      "children": []
+    },
+    "b-ftfam-agentr-code": {
+      "id": "b-ftfam-agentr-code",
+      "type": "code",
+      "props": {
+        "annotations": [
+          {
+            "lines": "9",
+            "label": "Renamed",
+            "note": "A renamed entry draws the full old path, an ASCII ->, then the new leaf name — the whole diff story on one line."
+          },
+          {
+            "lines": "10-11",
+            "label": "Marker padding",
+            "note": "Entries in this tree carry markers, so unmarked lines pad with two spaces and the guides stay aligned."
+          }
+        ],
+        "language": "text"
+      },
+      "text": [
+        {
+          "insert": "  packages/\n  └── docs-model/\n      └── src/\n          └── components/\n              └── file-tree/\n                  ├── actions/\n+                 │   └── update-entry.ts\n~                 ├── agent-view.ts  # tree drawing\n>                 ├── packages/docs-model/src/components/file-tree/render.ts -> lib.ts\n                  ├── manifest.ts\n                  └── state.ts  # entry schema + tolerant read"
+        }
+      ],
+      "children": []
+    },
+    "b-ftfam-agentr-1": {
+      "id": "b-ftfam-agentr-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Ordering and guides match the doc render; top-level nodes render flat, with no "
+        },
+        {
+          "insert": ".",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " root line."
+        }
+      ],
+      "children": []
+    },
+    "b-ftfam-agentr-2": {
+      "id": "b-ftfam-agentr-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Notes append as "
+        },
+        {
+          "insert": "  # note",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "; directory names keep the trailing \"/\"."
+        }
+      ],
+      "children": []
+    },
+    "b-ftfam-agentr-3": {
+      "id": "b-ftfam-agentr-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Change markers prefix the line: "
         },
         {
           "insert": "+",
@@ -503,105 +1355,30 @@
           }
         },
         {
-          "insert": " renamed (rendered as "
-        },
-        {
-          "insert": "{from} -> {name}",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ") — and when any entry carries a marker, unmarked lines are padded with two spaces so the guides stay aligned."
+          "insert": " renamed."
         }
       ],
       "children": []
     },
-    "b-21-file-tree-agent-h-14": {
-      "id": "b-21-file-tree-agent-h-14",
-      "type": "heading",
-      "props": {
-        "level": 2
-      },
-      "text": [
-        {
-          "insert": "Agent notes"
-        }
-      ],
-      "children": []
-    },
-    "b-21-file-tree-agent-1-15": {
-      "id": "b-21-file-tree-agent-1-15",
+    "b-ftfam-agentr-4": {
+      "id": "b-ftfam-agentr-4",
       "type": "list-item",
       "props": {},
       "text": [
         {
-          "insert": "Malformed entries are skipped on read, not repaired — keep paths exact ("
+          "insert": "The render is pure and pinned byte-for-byte by goldens; the obligations are "
         },
         {
-          "insert": "removeEntry",
+          "insert": "Agent renderer",
           "attributes": {
-            "code": true
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/40-agent-renderer"
+            }
           }
         },
         {
-          "insert": "/"
-        },
-        {
-          "insert": "updateEntry",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " match the "
-        },
-        {
-          "insert": "path",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " string literally)."
-        }
-      ],
-      "children": []
-    },
-    "b-21-file-tree-agent-2-16": {
-      "id": "b-21-file-tree-agent-2-16",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "The rename marker is the whole diff story: set "
-        },
-        {
-          "insert": "change: \"renamed\"",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " plus "
-        },
-        {
-          "insert": "from",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " and the markdown render draws "
-        },
-        {
-          "insert": "old -> new",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " on one line."
+          "insert": "."
         }
       ],
       "children": []
@@ -614,7 +1391,7 @@
       },
       "text": [
         {
-          "insert": "Theming"
+          "insert": "Theme"
         }
       ],
       "children": []
@@ -643,7 +1420,7 @@
           }
         },
         {
-          "insert": "; see 20-implementation/40-theming). Every value is one string for both modes or a "
+          "insert": "). Every value is one string for both modes or a "
         },
         {
           "insert": "{ light, dark }",
@@ -658,6 +1435,31 @@
           "insert": "THEME_TOKEN_REGISTRY",
           "attributes": {
             "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "theme-folders.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/theme/theme-folders.ts"
+            }
+          }
+        },
+        {
+          "insert": ". The contract is "
+        },
+        {
+          "insert": "Theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/50-theming"
+            }
           }
         },
         {
@@ -688,6 +1490,98 @@
           ]
         ]
       },
+      "children": []
+    },
+    "b-ftfam-theme-note": {
+      "id": "b-ftfam-theme-note",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The registry carries exactly these two keys for "
+        },
+        {
+          "insert": "file-tree",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", both colors. The diff row tints and guide colors are fixed styles, not tokens."
+        }
+      ],
+      "children": []
+    },
+    "b-ftfam-adapter-h": {
+      "id": "b-ftfam-adapter-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent Adapter"
+        }
+      ],
+      "children": []
+    },
+    "b-ftfam-adapter-p": {
+      "id": "b-ftfam-adapter-p",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The family uses the default adapter: no agent of its own, no forwarding to an external authority. All three actions declare "
+        },
+        {
+          "insert": "apply",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", so agent edits ride the generic op stream as "
+        },
+        {
+          "insert": "componentAction",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " ops — "
+        },
+        {
+          "insert": "{ type: \"componentAction\", blockId, action: \"file-tree.addEntry\", params }",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — which resolve the action from the registry, validate params, and land as an "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " props patch with the usual inverse. The contract is "
+        },
+        {
+          "insert": "Agent adapter",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/60-agent-adapter"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
       "children": []
     }
   }

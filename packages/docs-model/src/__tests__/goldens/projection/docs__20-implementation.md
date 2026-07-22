@@ -1,4 +1,4 @@
-# docs-system: system architecture
+# docs-system: System Architecture
 
 `docs-system` is Codecaine's documentation infrastructure: a layered implementation
 pipeline built around a block-based document format (`doc.json`), the tooling that reads/writes/serves it, and a
@@ -21,7 +21,7 @@ canvas, image, and video. Retired MDX-era types (the old semantic cards,
 name preserved as `props.kind`. The full vocabulary — every type's props and
 its typed actions — is documented in Block vocabulary & typed actions.
 
-## The pipeline at a glance
+## The Pipeline at a Glance
 
 ```
                     ┌─────────────┐
@@ -49,7 +49,7 @@ Each layer only depends on the layers above it in this list. The
 package map walks through every package in
 detail.
 
-## Where content lives
+## Where Content Lives
 
 A document is a **bundle**: a folder holding `doc.json` (the block tree),
 optional `annotations.json` (annotations), and an `assets/` folder for images
@@ -65,7 +65,7 @@ expressed in a seven-op kernel — six generic structural/text ops plus
 (tables, file trees, interaction surfaces, code annotations) — and an agent
 can discover the whole edit surface from `GET /api/blocks`.
 
-## Reading these docs
+## Reading These Docs
 
 From the repo root:
 

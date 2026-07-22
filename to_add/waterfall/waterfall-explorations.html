@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>waterfall — process-flow component</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --radius: 6px;
+      --page: #2F3437;
+      --panel: #373C3F;
+      --panel-2: #3D4245;
+      --text: rgba(255, 255, 255, 0.88);
+      --muted: rgba(151, 154, 155, 0.95);
+      --faint: rgba(151, 154, 155, 0.6);
+      --hairline: rgba(206, 205, 202, 0.13);
+      --lift: rgba(206, 205, 202, 0.16);
+      --ink: rgba(255, 255, 255, 0.88);
+      --rail: #5D6266;
+      --code-bg: rgba(255, 255, 255, 0.07);
+      --mono: ui-monospace, "SF Mono", Menlo, monospace;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; background: var(--page); }
+    body {
+      margin: 0;
+      min-width: 320px;
+      background: var(--page);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    button, a { font: inherit; }
+    button:focus-visible, a:focus-visible { outline: 2px solid var(--rail); outline-offset: 2px; }
+
+    .page { width: min(100% - 48px, 1020px); margin: 0 auto; }
+    .page-header { padding: 32px 0 20px; }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: clamp(22px, 3vw, 28px); line-height: 1.25; font-weight: 650; letter-spacing: -0.025em; }
+    .subtitle { max-width: 760px; margin-top: 7px; color: var(--muted); font-size: 14px; line-height: 21px; }
+
+    .top-bar {
+      position: sticky; top: 0; z-index: 20;
+      border-top: 1px solid var(--hairline);
+      border-bottom: 1px solid var(--hairline);
+      background: rgba(47, 52, 55, 0.96);
+      backdrop-filter: blur(8px);
+    }
+    .top-bar__inner {
+      display: flex; align-items: center; gap: 4px;
+      width: min(100% - 48px, 1020px);
+      min-height: 42px; margin: 0 auto;
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .top-bar__inner::-webkit-scrollbar { display: none; }
+    .top-bar a {
+      flex: 0 0 auto;
+      padding: 5px 9px;
+      border: 1px solid transparent;
+      border-radius: calc(var(--radius) * 0.75);
+      color: var(--muted);
+      font-family: var(--mono); font-size: 11px; line-height: 16px;
+      text-decoration: none;
+      transition: color 120ms ease, border-color 120ms ease;
+    }
+    .top-bar a:hover { color: var(--text); border-color: var(--hairline); }
+
+    .seg {
+      display: flex; gap: 2px; margin-left: auto;
+      border: 1px solid var(--lift);
+      border-radius: calc(var(--radius) * 0.9);
+      padding: 2px;
+    }
+    .seg button {
+      border: 0; background: transparent;
+      color: var(--muted);
+      font-family: var(--mono); font-size: 11px; line-height: 16px;
+      padding: 4px 10px;
+      border-radius: calc(var(--radius) * 0.6);
+      cursor: pointer; white-space: nowrap;
+      transition: color 120ms ease, background-color 120ms ease;
+    }
+    .seg button:hover { color: var(--text); }
+    .seg button.is-active { color: var(--text); background: rgba(255, 255, 255, 0.07); }
+
+    main { padding: 56px 0 96px; }
+    .block { scroll-margin-top: 62px; }
+    .block + .block { margin-top: 82px; }
+    .block__number {
+      display: inline-block; margin-bottom: 7px;
+      color: var(--muted);
+      font-family: var(--mono); font-size: 10px; font-weight: 700;
+      letter-spacing: 0.11em; text-transform: uppercase;
+    }
+    h2 { font-size: 20px; line-height: 26px; font-weight: 650; letter-spacing: -0.014em; }
+    .block__description { max-width: 780px; margin-top: 7px; color: var(--muted); font-size: 14px; line-height: 21px; }
+
+    .render-panel {
+      margin-top: 20px;
+      overflow-x: auto;
+      border: 1px solid var(--lift);
+      border-radius: calc(var(--radius) * 1.25);
+      background: var(--panel);
+      font-family: var(--mono);
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.12);
+      padding: 26px 30px;
+    }
+
+    /* ---------- source panel ---------- */
+    .source-view { font-size: 12.5px; line-height: 20px; min-width: 640px; }
+    .source-view .line { white-space: pre; color: var(--text); }
+    .source-view .arrow, .source-view .quote { color: var(--faint); }
+    .source-view .tick { color: var(--muted); }
+
+    /* =========================================================
+       the waterfall component
+       one ink, one rail. text is free; boxes are for notes only.
+       ========================================================= */
+    /* geometry is var-driven so it survives any host typography:
+       --wf-line       first-line height of a step (the elbow centers on it)
+       --wf-gap        vertical gap between sibling rows
+       --wf-indent     full horizontal indent per nesting level
+       --wf-arrow-gap  extra space between arrowhead tip and text (pure text offset)
+       the elbow's flat run derives: indent - arrow-gap - arrow / 2, ending
+       exactly in the arrowhead's open back at any knob values */
+    .wf {
+      --wf-line: 26px; --wf-gap: 12px; --wf-indent: 36px; --wf-arrow-gap: 4px; --wf-stroke: 1.5px; --wf-arrow: 6px;
+      font-size: 13px; line-height: var(--wf-line); min-width: 640px; color: var(--ink);
+    }
+
+    .wf-line { position: relative; max-width: 700px; }
+
+    .wf-children {
+      display: flex; flex-direction: column; gap: var(--wf-gap);
+      margin-left: 5px; padding-left: var(--wf-indent); padding-top: var(--wf-gap);
+      position: relative;
+    }
+
+    /* the rail: trunk + rounded elbow into each child.
+       the elbow drops from inside the gap above and lands exactly on the
+       first-line center; the trunk overlaps into both gaps so adjacent
+       segments always meet regardless of spacing. */
+    .wf-children > .wf-node { position: relative; }
+    .wf-children > .wf-node::before {
+      content: ""; position: absolute;
+      left: calc(-1 * var(--wf-indent));
+      top: calc(-1 * var(--wf-gap) - 2px);
+      width: calc(var(--wf-indent) - 2px);
+      height: calc(var(--wf-gap) + 2px + var(--wf-line) / 2);
+      border-left: var(--wf-stroke) solid var(--rail);
+      border-bottom: var(--wf-stroke) solid var(--rail);
+      border-bottom-left-radius: calc(var(--radius) * 0.75);
+    }
+    .wf-children > .wf-node:not(:last-child)::after {
+      content: ""; position: absolute;
+      left: calc(-1 * var(--wf-indent));
+      top: calc(-1 * var(--wf-gap) - 2px);
+      bottom: calc(-1 * var(--wf-gap) - 2px);
+      width: 0;
+      border-left: var(--wf-stroke) solid var(--rail);
+    }
+
+    /* the arrowhead: an open V centered on the first-line, at the end of
+       the elbow's flat run */
+    .wf-children > .wf-node > .wf-line::before {
+      content: ""; position: absolute;
+      left: calc(-1.2 * var(--wf-arrow) - 1px);
+      top: calc(var(--wf-line) / 2 - var(--wf-arrow) / 2 - 0.75px);
+      width: var(--wf-arrow); height: var(--wf-arrow);
+      border-top: var(--wf-stroke) solid var(--rail);
+      border-right: var(--wf-stroke) solid var(--rail);
+      transform: rotate(45deg);
+    }
+
+    /* hierarchy through weight, not color */
+    .wf > .wf-node > .wf-line { font-weight: 650; font-size: 13.5px; }
+    .wf-d1 > .wf-line { font-weight: 600; }
+    .wf-d3 > .wf-line, .wf-d4 > .wf-line { color: rgba(255, 255, 255, 0.78); }
+
+    .wf b, .wf .kw { font-weight: 650; }
+    .wf .v-code {
+      background: var(--code-bg);
+      border-radius: calc(var(--radius) * 0.45);
+      padding: 0 4px;
+    }
+
+    /* clarification note: literally just a border around it — no background,
+       text inherits the step typography (same ink, same size, same rhythm).
+       it hangs under its step, deliberately off the rail. plain divs, never
+       ul/li, so host document list styles can't leak in. */
+    .wf-note { margin: 1px 0 2px; }
+    .wf-note .wf-card {
+      display: block;
+      border: 1px solid var(--hairline);
+      border-radius: calc(var(--radius) * 0.8);
+      background: transparent;
+      padding: 5px 12px;
+      max-width: 580px;
+    }
+    .wf-children > .wf-note::before { display: none; }
+    .wf-children > .wf-note > .wf-line::before { display: none; }
+    .wf-children > .wf-node > .wf-line { padding-left: var(--wf-arrow-gap); }
+    /* no dangling trunk toward a trailing note */
+    .wf-children > .wf-node:not(:has(~ .wf-node:not(.wf-note)))::after { display: none; }
+
+    .wf-bullet { position: relative; padding-left: 14px; }
+    .wf-bullet::before {
+      content: ""; position: absolute; left: 2px; top: calc(var(--wf-line) / 2 - 1.5px);
+      width: 3px; height: 3px; border-radius: 50%;
+      background: currentColor; opacity: 0.7;
+    }
+
+    .page-note {
+      margin-top: 82px;
+      padding-top: 18px;
+      border-top: 1px solid var(--hairline);
+      color: rgba(151, 154, 155, 0.7);
+      font-size: 12.5px; line-height: 19px;
+      max-width: 780px;
+    }
+  </style>
+</head>
+<body>
+  <header class="page page-header">
+    <h1>waterfall — process-flow component</h1>
+    <p class="subtitle">The pen-and-paper flow, made virtual: free text on one connected rail of drawn arrows. One ink, one rail color, weight for hierarchy. Boxes appear only when a step needs extra clarification.</p>
+  </header>
+
+  <nav class="top-bar" aria-label="Sections and sample">
+    <div class="top-bar__inner">
+      <a href="#source">00 Source</a>
+      <a href="#rail">01 Component</a>
+      <div class="seg" role="group" aria-label="Sample">
+        <button type="button" data-sample="session" class="is-active">full session shape</button>
+        <button type="button" data-sample="runloop">run loop</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="page">
+    <section class="block" id="source">
+      <span class="block__number">Notation</span>
+      <h2>What you write</h2>
+      <p class="block__description">Verbatim from the doc — a root line, <span style="font-family:var(--mono)">-&gt;</span> steps, indentation for sublayers. Backticks mark code values. A line starting with <span style="font-family:var(--mono)">&gt;</span> is a clarification note, not a step.</p>
+      <div class="render-panel source-view" id="source-render" aria-label="Waterfall source text"></div>
+    </section>
+
+    <section class="block" id="rail">
+      <span class="block__number">Component</span>
+      <h2>The waterfall</h2>
+      <p class="block__description">Every step hangs off the rail with a real arrowhead — the drawn version of the <span style="font-family:var(--mono)">-&gt;</span>. Scope heads carry weight, deeper steps recede slightly, loop words read as keywords. Notes sit in the only boxes on the page, deliberately off the rail.</p>
+      <div class="render-panel"><div class="wf" id="wf-render"></div></div>
+    </section>
+
+    <p class="page-note">Deliberately absent: kind colors, icons, glyph markers, collapse affordances. Structure comes from the rail, hierarchy from weight, emphasis from bold keywords and code chips. The arrow-tree text is the single source; notes are the <span style="font-family:var(--mono)">&gt;</span> lines.</p>
+  </main>
+
+  <script>
+    const SAMPLES = {
+      session: {
+        text: `Project session
+  -> New session started
+       -> Register or resume the kernel app session root
+  -> Prepare
+       -> Pull down all remote commits and check the upstream head
+       -> Update isolated \`upstream-current\` and \`session-current\` worktrees to the session base
+       -> Discover newly merged upstream PRs from the local-to-upstream range
+       -> Index newly merged and missing PR records and postmortems
+       -> Refresh the knowledge graph
+       -> Reset and build the session baseline
+       -> Treat this as the fixed starting point for the session
+  -> Choose run config
+       -> worker count
+       -> thinking level
+       -> epoch size
+       -> batch rebuild size
+       -> worker timeout
+       -> worker pool and candidate-window policy
+       > epoch size, worker-slot target, candidate window, and batch rebuild size are different knobs — same defaults, separate meanings
+  -> Start run mode
+       -> Repeat epoch loop until a run bound or manual stop
+       -> Emit scheduler, worker, validation, and knowledge trace events
+  -> Enter PR mode
+       -> Stop autonomous worker scheduling
+       -> Review, fix, validate, split, and publish draft PRs
+       -> Emit PR split, review, repair, and publication trace events
+  -> Complete session
+       -> Verify PR work is merged, closed, or explicitly carried forward
+       -> Preserve carry-forward work
+       -> Clear the active session gate
+       -> Close the kernel session container tree`
+      },
+      runloop: {
+        text: `Run mode
+  -> Get epoch-size candidates from the ranked worker system
+       -> Example: admit 256 candidates
+       -> Exclude locked, cooled-down, or unschedulable work
+       -> Keep enough ready work to feed the worker pool
+  -> Drain the epoch with workers
+       -> Spawn workers through the kernel until the epoch is drained
+       -> Each worker gets its own isolated worktree
+       -> Each worker gets a child container under the epoch container
+       -> Each worker runs until timeout, exact completion, or runner stop
+       -> Each worker returns work, artifacts, and a report
+  -> Post-process worker returns
+       -> Validate what came back
+       -> Accept only work that survives the runner gates
+       -> Queue a postmortem agent for reusable lessons
+       -> Stage graph updates from facts, blockers, failures, and progress
+  -> Refresh while the epoch is still running
+       -> After every 32 completed workers, do a quick graph refresh
+       -> Keep the ranked queue current enough for the remaining epoch work
+       > workers produce tentative evidence
+       > the epoch boundary makes the map authoritative again
+  -> Finish the epoch
+       -> Drain or recover active workers
+       -> Run the full build
+       -> Rebuild full report truth
+       -> Rebuild Ghidra, opseq, mismatch, and graph evidence as needed
+       -> Move every item to its authoritative lane
+       -> Save the boundary
+  -> Continue
+       -> Pull the next epoch from the refreshed board
+       -> Repeat until the operator stops or the run bound is reached`
+      }
+    };
+
+    function esc(s) {
+      return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+
+    /* ---------- parse: arrow-tree text -> node tree ---------- */
+    function parse(text) {
+      const root = { depth: -1, children: [] };
+      const stack = [root];
+      const indents = [];
+      text.split("\n").forEach((raw) => {
+        if (!raw.trim()) return;
+        const m = raw.match(/^(\s*)(->|>)?\s*(.*)$/);
+        const note = m[2] === ">";
+        const body = m[3].trimEnd();
+        const indent = m[1].length;
+        let depth = indents.indexOf(indent);
+        if (depth === -1) { indents.push(indent); indents.sort((a, b) => a - b); depth = indents.indexOf(indent); }
+        const node = { text: body, note, depth, children: [] };
+        while (stack[stack.length - 1].depth >= depth) stack.pop();
+        stack[stack.length - 1].children.push(node);
+        stack.push(node);
+      });
+      return root.children[0];
+    }
+
+    /* ---------- light emphasis: code chips + loop keywords, one ink ---------- */
+    function renderText(node) {
+      return node.text.split("`").map((seg, i) => {
+        if (i % 2 === 1) return `<span class="v-code">${esc(seg)}</span>`;
+        let html = esc(seg);
+        html = html.replace(/^(Repeat|While|For each)\b/, '<span class="kw">$1</span>');
+        html = html.replace(/\b(until)\b/g, '<span class="kw">$1</span>');
+        return html;
+      }).join("");
+    }
+
+    /* ---------- render ---------- */
+    function renderChildren(children) {
+      const out = [];
+      for (let i = 0; i < children.length; i += 1) {
+        if (children[i].note) {
+          const group = [];
+          while (i < children.length && children[i].note) { group.push(children[i]); i += 1; }
+          i -= 1;
+          out.push(`<div class="wf-node wf-note"><div class="wf-line"><div class="wf-card">${group.map((n) => `<div class="wf-bullet">${renderText(n)}</div>`).join("")}</div></div></div>`);
+        } else {
+          out.push(renderNode(children[i]));
+        }
+      }
+      return out.join("");
+    }
+
+    function renderNode(node) {
+      const kids = node.children.length
+        ? `<div class="wf-children">${renderChildren(node.children)}</div>` : "";
+      return `<div class="wf-node wf-d${node.depth}"><div class="wf-line">${renderText(node)}</div>${kids}</div>`;
+    }
+
+    function renderSource(text) {
+      document.getElementById("source-render").innerHTML = text.split("\n").map((raw) => {
+        let html = esc(raw)
+          .replace(/-&gt;/, '<span class="arrow">-&gt;</span>')
+          .replace(/^(\s*)&gt;/, '$1<span class="quote">&gt;</span>')
+          .replace(/`([^`]*)`/g, '<span class="tick">`$1`</span>');
+        return `<div class="line">${html}</div>`;
+      }).join("");
+    }
+
+    function renderAll(key) {
+      renderSource(SAMPLES[key].text);
+      document.getElementById("wf-render").innerHTML = renderNode(parse(SAMPLES[key].text));
+    }
+
+    document.querySelectorAll(".seg button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".seg button").forEach((b) => b.classList.toggle("is-active", b === btn));
+        renderAll(btn.dataset.sample);
+      });
+    });
+
+    const initial = new URLSearchParams(location.search).get("sample");
+    renderAll(SAMPLES[initial] ? initial : "session");
+    if (SAMPLES[initial]) {
+      document.querySelectorAll(".seg button").forEach((b) => b.classList.toggle("is-active", b.dataset.sample === initial));
+    }
+  </script>
+</body>
+</html>

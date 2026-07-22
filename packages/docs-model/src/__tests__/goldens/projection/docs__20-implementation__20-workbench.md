@@ -1,8 +1,8 @@
-# Using the workbench
+# Using the Workbench
 
 `docs serve` opens the workbench: a two-mode surface over one docs tree.
 
-## Edit mode (default)
+## Edit Mode (Default)
 
 The page *is* the editor — Notion-style. There is no read mode and no Save
 button:
@@ -52,7 +52,7 @@ Two layers, both server-enforced:
   so and saving pauses until the lock frees (the heartbeat notices
   automatically).
 
-## Annotate mode
+## Annotate Mode
 
 For pointing at things and leaving structured feedback — the mode an agent
 conversation lives in ("do this, do this, do this"):
@@ -68,11 +68,11 @@ conversation lives in ("do this, do this, do this"):
 Annotations live in the bundle's `annotations.json` sidecar with the same
 hash-precondition write path as doc edits.
 
-## Block catalog
+## Block Catalog
 
 The block catalog lives in the corpus, not the workbench: the per-type reference pages under block vocabulary cover every block type, each with live examples and its doc.json shape.
 
-## Static export
+## Static Export
 
 `docs export` produces the same UI with everything mutable removed: no mode
 switcher, no editor, no annotations pane, no SSE — a plain read-only site that

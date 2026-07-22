@@ -1,8 +1,8 @@
-# docs-cli — the agent dialect
+# docs-cli — the Agent Dialect
 
 `@codecaine-ai/docs-cli` is the stable agent command dialect and the human entry point for docs-system. It is the only package that exposes a binary: `docs-cli` maps to `./src/index.ts` at `packages/docs-cli/src/index.ts`.
 
-## What it owns
+## What It Owns
 
 **Command surface**
 
@@ -17,7 +17,7 @@
 | serve | Runs the workbench as a static SPA, or with --dev for HMR. |
 | export --out <dir> | Produces a fully static read-only site. |
 
-## Why it is its own package
+## Why It Is Its Own Package
 
 > **Forcing constraint: Keep the command dialect stable** — Agents read with `docs render`, discover with `docs grep`, and verify integrity with `docs links check`. That command surface must remain scriptable and stable independently of how the app shell evolves. `docs-cli` is also the only package with a bin.
 
@@ -25,7 +25,7 @@
 
 It depends on `docs-model` for rendering, docs-index for backlinks/links, and docs-workbench for serve/export. Nothing depends on `docs-cli`; it is a leaf.
 
-## Using it alone
+## Using It Alone
 
 Agents use `render`, `grep`, and `links check` constantly without starting a server. `migrate` is a one-time adoption tool. Host repositories invoke the CLI through their submodule mount.
 

@@ -1218,3 +1218,229 @@ describe("style rail state-shape tokens", () => {
     expect(rowPad).toHaveProperty("value", "9");
   });
 });
+
+describe("style rail waterfall tokens", () => {
+  it("registers every waterfall var under the waterfall entry", () => {
+    const entry = THEME_TOKEN_REGISTRY.waterfall;
+    expect(entry.ink).toEqual({ vars: ["--docs-waterfall-ink"], kind: "color" });
+    expect(entry.rail).toEqual({ vars: ["--docs-waterfall-rail"], kind: "color" });
+    expect(entry.noteFg).toEqual({ vars: ["--docs-waterfall-note-fg"], kind: "color" });
+    expect(entry.noteBg).toEqual({ vars: ["--docs-waterfall-note-bg"], kind: "color" });
+    expect(entry.noteBorder).toEqual({ vars: ["--docs-waterfall-note-border"], kind: "color" });
+    expect(entry.codeBg).toEqual({ vars: ["--docs-waterfall-code-bg"], kind: "color" });
+    expect(entry.indent).toEqual({
+      vars: ["--docs-waterfall-indent"],
+      kind: "length",
+      min: 16,
+      max: 72,
+      step: 1,
+      unit: "px",
+      defaultValue: 36,
+    });
+    expect(entry.rowGap).toEqual({
+      vars: ["--docs-waterfall-row-gap"],
+      kind: "length",
+      min: 0,
+      max: 24,
+      step: 1,
+      unit: "px",
+      defaultValue: 7,
+    });
+    expect(entry.arrowGap).toEqual({
+      vars: ["--docs-waterfall-arrow-gap"],
+      kind: "length",
+      min: 0,
+      max: 16,
+      step: 1,
+      unit: "px",
+      defaultValue: 4,
+    });
+    expect(entry.lineHeight).toEqual({
+      vars: ["--docs-waterfall-line-height"],
+      kind: "length",
+      min: 16,
+      max: 40,
+      step: 1,
+      unit: "px",
+      defaultValue: 22,
+    });
+    expect(entry.textSize).toEqual({
+      vars: ["--docs-waterfall-text-size"],
+      kind: "length",
+      min: 10,
+      max: 18,
+      step: 0.5,
+      unit: "px",
+      defaultValue: 12.5,
+    });
+    // Note text size defaults to the step text size (semantic.css keeps the
+    // var() reference); the registry default is the same literal number.
+    expect(entry.noteTextSize).toEqual({
+      vars: ["--docs-waterfall-note-text-size"],
+      kind: "length",
+      min: 10,
+      max: 18,
+      step: 0.5,
+      unit: "px",
+      defaultValue: 12.5,
+    });
+    expect(entry.arrowSize).toEqual({
+      vars: ["--docs-waterfall-arrow-size"],
+      kind: "length",
+      min: 3,
+      max: 12,
+      step: 0.5,
+      unit: "px",
+      defaultValue: 6,
+    });
+    expect(entry.stroke).toEqual({
+      vars: ["--docs-waterfall-stroke"],
+      kind: "length",
+      min: 0.5,
+      max: 4,
+      step: 0.25,
+      unit: "px",
+      defaultValue: 1.5,
+    });
+  });
+
+  it("normalizes and applies waterfall color and geometry overrides onto their CSS vars", () => {
+    const settings = normalizeSettings({
+      components: {
+        waterfall: {
+          ink: "#112233",
+          rail: "#5D6266",
+          noteBg: "#AABBCC",
+          codeBg: "#DDEEFF",
+          indent: 48,
+          rowGap: "10px",
+          arrowGap: 6,
+          lineHeight: 26,
+          textSize: 14,
+          noteTextSize: "13px",
+          arrowSize: 8,
+          stroke: "2px",
+          unknown: "#000000",
+        },
+      },
+    });
+
+    expect(settings.components).toEqual({
+      waterfall: {
+        ink: "#112233",
+        rail: "#5d6266",
+        noteBg: "#aabbcc",
+        codeBg: "#ddeeff",
+        indent: "48px",
+        rowGap: "10px",
+        arrowGap: "6px",
+        lineHeight: "26px",
+        textSize: "14px",
+        noteTextSize: "13px",
+        arrowSize: "8px",
+        stroke: "2px",
+      },
+    });
+    expect(styleRailVars(settings)).toMatchObject({
+      "--docs-waterfall-ink": "#112233",
+      "--docs-waterfall-rail": "#5d6266",
+      "--docs-waterfall-note-bg": "#aabbcc",
+      "--docs-waterfall-code-bg": "#ddeeff",
+      "--docs-waterfall-indent": "48px",
+      "--docs-waterfall-row-gap": "10px",
+      "--docs-waterfall-arrow-gap": "6px",
+      "--docs-waterfall-line-height": "26px",
+      "--docs-waterfall-text-size": "14px",
+      "--docs-waterfall-note-text-size": "13px",
+      "--docs-waterfall-arrow-size": "8px",
+      "--docs-waterfall-stroke": "2px",
+    });
+  });
+
+  it("removes the geometry overrides when the knobs sit at their defaults", () => {
+    const settings = normalizeSettings({
+      components: {
+        waterfall: {
+          indent: "36px",
+          rowGap: "7px",
+          arrowGap: "4px",
+          lineHeight: "22px",
+          textSize: "12.5px",
+          noteTextSize: "12.5px",
+          arrowSize: "6px",
+          stroke: "1.5px",
+        },
+      },
+    });
+
+    const vars = styleRailVars(settings);
+    expect(vars["--docs-waterfall-indent"]).toBeNull();
+    expect(vars["--docs-waterfall-row-gap"]).toBeNull();
+    expect(vars["--docs-waterfall-arrow-gap"]).toBeNull();
+    expect(vars["--docs-waterfall-line-height"]).toBeNull();
+    expect(vars["--docs-waterfall-text-size"]).toBeNull();
+    expect(vars["--docs-waterfall-note-text-size"]).toBeNull();
+    expect(vars["--docs-waterfall-arrow-size"]).toBeNull();
+    expect(vars["--docs-waterfall-stroke"]).toBeNull();
+  });
+
+  it("renders the Waterfall knobs with their sidebar labels", () => {
+    render(<RailHarness />);
+    fireEvent.click(screen.getByRole("button", { name: "Components" }));
+    const toggle = screen.getByRole("button", { name: "Waterfall" });
+    fireEvent.click(toggle);
+    const section = within(toggle.closest("section")!);
+
+    for (const label of [
+      "Ink",
+      "Rail",
+      "Note text",
+      "Note background",
+      "Note border",
+      "Code background",
+      "Indent",
+      "Row gap",
+      "Arrow gap",
+      "Line height",
+      "Text size",
+      "Note text size",
+      "Arrow size",
+      "Stroke",
+    ]) {
+      expect(section.getByText(label)).toBeTruthy();
+    }
+
+    const indent = section.getByLabelText(/^Indent/) as HTMLInputElement;
+    expect(indent).toHaveProperty("min", "16");
+    expect(indent).toHaveProperty("max", "72");
+    expect(indent).toHaveProperty("value", "36");
+    const rowGap = section.getByLabelText(/Row gap/) as HTMLInputElement;
+    expect(rowGap).toHaveProperty("min", "0");
+    expect(rowGap).toHaveProperty("max", "24");
+    expect(rowGap).toHaveProperty("value", "7");
+    const arrowGap = section.getByLabelText(/Arrow gap/) as HTMLInputElement;
+    expect(arrowGap).toHaveProperty("min", "0");
+    expect(arrowGap).toHaveProperty("max", "16");
+    expect(arrowGap).toHaveProperty("value", "4");
+    const lineHeight = section.getByLabelText(/Line height/) as HTMLInputElement;
+    expect(lineHeight).toHaveProperty("min", "16");
+    expect(lineHeight).toHaveProperty("max", "40");
+    expect(lineHeight).toHaveProperty("value", "22");
+    const textSize = section.getByLabelText(/^Text size/) as HTMLInputElement;
+    expect(textSize).toHaveProperty("min", "10");
+    expect(textSize).toHaveProperty("max", "18");
+    expect(textSize).toHaveProperty("value", "12.5");
+    const noteTextSize = section.getByLabelText(/Note text size/) as HTMLInputElement;
+    expect(noteTextSize).toHaveProperty("min", "10");
+    expect(noteTextSize).toHaveProperty("max", "18");
+    expect(noteTextSize).toHaveProperty("value", "12.5");
+    const arrowSize = section.getByLabelText(/Arrow size/) as HTMLInputElement;
+    expect(arrowSize).toHaveProperty("min", "3");
+    expect(arrowSize).toHaveProperty("max", "12");
+    expect(arrowSize).toHaveProperty("value", "6");
+    const stroke = section.getByLabelText(/Stroke/) as HTMLInputElement;
+    expect(stroke).toHaveProperty("min", "0.5");
+    expect(stroke).toHaveProperty("max", "4");
+    expect(stroke).toHaveProperty("value", "1.5");
+  });
+});

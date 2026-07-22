@@ -1,12 +1,12 @@
-# Package boundaries
+# Package Boundaries
 
 The package split is where this system says the code is allowed to be cut. It is a map of runtime and ownership boundaries, not a list of pieces a user assembles by hand: some seams isolate genuinely incompatible environments and would survive any rewrite; others are current judgment calls, named as such and open to collapse.
 
-## Why seven
+## Why Seven
 
 The count is six code packages plus one methodology package. The defensible splits follow incompatible runtimes first: one definition of the document format has to exist identically in the browser, on a Bun server, and inside a CLI, and no single artifact can serve all three unless it stays free of every environment's dependencies. The remaining seams expose current responsibilities and distribution choices rather than hard constraints — real boundaries today, but boundaries this page treats as decisions, not facts of nature.
 
-## The dependency chain
+## The Dependency Chain
 
 > **Mermaid: Who depends on whom** — flowchart BT
 >   model["docs-model\nthe format"]
@@ -28,13 +28,13 @@ The count is six code packages plus one methodology package. The defensible spli
 
 The chain is the design claim, not a build detail: the format depends on nothing, the index and server depend only on the format, the viewer sees the format and nothing else, and only the composition and interface layers — workbench and cli — are allowed to see everything. Dependency points one way, so a change in any layer can only ripple upward, never into the schema beneath it.
 
-## What you actually need together
+## What You Actually Need Together
 
 The seven-way split describes ownership, not deployment. What runs together is smaller:
 
 > **Mental model** — **A RUNNING DOCS INSTALLATION** = `docs-model + docs-index + docs-server + docs-viewer`, composed by `docs-workbench`. **AN AGENT INTERACTING WITH IT** speaks the `docs-cli` dialect. `framework` is methodology, not runtime; a running installation works identically without it.
 
-## Forced boundaries vs judgment calls
+## Forced Boundaries vs Judgment Calls
 
 Each boundary earns its place for exactly one reason, and the reasons split cleanly in two. Forced boundaries follow from runtime incompatibilities and survive package renames and reorganizations. Judgment calls are defensible drawings of responsibility that could land elsewhere.
 
@@ -54,7 +54,7 @@ Each boundary earns its place for exactly one reason, and the reasons split clea
 
 - **canvas — not an eighth package.** `external/canvas` is its own project, vendored under `external/`; only its inner packages join the workspace so embeds resolve. Forced.
 
-## Boundaries under review
+## Boundaries Under Review
 
 > **DECISION: Boundary under review: fold docs-index into docs-server** — Keeping the index out of the browser is forced; keeping it out of the server is not. The index is derived, rebuildable state that only the server and CLI consume — it may belong inside the mutation authority.
 
@@ -62,7 +62,7 @@ Each boundary earns its place for exactly one reason, and the reasons split clea
 
 > **DECISION: Boundary under review: unpackage framework** — The methodology has no runtime; a running installation behaves identically without it. Packaging is a distribution channel, and the channel could change without touching the architecture.
 
-## Schema authority
+## Schema Authority
 
 One claim outranks the rest of this page: docs-model's types are the canonical definition of the system, and every other package is machinery around them. The server enforces the types, the viewer renders them, the index derives from them, the CLI speaks them. Cut the packages differently tomorrow and the system survives; change the types and every package follows.
 

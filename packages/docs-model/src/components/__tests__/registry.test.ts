@@ -38,6 +38,11 @@ const ACTION_KEYS = [
   "structured-table.removeColumn",
   "structured-table.removeRow",
   "structured-table.updateCell",
+  "waterfall.insertStep",
+  "waterfall.moveStep",
+  "waterfall.removeStep",
+  "waterfall.setStepText",
+  "waterfall.setSteps",
 ] as const;
 
 function closedState() {
@@ -79,7 +84,7 @@ function syntheticAction(
 
 describe("component registry", () => {
   it("imports ../index with a healthy registry", () => {
-    expect(ALL_COMPONENTS).toHaveLength(9);
+    expect(ALL_COMPONENTS).toHaveLength(10);
     expect(collectRegistryIssues(ALL_COMPONENTS)).toEqual([]);
   });
 
@@ -95,7 +100,7 @@ describe("component registry", () => {
     }
   });
 
-  it("registers the 13 legacy, 5 canvas, 3 sequence, and 4 state-shape action keys", () => {
+  it("registers every component action key", () => {
     expect([...ACTION_REGISTRY.keys()].sort()).toEqual([...ACTION_KEYS]);
   });
 

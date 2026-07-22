@@ -16,6 +16,7 @@ import {
   DocStateShape,
   DocStructuredTable,
   DocVideo,
+  DocWaterfall,
   NODE_TYPE_TO_BLOCK_TYPE,
 } from "../core/schema";
 import { CodeBlockNodeView } from "../../components/code/editor-node-view";
@@ -139,6 +140,12 @@ export const DocMermaidWithView = DocMermaid.extend({
   },
 });
 
+export const DocWaterfallWithView = DocWaterfall.extend({
+  addNodeView() {
+    return ReactNodeViewRenderer(AtomBlockView);
+  },
+});
+
 /** All atom node definitions WITH their NodeView wiring attached — the extension list DocEditor actually registers. */
 export const ATOM_BLOCK_NODES_WITH_VIEWS = [
   DocDividerWithView,
@@ -151,6 +158,7 @@ export const ATOM_BLOCK_NODES_WITH_VIEWS = [
   DocInteractionSurfaceWithView,
   DocStateShapeWithView,
   DocMermaidWithView,
+  DocWaterfallWithView,
 ];
 
 /**

@@ -27,7 +27,7 @@ export const structuredTableState: BlockStateDefinition = {
 > **L14 (Closed):** Unknown keys are a validation error — a block cannot hold state its type did not declare.
 > **L19 (Per-type fact):** carriesText declares whether the type uses the block's delta text field.
 
-## The rule
+## The Rule
 
 - **Closed over props**
 

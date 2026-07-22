@@ -1,8 +1,8 @@
-# docs-server — the mutation authority
+# docs-server — the Mutation Authority
 
 `@codecaine-ai/docs-server` is the headless mutation authority for a docs tree. It owns safe file mutation and exposes that authority as an embeddable Elysia route factory, without React.
 
-## What it owns
+## What It Owns
 
 `createDocsStore(docsRoot)` in `packages/docs-server/src/store.ts` binds one docs root to the package's mutation guarantees:
 
@@ -26,7 +26,7 @@
 
 - `POST /api/assets/video` accepts multipart video uploads with a strict type allowlist and a 64 MB cap. It writes collision-suffixed names under the bundle's `assets/videos/`.
 
-## Why it is its own package
+## Why It Is Its Own Package
 
 > **Package boundary: Embeddable in host apps** — The forcing constraint is EMBEDDABLE-IN-HOST-APPS. A host must be able to mount the `/api/*` factory into its own Elysia server and bring its own UI. A dependency on docs-viewer or React would drag the entire UI stack into every host.
 
@@ -40,6 +40,6 @@ docs-server depends on docs-model for schema and inverse-producing mutation appl
 
 In the other direction, docs-workbench depends on docs-server and wraps these routes.
 
-## Using it alone
+## Using It Alone
 
 Use docs-server alone when a host application supplies its own front end. Create `createDocsStore(docsRoot)`, mount `createDocsRoutes(store)` in the host's Elysia server, and connect that host-owned UI to the embedded mutation API.

@@ -1,4 +1,4 @@
-import { readFile, stat, unlink } from "node:fs/promises";
+import { readFile, readdir, stat, unlink } from "node:fs/promises";
 import { join, resolve, sep } from "node:path";
 
 import { isSafeRelativePath } from "@codecaine-ai/docs-index/paths";
@@ -10,6 +10,7 @@ import {
   isAllowedDocsFilePath,
   isSafeCanvasMdxId,
   resolveCanvasSidecarRelativePath,
+  resolveCanvasSidecarRootRelativePath,
   type DocsFormat,
 } from "./confine";
 import { withPathLock } from "./path-mutex";
@@ -19,7 +20,8 @@ import { draftLockStore, type DraftLockInfo } from "./draft-locks";
 import { indexCanvasSourceBestEffort } from "./backlinks-cache";
 
 /**
- * Doc-relative canvas sidecar mutation core (save / create / delete) plus
+ * Canvas sidecar mutation core — doc-relative save / create / delete, the
+ * src-rooted (docs-root-relative) save external canvas editors use — plus
  * the `<Canvas .../>` MDX reference helpers the create/delete flows use to
  * keep a legacy `.mdx` doc's embed references in sync with its sidecars.
  */
@@ -51,6 +53,87 @@ export function validateCanvasPayload(value: unknown): { ok: true } | { ok: fals
     return { ok: false, detail: "Canvas objects and connections must be arrays" };
   }
   return { ok: true };
+}
+
+// ---------------------------------------------------------------------------
+// Canvas sidecar listing (GET /api/canvases)
+// ---------------------------------------------------------------------------
+
+export type CanvasSidecarListEntry = {
+  /** Docs-root-relative sidecar path — the `src` GET /api/canvas accepts. */
+  src: string;
+  /** Same value as `src`; matches the `canvas_path` GET /api/canvas returns. */
+  canvas_path: string;
+  /** Canvas `id` from the sidecar JSON, or null when unreadable/unparsable. */
+  id: string | null;
+  /** Canvas `title` from the sidecar JSON, or null when absent/unparsable. */
+  title: string | null;
+  /** Sidecar file mtime as an ISO-8601 string. */
+  updated_at: string;
+};
+
+/**
+ * Read-only recursive scan of `docsRoot` for `*.canvas.json` sidecars — the
+ * inventory behind `GET /api/canvases` (external canvas editors list the
+ * repo's canvases through this). Only paths that
+ * `resolveCanvasSidecarRootRelativePath` accepts are listed (i.e. sidecars a
+ * `GET /api/canvas?src=` read can actually address); unparsable or oversized
+ * sidecar JSON still lists, with null `id`/`title`. Dot-directories and
+ * node_modules are skipped, matching the docs tree walker.
+ */
+export async function listCanvasSidecars(docsRoot: string): Promise<CanvasSidecarListEntry[]> {
+  const entries: CanvasSidecarListEntry[] = [];
+
+  async function walk(relPath: string): Promise<void> {
+    let dirEntries;
+    try {
+      dirEntries = await readdir(join(docsRoot, relPath), { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const entry of dirEntries) {
+      if (entry.name.startsWith(".") || entry.name === "node_modules") continue;
+      const childRel = relPath ? `${relPath}/${entry.name}` : entry.name;
+      if (entry.isDirectory()) {
+        await walk(childRel);
+        continue;
+      }
+      if (!entry.isFile() || !entry.name.toLowerCase().endsWith(".canvas.json")) continue;
+      const canvasRelPath = resolveCanvasSidecarRootRelativePath(docsRoot, childRel);
+      if (!canvasRelPath) continue;
+      let st;
+      try {
+        st = await stat(join(docsRoot, canvasRelPath));
+      } catch {
+        continue;
+      }
+      let id: string | null = null;
+      let title: string | null = null;
+      if (st.size <= MAX_CANVAS_FILE_BYTES) {
+        try {
+          const parsed = JSON.parse(
+            await readFile(join(docsRoot, canvasRelPath), "utf8"),
+          ) as Record<string, unknown>;
+          if (typeof parsed.id === "string") id = parsed.id;
+          if (typeof parsed.title === "string") title = parsed.title;
+        } catch {
+          // Unparsable sidecars still list (null id/title) so editors can
+          // surface — rather than silently hide — broken files.
+        }
+      }
+      entries.push({
+        src: canvasRelPath,
+        canvas_path: canvasRelPath,
+        id,
+        title,
+        updated_at: st.mtime.toISOString(),
+      });
+    }
+  }
+
+  await walk("");
+  entries.sort((a, b) => a.canvas_path.localeCompare(b.canvas_path));
+  return entries;
 }
 
 // ---------------------------------------------------------------------------
@@ -300,6 +383,65 @@ export async function loadCanvasSidecarByDocPath(
   };
 }
 
+export type CanvasSidecarBySrcLoadResult = {
+  canvasRelPath: string;
+  canvasAbs: string;
+  canvasContent: string;
+  canvasContentHash: string;
+  canvas: unknown;
+};
+
+export type CanvasSidecarBySrcError = {
+  error: { status: number; detail: string };
+};
+
+/**
+ * Loads a canvas sidecar addressed by a DOCS-ROOT-RELATIVE `src` (the form
+ * `GET /api/canvas?src=` and `GET /api/canvases` speak) — no referencing doc
+ * involved. Same confinement + validation ladder as the doc-relative loader:
+ * bad path -> 400, missing -> 404, size cap -> 413, invalid JSON/payload -> 400.
+ */
+export async function loadCanvasSidecarBySrc(
+  docsRoot: string,
+  src: string,
+): Promise<CanvasSidecarBySrcLoadResult | CanvasSidecarBySrcError> {
+  const canvasRelPath = resolveCanvasSidecarRootRelativePath(docsRoot, src);
+  if (!canvasRelPath) {
+    return { error: { status: 400, detail: `Invalid canvas sidecar path: ${src}` } };
+  }
+  const canvasAbs = join(docsRoot, canvasRelPath);
+  let st;
+  try {
+    st = await stat(canvasAbs);
+  } catch {
+    return { error: { status: 404, detail: `Canvas sidecar not found: ${src}` } };
+  }
+  if (!st.isFile()) {
+    return { error: { status: 404, detail: `Canvas sidecar is not a file: ${src}` } };
+  }
+  if (st.size > MAX_CANVAS_FILE_BYTES) {
+    return { error: { status: 413, detail: `Canvas sidecar exceeds size cap: ${src}` } };
+  }
+  const canvasContent = await readFile(canvasAbs, "utf8");
+  let canvas: unknown;
+  try {
+    canvas = JSON.parse(canvasContent);
+  } catch {
+    return { error: { status: 400, detail: `Canvas sidecar is invalid JSON: ${src}` } };
+  }
+  const payloadValidation = validateCanvasPayload(canvas);
+  if (!payloadValidation.ok) {
+    return { error: { status: 400, detail: payloadValidation.detail } };
+  }
+  return {
+    canvasRelPath,
+    canvasAbs,
+    canvasContent,
+    canvasContentHash: createContentHash(canvasContent),
+    canvas,
+  };
+}
+
 /** The wire shape the doc-relative canvas read/save routes use. */
 export function canvasSidecarResponse(loaded: CanvasSidecarByDocPathLoadResult) {
   return {
@@ -412,6 +554,105 @@ export async function saveCanvasSidecar(
       response: {
         path: loaded.docPath,
         document_path: `docs/${loaded.docPath}`,
+        canvas_path: loaded.canvasRelPath,
+        canvas_document_path: `docs/${loaded.canvasRelPath}`,
+        content_hash: written.content_hash,
+        canvas: input.canvas,
+      },
+    };
+  });
+}
+
+export type SaveCanvasSidecarBySrcInput = {
+  src: string;
+  canvas: unknown;
+  originalHash?: string;
+  sessionId?: string;
+};
+
+/**
+ * Wire shape for src-rooted sidecar saves. Structurally the doc-relative
+ * `CanvasSidecarWireResponse` minus the referencing doc: `path` and
+ * `document_path` are EXPLICIT nulls (not omitted) so clients can branch on
+ * one response type for both PUT forms.
+ */
+export type CanvasSidecarBySrcWireResponse = {
+  path: null;
+  document_path: null;
+  canvas_path: string;
+  canvas_document_path: string;
+  content_hash: string;
+  canvas: unknown;
+};
+
+export type SaveCanvasSidecarBySrcResult =
+  | { ok: true; response: CanvasSidecarBySrcWireResponse }
+  | {
+      ok: false;
+      status: number;
+      detail: string;
+      current_hash?: string;
+      original_hash?: string;
+      held_by?: DraftLockInfo;
+    };
+
+/**
+ * Whole-document save of an EXISTING canvas sidecar addressed by a
+ * docs-root-relative `src` (the form Canvas Studio saves through after
+ * listing via GET /api/canvases). Identical mutation contract to the
+ * doc-relative `saveCanvasSidecar`: sidecar must exist (404), hash
+ * precondition (409) -> draft-lock precondition (423) -> validate -> atomic
+ * persist -> best-effort backlinks reindex, all inside `withPathLock` keyed
+ * on the sidecar's absolute path.
+ */
+export async function saveCanvasSidecarBySrc(
+  docsRoot: string,
+  input: SaveCanvasSidecarBySrcInput,
+): Promise<SaveCanvasSidecarBySrcResult> {
+  // Resolve the sidecar's absolute path first (read-only) purely to get the
+  // lock key — the actual read-check-write sequence below re-loads INSIDE
+  // the lock so no writer can interleave between the hash check and write.
+  const keyLookup = await loadCanvasSidecarBySrc(docsRoot, input.src);
+  if ("error" in keyLookup) {
+    return { ok: false, status: keyLookup.error.status, detail: keyLookup.error.detail };
+  }
+
+  return withPathLock(keyLookup.canvasAbs, async (): Promise<SaveCanvasSidecarBySrcResult> => {
+    const loaded = await loadCanvasSidecarBySrc(docsRoot, input.src);
+    if ("error" in loaded) {
+      return { ok: false, status: loaded.error.status, detail: loaded.error.detail };
+    }
+    if (input.originalHash && input.originalHash !== loaded.canvasContentHash) {
+      return {
+        ok: false,
+        status: 409,
+        detail: "Canvas sidecar is stale; reload before saving.",
+        current_hash: loaded.canvasContentHash,
+        original_hash: input.originalHash,
+      };
+    }
+    const lockCheck = draftLockStore.checkForMutation(
+      { kind: "canvas", path: loaded.canvasRelPath },
+      input.sessionId,
+    );
+    if (lockCheck.blocked) {
+      return {
+        ok: false,
+        status: 423,
+        detail: "Draft in progress — another session is editing this file.",
+        held_by: lockCheck.heldBy,
+      };
+    }
+    const written = await writeCanvasSidecarFile(loaded.canvasAbs, input.canvas);
+    if (!written.ok) {
+      return { ok: false, status: 400, detail: written.detail };
+    }
+    void indexCanvasSourceBestEffort(docsRoot, loaded.canvasRelPath, input.canvas);
+    return {
+      ok: true,
+      response: {
+        path: null,
+        document_path: null,
         canvas_path: loaded.canvasRelPath,
         canvas_document_path: `docs/${loaded.canvasRelPath}`,
         content_hash: written.content_hash,

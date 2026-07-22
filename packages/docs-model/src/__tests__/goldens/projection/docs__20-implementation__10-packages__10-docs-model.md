@@ -1,8 +1,8 @@
-# docs-model — the format
+# docs-model — the Format
 
 `@codecaine-ai/docs-model` is the dependency-pure TypeScript definition of `doc.json`. It owns the shared format, operations, and rendering that every other package builds around.
 
-## What it owns
+## What It Owns
 
 The package has 88 source files. It is pure TypeScript: no React, filesystem, or network code.
 
@@ -30,7 +30,7 @@ The seven bundles under `packages/docs-model/src/components/<name>/` are rich-te
 
 `packages/docs-model/src/project-markdown.ts` and `packages/docs-model/src/markdown-to-delta.ts` cover Markdown conversion in both directions: documents render to Markdown, and edited inline Markdown parses back to delta spans. `serializeDocDocument` produces canonical on-disk bytes deterministically; golden tests assert byte equality.
 
-## Why it is its own package
+## Why It Is Its Own Package
 
 The browser viewer, Bun server, and CLI must agree on one definition of a valid document and one mutation contract.
 
@@ -54,6 +54,6 @@ The root `import-boundaries.test.ts` enforces the constraint: docs-model may not
 
 Everything else in the repo is machinery around this package's types.
 
-## Using it alone
+## Using It Alone
 
 Consume docs-model by itself when a tool needs to read, validate, mutate, or render `doc.json` without running a server. Offline agents, static generators, and scripts can use the format and its pure operations without browser, server, or CLI machinery.

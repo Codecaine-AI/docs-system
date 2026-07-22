@@ -50,7 +50,7 @@ export function renderDeltaSpans(text: DeltaSpan[] | undefined): ReactNode {
             data-ref-symbol={attrs.reference.symbol}
             data-ref-section={attrs.reference.section}
             title={attrs.reference.path}
-            className="inline-flex items-center gap-1 rounded-sm border border-primary/30 bg-primary/5 px-1 py-0.5 font-mono text-[0.85em] text-foreground"
+            className="inline-flex items-baseline gap-1 rounded-sm border border-primary/30 bg-primary/5 px-1 py-0.5 font-mono text-[0.85em] text-foreground"
           >
             {attrs.reference.label ?? node}
           </span>

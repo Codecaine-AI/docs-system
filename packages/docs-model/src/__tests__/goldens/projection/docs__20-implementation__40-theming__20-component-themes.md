@@ -31,6 +31,6 @@ Each visual surface has its own token file inside a theme folder: `components/<s
 }
 ```
 
-## Extending the vocabulary
+## Extending the Vocabulary
 
 Adding a themable property is a three-step change: define the token in both blocks of `semantic.css`, consume it via `var(--docs-...)` at the use site, and add the file/key mapping to `THEME_TOKEN_REGISTRY`. Keep this page's table in sync when the registry grows. The editor furniture accent for the structured-table controls is the semantic variable `--docs-editor-accent` (light rgb(0, 120, 223), dark rgb(82, 156, 202)), defined in the workbench semantic layer and consumed with a hex fallback.

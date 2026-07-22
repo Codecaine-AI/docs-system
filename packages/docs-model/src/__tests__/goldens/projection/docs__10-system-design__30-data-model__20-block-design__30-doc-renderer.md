@@ -14,7 +14,7 @@ function structuredTableData(block: DocBlock): StructuredTableData | null {
 ```
 > **L4-7 (Defensive by contract):** The renderer re-checks its data; anything malformed renders the invalid-block placeholder — never a crash, never a guess.
 
-## The rule
+## The Rule
 
 - **Schema state only**
 

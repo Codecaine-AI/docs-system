@@ -1,6 +1,6 @@
 A `doc.json` document is a normalized block tree: a root pointer, a flat id-keyed `blocks` map, and ordered child-id arrays. There is no nesting in the JSON itself — tree order lives entirely in the `children` arrays. The vocabulary of valid block shapes stays deliberately small; see the block vocabulary.
 
-## The document envelope
+## The Document Envelope
 
 ```json
 {
@@ -39,7 +39,7 @@ A `doc.json` document is a normalized block tree: a root pointer, a flat id-keye
 > **L6-15 (Normalized tree):** Storage is a flat id-keyed map; ordered children arrays carry tree order. A sibling reorder is localized to the children array under the deterministic serializer.
 > **L8,17,24 (Anchor invariant):** The map key and block id match. Comments, patches, and backlinks anchor to ids; updateBlock preserves them, while split and merge mint fresh ids.
 
-## The block
+## The Block
 
 ```json
 {
@@ -68,13 +68,13 @@ A `doc.json` document is a normalized block tree: a root pointer, a flat id-keye
 
 The kind key is `type`; the legacy `flavour` alias is accepted on read and normalized. An unknown type name coerces to a callout with the name kept in `props.kind` — nothing fails validation for being old.
 
-## Ids are anchors
+## Ids Are Anchors
 
 Document ids, block ids, and child references are all stable ASCII ids matching `^[A-Za-z0-9][A-Za-z0-9_.:-]{0,96}$`. Every block's `id` must equal its key in the `blocks` map — the id is stored twice on purpose, so a block stays self-describing when it travels without its map.
 
 > **Anchor contract** — Annotations, patches, and backlinks anchor to block ids, so id stability is a behavioral contract: `updateBlock` and `moveBlock` preserve ids, while `splitBlock` and `mergeBlocks` mint fresh ids for the blocks they create. Anything that anchors to a split or merged block must expect the anchor to dangle.
 
-## Graph invariants
+## Graph Invariants
 
 `validateDocDocument` treats the tree as a real graph, not a bag of blocks. It is pure and never throws — failures come back as a typed issue list with JSONPath-style paths. Beyond per-block shape checks, five structural invariants hold:
 
@@ -108,7 +108,7 @@ Any block may parent any block — the invariants constrain the graph, not the p
 
 - Everything else stays flat. The editor lands block drops and block-run pastes at top level, never inside a neighbor — depth is authored deliberately, not created by accident.
 
-## Seven ops, one write path
+## Seven Ops, One Write Path
 
 Everything that changes a document is one of seven ops, and every successful apply returns exact inverse ops that become undo units. The full mutation concept lives in the mutation model; this surface is the data shape.
 

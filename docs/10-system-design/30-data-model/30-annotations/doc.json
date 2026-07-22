@@ -122,7 +122,7 @@
       },
       "text": [
         {
-          "insert": "The annotation"
+          "insert": "The Annotation"
         }
       ],
       "children": []
@@ -206,7 +206,7 @@
       },
       "text": [
         {
-          "insert": "The target"
+          "insert": "The Target"
         }
       ],
       "children": []
@@ -400,7 +400,7 @@
       },
       "text": [
         {
-          "insert": "The lifecycle"
+          "insert": "The Lifecycle"
         }
       ],
       "children": []
@@ -648,7 +648,7 @@
       },
       "text": [
         {
-          "insert": "Dangling targets"
+          "insert": "Dangling Targets"
         }
       ],
       "children": []

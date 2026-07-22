@@ -16,19 +16,37 @@
         "b-22-interaction-surface-state-h-3",
         "b-22-interaction-surface-shape-4",
         "b-22-interaction-surface-state-note-6",
+        "b-22-is-fam-schema-params-li",
+        "b-22-is-fam-schema-kind-li",
+        "b-22-is-fam-schema-read-li",
         "b-22-interaction-surface-actions-h-10",
         "b-22-interaction-surface-actions-note-11",
         "b-22-interaction-surface-actions-12",
+        "b-22-is-fam-act-names-li",
+        "b-22-is-fam-act-params-li",
+        "b-22-is-fam-act-order-li",
+        "b-22-is-fam-act-patch-li",
         "b-22-interaction-surface-proj-h-7",
+        "b-22-is-fam-docr-intro",
+        "b-22-is-fam-docr-cards-li",
+        "b-22-is-fam-docr-header-li",
+        "b-22-is-fam-docr-sig-li",
+        "b-22-is-fam-docr-notes-li",
+        "b-22-is-fam-docr-link-li",
         "b-22-interaction-surface-editor-14",
+        "b-22-is-fam-agentr-h",
         "b-22-interaction-surface-proj-8",
+        "b-22-is-fam-agentr-sig-li",
+        "b-22-is-fam-agentr-detail-li",
+        "b-22-is-fam-agentr-names-li",
         "b-22-interaction-surface-proj-example-9",
-        "b-22-interaction-surface-agent-h-15",
-        "b-22-interaction-surface-agent-1-16",
-        "b-22-interaction-surface-agent-2-17",
         "b-22-interaction-surface-theming-heading",
         "b-22-interaction-surface-theming-para",
-        "b-22-interaction-surface-theming-table"
+        "b-22-interaction-surface-theming-table",
+        "b-22-is-fam-theme-linking-p",
+        "b-22-is-fam-adapter-h",
+        "b-22-is-fam-adapter-p1",
+        "b-22-is-fam-adapter-p2"
       ]
     },
     "b-22-interaction-surface-lead-2": {
@@ -37,13 +55,28 @@
       "props": {},
       "text": [
         {
-          "insert": "The operation list of the "
+          "insert": "The interaction-surface component owns one block type, "
         },
         {
-          "insert": "block vocabulary"
+          "insert": "interaction-surface",
+          "attributes": {
+            "code": true
+          }
         },
         {
-          "insert": ", and the operations surface of its documentation doctrine: where a "
+          "insert": ": the operation list of the "
+        },
+        {
+          "insert": "block vocabulary",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary"
+            }
+          }
+        },
+        {
+          "insert": ". A surface lists the named operations by which a state or system is changed, queried, or observed — operation signatures on a state, not HTTP endpoints. When documenting agentic systems it is one of the three types that carry the whole model: a "
         },
         {
           "insert": "state-shape",
@@ -55,7 +88,7 @@
           }
         },
         {
-          "insert": " block carries a system's state — shape and example instance side by side — an interaction-surface lists the named operations by which that state is changed or queried; "
+          "insert": " block holds the state — shape and example instance side by side — the interaction-surface lists the operations on it, and "
         },
         {
           "insert": "code",
@@ -67,7 +100,7 @@
           }
         },
         {
-          "insert": " blocks carry the source evidence."
+          "insert": " blocks hold the source evidence. State first, then operations."
         }
       ],
       "children": []
@@ -96,11 +129,14 @@
         {
           "insert": "file-tree",
           "attributes": {
-            "code": true
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/40-file-tree"
+            }
           }
         },
         {
-          "insert": " block's entry operations, described params rendering as note lines:"
+          "insert": " block's entry operations. Each operation renders as its own card: signature left, description and param notes right; hovering a note lights the param's signature lines."
         }
       ],
       "children": []
@@ -161,7 +197,7 @@
       },
       "text": [
         {
-          "insert": "State"
+          "insert": "State Schema"
         }
       ],
       "children": []
@@ -191,13 +227,13 @@
                 "name": "description",
                 "type": "string",
                 "required": false,
-                "description": "One-liner rendered as a # suffix."
+                "description": "One-line description of what the operation does."
               },
               {
                 "name": "params",
                 "type": "Field[]",
                 "required": false,
-                "description": "Recursive field nodes; required: false renders a ? suffix.",
+                "description": "Shared recursive Field nodes; required: false means optional.",
                 "fields": [
                   {
                     "name": "name",
@@ -237,7 +273,7 @@
                 "name": "kind",
                 "type": "\"action\" | \"query\" | \"event\"",
                 "required": false,
-                "description": "Defaults to action; only query/event render a [kind] prefix."
+                "description": "Defaults to action; renders mark only query and event."
               }
             ]
           }
@@ -265,7 +301,168 @@
           }
         },
         {
-          "insert": ")."
+          "insert": ") — every fact lives in the two props above. The schema is closed ("
+        },
+        {
+          "insert": "additionalProperties: false",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " at every level); definitions live in "
+        },
+        {
+          "insert": "packages/docs-model/src/components/interaction-surface/state.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/components/interaction-surface/state.ts"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-22-is-fam-schema-params-li": {
+      "id": "b-22-is-fam-schema-params-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "params",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " are the shared recursive "
+        },
+        {
+          "insert": "Field",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " node — the same node state-shape fields use ("
+        },
+        {
+          "insert": "packages/docs-model/src/components/shared/field.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/components/shared/field.ts"
+            }
+          }
+        },
+        {
+          "insert": "): a name plus optional "
+        },
+        {
+          "insert": "type",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "required",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "description",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and nested "
+        },
+        {
+          "insert": "fields",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". "
+        },
+        {
+          "insert": "required: false",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " means optional; omitted or "
+        },
+        {
+          "insert": "true",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " reads as required."
+        }
+      ],
+      "children": []
+    },
+    "b-22-is-fam-schema-kind-li": {
+      "id": "b-22-is-fam-schema-kind-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "kind",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is a closed vocabulary — "
+        },
+        {
+          "insert": "\"action\" | \"query\" | \"event\"",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — and omitted reads as action."
+        }
+      ],
+      "children": []
+    },
+    "b-22-is-fam-schema-read-li": {
+      "id": "b-22-is-fam-schema-read-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Model-side reads are tolerant: "
+        },
+        {
+          "insert": "readInteractionSurfaceOperations",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " skips malformed entries instead of failing the block, and always returns fresh objects."
         }
       ],
       "children": []
@@ -278,7 +475,7 @@
       },
       "text": [
         {
-          "insert": "Typed actions"
+          "insert": "Typed Actions"
         }
       ],
       "children": []
@@ -289,7 +486,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Yes — the surface documents itself: three actions maintain the "
+          "insert": "Three actions maintain the "
         },
         {
           "insert": "operations",
@@ -298,79 +495,20 @@
           }
         },
         {
-          "insert": " array. "
+          "insert": " array — one file each in "
         },
         {
-          "insert": "addOperation",
+          "insert": "packages/docs-model/src/components/interaction-surface/actions",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/components/interaction-surface/actions"
+            }
           }
         },
         {
-          "insert": " rejects a duplicate name; "
-        },
-        {
-          "insert": "updateOperation",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " renames via "
-        },
-        {
-          "insert": "patch.name",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " and clears "
-        },
-        {
-          "insert": "description",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "/"
-        },
-        {
-          "insert": "params",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "/"
-        },
-        {
-          "insert": "returns",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "/"
-        },
-        {
-          "insert": "kind",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " with "
-        },
-        {
-          "insert": "null",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "."
+          "insert": ". The surface below documents itself."
         }
       ],
       "children": []
@@ -446,6 +584,104 @@
       },
       "children": []
     },
+    "b-22-is-fam-act-names-li": {
+      "id": "b-22-is-fam-act-names-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Operation names are the identity keys: "
+        },
+        {
+          "insert": "addOperation",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " refuses a name that already exists, and "
+        },
+        {
+          "insert": "updateOperation",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " refuses a rename onto an existing name."
+        }
+      ],
+      "children": []
+    },
+    "b-22-is-fam-act-params-li": {
+      "id": "b-22-is-fam-act-params-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Action params are validated against the shared "
+        },
+        {
+          "insert": "FieldSchema",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and cloned to plain JSON with only the defined keys."
+        }
+      ],
+      "children": []
+    },
+    "b-22-is-fam-act-order-li": {
+      "id": "b-22-is-fam-act-order-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Operation order is document order — "
+        },
+        {
+          "insert": "addOperation",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " appends and "
+        },
+        {
+          "insert": "updateOperation",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " patches in place, so curated ordering survives edits."
+        }
+      ],
+      "children": []
+    },
+    "b-22-is-fam-act-patch-li": {
+      "id": "b-22-is-fam-act-patch-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every action returns a props patch of the full "
+        },
+        {
+          "insert": "{ operations }",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " array."
+        }
+      ],
+      "children": []
+    },
     "b-22-interaction-surface-proj-h-7": {
       "id": "b-22-interaction-surface-proj-h-7",
       "type": "heading",
@@ -454,7 +690,362 @@
       },
       "text": [
         {
-          "insert": "Renderers"
+          "insert": "Doc Renderer"
+        }
+      ],
+      "children": []
+    },
+    "b-22-is-fam-docr-intro": {
+      "id": "b-22-is-fam-docr-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "On the doc surface — reader and editor alike — the block renders through "
+        },
+        {
+          "insert": "InteractionSurfaceBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "packages/docs-viewer/src/components/interaction-surface/InteractionSurfaceDocsBlock.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/components/interaction-surface/InteractionSurfaceDocsBlock.tsx"
+            }
+          }
+        },
+        {
+          "insert": ", in the linked-panels family it shares with state-shape and code. The descriptor ("
+        },
+        {
+          "insert": "packages/docs-viewer/src/components/interaction-surface/descriptor.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/components/interaction-surface/descriptor.tsx"
+            }
+          }
+        },
+        {
+          "insert": ") reads props strictly: any malformed operation renders the invalid-block placeholder instead of a partial card."
+        }
+      ],
+      "children": []
+    },
+    "b-22-is-fam-docr-cards-li": {
+      "id": "b-22-is-fam-docr-cards-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "One card per operation."
+        }
+      ],
+      "children": [
+        "b-22-is-fam-docr-cards-1",
+        "b-22-is-fam-docr-cards-2"
+      ]
+    },
+    "b-22-is-fam-docr-cards-1": {
+      "id": "b-22-is-fam-docr-cards-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An optional bold title caption sits above the stack; the block itself has no header bar."
+        }
+      ],
+      "children": []
+    },
+    "b-22-is-fam-docr-cards-2": {
+      "id": "b-22-is-fam-docr-cards-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each card splits into a signature pane and a notes pane; when no operation carries a description or params, the block collapses to single-column signature cards."
+        }
+      ],
+      "children": []
+    },
+    "b-22-is-fam-docr-header-li": {
+      "id": "b-22-is-fam-docr-header-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Operation header band."
+        }
+      ],
+      "children": [
+        "b-22-is-fam-docr-header-1",
+        "b-22-is-fam-docr-header-2",
+        "b-22-is-fam-docr-header-3"
+      ]
+    },
+    "b-22-is-fam-docr-header-1": {
+      "id": "b-22-is-fam-docr-header-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The humanized name: "
+        },
+        {
+          "insert": "addOperation",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " reads \"Add Operation\"."
+        }
+      ],
+      "children": []
+    },
+    "b-22-is-fam-docr-header-2": {
+      "id": "b-22-is-fam-docr-header-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The component namespace is stripped when the bare verbs stay unique within the block; a collision falls back to full dotted names. The agent render keeps full names either way."
+        }
+      ],
+      "children": []
+    },
+    "b-22-is-fam-docr-header-3": {
+      "id": "b-22-is-fam-docr-header-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "query",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "event",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " carry a kind badge beside the name; "
+        },
+        {
+          "insert": "action",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is the unbadged default."
+        }
+      ],
+      "children": []
+    },
+    "b-22-is-fam-docr-sig-li": {
+      "id": "b-22-is-fam-docr-sig-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Signature pane."
+        }
+      ],
+      "children": [
+        "b-22-is-fam-docr-sig-1",
+        "b-22-is-fam-docr-sig-2",
+        "b-22-is-fam-docr-sig-3"
+      ]
+    },
+    "b-22-is-fam-docr-sig-1": {
+      "id": "b-22-is-fam-docr-sig-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Line-numbered, zebra-striped code lines; numbering restarts at 1 per operation."
+        }
+      ],
+      "children": []
+    },
+    "b-22-is-fam-docr-sig-2": {
+      "id": "b-22-is-fam-docr-sig-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The grammar: a "
+        },
+        {
+          "insert": "name(",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " opening line, one "
+        },
+        {
+          "insert": "param?: type,",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " line per param at two spaces per depth ("
+        },
+        {
+          "insert": "?",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " marks "
+        },
+        {
+          "insert": "required: false",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "; an object param opens "
+        },
+        {
+          "insert": "name: {",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and closes "
+        },
+        {
+          "insert": "},",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "), then a closing "
+        },
+        {
+          "insert": ") -> returns",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " line. Zero-param operations stay on one line."
+        }
+      ],
+      "children": []
+    },
+    "b-22-is-fam-docr-sig-3": {
+      "id": "b-22-is-fam-docr-sig-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Token tints are deterministic spans over this grammar — the operation name, param types, and the returns tail each carry their own token color; no highlight.js."
+        }
+      ],
+      "children": []
+    },
+    "b-22-is-fam-docr-notes-li": {
+      "id": "b-22-is-fam-docr-notes-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Notes pane."
+        }
+      ],
+      "children": [
+        "b-22-is-fam-docr-notes-1",
+        "b-22-is-fam-docr-notes-2"
+      ]
+    },
+    "b-22-is-fam-docr-notes-1": {
+      "id": "b-22-is-fam-docr-notes-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The operation description under a \"Description\" band, then one note row per param: bold mono name, muted "
+        },
+        {
+          "insert": "· type",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " sub-label, the description beneath where one exists."
+        }
+      ],
+      "children": []
+    },
+    "b-22-is-fam-docr-notes-2": {
+      "id": "b-22-is-fam-docr-notes-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An object param's nested notes group behind a light left rule, one step per depth."
+        }
+      ],
+      "children": []
+    },
+    "b-22-is-fam-docr-link-li": {
+      "id": "b-22-is-fam-docr-link-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Linking."
+        }
+      ],
+      "children": [
+        "b-22-is-fam-docr-link-1",
+        "b-22-is-fam-docr-link-2"
+      ]
+    },
+    "b-22-is-fam-docr-link-1": {
+      "id": "b-22-is-fam-docr-link-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "One link group per operation — line numbering is per-operation, so keys would collide across operations."
+        }
+      ],
+      "children": []
+    },
+    "b-22-is-fam-docr-link-2": {
+      "id": "b-22-is-fam-docr-link-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Hovering or focusing a note lights the param's signature lines and vice versa; a click pins, Escape clears pins."
         }
       ],
       "children": []
@@ -465,16 +1056,42 @@
       "props": {},
       "text": [
         {
-          "insert": "In the editor, a non-editable atom leaf node rendered by "
+          "insert": "In the editor the type is a non-editable atom leaf node ("
         },
         {
-          "insert": "InteractionSurfaceDocsBlock",
+          "insert": "DocInteractionSurface",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": ": one multi-line entry per operation, params always visible. No slash-menu entry today — surfaces enter through agent ops or existing content."
+          "insert": ", "
+        },
+        {
+          "insert": "packages/docs-viewer/src/components/interaction-surface/editor-nodes.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/components/interaction-surface/editor-nodes.ts"
+            }
+          }
+        },
+        {
+          "insert": "); the node view calls the same descriptor render, so a surface looks identical in view and edit mode. No slash-menu entry — surfaces enter through agent ops or existing content."
+        }
+      ],
+      "children": []
+    },
+    "b-22-is-fam-agentr-h": {
+      "id": "b-22-is-fam-agentr-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent Renderer"
         }
       ],
       "children": []
@@ -485,7 +1102,20 @@
       "props": {},
       "text": [
         {
-          "insert": "The markdown projection: an optional "
+          "insert": "The markdown render ("
+        },
+        {
+          "insert": "packages/docs-model/src/components/interaction-surface/agent-view.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/components/interaction-surface/agent-view.ts"
+            }
+          }
+        },
+        {
+          "insert": "): an optional "
         },
         {
           "insert": "**<title>**",
@@ -494,7 +1124,65 @@
           }
         },
         {
-          "insert": " bold line, then a bare fence with one signature line per operation, in document order. A param carrying a description or nested fields adds indented detail lines beneath its signature — two-space indent per depth, "
+          "insert": " bold line, then a bare fence with one signature line per operation, in document order."
+        }
+      ],
+      "children": []
+    },
+    "b-22-is-fam-agentr-sig-li": {
+      "id": "b-22-is-fam-agentr-sig-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The signature line: "
+        },
+        {
+          "insert": "[kind] name(param: type, optional?: type) -> returns  # description",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — the "
+        },
+        {
+          "insert": "[kind]",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " prefix only for query and event, the "
+        },
+        {
+          "insert": "-> returns",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "# description",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " tails only when present."
+        }
+      ],
+      "children": []
+    },
+    "b-22-is-fam-agentr-detail-li": {
+      "id": "b-22-is-fam-agentr-detail-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A param carrying a description or nested fields adds indented detail lines beneath its signature, in the shared field-line grammar: two-space indent per depth, "
         },
         {
           "insert": "<name><?>: <type>  # <description>",
@@ -503,7 +1191,18 @@
           }
         },
         {
-          "insert": ":"
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-22-is-fam-agentr-names-li": {
+      "id": "b-22-is-fam-agentr-names-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Operation names stay fully dotted — the greppable identity; only the doc renderer strips namespaces."
         }
       ],
       "children": []
@@ -519,71 +1218,6 @@
       ],
       "children": []
     },
-    "b-22-interaction-surface-agent-h-15": {
-      "id": "b-22-interaction-surface-agent-h-15",
-      "type": "heading",
-      "props": {
-        "level": 2
-      },
-      "text": [
-        {
-          "insert": "Agent notes"
-        }
-      ],
-      "children": []
-    },
-    "b-22-interaction-surface-agent-1-16": {
-      "id": "b-22-interaction-surface-agent-1-16",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "When documenting a system, pair one of these with a "
-        },
-        {
-          "insert": "state-shape",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "10-system-design/40-block-vocabulary/50-state-shape"
-            }
-          }
-        },
-        {
-          "insert": " block carrying both the shape and an example instance: state first, then the operations on it."
-        }
-      ],
-      "children": []
-    },
-    "b-22-interaction-surface-agent-2-17": {
-      "id": "b-22-interaction-surface-agent-2-17",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Operation order is document order — "
-        },
-        {
-          "insert": "addOperation",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " appends, and "
-        },
-        {
-          "insert": "updateOperation",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " patches in place, so curated ordering survives edits."
-        }
-      ],
-      "children": []
-    },
     "b-22-interaction-surface-theming-heading": {
       "id": "b-22-interaction-surface-theming-heading",
       "type": "heading",
@@ -592,7 +1226,7 @@
       },
       "text": [
         {
-          "insert": "Theming"
+          "insert": "Theme"
         }
       ],
       "children": []
@@ -621,7 +1255,19 @@
           }
         },
         {
-          "insert": "; see 20-implementation/40-theming). Every value is one string for both modes or a "
+          "insert": "; see "
+        },
+        {
+          "insert": "Theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/40-theming"
+            }
+          }
+        },
+        {
+          "insert": "). Every value is one string for both modes or a "
         },
         {
           "insert": "{ light, dark }",
@@ -639,7 +1285,20 @@
           }
         },
         {
-          "insert": "."
+          "insert": " ("
+        },
+        {
+          "insert": "packages/docs-workbench/web/src/theme/theme-folders.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/theme/theme-folders.ts"
+            }
+          }
+        },
+        {
+          "insert": ")."
         }
       ],
       "children": []
@@ -657,15 +1316,266 @@
           [
             "border",
             "--docs-interaction-border",
-            "Container border"
+            "Card border"
           ],
           [
             "bg",
             "--docs-interaction-bg",
-            "Container background"
+            "Card background"
+          ],
+          [
+            "rule",
+            "--docs-interaction-rule",
+            "Internal hairlines: row dividers and the column rule"
+          ],
+          [
+            "headerBg",
+            "--docs-interaction-header-bg",
+            "Section header band background"
+          ],
+          [
+            "headerFg",
+            "--docs-interaction-header-fg",
+            "Section header band text"
+          ],
+          [
+            "sigName",
+            "--docs-interaction-sig-name",
+            "Operation name in the signature"
+          ],
+          [
+            "sigType",
+            "--docs-interaction-sig-type",
+            "Param types and the -> returns tail"
+          ],
+          [
+            "sigPunct",
+            "--docs-interaction-sig-punct",
+            "Signature punctuation and the ? marker"
+          ],
+          [
+            "noteName",
+            "--docs-interaction-note-name",
+            "Param note name"
+          ],
+          [
+            "noteType",
+            "--docs-interaction-note-type",
+            "Param note · type sub-label"
+          ],
+          [
+            "noteFg",
+            "--docs-interaction-note-fg",
+            "Note text"
+          ],
+          [
+            "childRule",
+            "--docs-interaction-child-rule",
+            "Left rule grouping an object param's nested notes"
+          ],
+          [
+            "rowPad",
+            "--docs-interaction-row-pad",
+            "Note row padding (length slider, 4–16px, default 8)"
+          ],
+          [
+            "opGap",
+            "--docs-interaction-op-gap",
+            "Gap between operation cards (length slider, 6–28px, default 14)"
           ]
         ]
       },
+      "children": []
+    },
+    "b-22-is-fam-theme-linking-p": {
+      "id": "b-22-is-fam-theme-linking-p",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The zebra stripe, link wash, and pin accent come from the shared linking file ("
+        },
+        {
+          "insert": "components/linking.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ") — registered once for the linked-panels layer, not per component."
+        }
+      ],
+      "children": []
+    },
+    "b-22-is-fam-adapter-h": {
+      "id": "b-22-is-fam-adapter-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent Adapter"
+        }
+      ],
+      "children": []
+    },
+    "b-22-is-fam-adapter-p1": {
+      "id": "b-22-is-fam-adapter-p1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The family uses the default adapter: no agent of its own, and nothing forwards to an external authority. The contract is "
+        },
+        {
+          "insert": "Agent adapter",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/60-agent-adapter"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-22-is-fam-adapter-p2": {
+      "id": "b-22-is-fam-adapter-p2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Edits arrive as generic doc ops. The three typed actions ride "
+        },
+        {
+          "insert": "componentAction",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — the seventh op beside "
+        },
+        {
+          "insert": "insertBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "deleteBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "moveBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "splitBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "mergeBlocks",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " (see the "
+        },
+        {
+          "insert": "mutation model",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/50-mutation-model"
+            }
+          }
+        },
+        {
+          "insert": "). A "
+        },
+        {
+          "insert": "componentAction",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " resolves the named action from the registry, validates its params, applies it to the target block, and lands the resulting "
+        },
+        {
+          "insert": "{ operations }",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " patch through the "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " code path — the block id is preserved and the inverse is the usual "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " inverse ("
+        },
+        {
+          "insert": "packages/docs-model/src/doc-ops.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/doc-ops.ts"
+            }
+          }
+        },
+        {
+          "insert": ")."
+        }
+      ],
       "children": []
     }
   }

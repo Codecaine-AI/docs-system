@@ -17,7 +17,7 @@ This page states the scheme, the reserved ranges, and what running out of gap sp
 └── 99-appendix/  # 99 — appendix and meta only
 ```
 
-## The rule
+## The Rule
 
 - Prefix every doc and directory with two digits and a hyphen: `XX-lowercase-hyphenated-name`.
 

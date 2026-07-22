@@ -1,0 +1,2387 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-10-block-vocabulary-90-waterfall",
+  "title": "waterfall",
+  "root": "b-90-waterfall-root",
+  "blocks": {
+    "b-90-waterfall-root": {
+      "id": "b-90-waterfall-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-90-waterfall-lead",
+        "b-90-waterfall-lead-model",
+        "b-90-waterfall-lead-viewer",
+        "b-90-waterfall-split-intro",
+        "b-90-waterfall-split-canvas",
+        "b-90-waterfall-split-sequence",
+        "b-90-waterfall-split-waterfall",
+        "b-90-waterfall-split-tree",
+        "b-90-waterfall-example-h",
+        "b-90-waterfall-example-intro",
+        "b-90-waterfall-example-block",
+        "b-90-waterfall-notation-h",
+        "b-90-waterfall-notation-intro",
+        "b-90-waterfall-not-root",
+        "b-90-waterfall-not-step",
+        "b-90-waterfall-not-indent",
+        "b-90-waterfall-not-code",
+        "b-90-waterfall-not-note",
+        "b-90-waterfall-not-blank",
+        "b-90-waterfall-state-h",
+        "b-90-waterfall-state-intro",
+        "b-90-waterfall-state-shape",
+        "b-90-waterfall-state-b0",
+        "b-90-waterfall-state-b1",
+        "b-90-waterfall-state-bomit",
+        "b-90-waterfall-state-bcheck",
+        "b-90-waterfall-state-b2",
+        "b-90-waterfall-state-btext",
+        "b-90-waterfall-state-b3",
+        "b-90-waterfall-actions-h",
+        "b-90-waterfall-actions-intro",
+        "b-90-waterfall-actions-surface",
+        "b-90-waterfall-actions-b0a",
+        "b-90-waterfall-actions-b0b",
+        "b-90-waterfall-actions-b1",
+        "b-90-waterfall-actions-b3",
+        "b-90-waterfall-actions-b4",
+        "b-90-waterfall-actions-b5",
+        "b-90-waterfall-docrender-h",
+        "b-90-waterfall-dr-intro",
+        "b-90-waterfall-dr-loop",
+        "b-90-waterfall-dr-rail",
+        "b-90-waterfall-dr-weight",
+        "b-90-waterfall-dr-note",
+        "b-90-waterfall-dr-editor",
+        "b-90-waterfall-agentrender-h",
+        "b-90-waterfall-ar-intro",
+        "b-90-waterfall-ar-code",
+        "b-90-waterfall-ar-b1",
+        "b-90-waterfall-ar-b2",
+        "b-90-waterfall-ar-b3",
+        "b-90-waterfall-theme-h",
+        "b-90-waterfall-theme-intro",
+        "b-90-waterfall-theme-rail",
+        "b-90-waterfall-theme-deep",
+        "b-90-waterfall-theme-opaque",
+        "b-90-waterfall-theme-table",
+        "b-90-waterfall-adapter-h",
+        "b-90-waterfall-adapter-p1",
+        "b-90-waterfall-adapter-b0",
+        "b-90-waterfall-adapter-b1",
+        "b-90-waterfall-adapter-b2",
+        "b-90-waterfall-adapter-b3"
+      ]
+    },
+    "b-90-waterfall-lead": {
+      "id": "b-90-waterfall-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The waterfall component owns one type of the "
+        },
+        {
+          "insert": "Block vocabulary",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary"
+            }
+          }
+        },
+        {
+          "insert": ": "
+        },
+        {
+          "insert": "waterfall",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", the process-flow diagram block — the virtual form of a hand-drawn nested arrow flow. A block stores a typed recursive step tree in "
+        },
+        {
+          "insert": "steps",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "; the arrow-tree notation is the text form of that tree — "
+        },
+        {
+          "insert": "serializeWaterfall",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " writes it for the agent surface, "
+        },
+        {
+          "insert": "parseWaterfall",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " turns it back into steps on bulk import."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-lead-model": {
+      "id": "b-90-waterfall-lead-model",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Model code: "
+        },
+        {
+          "insert": "packages/docs-model/src/components/waterfall/",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/components/waterfall"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-lead-viewer": {
+      "id": "b-90-waterfall-lead-viewer",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Doc renderer: "
+        },
+        {
+          "insert": "packages/docs-viewer/src/components/waterfall/",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/components/waterfall"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-split-intro": {
+      "id": "b-90-waterfall-split-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "It is the vocabulary's third diagram type, and the three split by question:"
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-split-canvas": {
+      "id": "b-90-waterfall-split-canvas",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "canvas",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/80-canvas"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-90-waterfall-split-canvas-sub"
+      ]
+    },
+    "b-90-waterfall-split-canvas-sub": {
+      "id": "b-90-waterfall-split-canvas-sub",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "How things relate — spatial boards of shapes, links, and embeds."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-split-sequence": {
+      "id": "b-90-waterfall-split-sequence",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "sequence",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/70-sequence"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-90-waterfall-split-sequence-sub"
+      ]
+    },
+    "b-90-waterfall-split-sequence-sub": {
+      "id": "b-90-waterfall-split-sequence-sub",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Exact exchanges — who sends what to whom, in what order."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-split-waterfall": {
+      "id": "b-90-waterfall-split-waterfall",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "waterfall",
+          "attributes": {
+            "code": true
+          }
+        }
+      ],
+      "children": [
+        "b-90-waterfall-split-waterfall-sub"
+      ]
+    },
+    "b-90-waterfall-split-waterfall-sub": {
+      "id": "b-90-waterfall-split-waterfall-sub",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "How a process flows end to end — arrow steps, nested sublayers, and clarification notes on one rail."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-split-tree": {
+      "id": "b-90-waterfall-split-tree",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "file-tree",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/40-file-tree"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-90-waterfall-split-tree-sub"
+      ]
+    },
+    "b-90-waterfall-split-tree-sub": {
+      "id": "b-90-waterfall-split-tree-sub",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Not a diagram type, but the adjacent call: reach for it when the nested structure is files, not steps."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-example-h": {
+      "id": "b-90-waterfall-example-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Example"
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-example-intro": {
+      "id": "b-90-waterfall-example-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A live block — the run-mode loop of the Melee decomp harness: one root, four arrow steps, nested sublayers, and two clarification notes that render as one bulleted card."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-example-block": {
+      "id": "b-90-waterfall-example-block",
+      "type": "waterfall",
+      "props": {
+        "steps": [
+          {
+            "text": "Run mode",
+            "steps": [
+              {
+                "text": "Get epoch-size candidates from the ranked worker system",
+                "steps": [
+                  {
+                    "text": "Exclude locked, cooled-down, or unschedulable work"
+                  },
+                  {
+                    "text": "Keep enough ready work to feed the worker pool"
+                  }
+                ]
+              },
+              {
+                "text": "Drain the epoch with workers",
+                "steps": [
+                  {
+                    "text": "Spawn workers through the kernel until the epoch is drained"
+                  },
+                  {
+                    "text": "Each worker gets its own isolated worktree"
+                  },
+                  {
+                    "text": "workers produce tentative evidence",
+                    "kind": "note"
+                  },
+                  {
+                    "text": "the epoch boundary makes the map authoritative again",
+                    "kind": "note"
+                  }
+                ]
+              },
+              {
+                "text": "Finish the epoch",
+                "steps": [
+                  {
+                    "text": "Run the full build"
+                  },
+                  {
+                    "text": "Move every item to its authoritative lane"
+                  }
+                ]
+              },
+              {
+                "text": "Continue",
+                "steps": [
+                  {
+                    "text": "Repeat until the operator stops or the run bound is reached"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "children": []
+    },
+    "b-90-waterfall-notation-h": {
+      "id": "b-90-waterfall-notation-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Notation"
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-notation-intro": {
+      "id": "b-90-waterfall-notation-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The arrow-tree notation is the block's plain-text form: "
+        },
+        {
+          "insert": "serializeWaterfall",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " writes it from the step tree and "
+        },
+        {
+          "insert": "parseWaterfall",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " parses it on bulk import, both in "
+        },
+        {
+          "insert": "packages/docs-model/src/components/waterfall/lib.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/components/waterfall/lib.ts"
+            }
+          }
+        },
+        {
+          "insert": ". Six rules cover all of it:"
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-not-root": {
+      "id": "b-90-waterfall-not-root",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Root line"
+        }
+      ],
+      "children": [
+        "b-90-waterfall-not-root-1"
+      ]
+    },
+    "b-90-waterfall-not-root-1": {
+      "id": "b-90-waterfall-not-root-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A line with no arrow prefix starts a flow; the parser returns a forest, so one block can carry multiple roots."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-not-step": {
+      "id": "b-90-waterfall-not-step",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "-> step",
+          "attributes": {
+            "code": true
+          }
+        }
+      ],
+      "children": [
+        "b-90-waterfall-not-step-1"
+      ]
+    },
+    "b-90-waterfall-not-step-1": {
+      "id": "b-90-waterfall-not-step-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An arrow line is one step of the flow."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-not-indent": {
+      "id": "b-90-waterfall-not-indent",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Indentation = sublayers"
+        }
+      ],
+      "children": [
+        "b-90-waterfall-not-indent-1",
+        "b-90-waterfall-not-indent-2"
+      ]
+    },
+    "b-90-waterfall-not-indent-1": {
+      "id": "b-90-waterfall-not-indent-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A line's depth is the rank of its indent width among the distinct widths seen so far, sorted ascending."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-not-indent-2": {
+      "id": "b-90-waterfall-not-indent-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Irregular indentation still nests, and a depth already assigned never changes when a new width appears later."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-not-code": {
+      "id": "b-90-waterfall-not-code",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Backticks"
+        }
+      ],
+      "children": [
+        "b-90-waterfall-not-code-1"
+      ]
+    },
+    "b-90-waterfall-not-code-1": {
+      "id": "b-90-waterfall-not-code-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A backtick-wrapped span is a code value; the render gives it a code chip."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-not-note": {
+      "id": "b-90-waterfall-not-note",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "> note",
+          "attributes": {
+            "code": true
+          }
+        }
+      ],
+      "children": [
+        "b-90-waterfall-not-note-1",
+        "b-90-waterfall-not-note-2"
+      ]
+    },
+    "b-90-waterfall-not-note-1": {
+      "id": "b-90-waterfall-not-note-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A "
+        },
+        {
+          "insert": ">",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " line is a clarification note on the step above it, not a step of its own."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-not-note-2": {
+      "id": "b-90-waterfall-not-note-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Consecutive "
+        },
+        {
+          "insert": ">",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " lines group into one note card, rendered as bullets."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-not-blank": {
+      "id": "b-90-waterfall-not-blank",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Blank lines are ignored."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-state-h": {
+      "id": "b-90-waterfall-state-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "State Schema"
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-state-intro": {
+      "id": "b-90-waterfall-state-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "State schema",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/10-state-schema"
+            }
+          }
+        },
+        {
+          "insert": " contract element — all state lives in typed props:"
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-state-shape": {
+      "id": "b-90-waterfall-state-shape",
+      "type": "state-shape",
+      "props": {
+        "example": "{\n  \"steps\": [\n    {\n      \"text\": \"Drain the epoch with workers\",\n      \"steps\": [\n        {\n          \"text\": \"Each worker gets its own isolated worktree\"\n        },\n        {\n          \"text\": \"workers produce tentative evidence\",\n          \"kind\": \"note\"\n        }\n      ]\n    }\n  ]\n}",
+        "fields": [
+          {
+            "name": "steps",
+            "type": "WaterfallStep[]",
+            "description": "Recursive step tree — the block's entire state.",
+            "fields": [
+              {
+                "name": "text",
+                "type": "string",
+                "description": "Step text; backticks mark code values."
+              },
+              {
+                "name": "kind",
+                "type": "\"step\" | \"note\"",
+                "required": false,
+                "description": "\"note\" marks a clarification leaf; omitted reads as \"step\"."
+              },
+              {
+                "name": "steps",
+                "type": "WaterfallStep[]",
+                "required": false,
+                "description": "Nested substeps; notes never carry them."
+              }
+            ]
+          }
+        ],
+        "name": "WaterfallState",
+        "source": {
+          "path": "packages/docs-model/src/components/waterfall/state.ts",
+          "symbol": "WaterfallState"
+        }
+      },
+      "children": []
+    },
+    "b-90-waterfall-state-b0": {
+      "id": "b-90-waterfall-state-b0",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "WaterfallState",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "packages/docs-model/src/components/waterfall/state.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/components/waterfall/state.ts"
+            }
+          }
+        },
+        {
+          "insert": " defines the closed one-prop schema; "
+        },
+        {
+          "insert": "additionalProperties: false",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " rejects anything else."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-state-b1": {
+      "id": "b-90-waterfall-state-b1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "steps",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is the whole state: a recursive "
+        },
+        {
+          "insert": "WaterfallStep",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " tree — "
+        },
+        {
+          "insert": "{ text, kind?, steps? }",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", where "
+        },
+        {
+          "insert": "kind",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is "
+        },
+        {
+          "insert": "\"step\"",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " or "
+        },
+        {
+          "insert": "\"note\"",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and omitted reads as "
+        },
+        {
+          "insert": "\"step\"",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-state-bomit": {
+      "id": "b-90-waterfall-state-bomit",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Two omissions are deliberate: no title — a heading block above the waterfall carries one — and no stored text form — the arrow-tree notation exists only for import and the agent projection."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-state-bcheck": {
+      "id": "b-90-waterfall-state-bcheck",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "check()",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " rejects a "
+        },
+        {
+          "insert": "kind: \"note\"",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " step that carries child steps — notes are leaves."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-state-b2": {
+      "id": "b-90-waterfall-state-b2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The block stores structure, not layout: no depths, no geometry enters the doc — depth derives from nesting at read time."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-state-btext": {
+      "id": "b-90-waterfall-state-btext",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The type carries no delta text ("
+        },
+        {
+          "insert": "carriesText: false",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ")."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-state-b3": {
+      "id": "b-90-waterfall-state-b3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "readWaterfallStepTree",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " reads "
+        },
+        {
+          "insert": "steps",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " tolerantly — malformed entries are skipped, never thrown on."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-actions-h": {
+      "id": "b-90-waterfall-actions-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Typed Actions"
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-actions-intro": {
+      "id": "b-90-waterfall-actions-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Five actions instantiate the "
+        },
+        {
+          "insert": "Typed actions",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/20-typed-actions"
+            }
+          }
+        },
+        {
+          "insert": " contract element:"
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-actions-surface": {
+      "id": "b-90-waterfall-actions-surface",
+      "type": "interaction-surface",
+      "props": {
+        "operations": [
+          {
+            "name": "waterfall.setSteps",
+            "description": "Bulk replace: swap the entire step tree for the given steps — parse arrow-tree notation with parseWaterfall to build the tree from text.",
+            "params": [
+              {
+                "name": "steps",
+                "type": "WaterfallStep[]",
+                "required": true,
+                "description": "Complete replacement step tree; an empty array empties the waterfall."
+              }
+            ],
+            "returns": "props patch: { steps }"
+          },
+          {
+            "name": "waterfall.insertStep",
+            "description": "Insert a step at an index path: the last element is the insert position among the addressed sibling list.",
+            "params": [
+              {
+                "name": "path",
+                "type": "number[]",
+                "required": true,
+                "description": "Index path; [i] inserts at position i among the roots, [a, ..., i] at position i under the step addressed by the prefix."
+              },
+              {
+                "name": "text",
+                "type": "string",
+                "required": true,
+                "description": "Step text; backticks mark code values."
+              },
+              {
+                "name": "kind",
+                "type": "\"step\" | \"note\"",
+                "required": false,
+                "description": "Step kind; \"note\" is a clarification leaf. Default \"step\"."
+              }
+            ],
+            "returns": "props patch: { steps }"
+          },
+          {
+            "name": "waterfall.setStepText",
+            "description": "Replace the text of the step at an index path.",
+            "params": [
+              {
+                "name": "path",
+                "type": "number[]",
+                "required": true,
+                "description": "Index path of the step, e.g. [0, 2] for the third child of the first root."
+              },
+              {
+                "name": "text",
+                "type": "string",
+                "required": true,
+                "description": "Replacement step text; backticks mark code values."
+              }
+            ],
+            "returns": "props patch: { steps }"
+          },
+          {
+            "name": "waterfall.removeStep",
+            "description": "Remove the step at an index path, together with its entire subtree.",
+            "params": [
+              {
+                "name": "path",
+                "type": "number[]",
+                "required": true,
+                "description": "Index path of the step to remove, e.g. [0, 2]."
+              }
+            ],
+            "returns": "props patch: { steps }"
+          },
+          {
+            "name": "waterfall.moveStep",
+            "description": "Move the step at from (with its subtree) to the insert position to — to is interpreted against the tree after the step is removed.",
+            "params": [
+              {
+                "name": "from",
+                "type": "number[]",
+                "required": true,
+                "description": "Index path of the step to move."
+              },
+              {
+                "name": "to",
+                "type": "number[]",
+                "required": true,
+                "description": "Insertion index path (last element = insert position), resolved after the step is detached."
+              }
+            ],
+            "returns": "props patch: { steps }"
+          }
+        ],
+        "title": "waterfall — actions"
+      },
+      "children": []
+    },
+    "b-90-waterfall-actions-b0a": {
+      "id": "b-90-waterfall-actions-b0a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each action is one file in "
+        },
+        {
+          "insert": "packages/docs-model/src/components/waterfall/actions/",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/components/waterfall/actions"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-actions-b0b": {
+      "id": "b-90-waterfall-actions-b0b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Params validate against the action's TypeBox schema before "
+        },
+        {
+          "insert": "apply()",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " runs; each returns a shallow props patch."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-actions-b1": {
+      "id": "b-90-waterfall-actions-b1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "waterfall.setSteps",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is the bulk edit: it replaces the entire step tree in one validated call — an agent still edits by rewriting what it reads."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-actions-b3": {
+      "id": "b-90-waterfall-actions-b3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The four step actions address by index path: elements walk "
+        },
+        {
+          "insert": "steps",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " from the root — "
+        },
+        {
+          "insert": "[0, 2]",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is the third child of the first root — and insert paths end with the insert position."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-actions-b4": {
+      "id": "b-90-waterfall-actions-b4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "waterfall.moveStep",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " resolves "
+        },
+        {
+          "insert": "to",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " after the moved step is detached, so a move within one sibling list uses post-removal indices."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-actions-b5": {
+      "id": "b-90-waterfall-actions-b5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Unresolvable paths, out-of-range insert positions, and inserts or moves under a note reject in the house pattern — "
+        },
+        {
+          "insert": "{ ok: false, issues }",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — because notes are leaves."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-docrender-h": {
+      "id": "b-90-waterfall-docrender-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Doc Renderer"
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-dr-intro": {
+      "id": "b-90-waterfall-dr-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "Doc renderer",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/30-doc-renderer"
+            }
+          }
+        },
+        {
+          "insert": " contract element: "
+        },
+        {
+          "insert": "WaterfallDocsBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "packages/docs-viewer/src/components/waterfall/WaterfallDocsBlock.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/components/waterfall/WaterfallDocsBlock.tsx"
+            }
+          }
+        },
+        {
+          "insert": ", wired through the descriptor in the same folder:"
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-dr-loop": {
+      "id": "b-90-waterfall-dr-loop",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Render loop"
+        }
+      ],
+      "children": [
+        "b-90-waterfall-dr-loop-1",
+        "b-90-waterfall-dr-loop-2",
+        "b-90-waterfall-dr-empty-1"
+      ]
+    },
+    "b-90-waterfall-dr-loop-1": {
+      "id": "b-90-waterfall-dr-loop-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "readWaterfallSteps",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " derives depth-computed nodes from the step tree; the viewer never parses, and the forest draws as monospace text."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-dr-loop-2": {
+      "id": "b-90-waterfall-dr-loop-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The stylesheet injects once per document; the block scrolls in its own overflow container at a 640 px minimum width."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-dr-empty-1": {
+      "id": "b-90-waterfall-dr-empty-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A block with no steps renders the placeholder line "
+        },
+        {
+          "insert": "empty waterfall — no steps yet",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-dr-rail": {
+      "id": "b-90-waterfall-dr-rail",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "One ink, one rail"
+        }
+      ],
+      "children": [
+        "b-90-waterfall-dr-rail-1",
+        "b-90-waterfall-dr-rail-geom",
+        "b-90-waterfall-dr-rail-run",
+        "b-90-waterfall-dr-rail-tokens",
+        "b-90-waterfall-dr-rail-2"
+      ]
+    },
+    "b-90-waterfall-dr-rail-1": {
+      "id": "b-90-waterfall-dr-rail-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every flow is free text on one connected rail: a trunk drops from each parent, turns a rounded elbow into each child, and runs into an open-V arrowhead whose tip lands just before the text."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-dr-rail-geom": {
+      "id": "b-90-waterfall-dr-rail-geom",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Rail geometry is var-driven — private "
+        },
+        {
+          "insert": "--wf-indent",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "--wf-arrow-gap",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "--wf-gap",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "--wf-line",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "--wf-stroke",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "--wf-arrow",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — indent sets the per-level inset and the elbow's left edge, arrow-gap is the distance from the arrowhead tip to the first letter, and the elbow lands on the first-line center while the trunk overlaps into both sibling gaps, so segments always meet."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-dr-rail-run": {
+      "id": "b-90-waterfall-dr-rail-run",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The elbow's flat run is derived — "
+        },
+        {
+          "insert": "indent − arrow-gap − arrow/2",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", clamped at zero — so it ends in the arrowhead's open back and the two stay connected at any knob values."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-dr-rail-tokens": {
+      "id": "b-90-waterfall-dr-rail-tokens",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every geometry var reads a style-rail token with the prototype default as fallback: "
+        },
+        {
+          "insert": "--docs-waterfall-indent",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "--docs-waterfall-row-gap",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "--docs-waterfall-arrow-gap",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "--docs-waterfall-line-height",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "--docs-waterfall-arrow-size",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "--docs-waterfall-stroke",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "; step text size reads "
+        },
+        {
+          "insert": "--docs-waterfall-text-size",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-dr-rail-2": {
+      "id": "b-90-waterfall-dr-rail-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "No kind colors, no icons, no collapse — the simplicity is deliberate, carried over from the pen-and-paper prototype."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-dr-weight": {
+      "id": "b-90-waterfall-dr-weight",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Hierarchy by weight"
+        }
+      ],
+      "children": [
+        "b-90-waterfall-dr-weight-1",
+        "b-90-waterfall-dr-weight-2",
+        "b-90-waterfall-dr-weight-3"
+      ]
+    },
+    "b-90-waterfall-dr-weight-1": {
+      "id": "b-90-waterfall-dr-weight-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Root lines render heaviest, depth-one steps semibold, and depth three and deeper dims to a 78% mix of the ink."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-dr-weight-2": {
+      "id": "b-90-waterfall-dr-weight-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Repeat",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "While",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "For each",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " at the start of a segment and "
+        },
+        {
+          "insert": "until",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " anywhere in it render bold as keywords."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-dr-weight-3": {
+      "id": "b-90-waterfall-dr-weight-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Backtick spans render as code chips on a muted background."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-dr-note": {
+      "id": "b-90-waterfall-dr-note",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Notes"
+        }
+      ],
+      "children": [
+        "b-90-waterfall-dr-note-1",
+        "b-90-waterfall-dr-note-2",
+        "b-90-waterfall-dr-note-3"
+      ]
+    },
+    "b-90-waterfall-dr-note-1": {
+      "id": "b-90-waterfall-dr-note-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A note step renders as a bordered card — the component's only box — hung under its step, deliberately off the rail: no elbow, no arrowhead."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-dr-note-2": {
+      "id": "b-90-waterfall-dr-note-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Consecutive note siblings collapse into one card, each note a bullet in its list."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-dr-note-3": {
+      "id": "b-90-waterfall-dr-note-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Note text renders at the step ink and step text size by default — "
+        },
+        {
+          "insert": "--docs-waterfall-note-fg",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " defaults to the ink, "
+        },
+        {
+          "insert": "--docs-waterfall-note-text-size",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " to the text size — so the card keeps only its fill and border."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-dr-editor": {
+      "id": "b-90-waterfall-dr-editor",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Editor surface"
+        }
+      ],
+      "children": [
+        "b-90-waterfall-dr-editor-1"
+      ]
+    },
+    "b-90-waterfall-dr-editor-1": {
+      "id": "b-90-waterfall-dr-editor-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The block is a non-editable atom leaf ("
+        },
+        {
+          "insert": "docWaterfall",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "editor-nodes.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/components/waterfall/editor-nodes.ts"
+            }
+          }
+        },
+        {
+          "insert": "); the shared atom node view reuses the same descriptor, so edit mode shows the same render as reading."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-agentrender-h": {
+      "id": "b-90-waterfall-agentrender-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent Renderer"
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-ar-intro": {
+      "id": "b-90-waterfall-ar-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "Agent renderer",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/40-agent-renderer"
+            }
+          }
+        },
+        {
+          "insert": " contract element: the markdown projection in "
+        },
+        {
+          "insert": "agent-view.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/components/waterfall/agent-view.ts"
+            }
+          }
+        },
+        {
+          "insert": " is a "
+        },
+        {
+          "insert": "waterfall",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " fence whose body is "
+        },
+        {
+          "insert": "serializeWaterfall",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " over the step tree. Projected, the live Example above is:"
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-ar-code": {
+      "id": "b-90-waterfall-ar-code",
+      "type": "code",
+      "props": {},
+      "text": [
+        {
+          "insert": "```waterfall\nRun mode\n     -> Get epoch-size candidates from the ranked worker system\n          -> Exclude locked, cooled-down, or unschedulable work\n          -> Keep enough ready work to feed the worker pool\n     -> Drain the epoch with workers\n          -> Spawn workers through the kernel until the epoch is drained\n          -> Each worker gets its own isolated worktree\n          > workers produce tentative evidence\n          > the epoch boundary makes the map authoritative again\n     -> Finish the epoch\n          -> Run the full build\n          -> Move every item to its authoritative lane\n     -> Continue\n          -> Repeat until the operator stops or the run bound is reached\n```"
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-ar-b1": {
+      "id": "b-90-waterfall-ar-b1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The info string is bare "
+        },
+        {
+          "insert": "waterfall",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — the block has no title; a heading above carries one."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-ar-b2": {
+      "id": "b-90-waterfall-ar-b2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The fence body is serialized arrow-tree notation — root lines bare, "
+        },
+        {
+          "insert": "-> ",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " steps at 5-space indents, "
+        },
+        {
+          "insert": "> ",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " notes — parse a rewrite with "
+        },
+        {
+          "insert": "parseWaterfall",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and write it back through "
+        },
+        {
+          "insert": "waterfall.setSteps",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " to round-trip the structure."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-ar-b3": {
+      "id": "b-90-waterfall-ar-b3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Malformed props project an empty fence body rather than crashing."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-theme-h": {
+      "id": "b-90-waterfall-theme-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Theme"
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-theme-intro": {
+      "id": "b-90-waterfall-theme-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "Theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/50-theming"
+            }
+          }
+        },
+        {
+          "insert": " contract element: the renderer paints from fifteen "
+        },
+        {
+          "insert": "--docs-waterfall-*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " tokens, defined in both theme blocks of "
+        },
+        {
+          "insert": "packages/docs-workbench/web/src/theme/semantic.css",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/theme/semantic.css"
+            }
+          }
+        },
+        {
+          "insert": "; corner radii derive from "
+        },
+        {
+          "insert": "--radius",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-theme-rail": {
+      "id": "b-90-waterfall-theme-rail",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Style rail"
+        }
+      ],
+      "children": [
+        "b-90-waterfall-theme-rail-1",
+        "b-90-waterfall-theme-rail-sliders",
+        "b-90-waterfall-theme-rail-2"
+      ]
+    },
+    "b-90-waterfall-theme-rail-1": {
+      "id": "b-90-waterfall-theme-rail-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Fourteen knobs under Theme → Components → Waterfall: six color — Ink, Rail, Note text, Note background, Note border, Code background — plus eight length sliders."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-theme-rail-sliders": {
+      "id": "b-90-waterfall-theme-rail-sliders",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Length sliders and ranges: Indent 16–72 px, Row gap 0–24 px, Arrow gap 0–16 px, Line height 16–40 px, Text size 10–18 px, Note text size 10–18 px, Arrow size 3–12 px, Stroke 0.5–4 px."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-theme-rail-2": {
+      "id": "b-90-waterfall-theme-rail-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Backed by the "
+        },
+        {
+          "insert": "waterfall",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " entry in "
+        },
+        {
+          "insert": "THEME_TOKEN_REGISTRY",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " ("
+        },
+        {
+          "insert": "theme-folders.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/theme/theme-folders.ts"
+            }
+          }
+        },
+        {
+          "insert": ") and the "
+        },
+        {
+          "insert": "waterfall",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " picker file in the Components section."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-theme-deep": {
+      "id": "b-90-waterfall-theme-deep",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Derived deep ink"
+        }
+      ],
+      "children": [
+        "b-90-waterfall-theme-deep-1"
+      ]
+    },
+    "b-90-waterfall-theme-deep-1": {
+      "id": "b-90-waterfall-theme-deep-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "--docs-waterfall-deep-ink",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is a 78% color-mix of the ink — deliberately not a knob, so depth dimming tracks any ink change."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-theme-opaque": {
+      "id": "b-90-waterfall-theme-opaque",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Opaque rail"
+        }
+      ],
+      "children": [
+        "b-90-waterfall-theme-opaque-1",
+        "b-90-waterfall-theme-opaque-2"
+      ]
+    },
+    "b-90-waterfall-theme-opaque-1": {
+      "id": "b-90-waterfall-theme-opaque-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "--docs-waterfall-rail",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is opaque by contract: overlapping elbow and trunk strokes double alpha at the joins."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-theme-opaque-2": {
+      "id": "b-90-waterfall-theme-opaque-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Light "
+        },
+        {
+          "insert": "#b3b1ad",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", dark "
+        },
+        {
+          "insert": "#5d6266",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-theme-table": {
+      "id": "b-90-waterfall-theme-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "CSS variable",
+          "Default",
+          "Styles"
+        ],
+        "rows": [
+          [
+            "--docs-waterfall-ink",
+            "--docs-viewer-text-body",
+            "Text ink — title and step lines"
+          ],
+          [
+            "--docs-waterfall-deep-ink",
+            "78% mix of the ink",
+            "Step text at depth three and deeper"
+          ],
+          [
+            "--docs-waterfall-rail",
+            "#b3b1ad light · #5d6266 dark",
+            "The rail — trunks, elbows, arrowheads"
+          ],
+          [
+            "--docs-waterfall-note-fg",
+            "the ink",
+            "Note card text"
+          ],
+          [
+            "--docs-waterfall-note-bg",
+            "--muted",
+            "Note card background"
+          ],
+          [
+            "--docs-waterfall-note-border",
+            "--border",
+            "Note card border"
+          ],
+          [
+            "--docs-waterfall-code-bg",
+            "--muted",
+            "Backtick code-chip background"
+          ],
+          [
+            "--docs-waterfall-indent",
+            "36px",
+            "Horizontal inset per nesting level — also the elbow's left edge"
+          ],
+          [
+            "--docs-waterfall-row-gap",
+            "7px",
+            "Vertical gap between sibling rows"
+          ],
+          [
+            "--docs-waterfall-arrow-gap",
+            "4px",
+            "Arrowhead tip to the first letter"
+          ],
+          [
+            "--docs-waterfall-line-height",
+            "22px",
+            "Step first-line height — the elbow centers on half of it"
+          ],
+          [
+            "--docs-waterfall-text-size",
+            "12.5px",
+            "Step text size"
+          ],
+          [
+            "--docs-waterfall-note-text-size",
+            "the text size",
+            "Note card text size"
+          ],
+          [
+            "--docs-waterfall-arrow-size",
+            "6px",
+            "Arrowhead edge length"
+          ],
+          [
+            "--docs-waterfall-stroke",
+            "1.5px",
+            "Rail stroke width — trunks, elbows, arrowheads"
+          ]
+        ]
+      },
+      "children": []
+    },
+    "b-90-waterfall-adapter-h": {
+      "id": "b-90-waterfall-adapter-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent Adapter"
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-adapter-p1": {
+      "id": "b-90-waterfall-adapter-p1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The type uses the default adapter — no agent of its own; the contract is "
+        },
+        {
+          "insert": "Agent adapter",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/60-agent-adapter"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-adapter-b0": {
+      "id": "b-90-waterfall-adapter-b0",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The five typed actions ride "
+        },
+        {
+          "insert": "componentAction",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " ops in the seven-op doc vocabulary ("
+        },
+        {
+          "insert": "packages/docs-model/src/doc-ops.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/doc-ops.ts"
+            }
+          }
+        },
+        {
+          "insert": ")."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-adapter-b1": {
+      "id": "b-90-waterfall-adapter-b1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A "
+        },
+        {
+          "insert": "componentAction",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " names the registry key ("
+        },
+        {
+          "insert": "\"waterfall.setSteps\"",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "), resolves the action, validates params, and runs "
+        },
+        {
+          "insert": "apply()",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " against the target block."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-adapter-b2": {
+      "id": "b-90-waterfall-adapter-b2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The returned props patch executes through the existing "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " path — merge semantics are single-sourced, the block id is preserved, and the inverse is the usual "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " inverse."
+        }
+      ],
+      "children": []
+    },
+    "b-90-waterfall-adapter-b3": {
+      "id": "b-90-waterfall-adapter-b3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Structural edits ride the generic ops — "
+        },
+        {
+          "insert": "insertBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "deleteBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "moveBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". "
+        },
+        {
+          "insert": "splitBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "mergeBlocks",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " never apply: the type carries no text."
+        }
+      ],
+      "children": []
+    }
+  }
+}
