@@ -19,6 +19,30 @@ import {
 } from "../theme/theme-folders";
 
 const STORAGE_KEY = "docs-style-rail-settings.v1";
+const SELECTED_PANE_STORAGE_KEY = "docs-style-rail-selected";
+
+const THEME_PANES = ["Presets", "Colors", "Typography", "Background", "References"];
+const BLOCK_PANES = [
+  "Inline code",
+  "Paragraph",
+  "Heading",
+  "List item",
+  "Quote",
+  "Code",
+  "Callout",
+  "Divider",
+  "Image",
+  "Video",
+  "File tree",
+  "Structured table",
+  "Interaction surface",
+  "State shape",
+  "Linked panels",
+  "Waterfall",
+  "Canvas",
+  "Shared surfaces",
+];
+const LAYOUT_PANES = ["Column", "Surfaces", "Sidebar", "Scrollbar", "Side peek", "Editor"];
 
 afterEach(() => {
   cleanup();
@@ -73,9 +97,109 @@ function RailHarness({ initial = DEFAULT_STYLE_RAIL_SETTINGS }: { initial?: Styl
       <output data-testid="reference-settings">{JSON.stringify(settings.reference)}</output>
       <output data-testid="component-settings">{JSON.stringify(settings.components)}</output>
       <output data-testid="dark-setting">{String(dark)}</output>
+      <output data-testid="rail-settings">{JSON.stringify(settings)}</output>
     </>
   );
 }
+
+function openPane(name: string) {
+  const navigation = screen.getByRole("navigation", { name: "Style sections" });
+  fireEvent.click(within(navigation).getByRole("button", { name }));
+}
+
+describe("style rail navigation", () => {
+  it("renders the Theme, Blocks, and Layout groups with all 29 pane items", () => {
+    render(<RailHarness />);
+    const navigation = within(screen.getByRole("navigation", { name: "Style sections" }));
+
+    for (const group of ["Theme", "Blocks", "Layout"]) {
+      expect(navigation.getByText(group)).toBeTruthy();
+    }
+    for (const name of [...THEME_PANES, ...BLOCK_PANES, ...LAYOUT_PANES]) {
+      expect(navigation.getByRole("button", { name })).toBeTruthy();
+    }
+    expect(navigation.getAllByRole("button")).toHaveLength(5 + 18 + 6);
+  });
+
+  it("swaps the visible detail pane when a rail item is selected", () => {
+    render(<RailHarness />);
+
+    expect(screen.getByRole("heading", { name: "Presets" })).toBeTruthy();
+    openPane("Colors");
+    expect(screen.getByRole("heading", { name: "Colors" })).toBeTruthy();
+    expect(screen.queryByRole("heading", { name: "Presets" })).toBeNull();
+  });
+
+  it("persists and restores the selected pane", () => {
+    render(<RailHarness />);
+    openPane("Sidebar");
+    expect(window.localStorage.getItem(SELECTED_PANE_STORAGE_KEY)).toBe("layout.sidebar");
+
+    cleanup();
+    render(<RailHarness />);
+    expect(screen.getByRole("heading", { name: "Sidebar" })).toBeTruthy();
+  });
+
+  it("falls back to Presets when the stored pane id is invalid", () => {
+    window.localStorage.setItem(SELECTED_PANE_STORAGE_KEY, "layout.missing");
+    render(<RailHarness />);
+
+    expect(screen.getByRole("heading", { name: "Presets" })).toBeTruthy();
+  });
+
+  it("shows the pane name and active theme layering line in the detail head", () => {
+    render(<RailHarness />);
+    openPane("Callout");
+
+    expect(screen.getByRole("heading", { name: "Callout" })).toBeTruthy();
+    expect(screen.getByText("Layered over Default theme")).toBeTruthy();
+  });
+
+  it("round-trips the complete settings object through export and import", async () => {
+    const custom = normalizeSettings({
+      accent: "green",
+      background: "#112233",
+      list: { indent: 31 },
+      components: { code: { ruleWidth: "2px", zebraOpacity: "0.6" } },
+    });
+    let exportedBlob: Blob | null = null;
+    const originalCreateObjectURL = URL.createObjectURL;
+    const originalRevokeObjectURL = URL.revokeObjectURL;
+    const originalAnchorClick = HTMLAnchorElement.prototype.click;
+    URL.createObjectURL = ((blob: Blob) => {
+      exportedBlob = blob;
+      return "blob:style-rail-round-trip-test";
+    }) as typeof URL.createObjectURL;
+    URL.revokeObjectURL = (() => {}) as typeof URL.revokeObjectURL;
+    HTMLAnchorElement.prototype.click = () => {};
+
+    try {
+      render(<RailHarness initial={custom} />);
+      fireEvent.click(screen.getByRole("button", { name: "Export theme" }));
+      expect(exportedBlob).toBeTruthy();
+      const exportedText = await exportedBlob!.text();
+
+      fireEvent.click(screen.getByRole("button", { name: "Reset to defaults" }));
+      expect(JSON.parse(screen.getByTestId("rail-settings").textContent ?? "null")).toEqual(
+        DEFAULT_STYLE_RAIL_SETTINGS,
+      );
+
+      const imported = new File([exportedText], "theme.json", { type: "application/json" });
+      fireEvent.change(screen.getByLabelText("Import theme"), {
+        target: { files: [imported] },
+      });
+      await waitFor(() => {
+        expect(JSON.parse(screen.getByTestId("rail-settings").textContent ?? "null")).toEqual(
+          custom,
+        );
+      });
+    } finally {
+      URL.createObjectURL = originalCreateObjectURL;
+      URL.revokeObjectURL = originalRevokeObjectURL;
+      HTMLAnchorElement.prototype.click = originalAnchorClick;
+    }
+  });
+});
 
 describe("style rail list settings", () => {
   it("defaults old settings blobs and validates every list geometry knob", () => {
@@ -203,8 +327,7 @@ describe("style rail list settings", () => {
 
   it("renders five list geometry sliders, no shape selects, and patches only the list group", () => {
     render(<RailHarness />);
-    fireEvent.click(screen.getByRole("button", { name: "Components" }));
-    fireEvent.click(screen.getByRole("button", { name: "List item" }));
+    openPane("List item");
 
     const discSize = screen.getByLabelText(/Disc size/) as HTMLInputElement;
     const circleSize = screen.getByLabelText(/Circle size/) as HTMLInputElement;
@@ -373,25 +496,17 @@ describe("style rail reference settings", () => {
 
   it("renders and patches the reference icon controls", () => {
     render(<RailHarness />);
-    const referencesToggle = screen.getByRole("button", { name: "References" });
-    fireEvent.click(referencesToggle);
-    const referencesElement = referencesToggle.closest("section")!;
-    const referencesSection = within(referencesElement);
+    openPane("References");
 
-    expect(referencesSection.getByText("Text color")).toBeTruthy();
-    expect(referencesSection.getByText("Hover underline")).toBeTruthy();
-    expect(referencesSection.queryAllByText("Hover color")).toHaveLength(0);
-    expect(referencesElement.querySelectorAll("input[type='color']")).toHaveLength(2);
+    expect(screen.getByText("Text color")).toBeTruthy();
+    expect(screen.getByText("Hover underline")).toBeTruthy();
+    expect(screen.queryAllByText("Hover color")).toHaveLength(0);
+    expect(screen.getByText("Icon")).toBeTruthy();
+    expect(document.querySelectorAll("input[type='color']")).toHaveLength(3);
 
-    const iconToggle = referencesSection.getByRole("button", { name: "Icon" });
-    fireEvent.click(iconToggle);
-    const iconElement = iconToggle.closest("section")!;
-    const iconSection = within(iconElement);
-    expect(iconElement.querySelectorAll("input[type='color']")).toHaveLength(1);
-
-    fireEvent.change(iconSection.getByLabelText(/Size/), { target: { value: "18" } });
-    fireEvent.change(iconSection.getByLabelText(/Spacing/), { target: { value: "7" } });
-    fireEvent.change(iconSection.getByLabelText("Position"), { target: { value: "after" } });
+    fireEvent.change(screen.getByLabelText(/Size/), { target: { value: "18" } });
+    fireEvent.change(screen.getByLabelText(/Spacing/), { target: { value: "7" } });
+    fireEvent.change(screen.getByLabelText("Position"), { target: { value: "after" } });
 
     expect(JSON.parse(screen.getByTestId("reference-settings").textContent ?? "null")).toEqual({
       ...DEFAULT_STYLE_RAIL_SETTINGS.reference,
@@ -532,17 +647,14 @@ describe("style rail sidebar settings", () => {
     expect(vars["--docs-sidebar-guide-opacity"]).toBe("0.35");
   });
 
-  it("renders the Sidebar section and its nine controls in the Layout tab", () => {
+  it("renders the Sidebar pane and its nine controls", () => {
     render(<RailHarness />);
-    fireEvent.click(screen.getByRole("button", { name: "Layout" }));
-    const sidebarToggle = screen.getByRole("button", { name: "Sidebar" });
-    fireEvent.click(sidebarToggle);
-    const sidebarSection = within(sidebarToggle.closest("section")!);
+    openPane("Sidebar");
 
-    expect(sidebarSection.getByText("Background")).toBeTruthy();
-    expect(sidebarSection.getByText("Text color")).toBeTruthy();
+    expect(screen.getByLabelText(/Background/)).toBeTruthy();
+    expect(screen.getByText("Text color")).toBeTruthy();
 
-    const font = sidebarSection.getByLabelText("Font") as HTMLSelectElement;
+    const font = screen.getByLabelText("Font") as HTMLSelectElement;
     expect(Array.from(font.options, (option) => option.value)).toEqual([
       "sans",
       "serif",
@@ -550,30 +662,30 @@ describe("style rail sidebar settings", () => {
     ]);
     expect(font.value).toBe("sans");
 
-    const textSize = sidebarSection.getByLabelText(/Text size/) as HTMLInputElement;
+    const textSize = screen.getByLabelText(/Text size/) as HTMLInputElement;
     expect(textSize).toHaveProperty("min", "10");
     expect(textSize).toHaveProperty("max", "20");
     expect(textSize).toHaveProperty("step", "1");
     expect(textSize).toHaveProperty("value", "14");
 
-    const padding = sidebarSection.getByLabelText(/^Padding/) as HTMLInputElement;
+    const padding = screen.getByLabelText(/^Padding/) as HTMLInputElement;
     expect(padding).toHaveProperty("min", "0");
     expect(padding).toHaveProperty("max", "16");
     expect(padding).toHaveProperty("step", "1");
     expect(padding).toHaveProperty("value", "4");
 
-    const indentGuides = sidebarSection.getByLabelText("Indent guides") as HTMLInputElement;
+    const indentGuides = screen.getByLabelText("Indent guides") as HTMLInputElement;
     expect(indentGuides).toHaveProperty("type", "checkbox");
     expect(indentGuides).toHaveProperty("checked", true);
-    expect(sidebarSection.getByText("Guide color")).toBeTruthy();
+    expect(screen.getByText("Guide color")).toBeTruthy();
 
-    const guideWidth = sidebarSection.getByLabelText(/Guide width/) as HTMLInputElement;
+    const guideWidth = screen.getByLabelText(/Guide width/) as HTMLInputElement;
     expect(guideWidth).toHaveProperty("min", "1");
     expect(guideWidth).toHaveProperty("max", "4");
     expect(guideWidth).toHaveProperty("step", "0.5");
     expect(guideWidth).toHaveProperty("value", "1");
 
-    const guideOpacity = sidebarSection.getByLabelText(/Guide opacity/) as HTMLInputElement;
+    const guideOpacity = screen.getByLabelText(/Guide opacity/) as HTMLInputElement;
     expect(guideOpacity).toHaveProperty("min", "0.05");
     expect(guideOpacity).toHaveProperty("max", "1");
     expect(guideOpacity).toHaveProperty("step", "0.05");
@@ -714,9 +826,7 @@ describe("style rail component token kinds", () => {
 
   it("renders metadata-driven structured-table sliders and stores their units", () => {
     render(<RailHarness />);
-    fireEvent.click(screen.getByRole("button", { name: "Components" }));
-    const tableSection = screen.getByRole("button", { name: "Structured table" });
-    fireEvent.click(tableSection);
+    openPane("Structured table");
 
     const width = screen.getByLabelText(/Header rule width/) as HTMLInputElement;
     const opacity = screen.getByLabelText(/Header rule opacity/) as HTMLInputElement;
@@ -740,8 +850,7 @@ describe("style rail component token kinds", () => {
 
   it("renders the editor-furniture sliders (handle radius/offset, selection padding)", () => {
     render(<RailHarness />);
-    fireEvent.click(screen.getByRole("button", { name: "Components" }));
-    fireEvent.click(screen.getByRole("button", { name: "Structured table" }));
+    openPane("Structured table");
 
     const radius = screen.getByLabelText(/Handle radius/) as HTMLInputElement;
     const offset = screen.getByLabelText(/Handle offset/) as HTMLInputElement;
@@ -932,10 +1041,7 @@ describe("style rail code block tokens", () => {
 
   it("renders the code component color knobs with their sidebar labels", () => {
     render(<RailHarness />);
-    fireEvent.click(screen.getByRole("button", { name: "Components" }));
-    const codeToggle = screen.getByRole("button", { name: "Code" });
-    fireEvent.click(codeToggle);
-    const codeSection = within(codeToggle.closest("section")!);
+    openPane("Code");
 
     for (const label of [
       "Language badge",
@@ -945,14 +1051,13 @@ describe("style rail code block tokens", () => {
       "Zebra stripe",
       "Rules",
     ]) {
-      expect(codeSection.getByText(label)).toBeTruthy();
+      expect(screen.getByText(label)).toBeTruthy();
     }
   });
 
   it("renders metadata-driven code rule/zebra sliders and stores their units", () => {
     render(<RailHarness />);
-    fireEvent.click(screen.getByRole("button", { name: "Components" }));
-    fireEvent.click(screen.getByRole("button", { name: "Code" }));
+    openPane("Code");
 
     const width = screen.getByLabelText(/Rule width/) as HTMLInputElement;
     const opacity = screen.getByLabelText(/Rule opacity/) as HTMLInputElement;
@@ -1017,13 +1122,10 @@ describe("style rail shared linking tokens", () => {
 
   it("renders the Linked panels knobs with their sidebar labels", () => {
     render(<RailHarness />);
-    fireEvent.click(screen.getByRole("button", { name: "Components" }));
-    const linkingToggle = screen.getByRole("button", { name: "Linked panels" });
-    fireEvent.click(linkingToggle);
-    const linkingSection = within(linkingToggle.closest("section")!);
+    openPane("Linked panels");
 
     for (const label of ["Zebra stripe", "Link highlight", "Pin & rail"]) {
-      expect(linkingSection.getByText(label)).toBeTruthy();
+      expect(screen.getByText(label)).toBeTruthy();
     }
   });
 });
@@ -1103,10 +1205,7 @@ describe("style rail interaction-surface tokens", () => {
 
   it("renders the Interaction surface knobs with their sidebar labels", () => {
     render(<RailHarness />);
-    fireEvent.click(screen.getByRole("button", { name: "Components" }));
-    const toggle = screen.getByRole("button", { name: "Interaction surface" });
-    fireEvent.click(toggle);
-    const section = within(toggle.closest("section")!);
+    openPane("Interaction surface");
 
     for (const label of [
       "Border",
@@ -1124,14 +1223,14 @@ describe("style rail interaction-surface tokens", () => {
       "Row padding",
       "Card gap",
     ]) {
-      expect(section.getByText(label)).toBeTruthy();
+      expect(screen.getAllByText(label).length).toBeGreaterThan(0);
     }
 
-    const rowPad = section.getByLabelText(/Row padding/) as HTMLInputElement;
+    const rowPad = screen.getByLabelText(/Row padding/) as HTMLInputElement;
     expect(rowPad).toHaveProperty("min", "4");
     expect(rowPad).toHaveProperty("max", "16");
     expect(rowPad).toHaveProperty("value", "8");
-    const opGap = section.getByLabelText(/Card gap/) as HTMLInputElement;
+    const opGap = screen.getByLabelText(/Card gap/) as HTMLInputElement;
     expect(opGap).toHaveProperty("min", "6");
     expect(opGap).toHaveProperty("max", "28");
     expect(opGap).toHaveProperty("value", "14");
@@ -1192,10 +1291,7 @@ describe("style rail state-shape tokens", () => {
 
   it("renders the State shape knobs with their sidebar labels", () => {
     render(<RailHarness />);
-    fireEvent.click(screen.getByRole("button", { name: "Components" }));
-    const toggle = screen.getByRole("button", { name: "State shape" });
-    fireEvent.click(toggle);
-    const section = within(toggle.closest("section")!);
+    openPane("State shape");
 
     for (const label of [
       "Border",
@@ -1209,10 +1305,10 @@ describe("style rail state-shape tokens", () => {
       "Child rule",
       "Row padding",
     ]) {
-      expect(section.getByText(label)).toBeTruthy();
+      expect(screen.getAllByText(label).length).toBeGreaterThan(0);
     }
 
-    const rowPad = section.getByLabelText(/Row padding/) as HTMLInputElement;
+    const rowPad = screen.getByLabelText(/Row padding/) as HTMLInputElement;
     expect(rowPad).toHaveProperty("min", "4");
     expect(rowPad).toHaveProperty("max", "16");
     expect(rowPad).toHaveProperty("value", "9");
@@ -1386,10 +1482,7 @@ describe("style rail waterfall tokens", () => {
 
   it("renders the Waterfall knobs with their sidebar labels", () => {
     render(<RailHarness />);
-    fireEvent.click(screen.getByRole("button", { name: "Components" }));
-    const toggle = screen.getByRole("button", { name: "Waterfall" });
-    fireEvent.click(toggle);
-    const section = within(toggle.closest("section")!);
+    openPane("Waterfall");
 
     for (const label of [
       "Ink",
@@ -1407,38 +1500,38 @@ describe("style rail waterfall tokens", () => {
       "Arrow size",
       "Stroke",
     ]) {
-      expect(section.getByText(label)).toBeTruthy();
+      expect(screen.getByText(label)).toBeTruthy();
     }
 
-    const indent = section.getByLabelText(/^Indent/) as HTMLInputElement;
+    const indent = screen.getByLabelText(/^Indent/) as HTMLInputElement;
     expect(indent).toHaveProperty("min", "16");
     expect(indent).toHaveProperty("max", "72");
     expect(indent).toHaveProperty("value", "36");
-    const rowGap = section.getByLabelText(/Row gap/) as HTMLInputElement;
+    const rowGap = screen.getByLabelText(/Row gap/) as HTMLInputElement;
     expect(rowGap).toHaveProperty("min", "0");
     expect(rowGap).toHaveProperty("max", "24");
     expect(rowGap).toHaveProperty("value", "7");
-    const arrowGap = section.getByLabelText(/Arrow gap/) as HTMLInputElement;
+    const arrowGap = screen.getByLabelText(/Arrow gap/) as HTMLInputElement;
     expect(arrowGap).toHaveProperty("min", "0");
     expect(arrowGap).toHaveProperty("max", "16");
     expect(arrowGap).toHaveProperty("value", "4");
-    const lineHeight = section.getByLabelText(/Line height/) as HTMLInputElement;
+    const lineHeight = screen.getByLabelText(/Line height/) as HTMLInputElement;
     expect(lineHeight).toHaveProperty("min", "16");
     expect(lineHeight).toHaveProperty("max", "40");
     expect(lineHeight).toHaveProperty("value", "22");
-    const textSize = section.getByLabelText(/^Text size/) as HTMLInputElement;
+    const textSize = screen.getByLabelText(/^Text size/) as HTMLInputElement;
     expect(textSize).toHaveProperty("min", "10");
     expect(textSize).toHaveProperty("max", "18");
     expect(textSize).toHaveProperty("value", "12.5");
-    const noteTextSize = section.getByLabelText(/Note text size/) as HTMLInputElement;
+    const noteTextSize = screen.getByLabelText(/Note text size/) as HTMLInputElement;
     expect(noteTextSize).toHaveProperty("min", "10");
     expect(noteTextSize).toHaveProperty("max", "18");
     expect(noteTextSize).toHaveProperty("value", "12.5");
-    const arrowSize = section.getByLabelText(/Arrow size/) as HTMLInputElement;
+    const arrowSize = screen.getByLabelText(/Arrow size/) as HTMLInputElement;
     expect(arrowSize).toHaveProperty("min", "3");
     expect(arrowSize).toHaveProperty("max", "12");
     expect(arrowSize).toHaveProperty("value", "6");
-    const stroke = section.getByLabelText(/Stroke/) as HTMLInputElement;
+    const stroke = screen.getByLabelText(/Stroke/) as HTMLInputElement;
     expect(stroke).toHaveProperty("min", "0.5");
     expect(stroke).toHaveProperty("max", "4");
     expect(stroke).toHaveProperty("value", "1.5");

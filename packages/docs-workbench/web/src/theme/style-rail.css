@@ -123,6 +123,159 @@
 }
 
 /*
+ * Mirrored two-pane layout — detail controls stay next to the document while
+ * the navigation rail occupies the panel's outside edge.
+ */
+.style-rail-two-pane {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 10rem;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.style-rail-detail {
+  min-width: 0;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+.style-rail-detail-head {
+  padding: 1rem 1rem 0.75rem;
+}
+
+.style-rail-detail-head h2,
+.style-rail-detail-head h3,
+.style-rail-detail-head h4 {
+  margin: 0;
+  color: var(--foreground);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.style-rail-detail-head p {
+  margin: 0.125rem 0 0;
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+.style-rail-control-group {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.style-rail-detail-body {
+  padding-bottom: 1rem;
+}
+
+.style-rail-preset-button {
+  border-radius: calc(var(--radius) - 2px);
+}
+
+.style-rail-control-group + .style-rail-section-label {
+  margin-top: 0.375rem;
+}
+
+.style-rail-section-label {
+  padding: 0.875rem 1rem 0.375rem;
+  color: var(--muted-foreground);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  line-height: 1rem;
+  text-transform: uppercase;
+}
+
+.style-rail-nav {
+  width: 10rem;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  border-left: 1px solid var(--border);
+  background: var(--background);
+  padding: 0.625rem 0.5rem;
+}
+
+.style-rail-nav-label {
+  padding: 0.625rem 0.625rem 0.25rem;
+  color: var(--muted-foreground);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  line-height: 0.875rem;
+  text-transform: uppercase;
+}
+
+.style-rail-nav-item {
+  display: grid;
+  grid-template-columns: 0.875rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: 1.75rem;
+  padding: 0.375rem 0.625rem;
+  border: 0;
+  border-radius: calc(var(--radius) - 3px);
+  background: transparent;
+  color: var(--foreground);
+  font: inherit;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.style-rail-nav-item:hover {
+  background: var(--muted);
+}
+
+.style-rail-nav-item:focus-visible {
+  outline: 2px solid var(--foreground);
+  outline-offset: 1px;
+}
+
+.style-rail-nav-item[data-active="true"] {
+  background: var(--accent);
+  color: var(--accent-foreground);
+  font-weight: 600;
+}
+
+.style-rail-nav-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 0.875rem;
+  height: 0.875rem;
+  color: var(--muted-foreground);
+}
+
+.style-rail-nav-icon > svg {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.style-rail-nav-item[data-active="true"] .style-rail-nav-icon {
+  color: currentColor;
+}
+
+.style-rail-nav-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 0.75rem;
+  justify-self: end;
+}
+
+/*
  * Grain — full-viewport SVG turbulence overlay (StyleRailOverlay).
  * Opacity/blend are driven by the style-rail vars on <html>; the layer is
  * above all panels but never interactive.
