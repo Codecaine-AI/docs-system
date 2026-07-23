@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "10-system-design-30-packages-40-docs-viewer",
+  "id": "20-implementation-10-packages-40-docs-viewer",
   "title": "docs-viewer — rendering and editing",
   "root": "b-40-docs-viewer-root",
   "blocks": {
@@ -9,39 +9,60 @@
       "type": "paragraph",
       "props": {},
       "children": [
-        "b-40-docs-viewer-title-1",
         "b-40-docs-viewer-lead-2",
-        "b-40-docs-viewer-owns-heading-3",
-        "b-40-docs-viewer-renderer-4",
-        "b-40-docs-viewer-components-5",
-        "b-40-docs-viewer-editor-6",
-        "b-40-docs-viewer-targeting-7",
-        "b-40-docs-viewer-client-seam-8",
         "b-40-docs-viewer-separate-heading-9",
         "b-40-docs-viewer-browser-purity-10",
         "b-40-docs-viewer-forced-boundary-11",
+        "b-40-docs-viewer-module-heading-20",
+        "b-40-docs-viewer-module-tree-21",
+        "b-40-docs-viewer-owns-heading-3",
+        "b-40-docs-viewer-surface-intro-22",
+        "b-40-docs-viewer-surface-23",
+        "b-40-docs-viewer-capabilities-heading-24",
+        "b-40-docs-viewer-alone-provider-17",
+        "b-40-docs-viewer-alone-editor-18",
+        "b-40-docs-viewer-capability-partial-25",
+        "b-40-docs-viewer-client-seam-8",
+        "b-40-docs-viewer-rendering-heading-26",
+        "b-40-docs-viewer-renderer-4",
+        "b-40-docs-viewer-components-heading-27",
+        "b-40-docs-viewer-components-5",
+        "b-40-docs-viewer-registry-parity-28",
+        "b-40-docs-viewer-node-parity-29",
+        "b-40-docs-viewer-editor-heading-30",
+        "b-40-docs-viewer-editor-6",
+        "b-40-docs-viewer-editor-flow-31",
+        "b-40-docs-viewer-editor-flow-32",
+        "b-40-docs-viewer-editor-flow-33",
+        "b-40-docs-viewer-editor-flow-34",
+        "b-40-docs-viewer-editor-flow-35",
+        "b-40-docs-viewer-nodeviews-36",
+        "b-40-docs-viewer-flushes-37",
+        "b-40-docs-viewer-op-decision-38",
+        "b-40-docs-viewer-reconcile-heading-39",
+        "b-40-docs-viewer-reconcile-40",
+        "b-40-docs-viewer-reconcile-external-41",
+        "b-40-docs-viewer-product-heading-42",
+        "b-40-docs-viewer-targeting-7",
+        "b-40-docs-viewer-peek-43",
         "b-40-docs-viewer-dependencies-heading-12",
         "b-40-docs-viewer-model-dependency-13",
         "b-40-docs-viewer-react-dependencies-14",
         "b-40-docs-viewer-workbench-dependent-15",
         "b-40-docs-viewer-alone-heading-16",
-        "b-40-docs-viewer-alone-provider-17",
-        "b-40-docs-viewer-alone-editor-18",
-        "b-40-docs-viewer-alone-result-19"
+        "b-40-docs-viewer-related-runtime-heading-44",
+        "b-40-docs-viewer-related-client-45",
+        "b-40-docs-viewer-related-renderer-46",
+        "b-40-docs-viewer-related-registry-47",
+        "b-40-docs-viewer-related-editor-48",
+        "b-40-docs-viewer-related-convert-49",
+        "b-40-docs-viewer-related-guards-heading-50",
+        "b-40-docs-viewer-related-schema-51",
+        "b-40-docs-viewer-related-nodeviews-52",
+        "b-40-docs-viewer-related-mirror-test-53",
+        "b-40-docs-viewer-related-sync-test-54",
+        "b-40-docs-viewer-related-boundary-test-55"
       ]
-    },
-    "b-40-docs-viewer-title-1": {
-      "id": "b-40-docs-viewer-title-1",
-      "type": "heading",
-      "props": {
-        "level": 1
-      },
-      "text": [
-        {
-          "insert": "docs-viewer — Rendering and Editing"
-        }
-      ],
-      "children": []
     },
     "b-40-docs-viewer-lead-2": {
       "id": "b-40-docs-viewer-lead-2",
@@ -49,9 +70,168 @@
       "props": {},
       "text": [
         {
-          "insert": "@codecaine-ai/docs-viewer is the browser-only React layer for rendering, editing, and precisely targeting doc.json bundles. It turns docs-model data into interactive UI while leaving storage, transport, and application composition to the host."
+          "insert": "@codecaine-ai/docs-viewer is the browser-only React package that turns validated DocDocument values into reading, editing, peeking, and annotation surfaces. It depends on "
+        },
+        {
+          "insert": "docs-model — The Format",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/10-packages/10-docs-model"
+            }
+          }
+        },
+        {
+          "insert": " for data and operations while hosts supply data access, navigation, persistence callbacks, and embed implementations. The package can therefore render without a server and gain host capabilities without learning transport or storage policy. Interaction and presentation rules live in "
+        },
+        {
+          "insert": "Editor design",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design"
+            }
+          }
+        },
+        {
+          "insert": "; this page covers the source structure and data flow that implement them."
         }
       ],
+      "children": []
+    },
+    "b-40-docs-viewer-separate-heading-9": {
+      "id": "b-40-docs-viewer-separate-heading-9",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The Package Cut"
+        }
+      ],
+      "children": []
+    },
+    "b-40-docs-viewer-browser-purity-10": {
+      "id": "b-40-docs-viewer-browser-purity-10",
+      "type": "callout",
+      "props": {
+        "kind": "Forcing constraint",
+        "title": "Browser purity in both directions",
+        "tone": "decision"
+      },
+      "text": [
+        {
+          "insert": "The model must remain usable by server and CLI code without React or TipTap, so rendering and editing cannot live in docs-model. In the other direction, docs-viewer has only docs-model as a workspace dependency and imports no filesystem, SQLite, Elysia, server, or workbench implementation. The split is forced because it keeps the format dependency-pure and the browser package liftable into an arbitrary React host."
+        }
+      ],
+      "children": []
+    },
+    "b-40-docs-viewer-forced-boundary-11": {
+      "id": "b-40-docs-viewer-forced-boundary-11",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The dependency direction is visible in "
+        },
+        {
+          "insert": "packages/docs-viewer/package.json",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/package.json"
+            }
+          }
+        },
+        {
+          "insert": ". The reverse constraint is enforced by "
+        },
+        {
+          "insert": "import-boundaries.test.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "import-boundaries.test.ts"
+            }
+          }
+        },
+        {
+          "insert": ", which keeps docs-model free of React and TipTap and rejects package imports into host application code. The viewer manifest excludes docs-server and docs-workbench; no dedicated test enumerates those two package names."
+        }
+      ],
+      "children": []
+    },
+    "b-40-docs-viewer-module-heading-20": {
+      "id": "b-40-docs-viewer-module-heading-20",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Module Map"
+        }
+      ],
+      "children": []
+    },
+    "b-40-docs-viewer-module-tree-21": {
+      "id": "b-40-docs-viewer-module-tree-21",
+      "type": "file-tree",
+      "props": {
+        "entries": [
+          {
+            "path": "packages/docs-viewer/src/index.ts",
+            "note": "The root barrel for the embeddable viewer product."
+          },
+          {
+            "path": "packages/docs-viewer/src/client.tsx",
+            "note": "Host data and embed capability injection."
+          },
+          {
+            "path": "packages/docs-viewer/src/render/",
+            "note": "Document traversal, descriptor registry, delta rendering, and pure bundle-path helpers."
+          },
+          {
+            "path": "packages/docs-viewer/src/components/",
+            "note": "Component-mirrored descriptors, editor nodes, and component-specific renderers."
+          },
+          {
+            "path": "packages/docs-viewer/src/editor/DocEditor.tsx",
+            "note": "TipTap composition, dirty state, flush scheduling, locks, and save reconciliation."
+          },
+          {
+            "path": "packages/docs-viewer/src/editor/core/",
+            "note": "The ProseMirror schema and doc.json conversion/diff boundary."
+          },
+          {
+            "path": "packages/docs-viewer/src/editor/input/",
+            "note": "Schema-aware input rules, paste, keymap, and video insertion."
+          },
+          {
+            "path": "packages/docs-viewer/src/editor/menus/",
+            "note": "Slash commands, links, and inline references."
+          },
+          {
+            "path": "packages/docs-viewer/src/editor/views/",
+            "note": "React NodeViews and ProseMirror-owned selection and drag extensions."
+          },
+          {
+            "path": "packages/docs-viewer/src/peek/",
+            "note": "Cross-document peek state, effects, and read-only panel."
+          },
+          {
+            "path": "packages/docs-viewer/src/annotate/",
+            "note": "Stable target resolution and host-callback annotation workflows."
+          },
+          {
+            "path": "packages/docs-viewer/src/ui/",
+            "note": "Viewer-local UI primitives shared by product surfaces."
+          }
+        ]
+      },
       "children": []
     },
     "b-40-docs-viewer-owns-heading-3": {
@@ -62,20 +242,214 @@
       },
       "text": [
         {
-          "insert": "What It Owns"
+          "insert": "The Public Surface"
         }
       ],
       "children": []
     },
-    "b-40-docs-viewer-renderer-4": {
-      "id": "b-40-docs-viewer-renderer-4",
+    "b-40-docs-viewer-surface-intro-22": {
+      "id": "b-40-docs-viewer-surface-intro-22",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The public surface is a set of seams, not a catalogue of React components. Values enter through the provider and render props; host-dependent actions leave through callbacks. The export map in "
+        },
+        {
+          "insert": "packages/docs-viewer/package.json",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/package.json"
+            }
+          }
+        },
+        {
+          "insert": " exposes the root barrel plus stable subpaths for the renderer, editor, peek panel, annotation layer, and pure bundle helpers."
+        }
+      ],
+      "children": []
+    },
+    "b-40-docs-viewer-surface-23": {
+      "id": "b-40-docs-viewer-surface-23",
+      "type": "interaction-surface",
+      "props": {
+        "operations": [
+          {
+            "name": "DocsClient.getDocsTree",
+            "description": "Loads reference-picker data without exposing its transport.",
+            "params": [
+              {
+                "name": "projectId",
+                "type": "string",
+                "required": true
+              }
+            ],
+            "returns": "Promise<{ tree: DocsTreeNode[] }>",
+            "kind": "query"
+          },
+          {
+            "name": "DocsClient.getDocBundle?",
+            "description": "Optional cross-document read used by side peek; the viewer validates the returned payload.",
+            "params": [
+              {
+                "name": "projectId",
+                "type": "string",
+                "required": true
+              },
+              {
+                "name": "path",
+                "type": "string",
+                "required": true
+              }
+            ],
+            "returns": "Promise<{ doc: unknown; documentPath?: string } | null>",
+            "kind": "query"
+          },
+          {
+            "name": "DocsClient draft-lock methods",
+            "description": "Optional acquire, heartbeat, and release capability for advisory edit coordination.",
+            "params": [
+              {
+                "name": "projectId",
+                "type": "string",
+                "required": true
+              },
+              {
+                "name": "path",
+                "type": "string",
+                "required": true
+              },
+              {
+                "name": "kind",
+                "type": "DraftLockKind",
+                "required": true
+              },
+              {
+                "name": "sessionId",
+                "type": "string",
+                "required": true
+              }
+            ],
+            "returns": "Promise<AcquireDraftLockResult> or Promise<void>",
+            "kind": "action"
+          },
+          {
+            "name": "canvasEmbed / sequenceEmbed",
+            "description": "Provider-injected React slots for external visual engines; missing slots leave those engine surfaces unavailable.",
+            "params": [
+              {
+                "name": "id, source identity, title, host context",
+                "type": "embed props",
+                "required": true
+              }
+            ],
+            "returns": "ReactNode",
+            "kind": "query"
+          },
+          {
+            "name": "DocEditor.onApplyOps",
+            "description": "Emits the format-level mutation batch; the host chooses how and where to apply it.",
+            "params": [
+              {
+                "name": "ops",
+                "type": "DocOp[]",
+                "required": true
+              }
+            ],
+            "returns": "Promise<DocBlockSaveResult>",
+            "kind": "event"
+          },
+          {
+            "name": "Navigation and annotation callbacks",
+            "description": "Report intent outward so routing and annotation persistence remain host policy.",
+            "params": [
+              {
+                "name": "reference, target, or annotation action",
+                "type": "typed callback input",
+                "required": true
+              }
+            ],
+            "returns": "host-defined effect",
+            "kind": "event"
+          }
+        ],
+        "title": "Host Seams"
+      },
+      "children": []
+    },
+    "b-40-docs-viewer-capabilities-heading-24": {
+      "id": "b-40-docs-viewer-capabilities-heading-24",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Capability Degradation"
+        }
+      ],
+      "children": []
+    },
+    "b-40-docs-viewer-alone-provider-17": {
+      "id": "b-40-docs-viewer-alone-provider-17",
       "type": "list-item",
       "props": {
         "ordered": false
       },
       "text": [
         {
-          "insert": "Read-only render. "
+          "insert": "No provider"
+        }
+      ],
+      "children": [
+        "b-40-docs-viewer-alone-provider-17-gloss"
+      ]
+    },
+    "b-40-docs-viewer-alone-provider-17-gloss": {
+      "id": "b-40-docs-viewer-alone-provider-17-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "DocBlockRenderer",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " still renders a supplied document. Reference discovery has no entries, cross-document peek becomes host navigation, and canvas or sequence blocks use their unavailable fallbacks."
+        }
+      ],
+      "children": []
+    },
+    "b-40-docs-viewer-alone-editor-18": {
+      "id": "b-40-docs-viewer-alone-editor-18",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Read-only client"
+        }
+      ],
+      "children": [
+        "b-40-docs-viewer-alone-editor-18-gloss"
+      ]
+    },
+    "b-40-docs-viewer-alone-editor-18-gloss": {
+      "id": "b-40-docs-viewer-alone-editor-18-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "A host can implement the read methods and mount "
         },
         {
           "insert": "DocBlockRenderer",
@@ -84,165 +458,7 @@
           }
         },
         {
-          "insert": " in "
-        },
-        {
-          "insert": "packages/docs-viewer/src/render/DocBlockRenderer.tsx",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-viewer/src/render/DocBlockRenderer.tsx"
-            }
-          }
-        },
-        {
-          "insert": " walks a bundle from its root and delegates every block to "
-        },
-        {
-          "insert": "packages/docs-viewer/src/render/block-registry.ts",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-viewer/src/render/block-registry.ts"
-            }
-          }
-        },
-        {
-          "insert": ". The registry maps exactly the fourteen canonical types to one descriptor each; those types are defined by the "
-        },
-        {
-          "insert": "block vocabulary",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "10-system-design/40-block-vocabulary"
-            }
-          }
-        },
-        {
-          "insert": "."
-        }
-      ],
-      "children": []
-    },
-    "b-40-docs-viewer-components-5": {
-      "id": "b-40-docs-viewer-components-5",
-      "type": "list-item",
-      "props": {
-        "ordered": false
-      },
-      "text": [
-        {
-          "insert": "Component adapters. The seven folders under "
-        },
-        {
-          "insert": "packages/docs-viewer/src/components/<name>/",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " are "
-        },
-        {
-          "insert": "rich-text",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "code",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "structured-table",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "file-tree",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "interaction-surface",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "mermaid",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", and "
-        },
-        {
-          "insert": "canvas",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ". Each supplies a descriptor module and "
-        },
-        {
-          "insert": "editor-nodes.ts",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", mirroring docs-model's component bundles one-to-one. "
-        },
-        {
-          "insert": "packages/docs-viewer/src/__tests__/component-mirror.test.ts",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-viewer/src/__tests__/component-mirror.test.ts"
-            }
-          }
-        },
-        {
-          "insert": " enforces that the model bundles and viewer folders stay in lockstep."
-        }
-      ],
-      "children": []
-    },
-    "b-40-docs-viewer-editor-6": {
-      "id": "b-40-docs-viewer-editor-6",
-      "type": "list-item",
-      "props": {
-        "ordered": false
-      },
-      "text": [
-        {
-          "insert": "Block editing. The TipTap-based "
+          "insert": " without exposing a write path. The renderer contains no edit affordances; editing appears only when the host separately mounts "
         },
         {
           "insert": "DocEditor",
@@ -251,46 +467,62 @@
           }
         },
         {
-          "insert": " lives at "
+          "insert": " and supplies its required "
         },
         {
-          "insert": "packages/docs-viewer/src/editor/DocEditor.tsx",
+          "insert": "onApplyOps",
           "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-viewer/src/editor/DocEditor.tsx"
-            }
+            "code": true
           }
         },
         {
-          "insert": ". It composes the slash menu, Markdown input rules, reference chips, link authoring in "
+          "insert": " callback. Omitting draft-lock methods merely skips advisory lock management and must not be treated as authorization."
+        }
+      ],
+      "children": []
+    },
+    "b-40-docs-viewer-capability-partial-25": {
+      "id": "b-40-docs-viewer-capability-partial-25",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Partial capabilities"
+        }
+      ],
+      "children": [
+        "b-40-docs-viewer-capability-partial-25-gloss"
+      ]
+    },
+    "b-40-docs-viewer-capability-partial-25-gloss": {
+      "id": "b-40-docs-viewer-capability-partial-25-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Missing "
         },
         {
-          "insert": "packages/docs-viewer/src/editor/menus/link-editor.tsx",
+          "insert": "getDocBundle",
           "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-viewer/src/editor/menus/link-editor.tsx"
-            }
+            "code": true
           }
         },
         {
-          "insert": ", video paste/drop in "
+          "insert": " downgrades a peek intent to "
         },
         {
-          "insert": "packages/docs-viewer/src/editor/input/video-embed.ts",
+          "insert": "onNavigate",
           "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-viewer/src/editor/input/video-embed.ts"
-            }
+            "code": true
           }
         },
         {
-          "insert": ", and opt-in Notion-style auto-save. Video files upload through the host's "
+          "insert": ". Missing "
         },
         {
           "insert": "uploadAsset",
@@ -299,68 +531,18 @@
           }
         },
         {
-          "insert": " slot."
-        }
-      ],
-      "children": []
-    },
-    "b-40-docs-viewer-targeting-7": {
-      "id": "b-40-docs-viewer-targeting-7",
-      "type": "list-item",
-      "props": {
-        "ordered": false
-      },
-      "text": [
-        {
-          "insert": "Precise targeting and annotations. "
-        },
-        {
-          "insert": "DocTargetingLayer",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " in "
-        },
-        {
-          "insert": "packages/docs-viewer/src/annotate/doc-targeting-layer.tsx",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-viewer/src/annotate/doc-targeting-layer.tsx"
-            }
-          }
-        },
-        {
-          "insert": " provides the hover outline, block-type chip, and pinpoint click used by humans and agents to identify one block specifically. "
-        },
-        {
-          "insert": "packages/docs-viewer/src/annotate/Plannotator.tsx",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-viewer/src/annotate/Plannotator.tsx"
-            }
-          }
-        },
-        {
-          "insert": " provides Plannotator-style annotation composition while leaving persistence callbacks to the host."
+          "insert": " leaves local video-file drops to the default browser and ProseMirror behavior. Optional annotation callbacks suppress only the actions they would perform."
         }
       ],
       "children": []
     },
     "b-40-docs-viewer-client-seam-8": {
       "id": "b-40-docs-viewer-client-seam-8",
-      "type": "list-item",
-      "props": {
-        "ordered": false
-      },
+      "type": "paragraph",
+      "props": {},
       "text": [
         {
-          "insert": "Host integration. "
+          "insert": "The embed boundary follows the same capability rule. "
         },
         {
           "insert": "DocsClientProvider",
@@ -382,88 +564,713 @@
           }
         },
         {
-          "insert": " is the seam for injecting the host's API client and canvas-embed component. Viewer components never talk to a server directly, and the host owns canvas presentation policy. The workbench uses a static section SVG inline, promotes an explicit expansion to a full-screen read-only iframe, and exposes the separate Studio editor only in authoring contexts; another host can implement the same contract with different chrome."
+          "insert": " injects canvas and sequence components for the read renderer. "
+        },
+        {
+          "insert": "DocBlockRenderer",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " canonicalizes bundle-relative sources and passes stable block identity, host context, view selection, and optional object-selection callbacks into the slot. "
+        },
+        {
+          "insert": "DocEditor",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " accepts equivalent render functions as props and threads them through its NodeView context. The viewer never imports either external engine. The designed behavior of these embedded surfaces lives in "
+        },
+        {
+          "insert": "Canvas and Media",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/50-canvas-and-media"
+            }
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []
     },
-    "b-40-docs-viewer-separate-heading-9": {
-      "id": "b-40-docs-viewer-separate-heading-9",
+    "b-40-docs-viewer-rendering-heading-26": {
+      "id": "b-40-docs-viewer-rendering-heading-26",
       "type": "heading",
       "props": {
         "level": 2
       },
       "text": [
         {
-          "insert": "Why It Is Its Own Package"
+          "insert": "Descriptor-Driven Rendering"
         }
       ],
       "children": []
     },
-    "b-40-docs-viewer-browser-purity-10": {
-      "id": "b-40-docs-viewer-browser-purity-10",
-      "type": "callout",
+    "b-40-docs-viewer-renderer-4": {
+      "id": "b-40-docs-viewer-renderer-4",
+      "type": "list-item",
       "props": {
-        "kind": "Forcing constraint",
-        "title": "Browser purity in both directions",
-        "tone": "decision"
+        "ordered": false
       },
       "text": [
         {
-          "insert": "docs-model must stay React-free, so the React renderer and editor cannot live there; "
-        },
+          "insert": "One traversal, one registry"
+        }
+      ],
+      "children": [
+        "b-40-docs-viewer-renderer-4-gloss"
+      ]
+    },
+    "b-40-docs-viewer-renderer-4-gloss": {
+      "id": "b-40-docs-viewer-renderer-4-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
         {
-          "insert": "import-boundaries.test.ts",
+          "insert": "packages/docs-viewer/src/render/DocBlockRenderer.tsx",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/render/DocBlockRenderer.tsx"
+            }
           }
         },
         {
-          "insert": " enforces that side. docs-viewer depends on the model but not on SQLite, "
+          "insert": " starts at the root container, renders its ordered children, and resolves each block through "
         },
         {
-          "insert": "fs",
+          "insert": "packages/docs-viewer/src/render/block-registry.ts",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/render/block-registry.ts"
+            }
           }
         },
         {
-          "insert": ", Elysia, or any server or storage package, so it remains liftable into any host React app. This boundary is forced, not a judgment call."
+          "insert": ". Descriptors receive a common context for text, child recursion, Markdown, assets, and external embeds, so block implementations do not acquire host knowledge."
         }
       ],
       "children": []
     },
-    "b-40-docs-viewer-forced-boundary-11": {
-      "id": "b-40-docs-viewer-forced-boundary-11",
+    "b-40-docs-viewer-components-heading-27": {
+      "id": "b-40-docs-viewer-components-heading-27",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Component-Mirrored Ownership"
+        }
+      ],
+      "children": []
+    },
+    "b-40-docs-viewer-components-5": {
+      "id": "b-40-docs-viewer-components-5",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Descriptor and node colocation"
+        }
+      ],
+      "children": [
+        "b-40-docs-viewer-components-5-gloss"
+      ]
+    },
+    "b-40-docs-viewer-components-5-gloss": {
+      "id": "b-40-docs-viewer-components-5-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Each component-named folder under "
+        },
+        {
+          "insert": "packages/docs-viewer/src/components",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/components"
+            }
+          }
+        },
+        {
+          "insert": " owns its read descriptor and its ProseMirror node exports. Rich text subdivides within its component folder, while "
+        },
+        {
+          "insert": "linked-panels",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is the explicit shared primitive layer rather than a model component."
+        }
+      ],
+      "children": []
+    },
+    "b-40-docs-viewer-registry-parity-28": {
+      "id": "b-40-docs-viewer-registry-parity-28",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Folder and descriptor closure"
+        }
+      ],
+      "children": [
+        "b-40-docs-viewer-registry-parity-28-gloss"
+      ]
+    },
+    "b-40-docs-viewer-registry-parity-28-gloss": {
+      "id": "b-40-docs-viewer-registry-parity-28-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-viewer/src/__tests__/component-mirror.test.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/__tests__/component-mirror.test.ts"
+            }
+          }
+        },
+        {
+          "insert": " compares the viewer folder names with docs-model's "
+        },
+        {
+          "insert": "ALL_COMPONENTS",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in both missing and unexpected directions. The descriptor registry separately refuses missing, extra, or duplicate entries against "
+        },
+        {
+          "insert": "DOC_BLOCK_TYPES",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-40-docs-viewer-node-parity-29": {
+      "id": "b-40-docs-viewer-node-parity-29",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Editor-map parity"
+        }
+      ],
+      "children": [
+        "b-40-docs-viewer-node-parity-29-gloss"
+      ]
+    },
+    "b-40-docs-viewer-node-parity-29-gloss": {
+      "id": "b-40-docs-viewer-node-parity-29-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-viewer/src/__tests__/editor-nodes-sync.test.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/__tests__/editor-nodes-sync.test.ts"
+            }
+          }
+        },
+        {
+          "insert": " flattens every component's "
+        },
+        {
+          "insert": "editor-nodes.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " exports, checks that "
+        },
+        {
+          "insert": "NODE_TYPE_TO_BLOCK_TYPE",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " has exactly those keys, pins the schema construction order, checks the complete inverse literal, and round-trips every entry through "
+        },
+        {
+          "insert": "BLOCK_TYPE_TO_NODE_TYPE",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". The central literals remain reviewable while the test prevents either side from drifting."
+        }
+      ],
+      "children": []
+    },
+    "b-40-docs-viewer-editor-heading-30": {
+      "id": "b-40-docs-viewer-editor-heading-30",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The Editor Pipeline"
+        }
+      ],
+      "children": []
+    },
+    "b-40-docs-viewer-editor-6": {
+      "id": "b-40-docs-viewer-editor-6",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "The split protects both reuse targets at once: the "
-        },
-        {
-          "insert": "model package",
+          "insert": "packages/docs-viewer/src/editor/DocEditor.tsx",
           "attributes": {
+            "code": true,
             "reference": {
-              "kind": "doc",
-              "path": "20-implementation/10-packages/10-docs-model"
+              "kind": "source",
+              "path": "packages/docs-viewer/src/editor/DocEditor.tsx"
             }
           }
         },
         {
-          "insert": " stays free of browser code, and the viewer stays free of persistence and server code. The "
+          "insert": " is the composition point for TipTap, the component node schema, ProseMirror plugins, and the save state machine. It keeps the editor's mutable representation separate from the normalized document and crosses that boundary only through "
         },
         {
-          "insert": "package overview",
+          "insert": "packages/docs-viewer/src/editor/core/convert.ts",
           "attributes": {
+            "code": true,
             "reference": {
-              "kind": "doc",
-              "path": "20-implementation/10-packages"
+              "kind": "source",
+              "path": "packages/docs-viewer/src/editor/core/convert.ts"
             }
           }
         },
         {
-          "insert": " shows this boundary in the seven-package split."
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-40-docs-viewer-editor-flow-31": {
+      "id": "b-40-docs-viewer-editor-flow-31",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Seed the ProseMirror document"
+        }
+      ],
+      "children": [
+        "b-40-docs-viewer-editor-flow-31-gloss"
+      ]
+    },
+    "b-40-docs-viewer-editor-flow-31-gloss": {
+      "id": "b-40-docs-viewer-editor-flow-31-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The conversion boundary preserves stable block identities and typed props as document blocks enter the editor. It assigns identities to new blocks on the return path."
+        }
+      ],
+      "children": []
+    },
+    "b-40-docs-viewer-editor-flow-32": {
+      "id": "b-40-docs-viewer-editor-flow-32",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Edit through the component schema"
+        }
+      ],
+      "children": [
+        "b-40-docs-viewer-editor-flow-32-gloss"
+      ]
+    },
+    "b-40-docs-viewer-editor-flow-32-gloss": {
+      "id": "b-40-docs-viewer-editor-flow-32-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The schema distinguishes inline-editable blocks from structured atom blocks and preserves ordered child relationships."
+        }
+      ],
+      "children": []
+    },
+    "b-40-docs-viewer-editor-flow-33": {
+      "id": "b-40-docs-viewer-editor-flow-33",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Reconstruct canonical state"
+        }
+      ],
+      "children": [
+        "b-40-docs-viewer-editor-flow-33-gloss"
+      ]
+    },
+    "b-40-docs-viewer-editor-flow-33-gloss": {
+      "id": "b-40-docs-viewer-editor-flow-33-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The conversion boundary reconstructs a complete DocDocument while preserving surviving identities and assigning collision-free ids to inserted blocks."
+        }
+      ],
+      "children": []
+    },
+    "b-40-docs-viewer-editor-flow-34": {
+      "id": "b-40-docs-viewer-editor-flow-34",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Diff by identity"
+        }
+      ],
+      "children": [
+        "b-40-docs-viewer-editor-flow-34-gloss"
+      ]
+    },
+    "b-40-docs-viewer-editor-flow-34-gloss": {
+      "id": "b-40-docs-viewer-editor-flow-34-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The conversion boundary compares the edited document with the current host baseline by block identity. Content changes produce block updates, while structural changes produce insertion, deletion, or move operations. A block-type change receives a new identity."
+        }
+      ],
+      "children": []
+    },
+    "b-40-docs-viewer-editor-flow-35": {
+      "id": "b-40-docs-viewer-editor-flow-35",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Hand the batch to the host"
+        }
+      ],
+      "children": [
+        "b-40-docs-viewer-editor-flow-35-gloss"
+      ]
+    },
+    "b-40-docs-viewer-editor-flow-35-gloss": {
+      "id": "b-40-docs-viewer-editor-flow-35-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "onApplyOps",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is the single write handoff. The host may return the authoritative post-save document or a stale/error result; docs-viewer does not construct a request."
+        }
+      ],
+      "children": []
+    },
+    "b-40-docs-viewer-nodeviews-36": {
+      "id": "b-40-docs-viewer-nodeviews-36",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "React NodeViews do not create a second rendering system. "
+        },
+        {
+          "insert": "packages/docs-viewer/src/editor/views/node-views.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/editor/views/node-views.tsx"
+            }
+          }
+        },
+        {
+          "insert": " reconstructs atom blocks from ProseMirror attrs and delegates them to the same descriptors used by the read renderer. Code and structured table supply specialized editable NodeViews, while the editor context carries the host's embed and asset resolvers into the ProseMirror-owned subtree."
+        }
+      ],
+      "children": []
+    },
+    "b-40-docs-viewer-flushes-37": {
+      "id": "b-40-docs-viewer-flushes-37",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every flush reaches the same conversion, diff, and "
+        },
+        {
+          "insert": "onApplyOps",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " boundary. Explicit and automatic triggers share that path. Edits that arrive during an in-flight save remain dirty and schedule another batch; stale results and lock conflicts pause automatic retries."
+        }
+      ],
+      "children": []
+    },
+    "b-40-docs-viewer-op-decision-38": {
+      "id": "b-40-docs-viewer-op-decision-38",
+      "type": "callout",
+      "props": {
+        "kind": "Decision",
+        "title": "Emit operations instead of writing documents",
+        "tone": "decision"
+      },
+      "text": [
+        {
+          "insert": "The editor understands the format, so it emits DocOp batches. It does not understand request URLs, expected-hash envelopes, disk, undo storage, reindexing, or event delivery. It carries an opaque id for the optional draft-lock capability but does not own server session policy. A direct document write here would cross the host boundary and bypass the mutation authority that supplies those guarantees. "
+        },
+        {
+          "insert": "The save pipeline: keystroke to disk",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/30-save-pipeline"
+            }
+          }
+        },
+        {
+          "insert": " owns the end-to-end write contract."
+        }
+      ],
+      "children": []
+    },
+    "b-40-docs-viewer-reconcile-heading-39": {
+      "id": "b-40-docs-viewer-reconcile-heading-39",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Save Reconciliation"
+        }
+      ],
+      "children": []
+    },
+    "b-40-docs-viewer-reconcile-40": {
+      "id": "b-40-docs-viewer-reconcile-40",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A successful save that returns a document makes that document the editor's next diff baseline. When the host passes the same object back as the "
+        },
+        {
+          "insert": "document",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " prop, the editor preserves its current ProseMirror state instead of reseeding it. The save therefore keeps cursor and selection state intact."
+        }
+      ],
+      "children": []
+    },
+    "b-40-docs-viewer-reconcile-external-41": {
+      "id": "b-40-docs-viewer-reconcile-external-41",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A semantically identical refetch with a new object identity also advances the baseline without reseeding. A genuinely different external document does reseed the editor, clears dirty state, and unpauses a stale-save error. "
+        },
+        {
+          "insert": "packages/docs-viewer/src/editor/__tests__/DocEditor.test.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/editor/__tests__/DocEditor.test.tsx"
+            }
+          }
+        },
+        {
+          "insert": " pins the identity-preserving round trip and the external-document control case."
+        }
+      ],
+      "children": []
+    },
+    "b-40-docs-viewer-product-heading-42": {
+      "id": "b-40-docs-viewer-product-heading-42",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Viewer-Owned Product Logic"
+        }
+      ],
+      "children": []
+    },
+    "b-40-docs-viewer-targeting-7": {
+      "id": "b-40-docs-viewer-targeting-7",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Targeting and annotation workflows"
+        }
+      ],
+      "children": [
+        "b-40-docs-viewer-targeting-7-gloss"
+      ]
+    },
+    "b-40-docs-viewer-targeting-7-gloss": {
+      "id": "b-40-docs-viewer-targeting-7-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-viewer/src/annotate",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/annotate"
+            }
+          }
+        },
+        {
+          "insert": " resolves DOM selections to stable block, text-range, visual-point, and canvas-object targets. Components collect and display annotation state, but callbacks leave creation, resolution, agent runs, undo, and persistence to the host."
+        }
+      ],
+      "children": []
+    },
+    "b-40-docs-viewer-peek-43": {
+      "id": "b-40-docs-viewer-peek-43",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Cross-document peek"
+        }
+      ],
+      "children": [
+        "b-40-docs-viewer-peek-43-gloss"
+      ]
+    },
+    "b-40-docs-viewer-peek-43-gloss": {
+      "id": "b-40-docs-viewer-peek-43-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-viewer/src/peek",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/peek"
+            }
+          }
+        },
+        {
+          "insert": " keeps a DOM-free reducer separate from event subscription and loading effects. It fetches through optional "
+        },
+        {
+          "insert": "DocsClient.getDocBundle",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", validates unknown payloads through docs-model, drops stale responses, and renders the target through "
+        },
+        {
+          "insert": "DocBlockRenderer",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []
@@ -476,7 +1283,7 @@
       },
       "text": [
         {
-          "insert": "Dependencies"
+          "insert": "Invariants and Firewalls"
         }
       ],
       "children": []
@@ -489,7 +1296,22 @@
       },
       "text": [
         {
-          "insert": "Workspace upstream: "
+          "insert": "Model-only workspace dependency"
+        }
+      ],
+      "children": [
+        "b-40-docs-viewer-model-dependency-13-gloss"
+      ]
+    },
+    "b-40-docs-viewer-model-dependency-13-gloss": {
+      "id": "b-40-docs-viewer-model-dependency-13-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The package may know "
         },
         {
           "insert": "@codecaine-ai/docs-model",
@@ -498,34 +1320,7 @@
           }
         },
         {
-          "insert": " is the only workspace package dependency. There is no dependency on "
-        },
-        {
-          "insert": "@codecaine-ai/docs-index",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "@codecaine-ai/docs-server",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", or "
-        },
-        {
-          "insert": "@codecaine-ai/docs-workbench",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "."
+          "insert": " schemas, references, annotations, and operations. It must not import docs-index, docs-server, docs-workbench, or an external canvas or sequence engine."
         }
       ],
       "children": []
@@ -538,115 +1333,22 @@
       },
       "text": [
         {
-          "insert": "Browser ecosystem: React and React DOM are peer dependencies. Rendering and editing use "
-        },
+          "insert": "No hidden writer"
+        }
+      ],
+      "children": [
+        "b-40-docs-viewer-react-dependencies-14-gloss"
+      ]
+    },
+    "b-40-docs-viewer-react-dependencies-14-gloss": {
+      "id": "b-40-docs-viewer-react-dependencies-14-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
         {
-          "insert": "@tiptap/*",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "radix-ui",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "mermaid",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "highlight.js",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "@floating-ui/react",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "lucide-react",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "react-markdown",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "remark-gfm",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "rehype-highlight",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "clsx",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "class-variance-authority",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", and "
-        },
-        {
-          "insert": "tailwind-merge",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "."
+          "insert": "Rendering, peeking, annotation, and editing code performs no repository or backend mutation directly. Every host-dependent action is an injected method, component, resolver, uploader, or callback."
         }
       ],
       "children": []
@@ -659,19 +1361,31 @@
       },
       "text": [
         {
-          "insert": "Workspace downstream: "
+          "insert": "Stable identity and closed parity"
+        }
+      ],
+      "children": [
+        "b-40-docs-viewer-workbench-dependent-15-gloss"
+      ]
+    },
+    "b-40-docs-viewer-workbench-dependent-15-gloss": {
+      "id": "b-40-docs-viewer-workbench-dependent-15-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Surviving blocks keep their ids across "
         },
         {
-          "insert": "docs-workbench",
+          "insert": "DocDocument",
           "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "20-implementation/10-packages/50-docs-workbench"
-            }
+            "code": true
           }
         },
         {
-          "insert": " depends on docs-viewer and wraps it in the SPA."
+          "insert": " and ProseMirror representations. Folder parity and descriptor closure prevent a model component or block type from silently becoming unreadable. Editor-node parity prevents a known component node export or central node mapping from drifting in either direction."
         }
       ],
       "children": []
@@ -684,88 +1398,383 @@
       },
       "text": [
         {
-          "insert": "Using It Alone"
+          "insert": "Related Files"
         }
       ],
       "children": []
     },
-    "b-40-docs-viewer-alone-provider-17": {
-      "id": "b-40-docs-viewer-alone-provider-17",
-      "type": "paragraph",
-      "props": {},
+    "b-40-docs-viewer-related-runtime-heading-44": {
+      "id": "b-40-docs-viewer-related-runtime-heading-44",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
       "text": [
         {
-          "insert": "In another React application, wrap the viewer surfaces with "
-        },
-        {
-          "insert": "DocsClientProvider",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " and supply that host's API client plus a canvas-embed component when the document needs one. Pass a bundle to "
-        },
-        {
-          "insert": "DocBlockRenderer",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " for read-only rendering."
+          "insert": "Runtime"
         }
       ],
       "children": []
     },
-    "b-40-docs-viewer-alone-editor-18": {
-      "id": "b-40-docs-viewer-alone-editor-18",
-      "type": "paragraph",
-      "props": {},
+    "b-40-docs-viewer-related-client-45": {
+      "id": "b-40-docs-viewer-related-client-45",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
       "text": [
         {
-          "insert": "Mount "
-        },
-        {
-          "insert": "DocEditor",
+          "insert": "packages/docs-viewer/src/client.tsx",
           "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " when the host needs editing. The host supplies the apply/save callback and, for local video files, the "
-        },
-        {
-          "insert": "uploadAsset",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " function; docs-viewer owns the editing interaction but not the endpoint or storage implementation."
-        }
-      ],
-      "children": []
-    },
-    "b-40-docs-viewer-alone-result-19": {
-      "id": "b-40-docs-viewer-alone-result-19",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "This embeds bundle rendering and editing without adopting docs-server or the "
-        },
-        {
-          "insert": "workbench implementation",
-          "attributes": {
+            "code": true,
             "reference": {
-              "kind": "doc",
-              "path": "docs/20-implementation/20-workbench.md"
+              "kind": "source",
+              "path": "packages/docs-viewer/src/client.tsx"
             }
           }
-        },
+        }
+      ],
+      "children": [
+        "b-40-docs-viewer-related-client-45-gloss"
+      ]
+    },
+    "b-40-docs-viewer-related-client-45-gloss": {
+      "id": "b-40-docs-viewer-related-client-45-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
         {
-          "insert": ". The host remains responsible for its own API and application shell."
+          "insert": "The host client, optional capabilities, embed slots, provider, and hooks."
+        }
+      ],
+      "children": []
+    },
+    "b-40-docs-viewer-related-renderer-46": {
+      "id": "b-40-docs-viewer-related-renderer-46",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-viewer/src/render/DocBlockRenderer.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/render/DocBlockRenderer.tsx"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-40-docs-viewer-related-renderer-46-gloss"
+      ]
+    },
+    "b-40-docs-viewer-related-renderer-46-gloss": {
+      "id": "b-40-docs-viewer-related-renderer-46-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The read-only traversal and provider-injected embed adaptation."
+        }
+      ],
+      "children": []
+    },
+    "b-40-docs-viewer-related-registry-47": {
+      "id": "b-40-docs-viewer-related-registry-47",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-viewer/src/render/block-registry.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/render/block-registry.ts"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-40-docs-viewer-related-registry-47-gloss"
+      ]
+    },
+    "b-40-docs-viewer-related-registry-47-gloss": {
+      "id": "b-40-docs-viewer-related-registry-47-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The folded descriptor registry and block-type closure check."
+        }
+      ],
+      "children": []
+    },
+    "b-40-docs-viewer-related-editor-48": {
+      "id": "b-40-docs-viewer-related-editor-48",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-viewer/src/editor/DocEditor.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/editor/DocEditor.tsx"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-40-docs-viewer-related-editor-48-gloss"
+      ]
+    },
+    "b-40-docs-viewer-related-editor-48-gloss": {
+      "id": "b-40-docs-viewer-related-editor-48-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The mounted editor, flush triggers, advisory locks, and save reconciliation."
+        }
+      ],
+      "children": []
+    },
+    "b-40-docs-viewer-related-convert-49": {
+      "id": "b-40-docs-viewer-related-convert-49",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-viewer/src/editor/core/convert.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/editor/core/convert.ts"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-40-docs-viewer-related-convert-49-gloss"
+      ]
+    },
+    "b-40-docs-viewer-related-convert-49-gloss": {
+      "id": "b-40-docs-viewer-related-convert-49-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The DocDocument ↔ ProseMirror bridge and identity-based DocOp diff."
+        }
+      ],
+      "children": []
+    },
+    "b-40-docs-viewer-related-guards-heading-50": {
+      "id": "b-40-docs-viewer-related-guards-heading-50",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Schema and Guards"
+        }
+      ],
+      "children": []
+    },
+    "b-40-docs-viewer-related-schema-51": {
+      "id": "b-40-docs-viewer-related-schema-51",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-viewer/src/editor/core/schema.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/editor/core/schema.ts"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-40-docs-viewer-related-schema-51-gloss"
+      ]
+    },
+    "b-40-docs-viewer-related-schema-51-gloss": {
+      "id": "b-40-docs-viewer-related-schema-51-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The component node lists and bidirectional node/block mappings."
+        }
+      ],
+      "children": []
+    },
+    "b-40-docs-viewer-related-nodeviews-52": {
+      "id": "b-40-docs-viewer-related-nodeviews-52",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-viewer/src/editor/views/node-views.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/editor/views/node-views.tsx"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-40-docs-viewer-related-nodeviews-52-gloss"
+      ]
+    },
+    "b-40-docs-viewer-related-nodeviews-52-gloss": {
+      "id": "b-40-docs-viewer-related-nodeviews-52-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The descriptor-delegating atom NodeViews and specialized editor views."
+        }
+      ],
+      "children": []
+    },
+    "b-40-docs-viewer-related-mirror-test-53": {
+      "id": "b-40-docs-viewer-related-mirror-test-53",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-viewer/src/__tests__/component-mirror.test.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/__tests__/component-mirror.test.ts"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-40-docs-viewer-related-mirror-test-53-gloss"
+      ]
+    },
+    "b-40-docs-viewer-related-mirror-test-53-gloss": {
+      "id": "b-40-docs-viewer-related-mirror-test-53-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The exact viewer-folder to model-component mirror."
+        }
+      ],
+      "children": []
+    },
+    "b-40-docs-viewer-related-sync-test-54": {
+      "id": "b-40-docs-viewer-related-sync-test-54",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-viewer/src/__tests__/editor-nodes-sync.test.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/__tests__/editor-nodes-sync.test.ts"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-40-docs-viewer-related-sync-test-54-gloss"
+      ]
+    },
+    "b-40-docs-viewer-related-sync-test-54-gloss": {
+      "id": "b-40-docs-viewer-related-sync-test-54-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The exact component export, construction-order, and bidirectional map parity."
+        }
+      ],
+      "children": []
+    },
+    "b-40-docs-viewer-related-boundary-test-55": {
+      "id": "b-40-docs-viewer-related-boundary-test-55",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "import-boundaries.test.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "import-boundaries.test.ts"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-40-docs-viewer-related-boundary-test-55-gloss"
+      ]
+    },
+    "b-40-docs-viewer-related-boundary-test-55-gloss": {
+      "id": "b-40-docs-viewer-related-boundary-test-55-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The host-app import firewall and React-free model guard."
         }
       ],
       "children": []

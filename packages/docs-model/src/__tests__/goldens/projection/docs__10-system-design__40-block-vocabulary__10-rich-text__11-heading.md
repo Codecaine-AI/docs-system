@@ -1,12 +1,24 @@
 The section heading of the block vocabulary. Use it to give documents a greppable outline — `docs grep '^## '` finds every second-level section in a corpus.
 
+## Example
+
+### A Live Level-3 Heading
+
 ## State Schema
 
-| prop | type | required | notes |
-| --- | --- | --- | --- |
-| level | integer 1-6 | no | Heading depth. Absent means level 2 — the renderer, editor, and agent surface all treat a missing level as 2. |
+**HeadingState** — packages/docs-model/src/components/rich-text/state.ts#HeadingState
 
-Carries delta text (`carriesText: true`) with the full mark set. The schema is closed: `level` is the only prop.
+```
+level?: integer 1-6  # Heading depth; absent reads as level 2 in the renderer, editor, and agent surface alike.
+```
+
+```json
+{
+  "level": 3
+}
+```
+
+Carries delta text (`carriesText: true`) with the full mark set.
 
 ## Doc Renderer
 
@@ -24,7 +36,7 @@ Slash menu: **Heading 1**-**3** as top-level entries, with levels 4-6 under an *
 
 ## Theme
 
-This block's theme file is `components/heading.json` in a theme folder (`themes/<id>/`; see Theming). Every value is one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY`.
+This block's theme file is `components/heading.json` in a theme folder (`themes/<id>/`; see Theming). Every value is one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY`. The contract is Theming.
 
 | Key | CSS variable | Styles |
 | --- | --- | --- |

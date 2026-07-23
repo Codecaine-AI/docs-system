@@ -84,30 +84,25 @@ describe("validateDocDocument", () => {
     expect(result.issues.some((issue) => issue.path === "$.blocks.p1.type")).toBe(true);
   });
 
-  it("accepts the legacy \"flavour\" key on read and normalizes it into \"type\"", () => {
+  it("rejects a block that carries the retired \"flavour\" key instead of \"type\"", () => {
     const doc = validDoc() as unknown as { blocks: Record<string, Record<string, unknown>> };
-    for (const block of Object.values(doc.blocks)) {
-      block.flavour = block.type;
-      delete block.type;
-    }
-    const result = validateDocDocument(doc);
-    expect(result.ok).toBe(true);
-    if (!result.ok) return;
-    expect(result.document.blocks.p1.type).toBe("paragraph");
-    // The serialized form always carries canonical "type", never "flavour".
-    const serialized = serializeDocDocument(result.document);
-    expect(serialized).toContain('"type"');
-    expect(serialized).not.toContain('"flavour"');
-  });
-
-  it("rejects a block whose \"type\" and legacy \"flavour\" disagree", () => {
-    const doc = validDoc() as unknown as { blocks: Record<string, Record<string, unknown>> };
-    doc.blocks.p1.flavour = "quote";
+    doc.blocks.p1.flavour = doc.blocks.p1.type;
+    delete doc.blocks.p1.type;
     const result = validateDocDocument(doc);
     expect(result.ok).toBe(false);
     if (result.ok) return;
-    const issue = result.issues.find((candidate) => candidate.path === "$.blocks.p1.type");
-    expect(issue?.message).toContain("conflicts");
+    const issue = result.issues.find((candidate) => candidate.path === "$.blocks.p1.flavour");
+    expect(issue?.message).toContain('"flavour"');
+    expect(issue?.message).toContain('"type"');
+  });
+
+  it("rejects the retired \"flavour\" key even alongside a valid \"type\"", () => {
+    const doc = validDoc() as unknown as { blocks: Record<string, Record<string, unknown>> };
+    doc.blocks.p1.flavour = "paragraph";
+    const result = validateDocDocument(doc);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.issues.some((candidate) => candidate.path === "$.blocks.p1.flavour")).toBe(true);
   });
 
   it("rejects a missing root id", () => {
@@ -329,36 +324,24 @@ describe("validateDocDocument — legacy type coercion", () => {
     expect(result.document.blocks.legacy.type).toBe("callout");
   });
 
-  it("coerces when the legacy flavour key names a retired type", () => {
+  it('coerces the retired "mermaid" type to a callout carrying kind "mermaid"', () => {
     const result = validateDocDocument(
       docWithBlock({
         id: "legacy",
-        flavour: "testing",
-        props: {},
-        text: [{ insert: "Contract tests lock invariants." }],
+        type: "mermaid",
+        props: { title: "Flow" },
+        text: [{ insert: "flowchart LR\n  A[Doc] --> B[Render]" }],
         children: [],
       }),
     );
     expect(result.ok).toBe(true);
     if (!result.ok) return;
-    expect(result.document.blocks.legacy.type).toBe("callout");
-    expect(result.document.blocks.legacy.props.kind).toBe("testing");
-  });
-
-  it("coerces when type and flavour agree on a retired type", () => {
-    const result = validateDocDocument(
-      docWithBlock({
-        id: "legacy",
-        type: "constraint",
-        flavour: "constraint",
-        props: {},
-        children: [],
-      }),
-    );
-    expect(result.ok).toBe(true);
-    if (!result.ok) return;
-    expect(result.document.blocks.legacy.type).toBe("callout");
-    expect(result.document.blocks.legacy.props.kind).toBe("constraint");
+    const block = result.document.blocks.legacy;
+    expect(block.type).toBe("callout");
+    expect(block.props.kind).toBe("mermaid");
+    // Original props and diagram source survive verbatim.
+    expect(block.props.title).toBe("Flow");
+    expect(block.text).toEqual([{ insert: "flowchart LR\n  A[Doc] --> B[Render]" }]);
   });
 
   it("serialization emits the coerced canonical form", () => {
@@ -378,7 +361,6 @@ describe("validateDocDocument — legacy type coercion", () => {
     };
     expect(parsed.blocks.legacy.type).toBe("callout");
     expect(parsed.blocks.legacy.props.kind).toBe("requirement");
-    expect(serialized).not.toContain('"flavour"');
     // Re-validating the serialized form is a no-op (already canonical).
     const revalidated = validateDocDocument(JSON.parse(serialized));
     expect(revalidated.ok).toBe(true);

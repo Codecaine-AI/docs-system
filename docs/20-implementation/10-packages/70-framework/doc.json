@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "10-system-design-30-packages-70-framework",
+  "id": "20-implementation-10-packages-70-framework",
   "title": "framework — the loadable skill",
   "root": "b-70-framework-root",
   "blocks": {
@@ -9,30 +9,53 @@
       "type": "paragraph",
       "props": {},
       "children": [
-        "b-fw2-title-1",
         "b-fw2-intro-2",
-        "b-fw2-owns-heading-3",
-        "b-fw2-owns-para-4",
-        "b-fw2-not-heading-5",
-        "b-fw2-not-para-6",
         "b-fw2-package-heading-7",
         "b-fw2-package-para-8",
+        "b-fw2-manifest-11",
+        "b-fw2-odd-35",
         "b-fw2-boundary-callout-9",
-        "b-fw2-northstar-callout-10"
+        "b-fw2-owns-heading-3",
+        "b-fw2-owns-para-4",
+        "b-fw2-layout-tree-12",
+        "b-fw2-surface-heading-13",
+        "b-fw2-surface-lead-14",
+        "b-fw2-surface-ops-15",
+        "b-fw2-design-heading-16",
+        "b-fw2-intent-heading-17",
+        "b-fw2-intent-para-18",
+        "b-fw2-not-heading-5",
+        "b-fw2-not-para-6",
+        "b-fw2-pointer-heading-19",
+        "b-fw2-pointer-lead-20",
+        "b-fw2-pointer-structure-21",
+        "b-fw2-pointer-numbering-22",
+        "b-fw2-pointer-links-23",
+        "b-fw2-template-heading-24",
+        "b-fw2-template-para-25",
+        "b-fw2-northstar-callout-10",
+        "b-fw2-invariants-heading-26",
+        "b-fw2-invariant-runtime-27",
+        "b-fw2-invariant-rationale-29",
+        "b-fw2-invariant-commands-31",
+        "b-fw2-invariant-addresses-33",
+        "b-fw2-related-heading-36",
+        "b-fw2-related-entry-heading-37",
+        "b-fw2-related-package-38",
+        "b-fw2-related-skill-40",
+        "b-fw2-related-reference-42",
+        "b-fw2-related-setup-44",
+        "b-fw2-related-routing-heading-46",
+        "b-fw2-related-cookbook-47",
+        "b-fw2-related-workflows-49",
+        "b-fw2-related-standards-51",
+        "b-fw2-related-templates-53",
+        "b-fw2-related-pointers-heading-55",
+        "b-fw2-related-structure-56",
+        "b-fw2-related-numbering-58",
+        "b-fw2-related-doc-links-60",
+        "b-fw2-related-code-links-62"
       ]
-    },
-    "b-fw2-title-1": {
-      "id": "b-fw2-title-1",
-      "type": "heading",
-      "props": {
-        "level": 1
-      },
-      "text": [
-        {
-          "insert": "Framework — the Loadable Skill"
-        }
-      ],
-      "children": []
     },
     "b-fw2-intro-2": {
       "id": "b-fw2-intro-2",
@@ -46,44 +69,7 @@
           }
         },
         {
-          "insert": " is the agent-loadable skill for working inside a docs corpus: how to navigate it, produce new docs, and maintain existing ones. It is deliberately imperative and rationale-free — rules, workflows, and templates an agent loads and follows at authoring time."
-        }
-      ],
-      "children": []
-    },
-    "b-fw2-owns-heading-3": {
-      "id": "b-fw2-owns-heading-3",
-      "type": "heading",
-      "props": {
-        "level": 2
-      },
-      "text": [
-        {
-          "insert": "What It Owns"
-        }
-      ],
-      "children": []
-    },
-    "b-fw2-owns-para-4": {
-      "id": "b-fw2-owns-para-4",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "At "
-        },
-        {
-          "insert": "packages/framework/",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/framework"
-            }
-          }
-        },
-        {
-          "insert": ": the "
+          "insert": " is the agent-loadable operational manual for navigating, producing, and maintaining a docs corpus. It contains no runtime source: a "
         },
         {
           "insert": "SKILL.md",
@@ -92,55 +78,7 @@
           }
         },
         {
-          "insert": " entry point host repositories symlink into their agent tooling, the intent cookbook (navigate / produce / maintain), the imperative structure standards (layers, numbering, linking), document templates, and maintenance workflows."
-        }
-      ],
-      "children": []
-    },
-    "b-fw2-not-heading-5": {
-      "id": "b-fw2-not-heading-5",
-      "type": "heading",
-      "props": {
-        "level": 2
-      },
-      "text": [
-        {
-          "insert": "What It Deliberately Does Not Own"
-        }
-      ],
-      "children": []
-    },
-    "b-fw2-not-para-6": {
-      "id": "b-fw2-not-para-6",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "The why. Every structural rule's rationale lives in "
-        },
-        {
-          "insert": "doc standards",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "10-system-design/10-doc-standards"
-            }
-          }
-        },
-        {
-          "insert": "; the intent behind the whole system lives in the "
-        },
-        {
-          "insert": "manifesto",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "00-foundation/00-manifesto"
-            }
-          }
-        },
-        {
-          "insert": ". The skill states rules; the corpus defends them. When a structural decision changes, both update in the same change — the design doc carries the reasoning, the skill carries the new instruction."
+          "insert": " entry point routes authoring intent into cookbooks, standards, workflows, templates, and setup guidance. The package exists to deliver that methodology to host repositories; a running docs installation does not load it."
         }
       ],
       "children": []
@@ -164,7 +102,88 @@
       "props": {},
       "text": [
         {
-          "insert": "Distribution convenience, honestly. Being a workspace package lets a host repository resolve, version, and symlink the methodology like any other dependency. It has zero dependencies, imports nothing, and ships in no runtime — a running docs installation behaves identically whether the package is present or absent."
+          "insert": "The distribution boundary exists for convenience. Workspace packaging makes the methodology resolvable and versionable, while the mount described in "
+        },
+        {
+          "insert": "packages/framework/99-appendix/10-setup-guide.md",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/framework/99-appendix/10-setup-guide.md"
+            }
+          }
+        },
+        {
+          "insert": " lets host repositories pin the docs-system checkout and symlink agent skill directories to this package. Those are delivery properties, not a runtime boundary."
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-manifest-11": {
+      "id": "b-fw2-manifest-11",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/framework/package.json",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/framework/package.json"
+            }
+          }
+        },
+        {
+          "insert": " makes the narrow boundary literal: it declares only the private workspace name and version. It has no "
+        },
+        {
+          "insert": "main",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "exports",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "bin",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", scripts, or dependency fields."
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-odd-35": {
+      "id": "b-fw2-odd-35",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This makes framework the odd one out under "
+        },
+        {
+          "insert": "packages/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". The neighboring packages expose libraries, an executable command surface, or a runnable application; framework is versioned content. Its package line names a delivery unit rather than a runtime boundary."
         }
       ],
       "children": []
@@ -173,12 +192,493 @@
       "id": "b-fw2-boundary-callout-9",
       "type": "callout",
       "props": {
-        "title": "Boundary under review: this may not need to be a package",
-        "tone": "decision"
+        "kind": "Open call",
+        "title": "Framework Packaging",
+        "tone": "info"
       },
       "text": [
         {
-          "insert": "Framework-as-package is itself under review. The same material could live as plain repository content or use its own distribution channel; the packaging is a convenience, not an architectural layer."
+          "insert": "Framework-as-package remains a judgment call. Plain repository content or a dedicated skill distribution channel could replace this boundary without changing the runtime architecture; the current package earns its place only through resolving, versioning, and symlinking convenience."
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-owns-heading-3": {
+      "id": "b-fw2-owns-heading-3",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "What It Owns"
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-owns-para-4": {
+      "id": "b-fw2-owns-para-4",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/framework/SKILL.md",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/framework/SKILL.md"
+            }
+          }
+        },
+        {
+          "insert": " is the entry contract. The rest of the package is the material it can load: a pointer-only reference area, intent cookbooks, imperative standards, task workflows, adaptable document templates, and mounting instructions. There is no "
+        },
+        {
+          "insert": "src/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " tree."
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-layout-tree-12": {
+      "id": "b-fw2-layout-tree-12",
+      "type": "file-tree",
+      "props": {
+        "entries": [
+          {
+            "path": "packages/framework/SKILL.md",
+            "note": "Agent entry point and intent router."
+          },
+          {
+            "path": "packages/framework/package.json",
+            "note": "Private workspace identity and version only."
+          },
+          {
+            "path": "packages/framework/00-reference/00-overview.md",
+            "note": "Pointer stub to canonical corpus rationale."
+          },
+          {
+            "path": "packages/framework/10-cookbook/",
+            "note": "Navigate, produce, and maintain entry paths."
+          },
+          {
+            "path": "packages/framework/20-standards/",
+            "note": "Loadable operational copies of structure rules."
+          },
+          {
+            "path": "packages/framework/30-workflows/",
+            "note": "Step-by-step task execution guides."
+          },
+          {
+            "path": "packages/framework/40-templates/",
+            "note": "Starting shapes from Foundation through in-code docs."
+          },
+          {
+            "path": "packages/framework/99-appendix/10-setup-guide.md",
+            "note": "Submodule, symlink, command, and update procedure."
+          }
+        ]
+      },
+      "children": []
+    },
+    "b-fw2-surface-heading-13": {
+      "id": "b-fw2-surface-heading-13",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The Load Surface"
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-surface-lead-14": {
+      "id": "b-fw2-surface-lead-14",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The public surface is content addressed through the skill loader, not JavaScript exports. "
+        },
+        {
+          "insert": "packages/framework/SKILL.md",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/framework/SKILL.md"
+            }
+          }
+        },
+        {
+          "insert": " accepts a task, classifies it as navigate, produce, or maintain, then names the relative file key to load with "
+        },
+        {
+          "insert": "skill_read",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". The operations below describe that routing contract; they are not executable functions or CLI commands."
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-surface-ops-15": {
+      "id": "b-fw2-surface-ops-15",
+      "type": "interaction-surface",
+      "props": {
+        "operations": [
+          {
+            "name": "navigate",
+            "description": "Research the documented system, narrow by SCAN/SKIM/READ, and follow implementation references into code only as needed.",
+            "params": [
+              {
+                "name": "task",
+                "type": "research | understand | locate",
+                "required": true,
+                "description": "A request to understand the existing system."
+              }
+            ],
+            "returns": "10-cookbook/10-navigate.md"
+          },
+          {
+            "name": "produce",
+            "description": "Create documentation for a new project, feature, component, or significant addition.",
+            "params": [
+              {
+                "name": "task",
+                "type": "create | document-new",
+                "required": true,
+                "description": "A request that adds new documented surface."
+              }
+            ],
+            "returns": "10-cookbook/20-produce.md → scaffold, interview, write, annotate"
+          },
+          {
+            "name": "maintain",
+            "description": "Bring existing documentation back into alignment and verify its health.",
+            "params": [
+              {
+                "name": "task",
+                "type": "fix | refactor | update | audit",
+                "required": true,
+                "description": "A request that changes or checks an existing documented area."
+              }
+            ],
+            "returns": "10-cookbook/30-maintain.md → write, audit"
+          }
+        ],
+        "title": "docs-framework — intent routing"
+      },
+      "children": []
+    },
+    "b-fw2-design-heading-16": {
+      "id": "b-fw2-design-heading-16",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Design Inside the Boundary"
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-intent-heading-17": {
+      "id": "b-fw2-intent-heading-17",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Intent Routes to Workflows"
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-intent-para-18": {
+      "id": "b-fw2-intent-para-18",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/framework/10-cookbook/00-overview.md",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/framework/10-cookbook/00-overview.md"
+            }
+          }
+        },
+        {
+          "insert": " keeps the first choice task-shaped rather than command-shaped. A cookbook assembles the required stages; "
+        },
+        {
+          "insert": "packages/framework/30-workflows/00-overview.md",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/framework/30-workflows/00-overview.md"
+            }
+          }
+        },
+        {
+          "insert": " indexes the bounded procedures for initialization, scaffolding, interviews, writing, annotation, and audit. This keeps the entry point small while letting one intent compose more than one workflow."
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-not-heading-5": {
+      "id": "b-fw2-not-heading-5",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "What It Deliberately Does Not Own"
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-not-para-6": {
+      "id": "b-fw2-not-para-6",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The structural decision record. "
+        },
+        {
+          "insert": "packages/framework/00-reference/00-overview.md",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/framework/00-reference/00-overview.md"
+            }
+          }
+        },
+        {
+          "insert": " explicitly holds no doctrine, and "
+        },
+        {
+          "insert": "packages/framework/20-standards/00-overview.md",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/framework/20-standards/00-overview.md"
+            }
+          }
+        },
+        {
+          "insert": " identifies its rules as operational copies. The manual may explain how to apply a rule; the corpus owns why the rule exists."
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-pointer-heading-19": {
+      "id": "b-fw2-pointer-heading-19",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Canonical Rationale, Operational Copies"
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-pointer-lead-20": {
+      "id": "b-fw2-pointer-lead-20",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each structural standard ends with a literal "
+        },
+        {
+          "insert": "Canonical:",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " pointer. The copy gives an agent the imperative rule in loadable Markdown; the target corpus doc carries the rule and rationale together."
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-pointer-structure-21": {
+      "id": "b-fw2-pointer-structure-21",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/framework/20-standards/10-hierarchy-layers.md",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/framework/20-standards/10-hierarchy-layers.md"
+            }
+          }
+        },
+        {
+          "insert": " points to "
+        },
+        {
+          "insert": "Structure",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/10-doc-standards/10-structure"
+            }
+          }
+        },
+        {
+          "insert": "; the directory-rules copy shares that home because both apply the same depth and bundle structure."
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-pointer-numbering-22": {
+      "id": "b-fw2-pointer-numbering-22",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/framework/20-standards/30-numbering-system.md",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/framework/20-standards/30-numbering-system.md"
+            }
+          }
+        },
+        {
+          "insert": " points to "
+        },
+        {
+          "insert": "Numbering",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/10-doc-standards/20-numbering"
+            }
+          }
+        },
+        {
+          "insert": ", where stable order, local insertion, and gap exhaustion are defended."
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-pointer-links-23": {
+      "id": "b-fw2-pointer-links-23",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/framework/20-standards/40-doc-linking.md",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/framework/20-standards/40-doc-linking.md"
+            }
+          }
+        },
+        {
+          "insert": " points to "
+        },
+        {
+          "insert": "Cross-doc linking",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/10-doc-standards/30-cross-doc-linking"
+            }
+          }
+        },
+        {
+          "insert": "; "
+        },
+        {
+          "insert": "packages/framework/20-standards/50-code-linking.md",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/framework/20-standards/50-code-linking.md"
+            }
+          }
+        },
+        {
+          "insert": " points to "
+        },
+        {
+          "insert": "Code linking",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/10-doc-standards/40-code-linking"
+            }
+          }
+        },
+        {
+          "insert": ". The operational copies state what an author does; the corpus explains why links are typed, restrained, one-way, and mechanically checkable."
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-template-heading-24": {
+      "id": "b-fw2-template-heading-24",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Templates Stay Adaptable"
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-template-para-25": {
+      "id": "b-fw2-template-para-25",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/framework/40-templates/00-overview.md",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/framework/40-templates/00-overview.md"
+            }
+          }
+        },
+        {
+          "insert": " declares templates to be starting points rather than mandatory document shapes. The catalogue offers Foundation patterns, implementation overviews, section archetypes, concept docs, file headers, and docstrings; workflows select and adapt the closest fit. This keeps reusable authoring help in the manual without turning an example into a corpus invariant."
         }
       ],
       "children": []
@@ -187,12 +687,570 @@
       "id": "b-fw2-northstar-callout-10",
       "type": "callout",
       "props": {
-        "title": "North star: the skill as a render",
-        "tone": "info"
+        "kind": "Named deviation",
+        "title": "Skill Content Is Hand-Maintained",
+        "tone": "warning"
       },
       "text": [
         {
-          "insert": "By this system's own model, the skill is a render of the corpus: the canonical rules and their reasons live in the docs, and the skill is the authoring surface an agent loads. Generating the skill from the corpus — so the two can never drift — is the intended end state."
+          "insert": "The "
+        },
+        {
+          "insert": "Agent surface",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/20-translation-layer/20-agent-surface"
+            }
+          }
+        },
+        {
+          "insert": " establishes rendered text as the agent read contract. This package instead keeps hand-maintained Markdown copies and has no generator or build script. Canonical pointers and same-change synchronization contain that deviation."
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-invariants-heading-26": {
+      "id": "b-fw2-invariants-heading-26",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Invariants and Firewalls"
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-invariant-runtime-27": {
+      "id": "b-fw2-invariant-runtime-27",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Runtime Optionality",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-fw2-invariant-runtime-detail-28"
+      ]
+    },
+    "b-fw2-invariant-runtime-detail-28": {
+      "id": "b-fw2-invariant-runtime-detail-28",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "No running package imports framework. Installing, removing, or relocating the manual does not change document storage, indexing, serving, rendering, editing, or CLI behavior."
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-invariant-rationale-29": {
+      "id": "b-fw2-invariant-rationale-29",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Corpus Authority",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-fw2-invariant-rationale-detail-30"
+      ]
+    },
+    "b-fw2-invariant-rationale-detail-30": {
+      "id": "b-fw2-invariant-rationale-detail-30",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A structural change updates its canonical corpus doc first and synchronizes the operational copy in the same change. Framework must not become a second decision-memory home."
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-invariant-commands-31": {
+      "id": "b-fw2-invariant-commands-31",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Instructions, Not Implementations",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-fw2-invariant-commands-detail-32"
+      ]
+    },
+    "b-fw2-invariant-commands-detail-32": {
+      "id": "b-fw2-invariant-commands-detail-32",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The manual tells agents when to use the docs CLI, workbench, and server API. It implements none of those surfaces and owns no storage, transport, validation, or rendering policy."
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-invariant-addresses-33": {
+      "id": "b-fw2-invariant-addresses-33",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Loader-Relative Addresses",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-fw2-invariant-addresses-detail-34"
+      ]
+    },
+    "b-fw2-invariant-addresses-detail-34": {
+      "id": "b-fw2-invariant-addresses-detail-34",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Cookbook, workflow, standard, and template keys stay relative to the mounted skill root. Codex and Claude symlinks therefore resolve to the same manual content."
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-related-heading-36": {
+      "id": "b-fw2-related-heading-36",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Related Files"
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-related-entry-heading-37": {
+      "id": "b-fw2-related-entry-heading-37",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Entry and Distribution"
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-related-package-38": {
+      "id": "b-fw2-related-package-38",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/framework/package.json",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/framework/package.json"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-fw2-related-package-detail-39"
+      ]
+    },
+    "b-fw2-related-package-detail-39": {
+      "id": "b-fw2-related-package-detail-39",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Declares the private workspace identity and version without a runtime surface."
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-related-skill-40": {
+      "id": "b-fw2-related-skill-40",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/framework/SKILL.md",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/framework/SKILL.md"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-fw2-related-skill-detail-41"
+      ]
+    },
+    "b-fw2-related-skill-detail-41": {
+      "id": "b-fw2-related-skill-detail-41",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Defines the loadable skill, intent routing, manual layout, and corpus-authority rule."
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-related-reference-42": {
+      "id": "b-fw2-related-reference-42",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/framework/00-reference/00-overview.md",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/framework/00-reference/00-overview.md"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-fw2-related-reference-detail-43"
+      ]
+    },
+    "b-fw2-related-reference-detail-43": {
+      "id": "b-fw2-related-reference-detail-43",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Keeps the reference area as a pointer stub instead of a duplicate doctrine store."
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-related-setup-44": {
+      "id": "b-fw2-related-setup-44",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/framework/99-appendix/10-setup-guide.md",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/framework/99-appendix/10-setup-guide.md"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-fw2-related-setup-detail-45"
+      ]
+    },
+    "b-fw2-related-setup-detail-45": {
+      "id": "b-fw2-related-setup-detail-45",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Defines submodule pinning, skill symlinks, CLI wiring, and framework updates."
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-related-routing-heading-46": {
+      "id": "b-fw2-related-routing-heading-46",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Operational Routing"
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-related-cookbook-47": {
+      "id": "b-fw2-related-cookbook-47",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/framework/10-cookbook/00-overview.md",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/framework/10-cookbook/00-overview.md"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-fw2-related-cookbook-detail-48"
+      ]
+    },
+    "b-fw2-related-cookbook-detail-48": {
+      "id": "b-fw2-related-cookbook-detail-48",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Classifies tasks into navigate, produce, and maintain intents."
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-related-workflows-49": {
+      "id": "b-fw2-related-workflows-49",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/framework/30-workflows/00-overview.md",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/framework/30-workflows/00-overview.md"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-fw2-related-workflows-detail-50"
+      ]
+    },
+    "b-fw2-related-workflows-detail-50": {
+      "id": "b-fw2-related-workflows-detail-50",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Indexes the bounded procedures assembled by the cookbooks."
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-related-standards-51": {
+      "id": "b-fw2-related-standards-51",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/framework/20-standards/00-overview.md",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/framework/20-standards/00-overview.md"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-fw2-related-standards-detail-52"
+      ]
+    },
+    "b-fw2-related-standards-detail-52": {
+      "id": "b-fw2-related-standards-detail-52",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Declares the standards directory to be operational copies of corpus rules."
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-related-templates-53": {
+      "id": "b-fw2-related-templates-53",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/framework/40-templates/00-overview.md",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/framework/40-templates/00-overview.md"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-fw2-related-templates-detail-54"
+      ]
+    },
+    "b-fw2-related-templates-detail-54": {
+      "id": "b-fw2-related-templates-detail-54",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Defines the adaptable template catalogue and its principles-over-prescriptions rule."
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-related-pointers-heading-55": {
+      "id": "b-fw2-related-pointers-heading-55",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Canonical Pointer Examples"
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-related-structure-56": {
+      "id": "b-fw2-related-structure-56",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/framework/20-standards/10-hierarchy-layers.md",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/framework/20-standards/10-hierarchy-layers.md"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-fw2-related-structure-detail-57"
+      ]
+    },
+    "b-fw2-related-structure-detail-57": {
+      "id": "b-fw2-related-structure-detail-57",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Carries the loadable layer and depth rules and points to their Structure rationale home."
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-related-numbering-58": {
+      "id": "b-fw2-related-numbering-58",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/framework/20-standards/30-numbering-system.md",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/framework/20-standards/30-numbering-system.md"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-fw2-related-numbering-detail-59"
+      ]
+    },
+    "b-fw2-related-numbering-detail-59": {
+      "id": "b-fw2-related-numbering-detail-59",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Carries the operational prefix rules and points to their Numbering rationale home."
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-related-doc-links-60": {
+      "id": "b-fw2-related-doc-links-60",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/framework/20-standards/40-doc-linking.md",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/framework/20-standards/40-doc-linking.md"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-fw2-related-doc-links-detail-61"
+      ]
+    },
+    "b-fw2-related-doc-links-detail-61": {
+      "id": "b-fw2-related-doc-links-detail-61",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Carries the operational reference-span rules and points to their Cross-doc linking rationale home."
+        }
+      ],
+      "children": []
+    },
+    "b-fw2-related-code-links-62": {
+      "id": "b-fw2-related-code-links-62",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/framework/20-standards/50-code-linking.md",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/framework/20-standards/50-code-linking.md"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-fw2-related-code-links-detail-63"
+      ]
+    },
+    "b-fw2-related-code-links-detail-63": {
+      "id": "b-fw2-related-code-links-detail-63",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Carries the operational source-reference rules and points to their Code linking rationale home."
         }
       ],
       "children": []

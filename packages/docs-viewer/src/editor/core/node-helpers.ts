@@ -101,8 +101,7 @@ export function atomBlockNode(name: string) {
     draggable: false,
     addAttributes() {
       // Atom block types have no PM inline content slot, but doc-schema allows
-      // ANY block (including atoms like mermaid, whose body
-      // grammar lives in `text`) to carry a `text` DeltaSpan[]. `blockText`
+      // ANY block (atoms included) to carry a `text` DeltaSpan[]. `blockText`
       // rides that verbatim as a plain attr (never rendered as editable PM
       // content) so convert.ts's atom-node path stays lossless. Same
       // clipboard treatment as `blockProps` above: a DeltaSpan[] can't ride

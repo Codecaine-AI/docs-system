@@ -10,8 +10,10 @@
       "props": {},
       "children": [
         "b-11-heading-lead-2",
+        "b-11-heading-example-h-20",
+        "b-11-heading-example-h3-21",
         "b-11-heading-state-h-3",
-        "b-11-heading-state-4",
+        "b-11-heading-state-shape-22",
         "b-11-heading-state-note-5",
         "b-11-heading-editor-h-8",
         "b-11-heading-editor-9",
@@ -57,6 +59,32 @@
       ],
       "children": []
     },
+    "b-11-heading-example-h-20": {
+      "id": "b-11-heading-example-h-20",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Example"
+        }
+      ],
+      "children": []
+    },
+    "b-11-heading-example-h3-21": {
+      "id": "b-11-heading-example-h3-21",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "A Live Level-3 Heading"
+        }
+      ],
+      "children": []
+    },
     "b-11-heading-state-h-3": {
       "id": "b-11-heading-state-h-3",
       "type": "heading",
@@ -70,24 +98,25 @@
       ],
       "children": []
     },
-    "b-11-heading-state-4": {
-      "id": "b-11-heading-state-4",
-      "type": "structured-table",
+    "b-11-heading-state-shape-22": {
+      "id": "b-11-heading-state-shape-22",
+      "type": "state-shape",
       "props": {
-        "columns": [
-          "prop",
-          "type",
-          "required",
-          "notes"
+        "description": "Closed schema — level is the only prop.",
+        "example": "{\n  \"level\": 3\n}",
+        "fields": [
+          {
+            "name": "level",
+            "type": "integer 1-6",
+            "required": false,
+            "description": "Heading depth; absent reads as level 2 in the renderer, editor, and agent surface alike."
+          }
         ],
-        "rows": [
-          [
-            "level",
-            "integer 1-6",
-            "no",
-            "Heading depth. Absent means level 2 — the renderer, editor, and agent surface all treat a missing level as 2."
-          ]
-        ]
+        "name": "HeadingState",
+        "source": {
+          "path": "packages/docs-model/src/components/rich-text/state.ts",
+          "symbol": "HeadingState"
+        }
       },
       "children": []
     },
@@ -106,16 +135,7 @@
           }
         },
         {
-          "insert": ") with the full mark set. The schema is closed: "
-        },
-        {
-          "insert": "level",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " is the only prop."
+          "insert": ") with the full mark set."
         }
       ],
       "children": []
@@ -402,6 +422,21 @@
             "reference": {
               "kind": "source",
               "path": "packages/docs-workbench/web/src/theme/theme-folders.ts"
+            }
+          }
+        },
+        {
+          "insert": "."
+        },
+        {
+          "insert": " The contract is "
+        },
+        {
+          "insert": "Theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/50-theming"
             }
           }
         },

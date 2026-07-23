@@ -13,7 +13,6 @@ import {
   DocVideo,
 } from "../../components/rich-text/editor-nodes";
 import { DocCodeBlock } from "../../components/code/editor-nodes";
-import { DocMermaid } from "../../components/mermaid/editor-nodes";
 import { DocFileTree } from "../../components/file-tree/editor-nodes";
 import { DocStructuredTable } from "../../components/structured-table/editor-nodes";
 import { DocInteractionSurface } from "../../components/interaction-surface/editor-nodes";
@@ -33,7 +32,6 @@ export {
   DocImage,
   DocInteractionSurface,
   DocListItem,
-  DocMermaid,
   DocParagraph,
   DocQuote,
   DocSequence,
@@ -81,7 +79,7 @@ export {
  *   emit/consume it as content[0] and never expose it as its own DocBlock.
  *
  * - Structured/atomic block types (divider, image, video, canvas, file-tree,
- *   structured-table, interaction-surface, state-shape, mermaid) are PM atom leaf
+ *   structured-table, interaction-surface, state-shape) are PM atom leaf
  *   nodes (`atom: true`, no editable inline content). They carry their full `props` blob as
  *   `blockProps` and render through a React NodeView (node-views.tsx) that
  *   DELEGATES to the existing block-registry descriptor's `render` — this
@@ -119,7 +117,6 @@ export const ATOM_BLOCK_TYPES = [
   "structured-table",
   "interaction-surface",
   "state-shape",
-  "mermaid",
   "waterfall",
 ] as const satisfies readonly DocBlockType[];
 
@@ -140,7 +137,6 @@ export const NODE_TYPE_TO_BLOCK_TYPE: Record<string, DocBlockType> = {
   docStructuredTable: "structured-table",
   docInteractionSurface: "interaction-surface",
   docStateShape: "state-shape",
-  docMermaid: "mermaid",
   docWaterfall: "waterfall",
 };
 
@@ -201,6 +197,5 @@ export const ATOM_BLOCK_NODES = [
   DocStructuredTable,
   DocInteractionSurface,
   DocStateShape,
-  DocMermaid,
   DocWaterfall,
 ];

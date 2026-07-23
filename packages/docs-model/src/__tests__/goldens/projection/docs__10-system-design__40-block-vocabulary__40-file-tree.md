@@ -20,16 +20,33 @@ A live instance: a refactor slice of this block's own source folder.
 
 ## State Schema
 
-All state is one props key: `entries`, an array of path entries validated by the closed `FileTreeState` schema in `state.ts`. The type carries no delta text (`carriesText: false`) and no title prop — every fact lives in `entries`. The contract is State schema.
+**FileTreeState** — packages/docs-model/src/components/file-tree/state.ts#FileTreeState
 
-**One entry**
+```
+entries: FileTreeEntry[]  # Flat list of path entries; the rendered tree derives from path prefixes.
+  path: string  # /-separated, no leading "./"; a trailing "/" marks an explicit directory.
+  note?: string  # Short annotation rendered after the path.
+  change?: "added" | "removed" | "modified" | "renamed"  # Diff marker for the entry.
+  from?: string  # Previous path, used with change: "renamed".
+```
 
-| prop | type | required | notes |
-| --- | --- | --- | --- |
-| path | string | yes | /-separated, no leading "./"; a trailing "/" marks an explicit directory. |
-| note | string | no | Short annotation rendered after the path. |
-| change | "added" / "removed" / "modified" / "renamed" | no | Diff marker for the entry. |
-| from | string | no | Previous path, used with change: "renamed". |
+```json
+{
+  "entries": [
+    {
+      "path": "packages/docs-model/src/components/file-tree/state.ts",
+      "note": "entry schema"
+    },
+    {
+      "path": "packages/docs-model/src/components/file-tree/lib.ts",
+      "change": "renamed",
+      "from": "packages/docs-model/src/components/file-tree/render.ts"
+    }
+  ]
+}
+```
+
+All state is one props key: `entries`, an array of path entries validated by the closed `FileTreeState` schema. The type carries no delta text (`carriesText: false`) and no title prop — every fact lives in `entries`. The contract is State schema.
 
 - Path rules
 
@@ -133,7 +150,7 @@ Every `apply` is pure — entries in, a props patch `{ entries }` out — and th
 
 ## Theme
 
-This block's theme file is `components/file-tree.json` in a theme folder (`themes/<id>/`). Every value is one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY` in `theme-folders.ts`. The contract is Theming.
+This block's theme file is `components/file-tree.json` in a theme folder (`themes/<id>/`; the system is Theming). Every value is one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY` in `theme-folders.ts`. The contract is Theming.
 
 | Key | CSS variable | Styles |
 | --- | --- | --- |

@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 1,
+  "id": "00-foundation",
+  "title": "Foundation",
+  "root": "b-found-root",
+  "blocks": {
+    "b-found-root": {
+      "id": "b-found-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-found-intro",
+        "b-found-register-heading",
+        "b-found-manifesto",
+        "b-found-principles"
+      ]
+    },
+    "b-found-intro": {
+      "id": "b-found-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The foundation layer holds the system's durable intent. It records why documentation transfers intent and preserves trust, then turns that purpose into the principles that shape the shared artifact, block vocabulary, stable identity, customization boundary, and visual restraint. A reader descends only when the task needs the underlying argument."
+        }
+      ],
+      "children": []
+    },
+    "b-found-register-heading": {
+      "id": "b-found-register-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The Intent Register"
+        }
+      ],
+      "children": []
+    },
+    "b-found-manifesto": {
+      "id": "b-found-manifesto",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Manifesto",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "00-foundation/00-manifesto"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-found-manifesto-gloss"
+      ]
+    },
+    "b-found-manifesto-gloss": {
+      "id": "b-found-manifesto-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Why documentation exists: knowledge transfer, trust, and preserving human intent as agents act on code."
+        }
+      ],
+      "children": []
+    },
+    "b-found-principles": {
+      "id": "b-found-principles",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Design Principles",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "00-foundation/10-design-principles"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-found-principles-gloss"
+      ]
+    },
+    "b-found-principles-gloss": {
+      "id": "b-found-principles-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Why the system uses one addressable artifact, equal reading surfaces, closed blocks, bounded customization, and restrained visuals."
+        }
+      ],
+      "children": []
+    }
+  }
+}

@@ -10,8 +10,12 @@
       "props": {},
       "children": [
         "b-12-list-item-lead-2",
+        "b-12-list-item-example-h-20",
+        "b-12-list-item-example-bullet-21",
+        "b-12-list-item-example-ordered-23",
+        "b-12-list-item-example-ordered2-24",
         "b-12-list-item-state-h-3",
-        "b-12-list-item-state-4",
+        "b-12-list-item-state-shape-25",
         "b-12-list-item-state-note-5",
         "b-12-list-item-editor-h-8",
         "b-12-list-item-editor-9",
@@ -66,6 +70,78 @@
       ],
       "children": []
     },
+    "b-12-list-item-example-h-20": {
+      "id": "b-12-list-item-example-h-20",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Example"
+        }
+      ],
+      "children": []
+    },
+    "b-12-list-item-example-bullet-21": {
+      "id": "b-12-list-item-example-bullet-21",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A bullet item."
+        }
+      ],
+      "children": [
+        "b-12-list-item-example-nested-22"
+      ]
+    },
+    "b-12-list-item-example-nested-22": {
+      "id": "b-12-list-item-example-nested-22",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A nested item — a child list-item block, not markup."
+        }
+      ],
+      "children": []
+    },
+    "b-12-list-item-example-ordered-23": {
+      "id": "b-12-list-item-example-ordered-23",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "An ordered item ("
+        },
+        {
+          "insert": "ordered: true",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ")."
+        }
+      ],
+      "children": []
+    },
+    "b-12-list-item-example-ordered2-24": {
+      "id": "b-12-list-item-example-ordered2-24",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Numbering is derived from the sibling run."
+        }
+      ],
+      "children": []
+    },
     "b-12-list-item-state-h-3": {
       "id": "b-12-list-item-state-h-3",
       "type": "heading",
@@ -79,24 +155,25 @@
       ],
       "children": []
     },
-    "b-12-list-item-state-4": {
-      "id": "b-12-list-item-state-4",
-      "type": "structured-table",
+    "b-12-list-item-state-shape-25": {
+      "id": "b-12-list-item-state-shape-25",
+      "type": "state-shape",
       "props": {
-        "columns": [
-          "prop",
-          "type",
-          "required",
-          "notes"
+        "description": "Closed schema — ordered is the only prop.",
+        "example": "{\n  \"ordered\": true\n}",
+        "fields": [
+          {
+            "name": "ordered",
+            "type": "boolean",
+            "required": false,
+            "description": "true renders a numbered item; absent or false renders a bullet."
+          }
         ],
-        "rows": [
-          [
-            "ordered",
-            "boolean",
-            "no",
-            "true renders a numbered item; absent or false renders a bullet."
-          ]
-        ]
+        "name": "ListItemState",
+        "source": {
+          "path": "packages/docs-model/src/components/rich-text/state.ts",
+          "symbol": "ListItemState"
+        }
       },
       "children": []
     },
@@ -378,6 +455,21 @@
             "reference": {
               "kind": "source",
               "path": "packages/docs-workbench/web/src/theme/theme-folders.ts"
+            }
+          }
+        },
+        {
+          "insert": "."
+        },
+        {
+          "insert": " The contract is "
+        },
+        {
+          "insert": "Theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/50-theming"
             }
           }
         },

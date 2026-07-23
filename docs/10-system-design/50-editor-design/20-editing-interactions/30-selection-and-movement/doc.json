@@ -1,0 +1,507 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-50-editor-design-20-editing-interactions-30-selection-and-movement",
+  "title": "Selection and Movement",
+  "root": "b-selm-root",
+  "blocks": {
+    "b-selm-root": {
+      "id": "b-selm-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-selm-intro",
+        "b-selm-structure-heading",
+        "b-selm-structure-table",
+        "b-selm-rule-heading",
+        "b-selm-rule-band",
+        "b-selm-rule-interaction-owners",
+        "b-selm-rule-real-selection",
+        "b-selm-rule-run",
+        "b-selm-rule-paste",
+        "b-selm-grip-decision",
+        "b-selm-why-heading",
+        "b-selm-why-whitespace",
+        "b-selm-why-one-selection",
+        "b-selm-why-top-level"
+      ]
+    },
+    "b-selm-intro": {
+      "id": "b-selm-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Selection and movement treat top-level blocks as a contiguous structural run. Dragging across page whitespace creates a screenshot-style band backed by a real editor selection, so direct manipulation and the clipboard act on the same blocks. This page defines how a band starts, collapses, moves, deletes, and pastes."
+        }
+      ],
+      "children": []
+    },
+    "b-selm-structure-heading": {
+      "id": "b-selm-structure-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Structure"
+        }
+      ],
+      "children": []
+    },
+    "b-selm-structure-table": {
+      "id": "b-selm-structure-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Gesture",
+          "Result"
+        ],
+        "rows": [
+          [
+            "Drag at least 4 px from a page margin, a gap between blocks, or the empty run-out beside a line",
+            "A screenshot-style rectangle collects the touched top-level blocks into one contiguous band"
+          ],
+          [
+            "Move less than 4 px before release",
+            "A plain click clears the band; a click inside the editor column also places the caret"
+          ],
+          [
+            "Press on text, inside a node view, or on a real control",
+            "The band stays out of the gesture and the local interaction owns it"
+          ],
+          [
+            "Press Escape",
+            "The band clears and its real editor selection collapses to a caret at the run's first block"
+          ],
+          [
+            "Press Backspace or Delete with a band active",
+            "The complete selected run is deleted in one edit"
+          ],
+          [
+            "Drag the grip of a selected block",
+            "The complete run moves as one top-level slice under a stacked ghost"
+          ],
+          [
+            "Paste a copied block run",
+            "The blocks land as top-level siblings rather than inside the caret block"
+          ]
+        ]
+      },
+      "children": []
+    },
+    "b-selm-rule-heading": {
+      "id": "b-selm-rule-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The Rule"
+        }
+      ],
+      "children": []
+    },
+    "b-selm-rule-band": {
+      "id": "b-selm-rule-band",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The band is contiguous and top-level",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-selm-rule-band-hit",
+        "b-selm-rule-band-look"
+      ]
+    },
+    "b-selm-rule-band-hit": {
+      "id": "b-selm-rule-band-hit",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The first and last top-level blocks touched by the rectangle bound the range; every block between them joins the selection."
+        }
+      ],
+      "children": []
+    },
+    "b-selm-rule-band-look": {
+      "id": "b-selm-rule-band-look",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The rectangle and selected blocks use borderless soft fill. The selection has no hard ring."
+        }
+      ],
+      "children": []
+    },
+    "b-selm-rule-interaction-owners": {
+      "id": "b-selm-rule-interaction-owners",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Existing interactions keep their press",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-selm-rule-text-owner",
+        "b-selm-rule-node-owner",
+        "b-selm-rule-control-owner"
+      ]
+    },
+    "b-selm-rule-text-owner": {
+      "id": "b-selm-rule-text-owner",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Text keeps native text selection. Clicking into it clears an active band."
+        }
+      ],
+      "children": []
+    },
+    "b-selm-rule-node-owner": {
+      "id": "b-selm-rule-node-owner",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Node views keep their "
+        },
+        {
+          "insert": "In-Place Editing",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/20-editing-interactions/40-in-place-editing"
+            }
+          }
+        },
+        {
+          "insert": " interactions."
+        }
+      ],
+      "children": []
+    },
+    "b-selm-rule-control-owner": {
+      "id": "b-selm-rule-control-owner",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Buttons, links, inputs, text areas, selects, and button-role elements keep their native or component behavior."
+        }
+      ],
+      "children": []
+    },
+    "b-selm-rule-real-selection": {
+      "id": "b-selm-rule-real-selection",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The visual band and the editor selection are one selection",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-selm-rule-real-focus",
+        "b-selm-rule-real-copy",
+        "b-selm-rule-real-escape"
+      ]
+    },
+    "b-selm-rule-real-focus": {
+      "id": "b-selm-rule-real-focus",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every band update writes a real editor selection over the same run; mouse release returns focus to the editor."
+        }
+      ],
+      "children": []
+    },
+    "b-selm-rule-real-copy": {
+      "id": "b-selm-rule-real-copy",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Copy and cut serialize complete blocks with their types, order, properties, and children intact."
+        }
+      ],
+      "children": []
+    },
+    "b-selm-rule-real-escape": {
+      "id": "b-selm-rule-real-escape",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Escape clears the soft fill and collapses the editor selection, so a subsequent copy cannot act on a hidden range."
+        }
+      ],
+      "children": []
+    },
+    "b-selm-rule-run": {
+      "id": "b-selm-rule-run",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A selected run moves and deletes as one slice",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-selm-rule-run-delete",
+        "b-selm-rule-run-grip",
+        "b-selm-rule-run-ghost",
+        "b-selm-rule-run-drop"
+      ]
+    },
+    "b-selm-rule-run-delete": {
+      "id": "b-selm-rule-run-delete",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Backspace and Delete remove the complete range."
+        }
+      ],
+      "children": []
+    },
+    "b-selm-rule-run-grip": {
+      "id": "b-selm-rule-run-grip",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Hover reveals one left grip for the top-level block under the pointer. Dragging the grip of any selected block picks up the complete range."
+        }
+      ],
+      "children": []
+    },
+    "b-selm-rule-run-ghost": {
+      "id": "b-selm-rule-run-ghost",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The drag ghost stacks one full-fidelity copy per selected block while the source run dims."
+        }
+      ],
+      "children": []
+    },
+    "b-selm-rule-run-drop": {
+      "id": "b-selm-rule-run-drop",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Block drops snap to top-level boundaries. They do not nest a selected run inside a paragraph, heading, callout, or another block."
+        }
+      ],
+      "children": []
+    },
+    "b-selm-rule-paste": {
+      "id": "b-selm-rule-paste",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Block-shaped paste preserves top-level structure",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-selm-rule-paste-empty",
+        "b-selm-rule-paste-edge",
+        "b-selm-rule-paste-middle",
+        "b-selm-rule-paste-nested",
+        "b-selm-rule-paste-inline"
+      ]
+    },
+    "b-selm-rule-paste-empty": {
+      "id": "b-selm-rule-paste-empty",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An empty caret block is replaced by the run."
+        }
+      ],
+      "children": []
+    },
+    "b-selm-rule-paste-edge": {
+      "id": "b-selm-rule-paste-edge",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A caret at a block edge places the run before or after that block."
+        }
+      ],
+      "children": []
+    },
+    "b-selm-rule-paste-middle": {
+      "id": "b-selm-rule-paste-middle",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A caret in the middle of paragraph text splits the paragraph around the inserted run."
+        }
+      ],
+      "children": []
+    },
+    "b-selm-rule-paste-nested": {
+      "id": "b-selm-rule-paste-nested",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A deeper caret places the run after its complete top-level block."
+        }
+      ],
+      "children": []
+    },
+    "b-selm-rule-paste-inline": {
+      "id": "b-selm-rule-paste-inline",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Inline text and a partial single-block selection keep normal merge-at-caret behavior."
+        }
+      ],
+      "children": []
+    },
+    "b-selm-grip-decision": {
+      "id": "b-selm-grip-decision",
+      "type": "callout",
+      "props": {
+        "kind": "Decision",
+        "title": "Native Drag Handoff",
+        "tone": "decision"
+      },
+      "text": [
+        {
+          "insert": "The hover grip owns block pickup, then hands a single block's selection and dragged slice to native ProseMirror movement. The editor adds the top-level drop clamp and selected-run move."
+        }
+      ],
+      "children": []
+    },
+    "b-selm-why-heading": {
+      "id": "b-selm-why-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why"
+        }
+      ],
+      "children": []
+    },
+    "b-selm-why-whitespace": {
+      "id": "b-selm-why-whitespace",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Whitespace can carry structure",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-selm-why-whitespace-gloss"
+      ]
+    },
+    "b-selm-why-whitespace-gloss": {
+      "id": "b-selm-why-whitespace-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Margins, gaps, and line run-out expose block selection without taking text selection or embedded interactions away from their owners."
+        }
+      ],
+      "children": []
+    },
+    "b-selm-why-one-selection": {
+      "id": "b-selm-why-one-selection",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "One selection model preserves trust",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-selm-why-one-selection-gloss"
+      ]
+    },
+    "b-selm-why-one-selection-gloss": {
+      "id": "b-selm-why-one-selection-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The highlight, clipboard, deletion, and Escape all address the same range, so visible selection never disagrees with the next command."
+        }
+      ],
+      "children": []
+    },
+    "b-selm-why-top-level": {
+      "id": "b-selm-why-top-level",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Top-level slices preserve document shape",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-selm-why-top-level-gloss"
+      ]
+    },
+    "b-selm-why-top-level-gloss": {
+      "id": "b-selm-why-top-level-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Movement and paste retain block boundaries instead of fitting a copied run into another block's child slot."
+        }
+      ],
+      "children": []
+    }
+  }
+}

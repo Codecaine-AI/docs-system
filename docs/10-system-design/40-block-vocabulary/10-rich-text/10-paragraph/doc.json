@@ -10,7 +10,10 @@
       "props": {},
       "children": [
         "b-10-paragraph-lead-2",
+        "b-10-paragraph-example-h-20",
+        "b-10-paragraph-example-para-21",
         "b-10-paragraph-state-h-3",
+        "b-10-paragraph-state-shape-22",
         "b-10-paragraph-state-4",
         "b-10-paragraph-editor-h-7",
         "b-10-paragraph-editor-8",
@@ -47,6 +50,87 @@
       ],
       "children": []
     },
+    "b-10-paragraph-example-h-20": {
+      "id": "b-10-paragraph-example-h-20",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Example"
+        }
+      ],
+      "children": []
+    },
+    "b-10-paragraph-example-para-21": {
+      "id": "b-10-paragraph-example-para-21",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This paragraph is a live example: it carries "
+        },
+        {
+          "insert": "bold",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "italic",
+          "attributes": {
+            "italic": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "strike",
+          "attributes": {
+            "strike": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "code",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " marks, "
+        },
+        {
+          "insert": "an outbound link",
+          "attributes": {
+            "link": "https://example.com"
+          }
+        },
+        {
+          "insert": ", and a reference chip to "
+        },
+        {
+          "insert": "Cross-doc linking",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/10-doc-standards/30-cross-doc-linking"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
     "b-10-paragraph-state-h-3": {
       "id": "b-10-paragraph-state-h-3",
       "type": "heading",
@@ -60,31 +144,27 @@
       ],
       "children": []
     },
+    "b-10-paragraph-state-shape-22": {
+      "id": "b-10-paragraph-state-shape-22",
+      "type": "state-shape",
+      "props": {
+        "description": "Closed empty object — any prop is a validation error.",
+        "fields": [],
+        "name": "ParagraphState",
+        "source": {
+          "path": "packages/docs-model/src/components/rich-text/state.ts",
+          "symbol": "ParagraphState"
+        }
+      },
+      "children": []
+    },
     "b-10-paragraph-state-4": {
       "id": "b-10-paragraph-state-4",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "No props: "
-        },
-        {
-          "insert": "ParagraphState",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " is a closed empty object ("
-        },
-        {
-          "insert": "additionalProperties: false",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "), so any prop is a validation error. It carries delta text ("
+          "insert": "Carries delta text ("
         },
         {
           "insert": "carriesText: true",
@@ -138,16 +218,7 @@
           }
         },
         {
-          "insert": " URL, or a "
-        },
-        {
-          "insert": "reference",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " chip (a shared SpectreRef pointing at a doc or code location)."
+          "insert": " URL, or a reference chip (a shared SpectreRef pointing at a doc or code location)."
         }
       ],
       "children": []
@@ -401,6 +472,21 @@
             "reference": {
               "kind": "source",
               "path": "packages/docs-workbench/web/src/theme/theme-folders.ts"
+            }
+          }
+        },
+        {
+          "insert": "."
+        },
+        {
+          "insert": " The contract is "
+        },
+        {
+          "insert": "Theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/50-theming"
             }
           }
         },

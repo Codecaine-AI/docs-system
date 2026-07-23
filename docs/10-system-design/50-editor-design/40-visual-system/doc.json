@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-50-editor-design-40-visual-system",
+  "title": "Visual System",
+  "root": "b-vsys-root",
+  "blocks": {
+    "b-vsys-root": {
+      "id": "b-vsys-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-vsys-intro",
+        "b-vsys-contract-heading",
+        "b-vsys-tokens",
+        "b-vsys-typography",
+        "b-vsys-themes"
+      ]
+    },
+    "b-vsys-intro": {
+      "id": "b-vsys-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The visual system is a bounded contract for the document surface: semantic tokens name visual roles, typography assigns faces by reading role, and themes tune those roles without altering fixed system UI structure. Components consume the contract instead of choosing light or dark values for themselves. The implementation mechanics live in "
+        },
+        {
+          "insert": "Theming: Overview",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/40-theming"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-vsys-contract-heading": {
+      "id": "b-vsys-contract-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The Visual Contract"
+        }
+      ],
+      "children": []
+    },
+    "b-vsys-tokens": {
+      "id": "b-vsys-tokens",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Tokens",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/10-tokens"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-vsys-tokens-gloss"
+      ]
+    },
+    "b-vsys-tokens-gloss": {
+      "id": "b-vsys-tokens-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Palette-to-semantic resolution, the shared sharpness scale, editor accent, and the geometry that remains fixed."
+        }
+      ],
+      "children": []
+    },
+    "b-vsys-typography": {
+      "id": "b-vsys-typography",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Typography and Fonts",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/20-typography-and-fonts"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-vsys-typography-gloss"
+      ]
+    },
+    "b-vsys-typography-gloss": {
+      "id": "b-vsys-typography-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Body, heading, code, and numeric roles; the living Default metrics; and the boundary around custom font files."
+        }
+      ],
+      "children": []
+    },
+    "b-vsys-themes": {
+      "id": "b-vsys-themes",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Themes",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/30-themes"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-vsys-themes-gloss"
+      ]
+    },
+    "b-vsys-themes-gloss": {
+      "id": "b-vsys-themes-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The closed customization boundary, sparse theme folders, overlay precedence, and the living Default."
+        }
+      ],
+      "children": []
+    }
+  }
+}

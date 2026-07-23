@@ -58,7 +58,6 @@ describe("block registry", () => {
     expect(getDocBlockDescriptor("structured-table")?.label).toBe("Structured Table");
     expect(getDocBlockDescriptor("interaction-surface")?.label).toBe("Interaction Surface");
     expect(getDocBlockDescriptor("interaction-surface")?.targetKind).toBe("interaction-surface");
-    expect(getDocBlockDescriptor("mermaid")?.label).toBe("Mermaid");
     expect(getDocBlockDescriptor("waterfall")?.label).toBe("Waterfall");
   });
 
@@ -74,13 +73,13 @@ describe("block registry", () => {
       "tabs",
       "data-model",
       "api-surface",
+      "mermaid",
     ]) {
       expect(getDocBlockDescriptor(retired)).toBeNull();
     }
   });
 
   it("appends a body-format hint to the parse-reuse block types' agentDescription", () => {
-    expect(getDocBlockDescriptor("mermaid")?.agentDescription).toContain("flowchart LR");
     expect(getDocBlockDescriptor("code")?.agentDescription).toContain("annotations");
   });
 });

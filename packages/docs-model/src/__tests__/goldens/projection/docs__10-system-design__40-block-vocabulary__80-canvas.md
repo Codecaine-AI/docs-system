@@ -2,20 +2,24 @@ The spatial-canvas family of the Block vocabulary. It owns one type, `canvas`. T
 
 The family is the vocabulary's flagship non-default Agent adapter case: the canvas project is the authority, schema truth stays in the canvas package, and every content action forwards there instead of patching doc props.
 
+## Example
+
+A live embed. The sidecar (`./assets/canvases/interaction-surfaces.canvas.json`) is a bundle-local copy of the canvas embedded on Translation layer; `view` crops it to the `one-state-two-readers` section:
+
+<!-- canvas: ./assets/canvases/interaction-surfaces.canvas.json view=one-state-two-readers title="One state, two readers" -->
+
 ## State Schema
 
 The props (`state.ts`) are a closed schema — `additionalProperties: false`, every prop optional:
 
-| prop | type | required | notes |
-| --- | --- | --- | --- |
-| canvasId | string (min length 1) | no | Central canvas identity in the canvas system; the docs server cannot route it, so embeds render an unavailable card. |
-| src | string (min length 1) | no | Sidecar path — a .canvas.json in the docs tree, resolved relative to the doc bundle; the form the server loads and edits. |
-| view | string | no | Named container or section to crop the viewer to. |
-| title | string | no | Display title; overrides the canvas document's own title in the embed. |
+**CanvasState** — packages/docs-model/src/components/canvas/state.ts#CanvasState
 
-No text (`carriesText: false`); all state lives in the four props. A block with neither source prop is valid — the doc renderer shows a missing-source placeholder.
-
-The corpus's one live embed, on Translation layer, carries:
+```
+canvasId?: string (min length 1)  # Central canvas identity in the canvas system; the docs server cannot route it, so a canvasId-only embed renders an unavailable card.
+src?: string (min length 1)  # Sidecar path to a .canvas.json in the docs tree; a ./ prefix resolves against the doc bundle's own assets. The form the server loads and edits.
+view?: string  # Stable id of the named container or section the inline viewer crops to.
+title?: string  # Display title; overrides the canvas document's own title in the embed.
+```
 
 ```json
 {
@@ -24,9 +28,8 @@ The corpus's one live embed, on Translation layer, carries:
   "title": "One state, two readers"
 }
 ```
-> **L2 (Sidecar reference):** Bundle-relative path; the renderer canonicalizes it against the bundle's own assets copy before loading.
-> **L3 (View crop):** Stable id of the section the inline viewer fits to.
-> **L4 (Title override):** Replaces the canvas document's own title in the embed.
+
+No text (`carriesText: false`); all state lives in the four props. A block with neither source prop is valid — the doc renderer shows a missing-source placeholder.
 
 ## Typed Actions
 
@@ -100,7 +103,7 @@ The agent view is one HTML-comment reference line — `<!-- canvas: <src-or-canv
 
 ## Theme
 
-The theme surface is one registered token: `components/canvas.json` in a theme folder (`themes/<id>/`) may set `border`, as one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY` (see Theming: overview).
+The Theming contract element at its smallest — one registered token: `components/canvas.json` in a theme folder (`themes/<id>/`; system docs at Theming) may set `border`, as one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY`.
 
 | Key | CSS variable | Styles |
 | --- | --- | --- |
@@ -134,7 +137,7 @@ How agents edit canvas content — the vocabulary's flagship non-default instanc
 
   - Reference props (`canvasId`, `src`, `view`, `title`) patch through the generic `updateBlock`; canvas content only moves through the forwarded `canvas.*` actions.
 
-  - `"canvas"` is one of two entries in the model's `KNOWN_AUTHORITIES` list, beside `"sequence"`.
+  - `"canvas"` is a registered entry in the model's `KNOWN_AUTHORITIES` list, beside `"sequence"`.
 
 - Target design
 

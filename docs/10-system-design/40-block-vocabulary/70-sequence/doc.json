@@ -1423,6 +1423,21 @@
           }
         },
         {
+          "insert": " (theme folders: "
+        },
+        {
+          "insert": "Theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/40-theming"
+            }
+          }
+        },
+        {
+          "insert": ")"
+        },
+        {
           "insert": ". Diagram visuals live in the "
         },
         {
@@ -1889,7 +1904,7 @@
           }
         },
         {
-          "insert": " is one of the two entries in the model's "
+          "insert": " is a registered entry in the model's "
         },
         {
           "insert": "KNOWN_AUTHORITIES",

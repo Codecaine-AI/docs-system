@@ -119,10 +119,6 @@ describe("projectToMarkdown — the sample fixture", () => {
     );
   });
 
-  it("projects mermaid as a labeled blockquote", () => {
-    expect(markdown).toContain("> **Mermaid: Mermaid sample** — flowchart LR");
-  });
-
   it("projects a file-tree as a fenced tree rendering with guides, markers, and notes", () => {
     expect(markdown).toContain(
       "```\n" +

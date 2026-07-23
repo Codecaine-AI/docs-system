@@ -6,7 +6,6 @@ import { canvasComponent } from "./canvas";
 import { codeComponent } from "./code";
 import { fileTreeComponent } from "./file-tree";
 import { interactionSurfaceComponent } from "./interaction-surface";
-import { mermaidComponent } from "./mermaid";
 import { richTextComponent } from "./rich-text";
 import { sequenceComponent } from "./sequence";
 import { stateShapeComponent } from "./state-shape";
@@ -27,7 +26,6 @@ export * from "./validate";
 
 export { richTextComponent } from "./rich-text";
 export { codeComponent } from "./code";
-export { mermaidComponent } from "./mermaid";
 export { fileTreeComponent } from "./file-tree";
 export { structuredTableComponent } from "./structured-table";
 export {
@@ -66,7 +64,6 @@ export type { WaterfallNode, WaterfallStep } from "./waterfall";
 export const ALL_COMPONENTS: readonly ComponentBundle[] = [
   richTextComponent,
   codeComponent,
-  mermaidComponent,
   fileTreeComponent,
   structuredTableComponent,
   interactionSurfaceComponent,

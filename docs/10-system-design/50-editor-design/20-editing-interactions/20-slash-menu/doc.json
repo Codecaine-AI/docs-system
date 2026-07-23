@@ -1,0 +1,495 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-50-editor-design-20-editing-interactions-20-slash-menu",
+  "title": "Slash Menu",
+  "root": "b-slsh-root",
+  "blocks": {
+    "b-slsh-root": {
+      "id": "b-slsh-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-slsh-opener",
+        "b-slsh-structure-heading",
+        "b-slsh-trigger",
+        "b-slsh-membership-table",
+        "b-slsh-geometry",
+        "b-slsh-rule-heading",
+        "b-slsh-curated",
+        "b-slsh-registry",
+        "b-slsh-keys",
+        "b-slsh-insertion",
+        "b-slsh-filter",
+        "b-slsh-omissions",
+        "b-slsh-why-heading",
+        "b-slsh-why-borrow",
+        "b-slsh-why-vocabulary"
+      ]
+    },
+    "b-slsh-opener": {
+      "id": "b-slsh-opener",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The slash menu turns a typed query into a deliberately small set of block commands. It defines what appears, how the list filters and moves, and where the chosen block lands. The contract preserves familiar AFFiNE interaction metrics while keeping the editor's own runtime and block structure."
+        }
+      ],
+      "children": []
+    },
+    "b-slsh-structure-heading": {
+      "id": "b-slsh-structure-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Structure"
+        }
+      ],
+      "children": []
+    },
+    "b-slsh-trigger": {
+      "id": "b-slsh-trigger",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A slash at the start of an inline run or after whitespace opens the menu. The uninterrupted text between that slash and the caret is the live query."
+        }
+      ],
+      "children": []
+    },
+    "b-slsh-membership-table": {
+      "id": "b-slsh-membership-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Group",
+          "Commands"
+        ],
+        "rows": [
+          [
+            "Basic",
+            "Text; Heading 1, 2, and 3; Other Headings (4–6); Bullet list; Numbered list; Code Block; Quote; Divider"
+          ],
+          [
+            "Blocks",
+            "Callout; Canvas; Image"
+          ]
+        ]
+      },
+      "children": []
+    },
+    "b-slsh-geometry": {
+      "id": "b-slsh-geometry",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Menu Geometry",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-slsh-geometry-panel",
+        "b-slsh-geometry-row",
+        "b-slsh-geometry-placement"
+      ]
+    },
+    "b-slsh-geometry-panel": {
+      "id": "b-slsh-geometry-panel",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The panel is 280px wide and scrolls past a 390px maximum height. Padding is 8px on the top, bottom, and left and 4px on the right."
+        }
+      ],
+      "children": []
+    },
+    "b-slsh-geometry-row": {
+      "id": "b-slsh-geometry-row",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each row is 44px tall with a 28px bordered icon box, a name, and one truncated description line."
+        }
+      ],
+      "children": []
+    },
+    "b-slsh-geometry-placement": {
+      "id": "b-slsh-geometry-placement",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The panel starts 6px below the query range. A submenu starts 12px from its parent row and flips when the available space is tight."
+        }
+      ],
+      "children": []
+    },
+    "b-slsh-rule-heading": {
+      "id": "b-slsh-rule-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The Rule"
+        }
+      ],
+      "children": []
+    },
+    "b-slsh-curated": {
+      "id": "b-slsh-curated",
+      "type": "callout",
+      "props": {
+        "kind": "Decision",
+        "title": "Membership Is Curated",
+        "tone": "decision"
+      },
+      "text": [
+        {
+          "insert": "The slash menu is an authoring policy, not an inventory of every registered block type. A type earns a command only when a blank instance should be user-insertable."
+        }
+      ],
+      "children": []
+    },
+    "b-slsh-registry": {
+      "id": "b-slsh-registry",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The type registry described in "
+        },
+        {
+          "insert": "Block design",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design"
+            }
+          }
+        },
+        {
+          "insert": " and slash-menu membership are separate contracts. Registering a type does not add a command."
+        }
+      ],
+      "children": []
+    },
+    "b-slsh-keys": {
+      "id": "b-slsh-keys",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Menu Keys Outrank Editor Keymaps",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-slsh-keys-move",
+        "b-slsh-keys-submenu",
+        "b-slsh-keys-choose",
+        "b-slsh-keys-empty"
+      ]
+    },
+    "b-slsh-keys-move": {
+      "id": "b-slsh-keys-move",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Arrow Up, Arrow Down, Tab, and Shift-Tab move through the active rows with circular wrap."
+        }
+      ],
+      "children": []
+    },
+    "b-slsh-keys-submenu": {
+      "id": "b-slsh-keys-submenu",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Arrow Right or Enter opens the selected submenu. Arrow Left closes it and returns control to the parent row."
+        }
+      ],
+      "children": []
+    },
+    "b-slsh-keys-choose": {
+      "id": "b-slsh-keys-choose",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Enter runs the selected action. Escape closes the menu without inserting."
+        }
+      ],
+      "children": []
+    },
+    "b-slsh-keys-empty": {
+      "id": "b-slsh-keys-empty",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "When the query has no results, keys pass through to the editor. Backspace keeps the query open so it can match again; any other key closes it."
+        }
+      ],
+      "children": []
+    },
+    "b-slsh-insertion": {
+      "id": "b-slsh-insertion",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Commands Preserve Block Structure",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-slsh-insertion-convert",
+        "b-slsh-insertion-replace",
+        "b-slsh-insertion-sibling"
+      ]
+    },
+    "b-slsh-insertion-convert": {
+      "id": "b-slsh-insertion-convert",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A wrapped text command converts the current block in place when the slash query is the whole line. The block keeps its identity."
+        }
+      ],
+      "children": []
+    },
+    "b-slsh-insertion-replace": {
+      "id": "b-slsh-insertion-replace",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Code and atom commands replace an emptied trigger block because their content shape differs from wrapped text."
+        }
+      ],
+      "children": []
+    },
+    "b-slsh-insertion-sibling": {
+      "id": "b-slsh-insertion-sibling",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "When text remains before the slash, the new block lands immediately after the current block as a true sibling. It never enters the current block's child slot."
+        }
+      ],
+      "children": []
+    },
+    "b-slsh-filter": {
+      "id": "b-slsh-filter",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Filtering Keeps One Selection Model",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-slsh-filter-idle",
+        "b-slsh-filter-search"
+      ]
+    },
+    "b-slsh-filter-idle": {
+      "id": "b-slsh-filter-idle",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An empty query shows the group-sorted command set. Hover and keyboard movement update the same selected row."
+        }
+      ],
+      "children": []
+    },
+    "b-slsh-filter-search": {
+      "id": "b-slsh-filter-search",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A query fuzzy-matches names and aliases, expands submenu contents, ranks matches by substring relevance, and hides group headers so results read as one flat list."
+        }
+      ],
+      "children": []
+    },
+    "b-slsh-omissions": {
+      "id": "b-slsh-omissions",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Commands Outside the Menu",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-slsh-omissions-deliberate",
+        "b-slsh-omissions-table",
+        "b-slsh-omissions-video",
+        "b-slsh-omissions-waterfall",
+        "b-slsh-omissions-structural"
+      ]
+    },
+    "b-slsh-omissions-deliberate": {
+      "id": "b-slsh-omissions-deliberate",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Sequence and state-shape are deliberately absent."
+        }
+      ],
+      "children": []
+    },
+    "b-slsh-omissions-table": {
+      "id": "b-slsh-omissions-table",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Structured-table is absent. It enters through typed agent operations or existing document content."
+        }
+      ],
+      "children": []
+    },
+    "b-slsh-omissions-video": {
+      "id": "b-slsh-omissions-video",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Video is absent because its authoring path is content-driven: provider URL paste or drop, or a host-backed video file drop."
+        }
+      ],
+      "children": []
+    },
+    "b-slsh-omissions-waterfall": {
+      "id": "b-slsh-omissions-waterfall",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Waterfall is absent."
+        }
+      ],
+      "children": []
+    },
+    "b-slsh-omissions-structural": {
+      "id": "b-slsh-omissions-structural",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "File-tree and interaction-surface are absent."
+        }
+      ],
+      "children": []
+    },
+    "b-slsh-why-heading": {
+      "id": "b-slsh-why-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why"
+        }
+      ],
+      "children": []
+    },
+    "b-slsh-why-borrow": {
+      "id": "b-slsh-why-borrow",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Borrowed Semantics, Local Runtime",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-slsh-why-model",
+        "b-slsh-why-runtime"
+      ]
+    },
+    "b-slsh-why-model": {
+      "id": "b-slsh-why-model",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The AFFiNE-derived data model, filtering order, keyboard behavior, and measured geometry provide one coherent command interaction instead of locally invented variants."
+        }
+      ],
+      "children": []
+    },
+    "b-slsh-why-runtime": {
+      "id": "b-slsh-why-runtime",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "AFFiNE supplies the interaction precedent, not a second editor architecture. The document's block structure and editor runtime remain authoritative."
+        }
+      ],
+      "children": []
+    },
+    "b-slsh-why-vocabulary": {
+      "id": "b-slsh-why-vocabulary",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A Small Authoring Vocabulary",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-slsh-why-vocabulary-gloss"
+      ]
+    },
+    "b-slsh-why-vocabulary-gloss": {
+      "id": "b-slsh-why-vocabulary-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Curated membership keeps the authoring vocabulary opinionated while the registered block contract remains broader."
+        }
+      ],
+      "children": []
+    }
+  }
+}

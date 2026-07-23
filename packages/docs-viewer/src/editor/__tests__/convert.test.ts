@@ -52,7 +52,7 @@ describe("convert: docToPM / pmToDoc round-trip", () => {
     expect(back.blocks["code-1"].props.language).toBe("typescript");
   });
 
-  it("preserves atom block type props verbatim (canvas/image/video/file-tree/structured-table/interaction-surface/mermaid)", () => {
+  it("preserves atom block type props verbatim (canvas/image/video/file-tree/structured-table/interaction-surface)", () => {
     const doc = loadFixture();
     const pm = docToPM(doc);
     const back = pmToDoc(pm, doc, makeIdFactory("fresh"));
@@ -63,7 +63,6 @@ describe("convert: docToPM / pmToDoc round-trip", () => {
       "tree-1",
       "table-1",
       "interaction-surface-1",
-      "mermaid-1",
     ]) {
       expect(back.blocks[id]).toEqual(doc.blocks[id]);
     }
@@ -488,7 +487,7 @@ describe("convert: corrupted clipboard payloads never reach the doc", () => {
     const pm = docToPM(doc);
     pm.content = [
       {
-        type: "docMermaid",
+        type: "docFileTree",
         attrs: { blockId: "m-corrupt", blockProps: "[object Object]", blockText: "[object Object]" },
       },
     ];

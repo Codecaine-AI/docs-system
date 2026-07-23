@@ -1,4 +1,4 @@
-The rich-text component owns the eight text-and-media block types that make up ordinary document flow. They share one implementation home (`packages/docs-viewer/src/components/rich-text/`, one file per type), the delta-span text model, and the markdown-shortcut input rules — which is why they live grouped here, one doc per type.
+The rich-text component owns the text-and-media block types that make up ordinary document flow. They share one implementation home (`packages/docs-viewer/src/components/rich-text/`, one file per type), the delta-span text model, and the markdown-shortcut input rules — which is why they live grouped here, one doc per type.
 
 - paragraph
 
@@ -53,6 +53,40 @@ A paragraph carries **bold**, *italic*, ~~strike~~, and `code` marks, [an outbou
 ## State Schema
 
 The family's internal state is rich text itself: an array of Delta JSON spans in the block's text field — each span a string insert plus an optional attributes object. There is no other inline model — no HTML, no nested marks tree. A span either has an attribute or it does not.
+
+**DeltaSpan** — packages/docs-model/src/doc-schema.ts#DeltaSpan
+
+```
+insert: string  # The span's text; for a reference span, the display text.
+attributes?: object  # Marks on this span; an empty object is dropped on canonicalization.
+  bold?: true
+  italic?: true
+  strike?: true
+  code?: true
+  link?: string  # Outbound URL mark.
+  reference?: SpectreRef  # Doc or code mention chip; kind plus repo-relative path.
+```
+
+```json
+[
+  {
+    "insert": "Validated by "
+  },
+  {
+    "insert": "validateDocDocument",
+    "attributes": {
+      "code": true,
+      "reference": {
+        "kind": "source",
+        "path": "packages/docs-model/src/doc-schema.ts"
+      }
+    }
+  },
+  {
+    "insert": "."
+  }
+]
+```
 
 ```json
 [
@@ -118,7 +152,7 @@ Whether a type carries delta text is a per-type fact, declared as `carriesText` 
 | --- | --- | --- |
 | true | paragraph, heading, list-item, quote, callout | Prose: marks, links, and reference chips all apply. |
 | true | code | Source payload: the fenced code body; spans are plain inserts. |
-| false | divider, image, video, structured-table, file-tree, state-shape, interaction-surface, sequence, canvas | No text key; all state lives in typed props. |
+| false | divider, image, video, structured-table, file-tree, state-shape, interaction-surface, sequence, canvas, waterfall | No text key; all state lives in typed props. |
 
 ## Typed Actions
 
@@ -138,7 +172,7 @@ Per-type agent guidance lives on each type page.
 
 ## Theme
 
-Each type has its own theme file — see the Theme section on every type page, and Theming for the system.
+Each type has its own theme file — see the Theme section on every type page, and Theming for the system. The contract is Theming.
 
 ## Agent Adapter
 

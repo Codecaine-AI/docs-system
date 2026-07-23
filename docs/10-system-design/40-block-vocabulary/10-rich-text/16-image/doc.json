@@ -10,8 +10,11 @@
       "props": {},
       "children": [
         "b-30-image-lead-2",
+        "b-30-image-example-h-20",
+        "b-30-image-example-intro-21",
+        "b-30-image-example-img-22",
         "b-30-image-state-h-3",
-        "b-30-image-state-4",
+        "b-30-image-state-shape-23",
         "b-30-image-state-note-5",
         "b-30-image-editor-h-8",
         "b-30-image-editor-9",
@@ -48,6 +51,49 @@
       ],
       "children": []
     },
+    "b-30-image-example-h-20": {
+      "id": "b-30-image-example-h-20",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Example"
+        }
+      ],
+      "children": []
+    },
+    "b-30-image-example-intro-21": {
+      "id": "b-30-image-example-intro-21",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A live block over a real bundle asset — the SVG lives at "
+        },
+        {
+          "insert": "assets/images/two-renders.svg",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in this doc's bundle."
+        }
+      ],
+      "children": []
+    },
+    "b-30-image-example-img-22": {
+      "id": "b-30-image-example-img-22",
+      "type": "image",
+      "props": {
+        "alt": "A doc.json box with arrows to a doc render and an agent render.",
+        "caption": "One doc.json, two renders.",
+        "src": "./assets/images/two-renders.svg"
+      },
+      "children": []
+    },
     "b-30-image-state-h-3": {
       "id": "b-30-image-state-h-3",
       "type": "heading",
@@ -61,36 +107,36 @@
       ],
       "children": []
     },
-    "b-30-image-state-4": {
-      "id": "b-30-image-state-4",
-      "type": "structured-table",
+    "b-30-image-state-shape-23": {
+      "id": "b-30-image-state-shape-23",
+      "type": "state-shape",
       "props": {
-        "columns": [
-          "prop",
-          "type",
-          "required",
-          "notes"
+        "description": "Closed schema; src is the only required prop.",
+        "example": "{\n  \"src\": \"./assets/images/two-renders.svg\",\n  \"alt\": \"A doc.json box with arrows to a doc render and an agent render.\",\n  \"caption\": \"One doc.json, two renders.\"\n}",
+        "fields": [
+          {
+            "name": "src",
+            "type": "string",
+            "description": "Image source — conventionally a bundle-relative path under assets/images/."
+          },
+          {
+            "name": "alt",
+            "type": "string",
+            "required": false,
+            "description": "Alt text; the agent render falls back to caption, then empty."
+          },
+          {
+            "name": "caption",
+            "type": "string",
+            "required": false,
+            "description": "Caption under the image; an italic line in the agent render."
+          }
         ],
-        "rows": [
-          [
-            "src",
-            "string",
-            "yes",
-            "Image source — conventionally a bundle-relative path under assets/images/."
-          ],
-          [
-            "alt",
-            "string",
-            "no",
-            "Alt text; the markdown render falls back to caption, then empty."
-          ],
-          [
-            "caption",
-            "string",
-            "no",
-            "Caption rendered under the image and as an italic line in the markdown render."
-          ]
-        ]
+        "name": "ImageState",
+        "source": {
+          "path": "packages/docs-model/src/components/rich-text/state.ts",
+          "symbol": "ImageState"
+        }
       },
       "children": []
     },
@@ -109,16 +155,7 @@
           }
         },
         {
-          "insert": "). "
-        },
-        {
-          "insert": "src",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " is the only required prop in the schema."
+          "insert": ")."
         }
       ],
       "children": []
@@ -426,6 +463,21 @@
             "reference": {
               "kind": "source",
               "path": "packages/docs-workbench/web/src/theme/theme-folders.ts"
+            }
+          }
+        },
+        {
+          "insert": "."
+        },
+        {
+          "insert": " The contract is "
+        },
+        {
+          "insert": "Theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/50-theming"
             }
           }
         },

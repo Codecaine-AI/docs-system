@@ -11,6 +11,7 @@
       "children": [
         "b-bd-intro-1",
         "b-bd-laidout-h-2",
+        "b-bd-laidout-intro-3a",
         "b-bd-laidout-tree-3",
         "b-bd-contract-h-4",
         "b-bd-state-5",
@@ -69,6 +70,17 @@
       ],
       "children": []
     },
+    "b-bd-laidout-intro-3a": {
+      "id": "b-bd-laidout-intro-3a",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "One component, every home (structured-table):"
+        }
+      ],
+      "children": []
+    },
     "b-bd-laidout-tree-3": {
       "id": "b-bd-laidout-tree-3",
       "type": "file-tree",
@@ -94,8 +106,7 @@
             "path": "themes/default/components/structured-table.json",
             "note": "the theme — the component's style knobs"
           }
-        ],
-        "title": "one component, every home (structured-table)"
+        ]
       },
       "children": []
     },

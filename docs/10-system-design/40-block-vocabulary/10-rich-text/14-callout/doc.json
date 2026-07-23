@@ -16,7 +16,7 @@
         "b-15-callout-example-success-23",
         "b-15-callout-example-kind-24",
         "b-15-callout-state-h-3",
-        "b-15-callout-state-4",
+        "b-15-callout-state-shape-25",
         "b-15-callout-state-note-5",
         "b-15-callout-coercion-h-8",
         "b-15-callout-coercion-9",
@@ -188,36 +188,37 @@
       ],
       "children": []
     },
-    "b-15-callout-state-4": {
-      "id": "b-15-callout-state-4",
-      "type": "structured-table",
+    "b-15-callout-state-shape-25": {
+      "id": "b-15-callout-state-shape-25",
+      "type": "state-shape",
       "props": {
-        "columns": [
-          "prop",
-          "type",
-          "required",
-          "notes"
+        "description": "Closed schema; all three props are optional.",
+        "example": "{\n  \"tone\": \"warning\",\n  \"kind\": \"Boundary under review\",\n  \"title\": \"Vocabulary growth\"\n}",
+        "fields": [
+          {
+            "name": "tone",
+            "type": "\"info\" | \"decision\" | \"risk\" | \"warning\" | \"success\"",
+            "required": false,
+            "description": "Color/intent; the agent render's label falls back to the uppercased tone (default INFO)."
+          },
+          {
+            "name": "kind",
+            "type": "string",
+            "required": false,
+            "description": "Free-form label chip; wins over tone in the agent render. Coerced legacy types land their old type name here."
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "required": false,
+            "description": "Optional bold title after the label."
+          }
         ],
-        "rows": [
-          [
-            "tone",
-            "\"info\" / \"decision\" / \"risk\" / \"warning\" / \"success\"",
-            "no",
-            "Color/intent; the markdown render's label falls back to the uppercased tone (default INFO)."
-          ],
-          [
-            "kind",
-            "string",
-            "no",
-            "Free-form label chip; wins over tone in the markdown render. Coerced legacy types land their old type name here."
-          ],
-          [
-            "title",
-            "string",
-            "no",
-            "Optional bold title after the label."
-          ]
-        ]
+        "name": "CalloutState",
+        "source": {
+          "path": "packages/docs-model/src/components/rich-text/state.ts",
+          "symbol": "CalloutState"
+        }
       },
       "children": []
     },
@@ -560,6 +561,21 @@
             "reference": {
               "kind": "source",
               "path": "packages/docs-workbench/web/src/theme/theme-folders.ts"
+            }
+          }
+        },
+        {
+          "insert": "."
+        },
+        {
+          "insert": " The contract is "
+        },
+        {
+          "insert": "Theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/50-theming"
             }
           }
         },

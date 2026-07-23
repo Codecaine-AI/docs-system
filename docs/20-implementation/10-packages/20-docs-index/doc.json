@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "id": "10-system-design-30-packages-20-docs-index",
-  "title": "docs-index — backlinks",
+  "id": "20-implementation-10-packages-20-docs-index",
+  "title": "docs-index — Backlinks",
   "root": "b-20-docs-index-root",
   "blocks": {
     "b-20-docs-index-root": {
@@ -9,34 +9,41 @@
       "type": "paragraph",
       "props": {},
       "children": [
-        "b-20-docs-index-title-1",
         "b-20-docs-index-lead-2",
-        "b-20-docs-index-what-it-owns-3",
-        "b-20-docs-index-derived-index-4",
-        "b-20-docs-index-reference-operations-5",
         "b-20-docs-index-why-separate-6",
         "b-20-docs-index-runtime-boundary-7",
+        "b-20-docs-index-boundary-review-14",
+        "b-20-docs-index-what-it-owns-3",
+        "b-20-docs-index-tree-15",
+        "b-20-docs-index-surface-heading-16",
+        "b-20-docs-index-surface-manifest-47",
+        "b-20-docs-index-surface-17",
+        "b-20-docs-index-derived-heading-18",
+        "b-20-docs-index-derived-index-4",
+        "b-20-docs-index-derived-invariant-19",
+        "b-20-docs-index-maintenance-heading-20",
+        "b-20-docs-index-maintenance-intro-21",
+        "b-20-docs-index-save-path-22",
+        "b-20-docs-index-rescan-23",
+        "b-20-docs-index-identity-heading-24",
+        "b-20-docs-index-reference-operations-5",
+        "b-20-docs-index-move-heading-25",
+        "b-20-docs-index-move-summary-26",
+        "b-20-docs-index-move-atomicity-27",
+        "b-20-docs-index-paths-28",
         "b-20-docs-index-dependencies-8",
         "b-20-docs-index-depends-on-9",
         "b-20-docs-index-depended-on-10",
         "b-20-docs-index-import-boundary-11",
-        "b-20-docs-index-using-alone-12",
-        "b-20-docs-index-direct-use-13",
-        "b-20-docs-index-boundary-review-14"
+        "b-20-docs-index-related-heading-29",
+        "b-20-docs-index-related-backlinks-30",
+        "b-20-docs-index-related-ref-match-32",
+        "b-20-docs-index-related-move-34",
+        "b-20-docs-index-related-paths-36",
+        "b-20-docs-index-related-cache-38",
+        "b-20-docs-index-related-boundary-40",
+        "b-20-docs-index-related-manifest-48"
       ]
-    },
-    "b-20-docs-index-title-1": {
-      "id": "b-20-docs-index-title-1",
-      "type": "heading",
-      "props": {
-        "level": 1
-      },
-      "text": [
-        {
-          "insert": "docs-index — Backlinks"
-        }
-      ],
-      "children": []
     },
     "b-20-docs-index-lead-2": {
       "id": "b-20-docs-index-lead-2",
@@ -50,154 +57,19 @@
           }
         },
         {
-          "insert": " is the Bun-only package that builds and queries the derived index of references between docs and from docs into source files. It also owns reference normalization and safe bundle moves that rewrite inbound references."
-        }
-      ],
-      "children": []
-    },
-    "b-20-docs-index-what-it-owns-3": {
-      "id": "b-20-docs-index-what-it-owns-3",
-      "type": "heading",
-      "props": {
-        "level": 2
-      },
-      "text": [
-        {
-          "insert": "What It Owns"
-        }
-      ],
-      "children": []
-    },
-    "b-20-docs-index-derived-index-4": {
-      "id": "b-20-docs-index-derived-index-4",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "The index implementation lives in "
+          "insert": " is the Bun-side package that derives inbound-reference lookup from canonical document bundles and canvas sidecars. It owns SQLite storage, reference-path identity, docs-root confinement, and move-time inbound fixup. "
         },
         {
-          "insert": "packages/docs-index/src/backlinks.ts",
+          "insert": "Doc standards",
           "attributes": {
-            "code": true,
             "reference": {
-              "kind": "source",
-              "path": "packages/docs-index/src/backlinks.ts"
+              "kind": "doc",
+              "path": "10-system-design/10-doc-standards"
             }
           }
         },
         {
-          "insert": " and stores its "
-        },
-        {
-          "insert": "bun:sqlite",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " database at "
-        },
-        {
-          "insert": "<docsRoot>/.index/backlinks.db",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ". Everything under "
-        },
-        {
-          "insert": "<docsRoot>/.index/",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " is derived state: it is gitignored and can always be rebuilt with "
-        },
-        {
-          "insert": "docs backlinks rescan",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "."
-        }
-      ],
-      "children": []
-    },
-    "b-20-docs-index-reference-operations-5": {
-      "id": "b-20-docs-index-reference-operations-5",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "packages/docs-index/src/move-doc.ts",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-index/src/move-doc.ts"
-            }
-          }
-        },
-        {
-          "insert": " renames a document bundle and rewrites inbound references. "
-        },
-        {
-          "insert": "packages/docs-index/src/ref-match.ts",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-index/src/ref-match.ts"
-            }
-          }
-        },
-        {
-          "insert": " normalizes "
-        },
-        {
-          "insert": ".md",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": ".mdx",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", bundle-folder, and "
-        },
-        {
-          "insert": "doc.json",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " path forms to one document identity. "
-        },
-        {
-          "insert": "packages/docs-index/src/paths.ts",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-index/src/paths.ts"
-            }
-          }
-        },
-        {
-          "insert": " provides path-confinement helpers so none of these operations can escape the docs root."
+          "insert": " defines the corpus-level linking contract; this package makes that contract queryable and maintainable."
         }
       ],
       "children": []
@@ -219,8 +91,8 @@
       "id": "b-20-docs-index-runtime-boundary-7",
       "type": "callout",
       "props": {
-        "kind": "Runtime boundary",
-        "title": "Bun forces the package boundary",
+        "kind": "Decision",
+        "title": "Bun forces the runtime boundary",
         "tone": "decision"
       },
       "text": [
@@ -231,16 +103,7 @@
           }
         },
         {
-          "insert": " is a Bun-only builtin, so "
-        },
-        {
-          "insert": "@codecaine-ai/docs-index",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " can never be bundled into the browser. Keeping it out of "
+          "insert": " cannot enter a browser bundle. The index must therefore stay outside "
         },
         {
           "insert": "@codecaine-ai/docs-model",
@@ -258,7 +121,696 @@
           }
         },
         {
-          "insert": " is what keeps those packages browser-safe. That runtime constraint is the boundary."
+          "insert": ". This constraint forces server-side placement; it does not by itself force a package separate from docs-server."
+        }
+      ],
+      "children": []
+    },
+    "b-20-docs-index-boundary-review-14": {
+      "id": "b-20-docs-index-boundary-review-14",
+      "type": "callout",
+      "props": {
+        "kind": "Open call",
+        "title": "docs-index may merge into docs-server",
+        "tone": "info"
+      },
+      "text": [
+        {
+          "insert": "The merge remains unresolved. "
+        },
+        {
+          "insert": "docs-server — the Mutation Authority",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/10-packages/30-docs-server"
+            }
+          }
+        },
+        {
+          "insert": " is the primary consumer and already owns the save hooks and connection cache, so co-location would remove glue. The present split keeps a derived, HTTP-free service usable by link checks and maintenance scripts without constructing a server. Neither advantage is a forcing constraint."
+        }
+      ],
+      "children": []
+    },
+    "b-20-docs-index-what-it-owns-3": {
+      "id": "b-20-docs-index-what-it-owns-3",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Structure"
+        }
+      ],
+      "children": []
+    },
+    "b-20-docs-index-tree-15": {
+      "id": "b-20-docs-index-tree-15",
+      "type": "file-tree",
+      "props": {
+        "entries": [
+          {
+            "path": "packages/docs-index/src/index.ts",
+            "note": "Barrel for the package and its subpath exports."
+          },
+          {
+            "path": "packages/docs-index/src/backlinks.ts",
+            "note": "SQLite schema, extraction, source replacement, inbound queries, and full rescan."
+          },
+          {
+            "path": "packages/docs-index/src/ref-match.ts",
+            "note": "Tolerant document identity and canonical rewrite rules."
+          },
+          {
+            "path": "packages/docs-index/src/move-doc.ts",
+            "note": "Bundle move plus inbound document and canvas reference fixup."
+          },
+          {
+            "path": "packages/docs-index/src/paths.ts",
+            "note": "Pure relative-path checks and docs-root-confined bundle resolution."
+          },
+          {
+            "path": "packages/docs-index/src/__tests__/",
+            "note": "CRUD, rescan, alias matching, confinement, and partial-failure move contracts."
+          }
+        ]
+      },
+      "children": []
+    },
+    "b-20-docs-index-surface-heading-16": {
+      "id": "b-20-docs-index-surface-heading-16",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Public Surface"
+        }
+      ],
+      "children": []
+    },
+    "b-20-docs-index-surface-manifest-47": {
+      "id": "b-20-docs-index-surface-manifest-47",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/docs-index/package.json",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-index/package.json"
+            }
+          }
+        },
+        {
+          "insert": " exposes the root barrel and dedicated "
+        },
+        {
+          "insert": "./backlinks",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "./ref-match",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "./move-doc",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "./paths",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " subpaths. The package has no binary and no HTTP surface."
+        }
+      ],
+      "children": []
+    },
+    "b-20-docs-index-surface-17": {
+      "id": "b-20-docs-index-surface-17",
+      "type": "interaction-surface",
+      "props": {
+        "operations": [
+          {
+            "name": "openBacklinksDb",
+            "description": "Open or create the docs-local SQLite database and ensure its table and indexes exist.",
+            "params": [
+              {
+                "name": "dbPathOrDocsRoot",
+                "type": "string",
+                "required": true,
+                "description": "A docs root, or :memory: for an in-process derived index."
+              }
+            ],
+            "returns": "Promise<Database>"
+          },
+          {
+            "name": "upsertForSource",
+            "description": "Transactionally replace every row for one document or canvas source.",
+            "params": [
+              {
+                "name": "db",
+                "type": "Database",
+                "required": true
+              },
+              {
+                "name": "sourcePath",
+                "type": "string",
+                "required": true
+              },
+              {
+                "name": "refs",
+                "type": "BacklinkRef[]",
+                "required": true
+              }
+            ],
+            "returns": "void"
+          },
+          {
+            "name": "queryInbound / queryInboundTolerant",
+            "description": "Read exact stored targets or union every accepted document-path alias.",
+            "params": [
+              {
+                "name": "db",
+                "type": "Database",
+                "required": true
+              },
+              {
+                "name": "targetPath",
+                "type": "string",
+                "required": true
+              }
+            ],
+            "returns": "BacklinkRow[]"
+          },
+          {
+            "name": "rescanAll",
+            "description": "Rebuild the complete table from doc.json bundles and canvas sidecars under a docs root.",
+            "params": [
+              {
+                "name": "docsRoot",
+                "type": "string",
+                "required": true
+              },
+              {
+                "name": "db",
+                "type": "Database",
+                "required": false
+              }
+            ],
+            "returns": "{ dbPath, sourcesScanned, refsIndexed }"
+          },
+          {
+            "name": "normalizeDocRefPath",
+            "description": "Normalize a legacy or bundle-form document path to one docs-root-relative identity.",
+            "params": [
+              {
+                "name": "path",
+                "type": "string",
+                "required": true
+              }
+            ],
+            "returns": "string"
+          },
+          {
+            "name": "rewriteDocRefPath",
+            "description": "Rewrite a matching document reference and emit the destination in canonical bundle form.",
+            "params": [
+              {
+                "name": "path",
+                "type": "string",
+                "required": true
+              },
+              {
+                "name": "fromPath",
+                "type": "string",
+                "required": true
+              },
+              {
+                "name": "toPath",
+                "type": "string",
+                "required": true
+              }
+            ],
+            "returns": "string"
+          },
+          {
+            "name": "moveDocBundle",
+            "description": "Move a bundle and rewrite indexed inbound references through caller-supplied save seams.",
+            "params": [
+              {
+                "name": "docsRoot",
+                "type": "string",
+                "required": true
+              },
+              {
+                "name": "fromPath",
+                "type": "string",
+                "required": true
+              },
+              {
+                "name": "toPath",
+                "type": "string",
+                "required": true
+              },
+              {
+                "name": "deps",
+                "type": "MoveDocDeps",
+                "required": true
+              }
+            ],
+            "returns": "Promise<MoveDocResult>"
+          },
+          {
+            "name": "resolveDocBundleJsonPath",
+            "description": "Resolve an accepted bundle shape to doc.json without escaping the docs root.",
+            "params": [
+              {
+                "name": "docsRoot",
+                "type": "string",
+                "required": true
+              },
+              {
+                "name": "path",
+                "type": "string",
+                "required": true
+              }
+            ],
+            "returns": "string | null"
+          }
+        ],
+        "title": "Index Operations"
+      },
+      "children": []
+    },
+    "b-20-docs-index-derived-heading-18": {
+      "id": "b-20-docs-index-derived-heading-18",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Derived State"
+        }
+      ],
+      "children": []
+    },
+    "b-20-docs-index-derived-index-4": {
+      "id": "b-20-docs-index-derived-index-4",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The repository-local database is "
+        },
+        {
+          "insert": "docs/.index/backlinks.db",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "; another docs root receives the same "
+        },
+        {
+          "insert": "<docsRoot>/.index/backlinks.db",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " layout. The root "
+        },
+        {
+          "insert": ".gitignore",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " excludes "
+        },
+        {
+          "insert": ".index/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", so clones and branches never exchange the database as document state. A read-only workbench can use an in-memory index and rebuild it for that process."
+        }
+      ],
+      "children": []
+    },
+    "b-20-docs-index-derived-invariant-19": {
+      "id": "b-20-docs-index-derived-invariant-19",
+      "type": "callout",
+      "props": {
+        "kind": "Invariant",
+        "title": "The database is rebuildable, not canonical",
+        "tone": "warning"
+      },
+      "text": [
+        {
+          "insert": "Reference spans in "
+        },
+        {
+          "insert": "doc.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and links in "
+        },
+        {
+          "insert": "*.canvas.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " are the inputs. SQLite rows are a disposable acceleration structure. An index failure may make backlinks stale or unavailable, but it must never invalidate or veto an already-valid document save."
+        }
+      ],
+      "children": []
+    },
+    "b-20-docs-index-maintenance-heading-20": {
+      "id": "b-20-docs-index-maintenance-heading-20",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Maintenance Paths"
+        }
+      ],
+      "children": []
+    },
+    "b-20-docs-index-maintenance-intro-21": {
+      "id": "b-20-docs-index-maintenance-intro-21",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The package supports incremental maintenance for ordinary saves and a complete rebuild for startup, out-of-band edits, or cache repair. Both paths extract the same block-level document references and object-level canvas links."
+        }
+      ],
+      "children": []
+    },
+    "b-20-docs-index-save-path-22": {
+      "id": "b-20-docs-index-save-path-22",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Successful API saves replace one source"
+        }
+      ],
+      "children": [
+        "b-20-docs-index-save-path-gloss-42"
+      ]
+    },
+    "b-20-docs-index-save-path-gloss-42": {
+      "id": "b-20-docs-index-save-path-gloss-42",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "docs-server calls the index after a document or canvas write commits. "
+        },
+        {
+          "insert": "upsertForSource",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " provides transactional per-source replacement. The server hook is fire-and-forget and logs and swallows failures, which keeps derived-state maintenance outside save correctness."
+        }
+      ],
+      "children": []
+    },
+    "b-20-docs-index-rescan-23": {
+      "id": "b-20-docs-index-rescan-23",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "A rescan replaces the whole table"
+        }
+      ],
+      "children": [
+        "b-20-docs-index-rescan-gloss-43"
+      ]
+    },
+    "b-20-docs-index-rescan-gloss-43": {
+      "id": "b-20-docs-index-rescan-gloss-43",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "rescanAll",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " walks "
+        },
+        {
+          "insert": "doc.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "*.canvas.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", skipping dot-directories and "
+        },
+        {
+          "insert": "node_modules",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". "
+        },
+        {
+          "insert": "docs-cli backlinks rescan",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " exposes this repair path; "
+        },
+        {
+          "insert": "docs-cli links check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " rescans before testing targets."
+        }
+      ],
+      "children": []
+    },
+    "b-20-docs-index-identity-heading-24": {
+      "id": "b-20-docs-index-identity-heading-24",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Reference Identity"
+        }
+      ],
+      "children": []
+    },
+    "b-20-docs-index-reference-operations-5": {
+      "id": "b-20-docs-index-reference-operations-5",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The table stores each target path verbatim because legacy "
+        },
+        {
+          "insert": "docs/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "-prefixed Markdown paths and canonical bundle paths can coexist. Exact queries remain available for source-file targets. Tolerant document queries normalize "
+        },
+        {
+          "insert": ".md",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": ".mdx",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "doc.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", bundle-folder, backslash, and retired trailing "
+        },
+        {
+          "insert": "00-overview",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " forms to one docs-root-relative identity. A rewrite always emits that canonical bundle path, so maintenance converges old references instead of preserving their aliases."
+        }
+      ],
+      "children": []
+    },
+    "b-20-docs-index-move-heading-25": {
+      "id": "b-20-docs-index-move-heading-25",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Move and Rename Fixup"
+        }
+      ],
+      "children": []
+    },
+    "b-20-docs-index-move-summary-26": {
+      "id": "b-20-docs-index-move-summary-26",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/docs-index/src/move-doc.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-index/src/move-doc.ts"
+            }
+          }
+        },
+        {
+          "insert": " owns bundle moves and inbound reference repair through injected document and canvas save seams. Tolerant identity matching covers document spans and canvas links, including sources carried inside the moved bundle. The contract reports rewritten sources and per-source failures."
+        }
+      ],
+      "children": []
+    },
+    "b-20-docs-index-move-atomicity-27": {
+      "id": "b-20-docs-index-move-atomicity-27",
+      "type": "callout",
+      "props": {
+        "kind": "Named tradeoff",
+        "title": "Move fixup is intentionally non-atomic",
+        "tone": "warning"
+      },
+      "text": [
+        {
+          "insert": "The folder rename is not rolled back when a later inbound source fails. "
+        },
+        {
+          "insert": "moveDocBundle",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " returns "
+        },
+        {
+          "insert": "rewrittenSources",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "failures",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " so callers can surface incomplete fixup and run link verification. This is honest partial completion, not cross-file atomicity."
+        }
+      ],
+      "children": []
+    },
+    "b-20-docs-index-paths-28": {
+      "id": "b-20-docs-index-paths-28",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Path helpers reject absolute paths, traversal segments, empty segments, and null bytes before resolving bundle shapes. Resolution checks the normalized absolute result against the docs root and refuses arbitrary JSON shapes. Move and server callers share these helpers so confinement is one package contract."
         }
       ],
       "children": []
@@ -271,21 +823,38 @@
       },
       "text": [
         {
-          "insert": "Dependencies"
+          "insert": "Invariants and Firewalls"
         }
       ],
       "children": []
     },
     "b-20-docs-index-depends-on-9": {
       "id": "b-20-docs-index-depends-on-9",
-      "type": "paragraph",
-      "props": {},
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
       "text": [
         {
-          "insert": "It depends on "
+          "insert": "Canonical content stays outside SQLite"
+        }
+      ],
+      "children": [
+        "b-20-docs-index-depends-on-gloss-44"
+      ]
+    },
+    "b-20-docs-index-depends-on-gloss-44": {
+      "id": "b-20-docs-index-depends-on-gloss-44",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The package reads document types from "
         },
         {
-          "insert": "docs-model",
+          "insert": "docs-model — The Format",
           "attributes": {
             "reference": {
               "kind": "doc",
@@ -294,16 +863,7 @@
           }
         },
         {
-          "insert": " for the shared "
-        },
-        {
-          "insert": "SpectreRef",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " reference type, and on "
+          "insert": " and canvas link types from "
         },
         {
           "insert": "@codecaine-ai/canvas",
@@ -312,158 +872,321 @@
           }
         },
         {
-          "insert": "."
+          "insert": "; it stores extracted reference facts, never substitute document state."
         }
       ],
       "children": []
     },
     "b-20-docs-index-depended-on-10": {
       "id": "b-20-docs-index-depended-on-10",
-      "type": "paragraph",
-      "props": {},
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
       "text": [
         {
-          "insert": "It is depended on by "
-        },
+          "insert": "Index maintenance cannot become save authority"
+        }
+      ],
+      "children": [
+        "b-20-docs-index-depended-on-gloss-45"
+      ]
+    },
+    "b-20-docs-index-depended-on-gloss-45": {
+      "id": "b-20-docs-index-depended-on-gloss-45",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
         {
-          "insert": "docs-server",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "20-implementation/10-packages/30-docs-server"
-            }
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "@codecaine-ai/docs-workbench",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", and "
-        },
-        {
-          "insert": "docs-cli",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "20-implementation/10-packages/60-docs-cli"
-            }
-          }
-        },
-        {
-          "insert": "."
+          "insert": "docs-server owns validation, hash and lock checks, persistence, and undo. docs-index receives committed state or injected save seams; it never writes a document around those contracts."
         }
       ],
       "children": []
     },
     "b-20-docs-index-import-boundary-11": {
       "id": "b-20-docs-index-import-boundary-11",
-      "type": "paragraph",
-      "props": {},
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
       "text": [
         {
-          "insert": "Across the "
-        },
+          "insert": "Host code and browser code stay out"
+        }
+      ],
+      "children": [
+        "b-20-docs-index-import-boundary-gloss-46"
+      ]
+    },
+    "b-20-docs-index-import-boundary-gloss-46": {
+      "id": "b-20-docs-index-import-boundary-gloss-46",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
         {
-          "insert": "seven-package split",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "20-implementation/10-packages"
-            }
-          }
-        },
-        {
-          "insert": ", the repo-root "
-        },
-        {
-          "insert": "import-boundaries.test.ts",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " forbids every package root from importing host-app code."
+          "insert": "The repository import-boundary test scans this package for host-app imports. The Bun-only package exposes no React surface and no HTTP routes."
         }
       ],
       "children": []
     },
-    "b-20-docs-index-using-alone-12": {
-      "id": "b-20-docs-index-using-alone-12",
+    "b-20-docs-index-related-heading-29": {
+      "id": "b-20-docs-index-related-heading-29",
       "type": "heading",
       "props": {
         "level": 2
       },
       "text": [
         {
-          "insert": "Using It Alone"
+          "insert": "Related Files"
         }
       ],
       "children": []
     },
-    "b-20-docs-index-direct-use-13": {
-      "id": "b-20-docs-index-direct-use-13",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "No server is required. Scripts can use the package for link audits, backlink rebuilds, and bundle renames; the CLI commands "
-        },
-        {
-          "insert": "docs backlinks rescan",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " and "
-        },
-        {
-          "insert": "docs links check",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " drive it directly."
-        }
-      ],
-      "children": []
-    },
-    "b-20-docs-index-boundary-review-14": {
-      "id": "b-20-docs-index-boundary-review-14",
-      "type": "callout",
+    "b-20-docs-index-related-backlinks-30": {
+      "id": "b-20-docs-index-related-backlinks-30",
+      "type": "list-item",
       "props": {
-        "kind": "Boundary under review",
-        "title": "Could this be part of docs-server?",
-        "tone": "info"
+        "ordered": false
       },
       "text": [
         {
-          "insert": "Folding "
-        },
-        {
-          "insert": "@codecaine-ai/docs-index",
+          "insert": "packages/docs-index/src/backlinks.ts",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-index/src/backlinks.ts"
+            }
           }
-        },
+        }
+      ],
+      "children": [
+        "b-20-docs-index-related-backlinks-gloss-31"
+      ]
+    },
+    "b-20-docs-index-related-backlinks-gloss-31": {
+      "id": "b-20-docs-index-related-backlinks-gloss-31",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
         {
-          "insert": " into "
-        },
+          "insert": "Defines the derived database and its incremental and rebuild paths."
+        }
+      ],
+      "children": []
+    },
+    "b-20-docs-index-related-ref-match-32": {
+      "id": "b-20-docs-index-related-ref-match-32",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
         {
-          "insert": "@codecaine-ai/docs-server",
+          "insert": "packages/docs-index/src/ref-match.ts",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-index/src/ref-match.ts"
+            }
           }
-        },
+        }
+      ],
+      "children": [
+        "b-20-docs-index-related-ref-match-gloss-33"
+      ]
+    },
+    "b-20-docs-index-related-ref-match-gloss-33": {
+      "id": "b-20-docs-index-related-ref-match-gloss-33",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
         {
-          "insert": " is a live candidate: both are Bun-only server-side layers, and docs-server is the index's main consumer. The current split is a judgment call. It remains separate because the index is derived, rebuildable state with no HTTP surface and is useful from the CLI without running a server."
+          "insert": "Defines tolerant identity and canonical rewrite behavior."
+        }
+      ],
+      "children": []
+    },
+    "b-20-docs-index-related-move-34": {
+      "id": "b-20-docs-index-related-move-34",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-index/src/move-doc.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-index/src/move-doc.ts"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-20-docs-index-related-move-gloss-35"
+      ]
+    },
+    "b-20-docs-index-related-move-gloss-35": {
+      "id": "b-20-docs-index-related-move-gloss-35",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Coordinates bundle moves, inbound fixup, and partial-failure reporting."
+        }
+      ],
+      "children": []
+    },
+    "b-20-docs-index-related-paths-36": {
+      "id": "b-20-docs-index-related-paths-36",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-index/src/paths.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-index/src/paths.ts"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-20-docs-index-related-paths-gloss-37"
+      ]
+    },
+    "b-20-docs-index-related-paths-gloss-37": {
+      "id": "b-20-docs-index-related-paths-gloss-37",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Keeps bundle resolution confined to the selected docs root."
+        }
+      ],
+      "children": []
+    },
+    "b-20-docs-index-related-cache-38": {
+      "id": "b-20-docs-index-related-cache-38",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-server/src/backlinks-cache.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-server/src/backlinks-cache.ts"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-20-docs-index-related-cache-gloss-39"
+      ]
+    },
+    "b-20-docs-index-related-cache-gloss-39": {
+      "id": "b-20-docs-index-related-cache-gloss-39",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Connects committed server saves to best-effort incremental indexing."
+        }
+      ],
+      "children": []
+    },
+    "b-20-docs-index-related-boundary-40": {
+      "id": "b-20-docs-index-related-boundary-40",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "import-boundaries.test.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "import-boundaries.test.ts"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-20-docs-index-related-boundary-gloss-41"
+      ]
+    },
+    "b-20-docs-index-related-boundary-gloss-41": {
+      "id": "b-20-docs-index-related-boundary-gloss-41",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Enforces host independence across the package source tree."
+        }
+      ],
+      "children": []
+    },
+    "b-20-docs-index-related-manifest-48": {
+      "id": "b-20-docs-index-related-manifest-48",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-index/package.json",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-index/package.json"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-20-docs-index-related-manifest-gloss-49"
+      ]
+    },
+    "b-20-docs-index-related-manifest-gloss-49": {
+      "id": "b-20-docs-index-related-manifest-gloss-49",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Declares the Bun-side dependencies and importable subpaths."
         }
       ],
       "children": []

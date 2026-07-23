@@ -1,0 +1,631 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-50-editor-design-10-reading-surface",
+  "title": "Reading Surface",
+  "root": "b-rsurf-root",
+  "blocks": {
+    "b-rsurf-root": {
+      "id": "b-rsurf-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-rsurf-opener",
+        "b-rsurf-structure-heading",
+        "b-rsurf-default-source",
+        "b-rsurf-defaults-table",
+        "b-rsurf-rule-heading",
+        "b-rsurf-column",
+        "b-rsurf-title",
+        "b-rsurf-navigation",
+        "b-rsurf-peek",
+        "b-rsurf-backlinks",
+        "b-rsurf-why-heading",
+        "b-rsurf-why-rhythm",
+        "b-rsurf-why-context",
+        "b-rsurf-why-identity",
+        "b-rsurf-why-link-home",
+        "b-rsurf-backlinks-rationale"
+      ]
+    },
+    "b-rsurf-opener": {
+      "id": "b-rsurf-opener",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The reading surface is a single document column with stable page furniture and navigation that keeps context visible. This page defines its measure and spacing, derived title, numbered sidebar, reference peek, and backlinks footer. Per-block presentation remains in "
+        },
+        {
+          "insert": "Block vocabulary",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-rsurf-structure-heading": {
+      "id": "b-rsurf-structure-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Structure"
+        }
+      ],
+      "children": []
+    },
+    "b-rsurf-default-source": {
+      "id": "b-rsurf-default-source",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The living Default in "
+        },
+        {
+          "insert": "themes/default/theme.json",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "themes/default/theme.json"
+            }
+          }
+        },
+        {
+          "insert": " defines the document frame below. "
+        },
+        {
+          "insert": "packages/docs-workbench/web/src/shell/StyleRail.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/shell/StyleRail.tsx"
+            }
+          }
+        },
+        {
+          "insert": " exposes the values as CSS variables consumed by "
+        },
+        {
+          "insert": "packages/docs-workbench/web/src/pages/DocPage.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/pages/DocPage.tsx"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-rsurf-defaults-table": {
+      "id": "b-rsurf-defaults-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Control",
+          "Living Default",
+          "Effect"
+        ],
+        "rows": [
+          [
+            [
+              {
+                "insert": "--style-content-width",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            [
+              {
+                "insert": "88ch",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Maximum document-column measure"
+          ],
+          [
+            [
+              {
+                "insert": "--style-content-margin",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            [
+              {
+                "insert": "0px",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Horizontal content padding"
+          ],
+          [
+            [
+              {
+                "insert": "--style-content-top",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            [
+              {
+                "insert": "88px",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Top offset before the page title"
+          ],
+          [
+            [
+              {
+                "insert": "--style-title-padding",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            [
+              {
+                "insert": "50px",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Gap from the page title to the first block"
+          ],
+          [
+            [
+              {
+                "insert": "--style-content-bottom",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            [
+              {
+                "insert": "300px",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Bottom run-out after the document"
+          ]
+        ]
+      },
+      "children": []
+    },
+    "b-rsurf-rule-heading": {
+      "id": "b-rsurf-rule-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The Rule"
+        }
+      ],
+      "children": []
+    },
+    "b-rsurf-column": {
+      "id": "b-rsurf-column",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "One document column",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-rsurf-column-measure",
+        "b-rsurf-column-push"
+      ]
+    },
+    "b-rsurf-column-measure": {
+      "id": "b-rsurf-column-measure",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Blocks flow through one centered column capped by "
+        },
+        {
+          "insert": "--style-content-width",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-rsurf-column-push": {
+      "id": "b-rsurf-column-push",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Secondary panes are layout siblings. Opening one pushes and reflows the document; it never covers content."
+        }
+      ],
+      "children": []
+    },
+    "b-rsurf-title": {
+      "id": "b-rsurf-title",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Page title",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-rsurf-title-derived",
+        "b-rsurf-title-scale",
+        "b-rsurf-title-rename"
+      ]
+    },
+    "b-rsurf-title-derived": {
+      "id": "b-rsurf-title-derived",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The title is navigation furniture derived from the bundle name: the numeric prefix is removed, hyphens become spaces, Title Case is applied, and domain acronyms are uppercased."
+        }
+      ],
+      "children": []
+    },
+    "b-rsurf-title-scale": {
+      "id": "b-rsurf-title-scale",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "It sits one visual step above a block H1."
+        }
+      ],
+      "children": []
+    },
+    "b-rsurf-title-rename": {
+      "id": "b-rsurf-title-rename",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Clicking the title edits the bundle name in place. A committed rename preserves the numeric prefix, runs the move path, rewrites inbound references, follows the new path, and refreshes the sidebar."
+        }
+      ],
+      "children": []
+    },
+    "b-rsurf-navigation": {
+      "id": "b-rsurf-navigation",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Numbered navigation",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-rsurf-navigation-tree"
+      ]
+    },
+    "b-rsurf-navigation-tree": {
+      "id": "b-rsurf-navigation-tree",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The sidebar walks the numbered bundle tree in the reading order defined by "
+        },
+        {
+          "insert": "Numbering",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/10-doc-standards/20-numbering"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-rsurf-peek": {
+      "id": "b-rsurf-peek",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Reference peek",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-rsurf-peek-open",
+        "b-rsurf-peek-replace",
+        "b-rsurf-peek-navigate",
+        "b-rsurf-peek-rhythm"
+      ]
+    },
+    "b-rsurf-peek-open": {
+      "id": "b-rsurf-peek-open",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A plain doc-reference click opens a right-docked, read-only view of the target."
+        }
+      ],
+      "children": []
+    },
+    "b-rsurf-peek-replace": {
+      "id": "b-rsurf-peek-replace",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The next reference click, including one inside the peek, replaces the target. Escape closes the peek."
+        }
+      ],
+      "children": []
+    },
+    "b-rsurf-peek-navigate": {
+      "id": "b-rsurf-peek-navigate",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Cmd/Ctrl-click and every source reference navigate fully."
+        }
+      ],
+      "children": []
+    },
+    "b-rsurf-peek-rhythm": {
+      "id": "b-rsurf-peek-rhythm",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The peek is a secondary document with the same typography and vertical rhythm as the main page, plus narrower horizontal padding."
+        }
+      ],
+      "children": []
+    },
+    "b-rsurf-backlinks": {
+      "id": "b-rsurf-backlinks",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Backlinks",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-rsurf-backlinks-footer"
+      ]
+    },
+    "b-rsurf-backlinks-footer": {
+      "id": "b-rsurf-backlinks-footer",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A plain “Referenced by” footer after the document lists the unique source paths that reference it."
+        }
+      ],
+      "children": []
+    },
+    "b-rsurf-why-heading": {
+      "id": "b-rsurf-why-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why"
+        }
+      ],
+      "children": []
+    },
+    "b-rsurf-why-rhythm": {
+      "id": "b-rsurf-why-rhythm",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "One reading rhythm",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-rsurf-why-rhythm-main",
+        "b-rsurf-why-rhythm-peek"
+      ]
+    },
+    "b-rsurf-why-rhythm-main": {
+      "id": "b-rsurf-why-rhythm-main",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The document keeps one measure and typography across its main modes, so changing modes does not redefine the reading surface."
+        }
+      ],
+      "children": []
+    },
+    "b-rsurf-why-rhythm-peek": {
+      "id": "b-rsurf-why-rhythm-peek",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The peek reuses that rhythm because it is a secondary document, not a different class of content."
+        }
+      ],
+      "children": []
+    },
+    "b-rsurf-why-context": {
+      "id": "b-rsurf-why-context",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Context stays visible",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-rsurf-why-context-push",
+        "b-rsurf-why-context-peek"
+      ]
+    },
+    "b-rsurf-why-context-push": {
+      "id": "b-rsurf-why-context-push",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A pushed layout keeps the document visible while a secondary pane is open."
+        }
+      ],
+      "children": []
+    },
+    "b-rsurf-why-context-peek": {
+      "id": "b-rsurf-why-context-peek",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A reference peek lets the reader inspect a target without abandoning the source; explicit gestures still choose full navigation."
+        }
+      ],
+      "children": []
+    },
+    "b-rsurf-why-identity": {
+      "id": "b-rsurf-why-identity",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Navigation identity stays synchronized",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-rsurf-why-identity-derived",
+        "b-rsurf-why-identity-move"
+      ]
+    },
+    "b-rsurf-why-identity-derived": {
+      "id": "b-rsurf-why-identity-derived",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The page title and sidebar derive from the same bundle name, so there is no separate display label to drift."
+        }
+      ],
+      "children": []
+    },
+    "b-rsurf-why-identity-move": {
+      "id": "b-rsurf-why-identity-move",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The move-based rename keeps the displayed identity, storage path, inbound references, and sidebar entry aligned."
+        }
+      ],
+      "children": []
+    },
+    "b-rsurf-why-link-home": {
+      "id": "b-rsurf-why-link-home",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The division between tree navigation and substantive reference links is governed by "
+        },
+        {
+          "insert": "Cross-doc linking",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/10-doc-standards/30-cross-doc-linking"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-rsurf-backlinks-rationale": {
+      "id": "b-rsurf-backlinks-rationale",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The plain “Referenced by” footer and its source-path-only presentation have no recorded rationale."
+        }
+      ],
+      "children": []
+    }
+  }
+}

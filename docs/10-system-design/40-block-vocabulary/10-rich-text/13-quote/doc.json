@@ -10,7 +10,10 @@
       "props": {},
       "children": [
         "b-13-quote-lead-2",
+        "b-13-quote-example-h-20",
+        "b-13-quote-example-quote-21",
         "b-13-quote-state-h-3",
+        "b-13-quote-state-shape-22",
         "b-13-quote-state-4",
         "b-13-quote-editor-h-7",
         "b-13-quote-editor-8",
@@ -59,6 +62,30 @@
       ],
       "children": []
     },
+    "b-13-quote-example-h-20": {
+      "id": "b-13-quote-example-h-20",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Example"
+        }
+      ],
+      "children": []
+    },
+    "b-13-quote-example-quote-21": {
+      "id": "b-13-quote-example-quote-21",
+      "type": "quote",
+      "props": {},
+      "text": [
+        {
+          "insert": "A live quote: prose set apart from the flow — no label, no tone, plain delta text."
+        }
+      ],
+      "children": []
+    },
     "b-13-quote-state-h-3": {
       "id": "b-13-quote-state-h-3",
       "type": "heading",
@@ -72,22 +99,27 @@
       ],
       "children": []
     },
+    "b-13-quote-state-shape-22": {
+      "id": "b-13-quote-state-shape-22",
+      "type": "state-shape",
+      "props": {
+        "description": "Closed empty object — any prop is a validation error.",
+        "fields": [],
+        "name": "QuoteState",
+        "source": {
+          "path": "packages/docs-model/src/components/rich-text/state.ts",
+          "symbol": "QuoteState"
+        }
+      },
+      "children": []
+    },
     "b-13-quote-state-4": {
       "id": "b-13-quote-state-4",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "No props: "
-        },
-        {
-          "insert": "QuoteState",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " is a closed empty object. Carries delta text ("
+          "insert": "Carries delta text ("
         },
         {
           "insert": "carriesText: true",
@@ -309,6 +341,21 @@
             "reference": {
               "kind": "source",
               "path": "packages/docs-workbench/web/src/theme/theme-folders.ts"
+            }
+          }
+        },
+        {
+          "insert": "."
+        },
+        {
+          "insert": " The contract is "
+        },
+        {
+          "insert": "Theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/50-theming"
             }
           }
         },

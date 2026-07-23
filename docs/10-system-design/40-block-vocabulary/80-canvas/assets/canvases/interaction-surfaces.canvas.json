@@ -1,0 +1,192 @@
+{
+  "schemaVersion": 1,
+  "id": "interaction-surfaces",
+  "title": "One state, two readers",
+  "mode": "diagram",
+  "viewport": {
+    "x": 0,
+    "y": 0,
+    "zoom": 1
+  },
+  "size": {
+    "width": 1280,
+    "height": 720
+  },
+  "objects": [
+    {
+      "id": "one-state-two-readers",
+      "type": "section",
+      "label": "One state, two readers",
+      "title": "One state, two readers",
+      "tint": "gray",
+      "parentId": null,
+      "geometry": {
+        "x": 835.9534374999998,
+        "y": 439.39937499999996,
+        "width": 1120,
+        "height": 560
+      },
+      "style": {
+        "shape": "section"
+      },
+      "layout": {
+        "mode": "free",
+        "padding": 36,
+        "gap": 28
+      }
+    },
+    {
+      "id": "canonical-state",
+      "type": "section",
+      "label": "Canonical document state — stable, validated, addressable",
+      "title": "Canonical document state — stable, validated, addressable",
+      "tint": "purple",
+      "parentId": "one-state-two-readers",
+      "geometry": {
+        "x": 876,
+        "y": 519,
+        "width": 1040,
+        "height": 440
+      },
+      "style": {
+        "shape": "section"
+      },
+      "layout": {
+        "mode": "free",
+        "padding": 28,
+        "gap": 24
+      }
+    },
+    {
+      "id": "human-surface",
+      "type": "section",
+      "label": "Human surface",
+      "title": "Human surface",
+      "tint": "blue",
+      "parentId": "canonical-state",
+      "geometry": {
+        "x": 916,
+        "y": 579,
+        "width": 460,
+        "height": 280
+      },
+      "style": {
+        "shape": "section"
+      },
+      "layout": {
+        "mode": "free",
+        "padding": 24,
+        "gap": 20
+      }
+    },
+    {
+      "id": "agent-surface",
+      "type": "section",
+      "label": "Agent surface",
+      "title": "Agent surface",
+      "tint": "green",
+      "parentId": "canonical-state",
+      "geometry": {
+        "x": 1416,
+        "y": 579,
+        "width": 460,
+        "height": 280
+      },
+      "style": {
+        "shape": "section"
+      },
+      "layout": {
+        "mode": "free",
+        "padding": 24,
+        "gap": 20
+      }
+    },
+    {
+      "id": "human-manipulation",
+      "type": "process",
+      "label": "Direct manipulation",
+      "parentId": "human-surface",
+      "geometry": {
+        "x": 956,
+        "y": 639,
+        "width": 380,
+        "height": 80
+      },
+      "style": {
+        "shape": "rounded-rect",
+        "fill": "#C2E5FF",
+        "stroke": "#3DADFF"
+      }
+    },
+    {
+      "id": "human-detail",
+      "type": "sticky",
+      "label": "Workbench\nRich blocks\nComments + themes",
+      "parentId": "human-surface",
+      "geometry": {
+        "x": 956,
+        "y": 739,
+        "width": 380,
+        "height": 100
+      },
+      "style": {
+        "shape": "sticky",
+        "fill": "#FFECBD",
+        "stroke": "#FFC943"
+      }
+    },
+    {
+      "id": "agent-render",
+      "type": "document",
+      "label": "Rendered markdown + typed actions",
+      "parentId": "agent-surface",
+      "geometry": {
+        "x": 1456,
+        "y": 639,
+        "width": 380,
+        "height": 80
+      },
+      "style": {
+        "shape": "document",
+        "fill": "#DDF8E2",
+        "stroke": "#66D575"
+      }
+    },
+    {
+      "id": "agent-detail",
+      "type": "sticky",
+      "label": "CLI\nGreppable projection\nBlock-id operations",
+      "parentId": "agent-surface",
+      "geometry": {
+        "x": 1456,
+        "y": 739,
+        "width": 380,
+        "height": 100
+      },
+      "style": {
+        "shape": "sticky",
+        "fill": "#DDF8E2",
+        "stroke": "#66D575"
+      }
+    },
+    {
+      "id": "shared-contract",
+      "type": "pill",
+      "label": "Both renders must read correctly",
+      "parentId": "canonical-state",
+      "geometry": {
+        "x": 1226,
+        "y": 879,
+        "width": 340,
+        "height": 56
+      },
+      "style": {
+        "shape": "pill",
+        "fill": "#FFC7C2",
+        "stroke": "#F24822"
+      }
+    }
+  ],
+  "connections": [],
+  "annotations": []
+}

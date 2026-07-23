@@ -7,7 +7,6 @@ import { descriptors as canvasDescriptors } from "../components/canvas/descripto
 import { descriptors as codeDescriptors } from "../components/code/descriptor";
 import { descriptors as fileTreeDescriptors } from "../components/file-tree/descriptor";
 import { descriptors as interactionSurfaceDescriptors } from "../components/interaction-surface/descriptor";
-import { descriptors as mermaidDescriptors } from "../components/mermaid/descriptor";
 import { descriptors as richTextDescriptors } from "../components/rich-text/descriptors";
 import { descriptors as sequenceDescriptors } from "../components/sequence/descriptor";
 import { descriptors as stateShapeDescriptors } from "../components/state-shape/descriptor";
@@ -40,9 +39,6 @@ export type DocBlockRenderContext = {
   resolveAssetSrc?: (src: string) => string;
 };
 
-/** @deprecated Use DocBlockRenderContext. */
-export type DocFlavourRenderContext = DocBlockRenderContext;
-
 export type DocBlockDescriptor = {
   type: DocBlockType;
   targetKind: string;
@@ -53,15 +49,11 @@ export type DocBlockDescriptor = {
   render: (block: DocBlock, ctx: DocBlockRenderContext) => ReactNode;
 };
 
-/** @deprecated Use DocBlockDescriptor. */
-export type DocFlavourDescriptor = DocBlockDescriptor;
-
 export { deltaToMarkdown, deltaToPlainText } from "./descriptor-helpers";
 
 const COMPONENT_DESCRIPTORS: readonly DocBlockDescriptor[][] = [
   richTextDescriptors,
   codeDescriptors,
-  mermaidDescriptors,
   fileTreeDescriptors,
   structuredTableDescriptors,
   interactionSurfaceDescriptors,
@@ -106,6 +98,3 @@ const BLOCK_REGISTRY = buildRegistry();
 export function getDocBlockDescriptor(type: string): DocBlockDescriptor | null {
   return BLOCK_REGISTRY.get(type as DocBlockType) ?? null;
 }
-
-/** @deprecated Use getDocBlockDescriptor. */
-export const getDocFlavourDescriptor = getDocBlockDescriptor;

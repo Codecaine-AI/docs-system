@@ -206,6 +206,7 @@
       "id": "b-22-interaction-surface-shape-4",
       "type": "state-shape",
       "props": {
+        "example": "{\n  \"title\": \"file-tree — entry operations\",\n  \"operations\": [\n    {\n      \"name\": \"file-tree.removeEntry\",\n      \"description\": \"Remove the entry with the given path from the file tree.\",\n      \"params\": [\n        {\n          \"name\": \"path\",\n          \"type\": \"string\",\n          \"required\": true,\n          \"description\": \"Exact path of the entry to remove.\"\n        }\n      ],\n      \"returns\": \"props patch: { entries }\"\n    }\n  ]\n}",
         "fields": [
           {
             "name": "title",
@@ -1237,7 +1238,19 @@
       "props": {},
       "text": [
         {
-          "insert": "This block's theme file is "
+          "insert": "The "
+        },
+        {
+          "insert": "Theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/50-theming"
+            }
+          }
+        },
+        {
+          "insert": " contract element: theme file "
         },
         {
           "insert": "components/interaction-surface.json",
@@ -1255,7 +1268,7 @@
           }
         },
         {
-          "insert": "; see "
+          "insert": "; system docs at "
         },
         {
           "insert": "Theming",
@@ -1458,7 +1471,7 @@
           }
         },
         {
-          "insert": " — the seventh op beside "
+          "insert": " — the doc op beside "
         },
         {
           "insert": "insertBlock",

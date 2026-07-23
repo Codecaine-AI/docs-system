@@ -2,6 +2,8 @@ A block type is a component with a closed contract: it owns its state schema, it
 
 ## Structure
 
+One component, every home (structured-table):
+
 ```
 packages/
 ├── docs-model/

@@ -8,14 +8,24 @@ A `url`-only block — external YouTube URL, no bundle asset. The player is the 
 
 ## State Schema
 
-| prop | type | required | notes |
-| --- | --- | --- | --- |
-| src | string | no | Bundle-local video file, uploaded to the bundle's assets/videos/. |
-| url | string | no | External video URL; wins over src when both are present. |
-| title | string | no | Display title, also used in the markdown render's label. |
-| caption | string | no | Caption appended to the rendered markdown line. |
+**VideoState** — packages/docs-model/src/components/rich-text/state.ts#VideoState
 
-No text (`carriesText: false`). All four props are optional in the schema; a useful block sets at least one of `src`/`url`.
+```
+src?: string  # Bundle-local video file, uploaded to the bundle's assets/videos/.
+url?: string  # External video URL; wins over src when both are present.
+title?: string  # Display title, also the agent render's label.
+caption?: string  # Caption appended to the agent render line.
+```
+
+```json
+{
+  "url": "https://www.youtube.com/watch?v=YE7VzlLtp-4",
+  "title": "Big Buck Bunny",
+  "caption": "Blender Foundation's open-movie short, embedded from an external URL."
+}
+```
+
+No text (`carriesText: false`); a useful block sets at least one of `src` / `url`.
 
 ## Doc Renderer
 
@@ -33,7 +43,7 @@ A labeled blockquote in the callout family's shape: `> **Video[: <title>]** — 
 
 ## Theme
 
-This block's theme file is `components/video.json` in a theme folder (`themes/<id>/`; see Theming). Every value is one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY`.
+This block's theme file is `components/video.json` in a theme folder (`themes/<id>/`; see Theming). Every value is one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY`. The contract is Theming.
 
 | Key | CSS variable | Styles |
 | --- | --- | --- |

@@ -145,9 +145,6 @@ describe("DocBlockRenderer", () => {
     ).toBeTruthy();
     expect(screen.getByText("Append a path entry to the tree")).toBeTruthy();
 
-    // Parse-reuse structured block: the mermaid wrapper.
-    expect(document.querySelector('[data-doc-block="mermaid"]')).toBeTruthy();
-
     // Canvas embed goes through the injected slot with src + view.
     const canvas = screen.getByTestId("fake-canvas-embed");
     expect(canvas.getAttribute("data-src")).toBe("./assets/canvases/sample.canvas.json");

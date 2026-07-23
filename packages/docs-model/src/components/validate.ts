@@ -7,7 +7,6 @@ import { codeComponent } from "./code";
 import { schemaIssues } from "./define";
 import { fileTreeComponent } from "./file-tree";
 import { interactionSurfaceComponent } from "./interaction-surface";
-import { mermaidComponent } from "./mermaid";
 import { richTextComponent } from "./rich-text";
 import { sequenceComponent } from "./sequence";
 import { stateShapeComponent } from "./state-shape";
@@ -17,7 +16,6 @@ import type { ComponentBundle } from "./types";
 const COMPONENTS: readonly ComponentBundle[] = [
   richTextComponent,
   codeComponent,
-  mermaidComponent,
   fileTreeComponent,
   structuredTableComponent,
   interactionSurfaceComponent,

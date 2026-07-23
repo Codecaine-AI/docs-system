@@ -1,79 +1,61 @@
-# Using the Workbench
+`docs serve` starts the workbench host over one docs root. The host composes navigation, viewer/editor callbacks, persistence, annotations, live events, and static-export degradation. Human interaction semantics live in Editing Interactions; this page covers the runtime wiring.
 
-`docs serve` opens the workbench: a two-mode surface over one docs tree.
+## Edit Persistence
 
-## Edit Mode (Default)
+`packages/docs-workbench/web/src/pages/DocPage.tsx` mounts the viewer editor and supplies the host callbacks that send typed operations, acquire locks, upload assets, and adopt server results.
 
-The page *is* the editor — Notion-style. There is no read mode and no Save
-button:
+- Flush triggers
 
-- **Auto-save.** Edits save on a ~1s idle debounce (with a 5s max-wait so
+  - The editor flushes after about 1 second idle with a 5 second maximum wait. `Cmd/Ctrl+S`, blur, tab hiding, mode changes, document navigation, and unmount also request a flush.
 
-  continuous typing still persists). `Cmd/Ctrl+S` forces an immediate
-  flush. Drafts also flush when the window blurs, the tab hides, you switch
-  modes, or you navigate to another doc.
+- Pipeline handoff
 
-- **The header indicator** shows `Saved` / `Saving…` / `Not saved` at all
+  - Every trigger uses The save pipeline: keystroke to disk: editor state becomes `DocOp[]` and reaches `POST /api/ops` with the expected hash and session id.
 
-  times.
+- Undo
 
-- **Undo last save** in the header reverts the most recent saved patch
+  - The host sends the latest single-use token to the server's inverse-op ledger. Undo re-enters the same hash-checked mutation authority.
 
-  (single-use; powered by the server's inverse-op ledger).
+- Remote changes
 
-- **Live changes.** If another actor (a teammate, an agent) edits the doc
+  - An SSE update reloads a clean editor. A dirty or saving editor suppresses the reload and leaves conflict ownership to the next hash-checked save.
 
-  while your editor is clean, the change applies silently and the affected
-  blocks flash. While you have unsaved edits, remote refreshes are
-  suppressed — conflicts are handled at save time instead (below).
+- Editor-owned input
 
-- **Links.** `Cmd/Ctrl+K` with text selected opens a Notion-style link popover
-  (Enter applies, an empty input or the Remove button clears). Pasting a URL
-  over selected text wraps the selection in a link instead of replacing it.
+  - Link authoring, keyboard behavior, paste conversion, and slash insertion stay inside docs-viewer editor extensions. The workbench receives document updates rather than reimplementing those interactions.
 
-- **Video.** Paste or drop a YouTube/Vimeo/Loom URL on an empty line to embed
-  it as a video block (there is deliberately no slash-menu entry — video
-  blocks come from content). Dropping a video file from disk (`mp4`/`webm`/`mov`/`m4v`, up to 64 MB) uploads it into the bundle's `assets/videos/` and inserts
-  the block once the upload lands.
+- Media handoff
 
-### Conflicts
+  - The viewer recognizes media input; the workbench supplies asset upload and canvas/sequence embed slots. The designed interaction is specified by Canvas and Media.
 
-Two layers, both server-enforced:
+## Conflict Handling
 
-- **Stale hash (409).** Every save carries the doc hash it was based on. If
+Two server outcomes pause autosave without discarding the editor draft.
 
-  the doc changed underneath you, the save is rejected, your draft is kept
-  in the editor, a banner offers "Reload doc", and auto-save pauses until
-  you reload.
+- Stale hash (409)
 
-- **Draft lock (423).** Going dirty acquires a best-effort TTL lock
+  - The server rejects an operation batch whose expected hash is stale. The draft remains local until the caller adopts current server state or retries from a current baseline.
 
-  (heartbeat-renewed). If another session already holds it, a banner says
-  so and saving pauses until the lock frees (the heartbeat notices
-  automatically).
+- Draft lock (423)
 
-## Annotate Mode
+  - Going dirty requests a heartbeat-renewed TTL lock. A lock held by another session pauses saves until the heartbeat observes availability; the expected hash remains the correctness check.
 
-For pointing at things and leaving structured feedback — the mode an agent
-conversation lives in ("do this, do this, do this"):
+## Annotation Persistence
 
-- hover any block for an outline + block-type chip; click to select it;
+Annotate mode composes viewer targeting with a workbench-owned annotations sidecar.
 
-- canvas objects inside embedded canvases are selectable the same way;
+- docs-viewer emits stable block targets; the injected canvas embed emits canvas-object targets.
 
-- compose an annotation (with an intent) in the side pane; resolve from the
+- The workbench stores target, intent, body, and resolution state in `annotations.json` beside the bundle.
 
-  list; dangling targets (block deleted since) are detected and labeled.
+- Targets whose block or canvas object is absent remain readable and are marked dangling by resolution logic.
 
-Annotations live in the bundle's `annotations.json` sidecar with the same
-hash-precondition write path as doc edits.
+Annotation writes carry the sidecar hash precondition, so concurrent annotation edits fail instead of overwriting one another.
 
 ## Block Catalog
 
-The block catalog lives in the corpus, not the workbench: the per-type reference pages under block vocabulary cover every block type, each with live examples and its doc.json shape.
+The workbench does not maintain a parallel block reference. Definitions and examples live in Block vocabulary.
 
 ## Static Export
 
-`docs export` produces the same UI with everything mutable removed: no mode
-switcher, no editor, no annotations pane, no SSE — a plain read-only site that
-works from any static host or subpath.
+`docs export` builds the same SPA against a generated data snapshot. Static mode omits mutation callbacks, annotation writes, SSE, theme writes, and server-only asset operations, so viewer capabilities degrade through absent host services.

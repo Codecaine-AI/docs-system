@@ -1,58 +1,56 @@
-# Theming: Overview
+The theming implementation compiles repository theme folders and normalized style-rail state into CSS custom properties on `<html>`. It owns loading, validation, precedence, persistence, and font-stack application. The designed token roles and customization boundary live in Visual System.
 
-Theming is a first-class feature of the workbench: every visual decision resolves through one canonical token contract, so the whole system — colors, fonts, editor controls — restyles without touching component code. This section lays out the structure: who decides what, where each file lives, and exactly what can and cannot be changed.
+## Runtime Pipeline
 
-## Who Decides What
+- Base styles
 
-| Layer | Who sets it | Examples | Where |
-| --- | --- | --- | --- |
-| System UI | The system — deliberately NOT themable | Sidebar width, rail width, header heights | Component code (see System UI) |
-| Theme | A selected theme folder (global built-in or repo custom) | Palette, component tokens, font stacks, rail defaults | themes/<id>/ (see Global themes) |
-| User overlay | The style rail's knobs, per user, on top of the theme | Accent, fonts, layout metrics, highlight/grip tuning | localStorage blob (see System UI for the knob map) |
+  - `notion-palette.css` defines mode-specific raw variables. `semantic.css` maps them to the semantic variables specified by Tokens.
 
-> **INFO: Precedence** — Theme files define; the user overlay overrides; the system UI is out of reach of both. A rail knob at its default removes its override, so the theme (and below it, the default token files) stays authoritative.
+- Theme-folder layer
 
-## The Three Token Tiers
+  - `theme-folders.ts` filters a folder through the closed registry, resolves its base chain, and compiles light and dark declarations into one injected style element.
 
-- Palette — `theme/notion-palette.css`. Raw color values as `--color-*` variables, defined twice: a light block and a dark block. The only place raw hex/rgba theme colors are allowed.
+- Runtime overlay
 
-- Semantic tokens — `theme/semantic.css`. Per-surface meaning mapped from palette variables, in both theme blocks. Component tokens follow `--docs-<component>-<part>` (for example `--docs-inline-code-fg`). Every new themable property gets a token here — never a literal at a use site.
+  - `normalizeSettings` produces a complete settings object. `styleRailVars` converts it to a CSS-variable map, and `applyStyleRailVars` writes non-null values as inline properties on the root element.
 
-- Consumption — `index.css` and docs-viewer components reference tier-2 tokens only. docs-viewer's Tailwind classes may carry a neutral literal fallback inside `var()` (the package renders in hosts without this stylesheet); the workbench always defines the token, so fallbacks never win here.
+> **Implementation invariant: Null removes the overlay** — A `null` entry from `styleRailVars` removes that inline property. The selected theme layer or base stylesheet becomes authoritative without a second reset path.
 
-> **INFO: The one rule** — Consumers never branch on light versus dark. A mode flip only swaps the tier 1 and tier 2 definitions; everything downstream re-resolves automatically.
-
-## Where the Files Live
+## Structure
 
 ```
-../
-└── ../
-    └── ../
-        └── ../
-            └── themes/  # repo custom theme folders (see Global themes)
-shell/
-└── StyleRail.tsx  # the user overlay: knobs, theme picker, export/import
-theme/
-├── notion-palette.css  # tier 1 — raw colors, light + dark
-├── semantic.css  # tier 2 — the canonical contract (see its header)
-└── theme-folders.ts  # theme-folder loader: token registry, base chains, CSS compile
-index.css  # tier 3 — app CSS consuming tokens; :root font defaults
+packages/
+├── docs-server/
+│   └── src/
+│       └── themes.ts  # repository-folder reads and writes
+└── docs-workbench/
+    └── web/
+        └── src/
+            ├── shell/
+            │   ├── App.tsx  # theme selection, boot hydration, DOM application, and Default autosave
+            │   └── StyleRail.tsx  # settings normalization and settings-to-variable conversion
+            └── theme/
+                ├── notion-palette.css  # raw light and dark variables
+                ├── semantic.css  # base semantic-variable layer
+                └── theme-folders.ts  # registry, tolerant reader, base resolution, and CSS compiler
+themes/
+└── default/  # durable Default manifest and sparse component overrides
 ```
 
 ## In This Section
 
 - Global themes
 
-  - The theme-folder format, built-ins, selection semantics, save-as.
+  - Folder resolution, selection state, Default autosave, and fresh-profile hydration.
 
 - Component themes
 
-  - The per-surface token files and the closed registry that validates them.
+  - The closed registry, tolerant folder validation, CSS compilation, and sparse override files.
 
 - Fonts
 
-  - Per-surface font tokens and custom font loading.
+  - How manifest and rail font settings reach CSS, plus the current font-file loading boundary.
 
-- System UI
+- Style rail runtime
 
-  - What is deliberately fixed, and the full map of every style-rail knob.
+  - The normalized settings pipeline, root-property application, and persistence authority.

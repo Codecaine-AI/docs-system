@@ -1,0 +1,208 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-50-editor-design",
+  "title": "Editor design",
+  "root": "b-edsn-root",
+  "blocks": {
+    "b-edsn-root": {
+      "id": "b-edsn-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-edsn-opener",
+        "b-edsn-contracts-heading",
+        "b-edsn-reading",
+        "b-edsn-editing",
+        "b-edsn-rail",
+        "b-edsn-visual",
+        "b-edsn-media"
+      ]
+    },
+    "b-edsn-opener": {
+      "id": "b-edsn-opener",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Editor design is the contract for the workbench's designed human surface: what any implementation must present and how it must feel to use. It owns the reading frame and the system UI around and between blocks; each block family's own appearance and editing behavior remains in "
+        },
+        {
+          "insert": "Block vocabulary",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary"
+            }
+          }
+        },
+        {
+          "insert": ". The contract covers reading, editing, styling, shared visuals, and canvas and media behavior."
+        }
+      ],
+      "children": []
+    },
+    "b-edsn-contracts-heading": {
+      "id": "b-edsn-contracts-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The Surface Contracts"
+        }
+      ],
+      "children": []
+    },
+    "b-edsn-reading": {
+      "id": "b-edsn-reading",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Reading Surface",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/10-reading-surface"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-edsn-reading-gloss"
+      ]
+    },
+    "b-edsn-reading-gloss": {
+      "id": "b-edsn-reading-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The document column, page title, numbered navigation, reference peek, and backlinks footer."
+        }
+      ],
+      "children": []
+    },
+    "b-edsn-editing": {
+      "id": "b-edsn-editing",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Editing Interactions",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/20-editing-interactions"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-edsn-editing-gloss"
+      ]
+    },
+    "b-edsn-editing-gloss": {
+      "id": "b-edsn-editing-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The always-editable feel across typing, insertion, selection, movement, and in-place editing."
+        }
+      ],
+      "children": []
+    },
+    "b-edsn-rail": {
+      "id": "b-edsn-rail",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Style Rail",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/30-style-rail"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-edsn-rail-gloss"
+      ]
+    },
+    "b-edsn-rail-gloss": {
+      "id": "b-edsn-rail-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The two-pane styling surface, its content-type groups, override attribution, scoped resets, and registry-driven controls."
+        }
+      ],
+      "children": []
+    },
+    "b-edsn-visual": {
+      "id": "b-edsn-visual",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Visual System",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-edsn-visual-gloss"
+      ]
+    },
+    "b-edsn-visual-gloss": {
+      "id": "b-edsn-visual-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The token, typography, font, and theme decisions shared across the designed surface."
+        }
+      ],
+      "children": []
+    },
+    "b-edsn-media": {
+      "id": "b-edsn-media",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Canvas and Media",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/50-canvas-and-media"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-edsn-media-gloss"
+      ]
+    },
+    "b-edsn-media-gloss": {
+      "id": "b-edsn-media-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The inline and expanded viewing behavior for canvas, image, and video content."
+        }
+      ],
+      "children": []
+    }
+  }
+}

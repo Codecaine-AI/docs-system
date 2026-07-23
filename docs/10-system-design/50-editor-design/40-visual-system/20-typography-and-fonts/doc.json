@@ -1,0 +1,403 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-50-editor-design-40-visual-system-20-typography-and-fonts",
+  "title": "Typography and Fonts",
+  "root": "b-typo-root",
+  "blocks": {
+    "b-typo-root": {
+      "id": "b-typo-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-typo-intro",
+        "b-typo-structure-heading",
+        "b-typo-role-table",
+        "b-typo-metric-table",
+        "b-typo-rule-heading",
+        "b-typo-role-rule",
+        "b-typo-body-role",
+        "b-typo-heading-role",
+        "b-typo-code-role",
+        "b-typo-number-role",
+        "b-typo-controls",
+        "b-typo-files-heading",
+        "b-typo-stack-rule",
+        "b-typo-file-status",
+        "b-typo-why-heading",
+        "b-typo-why-seams",
+        "b-typo-why-record"
+      ]
+    },
+    "b-typo-intro": {
+      "id": "b-typo-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Typography assigns font families by reading role: body, heading, code, and numeric. Shared reading metrics set the size, line height, and tracking for the document column. Theme loading and variable-injection mechanics live in "
+        },
+        {
+          "insert": "Theming: Overview",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/40-theming"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-typo-structure-heading": {
+      "id": "b-typo-structure-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Structure"
+        }
+      ],
+      "children": []
+    },
+    "b-typo-role-table": {
+      "id": "b-typo-role-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Reading role",
+          "Token",
+          "Living Default"
+        ],
+        "rows": [
+          [
+            "Body",
+            "--font-tx02",
+            "System Sans"
+          ],
+          [
+            "Heading",
+            "--font-display + --style-heading-font",
+            "System Sans"
+          ],
+          [
+            "Code",
+            "--docs-font-code",
+            "Mono"
+          ],
+          [
+            "Numeric",
+            "--docs-font-numeric",
+            "Body font"
+          ]
+        ]
+      },
+      "children": []
+    },
+    "b-typo-metric-table": {
+      "id": "b-typo-metric-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Reading metric",
+          "Living Default"
+        ],
+        "rows": [
+          [
+            "Font size",
+            "16px"
+          ],
+          [
+            "Line height",
+            "1.5"
+          ],
+          [
+            "Letter spacing",
+            "0.005em"
+          ]
+        ]
+      },
+      "children": []
+    },
+    "b-typo-rule-heading": {
+      "id": "b-typo-rule-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The Rule"
+        }
+      ],
+      "children": []
+    },
+    "b-typo-role-rule": {
+      "id": "b-typo-role-rule",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A font follows its reading role across every surface; components do not choose local font families."
+        }
+      ],
+      "children": []
+    },
+    "b-typo-body-role": {
+      "id": "b-typo-body-role",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Body",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-typo-body-role-gloss"
+      ]
+    },
+    "b-typo-body-role-gloss": {
+      "id": "b-typo-body-role-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Paragraphs and the main reading surface use the body token."
+        }
+      ],
+      "children": []
+    },
+    "b-typo-heading-role": {
+      "id": "b-typo-heading-role",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Heading",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-typo-heading-role-gloss"
+      ]
+    },
+    "b-typo-heading-role-gloss": {
+      "id": "b-typo-heading-role-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Document titles and headings share the heading role."
+        }
+      ],
+      "children": []
+    },
+    "b-typo-code-role": {
+      "id": "b-typo-code-role",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Code",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-typo-code-role-gloss"
+      ]
+    },
+    "b-typo-code-role-gloss": {
+      "id": "b-typo-code-role-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Code blocks, inline code, and keyboard labels share the code token."
+        }
+      ],
+      "children": []
+    },
+    "b-typo-number-role": {
+      "id": "b-typo-number-role",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Numeric",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-typo-number-role-gloss"
+      ]
+    },
+    "b-typo-number-role-gloss": {
+      "id": "b-typo-number-role-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "List markers and ordered counters use the numeric token, which inherits body by default."
+        }
+      ],
+      "children": []
+    },
+    "b-typo-controls": {
+      "id": "b-typo-controls",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The style rail exposes all four family roles plus font size, line height, and letter spacing. A theme manifest may supply an arbitrary CSS stack for each role."
+        }
+      ],
+      "children": []
+    },
+    "b-typo-files-heading": {
+      "id": "b-typo-files-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Font Sources"
+        }
+      ],
+      "children": []
+    },
+    "b-typo-stack-rule": {
+      "id": "b-typo-stack-rule",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "System Sans resolves to "
+        },
+        {
+          "insert": "ui-sans-serif, system-ui, sans-serif",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Mono resolves to "
+        },
+        {
+          "insert": "ui-monospace, \"SF Mono\", SFMono-Regular, Menlo, monospace",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Numeric emits no separate family while it follows body."
+        }
+      ],
+      "children": []
+    },
+    "b-typo-file-status": {
+      "id": "b-typo-file-status",
+      "type": "callout",
+      "props": {
+        "kind": "Designed, not built",
+        "title": "Custom font-file loading",
+        "tone": "warning"
+      },
+      "text": [
+        {
+          "insert": "Themes can name any font family the browser can already resolve. The workbench does not load repository font binaries or register "
+        },
+        {
+          "insert": "@font-face",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " rules for them. Custom font-file loading is designed but not built."
+        }
+      ],
+      "children": []
+    },
+    "b-typo-why-heading": {
+      "id": "b-typo-why-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why"
+        }
+      ],
+      "children": []
+    },
+    "b-typo-why-seams": {
+      "id": "b-typo-why-seams",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Reading roles are explicit seams",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-typo-why-seams-gloss"
+      ]
+    },
+    "b-typo-why-seams-gloss": {
+      "id": "b-typo-why-seams-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A theme can separate code or numerals without changing prose, headings, or individual components."
+        }
+      ],
+      "children": []
+    },
+    "b-typo-why-record": {
+      "id": "b-typo-why-record",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The defaults are facts, not reconstructed intent",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-typo-why-record-gloss"
+      ]
+    },
+    "b-typo-why-record-gloss": {
+      "id": "b-typo-why-record-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "No recorded rationale selects the four-role split, the current face aliases, or the 16px / 1.5 / 0.005em metrics."
+        }
+      ],
+      "children": []
+    }
+  }
+}

@@ -466,12 +466,13 @@ describe("GET /api/blocks (edit-surface discovery)", () => {
   const COMPONENT_NAMES = [
     "rich-text",
     "code",
-    "mermaid",
     "file-tree",
     "structured-table",
     "interaction-surface",
+    "state-shape",
     "canvas",
     "sequence",
+    "waterfall",
   ] as const;
   const ACTION_KEYS = [
     "canvas.addAnnotation",
@@ -490,11 +491,20 @@ describe("GET /api/blocks (edit-surface discovery)", () => {
     "sequence.setProgram",
     "sequence.setStyle",
     "sequence.setTitle",
+    "state-shape.addField",
+    "state-shape.removeField",
+    "state-shape.setExample",
+    "state-shape.updateField",
     "structured-table.addColumn",
     "structured-table.addRow",
     "structured-table.removeColumn",
     "structured-table.removeRow",
     "structured-table.updateCell",
+    "waterfall.insertStep",
+    "waterfall.moveStep",
+    "waterfall.removeStep",
+    "waterfall.setStepText",
+    "waterfall.setSteps",
   ] as const;
 
   let docsRoot: string;
@@ -533,7 +543,7 @@ describe("GET /api/blocks (edit-surface discovery)", () => {
     const { body } = await getBlocks();
     const { DOC_BLOCK_TYPES } = await import("@codecaine-ai/docs-model/doc-schema");
 
-    expect(body.components).toHaveLength(8);
+    expect(body.components).toHaveLength(9);
     expect(body.components.map((component) => component.name)).toEqual([...COMPONENT_NAMES]);
 
     const servedTypes = body.components.flatMap((component) =>

@@ -28,6 +28,7 @@
         "b-rtfam-ex-divider-31",
         "b-rtfam-state-h-20",
         "b-rtfam-state-lead-21",
+        "b-rtfam-span-shape-43",
         "b-20-rich-text-delta-example-3",
         "b-20-rich-text-marks-4",
         "b-rt-mark-bools-19",
@@ -62,7 +63,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The rich-text component owns the eight text-and-media block types that make up ordinary document flow. They share one implementation home ("
+          "insert": "The rich-text component owns the text-and-media block types that make up ordinary document flow. They share one implementation home ("
         },
         {
           "insert": "packages/docs-viewer/src/components/rich-text/",
@@ -504,6 +505,67 @@
       ],
       "children": []
     },
+    "b-rtfam-span-shape-43": {
+      "id": "b-rtfam-span-shape-43",
+      "type": "state-shape",
+      "props": {
+        "description": "One rich-text span: a string insert plus optional marks.",
+        "example": "[\n  {\n    \"insert\": \"Validated by \"\n  },\n  {\n    \"insert\": \"validateDocDocument\",\n    \"attributes\": {\n      \"code\": true,\n      \"reference\": {\n        \"kind\": \"source\",\n        \"path\": \"packages/docs-model/src/doc-schema.ts\"\n      }\n    }\n  },\n  {\n    \"insert\": \".\"\n  }\n]",
+        "fields": [
+          {
+            "name": "insert",
+            "type": "string",
+            "description": "The span's text; for a reference span, the display text."
+          },
+          {
+            "name": "attributes",
+            "type": "object",
+            "required": false,
+            "description": "Marks on this span; an empty object is dropped on canonicalization.",
+            "fields": [
+              {
+                "name": "bold",
+                "type": "true",
+                "required": false
+              },
+              {
+                "name": "italic",
+                "type": "true",
+                "required": false
+              },
+              {
+                "name": "strike",
+                "type": "true",
+                "required": false
+              },
+              {
+                "name": "code",
+                "type": "true",
+                "required": false
+              },
+              {
+                "name": "link",
+                "type": "string",
+                "required": false,
+                "description": "Outbound URL mark."
+              },
+              {
+                "name": "reference",
+                "type": "SpectreRef",
+                "required": false,
+                "description": "Doc or code mention chip; kind plus repo-relative path."
+              }
+            ]
+          }
+        ],
+        "name": "DeltaSpan",
+        "source": {
+          "path": "packages/docs-model/src/doc-schema.ts",
+          "symbol": "DeltaSpan"
+        }
+      },
+      "children": []
+    },
     "b-20-rich-text-delta-example-3": {
       "id": "b-20-rich-text-delta-example-3",
       "type": "code",
@@ -836,7 +898,7 @@
           ],
           [
             "false",
-            "divider, image, video, structured-table, file-tree, state-shape, interaction-surface, sequence, canvas",
+            "divider, image, video, structured-table, file-tree, state-shape, interaction-surface, sequence, canvas, waterfall",
             "No text key; all state lives in typed props."
           ]
         ],
@@ -1041,6 +1103,21 @@
         },
         {
           "insert": " for the system."
+        },
+        {
+          "insert": " The contract is "
+        },
+        {
+          "insert": "Theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/50-theming"
+            }
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []

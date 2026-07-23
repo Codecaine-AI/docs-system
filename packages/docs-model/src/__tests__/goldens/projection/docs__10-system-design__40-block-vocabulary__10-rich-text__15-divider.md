@@ -1,8 +1,16 @@
 The horizontal rule of the block vocabulary: a visual section break with no content of its own.
 
+## Example
+
+The rule below is a live divider block.
+
+---
+
 ## State Schema
 
-No props (closed empty schema) and no text (`carriesText: false`) — the simplest block in the vocabulary.
+**DividerState** — packages/docs-model/src/components/rich-text/state.ts#DividerState
+
+No text (`carriesText: false`) — the simplest block in the vocabulary.
 
 ## Doc Renderer
 
@@ -18,7 +26,7 @@ A `---` line.
 
 ## Theme
 
-This block's theme file is `components/divider.json` in a theme folder (`themes/<id>/`; see Theming). Every value is one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY`.
+This block's theme file is `components/divider.json` in a theme folder (`themes/<id>/`; see Theming). Every value is one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY`. The contract is Theming.
 
 | Key | CSS variable | Styles |
 | --- | --- | --- |

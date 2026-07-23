@@ -2,16 +2,19 @@
   "schemaVersion": 1,
   "id": "20-implementation-40-theming-20-component-themes",
   "title": "Component themes",
-  "root": "b-component-themes-root",
+  "root": "b-component-themes-root-1",
   "blocks": {
-    "b-component-themes-root": {
-      "id": "b-component-themes-root",
+    "b-component-themes-root-1": {
+      "id": "b-component-themes-root-1",
       "type": "paragraph",
       "props": {},
       "children": [
         "b-component-themes-intro-2",
+        "b-component-themes-registry-heading-7",
         "b-component-themes-registry-table-3",
         "b-component-themes-example-4",
+        "b-component-themes-persistence-heading-8",
+        "b-component-themes-persistence-9",
         "b-component-themes-extend-heading-5",
         "b-component-themes-extend-steps-6"
       ]
@@ -22,7 +25,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Each visual surface has its own token file inside a theme folder: "
+          "insert": "A component theme file is a sparse map at "
         },
         {
           "insert": "components/<surface>.json",
@@ -31,16 +34,7 @@
           }
         },
         {
-          "insert": ". Every color value is one string (both modes) or a "
-        },
-        {
-          "insert": "{ light, dark }",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " pair. Non-color length and number tokens are always single strings. There is ONE FILE PER BLOCK-VOCABULARY TYPE (each type's own doc under 10-block-vocabulary states its keys) plus four non-block files. The vocabulary is CLOSED: files and keys must appear in "
+          "insert": ". "
         },
         {
           "insert": "THEME_TOKEN_REGISTRY",
@@ -49,16 +43,32 @@
           }
         },
         {
-          "insert": " ("
+          "insert": " is the closed runtime vocabulary that maps each accepted file and key to one or more CSS variables. The variables and their visual meanings are specified by "
         },
         {
-          "insert": "theme/theme-folders.ts",
+          "insert": "Tokens",
           "attributes": {
-            "code": true
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/10-tokens"
+            }
           }
         },
         {
-          "insert": "), which maps each key to the tier-2 CSS variables it writes. Unknown files or keys are ignored, so a hand-edited theme can never break the app."
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-component-themes-registry-heading-7": {
+      "id": "b-component-themes-registry-heading-7",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Registry and Validation"
         }
       ],
       "children": []
@@ -68,103 +78,31 @@
       "type": "structured-table",
       "props": {
         "columns": [
-          "File",
-          "Keys",
-          "What it styles"
+          "Stage",
+          "Mechanic"
         ],
         "rows": [
           [
-            "shell.json",
-            "background, sidebar, text, accent, link",
-            "Page background, sidebar surface, body text, accent + link colors"
+            "Registry",
+            "Each file/key entry declares CSS vars and a color, length, or number kind. Length and number entries also carry min, max, step, and default metadata."
           ],
           [
-            "surfaces.json",
-            "border, muted, icon",
-            "Borders/inputs, muted fills, muted icon color"
+            "Folder read",
+            "readThemeDefinition drops unknown files and keys. A registered value survives only as a non-empty string or a { light, dark } string pair."
           ],
           [
-            "inline-code.json",
-            "fg, bg",
-            "The inline code chip (text + fill)"
+            "Rail read",
+            "normalizeComponentOverrides keeps registered pairs only. Colors must be six-digit hex; lengths and numbers must parse inside their registry range."
           ],
           [
-            "editor-controls.json",
-            "highlight, dropLine, grip",
-            "Block highlight fill, drag drop-line, drag grip color"
+            "Compilation",
+            "compileThemeCss writes every mapped variable into light and dark blocks. A scalar value is copied to both modes."
           ],
           [
-            "paragraph.json",
-            "fg",
-            "Paragraph text"
-          ],
-          [
-            "heading.json",
-            "fg",
-            "Heading text (all levels)"
-          ],
-          [
-            "list-item.json",
-            "marker",
-            "Bullet dot / ordered counter"
-          ],
-          [
-            "quote.json",
-            "fg, border",
-            "Quote text + left border"
-          ],
-          [
-            "code.json",
-            "bg, border, string, number, boolean, null, key",
-            "Code block surface + syntax colors"
-          ],
-          [
-            "callout.json",
-            "border, fill, fg",
-            "Callout card border, fill, body text"
-          ],
-          [
-            "divider.json",
-            "color",
-            "Rule color"
-          ],
-          [
-            "image.json",
-            "border, caption",
-            "Image border + caption text"
-          ],
-          [
-            "video.json",
-            "border, caption",
-            "Video frame border + caption text"
-          ],
-          [
-            "file-tree.json",
-            "border, note",
-            "Container border + entry notes"
-          ],
-          [
-            "structured-table.json",
-            "border, headerBg, headerFg, headerRule(+Width/Opacity), rowRule(+Width/Opacity), cellPaddingY/X, fontSize, handleRadius/Offset, selectionPadding",
-            "Header + row rules, spacing, text size + editor handle/selection furniture"
-          ],
-          [
-            "interaction-surface.json",
-            "border, bg",
-            "Container border + background"
-          ],
-          [
-            "mermaid.json",
-            "border, bg",
-            "Container border + background"
-          ],
-          [
-            "canvas.json",
-            "border",
-            "Embed container border"
+            "Runtime overlay",
+            "styleRailVars maps sparse rail overrides through the same registry. A default-valued length or number becomes null and removes the inline property."
           ]
-        ],
-        "title": "The surface vocabulary"
+        ]
       },
       "children": []
     },
@@ -172,11 +110,75 @@
       "id": "b-component-themes-example-4",
       "type": "code",
       "props": {
+        "annotations": [
+          {
+            "lines": "1-4",
+            "label": "themes/example/components/inline-code.json",
+            "note": "Only the registered keys this theme overrides are present."
+          }
+        ],
         "language": "json"
       },
       "text": [
         {
-          "insert": "// themes/example/components/inline-code.json\n{\n  \"fg\": { \"light\": \"#0b6e99\", \"dark\": \"#529cca\" },\n  \"bg\": { \"light\": \"rgba(0, 120, 223, 0.12)\", \"dark\": \"rgba(82, 156, 202, 0.18)\" }\n}"
+          "insert": "{\n  \"fg\": { \"light\": \"#0b6e99\", \"dark\": \"#529cca\" },\n  \"bg\": { \"light\": \"#e7f3f8\", \"dark\": \"#173d4d\" }\n}"
+        }
+      ],
+      "children": []
+    },
+    "b-component-themes-persistence-heading-8": {
+      "id": "b-component-themes-persistence-heading-8",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Persistence Layers"
+        }
+      ],
+      "children": []
+    },
+    "b-component-themes-persistence-9": {
+      "id": "b-component-themes-persistence-9",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "themes/default/theme.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " stores the complete normalized scalar settings under "
+        },
+        {
+          "insert": "railDefaults",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", with an empty "
+        },
+        {
+          "insert": "components",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " member. Each "
+        },
+        {
+          "insert": "themes/default/components/*.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " file stores only the registered keys overridden for that surface. The server replaces the manifest and writes each component file supplied by the request; component files omitted from a request remain on disk."
         }
       ],
       "children": []
@@ -189,7 +191,7 @@
       },
       "text": [
         {
-          "insert": "Extending the Vocabulary"
+          "insert": "Extending the Registry"
         }
       ],
       "children": []
@@ -200,7 +202,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Adding a themable property is a three-step change: define the token in both blocks of "
+          "insert": "A new theme knob requires the semantic variable in both mode blocks of "
         },
         {
           "insert": "semantic.css",
@@ -209,16 +211,16 @@
           }
         },
         {
-          "insert": ", consume it via "
+          "insert": ", a consumer that reads it through "
         },
         {
-          "insert": "var(--docs-...)",
+          "insert": "var(--docs-…)",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " at the use site, and add the file/key mapping to "
+          "insert": ", and a typed entry in "
         },
         {
           "insert": "THEME_TOKEN_REGISTRY",
@@ -227,16 +229,19 @@
           }
         },
         {
-          "insert": ". Keep this page's table in sync when the registry grows. The editor furniture accent for the structured-table controls is the semantic variable "
+          "insert": ". The generic component pane reads registry metadata, so registered length and number entries receive sliders without a component-specific control. Per-block visual behavior remains in the "
         },
         {
-          "insert": "--docs-editor-accent",
+          "insert": "Block vocabulary",
           "attributes": {
-            "code": true
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary"
+            }
           }
         },
         {
-          "insert": " (light rgb(0, 120, 223), dark rgb(82, 156, 202)), defined in the workbench semantic layer and consumed with a hex fallback."
+          "insert": "."
         }
       ],
       "children": []

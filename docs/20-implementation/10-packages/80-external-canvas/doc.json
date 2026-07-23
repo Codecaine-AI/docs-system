@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "id": "10-system-design-30-packages-80-external-canvas",
-  "title": "external/canvas — a supported neighbor",
+  "id": "20-implementation-10-packages-80-external-canvas",
+  "title": "External Canvas and Sequence",
   "root": "b-80-external-canvas-root",
   "blocks": {
     "b-80-external-canvas-root": {
@@ -9,31 +9,46 @@
       "type": "paragraph",
       "props": {},
       "children": [
-        "b-80-external-canvas-title-1",
         "b-80-external-canvas-identity-2",
-        "b-80-external-canvas-wiring-heading-3",
-        "b-80-external-canvas-workspace-mechanics-4",
         "b-80-external-canvas-location-heading-5",
         "b-80-external-canvas-ownership-boundary-6",
+        "b-80-external-canvas-wiring-heading-3",
+        "b-80-external-canvas-tree",
+        "b-80-external-canvas-workspace-mechanics-4",
+        "b-80-external-canvas-surface-heading",
+        "b-80-external-canvas-surface",
         "b-80-external-canvas-contact-heading-7",
         "b-80-external-canvas-model-contact-8",
         "b-80-external-canvas-server-contact-9",
         "b-80-external-canvas-viewer-contact-10",
-        "b-80-external-canvas-clone-warning-11"
+        "b-80-external-canvas-sidecar-heading",
+        "b-80-external-canvas-sidecar-path",
+        "b-80-external-canvas-validation",
+        "b-80-external-canvas-studio-heading",
+        "b-80-external-canvas-studio-flow",
+        "b-80-external-canvas-studio-why",
+        "b-80-external-canvas-studio-origin",
+        "b-80-external-canvas-sequence-heading",
+        "b-80-external-canvas-sequence-pattern",
+        "b-80-external-canvas-sequence-difference",
+        "b-80-external-canvas-invariants-heading",
+        "b-80-external-canvas-invariant-types",
+        "b-80-external-canvas-invariant-viewer",
+        "b-80-external-canvas-invariant-authority",
+        "b-80-external-canvas-invariant-ownership",
+        "b-80-external-canvas-clone-warning-11",
+        "b-80-external-canvas-related-heading",
+        "b-80-external-canvas-related-docs-label",
+        "b-80-external-canvas-related-gitmodules",
+        "b-80-external-canvas-related-boundaries",
+        "b-80-external-canvas-related-model",
+        "b-80-external-canvas-related-viewer",
+        "b-80-external-canvas-related-server",
+        "b-80-external-canvas-related-neighbor-label",
+        "b-80-external-canvas-related-schema",
+        "b-80-external-canvas-related-studio",
+        "b-80-external-canvas-related-sequence"
       ]
-    },
-    "b-80-external-canvas-title-1": {
-      "id": "b-80-external-canvas-title-1",
-      "type": "heading",
-      "props": {
-        "level": 1
-      },
-      "text": [
-        {
-          "insert": "external/canvas — a Supported Neighbor"
-        }
-      ],
-      "children": []
     },
     "b-80-external-canvas-identity-2": {
       "id": "b-80-external-canvas-identity-2",
@@ -41,75 +56,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The Codecaine canvas engine is vendored here as a git submodule at "
-        },
-        {
-          "insert": "external/canvas",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "external/canvas"
-            }
-          }
-        },
-        {
-          "insert": ". It is its own project, with its own repository, workspace, and release cadence; it is not part of the docs system."
-        }
-      ],
-      "children": []
-    },
-    "b-80-external-canvas-wiring-heading-3": {
-      "id": "b-80-external-canvas-wiring-heading-3",
-      "type": "heading",
-      "props": {
-        "level": 2
-      },
-      "text": [
-        {
-          "insert": "How It Is Wired In"
-        }
-      ],
-      "children": []
-    },
-    "b-80-external-canvas-workspace-mechanics-4": {
-      "id": "b-80-external-canvas-workspace-mechanics-4",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "The submodule mounts the canvas project at "
-        },
-        {
-          "insert": "external/canvas",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "external/canvas"
-            }
-          }
-        },
-        {
-          "insert": ". The root Bun workspace pulls in only "
-        },
-        {
-          "insert": "external/canvas/packages/*",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", so "
-        },
-        {
-          "insert": "@codecaine-ai/canvas",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " resolves for the embed components without making the canvas project itself a docs-system package."
+          "insert": "Canvas and Sequence are independent projects mounted in the docs-system repository as git submodules. The docs system consumes their document schemas, agent-operation descriptors, and renderers, and integrates with their standalone authoring applications without owning those implementations. This page describes the boundary mechanics, with Canvas as the complete integration and Sequence as the parallel but narrower case."
         }
       ],
       "children": []
@@ -122,7 +69,7 @@
       },
       "text": [
         {
-          "insert": "Why It Lives Under External/, Not Packages/"
+          "insert": "Why They Live Under external/, Not packages/"
         }
       ],
       "children": []
@@ -132,27 +79,208 @@
       "type": "callout",
       "props": {
         "kind": "Boundary",
-        "title": "Canvas is not an eighth package",
+        "title": "The layout makes ownership literal",
         "tone": "decision"
       },
       "text": [
         {
-          "insert": "The docs system supports canvas because canvas documents can be embedded in docs, but canvas is not part of the docs system. Keeping it outside "
+          "insert": "Canvas and Sequence have their own repositories, workspaces, package surfaces, and application code. Mounting them under "
+        },
+        {
+          "insert": "external/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " records that the docs system supports them but does not own them. Moving either project into "
         },
         {
           "insert": "packages/",
           "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " would falsely assign its engine and editor to the docs-system package graph."
+        }
+      ],
+      "children": []
+    },
+    "b-80-external-canvas-wiring-heading-3": {
+      "id": "b-80-external-canvas-wiring-heading-3",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Project Shape"
+        }
+      ],
+      "children": []
+    },
+    "b-80-external-canvas-tree": {
+      "id": "b-80-external-canvas-tree",
+      "type": "file-tree",
+      "props": {
+        "entries": [
+          {
+            "path": "external/canvas/packages/canvas/src/schema.ts",
+            "note": "Canvas document types and the full untrusted-input validator."
+          },
+          {
+            "path": "external/canvas/packages/canvas/src/agent-schema.ts",
+            "note": "The narrow TypeBox operation surface imported by docs-model."
+          },
+          {
+            "path": "external/canvas/packages/canvas/src/actions.ts",
+            "note": "The engine mutation vocabulary shared by interactive and agent paths."
+          },
+          {
+            "path": "external/canvas/packages/canvas/src/geometry.ts",
+            "note": "Pure geometry reused by server-side canvas operations."
+          },
+          {
+            "path": "external/canvas/packages/canvas/src/interaction.ts",
+            "note": "The pointer-interaction state machine."
+          },
+          {
+            "path": "external/canvas/packages/canvas/src/InteractiveCanvasViewer.tsx",
+            "note": "The read-only diagram surface used by embeds."
+          },
+          {
+            "path": "external/canvas/packages/canvas/src/InteractiveCanvasEditor.tsx",
+            "note": "The mutation-capable editor used by Studio."
+          },
+          {
+            "path": "external/canvas/packages/studio/src/App.tsx",
+            "note": "Standalone board selection, deep-link handling, and editor composition."
+          },
+          {
+            "path": "external/canvas/packages/studio/src/project-store.ts",
+            "note": "Docs-server project-board listing, loading, validation, and hash-guarded save."
+          },
+          {
+            "path": "external/canvas/packages/studio/src/board-store.ts",
+            "note": "Local Studio drafts, separate from docs-repository project boards."
+          }
+        ]
+      },
+      "children": []
+    },
+    "b-80-external-canvas-workspace-mechanics-4": {
+      "id": "b-80-external-canvas-workspace-mechanics-4",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The submodule identities live in "
+        },
+        {
+          "insert": ".gitmodules",
+          "attributes": {
             "code": true,
             "reference": {
               "kind": "source",
-              "path": "packages"
+              "path": ".gitmodules"
             }
           }
         },
         {
-          "insert": " makes that ownership boundary literal. The placement is forced by canvas being another project; it is not a judgment call about package organization."
+          "insert": ". The root "
+        },
+        {
+          "insert": "package.json",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "package.json"
+            }
+          }
+        },
+        {
+          "insert": " admits only "
+        },
+        {
+          "insert": "external/canvas/packages/*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "external/sequence/packages/*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " into the Bun workspace. Their inner packages resolve for consumers, while each neighboring project retains its own workspace root and tooling."
         }
       ],
+      "children": []
+    },
+    "b-80-external-canvas-surface-heading": {
+      "id": "b-80-external-canvas-surface-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The Canvas Integration Surface"
+        }
+      ],
+      "children": []
+    },
+    "b-80-external-canvas-surface": {
+      "id": "b-80-external-canvas-surface",
+      "type": "interaction-surface",
+      "props": {
+        "operations": [
+          {
+            "name": "canvas block reference",
+            "description": "doc.json stores canvasId or src plus optional view and title; engine state stays in the canvas document.",
+            "kind": "query",
+            "returns": "an external canvas identity and optional crop"
+          },
+          {
+            "name": "canvas.*",
+            "description": "docs-model lifts the external agent-schema descriptors into forwarded component actions.",
+            "kind": "action",
+            "returns": "a request for the canvas authority"
+          },
+          {
+            "name": "GET /api/canvas?src=",
+            "description": "Reads one docs-root-relative sidecar and returns its bytes hash with the parsed payload.",
+            "kind": "query",
+            "returns": "canvas_path, content_hash, canvas"
+          },
+          {
+            "name": "PUT /api/canvas",
+            "description": "Saves an existing sidecar with original_hash conflict protection; Canvas Studio uses the src-rooted form.",
+            "kind": "action",
+            "returns": "the new content_hash or a 409 conflict"
+          },
+          {
+            "name": "DocsClientProvider.canvasEmbed",
+            "description": "The viewer asks the host to render a canonicalized canvas reference without importing the engine.",
+            "kind": "query",
+            "returns": "a host-owned React embed"
+          },
+          {
+            "name": "Canvas Studio ?src=&server=",
+            "description": "Studio can open a repository sidecar directly; server is optional and otherwise comes from persisted or default configuration.",
+            "kind": "action",
+            "returns": "the standalone canvas editor"
+          }
+        ],
+        "title": "Canvas seams"
+      },
       "children": []
     },
     "b-80-external-canvas-contact-heading-7": {
@@ -163,7 +291,7 @@
       },
       "text": [
         {
-          "insert": "Where the Docs System Touches It"
+          "insert": "Where the Boundary Is Crossed"
         }
       ],
       "children": []
@@ -171,39 +299,48 @@
     "b-80-external-canvas-model-contact-8": {
       "id": "b-80-external-canvas-model-contact-8",
       "type": "list-item",
-      "props": {
-        "ordered": false
-      },
+      "props": {},
       "text": [
         {
-          "insert": "docs-model",
+          "insert": "docs-model — The Format",
           "attributes": {
             "reference": {
               "kind": "doc",
               "path": "20-implementation/10-packages/10-docs-model"
             }
           }
+        }
+      ],
+      "children": [
+        "b-80-external-canvas-model-contact-8-gloss"
+      ]
+    },
+    "b-80-external-canvas-model-contact-8-gloss": {
+      "id": "b-80-external-canvas-model-contact-8-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/docs-model/src/components/canvas/actions/lift.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/components/canvas/actions/lift.ts"
+            }
+          }
         },
         {
-          "insert": " consumes only the agent-schema leaf. The repository-root "
+          "insert": " imports only the external "
         },
         {
-          "insert": "import-boundaries.test.ts",
+          "insert": "agent-schema",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " enforces that canvas imports from docs-model go exclusively through "
-        },
-        {
-          "insert": "@codecaine-ai/canvas/agent-schema",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ": types cross the boundary, never the engine."
+          "insert": " descriptors and marks the resulting actions for the canvas authority. The model owns the reference block, not the canvas document or renderer."
         }
       ],
       "children": []
@@ -211,30 +348,29 @@
     "b-80-external-canvas-server-contact-9": {
       "id": "b-80-external-canvas-server-contact-9",
       "type": "list-item",
-      "props": {
-        "ordered": false
-      },
+      "props": {},
       "text": [
         {
-          "insert": "docs-server",
+          "insert": "docs-server — the Mutation Authority",
           "attributes": {
             "reference": {
               "kind": "doc",
               "path": "20-implementation/10-packages/30-docs-server"
             }
           }
-        },
+        }
+      ],
+      "children": [
+        "b-80-external-canvas-server-contact-9-gloss"
+      ]
+    },
+    "b-80-external-canvas-server-contact-9-gloss": {
+      "id": "b-80-external-canvas-server-contact-9-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
-          "insert": " does not apply canvas actions itself. It forwards them to the canvas authority through "
-        },
-        {
-          "insert": "POST /api/ops",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "."
+          "insert": "The server is an allowed engine consumer. It resolves and confines sidecars, serves whole documents, forwards doc-level canvas actions into typed patches, validates mutation results, applies hash and draft-lock checks, writes atomically, and records undo state."
         }
       ],
       "children": []
@@ -242,39 +378,196 @@
     "b-80-external-canvas-viewer-contact-10": {
       "id": "b-80-external-canvas-viewer-contact-10",
       "type": "list-item",
-      "props": {
-        "ordered": false
-      },
+      "props": {},
       "text": [
         {
-          "insert": "docs-viewer",
+          "insert": "docs-viewer — rendering and editing",
           "attributes": {
             "reference": {
               "kind": "doc",
               "path": "20-implementation/10-packages/40-docs-viewer"
             }
           }
+        }
+      ],
+      "children": [
+        "b-80-external-canvas-viewer-contact-10-gloss"
+      ]
+    },
+    "b-80-external-canvas-viewer-contact-10-gloss": {
+      "id": "b-80-external-canvas-viewer-contact-10-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/docs-viewer/src/client.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/client.tsx"
+            }
+          }
         },
         {
-          "insert": " and "
+          "insert": " defines the "
         },
         {
-          "insert": "docs-workbench",
+          "insert": "canvasEmbed",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " render embedded canvases through a "
+          "insert": " slot. "
         },
         {
-          "insert": "canvas-embed",
+          "insert": "packages/docs-viewer/src/render/DocBlockRenderer.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/render/DocBlockRenderer.tsx"
+            }
+          }
+        },
+        {
+          "insert": " canonicalizes bundle-relative sources and calls that slot. The viewer has no Canvas package dependency."
+        }
+      ],
+      "children": []
+    },
+    "b-80-external-canvas-sidecar-heading": {
+      "id": "b-80-external-canvas-sidecar-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Sidecar Resolution and Validation"
+        }
+      ],
+      "children": []
+    },
+    "b-80-external-canvas-sidecar-path": {
+      "id": "b-80-external-canvas-sidecar-path",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Canvas sidecars remain canonical files in the docs repository. "
+        },
+        {
+          "insert": "packages/docs-server/src/confine.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-server/src/confine.ts"
+            }
+          }
+        },
+        {
+          "insert": " accepts only safe "
+        },
+        {
+          "insert": ".canvas.json",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " component injected through the viewer's "
+          "insert": " paths under an "
+        },
+        {
+          "insert": "assets/canvases/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " segment, confines reads to the docs root, and canonicalizes existing ancestors before writes to reject symlink escapes. Bundle-relative references become docs-root-relative before the host fetches them."
+        }
+      ],
+      "children": []
+    },
+    "b-80-external-canvas-validation": {
+      "id": "b-80-external-canvas-validation",
+      "type": "callout",
+      "props": {
+        "kind": "Validation boundary",
+        "title": "Canvas uses two validation depths",
+        "tone": "warning"
+      },
+      "text": [
+        {
+          "insert": "packages/docs-server/src/canvas-sidecar.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-server/src/canvas-sidecar.ts"
+            }
+          }
+        },
+        {
+          "insert": " applies a lightweight structural gate on general sidecar reads and whole-document saves. Typed agent reads and patches in "
+        },
+        {
+          "insert": "packages/docs-server/src/agent-tools.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-server/src/agent-tools.ts"
+            }
+          }
+        },
+        {
+          "insert": " run the full external validator before use and again after mutation. The workbench embed and Canvas Studio also run the full validator after loading; the general "
+        },
+        {
+          "insert": "PUT /api/canvas",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " server path does not."
+        }
+      ],
+      "children": []
+    },
+    "b-80-external-canvas-studio-heading": {
+      "id": "b-80-external-canvas-studio-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Viewer Injection and Studio Handoff"
+        }
+      ],
+      "children": []
+    },
+    "b-80-external-canvas-studio-flow": {
+      "id": "b-80-external-canvas-studio-flow",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The workbench supplies "
+        },
+        {
+          "insert": "StandaloneCanvasEmbed",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " through "
         },
         {
           "insert": "DocsClientProvider",
@@ -283,25 +576,423 @@
           }
         },
         {
-          "insert": " seam. The workbench host composes the Studio SVG preview endpoint for the inline card and the dedicated "
+          "insert": " in "
         },
         {
-          "insert": "/embed/:id?view=<section-id>",
+          "insert": "packages/docs-workbench/web/src/shell/App.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/shell/App.tsx"
+            }
+          }
+        },
+        {
+          "insert": ". The adapter in "
+        },
+        {
+          "insert": "packages/docs-workbench/web/src/pages/CanvasEmbed.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/pages/CanvasEmbed.tsx"
+            }
+          }
+        },
+        {
+          "insert": " loads the sidecar through the host data layer, validates it with the Canvas package, and passes it to "
+        },
+        {
+          "insert": "InteractiveCanvasViewer",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " read-only route after expansion. Editing remains a separate handoff to "
+          "insert": ". Read and annotation surfaces stay mutation-free; edit mode opts into the separate Studio action. "
         },
         {
-          "insert": "/canvas/:id",
+          "insert": "Canvas and Media",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/50-canvas-and-media"
+            }
+          }
+        },
+        {
+          "insert": " owns the presentation and interaction contract."
+        }
+      ],
+      "children": []
+    },
+    "b-80-external-canvas-studio-why": {
+      "id": "b-80-external-canvas-studio-why",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Authoring mode in "
+        },
+        {
+          "insert": "packages/docs-workbench/web/src/pages/DocPage.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/pages/DocPage.tsx"
+            }
+          }
+        },
+        {
+          "insert": " enables an Edit in Canvas action. The action opens a new tab so the docs page retains its position and in-progress document state, and passes the canonical docs-root-relative sidecar as "
+        },
+        {
+          "insert": "?src=",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": ", preserving the host document's reading and authoring context. The canvas block is one of the fourteen block types."
+          "insert": ". Canvas Studio opens that project board directly rather than copying it into its local draft store."
+        }
+      ],
+      "children": []
+    },
+    "b-80-external-canvas-studio-origin": {
+      "id": "b-80-external-canvas-studio-origin",
+      "type": "callout",
+      "props": {
+        "kind": "Integration constraint",
+        "title": "The workbench deep link sends src, not server",
+        "tone": "warning"
+      },
+      "text": [
+        {
+          "insert": "Canvas Studio accepts both "
+        },
+        {
+          "insert": "?src=",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and optional "
+        },
+        {
+          "insert": "?server=",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "external/canvas/packages/studio/src/App.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "external/canvas/packages/studio/src/App.tsx"
+            }
+          }
+        },
+        {
+          "insert": ", but the current workbench URL supplies only "
+        },
+        {
+          "insert": "src",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Studio therefore uses its stored docs-server origin or the "
+        },
+        {
+          "insert": "http://localhost:4803",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " default. "
+        },
+        {
+          "insert": "external/canvas/packages/studio/src/project-store.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "external/canvas/packages/studio/src/project-store.ts"
+            }
+          }
+        },
+        {
+          "insert": " lists and loads boards from that server, saves with the loaded "
+        },
+        {
+          "insert": "content_hash",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " as "
+        },
+        {
+          "insert": "original_hash",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and turns a 409 into an explicit reload conflict."
+        }
+      ],
+      "children": []
+    },
+    "b-80-external-canvas-sequence-heading": {
+      "id": "b-80-external-canvas-sequence-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The Sequence Neighbor"
+        }
+      ],
+      "children": []
+    },
+    "b-80-external-canvas-sequence-pattern": {
+      "id": "b-80-external-canvas-sequence-pattern",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Sequence follows the same ownership and injection pattern. It is a separate submodule with inner workspace packages; docs-model lifts only "
+        },
+        {
+          "insert": "@codecaine-ai/sequence/agent-schema",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "; docs-viewer exposes a "
+        },
+        {
+          "insert": "sequenceEmbed",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " slot; and the workbench adapter loads, validates, and renders "
+        },
+        {
+          "insert": "SequenceViewer",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Unlike Canvas, "
+        },
+        {
+          "insert": "packages/docs-server/src/sequence-sidecar.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-server/src/sequence-sidecar.ts"
+            }
+          }
+        },
+        {
+          "insert": " runs the full Sequence validator on every sidecar read and write."
+        }
+      ],
+      "children": []
+    },
+    "b-80-external-canvas-sequence-difference": {
+      "id": "b-80-external-canvas-sequence-difference",
+      "type": "callout",
+      "props": {
+        "kind": "Current difference",
+        "title": "Sequence Studio has no project-board handoff",
+        "tone": "info"
+      },
+      "text": [
+        {
+          "insert": "The Sequence Studio persists local drafts through "
+        },
+        {
+          "insert": "external/sequence/packages/studio/src/draft-store.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "external/sequence/packages/studio/src/draft-store.ts"
+            }
+          }
+        },
+        {
+          "insert": ". It does not implement Canvas Studio's docs-server board listing, "
+        },
+        {
+          "insert": "?src=",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " deep link, or hash-guarded save-back flow."
+        }
+      ],
+      "children": []
+    },
+    "b-80-external-canvas-invariants-heading": {
+      "id": "b-80-external-canvas-invariants-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Boundary Invariants"
+        }
+      ],
+      "children": []
+    },
+    "b-80-external-canvas-invariant-types": {
+      "id": "b-80-external-canvas-invariant-types",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Types and operation schemas cross the pure-model boundary; the engines do not.",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-80-external-canvas-invariant-types-gloss"
+      ]
+    },
+    "b-80-external-canvas-invariant-types-gloss": {
+      "id": "b-80-external-canvas-invariant-types-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "import-boundaries.test.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "import-boundaries.test.ts"
+            }
+          }
+        },
+        {
+          "insert": " restricts docs-model imports to the Canvas and Sequence "
+        },
+        {
+          "insert": "agent-schema",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " leaves."
+        }
+      ],
+      "children": []
+    },
+    "b-80-external-canvas-invariant-viewer": {
+      "id": "b-80-external-canvas-invariant-viewer",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The reusable viewer never imports either engine.",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-80-external-canvas-invariant-viewer-gloss"
+      ]
+    },
+    "b-80-external-canvas-invariant-viewer-gloss": {
+      "id": "b-80-external-canvas-invariant-viewer-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Hosts inject Canvas and Sequence components through provider slots, so another host may supply different loaders or renderers."
+        }
+      ],
+      "children": []
+    },
+    "b-80-external-canvas-invariant-authority": {
+      "id": "b-80-external-canvas-invariant-authority",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Viewer injection never grants mutation authority.",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-80-external-canvas-invariant-authority-gloss"
+      ]
+    },
+    "b-80-external-canvas-invariant-authority-gloss": {
+      "id": "b-80-external-canvas-invariant-authority-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Read surfaces receive validated documents. Canvas mutation routes through docs-server typed patches or a separate Studio save to the canonical sidecar."
+        }
+      ],
+      "children": []
+    },
+    "b-80-external-canvas-invariant-ownership": {
+      "id": "b-80-external-canvas-invariant-ownership",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Project boards stay in the docs repository.",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-80-external-canvas-invariant-ownership-gloss"
+      ]
+    },
+    "b-80-external-canvas-invariant-ownership-gloss": {
+      "id": "b-80-external-canvas-invariant-ownership-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Canvas Studio keeps local drafts and server-backed project boards separate; opening a project board does not create a second authoritative copy."
         }
       ],
       "children": []
@@ -316,16 +1007,309 @@
       },
       "text": [
         {
-          "insert": "Before cloning recursively, read the repository "
+          "insert": "A host repository may embed both docs-system and Canvas directly. "
         },
         {
           "insert": "README.md",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "README.md"
+            }
           }
         },
         {
-          "insert": " submodule-cycle caveat. Follow that guidance before initializing nested submodules."
+          "insert": " requires a flat clone followed by targeted submodule initialization when that arrangement would create a recursive cycle."
+        }
+      ],
+      "children": []
+    },
+    "b-80-external-canvas-related-heading": {
+      "id": "b-80-external-canvas-related-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Related Files"
+        }
+      ],
+      "children": []
+    },
+    "b-80-external-canvas-related-docs-label": {
+      "id": "b-80-external-canvas-related-docs-label",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Docs-system seam",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": []
+    },
+    "b-80-external-canvas-related-gitmodules": {
+      "id": "b-80-external-canvas-related-gitmodules",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": ".gitmodules",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": ".gitmodules"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-80-external-canvas-related-gitmodules-gloss"
+      ]
+    },
+    "b-80-external-canvas-related-gitmodules-gloss": {
+      "id": "b-80-external-canvas-related-gitmodules-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Pins the independent Canvas and Sequence repositories under external/."
+        }
+      ],
+      "children": []
+    },
+    "b-80-external-canvas-related-boundaries": {
+      "id": "b-80-external-canvas-related-boundaries",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "import-boundaries.test.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "import-boundaries.test.ts"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-80-external-canvas-related-boundaries-gloss"
+      ]
+    },
+    "b-80-external-canvas-related-boundaries-gloss": {
+      "id": "b-80-external-canvas-related-boundaries-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Restricts pure-model imports to each neighboring project's agent-schema leaf."
+        }
+      ],
+      "children": []
+    },
+    "b-80-external-canvas-related-model": {
+      "id": "b-80-external-canvas-related-model",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/docs-model/src/components/canvas/actions/lift.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/components/canvas/actions/lift.ts"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-80-external-canvas-related-model-gloss"
+      ]
+    },
+    "b-80-external-canvas-related-model-gloss": {
+      "id": "b-80-external-canvas-related-model-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Lifts external operation descriptors into forwarded docs component actions."
+        }
+      ],
+      "children": []
+    },
+    "b-80-external-canvas-related-viewer": {
+      "id": "b-80-external-canvas-related-viewer",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/docs-viewer/src/client.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/client.tsx"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-80-external-canvas-related-viewer-gloss"
+      ]
+    },
+    "b-80-external-canvas-related-viewer-gloss": {
+      "id": "b-80-external-canvas-related-viewer-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Defines the Canvas and Sequence host-injection slots."
+        }
+      ],
+      "children": []
+    },
+    "b-80-external-canvas-related-server": {
+      "id": "b-80-external-canvas-related-server",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/docs-server/src/canvas-sidecar.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-server/src/canvas-sidecar.ts"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-80-external-canvas-related-server-gloss"
+      ]
+    },
+    "b-80-external-canvas-related-server-gloss": {
+      "id": "b-80-external-canvas-related-server-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Owns general Canvas sidecar loading, structural validation, and whole-document persistence."
+        }
+      ],
+      "children": []
+    },
+    "b-80-external-canvas-related-neighbor-label": {
+      "id": "b-80-external-canvas-related-neighbor-label",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Neighbor implementation",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": []
+    },
+    "b-80-external-canvas-related-schema": {
+      "id": "b-80-external-canvas-related-schema",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "external/canvas/packages/canvas/src/schema.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "external/canvas/packages/canvas/src/schema.ts"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-80-external-canvas-related-schema-gloss"
+      ]
+    },
+    "b-80-external-canvas-related-schema-gloss": {
+      "id": "b-80-external-canvas-related-schema-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Defines and fully validates the Canvas document."
+        }
+      ],
+      "children": []
+    },
+    "b-80-external-canvas-related-studio": {
+      "id": "b-80-external-canvas-related-studio",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "external/canvas/packages/studio/src/project-store.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "external/canvas/packages/studio/src/project-store.ts"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-80-external-canvas-related-studio-gloss"
+      ]
+    },
+    "b-80-external-canvas-related-studio-gloss": {
+      "id": "b-80-external-canvas-related-studio-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Keeps repository boards on their docs server and saves them with hash preconditions."
+        }
+      ],
+      "children": []
+    },
+    "b-80-external-canvas-related-sequence": {
+      "id": "b-80-external-canvas-related-sequence",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "external/sequence/packages/sequence/src/agent-schema.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "external/sequence/packages/sequence/src/agent-schema.ts"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-80-external-canvas-related-sequence-gloss"
+      ]
+    },
+    "b-80-external-canvas-related-sequence-gloss": {
+      "id": "b-80-external-canvas-related-sequence-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Defines the narrow Sequence operation and style-patch surface lifted into docs-model."
         }
       ],
       "children": []

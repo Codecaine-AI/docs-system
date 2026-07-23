@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "10-system-design-30-packages-60-docs-cli",
+  "id": "20-implementation-10-packages-60-docs-cli",
   "title": "docs-cli — the agent dialect",
   "root": "b-60-docs-cli-root",
   "blocks": {
@@ -9,31 +9,44 @@
       "type": "paragraph",
       "props": {},
       "children": [
-        "b-60-docs-cli-title-1",
         "b-60-docs-cli-lead-2",
-        "b-60-docs-cli-owns-heading-3",
-        "b-60-docs-cli-command-table-4",
         "b-60-docs-cli-separate-heading-5",
         "b-60-docs-cli-stable-dialect-6",
-        "b-60-docs-cli-dependencies-heading-7",
-        "b-60-docs-cli-dependencies-8",
+        "b-60-docs-cli-boundary-review-11",
+        "b-60-docs-cli-owns-heading-3",
+        "b-60-docs-cli-tree-12",
+        "b-60-docs-cli-surface-heading-13",
+        "b-60-docs-cli-surface-manifest-51",
+        "b-60-docs-cli-command-table-4",
+        "b-60-docs-cli-dialect-heading-14",
+        "b-60-docs-cli-read-surface-15",
+        "b-60-docs-cli-read-command-16",
+        "b-60-docs-cli-check-command-17",
+        "b-60-docs-cli-process-contract-18",
+        "b-60-docs-cli-integrity-heading-19",
+        "b-60-docs-cli-integrity-20",
+        "b-60-docs-cli-migration-heading-21",
+        "b-60-docs-cli-migration-22",
+        "b-60-docs-cli-migration-safety-23",
         "b-60-docs-cli-alone-heading-9",
         "b-60-docs-cli-alone-10",
-        "b-60-docs-cli-boundary-review-11"
+        "b-60-docs-cli-serve-default-24",
+        "b-60-docs-cli-serve-dev-25",
+        "b-60-docs-cli-export-26",
+        "b-60-docs-cli-dependencies-heading-7",
+        "b-60-docs-cli-dependencies-8",
+        "b-60-docs-cli-leaf-27",
+        "b-60-docs-cli-side-effects-28",
+        "b-60-docs-cli-import-firewall-29",
+        "b-60-docs-cli-related-heading-30",
+        "b-60-docs-cli-related-entry-31",
+        "b-60-docs-cli-related-audit-33",
+        "b-60-docs-cli-related-migrate-35",
+        "b-60-docs-cli-related-converter-37",
+        "b-60-docs-cli-related-serve-39",
+        "b-60-docs-cli-related-boundary-41",
+        "b-60-docs-cli-related-manifest-52"
       ]
-    },
-    "b-60-docs-cli-title-1": {
-      "id": "b-60-docs-cli-title-1",
-      "type": "heading",
-      "props": {
-        "level": 1
-      },
-      "text": [
-        {
-          "insert": "docs-cli — the Agent Dialect"
-        }
-      ],
-      "children": []
     },
     "b-60-docs-cli-lead-2": {
       "id": "b-60-docs-cli-lead-2",
@@ -47,7 +60,7 @@
           }
         },
         {
-          "insert": " is the stable agent command dialect and the human entry point for docs-system. It is the only package that exposes a binary: "
+          "insert": " is the executable dialect for agents, humans, and repository automation. Its "
         },
         {
           "insert": "docs-cli",
@@ -56,91 +69,9 @@
           }
         },
         {
-          "insert": " maps to "
-        },
-        {
-          "insert": "./src/index.ts",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " at "
-        },
-        {
-          "insert": "packages/docs-cli/src/index.ts",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-cli/src/index.ts"
-            }
-          }
-        },
-        {
-          "insert": "."
+          "insert": " binary turns document reading, discovery, integrity checks, migration, local serving, and static export into stable process calls. The package is a leaf entry point over docs-model, docs-index, and docs-workbench rather than a new document or server authority."
         }
       ],
-      "children": []
-    },
-    "b-60-docs-cli-owns-heading-3": {
-      "id": "b-60-docs-cli-owns-heading-3",
-      "type": "heading",
-      "props": {
-        "level": 2
-      },
-      "text": [
-        {
-          "insert": "What It Owns"
-        }
-      ],
-      "children": []
-    },
-    "b-60-docs-cli-command-table-4": {
-      "id": "b-60-docs-cli-command-table-4",
-      "type": "structured-table",
-      "props": {
-        "columns": [
-          "command",
-          "what it does"
-        ],
-        "density": "compact",
-        "rows": [
-          [
-            "render <path>",
-            "Renders a bundle to agent-readable markdown. An agent never parses doc.json directly."
-          ],
-          [
-            "grep <term> [pathPrefix]",
-            "Searches across bundles."
-          ],
-          [
-            "backlinks rescan [docsRoot]",
-            "Rebuilds the derived docs-index database."
-          ],
-          [
-            "links check [docsRoot]",
-            "Checks reference integrity and exits non-zero on broken references."
-          ],
-          [
-            "audit [docsRoot]",
-            "Machine-checks corpus structural standards. Errors (numbering, missing parent docs, invalid doc.json) exit non-zero; warnings are informational."
-          ],
-          [
-            "migrate [repoRoot]",
-            "Migrates markdown to bundles non-destructively by default, writing doc.json alongside .mdx sources. Deletion requires both --retire-twins and --yes-delete-markdown."
-          ],
-          [
-            "serve",
-            "Runs the workbench as a static SPA, or with --dev for HMR."
-          ],
-          [
-            "export --out <dir>",
-            "Produces a fully static read-only site."
-          ]
-        ],
-        "title": "Command surface"
-      },
       "children": []
     },
     "b-60-docs-cli-separate-heading-5": {
@@ -151,7 +82,7 @@
       },
       "text": [
         {
-          "insert": "Why It Is Its Own Package"
+          "insert": "The Cut"
         }
       ],
       "children": []
@@ -160,8 +91,8 @@
       "id": "b-60-docs-cli-stable-dialect-6",
       "type": "callout",
       "props": {
-        "kind": "Forcing constraint",
-        "title": "Keep the command dialect stable",
+        "kind": "Decision",
+        "title": "The command dialect is durable",
         "tone": "decision"
       },
       "text": [
@@ -169,7 +100,7 @@
           "insert": "Agents read with "
         },
         {
-          "insert": "docs render",
+          "insert": "docs-cli render",
           "attributes": {
             "code": true
           }
@@ -178,157 +109,22 @@
           "insert": ", discover with "
         },
         {
-          "insert": "docs grep",
+          "insert": "docs-cli grep",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": ", and verify integrity with "
+          "insert": ", and gate reference integrity with "
         },
         {
-          "insert": "docs links check",
+          "insert": "docs-cli links check",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": ". That command surface must remain scriptable and stable independently of how the app shell evolves. "
-        },
-        {
-          "insert": "docs-cli",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " is also the only package with a bin."
-        }
-      ],
-      "children": []
-    },
-    "b-60-docs-cli-dependencies-heading-7": {
-      "id": "b-60-docs-cli-dependencies-heading-7",
-      "type": "heading",
-      "props": {
-        "level": 2
-      },
-      "text": [
-        {
-          "insert": "Dependencies"
-        }
-      ],
-      "children": []
-    },
-    "b-60-docs-cli-dependencies-8": {
-      "id": "b-60-docs-cli-dependencies-8",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "It depends on "
-        },
-        {
-          "insert": "docs-model",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " for rendering, "
-        },
-        {
-          "insert": "docs-index",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "20-implementation/10-packages/20-docs-index"
-            }
-          }
-        },
-        {
-          "insert": " for backlinks/links, and "
-        },
-        {
-          "insert": "docs-workbench",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "20-implementation/10-packages/50-docs-workbench"
-            }
-          }
-        },
-        {
-          "insert": " for serve/export. Nothing depends on "
-        },
-        {
-          "insert": "docs-cli",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "; it is a leaf."
-        }
-      ],
-      "children": []
-    },
-    "b-60-docs-cli-alone-heading-9": {
-      "id": "b-60-docs-cli-alone-heading-9",
-      "type": "heading",
-      "props": {
-        "level": 2
-      },
-      "text": [
-        {
-          "insert": "Using It Alone"
-        }
-      ],
-      "children": []
-    },
-    "b-60-docs-cli-alone-10": {
-      "id": "b-60-docs-cli-alone-10",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "Agents use "
-        },
-        {
-          "insert": "render",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "grep",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", and "
-        },
-        {
-          "insert": "links check",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " constantly without starting a server. "
-        },
-        {
-          "insert": "migrate",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " is a one-time adoption tool. Host repositories invoke the CLI through their submodule mount."
+          "insert": ". Command names, arguments, stdout, and exit behavior must remain scriptable while the app shell evolves. That requirement applies whether the executable remains a separate package or moves into workbench."
         }
       ],
       "children": []
@@ -337,13 +133,13 @@
       "id": "b-60-docs-cli-boundary-review-11",
       "type": "callout",
       "props": {
-        "kind": "Boundary under review",
-        "title": "The split is not forced",
+        "kind": "Open call",
+        "title": "docs-cli may merge into docs-workbench",
         "tone": "info"
       },
       "text": [
         {
-          "insert": "Merging "
+          "insert": "The package split is a judgment call. "
         },
         {
           "insert": "docs-cli",
@@ -352,19 +148,16 @@
           }
         },
         {
-          "insert": " into "
+          "insert": " already declares "
         },
         {
-          "insert": "docs-workbench",
+          "insert": "@codecaine-ai/docs-workbench",
           "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "20-implementation/10-packages/50-docs-workbench"
-            }
+            "code": true
           }
         },
         {
-          "insert": " is a live candidate: "
+          "insert": " as a dependency, and "
         },
         {
           "insert": "serve",
@@ -382,7 +175,1161 @@
           }
         },
         {
-          "insert": " already just drive the workbench, and the two packages ship together. The current split is a judgment call between command dialect and app shell, not a forced boundary."
+          "insert": " delegate directly to it. Dynamic imports defer app loading, but the install graph is not isolated. Keeping the package preserves a named executable surface for command-only use; merging it could simplify distribution without changing that surface. No runtime incompatibility settles the choice."
+        }
+      ],
+      "children": []
+    },
+    "b-60-docs-cli-owns-heading-3": {
+      "id": "b-60-docs-cli-owns-heading-3",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Structure"
+        }
+      ],
+      "children": []
+    },
+    "b-60-docs-cli-tree-12": {
+      "id": "b-60-docs-cli-tree-12",
+      "type": "file-tree",
+      "props": {
+        "entries": [
+          {
+            "path": "packages/docs-cli/src/index.ts",
+            "note": "Argument dispatch plus render, grep, backlinks, links, serve, and export wiring."
+          },
+          {
+            "path": "packages/docs-cli/src/audit.ts",
+            "note": "Bundle-tree structural and content-convention audit."
+          },
+          {
+            "path": "packages/docs-cli/src/migrate/",
+            "note": "Markdown-family adoption pipeline."
+          },
+          {
+            "path": "packages/docs-cli/src/migrate/run.ts",
+            "note": "Tree walk, bundle placement, reports, asset copying, and opt-in twin retirement."
+          },
+          {
+            "path": "packages/docs-cli/src/migrate/mdx-to-doc.ts",
+            "note": "Frontmatter, Markdown, and MDX-component conversion into validated document blocks."
+          },
+          {
+            "path": "packages/docs-cli/src/migrate/inline-to-delta.ts",
+            "note": "Re-export of the shared browser-safe inline tokenizer."
+          },
+          {
+            "path": "packages/docs-cli/src/__tests__/",
+            "note": "Process output, exit status, read-only command, link, and audit contracts."
+          },
+          {
+            "path": "packages/docs-cli/src/migrate/__tests__/",
+            "note": "Migration conversion, rerun, fixture, and round-trip contracts."
+          }
+        ]
+      },
+      "children": []
+    },
+    "b-60-docs-cli-surface-heading-13": {
+      "id": "b-60-docs-cli-surface-heading-13",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Command Surface"
+        }
+      ],
+      "children": []
+    },
+    "b-60-docs-cli-surface-manifest-51": {
+      "id": "b-60-docs-cli-surface-manifest-51",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/docs-cli/package.json",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-cli/package.json"
+            }
+          }
+        },
+        {
+          "insert": " maps the "
+        },
+        {
+          "insert": "docs-cli",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " binary to "
+        },
+        {
+          "insert": "packages/docs-cli/src/index.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-cli/src/index.ts"
+            }
+          }
+        },
+        {
+          "insert": " and exposes importable root, audit, and migration helpers. The entrypoint dispatches argv only when executed as the CLI, so importing those helpers does not start a command."
+        }
+      ],
+      "children": []
+    },
+    "b-60-docs-cli-command-table-4": {
+      "id": "b-60-docs-cli-command-table-4",
+      "type": "interaction-surface",
+      "props": {
+        "operations": [
+          {
+            "name": "render",
+            "description": "Resolve a bundle, validate doc.json, and render agent-readable Markdown.",
+            "params": [
+              {
+                "name": "path",
+                "type": "string",
+                "required": true,
+                "description": "Bundle directory, explicit doc.json, bare *.doc.json, or docs-relative bundle path."
+              }
+            ],
+            "returns": "Markdown on stdout; exit 1 on resolution, parse, or validation failure"
+          },
+          {
+            "name": "grep",
+            "description": "Render bundles and search their Markdown line by line, case-insensitively.",
+            "params": [
+              {
+                "name": "term",
+                "type": "string",
+                "required": true
+              },
+              {
+                "name": "pathPrefix",
+                "type": "string",
+                "required": false,
+                "description": "Search root; defaults to docs."
+              }
+            ],
+            "returns": "path:line: text rows plus a match count"
+          },
+          {
+            "name": "backlinks rescan",
+            "description": "Rebuild the derived backlinks database from documents and canvas sidecars.",
+            "params": [
+              {
+                "name": "docsRoot",
+                "type": "string",
+                "required": false,
+                "description": "Defaults to ./docs."
+              }
+            ],
+            "returns": "Database path and scan totals"
+          },
+          {
+            "name": "links check",
+            "description": "Rescan references, then verify document targets and repository-relative source targets.",
+            "params": [
+              {
+                "name": "docsRoot",
+                "type": "string",
+                "required": false,
+                "description": "Defaults to ./docs."
+              }
+            ],
+            "returns": "Stale references; exit 1 when any remain"
+          },
+          {
+            "name": "audit",
+            "description": "Check numbering, parent-document structure, bundle validity, title count, image alt text, and opening paragraphs.",
+            "params": [
+              {
+                "name": "docsRoot",
+                "type": "string",
+                "required": false,
+                "description": "Defaults to ./docs."
+              }
+            ],
+            "returns": "Findings; structural errors exit 1 and warnings exit 0"
+          },
+          {
+            "name": "migrate",
+            "description": "Convert Markdown-family source files into folder bundles and write a migration report.",
+            "params": [
+              {
+                "name": "repoRoot",
+                "type": "string",
+                "required": false,
+                "description": "Discovered upward from the current directory when omitted."
+              },
+              {
+                "name": "--drafts",
+                "type": "flag",
+                "required": false,
+                "description": "Include docs/.drafts, which is exempt by default."
+              },
+              {
+                "name": "--retire-twins",
+                "type": "flag",
+                "required": false,
+                "description": "Select the separate Markdown-twin deletion branch."
+              },
+              {
+                "name": "--yes-delete-markdown",
+                "type": "flag",
+                "required": false,
+                "description": "Required confirmation for a real retirement."
+              },
+              {
+                "name": "--dry-run",
+                "type": "flag",
+                "required": false,
+                "description": "Preview retirement; the ordinary migration branch does not consume this flag."
+              }
+            ],
+            "returns": "Migration report file for conversion or JSON stdout for retirement; exit 1 on conversion failures or missing deletion confirmation"
+          },
+          {
+            "name": "serve",
+            "description": "Run the workbench API and SPA against a selected docs root.",
+            "params": [
+              {
+                "name": "--root",
+                "type": "path",
+                "required": false,
+                "description": "Defaults to docs."
+              },
+              {
+                "name": "--port",
+                "type": "integer",
+                "required": false,
+                "description": "API or combined-server port; defaults to 4800."
+              },
+              {
+                "name": "--ui-port",
+                "type": "integer",
+                "required": false,
+                "description": "Optional fixed Vite port in development mode."
+              },
+              {
+                "name": "--host",
+                "type": "string",
+                "required": false,
+                "description": "Bind address; defaults to loopback."
+              },
+              {
+                "name": "--dev / --rebuild / --theme-locked",
+                "type": "flags",
+                "required": false
+              }
+            ],
+            "returns": "Long-running workbench process"
+          },
+          {
+            "name": "export",
+            "description": "Build a read-only static workbench and its data snapshots.",
+            "params": [
+              {
+                "name": "--root",
+                "type": "path",
+                "required": false,
+                "description": "Defaults to docs."
+              },
+              {
+                "name": "--out",
+                "type": "path",
+                "required": true
+              },
+              {
+                "name": "--rebuild",
+                "type": "flag",
+                "required": false
+              }
+            ],
+            "returns": "JSON export report; exit 1 when bundle failures occur"
+          }
+        ],
+        "title": "docs-cli"
+      },
+      "children": []
+    },
+    "b-60-docs-cli-dialect-heading-14": {
+      "id": "b-60-docs-cli-dialect-heading-14",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why Stability Matters"
+        }
+      ],
+      "children": []
+    },
+    "b-60-docs-cli-read-surface-15": {
+      "id": "b-60-docs-cli-read-surface-15",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "Translation layer",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/20-translation-layer"
+            }
+          }
+        },
+        {
+          "insert": " gives agents a text-first reading surface while "
+        },
+        {
+          "insert": "doc.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " remains canonical state. The CLI makes that separation operational: automation invokes a command and consumes Markdown or findings instead of coupling itself to block-schema traversal."
+        }
+      ],
+      "children": []
+    },
+    "b-60-docs-cli-read-command-16": {
+      "id": "b-60-docs-cli-read-command-16",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Read and discovery share one renderer"
+        }
+      ],
+      "children": [
+        "b-60-docs-cli-read-command-gloss-43"
+      ]
+    },
+    "b-60-docs-cli-read-command-gloss-43": {
+      "id": "b-60-docs-cli-read-command-gloss-43",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "render",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " validates one bundle before calling docs-model's Markdown renderer. "
+        },
+        {
+          "insert": "grep",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " applies that same path across the tree, skips invalid bundles, and reports stable repository-relative locations."
+        }
+      ],
+      "children": []
+    },
+    "b-60-docs-cli-check-command-17": {
+      "id": "b-60-docs-cli-check-command-17",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Verification is process-readable"
+        }
+      ],
+      "children": [
+        "b-60-docs-cli-check-command-gloss-44"
+      ]
+    },
+    "b-60-docs-cli-check-command-gloss-44": {
+      "id": "b-60-docs-cli-check-command-gloss-44",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "links check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " fails on stale references. "
+        },
+        {
+          "insert": "audit",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " fails on structural errors but keeps convention warnings informational. Agents can gate work on exit status without scraping workbench UI state."
+        }
+      ],
+      "children": []
+    },
+    "b-60-docs-cli-process-contract-18": {
+      "id": "b-60-docs-cli-process-contract-18",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The process boundary outlives UI refactors"
+        }
+      ],
+      "children": [
+        "b-60-docs-cli-process-contract-gloss-45"
+      ]
+    },
+    "b-60-docs-cli-process-contract-gloss-45": {
+      "id": "b-60-docs-cli-process-contract-gloss-45",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Repository instructions, scripts, and agent tools depend on command vocabulary and failure semantics. They do not need to know whether serving uses one port, two ports, a rebuilt SPA, or another future shell."
+        }
+      ],
+      "children": []
+    },
+    "b-60-docs-cli-integrity-heading-19": {
+      "id": "b-60-docs-cli-integrity-heading-19",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Integrity Commands"
+        }
+      ],
+      "children": []
+    },
+    "b-60-docs-cli-integrity-20": {
+      "id": "b-60-docs-cli-integrity-20",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "backlinks rescan",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is explicit cache maintenance. "
+        },
+        {
+          "insert": "links check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " always performs that rebuild first, then accepts canonical bundle targets or legacy "
+        },
+        {
+          "insert": ".md",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": ".mdx",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " files and checks source references against the repository root. "
+        },
+        {
+          "insert": "audit",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " does not use SQLite; it classifies bundle and section directories, validates documents, and separates hard tree invariants from content conventions."
+        }
+      ],
+      "children": []
+    },
+    "b-60-docs-cli-migration-heading-21": {
+      "id": "b-60-docs-cli-migration-heading-21",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Migration Boundary"
+        }
+      ],
+      "children": []
+    },
+    "b-60-docs-cli-migration-22": {
+      "id": "b-60-docs-cli-migration-22",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Migration stays below the command dispatcher in its own directory because it is adoption machinery, not steady-state reading. The runner selects "
+        },
+        {
+          "insert": ".mdx",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": ".md",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": ".markdown",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " sources, converts them to validated blocks, places folder bundles, copies referenced local assets, and records warnings and failures. The converter keeps unknown MDX components losslessly as source-bearing blocks rather than silently dropping them."
+        }
+      ],
+      "children": []
+    },
+    "b-60-docs-cli-migration-safety-23": {
+      "id": "b-60-docs-cli-migration-safety-23",
+      "type": "callout",
+      "props": {
+        "kind": "Safety boundary",
+        "title": "Ordinary migration writes alongside sources",
+        "tone": "warning"
+      },
+      "text": [
+        {
+          "insert": "The default command creates "
+        },
+        {
+          "insert": "doc.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " bundles and a report without modifying or deleting Markdown. Retirement is a separate "
+        },
+        {
+          "insert": "--retire-twins",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " branch. A real deletion also requires "
+        },
+        {
+          "insert": "--yes-delete-markdown",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "; "
+        },
+        {
+          "insert": "--dry-run",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " previews that retirement branch and does not make the ordinary migration branch read-only."
+        }
+      ],
+      "children": []
+    },
+    "b-60-docs-cli-alone-heading-9": {
+      "id": "b-60-docs-cli-alone-heading-9",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Serving and Export"
+        }
+      ],
+      "children": []
+    },
+    "b-60-docs-cli-alone-10": {
+      "id": "b-60-docs-cli-alone-10",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "serve",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " parses and validates process flags, then dynamically imports "
+        },
+        {
+          "insert": "docs-workbench — the app",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/10-packages/50-docs-workbench"
+            }
+          }
+        },
+        {
+          "insert": ". The CLI does not duplicate the workbench server, route table, SPA builder, or export data layer."
+        }
+      ],
+      "children": []
+    },
+    "b-60-docs-cli-serve-default-24": {
+      "id": "b-60-docs-cli-serve-default-24",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Default serve composes one live host"
+        }
+      ],
+      "children": [
+        "b-60-docs-cli-serve-default-gloss-46"
+      ]
+    },
+    "b-60-docs-cli-serve-default-gloss-46": {
+      "id": "b-60-docs-cli-serve-default-gloss-46",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Workbench reuses or rebuilds the Vite SPA according to source freshness, mounts the docs-server read/write routes and store, rescans and primes backlinks, watches external filesystem edits, and serves the SPA and API on one port. Binding defaults to "
+        },
+        {
+          "insert": "127.0.0.1",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "; "
+        },
+        {
+          "insert": "--theme-locked",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " hides theme editing and refuses theme writes."
+        }
+      ],
+      "children": []
+    },
+    "b-60-docs-cli-serve-dev-25": {
+      "id": "b-60-docs-cli-serve-dev-25",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Development serve composes two processes"
+        }
+      ],
+      "children": [
+        "b-60-docs-cli-serve-dev-gloss-47"
+      ]
+    },
+    "b-60-docs-cli-serve-dev-gloss-47": {
+      "id": "b-60-docs-cli-serve-dev-gloss-47",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "--dev",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " starts the API with filesystem watching and spawns Vite with an "
+        },
+        {
+          "insert": "/api",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " proxy for hot reload. Signal handling terminates the child process with the CLI host."
+        }
+      ],
+      "children": []
+    },
+    "b-60-docs-cli-export-26": {
+      "id": "b-60-docs-cli-export-26",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "export",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " delegates to the workbench static runner. It writes a static-mode SPA plus tree, bundle, Markdown, backlink, and asset snapshots under the explicit output directory. The export builds backlinks in memory, so it does not create derived state inside the source docs tree."
+        }
+      ],
+      "children": []
+    },
+    "b-60-docs-cli-dependencies-heading-7": {
+      "id": "b-60-docs-cli-dependencies-heading-7",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Invariants and Firewalls"
+        }
+      ],
+      "children": []
+    },
+    "b-60-docs-cli-dependencies-8": {
+      "id": "b-60-docs-cli-dependencies-8",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The package depends on docs-model for validation and Markdown rendering, "
+        },
+        {
+          "insert": "docs-index — Backlinks",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/10-packages/20-docs-index"
+            }
+          }
+        },
+        {
+          "insert": " for reference maintenance, and docs-workbench for runnable serving and export. Those packages own their contracts; CLI code adapts them to argv, stdout, stderr, and exit status."
+        }
+      ],
+      "children": []
+    },
+    "b-60-docs-cli-leaf-27": {
+      "id": "b-60-docs-cli-leaf-27",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The executable remains a leaf"
+        }
+      ],
+      "children": [
+        "b-60-docs-cli-leaf-gloss-48"
+      ]
+    },
+    "b-60-docs-cli-leaf-gloss-48": {
+      "id": "b-60-docs-cli-leaf-gloss-48",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Library modules do not import docs-cli. Reusable logic belongs below it, so direct consumers can import model, index, server, viewer, or workbench helpers without starting the command parser."
+        }
+      ],
+      "children": []
+    },
+    "b-60-docs-cli-side-effects-28": {
+      "id": "b-60-docs-cli-side-effects-28",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Side effects stay command-explicit"
+        }
+      ],
+      "children": [
+        "b-60-docs-cli-side-effects-gloss-49"
+      ]
+    },
+    "b-60-docs-cli-side-effects-gloss-49": {
+      "id": "b-60-docs-cli-side-effects-gloss-49",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "render",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "grep",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " do not write. Backlink and link commands may replace only derived SQLite state. Migration, serve, and export confine writes to the selected repository, docs root, build directory, or output directory."
+        }
+      ],
+      "children": []
+    },
+    "b-60-docs-cli-import-firewall-29": {
+      "id": "b-60-docs-cli-import-firewall-29",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Host-repository imports are forbidden"
+        }
+      ],
+      "children": [
+        "b-60-docs-cli-import-firewall-gloss-50"
+      ]
+    },
+    "b-60-docs-cli-import-firewall-gloss-50": {
+      "id": "b-60-docs-cli-import-firewall-gloss-50",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The repository import-boundary test scans CLI source with the other docs packages for imports from Spectre and other host-app paths. Repository-specific project lookup stays outside the command dialect."
+        }
+      ],
+      "children": []
+    },
+    "b-60-docs-cli-related-heading-30": {
+      "id": "b-60-docs-cli-related-heading-30",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Related Files"
+        }
+      ],
+      "children": []
+    },
+    "b-60-docs-cli-related-entry-31": {
+      "id": "b-60-docs-cli-related-entry-31",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-cli/src/index.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-cli/src/index.ts"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-60-docs-cli-related-entry-gloss-32"
+      ]
+    },
+    "b-60-docs-cli-related-entry-gloss-32": {
+      "id": "b-60-docs-cli-related-entry-gloss-32",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Defines the binary dispatch and the stable command-level adapters."
+        }
+      ],
+      "children": []
+    },
+    "b-60-docs-cli-related-audit-33": {
+      "id": "b-60-docs-cli-related-audit-33",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-cli/src/audit.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-cli/src/audit.ts"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-60-docs-cli-related-audit-gloss-34"
+      ]
+    },
+    "b-60-docs-cli-related-audit-gloss-34": {
+      "id": "b-60-docs-cli-related-audit-gloss-34",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Separates failing corpus invariants from informational conventions."
+        }
+      ],
+      "children": []
+    },
+    "b-60-docs-cli-related-migrate-35": {
+      "id": "b-60-docs-cli-related-migrate-35",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-cli/src/migrate/run.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-cli/src/migrate/run.ts"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-60-docs-cli-related-migrate-gloss-36"
+      ]
+    },
+    "b-60-docs-cli-related-migrate-gloss-36": {
+      "id": "b-60-docs-cli-related-migrate-gloss-36",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Owns whole-tree migration, reporting, asset copying, and gated retirement."
+        }
+      ],
+      "children": []
+    },
+    "b-60-docs-cli-related-converter-37": {
+      "id": "b-60-docs-cli-related-converter-37",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-cli/src/migrate/mdx-to-doc.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-cli/src/migrate/mdx-to-doc.ts"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-60-docs-cli-related-converter-gloss-38"
+      ]
+    },
+    "b-60-docs-cli-related-converter-gloss-38": {
+      "id": "b-60-docs-cli-related-converter-gloss-38",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Maps frontmatter, prose, and MDX components into document blocks."
+        }
+      ],
+      "children": []
+    },
+    "b-60-docs-cli-related-serve-39": {
+      "id": "b-60-docs-cli-related-serve-39",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-workbench/src/run-serve.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/src/run-serve.ts"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-60-docs-cli-related-serve-gloss-40"
+      ]
+    },
+    "b-60-docs-cli-related-serve-gloss-40": {
+      "id": "b-60-docs-cli-related-serve-gloss-40",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Implements the production and development compositions behind serve."
+        }
+      ],
+      "children": []
+    },
+    "b-60-docs-cli-related-boundary-41": {
+      "id": "b-60-docs-cli-related-boundary-41",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "import-boundaries.test.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "import-boundaries.test.ts"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-60-docs-cli-related-boundary-gloss-42"
+      ]
+    },
+    "b-60-docs-cli-related-boundary-gloss-42": {
+      "id": "b-60-docs-cli-related-boundary-gloss-42",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Keeps the reusable command package independent of host applications."
+        }
+      ],
+      "children": []
+    },
+    "b-60-docs-cli-related-manifest-52": {
+      "id": "b-60-docs-cli-related-manifest-52",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-cli/package.json",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-cli/package.json"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-60-docs-cli-related-manifest-gloss-53"
+      ]
+    },
+    "b-60-docs-cli-related-manifest-gloss-53": {
+      "id": "b-60-docs-cli-related-manifest-gloss-53",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Declares the executable, importable helper subpaths, and lower-layer dependencies."
         }
       ],
       "children": []

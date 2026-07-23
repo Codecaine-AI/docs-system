@@ -1604,7 +1604,7 @@
           "insert": "; system docs at "
         },
         {
-          "insert": "Theming: overview",
+          "insert": "Theming",
           "attributes": {
             "reference": {
               "kind": "doc",
@@ -1836,7 +1836,7 @@
           }
         },
         {
-          "insert": " ops in the seven-op doc vocabulary ("
+          "insert": " ops in the doc-op vocabulary ("
         },
         {
           "insert": "packages/docs-model/src/doc-ops.ts",

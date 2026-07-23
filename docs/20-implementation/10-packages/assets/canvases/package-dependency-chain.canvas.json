@@ -1,0 +1,326 @@
+{
+  "schemaVersion": 1,
+  "id": "package-dependency-chain",
+  "title": "Package dependency chain",
+  "mode": "diagram",
+  "viewport": {
+    "x": 0,
+    "y": 0,
+    "zoom": 1
+  },
+  "size": {
+    "width": 1280,
+    "height": 720
+  },
+  "objects": [
+    {
+      "id": "package-dependency-chain",
+      "type": "section",
+      "label": "Package dependency chain",
+      "title": "Package dependency chain",
+      "tint": "gray",
+      "parentId": null,
+      "geometry": {
+        "x": 0,
+        "y": 0,
+        "width": 1360,
+        "height": 720
+      },
+      "style": {
+        "shape": "section"
+      },
+      "layout": {
+        "mode": "free",
+        "padding": 36,
+        "gap": 28
+      }
+    },
+    {
+      "id": "docs-cli",
+      "type": "process",
+      "label": "docs-cli\nagent dialect",
+      "parentId": "package-dependency-chain",
+      "geometry": {
+        "x": 365,
+        "y": 80,
+        "width": 250,
+        "height": 84
+      },
+      "style": {
+        "shape": "rounded-rect",
+        "fill": "#C2E5FF",
+        "stroke": "#3DADFF"
+      }
+    },
+    {
+      "id": "docs-workbench",
+      "type": "process",
+      "label": "docs-workbench\ncomposition shell",
+      "parentId": "package-dependency-chain",
+      "geometry": {
+        "x": 365,
+        "y": 224,
+        "width": 250,
+        "height": 84
+      },
+      "style": {
+        "shape": "rounded-rect",
+        "fill": "#C2E5FF",
+        "stroke": "#3DADFF"
+      }
+    },
+    {
+      "id": "docs-index",
+      "type": "process",
+      "label": "docs-index\nbacklinks",
+      "parentId": "package-dependency-chain",
+      "geometry": {
+        "x": 60,
+        "y": 368,
+        "width": 250,
+        "height": 84
+      },
+      "style": {
+        "shape": "rounded-rect",
+        "fill": "#C2E5FF",
+        "stroke": "#3DADFF"
+      }
+    },
+    {
+      "id": "docs-server",
+      "type": "process",
+      "label": "docs-server\nmutation authority",
+      "parentId": "package-dependency-chain",
+      "geometry": {
+        "x": 365,
+        "y": 368,
+        "width": 250,
+        "height": 84
+      },
+      "style": {
+        "shape": "rounded-rect",
+        "fill": "#C2E5FF",
+        "stroke": "#3DADFF"
+      }
+    },
+    {
+      "id": "docs-viewer",
+      "type": "process",
+      "label": "docs-viewer\nReact render + edit",
+      "parentId": "package-dependency-chain",
+      "geometry": {
+        "x": 670,
+        "y": 368,
+        "width": 250,
+        "height": 84
+      },
+      "style": {
+        "shape": "rounded-rect",
+        "fill": "#C2E5FF",
+        "stroke": "#3DADFF"
+      }
+    },
+    {
+      "id": "docs-model",
+      "type": "process",
+      "label": "docs-model\nthe format",
+      "parentId": "package-dependency-chain",
+      "geometry": {
+        "x": 365,
+        "y": 512,
+        "width": 250,
+        "height": 84
+      },
+      "style": {
+        "shape": "rounded-rect",
+        "fill": "#DCCCFF",
+        "stroke": "#874FFF"
+      }
+    },
+    {
+      "id": "framework",
+      "type": "process",
+      "label": "framework\nmethodology — no edges",
+      "parentId": "package-dependency-chain",
+      "geometry": {
+        "x": 1020,
+        "y": 80,
+        "width": 280,
+        "height": 84
+      },
+      "style": {
+        "shape": "rounded-rect",
+        "fill": "#E6E6E6",
+        "stroke": "#C4C4C4"
+      }
+    },
+    {
+      "id": "external-projects",
+      "type": "section",
+      "label": "external",
+      "title": "external",
+      "tint": "white",
+      "parentId": "package-dependency-chain",
+      "geometry": {
+        "x": 1000,
+        "y": 368,
+        "width": 320,
+        "height": 308
+      },
+      "style": {
+        "shape": "section"
+      },
+      "layout": {
+        "mode": "free",
+        "padding": 28,
+        "gap": 16
+      }
+    },
+    {
+      "id": "external-canvas",
+      "type": "process",
+      "label": "canvas",
+      "parentId": "external-projects",
+      "geometry": {
+        "x": 1030,
+        "y": 428,
+        "width": 260,
+        "height": 56
+      },
+      "style": {
+        "shape": "rounded-rect",
+        "fill": "#D9D9D9",
+        "stroke": "#B3B3B3"
+      }
+    },
+    {
+      "id": "external-sequence",
+      "type": "process",
+      "label": "sequence",
+      "parentId": "external-projects",
+      "geometry": {
+        "x": 1030,
+        "y": 500,
+        "width": 260,
+        "height": 56
+      },
+      "style": {
+        "shape": "rounded-rect",
+        "fill": "#D9D9D9",
+        "stroke": "#B3B3B3"
+      }
+    },
+    {
+      "id": "external-note",
+      "type": "sticky",
+      "label": "own projects, vendored under external/",
+      "parentId": "external-projects",
+      "geometry": {
+        "x": 1030,
+        "y": 572,
+        "width": 260,
+        "height": 72
+      },
+      "style": {
+        "shape": "sticky",
+        "fill": "#FFECBD",
+        "stroke": "#FFC943"
+      }
+    },
+    {
+      "id": "edge-legend",
+      "type": "text",
+      "label": "arrows read “depends on”",
+      "parentId": "package-dependency-chain",
+      "geometry": {
+        "x": 60,
+        "y": 556,
+        "width": 250,
+        "height": 40
+      }
+    }
+  ],
+  "connections": [
+    {
+      "id": "dep-index-model",
+      "from": { "objectId": "docs-index", "anchor": "bottom" },
+      "to": { "objectId": "docs-model", "anchor": "left", "position": [0, 0.65] },
+      "style": "elbow",
+      "arrow": "forward"
+    },
+    {
+      "id": "dep-server-index",
+      "from": { "objectId": "docs-server", "anchor": "left" },
+      "to": { "objectId": "docs-index", "anchor": "right" },
+      "style": "elbow",
+      "arrow": "forward"
+    },
+    {
+      "id": "dep-server-model",
+      "from": { "objectId": "docs-server", "anchor": "bottom" },
+      "to": { "objectId": "docs-model", "anchor": "top" },
+      "style": "elbow",
+      "arrow": "forward"
+    },
+    {
+      "id": "dep-viewer-model",
+      "from": { "objectId": "docs-viewer", "anchor": "bottom" },
+      "to": { "objectId": "docs-model", "anchor": "right", "position": [1, 0.35] },
+      "style": "elbow",
+      "arrow": "forward"
+    },
+    {
+      "id": "dep-workbench-index",
+      "from": { "objectId": "docs-workbench", "anchor": "bottom", "position": [0.15, 1] },
+      "to": { "objectId": "docs-index", "anchor": "top", "position": [0.75, 0] },
+      "style": "elbow",
+      "arrow": "forward"
+    },
+    {
+      "id": "dep-workbench-server",
+      "from": { "objectId": "docs-workbench", "anchor": "bottom" },
+      "to": { "objectId": "docs-server", "anchor": "top" },
+      "style": "elbow",
+      "arrow": "forward"
+    },
+    {
+      "id": "dep-workbench-viewer",
+      "from": { "objectId": "docs-workbench", "anchor": "bottom", "position": [0.85, 1] },
+      "to": { "objectId": "docs-viewer", "anchor": "top" },
+      "style": "elbow",
+      "arrow": "forward"
+    },
+    {
+      "id": "dep-workbench-model",
+      "from": { "objectId": "docs-workbench", "anchor": "left" },
+      "to": { "objectId": "docs-model", "anchor": "left", "position": [0, 0.3] },
+      "style": "elbow",
+      "arrow": "forward",
+      "waypoints": [[338, 266], [338, 537]]
+    },
+    {
+      "id": "dep-cli-workbench",
+      "from": { "objectId": "docs-cli", "anchor": "bottom" },
+      "to": { "objectId": "docs-workbench", "anchor": "top" },
+      "style": "elbow",
+      "arrow": "forward"
+    },
+    {
+      "id": "dep-cli-index",
+      "from": { "objectId": "docs-cli", "anchor": "left" },
+      "to": { "objectId": "docs-index", "anchor": "top", "position": [0.5, 0] },
+      "style": "elbow",
+      "arrow": "forward",
+      "waypoints": [[185, 122]]
+    },
+    {
+      "id": "dep-cli-model",
+      "from": { "objectId": "docs-cli", "anchor": "right" },
+      "to": { "objectId": "docs-model", "anchor": "right", "position": [1, 0.7] },
+      "style": "elbow",
+      "arrow": "forward",
+      "waypoints": [[955, 122], [955, 571]]
+    }
+  ],
+  "annotations": []
+}

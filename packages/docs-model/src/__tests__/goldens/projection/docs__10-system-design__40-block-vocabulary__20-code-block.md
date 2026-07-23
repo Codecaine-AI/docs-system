@@ -20,6 +20,29 @@ export function requireRoot(doc: DocDocument): DocBlock {
 
 ## State Schema
 
+**CodeState** — packages/docs-model/src/components/code/state.ts#CodeState
+
+```
+language?: string  # Fence tag for highlighting and the header label, e.g. "json", "ts".
+annotations?: CodeAnnotation[]  # Line annotations, each keyed by its exact lines string.
+  lines: string  # 1-indexed range string — "4", "4-9", "1,4-6" — and the entry's identity key.
+  label?: string  # Short heading on the note.
+  note: string  # The annotation body.
+```
+
+```json
+{
+  "language": "typescript",
+  "annotations": [
+    {
+      "lines": "3-5",
+      "label": "Guard",
+      "note": "Rejects a document whose root pointer names no block."
+    }
+  ]
+}
+```
+
 The type declares `carriesText: true` in `packages/docs-model/src/components/code/state.ts`: the delta text is the source payload itself, not prose. The editor schema sets `marks: ""` on the node (`packages/docs-viewer/src/components/code/editor-nodes.ts`), so the spans are plain inserts — no bold, link, or reference marks inside code. Everything else is props, defined by two closed TypeBox schemas:
 
 ```typescript
@@ -38,11 +61,6 @@ export const codeState: BlockStateDefinition = { schema: CodeState, carriesText:
 > **L1-4 (Annotation shape):** lines and note are required strings, label optional. Closed object: an unknown key is a validation refusal, not a pass-through.
 > **L6-9 (Block props):** Both props optional — a bare code block is valid. Every write revalidates the array items against the annotation shape.
 > **L11 (Text carrier):** carriesText: true — the one non-prose text carrier in the vocabulary.
-
-| prop | type | required | notes |
-| --- | --- | --- | --- |
-| language | string | no | Fence tag for highlighting and the header label, e.g. "json", "ts". Written by the editor's language picker. |
-| annotations | array | no | Array of { lines, label?, note }: lines is a 1-indexed range string and the entry's identity key, label an optional short heading on the note, note the annotation body. |
 
 ### Line Ranges
 
@@ -219,7 +237,7 @@ On the agent surface (`packages/docs-model/src/components/code/agent-view.ts`) t
 
 ## Theme
 
-The theme file is `themes/default/components/code.json` in a theme folder (`themes/<id>/`). Every value is one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY` in `packages/docs-workbench/web/src/theme/theme-folders.ts`. The contract element is Theming.
+The theme file is `themes/default/components/code.json` in a theme folder (`themes/<id>/`; the system is Theming). Every value is one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY` in `packages/docs-workbench/web/src/theme/theme-folders.ts`. The contract element is Theming.
 
 | Key | CSS variable | Kind | Styles |
 | --- | --- | --- | --- |
@@ -256,7 +274,7 @@ The theme file is `themes/default/components/code.json` in a theme folder (`them
 
 The family uses the default adapter: no agent of its own, and nothing forwards to an external authority — both typed actions carry a local `apply`. The contract element is Agent adapter.
 
-- An agent edit arrives as a `componentAction` op — the seventh op in the vocabulary, alongside `insertBlock`, `updateBlock`, `deleteBlock`, `moveBlock`, `splitBlock`, and `mergeBlocks`.
+- An agent edit arrives as a `componentAction` op — one of the generic doc ops, alongside `insertBlock`, `updateBlock`, `deleteBlock`, `moveBlock`, `splitBlock`, and `mergeBlocks`.
 
 - The op kernel (`packages/docs-model/src/doc-ops.ts`) resolves the action from the registry, validates its params, runs `apply` against the target block, and executes the returned `{ annotations }` patch through the existing `updateBlock` path.
 

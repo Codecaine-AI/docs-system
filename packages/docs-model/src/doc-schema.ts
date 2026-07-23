@@ -7,19 +7,18 @@ import { validateSpectreRef } from "./spectre-ref";
  * doc.json schema (design record §9.2, D24/D25/D28):
  * - Normalized tree: flat id-keyed `blocks` map + ordered `children` ids.
  * - Rich text as Delta JSON spans (D24), references as shared SpectreRef (D27).
- * - A block's kind field is `type`. The BlockSuite-heritage key `flavour` is
- *   accepted on READ as a legacy alias (normalized into `type`) so older
- *   bundles — e.g. the canvas sibling project's docs — keep validating;
- *   writes always emit canonical `type`.
- * - LEGACY TYPE COERCION: after the `flavour` aliasing above, any block whose
- *   type is a string but NOT one of the 17 canonical types coerces to a
- *   `callout` instead of failing validation. The retired/unknown type name is
- *   preserved as `props.kind` (unless the block already carries a non-empty
- *   string `props.kind` of its own); props, text, and children carry over
- *   verbatim. This is deliberate resilience: it migrates the canvas sibling's
- *   semantic-card blocks (requirement/decision/constraint/...) and its
- *   never-in-schema legacy blocks (overview/design/reference) with zero file
- *   rewrites — blocks canonicalize to the coerced form on next save.
+ * - A block's kind field is `type` — the only accepted key. (The
+ *   BlockSuite-heritage `flavour` key was fully retired; a block carrying it
+ *   fails validation.)
+ * - LEGACY TYPE COERCION: any block whose type is a string but NOT one of
+ *   the canonical types coerces to a `callout` instead of failing
+ *   validation. The retired/unknown type name is preserved as `props.kind`
+ *   (unless the block already carries a non-empty string `props.kind` of its
+ *   own); props, text, and children carry over verbatim. This is deliberate
+ *   resilience: it migrates the canvas sibling's semantic-card blocks
+ *   (requirement/decision/constraint/...) and its never-in-schema legacy
+ *   blocks (overview/design/reference) with zero file rewrites — blocks
+ *   canonicalize to the coerced form on next save.
  */
 
 export const DOC_BLOCK_TYPES = [
@@ -37,7 +36,6 @@ export const DOC_BLOCK_TYPES = [
   "interaction-surface",
   "state-shape",
   // diagram & media
-  "mermaid",
   "canvas",
   "sequence",
   "image",
@@ -46,12 +44,6 @@ export const DOC_BLOCK_TYPES = [
 ] as const;
 
 export type DocBlockType = (typeof DOC_BLOCK_TYPES)[number];
-
-/** @deprecated Use DOC_BLOCK_TYPES. */
-export const DOC_BLOCK_FLAVOURS = DOC_BLOCK_TYPES;
-
-/** @deprecated Use DocBlockType. */
-export type DocBlockFlavour = DocBlockType;
 
 export type DeltaSpanAttributes = {
   bold?: true;
@@ -105,9 +97,6 @@ const BLOCK_TYPE_SET: ReadonlySet<string> = new Set(DOC_BLOCK_TYPES);
 export function isDocBlockType(value: unknown): value is DocBlockType {
   return typeof value === "string" && BLOCK_TYPE_SET.has(value);
 }
-
-/** @deprecated Use isDocBlockType. */
-export const isDocBlockFlavour = isDocBlockType;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === "object" && !Array.isArray(value);
@@ -184,10 +173,10 @@ function validateDeltaSpans(
 /**
  * Pure structural validation (no throw, canvas-schema style):
  * - schemaVersion / id / root / blocks shape,
- * - block ids match their map key, block types known (legacy `flavour` key
- *   normalized into `type` on read; retired/unknown string types coerce to
- *   `callout` with the type name preserved as `props.kind` — see module
- *   header), children are id arrays,
+ * - block ids match their map key, block types known (retired/unknown string
+ *   types coerce to `callout` with the type name preserved as `props.kind` —
+ *   see module header; the retired `flavour` key is rejected), children are
+ *   id arrays,
  * - root exists in blocks,
  * - no orphan child references (every child id resolves),
  * - no shared children (a block reachable from two parents),
@@ -236,20 +225,16 @@ export function validateDocDocument(value: unknown): DocValidationResult {
       });
       continue;
     }
-    // Canonical kind key is `type`; the BlockSuite-heritage `flavour` key is
-    // accepted as a READ alias and normalized. Both present must agree.
-    if (
-      rawBlock.type !== undefined &&
-      rawBlock.flavour !== undefined &&
-      rawBlock.type !== rawBlock.flavour
-    ) {
+    // Canonical kind key is `type`; the retired BlockSuite-heritage
+    // `flavour` key is rejected outright.
+    if (rawBlock.flavour !== undefined) {
       issues.push({
-        path: `${path}.type`,
-        message: `Block "type" (${String(rawBlock.type)}) conflicts with legacy "flavour" (${String(rawBlock.flavour)}).`,
+        path: `${path}.flavour`,
+        message: `Retired "flavour" key is not accepted; use "type".`,
       });
       continue;
     }
-    const rawType = rawBlock.type !== undefined ? rawBlock.type : rawBlock.flavour;
+    const rawType = rawBlock.type;
     if (typeof rawType !== "string" || rawType.length === 0) {
       issues.push({
         path: `${path}.type`,

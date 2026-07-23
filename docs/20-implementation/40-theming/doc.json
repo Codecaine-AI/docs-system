@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "20-implementation-40-theming",
-  "title": "Theming: overview",
+  "title": "Theming: Overview",
   "root": "b-theming-overview-root",
   "blocks": {
     "b-theming-overview-root": {
@@ -9,16 +9,12 @@
       "type": "paragraph",
       "props": {},
       "children": [
-        "b-theming-overview-title-1",
         "b-theming-overview-intent-2",
-        "b-theming-overview-layers-heading-3",
-        "b-theming-overview-layers-table-4",
-        "b-theming-overview-layers-order-5",
         "b-theming-overview-tiers-heading-6",
         "b-theming-overview-tier-palette-7",
         "b-theming-overview-tier-semantic-8",
         "b-theming-overview-tier-consumption-9",
-        "b-theming-overview-tiers-rule-10",
+        "b-theming-overview-layers-order-5",
         "b-theming-overview-files-heading-11",
         "b-theming-overview-files-tree-12",
         "b-theming-overview-section-heading-13",
@@ -28,86 +24,34 @@
         "b-theming-overview-section-system-17"
       ]
     },
-    "b-theming-overview-title-1": {
-      "id": "b-theming-overview-title-1",
-      "type": "heading",
-      "props": {
-        "level": 1
-      },
-      "text": [
-        {
-          "insert": "Theming: Overview"
-        }
-      ],
-      "children": []
-    },
     "b-theming-overview-intent-2": {
       "id": "b-theming-overview-intent-2",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "Theming is a first-class feature of the workbench: every visual decision resolves through one canonical token contract, so the whole system — colors, fonts, editor controls — restyles without touching component code. This section lays out the structure: who decides what, where each file lives, and exactly what can and cannot be changed."
-        }
-      ],
-      "children": []
-    },
-    "b-theming-overview-layers-heading-3": {
-      "id": "b-theming-overview-layers-heading-3",
-      "type": "heading",
-      "props": {
-        "level": 2
-      },
-      "text": [
+          "insert": "The theming implementation compiles repository theme folders and normalized style-rail state into CSS custom properties on "
+        },
         {
-          "insert": "Who Decides What"
-        }
-      ],
-      "children": []
-    },
-    "b-theming-overview-layers-table-4": {
-      "id": "b-theming-overview-layers-table-4",
-      "type": "structured-table",
-      "props": {
-        "columns": [
-          "Layer",
-          "Who sets it",
-          "Examples",
-          "Where"
-        ],
-        "rows": [
-          [
-            "System UI",
-            "The system — deliberately NOT themable",
-            "Sidebar width, rail width, header heights",
-            "Component code (see System UI)"
-          ],
-          [
-            "Theme",
-            "A selected theme folder (global built-in or repo custom)",
-            "Palette, component tokens, font stacks, rail defaults",
-            "themes/<id>/ (see Global themes)"
-          ],
-          [
-            "User overlay",
-            "The style rail's knobs, per user, on top of the theme",
-            "Accent, fonts, layout metrics, highlight/grip tuning",
-            "localStorage blob (see System UI for the knob map)"
-          ]
-        ]
-      },
-      "children": []
-    },
-    "b-theming-overview-layers-order-5": {
-      "id": "b-theming-overview-layers-order-5",
-      "type": "callout",
-      "props": {
-        "title": "Precedence",
-        "tone": "info"
-      },
-      "text": [
+          "insert": "<html>",
+          "attributes": {
+            "code": true
+          }
+        },
         {
-          "insert": "Theme files define; the user overlay overrides; the system UI is out of reach of both. A rail knob at its default removes its override, so the theme (and below it, the default token files) stays authoritative."
+          "insert": ". It owns loading, validation, precedence, persistence, and font-stack application. The designed token roles and customization boundary live in "
+        },
+        {
+          "insert": "Visual System",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system"
+            }
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []
@@ -120,7 +64,7 @@
       },
       "text": [
         {
-          "insert": "The Three Token Tiers"
+          "insert": "Runtime Pipeline"
         }
       ],
       "children": []
@@ -131,25 +75,47 @@
       "props": {},
       "text": [
         {
-          "insert": "Palette — "
-        },
+          "insert": "Base styles"
+        }
+      ],
+      "children": [
+        "b-theming-overview-tier-palette-7-gloss"
+      ]
+    },
+    "b-theming-overview-tier-palette-7-gloss": {
+      "id": "b-theming-overview-tier-palette-7-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
-          "insert": "theme/notion-palette.css",
+          "insert": "notion-palette.css",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": ". Raw color values as "
+          "insert": " defines mode-specific raw variables. "
         },
         {
-          "insert": "--color-*",
+          "insert": "semantic.css",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " variables, defined twice: a light block and a dark block. The only place raw hex/rgba theme colors are allowed."
+          "insert": " maps them to the semantic variables specified by "
+        },
+        {
+          "insert": "Tokens",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/10-tokens"
+            }
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []
@@ -160,34 +126,26 @@
       "props": {},
       "text": [
         {
-          "insert": "Semantic tokens — "
-        },
+          "insert": "Theme-folder layer"
+        }
+      ],
+      "children": [
+        "b-theming-overview-tier-semantic-8-gloss"
+      ]
+    },
+    "b-theming-overview-tier-semantic-8-gloss": {
+      "id": "b-theming-overview-tier-semantic-8-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
-          "insert": "theme/semantic.css",
+          "insert": "theme-folders.ts",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": ". Per-surface meaning mapped from palette variables, in both theme blocks. Component tokens follow "
-        },
-        {
-          "insert": "--docs-<component>-<part>",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " (for example "
-        },
-        {
-          "insert": "--docs-inline-code-fg",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "). Every new themable property gets a token here — never a literal at a use site."
+          "insert": " filters a folder through the closed registry, resolves its base chain, and compiles light and dark declarations into one injected style element."
         }
       ],
       "children": []
@@ -198,39 +156,77 @@
       "props": {},
       "text": [
         {
-          "insert": "Consumption — "
-        },
+          "insert": "Runtime overlay"
+        }
+      ],
+      "children": [
+        "b-theming-overview-tier-consumption-9-gloss"
+      ]
+    },
+    "b-theming-overview-tier-consumption-9-gloss": {
+      "id": "b-theming-overview-tier-consumption-9-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
-          "insert": "index.css",
+          "insert": "normalizeSettings",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " and docs-viewer components reference tier-2 tokens only. docs-viewer's Tailwind classes may carry a neutral literal fallback inside "
+          "insert": " produces a complete settings object. "
         },
         {
-          "insert": "var()",
+          "insert": "styleRailVars",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " (the package renders in hosts without this stylesheet); the workbench always defines the token, so fallbacks never win here."
+          "insert": " converts it to a CSS-variable map, and "
+        },
+        {
+          "insert": "applyStyleRailVars",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " writes non-null values as inline properties on the root element."
         }
       ],
       "children": []
     },
-    "b-theming-overview-tiers-rule-10": {
-      "id": "b-theming-overview-tiers-rule-10",
+    "b-theming-overview-layers-order-5": {
+      "id": "b-theming-overview-layers-order-5",
       "type": "callout",
       "props": {
-        "title": "The one rule",
+        "kind": "Implementation invariant",
+        "title": "Null removes the overlay",
         "tone": "info"
       },
       "text": [
         {
-          "insert": "Consumers never branch on light versus dark. A mode flip only swaps the tier 1 and tier 2 definitions; everything downstream re-resolves automatically."
+          "insert": "A "
+        },
+        {
+          "insert": "null",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " entry from "
+        },
+        {
+          "insert": "styleRailVars",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " removes that inline property. The selected theme layer or base stylesheet becomes authoritative without a second reset path."
         }
       ],
       "children": []
@@ -243,7 +239,7 @@
       },
       "text": [
         {
-          "insert": "Where the Files Live"
+          "insert": "Structure"
         }
       ],
       "children": []
@@ -254,28 +250,32 @@
       "props": {
         "entries": [
           {
-            "path": "theme/notion-palette.css",
-            "note": "tier 1 — raw colors, light + dark"
+            "path": "packages/docs-workbench/web/src/theme/notion-palette.css",
+            "note": "raw light and dark variables"
           },
           {
-            "path": "theme/semantic.css",
-            "note": "tier 2 — the canonical contract (see its header)"
+            "path": "packages/docs-workbench/web/src/theme/semantic.css",
+            "note": "base semantic-variable layer"
           },
           {
-            "path": "theme/theme-folders.ts",
-            "note": "theme-folder loader: token registry, base chains, CSS compile"
+            "path": "packages/docs-workbench/web/src/theme/theme-folders.ts",
+            "note": "registry, tolerant reader, base resolution, and CSS compiler"
           },
           {
-            "path": "index.css",
-            "note": "tier 3 — app CSS consuming tokens; :root font defaults"
+            "path": "packages/docs-workbench/web/src/shell/StyleRail.tsx",
+            "note": "settings normalization and settings-to-variable conversion"
           },
           {
-            "path": "shell/StyleRail.tsx",
-            "note": "the user overlay: knobs, theme picker, export/import"
+            "path": "packages/docs-workbench/web/src/shell/App.tsx",
+            "note": "theme selection, boot hydration, DOM application, and Default autosave"
           },
           {
-            "path": "../../../../themes/",
-            "note": "repo custom theme folders (see Global themes)"
+            "path": "packages/docs-server/src/themes.ts",
+            "note": "repository-folder reads and writes"
+          },
+          {
+            "path": "themes/default/",
+            "note": "durable Default manifest and sparse component overrides"
           }
         ]
       },
@@ -300,7 +300,13 @@
       "props": {},
       "text": [
         {
-          "insert": "Global themes"
+          "insert": "Global themes",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/40-theming/10-global-themes"
+            }
+          }
         }
       ],
       "children": [
@@ -313,7 +319,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The theme-folder format, built-ins, selection semantics, save-as."
+          "insert": "Folder resolution, selection state, Default autosave, and fresh-profile hydration."
         }
       ],
       "children": []
@@ -324,7 +330,13 @@
       "props": {},
       "text": [
         {
-          "insert": "Component themes"
+          "insert": "Component themes",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/40-theming/20-component-themes"
+            }
+          }
         }
       ],
       "children": [
@@ -337,7 +349,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The per-surface token files and the closed registry that validates them."
+          "insert": "The closed registry, tolerant folder validation, CSS compilation, and sparse override files."
         }
       ],
       "children": []
@@ -348,7 +360,13 @@
       "props": {},
       "text": [
         {
-          "insert": "Fonts"
+          "insert": "Fonts",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/40-theming/30-fonts"
+            }
+          }
         }
       ],
       "children": [
@@ -361,7 +379,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Per-surface font tokens and custom font loading."
+          "insert": "How manifest and rail font settings reach CSS, plus the current font-file loading boundary."
         }
       ],
       "children": []
@@ -372,7 +390,13 @@
       "props": {},
       "text": [
         {
-          "insert": "System UI"
+          "insert": "Style rail runtime",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/40-theming/40-system-ui"
+            }
+          }
         }
       ],
       "children": [
@@ -385,7 +409,7 @@
       "props": {},
       "text": [
         {
-          "insert": "What is deliberately fixed, and the full map of every style-rail knob."
+          "insert": "The normalized settings pipeline, root-property application, and persistence authority."
         }
       ],
       "children": []

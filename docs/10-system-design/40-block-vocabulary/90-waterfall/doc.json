@@ -144,7 +144,6 @@
         {
           "insert": "packages/docs-model/src/components/waterfall/",
           "attributes": {
-            "code": true,
             "reference": {
               "kind": "source",
               "path": "packages/docs-model/src/components/waterfall"
@@ -168,7 +167,6 @@
         {
           "insert": "packages/docs-viewer/src/components/waterfall/",
           "attributes": {
-            "code": true,
             "reference": {
               "kind": "source",
               "path": "packages/docs-viewer/src/components/waterfall"
@@ -438,7 +436,6 @@
         {
           "insert": "packages/docs-model/src/components/waterfall/lib.ts",
           "attributes": {
-            "code": true,
             "reference": {
               "kind": "source",
               "path": "packages/docs-model/src/components/waterfall/lib.ts"
@@ -513,7 +510,8 @@
       ],
       "children": [
         "b-90-waterfall-not-indent-1",
-        "b-90-waterfall-not-indent-2"
+        "b-90-waterfall-not-indent-2",
+        "pm-mrwee4hr-1-fhp9oc"
       ]
     },
     "b-90-waterfall-not-indent-1": {
@@ -534,6 +532,17 @@
       "text": [
         {
           "insert": "Irregular indentation still nests, and a depth already assigned never changes when a new width appears later."
+        }
+      ],
+      "children": []
+    },
+    "pm-mrwee4hr-1-fhp9oc": {
+      "id": "pm-mrwee4hr-1-fhp9oc",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "/"
         }
       ],
       "children": []
@@ -722,7 +731,6 @@
         {
           "insert": "packages/docs-model/src/components/waterfall/state.ts",
           "attributes": {
-            "code": true,
             "reference": {
               "kind": "source",
               "path": "packages/docs-model/src/components/waterfall/state.ts"
@@ -1055,7 +1063,6 @@
         {
           "insert": "packages/docs-model/src/components/waterfall/actions/",
           "attributes": {
-            "code": true,
             "reference": {
               "kind": "source",
               "path": "packages/docs-model/src/components/waterfall/actions"
@@ -1225,7 +1232,6 @@
         {
           "insert": "packages/docs-viewer/src/components/waterfall/WaterfallDocsBlock.tsx",
           "attributes": {
-            "code": true,
             "reference": {
               "kind": "source",
               "path": "packages/docs-viewer/src/components/waterfall/WaterfallDocsBlock.tsx"
@@ -1679,7 +1685,6 @@
         {
           "insert": "editor-nodes.ts",
           "attributes": {
-            "code": true,
             "reference": {
               "kind": "source",
               "path": "packages/docs-viewer/src/components/waterfall/editor-nodes.ts"
@@ -1728,7 +1733,6 @@
         {
           "insert": "agent-view.ts",
           "attributes": {
-            "code": true,
             "reference": {
               "kind": "source",
               "path": "packages/docs-model/src/components/waterfall/agent-view.ts"
@@ -1893,7 +1897,6 @@
         {
           "insert": "packages/docs-workbench/web/src/theme/semantic.css",
           "attributes": {
-            "code": true,
             "reference": {
               "kind": "source",
               "path": "packages/docs-workbench/web/src/theme/semantic.css"
@@ -1981,7 +1984,6 @@
         {
           "insert": "theme-folders.ts",
           "attributes": {
-            "code": true,
             "reference": {
               "kind": "source",
               "path": "packages/docs-workbench/web/src/theme/theme-folders.ts"
@@ -2238,7 +2240,6 @@
         {
           "insert": "packages/docs-model/src/doc-ops.ts",
           "attributes": {
-            "code": true,
             "reference": {
               "kind": "source",
               "path": "packages/docs-model/src/doc-ops.ts"

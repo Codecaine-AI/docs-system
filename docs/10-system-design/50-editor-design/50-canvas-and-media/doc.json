@@ -1,0 +1,752 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-50-editor-design-50-canvas-and-media",
+  "title": "Canvas and Media",
+  "root": "b-cmed-root",
+  "blocks": {
+    "b-cmed-root": {
+      "id": "b-cmed-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-cmed-intro",
+        "b-cmed-structure-h",
+        "b-cmed-structure-lead",
+        "b-cmed-flow-file",
+        "b-cmed-flow-inline",
+        "b-cmed-flow-viewer",
+        "b-cmed-flow-studio",
+        "b-cmed-media-lead",
+        "b-cmed-media-video",
+        "b-cmed-media-image",
+        "b-cmed-rule-h",
+        "b-cmed-rule-inline",
+        "b-cmed-rule-viewer",
+        "b-cmed-rule-file",
+        "b-cmed-rule-video",
+        "b-cmed-rule-image",
+        "b-cmed-image-open",
+        "b-cmed-why-h",
+        "b-cmed-why-reading",
+        "b-cmed-why-exploration",
+        "b-cmed-why-host",
+        "b-cmed-why-file",
+        "b-cmed-why-media"
+      ]
+    },
+    "b-cmed-intro": {
+      "id": "b-cmed-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Canvas and media define how visual artifacts sit in the document's reading flow. A "
+        },
+        {
+          "insert": "canvas",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/80-canvas"
+            }
+          }
+        },
+        {
+          "insert": " is inert and image-like inline, then expands into an in-app viewer when a reader chooses to explore; "
+        },
+        {
+          "insert": "video",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/10-rich-text/17-video"
+            }
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "image",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/10-rich-text/16-image"
+            }
+          }
+        },
+        {
+          "insert": " keep medium-specific behavior. Their block-vocabulary pages own state schemas, actions, and agent renderers; this page owns the surrounding presentation and interaction contract."
+        }
+      ],
+      "children": []
+    },
+    "b-cmed-structure-h": {
+      "id": "b-cmed-structure-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Structure"
+        }
+      ],
+      "children": []
+    },
+    "b-cmed-structure-lead": {
+      "id": "b-cmed-structure-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "One board file stays authoritative across three rendered surfaces:"
+        }
+      ],
+      "children": []
+    },
+    "b-cmed-flow-file": {
+      "id": "b-cmed-flow-file",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Canonical board file",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-cmed-flow-file-detail"
+      ]
+    },
+    "b-cmed-flow-file-detail": {
+      "id": "b-cmed-flow-file-detail",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A bundle-local canvas sidecar in the docs repo remains the source of truth for reading and editing."
+        }
+      ],
+      "children": []
+    },
+    "b-cmed-flow-inline": {
+      "id": "b-cmed-flow-inline",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Inline preview",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-cmed-flow-inline-detail"
+      ]
+    },
+    "b-cmed-flow-inline-detail": {
+      "id": "b-cmed-flow-inline-detail",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The selected view renders as a static figure in the document flow; clicking it requests exploration."
+        }
+      ],
+      "children": []
+    },
+    "b-cmed-flow-viewer": {
+      "id": "b-cmed-flow-viewer",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Full-Screen Viewer",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-cmed-flow-viewer-detail"
+      ]
+    },
+    "b-cmed-flow-viewer-detail": {
+      "id": "b-cmed-flow-viewer-detail",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A same-window dialog opens the same board and view as an explorable pan-and-zoom surface."
+        }
+      ],
+      "children": []
+    },
+    "b-cmed-flow-studio": {
+      "id": "b-cmed-flow-studio",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Canvas Studio",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-cmed-flow-studio-detail"
+      ]
+    },
+    "b-cmed-flow-studio-detail": {
+      "id": "b-cmed-flow-studio-detail",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The authoring handoff opens the same sidecar in a new Studio tab."
+        }
+      ],
+      "children": []
+    },
+    "b-cmed-media-lead": {
+      "id": "b-cmed-media-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Images and videos stay in the document instead of passing through the canvas viewer:"
+        }
+      ],
+      "children": []
+    },
+    "b-cmed-media-video": {
+      "id": "b-cmed-media-video",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Video",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-cmed-media-video-detail"
+      ]
+    },
+    "b-cmed-media-video-detail": {
+      "id": "b-cmed-media-video-detail",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Known providers supply their player, local files use native playback, and other URLs remain links."
+        }
+      ],
+      "children": []
+    },
+    "b-cmed-media-image": {
+      "id": "b-cmed-media-image",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Image",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-cmed-media-image-detail"
+      ]
+    },
+    "b-cmed-media-image-detail": {
+      "id": "b-cmed-media-image-detail",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "One picture and its optional caption render as a simple figure."
+        }
+      ],
+      "children": []
+    },
+    "b-cmed-rule-h": {
+      "id": "b-cmed-rule-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The Rule"
+        }
+      ],
+      "children": []
+    },
+    "b-cmed-rule-inline": {
+      "id": "b-cmed-rule-inline",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Canvas stays image-like inline",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-cmed-rule-inline-static",
+        "b-cmed-rule-inline-size",
+        "b-cmed-rule-inline-frame",
+        "b-cmed-rule-inline-annotate"
+      ]
+    },
+    "b-cmed-rule-inline-static": {
+      "id": "b-cmed-rule-inline-static",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The inline rendered diagram is inert. It does not expose object focus or capture object clicks, drag, pan, or zoom; the whole surface opens the viewer."
+        }
+      ],
+      "children": []
+    },
+    "b-cmed-rule-inline-size": {
+      "id": "b-cmed-rule-inline-size",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The selected view determines the natural aspect ratio, clamped from 6:16 portrait through 4:1 wide, with a 200px minimum height. A forced letterbox is not part of the surface."
+        }
+      ],
+      "children": []
+    },
+    "b-cmed-rule-inline-frame": {
+      "id": "b-cmed-rule-inline-frame",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The inline diagram has no header, badge, board id, card, or wrapper title chip. The document host supplies one border around the bare diagram."
+        }
+      ],
+      "children": []
+    },
+    "b-cmed-rule-inline-annotate": {
+      "id": "b-cmed-rule-inline-annotate",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Annotation targeting is the one inline-interactivity exception. Object clicks remain live only while the reader is choosing a canvas target; the separate maximize action stays available."
+        }
+      ],
+      "children": []
+    },
+    "b-cmed-rule-viewer": {
+      "id": "b-cmed-rule-viewer",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Expanded canvas is an in-app exploration surface",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-cmed-rule-viewer-fit",
+        "b-cmed-rule-viewer-controls",
+        "b-cmed-rule-viewer-host",
+        "b-cmed-rule-viewer-close"
+      ]
+    },
+    "b-cmed-rule-viewer-fit": {
+      "id": "b-cmed-rule-viewer-fit",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The initial viewport fits the same named view crop the reader opened inline."
+        }
+      ],
+      "children": []
+    },
+    "b-cmed-rule-viewer-controls": {
+      "id": "b-cmed-rule-viewer-controls",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Plain drag and wheel pan. Pinch or a modified wheel gesture zooms. Zoom-out, zoom-level-to-100%, and zoom-in controls remain over the diagram."
+        }
+      ],
+      "children": []
+    },
+    "b-cmed-rule-viewer-host": {
+      "id": "b-cmed-rule-viewer-host",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The dialog owns the only header; the viewer remains a bare diagram surface. Canvas preview and exploration never nest Studio or another canvas application in an iframe."
+        }
+      ],
+      "children": []
+    },
+    "b-cmed-rule-viewer-close": {
+      "id": "b-cmed-rule-viewer-close",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Escape or the close action returns to the same place in the document."
+        }
+      ],
+      "children": []
+    },
+    "b-cmed-rule-file": {
+      "id": "b-cmed-rule-file",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The docs repo owns the board file",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-cmed-rule-file-sidecar",
+        "b-cmed-rule-file-studio",
+        "b-cmed-rule-file-conflict"
+      ]
+    },
+    "b-cmed-rule-file-sidecar": {
+      "id": "b-cmed-rule-file-sidecar",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The canvas block references a bundle-local sidecar. Studio reads and writes that same file; it does not copy the board into local draft storage."
+        }
+      ],
+      "children": []
+    },
+    "b-cmed-rule-file-studio": {
+      "id": "b-cmed-rule-file-studio",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "In doc edit mode, Edit in Canvas opens Studio in a new browser tab, deep-linked to the sidecar."
+        }
+      ],
+      "children": []
+    },
+    "b-cmed-rule-file-conflict": {
+      "id": "b-cmed-rule-file-conflict",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Studio saves with the content hash it loaded. A stale hash refuses the write and asks the author to reload."
+        }
+      ],
+      "children": []
+    },
+    "b-cmed-rule-video": {
+      "id": "b-cmed-rule-video",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Video follows the source",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-cmed-rule-video-providers",
+        "b-cmed-rule-video-fallback",
+        "b-cmed-rule-video-paste"
+      ]
+    },
+    "b-cmed-rule-video-providers": {
+      "id": "b-cmed-rule-video-providers",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "YouTube, Vimeo, and Loom URLs use their provider players. A bundle-local file uses native playback controls."
+        }
+      ],
+      "children": []
+    },
+    "b-cmed-rule-video-fallback": {
+      "id": "b-cmed-rule-video-fallback",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An unrecognized URL renders as a link card instead of embedding an arbitrary origin."
+        }
+      ],
+      "children": []
+    },
+    "b-cmed-rule-video-paste": {
+      "id": "b-cmed-rule-video-paste",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A provider URL pasted at a collapsed cursor replaces an empty text block or inserts a true sibling after non-empty text. Pasting over selected text keeps ordinary link behavior."
+        }
+      ],
+      "children": []
+    },
+    "b-cmed-rule-image": {
+      "id": "b-cmed-rule-image",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Image stays a simple atom",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-cmed-rule-image-state",
+        "b-cmed-rule-image-edit"
+      ]
+    },
+    "b-cmed-rule-image-state": {
+      "id": "b-cmed-rule-image-state",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The atom carries "
+        },
+        {
+          "insert": "src",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " plus optional "
+        },
+        {
+          "insert": "alt",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "caption",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". It renders the image and caption without a media viewer."
+        }
+      ],
+      "children": []
+    },
+    "b-cmed-rule-image-edit": {
+      "id": "b-cmed-rule-image-edit",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The editor treats the block as an atom and provides no in-place props surface."
+        }
+      ],
+      "children": []
+    },
+    "b-cmed-image-open": {
+      "id": "b-cmed-image-open",
+      "type": "callout",
+      "props": {
+        "kind": "Open call",
+        "title": "Fullscreen Image Viewing",
+        "tone": "decision"
+      },
+      "text": [
+        {
+          "insert": "The canvas viewer contract does not imply a general image lightbox. Click-to-fullscreen image viewing has no settled interaction design."
+        }
+      ],
+      "children": []
+    },
+    "b-cmed-why-h": {
+      "id": "b-cmed-why-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why"
+        }
+      ],
+      "children": []
+    },
+    "b-cmed-why-reading": {
+      "id": "b-cmed-why-reading",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Reading stays reading",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-cmed-why-reading-detail"
+      ]
+    },
+    "b-cmed-why-reading-detail": {
+      "id": "b-cmed-why-reading-detail",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An inline canvas supports recognition and explanation without placing a nested application in the reading surface."
+        }
+      ],
+      "children": []
+    },
+    "b-cmed-why-exploration": {
+      "id": "b-cmed-why-exploration",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Exploration is an explicit transition",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-cmed-why-exploration-detail"
+      ]
+    },
+    "b-cmed-why-exploration-detail": {
+      "id": "b-cmed-why-exploration-detail",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A same-window viewer preserves scroll position for inspection. Studio opens separately because editing is a longer-lived task and the document remains useful for comparison."
+        }
+      ],
+      "children": []
+    },
+    "b-cmed-why-host": {
+      "id": "b-cmed-why-host",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Hosts own framing",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-cmed-why-host-detail"
+      ]
+    },
+    "b-cmed-why-host-detail": {
+      "id": "b-cmed-why-host-detail",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A framing-free diagram viewer serves inline reading, full-screen exploration, and annotation targeting without carrying context-specific furniture into every host."
+        }
+      ],
+      "children": []
+    },
+    "b-cmed-why-file": {
+      "id": "b-cmed-why-file",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "One canonical file prevents drift",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-cmed-why-file-detail"
+      ]
+    },
+    "b-cmed-why-file-detail": {
+      "id": "b-cmed-why-file-detail",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Docs and Studio read the same sidecar, while the hash precondition refuses an edit based on stale bytes."
+        }
+      ],
+      "children": []
+    },
+    "b-cmed-why-media": {
+      "id": "b-cmed-why-media",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Media keeps its native affordances",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-cmed-why-media-detail"
+      ]
+    },
+    "b-cmed-why-media-detail": {
+      "id": "b-cmed-why-media-detail",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Provider players, native local playback, safe link fallback, and a simple image figure match the source instead of forcing every visual artifact through canvas."
+        }
+      ],
+      "children": []
+    }
+  }
+}

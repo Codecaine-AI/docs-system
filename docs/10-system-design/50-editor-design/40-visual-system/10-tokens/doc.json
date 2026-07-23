@@ -1,0 +1,517 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-50-editor-design-40-visual-system-10-tokens",
+  "title": "Tokens",
+  "root": "b-tokn-root",
+  "blocks": {
+    "b-tokn-root": {
+      "id": "b-tokn-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-tokn-intro",
+        "b-tokn-structure-heading",
+        "b-tokn-pipeline-table",
+        "b-tokn-rule-heading",
+        "b-tokn-semantic-heading",
+        "b-tokn-semantic-palette",
+        "b-tokn-semantic-name",
+        "b-tokn-semantic-consumer",
+        "b-tokn-semantic-scope",
+        "b-tokn-radius-heading",
+        "b-tokn-radius-contract",
+        "b-tokn-radius-table",
+        "b-tokn-radius-exempt",
+        "b-tokn-radius-live-callout",
+        "b-tokn-accent-heading",
+        "b-tokn-accent-contract",
+        "b-tokn-accent-table",
+        "b-tokn-accent-open",
+        "b-tokn-geometry-heading",
+        "b-tokn-geometry-contract",
+        "b-tokn-why-heading",
+        "b-tokn-why-mode",
+        "b-tokn-why-sharpness",
+        "b-tokn-why-geometry"
+      ]
+    },
+    "b-tokn-intro": {
+      "id": "b-tokn-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Tokens are the visual contract between palette, theme, and rendered surface. They define how mode-aware colors, shared sharpness, component rules, and fixed geometry reach consumers. This page owns the shared contract; per-block appearance remains in the "
+        },
+        {
+          "insert": "Block vocabulary",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-tokn-structure-heading": {
+      "id": "b-tokn-structure-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Structure"
+        }
+      ],
+      "children": []
+    },
+    "b-tokn-pipeline-table": {
+      "id": "b-tokn-pipeline-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Layer",
+          "Owns",
+          "Example"
+        ],
+        "rows": [
+          [
+            "Palette",
+            "Raw light and dark values",
+            "--color-accent-blue"
+          ],
+          [
+            "Semantic tokens",
+            "Surface and component meaning",
+            "--docs-editor-accent"
+          ],
+          [
+            "Consumers",
+            "Rendered use without mode branches",
+            "var(--docs-editor-accent, #2383e2)"
+          ],
+          [
+            "Theme and rail sources",
+            "Registered replacements for semantic values",
+            "Inline rail values outrank theme values"
+          ]
+        ]
+      },
+      "children": []
+    },
+    "b-tokn-rule-heading": {
+      "id": "b-tokn-rule-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The Rule"
+        }
+      ],
+      "children": []
+    },
+    "b-tokn-semantic-heading": {
+      "id": "b-tokn-semantic-heading",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Semantic Before Consumption"
+        }
+      ],
+      "children": []
+    },
+    "b-tokn-semantic-palette": {
+      "id": "b-tokn-semantic-palette",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Raw colors stay in the palette."
+        }
+      ],
+      "children": []
+    },
+    "b-tokn-semantic-name": {
+      "id": "b-tokn-semantic-name",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Semantic variables name the role with the "
+        },
+        {
+          "insert": "--docs-<component>-<part>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " pattern."
+        }
+      ],
+      "children": []
+    },
+    "b-tokn-semantic-consumer": {
+      "id": "b-tokn-semantic-consumer",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Consumers read semantic variables only; light and dark mode never produce a branch at the use site."
+        }
+      ],
+      "children": []
+    },
+    "b-tokn-semantic-scope": {
+      "id": "b-tokn-semantic-scope",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Zebra and rule tokens belong to the component or shared surface whose geometry they control; similar values do not create shared ownership."
+        }
+      ],
+      "children": []
+    },
+    "b-tokn-radius-heading": {
+      "id": "b-tokn-radius-heading",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "One Sharpness Scale"
+        }
+      ],
+      "children": []
+    },
+    "b-tokn-radius-contract": {
+      "id": "b-tokn-radius-contract",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The base semantic contract and token registry set "
+        },
+        {
+          "insert": "--radius",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " to 8px and expose a 0–16px range in 1px steps. The living Default theme selects 4px. General UI corners derive from this one sharpness scale."
+        }
+      ],
+      "children": []
+    },
+    "b-tokn-radius-table": {
+      "id": "b-tokn-radius-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Role",
+          "Derivation"
+        ],
+        "rows": [
+          [
+            "Small / medium / large",
+            "calc(var(--radius) - 4px) / calc(var(--radius) - 2px) / var(--radius)"
+          ],
+          [
+            "Extra large / double extra large",
+            "calc(var(--radius) + 4px) / calc(var(--radius) + 8px)"
+          ],
+          [
+            "Structured-table handle",
+            "max(0px, calc(var(--radius) - 5px))"
+          ],
+          [
+            "Block highlight",
+            "max(0px, calc(var(--radius) - 2px))"
+          ],
+          [
+            "Drop cursor",
+            "max(0px, calc(var(--radius) - 6px))"
+          ]
+        ]
+      },
+      "children": []
+    },
+    "b-tokn-radius-exempt": {
+      "id": "b-tokn-radius-exempt",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Only semantic shape and geometry are exempt."
+        }
+      ],
+      "children": [
+        "b-tokn-radius-exempt-pills",
+        "b-tokn-radius-exempt-canvas"
+      ]
+    },
+    "b-tokn-radius-exempt-pills": {
+      "id": "b-tokn-radius-exempt-pills",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Pills and circles keep complete rounding because the radius defines their identity."
+        }
+      ],
+      "children": []
+    },
+    "b-tokn-radius-exempt-canvas": {
+      "id": "b-tokn-radius-exempt-canvas",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Canvas corners remain shape geometry rather than application sharpness."
+        }
+      ],
+      "children": []
+    },
+    "b-tokn-radius-live-callout": {
+      "id": "b-tokn-radius-live-callout",
+      "type": "callout",
+      "props": {
+        "kind": "Named deviation",
+        "title": "Living Default interaction radii",
+        "tone": "warning"
+      },
+      "text": [
+        {
+          "insert": "The living Default sets the block-highlight and drop-cursor radii to 1px through dedicated rail values. Those two effective radii do not follow their global derivations while the overrides are present; the structured-table handle remains derived and resolves to 0px at the living 4px radius."
+        }
+      ],
+      "children": []
+    },
+    "b-tokn-accent-heading": {
+      "id": "b-tokn-accent-heading",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Editor Accent"
+        }
+      ],
+      "children": []
+    },
+    "b-tokn-accent-contract": {
+      "id": "b-tokn-accent-contract",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The fixed semantic token "
+        },
+        {
+          "insert": "--docs-editor-accent",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " gives selection outlines, drop indicators, focus rings, and drag furniture a full-strength accent. Background-wash colors are too pale for this job."
+        }
+      ],
+      "children": []
+    },
+    "b-tokn-accent-table": {
+      "id": "b-tokn-accent-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Mode",
+          "Value"
+        ],
+        "rows": [
+          [
+            "Light",
+            "rgb(0, 120, 223)"
+          ],
+          [
+            "Dark",
+            "rgb(82, 156, 202)"
+          ],
+          [
+            "Host-neutral consumer fallback",
+            "#2383e2"
+          ]
+        ]
+      },
+      "children": []
+    },
+    "b-tokn-accent-open": {
+      "id": "b-tokn-accent-open",
+      "type": "callout",
+      "props": {
+        "kind": "Open call",
+        "title": "Editor accent registry ownership",
+        "tone": "warning"
+      },
+      "text": [
+        {
+          "insert": "Whether "
+        },
+        {
+          "insert": "--docs-editor-accent",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " joins the closed theme registry remains undecided. It is a semantic token, not a theme-folder key."
+        }
+      ],
+      "children": []
+    },
+    "b-tokn-geometry-heading": {
+      "id": "b-tokn-geometry-heading",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Fixed Geometry"
+        }
+      ],
+      "children": []
+    },
+    "b-tokn-geometry-contract": {
+      "id": "b-tokn-geometry-contract",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "code",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/20-code-block"
+            }
+          }
+        },
+        {
+          "insert": " block uses a 20px line height as a surface contract. Numbered rows, zebra periods, gutters, and annotation overlays share that metric, so it is deliberately not a theme knob."
+        }
+      ],
+      "children": []
+    },
+    "b-tokn-why-heading": {
+      "id": "b-tokn-why-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why"
+        }
+      ],
+      "children": []
+    },
+    "b-tokn-why-mode": {
+      "id": "b-tokn-why-mode",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Mode changes stop at the semantic layer",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-tokn-why-mode-gloss"
+      ]
+    },
+    "b-tokn-why-mode-gloss": {
+      "id": "b-tokn-why-mode-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A consumer names what a value means once; palette and theme changes re-resolve behind that name."
+        }
+      ],
+      "children": []
+    },
+    "b-tokn-why-sharpness": {
+      "id": "b-tokn-why-sharpness",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Sharpness travels across the surface",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-tokn-why-sharpness-gloss"
+      ]
+    },
+    "b-tokn-why-sharpness-gloss": {
+      "id": "b-tokn-why-sharpness-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Application framing and embedded document objects inherit one visual sharpness instead of drifting component by component."
+        }
+      ],
+      "children": []
+    },
+    "b-tokn-why-geometry": {
+      "id": "b-tokn-why-geometry",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Geometry stays fixed when interaction depends on it",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-tokn-why-geometry-gloss"
+      ]
+    },
+    "b-tokn-why-geometry-gloss": {
+      "id": "b-tokn-why-geometry-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Overlay coordinates remain aligned with the content they explain."
+        }
+      ],
+      "children": []
+    }
+  }
+}

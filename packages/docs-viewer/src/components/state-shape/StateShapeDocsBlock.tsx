@@ -328,9 +328,8 @@ function ShapeFieldGroup({
  * paragraph sizing rules). When the example prop parses as JSON, the
  * line-numbered, zebra-striped, token-toned example renders right. Field
  * rows link to the example lines their dot-path matches (array indices
- * normalized away), with L#–# chips naming each field's min–max extent.
- * Without an example the card is the single-pane tree: no chips, nothing
- * linkable.
+ * normalized away): hover/pin paints the field's full extent in both panes.
+ * Without an example the card is the single-pane tree: nothing linkable.
  */
 export function StateShapeBlock({
   id,

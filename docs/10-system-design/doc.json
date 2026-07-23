@@ -9,6 +9,7 @@
       "type": "paragraph",
       "props": {},
       "children": [
+        "b-sdov-opener",
         "b-sdov-docarch-h-2",
         "b-sdov-docarch-p-3",
         "pm-mrtq81uh-19-qu48f4",
@@ -33,9 +34,22 @@
         "b-sdov-vocab-p-113",
         "b-sdov-vocab-li-closed-114",
         "b-sdov-vocab-li-docs-115",
-        "b-sdov-boundaries-h-116",
-        "b-sdov-boundaries-p-117"
+        "b-sdov-editor-h-116",
+        "b-sdov-editor-p-117",
+        "b-sdov-editor-li-contracts-118",
+        "b-sdov-editor-li-scope-119"
       ]
+    },
+    "b-sdov-opener": {
+      "id": "b-sdov-opener",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "System design defines the contracts for organizing documentation, rendering canonical document state, mutating block trees, and presenting the workbench. Its five sections separate corpus rules, reader surfaces, state structure, canonical content types, and editor behavior."
+        }
+      ],
+      "children": []
     },
     "b-sdov-docarch-h-2": {
       "id": "b-sdov-docarch-h-2",
@@ -56,7 +70,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The documentation has a strict layout allowing every new piece of knowledge has one clear home"
+          "insert": "Documentation is divided into three layers so each piece of knowledge has one canonical home."
         }
       ],
       "children": []
@@ -67,7 +81,7 @@
       "props": {},
       "text": [
         {
-          "insert": "This ensures agents making changes lands it where it belongs instead of scattering sloppy docs."
+          "insert": "Each change lands in the layer that owns its rationale."
         }
       ],
       "children": []
@@ -87,7 +101,7 @@
           }
         },
         {
-          "insert": " holds the structure and the standards that keep it that way."
+          "insert": " defines that structure and the rules that preserve it."
         }
       ],
       "children": []
@@ -125,7 +139,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Design",
+          "insert": "System design",
           "attributes": {
             "bold": true
           }
@@ -141,7 +155,7 @@
       "props": {},
       "text": [
         {
-          "insert": "What the system does and WHY."
+          "insert": "What the system does and why."
         }
       ],
       "children": []
@@ -168,7 +182,7 @@
       "props": {},
       "text": [
         {
-          "insert": "How the code delivers it today."
+          "insert": "How this build realizes those contracts."
         }
       ],
       "children": []
@@ -179,7 +193,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The standards — directory structure, numbering, titles and openings, linking — are child docs there, each rule paired with its rationale."
+          "insert": "The child docs cover directory structure, numbering, titles and openings, and linking. Each rule is paired with its rationale."
         }
       ],
       "children": []
@@ -192,7 +206,7 @@
       },
       "text": [
         {
-          "insert": "Translation Layer"
+          "insert": "Reader Surfaces"
         }
       ],
       "children": []
@@ -314,7 +328,7 @@
       },
       "text": [
         {
-          "insert": "Data Model"
+          "insert": "Document State"
         }
       ],
       "children": []
@@ -325,10 +339,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The "
-        },
-        {
-          "insert": "data model",
+          "insert": "The data model",
           "attributes": {
             "reference": {
               "kind": "doc",
@@ -337,7 +348,7 @@
           }
         },
         {
-          "insert": " is the actual data structure under the hood."
+          "insert": " defines canonical document state, block identity, annotations, serialization, and mutation."
         }
       ],
       "children": []
@@ -370,7 +381,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Canonical bytes: the same state always serializes to the same file."
+          "insert": "The same document state always serializes to the same canonical bytes."
         }
       ],
       "children": []
@@ -394,7 +405,7 @@
       },
       "text": [
         {
-          "insert": "Block Vocabulary"
+          "insert": "Canonical Block Types"
         }
       ],
       "children": []
@@ -405,10 +416,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The "
-        },
-        {
-          "insert": "block vocabulary",
+          "insert": "Block vocabulary",
           "attributes": {
             "reference": {
               "kind": "doc",
@@ -417,7 +425,16 @@
           }
         },
         {
-          "insert": " explains all fourteen block types, with an example of each."
+          "insert": " defines and exemplifies every canonical type in "
+        },
+        {
+          "insert": "DOC_BLOCK_TYPES",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []
@@ -428,7 +445,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The set is closed: both surfaces know every block they will ever meet."
+          "insert": "Both surfaces know every block they will meet because the set is closed."
         }
       ],
       "children": []
@@ -444,38 +461,57 @@
       ],
       "children": []
     },
-    "b-sdov-boundaries-h-116": {
-      "id": "b-sdov-boundaries-h-116",
+    "b-sdov-editor-h-116": {
+      "id": "b-sdov-editor-h-116",
       "type": "heading",
       "props": {
         "level": 2
       },
       "text": [
         {
-          "insert": "Package Boundaries"
+          "insert": "Designed Editor Surface"
         }
       ],
       "children": []
     },
-    "b-sdov-boundaries-p-117": {
-      "id": "b-sdov-boundaries-p-117",
+    "b-sdov-editor-p-117": {
+      "id": "b-sdov-editor-p-117",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "The implementation is cut into seven packages. "
-        },
-        {
-          "insert": "Package boundaries",
+          "insert": "Editor design",
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "10-system-design/50-package-boundaries"
+              "path": "10-system-design/50-editor-design"
             }
           }
         },
         {
-          "insert": " records which seams are forced by runtimes and which are judgment calls."
+          "insert": " specifies the workbench surface around and between blocks."
+        }
+      ],
+      "children": []
+    },
+    "b-sdov-editor-li-contracts-118": {
+      "id": "b-sdov-editor-li-contracts-118",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Its contracts cover reading, editing, styling controls, shared visuals, and canvas and media behavior."
+        }
+      ],
+      "children": []
+    },
+    "b-sdov-editor-li-scope-119": {
+      "id": "b-sdov-editor-li-scope-119",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Per-block appearance and editing behavior remain in the block vocabulary."
         }
       ],
       "children": []

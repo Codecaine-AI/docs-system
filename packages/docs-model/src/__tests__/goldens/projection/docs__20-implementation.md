@@ -1,76 +1,25 @@
-# docs-system: System Architecture
+This section documents how the current build is cut and operated: package boundaries, the workbench host, the save pipeline, theme application, and the local development loop. It owns code-shaped mechanics and the reasons for code boundaries; designed interaction and appearance live in system design.
 
-`docs-system` is Codecaine's documentation infrastructure: a layered implementation
-pipeline built around a block-based document format (`doc.json`), the tooling that reads/writes/serves it, and a
-browser workbench for humans *and* agents to read, edit, and annotate docs.
+## In This Section
 
-The foundation layer carries the philosophy; this overview focuses on the
-implementation shape: **docs are structured data, not markdown
-files.** Every document is a normalized tree of typed blocks with stable
-ids, which lets the pipeline address a precise block instead of a whole file.
-An agent can say
-"change *this* block", a comment can anchor to *this* paragraph and survive
-edits around it, a backlink can point at *this* exact card, and a save can
-be expressed as a minimal batch of block operations instead of a whole-file
-rewrite.
+- Packages
 
-Every block is one of **14 types**: paragraph, heading, list-item, quote, code,
-callout, divider, structured-table, file-tree, interaction-surface, mermaid,
-canvas, image, and video. Retired MDX-era types (the old semantic cards,
-`data-model`, `api-surface`, …) coerce to `callout` on read, with the old type
-name preserved as `props.kind`. The full vocabulary — every type's props and
-its typed actions — is documented in Block vocabulary & typed actions.
+  - Where the code is allowed to be cut — the boundaries, and the as-built map of every package.
 
-## The Pipeline at a Glance
+- Using the workbench
 
-```
-                    ┌─────────────┐
-   authoring        │  docs-model │   pure schema + ops (no I/O, no React)
-   (markdown ───►   └──────┬──────┘
-    migrate,               │
-    or live edit)   ┌──────┴──────┐
-                    │ docs-index  │   sqlite backlinks index (derived, rebuildable)
-                    └──────┬──────┘
-                    ┌──────┴──────┐
-                    │ docs-server │   mutation authority: locks, hashes, undo, SSE
-                    └──────┬──────┘
-                    ┌──────┴──────┐
-                    │ docs-viewer │   React rendering + TipTap editor + targeting
-                    └──────┬──────┘
-                    ┌──────┴──────┐
-                    │docs-workbench│  the runnable app (serve + static export)
-                    └──────┬──────┘
-                    ┌──────┴──────┐
-                    │  docs-cli   │   `docs` command: serve, export, migrate, …
-                    └─────────────┘
-```
+  - The host runtime: edit persistence, conflict handling, annotations, media handoffs, and static degradation.
 
-Each layer only depends on the layers above it in this list. The
-package map walks through every package in
-detail.
+- The save pipeline: keystroke to disk
 
-## Where Content Lives
+  - How an edit becomes validated canonical bytes.
 
-A document is a **bundle**: a folder holding `doc.json` (the block tree),
-optional `annotations.json` (annotations), and an `assets/` folder for images
-and canvas sidecars. Bundles live in a `docs/` tree owned by whichever
-project the docs are *about* — the canvas repo has `canvas/docs/`, and this
-repo has its own `docs/` (the one you are reading right now).
+- Theming: Overview
 
-Markdown is an on-ramp, not the storage format: `docs migrate` converts an
-existing `.md`/`.mdx` tree into bundles once, and from then on the workbench
-(or an agent driving the ops API) edits `doc.json` directly. Edits are
-expressed in a seven-op kernel — six generic structural/text ops plus
-`componentAction`, which invokes one of 13 typed actions on structured blocks
-(tables, file trees, interaction surfaces, code annotations) — and an agent
-can discover the whole edit surface from `GET /api/blocks`.
+  - Theme-folder resolution, registry validation, style-state application, font stacks, and Default persistence.
 
-## Reading These Docs
+- Local development loop
 
-From the repo root:
+  - Running, testing, and iterating on the tooling itself.
 
-```
-bun run docs serve
-```
-
-opens this very documentation in the workbench at `http://localhost:4800`.
+To read these docs live, run `bun run docs serve` from the repo root — the workbench opens at `http://localhost:4800`. The full loop is Local development loop.

@@ -1,10 +1,28 @@
 The list block of the block vocabulary. There is no wrapping list container type: a list is simply a run of consecutive `list-item` siblings, and nesting is expressed by child `list-item` blocks, not by markup.
 
+## Example
+
+- A bullet item.
+
+  - A nested item — a child list-item block, not markup.
+
+2. An ordered item (`ordered: true`).
+
+3. Numbering is derived from the sibling run.
+
 ## State Schema
 
-| prop | type | required | notes |
-| --- | --- | --- | --- |
-| ordered | boolean | no | true renders a numbered item; absent or false renders a bullet. |
+**ListItemState** — packages/docs-model/src/components/rich-text/state.ts#ListItemState
+
+```
+ordered?: boolean  # true renders a numbered item; absent or false renders a bullet.
+```
+
+```json
+{
+  "ordered": true
+}
+```
 
 Carries delta text (`carriesText: true`) with the full mark set.
 
@@ -24,7 +42,7 @@ A `-` bullet, or `1.` numbering when `props.ordered === true`, indented two spac
 
 ## Theme
 
-This block's theme file is `components/list-item.json` in a theme folder (`themes/<id>/`; see Theming). Every value is one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY`.
+This block's theme file is `components/list-item.json` in a theme folder (`themes/<id>/`; see Theming). Every value is one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY`. The contract is Theming.
 
 | Key | CSS variable | Styles |
 | --- | --- | --- |

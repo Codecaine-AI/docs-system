@@ -1,7 +1,107 @@
 <current_state>
-<last_updated>2026-07-21 (round 2, SIXTH SITTING: block-vocabulary walk opened — section overview REWRITTEN from Ford's interview. Corpus 61 ON DISK (brief said 60 — parallel vocab-refpage session landed + committed 3308b4d: family pages restructured 16:45–17:03, 70-sequence in, 60-mermaid page gone, 50-state-shape in). NEXT: per-family contract instantiation, starting 10-rich-text)</last_updated>
+<last_updated>2026-07-22 (round 2, SEVENTH SITTING: vocab round 2 fan-out landed (examples/state-shape/theme-links; mermaid + flavour REMOVED from code, cascade landed); package-boundaries MERGED into 20-implementation/10-packages ("Packages", dependency-chain CANVAS landed + validated); 20-implementation overview REWRITTEN thin per Ford ("Implementation": opener + bundle para + 5-child index + quick-start line; pipeline art + stale counts died). Corpus 61 / 16 types / 9 bundles. NEXT: the 9 package child pages (10-docs-model … 80-external-canvas), then 20-workbench, 30-save-pipeline (dedupe question vs docs-server), 40-theming (component-themes registry table is stale — 3 missing rows), 99-appendix, manifesto)</last_updated>
 
 <status>
+    - PACKAGE-BOUNDARIES MERGED INTO PACKAGES (2026-07-22, Ford's
+      interview: "more implementation than design; could be the overview
+      for the implementation section" → landing spot chosen: the
+      PACKAGES section overview). .tmp/merge-boundaries-into-packages.ts:
+      20-implementation/10-packages/doc.json is now title "Packages",
+      id 20-implementation-10-packages — boundaries content leads (lead /
+      Why Seven / The Dependency Chain / What You Actually Need Together
+      + Mental-model callout / Forced Boundaries vs Judgment Calls /
+      Boundaries Under Review / Schema Authority), as-built map follows
+      (NEW H2 "The As-Built Map" + inventory bullets + Makefile para /
+      Enforcement / Sequence Examples tail KEPT — parallel session's
+      demos, flagged). Coerced mermaid callout REPLACED by a canvas
+      embed (src ./assets/canvases/package-dependency-chain.canvas.json,
+      title "Who depends on whom", view "package-dependency-chain" =
+      the root-section crop; the format has no document-level views).
+      ASSET LANDED (Fable worker, .tmp/validate-pkg-canvas.ts): 13
+      objects / the 11 verified elbow depends-on edges (waypointed skip
+      edges), layered cli → workbench → index/server/viewer →
+      docs-model (purple foundation idiom), framework edgeless,
+      external section (canvas + sequence nodes + vendored-note
+      sticky), arrows-read-depends-on legend; validated zero warnings
+      via the real validateInteractiveCanvasDocument + render-smoke
+      through InteractiveCanvasViewer (every label asserted).
+      Externals bullet GENERALIZED (canvas and sequence — not more
+      packages; both vendored under external/, inner packages join the
+      workspace). Review callouts: kind "Boundary under review" + short
+      titles; ALL THREE OPEN per Ford (fold index→server, merge
+      cli+workbench, unpackage framework). Dup H1s dropped. sd-overview:
+      Package Boundaries H2+para REMOVED (Ford's hand-written page —
+      flagged). impl-overview: link sentence now "Packages walks through
+      the boundaries and every package in detail". Old bundle DELETED;
+      child package-page ids swept to 20-implementation-10-packages-*
+      (.tmp/fix-package-child-ids.ts). CASCADE (owned here now):
+      goldens.test.ts CORPUS_PATHS minus the old path,
+      schema-over-corpus 62→61. Pipeline: goldens 61, links 0 stale,
+      backlinks 63/379, docs-model 484/1 (known file-tree strict-write
+      only). Edges of the old diagram VERIFIED against package.json
+      before re-drawing (all correct; new facts: docs-index also
+      depends on @codecaine-ai/canvas; server+workbench on
+      @codecaine-ai/sequence).
+    - VOCAB ROUND 2 FAN-OUT (2026-07-22, Ford's decisions: state-shape
+      blocks for everything state-wise / examples everywhere / theme
+      links role-split both-targets / no maintained count phrasing /
+      remove mermaid from code / remove flavour COMPLETELY / ship
+      default theme files / copy canvas sidecar for its example): FIVE
+      parallel Fable workers (no-codex stated), all landed clean:
+      (1) CODE CLEANUP — components/mermaid deleted from docs-model +
+      docs-viewer (+ registry/schema/StyleRail/semantic.css/tests),
+      DOC_BLOCK_TYPES minus mermaid, flavour READ ALIAS REMOVED (a
+      flavour key is now a typed validation error at
+      $.blocks.<id>.flavour; rejected-legacy tests added) plus a
+      mermaid→callout coercion regression test; "14 canonical types"
+      count phrasing dropped; StateShapeDocsBlock JSDoc fixed;
+      CASCADE LANDED: CORPUS_PATHS regenerated from disk (62), counts
+      now DISK TRUTH — 16 types / 9 bundles (the parallel waterfall
+      thread landed type #16 mid-flight: bundle, registry entry,
+      waterfall.json theme, 90-waterfall page — already contract-shaped
+      — and updated the vocab overview to sixteen/nine itself).
+      (2) RICH-TEXT (.tmp/richtext-examples-stateshape.ts): Examples on
+      all 5 missing pages; REAL SVG authored for 16-image
+      (assets/images/two-renders.svg, serving verified); state-shape
+      blocks lead every State Schema (empty-props types get fields-less
+      blocks); theme role-split verified 1+1 on all nine.
+      (3) CODE/TABLE/TREE (.tmp/ctf-families-stateshape.ts): state-shape
+      blocks lead (dup prop tables trimmed, TypeBox evidence kept);
+      code page doc id FIXED (…14-code → …20-code-block, grep-clean).
+      (4) TAIL FAMILIES (.tmp/tail-families-stateshape.ts): canvas State
+      Schema converted to state-shape; CANVAS EXAMPLE RESTORED —
+      translation-layer sidecar copied to 80-canvas/assets/canvases/,
+      resolution verified via resolveBundleCanvasSrc; interaction-
+      surface block gained its example; sequence verified.
+      (5) THEME FILES: 17 new themes/default/components/*.json seeded
+      with registry defaults (colors have NO registry defaults by
+      design → color-only components get valid empty {}); TRUE mapping
+      pinned: strictly <registry-key>.json, surfaces.json is its own
+      shared border/muted/icon/radius component (NOT interaction-
+      surface); sequence skipped (no registry entry — its page already
+      says so); the worker's mermaid.json was deleted at reconcile.
+    - RECONCILE + PIPELINE (2026-07-22, orchestrator,
+      .tmp/post-removal-reconcile.ts + .tmp/pkgb-caption-fold.ts):
+      carriers table gained waterfall (false row); 10-document-tree +
+      14-callout flavour prose updated to rejected-not-aliased;
+      20-block-design stray invalid file-tree props.title stripped
+      (caption → intro para); 50-package-boundaries CANONICALIZED — its
+      live mermaid diagram coerced to callout kind "mermaid" (caption
+      folded into text; the coercion callout-with-flowchart is the TOP
+      FLAG for that page's interview: replace with a canvas). Goldens
+      62 regen, links 0 stale, backlinks 64/381, audit = only known
+      pre-existing (assets dirs parallel-owned, 3 W4s Ford's calls).
+      SUITES: docs-model 484/1 — the ONE fail is the known parallel-
+      owned file-tree strict-write; viewer 565/1 (order-dependent
+      DocTargetingLayer happy-dom flake, passes standalone, pre-
+      existing); server 137/0; cli 105/0; workbench 94/0; typecheck
+      clean except known fs-watch.ts. bun install run (lock consistent).
+      STALE-DOC NOTES for later walks: 40-theming/20-component-themes
+      registry table (3 missing rows incl. linking/state-shape/
+      waterfall, several stale key lists); framework 40-templates
+      Mermaid prose (legacy MDX-era, out of scope); docs-cli migrate
+      tests keep "Mermaid" as an unmapped-MDX-tag fixture (fallback
+      behavior, deliberate).
     - VOCAB OVERVIEW REWRITTEN (2026-07-21, sixth sitting, .tmp/rewrite-
       vocab-overview.ts): Ford's interview calls — two-renders opener
       (the "written primarily for agents" audience claim RESOLVED),

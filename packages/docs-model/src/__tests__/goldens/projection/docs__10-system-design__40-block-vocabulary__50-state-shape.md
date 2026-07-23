@@ -205,7 +205,7 @@ and this `json` fence:
 
 ## Theme
 
-The Theming contract element: theme file `components/state-shape.json` in a theme folder (`themes/<id>/`; system docs at Theming: overview). Every value is one string for both modes or a `{ light, dark }` pair, validated against the `state-shape` entry of `THEME_TOKEN_REGISTRY` in `packages/docs-workbench/web/src/theme/theme-folders.ts`. Ten tokens — nine colors and one length:
+The Theming contract element: theme file `components/state-shape.json` in a theme folder (`themes/<id>/`; system docs at Theming). Every value is one string for both modes or a `{ light, dark }` pair, validated against the `state-shape` entry of `THEME_TOKEN_REGISTRY` in `packages/docs-workbench/web/src/theme/theme-folders.ts`. Ten tokens — nine colors and one length:
 
 | Key | CSS variable | Styles |
 | --- | --- | --- |
@@ -224,7 +224,7 @@ Example-pane and range-chip linking styles come from the shared linking theme co
 
 ## Agent Adapter
 
-The type uses the default adapter — no agent of its own; the contract is Agent adapter. The four typed actions ride `componentAction` ops in the seven-op doc vocabulary (`packages/docs-model/src/doc-ops.ts`).
+The type uses the default adapter — no agent of its own; the contract is Agent adapter. The four typed actions ride `componentAction` ops in the doc-op vocabulary (`packages/docs-model/src/doc-ops.ts`).
 
 - A `componentAction` names the registry key (`"state-shape.addField"`), resolves the action, validates params, and runs `apply()` against the target block.
 

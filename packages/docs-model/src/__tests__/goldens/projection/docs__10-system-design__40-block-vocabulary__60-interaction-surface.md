@@ -34,6 +34,27 @@ operations: Operation[]  # Operation signatures, in document order.
   kind?: "action" | "query" | "event"  # Defaults to action; renders mark only query and event.
 ```
 
+```json
+{
+  "title": "file-tree — entry operations",
+  "operations": [
+    {
+      "name": "file-tree.removeEntry",
+      "description": "Remove the entry with the given path from the file tree.",
+      "params": [
+        {
+          "name": "path",
+          "type": "string",
+          "required": true,
+          "description": "Exact path of the entry to remove."
+        }
+      ],
+      "returns": "props patch: { entries }"
+    }
+  ]
+}
+```
+
 No text (`carriesText: false`) — every fact lives in the two props above. The schema is closed (`additionalProperties: false` at every level); definitions live in `packages/docs-model/src/components/interaction-surface/state.ts`.
 
 - `params` are the shared recursive `Field` node — the same node state-shape fields use (`packages/docs-model/src/components/shared/field.ts`): a name plus optional `type`, `required`, `description`, and nested `fields`. `required: false` means optional; omitted or `true` reads as required.
@@ -120,7 +141,7 @@ table.addRow(cells: string[], index?: number) -> props patch  # Insert a row
 
 ## Theme
 
-This block's theme file is `components/interaction-surface.json` in a theme folder (`themes/<id>/`; see Theming). Every value is one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY` (`packages/docs-workbench/web/src/theme/theme-folders.ts`).
+The Theming contract element: theme file `components/interaction-surface.json` in a theme folder (`themes/<id>/`; system docs at Theming). Every value is one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY` (`packages/docs-workbench/web/src/theme/theme-folders.ts`).
 
 | Key | CSS variable | Styles |
 | --- | --- | --- |
@@ -145,4 +166,4 @@ The zebra stripe, link wash, and pin accent come from the shared linking file (`
 
 The family uses the default adapter: no agent of its own, and nothing forwards to an external authority. The contract is Agent adapter.
 
-Edits arrive as generic doc ops. The three typed actions ride `componentAction` — the seventh op beside `insertBlock`, `updateBlock`, `deleteBlock`, `moveBlock`, `splitBlock`, and `mergeBlocks` (see the mutation model). A `componentAction` resolves the named action from the registry, validates its params, applies it to the target block, and lands the resulting `{ operations }` patch through the `updateBlock` code path — the block id is preserved and the inverse is the usual `updateBlock` inverse (`packages/docs-model/src/doc-ops.ts`).
+Edits arrive as generic doc ops. The three typed actions ride `componentAction` — the doc op beside `insertBlock`, `updateBlock`, `deleteBlock`, `moveBlock`, `splitBlock`, and `mergeBlocks` (see the mutation model). A `componentAction` resolves the named action from the registry, validates its params, applies it to the target block, and lands the resulting `{ operations }` patch through the `updateBlock` code path — the block id is preserved and the inverse is the usual `updateBlock` inverse (`packages/docs-model/src/doc-ops.ts`).

@@ -3,7 +3,6 @@ import * as canvasEditorNodes from "../components/canvas/editor-nodes";
 import * as codeEditorNodes from "../components/code/editor-nodes";
 import * as fileTreeEditorNodes from "../components/file-tree/editor-nodes";
 import * as interactionSurfaceEditorNodes from "../components/interaction-surface/editor-nodes";
-import * as mermaidEditorNodes from "../components/mermaid/editor-nodes";
 import * as richTextEditorNodes from "../components/rich-text/editor-nodes";
 import * as sequenceEditorNodes from "../components/sequence/editor-nodes";
 import * as stateShapeEditorNodes from "../components/state-shape/editor-nodes";
@@ -19,7 +18,6 @@ import {
 const componentNodeModules = [
   richTextEditorNodes,
   codeEditorNodes,
-  mermaidEditorNodes,
   fileTreeEditorNodes,
   structuredTableEditorNodes,
   interactionSurfaceEditorNodes,
@@ -50,7 +48,6 @@ describe("component editor nodes", () => {
       "docStructuredTable",
       "docInteractionSurface",
       "docStateShape",
-      "docMermaid",
       "docWaterfall",
     ]);
   });
@@ -79,7 +76,6 @@ describe("component editor nodes", () => {
       "structured-table": "docStructuredTable",
       "interaction-surface": "docInteractionSurface",
       "state-shape": "docStateShape",
-      mermaid: "docMermaid",
       waterfall: "docWaterfall",
     });
 

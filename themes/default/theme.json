@@ -35,7 +35,7 @@
       "padding": 4,
       "guides": true,
       "guideColor": null,
-      "guideWidth": 1,
+      "guideWidth": 1.5,
       "guideOpacity": 0.6
     },
     "highlight": {

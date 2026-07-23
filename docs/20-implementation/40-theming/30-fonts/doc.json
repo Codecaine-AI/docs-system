@@ -2,14 +2,15 @@
   "schemaVersion": 1,
   "id": "20-implementation-40-theming-30-fonts",
   "title": "Fonts",
-  "root": "b-theming-fonts-root",
+  "root": "b-theming-fonts-root-1",
   "blocks": {
-    "b-theming-fonts-root": {
-      "id": "b-theming-fonts-root",
+    "b-theming-fonts-root-1": {
+      "id": "b-theming-fonts-root-1",
       "type": "paragraph",
       "props": {},
       "children": [
         "b-theming-fonts-tokens-2",
+        "b-theming-fonts-application-heading-5",
         "b-theming-fonts-sources-3",
         "b-theming-fonts-custom-files-4"
       ]
@@ -20,61 +21,32 @@
       "props": {},
       "text": [
         {
-          "insert": "Each text surface has its own font token: "
+          "insert": "Font settings enter the runtime through a theme manifest or normalized style-rail state and leave as four CSS custom properties. This page covers parsing and application. The reading roles and current default values are specified by "
         },
         {
-          "insert": "--font-tx02",
+          "insert": "Typography and Fonts",
           "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " (body), "
-        },
-        {
-          "insert": "--font-display",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " (headings), "
-        },
-        {
-          "insert": "--docs-font-code",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " (code blocks, inline code chips, kbd), and "
-        },
-        {
-          "insert": "--docs-font-numeric",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " (list markers and ordered-list counters; inherits the body font by default). Defaults live in "
-        },
-        {
-          "insert": "index.css",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "'s "
-        },
-        {
-          "insert": ":root",
-          "attributes": {
-            "code": true
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/20-typography-and-fonts"
+            }
           }
         },
         {
           "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-theming-fonts-application-heading-5": {
+      "id": "b-theming-fonts-application-heading-5",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Application"
         }
       ],
       "children": []
@@ -85,16 +57,93 @@
       "props": {},
       "text": [
         {
-          "insert": "Two ways to set them: the style rail's Font tab (Body / Heading / Code / Number selects over the three built-in system stacks), or a theme manifest's "
+          "insert": "packages/docs-workbench/web/src/theme/theme-folders.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/theme/theme-folders.ts"
+            }
+          }
         },
         {
-          "insert": "fonts",
+          "insert": " accepts non-empty "
+        },
+        {
+          "insert": "body",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " field, which accepts ARBITRARY stack strings — a theme can name any family the browser can resolve."
+          "insert": ", "
+        },
+        {
+          "insert": "heading",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "code",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "number",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " manifest strings and compiles them into both mode blocks through "
+        },
+        {
+          "insert": "FONT_VARS",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". "
+        },
+        {
+          "insert": "packages/docs-workbench/web/src/shell/StyleRail.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/shell/StyleRail.tsx"
+            }
+          }
+        },
+        {
+          "insert": " maps its font enums to built-in stack strings in "
+        },
+        {
+          "insert": "styleRailVars",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". A rail value equal to its compiled default returns "
+        },
+        {
+          "insert": "null",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", removing the inline property and exposing the theme value."
         }
       ],
       "children": []
@@ -103,21 +152,13 @@
       "id": "b-theming-fonts-custom-files-4",
       "type": "callout",
       "props": {
-        "title": "Custom font FILES — designed, not built",
+        "kind": "Current boundary",
+        "title": "No font-file loader",
         "tone": "warning"
       },
       "text": [
         {
-          "insert": "Loading font binaries is the one unbuilt piece: the planned path is files in the workbench's "
-        },
-        {
-          "insert": "web/public/fonts/",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", registered via "
+          "insert": "The workbench has no "
         },
         {
           "insert": "@font-face",
@@ -126,7 +167,7 @@
           }
         },
         {
-          "insert": " in a fonts.css, after which a theme just names the family in its stacks. The tokens are already the only seam."
+          "insert": " registry or font-binary loading path. A manifest stack resolves only when the browser or host already provides the named family."
         }
       ],
       "children": []

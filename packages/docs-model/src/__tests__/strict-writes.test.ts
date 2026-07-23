@@ -41,13 +41,6 @@ const REPRESENTATIVES: Representative[] = [
     wrongPatch: { canvasId: 42 },
     wrongPath: "$.op.props.canvasId",
   },
-  {
-    type: "mermaid",
-    props: { title: "Flow" },
-    conformingPatch: { diagramType: "flowchart" },
-    wrongPatch: { title: 42 },
-    wrongPath: "$.op.props.title",
-  },
 ];
 
 function docWith(type: DocBlockType, props: Record<string, unknown>): DocDocument {

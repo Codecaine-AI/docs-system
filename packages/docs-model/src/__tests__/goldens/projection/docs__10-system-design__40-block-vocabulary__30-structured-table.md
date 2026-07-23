@@ -16,7 +16,43 @@ A live instance of the type — the default theme's five structured-table overri
 
 ## State Schema
 
-All state is four typed props — `carriesText: false`, no `text` key. The schema is a closed TypeBox object in `packages/docs-model/src/components/structured-table/state.ts`. The contract is State schema.
+**StructuredTableState** — packages/docs-model/src/components/structured-table/state.ts#StructuredTableState
+
+```
+title?: string  # Optional caption above the table; always a plain string — cell marks never apply.
+columns: TableCell[]  # Header cells in order. A TableCell is a plain string or a span array whose closed mark set is bold/italic/strike/code/link.
+rows: TableCell[][]  # One cell array per row; actions normalize each row to the column count. An unmarked cell stores as the plain string (canonical).
+density?: "compact" | "normal" | "relaxed"  # Accepted by the schema; the renderer ignores it — spacing comes from the theme tokens.
+```
+
+```json
+{
+  "title": "Registry kinds",
+  "columns": [
+    "Key",
+    "Kind"
+  ],
+  "rows": [
+    [
+      "headerRuleWidth",
+      "length"
+    ],
+    [
+      [
+        {
+          "insert": "rowRuleOpacity",
+          "attributes": {
+            "code": true
+          }
+        }
+      ],
+      "number"
+    ]
+  ]
+}
+```
+
+All state is four typed props — `carriesText: false`, no `text` key; the schema is a closed TypeBox object. The contract is State schema.
 
 ```ts
 export const StructuredTableState = Type.Object(
@@ -38,13 +74,6 @@ export const StructuredTableState = Type.Object(
 > **L3 (Plain title):** The optional caption is always a plain string — cell marks never apply to it.
 > **L4-5 (Cell union):** TableCellSchema is a plain string (the canonical unmarked form) or an array of spans whose closed attribute set is bold/italic/strike/code/link — reference is invalid in cells.
 > **L14 (Closed schema):** additionalProperties: false — unknown props fail validation.
-
-| prop | type | required | notes |
-| --- | --- | --- | --- |
-| title | string | no | Optional caption above the table. Always a plain string — no marks. |
-| columns | TableCell[] | yes | Header names, in order. A TableCell is a plain string or a DeltaSpan[] carrying inline marks. |
-| rows | TableCell[][] | yes | One cell array per row; actions normalize each row to the column count. Unmarked cells are stored as the plain string (canonical). |
-| density | "compact" / "normal" / "relaxed" | no | Accepted by the schema; the renderer ignores it — spacing comes from the theme tokens. |
 
 Cells — body and header alike — carry the inline mark set: bold, italic, strike, code, and link; the cell attribute schema is closed, so `reference` chips are rejected. An unmarked cell is stored as the plain string: a span-array cell with zero attributed spans fails validation (`checkStructuredTableProps`, the beyond-schema check that runs after the TypeBox schema passes), so an all-plain table has exactly one encoding.
 
@@ -128,6 +157,6 @@ This block's theme file is `components/structured-table.json` in a theme folder 
 
 ## Agent Adapter
 
-The family uses the default adapter: no agent of its own, no forwarding authority — all five actions carry a local apply. On the wire an edit is a `componentAction` op (one of the seven doc ops) naming the block, the action key, and params; the kernel (`doc-ops.ts`) resolves the action from the registry, validates params against the action's schema, runs apply, and executes the returned patch through the standard `updateBlock` path — the undo inverse is an ordinary `updateBlock`. Structural work on the table as a block — insert, move, delete — stays on the generic ops. The contract is Agent adapter.
+The family uses the default adapter: no agent of its own, no forwarding authority — all five actions carry a local apply. On the wire an edit is a `componentAction` op (one of the generic doc ops) naming the block, the action key, and params; the kernel (`doc-ops.ts`) resolves the action from the registry, validates params against the action's schema, runs apply, and executes the returned patch through the standard `updateBlock` path — the undo inverse is an ordinary `updateBlock`. Structural work on the table as a block — insert, move, delete — stays on the generic ops. The contract is Agent adapter.
 
 Edit cells through the actions, never by hand-patching the `rows` array — actions validate, normalize row widths, and return undo inverses.

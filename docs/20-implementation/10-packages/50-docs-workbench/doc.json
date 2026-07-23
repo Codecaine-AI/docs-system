@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "10-system-design-30-packages-50-docs-workbench",
+  "id": "20-implementation-10-packages-50-docs-workbench",
   "title": "docs-workbench — the app",
   "root": "b-50-docs-workbench-root",
   "blocks": {
@@ -9,38 +9,58 @@
       "type": "paragraph",
       "props": {},
       "children": [
-        "b-50-docs-workbench-title-1",
         "b-50-docs-workbench-lead-2",
-        "b-50-docs-workbench-owns-heading-3",
-        "b-50-docs-workbench-owns-scope-4",
-        "b-50-docs-workbench-owns-server-5",
-        "b-50-docs-workbench-owns-runners-6",
-        "b-50-docs-workbench-owns-web-7",
-        "b-50-docs-workbench-electron-shell-8",
         "b-50-docs-workbench-why-heading-9",
         "b-50-docs-workbench-composition-decision-10",
-        "b-50-docs-workbench-dependencies-heading-11",
-        "b-50-docs-workbench-runtime-dependencies-12",
-        "b-50-docs-workbench-architectural-dependencies-13",
-        "b-50-docs-workbench-dependent-cli-14",
+        "b-50-docs-workbench-cut-detail-19",
         "b-50-docs-workbench-boundary-review-15",
-        "b-50-docs-workbench-using-heading-16",
-        "b-50-docs-workbench-serve-alone-17",
-        "b-50-docs-workbench-export-alone-18"
+        "b-50-docs-workbench-owns-heading-3",
+        "b-50-docs-workbench-module-map-20",
+        "b-50-docs-workbench-public-heading-21",
+        "b-50-docs-workbench-public-surface-22",
+        "b-50-docs-workbench-route-ownership-23",
+        "b-50-docs-workbench-server-heading-24",
+        "b-50-docs-workbench-server-host-25",
+        "b-50-docs-workbench-serve-coordinator-26",
+        "b-50-docs-workbench-vite-variants-27",
+        "b-50-docs-workbench-viewer-heading-28",
+        "b-50-docs-workbench-viewer-seam-29",
+        "b-50-docs-workbench-viewer-surface-30",
+        "b-50-docs-workbench-host-pages-31",
+        "b-50-docs-workbench-canvas-slot-32",
+        "b-50-docs-workbench-design-homes-33",
+        "b-50-docs-workbench-policy-heading-34",
+        "b-50-docs-workbench-api-policy-35",
+        "b-50-docs-workbench-session-policy-36",
+        "b-50-docs-workbench-sse-policy-37",
+        "b-50-docs-workbench-theme-policy-38",
+        "b-50-docs-workbench-static-heading-39",
+        "b-50-docs-workbench-static-export-40",
+        "b-50-docs-workbench-static-client-41",
+        "b-50-docs-workbench-run-heading-42",
+        "b-50-docs-workbench-run-table-43",
+        "b-50-docs-workbench-electron-shell-8",
+        "b-50-docs-workbench-invariants-heading-44",
+        "b-50-docs-workbench-invariant-authority-45",
+        "b-50-docs-workbench-invariant-session-46",
+        "b-50-docs-workbench-invariant-static-47",
+        "b-50-docs-workbench-invariant-lifecycle-48",
+        "b-50-docs-workbench-related-heading-49",
+        "b-50-docs-workbench-related-server-heading-50",
+        "b-50-docs-workbench-related-server-51",
+        "b-50-docs-workbench-related-run-52",
+        "b-50-docs-workbench-related-spa-53",
+        "b-50-docs-workbench-related-export-54",
+        "b-50-docs-workbench-related-web-heading-55",
+        "b-50-docs-workbench-related-app-56",
+        "b-50-docs-workbench-related-page-57",
+        "b-50-docs-workbench-related-api-58",
+        "b-50-docs-workbench-related-client-59",
+        "b-50-docs-workbench-related-session-60",
+        "b-50-docs-workbench-related-launch-heading-61",
+        "b-50-docs-workbench-related-electron-62",
+        "b-50-docs-workbench-related-makefile-63"
       ]
-    },
-    "b-50-docs-workbench-title-1": {
-      "id": "b-50-docs-workbench-title-1",
-      "type": "heading",
-      "props": {
-        "level": 1
-      },
-      "text": [
-        {
-          "insert": "docs-workbench — the App"
-        }
-      ],
-      "children": []
     },
     "b-50-docs-workbench-lead-2": {
       "id": "b-50-docs-workbench-lead-2",
@@ -48,98 +68,20 @@
       "props": {},
       "text": [
         {
-          "insert": "@codecaine-ai/docs-workbench is the standalone runnable docs app and its thin composition shell. It joins the write side to the render side in an Elysia-served Vite SPA without moving either side's responsibilities into the app."
-        }
-      ],
-      "children": []
-    },
-    "b-50-docs-workbench-owns-heading-3": {
-      "id": "b-50-docs-workbench-owns-heading-3",
-      "type": "heading",
-      "props": {
-        "level": 2
-      },
-      "text": [
-        {
-          "insert": "What It Owns"
-        }
-      ],
-      "children": []
-    },
-    "b-50-docs-workbench-owns-scope-4": {
-      "id": "b-50-docs-workbench-owns-scope-4",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "The runnable is deliberately small: roughly a dozen source files under "
-        },
-        {
-          "insert": "packages/docs-workbench/src/",
+          "insert": "@codecaine-ai/docs-workbench",
           "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-workbench/src"
-            }
+            "code": true
           }
         },
         {
-          "insert": " plus the Vite SPA under "
+          "insert": " is the runnable Bun server, Vite SPA, and Electron wrapper for a docs tree. It is the only package where "
         },
         {
-          "insert": "packages/docs-workbench/web/",
+          "insert": "docs-server — the Mutation Authority",
           "attributes": {
-            "code": true,
             "reference": {
-              "kind": "source",
-              "path": "packages/docs-workbench/web"
-            }
-          }
-        },
-        {
-          "insert": ". The package owns composition and app behavior, not the server's route semantics or the viewer's rendering primitives."
-        }
-      ],
-      "children": []
-    },
-    "b-50-docs-workbench-owns-server-5": {
-      "id": "b-50-docs-workbench-owns-server-5",
-      "type": "list-item",
-      "props": {
-        "ordered": false
-      },
-      "text": [
-        {
-          "insert": "packages/docs-workbench/src/server.ts",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-workbench/src/server.ts"
-            }
-          }
-        },
-        {
-          "insert": " creates the Elysia host around docs-server's route factory, initializes the backlinks index, watches the docs root for live changes, and serves the built SPA."
-        }
-      ],
-      "children": []
-    },
-    "b-50-docs-workbench-owns-runners-6": {
-      "id": "b-50-docs-workbench-owns-runners-6",
-      "type": "list-item",
-      "props": {
-        "ordered": false
-      },
-      "text": [
-        {
-          "insert": "packages/docs-workbench/src/run-serve.ts",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-workbench/src/run-serve.ts"
+              "kind": "doc",
+              "path": "20-implementation/10-packages/30-docs-server"
             }
           }
         },
@@ -147,133 +89,16 @@
           "insert": " and "
         },
         {
-          "insert": "packages/docs-workbench/src/spa.ts",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-workbench/src/spa.ts"
-            }
-          }
-        },
-        {
-          "insert": " start and build the served app; "
-        },
-        {
-          "insert": "packages/docs-workbench/src/export.ts",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-workbench/src/export.ts"
-            }
-          }
-        },
-        {
-          "insert": " builds the same SPA in static mode and writes its read-only data snapshot."
-        }
-      ],
-      "children": []
-    },
-    "b-50-docs-workbench-owns-web-7": {
-      "id": "b-50-docs-workbench-owns-web-7",
-      "type": "list-item",
-      "props": {
-        "ordered": false
-      },
-      "text": [
-        {
-          "insert": "packages/docs-workbench/web/src/shell/App.tsx",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-workbench/web/src/shell/App.tsx"
-            }
-          }
-        },
-        {
-          "insert": " owns the standalone navigation shell, and "
-        },
-        {
-          "insert": "packages/docs-workbench/web/src/pages/DocPage.tsx",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-workbench/web/src/pages/DocPage.tsx"
-            }
-          }
-        },
-        {
-          "insert": " owns its two modes: Edit is the default, always-editable auto-save surface; Annotate attaches comments to blocks and canvas objects. "
-        },
-        {
-          "insert": "packages/docs-workbench/web/src/pages/CanvasEmbed.tsx",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-workbench/web/src/pages/CanvasEmbed.tsx"
-            }
-          }
-        },
-        {
-          "insert": " implements the host-side canvas progression: a static section SVG in the document flow, a top-right expansion action that opens the navigable read-only iframe in a same-window full-screen overlay, and an edit handoff shown only by the doc editor. The Canvas Studio base URL is supplied at build time through "
-        },
-        {
-          "insert": "CANVAS_STUDIO_URL",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", defaulting to "
-        },
-        {
-          "insert": "http://localhost:3999",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ". The page also surfaces live SSE change flashes and one-click undo. The block-type catalog is the per-type reference pages under "
-        },
-        {
-          "insert": "block vocabulary",
+          "insert": "docs-viewer — rendering and editing",
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "10-system-design/40-block-vocabulary"
+              "path": "20-implementation/10-packages/40-docs-viewer"
             }
           }
         },
         {
-          "insert": "."
-        }
-      ],
-      "children": []
-    },
-    "b-50-docs-workbench-electron-shell-8": {
-      "id": "b-50-docs-workbench-electron-shell-8",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "The "
-        },
-        {
-          "insert": "packages/docs-workbench/electron/",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-workbench/electron"
-            }
-          }
-        },
-        {
-          "insert": " directory contains a thin Electron shell that wraps the same server+SPA for a desktop app."
+          "insert": " meet. The package owns the host policy that connects them, not either side's reusable logic."
         }
       ],
       "children": []
@@ -286,7 +111,7 @@
       },
       "text": [
         {
-          "insert": "Why It Is Its Own Package"
+          "insert": "The Cut"
         }
       ],
       "children": []
@@ -295,167 +120,42 @@
       "id": "b-50-docs-workbench-composition-decision-10",
       "type": "callout",
       "props": {
-        "kind": "Package decision",
-        "title": "The write and render sides meet here",
+        "kind": "Decision",
+        "title": "The Write and Render Sides Meet Here",
         "tone": "decision"
       },
       "text": [
         {
-          "insert": "This package is the composition point: it is the only place where the docs-server write side and the docs-viewer render side are allowed to meet. Keeping that composition in a thin package makes it non-load-bearing: hosts that embed either piece individually do not pay for the app shell, and the shell can be rebuilt without changing any layer beneath it. The boundary exists because this is a deliverable app, not a library."
+          "insert": "docs-workbench is a deliberately thin composition point. Keeping the runnable app non-load-bearing lets another host embed docs-server or docs-viewer without inheriting this shell, and lets this shell change without changing the contracts below it."
         }
       ],
       "children": []
     },
-    "b-50-docs-workbench-dependencies-heading-11": {
-      "id": "b-50-docs-workbench-dependencies-heading-11",
-      "type": "heading",
+    "b-50-docs-workbench-cut-detail-19": {
+      "id": "b-50-docs-workbench-cut-detail-19",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This boundary is forced at the deliverable level, not at the library level. A runnable installation needs server startup, browser routing, transport policy, session identity, host-provided embeds, settings persistence, and optional desktop lifecycle. None of those concerns changes the document format, write authority, or viewer contract, so they remain replaceable host glue."
+        }
+      ],
+      "children": []
+    },
+    "b-50-docs-workbench-boundary-review-15": {
+      "id": "b-50-docs-workbench-boundary-review-15",
+      "type": "callout",
       "props": {
-        "level": 2
+        "kind": "Open call",
+        "title": "The CLI and App May Converge",
+        "tone": "info"
       },
       "text": [
         {
-          "insert": "Dependencies"
-        }
-      ],
-      "children": []
-    },
-    "b-50-docs-workbench-runtime-dependencies-12": {
-      "id": "b-50-docs-workbench-runtime-dependencies-12",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "Its runtime dependencies are "
+          "insert": "Merging docs-cli and docs-workbench remains a live candidate. "
         },
         {
-          "insert": "@codecaine-ai/canvas",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "@codecaine-ai/docs-index",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "@codecaine-ai/docs-model",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "@codecaine-ai/docs-server",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "@codecaine-ai/docs-viewer",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "elysia",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "react",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "react-dom",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", and "
-        },
-        {
-          "insert": "lucide-react",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "."
-        }
-      ],
-      "children": []
-    },
-    "b-50-docs-workbench-architectural-dependencies-13": {
-      "id": "b-50-docs-workbench-architectural-dependencies-13",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "The decisive pair is "
-        },
-        {
-          "insert": "docs-server",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "20-implementation/10-packages/30-docs-server"
-            }
-          }
-        },
-        {
-          "insert": " and "
-        },
-        {
-          "insert": "docs-viewer",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "20-implementation/10-packages/40-docs-viewer"
-            }
-          }
-        },
-        {
-          "insert": ": docs-workbench is the only package that depends on both. The server supplies the write-capable route factory; the viewer supplies the render and edit surfaces that the SPA wraps."
-        }
-      ],
-      "children": []
-    },
-    "b-50-docs-workbench-dependent-cli-14": {
-      "id": "b-50-docs-workbench-dependent-cli-14",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "The "
-        },
-        {
-          "insert": "docs-cli",
+          "insert": "docs-cli — the agent dialect",
           "attributes": {
             "reference": {
               "kind": "doc",
@@ -464,7 +164,7 @@
           }
         },
         {
-          "insert": " package depends on docs-workbench: its "
+          "insert": " already delegates "
         },
         {
           "insert": "serve",
@@ -482,114 +182,1497 @@
           }
         },
         {
-          "insert": " commands drive this app."
+          "insert": " to this package. The current command-surface versus app-shell split is a judgment call, not an incompatible-runtime boundary."
         }
       ],
       "children": []
     },
-    "b-50-docs-workbench-boundary-review-15": {
-      "id": "b-50-docs-workbench-boundary-review-15",
-      "type": "callout",
-      "props": {
-        "kind": "Boundary under review",
-        "title": "The CLI and app shell may converge",
-        "tone": "info"
-      },
-      "text": [
-        {
-          "insert": "Merging docs-cli and docs-workbench is a live candidate. The CLI already depends on the workbench for serve and export, and the two ship together in practice. The current split is a judgment call between command surface and app shell, not a forced boundary."
-        }
-      ],
-      "children": []
-    },
-    "b-50-docs-workbench-using-heading-16": {
-      "id": "b-50-docs-workbench-using-heading-16",
+    "b-50-docs-workbench-owns-heading-3": {
+      "id": "b-50-docs-workbench-owns-heading-3",
       "type": "heading",
       "props": {
         "level": 2
       },
       "text": [
         {
-          "insert": "Using It Alone"
+          "insert": "Module Map"
         }
       ],
       "children": []
     },
-    "b-50-docs-workbench-serve-alone-17": {
-      "id": "b-50-docs-workbench-serve-alone-17",
-      "type": "paragraph",
-      "props": {},
+    "b-50-docs-workbench-module-map-20": {
+      "id": "b-50-docs-workbench-module-map-20",
+      "type": "file-tree",
+      "props": {
+        "entries": [
+          {
+            "path": "packages/docs-workbench/src/index.ts",
+            "note": "Package exports and compatibility re-exports."
+          },
+          {
+            "path": "packages/docs-workbench/src/server.ts",
+            "note": "Bun/Elysia host around the docs-server route factory and optional SPA."
+          },
+          {
+            "path": "packages/docs-workbench/src/run-serve.ts",
+            "note": "Single-port production serve or two-port Vite development composition."
+          },
+          {
+            "path": "packages/docs-workbench/src/spa.ts",
+            "note": "Mode-specific Vite build location, cache, and staleness check."
+          },
+          {
+            "path": "packages/docs-workbench/src/export.ts",
+            "note": "Static SPA plus read-only data snapshot."
+          },
+          {
+            "path": "packages/docs-workbench/src/__tests__/",
+            "note": "Route, confinement, export, and filesystem-watch integration."
+          },
+          {
+            "path": "packages/docs-workbench/web/src/main.tsx",
+            "note": "React entrypoint."
+          },
+          {
+            "path": "packages/docs-workbench/web/src/data/",
+            "note": "Live/static API policy, DocsClient binding, and per-tab session identity."
+          },
+          {
+            "path": "packages/docs-workbench/web/src/pages/",
+            "note": "Document, annotation, canvas, and sequence host pages."
+          },
+          {
+            "path": "packages/docs-workbench/web/src/shell/",
+            "note": "Hash-routed app shell, docs tree, and settings runtime."
+          },
+          {
+            "path": "packages/docs-workbench/web/src/theme/",
+            "note": "Workbench theme source and theme-folder compiler."
+          },
+          {
+            "path": "packages/docs-workbench/web/src/lib/",
+            "note": "Workbench import points for viewer-owned helpers."
+          },
+          {
+            "path": "packages/docs-workbench/web/src/__tests__/",
+            "note": "Host wiring and browser-runtime integration."
+          },
+          {
+            "path": "packages/docs-workbench/web/vite.config.ts",
+            "note": "Serve/static build variants and development API proxy."
+          },
+          {
+            "path": "packages/docs-workbench/electron/main.cjs",
+            "note": "Desktop process and window lifecycle."
+          }
+        ]
+      },
+      "children": []
+    },
+    "b-50-docs-workbench-public-heading-21": {
+      "id": "b-50-docs-workbench-public-heading-21",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
       "text": [
         {
-          "insert": "It is the thing you run. Use "
-        },
-        {
-          "insert": "docs serve --root docs --port 4802",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " or "
-        },
-        {
-          "insert": "make serve",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " to serve a docs root on "
-        },
-        {
-          "insert": ":4802",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "; the development setup puts Vite HMR on "
-        },
-        {
-          "insert": ":4803",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "."
+          "insert": "The Public Surface"
         }
       ],
       "children": []
     },
-    "b-50-docs-workbench-export-alone-18": {
-      "id": "b-50-docs-workbench-export-alone-18",
+    "b-50-docs-workbench-public-surface-22": {
+      "id": "b-50-docs-workbench-public-surface-22",
+      "type": "interaction-surface",
+      "props": {
+        "operations": [
+          {
+            "name": "@codecaine-ai/docs-workbench",
+            "description": "Exports serve lifecycle, SPA build, static export, and compatibility bundle helpers.",
+            "returns": "createDocsServeApp, startDocsServe, runServe, runExport, ensureSpaBuilt, and related types/helpers"
+          },
+          {
+            "name": "@codecaine-ai/docs-workbench/server",
+            "description": "Direct server-host entrypoint.",
+            "returns": "server.ts exports"
+          },
+          {
+            "name": "@codecaine-ai/docs-workbench/export",
+            "description": "Direct static-export entrypoint.",
+            "returns": "runExport and export report types"
+          },
+          {
+            "name": "createDocsServeApp",
+            "description": "Creates the Elysia app without choosing a listener.",
+            "params": [
+              {
+                "name": "options",
+                "type": "DocsServeAppOptions",
+                "required": true
+              }
+            ],
+            "returns": "Elysia app"
+          },
+          {
+            "name": "HTTP /api/*",
+            "description": "Mounts the response-shape-identical docs-server route table, plus the workbench-owned serve configuration route."
+          },
+          {
+            "name": "GET /*",
+            "description": "Serves a built SPA when staticDir is present; unknown safe paths fall back to index.html."
+          },
+          {
+            "name": "runExport",
+            "description": "Builds the static SPA variant and emits its relative data tree.",
+            "params": [
+              {
+                "name": "options",
+                "type": "ExportOptions",
+                "required": true
+              }
+            ],
+            "returns": "Promise<ExportReport>"
+          }
+        ],
+        "title": "docs-workbench — package and host surface"
+      },
+      "children": []
+    },
+    "b-50-docs-workbench-route-ownership-23": {
+      "id": "b-50-docs-workbench-route-ownership-23",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "Run "
+          "insert": "packages/docs-workbench/src/index.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/src/index.ts"
+            }
+          }
         },
         {
-          "insert": "docs export",
+          "insert": " exposes the runnable helpers. The HTTP contract still comes from docs-server; the workbench adds only invocation-specific configuration and SPA delivery."
+        }
+      ],
+      "children": []
+    },
+    "b-50-docs-workbench-server-heading-24": {
+      "id": "b-50-docs-workbench-server-heading-24",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The Bun Server and Vite SPA"
+        }
+      ],
+      "children": []
+    },
+    "b-50-docs-workbench-server-host-25": {
+      "id": "b-50-docs-workbench-server-host-25",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Bun/Elysia host"
+        }
+      ],
+      "children": [
+        "b-50-docs-workbench-server-host-gloss"
+      ]
+    },
+    "b-50-docs-workbench-server-host-gloss": {
+      "id": "b-50-docs-workbench-server-host-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-workbench/src/server.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/src/server.ts"
+            }
+          }
+        },
+        {
+          "insert": " creates a docs store, mounts "
+        },
+        {
+          "insert": "createDocsRoutes",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " when the deliverable must be a fully static, read-only site. It is produced from the same app code; only the data source and write capabilities change. For the concrete runtime flow, see "
+          "insert": ", primes the backlinks connection, and optionally bridges filesystem changes onto the store's event bus. The only API route it defines itself is "
         },
         {
-          "insert": "the workbench implementation",
+          "insert": "/api/serve-config",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " because "
+        },
+        {
+          "insert": "themeLocked",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " describes this serve invocation rather than the docs tree."
+        }
+      ],
+      "children": []
+    },
+    "b-50-docs-workbench-serve-coordinator-26": {
+      "id": "b-50-docs-workbench-serve-coordinator-26",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Serve coordinator"
+        }
+      ],
+      "children": [
+        "b-50-docs-workbench-serve-coordinator-gloss"
+      ]
+    },
+    "b-50-docs-workbench-serve-coordinator-gloss": {
+      "id": "b-50-docs-workbench-serve-coordinator-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-workbench/src/run-serve.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/src/run-serve.ts"
+            }
+          }
+        },
+        {
+          "insert": " composes one of two hosts. Default mode asks "
+        },
+        {
+          "insert": "packages/docs-workbench/src/spa.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/src/spa.ts"
+            }
+          }
+        },
+        {
+          "insert": " for a current cached SPA and serves API plus assets from one Elysia listener. Development mode starts the API alone and spawns Vite with an "
+        },
+        {
+          "insert": "/api",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " proxy, separating API and HMR ports."
+        }
+      ],
+      "children": []
+    },
+    "b-50-docs-workbench-vite-variants-27": {
+      "id": "b-50-docs-workbench-vite-variants-27",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Vite variants"
+        }
+      ],
+      "children": [
+        "b-50-docs-workbench-vite-variants-gloss"
+      ]
+    },
+    "b-50-docs-workbench-vite-variants-gloss": {
+      "id": "b-50-docs-workbench-vite-variants-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-workbench/web/vite.config.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/vite.config.ts"
+            }
+          }
+        },
+        {
+          "insert": " builds the live SPA into "
+        },
+        {
+          "insert": "dist",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and the export SPA into "
+        },
+        {
+          "insert": "dist-static",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Relative asset bases and hash navigation let both variants run below an arbitrary host path."
+        }
+      ],
+      "children": []
+    },
+    "b-50-docs-workbench-viewer-heading-28": {
+      "id": "b-50-docs-workbench-viewer-heading-28",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The Host-to-Viewer Seam"
+        }
+      ],
+      "children": []
+    },
+    "b-50-docs-workbench-viewer-seam-29": {
+      "id": "b-50-docs-workbench-viewer-seam-29",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/docs-workbench/web/src/shell/App.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/shell/App.tsx"
+            }
+          }
+        },
+        {
+          "insert": " mounts "
+        },
+        {
+          "insert": "DocsClientProvider",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with a standalone "
+        },
+        {
+          "insert": "DocsClient",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and the canvas and sequence embed slots. This is the browser-side composition point: viewer components ask for host capabilities, and the workbench binds those capabilities to its server, asset URLs, and neighboring diagram packages."
+        }
+      ],
+      "children": []
+    },
+    "b-50-docs-workbench-viewer-surface-30": {
+      "id": "b-50-docs-workbench-viewer-surface-30",
+      "type": "interaction-surface",
+      "props": {
+        "operations": [
+          {
+            "name": "DocsClient.getDocsTree",
+            "description": "Maps the viewer's tree seam to the workbench tree data source; the standalone host ignores projectId.",
+            "params": [
+              {
+                "name": "projectId",
+                "type": "string",
+                "required": true
+              }
+            ],
+            "returns": "Promise<{ tree: DocsTreeNode[] }>"
+          },
+          {
+            "name": "DocsClient.getDocBundle",
+            "description": "Maps the viewer's peek seam to the workbench bundle data source; the standalone host ignores projectId.",
+            "params": [
+              {
+                "name": "projectId",
+                "type": "string",
+                "required": true
+              },
+              {
+                "name": "path",
+                "type": "string",
+                "required": true
+              }
+            ],
+            "returns": "Promise<{ doc: unknown; documentPath?: string } | null>"
+          },
+          {
+            "name": "DocsClient draft-lock methods",
+            "description": "Maps the viewer's optional lock seam to the live server with the tab session id; omitted in static builds.",
+            "params": [
+              {
+                "name": "projectId",
+                "type": "string",
+                "required": true
+              },
+              {
+                "name": "path",
+                "type": "string",
+                "required": true
+              },
+              {
+                "name": "kind",
+                "type": "DraftLockKind",
+                "required": true
+              },
+              {
+                "name": "sessionId",
+                "type": "string",
+                "required": true
+              }
+            ],
+            "returns": "Promise<AcquireDraftLockResult> or Promise<void>"
+          },
+          {
+            "name": "canvasEmbed",
+            "description": "Supplies the host-selected canvas implementation to DocBlockRenderer."
+          },
+          {
+            "name": "sequenceEmbed",
+            "description": "Supplies the host-selected sequence implementation to DocBlockRenderer."
+          },
+          {
+            "name": "DocEditor.onApplyOps",
+            "description": "Hands the viewer's format-level operation batch to the host page, which adds transport, hash, and session policy.",
+            "params": [
+              {
+                "name": "ops",
+                "type": "DocOp[]",
+                "required": true
+              }
+            ],
+            "returns": "Promise<DocBlockSaveResult>"
+          }
+        ],
+        "title": "Workbench bindings into docs-viewer"
+      },
+      "children": []
+    },
+    "b-50-docs-workbench-host-pages-31": {
+      "id": "b-50-docs-workbench-host-pages-31",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Host pages"
+        }
+      ],
+      "children": [
+        "b-50-docs-workbench-host-pages-gloss"
+      ]
+    },
+    "b-50-docs-workbench-host-pages-gloss": {
+      "id": "b-50-docs-workbench-host-pages-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-workbench/web/src/pages/DocPage.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/pages/DocPage.tsx"
+            }
+          }
+        },
+        {
+          "insert": " chooses the open bundle, passes data and callbacks into viewer-owned editor, renderer, targeting, and annotation components, and reacts to save and navigation results. App mounts the viewer-owned peek panel beside it. These are host decisions because they mention paths, hashes, HTTP errors, sessions, and route changes; neither page defines block rendering or editor behavior."
+        }
+      ],
+      "children": []
+    },
+    "b-50-docs-workbench-canvas-slot-32": {
+      "id": "b-50-docs-workbench-canvas-slot-32",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Canvas and sequence slots"
+        }
+      ],
+      "children": [
+        "b-50-docs-workbench-canvas-slot-gloss"
+      ]
+    },
+    "b-50-docs-workbench-canvas-slot-gloss": {
+      "id": "b-50-docs-workbench-canvas-slot-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-workbench/web/src/pages/CanvasEmbed.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/pages/CanvasEmbed.tsx"
+            }
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "packages/docs-workbench/web/src/pages/SequenceEmbed.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/pages/SequenceEmbed.tsx"
+            }
+          }
+        },
+        {
+          "insert": " resolve workbench sidecars, validate them with their owning packages, and select the Studio handoff when no sidecar exists. That is host policy: docs-viewer exposes slots and never imports either diagram engine."
+        }
+      ],
+      "children": []
+    },
+    "b-50-docs-workbench-design-homes-33": {
+      "id": "b-50-docs-workbench-design-homes-33",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Editor behavior and system UI are specified in "
+        },
+        {
+          "insert": "Editor design",
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "docs/20-implementation/20-workbench.md"
+              "path": "10-system-design/50-editor-design"
+            }
+          }
+        },
+        {
+          "insert": ". This package page covers only how the runnable host supplies those surfaces."
+        }
+      ],
+      "children": []
+    },
+    "b-50-docs-workbench-policy-heading-34": {
+      "id": "b-50-docs-workbench-policy-heading-34",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Host Policy"
+        }
+      ],
+      "children": []
+    },
+    "b-50-docs-workbench-api-policy-35": {
+      "id": "b-50-docs-workbench-api-policy-35",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "API client policy"
+        }
+      ],
+      "children": [
+        "b-50-docs-workbench-api-policy-gloss"
+      ]
+    },
+    "b-50-docs-workbench-api-policy-gloss": {
+      "id": "b-50-docs-workbench-api-policy-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-workbench/web/src/data/api.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/data/api.ts"
+            }
+          }
+        },
+        {
+          "insert": " is the transport boundary. It chooses live "
+        },
+        {
+          "insert": "api/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " requests or exported "
+        },
+        {
+          "insert": "data/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " files at build time, adds expected hashes and session ids to mutations, and converts HTTP failures into host-level errors. docs-viewer therefore knows no URLs or response envelopes."
+        }
+      ],
+      "children": []
+    },
+    "b-50-docs-workbench-session-policy-36": {
+      "id": "b-50-docs-workbench-session-policy-36",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Session identity"
+        }
+      ],
+      "children": [
+        "b-50-docs-workbench-session-policy-gloss"
+      ]
+    },
+    "b-50-docs-workbench-session-policy-gloss": {
+      "id": "b-50-docs-workbench-session-policy-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-workbench/web/src/data/session.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/data/session.ts"
+            }
+          }
+        },
+        {
+          "insert": " creates one id per browser tab and keeps it across SPA reloads. "
+        },
+        {
+          "insert": "packages/docs-workbench/web/src/data/client.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/data/client.ts"
+            }
+          }
+        },
+        {
+          "insert": " substitutes that id into viewer-requested lock calls so lock ownership, operation writes, annotation writes, and SSE self-echo filtering all name the same actor."
+        }
+      ],
+      "children": []
+    },
+    "b-50-docs-workbench-sse-policy-37": {
+      "id": "b-50-docs-workbench-sse-policy-37",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "SSE wiring"
+        }
+      ],
+      "children": [
+        "b-50-docs-workbench-sse-policy-gloss"
+      ]
+    },
+    "b-50-docs-workbench-sse-policy-gloss": {
+      "id": "b-50-docs-workbench-sse-policy-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The API layer consumes "
+        },
+        {
+          "insert": "/api/events",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " through EventSource or a streaming-fetch fallback and removes frames from the current tab. DocPage refreshes a clean open bundle, leaves a dirty draft untouched so its hash precondition owns the conflict, and remounts a referenced canvas when its sidecar changes. Event production remains docs-server logic; deciding how this app reacts is host glue."
+        }
+      ],
+      "children": []
+    },
+    "b-50-docs-workbench-theme-policy-38": {
+      "id": "b-50-docs-workbench-theme-policy-38",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Theme and settings runtime"
+        }
+      ],
+      "children": [
+        "b-50-docs-workbench-theme-policy-gloss"
+      ]
+    },
+    "b-50-docs-workbench-theme-policy-gloss": {
+      "id": "b-50-docs-workbench-theme-policy-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The shell decides whether this serve authors a repo theme or consumes the locked default, coordinates browser settings with the theme routes, and applies the resolved runtime layer to the document. Those decisions belong to the app because they combine invocation flags, browser storage, DOM state, and server persistence. The token, folder, and override contracts live in "
+        },
+        {
+          "insert": "Theming: Overview",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/40-theming"
             }
           }
         },
         {
           "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-50-docs-workbench-static-heading-39": {
+      "id": "b-50-docs-workbench-static-heading-39",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Static Export"
+        }
+      ],
+      "children": []
+    },
+    "b-50-docs-workbench-static-export-40": {
+      "id": "b-50-docs-workbench-static-export-40",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/docs-workbench/src/export.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/src/export.ts"
+            }
+          }
+        },
+        {
+          "insert": " packages the same SPA with a different data adapter. It writes the docs tree, bundle-shaped snapshots, rendered Markdown, backlinks, and files under asset directories beside the static build. It reuses docs-model, docs-index, and docs-server read helpers rather than recreating their semantics in an exporter."
+        }
+      ],
+      "children": []
+    },
+    "b-50-docs-workbench-static-client-41": {
+      "id": "b-50-docs-workbench-static-client-41",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The static build reads only relative "
+        },
+        {
+          "insert": "data/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " URLs. Its DocsClient omits lock methods, mutation helpers reject writes, the page mounts the read renderer instead of the editor, and SSE becomes a no-op. Static export is therefore deployment glue around the shared viewer, not a second viewer or a reduced server."
+        }
+      ],
+      "children": []
+    },
+    "b-50-docs-workbench-run-heading-42": {
+      "id": "b-50-docs-workbench-run-heading-42",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Desktop and Run Modes"
+        }
+      ],
+      "children": []
+    },
+    "b-50-docs-workbench-run-table-43": {
+      "id": "b-50-docs-workbench-run-table-43",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Target",
+          "Processes",
+          "Composition"
+        ],
+        "density": "compact",
+        "rows": [
+          [
+            "make dev",
+            "Electron + docs CLI/API + Vite dev server",
+            "Electron passes --dev. The API watches the docs root on :4803; Vite serves HMR on :4804 and proxies /api to :4803; the window loads the Vite origin."
+          ],
+          [
+            "make app",
+            "Electron + docs CLI with one Elysia listener",
+            "The serve runner validates or rebuilds the cached SPA, then serves API and static assets together on :4802; the window loads that origin."
+          ]
+        ],
+        "title": "Makefile app compositions"
+      },
+      "children": []
+    },
+    "b-50-docs-workbench-electron-shell-8": {
+      "id": "b-50-docs-workbench-electron-shell-8",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/docs-workbench/electron/main.cjs",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/electron/main.cjs"
+            }
+          }
+        },
+        {
+          "insert": " is process glue only. It starts the CLI serve command, waits for the selected origin, opens a context-isolated window, sends non-local navigation to the operating system, and terminates the child server with the app. It contains no docs route, viewer, or persistence logic."
+        }
+      ],
+      "children": []
+    },
+    "b-50-docs-workbench-invariants-heading-44": {
+      "id": "b-50-docs-workbench-invariants-heading-44",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Invariants and Firewalls"
+        }
+      ],
+      "children": []
+    },
+    "b-50-docs-workbench-invariant-authority-45": {
+      "id": "b-50-docs-workbench-invariant-authority-45",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Authority stays below the host"
+        }
+      ],
+      "children": [
+        "b-50-docs-workbench-invariant-authority-gloss"
+      ]
+    },
+    "b-50-docs-workbench-invariant-authority-gloss": {
+      "id": "b-50-docs-workbench-invariant-authority-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The Bun host must mount docs-server's route factory rather than copy write rules. The React host must compose docs-viewer surfaces rather than define block rendering or editor semantics. The real server in the integration tests exercises both halves through this seam."
+        }
+      ],
+      "children": []
+    },
+    "b-50-docs-workbench-invariant-session-46": {
+      "id": "b-50-docs-workbench-invariant-session-46",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "One tab has one actor id"
+        }
+      ],
+      "children": [
+        "b-50-docs-workbench-invariant-session-gloss"
+      ]
+    },
+    "b-50-docs-workbench-invariant-session-gloss": {
+      "id": "b-50-docs-workbench-invariant-session-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Draft locks and mutations must carry the same per-tab session id. If they diverge, the server correctly rejects the tab's own writes as a foreign lock holder, and SSE self-echo filtering also stops matching."
+        }
+      ],
+      "children": []
+    },
+    "b-50-docs-workbench-invariant-static-47": {
+      "id": "b-50-docs-workbench-invariant-static-47",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Static means read-only by construction"
+        }
+      ],
+      "children": [
+        "b-50-docs-workbench-invariant-static-gloss"
+      ]
+    },
+    "b-50-docs-workbench-invariant-static-gloss": {
+      "id": "b-50-docs-workbench-invariant-static-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The export contains no write endpoints. The build-time data adapter, reduced DocsClient, and page selection must all agree on that absence; hiding controls alone is not the guarantee."
+        }
+      ],
+      "children": []
+    },
+    "b-50-docs-workbench-invariant-lifecycle-48": {
+      "id": "b-50-docs-workbench-invariant-lifecycle-48",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Host resources follow host lifecycle"
+        }
+      ],
+      "children": [
+        "b-50-docs-workbench-invariant-lifecycle-gloss"
+      ]
+    },
+    "b-50-docs-workbench-invariant-lifecycle-gloss": {
+      "id": "b-50-docs-workbench-invariant-lifecycle-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Filesystem watching defaults off for bare app creation and closes through Elysia's stop lifecycle; the runnable enables it. The listener defaults to loopback because the served tree may be private and the route table is write-capable. Electron owns the child process it starts."
+        }
+      ],
+      "children": []
+    },
+    "b-50-docs-workbench-related-heading-49": {
+      "id": "b-50-docs-workbench-related-heading-49",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Related Files"
+        }
+      ],
+      "children": []
+    },
+    "b-50-docs-workbench-related-server-heading-50": {
+      "id": "b-50-docs-workbench-related-server-heading-50",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Server and Packaging"
+        }
+      ],
+      "children": []
+    },
+    "b-50-docs-workbench-related-server-51": {
+      "id": "b-50-docs-workbench-related-server-51",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-workbench/src/server.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/src/server.ts"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-50-docs-workbench-related-server-gloss"
+      ]
+    },
+    "b-50-docs-workbench-related-server-gloss": {
+      "id": "b-50-docs-workbench-related-server-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Mounts docs-server, invocation configuration, watching, and static delivery."
+        }
+      ],
+      "children": []
+    },
+    "b-50-docs-workbench-related-run-52": {
+      "id": "b-50-docs-workbench-related-run-52",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-workbench/src/run-serve.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/src/run-serve.ts"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-50-docs-workbench-related-run-gloss"
+      ]
+    },
+    "b-50-docs-workbench-related-run-gloss": {
+      "id": "b-50-docs-workbench-related-run-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Composes cached single-port serving or two-port Vite development."
+        }
+      ],
+      "children": []
+    },
+    "b-50-docs-workbench-related-spa-53": {
+      "id": "b-50-docs-workbench-related-spa-53",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-workbench/src/spa.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/src/spa.ts"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-50-docs-workbench-related-spa-gloss"
+      ]
+    },
+    "b-50-docs-workbench-related-spa-gloss": {
+      "id": "b-50-docs-workbench-related-spa-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Builds or reuses the mode-specific Vite output."
+        }
+      ],
+      "children": []
+    },
+    "b-50-docs-workbench-related-export-54": {
+      "id": "b-50-docs-workbench-related-export-54",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-workbench/src/export.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/src/export.ts"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-50-docs-workbench-related-export-gloss"
+      ]
+    },
+    "b-50-docs-workbench-related-export-gloss": {
+      "id": "b-50-docs-workbench-related-export-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Emits the static SPA and its read-only data files."
+        }
+      ],
+      "children": []
+    },
+    "b-50-docs-workbench-related-web-heading-55": {
+      "id": "b-50-docs-workbench-related-web-heading-55",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Browser Host"
+        }
+      ],
+      "children": []
+    },
+    "b-50-docs-workbench-related-app-56": {
+      "id": "b-50-docs-workbench-related-app-56",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-workbench/web/src/shell/App.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/shell/App.tsx"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-50-docs-workbench-related-app-gloss"
+      ]
+    },
+    "b-50-docs-workbench-related-app-gloss": {
+      "id": "b-50-docs-workbench-related-app-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Supplies DocsClient, embed slots, navigation, and settings runtime."
+        }
+      ],
+      "children": []
+    },
+    "b-50-docs-workbench-related-page-57": {
+      "id": "b-50-docs-workbench-related-page-57",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-workbench/web/src/pages/DocPage.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/pages/DocPage.tsx"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-50-docs-workbench-related-page-gloss"
+      ]
+    },
+    "b-50-docs-workbench-related-page-gloss": {
+      "id": "b-50-docs-workbench-related-page-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Binds viewer surfaces to bundle, save, annotation, event, and navigation policy."
+        }
+      ],
+      "children": []
+    },
+    "b-50-docs-workbench-related-api-58": {
+      "id": "b-50-docs-workbench-related-api-58",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-workbench/web/src/data/api.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/data/api.ts"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-50-docs-workbench-related-api-gloss"
+      ]
+    },
+    "b-50-docs-workbench-related-api-gloss": {
+      "id": "b-50-docs-workbench-related-api-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Selects live or exported data and owns HTTP and SSE policy."
+        }
+      ],
+      "children": []
+    },
+    "b-50-docs-workbench-related-client-59": {
+      "id": "b-50-docs-workbench-related-client-59",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-workbench/web/src/data/client.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/data/client.ts"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-50-docs-workbench-related-client-gloss"
+      ]
+    },
+    "b-50-docs-workbench-related-client-gloss": {
+      "id": "b-50-docs-workbench-related-client-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Adapts the workbench data layer to the viewer's DocsClient seam."
+        }
+      ],
+      "children": []
+    },
+    "b-50-docs-workbench-related-session-60": {
+      "id": "b-50-docs-workbench-related-session-60",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-workbench/web/src/data/session.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/data/session.ts"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-50-docs-workbench-related-session-gloss"
+      ]
+    },
+    "b-50-docs-workbench-related-session-gloss": {
+      "id": "b-50-docs-workbench-related-session-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Defines the stable per-tab actor identity shared by locks, writes, and events."
+        }
+      ],
+      "children": []
+    },
+    "b-50-docs-workbench-related-launch-heading-61": {
+      "id": "b-50-docs-workbench-related-launch-heading-61",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Launch"
+        }
+      ],
+      "children": []
+    },
+    "b-50-docs-workbench-related-electron-62": {
+      "id": "b-50-docs-workbench-related-electron-62",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-workbench/electron/main.cjs",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/electron/main.cjs"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-50-docs-workbench-related-electron-gloss"
+      ]
+    },
+    "b-50-docs-workbench-related-electron-gloss": {
+      "id": "b-50-docs-workbench-related-electron-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Owns the desktop child process, readiness wait, window, and shutdown."
+        }
+      ],
+      "children": []
+    },
+    "b-50-docs-workbench-related-makefile-63": {
+      "id": "b-50-docs-workbench-related-makefile-63",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Makefile",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "Makefile"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-50-docs-workbench-related-makefile-gloss"
+      ]
+    },
+    "b-50-docs-workbench-related-makefile-gloss": {
+      "id": "b-50-docs-workbench-related-makefile-gloss",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Names the browser, desktop, development, and cached-build entrypoints."
         }
       ],
       "children": []

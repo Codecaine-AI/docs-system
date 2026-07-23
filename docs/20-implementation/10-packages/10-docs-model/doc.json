@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "id": "10-system-design-30-packages-10-docs-model",
-  "title": "docs-model — the format",
+  "id": "20-implementation-10-packages-10-docs-model",
+  "title": "docs-model — The Format",
   "root": "b-10-docs-model-root",
   "blocks": {
     "b-10-docs-model-root": {
@@ -9,39 +9,46 @@
       "type": "paragraph",
       "props": {},
       "children": [
-        "b-10-docs-model-title-1",
         "b-10-docs-model-lead-2",
-        "b-10-docs-model-owns-3",
-        "b-10-docs-model-scope-4",
-        "b-10-docs-model-schema-5",
-        "b-10-docs-model-tree-6",
-        "b-10-docs-model-ops-7",
-        "b-10-docs-model-components-8",
-        "b-10-docs-model-comments-9",
-        "b-10-docs-model-projection-10",
         "b-10-docs-model-why-11",
-        "b-10-docs-model-runtimes-12",
         "b-10-docs-model-decision-13",
-        "b-10-docs-model-boundary-14",
-        "b-10-docs-model-dependencies-15",
-        "b-10-docs-model-dependency-table-16",
-        "b-10-docs-model-center-17",
+        "b-10-docs-model-owns-3",
+        "b-10-docs-model-tree-6",
         "b-10-docs-model-alone-18",
-        "b-10-docs-model-consumers-19"
+        "b-10-docs-model-consumers-19",
+        "b-10-docs-model-public-surface-20",
+        "b-10-docs-model-design-21",
+        "b-10-docs-model-schema-heading-22",
+        "b-10-docs-model-schema-5",
+        "b-10-docs-model-validation-23",
+        "b-10-docs-model-components-heading-24",
+        "b-10-docs-model-components-8",
+        "b-10-docs-model-registry-25",
+        "b-10-docs-model-write-validation-26",
+        "b-10-docs-model-ops-heading-27",
+        "b-10-docs-model-ops-7",
+        "b-10-docs-model-named-action-28",
+        "b-10-docs-model-bytes-heading-29",
+        "b-10-docs-model-projection-10",
+        "b-10-docs-model-canonical-30",
+        "b-10-docs-model-comments-heading-31",
+        "b-10-docs-model-comments-9",
+        "b-10-docs-model-dependencies-15",
+        "b-10-docs-model-boundary-14",
+        "b-10-docs-model-firewall-ui-32",
+        "b-10-docs-model-firewall-authorities-34",
+        "b-10-docs-model-firewall-runtime-36",
+        "b-10-docs-model-firewall-identity-38",
+        "b-10-docs-model-dependencies-heading-40",
+        "b-10-docs-model-dependency-table-16",
+        "b-10-docs-model-related-heading-41",
+        "b-10-docs-model-related-schema-42",
+        "b-10-docs-model-related-ops-44",
+        "b-10-docs-model-related-registry-46",
+        "b-10-docs-model-related-checks-48",
+        "b-10-docs-model-related-render-50",
+        "b-10-docs-model-related-firewall-52"
       ]
-    },
-    "b-10-docs-model-title-1": {
-      "id": "b-10-docs-model-title-1",
-      "type": "heading",
-      "props": {
-        "level": 1
-      },
-      "text": [
-        {
-          "insert": "docs-model — the Format"
-        }
-      ],
-      "children": []
     },
     "b-10-docs-model-lead-2": {
       "id": "b-10-docs-model-lead-2",
@@ -55,7 +62,7 @@
           }
         },
         {
-          "insert": " is the dependency-pure TypeScript definition of "
+          "insert": " is the runtime-neutral schema authority for "
         },
         {
           "insert": "doc.json",
@@ -64,7 +71,35 @@
           }
         },
         {
-          "insert": ". It owns the shared format, operations, and rendering that every other package builds around."
+          "insert": ". The browser viewer, Bun server, and CLI consume one definition of document state, valid mutations, canonical bytes, discovery metadata, and agent-facing Markdown. The package owns those semantics without owning storage, transport, or UI."
+        }
+      ],
+      "children": []
+    },
+    "b-10-docs-model-why-11": {
+      "id": "b-10-docs-model-why-11",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The Cut"
+        }
+      ],
+      "children": []
+    },
+    "b-10-docs-model-decision-13": {
+      "id": "b-10-docs-model-decision-13",
+      "type": "callout",
+      "props": {
+        "kind": "Decision",
+        "title": "One Format Crosses Three Runtimes",
+        "tone": "decision"
+      },
+      "text": [
+        {
+          "insert": "This package boundary is a forcing constraint. Moving React or TipTap, Bun I/O, or server policy into the model would make the shared contract unusable in at least one of its consumers."
         }
       ],
       "children": []
@@ -77,18 +112,331 @@
       },
       "text": [
         {
-          "insert": "What It Owns"
+          "insert": "Module Map"
         }
       ],
       "children": []
     },
-    "b-10-docs-model-scope-4": {
-      "id": "b-10-docs-model-scope-4",
+    "b-10-docs-model-tree-6": {
+      "id": "b-10-docs-model-tree-6",
+      "type": "file-tree",
+      "props": {
+        "entries": [
+          {
+            "path": "packages/docs-model/src/",
+            "note": "Runtime-neutral document semantics."
+          },
+          {
+            "path": "packages/docs-model/src/index.ts",
+            "note": "Root re-export surface."
+          },
+          {
+            "path": "packages/docs-model/src/doc-schema.ts",
+            "note": "Document authority, full-document validation, traversal order, and canonical serialization."
+          },
+          {
+            "path": "packages/docs-model/src/doc-ops.ts",
+            "note": "Typed mutation kernel, batching, and exact inverses."
+          },
+          {
+            "path": "packages/docs-model/src/components/",
+            "note": "Component bundle contracts and folded registries."
+          },
+          {
+            "path": "packages/docs-model/src/components/types.ts",
+            "note": "Manifest, state, action, agent-view, and bundle interfaces."
+          },
+          {
+            "path": "packages/docs-model/src/components/index.ts",
+            "note": "Explicit bundle allow-list and derived registries."
+          },
+          {
+            "path": "packages/docs-model/src/components/checks.ts",
+            "note": "Module-load ownership, schema, action, and authority checks."
+          },
+          {
+            "path": "packages/docs-model/src/components/validate.ts",
+            "note": "Static state-schema registry for strict writes."
+          },
+          {
+            "path": "packages/docs-model/src/components/shared/",
+            "note": "Shared field and deterministic JSON-line primitives."
+          },
+          {
+            "path": "packages/docs-model/src/components/rich-text/",
+            "note": "Flow text, callouts, dividers, and media."
+          },
+          {
+            "path": "packages/docs-model/src/components/code/",
+            "note": "Code state, line-annotation actions, and agent view."
+          },
+          {
+            "path": "packages/docs-model/src/components/file-tree/",
+            "note": "Path-entry collection state and actions."
+          },
+          {
+            "path": "packages/docs-model/src/components/structured-table/",
+            "note": "Canonical cells plus row and column actions."
+          },
+          {
+            "path": "packages/docs-model/src/components/interaction-surface/",
+            "note": "Operation-signature collection state and actions."
+          },
+          {
+            "path": "packages/docs-model/src/components/state-shape/",
+            "note": "Recursive field-tree state and actions."
+          },
+          {
+            "path": "packages/docs-model/src/components/canvas/",
+            "note": "Canvas reference state and lifted forwarded actions."
+          },
+          {
+            "path": "packages/docs-model/src/components/sequence/",
+            "note": "Sequence reference state and lifted forwarded actions."
+          },
+          {
+            "path": "packages/docs-model/src/components/waterfall/",
+            "note": "Recursive process-step state, actions, and text grammar."
+          },
+          {
+            "path": "packages/docs-model/src/discovery.ts",
+            "note": "Agent-facing schema, operation, component, and action discovery."
+          },
+          {
+            "path": "packages/docs-model/src/annotations-schema.ts",
+            "note": "Annotation sidecar schema and dangling-target detection."
+          },
+          {
+            "path": "packages/docs-model/src/delta-markdown.ts",
+            "note": "Delta spans to inline Markdown and plain text."
+          },
+          {
+            "path": "packages/docs-model/src/markdown-to-delta.ts",
+            "note": "Inline Markdown back to delta spans and typed references."
+          },
+          {
+            "path": "packages/docs-model/src/project-markdown.ts",
+            "note": "Pure document-to-Markdown render."
+          },
+          {
+            "path": "packages/docs-model/src/spectre-ref.ts",
+            "note": "Shared typed document and source references."
+          },
+          {
+            "path": "packages/docs-model/src/__tests__/",
+            "note": "Schema, op, serialization, rendering, and integration contracts."
+          }
+        ]
+      },
+      "children": []
+    },
+    "b-10-docs-model-alone-18": {
+      "id": "b-10-docs-model-alone-18",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Public Surface"
+        }
+      ],
+      "children": []
+    },
+    "b-10-docs-model-consumers-19": {
+      "id": "b-10-docs-model-consumers-19",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "The package has 88 source files. It is pure TypeScript: no React, filesystem, or network code."
+          "insert": "packages/docs-model/package.json",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/package.json"
+            }
+          }
+        },
+        {
+          "insert": " exposes the root barrel plus focused schema, operation, annotation, Markdown, and reference subpaths. The root "
+        },
+        {
+          "insert": "packages/docs-model/src/index.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/index.ts"
+            }
+          }
+        },
+        {
+          "insert": " re-exports the complete runtime-neutral surface."
+        }
+      ],
+      "children": []
+    },
+    "b-10-docs-model-public-surface-20": {
+      "id": "b-10-docs-model-public-surface-20",
+      "type": "interaction-surface",
+      "props": {
+        "operations": [
+          {
+            "name": "validateDocDocument",
+            "description": "Validate and canonicalize one complete document envelope and normalized block graph.",
+            "params": [
+              {
+                "name": "value",
+                "type": "unknown",
+                "required": true
+              }
+            ],
+            "returns": "DocValidationResult",
+            "kind": "query"
+          },
+          {
+            "name": "serializeDocDocument",
+            "description": "Emit stable, canonical doc.json bytes with one trailing newline.",
+            "params": [
+              {
+                "name": "document",
+                "type": "DocDocument",
+                "required": true
+              }
+            ],
+            "returns": "string",
+            "kind": "query"
+          },
+          {
+            "name": "applyOp",
+            "description": "Apply one typed operation without mutating the input and return exact inverse operations.",
+            "params": [
+              {
+                "name": "doc",
+                "type": "DocDocument",
+                "required": true
+              },
+              {
+                "name": "op",
+                "type": "DocOp",
+                "required": true
+              },
+              {
+                "name": "idFactory",
+                "type": "DocIdFactory",
+                "required": false
+              },
+              {
+                "name": "options",
+                "type": "{ validateProps?: boolean }",
+                "required": false
+              }
+            ],
+            "returns": "DocOpResult",
+            "kind": "action"
+          },
+          {
+            "name": "applyOps",
+            "description": "Apply a batch in order and return one inverse unit in undo order.",
+            "params": [
+              {
+                "name": "doc",
+                "type": "DocDocument",
+                "required": true
+              },
+              {
+                "name": "ops",
+                "type": "DocOp[]",
+                "required": true
+              },
+              {
+                "name": "idFactory",
+                "type": "DocIdFactory",
+                "required": false
+              },
+              {
+                "name": "options",
+                "type": "{ validateProps?: boolean }",
+                "required": false
+              }
+            ],
+            "returns": "DocOpResult",
+            "kind": "action"
+          },
+          {
+            "name": "buildBlocksDiscovery",
+            "description": "Derive the agent-facing operation, component, state, and action catalog from registered bundles.",
+            "params": [],
+            "returns": "BlocksDiscovery",
+            "kind": "query"
+          },
+          {
+            "name": "projectToMarkdown",
+            "description": "Render a validated in-memory document to agent-facing Markdown without I/O.",
+            "params": [
+              {
+                "name": "doc",
+                "type": "DocDocument",
+                "required": true
+              }
+            ],
+            "returns": "string",
+            "kind": "query"
+          },
+          {
+            "name": "inlineToDelta",
+            "description": "Parse inline Markdown into delta spans and typed internal references.",
+            "params": [
+              {
+                "name": "markdown",
+                "type": "string",
+                "required": true
+              }
+            ],
+            "returns": "InlineToDeltaResult",
+            "kind": "query"
+          },
+          {
+            "name": "validateAnnotationsDocument",
+            "description": "Validate the annotations.json sidecar independently of doc.json.",
+            "params": [
+              {
+                "name": "value",
+                "type": "unknown",
+                "required": true
+              }
+            ],
+            "returns": "AnnotationsValidationResult",
+            "kind": "query"
+          }
+        ],
+        "title": "Core Exports"
+      },
+      "children": []
+    },
+    "b-10-docs-model-design-21": {
+      "id": "b-10-docs-model-design-21",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Design Inside the Boundary"
+        }
+      ],
+      "children": []
+    },
+    "b-10-docs-model-schema-heading-22": {
+      "id": "b-10-docs-model-schema-heading-22",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Schema Authority"
         }
       ],
       "children": []
@@ -109,21 +457,15 @@
           }
         },
         {
-          "insert": " defines "
+          "insert": " is the format authority. It defines schema version 1, the literal canonical block vocabulary, stable ids, the normalized id-keyed block map, ordered child ids, delta spans, and typed document or source references. The implementation realizes the contracts in "
         },
         {
-          "insert": "doc.json",
+          "insert": "The data model",
           "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " as a normalized, id-keyed block tree with delta-style rich-text spans. The schema has exactly 14 block types: paragraph, heading, list-item, quote, code, callout, divider, structured-table, file-tree, interaction-surface, mermaid, canvas, image, and video. Retired MDX-era types coerce to callout on read, with the old type name preserved as "
-        },
-        {
-          "insert": "props.kind",
-          "attributes": {
-            "code": true
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model"
+            }
           }
         },
         {
@@ -132,41 +474,248 @@
       ],
       "children": []
     },
-    "b-10-docs-model-tree-6": {
-      "id": "b-10-docs-model-tree-6",
-      "type": "file-tree",
-      "props": {
-        "entries": [
-          {
-            "path": "packages/docs-model/src/doc-schema.ts",
-            "note": "The doc.json schema, validation, and deterministic serializer."
-          },
-          {
-            "path": "packages/docs-model/src/doc-ops.ts",
-            "note": "The seven-operation mutation kernel."
-          },
-          {
-            "path": "packages/docs-model/src/components/<name>/",
-            "note": "Seven component bundles that own all 14 block types."
-          },
-          {
-            "path": "packages/docs-model/src/components/index.ts",
-            "note": "The folded component registry."
-          },
-          {
-            "path": "packages/docs-model/src/comments-schema.ts",
-            "note": "Comment targets for blocks and canvas objects."
-          },
-          {
-            "path": "packages/docs-model/src/project-markdown.ts",
-            "note": "Document-to-Markdown render."
-          },
-          {
-            "path": "packages/docs-model/src/markdown-to-delta.ts",
-            "note": "Inline Markdown back to delta spans."
+    "b-10-docs-model-validation-23": {
+      "id": "b-10-docs-model-validation-23",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "validateDocDocument",
+          "attributes": {
+            "code": true
           }
-        ]
+        },
+        {
+          "insert": " validates the complete document envelope and graph rather than isolated blocks. It rejects mismatched map keys and ids, missing roots, orphan references, shared children, cycles, and unreachable blocks. Reads remain tolerant of component-prop drift, and unknown string block types canonicalize to callouts while preserving their former type as "
+        },
+        {
+          "insert": "props.kind",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "; strict component state belongs to the write boundary."
+        }
+      ],
+      "children": []
+    },
+    "b-10-docs-model-components-heading-24": {
+      "id": "b-10-docs-model-components-heading-24",
+      "type": "heading",
+      "props": {
+        "level": 3
       },
+      "text": [
+        {
+          "insert": "Checked Component Registries"
+        }
+      ],
+      "children": []
+    },
+    "b-10-docs-model-components-8": {
+      "id": "b-10-docs-model-components-8",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/docs-model/src/components/types.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/components/types.ts"
+            }
+          }
+        },
+        {
+          "insert": " defines one vertical "
+        },
+        {
+          "insert": "ComponentBundle",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ": a manifest declares ownership, state definitions close the stored props contract, actions describe structured mutations, and "
+        },
+        {
+          "insert": "agentView",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " renders the family for Markdown. Each component bundle folder under "
+        },
+        {
+          "insert": "packages/docs-model/src/components",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/components"
+            }
+          }
+        },
+        {
+          "insert": " keeps those responsibilities separate in "
+        },
+        {
+          "insert": "manifest.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "state.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "actions/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "agent-view.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". The rich-text bundle has no named actions because its document props are scalar."
+        }
+      ],
+      "children": []
+    },
+    "b-10-docs-model-registry-25": {
+      "id": "b-10-docs-model-registry-25",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/docs-model/src/components/index.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/components/index.ts"
+            }
+          }
+        },
+        {
+          "insert": " keeps an explicit "
+        },
+        {
+          "insert": "ALL_COMPONENTS",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " allow-list, then folds it into type, action, state, and agent-view lookups. This is controlled extensibility rather than run-time plug-in discovery: a component is locally cohesive, while "
+        },
+        {
+          "insert": "DOC_BLOCK_TYPES",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and the central allow-list remain deliberate review points. "
+        },
+        {
+          "insert": "packages/docs-model/src/components/checks.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/components/checks.ts"
+            }
+          }
+        },
+        {
+          "insert": " runs at module load and throws on missing, unknown, or duplicate ownership; missing owned state; open nested object schemas; malformed or duplicate action keys; action/type ownership drift; and unknown forwarded authorities."
+        }
+      ],
+      "children": []
+    },
+    "b-10-docs-model-write-validation-26": {
+      "id": "b-10-docs-model-write-validation-26",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/docs-model/src/components/validate.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/components/validate.ts"
+            }
+          }
+        },
+        {
+          "insert": " compiles a static state-schema registry for the mutation path. That registry omits waterfall, so "
+        },
+        {
+          "insert": "insertBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " do not have a compiled checker for waterfall props. For the types in the static registry, these operations validate the resulting props object, so unknown stored keys fail the closed schema even when an edit only touches text. Action parameter schemas are not required to be closed; local action dispatch ignores and discards stray parameters. "
+        },
+        {
+          "insert": "packages/docs-model/src/components/__tests__/schema-over-corpus.test.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/components/__tests__/schema-over-corpus.test.ts"
+            }
+          }
+        },
+        {
+          "insert": " applies every registered state schema to repository documents, while full-document validation remains a separate structural gate. This split keeps structural reads tolerant while registered mutation checks reject undeclared state."
+        }
+      ],
+      "children": []
+    },
+    "b-10-docs-model-ops-heading-27": {
+      "id": "b-10-docs-model-ops-heading-27",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Typed Operations and Named Actions"
+        }
+      ],
       "children": []
     },
     "b-10-docs-model-ops-7": {
@@ -185,112 +734,179 @@
           }
         },
         {
-          "insert": " defines the seven-op mutation kernel: "
+          "insert": " owns immutable typed-operation contracts, exact inverse batches, strict state-validation handoff for local component actions, and forwarded descriptors for canvas and sequence. Structural and text operations share one inverse boundary with named local actions. The behavioral contract is specified by "
         },
         {
-          "insert": "insertBlock",
+          "insert": "The mutation model: ops, inverses, undo",
           "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "updateBlock",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "deleteBlock",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "moveBlock",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "splitBlock",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "mergeBlocks",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", and "
-        },
-        {
-          "insert": "componentAction",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ". Its pure "
-        },
-        {
-          "insert": "applyOp(doc, op) -> { doc, inverse }",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " returns the inverse that powers undo in docs-server."
-        }
-      ],
-      "children": []
-    },
-    "b-10-docs-model-components-8": {
-      "id": "b-10-docs-model-components-8",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "The seven bundles under "
-        },
-        {
-          "insert": "packages/docs-model/src/components/<name>/",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " are rich-text, code, structured-table, file-tree, interaction-surface, mermaid, and canvas. Together they own all 14 block types; each separates its manifest, state, actions, and agent view. "
-        },
-        {
-          "insert": "packages/docs-model/src/components/index.ts",
-          "attributes": {
-            "code": true,
             "reference": {
-              "kind": "source",
-              "path": "packages/docs-model/src/components/index.ts"
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/50-mutation-model"
             }
           }
         },
         {
-          "insert": " folds them into the registry used by validation, discovery, rendering, and typed actions."
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-10-docs-model-named-action-28": {
+      "id": "b-10-docs-model-named-action-28",
+      "type": "callout",
+      "props": {
+        "kind": "Decision",
+        "title": "Named Action Iff Structured-Collection Semantics",
+        "tone": "decision"
+      },
+      "text": [
+        {
+          "insert": "D7 reserves named actions for mutations with positional or keyed collection semantics. Scalar props and block text change through updateBlock. Local collection actions return a props patch; canvas and sequence actions carry external schema truth and forward to their owning authorities."
+        }
+      ],
+      "children": []
+    },
+    "b-10-docs-model-bytes-heading-29": {
+      "id": "b-10-docs-model-bytes-heading-29",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Canonical Bytes and Markdown Rendering"
+        }
+      ],
+      "children": []
+    },
+    "b-10-docs-model-projection-10": {
+      "id": "b-10-docs-model-projection-10",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "serializeDocDocument",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "packages/docs-model/src/doc-schema.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/doc-schema.ts"
+            }
+          }
+        },
+        {
+          "insert": " fixes key order at the document, block, span, mark, and reference levels; sorts prop keys; emits blocks in depth-first document order; and adds one trailing newline. Equal in-memory documents therefore produce equal bytes even when their object insertion order differs. "
+        },
+        {
+          "insert": "packages/docs-model/src/__tests__/goldens.test.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/__tests__/goldens.test.ts"
+            }
+          }
+        },
+        {
+          "insert": " reserializes the fixture and documentation corpus against their exact on-disk bytes. The byte contract is specified by "
+        },
+        {
+          "insert": "Serialization",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/40-serialization"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-10-docs-model-canonical-30": {
+      "id": "b-10-docs-model-canonical-30",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/docs-model/src/project-markdown.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/project-markdown.ts"
+            }
+          }
+        },
+        {
+          "insert": " owns pure document-to-Markdown rendering and delegates each non-root block to its registered "
+        },
+        {
+          "insert": "agentView",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". "
+        },
+        {
+          "insert": "projectToMarkdown",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is pure: it accepts an in-memory document and returns a string without filesystem access. Delta references render as plain labels on this greppable surface, while "
+        },
+        {
+          "insert": "packages/docs-model/src/markdown-to-delta.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/markdown-to-delta.ts"
+            }
+          }
+        },
+        {
+          "insert": " parses edited inline Markdown back into spans and typed references. The two reader-facing forms are defined by "
+        },
+        {
+          "insert": "Translation layer",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/20-translation-layer"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-10-docs-model-comments-heading-31": {
+      "id": "b-10-docs-model-comments-heading-31",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Annotations Stay Beside the Document"
         }
       ],
       "children": []
@@ -311,88 +927,47 @@
           }
         },
         {
-          "insert": " defines annotations whose targets anchor to document blocks or canvas objects."
-        }
-      ],
-      "children": []
-    },
-    "b-10-docs-model-projection-10": {
-      "id": "b-10-docs-model-projection-10",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "packages/docs-model/src/project-markdown.ts",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-model/src/project-markdown.ts"
-            }
-          }
+          "insert": " defines the independent "
         },
         {
-          "insert": " and "
-        },
-        {
-          "insert": "packages/docs-model/src/markdown-to-delta.ts",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-model/src/markdown-to-delta.ts"
-            }
-          }
-        },
-        {
-          "insert": " cover Markdown conversion in both directions: documents render to Markdown, and edited inline Markdown parses back to delta spans. "
-        },
-        {
-          "insert": "serializeDocDocument",
+          "insert": "annotations.json",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " produces canonical on-disk bytes deterministically; golden tests assert byte equality."
+          "insert": " sidecar. Targets name stable document block ids or exactly one canvas object, connection, or region selector. Validation normalizes the sidecar, and "
+        },
+        {
+          "insert": "detectDanglingTargets",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " reports removed targets without re-anchoring them or crashing the document path. Workflow state therefore stays out of canonical "
+        },
+        {
+          "insert": "doc.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " bytes."
         }
       ],
       "children": []
     },
-    "b-10-docs-model-why-11": {
-      "id": "b-10-docs-model-why-11",
+    "b-10-docs-model-dependencies-15": {
+      "id": "b-10-docs-model-dependencies-15",
       "type": "heading",
       "props": {
         "level": 2
       },
       "text": [
         {
-          "insert": "Why It Is Its Own Package"
-        }
-      ],
-      "children": []
-    },
-    "b-10-docs-model-runtimes-12": {
-      "id": "b-10-docs-model-runtimes-12",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "The browser viewer, Bun server, and CLI must agree on one definition of a valid document and one mutation contract."
-        }
-      ],
-      "children": []
-    },
-    "b-10-docs-model-decision-13": {
-      "id": "b-10-docs-model-decision-13",
-      "type": "callout",
-      "props": {
-        "title": "One format must cross three runtimes",
-        "tone": "decision"
-      },
-      "text": [
-        {
-          "insert": "The only artifact the browser viewer, Bun server, and CLI can all share is a dependency-pure package. This boundary is a forcing constraint, not a judgment call."
+          "insert": "Invariants and Firewalls"
         }
       ],
       "children": []
@@ -403,16 +978,70 @@
       "props": {},
       "text": [
         {
-          "insert": "The root "
+          "insert": "import-boundaries.test.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "import-boundaries.test.ts"
+            }
+          }
         },
         {
-          "insert": "import-boundaries.test.ts",
+          "insert": " enforces the package's import limits. It walks every JavaScript and TypeScript module under "
+        },
+        {
+          "insert": "packages/docs-model/src",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src"
+            }
+          }
+        },
+        {
+          "insert": " and inspects static imports, re-exports, dynamic imports, and "
+        },
+        {
+          "insert": "require",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " enforces the constraint: docs-model may not import "
+          "insert": " calls."
+        }
+      ],
+      "children": []
+    },
+    "b-10-docs-model-firewall-ui-32": {
+      "id": "b-10-docs-model-firewall-ui-32",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "UI independence",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-10-docs-model-firewall-ui-gloss-33"
+      ]
+    },
+    "b-10-docs-model-firewall-ui-gloss-33": {
+      "id": "b-10-docs-model-firewall-ui-gloss-33",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The test rejects imports from "
         },
         {
           "insert": "react",
@@ -430,7 +1059,7 @@
           }
         },
         {
-          "insert": ", or "
+          "insert": ", and "
         },
         {
           "insert": "@tiptap/*",
@@ -439,22 +1068,115 @@
           }
         },
         {
-          "insert": ". It may import canvas only through the "
+          "insert": ". Schema, mutation, and Markdown consumers never inherit the viewer stack."
+        }
+      ],
+      "children": []
+    },
+    "b-10-docs-model-firewall-authorities-34": {
+      "id": "b-10-docs-model-firewall-authorities-34",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "External authority containment",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-10-docs-model-firewall-authorities-gloss-35"
+      ]
+    },
+    "b-10-docs-model-firewall-authorities-gloss-35": {
+      "id": "b-10-docs-model-firewall-authorities-gloss-35",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Canvas and sequence imports may cross only through their "
         },
         {
-          "insert": "@codecaine-ai/canvas/agent-schema",
+          "insert": "agent-schema",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " leaf for types, never through the engine."
+          "insert": " leaves. The model lifts typed operation descriptors and forwards them; it never imports either engine."
         }
       ],
       "children": []
     },
-    "b-10-docs-model-dependencies-15": {
-      "id": "b-10-docs-model-dependencies-15",
+    "b-10-docs-model-firewall-runtime-36": {
+      "id": "b-10-docs-model-firewall-runtime-36",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Runtime purity",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-10-docs-model-firewall-runtime-gloss-37"
+      ]
+    },
+    "b-10-docs-model-firewall-runtime-gloss-37": {
+      "id": "b-10-docs-model-firewall-runtime-gloss-37",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The package performs no document filesystem, HTTP, or DOM work. Its schema, operation, serialization, and Markdown contracts stay in memory."
+        }
+      ],
+      "children": []
+    },
+    "b-10-docs-model-firewall-identity-38": {
+      "id": "b-10-docs-model-firewall-identity-38",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Identity and tree safety",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-10-docs-model-firewall-identity-gloss-39"
+      ]
+    },
+    "b-10-docs-model-firewall-identity-gloss-39": {
+      "id": "b-10-docs-model-firewall-identity-gloss-39",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Updates preserve block ids; split and merge mint non-colliding ids; operations refuse illegal root changes, missing targets, invalid indices, and cycles. Annotations, backlinks, reconciliation, and undo rely on those invariants."
+        }
+      ],
+      "children": []
+    },
+    "b-10-docs-model-dependencies-heading-40": {
+      "id": "b-10-docs-model-dependencies-heading-40",
       "type": "heading",
       "props": {
         "level": 2
@@ -472,7 +1194,7 @@
       "props": {
         "columns": [
           "Direction",
-          "Package or layer",
+          "Package or Layer",
           "Relationship"
         ],
         "density": "compact",
@@ -480,83 +1202,247 @@
           [
             "Depends on",
             "@sinclair/typebox",
-            "Defines the package's runtime schemas."
+            "Defines and compiles runtime state and action schemas."
           ],
           [
-            "Depends on, types only",
-            "@codecaine-ai/canvas through @codecaine-ai/canvas/agent-schema",
-            "Provides canvas types without importing the engine."
+            "Depends on through a leaf",
+            "@codecaine-ai/canvas/agent-schema",
+            "Supplies canvas operation descriptors and parameter schemas without the engine."
           ],
           [
-            "Depended on by",
-            "docs-index",
-            "Consumes the shared document format."
+            "Depends on through a leaf",
+            "@codecaine-ai/sequence/agent-schema",
+            "Supplies sequence operation descriptors and parameter schemas without the engine."
           ],
           [
-            "Depended on by",
-            "docs-server",
-            "Applies operations and uses returned inverses for undo."
-          ],
-          [
-            "Depended on by",
-            "docs-viewer",
-            "Consumes the shared document format in the browser."
-          ],
-          [
-            "Depended on by",
-            "docs-workbench",
-            "Builds editing machinery around the shared types."
-          ],
-          [
-            "Depended on by",
-            "docs-cli",
-            "Consumes the shared format and rendering from the CLI."
+            "Consumed by",
+            "docs-index, docs-server, docs-viewer, docs-workbench, docs-cli",
+            "Shares document types, validation, operations, discovery, references, and Markdown rendering across runtime roles."
           ]
         ],
-        "title": "Package boundary"
+        "title": "Package Boundary"
       },
       "children": []
     },
-    "b-10-docs-model-center-17": {
-      "id": "b-10-docs-model-center-17",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "Everything else in the repo is machinery around this package's types."
-        }
-      ],
-      "children": []
-    },
-    "b-10-docs-model-alone-18": {
-      "id": "b-10-docs-model-alone-18",
+    "b-10-docs-model-related-heading-41": {
+      "id": "b-10-docs-model-related-heading-41",
       "type": "heading",
       "props": {
         "level": 2
       },
       "text": [
         {
-          "insert": "Using It Alone"
+          "insert": "Related Files"
         }
       ],
       "children": []
     },
-    "b-10-docs-model-consumers-19": {
-      "id": "b-10-docs-model-consumers-19",
-      "type": "paragraph",
-      "props": {},
+    "b-10-docs-model-related-schema-42": {
+      "id": "b-10-docs-model-related-schema-42",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
       "text": [
         {
-          "insert": "Consume docs-model by itself when a tool needs to read, validate, mutate, or render "
-        },
-        {
-          "insert": "doc.json",
+          "insert": "packages/docs-model/src/doc-schema.ts",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/doc-schema.ts"
+            }
           }
-        },
+        }
+      ],
+      "children": [
+        "b-10-docs-model-related-schema-gloss-43"
+      ]
+    },
+    "b-10-docs-model-related-schema-gloss-43": {
+      "id": "b-10-docs-model-related-schema-gloss-43",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
         {
-          "insert": " without running a server. Offline agents, static generators, and scripts can use the format and its pure operations without browser, server, or CLI machinery."
+          "insert": "Owns the document shape, structural validator, traversal order, and canonical serializer."
+        }
+      ],
+      "children": []
+    },
+    "b-10-docs-model-related-ops-44": {
+      "id": "b-10-docs-model-related-ops-44",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-model/src/doc-ops.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/doc-ops.ts"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-10-docs-model-related-ops-gloss-45"
+      ]
+    },
+    "b-10-docs-model-related-ops-gloss-45": {
+      "id": "b-10-docs-model-related-ops-gloss-45",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Owns pure typed operation application, validation handoff, batching, and inverses."
+        }
+      ],
+      "children": []
+    },
+    "b-10-docs-model-related-registry-46": {
+      "id": "b-10-docs-model-related-registry-46",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-model/src/components/index.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/components/index.ts"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-10-docs-model-related-registry-gloss-47"
+      ]
+    },
+    "b-10-docs-model-related-registry-gloss-47": {
+      "id": "b-10-docs-model-related-registry-gloss-47",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Folds the explicit component allow-list into the model's runtime registries."
+        }
+      ],
+      "children": []
+    },
+    "b-10-docs-model-related-checks-48": {
+      "id": "b-10-docs-model-related-checks-48",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-model/src/components/checks.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/components/checks.ts"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-10-docs-model-related-checks-gloss-49"
+      ]
+    },
+    "b-10-docs-model-related-checks-gloss-49": {
+      "id": "b-10-docs-model-related-checks-gloss-49",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Rejects registry ownership, schema, action, and authority drift at module load."
+        }
+      ],
+      "children": []
+    },
+    "b-10-docs-model-related-render-50": {
+      "id": "b-10-docs-model-related-render-50",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-model/src/project-markdown.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/project-markdown.ts"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-10-docs-model-related-render-gloss-51"
+      ]
+    },
+    "b-10-docs-model-related-render-gloss-51": {
+      "id": "b-10-docs-model-related-render-gloss-51",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Walks the normalized tree and delegates agent-facing Markdown to component bundles."
+        }
+      ],
+      "children": []
+    },
+    "b-10-docs-model-related-firewall-52": {
+      "id": "b-10-docs-model-related-firewall-52",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "import-boundaries.test.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "import-boundaries.test.ts"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-10-docs-model-related-firewall-gloss-53"
+      ]
+    },
+    "b-10-docs-model-related-firewall-gloss-53": {
+      "id": "b-10-docs-model-related-firewall-gloss-53",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Enforces React and TipTap exclusion plus canvas and sequence leaf-only imports."
         }
       ],
       "children": []

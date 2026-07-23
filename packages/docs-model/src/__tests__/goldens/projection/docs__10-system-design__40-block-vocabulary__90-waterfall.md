@@ -1,8 +1,8 @@
 The waterfall component owns one type of the Block vocabulary: `waterfall`, the process-flow diagram block — the virtual form of a hand-drawn nested arrow flow. A block stores a typed recursive step tree in `steps`; the arrow-tree notation is the text form of that tree — `serializeWaterfall` writes it for the agent surface, `parseWaterfall` turns it back into steps on bulk import.
 
-- Model code: `packages/docs-model/src/components/waterfall/`.
+- Model code: packages/docs-model/src/components/waterfall/.
 
-- Doc renderer: `packages/docs-viewer/src/components/waterfall/`.
+- Doc renderer: packages/docs-viewer/src/components/waterfall/.
 
 It is the vocabulary's third diagram type, and the three split by question:
 
@@ -45,7 +45,7 @@ Run mode
 
 ## Notation
 
-The arrow-tree notation is the block's plain-text form: `serializeWaterfall` writes it from the step tree and `parseWaterfall` parses it on bulk import, both in `packages/docs-model/src/components/waterfall/lib.ts`. Six rules cover all of it:
+The arrow-tree notation is the block's plain-text form: `serializeWaterfall` writes it from the step tree and `parseWaterfall` parses it on bulk import, both in packages/docs-model/src/components/waterfall/lib.ts. Six rules cover all of it:
 
 - Root line
 
@@ -60,6 +60,8 @@ The arrow-tree notation is the block's plain-text form: `serializeWaterfall` wri
   - A line's depth is the rank of its indent width among the distinct widths seen so far, sorted ascending.
 
   - Irregular indentation still nests, and a depth already assigned never changes when a new width appears later.
+
+  - /
 
 - Backticks
 
@@ -105,7 +107,7 @@ steps: WaterfallStep[]  # Recursive step tree — the block's entire state.
 }
 ```
 
-- `WaterfallState` in `packages/docs-model/src/components/waterfall/state.ts` defines the closed one-prop schema; `additionalProperties: false` rejects anything else.
+- `WaterfallState` in packages/docs-model/src/components/waterfall/state.ts defines the closed one-prop schema; `additionalProperties: false` rejects anything else.
 
 - `steps` is the whole state: a recursive `WaterfallStep` tree — `{ text, kind?, steps? }`, where `kind` is `"step"` or `"note"` and omitted reads as `"step"`.
 
@@ -142,7 +144,7 @@ waterfall.moveStep(from: number[], to: number[]) -> props patch: { steps }  # Mo
   to: number[]  # Insertion index path (last element = insert position), resolved after the step is detached.
 ```
 
-- Each action is one file in `packages/docs-model/src/components/waterfall/actions/`.
+- Each action is one file in packages/docs-model/src/components/waterfall/actions/.
 
 - Params validate against the action's TypeBox schema before `apply()` runs; each returns a shallow props patch.
 
@@ -156,7 +158,7 @@ waterfall.moveStep(from: number[], to: number[]) -> props patch: { steps }  # Mo
 
 ## Doc Renderer
 
-The Doc renderer contract element: `WaterfallDocsBlock` in `packages/docs-viewer/src/components/waterfall/WaterfallDocsBlock.tsx`, wired through the descriptor in the same folder:
+The Doc renderer contract element: `WaterfallDocsBlock` in packages/docs-viewer/src/components/waterfall/WaterfallDocsBlock.tsx, wired through the descriptor in the same folder:
 
 - Render loop
 
@@ -196,11 +198,11 @@ The Doc renderer contract element: `WaterfallDocsBlock` in `packages/docs-viewer
 
 - Editor surface
 
-  - The block is a non-editable atom leaf (`docWaterfall` in `editor-nodes.ts`); the shared atom node view reuses the same descriptor, so edit mode shows the same render as reading.
+  - The block is a non-editable atom leaf (`docWaterfall` in editor-nodes.ts); the shared atom node view reuses the same descriptor, so edit mode shows the same render as reading.
 
 ## Agent Renderer
 
-The Agent renderer contract element: the markdown projection in `agent-view.ts` is a `waterfall` fence whose body is `serializeWaterfall` over the step tree. Projected, the live Example above is:
+The Agent renderer contract element: the markdown projection in agent-view.ts is a `waterfall` fence whose body is `serializeWaterfall` over the step tree. Projected, the live Example above is:
 
 ```
 ```waterfall
@@ -229,7 +231,7 @@ Run mode
 
 ## Theme
 
-The Theming contract element: the renderer paints from fifteen `--docs-waterfall-*` tokens, defined in both theme blocks of `packages/docs-workbench/web/src/theme/semantic.css`; corner radii derive from `--radius`.
+The Theming contract element: the renderer paints from fifteen `--docs-waterfall-*` tokens, defined in both theme blocks of packages/docs-workbench/web/src/theme/semantic.css; corner radii derive from `--radius`.
 
 - Style rail
 
@@ -237,7 +239,7 @@ The Theming contract element: the renderer paints from fifteen `--docs-waterfall
 
   - Length sliders and ranges: Indent 16–72 px, Row gap 0–24 px, Arrow gap 0–16 px, Line height 16–40 px, Text size 10–18 px, Note text size 10–18 px, Arrow size 3–12 px, Stroke 0.5–4 px.
 
-  - Backed by the `waterfall` entry in `THEME_TOKEN_REGISTRY` (`theme-folders.ts`) and the `waterfall` picker file in the Components section.
+  - Backed by the `waterfall` entry in `THEME_TOKEN_REGISTRY` (theme-folders.ts) and the `waterfall` picker file in the Components section.
 
 - Derived deep ink
 
@@ -271,7 +273,7 @@ The Theming contract element: the renderer paints from fifteen `--docs-waterfall
 
 The type uses the default adapter — no agent of its own; the contract is Agent adapter.
 
-- The five typed actions ride `componentAction` ops in the seven-op doc vocabulary (`packages/docs-model/src/doc-ops.ts`).
+- The five typed actions ride `componentAction` ops in the seven-op doc vocabulary (packages/docs-model/src/doc-ops.ts).
 
 - A `componentAction` names the registry key (`"waterfall.setSteps"`), resolves the action, validates params, and runs `apply()` against the target block.
 

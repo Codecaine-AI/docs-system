@@ -53,8 +53,6 @@ import type { DocBlock, DocDocument } from "./doc-schema";
  *   appears only when `returns` is present, a `  # description` suffix
  *   appends when present, and a `[kind] ` prefix appears only for
  *   query/event operations (actions are the default and render bare).
- * - `mermaid` -> a labeled blockquote:
- *   `> **Mermaid: <title>** — <body>`.
  * - `file-tree` -> a literal tree-command rendering inside a bare fenced
  *   ``` block: a nested tree
  *   derived from the v2 entry paths (`{ path, note?, change?, from? }`) with

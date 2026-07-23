@@ -150,9 +150,9 @@ function blockToPMNode(doc: DocDocument, blockId: string): PMNode {
     // DocBlock are not expected/supported by any v1 atom block type, but if
     // present are dropped from the PM tree deliberately rather than silently
     // nested inside an atom node PM would reject — see convert.test.ts). An
-    // atom block type may carry a `text` DeltaSpan[] in doc-schema (mermaid's
-    // body grammar lives there) even though it has no editable PM
-    // content — that rides losslessly as the `blockText` attr instead.
+    // atom block type may carry a `text` DeltaSpan[] in doc-schema even
+    // though it has no editable PM content — that rides losslessly as the
+    // `blockText` attr instead.
     return {
       type: nodeType,
       attrs: {

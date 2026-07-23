@@ -191,7 +191,7 @@
           }
         },
         {
-          "insert": "; the legacy "
+          "insert": "; the retired "
         },
         {
           "insert": "flavour",
@@ -200,7 +200,7 @@
           }
         },
         {
-          "insert": " alias is accepted on read and normalized. An unknown type name coerces to a callout with the name kept in "
+          "insert": " key is rejected with a typed validation issue. An unknown type name coerces to a callout with the name kept in "
         },
         {
           "insert": "props.kind",
@@ -209,7 +209,7 @@
           }
         },
         {
-          "insert": " — nothing fails validation for being old."
+          "insert": " — a retired type never fails validation."
         }
       ],
       "children": []

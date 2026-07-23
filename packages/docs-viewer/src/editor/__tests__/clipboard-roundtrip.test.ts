@@ -167,12 +167,12 @@ describe("clipboard round-trip: block props", () => {
     expect(image.attrs?.blockProps).toEqual(imageProps);
   });
 
-  it("preserves an atom block's text payload (mermaid body)", () => {
-    const spans = [{ insert: "graph TD;\n  A-->B;" }];
+  it("preserves an atom block's text payload", () => {
+    const spans = [{ insert: "src/index.ts" }];
     const back = roundTrip([
-      { type: "docMermaid", attrs: { blockId: "m1", blockProps: {}, blockText: spans } },
+      { type: "docFileTree", attrs: { blockId: "ft1", blockProps: {}, blockText: spans } },
     ]);
-    expect(findNodes(back, "docMermaid")[0].attrs?.blockText).toEqual(spans);
+    expect(findNodes(back, "docFileTree")[0].attrs?.blockText).toEqual(spans);
   });
 
   it("parses malformed data attributes back to safe defaults", () => {
@@ -180,13 +180,13 @@ describe("clipboard round-trip: block props", () => {
       '<div data-doc-type="callout" data-block-props="[object Object]">' +
         '<span data-doc-node="docBlockText">Body</span>' +
         "</div>" +
-        '<div data-doc-node="docMermaid" data-block-props="{not json" data-block-text="[object Object]"></div>',
+        '<div data-doc-node="docFileTree" data-block-props="{not json" data-block-text="[object Object]"></div>',
       EXTENSIONS,
     );
     const callout = findNodes(back, "docCallout")[0];
     expect(callout.attrs?.blockProps).toEqual({});
-    const mermaid = findNodes(back, "docMermaid")[0];
-    expect(mermaid.attrs?.blockProps).toEqual({});
-    expect(mermaid.attrs?.blockText).toBe(null);
+    const fileTree = findNodes(back, "docFileTree")[0];
+    expect(fileTree.attrs?.blockProps).toEqual({});
+    expect(fileTree.attrs?.blockText).toBe(null);
   });
 });

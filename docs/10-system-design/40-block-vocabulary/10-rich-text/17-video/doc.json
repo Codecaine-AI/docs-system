@@ -14,7 +14,7 @@
         "b-31-video-example-intro-21",
         "b-31-video-example-embed-22",
         "b-31-video-state-h-3",
-        "b-31-video-state-4",
+        "b-31-video-state-shape-25",
         "b-31-video-state-note-5",
         "b-31-video-editor-h-8",
         "b-31-video-editor-9",
@@ -134,42 +134,43 @@
       ],
       "children": []
     },
-    "b-31-video-state-4": {
-      "id": "b-31-video-state-4",
-      "type": "structured-table",
+    "b-31-video-state-shape-25": {
+      "id": "b-31-video-state-shape-25",
+      "type": "state-shape",
       "props": {
-        "columns": [
-          "prop",
-          "type",
-          "required",
-          "notes"
+        "description": "Closed schema; all four props are optional.",
+        "example": "{\n  \"url\": \"https://www.youtube.com/watch?v=YE7VzlLtp-4\",\n  \"title\": \"Big Buck Bunny\",\n  \"caption\": \"Blender Foundation's open-movie short, embedded from an external URL.\"\n}",
+        "fields": [
+          {
+            "name": "src",
+            "type": "string",
+            "required": false,
+            "description": "Bundle-local video file, uploaded to the bundle's assets/videos/."
+          },
+          {
+            "name": "url",
+            "type": "string",
+            "required": false,
+            "description": "External video URL; wins over src when both are present."
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "required": false,
+            "description": "Display title, also the agent render's label."
+          },
+          {
+            "name": "caption",
+            "type": "string",
+            "required": false,
+            "description": "Caption appended to the agent render line."
+          }
         ],
-        "rows": [
-          [
-            "src",
-            "string",
-            "no",
-            "Bundle-local video file, uploaded to the bundle's assets/videos/."
-          ],
-          [
-            "url",
-            "string",
-            "no",
-            "External video URL; wins over src when both are present."
-          ],
-          [
-            "title",
-            "string",
-            "no",
-            "Display title, also used in the markdown render's label."
-          ],
-          [
-            "caption",
-            "string",
-            "no",
-            "Caption appended to the rendered markdown line."
-          ]
-        ]
+        "name": "VideoState",
+        "source": {
+          "path": "packages/docs-model/src/components/rich-text/state.ts",
+          "symbol": "VideoState"
+        }
       },
       "children": []
     },
@@ -188,7 +189,7 @@
           }
         },
         {
-          "insert": "). All four props are optional in the schema; a useful block sets at least one of "
+          "insert": "); a useful block sets at least one of "
         },
         {
           "insert": "src",
@@ -197,7 +198,7 @@
           }
         },
         {
-          "insert": "/"
+          "insert": " / "
         },
         {
           "insert": "url",
@@ -482,6 +483,21 @@
             "reference": {
               "kind": "source",
               "path": "packages/docs-workbench/web/src/theme/theme-folders.ts"
+            }
+          }
+        },
+        {
+          "insert": "."
+        },
+        {
+          "insert": " The contract is "
+        },
+        {
+          "insert": "Theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/50-theming"
             }
           }
         },

@@ -22,7 +22,6 @@
         "tree-1",
         "interaction-surface-1",
         "state-shape-1",
-        "mermaid-1",
         "canvas-1",
         "sequence-1",
         "image-1",
@@ -383,19 +382,6 @@
           "symbol": "InteractionSurfaceOperation"
         }
       },
-      "children": []
-    },
-    "mermaid-1": {
-      "id": "mermaid-1",
-      "type": "mermaid",
-      "props": {
-        "title": "Mermaid sample"
-      },
-      "text": [
-        {
-          "insert": "flowchart LR\n  A[Doc] --> B[Render]"
-        }
-      ],
       "children": []
     },
     "canvas-1": {

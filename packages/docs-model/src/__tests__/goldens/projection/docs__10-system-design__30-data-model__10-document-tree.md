@@ -66,7 +66,7 @@ A `doc.json` document is a normalized block tree: a root pointer, a flat id-keye
 > **L14-16 (Optional text):** text is present only on types that carry delta rich text; the span shape is the rich-text page.
 > **L17 (Ordered children):** children is always present. It stores ordered child ids, even when the block has no children.
 
-The kind key is `type`; the legacy `flavour` alias is accepted on read and normalized. An unknown type name coerces to a callout with the name kept in `props.kind` — nothing fails validation for being old.
+The kind key is `type`; the retired `flavour` key is rejected with a typed validation issue. An unknown type name coerces to a callout with the name kept in `props.kind` — a retired type never fails validation.
 
 ## Ids Are Anchors
 

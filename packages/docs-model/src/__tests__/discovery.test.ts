@@ -19,7 +19,6 @@ const CARRIES_TEXT = {
   image: false,
   video: false,
   code: true,
-  mermaid: true,
   "structured-table": false,
   "file-tree": false,
   "interaction-surface": false,

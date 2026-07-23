@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "10-system-design-10-block-vocabulary-14-code",
+  "id": "10-system-design-10-block-vocabulary-20-code-block",
   "title": "code",
   "root": "b-14-code-root",
   "blocks": {
@@ -15,9 +15,9 @@
         "b-14-code-example-intro",
         "b-14-code-example-block",
         "b-14-code-state-h-3",
+        "b-codefam-state-shape",
         "b-codefam-state-carrier",
         "b-codefam-state-src",
-        "b-14-code-state-4",
         "b-codefam-ranges-h",
         "b-codefam-ranges-1",
         "b-codefam-ranges-2",
@@ -230,6 +230,51 @@
       ],
       "children": []
     },
+    "b-codefam-state-shape": {
+      "id": "b-codefam-state-shape",
+      "type": "state-shape",
+      "props": {
+        "example": "{\n  \"language\": \"typescript\",\n  \"annotations\": [\n    {\n      \"lines\": \"3-5\",\n      \"label\": \"Guard\",\n      \"note\": \"Rejects a document whose root pointer names no block.\"\n    }\n  ]\n}",
+        "fields": [
+          {
+            "name": "language",
+            "type": "string",
+            "required": false,
+            "description": "Fence tag for highlighting and the header label, e.g. \"json\", \"ts\"."
+          },
+          {
+            "name": "annotations",
+            "type": "CodeAnnotation[]",
+            "required": false,
+            "description": "Line annotations, each keyed by its exact lines string.",
+            "fields": [
+              {
+                "name": "lines",
+                "type": "string",
+                "description": "1-indexed range string — \"4\", \"4-9\", \"1,4-6\" — and the entry's identity key."
+              },
+              {
+                "name": "label",
+                "type": "string",
+                "required": false,
+                "description": "Short heading on the note."
+              },
+              {
+                "name": "note",
+                "type": "string",
+                "description": "The annotation body."
+              }
+            ]
+          }
+        ],
+        "name": "CodeState",
+        "source": {
+          "path": "packages/docs-model/src/components/code/state.ts",
+          "symbol": "CodeState"
+        }
+      },
+      "children": []
+    },
     "b-codefam-state-carrier": {
       "id": "b-codefam-state-carrier",
       "type": "paragraph",
@@ -313,33 +358,6 @@
           "insert": "export const CodeAnnotationSchema = Type.Object(\n  { lines: Type.String(), label: Type.Optional(Type.String()), note: Type.String() },\n  { additionalProperties: false },\n);\n\nexport const CodeState = Type.Object(\n  { language: Type.Optional(Type.String()), annotations: Type.Optional(Type.Array(CodeAnnotationSchema)) },\n  { additionalProperties: false },\n);\n\nexport const codeState: BlockStateDefinition = { schema: CodeState, carriesText: true };"
         }
       ],
-      "children": []
-    },
-    "b-14-code-state-4": {
-      "id": "b-14-code-state-4",
-      "type": "structured-table",
-      "props": {
-        "columns": [
-          "prop",
-          "type",
-          "required",
-          "notes"
-        ],
-        "rows": [
-          [
-            "language",
-            "string",
-            "no",
-            "Fence tag for highlighting and the header label, e.g. \"json\", \"ts\". Written by the editor's language picker."
-          ],
-          [
-            "annotations",
-            "array",
-            "no",
-            "Array of { lines, label?, note }: lines is a 1-indexed range string and the entry's identity key, label an optional short heading on the note, note the annotation body."
-          ]
-        ]
-      },
       "children": []
     },
     "b-codefam-ranges-h": {
@@ -1825,6 +1843,18 @@
           }
         },
         {
+          "insert": "; the system is "
+        },
+        {
+          "insert": "Theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/40-theming"
+            }
+          }
+        },
+        {
           "insert": "). Every value is one string for both modes or a "
         },
         {
@@ -2178,7 +2208,7 @@
           }
         },
         {
-          "insert": " op — the seventh op in the vocabulary, alongside "
+          "insert": " op — one of the generic doc ops, alongside "
         },
         {
           "insert": "insertBlock",

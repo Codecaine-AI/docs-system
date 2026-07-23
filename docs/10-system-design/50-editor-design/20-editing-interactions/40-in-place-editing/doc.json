@@ -1,0 +1,371 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-50-editor-design-20-editing-interactions-40-in-place-editing",
+  "title": "In-Place Editing",
+  "root": "b-inpl-root",
+  "blocks": {
+    "b-inpl-root": {
+      "id": "b-inpl-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-inpl-intro",
+        "b-inpl-structure-heading",
+        "b-inpl-pattern-table",
+        "b-inpl-rule-heading",
+        "b-inpl-rendered",
+        "b-inpl-code",
+        "b-inpl-table",
+        "b-inpl-fallback",
+        "b-inpl-open-call",
+        "b-inpl-why-heading",
+        "b-inpl-why-context",
+        "b-inpl-why-history",
+        "b-inpl-why-explicit"
+      ]
+    },
+    "b-inpl-intro": {
+      "id": "b-inpl-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Object blocks edit inside the surface where they render; no modal editor replaces the document context. Custom node views add block-specific editing while the outer editor keeps structural authority. This page defines that shared pattern and the read-only fallback for types without it."
+        }
+      ],
+      "children": []
+    },
+    "b-inpl-structure-heading": {
+      "id": "b-inpl-structure-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Structure"
+        }
+      ],
+      "children": []
+    },
+    "b-inpl-pattern-table": {
+      "id": "b-inpl-pattern-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Pattern",
+          "Outer Editor",
+          "Inside the Block"
+        ],
+        "rows": [
+          [
+            "Editable text node view",
+            "Owns block position, selection, and history",
+            "Edits the block's text and local controls"
+          ],
+          [
+            "Editable atom node view",
+            "Treats the whole block as one structural leaf",
+            "Owns focused editing islands and writes block state back"
+          ],
+          [
+            "Read-only atom view",
+            "Treats the whole block as one structural leaf",
+            "Renders current state without an in-place editor"
+          ]
+        ]
+      },
+      "children": []
+    },
+    "b-inpl-rule-heading": {
+      "id": "b-inpl-rule-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The Rule"
+        }
+      ],
+      "children": []
+    },
+    "b-inpl-rendered": {
+      "id": "b-inpl-rendered",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Edit where the block renders",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-inpl-rendered-gloss"
+      ]
+    },
+    "b-inpl-rendered-gloss": {
+      "id": "b-inpl-rendered-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An editable object keeps its rendered form in the document and reveals its controls in place."
+        }
+      ],
+      "children": []
+    },
+    "b-inpl-code": {
+      "id": "b-inpl-code",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Editable text stays part of the document",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-inpl-code-gloss"
+      ]
+    },
+    "b-inpl-code-gloss": {
+      "id": "b-inpl-code-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "code",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/20-code-block"
+            }
+          }
+        },
+        {
+          "insert": " node view establishes the text pattern: its content remains editable by the outer editor while the block supplies its own in-place controls."
+        }
+      ],
+      "children": []
+    },
+    "b-inpl-table": {
+      "id": "b-inpl-table",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Editable atoms keep one document-level history",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-inpl-table-gloss",
+        "b-inpl-table-detail"
+      ]
+    },
+    "b-inpl-table-gloss": {
+      "id": "b-inpl-table-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "structured-table",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/30-structured-table"
+            }
+          }
+        },
+        {
+          "insert": " node view places a mini rich-text editor in each cell, but undo and redo remain document-level."
+        }
+      ],
+      "children": []
+    },
+    "b-inpl-table-detail": {
+      "id": "b-inpl-table-detail",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Its block-vocabulary contract owns cell behavior, focus furniture, and commit timing."
+        }
+      ],
+      "children": []
+    },
+    "b-inpl-fallback": {
+      "id": "b-inpl-fallback",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A missing custom view is an explicit read-only state",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-inpl-fallback-gloss",
+        "b-inpl-fallback-actions"
+      ]
+    },
+    "b-inpl-fallback-gloss": {
+      "id": "b-inpl-fallback-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Types without a custom node view render their current state as read-only atoms without local editing controls."
+        }
+      ],
+      "children": []
+    },
+    "b-inpl-fallback-actions": {
+      "id": "b-inpl-fallback-actions",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Their state changes through "
+        },
+        {
+          "insert": "Typed actions",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/20-typed-actions"
+            }
+          }
+        },
+        {
+          "insert": " until the type deliberately earns an editable node view."
+        }
+      ],
+      "children": []
+    },
+    "b-inpl-open-call": {
+      "id": "b-inpl-open-call",
+      "type": "callout",
+      "props": {
+        "kind": "Open call",
+        "title": "Which Object Blocks Require Editable Node Views?",
+        "tone": "info"
+      },
+      "text": [
+        {
+          "insert": "No general policy determines which object types must support in-place editing. Each type needs a deliberate decision; the shared read-only atom view remains the fallback."
+        }
+      ],
+      "children": []
+    },
+    "b-inpl-why-heading": {
+      "id": "b-inpl-why-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why"
+        }
+      ],
+      "children": []
+    },
+    "b-inpl-why-context": {
+      "id": "b-inpl-why-context",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The document remains the workspace",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-inpl-why-context-gloss"
+      ]
+    },
+    "b-inpl-why-context-gloss": {
+      "id": "b-inpl-why-context-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "In-place controls preserve the object's position and its surrounding explanation while it changes."
+        }
+      ],
+      "children": []
+    },
+    "b-inpl-why-history": {
+      "id": "b-inpl-why-history",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Undo remains coherent",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-inpl-why-history-gloss"
+      ]
+    },
+    "b-inpl-why-history-gloss": {
+      "id": "b-inpl-why-history-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Embedded editing islands commit into the outer document instead of creating a second, competing history."
+        }
+      ],
+      "children": []
+    },
+    "b-inpl-why-explicit": {
+      "id": "b-inpl-why-explicit",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Editing capability stays deliberate",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-inpl-why-explicit-gloss"
+      ]
+    },
+    "b-inpl-why-explicit-gloss": {
+      "id": "b-inpl-why-explicit-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A custom node view is a type-owned interaction contract, not an automatic consequence of registry membership."
+        }
+      ],
+      "children": []
+    }
+  }
+}

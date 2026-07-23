@@ -12,11 +12,21 @@ Three live variants: tone only, tone plus `title`, and a free-form `kind` over t
 
 ## State Schema
 
-| prop | type | required | notes |
-| --- | --- | --- | --- |
-| tone | "info" / "decision" / "risk" / "warning" / "success" | no | Color/intent; the markdown render's label falls back to the uppercased tone (default INFO). |
-| kind | string | no | Free-form label chip; wins over tone in the markdown render. Coerced legacy types land their old type name here. |
-| title | string | no | Optional bold title after the label. |
+**CalloutState** — packages/docs-model/src/components/rich-text/state.ts#CalloutState
+
+```
+tone?: "info" | "decision" | "risk" | "warning" | "success"  # Color/intent; the agent render's label falls back to the uppercased tone (default INFO).
+kind?: string  # Free-form label chip; wins over tone in the agent render. Coerced legacy types land their old type name here.
+title?: string  # Optional bold title after the label.
+```
+
+```json
+{
+  "tone": "warning",
+  "kind": "Boundary under review",
+  "title": "Vocabulary growth"
+}
+```
 
 Carries delta text (`carriesText: true`) as the callout body.
 
@@ -40,7 +50,7 @@ Slash menu: **Callout** (aliases: note, info, tip). No input rule — type `/cal
 
 ## Theme
 
-This block's theme file is `components/callout.json` in a theme folder (`themes/<id>/`; see Theming). Every value is one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY`.
+This block's theme file is `components/callout.json` in a theme folder (`themes/<id>/`; see Theming). Every value is one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY`. The contract is Theming.
 
 | Key | CSS variable | Styles |
 | --- | --- | --- |

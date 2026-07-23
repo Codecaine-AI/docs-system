@@ -10,7 +10,11 @@
       "props": {},
       "children": [
         "b-16-divider-lead-2",
+        "b-16-divider-example-h-20",
+        "b-16-divider-example-intro-21",
+        "b-16-divider-example-hr-22",
         "b-16-divider-state-h-3",
+        "b-16-divider-state-shape-23",
         "b-16-divider-state-4",
         "b-16-divider-editor-h-7",
         "b-16-divider-editor-8",
@@ -46,6 +50,36 @@
       ],
       "children": []
     },
+    "b-16-divider-example-h-20": {
+      "id": "b-16-divider-example-h-20",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Example"
+        }
+      ],
+      "children": []
+    },
+    "b-16-divider-example-intro-21": {
+      "id": "b-16-divider-example-intro-21",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The rule below is a live divider block."
+        }
+      ],
+      "children": []
+    },
+    "b-16-divider-example-hr-22": {
+      "id": "b-16-divider-example-hr-22",
+      "type": "divider",
+      "props": {},
+      "children": []
+    },
     "b-16-divider-state-h-3": {
       "id": "b-16-divider-state-h-3",
       "type": "heading",
@@ -59,13 +93,27 @@
       ],
       "children": []
     },
+    "b-16-divider-state-shape-23": {
+      "id": "b-16-divider-state-shape-23",
+      "type": "state-shape",
+      "props": {
+        "description": "Closed empty object — no props.",
+        "fields": [],
+        "name": "DividerState",
+        "source": {
+          "path": "packages/docs-model/src/components/rich-text/state.ts",
+          "symbol": "DividerState"
+        }
+      },
+      "children": []
+    },
     "b-16-divider-state-4": {
       "id": "b-16-divider-state-4",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "No props (closed empty schema) and no text ("
+          "insert": "No text ("
         },
         {
           "insert": "carriesText: false",
@@ -276,6 +324,21 @@
             "reference": {
               "kind": "source",
               "path": "packages/docs-workbench/web/src/theme/theme-folders.ts"
+            }
+          }
+        },
+        {
+          "insert": "."
+        },
+        {
+          "insert": " The contract is "
+        },
+        {
+          "insert": "Theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/50-theming"
             }
           }
         },

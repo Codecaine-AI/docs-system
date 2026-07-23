@@ -9,51 +9,30 @@
       "type": "paragraph",
       "props": {},
       "children": [
-        "b-00-using-the-workbench-using-the-workbench-1",
         "b-00-using-the-workbench-docs-serve-opens-the-w-2",
         "b-00-using-the-workbench-edit-mode-default-3",
         "b-00-using-the-workbench-the-page-is-the-editor-4",
         "b-00-using-the-workbench-auto-save-edits-sav-5",
-        "b-00-using-the-workbench-continuous-typing-still-6",
         "b-00-using-the-workbench-the-header-indicator-7",
-        "b-00-using-the-workbench-times-8",
         "b-00-using-the-workbench-undo-last-save-in-th-9",
-        "b-00-using-the-workbench-single-use-powered-by-10",
         "b-00-using-the-workbench-live-changes-if-ano-11",
-        "b-00-using-the-workbench-while-your-editor-is-cle-12",
         "b-00-using-the-workbench-links-cmd-ctrl-k-with-29",
         "b-00-using-the-workbench-video-paste-a-youtube-30",
         "b-00-using-the-workbench-conflicts-13",
         "b-00-using-the-workbench-two-layers-both-server-14",
         "b-00-using-the-workbench-stale-hash-409-ev-15",
-        "b-00-using-the-workbench-the-doc-changed-undernea-16",
         "b-00-using-the-workbench-draft-lock-423-go-17",
-        "b-00-using-the-workbench-heartbeat-renewed-if-18",
         "b-00-using-the-workbench-annotate-mode-19",
         "b-00-using-the-workbench-for-pointing-at-things-a-20",
         "b-00-using-the-workbench-hover-any-block-for-an-o-21",
         "b-00-using-the-workbench-canvas-objects-inside-em-22",
         "b-00-using-the-workbench-compose-a-comment-with-23",
-        "b-00-using-the-workbench-list-dangling-targets-24",
         "b-00-using-the-workbench-comments-live-in-the-bun-25",
         "b-00-using-the-workbench-block-library-31",
         "b-00-using-the-workbench-blocks-opens-a-searc-32",
         "b-00-using-the-workbench-static-export-26",
         "b-00-using-the-workbench-docs-export-produces-t-27"
       ]
-    },
-    "b-00-using-the-workbench-using-the-workbench-1": {
-      "id": "b-00-using-the-workbench-using-the-workbench-1",
-      "type": "heading",
-      "props": {
-        "level": 1
-      },
-      "text": [
-        {
-          "insert": "Using the Workbench"
-        }
-      ],
-      "children": []
     },
     "b-00-using-the-workbench-docs-serve-opens-the-w-2": {
       "id": "b-00-using-the-workbench-docs-serve-opens-the-w-2",
@@ -67,7 +46,19 @@
           }
         },
         {
-          "insert": " opens the workbench: a two-mode surface over one docs tree."
+          "insert": " starts the workbench host over one docs root. The host composes navigation, viewer/editor callbacks, persistence, annotations, live events, and static-export degradation. Human interaction semantics live in "
+        },
+        {
+          "insert": "Editing Interactions",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/20-editing-interactions"
+            }
+          }
+        },
+        {
+          "insert": "; this page covers the runtime wiring."
         }
       ],
       "children": []
@@ -80,7 +71,7 @@
       },
       "text": [
         {
-          "insert": "Edit Mode (Default)"
+          "insert": "Edit Persistence"
         }
       ],
       "children": []
@@ -91,16 +82,17 @@
       "props": {},
       "text": [
         {
-          "insert": "The page "
-        },
-        {
-          "insert": "is",
+          "insert": "packages/docs-workbench/web/src/pages/DocPage.tsx",
           "attributes": {
-            "italic": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/pages/DocPage.tsx"
+            }
           }
         },
         {
-          "insert": " the editor — Notion-style. There is no read mode and no Save\nbutton:"
+          "insert": " mounts the viewer editor and supplies the host callbacks that send typed operations, acquire locks, upload assets, and adopt server results."
         }
       ],
       "children": []
@@ -108,29 +100,23 @@
     "b-00-using-the-workbench-auto-save-edits-sav-5": {
       "id": "b-00-using-the-workbench-auto-save-edits-sav-5",
       "type": "list-item",
-      "props": {
-        "ordered": false
-      },
-      "text": [
-        {
-          "insert": "Auto-save.",
-          "attributes": {
-            "bold": true
-          }
-        },
-        {
-          "insert": " Edits save on a ~1s idle debounce (with a 5s max-wait so"
-        }
-      ],
-      "children": []
-    },
-    "b-00-using-the-workbench-continuous-typing-still-6": {
-      "id": "b-00-using-the-workbench-continuous-typing-still-6",
-      "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "  continuous typing still persists). "
+          "insert": "Flush triggers"
+        }
+      ],
+      "children": [
+        "b-00-using-the-workbench-continuous-typing-still-6"
+      ]
+    },
+    "b-00-using-the-workbench-continuous-typing-still-6": {
+      "id": "b-00-using-the-workbench-continuous-typing-still-6",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The editor flushes after about 1 second idle with a 5 second maximum wait. "
         },
         {
           "insert": "Cmd/Ctrl+S",
@@ -139,7 +125,7 @@
           }
         },
         {
-          "insert": " forces an immediate\n  flush. Drafts also flush when the window blurs, the tab hides, you switch\n  modes, or you navigate to another doc."
+          "insert": ", blur, tab hiding, mode changes, document navigation, and unmount also request a flush."
         }
       ],
       "children": []
@@ -147,56 +133,53 @@
     "b-00-using-the-workbench-the-header-indicator-7": {
       "id": "b-00-using-the-workbench-the-header-indicator-7",
       "type": "list-item",
-      "props": {
-        "ordered": false
-      },
-      "text": [
-        {
-          "insert": "The header indicator",
-          "attributes": {
-            "bold": true
-          }
-        },
-        {
-          "insert": " shows "
-        },
-        {
-          "insert": "Saved",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " / "
-        },
-        {
-          "insert": "Saving…",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " / "
-        },
-        {
-          "insert": "Not saved",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " at all"
-        }
-      ],
-      "children": []
-    },
-    "b-00-using-the-workbench-times-8": {
-      "id": "b-00-using-the-workbench-times-8",
-      "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "  times."
+          "insert": "Pipeline handoff"
+        }
+      ],
+      "children": [
+        "b-00-using-the-workbench-times-8"
+      ]
+    },
+    "b-00-using-the-workbench-times-8": {
+      "id": "b-00-using-the-workbench-times-8",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every trigger uses "
+        },
+        {
+          "insert": "The save pipeline: keystroke to disk",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/30-save-pipeline"
+            }
+          }
+        },
+        {
+          "insert": ": editor state becomes "
+        },
+        {
+          "insert": "DocOp[]",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and reaches "
+        },
+        {
+          "insert": "POST /api/ops",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with the expected hash and session id."
         }
       ],
       "children": []
@@ -204,29 +187,23 @@
     "b-00-using-the-workbench-undo-last-save-in-th-9": {
       "id": "b-00-using-the-workbench-undo-last-save-in-th-9",
       "type": "list-item",
-      "props": {
-        "ordered": false
-      },
-      "text": [
-        {
-          "insert": "Undo last save",
-          "attributes": {
-            "bold": true
-          }
-        },
-        {
-          "insert": " in the header reverts the most recent saved patch"
-        }
-      ],
-      "children": []
-    },
-    "b-00-using-the-workbench-single-use-powered-by-10": {
-      "id": "b-00-using-the-workbench-single-use-powered-by-10",
-      "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "  (single-use; powered by the server's inverse-op ledger)."
+          "insert": "Undo"
+        }
+      ],
+      "children": [
+        "b-00-using-the-workbench-single-use-powered-by-10"
+      ]
+    },
+    "b-00-using-the-workbench-single-use-powered-by-10": {
+      "id": "b-00-using-the-workbench-single-use-powered-by-10",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The host sends the latest single-use token to the server's inverse-op ledger. Undo re-enters the same hash-checked mutation authority."
         }
       ],
       "children": []
@@ -234,29 +211,23 @@
     "b-00-using-the-workbench-live-changes-if-ano-11": {
       "id": "b-00-using-the-workbench-live-changes-if-ano-11",
       "type": "list-item",
-      "props": {
-        "ordered": false
-      },
-      "text": [
-        {
-          "insert": "Live changes.",
-          "attributes": {
-            "bold": true
-          }
-        },
-        {
-          "insert": " If another actor (a teammate, an agent) edits the doc"
-        }
-      ],
-      "children": []
-    },
-    "b-00-using-the-workbench-while-your-editor-is-cle-12": {
-      "id": "b-00-using-the-workbench-while-your-editor-is-cle-12",
-      "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "  while your editor is clean, the change applies silently and the affected\n  blocks flash. While you have unsaved edits, remote refreshes are\n  suppressed — conflicts are handled at save time instead (below)."
+          "insert": "Remote changes"
+        }
+      ],
+      "children": [
+        "b-00-using-the-workbench-while-your-editor-is-cle-12"
+      ]
+    },
+    "b-00-using-the-workbench-while-your-editor-is-cle-12": {
+      "id": "b-00-using-the-workbench-while-your-editor-is-cle-12",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An SSE update reloads a clean editor. A dirty or saving editor suppresses the reload and leaves conflict ownership to the next hash-checked save."
         }
       ],
       "children": []
@@ -264,27 +235,23 @@
     "b-00-using-the-workbench-links-cmd-ctrl-k-with-29": {
       "id": "b-00-using-the-workbench-links-cmd-ctrl-k-with-29",
       "type": "list-item",
-      "props": {
-        "ordered": false
-      },
+      "props": {},
       "text": [
         {
-          "insert": "Links.",
-          "attributes": {
-            "bold": true
-          }
-        },
+          "insert": "Editor-owned input"
+        }
+      ],
+      "children": [
+        "b-00-using-the-workbench-links-cmd-ctrl-k-with-29-gloss"
+      ]
+    },
+    "b-00-using-the-workbench-links-cmd-ctrl-k-with-29-gloss": {
+      "id": "b-00-using-the-workbench-links-cmd-ctrl-k-with-29-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
-          "insert": " "
-        },
-        {
-          "insert": "Cmd/Ctrl+K",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " with text selected opens a Notion-style link popover\n  (Enter applies, an empty input or the Remove button clears). Pasting a URL\n  over selected text wraps the selection in a link instead of replacing it."
+          "insert": "Link authoring, keyboard behavior, paste conversion, and slash insertion stay inside docs-viewer editor extensions. The workbench receives document updates rather than reimplementing those interactions."
         }
       ],
       "children": []
@@ -292,63 +259,35 @@
     "b-00-using-the-workbench-video-paste-a-youtube-30": {
       "id": "b-00-using-the-workbench-video-paste-a-youtube-30",
       "type": "list-item",
-      "props": {
-        "ordered": false
-      },
+      "props": {},
       "text": [
         {
-          "insert": "Video.",
+          "insert": "Media handoff"
+        }
+      ],
+      "children": [
+        "b-00-using-the-workbench-video-paste-a-youtube-30-gloss"
+      ]
+    },
+    "b-00-using-the-workbench-video-paste-a-youtube-30-gloss": {
+      "id": "b-00-using-the-workbench-video-paste-a-youtube-30-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The viewer recognizes media input; the workbench supplies asset upload and canvas/sequence embed slots. The designed interaction is specified by "
+        },
+        {
+          "insert": "Canvas and Media",
           "attributes": {
-            "bold": true
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/50-canvas-and-media"
+            }
           }
         },
         {
-          "insert": " Paste or drop a YouTube/Vimeo/Loom URL on an empty line to embed\n  it as a video block (there is deliberately no slash-menu entry — video\n  blocks come from content). Dropping a video file from disk ("
-        },
-        {
-          "insert": "mp4",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "/"
-        },
-        {
-          "insert": "webm",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "/"
-        },
-        {
-          "insert": "mov",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "/"
-        },
-        {
-          "insert": "m4v",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", up to 64 MB) uploads it into the bundle's "
-        },
-        {
-          "insert": "assets/videos/",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " and inserts\n  the block once the upload lands."
+          "insert": "."
         }
       ],
       "children": []
@@ -357,11 +296,11 @@
       "id": "b-00-using-the-workbench-conflicts-13",
       "type": "heading",
       "props": {
-        "level": 3
+        "level": 2
       },
       "text": [
         {
-          "insert": "Conflicts"
+          "insert": "Conflict Handling"
         }
       ],
       "children": []
@@ -372,7 +311,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Two layers, both server-enforced:"
+          "insert": "Two server outcomes pause autosave without discarding the editor draft."
         }
       ],
       "children": []
@@ -380,29 +319,23 @@
     "b-00-using-the-workbench-stale-hash-409-ev-15": {
       "id": "b-00-using-the-workbench-stale-hash-409-ev-15",
       "type": "list-item",
-      "props": {
-        "ordered": false
-      },
-      "text": [
-        {
-          "insert": "Stale hash (409).",
-          "attributes": {
-            "bold": true
-          }
-        },
-        {
-          "insert": " Every save carries the doc hash it was based on. If"
-        }
-      ],
-      "children": []
-    },
-    "b-00-using-the-workbench-the-doc-changed-undernea-16": {
-      "id": "b-00-using-the-workbench-the-doc-changed-undernea-16",
-      "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "  the doc changed underneath you, the save is rejected, your draft is kept\n  in the editor, a banner offers \"Reload doc\", and auto-save pauses until\n  you reload."
+          "insert": "Stale hash (409)"
+        }
+      ],
+      "children": [
+        "b-00-using-the-workbench-the-doc-changed-undernea-16"
+      ]
+    },
+    "b-00-using-the-workbench-the-doc-changed-undernea-16": {
+      "id": "b-00-using-the-workbench-the-doc-changed-undernea-16",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The server rejects an operation batch whose expected hash is stale. The draft remains local until the caller adopts current server state or retries from a current baseline."
         }
       ],
       "children": []
@@ -410,29 +343,23 @@
     "b-00-using-the-workbench-draft-lock-423-go-17": {
       "id": "b-00-using-the-workbench-draft-lock-423-go-17",
       "type": "list-item",
-      "props": {
-        "ordered": false
-      },
-      "text": [
-        {
-          "insert": "Draft lock (423).",
-          "attributes": {
-            "bold": true
-          }
-        },
-        {
-          "insert": " Going dirty acquires a best-effort TTL lock"
-        }
-      ],
-      "children": []
-    },
-    "b-00-using-the-workbench-heartbeat-renewed-if-18": {
-      "id": "b-00-using-the-workbench-heartbeat-renewed-if-18",
-      "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "  (heartbeat-renewed). If another session already holds it, a banner says\n  so and saving pauses until the lock frees (the heartbeat notices\n  automatically)."
+          "insert": "Draft lock (423)"
+        }
+      ],
+      "children": [
+        "b-00-using-the-workbench-heartbeat-renewed-if-18"
+      ]
+    },
+    "b-00-using-the-workbench-heartbeat-renewed-if-18": {
+      "id": "b-00-using-the-workbench-heartbeat-renewed-if-18",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Going dirty requests a heartbeat-renewed TTL lock. A lock held by another session pauses saves until the heartbeat observes availability; the expected hash remains the correctness check."
         }
       ],
       "children": []
@@ -445,7 +372,7 @@
       },
       "text": [
         {
-          "insert": "Annotate Mode"
+          "insert": "Annotation Persistence"
         }
       ],
       "children": []
@@ -456,7 +383,7 @@
       "props": {},
       "text": [
         {
-          "insert": "For pointing at things and leaving structured feedback — the mode an agent\nconversation lives in (\"do this, do this, do this\"):"
+          "insert": "Annotate mode composes viewer targeting with a workbench-owned annotations sidecar."
         }
       ],
       "children": []
@@ -464,12 +391,10 @@
     "b-00-using-the-workbench-hover-any-block-for-an-o-21": {
       "id": "b-00-using-the-workbench-hover-any-block-for-an-o-21",
       "type": "list-item",
-      "props": {
-        "ordered": false
-      },
+      "props": {},
       "text": [
         {
-          "insert": "hover any block for an outline + block-type chip; click to select it;"
+          "insert": "docs-viewer emits stable block targets; the injected canvas embed emits canvas-object targets."
         }
       ],
       "children": []
@@ -477,12 +402,19 @@
     "b-00-using-the-workbench-canvas-objects-inside-em-22": {
       "id": "b-00-using-the-workbench-canvas-objects-inside-em-22",
       "type": "list-item",
-      "props": {
-        "ordered": false
-      },
+      "props": {},
       "text": [
         {
-          "insert": "canvas objects inside embedded canvases are selectable the same way;"
+          "insert": "The workbench stores target, intent, body, and resolution state in "
+        },
+        {
+          "insert": "annotations.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " beside the bundle."
         }
       ],
       "children": []
@@ -490,23 +422,10 @@
     "b-00-using-the-workbench-compose-a-comment-with-23": {
       "id": "b-00-using-the-workbench-compose-a-comment-with-23",
       "type": "list-item",
-      "props": {
-        "ordered": false
-      },
-      "text": [
-        {
-          "insert": "compose an annotation (with an intent) in the side pane; resolve from the"
-        }
-      ],
-      "children": []
-    },
-    "b-00-using-the-workbench-list-dangling-targets-24": {
-      "id": "b-00-using-the-workbench-list-dangling-targets-24",
-      "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "  list; dangling targets (block deleted since) are detected and labeled."
+          "insert": "Targets whose block or canvas object is absent remain readable and are marked dangling by resolution logic."
         }
       ],
       "children": []
@@ -517,16 +436,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Annotations live in the bundle's "
-        },
-        {
-          "insert": "annotations.json",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " sidecar with the same\nhash-precondition write path as doc edits."
+          "insert": "Annotation writes carry the sidecar hash precondition, so concurrent annotation edits fail instead of overwriting one another."
         }
       ],
       "children": []
@@ -550,10 +460,10 @@
       "props": {},
       "text": [
         {
-          "insert": "The block catalog lives in the corpus, not the workbench: the per-type reference pages under "
+          "insert": "The workbench does not maintain a parallel block reference. Definitions and examples live in "
         },
         {
-          "insert": "block vocabulary",
+          "insert": "Block vocabulary",
           "attributes": {
             "reference": {
               "kind": "doc",
@@ -562,7 +472,7 @@
           }
         },
         {
-          "insert": " cover every block type, each with live examples and its doc.json shape."
+          "insert": "."
         }
       ],
       "children": []
@@ -592,7 +502,7 @@
           }
         },
         {
-          "insert": " produces the same UI with everything mutable removed: no mode\nswitcher, no editor, no annotations pane, no SSE — a plain read-only site that\nworks from any static host or subpath."
+          "insert": " builds the same SPA against a generated data snapshot. Static mode omits mutation callbacks, annotation writes, SSE, theme writes, and server-only asset operations, so viewer capabilities degrade through absent host services."
         }
       ],
       "children": []

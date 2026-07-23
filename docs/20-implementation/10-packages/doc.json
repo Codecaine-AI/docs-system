@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "id": "10-system-design-30-packages",
-  "title": "Package map",
+  "id": "20-implementation-10-packages",
+  "title": "Packages",
   "root": "b-00-overview-root",
   "blocks": {
     "b-00-overview-root": {
@@ -9,391 +9,471 @@
       "type": "paragraph",
       "props": {},
       "children": [
-        "b-00-overview-title-1",
+        "b-pkgb-lead-2",
+        "b-pkgb-why-heading-3",
+        "b-pkgb-why-para-4",
+        "b-pkgb-firewall-decision",
+        "b-pkgb-chain-heading-5",
+        "b-pkgb-chain-para-7",
+        "b-pkgb-four-walls-table",
+        "b-pkgb-need-heading-8",
+        "b-pkgb-mental-model-10",
+        "b-pkgb-forced-heading-11",
+        "b-pkgb-forced-intro-12",
+        "b-pkgb-why-index-14",
+        "b-pkgb-why-cli-18",
+        "b-pkgb-why-framework-19",
+        "b-pkgb-external-boundary",
+        "b-pkgb-review-heading-21",
+        "b-pkgb-review-index-22",
+        "b-pkgb-review-cli-23",
+        "b-pkgb-review-framework-24",
+        "b-00-overview-enforcement-28",
+        "b-00-overview-import-test-29",
+        "b-pkgb-enforcement-gap",
+        "b-00-overview-component-mirror-30",
+        "b-pkg-asbuilt-heading",
         "b-00-overview-lead-2",
+        "b-pkgb-core-heading",
         "b-00-overview-model-role-5",
         "b-00-overview-index-role-6",
         "b-00-overview-server-role-7",
         "b-00-overview-viewer-role-8",
         "b-00-overview-workbench-role-9",
+        "b-pkgb-interfaces-heading",
         "b-00-overview-cli-role-10",
         "b-00-overview-framework-role-11",
-        "b-00-overview-canvas-role-12",
-        "b-00-overview-makefile-31",
-        "b-00-overview-enforcement-28",
-        "b-00-overview-import-test-29",
-        "b-00-overview-component-mirror-30",
-        "b-00-overview-seq-heading-32",
-        "b-00-overview-seq-intro-33",
-        "b-00-overview-seq-agent-34",
-        "b-00-overview-seq-seam-35",
-        "b-00-overview-seq-order-36"
+        "b-00-overview-canvas-role-12"
       ]
     },
-    "b-00-overview-title-1": {
-      "id": "b-00-overview-title-1",
+    "b-pkgb-lead-2": {
+      "id": "b-pkgb-lead-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Package lines are dependency firewalls. They keep the pure format, server-side authority, browser product, and runnable application from inheriting one another's runtime costs and host assumptions. The pages below describe the as-built packages inside those walls and the thinner cuts that remain open to consolidation."
+        }
+      ],
+      "children": []
+    },
+    "b-pkgb-why-heading-3": {
+      "id": "b-pkgb-why-heading-3",
       "type": "heading",
       "props": {
-        "level": 1
+        "level": 2
       },
       "text": [
         {
-          "insert": "Package Map"
+          "insert": "Dependency Firewalls"
         }
       ],
       "children": []
     },
-    "b-00-overview-lead-2": {
-      "id": "b-00-overview-lead-2",
+    "b-pkgb-why-para-4": {
+      "id": "b-pkgb-why-para-4",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "The as-built inventory: every workspace package, what it owns today, and the tests that keep the seams honest. Why the boundaries sit where they do — the runtime constraints, the judgment calls, the live merge candidates — is design, not inventory: see "
+          "insert": "A package boundary exists when a consumer must not inherit the union of React and TipTap, filesystem and SQLite access, HTTP policy, application routing, and external editor engines. The boundary is architectural only when imports remain one-way: lower layers define contracts, higher layers compose them, and host-specific code never flows back into reusable packages. The "
         },
         {
-          "insert": "Package boundaries",
+          "insert": "System design — overview",
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "10-system-design/50-package-boundaries"
+              "path": "10-system-design"
             }
           }
         },
         {
-          "insert": "."
+          "insert": " owns the contracts that these packages implement."
         }
       ],
       "children": []
     },
-    "b-00-overview-model-role-5": {
-      "id": "b-00-overview-model-role-5",
-      "type": "list-item",
-      "props": {},
+    "b-pkgb-firewall-decision": {
+      "id": "b-pkgb-firewall-decision",
+      "type": "callout",
+      "props": {
+        "kind": "Decision",
+        "title": "Package lines are dependency firewalls",
+        "tone": "decision"
+      },
       "text": [
         {
-          "insert": "docs-model",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "20-implementation/10-packages/10-docs-model"
-            }
-          }
-        }
-      ],
-      "children": [
-        "b-00-overview-model-role-5-gloss"
-      ]
-    },
-    "b-00-overview-model-role-5-gloss": {
-      "id": "b-00-overview-model-role-5-gloss",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "The pure-TypeScript format definition: schema, 7-op mutation kernel and inverses, seven component bundles for 14 block types, and Markdown conversion in both directions."
+          "insert": "Directory organization follows dependency permission. A package may expose a narrow seam to a heavier layer without absorbing that layer's implementation, runtime, or host policy."
         }
       ],
       "children": []
     },
-    "b-00-overview-index-role-6": {
-      "id": "b-00-overview-index-role-6",
-      "type": "list-item",
-      "props": {},
+    "b-pkgb-chain-heading-5": {
+      "id": "b-pkgb-chain-heading-5",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
       "text": [
         {
-          "insert": "docs-index",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "20-implementation/10-packages/20-docs-index"
-            }
-          }
+          "insert": "The Four Load-Bearing Walls"
         }
       ],
-      "children": [
-        "b-00-overview-index-role-6-gloss"
-      ]
+      "children": []
     },
-    "b-00-overview-index-role-6-gloss": {
-      "id": "b-00-overview-index-role-6-gloss",
-      "type": "list-item",
+    "b-pkgb-chain-para-7": {
+      "id": "b-pkgb-chain-para-7",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "The derived "
+          "insert": "Four runtime boundaries survive package renames and likely reorganizations. The root workspace in "
         },
         {
-          "insert": "bun:sqlite",
+          "insert": "package.json",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "package.json"
+            }
+          }
+        },
+        {
+          "insert": " contains more directories because each wall can contain smaller responsibility or distribution cuts."
+        }
+      ],
+      "children": []
+    },
+    "b-pkgb-four-walls-table": {
+      "id": "b-pkgb-four-walls-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Wall",
+          "As-built packages",
+          "Dependency rule"
+        ],
+        "density": "compact",
+        "rows": [
+          [
+            "Pure model",
+            "docs-model",
+            "Shared schemas and operations stay free of React, TipTap, DOM, filesystem, network, and host application code."
+          ],
+          [
+            "Server-side",
+            "docs-index, docs-server, and command-only docs-cli paths",
+            "Bun, SQLite, filesystem, HTTP, validation, and persistence may live here; none of them may enter browser packages."
+          ],
+          [
+            "Browser-side",
+            "docs-viewer",
+            "React and TipTap may live here; transport, persistence, routing, server policy, and external engines stay behind host seams."
+          ],
+          [
+            "Runnable app",
+            "docs-workbench",
+            "The host may import both server and viewer packages because composition is its purpose; model, server, and viewer packages never import it, while docs-cli lazy-loads it for app commands."
+          ]
+        ],
+        "title": "Load-bearing runtime walls"
+      },
+      "children": []
+    },
+    "b-pkgb-need-heading-8": {
+      "id": "b-pkgb-need-heading-8",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "What Runs Together"
+        }
+      ],
+      "children": []
+    },
+    "b-pkgb-mental-model-10": {
+      "id": "b-pkgb-mental-model-10",
+      "type": "callout",
+      "props": {
+        "kind": "Mental model",
+        "tone": "decision"
+      },
+      "text": [
+        {
+          "insert": "A RUNNING DOCS INSTALLATION",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " = "
+        },
+        {
+          "insert": "docs-model + docs-index + docs-server + docs-viewer",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " backlink index, plus move-doc rename rewriting and path confinement."
-        }
-      ],
-      "children": []
-    },
-    "b-00-overview-server-role-7": {
-      "id": "b-00-overview-server-role-7",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "docs-server",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "20-implementation/10-packages/30-docs-server"
-            }
-          }
-        }
-      ],
-      "children": [
-        "b-00-overview-server-role-7-gloss"
-      ]
-    },
-    "b-00-overview-server-role-7-gloss": {
-      "id": "b-00-overview-server-role-7-gloss",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "The React-free mutation authority: atomic mutexed writes, hash preconditions, draft locks, undo, change events, embeddable Elysia routes, block discovery, and canvas-op forwarding."
-        }
-      ],
-      "children": []
-    },
-    "b-00-overview-viewer-role-8": {
-      "id": "b-00-overview-viewer-role-8",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "docs-viewer",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "20-implementation/10-packages/40-docs-viewer"
-            }
-          }
-        }
-      ],
-      "children": [
-        "b-00-overview-viewer-role-8-gloss"
-      ]
-    },
-    "b-00-overview-viewer-role-8-gloss": {
-      "id": "b-00-overview-viewer-role-8-gloss",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "The browser-pure React renderer and editor: mirrored component folders, TipTap editing, targeting, and the client-provider seam."
-        }
-      ],
-      "children": []
-    },
-    "b-00-overview-workbench-role-9": {
-      "id": "b-00-overview-workbench-role-9",
-      "type": "list-item",
-      "props": {},
-      "text": [
+          "insert": ", composed by "
+        },
         {
           "insert": "docs-workbench",
           "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "20-implementation/10-packages/50-docs-workbench"
-            }
+            "code": true
           }
-        }
-      ],
-      "children": [
-        "b-00-overview-workbench-role-9-gloss"
-      ]
-    },
-    "b-00-overview-workbench-role-9-gloss": {
-      "id": "b-00-overview-workbench-role-9-gloss",
-      "type": "list-item",
-      "props": {},
-      "text": [
+        },
         {
-          "insert": "The thin composition shell: an Elysia server around docs-server, a Vite SPA around docs-viewer, Edit/Annotate modes, and static export."
-        }
-      ],
-      "children": []
-    },
-    "b-00-overview-cli-role-10": {
-      "id": "b-00-overview-cli-role-10",
-      "type": "list-item",
-      "props": {},
-      "text": [
+          "insert": ". "
+        },
+        {
+          "insert": "AN AGENT INTERACTING WITH IT",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " speaks the "
+        },
         {
           "insert": "docs-cli",
           "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "20-implementation/10-packages/60-docs-cli"
-            }
+            "code": true
           }
-        }
-      ],
-      "children": [
-        "b-00-overview-cli-role-10-gloss"
-      ]
-    },
-    "b-00-overview-cli-role-10-gloss": {
-      "id": "b-00-overview-cli-role-10-gloss",
-      "type": "list-item",
-      "props": {},
-      "text": [
+        },
         {
-          "insert": "The agent dialect and human entry point for render, grep, backlink rescan, link checks, migration, serve, and export."
-        }
-      ],
-      "children": []
-    },
-    "b-00-overview-framework-role-11": {
-      "id": "b-00-overview-framework-role-11",
-      "type": "list-item",
-      "props": {},
-      "text": [
+          "insert": " dialect. "
+        },
         {
           "insert": "framework",
           "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "20-implementation/10-packages/70-framework"
-            }
+            "code": true
           }
-        }
-      ],
-      "children": [
-        "b-00-overview-framework-role-11-gloss"
-      ]
-    },
-    "b-00-overview-framework-role-11-gloss": {
-      "id": "b-00-overview-framework-role-11-gloss",
-      "type": "list-item",
-      "props": {},
-      "text": [
+        },
         {
-          "insert": "The zero-dependency, zero-code methodology: manual, templates, and a skill definition distributed for host repos to symlink into agent tooling."
+          "insert": " distributes methodology and is not required at runtime."
         }
       ],
       "children": []
     },
-    "b-00-overview-canvas-role-12": {
-      "id": "b-00-overview-canvas-role-12",
-      "type": "list-item",
-      "props": {},
+    "b-pkgb-forced-heading-11": {
+      "id": "b-pkgb-forced-heading-11",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
       "text": [
         {
-          "insert": "external/canvas",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "20-implementation/10-packages/80-external-canvas"
-            }
-          }
-        }
-      ],
-      "children": [
-        "b-00-overview-canvas-role-12-gloss"
-      ]
-    },
-    "b-00-overview-canvas-role-12-gloss": {
-      "id": "b-00-overview-canvas-role-12-gloss",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "A vendored neighboring project whose inner workspace packages supply canvas schemas and embeds; it is not one of the seven."
+          "insert": "The Thinner Cuts"
         }
       ],
       "children": []
     },
-    "b-00-overview-makefile-31": {
-      "id": "b-00-overview-makefile-31",
+    "b-pkgb-forced-intro-12": {
+      "id": "b-pkgb-forced-intro-12",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "The repo-root "
+          "insert": "The remaining boundaries preserve useful responsibilities without creating another load-bearing runtime wall. They are real in the current source tree and explicitly reversible."
+        }
+      ],
+      "children": []
+    },
+    "b-pkgb-why-index-14": {
+      "id": "b-pkgb-why-index-14",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs-index and docs-server",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-pkgb-why-index-14-gloss"
+      ]
+    },
+    "b-pkgb-why-index-14-gloss": {
+      "id": "b-pkgb-why-index-14-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "SQLite forces the index into the server-side wall. A separate package keeps rebuildable link analysis usable without mounting HTTP routes, but that separation is judgment."
+        }
+      ],
+      "children": []
+    },
+    "b-pkgb-why-cli-18": {
+      "id": "b-pkgb-why-cli-18",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs-cli and docs-workbench",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-pkgb-why-cli-18-gloss"
+      ]
+    },
+    "b-pkgb-why-cli-18-gloss": {
+      "id": "b-pkgb-why-cli-18-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The executable keeps render, search, migration, and integrity commands scriptable. Its "
         },
         {
-          "insert": "Makefile",
+          "insert": "serve",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " wraps common commands: "
+          "insert": " and "
         },
         {
-          "insert": "make test",
+          "insert": "export",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": ", "
+          "insert": " paths lazy-load the runnable app, so command-only use does not start the browser stack."
+        }
+      ],
+      "children": []
+    },
+    "b-pkgb-why-framework-19": {
+      "id": "b-pkgb-why-framework-19",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "framework as a package",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-pkgb-why-framework-19-gloss"
+      ]
+    },
+    "b-pkgb-why-framework-19-gloss": {
+      "id": "b-pkgb-why-framework-19-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The workspace package makes the manual, templates, and skill resolvable and symlinkable. It contributes no runtime code."
+        }
+      ],
+      "children": []
+    },
+    "b-pkgb-external-boundary": {
+      "id": "b-pkgb-external-boundary",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Canvas and Sequence are different kinds of boundary. They are independent projects mounted under "
         },
         {
-          "insert": "make typecheck",
+          "insert": "external/",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": ", "
+          "insert": "; their placement records ownership, while narrow model and host seams control how the docs system consumes them."
+        }
+      ],
+      "children": []
+    },
+    "b-pkgb-review-heading-21": {
+      "id": "b-pkgb-review-heading-21",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Boundaries Under Review"
+        }
+      ],
+      "children": []
+    },
+    "b-pkgb-review-index-22": {
+      "id": "b-pkgb-review-index-22",
+      "type": "callout",
+      "props": {
+        "kind": "Open call",
+        "title": "Fold docs-index into docs-server",
+        "tone": "decision"
+      },
+      "text": [
+        {
+          "insert": "Keeping the index out of the browser is forced. Keeping derived, rebuildable state with no HTTP surface outside the server remains a judgment call."
+        }
+      ],
+      "children": []
+    },
+    "b-pkgb-review-cli-23": {
+      "id": "b-pkgb-review-cli-23",
+      "type": "callout",
+      "props": {
+        "kind": "Open call",
+        "title": "Merge docs-cli and docs-workbench",
+        "tone": "decision"
+      },
+      "text": [
+        {
+          "insert": "The command package already launches workbench for "
         },
         {
-          "insert": "make check",
+          "insert": "serve",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": ", "
+          "insert": " and "
         },
         {
-          "insert": "make serve",
+          "insert": "export",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": ", "
-        },
+          "insert": ". The stable command dialect may be an entry point of the runnable app rather than a separate package."
+        }
+      ],
+      "children": []
+    },
+    "b-pkgb-review-framework-24": {
+      "id": "b-pkgb-review-framework-24",
+      "type": "callout",
+      "props": {
+        "kind": "Open call",
+        "title": "Unpackage framework",
+        "tone": "decision"
+      },
+      "text": [
         {
-          "insert": "make dev",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "make canvas",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", and "
-        },
-        {
-          "insert": "make spa",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "."
+          "insert": "A running installation behaves identically without the methodology package. Its packaging is a distribution channel that can change without moving a runtime wall."
         }
       ],
       "children": []
@@ -417,7 +497,66 @@
       "props": {},
       "text": [
         {
-          "insert": "The boundaries are tested, not aspirational. At the repo root, "
+          "insert": "The checks in "
+        },
+        {
+          "insert": "import-boundaries.test.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "import-boundaries.test.ts"
+            }
+          }
+        },
+        {
+          "insert": " forbid host-application imports from reusable package roots, forbid React and TipTap imports from docs-model, and restrict docs-model's Canvas and Sequence imports to each project's "
+        },
+        {
+          "insert": "agent-schema",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " leaf. These checks protect the pure-model wall and the host boundary; package manifests and code review still carry the remaining server/browser direction."
+        }
+      ],
+      "children": []
+    },
+    "b-pkgb-enforcement-gap": {
+      "id": "b-pkgb-enforcement-gap",
+      "type": "callout",
+      "props": {
+        "kind": "Enforcement gap",
+        "title": "The root boundary test is not in the default test script",
+        "tone": "warning"
+      },
+      "text": [
+        {
+          "insert": "The root "
+        },
+        {
+          "insert": "package.json",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "package.json"
+            }
+          }
+        },
+        {
+          "insert": " scopes "
+        },
+        {
+          "insert": "bun run test",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " to package directories, so "
         },
         {
           "insert": "import-boundaries.test.ts",
@@ -426,79 +565,7 @@
           }
         },
         {
-          "insert": " enforces three rules: none of the seven package "
-        },
-        {
-          "insert": "src",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " roots may import host-app code through "
-        },
-        {
-          "insert": "@spectre/*",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", the "
-        },
-        {
-          "insert": "@/",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " alias, or a reach into a host "
-        },
-        {
-          "insert": "apps/",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " directory; docs-model may not import "
-        },
-        {
-          "insert": "react",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "react-dom",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", or "
-        },
-        {
-          "insert": "@tiptap/*",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "; and docs-model may import canvas only through "
-        },
-        {
-          "insert": "@codecaine-ai/canvas/agent-schema",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "."
+          "insert": " must currently be invoked separately."
         }
       ],
       "children": []
@@ -509,75 +576,309 @@
       "props": {},
       "text": [
         {
-          "insert": "component-mirror.test.ts",
+          "insert": "packages/docs-viewer/src/__tests__/component-mirror.test.ts",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/__tests__/component-mirror.test.ts"
+            }
           }
         },
         {
-          "insert": " separately keeps docs-viewer's component folders in a 1:1 mirror with docs-model's component bundles."
+          "insert": " separately keeps viewer component folders aligned with model component ownership. It runs inside the package-scoped viewer test suite."
         }
       ],
       "children": []
     },
-    "b-00-overview-seq-heading-32": {
-      "id": "b-00-overview-seq-heading-32",
+    "b-pkg-asbuilt-heading": {
+      "id": "b-pkg-asbuilt-heading",
       "type": "heading",
       "props": {
         "level": 2
       },
       "text": [
         {
-          "insert": "Sequence Examples"
+          "insert": "Package Pages"
         }
       ],
       "children": []
     },
-    "b-00-overview-seq-intro-33": {
-      "id": "b-00-overview-seq-intro-33",
+    "b-00-overview-lead-2": {
+      "id": "b-00-overview-lead-2",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "Live examples of the new sequence block, each rendered from a sidecar document under "
-        },
-        {
-          "insert": "assets/sequences/",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ": the first two diagram this repo's own agent save pipeline and viewer/host embed seam; the third is the UML combined-fragment reference flow."
+          "insert": "Each immediate child documents one current package boundary or supported neighboring-project boundary."
         }
       ],
       "children": []
     },
-    "b-00-overview-seq-agent-34": {
-      "id": "b-00-overview-seq-agent-34",
-      "type": "sequence",
+    "b-pkgb-core-heading": {
+      "id": "b-pkgb-core-heading",
+      "type": "heading",
       "props": {
-        "src": "assets/sequences/agent-edit-flow.sequence.json",
-        "title": "Agent edit flow"
+        "level": 3
       },
+      "text": [
+        {
+          "insert": "Runtime Packages"
+        }
+      ],
       "children": []
     },
-    "b-00-overview-seq-seam-35": {
-      "id": "b-00-overview-seq-seam-35",
-      "type": "sequence",
-      "props": {
-        "src": "assets/sequences/viewer-host-seam.sequence.json",
-        "title": "Viewer / host embed seam"
-      },
+    "b-00-overview-model-role-5": {
+      "id": "b-00-overview-model-role-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs-model — The Format",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/10-packages/10-docs-model"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-00-overview-model-role-5-gloss"
+      ]
+    },
+    "b-00-overview-model-role-5-gloss": {
+      "id": "b-00-overview-model-role-5-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The dependency-pure document schema, operation vocabulary, component registries, validation, and agent rendering."
+        }
+      ],
       "children": []
     },
-    "b-00-overview-seq-order-36": {
-      "id": "b-00-overview-seq-order-36",
-      "type": "sequence",
+    "b-00-overview-index-role-6": {
+      "id": "b-00-overview-index-role-6",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs-index — Backlinks",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/10-packages/20-docs-index"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-00-overview-index-role-6-gloss"
+      ]
+    },
+    "b-00-overview-index-role-6-gloss": {
+      "id": "b-00-overview-index-role-6-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The Bun and SQLite derived index, reference matching, confined paths, and document moves."
+        }
+      ],
+      "children": []
+    },
+    "b-00-overview-server-role-7": {
+      "id": "b-00-overview-server-role-7",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs-server — the Mutation Authority",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/10-packages/30-docs-server"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-00-overview-server-role-7-gloss"
+      ]
+    },
+    "b-00-overview-server-role-7-gloss": {
+      "id": "b-00-overview-server-role-7-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The headless store and route factory for reads, hash-guarded writes, locks, undo, events, and sidecars."
+        }
+      ],
+      "children": []
+    },
+    "b-00-overview-viewer-role-8": {
+      "id": "b-00-overview-viewer-role-8",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs-viewer — rendering and editing",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/10-packages/40-docs-viewer"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-00-overview-viewer-role-8-gloss"
+      ]
+    },
+    "b-00-overview-viewer-role-8-gloss": {
+      "id": "b-00-overview-viewer-role-8-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The browser-pure React renderer and editor with injected data and embed seams."
+        }
+      ],
+      "children": []
+    },
+    "b-00-overview-workbench-role-9": {
+      "id": "b-00-overview-workbench-role-9",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs-workbench — the app",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/10-packages/50-docs-workbench"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-00-overview-workbench-role-9-gloss"
+      ]
+    },
+    "b-00-overview-workbench-role-9-gloss": {
+      "id": "b-00-overview-workbench-role-9-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The thin server-and-SPA composition point for live serving and static export."
+        }
+      ],
+      "children": []
+    },
+    "b-pkgb-interfaces-heading": {
+      "id": "b-pkgb-interfaces-heading",
+      "type": "heading",
       "props": {
-        "src": "assets/sequences/order-distribution.sequence.json",
-        "title": "Order distribution"
+        "level": 3
       },
+      "text": [
+        {
+          "insert": "Interfaces and Neighbors"
+        }
+      ],
+      "children": []
+    },
+    "b-00-overview-cli-role-10": {
+      "id": "b-00-overview-cli-role-10",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs-cli — the agent dialect",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/10-packages/60-docs-cli"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-00-overview-cli-role-10-gloss"
+      ]
+    },
+    "b-00-overview-cli-role-10-gloss": {
+      "id": "b-00-overview-cli-role-10-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The scriptable command surface for rendering, search, integrity, migration, serving, and export."
+        }
+      ],
+      "children": []
+    },
+    "b-00-overview-framework-role-11": {
+      "id": "b-00-overview-framework-role-11",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "framework — the loadable skill",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/10-packages/70-framework"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-00-overview-framework-role-11-gloss"
+      ]
+    },
+    "b-00-overview-framework-role-11-gloss": {
+      "id": "b-00-overview-framework-role-11-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The runtime-optional methodology, templates, and agent skill distributed as a workspace package."
+        }
+      ],
+      "children": []
+    },
+    "b-00-overview-canvas-role-12": {
+      "id": "b-00-overview-canvas-role-12",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "External Canvas and Sequence",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/10-packages/80-external-canvas"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-00-overview-canvas-role-12-gloss"
+      ]
+    },
+    "b-00-overview-canvas-role-12-gloss": {
+      "id": "b-00-overview-canvas-role-12-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The independently owned engines, sidecar seams, injected viewers, and standalone authoring applications mounted under external/."
+        }
+      ],
       "children": []
     }
   }

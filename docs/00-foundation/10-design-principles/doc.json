@@ -1,0 +1,528 @@
+{
+  "schemaVersion": 1,
+  "id": "00-foundation-10-design-principles",
+  "title": "Design Principles",
+  "root": "b-dprin-root",
+  "blocks": {
+    "b-dprin-root": {
+      "id": "b-dprin-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-dprin-intro",
+        "b-dprin-readers-heading",
+        "b-dprin-readers-rule",
+        "b-dprin-readers-home",
+        "b-dprin-readers-why-heading",
+        "b-dprin-readers-different",
+        "b-dprin-readers-equal",
+        "b-dprin-contracts-heading",
+        "b-dprin-contracts-rule",
+        "b-dprin-contracts-home",
+        "b-dprin-contracts-allow-list",
+        "b-dprin-contracts-why-heading",
+        "b-dprin-contracts-safe",
+        "b-dprin-contracts-local",
+        "b-dprin-contracts-afternoon",
+        "b-dprin-vocabulary-heading",
+        "b-dprin-vocabulary-rule",
+        "b-dprin-vocabulary-boundary",
+        "b-dprin-vocabulary-why-heading",
+        "b-dprin-vocabulary-tractable",
+        "b-dprin-vocabulary-earned",
+        "b-dprin-own-heading",
+        "b-dprin-own-rule",
+        "b-dprin-own-living-theme",
+        "b-dprin-own-boundary",
+        "b-dprin-own-why-heading",
+        "b-dprin-own-visual-feedback",
+        "b-dprin-own-safe",
+        "b-dprin-restraint-heading",
+        "b-dprin-restraint-rule",
+        "b-dprin-restraint-encodings",
+        "b-dprin-restraint-why-heading",
+        "b-dprin-restraint-paper",
+        "b-dprin-identity-heading",
+        "b-dprin-identity-rule",
+        "b-dprin-identity-anchors",
+        "b-dprin-identity-why-heading",
+        "b-dprin-identity-addressable"
+      ]
+    },
+    "b-dprin-intro": {
+      "id": "b-dprin-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The system is one addressable artifact with a small, closed block vocabulary, rendered for two equal readers and styled through bounded theme controls. Stable identity anchors operations; visual restraint removes competing encodings. This page owns why those constraints are goals; their operational contracts live in system design."
+        }
+      ],
+      "children": []
+    },
+    "b-dprin-readers-heading": {
+      "id": "b-dprin-readers-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "One Artifact, Two Equal Readers"
+        }
+      ],
+      "children": []
+    },
+    "b-dprin-readers-rule": {
+      "id": "b-dprin-readers-rule",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "One canonical document serves humans and agents through separate, equally important reading and editing surfaces."
+        }
+      ],
+      "children": []
+    },
+    "b-dprin-readers-home": {
+      "id": "b-dprin-readers-home",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Translation layer",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/20-translation-layer"
+            }
+          }
+        },
+        {
+          "insert": " owns how canonical state becomes each reader's interaction surface."
+        }
+      ],
+      "children": []
+    },
+    "b-dprin-readers-why-heading": {
+      "id": "b-dprin-readers-why-heading",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Why"
+        }
+      ],
+      "children": []
+    },
+    "b-dprin-readers-different": {
+      "id": "b-dprin-readers-different",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Humans and agents consume information differently; each needs a surface optimized for how it reads and edits."
+        }
+      ],
+      "children": []
+    },
+    "b-dprin-readers-equal": {
+      "id": "b-dprin-readers-equal",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Neither reader is primary. When their needs diverge, canonical state carries the structure both renderers need so neither surface degrades."
+        }
+      ],
+      "children": []
+    },
+    "b-dprin-contracts-heading": {
+      "id": "b-dprin-contracts-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Blocks Are Closed Contracts"
+        }
+      ],
+      "children": []
+    },
+    "b-dprin-contracts-rule": {
+      "id": "b-dprin-contracts-rule",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A block type owns its closed state schema, typed actions, human renderer, agent renderer, and theme."
+        }
+      ],
+      "children": []
+    },
+    "b-dprin-contracts-home": {
+      "id": "b-dprin-contracts-home",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Block design",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design"
+            }
+          }
+        },
+        {
+          "insert": " owns this contract and the add-a-type path."
+        }
+      ],
+      "children": []
+    },
+    "b-dprin-contracts-allow-list": {
+      "id": "b-dprin-contracts-allow-list",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "DOC_BLOCK_TYPES",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " remains the deliberate central allow-list. Extension is controlled, not plug-in discovery."
+        }
+      ],
+      "children": []
+    },
+    "b-dprin-contracts-why-heading": {
+      "id": "b-dprin-contracts-why-heading",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Why"
+        }
+      ],
+      "children": []
+    },
+    "b-dprin-contracts-safe": {
+      "id": "b-dprin-contracts-safe",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Closed schemas protect the shared tree: a block cannot hold state its type did not declare, so corruption is refused at the door."
+        }
+      ],
+      "children": []
+    },
+    "b-dprin-contracts-local": {
+      "id": "b-dprin-contracts-local",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "State, actions, renderers, and theme travel together, so adding a type touches one bundle per home instead of scattered files."
+        }
+      ],
+      "children": []
+    },
+    "b-dprin-contracts-afternoon": {
+      "id": "b-dprin-contracts-afternoon",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The boundary stays explicit while remaining bounded enough that a stranger can add a block in an afternoon."
+        }
+      ],
+      "children": []
+    },
+    "b-dprin-vocabulary-heading": {
+      "id": "b-dprin-vocabulary-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The Vocabulary Stays Small"
+        }
+      ],
+      "children": []
+    },
+    "b-dprin-vocabulary-rule": {
+      "id": "b-dprin-vocabulary-rule",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The canonical types in "
+        },
+        {
+          "insert": "DOC_BLOCK_TYPES",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " form a deliberately small, curated vocabulary. Database blocks and other attractive general-purpose features stay outside it when they do not serve code documentation."
+        }
+      ],
+      "children": []
+    },
+    "b-dprin-vocabulary-boundary": {
+      "id": "b-dprin-vocabulary-boundary",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "There is no arbitrary React escape hatch. Unsupported interaction requires a deliberate new type with the full block contract."
+        }
+      ],
+      "children": []
+    },
+    "b-dprin-vocabulary-why-heading": {
+      "id": "b-dprin-vocabulary-why-heading",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Why"
+        }
+      ],
+      "children": []
+    },
+    "b-dprin-vocabulary-tractable": {
+      "id": "b-dprin-vocabulary-tractable",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A small vocabulary keeps the render stable, the editor learnable, and the agent edit surface enumerable."
+        }
+      ],
+      "children": []
+    },
+    "b-dprin-vocabulary-earned": {
+      "id": "b-dprin-vocabulary-earned",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Existing types represent the material honestly until a new interaction earns the cost of becoming a first-class type."
+        }
+      ],
+      "children": []
+    },
+    "b-dprin-own-heading": {
+      "id": "b-dprin-own-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Make It Your Own"
+        }
+      ],
+      "children": []
+    },
+    "b-dprin-own-rule": {
+      "id": "b-dprin-own-rule",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every block type ships its style capabilities as theme knobs; components do not hardcode looks."
+        }
+      ],
+      "children": []
+    },
+    "b-dprin-own-living-theme": {
+      "id": "b-dprin-own-living-theme",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The living repo theme auto-saves adjustments. Hand-edited themes use a closed token vocabulary, and unknown keys are ignored."
+        }
+      ],
+      "children": []
+    },
+    "b-dprin-own-boundary": {
+      "id": "b-dprin-own-boundary",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Customization is bounded: system UI remains fixed so every theme feels like the same tool."
+        }
+      ],
+      "children": []
+    },
+    "b-dprin-own-why-heading": {
+      "id": "b-dprin-own-why-heading",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Why"
+        }
+      ],
+      "children": []
+    },
+    "b-dprin-own-visual-feedback": {
+      "id": "b-dprin-own-visual-feedback",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The visual controls let an author adjust style “pretty easily based off of visuals and such.”"
+        }
+      ],
+      "children": []
+    },
+    "b-dprin-own-safe": {
+      "id": "b-dprin-own-safe",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Typed knobs make the artifact ownable without letting theme data break the application or replace the tool's identity."
+        }
+      ],
+      "children": []
+    },
+    "b-dprin-restraint-heading": {
+      "id": "b-dprin-restraint-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Restraint Is the Aesthetic"
+        }
+      ],
+      "children": []
+    },
+    "b-dprin-restraint-rule": {
+      "id": "b-dprin-restraint-rule",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each surface uses one ink and one accent. Interaction reveals the rest, and boxes appear only when a step needs clarification."
+        }
+      ],
+      "children": []
+    },
+    "b-dprin-restraint-encodings": {
+      "id": "b-dprin-restraint-encodings",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Restraint removes competing encodings such as per-kind colors, icons, badges, and decorative framing; it does not merely mute them."
+        }
+      ],
+      "children": []
+    },
+    "b-dprin-restraint-why-heading": {
+      "id": "b-dprin-restraint-why-heading",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Why"
+        }
+      ],
+      "children": []
+    },
+    "b-dprin-restraint-paper": {
+      "id": "b-dprin-restraint-paper",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The intended surface is a virtual version of pen-and-paper thinking. Fewer competing colors and markers keep too much from happening at once."
+        }
+      ],
+      "children": []
+    },
+    "b-dprin-identity-heading": {
+      "id": "b-dprin-identity-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Stable Identity Is a Contract"
+        }
+      ],
+      "children": []
+    },
+    "b-dprin-identity-rule": {
+      "id": "b-dprin-identity-rule",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A block ID is stable identity, not an implementation detail."
+        }
+      ],
+      "children": []
+    },
+    "b-dprin-identity-anchors": {
+      "id": "b-dprin-identity-anchors",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Comments, patches, views, and links anchor to block IDs."
+        }
+      ],
+      "children": []
+    },
+    "b-dprin-identity-why-heading": {
+      "id": "b-dprin-identity-why-heading",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Why"
+        }
+      ],
+      "children": []
+    },
+    "b-dprin-identity-addressable": {
+      "id": "b-dprin-identity-addressable",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The artifact is fully node-based so everything is addressable from a queryable standpoint. Stable addresses let people and agents target the same part without positional guesswork."
+        }
+      ],
+      "children": []
+    }
+  }
+}

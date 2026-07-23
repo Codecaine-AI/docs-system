@@ -14,8 +14,8 @@
         "b-21-file-tree-example-intro",
         "b-21-file-tree-example-block",
         "b-21-file-tree-state-h-3",
+        "b-ftfam-state-shape",
         "b-ftfam-state-lead",
-        "b-21-file-tree-entry-state-5",
         "b-ftfam-path-rules",
         "b-ftfam-dir-gotcha",
         "b-ftfam-tolerant",
@@ -169,6 +169,51 @@
       ],
       "children": []
     },
+    "b-ftfam-state-shape": {
+      "id": "b-ftfam-state-shape",
+      "type": "state-shape",
+      "props": {
+        "example": "{\n  \"entries\": [\n    {\n      \"path\": \"packages/docs-model/src/components/file-tree/state.ts\",\n      \"note\": \"entry schema\"\n    },\n    {\n      \"path\": \"packages/docs-model/src/components/file-tree/lib.ts\",\n      \"change\": \"renamed\",\n      \"from\": \"packages/docs-model/src/components/file-tree/render.ts\"\n    }\n  ]\n}",
+        "fields": [
+          {
+            "name": "entries",
+            "type": "FileTreeEntry[]",
+            "description": "Flat list of path entries; the rendered tree derives from path prefixes.",
+            "fields": [
+              {
+                "name": "path",
+                "type": "string",
+                "description": "/-separated, no leading \"./\"; a trailing \"/\" marks an explicit directory."
+              },
+              {
+                "name": "note",
+                "type": "string",
+                "required": false,
+                "description": "Short annotation rendered after the path."
+              },
+              {
+                "name": "change",
+                "type": "\"added\" | \"removed\" | \"modified\" | \"renamed\"",
+                "required": false,
+                "description": "Diff marker for the entry."
+              },
+              {
+                "name": "from",
+                "type": "string",
+                "required": false,
+                "description": "Previous path, used with change: \"renamed\"."
+              }
+            ]
+          }
+        ],
+        "name": "FileTreeState",
+        "source": {
+          "path": "packages/docs-model/src/components/file-tree/state.ts",
+          "symbol": "FileTreeState"
+        }
+      },
+      "children": []
+    },
     "b-ftfam-state-lead": {
       "id": "b-ftfam-state-lead",
       "type": "paragraph",
@@ -193,20 +238,7 @@
           }
         },
         {
-          "insert": " schema in "
-        },
-        {
-          "insert": "state.ts",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-model/src/components/file-tree/state.ts"
-            }
-          }
-        },
-        {
-          "insert": ". The type carries no delta text ("
+          "insert": " schema. The type carries no delta text ("
         },
         {
           "insert": "carriesText: false",
@@ -239,46 +271,6 @@
           "insert": "."
         }
       ],
-      "children": []
-    },
-    "b-21-file-tree-entry-state-5": {
-      "id": "b-21-file-tree-entry-state-5",
-      "type": "structured-table",
-      "props": {
-        "columns": [
-          "prop",
-          "type",
-          "required",
-          "notes"
-        ],
-        "rows": [
-          [
-            "path",
-            "string",
-            "yes",
-            "/-separated, no leading \"./\"; a trailing \"/\" marks an explicit directory."
-          ],
-          [
-            "note",
-            "string",
-            "no",
-            "Short annotation rendered after the path."
-          ],
-          [
-            "change",
-            "\"added\" / \"removed\" / \"modified\" / \"renamed\"",
-            "no",
-            "Diff marker for the entry."
-          ],
-          [
-            "from",
-            "string",
-            "no",
-            "Previous path, used with change: \"renamed\"."
-          ]
-        ],
-        "title": "One entry"
-      },
       "children": []
     },
     "b-ftfam-path-rules": {
@@ -1417,6 +1409,18 @@
           "insert": "themes/<id>/",
           "attributes": {
             "code": true
+          }
+        },
+        {
+          "insert": "; the system is "
+        },
+        {
+          "insert": "Theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/40-theming"
+            }
           }
         },
         {

@@ -1,53 +1,98 @@
-# Package Map
+Package lines are dependency firewalls. They keep the pure format, server-side authority, browser product, and runnable application from inheriting one another's runtime costs and host assumptions. The pages below describe the as-built packages inside those walls and the thinner cuts that remain open to consolidation.
 
-The as-built inventory: every workspace package, what it owns today, and the tests that keep the seams honest. Why the boundaries sit where they do — the runtime constraints, the judgment calls, the live merge candidates — is design, not inventory: see Package boundaries.
+## Dependency Firewalls
 
-- docs-model
+A package boundary exists when a consumer must not inherit the union of React and TipTap, filesystem and SQLite access, HTTP policy, application routing, and external editor engines. The boundary is architectural only when imports remain one-way: lower layers define contracts, higher layers compose them, and host-specific code never flows back into reusable packages. The System design — overview owns the contracts that these packages implement.
 
-  - The pure-TypeScript format definition: schema, 7-op mutation kernel and inverses, seven component bundles for 14 block types, and Markdown conversion in both directions.
+> **Decision: Package lines are dependency firewalls** — Directory organization follows dependency permission. A package may expose a narrow seam to a heavier layer without absorbing that layer's implementation, runtime, or host policy.
 
-- docs-index
+## The Four Load-Bearing Walls
 
-  - The derived `bun:sqlite` backlink index, plus move-doc rename rewriting and path confinement.
+Four runtime boundaries survive package renames and likely reorganizations. The root workspace in `package.json` contains more directories because each wall can contain smaller responsibility or distribution cuts.
 
-- docs-server
+**Load-bearing runtime walls**
 
-  - The React-free mutation authority: atomic mutexed writes, hash preconditions, draft locks, undo, change events, embeddable Elysia routes, block discovery, and canvas-op forwarding.
+| Wall | As-built packages | Dependency rule |
+| --- | --- | --- |
+| Pure model | docs-model | Shared schemas and operations stay free of React, TipTap, DOM, filesystem, network, and host application code. |
+| Server-side | docs-index, docs-server, and command-only docs-cli paths | Bun, SQLite, filesystem, HTTP, validation, and persistence may live here; none of them may enter browser packages. |
+| Browser-side | docs-viewer | React and TipTap may live here; transport, persistence, routing, server policy, and external engines stay behind host seams. |
+| Runnable app | docs-workbench | The host may import both server and viewer packages because composition is its purpose; model, server, and viewer packages never import it, while docs-cli lazy-loads it for app commands. |
 
-- docs-viewer
+## What Runs Together
 
-  - The browser-pure React renderer and editor: mirrored component folders, TipTap editing, targeting, and the client-provider seam.
+> **Mental model** — **A RUNNING DOCS INSTALLATION** = `docs-model + docs-index + docs-server + docs-viewer`, composed by `docs-workbench`. **AN AGENT INTERACTING WITH IT** speaks the `docs-cli` dialect. `framework` distributes methodology and is not required at runtime.
 
-- docs-workbench
+## The Thinner Cuts
 
-  - The thin composition shell: an Elysia server around docs-server, a Vite SPA around docs-viewer, Edit/Annotate modes, and static export.
+The remaining boundaries preserve useful responsibilities without creating another load-bearing runtime wall. They are real in the current source tree and explicitly reversible.
 
-- docs-cli
+- **docs-index and docs-server**
 
-  - The agent dialect and human entry point for render, grep, backlink rescan, link checks, migration, serve, and export.
+  - SQLite forces the index into the server-side wall. A separate package keeps rebuildable link analysis usable without mounting HTTP routes, but that separation is judgment.
 
-- framework
+- **docs-cli and docs-workbench**
 
-  - The zero-dependency, zero-code methodology: manual, templates, and a skill definition distributed for host repos to symlink into agent tooling.
+  - The executable keeps render, search, migration, and integrity commands scriptable. Its `serve` and `export` paths lazy-load the runnable app, so command-only use does not start the browser stack.
 
-- external/canvas
+- **framework as a package**
 
-  - A vendored neighboring project whose inner workspace packages supply canvas schemas and embeds; it is not one of the seven.
+  - The workspace package makes the manual, templates, and skill resolvable and symlinkable. It contributes no runtime code.
 
-The repo-root `Makefile` wraps common commands: `make test`, `make typecheck`, `make check`, `make serve`, `make dev`, `make canvas`, and `make spa`.
+Canvas and Sequence are different kinds of boundary. They are independent projects mounted under `external/`; their placement records ownership, while narrow model and host seams control how the docs system consumes them.
+
+## Boundaries Under Review
+
+> **Open call: Fold docs-index into docs-server** — Keeping the index out of the browser is forced. Keeping derived, rebuildable state with no HTTP surface outside the server remains a judgment call.
+
+> **Open call: Merge docs-cli and docs-workbench** — The command package already launches workbench for `serve` and `export`. The stable command dialect may be an entry point of the runnable app rather than a separate package.
+
+> **Open call: Unpackage framework** — A running installation behaves identically without the methodology package. Its packaging is a distribution channel that can change without moving a runtime wall.
 
 ## Enforcement
 
-The boundaries are tested, not aspirational. At the repo root, `import-boundaries.test.ts` enforces three rules: none of the seven package `src` roots may import host-app code through `@spectre/*`, the `@/` alias, or a reach into a host `apps/` directory; docs-model may not import `react`, `react-dom`, or `@tiptap/*`; and docs-model may import canvas only through `@codecaine-ai/canvas/agent-schema`.
+The checks in `import-boundaries.test.ts` forbid host-application imports from reusable package roots, forbid React and TipTap imports from docs-model, and restrict docs-model's Canvas and Sequence imports to each project's `agent-schema` leaf. These checks protect the pure-model wall and the host boundary; package manifests and code review still carry the remaining server/browser direction.
 
-`component-mirror.test.ts` separately keeps docs-viewer's component folders in a 1:1 mirror with docs-model's component bundles.
+> **Enforcement gap: The root boundary test is not in the default test script** — The root `package.json` scopes `bun run test` to package directories, so `import-boundaries.test.ts` must currently be invoked separately.
 
-## Sequence Examples
+`packages/docs-viewer/src/__tests__/component-mirror.test.ts` separately keeps viewer component folders aligned with model component ownership. It runs inside the package-scoped viewer test suite.
 
-Live examples of the new sequence block, each rendered from a sidecar document under `assets/sequences/`: the first two diagram this repo's own agent save pipeline and viewer/host embed seam; the third is the UML combined-fragment reference flow.
+## Package Pages
 
-<!-- sequence: assets/sequences/agent-edit-flow.sequence.json title="Agent edit flow" -->
+Each immediate child documents one current package boundary or supported neighboring-project boundary.
 
-<!-- sequence: assets/sequences/viewer-host-seam.sequence.json title="Viewer / host embed seam" -->
+### Runtime Packages
 
-<!-- sequence: assets/sequences/order-distribution.sequence.json title="Order distribution" -->
+- docs-model — The Format
+
+  - The dependency-pure document schema, operation vocabulary, component registries, validation, and agent rendering.
+
+- docs-index — Backlinks
+
+  - The Bun and SQLite derived index, reference matching, confined paths, and document moves.
+
+- docs-server — the Mutation Authority
+
+  - The headless store and route factory for reads, hash-guarded writes, locks, undo, events, and sidecars.
+
+- docs-viewer — rendering and editing
+
+  - The browser-pure React renderer and editor with injected data and embed seams.
+
+- docs-workbench — the app
+
+  - The thin server-and-SPA composition point for live serving and static export.
+
+### Interfaces and Neighbors
+
+- docs-cli — the agent dialect
+
+  - The scriptable command surface for rendering, search, integrity, migration, serving, and export.
+
+- framework — the loadable skill
+
+  - The runtime-optional methodology, templates, and agent skill distributed as a workspace package.
+
+- External Canvas and Sequence
+
+  - The independently owned engines, sidecar seams, injected viewers, and standalone authoring applications mounted under external/.

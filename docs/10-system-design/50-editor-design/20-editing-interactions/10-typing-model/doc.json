@@ -1,0 +1,530 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-50-editor-design-20-editing-interactions-10-typing-model",
+  "title": "Typing Model",
+  "root": "b-typm-root",
+  "blocks": {
+    "b-typm-root": {
+      "id": "b-typm-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-typm-intro",
+        "b-typm-structure-h",
+        "b-typm-structure-lead",
+        "b-typm-key-table",
+        "b-typm-markdown-lead",
+        "b-typm-markdown-table",
+        "b-typm-rule-h",
+        "b-typm-rule-siblings",
+        "b-typm-rule-lists",
+        "b-typm-rule-backspace",
+        "b-typm-rule-marks",
+        "b-typm-rule-code",
+        "b-typm-why-h",
+        "b-typm-why-learned",
+        "b-typm-why-identity",
+        "b-typm-why-owned",
+        "b-typm-why-visual"
+      ]
+    },
+    "b-typm-intro": {
+      "id": "b-typm-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Typing edits the document's block structure without creating accidental children. Enter, Backspace, Tab, and Markdown-like patterns follow learned Notion semantics while respecting block identity and schema boundaries. This page defines those key-to-structure mappings."
+        }
+      ],
+      "children": []
+    },
+    "b-typm-structure-h": {
+      "id": "b-typm-structure-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Structure"
+        }
+      ],
+      "children": []
+    },
+    "b-typm-structure-lead": {
+      "id": "b-typm-structure-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Structural keys act on the cursor's visual block context:"
+        }
+      ],
+      "children": []
+    },
+    "b-typm-key-table": {
+      "id": "b-typm-key-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Key",
+          "Context",
+          "Result"
+        ],
+        "rows": [
+          [
+            "Enter",
+            "Start of a non-empty text block",
+            "Inserts an empty paragraph sibling above; the original block stays intact and keeps the cursor."
+          ],
+          [
+            "Enter",
+            "Middle of a text block",
+            "Splits into same-type siblings; the head keeps its block ID, the tail mints a fresh ID, and nested children ride with the tail."
+          ],
+          [
+            "Enter",
+            "End of a non-list text block",
+            "Inserts a fresh empty paragraph sibling below."
+          ],
+          [
+            "Enter",
+            "Non-empty list item",
+            "Splits into a sibling list item with the same ordered or unordered form."
+          ],
+          [
+            "Enter",
+            "Empty list item",
+            "Outdents one level when nested; converts the top-level item to a paragraph."
+          ],
+          [
+            "Backspace",
+            "Start of a heading, quote, callout, or list item",
+            "Outdents a nested list item one level; otherwise converts the block to a paragraph."
+          ],
+          [
+            "Backspace",
+            "Start of a paragraph",
+            "Merges into the deepest last text block of the visually preceding sibling in one press."
+          ],
+          [
+            "Tab",
+            "List item / code block",
+            "Nests the item under its previous list sibling / inserts two spaces."
+          ],
+          [
+            "Shift-Tab",
+            "Text block nested inside a list item",
+            "Outdents one level; following siblings remain visually below by becoming its children."
+          ],
+          [
+            "Enter",
+            "Code block",
+            "Inserts a newline in the same block."
+          ],
+          [
+            "Mod-Enter",
+            "Code block",
+            "Exits to a fresh paragraph sibling below."
+          ]
+        ]
+      },
+      "children": []
+    },
+    "b-typm-markdown-lead": {
+      "id": "b-typm-markdown-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Typing patterns convert only at the start of a paragraph or when their closing inline delimiter lands:"
+        }
+      ],
+      "children": []
+    },
+    "b-typm-markdown-table": {
+      "id": "b-typm-markdown-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Typed Pattern",
+          "Result"
+        ],
+        "rows": [
+          [
+            "# / ## / ### plus space",
+            "Heading levels 1 / 2 / 3."
+          ],
+          [
+            "- or * plus space",
+            "Unordered list item."
+          ],
+          [
+            "Number plus . plus space",
+            "Ordered list item."
+          ],
+          [
+            "> plus space",
+            "Quote."
+          ],
+          [
+            "---",
+            "Divider, followed by an empty paragraph; conversion fires on the third hyphen."
+          ],
+          [
+            "```",
+            "Code block; conversion fires on the third backtick."
+          ],
+          [
+            "**text** / `text`",
+            "Bold / inline code."
+          ],
+          [
+            "*text* / ~~text~~",
+            "Literal text; italic and strike remain formatting-command shortcuts only."
+          ]
+        ]
+      },
+      "children": []
+    },
+    "b-typm-rule-h": {
+      "id": "b-typm-rule-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The Rule"
+        }
+      ],
+      "children": []
+    },
+    "b-typm-rule-siblings": {
+      "id": "b-typm-rule-siblings",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Siblings are the default",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-typm-rule-siblings-split",
+        "b-typm-rule-siblings-range"
+      ]
+    },
+    "b-typm-rule-siblings-split": {
+      "id": "b-typm-rule-siblings-split",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Enter creates a boundary beside the current block. It never uses the block's child slot as an incidental continuation."
+        }
+      ],
+      "children": []
+    },
+    "b-typm-rule-siblings-range": {
+      "id": "b-typm-rule-siblings-range",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Enter over selected text deletes the selection and applies the cursor rule at the collapse point as one edit. A cross-block range resolves through the head block rather than creating nesting."
+        }
+      ],
+      "children": []
+    },
+    "b-typm-rule-lists": {
+      "id": "b-typm-rule-lists",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Lists follow a depth ladder",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-typm-rule-lists-enter",
+        "b-typm-rule-lists-backspace",
+        "b-typm-rule-lists-tabs"
+      ]
+    },
+    "b-typm-rule-lists-enter": {
+      "id": "b-typm-rule-lists-enter",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Repeated Enter presses on an empty item walk outward one level at a time, then leave the list as a paragraph."
+        }
+      ],
+      "children": []
+    },
+    "b-typm-rule-lists-backspace": {
+      "id": "b-typm-rule-lists-backspace",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Backspace at an item's text start walks the same ladder whether the item is empty or not."
+        }
+      ],
+      "children": []
+    },
+    "b-typm-rule-lists-tabs": {
+      "id": "b-typm-rule-lists-tabs",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Tab nests under the previous list sibling. Shift-Tab can free any text block nested inside a list item."
+        }
+      ],
+      "children": []
+    },
+    "b-typm-rule-backspace": {
+      "id": "b-typm-rule-backspace",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Backspace follows the rendered order",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-typm-rule-backspace-adjacent",
+        "b-typm-rule-backspace-fallback"
+      ]
+    },
+    "b-typm-rule-backspace-adjacent": {
+      "id": "b-typm-rule-backspace-adjacent",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A paragraph below a nested list joins the deepest visible item in one press, not one structural level per press."
+        }
+      ],
+      "children": []
+    },
+    "b-typm-rule-backspace-fallback": {
+      "id": "b-typm-rule-backspace-fallback",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "When the preceding visual block is an atom or code block, the editor's ordinary node-boundary behavior owns the key."
+        }
+      ],
+      "children": []
+    },
+    "b-typm-rule-marks": {
+      "id": "b-typm-rule-marks",
+      "type": "callout",
+      "props": {
+        "kind": "Decision",
+        "title": "Two Inline Typing Conversions",
+        "tone": "decision"
+      },
+      "text": [
+        {
+          "insert": "Bold and inline code delimiters convert as the closing delimiter lands. Italic and strike delimiters stay literal; their formatting commands remain available through keyboard shortcuts."
+        }
+      ],
+      "children": []
+    },
+    "b-typm-rule-code": {
+      "id": "b-typm-rule-code",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Code owns its line break",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-typm-rule-code-enter",
+        "b-typm-rule-code-exit"
+      ]
+    },
+    "b-typm-rule-code-enter": {
+      "id": "b-typm-rule-code-enter",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Enter is content inside a code block, so it inserts a newline instead of splitting the block."
+        }
+      ],
+      "children": []
+    },
+    "b-typm-rule-code-exit": {
+      "id": "b-typm-rule-code-exit",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Mod-Enter is the explicit structural exit to a paragraph sibling."
+        }
+      ],
+      "children": []
+    },
+    "b-typm-why-h": {
+      "id": "b-typm-why-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why"
+        }
+      ],
+      "children": []
+    },
+    "b-typm-why-learned": {
+      "id": "b-typm-why-learned",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Learned interaction",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-typm-why-learned-gloss"
+      ]
+    },
+    "b-typm-why-learned-gloss": {
+      "id": "b-typm-why-learned-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Notion semantics make structural editing predictable without a private key dialect."
+        }
+      ],
+      "children": []
+    },
+    "b-typm-why-identity": {
+      "id": "b-typm-why-identity",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Stable identity",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-typm-why-identity-gloss"
+      ]
+    },
+    "b-typm-why-identity-gloss": {
+      "id": "b-typm-why-identity-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The head-retained, tail-fresh split follows the anchor contract in "
+        },
+        {
+          "insert": "The document & block tree",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/10-document-tree"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-typm-why-owned": {
+      "id": "b-typm-why-owned",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Component ownership",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-typm-why-owned-gloss"
+      ]
+    },
+    "b-typm-why-owned-gloss": {
+      "id": "b-typm-why-owned-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Block design",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design"
+            }
+          }
+        },
+        {
+          "insert": " keeps schema-aware conversion rules with their component, so a shortcut cannot create a structurally invalid block."
+        }
+      ],
+      "children": []
+    },
+    "b-typm-why-visual": {
+      "id": "b-typm-why-visual",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Visual adjacency",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-typm-why-visual-gloss"
+      ]
+    },
+    "b-typm-why-visual-gloss": {
+      "id": "b-typm-why-visual-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Backspace acts on the line the reader sees immediately above, so the visible document predicts the result."
+        }
+      ],
+      "children": []
+    }
+  }
+}

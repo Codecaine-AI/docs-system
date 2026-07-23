@@ -1,37 +1,45 @@
-A theme is a folder. While the default theme's identity is being figured out, the picker shows ONLY Default: the rail auto-saves every change (debounced) into the repo's `themes/default/` folder, which overrides the compiled-in fallback — Default IS the living core theme, and selecting it restores the last saved look. Custom themes still live as folders in the repo's `themes/<id>/` directory (sibling of `docs/`), served by docs-server (`GET/POST /api/themes`) and listed in the style rail's Themes section.
+A global theme is loaded from `themes/<id>/`, resolved against a built-in base, and compiled into a CSS layer. The workbench persists the active Default settings back to `themes/default/`. What themes are allowed to change is specified by Themes.
 
-## The Folder Format
+## Structure
 
-Each folder holds a `theme.json` manifest and one `components/<surface>.json` token file per visual surface (see Component themes). A manifest's `base` names the theme it layers over, so a custom theme overrides only what differs.
+Each folder contains a `theme.json` manifest and optional `components/<surface>.json` files. The component payload and closed-key filtering are documented in Component themes.
 
-**theme.json fields**
-
-| Field | Type | Meaning |
-| --- | --- | --- |
-| name | string | Display name in the Themes picker. |
-| base | string (theme id) | Theme to layer over; v1 resolves bases against BUILT-INS only. |
-| dark | boolean | Mode applied when the theme is selected. |
-| fonts | { body?, heading?, code?, number? } | Font stacks (any string) written to the per-surface font tokens. |
-| railDefaults | partial rail settings | Knob values applied ONCE on selection (a preset ride-along, not a live link). |
+| Field | Runtime use |
+| --- | --- |
+| name | Theme label returned by the repository catalogue. |
+| base | Built-in theme id resolved before this folder; missing bases stop the chain. |
+| dark | Mode applied on explicit selection and fresh-profile hydration. |
+| fonts | Optional body, heading, code, and number stacks compiled into font variables. |
+| railDefaults | Style-rail settings applied on explicit selection and used to seed a profile with no stored settings. |
 
 ```json
-// themes/example/theme.json
 {
-  "name": "Example (blue code)",
+  "name": "Example",
   "base": "default",
   "dark": false,
-  "fonts": { "code": "'Berkeley Mono', ui-monospace, monospace" }
+  "fonts": {
+    "code": "'Berkeley Mono', ui-monospace, monospace"
+  }
 }
 ```
+> **L1 (themes/example/theme.json):** The directory name is the theme id; the manifest does not repeat it.
 
-## Selection Semantics
+## Resolution and Selection
 
-Selecting a theme injects its compiled CSS layer (a light block and a dark block of tier-2 variables) and applies its railDefaults and dark flag once. The style rail stays a personal overlay ON TOP: knob changes afterwards are yours alone and always win over theme values. The selection persists per user (`docs-theme-folder-id`) and re-injects on boot without re-applying railDefaults.
+`resolveThemeById` loads a repository folder before the built-in definition with the same id. `resolveThemeChain` flattens built-in bases, then `compileThemeCss` emits light and dark variable blocks. Explicit selection injects that layer, normalizes `railDefaults`, applies the manifest mode, and stores the id under `docs-theme-folder-id`.
 
-## Creating Themes
+## Persistence
 
-- From the rail: every knob change auto-saves (1.5s debounce) into `themes/default/` via `POST /api/themes` — component overrides become real components/*.json files, the rest rides as railDefaults. Named save-as returns when the catalogue reopens.
+- Default autosave
 
-- By hand or by agent: create the folder directly — ids are lowercase slugs, content is validated tolerantly on load (unknown fields and keys are ignored, never fatal).
+  - An unlocked, non-static workbench writes after 1.5 seconds without another settings change. The manifest receives the complete normalized non-component settings as `railDefaults`; registered component overrides are sent as sparse files.
 
-- Export/Import theme buttons move just the knob blob (settings JSON + dark flag) between machines — the quick path when a full theme folder is overkill.
+> **Implementation guard: Fresh profiles hydrate before writing** — `hasStoredStyleRailSettings` distinguishes a fresh profile from a stored one. A fresh profile loads and normalizes the repository Default's `railDefaults` before `settingsSeededRef` enables the autosave effect. Stock settings cannot overwrite the saved folder during boot.
+
+- Repository authority
+
+  - `POST /api/themes` accepts lowercase slug ids and writes folders beside the docs root. Folders created directly use the same tolerant reader, which drops unknown fields and registry keys. Theme-locked serves reject the route with 403; static and locked workbenches never start the writer.
+
+- Local file transfer
+
+  - Export serializes version, dark mode, and the complete settings object to `docs-theme.json`. Import normalizes the settings payload before application and ignores invalid JSON without changing active state; it does not read or write a repository theme folder directly.

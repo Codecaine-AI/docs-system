@@ -83,9 +83,6 @@ kind?: "action" | "query" | "event"
 }
 ```
 
-> **Mermaid: Mermaid sample** — flowchart LR
->   A[Doc] --> B[Render]
-
 <!-- canvas: ./assets/canvases/sample.canvas.json view=container-architecture title="Architecture overview" -->
 
 <!-- sequence: ./assets/sequences/sample.sequence.json title="Login flow" -->

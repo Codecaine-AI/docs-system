@@ -11,12 +11,13 @@
       "children": [
         "b-24-canvas-lead-2",
         "b-24-canvas-lead-adapter",
+        "b-24-canvas-ex-h",
+        "b-24-canvas-ex-intro",
+        "b-24-canvas-ex-embed",
         "b-24-canvas-state-h-3",
         "b-24-canvas-state-intro",
-        "b-24-canvas-state-4",
+        "b-24-canvas-state-shape",
         "b-24-canvas-state-note-5",
-        "b-24-canvas-example-intro",
-        "b-24-canvas-example-code",
         "b-24-canvas-actions-h-8",
         "b-24-canvas-actions-note-9",
         "b-24-canvas-lift-li-1",
@@ -114,6 +115,79 @@
       ],
       "children": []
     },
+    "b-24-canvas-ex-h": {
+      "id": "b-24-canvas-ex-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Example"
+        }
+      ],
+      "children": []
+    },
+    "b-24-canvas-ex-intro": {
+      "id": "b-24-canvas-ex-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A live embed. The sidecar ("
+        },
+        {
+          "insert": "./assets/canvases/interaction-surfaces.canvas.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ") is a bundle-local copy of the canvas embedded on "
+        },
+        {
+          "insert": "Translation layer",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/20-translation-layer"
+            }
+          }
+        },
+        {
+          "insert": "; "
+        },
+        {
+          "insert": "view",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " crops it to the "
+        },
+        {
+          "insert": "one-state-two-readers",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " section:"
+        }
+      ],
+      "children": []
+    },
+    "b-24-canvas-ex-embed": {
+      "id": "b-24-canvas-ex-embed",
+      "type": "canvas",
+      "props": {
+        "src": "./assets/canvases/interaction-surfaces.canvas.json",
+        "title": "One state, two readers",
+        "view": "one-state-two-readers"
+      },
+      "children": []
+    },
     "b-24-canvas-state-h-3": {
       "id": "b-24-canvas-state-h-3",
       "type": "heading",
@@ -160,42 +234,42 @@
       ],
       "children": []
     },
-    "b-24-canvas-state-4": {
-      "id": "b-24-canvas-state-4",
-      "type": "structured-table",
+    "b-24-canvas-state-shape": {
+      "id": "b-24-canvas-state-shape",
+      "type": "state-shape",
       "props": {
-        "columns": [
-          "prop",
-          "type",
-          "required",
-          "notes"
+        "example": "{\n  \"src\": \"./assets/canvases/interaction-surfaces.canvas.json\",\n  \"view\": \"one-state-two-readers\",\n  \"title\": \"One state, two readers\"\n}",
+        "fields": [
+          {
+            "name": "canvasId",
+            "type": "string (min length 1)",
+            "required": false,
+            "description": "Central canvas identity in the canvas system; the docs server cannot route it, so a canvasId-only embed renders an unavailable card."
+          },
+          {
+            "name": "src",
+            "type": "string (min length 1)",
+            "required": false,
+            "description": "Sidecar path to a .canvas.json in the docs tree; a ./ prefix resolves against the doc bundle's own assets. The form the server loads and edits."
+          },
+          {
+            "name": "view",
+            "type": "string",
+            "required": false,
+            "description": "Stable id of the named container or section the inline viewer crops to."
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "required": false,
+            "description": "Display title; overrides the canvas document's own title in the embed."
+          }
         ],
-        "rows": [
-          [
-            "canvasId",
-            "string (min length 1)",
-            "no",
-            "Central canvas identity in the canvas system; the docs server cannot route it, so embeds render an unavailable card."
-          ],
-          [
-            "src",
-            "string (min length 1)",
-            "no",
-            "Sidecar path — a .canvas.json in the docs tree, resolved relative to the doc bundle; the form the server loads and edits."
-          ],
-          [
-            "view",
-            "string",
-            "no",
-            "Named container or section to crop the viewer to."
-          ],
-          [
-            "title",
-            "string",
-            "no",
-            "Display title; overrides the canvas document's own title in the embed."
-          ]
-        ]
+        "name": "CanvasState",
+        "source": {
+          "path": "packages/docs-model/src/components/canvas/state.ts",
+          "symbol": "CanvasState"
+        }
       },
       "children": []
     },
@@ -215,59 +289,6 @@
         },
         {
           "insert": "); all state lives in the four props. A block with neither source prop is valid — the doc renderer shows a missing-source placeholder."
-        }
-      ],
-      "children": []
-    },
-    "b-24-canvas-example-intro": {
-      "id": "b-24-canvas-example-intro",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "The corpus's one live embed, on "
-        },
-        {
-          "insert": "Translation layer",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "10-system-design/20-translation-layer"
-            }
-          }
-        },
-        {
-          "insert": ", carries:"
-        }
-      ],
-      "children": []
-    },
-    "b-24-canvas-example-code": {
-      "id": "b-24-canvas-example-code",
-      "type": "code",
-      "props": {
-        "annotations": [
-          {
-            "lines": "2",
-            "label": "Sidecar reference",
-            "note": "Bundle-relative path; the renderer canonicalizes it against the bundle's own assets copy before loading."
-          },
-          {
-            "lines": "3",
-            "label": "View crop",
-            "note": "Stable id of the section the inline viewer fits to."
-          },
-          {
-            "lines": "4",
-            "label": "Title override",
-            "note": "Replaces the canvas document's own title in the embed."
-          }
-        ],
-        "language": "json"
-      },
-      "text": [
-        {
-          "insert": "{\n  \"src\": \"./assets/canvases/interaction-surfaces.canvas.json\",\n  \"view\": \"one-state-two-readers\",\n  \"title\": \"One state, two readers\"\n}"
         }
       ],
       "children": []
@@ -1071,7 +1092,19 @@
       "props": {},
       "text": [
         {
-          "insert": "The theme surface is one registered token: "
+          "insert": "The "
+        },
+        {
+          "insert": "Theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/50-theming"
+            }
+          }
+        },
+        {
+          "insert": " contract element at its smallest — one registered token: "
         },
         {
           "insert": "components/canvas.json",
@@ -1086,6 +1119,18 @@
           "insert": "themes/<id>/",
           "attributes": {
             "code": true
+          }
+        },
+        {
+          "insert": "; system docs at "
+        },
+        {
+          "insert": "Theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/40-theming"
+            }
           }
         },
         {
@@ -1120,19 +1165,7 @@
           }
         },
         {
-          "insert": " (see "
-        },
-        {
-          "insert": "Theming: overview",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "20-implementation/40-theming"
-            }
-          }
-        },
-        {
-          "insert": ")."
+          "insert": "."
         }
       ],
       "children": []
@@ -1550,7 +1583,7 @@
           }
         },
         {
-          "insert": " is one of two entries in the model's "
+          "insert": " is a registered entry in the model's "
         },
         {
           "insert": "KNOWN_AUTHORITIES",

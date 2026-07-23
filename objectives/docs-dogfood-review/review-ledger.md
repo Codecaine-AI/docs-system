@@ -17,6 +17,20 @@ removed when fixed page titles landed; docs WITHOUT the note kept a richer
 opening H1. "audit Wn" = flagged by the new `docs audit` command (R2-D14)
 — read-through fodder.
 
+2026-07-22 PASS (applies to the whole 40-block-vocabulary section + rich-text
+type pages; per-worker detail in current_state "VOCAB ROUND 2"): Examples on
+every type page (real SVG asset authored for 16-image; canvas sidecar copied
+into 80-canvas so its embed resolves); every State Schema section leads with
+a live state-shape block (Ford: "that's why we made it"); theme links
+role-split (contract sentence → block-design/50-theming, files sentence →
+20-implementation/40-theming); maintained-count phrasing dropped. Same day,
+CODE: mermaid component fully removed (retired type coerces to callout —
+regression-tested), flavour removed ENTIRELY (read alias too; rejected-legacy
+tests), CORPUS_PATHS/count cascade taken over and landed (62 docs, 16 types
+incl. the parallel thread's new waterfall, 9 bundles); 17 default component
+theme files shipped (registry-seeded; surfaces.json = its own shared
+component, mapping is strictly <registry-key>.json).
+
 | Doc | Reviewed | Verdict | Actions |
 |---|---|---|---|
 | docs/00-foundation/00-manifesto | 2026-07-17 | edited | REWRITTEN end-to-end (knowledge-transfer thesis, R2-D1); needs Ford's read; title strip; audit W1: 5 level-1 headings |
@@ -64,11 +78,12 @@ opening H1. "audit Wn" = flagged by the new `docs audit` command (R2-D14)
 | docs/10-system-design/40-block-vocabulary/50-state-shape | 2026-07-21 | edited | Fable worker (.tmp/state-shape-family-contract.ts): skeleton; self-documenting StateShapeState block kept; agent fences computed from the live example + asserted equal to stateShapeAgentView (drift-proof). FIXED: theme table 6→10 tokens (headerBg/descFg/childRule/rowPad), source-suffix render claim. FLAG: stale JSDoc in StateShapeDocsBlock.tsx mentions chips that don't render (code-side cleanup). Needs Ford read |
 | docs/10-system-design/40-block-vocabulary/60-interaction-surface | 2026-07-21 | edited | Fable worker (.tmp/interaction-surface-family-contract.ts): skeleton. FIXED: Doc Renderer section was WHOLLY STALE (old "params always visible" list vs the rebuilt per-op card render w/ linked panes + hover/pin) — rewritten from current component; theme table 2→14 keys. FLAGS: no theme ships interaction-surface.json yet; Doc Renderer section is the blast radius if the schema-rendering rethink lands more. Needs Ford read |
 | docs/10-system-design/40-block-vocabulary/70-sequence | 2026-07-21 | edited | Fable worker (.tmp/sequence-family-contract.ts): skeleton, deepest rewrite — full forwarding path documented (doc-ops refusal → forwardSequenceAction path-lock/hash-precondition → sequence_apply_patch full-snapshot inverse); pre-integration prose killed ("sibling checkout today", studio-testing para, "Replaces mermaid" callout — mermaid unmentioned per target state); Example program verified item-for-item vs the real login-flow asset; theme truth: NO registry entry / no sequence.json — engine paints from --seq-* (the contract deviation the page now explains). FLAGS: State Schema uses a state-shape block (canvas uses structured-table — uniformity call); "central sequenceId rejected" needs updating if central routing lands. Needs Ford read |
+| docs/10-system-design/40-block-vocabulary/90-waterfall | 2026-07-22 | | NEW — landed by the parallel waterfall thread (type #16, bundle + registry + theme file + page, already contract-shaped w/ six H2s + Notation extra; the thread also updated the vocab overview to sixteen/nine itself). NOT walked by this session — needs its own read/interview |
 | docs/10-system-design/40-block-vocabulary/80-canvas | 2026-07-21 | edited | Fable worker (.tmp/canvas-family-contract.ts): skeleton; Host Rendering Contract H3 reconciled into Doc Renderer. FIXED: phantom endpoints removed (preview.svg / /embed/:id don't exist — replaced with real inert-viewer + portal-dialog behavior), "single entry in known-authorities" → one of two (sequence), invented example ids → real translation-layer embed props (moved into State Schema; Example H2 dropped — no live canvas embeddable from this bundle), theme token consumer corrected (placeholder border). Needs Ford read |
 | DELETED (sequence session): 40-block-vocabulary/60-mermaid | | | mermaid retired; page gone from disk, overview pinned to 15 types |
-| docs/10-system-design/50-package-boundaries | 2026-07-20 | edited | NEW — design residue of the packages section: why seven, dependency chain, forced-vs-judgment, 3 boundary-review callouts, schema authority (R2-D13); needs Ford's read |
-| docs/20-implementation | 2026-07-20 | edited | package-map ref repointed to 10-packages/00-overview (R2-D13); otherwise unreviewed |
-| docs/20-implementation/10-packages | 2026-07-20 | edited | was 50-packages/00-overview; reframed as "Package map" — inventory + enforcement kept, design spine moved to 50-package-boundaries, Makefile pointer absorbed from deleted 10-package-map (R2-D13); needs Ford's read |
+| MERGED 2026-07-22: 10-system-design/50-package-boundaries → 20-implementation/10-packages | 2026-07-22 | edited | Ford's interview call: "more implementation than design" — the doc left system design and became the packages SECTION OVERVIEW (why leads, as-built map follows; .tmp/merge-boundaries-into-packages.ts). Content decisions landed: coerced mermaid diagram → CANVAS EMBED (asset authored by a worker: assets/canvases/package-dependency-chain.canvas.json); externals bullet generalized to canvas+sequence; 3 review callouts got kind "Boundary under review" + short titles (all three stay OPEN per Ford); dup H1s dropped; sd-overview's Package Boundaries section REMOVED (Ford's page — flag). Corpus 62→61 |
+| docs/20-implementation | 2026-07-22 | edited | REWRITTEN from Ford's interview (.tmp/rewrite-impl-overview.ts): thin orienting overview — opener + trimmed bundle paragraph (kept per Ford) + In This Section index (5 linked children, bullet standard) + one-line quick start (port 4800 verified correct, links local-dev-loop). DIED: dup H1, ASCII pipeline art (the Packages canvas owns the picture), stale "14 types incl. mermaid" + "13 typed actions" paragraphs, dead "comment" vocabulary. Title "Implementation". Needs Ford read |
+| docs/20-implementation/10-packages | 2026-07-22 | edited | R2-D13 made it "Package map"; 2026-07-22 the package-boundaries doc MERGED IN as the section overview — title now "Packages", doc id fixed (…30-packages → 20-implementation-10-packages; all 8 child ids swept too, .tmp/fix-package-child-ids.ts), structure = boundaries lead / Why Seven / Dependency Chain (canvas embed) / What You Need Together / Forced-vs-Judgment (externals bullet = canvas+sequence) / Boundaries Under Review (3 open) / Schema Authority / The As-Built Map / Enforcement / Sequence Examples (parallel session's live demos KEPT at tail — flag: odd in an overview, Ford's call whether they stay). Needs Ford read |
 | docs/20-implementation/10-packages/10-docs-model | | | vocab sweep; moved from system design (R2-D13) |
 | docs/20-implementation/10-packages/20-docs-index | | | moved from system design (R2-D13) |
 | docs/20-implementation/10-packages/30-docs-server | | | moved from system design (R2-D13) |

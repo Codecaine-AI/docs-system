@@ -1,0 +1,762 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-50-editor-design-30-style-rail",
+  "title": "Style Rail",
+  "root": "b-srail-root",
+  "blocks": {
+    "b-srail-root": {
+      "id": "b-srail-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-srail-intro",
+        "b-srail-structure-heading",
+        "b-srail-layout-decision",
+        "b-srail-geometry-table",
+        "b-srail-geometry-source",
+        "b-srail-nav-theme",
+        "b-srail-nav-layout",
+        "b-srail-nav-blocks",
+        "b-srail-rule-heading",
+        "b-srail-rule-two-click",
+        "b-srail-rule-attribution",
+        "b-srail-rule-default",
+        "b-srail-rule-resets",
+        "b-srail-rule-controls",
+        "b-srail-preview-open",
+        "b-srail-discovery-open",
+        "b-srail-why-heading",
+        "b-srail-why-reach",
+        "b-srail-why-tuning",
+        "b-srail-why-derived",
+        "b-srail-why-authority",
+        "b-srail-why-registry"
+      ]
+    },
+    "b-srail-intro": {
+      "id": "b-srail-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The style rail is the right-docked authoring surface for tuning the active values defined by "
+        },
+        {
+          "insert": "Themes",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/30-themes"
+            }
+          }
+        },
+        {
+          "insert": " without leaving the workbench. Its mirrored layout keeps detail controls beside the document and navigation at the screen edge. This page defines the rail's geometry, navigation depth, override signals, reset scope, and control behavior."
+        }
+      ],
+      "children": []
+    },
+    "b-srail-structure-heading": {
+      "id": "b-srail-structure-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Structure"
+        }
+      ],
+      "children": []
+    },
+    "b-srail-layout-decision": {
+      "id": "b-srail-layout-decision",
+      "type": "callout",
+      "props": {
+        "kind": "Decision",
+        "title": "The panel uses a mirrored two-pane layout",
+        "tone": "decision"
+      },
+      "text": [
+        {
+          "insert": "The detail pane sits on the left, next to the document. The navigation rail sits on the right, flush with the workbench's outer edge. Both panes are flat surfaces with independent vertical scrolling."
+        }
+      ],
+      "children": []
+    },
+    "b-srail-geometry-table": {
+      "id": "b-srail-geometry-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Region",
+          "Position",
+          "Geometry"
+        ],
+        "rows": [
+          [
+            "Expanded panel",
+            "Right-docked workbench sibling",
+            "46rem total width"
+          ],
+          [
+            "Detail pane",
+            "Left, beside the document",
+            "The width remaining after the navigation rail"
+          ],
+          [
+            "Navigation rail",
+            "Right, at the screen edge",
+            "13rem fixed width"
+          ],
+          [
+            "Collapsed panel",
+            "Right edge",
+            "3.25rem total width"
+          ]
+        ]
+      },
+      "children": []
+    },
+    "b-srail-geometry-source": {
+      "id": "b-srail-geometry-source",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The expanded and collapsed panel widths are anchored in "
+        },
+        {
+          "insert": "packages/docs-workbench/web/src/shell/StyleRail.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/shell/StyleRail.tsx"
+            }
+          }
+        },
+        {
+          "insert": ". The two-pane grid and navigation width are anchored in "
+        },
+        {
+          "insert": "packages/docs-workbench/web/src/theme/style-rail.css",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/theme/style-rail.css"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-srail-nav-theme": {
+      "id": "b-srail-nav-theme",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Theme",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-srail-nav-theme-items"
+      ]
+    },
+    "b-srail-nav-theme-items": {
+      "id": "b-srail-nav-theme-items",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Presets, Colors, Typography, Background, and Surfaces."
+        }
+      ],
+      "children": []
+    },
+    "b-srail-nav-layout": {
+      "id": "b-srail-nav-layout",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Layout",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-srail-nav-layout-items"
+      ]
+    },
+    "b-srail-nav-layout-items": {
+      "id": "b-srail-nav-layout-items",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Sidebar, Editor, Side peek, and Scrollbar."
+        }
+      ],
+      "children": []
+    },
+    "b-srail-nav-blocks": {
+      "id": "b-srail-nav-blocks",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Content types",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-srail-nav-blocks-items",
+        "b-srail-nav-blocks-flat"
+      ]
+    },
+    "b-srail-nav-blocks-items": {
+      "id": "b-srail-nav-blocks-items",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The navigation groups destinations under Rich text, Code, Structure, and Diagrams."
+        }
+      ],
+      "children": []
+    },
+    "b-srail-nav-blocks-flat": {
+      "id": "b-srail-nav-blocks-flat",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each destination opens one detail pane; the family labels add no navigation level."
+        }
+      ],
+      "children": []
+    },
+    "b-srail-rule-heading": {
+      "id": "b-srail-rule-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The Rule"
+        }
+      ],
+      "children": []
+    },
+    "b-srail-rule-two-click": {
+      "id": "b-srail-rule-two-click",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every control is reachable in two clicks",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-srail-rule-two-click-path",
+        "b-srail-rule-two-click-flat"
+      ]
+    },
+    "b-srail-rule-two-click-path": {
+      "id": "b-srail-rule-two-click-path",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Open the panel, then select a navigation item."
+        }
+      ],
+      "children": []
+    },
+    "b-srail-rule-two-click-flat": {
+      "id": "b-srail-rule-two-click-flat",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every subgroup in the selected pane stays expanded. There are no accordions or chevrons."
+        }
+      ],
+      "children": []
+    },
+    "b-srail-rule-attribution": {
+      "id": "b-srail-rule-attribution",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every override leaf belongs to one pane",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-srail-rule-attribution-derived",
+        "b-srail-rule-attribution-duplicate",
+        "b-srail-rule-attribution-mode",
+        "b-srail-rule-visible"
+      ]
+    },
+    "b-srail-rule-attribution-derived": {
+      "id": "b-srail-rule-attribution-derived",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Override state is derived from settings versus defaults and the theme-token registry. It is not stored as a second state model."
+        }
+      ],
+      "children": []
+    },
+    "b-srail-rule-attribution-duplicate": {
+      "id": "b-srail-rule-attribution-duplicate",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A value shown as a convenience in another pane still contributes to only its owning pane. Counts cannot double-count it."
+        }
+      ],
+      "children": []
+    },
+    "b-srail-rule-attribution-mode": {
+      "id": "b-srail-rule-attribution-mode",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Light or dark mode is a mode selection, not an override leaf, and does not enter the counts."
+        }
+      ],
+      "children": []
+    },
+    "b-srail-rule-visible": {
+      "id": "b-srail-rule-visible",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Override state is visible at three levels",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-srail-rule-visible-row",
+        "b-srail-rule-visible-nav",
+        "b-srail-rule-visible-head"
+      ]
+    },
+    "b-srail-rule-visible-row": {
+      "id": "b-srail-rule-visible-row",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A control row carries a hollow dot at its default and a filled dot when overridden."
+        }
+      ],
+      "children": []
+    },
+    "b-srail-rule-visible-nav": {
+      "id": "b-srail-rule-visible-nav",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A block navigation item shows its override count. Other navigation items show a presence dot."
+        }
+      ],
+      "children": []
+    },
+    "b-srail-rule-visible-head": {
+      "id": "b-srail-rule-visible-head",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The detail header reports No overrides, 1 override, or the exact plural count."
+        }
+      ],
+      "children": []
+    },
+    "b-srail-rule-default": {
+      "id": "b-srail-rule-default",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A default value is semantic absence",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-srail-rule-default-theme",
+        "b-srail-rule-default-count"
+      ]
+    },
+    "b-srail-rule-default-theme": {
+      "id": "b-srail-rule-default-theme",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "At default, the rail removes the inline custom property so the active theme remains authoritative."
+        }
+      ],
+      "children": []
+    },
+    "b-srail-rule-default-count": {
+      "id": "b-srail-rule-default-count",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A stored length or number equal to its registry default does not count as an override."
+        }
+      ],
+      "children": []
+    },
+    "b-srail-rule-resets": {
+      "id": "b-srail-rule-resets",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Resets stay within their named scope",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-srail-rule-resets-color",
+        "b-srail-rule-resets-block",
+        "b-srail-rule-resets-list",
+        "b-srail-rule-resets-surfaces",
+        "b-srail-rule-resets-all"
+      ]
+    },
+    "b-srail-rule-resets-color": {
+      "id": "b-srail-rule-resets-color",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A color-row reset clears that color and returns it to the theme value."
+        }
+      ],
+      "children": []
+    },
+    "b-srail-rule-resets-block": {
+      "id": "b-srail-rule-resets-block",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Reset {block} to theme appears only when the pane has an effective override and deletes only that block's component override record."
+        }
+      ],
+      "children": []
+    },
+    "b-srail-rule-resets-list": {
+      "id": "b-srail-rule-resets-list",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "List item also restores its marker and indent settings because those leaves belong to the List item pane."
+        }
+      ],
+      "children": []
+    },
+    "b-srail-rule-resets-surfaces": {
+      "id": "b-srail-rule-resets-surfaces",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Reset Surfaces tokens to theme clears only registered Surfaces component tokens; independent surface settings remain."
+        }
+      ],
+      "children": []
+    },
+    "b-srail-rule-resets-all": {
+      "id": "b-srail-rule-resets-all",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Reset to defaults restores the complete rail settings object."
+        }
+      ],
+      "children": []
+    },
+    "b-srail-rule-controls": {
+      "id": "b-srail-rule-controls",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Component controls are registry-driven and kind-aware",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-srail-rule-controls-color",
+        "b-srail-rule-controls-number",
+        "b-srail-rule-controls-growth"
+      ]
+    },
+    "b-srail-rule-controls-color": {
+      "id": "b-srail-rule-controls-color",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Color tokens render color inputs with a direct return-to-theme action."
+        }
+      ],
+      "children": []
+    },
+    "b-srail-rule-controls-number": {
+      "id": "b-srail-rule-controls-number",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Length and number tokens render sliders from registry minimum, maximum, step, unit, and default metadata."
+        }
+      ],
+      "children": []
+    },
+    "b-srail-rule-controls-growth": {
+      "id": "b-srail-rule-controls-growth",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A registered token appears automatically inside an existing component pane."
+        }
+      ],
+      "children": []
+    },
+    "b-srail-preview-open": {
+      "id": "b-srail-preview-open",
+      "type": "callout",
+      "props": {
+        "kind": "Decision",
+        "title": "Navigation rows omit value previews",
+        "tone": "decision"
+      },
+      "text": [
+        {
+          "insert": "Each navigation row contains an icon, label, and override status. Colors and Typography use the same row shape as every other destination."
+        }
+      ],
+      "children": []
+    },
+    "b-srail-discovery-open": {
+      "id": "b-srail-discovery-open",
+      "type": "callout",
+      "props": {
+        "kind": "Decision",
+        "title": "Navigation classification is explicit",
+        "tone": "decision"
+      },
+      "text": [
+        {
+          "insert": "The registry supplies controls within a component pane. Each user-facing component also has an explicit icon, label, and content-type group in the navigation roster; a registered theme file alone does not create a destination."
+        }
+      ],
+      "children": []
+    },
+    "b-srail-why-heading": {
+      "id": "b-srail-why-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why"
+        }
+      ],
+      "children": []
+    },
+    "b-srail-why-reach": {
+      "id": "b-srail-why-reach",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The mirrored split preserves reach and working width",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-srail-why-reach-detail",
+        "b-srail-why-width-detail"
+      ]
+    },
+    "b-srail-why-reach-detail": {
+      "id": "b-srail-why-reach-detail",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The controls stay beside the surface they change, while stable navigation occupies the panel's outer edge."
+        }
+      ],
+      "children": []
+    },
+    "b-srail-why-width-detail": {
+      "id": "b-srail-why-width-detail",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The 13rem rail has enough room for labels and status without making the detail pane pay for that width. The 46rem panel preserves the control space needed for dense theme tuning."
+        }
+      ],
+      "children": []
+    },
+    "b-srail-why-tuning": {
+      "id": "b-srail-why-tuning",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Shallow navigation serves repeated tuning",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-srail-why-tuning-detail"
+      ]
+    },
+    "b-srail-why-tuning-detail": {
+      "id": "b-srail-why-tuning-detail",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Styling is a comparison loop. A fixed destination and fully expanded controls keep each adjustment within the same short path."
+        }
+      ],
+      "children": []
+    },
+    "b-srail-why-derived": {
+      "id": "b-srail-why-derived",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Derived status cannot drift from the values",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-srail-why-derived-detail"
+      ]
+    },
+    "b-srail-why-derived-detail": {
+      "id": "b-srail-why-derived-detail",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Rows, navigation, and pane headers answer from one attribution model, so their signals agree after every change and reset."
+        }
+      ],
+      "children": []
+    },
+    "b-srail-why-authority": {
+      "id": "b-srail-why-authority",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Defaults return authority to the theme",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-srail-why-authority-detail"
+      ]
+    },
+    "b-srail-why-authority-detail": {
+      "id": "b-srail-why-authority-detail",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Removing the inline value lets later theme changes flow through instead of leaving a hidden local value in charge."
+        }
+      ],
+      "children": []
+    },
+    "b-srail-why-registry": {
+      "id": "b-srail-why-registry",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Registry-driven controls keep extension bounded",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-srail-why-registry-detail"
+      ]
+    },
+    "b-srail-why-registry-detail": {
+      "id": "b-srail-why-registry-detail",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A token's declared kind and range determine its control. Block components do not add bespoke rail behavior for each style value."
+        }
+      ],
+      "children": []
+    }
+  }
+}

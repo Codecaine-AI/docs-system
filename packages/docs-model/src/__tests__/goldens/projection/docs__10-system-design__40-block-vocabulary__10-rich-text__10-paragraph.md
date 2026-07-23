@@ -1,8 +1,14 @@
 The default block of the block vocabulary: rich text prose. Anything that is not structurally something else is a paragraph — leads, explanations, connective tissue between headings and object blocks.
 
+## Example
+
+This paragraph is a live example: it carries **bold**, *italic*, ~~strike~~, and `code` marks, [an outbound link](https://example.com), and a reference chip to Cross-doc linking.
+
 ## State Schema
 
-No props: `ParagraphState` is a closed empty object (`additionalProperties: false`), so any prop is a validation error. It carries delta text (`carriesText: true`): an array of spans with optional `bold` / `italic` / `strike` / `code` marks, a `link` URL, or a `reference` chip (a shared SpectreRef pointing at a doc or code location).
+**ParagraphState** — packages/docs-model/src/components/rich-text/state.ts#ParagraphState
+
+Carries delta text (`carriesText: true`): an array of spans with optional `bold` / `italic` / `strike` / `code` marks, a `link` URL, or a reference chip (a shared SpectreRef pointing at a doc or code location).
 
 ## Doc Renderer
 
@@ -20,7 +26,7 @@ A plain text line. Marks render as standard markdown syntax (code innermost, the
 
 ## Theme
 
-This block's theme file is `components/paragraph.json` in a theme folder (`themes/<id>/`; see Theming). Every value is one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY`.
+This block's theme file is `components/paragraph.json` in a theme folder (`themes/<id>/`; see Theming). Every value is one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY`. The contract is Theming.
 
 | Key | CSS variable | Styles |
 | --- | --- | --- |

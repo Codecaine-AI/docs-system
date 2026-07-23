@@ -14,9 +14,9 @@
         "b-20-structured-table-example-intro",
         "b-20-structured-table-example-block",
         "b-20-structured-table-state-h-3",
+        "b-stfam-state-shape",
         "b-stfam-state-intro",
         "b-stfam-state-code",
-        "b-20-structured-table-state-4",
         "b-20-structured-table-state-note-5",
         "b-20-structured-table-actions-h-8",
         "b-20-structured-table-actions-note-9",
@@ -190,6 +190,43 @@
       ],
       "children": []
     },
+    "b-stfam-state-shape": {
+      "id": "b-stfam-state-shape",
+      "type": "state-shape",
+      "props": {
+        "example": "{\n  \"title\": \"Registry kinds\",\n  \"columns\": [\n    \"Key\",\n    \"Kind\"\n  ],\n  \"rows\": [\n    [\n      \"headerRuleWidth\",\n      \"length\"\n    ],\n    [\n      [\n        {\n          \"insert\": \"rowRuleOpacity\",\n          \"attributes\": {\n            \"code\": true\n          }\n        }\n      ],\n      \"number\"\n    ]\n  ]\n}",
+        "fields": [
+          {
+            "name": "title",
+            "type": "string",
+            "required": false,
+            "description": "Optional caption above the table; always a plain string — cell marks never apply."
+          },
+          {
+            "name": "columns",
+            "type": "TableCell[]",
+            "description": "Header cells in order. A TableCell is a plain string or a span array whose closed mark set is bold/italic/strike/code/link."
+          },
+          {
+            "name": "rows",
+            "type": "TableCell[][]",
+            "description": "One cell array per row; actions normalize each row to the column count. An unmarked cell stores as the plain string (canonical)."
+          },
+          {
+            "name": "density",
+            "type": "\"compact\" | \"normal\" | \"relaxed\"",
+            "required": false,
+            "description": "Accepted by the schema; the renderer ignores it — spacing comes from the theme tokens."
+          }
+        ],
+        "name": "StructuredTableState",
+        "source": {
+          "path": "packages/docs-model/src/components/structured-table/state.ts",
+          "symbol": "StructuredTableState"
+        }
+      },
+      "children": []
+    },
     "b-stfam-state-intro": {
       "id": "b-stfam-state-intro",
       "type": "paragraph",
@@ -214,20 +251,7 @@
           }
         },
         {
-          "insert": " key. The schema is a closed TypeBox object in "
-        },
-        {
-          "insert": "packages/docs-model/src/components/structured-table/state.ts",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-model/src/components/structured-table/state.ts"
-            }
-          }
-        },
-        {
-          "insert": ". The contract is "
+          "insert": " key; the schema is a closed TypeBox object. The contract is "
         },
         {
           "insert": "State schema",
@@ -272,45 +296,6 @@
           "insert": "export const StructuredTableState = Type.Object(\n  {\n    title: Type.Optional(Type.String()),\n    columns: Type.Array(TableCellSchema),\n    rows: Type.Array(Type.Array(TableCellSchema)),\n    density: Type.Optional(\n      Type.Union([\n        Type.Literal(\"compact\"),\n        Type.Literal(\"normal\"),\n        Type.Literal(\"relaxed\"),\n      ]),\n    ),\n  },\n  { additionalProperties: false },\n);"
         }
       ],
-      "children": []
-    },
-    "b-20-structured-table-state-4": {
-      "id": "b-20-structured-table-state-4",
-      "type": "structured-table",
-      "props": {
-        "columns": [
-          "prop",
-          "type",
-          "required",
-          "notes"
-        ],
-        "rows": [
-          [
-            "title",
-            "string",
-            "no",
-            "Optional caption above the table. Always a plain string — no marks."
-          ],
-          [
-            "columns",
-            "TableCell[]",
-            "yes",
-            "Header names, in order. A TableCell is a plain string or a DeltaSpan[] carrying inline marks."
-          ],
-          [
-            "rows",
-            "TableCell[][]",
-            "yes",
-            "One cell array per row; actions normalize each row to the column count. Unmarked cells are stored as the plain string (canonical)."
-          ],
-          [
-            "density",
-            "\"compact\" / \"normal\" / \"relaxed\"",
-            "no",
-            "Accepted by the schema; the renderer ignores it — spacing comes from the theme tokens."
-          ]
-        ]
-      },
       "children": []
     },
     "b-20-structured-table-state-note-5": {
@@ -1341,7 +1326,7 @@
           }
         },
         {
-          "insert": " op (one of the seven doc ops) naming the block, the action key, and params; the kernel ("
+          "insert": " op (one of the generic doc ops) naming the block, the action key, and params; the kernel ("
         },
         {
           "insert": "doc-ops.ts",

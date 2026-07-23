@@ -146,7 +146,7 @@ The markdown projection in `agent-view.ts` is one comment line — a greppable r
 
 ## Theme
 
-The docs theme owns nothing here: `THEME_TOKEN_REGISTRY` (`theme-folders.ts`) has no sequence entry, and the default theme folder ships no `components/sequence.json`. Diagram visuals live in the `SequenceDocument`'s own `style` section, edited through `sequence.setStyle` — see Theming for the contract this deviates from.
+The docs theme owns nothing here: `THEME_TOKEN_REGISTRY` (`theme-folders.ts`) has no sequence entry, and the default theme folder ships no `components/sequence.json` (theme folders: Theming). Diagram visuals live in the `SequenceDocument`'s own `style` section, edited through `sequence.setStyle` — see Theming for the contract this deviates from.
 
 - `--docs-sequence-border`
 
@@ -182,7 +182,7 @@ A forwarded action travels four steps:
 
 - A registered authority
 
-  - `"sequence"` is one of the two entries in the model's `KNOWN_AUTHORITIES` (`checks.ts`); boot checks reject any action forwarding anywhere else.
+  - `"sequence"` is a registered entry in the model's `KNOWN_AUTHORITIES` (`checks.ts`); boot checks reject any action forwarding anywhere else.
 
 - The processing agent
 
