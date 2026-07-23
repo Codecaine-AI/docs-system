@@ -411,6 +411,47 @@ export function StyleRailPane({
     if (name?.trim()) onSaveTheme(name.trim());
   };
 
+  const renderComponentTokenRows = (file: string) =>
+    Object.entries(THEME_TOKEN_REGISTRY[file] ?? {}).map(([key, token]) => {
+      const label = TOKEN_KEY_LABELS[key] ?? key;
+      if (token.kind === "color") {
+        return (
+          <ColorRow
+            key={key}
+            defaultExpr={`var(${token.vars[0]})`}
+            label={label}
+            leaf={componentLeaf(file, key)}
+            onChange={(value) => patchComponent(file, key, value)}
+            value={settings.components[file]?.[key] ?? null}
+          />
+        );
+      }
+      const storedValue = settings.components[file]?.[key];
+      const value = storedValue === undefined
+        ? token.defaultValue
+        : Number.parseFloat(storedValue);
+      return (
+        <SliderRow
+          key={key}
+          label={label}
+          leaf={componentLeaf(file, key)}
+          max={token.max}
+          min={token.min}
+          onChange={(nextValue) =>
+            patchComponent(file, key, `${nextValue}${token.unit ?? ""}`)
+          }
+          step={token.step}
+          value={value}
+          valueLabel={`${value}${token.unit ?? ""}`}
+        />
+      );
+    });
+
+  const hasComponentOverrides = (file: string) =>
+    Object.keys(THEME_TOKEN_REGISTRY[file] ?? {}).some((key) =>
+      isLeafOverridden(settings, componentLeaf(file, key))
+    );
+
   const renderPaneBody = () => {
     switch (selectedId) {
       case "theme.presets":
@@ -686,106 +727,65 @@ export function StyleRailPane({
           </>
         );
 
-      case "layout.column":
+      case "theme.surfaces":
         return (
-          <ControlGroup>
-            <SliderRow
-              label="Max width"
-              leaf={settingLeaf("layout.contentWidth")}
-              max={140}
-              min={60}
-              onChange={(value) => patchLayout({ contentWidth: value })}
-              step={2}
-              value={layout.contentWidth}
-              valueLabel={`${layout.contentWidth}ch`}
-            />
-            <SliderRow
-              label="Padding"
-              leaf={settingLeaf("layout.contentMargin")}
-              max={96}
-              min={0}
-              onChange={(value) => patchLayout({ contentMargin: value })}
-              step={4}
-              value={layout.contentMargin}
-              valueLabel={`${layout.contentMargin}px`}
-            />
-            <SliderRow
-              label="Top padding"
-              leaf={settingLeaf("layout.topPadding")}
-              max={240}
-              min={0}
-              onChange={(value) => patchLayout({ topPadding: value })}
-              step={4}
-              value={layout.topPadding}
-              valueLabel={`${layout.topPadding}px`}
-            />
-            <SliderRow
-              label="Title padding"
-              leaf={settingLeaf("layout.titlePadding")}
-              max={240}
-              min={0}
-              onChange={(value) => patchLayout({ titlePadding: value })}
-              step={2}
-              value={layout.titlePadding}
-              valueLabel={`${layout.titlePadding}px`}
-            />
-            <SliderRow
-              label="Bottom padding"
-              leaf={settingLeaf("layout.bottomPadding")}
-              max={600}
-              min={0}
-              onChange={(value) => patchLayout({ bottomPadding: value })}
-              step={4}
-              value={layout.bottomPadding}
-              valueLabel={`${layout.bottomPadding}px`}
-            />
-          </ControlGroup>
-        );
-
-      case "layout.surfaces":
-        return (
-          <ControlGroup>
-            <SliderRow
-              label="Radius"
-              leaf={settingLeaf("layout.radius")}
-              max={16}
-              min={0}
-              onChange={(value) => patchLayout({ radius: value })}
-              step={1}
-              value={layout.radius}
-              valueLabel={`${layout.radius}px`}
-            />
-            <SliderRow
-              label="Border strength"
-              leaf={settingLeaf("layout.borderStrength")}
-              max={2}
-              min={0}
-              onChange={(value) => patchLayout({ borderStrength: value })}
-              step={0.05}
-              value={layout.borderStrength}
-              valueLabel={`${Math.round(layout.borderStrength * 100)}%`}
-            />
-            <SliderRow
-              label="Background tint"
-              leaf={settingLeaf("layout.backgroundTint")}
-              max={12}
-              min={0}
-              onChange={(value) => patchLayout({ backgroundTint: value })}
-              step={0.5}
-              value={layout.backgroundTint}
-              valueLabel={`${layout.backgroundTint}%`}
-            />
-            <SliderRow
-              label="Sidebar tint"
-              leaf={settingLeaf("layout.sidebarTint")}
-              max={60}
-              min={0}
-              onChange={(value) => patchLayout({ sidebarTint: value })}
-              step={2}
-              value={layout.sidebarTint}
-              valueLabel={`${layout.sidebarTint}%`}
-            />
-          </ControlGroup>
+          <>
+            <ControlGroup>
+              {/* The Radius knob and radius token both write --radius; deduplication comes later. */}
+              <SliderRow
+                label="Radius"
+                leaf={settingLeaf("layout.radius")}
+                max={16}
+                min={0}
+                onChange={(value) => patchLayout({ radius: value })}
+                step={1}
+                value={layout.radius}
+                valueLabel={`${layout.radius}px`}
+              />
+              <SliderRow
+                label="Border strength"
+                leaf={settingLeaf("layout.borderStrength")}
+                max={2}
+                min={0}
+                onChange={(value) => patchLayout({ borderStrength: value })}
+                step={0.05}
+                value={layout.borderStrength}
+                valueLabel={`${Math.round(layout.borderStrength * 100)}%`}
+              />
+              <SliderRow
+                label="Background tint"
+                leaf={settingLeaf("layout.backgroundTint")}
+                max={12}
+                min={0}
+                onChange={(value) => patchLayout({ backgroundTint: value })}
+                step={0.5}
+                value={layout.backgroundTint}
+                valueLabel={`${layout.backgroundTint}%`}
+              />
+              <SliderRow
+                label="Sidebar tint"
+                leaf={settingLeaf("layout.sidebarTint")}
+                max={60}
+                min={0}
+                onChange={(value) => patchLayout({ sidebarTint: value })}
+                step={2}
+                value={layout.sidebarTint}
+                valueLabel={`${layout.sidebarTint}%`}
+              />
+            </ControlGroup>
+            <Subgroup label="Tokens">
+              {renderComponentTokenRows("surfaces")}
+              {hasComponentOverrides("surfaces") && (
+                <button
+                  className="style-rail-block-reset"
+                  onClick={() => resetComponent("surfaces")}
+                  type="button"
+                >
+                  Reset Surfaces tokens to theme
+                </button>
+              )}
+            </Subgroup>
+          </>
         );
 
       case "layout.sidebar":
@@ -978,6 +978,58 @@ export function StyleRailPane({
       case "layout.editor":
         return (
           <>
+            <Subgroup label="Column">
+              <SliderRow
+                label="Max width"
+                leaf={settingLeaf("layout.contentWidth")}
+                max={140}
+                min={60}
+                onChange={(value) => patchLayout({ contentWidth: value })}
+                step={2}
+                value={layout.contentWidth}
+                valueLabel={`${layout.contentWidth}ch`}
+              />
+              <SliderRow
+                label="Padding"
+                leaf={settingLeaf("layout.contentMargin")}
+                max={96}
+                min={0}
+                onChange={(value) => patchLayout({ contentMargin: value })}
+                step={4}
+                value={layout.contentMargin}
+                valueLabel={`${layout.contentMargin}px`}
+              />
+              <SliderRow
+                label="Top padding"
+                leaf={settingLeaf("layout.topPadding")}
+                max={240}
+                min={0}
+                onChange={(value) => patchLayout({ topPadding: value })}
+                step={4}
+                value={layout.topPadding}
+                valueLabel={`${layout.topPadding}px`}
+              />
+              <SliderRow
+                label="Title padding"
+                leaf={settingLeaf("layout.titlePadding")}
+                max={240}
+                min={0}
+                onChange={(value) => patchLayout({ titlePadding: value })}
+                step={2}
+                value={layout.titlePadding}
+                valueLabel={`${layout.titlePadding}px`}
+              />
+              <SliderRow
+                label="Bottom padding"
+                leaf={settingLeaf("layout.bottomPadding")}
+                max={600}
+                min={0}
+                onChange={(value) => patchLayout({ bottomPadding: value })}
+                step={4}
+                value={layout.bottomPadding}
+                valueLabel={`${layout.bottomPadding}px`}
+              />
+            </Subgroup>
             <Subgroup label="Highlight">
               <ColorRow
                 defaultExpr="var(--color-bg-blue)"
@@ -1131,40 +1183,7 @@ export function StyleRailPane({
         const file = selectedId.slice("blocks.".length);
         return (
           <ControlGroup>
-            {Object.entries(THEME_TOKEN_REGISTRY[file] ?? {}).map(([key, token]) => {
-              const label = TOKEN_KEY_LABELS[key] ?? key;
-              if (token.kind === "color") {
-                return (
-                  <ColorRow
-                    key={key}
-                    defaultExpr={`var(${token.vars[0]})`}
-                    label={label}
-                    leaf={componentLeaf(file, key)}
-                    onChange={(value) => patchComponent(file, key, value)}
-                    value={settings.components[file]?.[key] ?? null}
-                  />
-                );
-              }
-              const storedValue = settings.components[file]?.[key];
-              const value = storedValue === undefined
-                ? token.defaultValue
-                : Number.parseFloat(storedValue);
-              return (
-                <SliderRow
-                  key={key}
-                  label={label}
-                  leaf={componentLeaf(file, key)}
-                  max={token.max}
-                  min={token.min}
-                  onChange={(nextValue) =>
-                    patchComponent(file, key, `${nextValue}${token.unit ?? ""}`)
-                  }
-                  step={token.step}
-                  value={value}
-                  valueLabel={`${value}${token.unit ?? ""}`}
-                />
-              );
-            })}
+            {renderComponentTokenRows(file)}
             {file === "list-item" && (
               <>
                 <SliderRow

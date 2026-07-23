@@ -1,11 +1,8 @@
-import { useLayoutEffect, useMemo, useState } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
-  Blend,
   Braces,
   Code2,
   CodeXml,
-  Columns3,
   FileCode2,
   FolderTree,
   GitFork,
@@ -31,83 +28,8 @@ import {
   Video,
   Workflow,
 } from "lucide-react";
-import type { FontChoice, StyleRailSettings } from "./StyleRail";
+import type { StyleRailSettings } from "./StyleRail";
 import { paneOverrideCount } from "./style-rail-overrides";
-
-const FONT_SUMMARY_LABELS: Record<FontChoice, string> = {
-  sans: "Sans",
-  serif: "Serif",
-  mono: "Mono",
-};
-
-export function formatTypographySummary(bodyFont: FontChoice, fontSize: number): string {
-  return `${FONT_SUMMARY_LABELS[bodyFont]} · ${fontSize}px`;
-}
-
-type ResolvedRailColors = readonly [
-  accent: string,
-  background: string,
-  text: string,
-  sidebar: string,
-];
-
-function unresolvedRailColors(settings: StyleRailSettings): ResolvedRailColors {
-  return [
-    `var(--color-bg-${settings.accent})`,
-    settings.colors.background ?? "var(--color-bg-default)",
-    settings.colors.text ?? "var(--color-text-default)",
-    settings.colors.sidebar ?? "var(--color-bg-sidebar)",
-  ];
-}
-
-function resolveRailColors(settings: StyleRailSettings, dark: boolean): ResolvedRailColors {
-  if (typeof document === "undefined" || !document.body) {
-    return unresolvedRailColors(settings);
-  }
-
-  const probe = document.createElement("span");
-  probe.setAttribute("data-theme", dark ? "dark" : "light");
-  probe.style.position = "fixed";
-  probe.style.width = "0";
-  probe.style.height = "0";
-  probe.style.visibility = "hidden";
-  probe.style.pointerEvents = "none";
-  document.body.appendChild(probe);
-
-  const resolve = (expression: string) => {
-    probe.style.color = expression;
-    return getComputedStyle(probe).color || "#ffffff";
-  };
-
-  try {
-    return [
-      resolve(`var(--color-bg-${settings.accent})`),
-      settings.colors.background ?? resolve("var(--color-bg-default)"),
-      settings.colors.text ?? resolve("var(--color-text-default)"),
-      settings.colors.sidebar ?? resolve("var(--color-bg-sidebar)"),
-    ];
-  } finally {
-    probe.remove();
-  }
-}
-
-function useResolvedRailColors(
-  settings: StyleRailSettings,
-  dark: boolean,
-): ResolvedRailColors {
-  const { accent, colors } = settings;
-  const unresolved = useMemo(
-    () => unresolvedRailColors(settings),
-    [accent, colors.background, colors.sidebar, colors.text],
-  );
-  const [resolved, setResolved] = useState<ResolvedRailColors>(unresolved);
-
-  useLayoutEffect(() => {
-    setResolved(resolveRailColors(settings, dark));
-  }, [accent, colors.background, colors.sidebar, colors.text, dark]);
-
-  return resolved;
-}
 
 const COMPONENT_PICKER_FILES = [
   "inline-code",
@@ -128,7 +50,6 @@ const COMPONENT_PICKER_FILES = [
   "waterfall",
   "sequence",
   "canvas",
-  "surfaces",
 ] as const;
 
 type ComponentPickerFile = (typeof COMPONENT_PICKER_FILES)[number];
@@ -142,7 +63,6 @@ const COMPONENT_LABELS: Partial<Record<ComponentPickerFile, string>> = {
   "interaction-surface": "Interaction surface",
   "state-shape": "State shape",
   linking: "Linked panels",
-  surfaces: "Shared surfaces",
 };
 
 function componentLabel(file: ComponentPickerFile): string {
@@ -169,18 +89,24 @@ const COMPONENT_ICONS: Record<ComponentPickerFile, LucideIcon> = {
   waterfall: GitFork,
   sequence: Workflow,
   canvas: PenTool,
-  surfaces: Layers3,
 };
+
+function componentItem(file: ComponentPickerFile): StyleRailNavItem {
+  return {
+    id: `blocks.${file}`,
+    label: componentLabel(file),
+    icon: COMPONENT_ICONS[file],
+  };
+}
 
 export type StyleRailPaneId =
   | "theme.presets"
   | "theme.colors"
   | "theme.typography"
   | "theme.background"
+  | "theme.surfaces"
   | "theme.references"
   | BlockPaneId
-  | "layout.column"
-  | "layout.surfaces"
   | "layout.sidebar"
   | "layout.scrollbar"
   | "layout.side-peek"
@@ -193,7 +119,7 @@ export type StyleRailNavItem = {
 };
 
 export type StyleRailNavGroup = {
-  id: "theme" | "blocks" | "layout";
+  id: "theme" | "layout" | "rich-text" | "code" | "structure" | "diagrams";
   label: string;
   items: readonly StyleRailNavItem[];
 };
@@ -207,34 +133,67 @@ export const STYLE_RAIL_GROUPS: readonly StyleRailNavGroup[] = [
       { id: "theme.colors", label: "Colors", icon: Palette },
       { id: "theme.typography", label: "Typography", icon: Type },
       { id: "theme.background", label: "Background", icon: Sparkles },
-      { id: "theme.references", label: "References", icon: Link },
+      { id: "theme.surfaces", label: "Surfaces", icon: Layers3 },
     ],
-  },
-  {
-    id: "blocks",
-    label: "Blocks",
-    items: COMPONENT_PICKER_FILES.map((file) => ({
-      id: `blocks.${file}` as BlockPaneId,
-      label: componentLabel(file),
-      icon: COMPONENT_ICONS[file],
-    })),
   },
   {
     id: "layout",
     label: "Layout",
     items: [
-      { id: "layout.column", label: "Column", icon: Columns3 },
-      { id: "layout.surfaces", label: "Surfaces", icon: Blend },
       { id: "layout.sidebar", label: "Sidebar", icon: PanelLeft },
-      { id: "layout.scrollbar", label: "Scrollbar", icon: ScrollText },
-      { id: "layout.side-peek", label: "Side peek", icon: PanelRightOpen },
       { id: "layout.editor", label: "Editor", icon: FileCode2 },
+      { id: "layout.side-peek", label: "Side peek", icon: PanelRightOpen },
+      { id: "layout.scrollbar", label: "Scrollbar", icon: ScrollText },
+    ],
+  },
+  {
+    id: "rich-text",
+    label: "Rich text",
+    items: [
+      componentItem("paragraph"),
+      componentItem("heading"),
+      componentItem("list-item"),
+      componentItem("quote"),
+      componentItem("callout"),
+      componentItem("divider"),
+      componentItem("image"),
+      componentItem("video"),
+      { id: "theme.references", label: "References", icon: Link },
+    ],
+  },
+  {
+    id: "code",
+    label: "Code",
+    items: [
+      componentItem("code"),
+      componentItem("inline-code"),
+      componentItem("linking"),
+    ],
+  },
+  {
+    id: "structure",
+    label: "Structure",
+    items: [
+      componentItem("structured-table"),
+      componentItem("file-tree"),
+      componentItem("state-shape"),
+      componentItem("interaction-surface"),
+    ],
+  },
+  {
+    id: "diagrams",
+    label: "Diagrams",
+    items: [
+      componentItem("sequence"),
+      componentItem("canvas"),
+      componentItem("waterfall"),
     ],
   },
 ] as const;
 
 const STYLE_RAIL_ITEMS = STYLE_RAIL_GROUPS.flatMap((group) => group.items);
 
+// Retired pane ids: layout.column, layout.surfaces, blocks.surfaces.
 export function isStyleRailPaneId(value: unknown): value is StyleRailPaneId {
   return typeof value === "string" && STYLE_RAIL_ITEMS.some((item) => item.id === value);
 }
@@ -246,7 +205,6 @@ export function getStyleRailPaneItem(id: StyleRailPaneId): StyleRailNavItem {
 export function StyleRailNav({
   selectedId,
   settings,
-  dark,
   onSelect,
 }: {
   selectedId: StyleRailPaneId;
@@ -254,14 +212,6 @@ export function StyleRailNav({
   dark: boolean;
   onSelect: (id: StyleRailPaneId) => void;
 }) {
-  const resolvedColors = useResolvedRailColors(settings, dark);
-  const typographySummary = formatTypographySummary(
-    settings.typography.bodyFont,
-    settings.typography.fontSize,
-  );
-  const typographyAccessibleSummary =
-    `${FONT_SUMMARY_LABELS[settings.typography.bodyFont]} ${settings.typography.fontSize} pixels`;
-
   return (
     <nav aria-label="Style sections" className="style-rail-nav">
       {STYLE_RAIL_GROUPS.map((group) => (
@@ -276,13 +226,7 @@ export function StyleRailNav({
               const overrideName =
                 overrideCount > 0 ? `, ${overrideCount} ${overrideLabel}` : "";
               const accessibleName =
-                item.id === "theme.colors"
-                  ? `${item.label}, accent ${resolvedColors[0]}, background ${resolvedColors[1]}, text ${resolvedColors[2]}, sidebar ${resolvedColors[3]}${overrideName}`
-                  : item.id === "theme.typography"
-                    ? `${item.label}, ${typographyAccessibleSummary}${overrideName}`
-                    : overrideCount > 0
-                      ? `${item.label}${overrideName}`
-                      : undefined;
+                overrideCount > 0 ? `${item.label}${overrideName}` : undefined;
               return (
                 <button
                   aria-current={selected ? "page" : undefined}
@@ -298,22 +242,6 @@ export function StyleRailNav({
                   </span>
                   <span className="min-w-0 flex-1 truncate text-left">{item.label}</span>
                   <span aria-hidden="true" className="style-rail-nav-status">
-                    {item.id === "theme.colors" && (
-                      <span className="style-rail-nav-color-strip">
-                        {resolvedColors.map((color, index) => (
-                          <span
-                            className="style-rail-nav-color-swatch"
-                            key={index}
-                            style={{ backgroundColor: color }}
-                          />
-                        ))}
-                      </span>
-                    )}
-                    {item.id === "theme.typography" && (
-                      <span className="style-rail-nav-value-summary">
-                        {typographySummary}
-                      </span>
-                    )}
                     {overrideCount > 0 &&
                       (item.id.startsWith("blocks.") ? (
                         <span className="style-rail-nav-override-count">{overrideCount}</span>

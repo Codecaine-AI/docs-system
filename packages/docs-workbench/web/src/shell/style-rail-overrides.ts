@@ -129,14 +129,7 @@ const PANE_SETTING_LEAVES: Partial<
     "list.squareSize",
     "list.indent",
   ],
-  "layout.column": [
-    "layout.contentWidth",
-    "layout.contentMargin",
-    "layout.topPadding",
-    "layout.titlePadding",
-    "layout.bottomPadding",
-  ],
-  "layout.surfaces": [
+  "theme.surfaces": [
     "layout.radius",
     "layout.borderStrength",
     "layout.backgroundTint",
@@ -170,6 +163,11 @@ const PANE_SETTING_LEAVES: Partial<
     "peek.dividerStyle",
   ],
   "layout.editor": [
+    "layout.contentWidth",
+    "layout.contentMargin",
+    "layout.topPadding",
+    "layout.titlePadding",
+    "layout.bottomPadding",
     "highlight.color",
     "highlight.radius",
     "highlight.padding",
@@ -187,6 +185,30 @@ const PANE_SETTING_LEAVES: Partial<
     "grip.fadeMs",
   ],
 };
+
+type ComponentPaneId = Extract<StyleRailPaneId, `blocks.${string}`> | "theme.surfaces";
+
+const PANE_COMPONENT_FILE: Partial<Record<StyleRailPaneId, string>> = {
+  "blocks.inline-code": "inline-code",
+  "blocks.paragraph": "paragraph",
+  "blocks.heading": "heading",
+  "blocks.list-item": "list-item",
+  "blocks.quote": "quote",
+  "blocks.code": "code",
+  "blocks.callout": "callout",
+  "blocks.divider": "divider",
+  "blocks.image": "image",
+  "blocks.video": "video",
+  "blocks.file-tree": "file-tree",
+  "blocks.structured-table": "structured-table",
+  "blocks.interaction-surface": "interaction-surface",
+  "blocks.state-shape": "state-shape",
+  "blocks.linking": "linking",
+  "blocks.waterfall": "waterfall",
+  "blocks.sequence": "sequence",
+  "blocks.canvas": "canvas",
+  "theme.surfaces": "surfaces",
+} satisfies Record<ComponentPaneId, string>;
 
 function settingValue(
   settings: StyleRailSettings,
@@ -223,8 +245,8 @@ export function paneOverrideCount(
     0,
   );
 
-  if (!paneId.startsWith("blocks.")) return count;
-  const file = paneId.slice("blocks.".length);
+  const file = PANE_COMPONENT_FILE[paneId];
+  if (!file) return count;
   for (const key of Object.keys(THEME_TOKEN_REGISTRY[file] ?? {})) {
     count += Number(isLeafOverridden(settings, componentLeaf(file, key)));
   }

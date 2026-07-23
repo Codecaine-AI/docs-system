@@ -18,10 +18,7 @@ import {
   paneOverrideCount,
   settingLeaf,
 } from "../shell/style-rail-overrides";
-import {
-  STYLE_RAIL_GROUPS,
-  formatTypographySummary,
-} from "../shell/style-rail-nav";
+import { STYLE_RAIL_GROUPS } from "../shell/style-rail-nav";
 import {
   THEME_TOKEN_REGISTRY,
   compileThemeCss,
@@ -31,29 +28,72 @@ import {
 const STORAGE_KEY = "docs-style-rail-settings.v1";
 const SELECTED_PANE_STORAGE_KEY = "docs-style-rail-selected";
 
-const THEME_PANES = ["Presets", "Colors", "Typography", "Background", "References"];
-const BLOCK_PANES = [
-  "Inline code",
-  "Paragraph",
-  "Heading",
-  "List item",
-  "Quote",
-  "Code",
-  "Callout",
-  "Divider",
-  "Image",
-  "Video",
-  "File tree",
-  "Structured table",
-  "Interaction surface",
-  "State shape",
-  "Linked panels",
-  "Waterfall",
-  "Sequence",
-  "Canvas",
-  "Shared surfaces",
-];
-const LAYOUT_PANES = ["Column", "Surfaces", "Sidebar", "Scrollbar", "Side peek", "Editor"];
+const EXPECTED_NAV_GROUPS = [
+  {
+    id: "theme",
+    label: "Theme",
+    items: [
+      { id: "theme.presets", label: "Presets" },
+      { id: "theme.colors", label: "Colors" },
+      { id: "theme.typography", label: "Typography" },
+      { id: "theme.background", label: "Background" },
+      { id: "theme.surfaces", label: "Surfaces" },
+    ],
+  },
+  {
+    id: "layout",
+    label: "Layout",
+    items: [
+      { id: "layout.sidebar", label: "Sidebar" },
+      { id: "layout.editor", label: "Editor" },
+      { id: "layout.side-peek", label: "Side peek" },
+      { id: "layout.scrollbar", label: "Scrollbar" },
+    ],
+  },
+  {
+    id: "rich-text",
+    label: "Rich text",
+    items: [
+      { id: "blocks.paragraph", label: "Paragraph" },
+      { id: "blocks.heading", label: "Heading" },
+      { id: "blocks.list-item", label: "List item" },
+      { id: "blocks.quote", label: "Quote" },
+      { id: "blocks.callout", label: "Callout" },
+      { id: "blocks.divider", label: "Divider" },
+      { id: "blocks.image", label: "Image" },
+      { id: "blocks.video", label: "Video" },
+      { id: "theme.references", label: "References" },
+    ],
+  },
+  {
+    id: "code",
+    label: "Code",
+    items: [
+      { id: "blocks.code", label: "Code" },
+      { id: "blocks.inline-code", label: "Inline code" },
+      { id: "blocks.linking", label: "Linked panels" },
+    ],
+  },
+  {
+    id: "structure",
+    label: "Structure",
+    items: [
+      { id: "blocks.structured-table", label: "Structured table" },
+      { id: "blocks.file-tree", label: "File tree" },
+      { id: "blocks.state-shape", label: "State shape" },
+      { id: "blocks.interaction-surface", label: "Interaction surface" },
+    ],
+  },
+  {
+    id: "diagrams",
+    label: "Diagrams",
+    items: [
+      { id: "blocks.sequence", label: "Sequence" },
+      { id: "blocks.canvas", label: "Canvas" },
+      { id: "blocks.waterfall", label: "Waterfall" },
+    ],
+  },
+] as const;
 
 afterEach(() => {
   cleanup();
@@ -118,14 +158,6 @@ function openPane(name: string | RegExp) {
   fireEvent.click(within(navigation).getByRole("button", { name }));
 }
 
-describe("style rail value formatters", () => {
-  it("formats every body font with integer and half-pixel sizes", () => {
-    expect(formatTypographySummary("sans", 16)).toBe("Sans · 16px");
-    expect(formatTypographySummary("serif", 14)).toBe("Serif · 14px");
-    expect(formatTypographySummary("mono", 13.5)).toBe("Mono · 13.5px");
-  });
-});
-
 describe("style rail override helpers", () => {
   const seeded: StyleRailSettings = {
     ...DEFAULT_STYLE_RAIL_SETTINGS,
@@ -152,6 +184,7 @@ describe("style rail override helpers", () => {
       "theme.colors": 1,
       "theme.typography": 1,
       "theme.background": 0,
+      "theme.surfaces": 0,
       "theme.references": 0,
       "blocks.inline-code": 0,
       "blocks.paragraph": 0,
@@ -171,9 +204,6 @@ describe("style rail override helpers", () => {
       "blocks.waterfall": 0,
       "blocks.sequence": 0,
       "blocks.canvas": 0,
-      "blocks.surfaces": 0,
-      "layout.column": 0,
-      "layout.surfaces": 0,
       "layout.sidebar": 0,
       "layout.scrollbar": 0,
       "layout.side-peek": 0,
@@ -190,37 +220,82 @@ describe("style rail override helpers", () => {
     };
 
     expect(isLeafOverridden(settings, componentLeaf("surfaces", "radius"))).toBe(false);
-    expect(paneOverrideCount(settings, "blocks.surfaces")).toBe(0);
+    expect(paneOverrideCount(settings, "theme.surfaces")).toBe(0);
+  });
+
+  it("attributes the retired Column leaves to Editor", () => {
+    const settings: StyleRailSettings = {
+      ...DEFAULT_STYLE_RAIL_SETTINGS,
+      layout: {
+        ...DEFAULT_STYLE_RAIL_SETTINGS.layout,
+        contentWidth: 112,
+        contentMargin: 40,
+        topPadding: 28,
+        titlePadding: 24,
+        bottomPadding: 32,
+      },
+    };
+
+    expect(paneOverrideCount(settings, "layout.editor")).toBe(5);
+  });
+
+  it("attributes surface knobs and component tokens to the merged Surfaces pane", () => {
+    const settings: StyleRailSettings = {
+      ...DEFAULT_STYLE_RAIL_SETTINGS,
+      layout: {
+        ...DEFAULT_STYLE_RAIL_SETTINGS.layout,
+        radius: 12,
+        borderStrength: 1.5,
+        backgroundTint: 0.2,
+        sidebarTint: -0.2,
+      },
+      components: {
+        surfaces: {
+          border: "#112233",
+          muted: "#445566",
+          icon: "#778899",
+          radius: "12px",
+        },
+      },
+    };
+
+    expect(paneOverrideCount(settings, "theme.surfaces")).toBe(8);
   });
 });
 
 describe("style rail navigation", () => {
-  it("renders the Theme, Blocks, and Layout groups with all 30 pane items", () => {
+  it("renders the six regrouped sections with all 28 pane items in order", () => {
+    expect(
+      STYLE_RAIL_GROUPS.map((group) => ({
+        id: group.id,
+        label: group.label,
+        items: group.items.map((item) => ({ id: item.id, label: item.label })),
+      })),
+    ).toEqual(EXPECTED_NAV_GROUPS);
+
     render(<RailHarness />);
     const navigation = within(screen.getByRole("navigation", { name: "Style sections" }));
 
-    for (const group of ["Theme", "Blocks", "Layout"]) {
-      expect(navigation.getByText(group)).toBeTruthy();
-    }
-    for (const name of [
-      ...THEME_PANES.filter((pane) => pane !== "Colors" && pane !== "Typography"),
-      ...BLOCK_PANES,
-      ...LAYOUT_PANES,
-    ]) {
-      expect(navigation.getByRole("button", { name })).toBeTruthy();
-    }
-    expect(navigation.getByRole("button", { name: /^Colors, accent / })).toBeTruthy();
     expect(
-      navigation.getByRole("button", { name: "Typography, Sans 14 pixels" }),
-    ).toBeTruthy();
-    expect(navigation.getAllByRole("button")).toHaveLength(5 + 19 + 6);
+      Array.from(
+        screen.getByRole("navigation", { name: "Style sections" })
+          .querySelectorAll(".style-rail-nav-label"),
+        (label) => label.textContent,
+      ),
+    ).toEqual(EXPECTED_NAV_GROUPS.map((group) => group.label));
+    for (const group of EXPECTED_NAV_GROUPS) {
+      for (const item of group.items) {
+        expect(navigation.getByRole("button", { name: item.label })).toBeTruthy();
+      }
+    }
+    expect(navigation.getAllByRole("button")).toHaveLength(5 + 4 + 9 + 3 + 4 + 3);
   });
 
   it("swaps the visible detail pane when a rail item is selected", () => {
     render(<RailHarness />);
 
     expect(screen.getByRole("heading", { name: "Presets" })).toBeTruthy();
-    openPane(/^Colors, accent /);
+    openPane("Colors");
     expect(screen.getByRole("heading", { name: "Colors" })).toBeTruthy();
     expect(screen.queryByRole("heading", { name: "Presets" })).toBeNull();
   });
@@ -242,50 +317,14 @@ describe("style rail navigation", () => {
     expect(screen.getByRole("heading", { name: "Presets" })).toBeTruthy();
   });
 
-  it("renders four passive color swatches in accent, background, text, sidebar order", () => {
-    const initial: StyleRailSettings = {
-      ...DEFAULT_STYLE_RAIL_SETTINGS,
-      colors: {
-        background: "#123456",
-        text: "#abcdef",
-        sidebar: "#fedcba",
-      },
-    };
-    render(<RailHarness initial={initial} />);
-    const navigation = screen.getByRole("navigation", { name: "Style sections" });
-    const colorsLabel = within(navigation).getByText("Colors");
-    const colorsRow = colorsLabel.closest("button");
-    const strip = colorsRow?.querySelector(".style-rail-nav-color-strip");
-    const swatches = strip?.querySelectorAll<HTMLElement>(".style-rail-nav-color-swatch");
+  for (const retiredId of ["layout.column", "layout.surfaces", "blocks.surfaces"]) {
+    it(`falls back to Presets when the stored pane id is retired (${retiredId})`, () => {
+      window.localStorage.setItem(SELECTED_PANE_STORAGE_KEY, retiredId);
+      render(<RailHarness />);
 
-    expect(strip).toBeTruthy();
-    expect(swatches).toHaveLength(4);
-    expect(swatches?.[1].getAttribute("style")).toContain("background-color: #123456");
-    expect(swatches?.[2].getAttribute("style")).toContain("background-color: #abcdef");
-    expect(swatches?.[3].getAttribute("style")).toContain("background-color: #fedcba");
-    expect(strip?.querySelectorAll("button, a, input")).toHaveLength(0);
-  });
-
-  it("updates the typography summary and accessible name from pane controls", () => {
-    render(<RailHarness />);
-    const navigation = within(screen.getByRole("navigation", { name: "Style sections" }));
-    const typographyRow = navigation.getByRole("button", {
-      name: "Typography, Sans 14 pixels",
+      expect(screen.getByRole("heading", { name: "Presets" })).toBeTruthy();
     });
-
-    expect(
-      typographyRow.querySelector(".style-rail-nav-value-summary")?.textContent,
-    ).toBe("Sans · 14px");
-    fireEvent.click(typographyRow);
-    fireEvent.change(screen.getByLabelText("Body font"), { target: { value: "mono" } });
-    fireEvent.change(screen.getByLabelText(/Font size/), { target: { value: "13.5" } });
-
-    expect(
-      navigation
-        .getByRole("button", { name: "Typography, Mono 13.5 pixels, 2 overrides" })
-        .querySelector(".style-rail-nav-value-summary")?.textContent,
-    ).toBe("Mono · 13.5px");
-  });
+  }
 
   it("shows the pane name and active theme layering line in the detail head", () => {
     render(<RailHarness />);
@@ -361,19 +400,19 @@ describe("style rail override state", () => {
     );
     expect(
       navigation
-        .getByRole("button", { name: "Typography, Sans 16 pixels, 1 override" })
+        .getByRole("button", { name: "Typography, 1 override" })
         .querySelector(".style-rail-nav-override-dot"),
     ).toBeTruthy();
     expect(
       navigation
-        .getByRole("button", { name: "Column, 1 override" })
+        .getByRole("button", { name: "Editor, 1 override" })
         .querySelector(".style-rail-nav-override-dot"),
     ).toBeTruthy();
   });
 
   it("updates the header, rail state, and row dot when a knob changes", () => {
     render(<RailHarness />);
-    openPane("Typography, Sans 14 pixels");
+    openPane("Typography");
 
     expect(screen.getByText("No overrides · layered over Default theme")).toBeTruthy();
     const fontSize = screen.getByLabelText(/Font size/) as HTMLInputElement;
@@ -387,10 +426,10 @@ describe("style rail override state", () => {
     expect(row?.querySelector(".style-rail-row-override-dot")?.getAttribute("data-overridden"))
       .toBe("true");
     expect(
-      screen.getByRole("button", { name: "Typography, Sans 16 pixels, 1 override" }),
+      screen.getByRole("button", { name: "Typography, 1 override" }),
     ).toBeTruthy();
 
-    openPane(/^Colors, accent /);
+    openPane("Colors");
     expect(
       (screen.getByLabelText("Dark mode") as HTMLInputElement)
         .closest("label")
@@ -446,6 +485,70 @@ describe("style rail override state", () => {
       code: { ruleOpacity: "0.9" },
     });
     expect(screen.queryByRole("button", { name: "Reset List item to theme" })).toBeNull();
+  });
+});
+
+describe("style rail merged panes", () => {
+  it("renders Column first in Editor with all five column controls", () => {
+    render(<RailHarness />);
+    openPane("Editor");
+
+    const detailBody = document.querySelector(".style-rail-detail-body");
+    expect(
+      Array.from(detailBody?.querySelectorAll("h3") ?? [], (heading) => heading.textContent),
+    ).toEqual(["Column", "Highlight", "Drop line", "Drag select", "Drag grip"]);
+
+    const column = screen.getByRole("heading", { name: "Column" }).closest("section");
+    expect(column).toBeTruthy();
+    for (const label of [
+      /^Max width/,
+      /^Padding/,
+      /^Top padding/,
+      /^Title padding/,
+      /^Bottom padding/,
+    ]) {
+      expect(within(column!).getByLabelText(label)).toBeTruthy();
+    }
+  });
+
+  it("renders surface knobs and tokens, then resets only surface token overrides", () => {
+    const initial: StyleRailSettings = {
+      ...DEFAULT_STYLE_RAIL_SETTINGS,
+      layout: { ...DEFAULT_STYLE_RAIL_SETTINGS.layout, radius: 12 },
+      components: {
+        surfaces: { border: "#ff0000" },
+        code: { ruleOpacity: "0.9" },
+      },
+    };
+    render(<RailHarness initial={initial} />);
+    openPane(/^Surfaces/);
+
+    for (const label of [
+      /^Radius/,
+      /^Border strength/,
+      /^Background tint/,
+      /^Sidebar tint/,
+    ]) {
+      expect(screen.getByLabelText(label)).toBeTruthy();
+    }
+    const tokens = screen.getByRole("heading", { name: "Tokens" }).closest("section");
+    expect(tokens).toBeTruthy();
+    for (const label of ["Border", "Muted fill", "Icons", "Corner radius"]) {
+      expect(within(tokens!).getByText(label)).toBeTruthy();
+    }
+
+    fireEvent.click(screen.getByRole("button", { name: "Reset Surfaces tokens to theme" }));
+
+    expect(JSON.parse(screen.getByTestId("component-settings").textContent ?? "null")).toEqual({
+      code: { ruleOpacity: "0.9" },
+    });
+    expect(
+      JSON.parse(screen.getByTestId("rail-settings").textContent ?? "null").layout.radius,
+    ).toBe(12);
+    expect(
+      screen.queryByRole("button", { name: "Reset Surfaces tokens to theme" }),
+    ).toBeNull();
+    expect(screen.getByText("1 override · layered over Default theme")).toBeTruthy();
   });
 });
 
