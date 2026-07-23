@@ -275,6 +275,68 @@
   justify-self: end;
 }
 
+.style-rail-nav-override-dot {
+  width: 5px;
+  height: 5px;
+  flex: none;
+  border-radius: 9999px;
+  background: currentColor;
+}
+
+.style-rail-nav-override-count {
+  color: var(--muted-foreground);
+  font-size: 0.625rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 0.875rem;
+}
+
+.style-rail-nav-item[data-active="true"] .style-rail-nav-override-count {
+  color: currentColor;
+}
+
+.style-rail-row-label {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.style-rail-row-override-dot {
+  box-sizing: border-box;
+  width: 6px;
+  height: 6px;
+  flex: none;
+  border-radius: 9999px;
+  background: var(--accent-foreground);
+}
+
+.style-rail-row-override-dot[data-overridden="false"] {
+  border: 1px solid var(--border);
+  background: transparent;
+}
+
+.style-rail-block-reset {
+  width: 100%;
+  padding: 0.5rem 0;
+  border: 0;
+  border-top: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted-foreground);
+  font: inherit;
+  font-size: 0.75rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.style-rail-block-reset:hover {
+  color: var(--foreground);
+}
+
+.style-rail-block-reset:focus-visible {
+  outline: 2px solid var(--foreground);
+  outline-offset: 1px;
+}
+
 /*
  * Grain — full-viewport SVG turbulence overlay (StyleRailOverlay).
  * Opacity/blend are driven by the style-rail vars on <html>; the layer is

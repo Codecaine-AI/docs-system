@@ -13,6 +13,13 @@ import {
   type StyleRailSettings,
 } from "../shell/StyleRail";
 import {
+  componentLeaf,
+  isLeafOverridden,
+  paneOverrideCount,
+  settingLeaf,
+} from "../shell/style-rail-overrides";
+import { STYLE_RAIL_GROUPS } from "../shell/style-rail-nav";
+import {
   THEME_TOKEN_REGISTRY,
   compileThemeCss,
   readThemeDefinition,
@@ -107,6 +114,73 @@ function openPane(name: string) {
   fireEvent.click(within(navigation).getByRole("button", { name }));
 }
 
+describe("style rail override helpers", () => {
+  const seeded: StyleRailSettings = {
+    ...DEFAULT_STYLE_RAIL_SETTINGS,
+    accent: "purple",
+    typography: { ...DEFAULT_STYLE_RAIL_SETTINGS.typography, fontSize: 16 },
+    list: { ...DEFAULT_STYLE_RAIL_SETTINGS.list, discSize: 8 },
+    components: {
+      code: { ruleOpacity: "0.9" },
+      callout: { border: "#ff0000" },
+      surfaces: { radius: "8px" },
+    },
+  };
+
+  it("attributes seeded scalar and component overrides to exactly one pane", () => {
+    const counts = Object.fromEntries(
+      STYLE_RAIL_GROUPS.flatMap((group) => group.items).map((item) => [
+        item.id,
+        paneOverrideCount(seeded, item.id),
+      ]),
+    );
+
+    expect(counts).toEqual({
+      "theme.presets": 0,
+      "theme.colors": 1,
+      "theme.typography": 1,
+      "theme.background": 0,
+      "theme.references": 0,
+      "blocks.inline-code": 0,
+      "blocks.paragraph": 0,
+      "blocks.heading": 0,
+      "blocks.list-item": 1,
+      "blocks.quote": 0,
+      "blocks.code": 1,
+      "blocks.callout": 1,
+      "blocks.divider": 0,
+      "blocks.image": 0,
+      "blocks.video": 0,
+      "blocks.file-tree": 0,
+      "blocks.structured-table": 0,
+      "blocks.interaction-surface": 0,
+      "blocks.state-shape": 0,
+      "blocks.linking": 0,
+      "blocks.waterfall": 0,
+      "blocks.canvas": 0,
+      "blocks.surfaces": 0,
+      "layout.column": 0,
+      "layout.surfaces": 0,
+      "layout.sidebar": 0,
+      "layout.scrollbar": 0,
+      "layout.side-peek": 0,
+      "layout.editor": 0,
+    });
+    expect(isLeafOverridden(seeded, settingLeaf("accent"))).toBe(true);
+    expect(isLeafOverridden(seeded, componentLeaf("code", "ruleOpacity"))).toBe(true);
+  });
+
+  it("excludes a retained non-color component entry at its registry default", () => {
+    const settings: StyleRailSettings = {
+      ...DEFAULT_STYLE_RAIL_SETTINGS,
+      components: { surfaces: { radius: "8px" } },
+    };
+
+    expect(isLeafOverridden(settings, componentLeaf("surfaces", "radius"))).toBe(false);
+    expect(paneOverrideCount(settings, "blocks.surfaces")).toBe(0);
+  });
+});
+
 describe("style rail navigation", () => {
   it("renders the Theme, Blocks, and Layout groups with all 29 pane items", () => {
     render(<RailHarness />);
@@ -152,7 +226,7 @@ describe("style rail navigation", () => {
     openPane("Callout");
 
     expect(screen.getByRole("heading", { name: "Callout" })).toBeTruthy();
-    expect(screen.getByText("Layered over Default theme")).toBeTruthy();
+    expect(screen.getByText("No overrides · layered over Default theme")).toBeTruthy();
   });
 
   it("round-trips the complete settings object through export and import", async () => {
@@ -198,6 +272,112 @@ describe("style rail navigation", () => {
       URL.revokeObjectURL = originalRevokeObjectURL;
       HTMLAnchorElement.prototype.click = originalAnchorClick;
     }
+  });
+});
+
+describe("style rail override state", () => {
+  it("shows block counts and theme or layout dots in the rail", () => {
+    const initial: StyleRailSettings = {
+      ...DEFAULT_STYLE_RAIL_SETTINGS,
+      typography: { ...DEFAULT_STYLE_RAIL_SETTINGS.typography, fontSize: 16 },
+      layout: { ...DEFAULT_STYLE_RAIL_SETTINGS.layout, contentWidth: 112 },
+      components: {
+        callout: { border: "#ff0000", fill: "#00ff00" },
+      },
+    };
+    render(<RailHarness initial={initial} />);
+    const navigation = within(screen.getByRole("navigation", { name: "Style sections" }));
+
+    const callout = navigation.getByRole("button", { name: "Callout, 2 overrides" });
+    expect(within(callout).getByText("2")).toHaveProperty(
+      "className",
+      "style-rail-nav-override-count",
+    );
+    expect(
+      navigation
+        .getByRole("button", { name: "Typography, 1 override" })
+        .querySelector(".style-rail-nav-override-dot"),
+    ).toBeTruthy();
+    expect(
+      navigation
+        .getByRole("button", { name: "Column, 1 override" })
+        .querySelector(".style-rail-nav-override-dot"),
+    ).toBeTruthy();
+  });
+
+  it("updates the header, rail state, and row dot when a knob changes", () => {
+    render(<RailHarness />);
+    openPane("Typography");
+
+    expect(screen.getByText("No overrides · layered over Default theme")).toBeTruthy();
+    const fontSize = screen.getByLabelText(/Font size/) as HTMLInputElement;
+    const row = fontSize.closest("label");
+    expect(row?.querySelector(".style-rail-row-override-dot")?.getAttribute("data-overridden"))
+      .toBe("false");
+
+    fireEvent.change(fontSize, { target: { value: "16" } });
+
+    expect(screen.getByText("1 override · layered over Default theme")).toBeTruthy();
+    expect(row?.querySelector(".style-rail-row-override-dot")?.getAttribute("data-overridden"))
+      .toBe("true");
+    expect(screen.getByRole("button", { name: "Typography, 1 override" })).toBeTruthy();
+
+    openPane("Colors");
+    expect(
+      (screen.getByLabelText("Dark mode") as HTMLInputElement)
+        .closest("label")
+        ?.querySelector(".style-rail-row-override-dot"),
+    ).toBeNull();
+  });
+
+  it("resets only the selected block file and hides the reset row at zero", () => {
+    const initial: StyleRailSettings = {
+      ...DEFAULT_STYLE_RAIL_SETTINGS,
+      layout: { ...DEFAULT_STYLE_RAIL_SETTINGS.layout, contentWidth: 112 },
+      sidebar: { ...DEFAULT_STYLE_RAIL_SETTINGS.sidebar, font: "mono" },
+      components: {
+        callout: { border: "#ff0000", fill: "#00ff00" },
+        code: { ruleOpacity: "0.9" },
+      },
+    };
+    render(<RailHarness initial={initial} />);
+    openPane("Callout, 2 overrides");
+
+    fireEvent.click(screen.getByRole("button", { name: "Reset Callout to theme" }));
+
+    expect(JSON.parse(screen.getByTestId("component-settings").textContent ?? "null")).toEqual({
+      code: { ruleOpacity: "0.9" },
+    });
+    const settings = JSON.parse(screen.getByTestId("rail-settings").textContent ?? "null");
+    expect(settings.layout.contentWidth).toBe(112);
+    expect(settings.sidebar.font).toBe("mono");
+    expect(screen.queryByRole("button", { name: "Reset Callout to theme" })).toBeNull();
+    expect(screen.getByText("No overrides · layered over Default theme")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Callout" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Code, 1 override" })).toBeTruthy();
+  });
+
+  it("resets list-item component tokens and list settings together", () => {
+    const initial: StyleRailSettings = {
+      ...DEFAULT_STYLE_RAIL_SETTINGS,
+      list: { ...DEFAULT_STYLE_RAIL_SETTINGS.list, discSize: 8 },
+      components: {
+        "list-item": { marker: "#ff0000" },
+        code: { ruleOpacity: "0.9" },
+      },
+    };
+    render(<RailHarness initial={initial} />);
+    openPane("List item, 2 overrides");
+
+    fireEvent.click(screen.getByRole("button", { name: "Reset List item to theme" }));
+
+    expect(JSON.parse(screen.getByTestId("list-settings").textContent ?? "null")).toEqual(
+      DEFAULT_STYLE_RAIL_SETTINGS.list,
+    );
+    expect(JSON.parse(screen.getByTestId("component-settings").textContent ?? "null")).toEqual({
+      code: { ruleOpacity: "0.9" },
+    });
+    expect(screen.queryByRole("button", { name: "Reset List item to theme" })).toBeNull();
   });
 });
 

@@ -962,7 +962,11 @@ export function StyleRail({
               settings={settings}
               themes={themes}
             />
-            <StyleRailNav onSelect={selectPane} selectedId={selectedPaneId} />
+            <StyleRailNav
+              onSelect={selectPane}
+              selectedId={selectedPaneId}
+              settings={settings}
+            />
           </div>
 
           <div className="shrink-0 space-y-1.5 border-t p-2">

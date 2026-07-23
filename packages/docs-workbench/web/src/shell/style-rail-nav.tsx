@@ -29,6 +29,8 @@ import {
   Type,
   Video,
 } from "lucide-react";
+import type { StyleRailSettings } from "./StyleRail";
+import { paneOverrideCount } from "./style-rail-overrides";
 
 const COMPONENT_PICKER_FILES = [
   "inline-code",
@@ -164,9 +166,11 @@ export function getStyleRailPaneItem(id: StyleRailPaneId): StyleRailNavItem {
 
 export function StyleRailNav({
   selectedId,
+  settings,
   onSelect,
 }: {
   selectedId: StyleRailPaneId;
+  settings: StyleRailSettings;
   onSelect: (id: StyleRailPaneId) => void;
 }) {
   return (
@@ -178,9 +182,16 @@ export function StyleRailNav({
             {group.items.map((item) => {
               const Icon = item.icon;
               const selected = item.id === selectedId;
+              const overrideCount = paneOverrideCount(settings, item.id);
+              const overrideLabel = overrideCount === 1 ? "override" : "overrides";
               return (
                 <button
                   aria-current={selected ? "page" : undefined}
+                  aria-label={
+                    overrideCount > 0
+                      ? `${item.label}, ${overrideCount} ${overrideLabel}`
+                      : undefined
+                  }
                   className="style-rail-nav-item"
                   data-active={selected ? "true" : undefined}
                   key={item.id}
@@ -191,7 +202,14 @@ export function StyleRailNav({
                     <Icon className="h-3.5 w-3.5 shrink-0" />
                   </span>
                   <span className="min-w-0 flex-1 truncate text-left">{item.label}</span>
-                  <span aria-hidden="true" className="style-rail-nav-status" />
+                  <span aria-hidden="true" className="style-rail-nav-status">
+                    {overrideCount > 0 &&
+                      (item.id.startsWith("blocks.") ? (
+                        <span className="style-rail-nav-override-count">{overrideCount}</span>
+                      ) : (
+                        <span className="style-rail-nav-override-dot" />
+                      ))}
+                  </span>
                 </button>
               );
             })}
