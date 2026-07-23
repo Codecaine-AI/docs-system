@@ -18,7 +18,10 @@ import {
   paneOverrideCount,
   settingLeaf,
 } from "../shell/style-rail-overrides";
-import { STYLE_RAIL_GROUPS } from "../shell/style-rail-nav";
+import {
+  STYLE_RAIL_GROUPS,
+  formatTypographySummary,
+} from "../shell/style-rail-nav";
 import {
   THEME_TOKEN_REGISTRY,
   compileThemeCss,
@@ -109,10 +112,18 @@ function RailHarness({ initial = DEFAULT_STYLE_RAIL_SETTINGS }: { initial?: Styl
   );
 }
 
-function openPane(name: string) {
+function openPane(name: string | RegExp) {
   const navigation = screen.getByRole("navigation", { name: "Style sections" });
   fireEvent.click(within(navigation).getByRole("button", { name }));
 }
+
+describe("style rail value formatters", () => {
+  it("formats every body font with integer and half-pixel sizes", () => {
+    expect(formatTypographySummary("sans", 16)).toBe("Sans · 16px");
+    expect(formatTypographySummary("serif", 14)).toBe("Serif · 14px");
+    expect(formatTypographySummary("mono", 13.5)).toBe("Mono · 13.5px");
+  });
+});
 
 describe("style rail override helpers", () => {
   const seeded: StyleRailSettings = {
@@ -189,9 +200,17 @@ describe("style rail navigation", () => {
     for (const group of ["Theme", "Blocks", "Layout"]) {
       expect(navigation.getByText(group)).toBeTruthy();
     }
-    for (const name of [...THEME_PANES, ...BLOCK_PANES, ...LAYOUT_PANES]) {
+    for (const name of [
+      ...THEME_PANES.filter((pane) => pane !== "Colors" && pane !== "Typography"),
+      ...BLOCK_PANES,
+      ...LAYOUT_PANES,
+    ]) {
       expect(navigation.getByRole("button", { name })).toBeTruthy();
     }
+    expect(navigation.getByRole("button", { name: /^Colors, accent / })).toBeTruthy();
+    expect(
+      navigation.getByRole("button", { name: "Typography, Sans 14 pixels" }),
+    ).toBeTruthy();
     expect(navigation.getAllByRole("button")).toHaveLength(5 + 18 + 6);
   });
 
@@ -199,7 +218,7 @@ describe("style rail navigation", () => {
     render(<RailHarness />);
 
     expect(screen.getByRole("heading", { name: "Presets" })).toBeTruthy();
-    openPane("Colors");
+    openPane(/^Colors, accent /);
     expect(screen.getByRole("heading", { name: "Colors" })).toBeTruthy();
     expect(screen.queryByRole("heading", { name: "Presets" })).toBeNull();
   });
@@ -219,6 +238,51 @@ describe("style rail navigation", () => {
     render(<RailHarness />);
 
     expect(screen.getByRole("heading", { name: "Presets" })).toBeTruthy();
+  });
+
+  it("renders four passive color swatches in accent, background, text, sidebar order", () => {
+    const initial: StyleRailSettings = {
+      ...DEFAULT_STYLE_RAIL_SETTINGS,
+      colors: {
+        background: "#123456",
+        text: "#abcdef",
+        sidebar: "#fedcba",
+      },
+    };
+    render(<RailHarness initial={initial} />);
+    const navigation = screen.getByRole("navigation", { name: "Style sections" });
+    const colorsLabel = within(navigation).getByText("Colors");
+    const colorsRow = colorsLabel.closest("button");
+    const strip = colorsRow?.querySelector(".style-rail-nav-color-strip");
+    const swatches = strip?.querySelectorAll<HTMLElement>(".style-rail-nav-color-swatch");
+
+    expect(strip).toBeTruthy();
+    expect(swatches).toHaveLength(4);
+    expect(swatches?.[1].getAttribute("style")).toContain("background-color: #123456");
+    expect(swatches?.[2].getAttribute("style")).toContain("background-color: #abcdef");
+    expect(swatches?.[3].getAttribute("style")).toContain("background-color: #fedcba");
+    expect(strip?.querySelectorAll("button, a, input")).toHaveLength(0);
+  });
+
+  it("updates the typography summary and accessible name from pane controls", () => {
+    render(<RailHarness />);
+    const navigation = within(screen.getByRole("navigation", { name: "Style sections" }));
+    const typographyRow = navigation.getByRole("button", {
+      name: "Typography, Sans 14 pixels",
+    });
+
+    expect(
+      typographyRow.querySelector(".style-rail-nav-value-summary")?.textContent,
+    ).toBe("Sans · 14px");
+    fireEvent.click(typographyRow);
+    fireEvent.change(screen.getByLabelText("Body font"), { target: { value: "mono" } });
+    fireEvent.change(screen.getByLabelText(/Font size/), { target: { value: "13.5" } });
+
+    expect(
+      navigation
+        .getByRole("button", { name: "Typography, Mono 13.5 pixels, 2 overrides" })
+        .querySelector(".style-rail-nav-value-summary")?.textContent,
+    ).toBe("Mono · 13.5px");
   });
 
   it("shows the pane name and active theme layering line in the detail head", () => {
@@ -295,7 +359,7 @@ describe("style rail override state", () => {
     );
     expect(
       navigation
-        .getByRole("button", { name: "Typography, 1 override" })
+        .getByRole("button", { name: "Typography, Sans 16 pixels, 1 override" })
         .querySelector(".style-rail-nav-override-dot"),
     ).toBeTruthy();
     expect(
@@ -307,7 +371,7 @@ describe("style rail override state", () => {
 
   it("updates the header, rail state, and row dot when a knob changes", () => {
     render(<RailHarness />);
-    openPane("Typography");
+    openPane("Typography, Sans 14 pixels");
 
     expect(screen.getByText("No overrides · layered over Default theme")).toBeTruthy();
     const fontSize = screen.getByLabelText(/Font size/) as HTMLInputElement;
@@ -320,9 +384,11 @@ describe("style rail override state", () => {
     expect(screen.getByText("1 override · layered over Default theme")).toBeTruthy();
     expect(row?.querySelector(".style-rail-row-override-dot")?.getAttribute("data-overridden"))
       .toBe("true");
-    expect(screen.getByRole("button", { name: "Typography, 1 override" })).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: "Typography, Sans 16 pixels, 1 override" }),
+    ).toBeTruthy();
 
-    openPane("Colors");
+    openPane(/^Colors, accent /);
     expect(
       (screen.getByLabelText("Dark mode") as HTMLInputElement)
         .closest("label")

@@ -271,8 +271,49 @@
   display: inline-flex;
   align-items: center;
   justify-content: flex-end;
+  gap: 0.1875rem;
   min-width: 0.75rem;
   justify-self: end;
+}
+
+.style-rail-nav-color-strip {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  flex: none;
+}
+
+.style-rail-nav-color-swatch {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: max(2px, calc(var(--radius) - 6px));
+  outline: 1px solid var(--border);
+  outline-offset: -1px;
+}
+
+.style-rail-nav-item:has(.style-rail-nav-value-summary) {
+  grid-template-columns: 0.875rem minmax(3.25rem, 1fr) minmax(0, max-content);
+}
+
+.style-rail-nav-item:has(.style-rail-nav-value-summary) .style-rail-nav-status {
+  overflow: hidden;
+}
+
+.style-rail-nav-value-summary {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--muted-foreground);
+  font-size: 0.625rem;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  line-height: 0.875rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.style-rail-nav-item[data-active="true"] .style-rail-nav-value-summary {
+  color: currentColor;
 }
 
 .style-rail-nav-override-dot {

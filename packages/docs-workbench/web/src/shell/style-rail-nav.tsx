@@ -1,3 +1,4 @@
+import { useLayoutEffect, useMemo, useState } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
   Blend,
@@ -29,8 +30,83 @@ import {
   Type,
   Video,
 } from "lucide-react";
-import type { StyleRailSettings } from "./StyleRail";
+import type { FontChoice, StyleRailSettings } from "./StyleRail";
 import { paneOverrideCount } from "./style-rail-overrides";
+
+const FONT_SUMMARY_LABELS: Record<FontChoice, string> = {
+  sans: "Sans",
+  serif: "Serif",
+  mono: "Mono",
+};
+
+export function formatTypographySummary(bodyFont: FontChoice, fontSize: number): string {
+  return `${FONT_SUMMARY_LABELS[bodyFont]} · ${fontSize}px`;
+}
+
+type ResolvedRailColors = readonly [
+  accent: string,
+  background: string,
+  text: string,
+  sidebar: string,
+];
+
+function unresolvedRailColors(settings: StyleRailSettings): ResolvedRailColors {
+  return [
+    `var(--color-bg-${settings.accent})`,
+    settings.colors.background ?? "var(--color-bg-default)",
+    settings.colors.text ?? "var(--color-text-default)",
+    settings.colors.sidebar ?? "var(--color-bg-sidebar)",
+  ];
+}
+
+function resolveRailColors(settings: StyleRailSettings, dark: boolean): ResolvedRailColors {
+  if (typeof document === "undefined" || !document.body) {
+    return unresolvedRailColors(settings);
+  }
+
+  const probe = document.createElement("span");
+  probe.setAttribute("data-theme", dark ? "dark" : "light");
+  probe.style.position = "fixed";
+  probe.style.width = "0";
+  probe.style.height = "0";
+  probe.style.visibility = "hidden";
+  probe.style.pointerEvents = "none";
+  document.body.appendChild(probe);
+
+  const resolve = (expression: string) => {
+    probe.style.color = expression;
+    return getComputedStyle(probe).color || "#ffffff";
+  };
+
+  try {
+    return [
+      resolve(`var(--color-bg-${settings.accent})`),
+      settings.colors.background ?? resolve("var(--color-bg-default)"),
+      settings.colors.text ?? resolve("var(--color-text-default)"),
+      settings.colors.sidebar ?? resolve("var(--color-bg-sidebar)"),
+    ];
+  } finally {
+    probe.remove();
+  }
+}
+
+function useResolvedRailColors(
+  settings: StyleRailSettings,
+  dark: boolean,
+): ResolvedRailColors {
+  const { accent, colors } = settings;
+  const unresolved = useMemo(
+    () => unresolvedRailColors(settings),
+    [accent, colors.background, colors.sidebar, colors.text],
+  );
+  const [resolved, setResolved] = useState<ResolvedRailColors>(unresolved);
+
+  useLayoutEffect(() => {
+    setResolved(resolveRailColors(settings, dark));
+  }, [accent, colors.background, colors.sidebar, colors.text, dark]);
+
+  return resolved;
+}
 
 const COMPONENT_PICKER_FILES = [
   "inline-code",
@@ -167,12 +243,22 @@ export function getStyleRailPaneItem(id: StyleRailPaneId): StyleRailNavItem {
 export function StyleRailNav({
   selectedId,
   settings,
+  dark,
   onSelect,
 }: {
   selectedId: StyleRailPaneId;
   settings: StyleRailSettings;
+  dark: boolean;
   onSelect: (id: StyleRailPaneId) => void;
 }) {
+  const resolvedColors = useResolvedRailColors(settings, dark);
+  const typographySummary = formatTypographySummary(
+    settings.typography.bodyFont,
+    settings.typography.fontSize,
+  );
+  const typographyAccessibleSummary =
+    `${FONT_SUMMARY_LABELS[settings.typography.bodyFont]} ${settings.typography.fontSize} pixels`;
+
   return (
     <nav aria-label="Style sections" className="style-rail-nav">
       {STYLE_RAIL_GROUPS.map((group) => (
@@ -184,14 +270,20 @@ export function StyleRailNav({
               const selected = item.id === selectedId;
               const overrideCount = paneOverrideCount(settings, item.id);
               const overrideLabel = overrideCount === 1 ? "override" : "overrides";
+              const overrideName =
+                overrideCount > 0 ? `, ${overrideCount} ${overrideLabel}` : "";
+              const accessibleName =
+                item.id === "theme.colors"
+                  ? `${item.label}, accent ${resolvedColors[0]}, background ${resolvedColors[1]}, text ${resolvedColors[2]}, sidebar ${resolvedColors[3]}${overrideName}`
+                  : item.id === "theme.typography"
+                    ? `${item.label}, ${typographyAccessibleSummary}${overrideName}`
+                    : overrideCount > 0
+                      ? `${item.label}${overrideName}`
+                      : undefined;
               return (
                 <button
                   aria-current={selected ? "page" : undefined}
-                  aria-label={
-                    overrideCount > 0
-                      ? `${item.label}, ${overrideCount} ${overrideLabel}`
-                      : undefined
-                  }
+                  aria-label={accessibleName}
                   className="style-rail-nav-item"
                   data-active={selected ? "true" : undefined}
                   key={item.id}
@@ -203,6 +295,22 @@ export function StyleRailNav({
                   </span>
                   <span className="min-w-0 flex-1 truncate text-left">{item.label}</span>
                   <span aria-hidden="true" className="style-rail-nav-status">
+                    {item.id === "theme.colors" && (
+                      <span className="style-rail-nav-color-strip">
+                        {resolvedColors.map((color, index) => (
+                          <span
+                            className="style-rail-nav-color-swatch"
+                            key={index}
+                            style={{ backgroundColor: color }}
+                          />
+                        ))}
+                      </span>
+                    )}
+                    {item.id === "theme.typography" && (
+                      <span className="style-rail-nav-value-summary">
+                        {typographySummary}
+                      </span>
+                    )}
                     {overrideCount > 0 &&
                       (item.id.startsWith("blocks.") ? (
                         <span className="style-rail-nav-override-count">{overrideCount}</span>

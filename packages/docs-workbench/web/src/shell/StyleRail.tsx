@@ -963,6 +963,7 @@ export function StyleRail({
               themes={themes}
             />
             <StyleRailNav
+              dark={dark}
               onSelect={selectPane}
               selectedId={selectedPaneId}
               settings={settings}
