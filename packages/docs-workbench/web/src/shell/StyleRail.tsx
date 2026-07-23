@@ -918,7 +918,7 @@ export function StyleRail({
     <aside
       className={cn(
         "relative z-20 hidden h-screen shrink-0 flex-col border-l bg-sidebar text-sidebar-foreground transition-[width] duration-200 ease-out lg:flex",
-        collapsed ? "w-[3.25rem]" : "w-[44rem]",
+        collapsed ? "w-[3.25rem]" : "w-[46rem]",
       )}
     >
       <div
