@@ -11,6 +11,7 @@ import { richTextComponent } from "./rich-text";
 import { sequenceComponent } from "./sequence";
 import { stateShapeComponent } from "./state-shape";
 import { structuredTableComponent } from "./structured-table";
+import { waterfallComponent } from "./waterfall";
 import type { ComponentBundle } from "./types";
 
 const COMPONENTS: readonly ComponentBundle[] = [
@@ -22,6 +23,7 @@ const COMPONENTS: readonly ComponentBundle[] = [
   stateShapeComponent,
   canvasComponent,
   sequenceComponent,
+  waterfallComponent,
 ];
 
 const stateChecks = new Map(

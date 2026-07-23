@@ -669,7 +669,7 @@
           }
         },
         {
-          "insert": " compiles a static state-schema registry for the mutation path. That registry omits waterfall, so "
+          "insert": " compiles a static state-schema registry for every component-owned block type in the mutation path. "
         },
         {
           "insert": "insertBlock",
@@ -687,7 +687,7 @@
           }
         },
         {
-          "insert": " do not have a compiled checker for waterfall props. For the types in the static registry, these operations validate the resulting props object, so unknown stored keys fail the closed schema even when an edit only touches text. Action parameter schemas are not required to be closed; local action dispatch ignores and discards stray parameters. "
+          "insert": " validate the resulting props object against its compiled checker, so unknown stored keys fail the closed schema even when an edit only touches text. Action parameter schemas are not required to be closed; local action dispatch ignores and discards stray parameters. "
         },
         {
           "insert": "packages/docs-model/src/components/__tests__/schema-over-corpus.test.ts",

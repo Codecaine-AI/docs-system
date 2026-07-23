@@ -70,6 +70,35 @@ describe("DocTargetingLayer (source/MDX mode)", () => {
     expect(document.querySelector('[data-docs-target-overlay="selected"]')).toBeNull();
   });
 
+  it("pinpoint click ignores a non-collapsed selection outside the targeting layer", () => {
+    render(
+      <>
+        <p data-testid="outside-selection">Unrelated selection.</p>
+        <DocTargetingLayer
+          mode="pinpoint"
+          content={"Target this paragraph."}
+          contentHash="hash-outside-selection"
+          documentPath="docs/outside-selection.mdx"
+        >
+          <p>Target this paragraph.</p>
+        </DocTargetingLayer>
+      </>,
+    );
+
+    const outside = screen.getByTestId("outside-selection");
+    const range = document.createRange();
+    range.selectNodeContents(outside);
+    const selection = window.getSelection()!;
+    selection.removeAllRanges();
+    selection.addRange(range);
+    expect(selection.isCollapsed).toBe(false);
+
+    fireEvent.click(screen.getByText("Target this paragraph."));
+
+    expect(document.querySelector('[data-docs-target-overlay="selected"]')).toBeTruthy();
+    expect(screen.getByText("Paragraph")).toBeTruthy();
+  });
+
   it("hovering in pinpoint mode outlines the block and shows the label chip", () => {
     render(
       <DocTargetingLayer

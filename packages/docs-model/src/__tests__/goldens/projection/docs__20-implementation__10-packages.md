@@ -53,7 +53,7 @@ Canvas and Sequence are different kinds of boundary. They are independent projec
 
 The checks in `import-boundaries.test.ts` forbid host-application imports from reusable package roots, forbid React and TipTap imports from docs-model, and restrict docs-model's Canvas and Sequence imports to each project's `agent-schema` leaf. These checks protect the pure-model wall and the host boundary; package manifests and code review still carry the remaining server/browser direction.
 
-> **Enforcement gap: The root boundary test is not in the default test script** — The root `package.json` scopes `bun run test` to package directories, so `import-boundaries.test.ts` must currently be invoked separately.
+> **Enforcement: The scoped test suite includes the root boundary test** — The root `package.json` scopes `bun run test` to the package directories and `import-boundaries.test.ts`. The scoped suite executes all four boundary checks.
 
 `packages/docs-viewer/src/__tests__/component-mirror.test.ts` separately keeps viewer component folders aligned with model component ownership. It runs inside the package-scoped viewer test suite.
 

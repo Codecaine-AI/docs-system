@@ -528,9 +528,9 @@
       "id": "b-pkgb-enforcement-gap",
       "type": "callout",
       "props": {
-        "kind": "Enforcement gap",
-        "title": "The root boundary test is not in the default test script",
-        "tone": "warning"
+        "kind": "Enforcement",
+        "title": "The scoped test suite includes the root boundary test",
+        "tone": "success"
       },
       "text": [
         {
@@ -556,7 +556,7 @@
           }
         },
         {
-          "insert": " to package directories, so "
+          "insert": " to the package directories and "
         },
         {
           "insert": "import-boundaries.test.ts",
@@ -565,7 +565,7 @@
           }
         },
         {
-          "insert": " must currently be invoked separately."
+          "insert": ". The scoped suite executes all four boundary checks."
         }
       ],
       "children": []

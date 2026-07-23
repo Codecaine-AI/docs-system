@@ -252,6 +252,24 @@ function normalizedText(value: string | undefined | null): string {
   return (value ?? "").replace(/\s+/g, " ").trim();
 }
 
+function hasNonCollapsedSelectionInRoot(root: HTMLElement): boolean {
+  const selection = root.ownerDocument.defaultView?.getSelection();
+  if (!selection || selection.isCollapsed || selection.rangeCount === 0) return false;
+
+  for (let index = 0; index < selection.rangeCount; index++) {
+    const range = selection.getRangeAt(index);
+    if (
+      root.contains(range.startContainer) ||
+      root.contains(range.endContainer) ||
+      range.commonAncestorContainer.contains(root)
+    ) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 function cssEscape(value: string): string {
   return typeof CSS !== "undefined" && typeof CSS.escape === "function"
     ? CSS.escape(value)
@@ -758,11 +776,10 @@ export function useDocTargeting<A extends DocsAnnotationView = DocsAnnotationVie
 
   const handleAnnotationHighlightClick = useCallback(
     (event: ReactMouseEvent<HTMLDivElement>) => {
-      const selection = window.getSelection();
-      if (selection && !selection.isCollapsed) return false;
       if (!onSelectAnnotation) return false;
       const root = containerRef.current;
       if (!root || !(event.target instanceof HTMLElement)) return false;
+      if (hasNonCollapsedSelectionInRoot(root)) return false;
       const element = event.target.closest("[data-docs-annotation-primary-id]");
       if (!(element instanceof HTMLElement) || !root.contains(element)) return false;
       const annotationId = element.dataset.docsAnnotationPrimaryId;
@@ -873,10 +890,9 @@ export function useDocTargeting<A extends DocsAnnotationView = DocsAnnotationVie
   const handleTargetClick = useCallback(
     (event: ReactMouseEvent<HTMLDivElement>) => {
       if (!canTarget) return;
-      const selection = window.getSelection();
-      if (selection && !selection.isCollapsed) return;
       const root = containerRef.current;
       if (!root) return;
+      if (hasNonCollapsedSelectionInRoot(root)) return;
       // Canvas objects have their own object-select click surface (the
       // canvas embed reports a properly resolved canvasSrc) — never override
       // it with the embedding block.
@@ -894,10 +910,9 @@ export function useDocTargeting<A extends DocsAnnotationView = DocsAnnotationVie
   const handleAddClick = useCallback(
     (event: ReactMouseEvent<HTMLDivElement>) => {
       if (!canTarget || !onInsertCanvas) return;
-      const selection = window.getSelection();
-      if (selection && !selection.isCollapsed) return;
       const root = containerRef.current;
       if (!root) return;
+      if (hasNonCollapsedSelectionInRoot(root)) return;
       const element = resolveDocsTargetElement(event.target, root);
       if (!element) return;
       const target = buildTargetForElement(element);
