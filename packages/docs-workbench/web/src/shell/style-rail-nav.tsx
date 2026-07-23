@@ -29,6 +29,7 @@ import {
   Table2,
   Type,
   Video,
+  Workflow,
 } from "lucide-react";
 import type { FontChoice, StyleRailSettings } from "./StyleRail";
 import { paneOverrideCount } from "./style-rail-overrides";
@@ -125,6 +126,7 @@ const COMPONENT_PICKER_FILES = [
   "state-shape",
   "linking",
   "waterfall",
+  "sequence",
   "canvas",
   "surfaces",
 ] as const;
@@ -165,6 +167,7 @@ const COMPONENT_ICONS: Record<ComponentPickerFile, LucideIcon> = {
   "state-shape": Braces,
   linking: Link,
   waterfall: GitFork,
+  sequence: Workflow,
   canvas: PenTool,
   surfaces: Layers3,
 };

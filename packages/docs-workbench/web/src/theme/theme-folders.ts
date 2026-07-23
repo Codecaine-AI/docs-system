@@ -75,7 +75,7 @@ const color = (...vars: string[]): ThemeTokenDefinition => ({ vars, kind: "color
  * it writes. Unknown files/keys in a theme are ignored (tolerant reads,
  * same policy as the style-rail settings blob).
  *
- * The file names mirror the frozen 14-type BLOCK VOCABULARY exactly (one
+ * The file names mirror the frozen 16-type BLOCK VOCABULARY exactly (one
  * theme file per block type; each type's vocabulary doc states its keys),
  * plus five non-block files: shell, surfaces, inline-code (the text mark),
  * editor-controls, and linking (the shared linked-panels layer).
@@ -438,9 +438,8 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       defaultValue: 1.5,
     },
   },
-  mermaid: {
-    border: color("--docs-mermaid-border"),
-    bg: color("--docs-mermaid-bg"),
+  sequence: {
+    border: color("--docs-sequence-border"),
   },
   canvas: {
     border: color("--docs-canvas-border"),

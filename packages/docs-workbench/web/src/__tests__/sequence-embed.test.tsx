@@ -36,6 +36,11 @@ describe("StandaloneSequenceEmbed central Studio sequences", () => {
     // Unlike the canvas embed there is no Studio iframe/preview surface.
     expect(container.querySelector("iframe")).toBeNull();
     expect(container.querySelector("img")).toBeNull();
+    expect(
+      container
+        .querySelector('[data-docs-block-type="sequence"]')
+        ?.classList.contains("border-[color:var(--docs-sequence-border,var(--border))]"),
+    ).toBe(true);
   });
 });
 

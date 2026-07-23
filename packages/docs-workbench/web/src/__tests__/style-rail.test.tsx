@@ -49,6 +49,7 @@ const BLOCK_PANES = [
   "State shape",
   "Linked panels",
   "Waterfall",
+  "Sequence",
   "Canvas",
   "Shared surfaces",
 ];
@@ -168,6 +169,7 @@ describe("style rail override helpers", () => {
       "blocks.state-shape": 0,
       "blocks.linking": 0,
       "blocks.waterfall": 0,
+      "blocks.sequence": 0,
       "blocks.canvas": 0,
       "blocks.surfaces": 0,
       "layout.column": 0,
@@ -193,7 +195,7 @@ describe("style rail override helpers", () => {
 });
 
 describe("style rail navigation", () => {
-  it("renders the Theme, Blocks, and Layout groups with all 29 pane items", () => {
+  it("renders the Theme, Blocks, and Layout groups with all 30 pane items", () => {
     render(<RailHarness />);
     const navigation = within(screen.getByRole("navigation", { name: "Style sections" }));
 
@@ -211,7 +213,7 @@ describe("style rail navigation", () => {
     expect(
       navigation.getByRole("button", { name: "Typography, Sans 14 pixels" }),
     ).toBeTruthy();
-    expect(navigation.getAllByRole("button")).toHaveLength(5 + 18 + 6);
+    expect(navigation.getAllByRole("button")).toHaveLength(5 + 19 + 6);
   });
 
   it("swaps the visible detail pane when a rail item is selected", () => {
@@ -1781,5 +1783,21 @@ describe("style rail waterfall tokens", () => {
     expect(stroke).toHaveProperty("min", "0.5");
     expect(stroke).toHaveProperty("max", "4");
     expect(stroke).toHaveProperty("value", "1.5");
+  });
+});
+
+describe("style rail sequence tokens", () => {
+  it("registers the sequence frame border var", () => {
+    expect(THEME_TOKEN_REGISTRY.sequence.border).toEqual({
+      vars: ["--docs-sequence-border"],
+      kind: "color",
+    });
+  });
+
+  it("renders the Sequence pane Border control", () => {
+    render(<RailHarness />);
+    openPane("Sequence");
+
+    expect(screen.getByText("Border")).toBeTruthy();
   });
 });

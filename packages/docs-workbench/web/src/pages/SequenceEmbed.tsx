@@ -66,7 +66,7 @@ export function StandaloneSequenceEmbed({ src, sequenceId, id, title }: Sequence
 
     return (
       <section
-        className="not-prose my-4 flex items-center justify-between gap-3 rounded-md border bg-background p-4 text-sm"
+        className="not-prose my-4 flex items-center justify-between gap-3 rounded-md border border-[color:var(--docs-sequence-border,var(--border))] bg-background p-4 text-sm"
         data-docs-block-type="sequence"
         data-source-id={id}
         data-sequence-id={sequenceId}
@@ -93,7 +93,7 @@ export function StandaloneSequenceEmbed({ src, sequenceId, id, title }: Sequence
   if (error) {
     return (
       <section
-        className="not-prose my-4 rounded-md border bg-background p-4 text-sm"
+        className="not-prose my-4 rounded-md border border-[color:var(--docs-sequence-border,var(--border))] bg-background p-4 text-sm"
         data-docs-block-type="sequence"
         data-source-id={id}
       >
@@ -111,7 +111,7 @@ export function StandaloneSequenceEmbed({ src, sequenceId, id, title }: Sequence
       : "Sequence block is missing a src or sequenceId.";
     return (
       <section
-        className="not-prose my-4 rounded-md border bg-background p-4 text-sm text-muted-foreground"
+        className="not-prose my-4 rounded-md border border-[color:var(--docs-sequence-border,var(--border))] bg-background p-4 text-sm text-muted-foreground"
         data-docs-block-type="sequence"
         data-source-id={id}
       >
