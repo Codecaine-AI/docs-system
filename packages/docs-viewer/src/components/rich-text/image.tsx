@@ -2,6 +2,7 @@
 
 import type { DocBlockDescriptor } from "../../render/block-registry";
 import { STRUCTURAL_OPS, blockAttrs, el, stringProp } from "../../render/descriptor-helpers";
+import { CENTERED_MEDIA_BLOCK_LAYOUT } from "../../render/block-layout";
 import { atomBlockNode } from "../../editor/core/node-helpers";
 
 /** `image` — read-surface descriptor + ProseMirror editor node (atom leaf; NodeView attached in editor/views/node-views.tsx). */
@@ -15,6 +16,10 @@ export const imageDescriptor: DocBlockDescriptor = {
   agentDescription:
     "An image from the doc bundle's assets/images/ (D30); props: src, alt, caption.",
   patchOps: STRUCTURAL_OPS,
+  // Media centers on the page while prose stays on the left rail
+  // (block-layout.ts). The lane centers the figure; `mx-auto` on the <img>
+  // then centers a picture narrower than the lane inside it.
+  layout: CENTERED_MEDIA_BLOCK_LAYOUT,
   render: (block, ctx) => {
     const src = stringProp(block, "src");
     const resolvedSrc = src ? (ctx.resolveAssetSrc?.(src) ?? src) : undefined;
@@ -27,7 +32,7 @@ export const imageDescriptor: DocBlockDescriptor = {
             src: resolvedSrc,
             alt: stringProp(block, "alt") ?? caption ?? "",
             className:
-              "max-w-full rounded-md border border-[color:var(--docs-image-border,var(--border))]",
+              "mx-auto block max-w-full rounded-md border border-[color:var(--docs-image-border,var(--border))]",
           })
         : el(
             "div",
@@ -42,7 +47,7 @@ export const imageDescriptor: DocBlockDescriptor = {
             "figcaption",
             {
               className:
-                "mt-1 text-xs text-[color:var(--docs-image-caption-fg,var(--muted-foreground))]",
+                "mt-1 text-center text-xs text-[color:var(--docs-image-caption-fg,var(--muted-foreground))]",
             },
             caption,
           )

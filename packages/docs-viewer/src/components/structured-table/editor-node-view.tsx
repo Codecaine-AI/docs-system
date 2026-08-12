@@ -4,6 +4,14 @@ import { NodeViewWrapper, type ReactNodeViewProps } from "@tiptap/react";
 import { useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { tableCellToPlainText, type TableCell } from "@codecaine-ai/docs-model";
 import { isRecord } from "../../editor/core/node-helpers";
+// The structured table swaps in this editable view INSTEAD of the shared
+// AtomBlockView, so it has to claim its page lane itself — same wide-data lane
+// its registry descriptor declares for the read surface (block-layout.ts).
+import {
+  WIDE_DATA_BLOCK_LAYOUT,
+  docBlockLaneName,
+  docBlockLayoutClasses,
+} from "../../render/block-layout";
 import { isTableCellValue } from "./cell-content";
 import { STRUCTURED_TABLE_LABEL } from "./StructuredTableDocsBlock";
 import { AddButtons } from "./editor/AddButtons";
@@ -384,7 +392,14 @@ export function StructuredTableNodeView({ node, updateAttributes, editor }: Reac
 
   if (!parsed) {
     return (
-      <NodeViewWrapper as="div" data-doc-node={node.type.name} contentEditable={false}>
+      <NodeViewWrapper
+      as="div"
+      data-doc-node={node.type.name}
+      data-doc-lane={docBlockLaneName(WIDE_DATA_BLOCK_LAYOUT)}
+      data-doc-block-type="structured-table"
+      className={docBlockLayoutClasses(WIDE_DATA_BLOCK_LAYOUT)}
+      contentEditable={false}
+    >
         <div className="rounded-md border border-dashed bg-muted/30 p-3 text-xs text-muted-foreground">
           Invalid {STRUCTURED_TABLE_LABEL} block — see agent description for the expected
           shape.
@@ -598,7 +613,14 @@ export function StructuredTableNodeView({ node, updateAttributes, editor }: Reac
   }
 
   return (
-    <NodeViewWrapper as="div" data-doc-node={node.type.name} contentEditable={false}>
+    <NodeViewWrapper
+      as="div"
+      data-doc-node={node.type.name}
+      data-doc-lane={docBlockLaneName(WIDE_DATA_BLOCK_LAYOUT)}
+      data-doc-block-type="structured-table"
+      className={docBlockLayoutClasses(WIDE_DATA_BLOCK_LAYOUT)}
+      contentEditable={false}
+    >
       <section
         className={TABLE_SECTION_CLASSES}
         data-docs-block-type="structured-table"

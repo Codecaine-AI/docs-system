@@ -12,11 +12,12 @@ import { Sidebar } from "./Sidebar";
 import {
   StyleRail,
   StyleRailOverlay,
+  applyBlockLayoutOverrideCss,
   applyStyleRailVars,
   hasStoredStyleRailSettings,
   loadStyleRailSettings,
-  normalizeSettings,
   saveStyleRailSettings,
+  setStyleRailBaseline,
   type StyleRailSettings,
   type ThemePickerEntry,
 } from "./StyleRail";
@@ -79,6 +80,32 @@ function collapseOverviewPath(path: string): string {
   }
 
   return collapsed === withoutTrailingSlash ? path : collapsed;
+}
+
+/**
+ * The repo-side shape of the style rail's settings: one `POST /api/themes`
+ * body writing `themes/default/theme.json` (+ `components/*.json`).
+ *
+ * The split is deliberate. Scalar knobs go in `manifest.railDefaults` —
+ * that block IS the repo's style-settings file, and the loader
+ * (theme-folders.ts) hands it back on every read, so it becomes the rail
+ * baseline for a locked serve, a static export, or a fresh browser.
+ * Per-component token overrides go out as real token FILES instead, since
+ * those compile into the theme's CSS layer and reach consumers that way;
+ * `railDefaults.components` is emptied so the same tokens are not persisted
+ * twice under two different mechanisms.
+ */
+function themeWritePayload(settings: StyleRailSettings, dark: boolean) {
+  const { components, ...railDefaults } = settings;
+  return {
+    id: "default",
+    manifest: {
+      name: "Default",
+      dark,
+      railDefaults: { ...railDefaults, components: {} },
+    },
+    components,
+  };
 }
 
 function applyTheme(dark: boolean) {
@@ -154,35 +181,41 @@ export function App() {
   // browser can never overwrite the saved theme with stock settings.
   const settingsSeededRef = useRef(hasStoredStyleRailSettings());
   // Theme-folder boot, gated on the serve config so the locked/unlocked
-  // branch is decided before any theme state applies. Unlocked: re-inject
-  // the persisted theme's CSS layer (WITHOUT its railDefaults — the user's
-  // own knob state persisted separately). In a fresh browser there IS no
-  // persisted knob state yet, so the saved repo theme's railDefaults become
-  // the starting settings: the tuned default theme is the default
-  // everywhere, not just where it was tuned. Locked: the repo default
-  // theme's CSS layer AND railDefaults both apply, unconditionally — this
-  // origin's localStorage rail state is exactly the drift the lock exists
-  // to override.
+  // branch is decided before any theme state applies.
+  //
+  // The first thing that happens either way is installing the resolved
+  // theme's railDefaults as the rail BASELINE: from here on "default" means
+  // the repo file, not the compiled-in stock constant. That single call is
+  // what carries the repo's style settings to a locked serve, a static
+  // export, and any browser that has never seen this rail.
+  //
+  // Unlocked: re-inject the theme's CSS layer, then decide the knobs. A
+  // fresh browser has no stored blob, so it simply RUNS at the baseline. A
+  // browser that does have one keeps it — but re-read through
+  // loadStyleRailSettings now that the baseline is known, so keys the blob
+  // lacks (a partial or stale-schema blob) resolve to the repo's values
+  // instead of stock. Locked: the repo theme's CSS layer AND its
+  // railDefaults both apply, unconditionally — this origin's localStorage
+  // rail state is exactly the drift the lock exists to override.
   useEffect(() => {
     void getServeConfig().then(({ themeLocked: locked }) => {
       setThemeLocked(locked);
       void resolveThemeById(locked ? "default" : themeId).then((resolved) => {
         applyThemeCss(resolved);
+        const baseline = setStyleRailBaseline(resolved?.manifest.railDefaults);
         if (locked) {
-          if (resolved?.manifest.railDefaults) {
-            setStyleSettings(normalizeSettings(resolved.manifest.railDefaults));
-          }
+          setStyleSettings(baseline);
           if (resolved?.manifest.dark !== undefined) setDark(resolved.manifest.dark);
           settingsSeededRef.current = true;
           return;
         }
         if (!settingsSeededRef.current) {
-          if (resolved?.manifest.railDefaults) {
-            setStyleSettings(normalizeSettings(resolved.manifest.railDefaults));
-            if (resolved.manifest.dark !== undefined) setDark(resolved.manifest.dark);
-          }
+          setStyleSettings(baseline);
+          if (resolved?.manifest.dark !== undefined) setDark(resolved.manifest.dark);
           settingsSeededRef.current = true;
+          return;
         }
+        setStyleSettings(loadStyleRailSettings());
       });
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- boot only; selection re-applies explicitly
@@ -202,9 +235,9 @@ export function App() {
       void resolveThemeById("default")
         .then((resolved) => {
           applyThemeCss(resolved);
-          if (resolved?.manifest.railDefaults) {
-            setStyleSettings(normalizeSettings(resolved.manifest.railDefaults));
-          }
+          // Re-install the baseline too, not just the knobs: the repo file
+          // is the authority on this serve, so "default" must track it.
+          setStyleSettings(setStyleRailBaseline(resolved?.manifest.railDefaults));
           if (resolved?.manifest.dark !== undefined) setDark(resolved.manifest.dark);
         })
         .finally(() => {
@@ -219,11 +252,11 @@ export function App() {
     void resolveThemeById(id).then((resolved) => {
       if (!resolved) return;
       applyThemeCss(resolved);
-      // Selecting Default restores the SAVED core theme (railDefaults from
-      // themes/default, or a stock reset before one exists).
-      if (resolved.manifest.railDefaults) {
-        setStyleSettings(normalizeSettings(resolved.manifest.railDefaults));
-      }
+      // Selecting a theme rebases the rail on THAT theme's saved settings:
+      // its railDefaults become both the running knobs and the baseline, so
+      // the Reset button and the override dots follow the selection rather
+      // than pointing back at the previous theme (or at stock).
+      setStyleSettings(setStyleRailBaseline(resolved.manifest.railDefaults));
       if (resolved.manifest.dark !== undefined) setDark(resolved.manifest.dark);
       setThemeId(id);
       localStorage.setItem(THEME_FOLDER_KEY, id);
@@ -234,38 +267,60 @@ export function App() {
   // the default theme: debounce-write the current look (knobs + mode +
   // component overrides as real token files) to the repo's themes/default
   // folder. localStorage still carries the instant per-session state; the
-  // folder is the durable, committable record.
+  // folder is the durable, committable record every consumer reads.
+  //
+  // `canAuthorTheme` is the ONE place that decides whether this host may
+  // write the theme at all. A theme-locked serve is a CONSUMER of
+  // themes/default, never an author — and until the serve config answers,
+  // this serve must be ASSUMED locked (a write racing the config fetch
+  // could clobber the primary theme with this origin's stale rail state).
+  // The server independently refuses the POST with 403 when locked; this
+  // flag just keeps a doomed request (and the Save button) off screen.
+  const canAuthorTheme = !IS_STATIC && themeLocked === false;
   const themeSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
-    if (IS_STATIC) return;
-    // A theme-locked serve is a CONSUMER of themes/default, never an
-    // author — and until the serve config answers, this serve must be
-    // ASSUMED locked (a write racing the config fetch could clobber the
-    // primary theme with this origin's stale rail state).
-    if (themeLocked !== false) return;
+    if (!canAuthorTheme) return;
     // Never write the theme folder before the boot seed has resolved — a
     // fresh browser would otherwise overwrite it with stock defaults.
     if (!settingsSeededRef.current) return;
     if (themeSaveTimer.current !== null) clearTimeout(themeSaveTimer.current);
     themeSaveTimer.current = setTimeout(() => {
       themeSaveTimer.current = null;
-      const { components, ...railDefaults } = styleSettings;
-      void saveTheme({
-        id: "default",
-        manifest: {
-          name: "Default",
-          dark,
-          railDefaults: { ...railDefaults, components: {} },
-        },
-        components,
-      }).catch(() => {
+      void saveTheme(themeWritePayload(styleSettings, dark)).catch(() => {
         // Offline/static hosts just keep the localStorage copy.
       });
     }, 1500);
     return () => {
       if (themeSaveTimer.current !== null) clearTimeout(themeSaveTimer.current);
     };
-  }, [styleSettings, dark, themeLocked]);
+  }, [styleSettings, dark, canAuthorTheme]);
+
+  // Bumped whenever the baseline changes without the knobs changing, purely
+  // to re-render: the baseline lives in a module, so React has no other way
+  // to learn that the override dots and the Reset target just moved.
+  const [, setBaselineVersion] = useState(0);
+
+  // Explicit "make this the repo default": skips the debounce, writes now,
+  // and promotes what was written to the baseline so the rail immediately
+  // reports zero overrides — the knobs and the committed file agree.
+  const handleSaveStyleToRepo = () => {
+    if (!canAuthorTheme) return;
+    if (themeSaveTimer.current !== null) {
+      clearTimeout(themeSaveTimer.current);
+      themeSaveTimer.current = null;
+    }
+    const payload = themeWritePayload(styleSettings, dark);
+    void saveTheme(payload)
+      .then(() => {
+        setStyleRailBaseline(payload.manifest.railDefaults);
+        setBaselineVersion((version) => version + 1);
+      })
+      .catch(() => {
+        // A refused write (403 on a locked serve, or an offline host) must
+        // NOT move the baseline: the repo file is unchanged, so the knobs
+        // stay reported as local overrides.
+      });
+  };
 
   // The picker shows ONLY Default (Ford: still figuring the theme out —
   // nothing clickable that could wipe the working look).
@@ -280,6 +335,12 @@ export function App() {
 
   useEffect(() => {
     applyStyleRailVars(styleSettings);
+    // Per-block-type lane overrides ride alongside the custom properties.
+    // They cannot BE custom properties — each one targets a different
+    // `[data-doc-lane][data-doc-block-type]` pair — so they go out as real
+    // rules in a managed <style> element. Applied in the same effect so the
+    // two halves of the rail's output can never drift a frame apart.
+    applyBlockLayoutOverrideCss(styleSettings);
     // Rail state never persists on a locked (or not-yet-resolved) serve:
     // the settings in play are the repo theme's, and echoing them into this
     // origin's localStorage would seed drift for any future unlocked run.
@@ -403,6 +464,7 @@ export function App() {
             themes={themePickerEntries}
             activeThemeId={themeId}
             onSelectTheme={handleSelectTheme}
+            onSaveStyleToRepo={canAuthorTheme ? handleSaveStyleToRepo : undefined}
           />
         )}
       </div>

@@ -132,10 +132,21 @@ describe("DocPeekPanel", () => {
     // Read-only in a preview: no rename affordance.
     expect((title as HTMLElement).isContentEditable).toBe(false);
 
-    // It sits in the same spacing column as the content, ABOVE it.
+    // It sits in the same spacing column as the content, ABOVE it. The title
+    // is wrapped in its own LANE div (DocPage parity): the page is
+    // left-anchored and full-width, so the title takes the text measure the
+    // same way a paragraph block does instead of running the full viewport.
+    // The lane — not the h1 — is the content's sibling in the spacing column.
     const typography = panel().querySelector(".docs-markdown");
     if (!typography) throw new Error("typography wrapper not rendered");
-    expect(title.parentElement).toBe(typography.parentElement);
+    const titleLane = title.parentElement;
+    if (!titleLane) throw new Error("title lane not rendered");
+    expect(titleLane.parentElement).toBe(typography.parentElement);
+    // The cap is on the lane and the lane carries the doc's base font size,
+    // because the measure is in `ch` and `ch` resolves against the font-size
+    // of whatever element the cap sits on (the h1's own size is 2.25rem).
+    expect(titleLane.className).toContain("max-w-[var(--style-content-width,100ch)]");
+    expect(titleLane.className).toContain("text-sm");
     expect(
       title.compareDocumentPosition(typography) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();

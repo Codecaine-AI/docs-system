@@ -1,6 +1,8 @@
 import { THEME_TOKEN_REGISTRY } from "../theme/theme-folders";
 import {
-  DEFAULT_STYLE_RAIL_SETTINGS,
+  getStyleRailBaseline,
+  hasBlockColumnSplit,
+  isBlockLayoutType,
   type StyleRailSettings,
 } from "./StyleRail";
 import type { StyleRailPaneId } from "./style-rail-nav";
@@ -18,6 +20,7 @@ export type StyleRailSettingLeafPath =
   | "typography.lineHeight"
   | "typography.letterSpacing"
   | "layout.contentWidth"
+  | "layout.wideWidth"
   | "layout.contentMargin"
   | "layout.topPadding"
   | "layout.titlePadding"
@@ -77,7 +80,14 @@ export type StyleRailSettingLeafPath =
   | "reference.iconSize"
   | "reference.iconColor"
   | "reference.iconGap"
-  | "reference.iconPosition";
+  | "reference.iconPosition"
+  // Per-block-type lane overrides. Template members rather than 32 literals:
+  // the map is keyed by doc block type, and the pane that owns each pair is
+  // derived (see blockLayoutPaneLeaves) instead of hand-listed, so a new
+  // block type cannot be added to the schema and silently miss its leaves.
+  | `blockLayout.${string}.width`
+  | `blockLayout.${string}.justify`
+  | `blockLayout.${string}.columnSplit`;
 
 export type StyleRailLeafRef =
   | { kind: "setting"; path: StyleRailSettingLeafPath }
@@ -164,6 +174,7 @@ const PANE_SETTING_LEAVES: Partial<
   ],
   "layout.editor": [
     "layout.contentWidth",
+    "layout.wideWidth",
     "layout.contentMargin",
     "layout.topPadding",
     "layout.titlePadding",
@@ -216,17 +227,59 @@ function settingValue(
 ): string | number | boolean | null {
   const parts = path.split(".");
   let value: unknown = settings;
-  for (const part of parts) value = (value as Record<string, unknown>)[part];
-  return value as string | number | boolean | null;
+  for (const part of parts) {
+    // The blockLayout map is SPARSE — most block types have no entry, and an
+    // entry may carry only one of the two fields. Walking off the end is the
+    // normal "no override here" case, not a bug, so it reads as null rather
+    // than throwing on a property access against undefined.
+    if (value === null || value === undefined) return null;
+    value = (value as Record<string, unknown>)[part];
+  }
+  return (value ?? null) as string | number | boolean | null;
 }
 
+/**
+ * The two lane leaves a block-type pane owns. Derived from the pane's
+ * component file so the pane list and the block-type list cannot drift: a
+ * pane whose file is not a doc block type (inline-code, linking, shell,
+ * surfaces, editor-controls) owns no lane leaves and gets none.
+ */
+function blockLayoutPaneLeaves(paneId: StyleRailPaneId): readonly StyleRailSettingLeafPath[] {
+  const file = PANE_COMPONENT_FILE[paneId];
+  if (!file || !isBlockLayoutType(file)) return [];
+  return [
+    `blockLayout.${file}.width`,
+    `blockLayout.${file}.justify`,
+    // Only the two-pane blocks own a split, so only they can have it drift.
+    ...(hasBlockColumnSplit(file)
+      ? ([`blockLayout.${file}.columnSplit`] as const)
+      : []),
+  ];
+}
+
+/**
+ * Is this leaf an OVERRIDE — i.e. has it drifted from what the repo says
+ * "default" is?
+ *
+ * The reference is the repo BASELINE (`themes/<id>/theme.json`
+ * railDefaults), not the compiled-in stock constant. This is the user-
+ * facing sense of "default": a knob left at the committed theme value is
+ * NOT an override, because every other consumer of this repo renders that
+ * same value. Only local drift lights a dot. (styleRailVars still measures
+ * against stock — see its docstring — because "no override" there means
+ * "let semantic.css answer", which is a different question.)
+ *
+ * Component tokens keep comparing against the registry default: those live
+ * in the theme's own token files, so a value equal to the registry default
+ * is genuinely nothing to persist.
+ */
 export function isLeafOverridden(
   settings: StyleRailSettings,
   leaf: StyleRailLeafRef,
 ): boolean {
   if (leaf.kind === "setting") {
     return settingValue(settings, leaf.path)
-      !== settingValue(DEFAULT_STYLE_RAIL_SETTINGS, leaf.path);
+      !== settingValue(getStyleRailBaseline(), leaf.path);
   }
 
   const token = THEME_TOKEN_REGISTRY[leaf.file]?.[leaf.key];
@@ -240,7 +293,10 @@ export function paneOverrideCount(
   settings: StyleRailSettings,
   paneId: StyleRailPaneId,
 ): number {
-  let count = (PANE_SETTING_LEAVES[paneId] ?? []).reduce(
+  let count = [
+    ...(PANE_SETTING_LEAVES[paneId] ?? []),
+    ...blockLayoutPaneLeaves(paneId),
+  ].reduce(
     (total, path) => total + Number(isLeafOverridden(settings, settingLeaf(path))),
     0,
   );

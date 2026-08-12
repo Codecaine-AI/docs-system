@@ -169,6 +169,12 @@
   /* Title→content gap — style-rail Layout knob (default 20px). */
   margin: 0 0 var(--style-title-padding, 1.25rem);
   outline: none;
+  /* NOTE: the title's text-lane cap deliberately does NOT live here. The
+     measure is expressed in `ch`, which resolves against the font-size of the
+     element that USES it — on this 2.25rem title `100ch` would be ~2360px
+     instead of the ~882px a 14px paragraph gets. The hosts wrap the title in a
+     `text-sm` lane div instead, so the cap resolves at the doc's base font
+     size and lines up exactly with the prose beneath it. */
 }
 
 /* The typography plugin's `.prose` carries `max-width: 65ch`. Docs surfaces
@@ -176,6 +182,58 @@
    author CSS so no utility-ordering or stale-build accident can revive it. */
 .docs-markdown.prose {
   max-width: none;
+}
+
+/* Edit-surface text lane. The read surface wraps every top-level block in its
+   own lane element (docs-viewer render/block-layout.ts, applied by
+   DocBlockRenderer). In edit mode ProseMirror owns the top-level children
+   instead, and only the ATOM blocks get a React NodeView that can carry lane
+   classes — so the text-like nodes (paragraph, heading, quote, list item,
+   code, …) get their lane from this one rule rather than from 8 duplicated
+   class strings. (`docs-editor-prosemirror` is set via DocEditor's
+   `editorProps.attributes.class`, so it lands ON the contenteditable root —
+   these are its DIRECT children.)
+
+   Both exclusions are load-bearing:
+   - `:not([data-doc-lane])` skips a lane element itself.
+   - `:not(:has([data-doc-lane]))` skips Tiptap's `div.react-renderer`
+     wrapper, which it inserts BETWEEN this root and an atom's
+     NodeViewWrapper. That wrapper carries no lane of its own, so without this
+     clause it would be capped at the text measure and a wide state-shape or
+     table would be squeezed back down to ~100ch no matter what its own lane
+     said — the wide lane would silently do nothing in edit mode. A
+     react-renderer around a NON-laned node view (the code block) contains no
+     lane, so it still gets the text measure, which is what code wants. */
+.docs-editor-prosemirror > *:not([data-doc-lane]):not(:has([data-doc-lane])) {
+  max-width: var(--style-editor-text-lane);
+}
+
+/* Why the rule above uses a REGISTERED property instead of
+   `var(--style-content-width, 100ch)` directly.
+
+   The measure is expressed in `ch`, and `ch` resolves against the font-size of
+   the element the cap lands on. On the read surface that is harmless: the lane
+   is a plain div at the doc's base size, so every block gets the same pixel
+   measure. In edit mode the cap lands on the ProseMirror child ITSELF — so an
+   `<h2>` at ~20px resolved `100ch` to ~1320px while a 14px `<p>` resolved it
+   to ~882px, and long headings hung ~440px past the prose right edge.
+
+   Registering the property with `syntax: "<length>"` makes it compute ONCE, at
+   the element that declares it (the editor root, at the doc's base font size),
+   and inherit down as an absolute px length. Every child then shares the
+   paragraph's measure regardless of its own font-size.
+
+   `initial-value` fails OPEN (no meaningful cap) rather than to 0, so if the
+   declaration below is ever dropped the editor degrades to full-width text
+   instead of collapsing to nothing. */
+@property --style-editor-text-lane {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 100000px;
+}
+
+.docs-editor-prosemirror {
+  --style-editor-text-lane: var(--style-content-width, 100ch);
 }
 
 /* Docs typography bridge — mirrors Spectre's .docs-markdown block. */

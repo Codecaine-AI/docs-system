@@ -104,6 +104,24 @@ type WorkbenchMode = "edit" | "annotate";
 
 type BundleState = { doc: DocDocument; hash: string };
 
+/** Keep server-side op/schema refusal details visible at the editing surface. */
+function docSaveApiErrorMessage(error: ApiError): string {
+  const rawIssues = error.payload?.issues;
+  if (!Array.isArray(rawIssues)) return error.message;
+  const issues = rawIssues
+    .flatMap((issue) => {
+      if (!issue || typeof issue !== "object") return [];
+      const path = "path" in issue && typeof issue.path === "string" ? issue.path : null;
+      const message =
+        "message" in issue && typeof issue.message === "string" ? issue.message : null;
+      return path && message ? [`${path}: ${message}`] : [];
+    });
+  if (issues.length === 0) return error.message;
+  const visible = issues.slice(0, 3);
+  const remainder = issues.length - visible.length;
+  return `${error.message}: ${visible.join("; ")}${remainder > 0 ? `; +${remainder} more` : ""}`;
+}
+
 function cssEscape(value: string): string {
   return typeof CSS !== "undefined" && typeof CSS.escape === "function"
     ? CSS.escape(value)
@@ -511,7 +529,12 @@ export function DocPage({
         return {
           ok: false,
           stale: false,
-          message: saveError instanceof Error ? saveError.message : "Failed to save document.",
+          message:
+            saveError instanceof ApiError
+              ? docSaveApiErrorMessage(saveError)
+              : saveError instanceof Error
+                ? saveError.message
+                : "Failed to save document.",
         };
       }
     },
@@ -940,14 +963,39 @@ export function DocPage({
 
       <div className="flex min-h-0 flex-1 overflow-hidden">
         <div className="min-h-0 min-w-0 flex-1 overflow-y-auto">
-          <div key={canvasEpoch} ref={contentRef} className="mx-auto w-full max-w-[var(--style-content-width,100ch)] px-[var(--style-content-margin,2rem)] pt-[var(--style-content-top,1.5rem)] pb-[var(--style-content-bottom,1.5rem)]">
+          {/* Left-anchored FULL-WIDTH page. There is deliberately no
+              `mx-auto max-w-…` column here any more: the page is the whole
+              padded viewport and each BLOCK claims its own lane inside it
+              (docs-viewer render/block-layout.ts). That way every
+              left-justified block shares one left rail — the eye tracks
+              straight down a single left edge — while a wide table or
+              state-shape spends the extra room instead of bulging the whole
+              page out around itself. `--style-content-width` still sizes the
+              text lane, it just applies per block now, not to the column.
+
+              The `4rem` fallback MUST track the style rail's stock
+              `layout.contentMargin` (StyleRail.tsx). A knob sitting at stock
+              emits NO var — that is how "let the stylesheet answer" works —
+              so this literal is what actually renders by default, and a
+              mismatch here silently ignores the rail's stated default. */}
+          <div key={canvasEpoch} ref={contentRef} className="w-full px-[var(--style-content-margin,4rem)] pt-[var(--style-content-top,1.5rem)] pb-[var(--style-content-bottom,1.5rem)]">
             {/* Fixed page furniture, not a block: mirrors the sidebar name
                 so page and tree read as one thing (R2-D11). Lives outside
                 the editor/renderer, so it can't be selected or dragged.
                 Click to rename (R2-D12): Enter/blur commits — the bundle
                 folder re-slugs (numeric prefix kept) and the sidebar
                 follows; Escape reverts. Keyed by path so a rename or
-                navigation always remounts with clean text. */}
+                navigation always remounts with clean text.
+
+                The wrapper is the title's LANE: it gives the h1 the same text
+                measure a paragraph block gets, so the title wraps on the same
+                right edge as the prose beneath it. It carries `text-sm`
+                because the measure is expressed in `ch` and `ch` resolves
+                against the font-size of the element the cap sits on — putting
+                the cap straight on the 2.25rem h1 would make `100ch` ~2360px
+                instead of ~882px. The h1's own size is set in `rem`, so the
+                wrapper's font-size never reaches it. */}
+            <div className="w-full max-w-[var(--style-content-width,100ch)] text-sm">
             <h1
               key={path}
               ref={titleRef}
@@ -968,6 +1016,7 @@ export function DocPage({
             >
               {docTitleFromPath(path)}
             </h1>
+            </div>
             {isStatic ? (
               // Static-export degradation: no write routes, so no editor —
               // the plain read-only renderer.

@@ -389,7 +389,11 @@ describe("InteractionSurfaceBlock", () => {
     render(<InteractionSurfaceBlock id="surface-one" operations={[{ name: "only.op" }]} />);
     const section = document.querySelector('[data-docs-block-type="interaction-surface"]');
     expect(section?.getAttribute("data-source-id")).toBe("surface-one");
-    expect(section?.className).toBe("not-prose my-4");
+    // The block fills whatever layout lane the renderer puts it in: no own
+    // max-width and no centering, so the wide lane is what bounds it.
+    expect(section?.className).toBe("not-prose my-4 w-full");
+    expect(section?.className).not.toContain("max-w-");
+    expect(section?.className).not.toContain("mx-auto");
     expect(screen.queryByText("1 operation")).toBeNull();
   });
 

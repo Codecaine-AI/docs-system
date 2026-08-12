@@ -1,4 +1,5 @@
 import type { DocBlockDescriptor } from "../../render/block-registry";
+import { CENTERED_MEDIA_BLOCK_LAYOUT } from "../../render/block-layout";
 import {
   STRUCTURAL_OPS,
   blockAttrs,
@@ -14,6 +15,8 @@ export const descriptors: DocBlockDescriptor[] = [
     agentDescription:
       "An embedded sequence diagram; props: sequenceId (central sequence id) or src (sidecar path), title.",
     patchOps: STRUCTURAL_OPS,
+    // Diagram media — same lane treatment as the canvas embed (block-layout.ts).
+    layout: CENTERED_MEDIA_BLOCK_LAYOUT,
     render: (block, ctx) => {
       const sequenceId = stringProp(block, "sequenceId");
       const src = stringProp(block, "src");

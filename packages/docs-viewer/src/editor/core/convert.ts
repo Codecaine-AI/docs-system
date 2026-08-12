@@ -431,13 +431,23 @@ function pmNodeToBlock(
  */
 export function pmToDoc(pmDoc: PMNode, baseDoc: DocDocument, idFactory: DocIdFactory): DocDocument {
   const rootAttrs = pmDoc.attrs ?? {};
-  const rootType = (rootAttrs.rootType as DocBlockType) ?? baseDoc.blocks[baseDoc.root].type;
+  const baseRoot = baseDoc.blocks[baseDoc.root];
+  const rootType = (rootAttrs.rootType as DocBlockType) ?? baseRoot.type;
   const rootId =
     typeof rootAttrs.blockId === "string" && rootAttrs.blockId ? rootAttrs.blockId : baseDoc.root;
 
   const used = new Set<string>([rootId]);
   const blocks: Record<string, DocBlock> = {};
-  const rootProps = joinPropsFromNode(rootType, rootAttrs);
+  // StarterKit's top-level `doc` node does not declare our block attrs, so a
+  // real TipTap Editor drops docToPM's root-only blockProps/rootType attrs
+  // when it materializes its schema. The root is invisible container state,
+  // not an editor surface: preserve its metadata from the baseline whenever
+  // those attrs are absent. Otherwise diffToOps emits an undefined-valued
+  // cleanup patch; JSON transport erases that sentinel into `props: {}` and
+  // strict writes reject every ordinary keystroke against legacy root props.
+  const rootProps = isRecord(rootAttrs.blockProps)
+    ? joinPropsFromNode(rootType, rootAttrs)
+    : { ...baseRoot.props };
   const children = (pmDoc.content ?? []).map((child) => pmNodeToBlock(child, idFactory, used, blocks));
 
   blocks[rootId] = {

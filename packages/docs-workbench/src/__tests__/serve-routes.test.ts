@@ -320,6 +320,58 @@ describe("export", () => {
     await rm(outDir, { recursive: true, force: true });
     if (!hadDist) await rm(distDir, { recursive: true, force: true });
   });
+
+  test("snapshots the repo theme so the export inherits the style baseline", async () => {
+    // A static export has no server: data/theme.json is the ONLY channel
+    // carrying the style rail's repo baseline (manifest.railDefaults) and
+    // the component token files into the exported site.
+    const outDir = await mkdtemp(join(tmpdir(), "docs-export-theme-"));
+    const distDir = join(import.meta.dir, "..", "..", "web", "dist-static");
+    const hadDist = await Bun.file(join(distDir, "index.html")).exists();
+    if (!hadDist) {
+      await mkdir(distDir, { recursive: true });
+      await writeFile(join(distDir, "index.html"), "<html>static-shell</html>");
+    }
+
+    // themes/ is a SIBLING of the docs root, so this fixture needs its own
+    // repo root — the shared docsRoot above is a bare temp dir whose
+    // sibling would be the system temp directory.
+    const repoRoot = await mkdtemp(join(tmpdir(), "docs-export-repo-"));
+    const themedDocsRoot = join(repoRoot, "docs");
+    await mkdir(themedDocsRoot, { recursive: true });
+    const themeDir = join(repoRoot, "themes", "default");
+    await mkdir(join(themeDir, "components"), { recursive: true });
+    await writeFile(
+      join(themeDir, "theme.json"),
+      JSON.stringify({
+        name: "Default",
+        dark: false,
+        railDefaults: { layout: { contentMargin: 120, wideWidth: 2000 } },
+      }),
+    );
+    await writeFile(join(themeDir, "components", "paragraph.json"), JSON.stringify({ fg: "#111111" }));
+
+    const report = await runExport({ docsRoot: themedDocsRoot, outDir });
+    expect(report.themeExported).toBe(true);
+
+    const snapshot = (await Bun.file(join(outDir, "data", "theme.json")).json()) as {
+      theme: {
+        id: string;
+        manifest: { railDefaults: { layout: { contentMargin: number; wideWidth: number } } };
+        components: Record<string, Record<string, unknown>>;
+      };
+    };
+    expect(snapshot.theme.id).toBe("default");
+    expect(snapshot.theme.manifest.railDefaults.layout).toEqual({
+      contentMargin: 120,
+      wideWidth: 2000,
+    });
+    expect(snapshot.theme.components.paragraph).toEqual({ fg: "#111111" });
+
+    await rm(repoRoot, { recursive: true, force: true });
+    await rm(outDir, { recursive: true, force: true });
+    if (!hadDist) await rm(distDir, { recursive: true, force: true });
+  });
 });
 
 describe("walkDocsDir parity", () => {

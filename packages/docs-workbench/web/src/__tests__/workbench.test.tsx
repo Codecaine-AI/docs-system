@@ -28,7 +28,15 @@ let docsRoot: string;
 let app: ReturnType<typeof createDocsServeApp>;
 let realFetch: typeof fetch;
 
-function docJson(id: string, title: string, text: string) {
+function docJson(
+  id: string,
+  title: string,
+  text: string,
+  options?: {
+    rootProps?: Record<string, unknown>;
+    paragraphProps?: Record<string, unknown>;
+  },
+) {
   return {
     schemaVersion: 1,
     id,
@@ -38,13 +46,13 @@ function docJson(id: string, title: string, text: string) {
       "root-1": {
         id: "root-1",
         type: "paragraph",
-        props: {},
+        props: options?.rootProps ?? {},
         children: ["para-1"],
       },
       "para-1": {
         id: "para-1",
         type: "paragraph",
-        props: {},
+        props: options?.paragraphProps ?? {},
         text: [{ insert: text }],
         children: [],
       },
@@ -158,6 +166,17 @@ beforeAll(async () => {
       JSON.stringify(docJson(`doc-${path}`, title, `Hello from ${title}`), null, 2),
     );
   }
+  await mkdir(join(docsRoot, "67-invalid-props"), { recursive: true });
+  await writeFile(
+    join(docsRoot, "67-invalid-props", "doc.json"),
+    JSON.stringify(
+      docJson("doc-67-invalid-props", "Invalid Props", "Legacy editable text", {
+        paragraphProps: { legacy: true },
+      }),
+      null,
+      2,
+    ),
+  );
   app = createDocsServeApp({ docsRoot });
 
   // Route the SPA's relative fetches into the real app, no network.
@@ -237,6 +256,23 @@ describe("workbench shell", () => {
 });
 
 describe("edit mode save loop", () => {
+  it("shows the rejected op path and validation message instead of only the generic detail", async () => {
+    let editor: Editor | null = null;
+    renderDocPage("67-invalid-props", {
+      onEditorReady: (instance) => (editor = instance),
+      autoSaveDelayMs: NEVER_AUTOSAVE_MS,
+    });
+
+    await waitFor(() => expect(screen.getByText("Legacy editable text")).toBeTruthy());
+    await makeEditorDirty(() => editor, "EDIT ");
+    pressSaveShortcut();
+
+    await waitFor(() => {
+      expect(screen.getByText(/\$\.op\.props\.legacy: Unexpected property/)).toBeTruthy();
+      expect(saveStateAttr()).toBe("error");
+    });
+  });
+
   it("auto-saves through /api/ops on the debounce alone (no manual action)", async () => {
     let editor: Editor | null = null;
     renderDocPage("65-autosave", { onEditorReady: (e) => (editor = e), autoSaveDelayMs: 40 });

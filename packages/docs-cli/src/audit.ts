@@ -14,7 +14,7 @@
  * plain files sitting in sections are ignored.
  *
  * Findings come at two severities:
- * - ERRORS (E1–E5) are structural invariants; any error makes the CLI exit 1.
+ * - ERRORS (E1–E6) are structural/write invariants; any error makes the CLI exit 1.
  * - WARNINGS (W1, W2, W4) are content conventions, printed but never failing —
  *   read-through fodder, to be promoted to errors after Ford's corpus pass.
  *
@@ -30,6 +30,9 @@
  *   unparseable or fails validateDocDocument.
  * - E5 a bundle that also contains a 00-overview child directory, mixing the
  *   parent-doc convention with the retired 00-overview convention.
+ * - E6 a non-root block whose props fail the strict component-state schema.
+ *   Root props are document metadata on an invisible container, not editable
+ *   component state, and are deliberately exempt.
  * - W1 more than one level-1 heading block in a doc.
  * - W2 an image block without alt text.
  * - W4 first content block after the title is not a paragraph (missing
@@ -38,9 +41,14 @@
 import { readdir, readFile, stat } from "node:fs/promises";
 import path from "node:path";
 
-import { validateDocDocument, type DocBlock, type DocDocument } from "@codecaine-ai/docs-model";
+import {
+  checkStateProps,
+  validateDocDocument,
+  type DocBlock,
+  type DocDocument,
+} from "@codecaine-ai/docs-model";
 
-export type AuditCheckId = "E1" | "E2" | "E3" | "E4" | "E5" | "W1" | "W2" | "W4";
+export type AuditCheckId = "E1" | "E2" | "E3" | "E4" | "E5" | "E6" | "W1" | "W2" | "W4";
 
 export type AuditFinding = {
   severity: "error" | "warn";
@@ -66,6 +74,23 @@ function shouldSkipEntry(name: string): boolean {
 /** Per-document content-convention warnings (W1, W2, W4) on a valid doc. */
 function auditDocContent(doc: DocDocument, relPath: string, findings: AuditFinding[]): void {
   const blocks = Object.values(doc.blocks) as DocBlock[];
+
+  // E6: readable legacy docs must not contain component props that make the
+  // same block unwritable. The invisible root is metadata-bearing container
+  // state and is not an editor-owned component surface.
+  for (const block of blocks) {
+    if (block.id === doc.root) continue;
+    const issues = checkStateProps(block.type, block.props);
+    if (issues.length === 0) continue;
+    findings.push({
+      severity: "error",
+      checkId: "E6",
+      path: relPath,
+      message: `block "${block.id}" (${block.type}) has unwritable props: ${issues
+        .map((issue) => `${issue.path}: ${issue.message}`)
+        .join("; ")}`,
+    });
+  }
 
   const levelOneHeadings = blocks.filter(
     (block) => block.type === "heading" && block.props.level === 1,
@@ -250,10 +275,11 @@ async function auditDirectory(
  * The bundle-owned entries doc.json, annotations.json, index.md/index.mdx,
  * assets/, and canvases/ are not child doc directories.
  *
- * Structural errors are E1–E5, including E3 when a non-root, non-bundle
+ * Structural/write errors are E1–E6, including E3 when a non-root, non-bundle
  * section has at least two children but no parent doc.json, and E5 when a
- * parent-doc bundle also has a retired 00-overview child. Content warnings are
- * W1, W2, and W4. Callers should exit non-zero when `errorCount > 0`;
+ * parent-doc bundle also has a retired 00-overview child. E6 rejects strict
+ * component-state drift before an editor save discovers it. Content warnings
+ * are W1, W2, and W4. Callers should exit non-zero when `errorCount > 0`;
  * warnings never fail the run.
  */
 export async function auditCommand(docsRootArg?: string): Promise<AuditReport> {

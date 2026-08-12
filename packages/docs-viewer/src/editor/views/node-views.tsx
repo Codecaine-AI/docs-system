@@ -4,6 +4,7 @@ import { NodeViewWrapper, ReactNodeViewRenderer, type ReactNodeViewProps } from 
 import { Fragment } from "react";
 import type { DocBlock } from "@codecaine-ai/docs-model/doc-schema";
 import { getDocBlockDescriptor, type DocBlockRenderContext } from "../../render/block-registry";
+import { docBlockLaneName, docBlockLayoutClasses } from "../../render/block-layout";
 import {
   DocCanvas,
   DocCodeBlock,
@@ -68,8 +69,20 @@ function AtomBlockView({ node }: ReactNodeViewProps) {
     renderSequence,
     resolveAssetSrc,
   };
+  // Same page lane the read surface gives this block type (block-layout.ts):
+  // the wrapper IS the lane element here, so a wide state-shape stays wide and
+  // a centered canvas stays centered when the doc is in edit mode. `data-doc-lane`
+  // also opts the node out of the editor's text-measure fallback rule (see
+  // `.docs-editor-prosemirror > *:not([data-doc-lane])`).
   return (
-    <NodeViewWrapper as="div" data-doc-node={node.type.name} contentEditable={false}>
+    <NodeViewWrapper
+      as="div"
+      data-doc-node={node.type.name}
+      data-doc-lane={docBlockLaneName(descriptor.layout)}
+      data-doc-block-type={blockType}
+      className={docBlockLayoutClasses(descriptor.layout)}
+      contentEditable={false}
+    >
       {descriptor.render(block, ctx)}
     </NodeViewWrapper>
   );

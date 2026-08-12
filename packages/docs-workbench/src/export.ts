@@ -6,6 +6,7 @@ import { openBacklinksDb, queryInboundTolerant, rescanAll } from "@codecaine-ai/
 
 import { bundleResponse, loadDocBundle } from "@codecaine-ai/docs-server";
 import { collectBundlePaths, walkDocsDir, type DocsTreeNode } from "@codecaine-ai/docs-server";
+import { readRepoTheme, themesRootFor } from "@codecaine-ai/docs-server";
 import { ensureSpaBuilt } from "./spa";
 
 /**
@@ -16,6 +17,8 @@ import { ensureSpaBuilt } from "./spa";
  *   <out>/data/bundles/<path>.json      per-bundle /api/bundle-shaped snapshot
  *   <out>/data/markdown/<path>.md       per-bundle markdown projection
  *   <out>/data/backlinks.json           { [bundlePath]: BacklinkRow[] }
+ *   <out>/data/theme.json               { theme } — the repo theme folder,
+ *                                       GET /api/themes/:id shaped
  *   <out>/data/files/<relpath>          every file under an assets/ dir
  *                                       (canvas sidecars, images, attachments)
  *
@@ -29,6 +32,8 @@ export interface ExportOptions {
   outDir: string;
   /** Rebuild the SPA even when a static build already exists. */
   forceBuild?: boolean;
+  /** Theme folder to snapshot as the exported site's style baseline. */
+  themeId?: string;
   log?: (message: string) => void;
 }
 
@@ -37,6 +42,8 @@ export interface ExportReport {
   bundlesExported: number;
   filesCopied: number;
   backlinkTargets: number;
+  /** Whether a repo theme folder was found and snapshotted. */
+  themeExported: boolean;
   failures: Array<{ path: string; detail: string }>;
 }
 
@@ -114,15 +121,29 @@ export async function runExport(options: ExportOptions): Promise<ExportReport> {
   }
   await writeFile(join(dataDir, "backlinks.json"), JSON.stringify(backlinks, null, 2));
 
+  // 6. Theme snapshot, GET /api/themes/:id shaped. The exported site has no
+  //    server, so this file is the ONLY way the style rail's repo baseline
+  //    (manifest.railDefaults) and the component token files reach it —
+  //    without it an export renders stock defaults and quietly loses every
+  //    tuned --style-* value. A repo with no themes/ folder just skips it
+  //    and the SPA falls back to its compiled-in defaults.
+  const themeId = options.themeId ?? "default";
+  const theme = await readRepoTheme(themesRootFor(docsRoot), themeId);
+  if (theme) {
+    await writeFile(join(dataDir, "theme.json"), JSON.stringify({ theme }, null, 2));
+  }
+
   log(
     `[docs-export] ${bundlesExported} bundle(s), ${filesCopied} asset file(s), ` +
-      `${Object.keys(backlinks).length} backlink target(s) -> ${outDir}`,
+      `${Object.keys(backlinks).length} backlink target(s), ` +
+      `theme ${theme ? themeId : "(none)"} -> ${outDir}`,
   );
   return {
     outDir,
     bundlesExported,
     filesCopied,
     backlinkTargets: Object.keys(backlinks).length,
+    themeExported: theme !== null,
     failures,
   };
 }

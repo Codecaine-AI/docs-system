@@ -33,7 +33,13 @@ export type ThemeManifest = {
   dark?: boolean;
   /** Font stacks written to the per-surface font tokens (custom stacks allowed). */
   fonts?: Partial<Record<"body" | "heading" | "code" | "number", string>>;
-  /** Style-rail knob values applied when the theme is selected (a preset ride-along, not a live link). */
+  /**
+   * The repo-side style-rail settings file: this block IS where the rail's
+   * knobs persist, and loading a theme installs it as the rail's BASELINE
+   * (StyleRail.tsx setStyleRailBaseline) — what "default" means, what Reset
+   * returns to, and what a --theme-locked serve or static export renders.
+   * A browser's localStorage blob layers on top of it; nothing else does.
+   */
   railDefaults?: Partial<StyleRailSettings>;
 };
 
@@ -347,10 +353,14 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       vars: ["--docs-shape-row-pad"],
       kind: "length",
       min: 4,
-      max: 16,
+      max: 24,
       step: 1,
       unit: "px",
-      defaultValue: 9,
+      // Must match semantic.css's --docs-shape-row-pad default so the slider
+      // starts where the unstyled block actually renders. 10px: 14px made a
+      // handful of fields fill a whole screen, and the row already separates
+      // by name weight and a hairline, so it does not need the extra air.
+      defaultValue: 10,
     },
   },
   // The Process Outline connector rail is drawn as overlapping elbow + stem

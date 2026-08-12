@@ -7,6 +7,7 @@ import remarkGfm from "remark-gfm";
 import type { DocBlock, DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import type { DocBlockRenderContext } from "./block-registry";
 import { getDocBlockDescriptor } from "./block-registry";
+import { docBlockLaneName, docBlockLayoutClasses } from "./block-layout";
 import {
   CanvasEmbedUnavailable,
   SequenceEmbedUnavailable,
@@ -174,7 +175,7 @@ export default function DocBlockRenderer({
   // renderMarkdown closures) per block per render. `ctx.renderChildren` and
   // `renderBlock` are mutually recursive, so both are built inside a single
   // useMemo (the hoisted function declaration resolves the cycle).
-  const renderBlock = useMemo(() => {
+  const renderTopLevelBlock = useMemo(() => {
     const ctx: DocBlockRenderContext = {
       renderText: renderDeltaSpans,
       renderChildren: (parent) => (
@@ -192,7 +193,31 @@ export default function DocBlockRenderer({
       if (!descriptor) return <UnknownBlockTypeBlock key={blockId} block={block} />;
       return <Fragment key={blockId}>{descriptor.render(block, ctx)}</Fragment>;
     }
-    return renderBlock;
+    /**
+     * Top-level blocks (the root's direct children) are the ones that claim a
+     * page lane — the host shell hands us the full padded page width and each
+     * block type's `layout` declaration decides how much of it to take and
+     * whether to sit on the left rail or center (block-layout.ts). Nested
+     * blocks deliberately do NOT get their own lane: they inherit the lane of
+     * the top-level ancestor they render inside, so e.g. a paragraph inside a
+     * callout stays in the callout rather than escaping to the page measure.
+     */
+    function renderTopLevelBlock(blockId: string): ReactNode {
+      const block = document.blocks[blockId];
+      if (!block) return null;
+      const layout = getDocBlockDescriptor(block.type)?.layout;
+      return (
+        <div
+          key={blockId}
+          data-doc-lane={docBlockLaneName(layout)}
+          data-doc-block-type={block.type}
+          className={docBlockLayoutClasses(layout)}
+        >
+          {renderBlock(blockId)}
+        </div>
+      );
+    }
+    return renderTopLevelBlock;
   }, [document, renderCanvasEmbed, renderSequenceEmbed, resolveAssetSrc]);
 
   const root = document.blocks[document.root];
@@ -200,7 +225,7 @@ export default function DocBlockRenderer({
 
   return (
     <div data-doc-id={document.id} data-doc-root={document.root}>
-      {root.children.map((childId) => renderBlock(childId))}
+      {root.children.map((childId) => renderTopLevelBlock(childId))}
     </div>
   );
 }

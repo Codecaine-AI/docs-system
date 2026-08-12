@@ -547,7 +547,16 @@ export async function getThemes(): Promise<{ themes: ThemeListEntry[] }> {
   return fetchJson(`api/themes`);
 }
 
+/**
+ * The repo theme behind the style rail's baseline. A static export has no
+ * server, so `docs-cli export` pregenerates this exact response shape into
+ * `data/theme.json` (see docs-workbench/src/export.ts) — without it an
+ * exported site would boot at STOCK defaults and silently drop every tuned
+ * `--style-*` value. Only the exported theme exists there, so the id is not
+ * part of the static path.
+ */
 export async function getTheme(id: string): Promise<{ theme: ThemeWirePayload }> {
+  if (IS_STATIC) return fetchJson(`data/theme.json`);
   assertWritable("Loading a repo theme");
   return fetchJson(`api/themes/${encodeURIComponent(id)}`);
 }
