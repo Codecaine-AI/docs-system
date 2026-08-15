@@ -1,0 +1,172 @@
+import { describe, expect, it } from "bun:test";
+
+import type {
+	DocsEditRequestState,
+	DocsEditSessionState,
+	DocsEditSessionStreamEvent,
+	DocsKernelClient,
+} from "../docs-kernel-client";
+import {
+	createDocsKernelSessionSource,
+	docsKernelFailureMessage,
+} from "../docs-kernel-session-source";
+
+const request = (
+	status: DocsEditRequestState["status"] = "open",
+): DocsEditRequestState => ({
+	alias: "R1",
+	annotationId: "ann-1",
+	target: { kind: "block", blockId: "p1" },
+	disposition: "batch",
+	body: "Rewrite this",
+	author: "human",
+	replies: [],
+	status,
+	waitingOnHuman: false,
+	review: "pending",
+});
+
+const session = (overrides: Partial<DocsEditSessionState> = {}): DocsEditSessionState => ({
+	sessionId: "session-1",
+	path: "guide",
+	docId: "doc-1",
+	baseHash: "hash-1",
+	currentHash: "hash-1",
+	status: "running",
+	createdAt: "2026-01-01T00:00:00.000Z",
+	scope: ["ann-1"],
+	requests: [request()],
+	proposals: [{
+		proposalId: "proposal-1",
+		requestAlias: "R1",
+		baseHash: "hash-1",
+		ops: [],
+		changedBlockIds: ["p1"],
+		summary: "Rewrite paragraph",
+		createdAt: "2026-01-01T00:01:00.000Z",
+		review: "pending",
+	}],
+	nextAcceptAlias: "R1",
+	undoableAlias: null,
+	skipped: [],
+	agent: { spawned: true, running: true, turns: 1, rerunPending: false },
+	...overrides,
+});
+
+function mockClient(createResult: Awaited<ReturnType<DocsKernelClient["createSession"]>>) {
+	let onEvent: ((event: DocsEditSessionStreamEvent) => void) | undefined;
+	let subscriptions = 0;
+	let disposals = 0;
+	const client = {
+		health: async () => true,
+		createSession: async () => createResult,
+		subscribeSessionEvents: (
+			_id: string,
+			next: (event: DocsEditSessionStreamEvent) => void,
+		) => {
+			subscriptions += 1;
+			onEvent = next;
+			return () => {};
+		},
+		acceptProposal: async () => ({
+			ok: true as const,
+			alias: "R1",
+			proposalId: "proposal-1",
+			patchId: "patch-1",
+			hash: "hash-2",
+		}),
+		disposeSession: async () => {
+			disposals += 1;
+			return { ok: true as const };
+		},
+	} as unknown as DocsKernelClient;
+	return {
+		client,
+		emit: (event: DocsEditSessionStreamEvent) => onEvent?.(event),
+		subscriptions: () => subscriptions,
+		disposals: () => disposals,
+	};
+}
+
+const flush = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
+
+describe("docs kernel session source", () => {
+	it("mirrors stream request statuses into the live annotation overlay", async () => {
+		const mock = mockClient({ state: session() });
+		const source = createDocsKernelSessionSource({ client: mock.client, path: "guide", onSessionEnd() {} });
+
+		await source.applyQueue(["ann-1"]);
+		mock.emit({ type: "session-state", sessionId: "session-1", state: session() });
+		mock.emit({ type: "request-updated", sessionId: "session-1", request: request("working") });
+		expect(source.statusOverlay().get("ann-1")).toBe("working");
+		mock.emit({ type: "request-updated", sessionId: "session-1", request: request("waiting") });
+		expect(source.statusOverlay().get("ann-1")).toBe("waiting");
+		expect(source.statusOverlay().has("ann-outside")).toBe(false);
+	});
+
+	it("clears a disposed session and announces its end once", async () => {
+		let ends = 0;
+		const mock = mockClient({ state: session() });
+		const source = createDocsKernelSessionSource({ client: mock.client, path: "guide", onSessionEnd: () => { ends += 1; } });
+		await source.applyQueue(["ann-1"]);
+
+		mock.emit({ type: "session-disposed", sessionId: "session-1" });
+		mock.emit({ type: "session-disposed", sessionId: "session-1" });
+
+		expect(source.getSnapshot().live).toBe(false);
+		expect(source.statusOverlay().size).toBe(0);
+		expect(ends).toBe(1);
+	});
+
+	it("maps agent-busy and offline create failures without opening a stream", async () => {
+		const busy = mockClient({ ok: false, status: 409, errors: ["busy"], failure: { reason: "agent-busy" } });
+		const busySource = createDocsKernelSessionSource({ client: busy.client, path: "guide", onSessionEnd() {} });
+		await busySource.applyQueue(["ann-1"]);
+		expect(busySource.getSnapshot().sessionError).toBe("agent is busy with another document");
+		expect(busySource.getSnapshot().live).toBe(false);
+		expect(busy.subscriptions()).toBe(0);
+
+		const offline = mockClient({ ok: false, status: 0, errors: [], offline: true });
+		const offlineSource = createDocsKernelSessionSource({ client: offline.client, path: "guide", onSessionEnd() {} });
+		await offlineSource.applyQueue([]);
+		expect(offlineSource.getSnapshot().sessionError).toBe("docs agent not connected");
+		expect(docsKernelFailureMessage({ ok: false, status: 0, errors: [], offline: true })).toBe("docs agent not connected");
+	});
+
+	it("applies through the live route and deduplicates the stream hash refresh", async () => {
+		const hashes: string[] = [];
+		const mock = mockClient({ state: session() });
+		const source = createDocsKernelSessionSource({
+			client: mock.client,
+			path: "guide",
+			onSessionEnd() {},
+			onDocChanged: (hash) => { hashes.push(hash); },
+		});
+		await source.applyQueue(["ann-1"]);
+
+		expect(await source.accept("ann-1")).toEqual({ ok: true });
+		expect(source.getSnapshot().state?.proposals[0]?.review).toBe("applied");
+		expect(source.statusOverlay().get("ann-1")).toBe("applied");
+		mock.emit({ type: "proposal-applied", sessionId: "session-1", alias: "R1", proposalId: "proposal-1", patchId: "patch-1", hash: "hash-2" });
+		expect(hashes).toEqual(["hash-2"]);
+	});
+
+	it("auto-disposes a completed settled session and announces its end once", async () => {
+		let ends = 0;
+		const settled = session({
+			status: "completed",
+			requests: [request("applied")],
+			proposals: [{ ...session().proposals[0]!, review: "applied" }],
+			agent: { spawned: true, running: false, turns: 1, rerunPending: false },
+		});
+		const mock = mockClient({ state: settled });
+		const source = createDocsKernelSessionSource({ client: mock.client, path: "guide", onSessionEnd: () => { ends += 1; } });
+
+		await source.applyQueue(["ann-1"]);
+		await flush();
+
+		expect(mock.disposals()).toBe(1);
+		expect(source.getSnapshot().live).toBe(false);
+		expect(ends).toBe(1);
+	});
+});

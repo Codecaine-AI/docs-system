@@ -52,6 +52,12 @@ import {
   type ApplyDocOpsResult,
 } from "./doc-ops";
 import {
+  getBundleProposals,
+  stageBundleProposal,
+  type GetBundleProposalsResult,
+  type StageBundleProposalResult,
+} from "./proposal-ops";
+import {
   deleteStoredPatch,
   getStoredPatch,
   recordCanvasPatch,
@@ -811,6 +817,57 @@ export async function annotation_resolve(
   response?: string,
 ): Promise<AnnotationResolveResult> {
   return resolveBundleAnnotation(docsRoot, docPath, annotationId, expectedHash, actor, response);
+}
+
+// ---------------------------------------------------------------------------
+// proposal_stage / proposal_list
+// ---------------------------------------------------------------------------
+
+export interface ProposalStageMetadata {
+  annotationId?: string;
+  alias?: string;
+}
+
+export type ProposalStageResult = StageBundleProposalResult;
+
+/**
+ * `proposal_stage(docPath, ops, summary, expectedHash?, actor?, metadata?)` —
+ * validates a doc patch without applying it, then persists it for review.
+ * `actor` identifies both the proposal's originating agent session and the
+ * session used for the draft-lock check.
+ */
+export async function proposal_stage(
+  docsRoot: string,
+  docPath: string,
+  ops: DocOp[],
+  summary: string,
+  expectedHash?: string,
+  actor?: string,
+  metadata?: ProposalStageMetadata,
+): Promise<ProposalStageResult> {
+  return stageBundleProposal(
+    docsRoot,
+    docPath,
+    {
+      ops,
+      summary,
+      expectedHash,
+      annotationId: metadata?.annotationId,
+      alias: metadata?.alias,
+      sessionId: actor,
+    },
+    actor,
+  );
+}
+
+export type ProposalListResult = GetBundleProposalsResult;
+
+/** `proposal_list(docPath)` — lists proposals with computed staleness. */
+export async function proposal_list(
+  docsRoot: string,
+  docPath: string,
+): Promise<ProposalListResult> {
+  return getBundleProposals(docsRoot, docPath);
 }
 
 // Re-export so callers only need to import from this one module for the

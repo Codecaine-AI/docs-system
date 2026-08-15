@@ -79,18 +79,40 @@ export {
 // Doc ops + annotations mutations
 export {
   addBundleAnnotation,
+  addBundleAnnotationReply,
   applyDocOpsToBundle,
   attachAgentRunToAnnotation,
   getBundleAnnotations,
   resolveBundleAnnotation,
   type AddBundleAnnotationInput,
   type AddBundleAnnotationResult,
+  type AddBundleAnnotationReplyInput,
+  type AddBundleAnnotationReplyResult,
   type ApplyDocOpsResult,
   type AttachAgentRunInput,
   type AttachAgentRunResult,
   type BundleAnnotationsReadResult,
   type ResolveBundleAnnotationResult,
 } from "./doc-ops";
+
+// Staged doc-op proposals
+export {
+  PROPOSALS_SIDECAR_FILENAME,
+  acceptBundleProposal,
+  getBundleProposals,
+  rejectBundleProposal,
+  stageBundleProposal,
+  type AcceptBundleProposalInput,
+  type AcceptBundleProposalResult,
+  type DocProposal,
+  type GetBundleProposalsResult,
+  type ListedDocProposal,
+  type ProposalsDocument,
+  type RejectBundleProposalInput,
+  type RejectBundleProposalResult,
+  type StageBundleProposalInput,
+  type StageBundleProposalResult,
+} from "./proposal-ops";
 
 // Assets
 export {
@@ -170,6 +192,8 @@ export {
   doc_get,
   doc_update_blocks,
   getStoredPatch,
+  proposal_list,
+  proposal_stage,
   recordCanvasPatch,
   recordDocPatch,
   recordSequencePatch,
@@ -183,6 +207,9 @@ export {
   type CanvasGetResult,
   type DocGetResult,
   type DocUpdateBlocksResult,
+  type ProposalListResult,
+  type ProposalStageMetadata,
+  type ProposalStageResult,
   type SequenceAgentPatchOperation,
   type SequenceApplyPatchResult,
   type SequenceGetResult,

@@ -21,6 +21,7 @@ export function ActionPane({
   selection,
   onClearSelection,
   onAddAnnotation,
+  onAddReply,
   onResolveAnnotation,
   onFocusTarget,
   isSubmitting,
@@ -39,6 +40,7 @@ export function ActionPane({
     body: string;
     intent: AnnotationIntent;
   }) => Promise<void>;
+  onAddReply: (annotationId: string, body: string) => Promise<void>;
   onResolveAnnotation: (annotationId: string) => Promise<void>;
   onFocusTarget: (target: AnnotationTarget) => void;
   isSubmitting?: boolean;
@@ -82,6 +84,7 @@ export function ActionPane({
         selection={selection}
         onClearSelection={onClearSelection}
         onAddAnnotation={onAddAnnotation}
+        onAddReply={onAddReply}
         onResolveAnnotation={onResolveAnnotation}
         onFocusTarget={onFocusTarget}
         isSubmitting={isSubmitting}

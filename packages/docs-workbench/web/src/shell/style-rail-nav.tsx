@@ -106,6 +106,7 @@ export type StyleRailPaneId =
   | "theme.typography"
   | "theme.background"
   | "theme.surfaces"
+  | "theme.annotate"
   | "theme.references"
   | BlockPaneId
   | "layout.sidebar"
@@ -135,6 +136,7 @@ export const STYLE_RAIL_GROUPS: readonly StyleRailNavGroup[] = [
       { id: "theme.typography", label: "Typography", icon: Type },
       { id: "theme.background", label: "Background", icon: Sparkles },
       { id: "theme.surfaces", label: "Surfaces", icon: Layers3 },
+      { id: "theme.annotate", label: "Annotate", icon: PenTool },
     ],
   },
   {

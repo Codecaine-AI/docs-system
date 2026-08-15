@@ -207,6 +207,22 @@
   --docs-process-outline-arrow-size: 6px;
   --docs-process-outline-stroke: 1.5px;
   --docs-canvas-border: var(--border);
+  /* Annotation targeting UI mirrors the standalone package's light
+     fallbacks; accent intentionally follows the workbench accent. */
+  --annotation-accent: var(--accent);
+  --annotation-surface: #ffffff;
+  --annotation-text: #18181b;
+  --annotation-muted: #71717a;
+  --annotation-border: rgba(0, 0, 0, 0.15);
+  --annotation-danger: #dc2626;
+  /* Annotate-mode lab tokens: staged changes use the theme palette, while
+     washes remain translucent so document content stays readable. */
+  --docs-annotation-add: var(--color-text-green);
+  --docs-annotation-add-bg: color-mix(in srgb, var(--color-text-green) 14%, transparent);
+  --docs-annotation-del: var(--color-text-red);
+  --docs-annotation-del-bg: color-mix(in srgb, var(--color-text-red) 14%, transparent);
+  --docs-annotation-wash: color-mix(in srgb, var(--annotation-accent) 14%, transparent);
+  --docs-action-pane-width: 520px;
   /* Side-peek panel + inline doc-reference chip (docs-viewer DocPeekPanel /
      reference chip); color tokens stay references so they track the theme. */
   --docs-peek-width: min(48rem, 45vw);
@@ -411,6 +427,22 @@
   --docs-process-outline-arrow-size: 6px;
   --docs-process-outline-stroke: 1.5px;
   --docs-canvas-border: var(--border);
+  /* Annotation targeting UI mirrors the standalone package's dark
+     fallbacks; accent intentionally follows the workbench accent. */
+  --annotation-accent: var(--accent);
+  --annotation-surface: #1c1c20;
+  --annotation-text: #e4e4e7;
+  --annotation-muted: #a1a1aa;
+  --annotation-border: rgba(255, 255, 255, 0.14);
+  --annotation-danger: #f87171;
+  /* Dark-mode washes use the same palette hues with the established
+     slightly stronger translucent treatment. */
+  --docs-annotation-add: var(--color-text-green);
+  --docs-annotation-add-bg: color-mix(in srgb, var(--color-text-green) 18%, transparent);
+  --docs-annotation-del: var(--color-text-red);
+  --docs-annotation-del-bg: color-mix(in srgb, var(--color-text-red) 18%, transparent);
+  --docs-annotation-wash: color-mix(in srgb, var(--annotation-accent) 18%, transparent);
+  --docs-action-pane-width: 520px;
   /* Side-peek panel + inline doc-reference chip (docs-viewer DocPeekPanel /
      reference chip); color tokens stay references so they track the theme. */
   --docs-peek-width: min(48rem, 45vw);

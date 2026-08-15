@@ -5,12 +5,12 @@ import {
   useRef,
   useState,
   type ComponentProps,
+  type ReactNode,
 } from "react";
-import { MessageSquareIcon, PencilIcon, Undo2Icon } from "lucide-react";
+import { Undo2Icon } from "lucide-react";
 import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import type { DocOp } from "@codecaine-ai/docs-model/doc-ops";
 import {
-  docsAnnotationSchema,
   type AnnotationIntent,
   type AnnotationTarget,
   type AnnotationsDocument,
@@ -26,10 +26,20 @@ import DocEditor, {
 import { getDocBlockDescriptor } from "@codecaine-ai/docs-viewer";
 import type { PlannotatorSelection } from "@codecaine-ai/docs-viewer/plannotator";
 import {
-  AnnotationComposerPopover,
   useTargeting,
   type ResolvedTarget,
 } from "@codecaine-ai/annotations/react";
+import {
+  AliasChip,
+  InlineComposer,
+  InlineThreadBar,
+  ProposalActionBar,
+  acceptDisabledReason,
+  rejectDisabledReason,
+  type DocEditRequest,
+  type DocEditTarget,
+  type LabPanelTab,
+} from "@codecaine-ai/docs-viewer/lab";
 import { useTransientHighlights } from "@codecaine-ai/docs-viewer/use-transient-highlights";
 import {
   resolveBundleAssetSrc,
@@ -44,6 +54,7 @@ import {
   applyDocOps,
   assetUrl,
   addAnnotation,
+  addAnnotationReply,
   getBacklinks,
   getBundle,
   getCanvasBySrc,
@@ -56,7 +67,16 @@ import {
 } from "../data/api";
 import { docSegmentFromTitle, docTitleFromPath } from "../lib/doc-title";
 import { blockTextRangeFromDomRange } from "../lib/annotate-range";
-import { ActionPane } from "./ActionPane";
+import { DocLab } from "../lab/DocLab";
+import { useDocLabSession } from "../lab/doc-lab-controller";
+import { useDocsKernelSession } from "../lab/use-docs-kernel-session";
+import {
+  blocksInStagedRegions,
+  buildDocLabStagedRegions,
+  narrowDocToRootChildren,
+  topLevelAncestor,
+  type DocLabStagedRegion,
+} from "../lab/doc-lab-regions";
 import { StandaloneCanvasEmbed } from "./CanvasEmbed";
 import { StandaloneSequenceEmbed } from "./SequenceEmbed";
 
@@ -72,13 +92,11 @@ import { StandaloneSequenceEmbed } from "./SequenceEmbed";
  *    DocsClient provided in App.tsx. The header shows a subtle
  *    Saving…/Saved/Not saved indicator, and the "Referenced by" backlinks
  *    footer renders below the editor.
- *  - ANNOTATE: the shared annotation targeting UX over blocks, text ranges,
- *    and canvas objects — hovering glides a dotted ring + label chip over
- *    the block; clicking pins it and opens the anchored composer popover
- *    (every annotation is an agent request); Cmd/Ctrl+drag pins a text
- *    range inside a block. The side pane is the list-only thread view
- *    (resolve, dangling-target handling). Dangling targets are detected
- *    against the live doc + a lazily-fetched canvas object index.
+ *  - ANNOTATE/AI: selected from the glass panel tab. The shared targeting UX
+ *    covers blocks, text ranges, and canvas objects; clicking pins a target
+ *    and opens InlineComposer beneath it. Block/range filings enter the docs
+ *    edit session, while canvas objects remain plain annotations. The glass
+ *    panel combines the request queue and list-only annotation threads.
  *
  * Live changes: an `/api/events` SSE subscription refreshes the open bundle
  * when ANOTHER actor changes it (self-echoes are filtered by session id in
@@ -93,8 +111,8 @@ import { StandaloneSequenceEmbed } from "./SequenceEmbed";
  * surfaced as "Already undone").
  *
  * Static exports have no write routes: IS_STATIC pins the page to a
- * read-only DocBlockRenderer (plus the backlinks footer) and hides the mode
- * switcher, undo, save indicator, and the SSE subscription entirely.
+ * read-only DocBlockRenderer (plus the backlinks footer) and hides the lab,
+ * undo, save indicator, and the SSE subscription entirely.
  */
 
 /** Static author label — the standalone app has no identity concept. */
@@ -135,6 +153,31 @@ function selectionToTarget(selection: PlannotatorSelection): AnnotationTarget {
     connectionId: selection.connectionId,
     region: selection.region,
   };
+}
+
+function selectionToDocEditTarget(
+  selection: PlannotatorSelection,
+): DocEditTarget | null {
+  if (selection.kind === "block") {
+    return { kind: "block", blockId: selection.blockId };
+  }
+  if (selection.kind === "text-range") {
+    return {
+      kind: "text-range",
+      blockId: selection.blockId,
+      start: selection.start,
+      end: selection.end,
+      quote: selection.quote,
+    };
+  }
+  return null;
+}
+
+function newLabAnnotationId(): string {
+  return (
+    globalThis.crypto?.randomUUID?.() ??
+    `docs-lab-${Date.now()}-${Math.random().toString(36).slice(2)}`
+  );
 }
 
 /**
@@ -570,6 +613,57 @@ export function DocPage({
     [path],
   );
 
+  const handleAddReply = useCallback(
+    async (annotationId: string, body: string) => {
+      try {
+        const response = await addAnnotationReply(
+          path,
+          annotationId,
+          body,
+          annotationsHashRef.current,
+        );
+        setAnnotations(response.annotations);
+        setAnnotationsHash(response.hash);
+        setPaneError(null);
+      } catch (replyError) {
+        setPaneError(replyError instanceof Error ? replyError.message : "Failed to add reply.");
+        void fetchBundleRef.current();
+        throw replyError;
+      }
+    },
+    [path],
+  );
+
+  const handleLabDocApplied = useCallback((nextDoc: DocDocument, hash: string) => {
+    expectedHashRef.current = hash;
+    setBundle({ doc: nextDoc, hash });
+  }, []);
+
+  const labRefreshRef = useRef<() => void | Promise<void>>(() => {});
+  const kernelSession = useDocsKernelSession({
+    path,
+    enabled: !isStatic,
+    onSessionEnd: async () => {
+      await fetchBundleRef.current();
+      await labRefreshRef.current();
+    },
+    onDocChanged: () => fetchBundleRef.current(),
+  });
+
+  const lab = useDocLabSession({
+    path,
+    doc,
+    docHash: bundle?.hash ?? null,
+    annotations,
+    annotationsHash,
+    refreshBundle: fetchBundle,
+    onDocApplied: handleLabDocApplied,
+    onApplyQueue: kernelSession.onApplyQueue,
+    kernelSession: kernelSession.handle,
+    enabled: !isStatic,
+  });
+  labRefreshRef.current = lab.refetchProposals;
+
   const handleFocusTarget = useCallback(
     (target: AnnotationTarget) => {
       const container = contentRef.current;
@@ -599,6 +693,18 @@ export function DocPage({
       if (ids.length > 0) flash(ids);
     },
     [path, flash],
+  );
+
+  const handleFocusDocEditTarget = useCallback(
+    (target: DocEditTarget) => {
+      if (target.kind === "doc") {
+        const scroller = document.querySelector<HTMLElement>("[data-docs-scroller]");
+        scroller?.scrollTo?.({ top: 0, behavior: "smooth" });
+        return;
+      }
+      handleFocusTarget(target);
+    },
+    [handleFocusTarget],
   );
 
   // ---------------------------------------------------------------------
@@ -689,13 +795,13 @@ export function DocPage({
   }, []);
 
   // ---------------------------------------------------------------------
-  // Annotate mode — shared targeting layer + anchored composer popover
+  // Annotate mode — shared targeting layer + inline lab composer
   // ---------------------------------------------------------------------
   //
   // The annotation UX standard (see prompt-kit's lab): a dotted glide ring +
   // label chip follow the hovered block; clicking pins the target and opens
-  // AnnotationComposerPopover anchored beside it (every annotation is an
-  // agent request — no intent picker); Cmd/Ctrl+drag selects a text range
+  // InlineComposer anchored beneath it (every filing is an agent request —
+  // no intent picker); Cmd/Ctrl+drag selects a text range
   // inside a block. Canvas-object selection stays on the canvas embed's own
   // object-select surface (onCanvasObjectSelect below) — the layer resolves
   // [data-canvas-object-id] hovers for the ring/chip but leaves their clicks
@@ -709,10 +815,50 @@ export function DocPage({
   // passed INTO the hook (resolve/selected/anchors) reach the same element.
   const annotateContainerRef = useRef<HTMLDivElement | null>(null);
 
+  const handleLabTabSelect = useCallback(
+    (tab: LabPanelTab) => handleModeChange(tab === "ai" ? "annotate" : "edit"),
+    [handleModeChange],
+  );
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape" || mode !== "annotate") return;
+      // The targeting container owns Escape while a target is pinned. This
+      // document-level path makes Escape exit AI mode when focus is elsewhere.
+      if (selectionRef.current) {
+        event.preventDefault();
+        setSelection(null);
+        return;
+      }
+      event.preventDefault();
+      handleModeChange("edit");
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [handleModeChange, mode]);
+  const stagedRegions = useMemo(
+    () =>
+      annotateActive && doc
+        ? buildDocLabStagedRegions(doc, lab.session.proposals)
+        : [],
+    [annotateActive, doc, lab.session.proposals],
+  );
+  const stagedBlockIds = useMemo(
+    () => (doc ? blocksInStagedRegions(doc, stagedRegions) : new Set<string>()),
+    [doc, stagedRegions],
+  );
+  const stagedBlockIdsRef = useRef(stagedBlockIds);
+  stagedBlockIdsRef.current = stagedBlockIds;
+
   const resolveAnnotateTarget = useCallback(
     (element: HTMLElement): ResolvedTarget<PlannotatorSelection> | null => {
       const currentDoc = docRef.current;
       if (!currentDoc) return null;
+      if (
+        element.closest("[data-docs-staged-before], [data-docs-staged-after]")
+      ) {
+        return null;
+      }
       const canvasEl = element.closest<HTMLElement>("[data-canvas-object-id]");
       if (canvasEl) {
         const objectId = canvasEl.getAttribute("data-canvas-object-id");
@@ -737,6 +883,7 @@ export function DocPage({
       const blockId = blockEl?.getAttribute("data-block-id");
       const block = blockId ? currentDoc.blocks[blockId] : undefined;
       if (!blockEl || !blockId || !block) return null;
+      if (stagedBlockIdsRef.current.has(blockId)) return null;
       // Chip label mirrors the old layer's: registry descriptor label plus a
       // truncated text preview when the block has one.
       const typeLabel = getDocBlockDescriptor(block.type)?.label ?? block.type;
@@ -759,8 +906,23 @@ export function DocPage({
   );
 
   const handleAnnotateRangeSelect = useCallback(({ range }: { range: Range; text: string }) => {
+    const rangeElement =
+      range.commonAncestorContainer instanceof HTMLElement
+        ? range.commonAncestorContainer
+        : range.commonAncestorContainer.parentElement;
+    if (
+      rangeElement?.closest("[data-docs-staged-before], [data-docs-staged-after]")
+    ) {
+      return;
+    }
     const mapped = blockTextRangeFromDomRange(range);
-    if (!mapped || !docRef.current?.blocks[mapped.blockId]) return;
+    if (
+      !mapped ||
+      !docRef.current?.blocks[mapped.blockId] ||
+      stagedBlockIdsRef.current.has(mapped.blockId)
+    ) {
+      return;
+    }
     setSelection({ kind: "text-range", ...mapped });
   }, []);
 
@@ -817,7 +979,7 @@ export function DocPage({
     suppressHover: selection !== null,
   });
 
-  // Composer popover anchors, re-read from the committed DOM (effect, not
+  // Composer anchors, re-read from the committed DOM (effect, not
   // render) so post-refresh elements are the ones measured.
   const [composerAnchors, setComposerAnchors] = useState<HTMLElement[] | null>(null);
   useEffect(() => {
@@ -828,27 +990,220 @@ export function DocPage({
     setComposerAnchors(resolveSelectedElements());
   }, [annotateActive, selection, bundle, canvasEpoch, resolveSelectedElements]);
 
-  const composerTargetLabel = useMemo(() => {
-    if (!selection) return "";
-    return selection.label ?? docsAnnotationSchema.targetLabel(selectionToTarget(selection));
-  }, [selection]);
+  useEffect(() => {
+    if (!selection || selection.kind === "canvas-object") return;
+    if (!doc?.blocks[selection.blockId] || stagedBlockIds.has(selection.blockId)) {
+      setSelection(null);
+    }
+  }, [doc, selection, stagedBlockIds]);
 
-  // Popover submit: every annotation is an agent request. `handleAddAnnotation`
-  // throws on failure, which the popover catches and displays inline — the
-  // pinned selection then survives for a retry.
   const handleComposerSubmit = useCallback(
-    async ({ body }: { body: string; intent: string }) => {
+    async (body: string) => {
       const current = selectionRef.current;
       if (!current) return;
-      await handleAddAnnotation({
-        target: selectionToTarget(current),
-        body,
-        intent: "agent-request",
-      });
+      const requestTarget = selectionToDocEditTarget(current);
+      if (requestTarget) {
+        await lab.session.onFileRequest?.({
+          annotationId: newLabAnnotationId(),
+          disposition: "batch",
+          target: requestTarget,
+          body,
+        });
+      } else {
+        // Canvas-object requests stay plain annotations: DocEditTarget has no
+        // canvas kind and the request projection intentionally excludes them.
+        await handleAddAnnotation({
+          target: selectionToTarget(current),
+          body,
+          intent: "agent-request",
+        });
+      }
+      setPaneError(null);
       setSelection(null);
     },
-    [handleAddAnnotation],
+    [handleAddAnnotation, lab.session],
   );
+
+  const composerPosition = useMemo(() => {
+    const anchor = composerAnchors?.[0];
+    const container = annotateContainerRef.current;
+    if (!anchor || !container) return { top: 0, left: 0 };
+    const anchorRect = anchor.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+    return {
+      top: Math.max(0, anchorRect.bottom - containerRect.top + 8),
+      left: Math.max(0, anchorRect.left - containerRect.left),
+    };
+  }, [composerAnchors]);
+
+  const handleCanvasObjectSelect = useCallback(
+    ({ canvasSrc, objectId }: { canvasSrc: string; objectId: string }) =>
+      setSelection({
+        kind: "canvas-object",
+        canvasSrc,
+        objectId,
+        label: `Canvas object ${objectId}`,
+      }),
+    [],
+  );
+
+  const waitingRequests = useMemo(() => {
+    const atDocument: DocEditRequest[] = [];
+    const byTopLevel = new Map<string, DocEditRequest[]>();
+    if (!doc) return { atDocument, byTopLevel };
+    for (const request of lab.session.requests) {
+      if (request.status !== "waiting") continue;
+      if (request.target.kind === "doc") {
+        atDocument.push(request);
+        continue;
+      }
+      const topLevel = topLevelAncestor(doc, request.target.blockId);
+      if (!topLevel) continue;
+      const rows = byTopLevel.get(topLevel) ?? [];
+      rows.push(request);
+      byTopLevel.set(topLevel, rows);
+    }
+    return { atDocument, byTopLevel };
+  }, [doc, lab.session.requests]);
+
+  const renderThreadBars = (requests: readonly DocEditRequest[]): ReactNode =>
+    requests.map((request) => {
+      const latestAgent = [...request.thread]
+        .reverse()
+        .find((message) => message.author === "agent");
+      return (
+        <div key={`thread:${request.alias}`} className="mb-2">
+          <InlineThreadBar
+            alias={request.alias}
+            message={latestAgent?.body ?? request.body}
+            onReply={(body) =>
+              void lab.session.onReplyToRequest?.(request.alias, body)
+            }
+          />
+        </div>
+      );
+    });
+
+  const renderDocRun = (
+    sourceDoc: DocDocument,
+    ids: readonly string[],
+    key: string,
+  ): ReactNode => {
+    if (ids.length === 0) return null;
+    return (
+      <DocBlockRenderer
+        key={key}
+        document={narrowDocToRootChildren(sourceDoc, ids)}
+        projectId="local"
+        documentPath={`docs/${path}`}
+        bundlePath={path}
+        resolveAssetSrc={resolveAssetSrc}
+        onCanvasObjectSelect={handleCanvasObjectSelect}
+      />
+    );
+  };
+
+  const renderStagedRegion = (region: DocLabStagedRegion): ReactNode => {
+    const { proposal } = region;
+    return (
+      <section
+        key={region.key}
+        data-docs-staged-region={proposal.alias}
+        className="my-3 space-y-2"
+      >
+        <ProposalActionBar
+          alias={proposal.alias}
+          summary={proposal.summary}
+          acceptDisabledReason={acceptDisabledReason(
+            lab.session.proposals,
+            proposal.alias,
+          )}
+          rejectDisabledReason={rejectDisabledReason(
+            lab.session.proposals,
+            proposal.alias,
+          )}
+          onAccept={() => void lab.session.onAccept?.(proposal.alias)}
+          onReject={() => void lab.session.onReject?.(proposal.alias)}
+        />
+        {lab.requestErrors[proposal.alias] ? (
+          <p
+            data-docs-staged-error={proposal.alias}
+            className="text-xs text-destructive"
+          >
+            {lab.requestErrors[proposal.alias]}
+          </p>
+        ) : null}
+        <div
+          data-docs-staged-before={proposal.alias}
+          className="rounded-sm border-l-2 px-3 py-1"
+          style={{
+            color: "var(--docs-annotation-del)",
+            background: "var(--docs-annotation-del-bg)",
+            borderColor: "var(--docs-annotation-del)",
+          }}
+        >
+          {renderDocRun(doc!, region.beforeIds, `${region.key}:before`)}
+        </div>
+        <div
+          data-docs-staged-after={proposal.alias}
+          className="rounded-sm border-l-2 px-3 py-1"
+          style={{
+            color: "var(--docs-annotation-add)",
+            background: "var(--docs-annotation-add-bg)",
+            borderColor: "var(--docs-annotation-add)",
+          }}
+        >
+          {renderDocRun(region.afterDoc, region.afterIds, `${region.key}:after`)}
+        </div>
+      </section>
+    );
+  };
+
+  const renderAiDocumentFlow = (): ReactNode => {
+    if (!doc) return null;
+    const rootIds = doc.blocks[doc.root]?.children ?? [];
+    const regionsAt = new Map<number, DocLabStagedRegion[]>();
+    for (const region of stagedRegions) {
+      const rows = regionsAt.get(region.startIndex) ?? [];
+      rows.push(region);
+      regionsAt.set(region.startIndex, rows);
+    }
+    const nodes: ReactNode[] = [];
+    let cursor = 0;
+    while (cursor < rootIds.length) {
+      const starting = regionsAt.get(cursor) ?? [];
+      const consuming = starting.filter((region) => region.endIndex >= cursor);
+      const insertions = starting.filter((region) => region.endIndex < cursor);
+      for (const region of insertions) nodes.push(renderStagedRegion(region));
+      if (consuming.length > 0) {
+        const targetIds = new Set(consuming.flatMap((region) => region.beforeIds));
+        for (const id of targetIds) {
+          nodes.push(renderThreadBars(waitingRequests.byTopLevel.get(id) ?? []));
+        }
+        for (const region of consuming) nodes.push(renderStagedRegion(region));
+        cursor = Math.max(...consuming.map((region) => region.endIndex)) + 1;
+        continue;
+      }
+
+      const id = rootIds[cursor]!;
+      nodes.push(renderThreadBars(waitingRequests.byTopLevel.get(id) ?? []));
+      let runEnd = cursor + 1;
+      while (
+        runEnd < rootIds.length &&
+        !regionsAt.has(runEnd) &&
+        !waitingRequests.byTopLevel.has(rootIds[runEnd]!)
+      ) {
+        runEnd += 1;
+      }
+      const run = rootIds.slice(cursor, runEnd);
+      nodes.push(renderDocRun(doc, run, `untouched:${run.join(":")}`));
+      cursor = runEnd;
+    }
+    for (const region of regionsAt.get(rootIds.length) ?? []) {
+      nodes.push(renderStagedRegion(region));
+    }
+    return nodes;
+  };
 
   if (isLoading) {
     return <div className="p-8 text-sm text-muted-foreground">Loading {path}...</div>;
@@ -865,13 +1220,8 @@ export function DocPage({
   }
   if (!doc) return null;
 
-  const modeButtons: Array<{ value: WorkbenchMode; label: string; icon: typeof PencilIcon }> = [
-    { value: "edit", label: "Edit", icon: PencilIcon },
-    { value: "annotate", label: "Annotate", icon: MessageSquareIcon },
-  ];
-
   return (
-    <div className="flex h-full min-h-0 flex-col">
+    <div className="flex h-full min-h-0 flex-col" data-docs-mode={mode}>
       <header className="flex h-11 shrink-0 items-center justify-between gap-3 border-b px-3">
         <div className="min-w-0 truncate font-mono text-xs text-muted-foreground" title={path}>
           docs/{path}
@@ -907,40 +1257,23 @@ export function DocPage({
               {isUndoing ? "Undoing..." : "Undo last save"}
             </button>
           )}
-          {!isStatic && (
-            <div
-              className="flex shrink-0 items-center gap-1 rounded-md bg-muted p-0.5"
-              role="group"
-              aria-label="Docs workbench mode"
-            >
-              {modeButtons.map(({ value, label, icon: Icon }) => (
-                <button
-                  key={value}
-                  type="button"
-                  aria-pressed={mode === value}
-                  aria-label={`${label} mode`}
-                  title={`${label} mode`}
-                  data-docs-mode={value}
-                  onClick={() => handleModeChange(value)}
-                  className={cn(
-                    "inline-flex items-center gap-1 rounded-sm px-2 py-1 text-xs font-medium transition-colors",
-                    mode === value
-                      ? "bg-background text-foreground shadow-sm ring-1 ring-primary/30"
-                      : "text-muted-foreground hover:text-foreground",
-                  )}
-                >
-                  <Icon className="h-3.5 w-3.5" />
-                  {label}
-                </button>
-              ))}
-            </div>
-          )}
         </div>
       </header>
 
       <div className="flex min-h-0 flex-1 overflow-hidden">
-        <div className="min-h-0 min-w-0 flex-1 overflow-y-auto">
-          <div key={canvasEpoch} ref={contentRef} className="mx-auto w-full max-w-[var(--style-content-width,100ch)] px-[var(--style-content-margin,2rem)] pt-[var(--style-content-top,1.5rem)] pb-[var(--style-content-bottom,1.5rem)]">
+        <div className="relative min-h-0 min-w-0 flex-1">
+          <div data-docs-scroller="" className="h-full min-h-0 overflow-y-auto">
+          <div
+            key={canvasEpoch}
+            ref={contentRef}
+            data-docs-annotation-wash={mode === "annotate" ? "" : undefined}
+            className="mx-auto w-full max-w-[var(--style-content-width,100ch)] px-[var(--style-content-margin,2rem)] pt-[var(--style-content-top,1.5rem)] pb-[var(--style-content-bottom,1.5rem)]"
+            style={
+              mode === "annotate"
+                ? { background: "var(--docs-annotation-wash)" }
+                : undefined
+            }
+          >
             {/* Fixed page furniture, not a block: mirrors the sidebar name
                 so page and tree read as one thing (R2-D11). Lives outside
                 the editor/renderer, so it can't be selected or dragged.
@@ -1005,9 +1338,8 @@ export function DocPage({
                 />
               </div>
             ) : (
-              /* Shared targeting container: hover glide-ring/chip, live drag
-                 ring, selected ring, and the anchored composer popover all
-                 render inside this position:relative div. */
+              /* Shared targeting container: targeting overlays, staged
+                 review regions, waiting threads, and the inline composer. */
               <div
                 ref={(element) => {
                   annotateContainerRef.current = element;
@@ -1024,30 +1356,74 @@ export function DocPage({
                 }}
                 className={cn("relative", DOC_SURFACE_TYPOGRAPHY_CLASSES)}
               >
-                <DocBlockRenderer
-                  document={doc}
-                  projectId="local"
-                  documentPath={`docs/${path}`}
-                  bundlePath={path}
-                  resolveAssetSrc={resolveAssetSrc}
-                  onCanvasObjectSelect={({ canvasSrc, objectId }) =>
-                    setSelection({
-                      kind: "canvas-object",
-                      canvasSrc,
-                      objectId,
-                      label: `Canvas object ${objectId}`,
-                    })
-                  }
-                />
+                {lab.staleProposals.length > 0 && (
+                  <div
+                    data-docs-stale-proposals=""
+                    className="mb-3 space-y-1 rounded-md border p-2"
+                  >
+                    {lab.staleProposals.map((proposal) => {
+                      const alias =
+                        proposal.alias ??
+                        lab.session.requests.find(
+                          (request) => request.annotationId === proposal.annotationId,
+                        )?.alias ??
+                        proposal.id.slice(0, 8);
+                      return (
+                        <div
+                          key={proposal.id}
+                          data-docs-stale-proposal={alias}
+                          className="flex items-center gap-2 text-xs"
+                        >
+                          <AliasChip alias={alias} />
+                          <span className="min-w-0 flex-1 truncate">
+                            {proposal.summary}
+                          </span>
+                          <span
+                            className="rounded border px-1 py-0.5 text-[10px]"
+                            style={{
+                              color: "var(--docs-annotation-del)",
+                              background: "var(--docs-annotation-del-bg)",
+                              borderColor: "var(--docs-annotation-del)",
+                            }}
+                          >
+                            stale
+                          </span>
+                          <button
+                            type="button"
+                            aria-label={`Reject ${alias}`}
+                            className="rounded border px-2 py-0.5"
+                            onClick={() => void lab.session.onReject?.(alias)}
+                          >
+                            Reject
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+                {renderThreadBars(waitingRequests.atDocument)}
+                {renderAiDocumentFlow()}
                 {targeting.overlays}
                 {selection && (
-                  <AnnotationComposerPopover
-                    anchorElements={composerAnchors}
-                    targetLabel={composerTargetLabel}
-                    onSubmit={handleComposerSubmit}
-                    onCancel={() => setSelection(null)}
-                    isSubmitting={isAnnotationSubmitting}
-                  />
+                  <div
+                    className="absolute z-20"
+                    style={composerPosition}
+                    data-docs-inline-composer-anchor=""
+                  >
+                    <InlineComposer
+                      onSubmit={(body) => {
+                        void handleComposerSubmit(body).catch((submitError) => {
+                          setPaneError(
+                            submitError instanceof Error
+                              ? submitError.message
+                              : "Failed to file request.",
+                          );
+                        });
+                      }}
+                      onCancel={() => setSelection(null)}
+                      documentTarget={false}
+                    />
+                  </div>
                 )}
                 <style>{ANNOTATE_CURSOR_CSS}</style>
               </div>
@@ -1080,41 +1456,31 @@ export function DocPage({
               </footer>
             )}
           </div>
+          </div>
+          {!isStatic && (
+            <DocLab
+              tab={mode === "annotate" ? "ai" : "edit"}
+              onTabSelect={handleLabTabSelect}
+              doc={doc}
+              outlineScrollerSelector="[data-docs-scroller]"
+              lab={lab}
+              threads={{
+                annotations: annotations?.annotations ?? [],
+                document: doc,
+                canvases: canvasIndex,
+                selection,
+                onClearSelection: () => setSelection(null),
+                onAddAnnotation: handleAddAnnotation,
+                onAddReply: handleAddReply,
+                onResolveAnnotation: handleResolveAnnotation,
+                onFocusTarget: handleFocusTarget,
+                isSubmitting: isAnnotationSubmitting,
+                error: paneError,
+              }}
+              onFocusTarget={handleFocusDocEditTarget}
+            />
+          )}
         </div>
-
-        {!isStatic && (
-          // Push drawer: a flex sibling whose width animates, so entering
-          // annotate mode slides the pane out from the right and the content
-          // column reflows beside it (never underneath it). Always mounted so
-          // the width change animates; the pane CONTENT mounts only in
-          // annotate mode, keeping the edit-mode DOM free of pane text/roles.
-          <aside
-            className={cn(
-              "shrink-0 overflow-hidden border-l bg-sidebar/40 transition-[width] duration-300 ease-in-out",
-              mode === "annotate" ? "w-[360px]" : "w-0 border-transparent",
-            )}
-            aria-label="Annotations pane"
-            aria-hidden={mode !== "annotate"}
-            data-docs-action-pane={mode === "annotate" ? "" : undefined}
-          >
-            {mode === "annotate" && (
-              <div className="h-full w-[360px] overflow-y-auto p-3">
-                <ActionPane
-                  annotations={annotations?.annotations ?? []}
-                  document={doc}
-                  canvases={canvasIndex}
-                  selection={selection}
-                  onClearSelection={() => setSelection(null)}
-                  onAddAnnotation={handleAddAnnotation}
-                  onResolveAnnotation={handleResolveAnnotation}
-                  onFocusTarget={handleFocusTarget}
-                  isSubmitting={isAnnotationSubmitting}
-                  error={paneError}
-                />
-              </div>
-            )}
-          </aside>
-        )}
       </div>
     </div>
   );

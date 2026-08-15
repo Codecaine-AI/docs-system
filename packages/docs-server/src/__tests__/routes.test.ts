@@ -299,13 +299,14 @@ describe("createDocsRoutes (write contracts)", () => {
     });
     expect(addRes.status).toBe(201);
     const added = (await addRes.json()) as { annotation: { target: { kind: string } } };
-    expect(added.annotation.target).toEqual({
+    expect(added.annotation.target).toMatchObject({
       kind: "text-range",
       blockId: "h1",
       start: 0,
       end: 5,
       quote: "Guide",
     });
+    expect((added.annotation.target as { fingerprint?: string }).fingerprint).toMatch(/^\w+$/);
 
     // end <= start fails the structural check up front.
     const badRes = await postJson("/api/annotations", {
@@ -316,6 +317,54 @@ describe("createDocsRoutes (write contracts)", () => {
       author: "tester",
     });
     expect(badRes.status).toBe(400);
+  });
+
+  test("annotations replies append atomically and enforce hash and draft-lock guards", async () => {
+    const addRes = await postJson("/api/annotations", {
+      path: "guide",
+      target: { kind: "block", blockId: "h1" },
+      body: "Please review",
+      intent: "note",
+      author: "tester",
+    });
+    expect(addRes.status).toBe(201);
+    const added = (await addRes.json()) as { annotation: { id: string }; hash: string };
+
+    const replyRes = await postJson(`/api/annotations/${added.annotation.id}/replies`, {
+      path: "guide",
+      body: "Reviewed and updated.",
+      author: "reviewer",
+      expected_hash: added.hash,
+    });
+    expect(replyRes.status).toBe(200);
+    const replied = (await replyRes.json()) as {
+      annotations: { annotations: Array<{ replies?: Array<{ author: string; body: string }> }> };
+      hash: string;
+    };
+    expect(replied.annotations.annotations[0]?.replies).toEqual([
+      { author: "reviewer", body: "Reviewed and updated.", id: expect.any(String), createdAt: expect.any(String) },
+    ]);
+
+    const staleRes = await postJson(`/api/annotations/${added.annotation.id}/replies`, {
+      path: "guide",
+      body: "A stale reply",
+      expected_hash: added.hash,
+    });
+    expect(staleRes.status).toBe(409);
+
+    const lockRes = await postJson("/api/draft-lock/acquire", {
+      path: "guide",
+      kind: "doc",
+      sessionId: "session-a",
+    });
+    expect(lockRes.status).toBe(200);
+    const lockedReply = await postJson(`/api/annotations/${added.annotation.id}/replies`, {
+      path: "guide",
+      body: "Blocked reply",
+      expected_hash: replied.hash,
+      session_id: "session-b",
+    });
+    expect(lockedReply.status).toBe(423);
   });
 
   test("undo replays the inverse once and fails loudly on double-use", async () => {

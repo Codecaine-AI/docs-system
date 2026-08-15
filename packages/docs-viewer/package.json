@@ -11,6 +11,7 @@
     "./bundle-src": "./src/render/bundle-src.ts",
     "./doc-block-renderer": "./src/render/DocBlockRenderer.tsx",
     "./doc-peek-panel": "./src/peek/DocPeekPanel.tsx",
+    "./lab": "./src/lab/index.ts",
     "./plannotator": "./src/annotate/Plannotator.tsx",
     "./doc-targeting-layer": "./src/annotate/doc-targeting-layer.tsx",
     "./use-transient-highlights": "./src/annotate/useTransientHighlights.ts",

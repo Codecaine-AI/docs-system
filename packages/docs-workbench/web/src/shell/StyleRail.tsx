@@ -197,6 +197,18 @@ export type StyleRailSettings = {
     /** Whether the icon leads or trails the label — --docs-ref-icon-direction. */
     iconPosition: ReferenceIconPosition;
   };
+  annotate: {
+    /** Targeting ring and composer accent; null = follow the app accent. */
+    accent: string | null;
+    /** Staged-diff addition color; null = follow the active theme. */
+    add: string | null;
+    /** Staged-diff deletion color; null = follow the active theme. */
+    del: string | null;
+    /** Ambient annotate-mode accent wash opacity (0-1). */
+    washOpacity: number;
+    /** AI glass-panel width in px. */
+    actionPaneWidth: number;
+  };
   /**
    * Per-component token overrides (file -> key -> serialized token value),
    * layered over the active theme — the SAME vocabulary a theme folder's components/*.json
@@ -268,6 +280,13 @@ export const DEFAULT_STYLE_RAIL_SETTINGS: StyleRailSettings = {
     iconColor: null,
     iconGap: 2,
     iconPosition: "before",
+  },
+  annotate: {
+    accent: null,
+    add: null,
+    del: null,
+    washOpacity: 0.08,
+    actionPaneWidth: 520,
   },
   components: {},
 };
@@ -401,6 +420,7 @@ export function normalizeSettings(raw: unknown): StyleRailSettings {
   const scrollbar = input.scrollbar ?? ({} as Partial<StyleRailSettings["scrollbar"]>);
   const peek = input.peek ?? ({} as Partial<StyleRailSettings["peek"]>);
   const reference = input.reference ?? ({} as Partial<StyleRailSettings["reference"]>);
+  const annotate = input.annotate ?? ({} as Partial<StyleRailSettings["annotate"]>);
   const dragSelect = input.dragSelect ?? ({} as Partial<StyleRailSettings["dragSelect"]>);
   const list = input.list ?? ({} as Partial<StyleRailSettings["list"]>);
   return {
@@ -499,6 +519,18 @@ export function normalizeSettings(raw: unknown): StyleRailSettings {
         d.reference.iconPosition,
       ),
     },
+    annotate: {
+      accent: pickHexColor(annotate.accent),
+      add: pickHexColor(annotate.add),
+      del: pickHexColor(annotate.del),
+      washOpacity: clampNumber(annotate.washOpacity, 0, 0.3, d.annotate.washOpacity),
+      actionPaneWidth: clampNumber(
+        annotate.actionPaneWidth,
+        380,
+        680,
+        d.annotate.actionPaneWidth,
+      ),
+    },
     components: normalizeComponentOverrides(input.components),
     grain: {
       enabled: typeof grain.enabled === "boolean" ? grain.enabled : d.grain.enabled,
@@ -553,7 +585,7 @@ export function saveStyleRailSettings(settings: StyleRailSettings) {
  */
 export function styleRailVars(settings: StyleRailSettings): Record<string, string | null> {
   const d = DEFAULT_STYLE_RAIL_SETTINGS;
-  const { accent, colors, typography, layout, sidebar: sidebarSettings, grain, highlight, dragSelect, list, grip, scrollbar, peek, reference, components } = settings;
+  const { accent, colors, typography, layout, sidebar: sidebarSettings, grain, highlight, dragSelect, list, grip, scrollbar, peek, reference, annotate, components } = settings;
   const { softening } = grain;
 
   const accented = accent !== d.accent;
@@ -741,6 +773,20 @@ export function styleRailVars(settings: StyleRailSettings): Record<string, strin
       reference.iconGap === d.reference.iconGap ? null : `${reference.iconGap}px`,
     "--docs-ref-icon-direction":
       reference.iconPosition === d.reference.iconPosition ? null : "row-reverse",
+
+    // Annotate-mode tokens. At defaults the theme stylesheet remains the
+    // authority; a custom annotation accent also feeds the wash expression.
+    "--annotation-accent": annotate.accent,
+    "--docs-annotation-add": annotate.add,
+    "--docs-annotation-del": annotate.del,
+    "--docs-annotation-wash":
+      annotate.washOpacity === d.annotate.washOpacity
+        ? null
+        : `color-mix(in srgb, var(--annotation-accent) ${Math.round(annotate.washOpacity * 100)}%, transparent)`,
+    "--docs-action-pane-width":
+      annotate.actionPaneWidth === d.annotate.actionPaneWidth
+        ? null
+        : `${annotate.actionPaneWidth}px`,
 
     "--radius": layout.radius === d.layout.radius ? null : `${layout.radius}px`,
     "--border": border,

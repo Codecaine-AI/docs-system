@@ -38,6 +38,7 @@ const EXPECTED_NAV_GROUPS = [
       { id: "theme.typography", label: "Typography" },
       { id: "theme.background", label: "Background" },
       { id: "theme.surfaces", label: "Surfaces" },
+      { id: "theme.annotate", label: "Annotate" },
     ],
   },
   {
@@ -128,6 +129,15 @@ function settingsWithReference(
   };
 }
 
+function settingsWithAnnotate(
+  annotate: Partial<StyleRailSettings["annotate"]>,
+): StyleRailSettings {
+  return {
+    ...DEFAULT_STYLE_RAIL_SETTINGS,
+    annotate: { ...DEFAULT_STYLE_RAIL_SETTINGS.annotate, ...annotate },
+  };
+}
+
 function RailHarness({ initial = DEFAULT_STYLE_RAIL_SETTINGS }: { initial?: StyleRailSettings }) {
   const [settings, setSettings] = useState(initial);
   const [dark, setDark] = useState(false);
@@ -185,6 +195,7 @@ describe("style rail override helpers", () => {
       "theme.typography": 1,
       "theme.background": 0,
       "theme.surfaces": 0,
+      "theme.annotate": 0,
       "theme.references": 0,
       "blocks.inline-code": 0,
       "blocks.paragraph": 0,
@@ -264,14 +275,20 @@ describe("style rail override helpers", () => {
 });
 
 describe("style rail navigation", () => {
-  it("renders the six regrouped sections with all 28 pane items in order", () => {
+  it("renders the six regrouped sections with all 29 pane items in order", () => {
     expect(
       STYLE_RAIL_GROUPS.map((group) => ({
         id: group.id,
         label: group.label,
         items: group.items.map((item) => ({ id: item.id, label: item.label })),
       })),
-    ).toEqual(EXPECTED_NAV_GROUPS);
+    ).toEqual(
+      EXPECTED_NAV_GROUPS.map((group) => ({
+        id: group.id,
+        label: group.label,
+        items: group.items.map((item) => ({ id: item.id, label: item.label })),
+      })),
+    );
 
     render(<RailHarness />);
     const navigation = within(screen.getByRole("navigation", { name: "Style sections" }));
@@ -288,7 +305,7 @@ describe("style rail navigation", () => {
         expect(navigation.getByRole("button", { name: item.label })).toBeTruthy();
       }
     }
-    expect(navigation.getAllByRole("button")).toHaveLength(5 + 4 + 9 + 3 + 4 + 3);
+    expect(navigation.getAllByRole("button")).toHaveLength(6 + 4 + 9 + 3 + 4 + 3);
   });
 
   it("swaps the visible detail pane when a rail item is selected", () => {
@@ -865,6 +882,100 @@ describe("style rail reference settings", () => {
       iconGap: 7,
       iconPosition: "after",
     });
+  });
+});
+
+describe("style rail annotate settings", () => {
+  it("defaults legacy blobs and normalizes annotate overrides", () => {
+    expect(DEFAULT_STYLE_RAIL_SETTINGS.annotate).toEqual({
+      accent: null,
+      add: null,
+      del: null,
+      washOpacity: 0.08,
+      actionPaneWidth: 520,
+    });
+    expect(normalizeSettings({ accent: "purple" }).annotate).toEqual(
+      DEFAULT_STYLE_RAIL_SETTINGS.annotate,
+    );
+
+    expect(
+      normalizeSettings({
+        annotate: {
+          accent: "#ABCDEF",
+          add: "#22C55E",
+          del: "#EF4444",
+          washOpacity: 0.14,
+          actionPaneWidth: 440,
+        },
+      }).annotate,
+    ).toEqual({
+      accent: "#abcdef",
+      add: "#22c55e",
+      del: "#ef4444",
+      washOpacity: 0.14,
+      actionPaneWidth: 440,
+    });
+
+    expect(
+      normalizeSettings({
+        annotate: {
+          accent: "indigo",
+          add: "#bad",
+          del: 1,
+          washOpacity: 1,
+          actionPaneWidth: 999,
+        },
+      }).annotate,
+    ).toEqual({
+      accent: null,
+      add: null,
+      del: null,
+      washOpacity: 0.3,
+      actionPaneWidth: 680,
+    });
+    expect(
+      normalizeSettings({ annotate: { washOpacity: -1, actionPaneWidth: 1 } }).annotate,
+    ).toMatchObject({ washOpacity: 0, actionPaneWidth: 380 });
+  });
+
+  it("emits annotate variables only away from semantic defaults", () => {
+    const defaultVars = styleRailVars(DEFAULT_STYLE_RAIL_SETTINGS);
+    expect(defaultVars["--annotation-accent"]).toBeNull();
+    expect(defaultVars["--docs-annotation-add"]).toBeNull();
+    expect(defaultVars["--docs-annotation-del"]).toBeNull();
+    expect(defaultVars["--docs-annotation-wash"]).toBeNull();
+    expect(defaultVars["--docs-action-pane-width"]).toBeNull();
+
+    const vars = styleRailVars(
+      settingsWithAnnotate({
+        accent: "#6366F1",
+        add: "#22C55E",
+        del: "#EF4444",
+        washOpacity: 0.15,
+        actionPaneWidth: 440,
+      }),
+    );
+    expect(vars["--annotation-accent"]).toBe("#6366F1");
+    expect(vars["--docs-annotation-add"]).toBe("#22C55E");
+    expect(vars["--docs-annotation-del"]).toBe("#EF4444");
+    expect(vars["--docs-annotation-wash"]).toBe(
+      "color-mix(in srgb, var(--annotation-accent) 15%, transparent)",
+    );
+    expect(vars["--docs-action-pane-width"]).toBe("440px");
+  });
+
+  it("persists a normalized annotate group", () => {
+    const normalized = normalizeSettings({
+      annotate: {
+        accent: "#6366f1",
+        add: "#22c55e",
+        del: "#ef4444",
+        washOpacity: 0.12,
+        actionPaneWidth: 400,
+      },
+    });
+    saveStyleRailSettings(normalized);
+    expect(loadStyleRailSettings().annotate).toEqual(normalized.annotate);
   });
 });
 

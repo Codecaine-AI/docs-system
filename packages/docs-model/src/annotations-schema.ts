@@ -27,8 +27,16 @@ import { deltaToPlainTextInline } from "./delta-markdown";
 export type { AnnotationAgentRun, DanglingTarget } from "@codecaine-ai/annotations/core";
 import type { AnnotationAgentRun, DanglingTarget } from "@codecaine-ai/annotations/core";
 
+/** A message in an annotation's optional conversation thread. */
+export type DocAnnotationReply = {
+  id: string;
+  author: string;
+  body: string;
+  createdAt: string;
+};
+
 export type AnnotationTarget =
-  | { kind: "block"; blockId: string }
+  | { kind: "block"; blockId: string; fingerprint?: string }
   | {
       kind: "canvas-object";
       canvasSrc: string;
@@ -53,6 +61,7 @@ export type AnnotationTarget =
       start: number;
       end: number;
       quote: string;
+      fingerprint?: string;
     };
 
 export type AnnotationIntent = "note" | "agent-request";
@@ -80,6 +89,8 @@ export type DocAnnotation = {
    * still validate.
    */
   resolution?: string;
+  /** Optional conversation thread. Kept in the annotations sidecar. */
+  replies?: DocAnnotationReply[];
 };
 
 export type AnnotationsDocument = { schemaVersion: 1; annotations: DocAnnotation[] };
@@ -94,14 +105,39 @@ type CanvasObjectTarget = Extract<AnnotationTarget, { kind: "canvas-object" }>;
 type TextRangeTarget = Extract<AnnotationTarget, { kind: "text-range" }>;
 type CanvasIndex = Record<string, { objectIds: ReadonlySet<string>; connectionIds: ReadonlySet<string> }>;
 
+const INVALID_FINGERPRINT = Symbol("invalid-fingerprint");
+
+/** Optional/additive target drift evidence. It is never part of target identity. */
+function validateFingerprint(
+  raw: Record<string, unknown>,
+  path: string,
+  issues: ValidationIssue[],
+): string | undefined | typeof INVALID_FINGERPRINT {
+  if (raw.fingerprint === undefined) return undefined;
+  if (typeof raw.fingerprint !== "string" || raw.fingerprint.length === 0) {
+    issues.push({
+      path: `${path}.fingerprint`,
+      message: "Annotation target fingerprint must be a non-empty string.",
+    });
+    return INVALID_FINGERPRINT;
+  }
+  return raw.fingerprint;
+}
+
 export const blockTargetAdapter: TargetAdapter<BlockTarget, DocDocument | null> = {
   kind: "block",
   validateTarget(raw, path, issues: ValidationIssue[]) {
+    const fingerprint = validateFingerprint(raw, path, issues);
     if (!isId(raw.blockId)) {
       issues.push({ path: `${path}.blockId`, message: "Block target requires a valid blockId." });
       return null;
     }
-    return { kind: "block", blockId: raw.blockId };
+    if (fingerprint === INVALID_FINGERPRINT) return null;
+    return {
+      kind: "block",
+      blockId: raw.blockId,
+      ...(typeof fingerprint === "string" ? { fingerprint } : {}),
+    };
   },
   key: (target) => `block:${target.blockId}`,
   label: (target) => `Block ${target.blockId}`,
@@ -284,6 +320,8 @@ export const textRangeTargetAdapter: TargetAdapter<TextRangeTarget, DocDocument 
       });
       ok = false;
     }
+    const fingerprint = validateFingerprint(raw, path, issues);
+    if (fingerprint === INVALID_FINGERPRINT) ok = false;
     if (!ok) return null;
     return {
       kind: "text-range",
@@ -291,6 +329,7 @@ export const textRangeTargetAdapter: TargetAdapter<TextRangeTarget, DocDocument 
       start: raw.start as number,
       end: raw.end as number,
       quote: raw.quote as string,
+      ...(typeof fingerprint === "string" ? { fingerprint } : {}),
     };
   },
   key: (target) => `text-range:${target.blockId}:${target.start}-${target.end}`,
@@ -334,6 +373,50 @@ export function validateAnnotationsDocument(value: unknown): AnnotationsValidati
   // The schema is configured with the docs intents/statuses, so the wide
   // engine strings are guaranteed to be the narrow docs unions.
   return { ok: true, document: result.document as AnnotationsDocument };
+}
+
+/* ------------------------------------------------------------------ */
+/* Target fingerprints — drift evidence, not identity                  */
+/* ------------------------------------------------------------------ */
+
+function hashText(text: string): string {
+  let hash = 0x811c9dc5;
+  for (let index = 0; index < text.length; index += 1) {
+    hash ^= text.charCodeAt(index);
+    hash = Math.imul(hash, 0x01000193) >>> 0;
+  }
+  return hash.toString(16).padStart(8, "0");
+}
+
+/**
+ * The target's current content fingerprint, or null when the target cannot
+ * be represented as document text (canvas targets, or a missing block).
+ */
+export function docTargetFingerprint(
+  doc: DocDocument,
+  target: AnnotationTarget,
+): string | null {
+  if (target.kind === "canvas-object") return null;
+  const block = doc.blocks[target.blockId];
+  if (!block) return null;
+  const text = target.kind === "text-range"
+    ? target.quote
+    : deltaToPlainTextInline(block.text);
+  return hashText(normalizeQuote(text));
+}
+
+/**
+ * Whether an annotation's filed target fingerprint differs from its current
+ * text. Unstamped annotations and targets that no longer resolve are not
+ * reported here; dangling-target handling owns the latter case.
+ */
+export function docTargetFingerprintChanged(doc: DocDocument, annotation: DocAnnotation): boolean {
+  const fingerprint = annotation.target.kind === "canvas-object"
+    ? undefined
+    : annotation.target.fingerprint;
+  if (fingerprint === undefined) return false;
+  const current = docTargetFingerprint(doc, annotation.target);
+  return current !== null && current !== fingerprint;
 }
 
 /**

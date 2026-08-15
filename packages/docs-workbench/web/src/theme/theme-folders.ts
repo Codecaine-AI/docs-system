@@ -128,6 +128,17 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
     highlight: color("--docs-link-bg"),
     pin: color("--docs-link-pin"),
   },
+  annotate: {
+    accent: color("--annotation-accent"),
+    surface: color("--annotation-surface"),
+    text: color("--annotation-text"),
+    muted: color("--annotation-muted"),
+    border: color("--annotation-border"),
+    danger: color("--annotation-danger"),
+    add: color("--docs-annotation-add"),
+    del: color("--docs-annotation-del"),
+    wash: color("--docs-annotation-wash"),
+  },
   // -- one file per block-vocabulary type ------------------------------------
   paragraph: {
     fg: color("--docs-paragraph-fg"),

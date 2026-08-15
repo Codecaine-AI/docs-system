@@ -1,0 +1,12 @@
+{
+  "manifestVersion": 2,
+  "kernelId": "docs-system",
+  "displayName": "Docs System",
+  "kernelRoot": "/Users/Ford/Github Repos/Codecaine/Core/docs-system/.agent-kernel",
+  "dbPath": "/Users/Ford/Github Repos/Codecaine/Core/docs-system/.agent-kernel/trace.db",
+  "catalogRoots": [
+    "/Users/Ford/Github Repos/Codecaine/Core/docs-system/catalog"
+  ],
+  "piSessionsDir": "/Users/Ford/Github Repos/Codecaine/Core/docs-system/.agent-kernel/pi-sessions",
+  "readApiBaseUrl": "http://127.0.0.1:4840"
+}

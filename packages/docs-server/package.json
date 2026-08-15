@@ -17,6 +17,7 @@
     "./atomic-write": "./src/atomic-write.ts",
     "./content-hash": "./src/content-hash.ts",
     "./bundle": "./src/bundle.ts",
+    "./proposal-ops": "./src/proposal-ops.ts",
     "./confine": "./src/confine.ts",
     "./docs-tree": "./src/docs-tree.ts"
   },

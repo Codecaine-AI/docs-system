@@ -7,7 +7,7 @@ import type { Editor } from "@tiptap/react";
 import { DocsClientProvider } from "@codecaine-ai/docs-viewer/client";
 
 import { createDocsServeApp } from "../../../src/server";
-import { applyDocOps, getBundle, undoPatch, ApiError } from "../data/api";
+import { applyDocOps, getBundle, stageProposal, undoPatch, ApiError } from "../data/api";
 import { getSessionId } from "../data/session";
 import { createStandaloneDocsClient } from "../data/client";
 import { StandaloneCanvasEmbed } from "../pages/CanvasEmbed";
@@ -67,6 +67,9 @@ const BUNDLES: Array<[string, string]> = [
   ["80-rename", "Rename"],
   ["77-nav-target", "NavTarget"],
   ["80-undo", "Undo"],
+  ["90-lab", "Lab"],
+  ["91-stale-proposal", "StaleProposal"],
+  ["92-mode", "Mode"],
 ];
 
 /**
@@ -182,7 +185,7 @@ afterEach(() => {
 });
 
 describe("workbench shell", () => {
-  it("renders the tree, doc header, and mode switcher", async () => {
+  it("renders the tree, doc header, and glass-panel mode tabs", async () => {
     window.location.hash = "#/10-guide";
     render(<App />);
 
@@ -190,9 +193,9 @@ describe("workbench shell", () => {
       expect(screen.getByText("Hello from Guide")).toBeTruthy();
     });
     expect(screen.getByText("docs/10-guide")).toBeTruthy();
-    expect(screen.getByRole("group", { name: "Docs workbench mode" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Edit mode" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Annotate mode" })).toBeTruthy();
+    expect(screen.getByRole("complementary", { name: "Lab panel" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Edit" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "AI" })).toBeTruthy();
     // Two modes only — read mode collapsed into the always-editable default.
     expect(!!screen.queryByRole("button", { name: "Read mode" })).toBe(false);
     // Edit IS the default: the editor mounts with no mode click, and the
@@ -220,9 +223,8 @@ describe("workbench shell", () => {
     await waitFor(() => {
       expect(screen.getByText("Hello from Guide")).toBeTruthy();
     });
-    expect(!!screen.queryByRole("group", { name: "Docs workbench mode" })).toBe(false);
+    expect(!!document.querySelector("[data-lab-dock]")).toBe(false);
     expect(!!document.querySelector("[data-docs-undo]")).toBe(false);
-    expect(!!document.querySelector("[data-docs-action-pane]")).toBe(false);
     // No editor and no save indicator either — static is read-only.
     expect(!!document.querySelector('[data-doc-editor="true"]')).toBe(false);
     expect(saveStateAttr()).toBe(null);
@@ -413,7 +415,7 @@ describe("edit mode save loop", () => {
     });
     await makeEditorDirty(() => editor, "FLUSHMARK ");
 
-    fireEvent.click(screen.getByRole("button", { name: "Annotate mode" }));
+    fireEvent.click(screen.getByRole("button", { name: "AI" }));
 
     // The editor unmounted with the debounce still pending — the unmount
     // flush persists the draft anyway…
@@ -526,19 +528,18 @@ describe("page title rename", () => {
 
 describe("annotate mode", () => {
   // The annotate UX standard (shared @codecaine-ai/annotations targeting):
-  // click pins the block and opens the ANCHORED composer popover next to it
-  // (no side-panel composer, no intent picker — every annotation is an agent
-  // request); the side pane is the list-only thread view.
-  const composerSelector = '[data-annotation-ui="composer-popover"]';
-  const composerPlaceholder = "Describe what you want an agent to do...";
+  // click pins the block and opens the inline lab composer next to it; every
+  // block/text request files through the projected edit session.
+  const composerSelector = "[data-docs-lab-composer]";
+  const composerPlaceholder = "What should change here?";
 
   it("creates an agent-request annotation against a clicked block and resolves it", async () => {
     renderDocPage("50-annotations");
     await waitFor(() => {
       expect(screen.getByText("Hello from Annotations")).toBeTruthy();
     });
-    fireEvent.click(screen.getByRole("button", { name: "Annotate mode" }));
-    // level 2: the annotations PANE header — the fixture's page title (h1)
+    fireEvent.click(screen.getByRole("button", { name: "AI" }));
+    // level 2: the Threads-zone annotation header — the fixture's page title (h1)
     // also reads "Annotations" since the R2-D11 page-title furniture.
     expect(screen.getByRole("heading", { name: "Annotations", level: 2 })).toBeTruthy();
 
@@ -555,14 +556,14 @@ describe("annotate mode", () => {
     fireEvent.change(screen.getByPlaceholderText(composerPlaceholder), {
       target: { value: "Tighten this paragraph." },
     });
-    fireEvent.click(screen.getByRole("button", { name: "Annotate" }));
+    fireEvent.click(screen.getByRole("button", { name: "Queue" }));
 
     // Successful post closes the popover and lists the annotation. (Boolean
     // coercion keeps failure output small — element dumps here are huge.)
     await waitFor(
       () => {
         expect(!!document.querySelector(composerSelector)).toBe(false);
-        expect(!!screen.getByText("Tighten this paragraph.")).toBe(true);
+        expect(screen.getAllByText("Tighten this paragraph.").length).toBeGreaterThan(0);
       },
       { timeout: 5000 },
     );
@@ -591,7 +592,7 @@ describe("annotate mode", () => {
     await waitFor(() => {
       expect(screen.getByText("Hello from Hover")).toBeTruthy();
     });
-    fireEvent.click(screen.getByRole("button", { name: "Annotate mode" }));
+    fireEvent.click(screen.getByRole("button", { name: "AI" }));
 
     const block = document.querySelector('[data-block-id="para-1"]');
     expect(block).toBeTruthy();
@@ -603,16 +604,12 @@ describe("annotate mode", () => {
     const chip = document.querySelector('[data-annotation-ui="hover-chip"]');
     expect(chip?.textContent).toBe("Paragraph: Hello from Hover");
 
-    // Clicking pins the target: the anchored popover opens with the same
-    // descriptor label in its header, the selected ring draws, and the
+    // Clicking pins the target: the inline composer opens, the selected ring draws, and the
     // hover affordance stands down while the popover is open.
     fireEvent.click(block!);
     await waitFor(() => {
       expect(!!document.querySelector(composerSelector)).toBe(true);
     });
-    expect(
-      document.querySelector("[data-annotation-composer-label]")?.textContent,
-    ).toBe("Paragraph: Hello from Hover");
     expect(!!document.querySelector('[data-annotation-ui="selected-ring"]')).toBe(true);
     expect(!!document.querySelector('[data-annotation-ui="hover-ring"]')).toBe(false);
 
@@ -632,14 +629,14 @@ describe("annotate mode", () => {
     fireEvent.change(screen.getByPlaceholderText(composerPlaceholder), {
       target: { value: "Layer-selected annotation." },
     });
-    fireEvent.click(screen.getByRole("button", { name: "Annotate" }));
+    fireEvent.click(screen.getByRole("button", { name: "Queue" }));
     // Wait for the popover to CLOSE (not just for the text — the textarea's
     // own content matches it immediately): a closed popover means the POST
     // round-tripped and the sidecar write is on disk.
     await waitFor(
       () => {
         expect(!!document.querySelector(composerSelector)).toBe(false);
-        expect(!!screen.getByText("Layer-selected annotation.")).toBe(true);
+        expect(screen.getAllByText("Layer-selected annotation.").length).toBeGreaterThan(0);
       },
       { timeout: 5000 },
     );
@@ -652,7 +649,7 @@ describe("annotate mode", () => {
     await waitFor(() => {
       expect(screen.getByText("Hello from Range")).toBeTruthy();
     });
-    fireEvent.click(screen.getByRole("button", { name: "Annotate mode" }));
+    fireEvent.click(screen.getByRole("button", { name: "AI" }));
 
     const block = document.querySelector('[data-block-id="para-1"]') as HTMLElement;
     expect(block).toBeTruthy();
@@ -673,19 +670,14 @@ describe("annotate mode", () => {
     await waitFor(() => {
       expect(!!document.querySelector(composerSelector)).toBe(true);
     });
-    // The popover header labels the quoted text.
-    expect(
-      document.querySelector("[data-annotation-composer-label]")?.textContent,
-    ).toBe('Text "Hello"');
-
     fireEvent.change(screen.getByPlaceholderText(composerPlaceholder), {
       target: { value: "Reword this phrase." },
     });
-    fireEvent.click(screen.getByRole("button", { name: "Annotate" }));
+    fireEvent.click(screen.getByRole("button", { name: "Queue" }));
     await waitFor(
       () => {
         expect(!!document.querySelector(composerSelector)).toBe(false);
-        expect(!!screen.getByText("Reword this phrase.")).toBe(true);
+        expect(screen.getAllByText("Reword this phrase.").length).toBeGreaterThan(0);
       },
       { timeout: 5000 },
     );
@@ -705,7 +697,7 @@ describe("annotate mode", () => {
     await waitFor(() => {
       expect(screen.getByText("Hello from Hover")).toBeTruthy();
     });
-    fireEvent.click(screen.getByRole("button", { name: "Annotate mode" }));
+    fireEvent.click(screen.getByRole("button", { name: "AI" }));
 
     const block = document.querySelector('[data-block-id="para-1"]') as HTMLElement;
     const walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT);
@@ -720,6 +712,125 @@ describe("annotate mode", () => {
 
     expect(!!document.querySelector(composerSelector)).toBe(false);
     domSelection.removeAllRanges();
+  });
+});
+
+describe("docs lab integration", () => {
+  it("uses glass tabs for targeting, disconnected Apply, wash, and Escape", async () => {
+    renderDocPage("92-mode");
+    await waitFor(() => expect(screen.getByText("Hello from Mode")).toBeTruthy());
+
+    fireEvent.click(screen.getByRole("button", { name: "AI" }));
+    expect(document.querySelector('[data-docs-mode="annotate"]')).toBeTruthy();
+    expect(document.querySelector("[data-docs-annotation-wash]")).toBeTruthy();
+    const apply = document.querySelector<HTMLButtonElement>("[data-docs-lab-queue-apply]");
+    expect(apply?.disabled).toBe(true);
+    expect(apply?.title).toBe("docs agent not connected");
+
+    const block = document.querySelector('[data-block-id="para-1"]')!;
+    fireEvent.mouseMove(block);
+    expect(document.querySelector('[data-annotation-ui="hover-ring"]')).toBeTruthy();
+
+    fireEvent.click(block);
+    expect(document.querySelector("[data-docs-lab-composer]")).toBeTruthy();
+    fireEvent.keyDown(document, { key: "Escape" });
+    await waitFor(() => {
+      expect(document.querySelector("[data-docs-lab-composer]")).toBeNull();
+    });
+    expect(document.querySelector('[data-docs-mode="annotate"]')).toBeTruthy();
+
+    fireEvent.keyDown(document, { key: "Escape" });
+    await waitFor(() => {
+      expect(document.querySelector('[data-docs-mode="edit"]')).toBeTruthy();
+    });
+    expect(document.querySelector("[data-docs-annotation-wash]")).toBeNull();
+  });
+
+  it("renders staged before/after regions, excludes their blocks, and accepts", async () => {
+    const bundle = await getBundle("90-lab");
+    await stageProposal("90-lab", {
+      ops: [
+        {
+          type: "updateBlock",
+          blockId: "para-1",
+          text: [{ insert: "Hello after proposal" }],
+        },
+      ],
+      summary: "Rewrite the lab paragraph",
+      expectedHash: bundle.doc_hash,
+      alias: "A1",
+    });
+
+    renderDocPage("90-lab");
+    await waitFor(() => expect(screen.getByText("Hello from Lab")).toBeTruthy());
+    fireEvent.click(screen.getByRole("button", { name: "AI" }));
+
+    await waitFor(() => {
+      expect(document.querySelector('[data-docs-lab-proposal-bar="A1"]')).toBeTruthy();
+      expect(document.querySelector('[data-docs-staged-before="A1"]')).toBeTruthy();
+      expect(document.querySelector('[data-docs-staged-after="A1"]')).toBeTruthy();
+    });
+    expect(screen.getByText("Hello from Lab")).toBeTruthy();
+    expect(screen.getByText("Hello after proposal")).toBeTruthy();
+
+    for (const selector of [
+      '[data-docs-staged-before="A1"] [data-block-id="para-1"]',
+      '[data-docs-staged-after="A1"] [data-block-id="para-1"]',
+    ]) {
+      const stagedBlock = document.querySelector(selector)!;
+      fireEvent.mouseMove(stagedBlock);
+      fireEvent.click(stagedBlock);
+      expect(document.querySelector('[data-annotation-ui="hover-ring"]')).toBeNull();
+      expect(document.querySelector("[data-docs-lab-composer]")).toBeNull();
+    }
+
+    fireEvent.click(screen.getByRole("button", { name: "Accept A1" }));
+    await waitFor(
+      () => {
+        expect(!!document.querySelector('[data-docs-staged-before="A1"]')).toBe(false);
+        expect(screen.getByText("Hello after proposal")).toBeTruthy();
+      },
+      { timeout: 10000 },
+    );
+    expect(await readFile(join(docsRoot, "90-lab", "doc.json"), "utf8")).toContain(
+      "Hello after proposal",
+    );
+  }, 15000);
+
+  it("shows stale proposals as conflict rows instead of inline regions", async () => {
+    const bundle = await getBundle("91-stale-proposal");
+    await stageProposal("91-stale-proposal", {
+      ops: [
+        {
+          type: "updateBlock",
+          blockId: "para-1",
+          text: [{ insert: "Stale proposal text" }],
+        },
+      ],
+      summary: "Outdated rewrite",
+      expectedHash: bundle.doc_hash,
+      alias: "A2",
+    });
+    await postOpsAs("other-session", "91-stale-proposal", "Newer document text");
+
+    renderDocPage("91-stale-proposal");
+    await waitFor(() => expect(screen.getByText("Newer document text")).toBeTruthy());
+    fireEvent.click(screen.getByRole("button", { name: "AI" }));
+
+    await waitFor(() => {
+      expect(document.querySelector('[data-docs-stale-proposal="A2"]')).toBeTruthy();
+    });
+    expect(screen.getByText("stale")).toBeTruthy();
+    expect(document.querySelector("[data-docs-staged-before]")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Reject A2" }));
+    await waitFor(async () => {
+      expect(
+        await readFile(join(docsRoot, "91-stale-proposal", "proposals.json"), "utf8"),
+      ).toContain('"status": "rejected"');
+    });
+    await waitFor(() => {
+      expect(!!document.querySelector('[data-docs-stale-proposal="A2"]')).toBe(false);
+    });
   });
 });
 

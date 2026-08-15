@@ -7,6 +7,11 @@ import type { StyleRailPaneId } from "./style-rail-nav";
 
 export type StyleRailSettingLeafPath =
   | "accent"
+  | "annotate.accent"
+  | "annotate.add"
+  | "annotate.del"
+  | "annotate.washOpacity"
+  | "annotate.actionPaneWidth"
   | "colors.background"
   | "colors.sidebar"
   | "colors.text"
@@ -95,6 +100,13 @@ const PANE_SETTING_LEAVES: Partial<
   Record<StyleRailPaneId, readonly StyleRailSettingLeafPath[]>
 > = {
   "theme.colors": ["accent", "colors.background", "colors.sidebar", "colors.text"],
+  "theme.annotate": [
+    "annotate.accent",
+    "annotate.add",
+    "annotate.del",
+    "annotate.washOpacity",
+    "annotate.actionPaneWidth",
+  ],
   "theme.typography": [
     "typography.bodyFont",
     "typography.headingFont",

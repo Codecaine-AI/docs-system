@@ -8,8 +8,12 @@ import type {
   AnnotationsDocument,
   AnnotationTarget,
   DocAnnotation,
+  DocAnnotationReply,
 } from "@codecaine-ai/docs-model/annotations-schema";
-import { validateAnnotationsDocument } from "@codecaine-ai/docs-model/annotations-schema";
+import {
+  docTargetFingerprint,
+  validateAnnotationsDocument,
+} from "@codecaine-ai/docs-model/annotations-schema";
 import { resolveDocBundleJsonPath } from "@codecaine-ai/docs-index/paths";
 
 import { withPathLock } from "./path-mutex";
@@ -201,6 +205,10 @@ export async function addBundleAnnotation(
   if (!isValidAnnotationTarget(input.target)) {
     return { ok: false, status: 400, detail: "Annotation target is invalid" };
   }
+  const loaded = await loadDocBundle(docsRoot, path);
+  if ("error" in loaded) {
+    return { ok: false, status: loaded.error.status, detail: loaded.error.detail };
+  }
   const annotationsAbs = annotationsSidecarAbs(jsonAbs);
   const bundlePath = normalizeBundlePath(path);
 
@@ -231,7 +239,11 @@ export async function addBundleAnnotation(
 
     const annotation: DocAnnotation = {
       id: randomUUID(),
-      target: input.target as AnnotationTarget,
+      target: (() => {
+        const target = input.target as AnnotationTarget;
+        const fingerprint = docTargetFingerprint(loaded.document, target);
+        return fingerprint === null ? target : { ...target, fingerprint };
+      })(),
       body: input.body,
       intent: input.intent,
       author: input.author,
@@ -254,6 +266,96 @@ export async function addBundleAnnotation(
     }
     const written = await writeAnnotationsSidecar(annotationsAbs, validated.document);
     return { ok: true, annotation, annotations: validated.document, hash: written.hash };
+  });
+}
+
+export type AddBundleAnnotationReplyInput = {
+  body: string;
+  author: string;
+  expectedHash?: string;
+};
+
+export type AddBundleAnnotationReplyResult =
+  | { ok: true; reply: DocAnnotationReply; annotations: AnnotationsDocument; hash: string }
+  | {
+      ok: false;
+      status: number;
+      detail: string;
+      current_hash?: string;
+      expected_hash?: string;
+      held_by?: DraftLockInfo;
+    };
+
+/** Adds a reply to an annotation's thread under the sidecar hash + draft-lock guards. */
+export async function addBundleAnnotationReply(
+  docsRoot: string,
+  path: string,
+  annotationId: string,
+  input: AddBundleAnnotationReplyInput,
+  sessionId?: string,
+): Promise<AddBundleAnnotationReplyResult> {
+  const jsonAbs = resolveDocBundleJsonPath(docsRoot, path);
+  if (!jsonAbs) {
+    return { ok: false, status: 400, detail: `Invalid docs path: ${path}` };
+  }
+  const annotationsAbs = annotationsSidecarAbs(jsonAbs);
+  const bundlePath = normalizeBundlePath(path);
+
+  return withPathLock(annotationsAbs, async (): Promise<AddBundleAnnotationReplyResult> => {
+    const existing = await readAnnotationsSidecar(annotationsAbs);
+    if ("error" in existing) {
+      return { ok: false, status: existing.error.status, detail: existing.error.detail };
+    }
+    if (input.expectedHash && input.expectedHash !== existing.hash) {
+      return {
+        ok: false,
+        status: 409,
+        detail: "Annotations sidecar is stale; reload before adding a reply.",
+        current_hash: existing.hash ?? undefined,
+        expected_hash: input.expectedHash,
+      };
+    }
+    const annotationIndex = existing.annotations.annotations.findIndex(
+      (annotation) => annotation.id === annotationId,
+    );
+    if (annotationIndex < 0) {
+      return { ok: false, status: 404, detail: `Annotation not found: ${annotationId}` };
+    }
+
+    const lockCheck = draftLockStore.checkForMutation({ kind: "doc", path: bundlePath }, sessionId);
+    if (lockCheck.blocked) {
+      return {
+        ok: false,
+        status: 423,
+        detail: "Draft in progress — another session is editing this file.",
+        held_by: lockCheck.heldBy,
+      };
+    }
+
+    const reply: DocAnnotationReply = {
+      id: randomUUID(),
+      author: input.author,
+      body: input.body,
+      createdAt: new Date().toISOString(),
+    };
+    const nextAnnotations = existing.annotations.annotations.map((annotation, index) =>
+      index === annotationIndex
+        ? { ...annotation, replies: [...(annotation.replies ?? []), reply] }
+        : annotation,
+    );
+    const nextDocument: AnnotationsDocument = { schemaVersion: 1, annotations: nextAnnotations };
+    const validated = validateAnnotationsDocument(nextDocument);
+    if (!validated.ok) {
+      return {
+        ok: false,
+        status: 422,
+        detail: `Annotation failed schema validation: ${validated.issues
+          .map((issue) => `${issue.path}: ${issue.message}`)
+          .join("; ")}`,
+      };
+    }
+    const written = await writeAnnotationsSidecar(annotationsAbs, validated.document);
+    return { ok: true, reply, annotations: validated.document, hash: written.hash };
   });
 }
 

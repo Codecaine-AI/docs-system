@@ -71,7 +71,12 @@ const CORS_HEADERS = {
  *   POST /api/ops                           -> doc ops or one forwarded canvas/sequence action | 400/409/423
  *   GET  /api/annotations?path=             -> { annotations, hash }
  *   POST /api/annotations                   -> 201 { annotation, annotations, hash } | 409/423
+ *   POST /api/annotations/:annotationId/replies -> { annotations, hash } | 404/409/423
  *   POST /api/annotations/:annotationId/resolve -> { annotations, hash } | 404/409/423
+ *   GET  /api/proposals?path=               -> { proposals, hash }
+ *   POST /api/proposals                     -> 201 { proposal, proposals, hash } | 400/409/423
+ *   POST /api/proposals/:id/accept          -> accepted proposal + applied doc/patch | 404/409/423
+ *   POST /api/proposals/:id/reject          -> rejected proposal + proposal sidecar | 404/409/423
  *   POST /api/draft-lock/acquire            -> { ok, lock } | 423 { ok:false, reason, heldBy }
  *   POST /api/draft-lock/heartbeat          -> same as acquire
  *   POST /api/draft-lock/release            -> { ok: true }
@@ -560,6 +565,40 @@ export function createDocsRoutes(store: DocsStore, options?: { themeLocked?: boo
       },
     )
     .post(
+      "/api/annotations/:annotationId/replies",
+      async ({ params, body, set }) => {
+        const result = await store.addAnnotationReply(
+          body.path,
+          params.annotationId,
+          {
+            body: body.body,
+            author: body.author ?? "anonymous",
+            expectedHash: body.expected_hash,
+          },
+          body.session_id,
+        );
+        if (!result.ok) {
+          set.status = result.status;
+          return {
+            detail: result.detail,
+            current_hash: result.current_hash,
+            expected_hash: result.expected_hash,
+            held_by: result.held_by,
+          };
+        }
+        return { annotations: result.annotations, hash: result.hash };
+      },
+      {
+        body: t.Object({
+          path: t.String({ minLength: 1 }),
+          body: t.String({ minLength: 1 }),
+          author: t.Optional(t.String({ minLength: 1 })),
+          expected_hash: t.Optional(t.String()),
+          session_id: t.Optional(t.String()),
+        }),
+      },
+    )
+    .post(
       "/api/annotations/:annotationId/resolve",
       async ({ params, body, set }) => {
         const result = await store.resolveAnnotation(
@@ -578,6 +617,138 @@ export function createDocsRoutes(store: DocsStore, options?: { themeLocked?: boo
           };
         }
         return { annotations: result.annotations, hash: result.hash };
+      },
+      {
+        body: t.Object({
+          path: t.String({ minLength: 1 }),
+          expected_hash: t.Optional(t.String()),
+          session_id: t.Optional(t.String()),
+        }),
+      },
+    )
+
+    // -- staged proposals ------------------------------------------------------
+    .get(
+      "/api/proposals",
+      async ({ query, set }) => {
+        const result = await store.proposals(query.path);
+        if (!result.ok) {
+          set.status = result.status;
+          return {
+            detail: result.detail,
+            current_hash: result.current_hash,
+            expected_hash: result.expected_hash,
+            issues: result.issues,
+            held_by: result.held_by,
+          };
+        }
+        return { proposals: result.proposals, hash: result.hash };
+      },
+      { query: t.Object({ path: t.String({ minLength: 1 }) }) },
+    )
+    .post(
+      "/api/proposals",
+      async ({ body, set }) => {
+        const result = await store.stageProposal(body.path, {
+          ops: body.ops as DocOp[],
+          summary: body.summary,
+          expectedHash: body.expected_hash,
+          annotationId: body.annotation_id,
+          alias: body.alias,
+          sessionId: body.session_id,
+        });
+        if (!result.ok) {
+          set.status = result.status;
+          return {
+            detail: result.detail,
+            current_hash: result.current_hash,
+            expected_hash: result.expected_hash,
+            issues: result.issues,
+            held_by: result.held_by,
+          };
+        }
+        set.status = 201;
+        return { proposal: result.proposal, proposals: result.proposals, hash: result.hash };
+      },
+      {
+        body: t.Object({
+          path: t.String({ minLength: 1 }),
+          ops: t.Array(t.Any(), { minItems: 1 }),
+          summary: t.String({ minLength: 1 }),
+          expected_hash: t.Optional(t.String()),
+          annotation_id: t.Optional(t.String()),
+          alias: t.Optional(t.String()),
+          session_id: t.Optional(t.String()),
+        }),
+      },
+    )
+    .post(
+      "/api/proposals/:id/accept",
+      async ({ params, body, set }) => {
+        const result = await store.acceptProposal(body.path, params.id, {
+          expectedHash: body.expected_hash,
+          sessionId: body.session_id,
+        });
+        if (!result.ok) {
+          set.status = result.status;
+          return {
+            detail: result.detail,
+            current_hash: result.current_hash,
+            expected_hash: result.expected_hash,
+            issues: result.issues,
+            held_by: result.held_by,
+          };
+        }
+        store.publishChange({
+          path: body.path,
+          changedIds: result.proposal.changedBlockIds,
+          patchId: result.patchId,
+          actor: body.session_id ?? "anonymous",
+        });
+        const annotationResult = result.proposal.annotationId
+          ? await store.annotations(body.path)
+          : undefined;
+        const annotation = annotationResult?.ok
+          ? annotationResult.annotations.annotations.find(
+              (item) => item.id === result.proposal.annotationId,
+            )
+          : undefined;
+        return {
+          proposal: result.proposal,
+          proposals: result.proposals,
+          hash: result.proposalsHash,
+          doc: result.doc,
+          doc_hash: result.hash,
+          patch_id: result.patchId,
+          ...(annotation ? { annotation } : {}),
+        };
+      },
+      {
+        body: t.Object({
+          path: t.String({ minLength: 1 }),
+          expected_hash: t.Optional(t.String()),
+          session_id: t.Optional(t.String()),
+        }),
+      },
+    )
+    .post(
+      "/api/proposals/:id/reject",
+      async ({ params, body, set }) => {
+        const result = await store.rejectProposal(body.path, params.id, {
+          expectedHash: body.expected_hash,
+          sessionId: body.session_id,
+        });
+        if (!result.ok) {
+          set.status = result.status;
+          return {
+            detail: result.detail,
+            current_hash: result.current_hash,
+            expected_hash: result.expected_hash,
+            issues: result.issues,
+            held_by: result.held_by,
+          };
+        }
+        return { proposal: result.proposal, proposals: result.proposals, hash: result.hash };
       },
       {
         body: t.Object({

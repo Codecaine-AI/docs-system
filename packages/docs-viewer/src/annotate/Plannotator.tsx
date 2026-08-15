@@ -69,6 +69,8 @@ export interface PlannotatorProps {
   onAddAnnotation: (input: { target: AnnotationTarget; body: string; intent: AnnotationIntent }) => Promise<void>;
   /** Marks an annotation resolved. Host performs the actual API call. */
   onResolveAnnotation: (annotationId: string) => Promise<void>;
+  /** Adds a reply to an annotation thread. Optional — omit for read-only threads. */
+  onAddReply?: (annotationId: string, body: string) => Promise<void>;
   /** Jumps the viewer to an annotation's target (scroll to block / focus canvas object). */
   onFocusTarget?: (target: AnnotationTarget) => void;
   /**
@@ -164,6 +166,7 @@ export default function Plannotator({
   onClearSelection,
   onAddAnnotation,
   onResolveAnnotation,
+  onAddReply,
   onFocusTarget,
   onRunAgent,
   onUndoPatch,
@@ -195,6 +198,7 @@ export default function Plannotator({
         // options, so the wide engine string is the narrow docs union.
         onAddAnnotation({ target, body, intent: intent as AnnotationIntent })
       }
+      onAddReply={onAddReply}
       onResolveAnnotation={onResolveAnnotation}
       onFocusTarget={onFocusTarget}
       onRunAgent={onRunAgent}

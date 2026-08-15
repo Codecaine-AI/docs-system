@@ -148,8 +148,8 @@ describe("live smoke (real server, real docs copy)", () => {
       },
       { timeout: 10000 },
     );
-    expect(!!screen.getByRole("group", { name: "Docs workbench mode" })).toBe(true);
-    expect(!!screen.getByRole("button", { name: "Annotate mode" })).toBe(true);
+    expect(!!screen.getByRole("complementary", { name: "Lab panel" })).toBe(true);
+    expect(!!screen.getByRole("button", { name: "AI" })).toBe(true);
     // The sidebar rendered at least one bundle link from the real tree.
     expect(document.querySelectorAll("nav a[href^='#/']").length).toBeGreaterThan(0);
   });
@@ -191,7 +191,7 @@ describe("live smoke (real server, real docs copy)", () => {
         },
         { timeout: 10000 },
       );
-      fireEvent.click(screen.getByRole("button", { name: "Edit mode" }));
+      fireEvent.click(screen.getByRole("button", { name: "Edit" }));
       await waitFor(
         () => {
           expect(editor).toBeTruthy();
@@ -253,7 +253,7 @@ describe("live smoke (real server, real docs copy)", () => {
         },
         { timeout: 10000 },
       );
-      fireEvent.click(screen.getByRole("button", { name: "Annotate mode" }));
+      fireEvent.click(screen.getByRole("button", { name: "AI" }));
       const block = document.querySelector(`[data-block-id="${firstBlockId}"]`);
       expect(!!block).toBe(true);
 
@@ -269,17 +269,17 @@ describe("live smoke (real server, real docs copy)", () => {
       // (single agent-request intent — no picker).
       fireEvent.click(block!);
       await waitFor(() => {
-        expect(!!document.querySelector('[data-annotation-ui="composer-popover"]')).toBe(true);
+        expect(!!document.querySelector("[data-docs-lab-composer]")).toBe(true);
       });
       fireEvent.change(
-        screen.getByPlaceholderText("Describe what you want an agent to do..."),
+        screen.getByPlaceholderText("What should change here?"),
         { target: { value: "Live smoke annotation." } },
       );
-      fireEvent.click(screen.getByRole("button", { name: "Annotate" }));
+      fireEvent.click(screen.getByRole("button", { name: "Queue" }));
       await waitFor(
         () => {
-          expect(!!document.querySelector('[data-annotation-ui="composer-popover"]')).toBe(false);
-          expect(!!screen.getByText("Live smoke annotation.")).toBe(true);
+          expect(!!document.querySelector("[data-docs-lab-composer]")).toBe(false);
+          expect(screen.getAllByText("Live smoke annotation.").length).toBeGreaterThan(0);
         },
         { timeout: 10000 },
       );

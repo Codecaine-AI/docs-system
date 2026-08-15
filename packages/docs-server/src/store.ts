@@ -19,18 +19,34 @@ import {
 } from "./bundle";
 import {
   addBundleAnnotation,
+  addBundleAnnotationReply,
   applyDocOpsToBundle,
   attachAgentRunToAnnotation,
   getBundleAnnotations,
   resolveBundleAnnotation,
   type AddBundleAnnotationInput,
   type AddBundleAnnotationResult,
+  type AddBundleAnnotationReplyInput,
+  type AddBundleAnnotationReplyResult,
   type ApplyDocOpsResult,
   type AttachAgentRunInput,
   type AttachAgentRunResult,
   type BundleAnnotationsReadResult,
   type ResolveBundleAnnotationResult,
 } from "./doc-ops";
+import {
+  acceptBundleProposal,
+  getBundleProposals,
+  rejectBundleProposal,
+  stageBundleProposal,
+  type AcceptBundleProposalInput,
+  type AcceptBundleProposalResult,
+  type GetBundleProposalsResult,
+  type RejectBundleProposalInput,
+  type RejectBundleProposalResult,
+  type StageBundleProposalInput,
+  type StageBundleProposalResult,
+} from "./proposal-ops";
 import {
   readDocAsset,
   uploadDocAsset,
@@ -130,6 +146,7 @@ export interface DocsStore {
   bundle(path: string): Promise<DocBundleLoadResult | DocBundleLoadError>;
   projection(path: string): Promise<DocProjectionResult | DocBundleLoadError>;
   annotations(path: string): Promise<BundleAnnotationsReadResult>;
+  proposals(path: string): Promise<GetBundleProposalsResult>;
   docGet(path: string): Promise<DocGetResult>;
   canvasGet(src: string): Promise<CanvasGetResult>;
   canvasByDocPath(
@@ -152,6 +169,17 @@ export interface DocsStore {
     expectedHash?: string,
     sessionId?: string,
   ): Promise<ApplyDocOpsResult>;
+  stageProposal(path: string, input: StageBundleProposalInput): Promise<StageBundleProposalResult>;
+  acceptProposal(
+    path: string,
+    proposalId: string,
+    input?: AcceptBundleProposalInput,
+  ): Promise<AcceptBundleProposalResult>;
+  rejectProposal(
+    path: string,
+    proposalId: string,
+    input?: RejectBundleProposalInput,
+  ): Promise<RejectBundleProposalResult>;
   forwardCanvasAction(
     path: string,
     op: Extract<DocOp, { type: "componentAction" }>,
@@ -171,6 +199,12 @@ export interface DocsStore {
     input: AddBundleAnnotationInput,
     sessionId?: string,
   ): Promise<AddBundleAnnotationResult>;
+  addAnnotationReply(
+    path: string,
+    annotationId: string,
+    input: AddBundleAnnotationReplyInput,
+    sessionId?: string,
+  ): Promise<AddBundleAnnotationReplyResult>;
   resolveAnnotation(
     path: string,
     annotationId: string,
@@ -517,6 +551,7 @@ export function createDocsStore(docsRoot: string): DocsStore {
     bundle: (path) => loadDocBundle(root, path),
     projection: (path) => loadDocProjection(root, path),
     annotations: (path) => getBundleAnnotations(root, path),
+    proposals: (path) => getBundleProposals(root, path),
     docGet: (path) => doc_get(root, path),
     canvasGet: (src) => canvas_get(root, src),
     canvasByDocPath: (docPath, src) => loadCanvasSidecarByDocPath(root, docPath, src),
@@ -528,11 +563,18 @@ export function createDocsStore(docsRoot: string): DocsStore {
 
     applyDocOps: (path, ops, expectedHash, sessionId) =>
       applyDocOpsToBundle(root, path, ops, expectedHash, sessionId),
+    stageProposal: (path, input) => stageBundleProposal(root, path, input),
+    acceptProposal: (path, proposalId, input) =>
+      acceptBundleProposal(root, path, proposalId, input),
+    rejectProposal: (path, proposalId, input) =>
+      rejectBundleProposal(root, path, proposalId, input),
     forwardCanvasAction: (path, op, expectedDocHash, expectedCanvasHash, sessionId) =>
       forwardCanvasAction(root, path, op, expectedDocHash, expectedCanvasHash, sessionId),
     forwardSequenceAction: (path, op, expectedDocHash, expectedSequenceHash, sessionId) =>
       forwardSequenceAction(root, path, op, expectedDocHash, expectedSequenceHash, sessionId),
     addAnnotation: (path, input, sessionId) => addBundleAnnotation(root, path, input, sessionId),
+    addAnnotationReply: (path, annotationId, input, sessionId) =>
+      addBundleAnnotationReply(root, path, annotationId, input, sessionId),
     resolveAnnotation: (path, annotationId, expectedHash, sessionId, response) =>
       resolveBundleAnnotation(root, path, annotationId, expectedHash, sessionId, response),
     annotationResolve: (path, annotationId, expectedHash, actor, response) =>

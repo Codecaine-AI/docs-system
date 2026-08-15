@@ -3,6 +3,8 @@ import { describe, expect, it } from "bun:test";
 import type { DocDocument } from "../doc-schema";
 import {
   detectDanglingTargets,
+  docTargetFingerprint,
+  docTargetFingerprintChanged,
   validateAnnotationsDocument,
   type AnnotationsDocument,
 } from "../annotations-schema";
@@ -60,6 +62,81 @@ describe("annotations schema", () => {
     if (result.ok) {
       expect(result.document.annotations).toEqual(value.annotations);
     }
+  });
+
+  it("accepts reply threads and rejects malformed replies with engine-compatible issues", () => {
+    const base = {
+      id: "c1",
+      target: { kind: "block" as const, blockId: "b1" },
+      body: "Note",
+      intent: "note" as const,
+      author: "Ford",
+      status: "open" as const,
+      createdAt: "2026-07-03T00:00:00.000Z",
+    };
+    const valid = validateAnnotationsDocument({
+      schemaVersion: 1,
+      annotations: [{
+        ...base,
+        replies: [{ id: "r1", author: "Agent", body: "Done", createdAt: "2026-07-03T00:01:00.000Z" }],
+      }],
+    });
+
+    expect(valid.ok).toBe(true);
+    if (valid.ok) {
+      expect(valid.document.annotations[0]?.replies).toEqual([
+        { id: "r1", author: "Agent", body: "Done", createdAt: "2026-07-03T00:01:00.000Z" },
+      ]);
+    }
+
+    const invalid = validateAnnotationsDocument({
+      schemaVersion: 1,
+      annotations: [{ ...base, replies: [{ id: "", author: "", body: 4, createdAt: null }] }],
+    });
+    expect(invalid.ok).toBe(false);
+    if (!invalid.ok) {
+      expect(invalid.issues).toEqual(expect.arrayContaining([
+        { path: "$.annotations[0].replies[0].id", message: "Annotation reply requires a valid id." },
+        { path: "$.annotations[0].replies[0].author", message: "Annotation reply author must be a non-empty string." },
+        { path: "$.annotations[0].replies[0].body", message: "Annotation reply body must be a string." },
+        { path: "$.annotations[0].replies[0].createdAt", message: "Annotation reply createdAt must be a string." },
+      ]));
+    }
+  });
+
+  it("preserves optional target fingerprints and reports changed block text", () => {
+    const withText: DocDocument = {
+      ...doc,
+      blocks: {
+        ...doc.blocks,
+        b1: { ...doc.blocks.b1!, text: [{ insert: "Before   filing" }] },
+      },
+    };
+    const target = { kind: "block" as const, blockId: "b1" };
+    const fingerprint = docTargetFingerprint(withText, target);
+
+    expect(fingerprint).toBe("fc33d90f");
+    expect(docTargetFingerprint(withText, { kind: "canvas-object", canvasSrc: "a", objectId: "o" })).toBeNull();
+    expect(validateAnnotationsDocument({
+      schemaVersion: 1,
+      annotations: [{
+        id: "c1", target: { ...target, fingerprint }, body: "Note", intent: "note",
+        author: "Ford", status: "open", createdAt: "2026-07-03T00:00:00.000Z",
+      }],
+    }).ok).toBe(true);
+    expect(docTargetFingerprintChanged(withText, {
+      id: "c1", target: { ...target, fingerprint: fingerprint! }, body: "Note", intent: "note",
+      author: "Ford", status: "open", createdAt: "2026-07-03T00:00:00.000Z",
+    })).toBe(false);
+
+    const changed = {
+      ...withText,
+      blocks: { ...withText.blocks, b1: { ...withText.blocks.b1!, text: [{ insert: "After filing" }] } },
+    };
+    expect(docTargetFingerprintChanged(changed, {
+      id: "c1", target: { ...target, fingerprint: fingerprint! }, body: "Note", intent: "note",
+      author: "Ford", status: "open", createdAt: "2026-07-03T00:00:00.000Z",
+    })).toBe(true);
   });
 
   it("rejects a retired comments-keyed sidecar with a typed issue (no throw)", () => {
