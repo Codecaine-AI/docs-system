@@ -31,32 +31,36 @@ export function OutlineList({
           const active = section.blockId === activeBlockId;
           return (
             <li key={section.blockId}>
+              {/* Prompt-kit outline scale (Ford: brief view, not detailed):
+                  11px rows, active = left accent bar + foreground text only —
+                  never a full-row highlight. Mirrors zones.tsx
+                  PanelOutlineList in the prompt lab. */}
               <button
                 type="button"
                 aria-current={active ? "location" : undefined}
                 data-block-id={section.blockId}
                 onClick={() => scrollToSection(section.blockId)}
                 className={[
-                  "relative flex w-full min-w-0 items-center rounded-sm py-1.5 pe-3 text-left text-sm leading-5 transition-colors",
-                  "[padding-inline-start:calc(0.75rem+var(--docs-outline-depth)*0.875rem)]",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--docs-outline-focus,var(--annotation-accent,currentColor))] focus-visible:ring-inset",
+                  "flex w-full min-w-0 items-center border-l py-px pr-2 text-left text-[11px] leading-[1.9] transition-colors",
+                  "[padding-inline-start:calc(0.75rem+var(--docs-outline-depth)*0.75rem)]",
+                  "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[color:var(--docs-outline-focus,var(--annotation-accent,currentColor))] focus-visible:ring-inset",
                   active
-                    ? "bg-[color:var(--docs-outline-active-bg,var(--annotation-active-bg,transparent))] font-medium text-[color:var(--docs-outline-active-fg,var(--annotation-accent,currentColor))]"
-                    : "text-[color:var(--docs-outline-fg,currentColor)] hover:bg-[color:var(--docs-outline-hover-bg,transparent)] hover:text-[color:var(--docs-outline-hover-fg,currentColor)]",
+                    ? "text-[color:var(--docs-outline-active-fg,var(--foreground,currentColor))]"
+                    : "border-transparent text-[color:var(--docs-outline-fg,var(--muted-foreground,currentColor))] hover:text-[color:var(--docs-outline-hover-fg,var(--foreground,currentColor))]",
                 ].join(" ")}
                 style={
                   {
                     "--docs-outline-depth": section.depth,
+                    ...(active
+                      ? {
+                          borderLeftColor:
+                            "var(--docs-outline-active-marker, var(--annotation-accent, currentColor))",
+                        }
+                      : {}),
                   } as CSSProperties
                 }
                 title={section.label}
               >
-                {active ? (
-                  <span
-                    aria-hidden="true"
-                    className="absolute inset-y-1 start-0 w-0.5 rounded-e bg-[color:var(--docs-outline-active-marker,var(--annotation-accent,currentColor))]"
-                  />
-                ) : null}
                 <span className="min-w-0 truncate">{section.label}</span>
               </button>
             </li>

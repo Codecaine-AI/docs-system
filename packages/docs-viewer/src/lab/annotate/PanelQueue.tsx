@@ -1,6 +1,16 @@
+// Slice: the AI panel's queue — a CHAT PANEL, same shape as prompt-kit's
+// PanelQueue:
+//
+//   TRANSCRIPT  scrolls: TARGET notes, DOCUMENT notes, closed-loop ✓/✕
+//               records under a hairline, then any host-provided tail
+//               (threads). Filing order holds within each section.
+//   DOCK        pinned at the very bottom, chat-composer position: the
+//               whole-document input plus Apply. Enter files a document
+//               note; Apply is click-only — a keystroke never starts the
+//               batch by accident.
 "use client";
 
-import { useRef } from "react";
+import { useRef, type ReactNode } from "react";
 import {
 	undoDisabledReason,
 	type DocEditRequest,
@@ -36,10 +46,15 @@ export interface PanelQueueProps {
 	onHoverTarget?: (target: DocEditTarget | null) => void;
 	/** Human-readable target label; raw ids are intentionally never needed here. */
 	labelForTarget: (target: DocEditTarget) => string;
+	/** Transcript tail: host content (threads, errors) that scrolls WITH the
+	 * chat — never below the composer dock. */
+	children?: ReactNode;
 }
 
-/** Queue rail: block notes, document notes, closed-loop records, then one Apply dock. */
-export function PanelQueue({ session, queue, applying, applyDisabledReason, onApply, onFileGlobal, onFocusTarget, onHoverTarget, labelForTarget }: PanelQueueProps) {
+/** Queue rail, chat-shaped: scrolling transcript (block notes, document
+ * notes, closed-loop records, host tail) over a pinned composer dock
+ * (whole-document input + Apply). */
+export function PanelQueue({ session, queue, applying, applyDisabledReason, onApply, onFileGlobal, onFocusTarget, onHoverTarget, labelForTarget, children }: PanelQueueProps) {
 	const docInputRef = useRef<HTMLInputElement | null>(null);
 	const sendDocMessage = () => {
 		const body = docInputRef.current?.value.trim() ?? "";
@@ -52,18 +67,25 @@ export function PanelQueue({ session, queue, applying, applyDisabledReason, onAp
 	const documentEntries = queue.queue.filter((entry) => entry.disposition === "global");
 	const targetEntries = queue.queue.filter((entry) => entry.disposition !== "global");
 	const renderRow = (entry: QueueEntry) => <QueueRow key={entry.request.alias} entry={entry} session={session} onFocusTarget={onFocusTarget} onHoverTarget={onHoverTarget} labelForTarget={labelForTarget} />;
+	const showDocInput = Boolean(onFileGlobal ?? session.onFileRequest);
 	return <div className="flex h-full min-h-0 flex-col" data-docs-lab-session-rail="">
+		{/* THE TRANSCRIPT — everything filed, top-down like a chat; the dock
+		    stays put below while this scrolls. */}
 		<div className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto overscroll-contain">
 			<GroupHeader label="Targets" />
 			{targetEntries.length === 0 ? <p className="px-1.5 py-1 text-[13px] leading-relaxed text-[color:var(--docs-muted-foreground,var(--muted-foreground,#71717a))]">Nothing queued — Enter in a composer files here.</p> : targetEntries.map(renderRow)}
-			{(documentEntries.length > 0 || Boolean(onFileGlobal ?? session.onFileRequest)) && <>
+			{documentEntries.length > 0 && <>
 				<GroupHeader label="Document" />
 				{documentEntries.map(renderRow)}
-				{Boolean(onFileGlobal ?? session.onFileRequest) && <input ref={docInputRef} aria-label="Message the whole document" placeholder="Note about the whole document…" className="mx-1.5 mb-1.5 mt-0.5 min-w-0 rounded-[var(--radius,0.375rem)] border border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] bg-[color:var(--background,#181818)] px-2 py-1.5 text-[13px] outline-none focus:border-[color:var(--annotation-accent,#a99af5)]" onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); sendDocMessage(); } }} />}
 			</>}
 			{queue.records.length > 0 && <><div aria-hidden className="mx-1.5 mb-1 mt-2 h-px shrink-0 bg-[color:var(--docs-panel-border,var(--border,#2b2b2b))]" />{queue.records.map((record) => <RecordRow key={record.request.alias} record={record} session={session} onFocusTarget={onFocusTarget} labelForTarget={labelForTarget} />)}</>}
+			{children}
 		</div>
+		{/* THE DOCK — chat-composer position, pinned bottommost: the
+		    whole-document input plus Apply. Enter files a note; only a click
+		    runs the batch. */}
 		<div className="mt-2 flex shrink-0 items-center justify-end gap-2 border-t border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] pt-2.5">
+			{showDocInput && <input ref={docInputRef} aria-label="Message the whole document" placeholder="Note about the whole document…" className="min-w-0 flex-1 rounded-[var(--radius,0.375rem)] border border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] bg-[color:var(--background,#181818)] px-2 py-1.5 text-[13px] outline-none focus:border-[color:var(--annotation-accent,#a99af5)]" onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); sendDocMessage(); } }} />}
 			<button type="button" aria-label="Apply queue" data-docs-lab-queue-apply="" disabled={applyDisabledReason !== null && applyDisabledReason !== undefined ? true : !queue.canApply} title={applyDisabledReason ?? (queue.canApply ? "Run the queued notes" : applying ? "The queue is running" : "Nothing queued")} className="shrink-0 rounded-[var(--radius,0.375rem)] border border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] bg-[color:var(--annotation-accent-fill,rgba(138,122,176,.11))] px-2.5 py-1 text-[12px] tracking-[0.02em] text-[color:var(--annotation-accent,#a99af5)] transition-colors disabled:cursor-default disabled:opacity-50" onClick={onApply}>{applying ? "running…" : "Apply"}</button>
 		</div>
 	</div>;

@@ -94,7 +94,10 @@ export function DocLab({
 					/>
 				</PanelZone>
 			) : (
-				<div className="flex min-h-0 flex-col">
+				<div className="flex h-full min-h-0 flex-col">
+					{/* Chat shape (mirrors prompt-kit's AI tab): PanelQueue owns the
+					    whole tab — threads and errors ride INSIDE its scrolling
+					    transcript so the composer dock stays bottommost. */}
 					<PanelQueue
 						session={lab.session}
 						queue={queue}
@@ -105,27 +108,28 @@ export function DocLab({
 						}
 						onFocusTarget={onFocusTarget}
 						labelForTarget={targetLabel}
-					/>
-					<PanelZone id="threads" label="Threads">
-						<ActionPane {...threads} />
-					</PanelZone>
-					{lab.proposalsError ? (
-						<p
-							data-docs-lab-proposals-error=""
-							className="px-1.5 py-1 text-xs text-destructive"
-						>
-							{lab.proposalsError}
-						</p>
-					) : null}
-					{requestErrors.map(([alias, message]) => (
-						<p
-							key={alias}
-							data-docs-lab-request-error={alias}
-							className="px-1.5 py-1 text-xs text-destructive"
-						>
-							{alias}: {message}
-						</p>
-					))}
+					>
+						{lab.proposalsError ? (
+							<p
+								data-docs-lab-proposals-error=""
+								className="px-1.5 py-1 text-xs text-destructive"
+							>
+								{lab.proposalsError}
+							</p>
+						) : null}
+						{requestErrors.map(([alias, message]) => (
+							<p
+								key={alias}
+								data-docs-lab-request-error={alias}
+								className="px-1.5 py-1 text-xs text-destructive"
+							>
+								{alias}: {message}
+							</p>
+						))}
+						<PanelZone id="threads" label="Threads">
+							<ActionPane {...threads} />
+						</PanelZone>
+					</PanelQueue>
 				</div>
 			)}
 		</GlassPanel>

@@ -1006,17 +1006,6 @@ export function DocPage({
     suppressHover: selection !== null,
   });
 
-  // Composer anchors, re-read from the committed DOM (effect, not
-  // render) so post-refresh elements are the ones measured.
-  const [composerAnchors, setComposerAnchors] = useState<HTMLElement[] | null>(null);
-  useEffect(() => {
-    if (!annotateActive || !selection) {
-      setComposerAnchors(null);
-      return;
-    }
-    setComposerAnchors(resolveSelectedElements());
-  }, [annotateActive, selection, bundle, canvasEpoch, resolveSelectedElements]);
-
   useEffect(() => {
     if (!selection || selection.kind === "canvas-object") return;
     if (!doc?.blocks[selection.blockId] || stagedBlockIds.has(selection.blockId)) {
@@ -1051,17 +1040,22 @@ export function DocPage({
     [handleAddAnnotation, lab.session],
   );
 
-  const composerPosition = useMemo(() => {
-    const anchor = composerAnchors?.[0];
-    const container = annotateContainerRef.current;
-    if (!anchor || !container) return { top: 0, left: 0 };
-    const anchorRect = anchor.getBoundingClientRect();
-    const containerRect = container.getBoundingClientRect();
-    return {
-      top: Math.max(0, anchorRect.bottom - containerRect.top + 8),
-      left: Math.max(0, anchorRect.left - containerRect.left),
-    };
-  }, [composerAnchors]);
+  // In-flow composer insertion point (prompt-lab style): the TOP-LEVEL block
+  // group holding the pinned target — the composer renders as a flow
+  // insertion directly ABOVE it, pushing it and the rest down. Canvas
+  // objects resolve through their embedding canvas block; anything that
+  // doesn't resolve to a root child falls back to the top of the flow.
+  const composerTopLevelId = useMemo(() => {
+    if (!doc || !selection) return null;
+    if (selection.kind === "block" || selection.kind === "text-range") {
+      return topLevelAncestor(doc, selection.blockId);
+    }
+    for (const embeddingId of canvasBlockIdsForSrc(doc, path, selection.canvasSrc)) {
+      const topLevel = topLevelAncestor(doc, embeddingId);
+      if (topLevel) return topLevel;
+    }
+    return null;
+  }, [doc, selection, path]);
 
   const handleCanvasObjectSelect = useCallback(
     ({ canvasSrc, objectId }: { canvasSrc: string; objectId: string }) =>
@@ -1186,6 +1180,35 @@ export function DocPage({
     );
   };
 
+  /* The composer as a FLOW INSERTION (prompt-lab style): it sits in the
+     annotate document flow directly ABOVE its target group (Cursor Cmd+K
+     style — Ford's standing standard) and pushes the target and everything
+     after it down — never an overlay. The wrapper is the composer's LANE:
+     same `ch`-measured cap as the text lane, and `text-sm` so the cap
+     resolves against the same font-size (see the title lane). */
+  const renderInlineComposer = (): ReactNode =>
+    selection ? (
+      <div
+        key="inline-composer"
+        data-docs-inline-composer-anchor=""
+        className="my-3 w-full max-w-[var(--style-content-width,100ch)] text-sm"
+      >
+        <InlineComposer
+          onSubmit={(body) => {
+            void handleComposerSubmit(body).catch((submitError) => {
+              setPaneError(
+                submitError instanceof Error
+                  ? submitError.message
+                  : "Failed to file request.",
+              );
+            });
+          }}
+          onCancel={() => setSelection(null)}
+          documentTarget={false}
+        />
+      </div>
+    ) : null;
+
   const renderAiDocumentFlow = (): ReactNode => {
     if (!doc) return null;
     const rootIds = doc.blocks[doc.root]?.children ?? [];
@@ -1195,7 +1218,19 @@ export function DocPage({
       rows.push(region);
       regionsAt.set(region.startIndex, rows);
     }
+    // Composer anchor: the root child whose group the composer follows. A
+    // target that doesn't resolve to a root child (doc-level, or a stale id)
+    // renders the composer at the top of the flow instead.
+    const composerAnchorId =
+      composerTopLevelId && rootIds.includes(composerTopLevelId)
+        ? composerTopLevelId
+        : null;
+    let composerPending = selection !== null;
     const nodes: ReactNode[] = [];
+    if (composerPending && !composerAnchorId) {
+      nodes.push(renderInlineComposer());
+      composerPending = false;
+    }
     let cursor = 0;
     while (cursor < rootIds.length) {
       const starting = regionsAt.get(cursor) ?? [];
@@ -1207,6 +1242,10 @@ export function DocPage({
         for (const id of targetIds) {
           nodes.push(renderThreadBars(waitingRequests.byTopLevel.get(id) ?? []));
         }
+        if (composerPending && composerAnchorId && targetIds.has(composerAnchorId)) {
+          nodes.push(renderInlineComposer());
+          composerPending = false;
+        }
         for (const region of consuming) nodes.push(renderStagedRegion(region));
         cursor = Math.max(...consuming.map((region) => region.endIndex)) + 1;
         continue;
@@ -1214,11 +1253,19 @@ export function DocPage({
 
       const id = rootIds[cursor]!;
       nodes.push(renderThreadBars(waitingRequests.byTopLevel.get(id) ?? []));
+      if (composerPending && id === composerAnchorId) {
+        nodes.push(renderInlineComposer());
+        composerPending = false;
+      }
       let runEnd = cursor + 1;
       while (
         runEnd < rootIds.length &&
         !regionsAt.has(runEnd) &&
-        !waitingRequests.byTopLevel.has(rootIds[runEnd]!)
+        !waitingRequests.byTopLevel.has(rootIds[runEnd]!) &&
+        // Break the run just before the composer's anchor so the composer
+        // lands directly ABOVE its target block (the anchor then starts the
+        // next run with the composer rendered ahead of it).
+        !(composerPending && rootIds[runEnd] === composerAnchorId)
       ) {
         runEnd += 1;
       }
@@ -1305,14 +1352,25 @@ export function DocPage({
                 emits NO var — that is how "let the stylesheet answer" works —
                 so this literal is what actually renders by default, and a
                 mismatch here silently ignores the rail's stated default. */}
+            {/* Prompt-lab geometry: the content wrapper reserves the lab
+                panel's footprint as RIGHT PADDING (inline, animated in step
+                with the panel's width transition) while the scroller behind
+                it spans the full region — so the scrollbar lives at the
+                region's far right edge, past the floating panel. The inline
+                paddingRight replaces the `px-` class's right half, so it must
+                re-add the content margin itself. */}
             <div
               key={canvasEpoch}
               ref={contentRef}
               data-docs-annotation-wash={mode === "annotate" ? "" : undefined}
               className="w-full px-[var(--style-content-margin,88px)] pt-[var(--style-content-top,1.5rem)] pb-[var(--style-content-bottom,1.5rem)]"
               style={
-                mode === "annotate"
-                  ? { background: "var(--docs-annotation-wash)" }
+                !isStatic
+                  ? {
+                      paddingRight: `calc(var(--style-content-margin, 88px) + ${labPanelWidth + 36}px)`,
+                      transition:
+                        "padding-right 260ms cubic-bezier(0.32, 0.72, 0, 1)",
+                    }
                   : undefined
               }
             >
@@ -1457,27 +1515,6 @@ export function DocPage({
                 {renderThreadBars(waitingRequests.atDocument)}
                 {renderAiDocumentFlow()}
                 {targeting.overlays}
-                {selection && (
-                  <div
-                    className="absolute z-20"
-                    style={composerPosition}
-                    data-docs-inline-composer-anchor=""
-                  >
-                    <InlineComposer
-                      onSubmit={(body) => {
-                        void handleComposerSubmit(body).catch((submitError) => {
-                          setPaneError(
-                            submitError instanceof Error
-                              ? submitError.message
-                              : "Failed to file request.",
-                          );
-                        });
-                      }}
-                      onCancel={() => setSelection(null)}
-                      documentTarget={false}
-                    />
-                  </div>
-                )}
                 <style>{ANNOTATE_CURSOR_CSS}</style>
               </div>
             )}
@@ -1510,22 +1547,14 @@ export function DocPage({
             )}
           </div>
           </div>
-        </div>
           {!isStatic && (
-            /* The lab rail RESERVES layout width (Ford: the panel must push
-               the document left, never float over it). GlassPanel still
-               positions absolutely, but against this rail — the rail's
-               animated width is what the content column yields to. Width =
-               panel width + 24px right gutter + 12px breathing gap. */
-            <aside
-              data-docs-lab-rail=""
-              className="relative min-h-0 shrink-0"
-              style={{
-                width: labPanelWidth + 36,
-                transition: "width 260ms cubic-bezier(0.32, 0.72, 0, 1)",
-              }}
-            >
-              <DocLab
+            /* The GlassPanel positions absolutely (top-right) against this
+               `relative` region and floats over the padding the content
+               wrapper reserves (paddingRight above = panel width + 24px
+               right gutter + 12px breathing gap). Content is pushed left of
+               the panel — no overlap — while the scroller underneath keeps
+               the full region width. */
+            <DocLab
                 tab={mode === "annotate" ? "ai" : "edit"}
                 onTabSelect={handleLabTabSelect}
                 doc={doc}
@@ -1546,9 +1575,9 @@ export function DocPage({
                   error: paneError,
                 }}
                 onFocusTarget={handleFocusDocEditTarget}
-              />
-            </aside>
+            />
           )}
+        </div>
       </div>
     </div>
   );
