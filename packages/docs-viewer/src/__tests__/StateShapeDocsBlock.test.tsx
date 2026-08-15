@@ -102,11 +102,29 @@ describe("StateShapeBlock — S1 two-pane card", () => {
     // Targeting attributes stay on the section.
     const section = document.querySelector('[data-docs-block-type="state-shape"]');
     expect(section?.getAttribute("data-source-id")).toBe("shape-1");
-    // Two panes in the grid.
+    // Two panes in the grid: the field list takes the majority of the wide
+    // lane, the example the rest, and they split only from xl up.
     const grid = document.querySelector("[data-shape-grid]");
-    expect(grid?.className).toContain("1.1fr");
+    // The left pane's share is the style rail's Column split knob
+    // (--docs-pane-split); the literal fallback is what renders unset.
+    expect(grid?.className).toContain(
+      "xl:grid-cols-[minmax(0,var(--docs-pane-split,46%))_minmax(0,1fr)]",
+    );
     expect(document.querySelector("[data-shape-tree]")).not.toBeNull();
     expect(document.querySelector("[data-shape-example]")).not.toBeNull();
+    // The example panel sticks while the field list scrolls past — which
+    // needs the grid item started at the top (a stretched item cannot move)
+    // and no clipping card wrapper above it.
+    const examplePane = document.querySelector("[data-shape-example-pane]") as HTMLElement;
+    expect(examplePane.className).toContain("xl:sticky");
+    expect(examplePane.className).toContain("xl:self-start");
+    expect(grid?.className).toContain("xl:items-start");
+    expect(document.querySelector("[data-shape-example]")?.className).toContain("overflow-y-auto");
+    // The block fills its lane rather than capping itself: the renderer
+    // hands state-shape the wide lane.
+    expect(section?.className).toContain("not-prose");
+    expect(section?.className).toContain("w-full");
+    expect(section?.className).not.toContain("mx-auto");
   });
 
   it("renders headerless when the block has no name", () => {
@@ -172,12 +190,16 @@ describe("StateShapeBlock — S1 two-pane card", () => {
     const type = row.querySelector('[data-field-token="type"]');
     expect(type?.textContent).toBe("string");
     expect(type?.className).toContain("--docs-shape-type");
-    expect(row.querySelector('[data-field-token="optional"]')?.textContent).toBe("?");
+    // Spelled out, not a bare "?" — the marker states a fact about the field.
+    expect(row.querySelector('[data-field-token="optional"]')?.textContent).toBe("optional");
     // Description renders as a muted second line inside the row.
     const described = treeRow("name") as HTMLElement;
     const description = described.querySelector('[data-field-token="description"]');
     expect(description?.textContent).toBe("Shape display name");
     expect(description?.className).toContain("--docs-shape-desc-fg");
+    // Descriptions read at an API-reference measure, not the old 46ch cap.
+    expect(description?.className).toContain("max-w-[70ch]");
+    expect(description?.className).not.toContain("max-w-[46ch]");
     // A required field renders no `?`.
     expect(treeRow("fields.name")?.querySelector('[data-field-token="optional"]')).toBeNull();
   });
@@ -275,7 +297,10 @@ describe("StateShapeBlock — S1 two-pane card", () => {
     expect(document.querySelector("[data-shape-example]")).toBeNull();
     expect(document.querySelector("[data-range-chip]")).toBeNull();
     expect(document.querySelector("[data-link-key]")).toBeNull();
-    expect(document.querySelector("[data-shape-grid]")?.className).not.toContain("1.1fr");
+    // No example means no second column at all — the field list takes the
+    // whole lane instead of leaving an empty half.
+    expect(document.querySelector("[data-shape-example-pane]")).toBeNull();
+    expect(document.querySelector("[data-shape-grid]")?.className).not.toContain("xl:grid-cols-");
   });
 
   it("falls back to the single-pane tree when the example is not valid JSON (tolerant)", () => {

@@ -682,14 +682,22 @@ export type ThemeWirePayload = {
   components: Record<string, Record<string, unknown>>;
 };
 
-/** Repo themes/ catalogue; a static export ships no server, so no custom themes. */
+/** Repo themes/ catalogue; a static export has one snapshot but no selectable catalogue. */
 export async function getThemes(): Promise<{ themes: ThemeListEntry[] }> {
   if (IS_STATIC) return { themes: [] };
   return fetchJson(`api/themes`);
 }
 
+/**
+ * The repo theme behind the style rail's baseline. A static export has no
+ * server, so `docs-cli export` pregenerates this exact response shape into
+ * `data/theme.json` (see docs-workbench/src/export.ts) — without it an
+ * exported site would boot at STOCK defaults and silently drop every tuned
+ * `--style-*` value. Only the exported theme exists there, so the id is not
+ * part of the static path.
+ */
 export async function getTheme(id: string): Promise<{ theme: ThemeWirePayload }> {
-  assertWritable("Loading a repo theme");
+  if (IS_STATIC) return fetchJson(`data/theme.json`);
   return fetchJson(`api/themes/${encodeURIComponent(id)}`);
 }
 

@@ -33,7 +33,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The reading surface is a single document column with stable page furniture and navigation that keeps context visible. This page defines its measure and spacing, derived title, numbered sidebar, reference peek, and backlinks footer. Per-block presentation remains in "
+          "insert": "The reading surface is a left-justified full-width page where each top-level block claims its own layout lane, with stable page furniture and navigation that keeps context visible. This page defines its lane measures and spacing, derived title, numbered sidebar, reference peek, and backlinks footer. Per-block presentation remains in "
         },
         {
           "insert": "Block vocabulary",
@@ -140,7 +140,7 @@
                 }
               }
             ],
-            "Maximum document-column measure"
+            "Maximum text-lane measure"
           ],
           [
             [
@@ -241,7 +241,7 @@
       "props": {},
       "text": [
         {
-          "insert": "One document column",
+          "insert": "Per-block layout lanes",
           "attributes": {
             "bold": true
           }
@@ -258,16 +258,34 @@
       "props": {},
       "text": [
         {
-          "insert": "Blocks flow through one centered column capped by "
+          "insert": "Each top-level block claims a "
         },
         {
-          "insert": "--style-content-width",
+          "insert": "text",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": "."
+          "insert": ", "
+        },
+        {
+          "insert": "wide",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", or "
+        },
+        {
+          "insert": "full",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " lane. The default is the text lane, and every lane is left-justified on the shared content rail unless a per-block theme override explicitly centers it."
         }
       ],
       "children": []

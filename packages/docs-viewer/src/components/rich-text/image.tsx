@@ -2,6 +2,7 @@
 
 import type { DocBlockDescriptor } from "../../render/block-registry";
 import { STRUCTURAL_OPS, blockAttrs, el, stringProp } from "../../render/descriptor-helpers";
+import { WIDE_LEFT_BLOCK_LAYOUT } from "../../render/block-layout";
 import { atomBlockNode } from "../../editor/core/node-helpers";
 
 /** `image` — read-surface descriptor + ProseMirror editor node (atom leaf; NodeView attached in editor/views/node-views.tsx). */
@@ -15,6 +16,9 @@ export const imageDescriptor: DocBlockDescriptor = {
   agentDescription:
     "An image from the doc bundle's assets/images/ (D30); props: src, alt, caption.",
   patchOps: STRUCTURAL_OPS,
+  // Media uses the shared wide-left lane; centering is a theme/rail opt-in
+  // (block-layout.ts).
+  layout: WIDE_LEFT_BLOCK_LAYOUT,
   render: (block, ctx) => {
     const src = stringProp(block, "src");
     const resolvedSrc = src ? (ctx.resolveAssetSrc?.(src) ?? src) : undefined;

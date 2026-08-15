@@ -14,7 +14,7 @@ import {
 export const STATE_SHAPE_LABEL = "State Shape";
 
 export const STATE_SHAPE_AGENT_DESCRIPTION =
-  "Object shape definition: a recursive field tree (name, type, optionality, meaning) describing what a structure's state looks like, with an optional link to the defining source symbol and an optional JSON example instance — pair it with an interaction-surface block holding the operations that act on the shape. Rendered from typed props: { name?: string; description?: string; source?: { path: string; symbol?: string }; fields: Array<{ name: string; type?: string; required?: boolean; description?: string; fields?: Field[] }>; example?: string } (fields recurse; example is JSON text of an example INSTANCE of the shape). Renders as a two-pane card (S1 · STATE) with no header bar: the structure tree on the left — top-level fields as hairline-divided groups (bold mono name, mono type, a muted `?` marks required: false, muted description as a second line), nested fields contained behind a light left rule with no dividers of their own — and, when example parses as JSON, a line-numbered pretty-printed example pane on the right. Tree rows and example lines cross-link by field path: hover/pin paints the field's full extent in both panes (no visible line-number chips). State is always JSON, so the card never shows a language tag.";
+  "Object shape definition: a recursive field tree (name, type, optionality, meaning) describing what a structure's state looks like, with an optional link to the defining source symbol and an optional JSON example instance — pair it with an interaction-surface block holding the operations that act on the shape. Rendered from typed props: { name?: string; description?: string; source?: { path: string; symbol?: string }; fields: Array<{ name: string; type?: string; required?: boolean; description?: string; fields?: Field[] }>; example?: string } (fields recurse; example is JSON text of an example INSTANCE of the shape). Renders in the wide lane as an API-reference two-pane layout with no header bar: the field list on the left takes the majority of the width — top-level fields as full-width-hairline-divided groups (bold mono name with the mono type and a muted `?` for required: false inline beside it, muted description on the line below at a ~70ch measure), nested fields contained behind a light left rule with no dividers of their own — and, when example parses as JSON, a line-numbered pretty-printed example panel on the right that sticks to the top of the viewport (height-capped, internally scrolling) while the field list scrolls past. Below xl the panes stack, example under the fields; with no example (or one that does not parse) the field list takes the full lane alone. Tree rows and example lines cross-link by field path: hover/pin paints the field's full extent in both panes (no visible line-number chips). State is always JSON, so the block never shows a language tag.";
 
 export type StateShapeSourceProps = {
   /** Path of the defining source file, e.g. "packages/docs-model/src/doc-schema.ts". */
@@ -200,10 +200,27 @@ const CHILD_RULE_BORDER =
   "border-[color:var(--docs-shape-child-rule,color-mix(in_srgb,var(--docs-shape-rule,var(--border))_50%,transparent))]";
 
 /**
- * One structure-tree row: bold mono name, amber type, muted `?` when
- * required: false, muted description as a smaller second line. Rows whose
- * field maps into the example are LinkTargets (the row lights its example
- * lines); unmatched rows are inert.
+ * Reading measure for the description lines (row descriptions and the
+ * block description). ~70ch is the API-reference measure: wide enough that
+ * a one-sentence field note does not wrap three times in the wide lane,
+ * narrow enough to stay comfortable. MUST stay a literal token — the
+ * Tailwind scanner cannot see a runtime-built `max-w-[${n}ch]`.
+ */
+const DESCRIPTION_MEASURE = "max-w-[70ch]";
+
+/**
+ * One structure-tree row: bold mono name with the type and the optional
+ * marker INLINE beside it, then the muted description on its own line
+ * below at the reading measure. Rows whose field maps into the example are
+ * LinkTargets (the row lights its example lines); unmatched rows are
+ * inert.
+ *
+ * Rows carry a small left pad rather than sitting flush: the lit/pinned
+ * state paints a 3px inset rail at the row's left edge
+ * (LINK_TARGET_LIT_CLASSES), and the pad keeps that rail off the first
+ * glyph. The row's own box still spans the pane, so the hairline the
+ * ProseRows stack draws between rows runs the FULL pane width instead of
+ * reading as an inset rule.
  */
 function ShapeFieldRow({
   field,
@@ -225,20 +242,33 @@ function ShapeFieldRow({
         >
           {field.name}
         </span>
+        {/* The type sits a step DOWN from the name: smaller and quiet-colored
+            (see --docs-shape-type). Same-size saturated type text read louder
+            than the bold name it annotates, which is backwards — the name is
+            what a reader scans for. */}
+        {/* `break-words`, not `break-all`: a long union type wraps at its
+            spaces and `|` separators instead of being guillotined mid-token
+            ("save_poin / t"), which is exactly the kind of break that costs a
+            low-vision reader the word. */}
         {field.type && (
           <span
             data-field-token="type"
-            className={cn("break-all font-mono text-xs", FIELD_TOKEN_CLASS.type)}
+            className={cn("break-words font-mono text-[11px]", FIELD_TOKEN_CLASS.type)}
           >
             {field.type}
           </span>
         )}
+        {/* Spelled out rather than a bare "?", which reads as uncertainty
+            about the field rather than a statement about it. */}
         {field.required === false && (
           <span
             data-field-token="optional"
-            className={cn("font-mono text-[10px]", FIELD_TOKEN_CLASS.muted)}
+            className={cn(
+              "text-[10px] uppercase tracking-wider",
+              FIELD_TOKEN_CLASS.muted,
+            )}
           >
-            ?
+            optional
           </span>
         )}
       </div>
@@ -246,7 +276,8 @@ function ShapeFieldRow({
         <div
           data-field-token="description"
           className={cn(
-            "mt-0.5 max-w-[46ch] text-xs leading-[1.45]",
+            "mt-1 text-xs leading-[1.5]",
+            DESCRIPTION_MEASURE,
             FIELD_TOKEN_CLASS.description,
           )}
         >
@@ -261,7 +292,10 @@ function ShapeFieldRow({
     "data-shape-depth": depth,
     className: cn(
       "text-xs",
-      depth === 0 ? "px-5 py-[var(--docs-shape-row-pad,9px)]" : "py-1.5 pr-5",
+      // Nested rows are a single line (name + type, rarely a description), so
+      // they take a tighter rhythm than a top-level row — that difference in
+      // density is itself the signal that they belong to the row above.
+      depth === 0 ? "px-3 py-[var(--docs-shape-row-pad,10px)]" : "py-1.5 pl-3 pr-4",
     ),
   } as const;
   if (!linked) return <div {...shared}>{body}</div>;
@@ -277,6 +311,10 @@ function ShapeFieldRow({
  * interaction-surface notes use: the field's own row, children contained
  * behind a very light left rule (one step per depth) with NO dividers of
  * their own; full-strength hairlines separate only the top-level fields.
+ *
+ * The indent lives on the CONTAINER (ml) and the row pad on the ROW (pl),
+ * so a nested row's lit rail lands exactly on its depth's left rule rather
+ * than floating inside the padding.
  */
 function ShapeFieldGroup({
   field,
@@ -298,10 +336,15 @@ function ShapeFieldGroup({
         linked={model?.chipByPath.has(path) ?? false}
         path={path}
       />
+      {/* Indent guide. Pulled in from ml-4 to ml-3 and darkened (see
+          --docs-shape-child-rule) so the group reads as hanging off its
+          parent rather than floating in the gap beside it; the tighter
+          bottom margin keeps the parent and its children in one block
+          instead of two loosely-related clusters. */}
       {children.length > 0 && (
         <div
           data-shape-children="true"
-          className={cn("mb-1.5 ml-5 border-l border-solid pl-3", CHILD_RULE_BORDER)}
+          className={cn("mb-1.5 ml-3 border-l border-solid", CHILD_RULE_BORDER)}
         >
           {children.map((child) => (
             <ShapeFieldGroup
@@ -319,17 +362,40 @@ function ShapeFieldGroup({
 }
 
 /**
- * State shape block — the S1 · STATE two-pane card: a quiet bordered card
- * (deliberately NO header bar, and never a language tag — state is always
- * JSON) holding a LinkGroup-scoped grid. Structure tree left: bold ink
- * shape name, muted `basename#symbol` source ref with the full path in the
- * title attribute, then hairline-divided field rows (plain spans — bare
- * `code`/`p` elements would inherit the global inline-code pill and
- * paragraph sizing rules). When the example prop parses as JSON, the
- * line-numbered, zebra-striped, token-toned example renders right. Field
- * rows link to the example lines their dot-path matches (array indices
- * normalized away): hover/pin paints the field's full extent in both panes.
- * Without an example the card is the single-pane tree: nothing linkable.
+ * State shape block — the API-reference two-pane layout: a wide field list
+ * on the left, the example JSON parked on the right.
+ *
+ * The block fills whatever lane the renderer puts it in (`w-full`, no cap
+ * and no centering of its own): state-shape declares the WIDE lane in its
+ * descriptor, and both surfaces wrap it in that lane element. The pane
+ * split therefore happens at `xl:` — below it the two panes stack, example
+ * under the field list, which is the only readable arrangement once the
+ * lane narrows.
+ *
+ * Left pane (majority width): bold ink shape name, muted `basename#symbol`
+ * source ref with the full path in the title attribute, then the field
+ * rows (plain spans — bare `code`/`p` elements would inherit the global
+ * inline-code pill and paragraph sizing rules). Rows separate with a
+ * hairline that spans the FULL pane width, name/type/optional read on one
+ * line, and the description sits below at a ~70ch measure.
+ *
+ * Right pane: when the example prop parses as JSON, the line-numbered,
+ * zebra-striped, token-toned example renders in its own bordered panel.
+ * That panel is STICKY — a long field list scrolls past a fixed example
+ * instead of dragging the reader back up to it — and caps its height with
+ * internal scrolling so it can never outgrow the viewport. Stickiness is
+ * why the block is no longer wrapped in one `overflow-hidden` card:
+ * clipping ancestors kill `position: sticky`. The panel's own
+ * overflow keeps its content clipped to its radius.
+ *
+ * Field rows link to the example lines their dot-path matches (array
+ * indices normalized away): hover/pin paints the field's full extent in
+ * both panes. Without an example (or with one that does not parse) the
+ * field list takes the full lane on its own — no empty second column — and
+ * nothing is linkable.
+ *
+ * There is deliberately NO header bar and never a language tag: state is
+ * always JSON.
  */
 export function StateShapeBlock({
   id,
@@ -376,92 +442,118 @@ export function StateShapeBlock({
 
   return (
     <section
-      className="not-prose my-4"
+      className="not-prose my-4 w-full"
       data-docs-block-type="state-shape"
       data-source-id={id}
     >
       <LinkGroup>
+        {/* `items-start` is load-bearing for the sticky example pane: a
+            stretched grid item is exactly as tall as its row and so has
+            nowhere to travel. Started at the top, the pane is content-tall
+            inside a row sized by the field list, which is the room sticky
+            needs. */}
         <div
+          data-shape-grid="true"
           className={cn(
-            "overflow-hidden rounded-md border",
-            "border-[color:var(--docs-shape-border,var(--border))]",
-            "bg-[color:var(--docs-shape-bg,var(--background))]",
+            "grid w-full grid-cols-1 gap-y-6",
+            // The split is the LEFT pane's share of the block, supplied by the
+            // style rail as `--docs-pane-split` (Layout > Column split). The
+            // 46% fallback MUST match BLOCK_COLUMN_SPLIT_DEFAULTS in the
+            // workbench's StyleRail — an unset knob emits nothing, so this
+            // literal is what actually renders. A fixed `fr` ratio used to
+            // starve the example pane, clipping long JSON values.
+            model
+              && "xl:grid-cols-[minmax(0,var(--docs-pane-split,46%))_minmax(0,1fr)] xl:items-start xl:gap-x-10",
           )}
         >
-          <div
-            data-shape-grid="true"
-            className={cn(
-              "grid grid-cols-1",
-              model && "lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]",
+          <div data-shape-tree="true" className="min-w-0">
+            {hasHeader && (
+              <div
+                data-shape-header="true"
+                className={cn(
+                  "mb-1 grid gap-1 border-b-2 border-solid px-3 py-3",
+                  SHAPE_RULE_BORDER,
+                  "bg-[color:var(--docs-shape-header-bg,color-mix(in_srgb,var(--muted)_35%,transparent))]",
+                )}
+              >
+                {name && (
+                  <div
+                    data-shape-name="true"
+                    className={cn("break-all font-mono text-sm font-bold", SHAPE_NAME_CLASS)}
+                  >
+                    {name}
+                  </div>
+                )}
+                {sourceRef && (
+                  <span
+                    data-shape-source={sourceRef}
+                    title={sourceRef}
+                    className={cn("break-all font-mono text-[11px]", FIELD_TOKEN_CLASS.muted)}
+                  >
+                    {sourceLabel}
+                  </span>
+                )}
+                {description && (
+                  <div
+                    data-shape-description="true"
+                    className={cn(
+                      "mt-0.5 text-xs leading-[1.5]",
+                      DESCRIPTION_MEASURE,
+                      FIELD_TOKEN_CLASS.description,
+                    )}
+                  >
+                    {description}
+                  </div>
+                )}
+              </div>
             )}
-          >
-            <div
-              data-shape-tree="true"
-              className={cn(
-                "pb-3.5",
-                !hasHeader && "pt-3.5",
-                model && cn("border-b lg:border-b-0 lg:border-r", SHAPE_RULE_BORDER),
-              )}
-            >
-              {hasHeader && (
-                <div
-                  data-shape-header="true"
-                  className={cn(
-                    "mb-1 grid gap-px border-b-2 border-solid px-5 pb-3 pt-3",
-                    SHAPE_RULE_BORDER,
-                    "bg-[color:var(--docs-shape-header-bg,color-mix(in_srgb,var(--muted)_35%,transparent))]",
-                  )}
-                >
-                  {name && (
-                    <div
-                      data-shape-name="true"
-                      className={cn("break-all font-mono text-sm font-bold", SHAPE_NAME_CLASS)}
-                    >
-                      {name}
-                    </div>
-                  )}
-                  {sourceRef && (
-                    <span
-                      data-shape-source={sourceRef}
-                      title={sourceRef}
-                      className={cn("break-all font-mono text-[11px]", FIELD_TOKEN_CLASS.muted)}
-                    >
-                      {sourceLabel}
-                    </span>
-                  )}
-                  {description && (
-                    <div
-                      data-shape-description="true"
-                      className={cn(
-                        "mt-0.5 max-w-[46ch] text-xs leading-[1.45]",
-                        FIELD_TOKEN_CLASS.description,
-                      )}
-                    >
-                      {description}
-                    </div>
-                  )}
-                </div>
-              )}
-              {fields.length > 0 ? (
-                <ProseRows className="divide-[color:var(--docs-shape-rule,var(--border))]">
-                  {fields.map((field) => (
-                    <ShapeFieldGroup
-                      key={field.name}
-                      depth={0}
-                      field={field}
-                      model={model}
-                      path={field.name}
-                    />
-                  ))}
-                </ProseRows>
-              ) : (
-                <div className={cn("px-5 py-1.5 text-xs", FIELD_TOKEN_CLASS.muted)}>
-                  (no fields)
-                </div>
-              )}
-            </div>
-            {exampleLines && <CodeLines data-shape-example="true" lines={exampleLines} />}
+            {fields.length > 0 ? (
+              // The stack spans the pane, so its dividers are full-width
+              // rules between fields — not rules inset to the text column.
+              // It closes with a bottom rule (and opens with a top one when
+              // no header supplies it) so the list reads as a bounded
+              // table rather than trailing off.
+              <ProseRows
+                className={cn(
+                  "border-b border-solid divide-[color:var(--docs-shape-rule,var(--border))]",
+                  !hasHeader && "border-t",
+                  SHAPE_RULE_BORDER,
+                )}
+              >
+                {fields.map((field) => (
+                  <ShapeFieldGroup
+                    key={field.name}
+                    depth={0}
+                    field={field}
+                    model={model}
+                    path={field.name}
+                  />
+                ))}
+              </ProseRows>
+            ) : (
+              <div className={cn("px-3 py-2 text-xs", FIELD_TOKEN_CLASS.muted)}>(no fields)</div>
+            )}
           </div>
+          {exampleLines && (
+            <div
+              data-shape-example-pane="true"
+              className="min-w-0 xl:sticky xl:top-4 xl:self-start"
+            >
+              <CodeLines
+                data-shape-example="true"
+                lines={exampleLines}
+                // overflow-Y only: the panel's own horizontal scroll
+                // (CODE_LINES_PANEL_CLASSES) still handles long lines, and
+                // the height cap keeps a 200-line example inside the
+                // viewport while it is stuck.
+                className={cn(
+                  "max-h-[calc(100vh-8rem)] overflow-y-auto rounded-md border pb-3",
+                  "border-[color:var(--docs-shape-border,var(--border))]",
+                  "bg-[color:var(--docs-shape-bg,var(--background))]",
+                )}
+              />
+            </div>
+          )}
         </div>
       </LinkGroup>
     </section>

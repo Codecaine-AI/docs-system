@@ -320,6 +320,81 @@ describe("export", () => {
     await rm(outDir, { recursive: true, force: true });
     if (!hadDist) await rm(distDir, { recursive: true, force: true });
   });
+
+  test("snapshots the active repo theme so the export inherits the style baseline", async () => {
+    // A static export has no server: data/theme.json is the ONLY channel
+    // carrying the style rail's repo baseline (manifest.railDefaults) and
+    // the component token files into the exported site.
+    const outDir = await mkdtemp(join(tmpdir(), "docs-export-theme-"));
+    const distDir = join(import.meta.dir, "..", "..", "web", "dist-static");
+    const hadDist = await Bun.file(join(distDir, "index.html")).exists();
+    if (!hadDist) {
+      await mkdir(distDir, { recursive: true });
+      await writeFile(join(distDir, "index.html"), "<html>static-shell</html>");
+    }
+
+    // themes/ is a SIBLING of the docs root, so this fixture needs its own
+    // repo root — the shared docsRoot above is a bare temp dir whose
+    // sibling would be the system temp directory.
+    const repoRoot = await mkdtemp(join(tmpdir(), "docs-export-repo-"));
+    const themedDocsRoot = join(repoRoot, "docs");
+    await mkdir(themedDocsRoot, { recursive: true });
+    const themeId = "active-lanes";
+    const themeDir = join(repoRoot, "themes", themeId);
+    await mkdir(join(themeDir, "components"), { recursive: true });
+    await writeFile(
+      join(themeDir, "theme.json"),
+      JSON.stringify({
+        name: "Active Lanes",
+        dark: false,
+        railDefaults: {
+          layout: { contentMargin: 88, wideWidth: 1040 },
+          annotate: {
+            accent: "#7c3aed",
+            add: "#15803d",
+            del: "#b91c1c",
+            washOpacity: 0.14,
+            actionPaneWidth: 640,
+          },
+          blockLayout: { "state-shape": { width: "1120px" } },
+        },
+      }),
+    );
+    await writeFile(join(themeDir, "components", "paragraph.json"), JSON.stringify({ fg: "#111111" }));
+    await writeFile(
+      join(themeDir, "components", "annotate.json"),
+      JSON.stringify({ surface: "#f5f3ff" }),
+    );
+
+    const report = await runExport({ docsRoot: themedDocsRoot, outDir, themeId });
+    expect(report.themeExported).toBe(true);
+
+    const snapshot = (await Bun.file(join(outDir, "data", "theme.json")).json()) as {
+      theme: {
+        id: string;
+        manifest: { railDefaults: Record<string, unknown> };
+        components: Record<string, Record<string, unknown>>;
+      };
+    };
+    expect(snapshot.theme.id).toBe(themeId);
+    expect(snapshot.theme.manifest.railDefaults).toEqual({
+      layout: { contentMargin: 88, wideWidth: 1040 },
+      annotate: {
+        accent: "#7c3aed",
+        add: "#15803d",
+        del: "#b91c1c",
+        washOpacity: 0.14,
+        actionPaneWidth: 640,
+      },
+      blockLayout: { "state-shape": { width: "1120px" } },
+    });
+    expect(snapshot.theme.components.paragraph).toEqual({ fg: "#111111" });
+    expect(snapshot.theme.components.annotate).toEqual({ surface: "#f5f3ff" });
+
+    await rm(repoRoot, { recursive: true, force: true });
+    await rm(outDir, { recursive: true, force: true });
+    if (!hadDist) await rm(distDir, { recursive: true, force: true });
+  });
 });
 
 describe("walkDocsDir parity", () => {

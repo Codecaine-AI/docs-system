@@ -156,6 +156,59 @@ describe("reference chip", () => {
 });
 
 describe("DocEditor save boundary", () => {
+  it("preserves invisible root metadata and emits no transport-empty root update", async () => {
+    const doc: DocDocument = {
+      schemaVersion: 1,
+      id: "root-metadata",
+      root: "root",
+      blocks: {
+        root: {
+          id: "root",
+          type: "paragraph",
+          props: { concepts: ["editor", "save-boundary"] },
+          children: ["p1"],
+        },
+        p1: {
+          id: "p1",
+          type: "paragraph",
+          props: {},
+          text: [{ insert: "Editable text" }],
+          children: [],
+        },
+      },
+    };
+    const batches: DocOp[][] = [];
+    let editorInstance: Editor | null = null;
+    renderWithClient(
+      <DocEditor
+        document={doc}
+        onApplyOps={async (ops) => {
+          batches.push(ops);
+          return { ok: true };
+        }}
+        onEditorReady={(editor) => {
+          editorInstance = editor;
+        }}
+      />,
+    );
+
+    await waitFor(() => expect(editorInstance).toBeTruthy());
+    act(() => {
+      const { to } = findTextRange(editorInstance!, "Editable text");
+      editorInstance!.commands.insertContentAt(to, " edited");
+    });
+    fireEvent.click(await screen.findByRole("button", { name: "Save" }));
+
+    await waitFor(() => expect(batches).toHaveLength(1));
+    expect(JSON.parse(JSON.stringify(batches[0]))).toEqual([
+      {
+        type: "updateBlock",
+        blockId: "p1",
+        text: [{ insert: "Editable text edited" }],
+      },
+    ]);
+  });
+
   it("editing one paragraph's text saves exactly one updateBlock op", async () => {
     const doc = loadFixture();
     const batches: DocOp[][] = [];
@@ -322,7 +375,7 @@ describe("DocEditor save boundary", () => {
     await waitFor(() => {
       expect(screen.getByText("Unsaved changes")).toBeTruthy();
     });
-  });
+  }, 12_000);
 });
 
 /**

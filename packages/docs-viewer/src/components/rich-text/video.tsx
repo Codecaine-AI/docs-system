@@ -3,6 +3,7 @@
 import { createElement } from "react";
 import type { DocBlockDescriptor } from "../../render/block-registry";
 import { STRUCTURAL_OPS, blockAttrs, el, stringProp } from "../../render/descriptor-helpers";
+import { WIDE_LEFT_BLOCK_LAYOUT } from "../../render/block-layout";
 import { atomBlockNode } from "../../editor/core/node-helpers";
 import { VIDEO_AGENT_DESCRIPTION, VIDEO_LABEL, VideoBlock } from "./VideoDocsBlock";
 
@@ -16,6 +17,9 @@ export const videoDescriptor: DocBlockDescriptor = {
   label: VIDEO_LABEL,
   agentDescription: VIDEO_AGENT_DESCRIPTION,
   patchOps: STRUCTURAL_OPS,
+  // Media uses the shared wide-left lane; centering is a theme/rail opt-in
+  // (block-layout.ts).
+  layout: WIDE_LEFT_BLOCK_LAYOUT,
   render: (block, ctx) => {
     const src = stringProp(block, "src");
     return el(

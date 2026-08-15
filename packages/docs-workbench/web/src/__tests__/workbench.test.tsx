@@ -11,7 +11,8 @@ import { applyDocOps, getBundle, stageProposal, undoPatch, ApiError } from "../d
 import { getSessionId } from "../data/session";
 import { createStandaloneDocsClient } from "../data/client";
 import { StandaloneCanvasEmbed } from "../pages/CanvasEmbed";
-import { App } from "../shell/App";
+import { App, themeWritePayload } from "../shell/App";
+import { DEFAULT_STYLE_RAIL_SETTINGS } from "../shell/StyleRail";
 import { DocPage } from "../pages/DocPage";
 
 /**
@@ -25,10 +26,19 @@ import { DocPage } from "../pages/DocPage";
  */
 
 let docsRoot: string;
+let repoRoot: string;
 let app: ReturnType<typeof createDocsServeApp>;
 let realFetch: typeof fetch;
 
-function docJson(id: string, title: string, text: string) {
+function docJson(
+  id: string,
+  title: string,
+  text: string,
+  options?: {
+    rootProps?: Record<string, unknown>;
+    paragraphProps?: Record<string, unknown>;
+  },
+) {
   return {
     schemaVersion: 1,
     id,
@@ -38,13 +48,13 @@ function docJson(id: string, title: string, text: string) {
       "root-1": {
         id: "root-1",
         type: "paragraph",
-        props: {},
+        props: options?.rootProps ?? {},
         children: ["para-1"],
       },
       "para-1": {
         id: "para-1",
         type: "paragraph",
-        props: {},
+        props: options?.paragraphProps ?? {},
         text: [{ insert: text }],
         children: [],
       },
@@ -153,7 +163,9 @@ async function makeEditorDirty(getEditor: () => Editor | null, text: string) {
 }
 
 beforeAll(async () => {
-  docsRoot = await mkdtemp(join(tmpdir(), "docs-workbench-test-"));
+  repoRoot = await mkdtemp(join(tmpdir(), "docs-workbench-test-"));
+  docsRoot = join(repoRoot, "docs");
+  await mkdir(docsRoot, { recursive: true });
   for (const [path, title] of BUNDLES) {
     await mkdir(join(docsRoot, path), { recursive: true });
     await writeFile(
@@ -161,6 +173,17 @@ beforeAll(async () => {
       JSON.stringify(docJson(`doc-${path}`, title, `Hello from ${title}`), null, 2),
     );
   }
+  await mkdir(join(docsRoot, "67-invalid-props"), { recursive: true });
+  await writeFile(
+    join(docsRoot, "67-invalid-props", "doc.json"),
+    JSON.stringify(
+      docJson("doc-67-invalid-props", "Invalid Props", "Legacy editable text", {
+        paragraphProps: { legacy: true },
+      }),
+      null,
+      2,
+    ),
+  );
   app = createDocsServeApp({ docsRoot });
 
   // Route the SPA's relative fetches into the real app, no network.
@@ -176,12 +199,13 @@ beforeAll(async () => {
 
 afterAll(async () => {
   globalThis.fetch = realFetch;
-  await rm(docsRoot, { recursive: true, force: true });
+  await rm(repoRoot, { recursive: true, force: true });
 });
 
 afterEach(() => {
   cleanup();
   window.location.hash = "";
+  localStorage.clear();
 });
 
 describe("workbench shell", () => {
@@ -236,9 +260,157 @@ describe("workbench shell", () => {
     expect(!!document.querySelector('[data-annotation-ui="hover-ring"]')).toBe(false);
     expect(!!document.querySelector("[data-annotation-chip]")).toBe(false);
   });
+
+  it("loads repo settings ahead of stale cache and writes annotate edits to the active theme", async () => {
+    const themeId = "product-theme";
+    const themeDir = join(repoRoot, "themes", themeId);
+    await mkdir(join(themeDir, "components"), { recursive: true });
+    await writeFile(
+      join(themeDir, "theme.json"),
+      JSON.stringify(
+        {
+          name: "Product Theme",
+          dark: false,
+          railDefaults: {
+            layout: { wideWidth: 1040, contentMargin: 88 },
+            annotate: { washOpacity: 0.17, actionPaneWidth: 611 },
+          },
+        },
+        null,
+        2,
+      ),
+    );
+    localStorage.setItem("docs-theme-folder-id", themeId);
+    localStorage.setItem("docs-viewer-theme", "dark");
+    localStorage.setItem(
+      "docs-style-rail-settings.v1",
+      JSON.stringify({ annotate: { washOpacity: 0.03, actionPaneWidth: 390 } }),
+    );
+    window.location.hash = "#/10-guide";
+
+    render(<App />);
+    // The config response must not expose editable controls before the
+    // authoritative theme response has also settled.
+    expect(screen.queryByRole("button", { name: "Collapse style controls" })).toBeNull();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Collapse style controls" })).toBeTruthy();
+      expect(document.documentElement.style.getPropertyValue("--docs-action-pane-width")).toBe(
+        "611px",
+      );
+      expect(document.documentElement.getAttribute("data-theme")).toBe("light");
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Annotate" }));
+    fireEvent.change(screen.getByLabelText(/AI panel width/), { target: { value: "644" } });
+
+    await waitFor(
+      async () => {
+        const saved = JSON.parse(await readFile(join(themeDir, "theme.json"), "utf8")) as {
+          railDefaults: { annotate: { actionPaneWidth: number; washOpacity: number } };
+        };
+        expect(saved.railDefaults.annotate.actionPaneWidth).toBe(644);
+        expect(saved.railDefaults.annotate.washOpacity).toBe(0.17);
+      },
+      { timeout: 4000, interval: 100 },
+    );
+    expect(await Bun.file(join(repoRoot, "themes", "default", "theme.json")).exists()).toBe(false);
+  });
+
+  it("keeps the rail hidden and performs no write-back on a theme-locked serve", async () => {
+    const themeDir = join(repoRoot, "themes", "default");
+    await mkdir(themeDir, { recursive: true });
+    const lockedTheme = `${JSON.stringify(
+      {
+        name: "Locked Default",
+        dark: false,
+        railDefaults: {
+          layout: { wideWidth: 1040, contentMargin: 88 },
+          annotate: { washOpacity: 0.19, actionPaneWidth: 633 },
+        },
+      },
+      null,
+      2,
+    )}\n`;
+    await writeFile(join(themeDir, "theme.json"), lockedTheme);
+    const staleCache = JSON.stringify({ annotate: { washOpacity: 0.02, actionPaneWidth: 390 } });
+    localStorage.setItem("docs-viewer-theme", "dark");
+    localStorage.setItem("docs-style-rail-settings.v1", staleCache);
+    window.location.hash = "#/10-guide";
+
+    const unlockedApp = app;
+    app = createDocsServeApp({ docsRoot, themeLocked: true });
+    const view = render(<App />);
+    try {
+      await waitFor(() => {
+        expect(document.documentElement.style.getPropertyValue("--docs-action-pane-width")).toBe(
+          "633px",
+        );
+        expect(document.documentElement.getAttribute("data-theme")).toBe("light");
+      });
+      expect(screen.queryByRole("button", { name: "Collapse style controls" })).toBeNull();
+
+      // Longer than the unlocked debounce: neither the repo file nor cache
+      // may be changed by this consumer host.
+      await new Promise((resolve) => setTimeout(resolve, 1700));
+      expect(await readFile(join(themeDir, "theme.json"), "utf8")).toBe(lockedTheme);
+      expect(localStorage.getItem("docs-viewer-theme")).toBe("dark");
+      expect(localStorage.getItem("docs-style-rail-settings.v1")).toBe(staleCache);
+    } finally {
+      view.unmount();
+      app = unlockedApp;
+    }
+  });
+});
+
+describe("theme write payload", () => {
+  it("preserves active manifest fields and sibling component tokens", () => {
+    const payload = themeWritePayload(
+      {
+        ...DEFAULT_STYLE_RAIL_SETTINGS,
+        annotate: { ...DEFAULT_STYLE_RAIL_SETTINGS.annotate, actionPaneWidth: 640 },
+        components: { callout: { fill: "#222222" } },
+      },
+      true,
+      "product-theme",
+      {
+        manifest: { name: "Product Theme", base: "default", fonts: { body: "Inter" } },
+        components: { callout: { fill: "#111111", border: "#333333" } },
+      },
+    );
+
+    expect(payload.id).toBe("product-theme");
+    expect(payload.manifest).toMatchObject({
+      name: "Product Theme",
+      base: "default",
+      fonts: { body: "Inter" },
+      dark: true,
+      railDefaults: { annotate: { actionPaneWidth: 640 } },
+    });
+    expect(payload.components).toEqual({
+      callout: { fill: "#222222", border: "#333333" },
+    });
+  });
 });
 
 describe("edit mode save loop", () => {
+  it("shows the rejected op path and validation message instead of only the generic detail", async () => {
+    let editor: Editor | null = null;
+    renderDocPage("67-invalid-props", {
+      onEditorReady: (instance) => (editor = instance),
+      autoSaveDelayMs: NEVER_AUTOSAVE_MS,
+    });
+
+    await waitFor(() => expect(screen.getByText("Legacy editable text")).toBeTruthy());
+    await makeEditorDirty(() => editor, "EDIT ");
+    pressSaveShortcut();
+
+    await waitFor(() => {
+      expect(screen.getByText(/\$\.op\.props\.legacy: Unexpected property/)).toBeTruthy();
+      expect(saveStateAttr()).toBe("error");
+    });
+  });
+
   it("auto-saves through /api/ops on the debounce alone (no manual action)", async () => {
     let editor: Editor | null = null;
     renderDocPage("65-autosave", { onEditorReady: (e) => (editor = e), autoSaveDelayMs: 40 });

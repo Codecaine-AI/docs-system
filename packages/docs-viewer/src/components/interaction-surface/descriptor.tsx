@@ -1,6 +1,7 @@
 import { createElement } from "react";
 import type { DocBlock } from "@codecaine-ai/docs-model/doc-schema";
 import type { DocBlockDescriptor } from "../../render/block-registry";
+import { WIDE_LEFT_BLOCK_LAYOUT } from "../../render/block-layout";
 import {
   STRUCTURAL_OPS,
   blockAttrs,
@@ -88,6 +89,9 @@ export const descriptors: DocBlockDescriptor[] = [
     label: INTERACTION_SURFACE_LABEL,
     agentDescription: INTERACTION_SURFACE_AGENT_DESCRIPTION,
     patchOps: STRUCTURAL_OPS,
+    // Wide-data block: operation signatures and their param tables need more
+    // than a prose measure (block-layout.ts).
+    layout: WIDE_LEFT_BLOCK_LAYOUT,
     render: (block, ctx) => {
       const operations = interactionSurfaceOperations(block);
       if (!operations) return invalidBlockPlaceholder(block, ctx, INTERACTION_SURFACE_LABEL);

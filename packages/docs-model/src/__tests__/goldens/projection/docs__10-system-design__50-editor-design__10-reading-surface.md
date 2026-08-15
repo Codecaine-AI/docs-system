@@ -1,4 +1,4 @@
-The reading surface is a single document column with stable page furniture and navigation that keeps context visible. This page defines its measure and spacing, derived title, numbered sidebar, reference peek, and backlinks footer. Per-block presentation remains in Block vocabulary.
+The reading surface is a left-justified full-width page where each top-level block claims its own layout lane, with stable page furniture and navigation that keeps context visible. This page defines its lane measures and spacing, derived title, numbered sidebar, reference peek, and backlinks footer. Per-block presentation remains in Block vocabulary.
 
 ## Structure
 
@@ -6,7 +6,7 @@ The living Default in `themes/default/theme.json` defines the document frame bel
 
 | Control | Living Default | Effect |
 | --- | --- | --- |
-| `--style-content-width` | `88ch` | Maximum document-column measure |
+| `--style-content-width` | `88ch` | Maximum text-lane measure |
 | `--style-content-margin` | `0px` | Horizontal content padding |
 | `--style-content-top` | `88px` | Top offset before the page title |
 | `--style-title-padding` | `50px` | Gap from the page title to the first block |
@@ -14,9 +14,9 @@ The living Default in `themes/default/theme.json` defines the document frame bel
 
 ## The Rule
 
-- **One document column**
+- **Per-block layout lanes**
 
-  - Blocks flow through one centered column capped by `--style-content-width`.
+  - Each top-level block claims a `text`, `wide`, or `full` lane. The default is the text lane, and every lane is left-justified on the shared content rail unless a per-block theme override explicitly centers it.
 
   - Secondary panes are layout siblings. Opening one pushes and reflows the document; it never covers content.
 

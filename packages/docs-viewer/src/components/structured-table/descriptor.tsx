@@ -2,6 +2,7 @@ import { createElement } from "react";
 import type { DocBlock } from "@codecaine-ai/docs-model/doc-schema";
 import type { TableCell } from "@codecaine-ai/docs-model";
 import type { DocBlockDescriptor } from "../../render/block-registry";
+import { WIDE_LEFT_BLOCK_LAYOUT } from "../../render/block-layout";
 import { isTableCellValue } from "./cell-content";
 import {
   STRUCTURAL_OPS,
@@ -55,6 +56,9 @@ export const descriptors: DocBlockDescriptor[] = [
     label: STRUCTURED_TABLE_LABEL,
     agentDescription: STRUCTURED_TABLE_AGENT_DESCRIPTION,
     patchOps: STRUCTURAL_OPS,
+    // Wide-data block: columns need more room than a prose measure allows
+    // (block-layout.ts).
+    layout: WIDE_LEFT_BLOCK_LAYOUT,
     render: (block, ctx) => {
       const data = structuredTableData(block);
       if (!data) return invalidBlockPlaceholder(block, ctx, STRUCTURED_TABLE_LABEL);

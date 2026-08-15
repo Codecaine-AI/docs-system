@@ -3,7 +3,15 @@ import { X } from "lucide-react";
 import { cn } from "@codecaine-ai/docs-viewer/ui/cn";
 import { THEME_TOKEN_REGISTRY } from "../theme/theme-folders";
 import {
-  DEFAULT_STYLE_RAIL_SETTINGS,
+  BLOCK_COLUMN_SPLIT_DEFAULTS,
+  BLOCK_COLUMN_SPLIT_MAX,
+  BLOCK_COLUMN_SPLIT_MIN,
+  BLOCK_LAYOUT_CUSTOM_WIDTH_MAX,
+  BLOCK_LAYOUT_CUSTOM_WIDTH_MIN,
+  getStyleRailBaseline,
+  hasBlockColumnSplit,
+  isBlockLayoutType,
+  type BlockLayoutOverride,
   type AccentFamily,
   type FontChoice,
   type GrainBlendMode,
@@ -395,14 +403,62 @@ export function StyleRailPane({
     else components[file] = fileTokens;
     onSettingsChange({ ...settings, components });
   };
+  /**
+   * Patches one block type's lane override. The map is SPARSE by contract —
+   * an entry with no fields left is DELETED rather than kept as `{}`, because
+   * "absent" is what means "inherit the code default from block-layout.ts".
+   * Keeping an empty object would read as an override in the UI and emit a
+   * rule with no declarations.
+   */
+  const patchBlockLayout = (file: string, patch: BlockLayoutOverride) => {
+    const current = settings.blockLayout[file] ?? {};
+    const next: BlockLayoutOverride = { ...current };
+    // A key PRESENT in the patch with an `undefined` value means "clear this
+    // field" (the Default option); a key absent from the patch means "leave it
+    // alone". Collapsing those two would make setting Justification wipe the
+    // Width the user just chose, so the distinction is `in`, not `=== undefined`.
+    if ("width" in patch) {
+      if (patch.width === undefined) delete next.width;
+      else next.width = patch.width;
+    }
+    if ("justify" in patch) {
+      if (patch.justify === undefined) delete next.justify;
+      else next.justify = patch.justify;
+    }
+    if ("columnSplit" in patch) {
+      if (patch.columnSplit === undefined) delete next.columnSplit;
+      else next.columnSplit = patch.columnSplit;
+    }
+    const blockLayout = { ...settings.blockLayout };
+    if (
+      next.width === undefined
+      && next.justify === undefined
+      && next.columnSplit === undefined
+    ) {
+      delete blockLayout[file];
+    } else blockLayout[file] = next;
+    onSettingsChange({ ...settings, blockLayout });
+  };
+
   const resetComponent = (file: string) => {
     const components = { ...settings.components };
     delete components[file];
+    // The pane's reset clears everything the pane owns. Lane and list values
+    // live in railDefaults, so "to theme" must restore the active theme's
+    // repo baseline rather than delete them back to the compiled-in stock
+    // values. Component tokens are already compiled from components/*.json,
+    // which is why clearing their inline overrides above remains correct.
+    const baseline = getStyleRailBaseline();
+    const blockLayout = { ...settings.blockLayout };
+    const baselineBlockLayout = baseline.blockLayout[file];
+    if (baselineBlockLayout) blockLayout[file] = { ...baselineBlockLayout };
+    else delete blockLayout[file];
     onSettingsChange({
       ...settings,
       components,
+      blockLayout,
       ...(file === "list-item"
-        ? { list: { ...DEFAULT_STYLE_RAIL_SETTINGS.list } }
+        ? { list: { ...baseline.list } }
         : {}),
     });
   };
@@ -448,6 +504,101 @@ export function StyleRailPane({
         />
       );
     });
+
+  /**
+   * The per-component Layout section: where this block type sits on the page,
+   * layered over docs-viewer's block-layout.ts code default.
+   *
+   * Rendered from the SHARED component-pane case, so every doc block type
+   * gets it from one place. Non-block panes (inline-code, linking, shell,
+   * surfaces, editor-controls) are not lanes and get nothing — that is what
+   * the isBlockLayoutType gate at the call site enforces.
+   *
+   * "Default" is the absence of an override, not a value: selecting it
+   * deletes the field so the code default shows through again.
+   */
+  const renderBlockLayoutSection = (file: string) => {
+    const override = settings.blockLayout[file] ?? {};
+    const isCustomWidth = typeof override.width === "string" && override.width.endsWith("px");
+    const customWidthPx = isCustomWidth
+      ? Number.parseFloat(override.width as string)
+      : BLOCK_LAYOUT_CUSTOM_WIDTH_MIN;
+    return (
+      <Subgroup label="Layout">
+        <SelectRow
+          label="Width"
+          leaf={settingLeaf(`blockLayout.${file}.width`)}
+          onChange={(value) =>
+            patchBlockLayout(file, {
+              width:
+                value === "default"
+                  ? undefined
+                  : value === "custom"
+                    ? (`${customWidthPx}px` as BlockLayoutOverride["width"])
+                    : (value as BlockLayoutOverride["width"]),
+            })
+          }
+          options={[
+            { id: "default", label: "Default" },
+            { id: "text", label: "Text measure" },
+            { id: "wide", label: "Wide lane" },
+            { id: "full", label: "Full width" },
+            { id: "custom", label: "Custom…" },
+          ]}
+          value={
+            override.width === undefined ? "default" : isCustomWidth ? "custom" : override.width
+          }
+        />
+        {isCustomWidth && (
+          <SliderRow
+            label="Custom width"
+            max={BLOCK_LAYOUT_CUSTOM_WIDTH_MAX}
+            min={BLOCK_LAYOUT_CUSTOM_WIDTH_MIN}
+            onChange={(value) =>
+              patchBlockLayout(file, { width: `${value}px` as BlockLayoutOverride["width"] })
+            }
+            step={20}
+            value={customWidthPx}
+            valueLabel={`${customWidthPx}px`}
+          />
+        )}
+        {/* Only the two-pane block types have a split to give. Expressed as
+            the LEFT (fields/operations) pane's share, because that is the one
+            the reader is sizing against its text; the example pane simply
+            takes what is left. */}
+        {hasBlockColumnSplit(file) && (
+          <SliderRow
+            label="Column split"
+            leaf={settingLeaf(`blockLayout.${file}.columnSplit`)}
+            max={BLOCK_COLUMN_SPLIT_MAX}
+            min={BLOCK_COLUMN_SPLIT_MIN}
+            onChange={(value) => patchBlockLayout(file, { columnSplit: value })}
+            step={1}
+            value={override.columnSplit ?? BLOCK_COLUMN_SPLIT_DEFAULTS[file] ?? 50}
+            valueLabel={`${override.columnSplit ?? BLOCK_COLUMN_SPLIT_DEFAULTS[file] ?? 50}% / ${
+              100 - (override.columnSplit ?? BLOCK_COLUMN_SPLIT_DEFAULTS[file] ?? 50)
+            }%`}
+          />
+        )}
+        <SelectRow
+          label="Justification"
+          leaf={settingLeaf(`blockLayout.${file}.justify`)}
+          onChange={(value) =>
+            patchBlockLayout(file, {
+              justify:
+                value === "default" ? undefined : (value as BlockLayoutOverride["justify"]),
+            })
+          }
+          options={[
+            { id: "default", label: "Default" },
+            { id: "left", label: "Left" },
+            { id: "center", label: "Center" },
+          ]}
+          value={override.justify ?? "default"}
+        />
+      </Subgroup>
+    );
+  };
 
   const hasComponentOverrides = (file: string) =>
     Object.keys(THEME_TOKEN_REGISTRY[file] ?? {}).some((key) =>
@@ -1042,10 +1193,32 @@ export function StyleRailPane({
                 value={layout.contentWidth}
                 valueLabel={`${layout.contentWidth}ch`}
               />
+              {/*
+                Wide lane: the max-width data-heavy blocks (state shape,
+                interaction surface, structured table, process outline) break
+                out to. Sized in px because those blocks are grids, not prose.
+              */}
               <SliderRow
-                label="Padding"
+                label="Wide lane"
+                leaf={settingLeaf("layout.wideWidth")}
+                max={2400}
+                min={900}
+                onChange={(value) => patchLayout({ wideWidth: value })}
+                step={20}
+                value={layout.wideWidth}
+                valueLabel={`${layout.wideWidth}px`}
+              />
+              {/*
+                Left margin: the page is left-anchored and full-width now, so
+                this is THE global knob that sets where every block's left rail
+                sits — it is no longer symmetric gutter around a centered
+                column. Named accordingly, and given plenty of range because
+                the whole page hangs off it.
+              */}
+              <SliderRow
+                label="Left margin"
                 leaf={settingLeaf("layout.contentMargin")}
-                max={96}
+                max={240}
                 min={0}
                 onChange={(value) => patchLayout({ contentMargin: value })}
                 step={4}
@@ -1236,6 +1409,11 @@ export function StyleRailPane({
         const file = selectedId.slice("blocks.".length);
         return (
           <ControlGroup>
+            {/* Lane controls first: where the block sits on the page frames
+                everything the token rows then tune inside it. Only real doc
+                block types have a lane — inline-code, linking, shell and
+                surfaces are not blocks and get no Layout section. */}
+            {isBlockLayoutType(file) && renderBlockLayoutSection(file)}
             {renderComponentTokenRows(file)}
             {file === "list-item" && (
               <>

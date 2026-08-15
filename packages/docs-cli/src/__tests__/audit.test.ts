@@ -16,6 +16,8 @@ type DocOptions = {
   extraBlocks?: Record<string, unknown>;
   /** Replaces the default [title, opener] root children order entirely. */
   rootChildren?: string[];
+  /** Metadata carried by the invisible root container. */
+  rootProps?: Record<string, unknown>;
 };
 
 /** Minimal valid doc: level-1 title heading followed by an opening paragraph. */
@@ -42,7 +44,7 @@ function doc(id: string, options: DocOptions = {}): Record<string, unknown> {
   // Only referenced blocks may appear: validateDocDocument rejects blocks
   // unreachable from root.
   const blocks: Record<string, unknown> = {
-    root: { id: "root", type: "paragraph", props: {}, children },
+    root: { id: "root", type: "paragraph", props: options.rootProps ?? {}, children },
   };
   for (const childId of children) blocks[childId] = available[childId];
   return { schemaVersion: 1, id, title: id, root: "root", blocks };
@@ -257,6 +259,42 @@ describe("E4 — bundle validity", () => {
     expect(e4).toHaveLength(1);
     expect(e4[0]).toMatchObject({ severity: "error", path: "10-design/10-shape" });
     expect(e4[0]!.message).toContain("not valid JSON");
+  });
+});
+
+describe("E6 — strict component-state writes", () => {
+  test("flags readable legacy props that make a non-root block unwritable", async () => {
+    await writeBundle(
+      "10-invalid-callout",
+      doc("invalid-callout", {
+        extraBlocks: {
+          note: {
+            id: "note",
+            type: "callout",
+            props: { tone: "note" },
+            text: [{ insert: "Legacy note" }],
+            children: [],
+          },
+        },
+      }),
+    );
+
+    const report = await auditCommand(tempDir);
+    const e6 = findingsFor(report.findings, "E6");
+    expect(e6).toHaveLength(1);
+    expect(e6[0]).toMatchObject({ severity: "error", path: "10-invalid-callout" });
+    expect(e6[0]!.message).toContain('block "note" (callout)');
+    expect(e6[0]!.message).toContain("$.op.props.tone");
+  });
+
+  test("exempts invisible root metadata from component-state lint", async () => {
+    await writeBundle(
+      "10-root-metadata",
+      doc("root-metadata", { rootProps: { concepts: ["docs", "lint"] } }),
+    );
+
+    const report = await auditCommand(tempDir);
+    expect(findingsFor(report.findings, "E6")).toEqual([]);
   });
 });
 

@@ -1,14 +1,25 @@
+import { readFileSync } from "node:fs";
 import { afterEach, describe, expect, it, mock } from "bun:test";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { useState } from "react";
 
 import {
+  BLOCK_COLUMN_SPLIT_DEFAULTS,
+  BLOCK_COLUMN_SPLIT_MAX,
+  BLOCK_COLUMN_SPLIT_MIN,
+  BLOCK_LAYOUT_CUSTOM_WIDTH_MAX,
+  BLOCK_LAYOUT_CUSTOM_WIDTH_MIN,
   DEFAULT_STYLE_RAIL_SETTINGS,
   StyleRail,
+  applyBlockLayoutOverrideCss,
   applyStyleRailVars,
+  blockLayoutOverrideCss,
+  getStyleRailBaseline,
   loadStyleRailSettings,
   normalizeSettings,
+  resetStyleRailBaseline,
   saveStyleRailSettings,
+  setStyleRailBaseline,
   styleRailVars,
   type StyleRailSettings,
 } from "../shell/StyleRail";
@@ -99,6 +110,9 @@ const EXPECTED_NAV_GROUPS = [
 afterEach(() => {
   cleanup();
   window.localStorage.clear();
+  // The repo baseline is module state, so it would otherwise leak from one
+  // test into the next and quietly move every "at default" assertion.
+  resetStyleRailBaseline();
   mock.restore();
 });
 
@@ -138,7 +152,13 @@ function settingsWithAnnotate(
   };
 }
 
-function RailHarness({ initial = DEFAULT_STYLE_RAIL_SETTINGS }: { initial?: StyleRailSettings }) {
+function RailHarness({
+  initial = DEFAULT_STYLE_RAIL_SETTINGS,
+  onSaveStyleToRepo,
+}: {
+  initial?: StyleRailSettings;
+  onSaveStyleToRepo?: () => void;
+}) {
   const [settings, setSettings] = useState(initial);
   const [dark, setDark] = useState(false);
   return (
@@ -149,6 +169,7 @@ function RailHarness({ initial = DEFAULT_STYLE_RAIL_SETTINGS }: { initial?: Styl
         dark={dark}
         onCollapsedChange={() => {}}
         onDarkChange={setDark}
+        onSaveStyleToRepo={onSaveStyleToRepo}
         onSelectTheme={() => {}}
         onSettingsChange={setSettings}
         settings={settings}
@@ -248,6 +269,16 @@ describe("style rail override helpers", () => {
     };
 
     expect(paneOverrideCount(settings, "layout.editor")).toBe(5);
+  });
+
+  it("attributes the wide-lane leaf to Editor", () => {
+    const settings: StyleRailSettings = {
+      ...DEFAULT_STYLE_RAIL_SETTINGS,
+      layout: { ...DEFAULT_STYLE_RAIL_SETTINGS.layout, wideWidth: 1800 },
+    };
+
+    expect(isLeafOverridden(settings, settingLeaf("layout.wideWidth"))).toBe(true);
+    expect(paneOverrideCount(settings, "layout.editor")).toBe(1);
   });
 
   it("attributes surface knobs and component tokens to the merged Surfaces pane", () => {
@@ -457,7 +488,7 @@ describe("style rail override state", () => {
   it("resets only the selected block file and hides the reset row at zero", () => {
     const initial: StyleRailSettings = {
       ...DEFAULT_STYLE_RAIL_SETTINGS,
-      layout: { ...DEFAULT_STYLE_RAIL_SETTINGS.layout, contentWidth: 112 },
+      layout: { ...DEFAULT_STYLE_RAIL_SETTINGS.layout, contentWidth: 112, wideWidth: 1800 },
       sidebar: { ...DEFAULT_STYLE_RAIL_SETTINGS.sidebar, font: "mono" },
       components: {
         callout: { border: "#ff0000", fill: "#00ff00" },
@@ -474,6 +505,7 @@ describe("style rail override state", () => {
     });
     const settings = JSON.parse(screen.getByTestId("rail-settings").textContent ?? "null");
     expect(settings.layout.contentWidth).toBe(112);
+    expect(settings.layout.wideWidth).toBe(1800);
     expect(settings.sidebar.font).toBe("mono");
     expect(screen.queryByRole("button", { name: "Reset Callout to theme" })).toBeNull();
     expect(screen.getByText("No overrides · layered over Default theme")).toBeTruthy();
@@ -506,7 +538,7 @@ describe("style rail override state", () => {
 });
 
 describe("style rail merged panes", () => {
-  it("renders Column first in Editor with all five column controls", () => {
+  it("renders Column first in Editor with all six column controls", () => {
     render(<RailHarness />);
     openPane("Editor");
 
@@ -519,7 +551,11 @@ describe("style rail merged panes", () => {
     expect(column).toBeTruthy();
     for (const label of [
       /^Max width/,
-      /^Padding/,
+      // The wide lane data-heavy blocks break out to, and the global left
+      // rail the left-anchored page hangs off (renamed from "Padding" — it is
+      // no longer a symmetric gutter around a centered column).
+      /^Wide lane/,
+      /^Left margin/,
       /^Top padding/,
       /^Title padding/,
       /^Bottom padding/,
@@ -566,6 +602,418 @@ describe("style rail merged panes", () => {
       screen.queryByRole("button", { name: "Reset Surfaces tokens to theme" }),
     ).toBeNull();
     expect(screen.getByText("1 override · layered over Default theme")).toBeTruthy();
+  });
+});
+
+describe("state-shape text meets WCAG AAA in both themes", () => {
+  /**
+   * The field list muted itself into unreadability twice (type at 3.4:1,
+   * the optional marker at 2.7:1). Hierarchy in that block is carried by SIZE
+   * and WEIGHT, so there is never a reason for its text to go light — this
+   * pins the floor at AAA (7:1).
+   *
+   * The two backgrounds are the pane backgrounds as actually rendered by the
+   * running app (measured over CDP against the live serve, both themes); the
+   * palette resolves --background through several indirections that are not
+   * worth re-implementing here.
+   */
+  const LIGHT_BG: [number, number, number] = [251, 250, 248];
+  const DARK_BG: [number, number, number] = [47, 52, 55];
+  const LIGHT_FG: [number, number, number] = [55, 53, 47]; // --foreground, used by --docs-shape-name
+  const DARK_FG: [number, number, number] = [234, 235, 235]; // white @ 0.9 over DARK_BG
+
+  const channel = (v: number) => {
+    const s = v / 255;
+    return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+  };
+  const luminance = ([r, g, b]: [number, number, number]) =>
+    0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b);
+  const contrast = (a: [number, number, number], b: [number, number, number]) => {
+    const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+    return (hi + 0.05) / (lo + 0.05);
+  };
+  const hexToRgb = (hex: string): [number, number, number] => {
+    const h = hex.replace("#", "").trim();
+    return [
+      Number.parseInt(h.slice(0, 2), 16),
+      Number.parseInt(h.slice(2, 4), 16),
+      Number.parseInt(h.slice(4, 6), 16),
+    ];
+  };
+
+  const css = readFileSync(new URL("../theme/semantic.css", import.meta.url), "utf8");
+  const blockAfter = (marker: string) => {
+    const start = css.indexOf(marker);
+    if (start < 0) throw new Error(`missing theme block: ${marker}`);
+    return css.slice(start, css.indexOf("\n}", start));
+  };
+  const tokenIn = (block: string, name: string) => {
+    const match = new RegExp(`${name}:\\s*(#[0-9a-fA-F]{6})`).exec(block);
+    if (!match) throw new Error(`${name} is not a plain hex in this theme block`);
+    return hexToRgb(match[1]);
+  };
+
+  const TEXT_TOKENS = ["--docs-shape-type", "--docs-shape-muted", "--docs-shape-desc-fg"];
+
+  it("clears 7:1 for every state-shape text token in the light theme", () => {
+    const block = blockAfter(':root, [data-theme="light"] {');
+    for (const token of TEXT_TOKENS) {
+      expect(contrast(tokenIn(block, token), LIGHT_BG)).toBeGreaterThanOrEqual(7);
+    }
+    // The field name rides --foreground.
+    expect(contrast(LIGHT_FG, LIGHT_BG)).toBeGreaterThanOrEqual(7);
+  });
+
+  it("clears 7:1 for every state-shape text token in the dark theme", () => {
+    const block = blockAfter('[data-theme="dark"], .dark {');
+    for (const token of TEXT_TOKENS) {
+      expect(contrast(tokenIn(block, token), DARK_BG)).toBeGreaterThanOrEqual(7);
+    }
+    expect(contrast(DARK_FG, DARK_BG)).toBeGreaterThanOrEqual(7);
+  });
+});
+
+describe("per-block-type layout overrides", () => {
+  const withLayout = (blockLayout: StyleRailSettings["blockLayout"]): StyleRailSettings => ({
+    ...DEFAULT_STYLE_RAIL_SETTINGS,
+    blockLayout,
+  });
+
+  it("ships no overrides at stock", () => {
+    expect(DEFAULT_STYLE_RAIL_SETTINGS.blockLayout).toEqual({});
+    expect(blockLayoutOverrideCss(DEFAULT_STYLE_RAIL_SETTINGS)).toBe("");
+  });
+
+  it("keeps a valid override and drops unknown block types", () => {
+    const normalized = normalizeSettings(
+      {
+        blockLayout: {
+          "state-shape": { width: "full", justify: "center" },
+          // Not a doc block type — must not survive into a CSS selector.
+          "not-a-block": { width: "wide" },
+        },
+      },
+      DEFAULT_STYLE_RAIL_SETTINGS,
+    );
+    expect(normalized.blockLayout).toEqual({
+      "state-shape": { width: "full", justify: "center" },
+    });
+  });
+
+  it("drops invalid enum values and entries left with nothing", () => {
+    const normalized = normalizeSettings(
+      {
+        blockLayout: {
+          "state-shape": { width: "enormous", justify: "sideways" },
+          canvas: { width: "wide", justify: "sideways" },
+        },
+      },
+      DEFAULT_STYLE_RAIL_SETTINGS,
+    );
+    // state-shape had nothing valid left, so it is not an override at all.
+    expect(normalized.blockLayout).toEqual({ canvas: { width: "wide" } });
+  });
+
+  it("clamps a custom px width into range", () => {
+    const normalized = normalizeSettings(
+      {
+        blockLayout: {
+          "state-shape": { width: "99999px" },
+          "structured-table": { width: "10px" },
+          code: { width: "880px" },
+        },
+      },
+      DEFAULT_STYLE_RAIL_SETTINGS,
+    );
+    expect(normalized.blockLayout["state-shape"]?.width).toBe(`${BLOCK_LAYOUT_CUSTOM_WIDTH_MAX}px`);
+    expect(normalized.blockLayout["structured-table"]?.width).toBe(
+      `${BLOCK_LAYOUT_CUSTOM_WIDTH_MIN}px`,
+    );
+    expect(normalized.blockLayout.code?.width).toBe("880px");
+  });
+
+  it("emits one rule per overridden block type, keyed on the lane attribute pair", () => {
+    const css = blockLayoutOverrideCss(
+      withLayout({
+        "state-shape": { width: "full" },
+        canvas: { justify: "center" },
+      }),
+    );
+    expect(css).toContain('[data-doc-lane][data-doc-block-type="state-shape"] { max-width: none; }');
+    expect(css).toContain(
+      '[data-doc-lane][data-doc-block-type="canvas"] { margin-inline: auto; }',
+    );
+  });
+
+  it("maps each named width onto the lane token it stands for", () => {
+    expect(blockLayoutOverrideCss(withLayout({ code: { width: "text" } }))).toContain(
+      "max-width: var(--style-content-width,100ch);",
+    );
+    expect(blockLayoutOverrideCss(withLayout({ code: { width: "wide" } }))).toContain(
+      "max-width: var(--style-wide-width,1040px);",
+    );
+    expect(blockLayoutOverrideCss(withLayout({ code: { width: "full" } }))).toContain(
+      "max-width: none;",
+    );
+    expect(blockLayoutOverrideCss(withLayout({ code: { width: "920px" } }))).toContain(
+      "max-width: 920px;",
+    );
+  });
+
+  it("expresses justification as margins, left explicitly", () => {
+    expect(blockLayoutOverrideCss(withLayout({ image: { justify: "left" } }))).toContain(
+      "margin-left: 0; margin-right: auto;",
+    );
+    expect(blockLayoutOverrideCss(withLayout({ image: { justify: "center" } }))).toContain(
+      "margin-inline: auto;",
+    );
+  });
+
+  it("never needs !important — the attribute pair out-specifies the lane utility", () => {
+    const css = blockLayoutOverrideCss(
+      withLayout({
+        "state-shape": { width: "custom" as never },
+        canvas: { width: "full", justify: "center" },
+        image: { justify: "left" },
+      }),
+    );
+    expect(css).not.toContain("!important");
+  });
+
+  it("applies the rules into one reusable <style> element", () => {
+    applyBlockLayoutOverrideCss(withLayout({ "state-shape": { width: "full" } }));
+    const first = document.querySelectorAll("style[id]");
+    const element = [...first].find((el) => el.textContent?.includes("state-shape"));
+    expect(element).toBeTruthy();
+
+    // Re-applying replaces the contents rather than stacking a second element.
+    applyBlockLayoutOverrideCss(withLayout({ canvas: { justify: "center" } }));
+    expect(element?.textContent).not.toContain("state-shape");
+    expect(element?.textContent).toContain("canvas");
+
+    // No overrides empties it instead of removing it.
+    applyBlockLayoutOverrideCss(DEFAULT_STYLE_RAIL_SETTINGS);
+    expect(element?.textContent).toBe("");
+  });
+
+  it("registers the lane leaves as overridden and counts them on the block's pane", () => {
+    const settings = withLayout({ "state-shape": { width: "full" } });
+    expect(isLeafOverridden(settings, settingLeaf("blockLayout.state-shape.width"))).toBe(true);
+    // The untouched half of the same entry is NOT an override.
+    expect(isLeafOverridden(settings, settingLeaf("blockLayout.state-shape.justify"))).toBe(false);
+    // And a block type with no entry at all reads clean rather than throwing.
+    expect(isLeafOverridden(settings, settingLeaf("blockLayout.canvas.width"))).toBe(false);
+    expect(paneOverrideCount(settings, "blocks.state-shape")).toBe(1);
+  });
+
+  it("clamps the column split and keeps it only on two-pane block types", () => {
+    const normalized = normalizeSettings(
+      {
+        blockLayout: {
+          "state-shape": { columnSplit: 999 },
+          "interaction-surface": { columnSplit: 1 },
+          code: { columnSplit: 40 },
+        },
+      },
+      DEFAULT_STYLE_RAIL_SETTINGS,
+    );
+    expect(normalized.blockLayout["state-shape"]?.columnSplit).toBe(BLOCK_COLUMN_SPLIT_MAX);
+    expect(normalized.blockLayout["interaction-surface"]?.columnSplit).toBe(
+      BLOCK_COLUMN_SPLIT_MIN,
+    );
+    // `code` is a real block type so the entry survives normalization, but it
+    // renders one pane — the emitter is what refuses to give it a split.
+    expect(blockLayoutOverrideCss(withLayout({ code: { columnSplit: 40 } }))).toBe("");
+  });
+
+  it("emits the split as the pane-split custom property", () => {
+    const css = blockLayoutOverrideCss(withLayout({ "state-shape": { columnSplit: 40 } }));
+    expect(css).toContain(
+      '[data-doc-lane][data-doc-block-type="state-shape"] { --docs-pane-split: 40%; }',
+    );
+  });
+
+  it("starts the split slider where the components actually render", () => {
+    // An unset knob emits nothing, so each component's literal fallback is
+    // what renders — these must agree or the slider lies about the page.
+    const shape = readFileSync(
+      new URL(
+        "../../../../docs-viewer/src/components/state-shape/StateShapeDocsBlock.tsx",
+        import.meta.url,
+      ),
+      "utf8",
+    );
+    const surface = readFileSync(
+      new URL(
+        "../../../../docs-viewer/src/components/interaction-surface/InteractionSurfaceDocsBlock.tsx",
+        import.meta.url,
+      ),
+      "utf8",
+    );
+    expect(shape).toContain(
+      `minmax(0,var(--docs-pane-split,${BLOCK_COLUMN_SPLIT_DEFAULTS["state-shape"]}%))`,
+    );
+    expect(surface).toContain(
+      `minmax(0,var(--docs-pane-split,${BLOCK_COLUMN_SPLIT_DEFAULTS["interaction-surface"]}%))`,
+    );
+  });
+
+  it("drives the split from the slider and keeps it beside the other lane fields", () => {
+    render(<RailHarness />);
+    openPane("State shape");
+
+    const slider = screen.getByLabelText(/Column split/) as HTMLInputElement;
+    fireEvent.change(slider, { target: { value: "30" } });
+    expect(
+      JSON.parse(screen.getByTestId("rail-settings").textContent ?? "null").blockLayout,
+    ).toEqual({ "state-shape": { columnSplit: 30 } });
+
+    // Setting a different lane field must not drop the split (and vice versa).
+    fireEvent.change(screen.getByLabelText("Width"), { target: { value: "full" } });
+    expect(
+      JSON.parse(screen.getByTestId("rail-settings").textContent ?? "null").blockLayout,
+    ).toEqual({ "state-shape": { columnSplit: 30, width: "full" } });
+  });
+
+  it("shows Column split only on the two-pane panes", () => {
+    render(<RailHarness />);
+
+    openPane("State shape");
+    expect(screen.getByLabelText(/Column split/)).toBeTruthy();
+
+    openPane("Interaction surface");
+    expect(screen.getByLabelText(/Column split/)).toBeTruthy();
+
+    // Single-pane block: width and justification, but nothing to split.
+    openPane("Code");
+    expect(screen.queryByLabelText(/Column split/)).toBeNull();
+  });
+
+  it("renders the Layout section on a block pane and not on a non-block pane", () => {
+    render(<RailHarness />);
+
+    openPane("State shape");
+    expect(screen.getByLabelText("Width")).toBeTruthy();
+    expect(screen.getByLabelText("Justification")).toBeTruthy();
+
+    openPane("Inline code");
+    expect(screen.queryByLabelText("Justification")).toBeNull();
+  });
+
+  it("drives the settings from the Layout controls, and 'Default' clears the override", () => {
+    render(<RailHarness />);
+    openPane("State shape");
+
+    fireEvent.change(screen.getByLabelText("Width"), { target: { value: "full" } });
+    expect(
+      JSON.parse(screen.getByTestId("rail-settings").textContent ?? "null").blockLayout,
+    ).toEqual({ "state-shape": { width: "full" } });
+
+    fireEvent.change(screen.getByLabelText("Justification"), { target: { value: "center" } });
+    expect(
+      JSON.parse(screen.getByTestId("rail-settings").textContent ?? "null").blockLayout,
+    ).toEqual({ "state-shape": { width: "full", justify: "center" } });
+
+    // Clearing both fields deletes the entry entirely — absent IS the default.
+    fireEvent.change(screen.getByLabelText("Width"), { target: { value: "default" } });
+    fireEvent.change(screen.getByLabelText("Justification"), { target: { value: "default" } });
+    expect(
+      JSON.parse(screen.getByTestId("rail-settings").textContent ?? "null").blockLayout,
+    ).toEqual({});
+  });
+
+  it("persists lane and annotate settings into railDefaults for locked serves and exports", () => {
+    // railDefaults is every setting EXCEPT `components`, so both rescued lane
+    // settings and the annotate group ride the same repo write-back transport.
+    const settings: StyleRailSettings = {
+      ...withLayout({ canvas: { justify: "center" } }),
+      annotate: {
+        ...DEFAULT_STYLE_RAIL_SETTINGS.annotate,
+        washOpacity: 0.12,
+        actionPaneWidth: 400,
+      },
+    };
+    const { components, ...railDefaults } = settings;
+    expect(railDefaults.blockLayout).toEqual({ canvas: { justify: "center" } });
+    expect(railDefaults.annotate).toEqual({
+      ...DEFAULT_STYLE_RAIL_SETTINGS.annotate,
+      washOpacity: 0.12,
+      actionPaneWidth: 400,
+    });
+
+    // And it round-trips back through the baseline installer.
+    const baseline = setStyleRailBaseline(railDefaults);
+    expect(baseline.blockLayout).toEqual({ canvas: { justify: "center" } });
+    expect(baseline.annotate).toEqual(railDefaults.annotate);
+    // A knob equal to the repo baseline is not local drift.
+    expect(
+      isLeafOverridden(withLayout({ canvas: { justify: "center" } }), settingLeaf("blockLayout.canvas.justify")),
+    ).toBe(false);
+    resetStyleRailBaseline();
+  });
+});
+
+describe("style rail stock values match the consumers' inline fallbacks", () => {
+  /**
+   * A knob parked at STOCK emits no var (that is what "let the stylesheet
+   * answer" means), so what actually renders by default is the literal
+   * fallback each consumer carries. If a stock value and its fallback drift
+   * apart, the rail advertises one default and the page renders another —
+   * silently. These pin the pairs together.
+   */
+  const layoutSource = readFileSync(
+    new URL("../pages/DocPage.tsx", import.meta.url),
+    "utf8",
+  );
+  const laneSource = readFileSync(
+    new URL("../../../../docs-viewer/src/render/block-layout.ts", import.meta.url),
+    "utf8",
+  );
+
+  it("DocPage's left-margin fallback equals stock layout.contentMargin", () => {
+    expect(DEFAULT_STYLE_RAIL_SETTINGS.layout.contentMargin).toBe(88);
+    expect(layoutSource).toContain("px-[var(--style-content-margin,88px)]");
+  });
+
+  it("the wide lane's fallback equals stock layout.wideWidth", () => {
+    expect(DEFAULT_STYLE_RAIL_SETTINGS.layout.wideWidth).toBe(1040);
+    expect(laneSource).toContain("max-w-[var(--style-wide-width,1040px)]");
+  });
+
+  it("the text lane's fallback equals stock layout.contentWidth", () => {
+    expect(DEFAULT_STYLE_RAIL_SETTINGS.layout.contentWidth).toBe(100);
+    expect(laneSource).toContain("max-w-[var(--style-content-width,100ch)]");
+  });
+});
+
+describe("style rail wide lane", () => {
+  it("defaults, clamps, and migrates the wide-lane width", () => {
+    expect(DEFAULT_STYLE_RAIL_SETTINGS.layout.wideWidth).toBe(1040);
+    expect(normalizeSettings({ accent: "purple" }).layout.wideWidth).toBe(1040);
+    expect(normalizeSettings({ layout: { wideWidth: 1200 } }).layout.wideWidth).toBe(1200);
+    expect(normalizeSettings({ layout: { wideWidth: 100 } }).layout.wideWidth).toBe(900);
+    expect(normalizeSettings({ layout: { wideWidth: 9000 } }).layout.wideWidth).toBe(2400);
+    expect(normalizeSettings({ layout: { wideWidth: "wide" } }).layout.wideWidth).toBe(1040);
+  });
+
+  it("defaults and clamps the global left margin", () => {
+    // The page is left-anchored now, so contentMargin IS the left rail —
+    // generous by default and tunable well past the old 96px gutter cap.
+    expect(DEFAULT_STYLE_RAIL_SETTINGS.layout.contentMargin).toBe(88);
+    expect(normalizeSettings({ accent: "purple" }).layout.contentMargin).toBe(88);
+    expect(normalizeSettings({ layout: { contentMargin: 200 } }).layout.contentMargin).toBe(200);
+    expect(normalizeSettings({ layout: { contentMargin: -20 } }).layout.contentMargin).toBe(0);
+    expect(normalizeSettings({ layout: { contentMargin: 9000 } }).layout.contentMargin).toBe(240);
+  });
+
+  it("emits the px-bearing wide-lane var and omits it at the default", () => {
+    expect(styleRailVars(DEFAULT_STYLE_RAIL_SETTINGS)["--style-wide-width"]).toBeNull();
+    expect(
+      styleRailVars({
+        ...DEFAULT_STYLE_RAIL_SETTINGS,
+        layout: { ...DEFAULT_STYLE_RAIL_SETTINGS.layout, wideWidth: 1800 },
+      })["--style-wide-width"],
+    ).toBe("1800px");
   });
 });
 
@@ -1715,10 +2163,10 @@ describe("style rail state-shape tokens", () => {
       vars: ["--docs-shape-row-pad"],
       kind: "length",
       min: 4,
-      max: 16,
+      max: 24,
       step: 1,
       unit: "px",
-      defaultValue: 9,
+      defaultValue: 10,
     });
   });
 
@@ -1772,8 +2220,8 @@ describe("style rail state-shape tokens", () => {
 
     const rowPad = screen.getByLabelText(/Row padding/) as HTMLInputElement;
     expect(rowPad).toHaveProperty("min", "4");
-    expect(rowPad).toHaveProperty("max", "16");
-    expect(rowPad).toHaveProperty("value", "9");
+    expect(rowPad).toHaveProperty("max", "24");
+    expect(rowPad).toHaveProperty("value", "10");
   });
 });
 
@@ -2013,5 +2461,133 @@ describe("style rail sequence tokens", () => {
     openPane("Sequence");
 
     expect(screen.getByText("Border")).toBeTruthy();
+  });
+});
+
+describe("style rail repo baseline", () => {
+  /**
+   * The repo-side settings file: the `railDefaults` block of
+   * `themes/<id>/theme.json`, exactly as the theme loader hands it back.
+   * Every value here differs from stock so the two reference points can be
+   * told apart.
+   */
+  const repoRailDefaults = {
+    typography: { fontSize: 16 },
+    layout: { contentWidth: 88, wideWidth: 2000, contentMargin: 120 },
+  };
+
+  it("installs the repo file as the baseline, validated against stock", () => {
+    const baseline = setStyleRailBaseline({
+      accent: "chartreuse", // not a real accent -> falls back to stock
+      typography: { fontSize: 99 }, // out of range -> clamped to the cap
+      layout: { wideWidth: 2000 },
+    });
+
+    expect(baseline.accent).toBe(DEFAULT_STYLE_RAIL_SETTINGS.accent);
+    expect(baseline.typography.fontSize).toBe(20);
+    expect(baseline.layout.wideWidth).toBe(2000);
+    // Keys the repo file never mentions stay at stock.
+    expect(baseline.layout.contentMargin).toBe(DEFAULT_STYLE_RAIL_SETTINGS.layout.contentMargin);
+    expect(getStyleRailBaseline()).toBe(baseline);
+  });
+
+  it("stays at stock when the repo has saved nothing yet", () => {
+    expect(setStyleRailBaseline(undefined)).toBe(DEFAULT_STYLE_RAIL_SETTINGS);
+    expect(setStyleRailBaseline({})).toEqual(DEFAULT_STYLE_RAIL_SETTINGS);
+  });
+
+  it("makes the repo baseline the default for keys a blob omits", () => {
+    setStyleRailBaseline(repoRailDefaults);
+
+    const settings = normalizeSettings({ accent: "purple" });
+    expect(settings.accent).toBe("purple");
+    expect(settings.layout.contentMargin).toBe(120);
+    expect(settings.typography.fontSize).toBe(16);
+
+    // Stock stays reachable for callers that ask for it explicitly — that
+    // is how the baseline itself is loaded.
+    expect(
+      normalizeSettings({ accent: "purple" }, DEFAULT_STYLE_RAIL_SETTINGS).layout.contentMargin,
+    ).toBe(DEFAULT_STYLE_RAIL_SETTINGS.layout.contentMargin);
+  });
+
+  it("layers this browser's stored blob over the repo baseline", () => {
+    setStyleRailBaseline(repoRailDefaults);
+    // Nothing stored: the repo's settings simply ARE this browser's.
+    expect(loadStyleRailSettings().layout.wideWidth).toBe(2000);
+
+    saveStyleRailSettings({
+      ...DEFAULT_STYLE_RAIL_SETTINGS,
+      layout: { ...DEFAULT_STYLE_RAIL_SETTINGS.layout, wideWidth: 1100 },
+    });
+    expect(loadStyleRailSettings().layout.wideWidth).toBe(1100);
+  });
+
+  it("fills a partial stored blob from the repo, not from stock", () => {
+    setStyleRailBaseline(repoRailDefaults);
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ accent: "green" }));
+
+    const loaded = loadStyleRailSettings();
+    expect(loaded.accent).toBe("green");
+    expect(loaded.layout.contentMargin).toBe(120);
+    expect(loaded.typography.fontSize).toBe(16);
+  });
+
+  it("treats 'at default' as the repo value, so stock now reads as drift", () => {
+    setStyleRailBaseline(repoRailDefaults);
+
+    const atBaseline = getStyleRailBaseline();
+    expect(isLeafOverridden(atBaseline, settingLeaf("layout.contentMargin"))).toBe(false);
+    expect(isLeafOverridden(atBaseline, settingLeaf("layout.wideWidth"))).toBe(false);
+    expect(paneOverrideCount(atBaseline, "layout.editor")).toBe(0);
+
+    // The compiled-in stock settings are the DRIFTED state now: they no
+    // longer match what this repo calls default.
+    expect(
+      isLeafOverridden(DEFAULT_STYLE_RAIL_SETTINGS, settingLeaf("layout.contentMargin")),
+    ).toBe(true);
+  });
+
+  it("still emits vars for values sitting at the repo baseline", () => {
+    setStyleRailBaseline(repoRailDefaults);
+
+    // Not an override in the UI, but semantic.css only knows stock — so
+    // these must still be written, or a --theme-locked serve and a static
+    // export would render 1040/88 instead of the repo's 2000/120.
+    const vars = styleRailVars(getStyleRailBaseline());
+    expect(vars["--style-wide-width"]).toBe("2000px");
+    expect(vars["--style-content-margin"]).toBe("120px");
+    expect(vars["--style-content-width"]).toBe("88ch");
+  });
+
+  it("resets to the repo baseline rather than to stock", () => {
+    setStyleRailBaseline(repoRailDefaults);
+    render(
+      <RailHarness
+        initial={{ ...DEFAULT_STYLE_RAIL_SETTINGS, accent: "red" }}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Reset to defaults" }));
+
+    const settings = JSON.parse(
+      screen.getByTestId("rail-settings").textContent ?? "{}",
+    ) as StyleRailSettings;
+    expect(settings.accent).toBe("blue");
+    expect(settings.layout.contentMargin).toBe(120);
+    expect(settings.layout.wideWidth).toBe(2000);
+  });
+
+  it("shows the repo save affordance only when the host may author the theme", () => {
+    // No handler = a static export or a (possibly) --theme-locked serve,
+    // where the server refuses the write with 403 anyway.
+    render(<RailHarness />);
+    expect(screen.queryByRole("button", { name: "Save style to repo" })).toBeNull();
+    cleanup();
+
+    const onSaveStyleToRepo = mock(() => {});
+    render(<RailHarness onSaveStyleToRepo={onSaveStyleToRepo} />);
+    fireEvent.click(screen.getByRole("button", { name: "Save style to repo" }));
+    expect(onSaveStyleToRepo).toHaveBeenCalledTimes(1);
   });
 });

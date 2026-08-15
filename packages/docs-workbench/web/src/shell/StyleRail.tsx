@@ -1,4 +1,5 @@
 import { PanelRightClose, PanelRightOpen, SlidersHorizontal } from "lucide-react";
+import { DOC_BLOCK_TYPES } from "@codecaine-ai/docs-model/doc-schema";
 import { THEME_TOKEN_REGISTRY } from "../theme/theme-folders";
 import { useState } from "react";
 import { cn } from "@codecaine-ai/docs-viewer/ui/cn";
@@ -9,9 +10,15 @@ import { StyleRailPane } from "./style-rail-panes";
  * Style rail — right-docked panel for live-tuning the docs theme, styled
  * with the docs' own semantic tokens so it follows light/dark. Every knob
  * resolves to CSS custom properties written onto <html>
- * (applyStyleRailVars), layered over theme/semantic.css; a knob at its
- * default REMOVES its override so the theme files stay authoritative.
- * Settings persist as one localStorage JSON blob, clamped on load.
+ * (applyStyleRailVars), layered over theme/semantic.css; a knob at STOCK
+ * REMOVES its override so the theme files stay authoritative.
+ *
+ * PERSISTENCE is two-layered (see the baseline block below
+ * DEFAULT_STYLE_RAIL_SETTINGS): the durable, committable copy is the
+ * `railDefaults` block of the repo's `themes/<id>/theme.json`, which every
+ * consumer reads — a --theme-locked serve, a static export, a different
+ * browser. A localStorage JSON blob sits ON TOP of it as this browser's
+ * private override. Both are clamped on load.
  * Grain/softening effects ported from ccbcu client-dashboard's style rail.
  */
 
@@ -35,6 +42,57 @@ export type PeekDividerStyle = "solid" | "dashed" | "dotted" | "double";
 export type ReferenceIconPosition = "before" | "after";
 /** auto resolves to overlay in light mode and screen in dark mode. */
 export type GrainBlendMode = "auto" | "multiply" | "screen" | "overlay" | "normal";
+
+/**
+ * PER-BLOCK-TYPE LAYOUT OVERRIDES.
+ *
+ * docs-viewer's block-layout.ts owns the CODE default for every block type's
+ * lane (width + horizontal placement). These knobs sit on top of it: a block
+ * type listed in `blockLayout` overrides the code default, a block type that
+ * is absent inherits it. Only the fields present on an entry override —
+ * `{ justify: "center" }` recenters a block type while leaving its declared
+ * width alone.
+ *
+ * The named widths mirror the lane vocabulary; the `<n>px` form is the
+ * custom-width escape hatch for a block type that fits neither named lane.
+ */
+export type BlockLayoutWidth = "text" | "wide" | "full";
+export type BlockLayoutJustify = "left" | "center";
+export type BlockLayoutOverride = {
+  width?: BlockLayoutWidth | `${number}px`;
+  justify?: BlockLayoutJustify;
+  /**
+   * Two-pane split, as the LEFT pane's percentage of the block's width.
+   * Only the two-pane block types read it (state-shape, interaction-surface):
+   * it lands as `--docs-pane-split` on the lane, which those components' grid
+   * templates consume. A long JSON example needs more room than a fixed
+   * ratio can guess, so the split is the knob rather than the ratio.
+   */
+  columnSplit?: number;
+};
+
+/** Which block types render two panes, and therefore expose a Column split. */
+const TWO_PANE_BLOCK_TYPES = new Set(["state-shape", "interaction-surface"]);
+
+export function hasBlockColumnSplit(file: string): boolean {
+  return TWO_PANE_BLOCK_TYPES.has(file);
+}
+
+/** Left-pane percentage bounds — neither pane may be squeezed to nothing. */
+export const BLOCK_COLUMN_SPLIT_MIN = 20;
+export const BLOCK_COLUMN_SPLIT_MAX = 80;
+
+/**
+ * The split each two-pane block renders at with NO override. These MUST match
+ * the `--docs-pane-split` fallbacks baked into the components' grid templates
+ * — an unset knob emits nothing, so the component's literal is what actually
+ * renders and a mismatch would make the slider start somewhere the page is
+ * not. Pinned by a test.
+ */
+export const BLOCK_COLUMN_SPLIT_DEFAULTS: Record<string, number> = {
+  "state-shape": 46,
+  "interaction-surface": 52,
+};
 
 export type StyleRailSettings = {
   accent: AccentFamily;
@@ -60,6 +118,13 @@ export type StyleRailSettings = {
   layout: {
     /** Content column max-width in ch. */
     contentWidth: number;
+    /**
+     * Wide-lane max-width in px — the escape hatch data-heavy blocks
+     * (state shapes, interaction surfaces, structured tables, process
+     * outlines) break out to when the reading column is too narrow.
+     * Sized in px, not ch, because those blocks are grids, not prose.
+     */
+    wideWidth: number;
     /** Content column horizontal padding in px. */
     contentMargin: number;
     /** Space above the doc's first block in px. */
@@ -215,6 +280,15 @@ export type StyleRailSettings = {
    * files carry (THEME_TOKEN_REGISTRY). Sparse: absent = follow the theme.
    */
   components: Record<string, Record<string, string>>;
+  /**
+   * Per-block-type page-layout overrides (doc block type -> lane override),
+   * layered over docs-viewer's block-layout.ts code defaults. Sparse in both
+   * directions: a block type absent from the map, or an entry missing a
+   * field, inherits the code default. Emitted as real CSS rules keyed on the
+   * `[data-doc-lane][data-doc-block-type]` pair, not as custom properties —
+   * see applyBlockLayoutOverrideCss.
+   */
+  blockLayout: Record<string, BlockLayoutOverride>;
 };
 
 export const DEFAULT_STYLE_RAIL_SETTINGS: StyleRailSettings = {
@@ -231,7 +305,11 @@ export const DEFAULT_STYLE_RAIL_SETTINGS: StyleRailSettings = {
   },
   layout: {
     contentWidth: 100,
-    contentMargin: 32,
+    wideWidth: 1040,
+    // The page is left-anchored and full-width, so this is the global left
+    // rail every block hangs off — generous by default rather than the tight
+    // gutter a centered column wanted.
+    contentMargin: 88,
     topPadding: 24,
     titlePadding: 20,
     bottomPadding: 24,
@@ -289,9 +367,57 @@ export const DEFAULT_STYLE_RAIL_SETTINGS: StyleRailSettings = {
     actionPaneWidth: 520,
   },
   components: {},
+  blockLayout: {},
 };
 
 const STORAGE_KEY = "docs-style-rail-settings.v1";
+
+/**
+ * The repo BASELINE — the rail's second, repo-side reference point.
+ *
+ * Two reference points exist, and keeping them apart is the whole design:
+ *
+ *  - DEFAULT_STYLE_RAIL_SETTINGS is STOCK: the values theme/semantic.css
+ *    already renders with no overlay at all. ONLY stock may decide whether
+ *    styleRailVars emits a var or removes it, because "remove the override"
+ *    literally means "let the stylesheet answer".
+ *  - The BASELINE is what "default" MEANS in this repo: the `railDefaults`
+ *    block of `themes/<id>/theme.json`, installed at boot by App.tsx. It is
+ *    the reset target, the per-key fallback for a partial settings blob,
+ *    and the reference the override dots compare against.
+ *
+ * The two are the same object until a repo theme loads, so nothing changes
+ * for a repo that has never tuned anything. Once they diverge, a knob
+ * sitting AT the repo baseline reads as "not overridden" in the UI while
+ * still differing from stock — so styleRailVars keeps emitting it and the
+ * tuned value actually reaches a locked serve or a static export. If the
+ * baseline drove emission instead, every tuned value would collapse back
+ * to the stylesheet's stock value on exactly the consumers that need it.
+ */
+let styleRailBaseline: StyleRailSettings = DEFAULT_STYLE_RAIL_SETTINGS;
+
+export function getStyleRailBaseline(): StyleRailSettings {
+  return styleRailBaseline;
+}
+
+/**
+ * Installs the repo's saved rail settings as the baseline, returning the
+ * normalized result. The raw blob is validated against STOCK rather than
+ * against the current baseline, so the repo file always resolves from a
+ * fixed floor — re-installing a theme can never compound its own clamped
+ * values. A missing or empty blob leaves the baseline at stock, which is
+ * exactly "this repo has not tuned anything yet".
+ */
+export function setStyleRailBaseline(raw: unknown): StyleRailSettings {
+  styleRailBaseline =
+    raw == null ? DEFAULT_STYLE_RAIL_SETTINGS : normalizeSettings(raw, DEFAULT_STYLE_RAIL_SETTINGS);
+  return styleRailBaseline;
+}
+
+/** Drops the baseline back to stock — boot before any theme resolves, and test teardown. */
+export function resetStyleRailBaseline(): void {
+  styleRailBaseline = DEFAULT_STYLE_RAIL_SETTINGS;
+}
 
 const ACCENT_OPTIONS: Array<{ id: AccentFamily; label: string }> = [
   { id: "blue", label: "Blue" },
@@ -338,6 +464,104 @@ const BLEND_OPTIONS: Array<{ id: GrainBlendMode; label: string }> = [
   { id: "overlay", label: "Overlay" },
   { id: "normal", label: "Normal" },
 ];
+
+/**
+ * The block types the Layout knobs apply to. `blocks.*` panes also cover
+ * non-block components (inline code, linking, shell, surfaces, editor
+ * controls), which have no lane at all, so every entry point — the pane UI,
+ * the override leaves, the CSS emitter and the normalizer — gates on this
+ * set rather than on the pane id.
+ */
+const BLOCK_LAYOUT_TYPES: ReadonlySet<string> = new Set(DOC_BLOCK_TYPES);
+
+/** True when `file` is a real doc block type and can carry a lane override. */
+export function isBlockLayoutType(file: string): boolean {
+  return BLOCK_LAYOUT_TYPES.has(file);
+}
+
+const BLOCK_LAYOUT_WIDTHS: readonly BlockLayoutWidth[] = ["text", "wide", "full"];
+const BLOCK_LAYOUT_JUSTIFICATIONS: readonly BlockLayoutJustify[] = ["left", "center"];
+
+/** Custom lane width bounds in px — narrower than a prose measure, wider than any display. */
+export const BLOCK_LAYOUT_CUSTOM_WIDTH_MIN = 240;
+export const BLOCK_LAYOUT_CUSTOM_WIDTH_MAX = 3000;
+
+/**
+ * Validates one block type's lane override. Everything unrecognised is
+ * DROPPED rather than defaulted: an absent field means "inherit the code
+ * default from block-layout.ts", so silently substituting a value here would
+ * turn a typo in a hand-edited theme file into a layout the author never
+ * asked for. A custom width survives only as a positive, clamped `<n>px`
+ * string, which is also what keeps the emitted rule's declaration safe.
+ */
+function normalizeBlockLayoutOverride(raw: unknown): BlockLayoutOverride | null {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+  const { width, justify } = raw as { width?: unknown; justify?: unknown };
+  const override: BlockLayoutOverride = {};
+
+  if (typeof width === "string") {
+    const named = width.trim();
+    if ((BLOCK_LAYOUT_WIDTHS as readonly string[]).includes(named)) {
+      override.width = named as BlockLayoutWidth;
+    } else {
+      const px = /^(\d+(?:\.\d+)?)px$/.exec(named);
+      const value = px ? Number(px[1]) : Number.NaN;
+      if (Number.isFinite(value) && value > 0) {
+        override.width = `${Math.round(
+          clampNumber(
+            value,
+            BLOCK_LAYOUT_CUSTOM_WIDTH_MIN,
+            BLOCK_LAYOUT_CUSTOM_WIDTH_MAX,
+            BLOCK_LAYOUT_CUSTOM_WIDTH_MIN,
+          ),
+        )}px`;
+      }
+    }
+  }
+
+  if (
+    typeof justify === "string"
+    && (BLOCK_LAYOUT_JUSTIFICATIONS as readonly string[]).includes(justify)
+  ) {
+    override.justify = justify as BlockLayoutJustify;
+  }
+
+  const { columnSplit } = raw as { columnSplit?: unknown };
+  if (typeof columnSplit === "number" && Number.isFinite(columnSplit)) {
+    override.columnSplit = Math.round(
+      clampNumber(columnSplit, BLOCK_COLUMN_SPLIT_MIN, BLOCK_COLUMN_SPLIT_MAX, BLOCK_COLUMN_SPLIT_MIN),
+    );
+  }
+
+  // An entry that survived validation with nothing in it is not an override.
+  return override.width || override.justify || override.columnSplit !== undefined
+    ? override
+    : null;
+}
+
+/**
+ * Validates the whole per-block-type override map, dropping keys that are not
+ * real doc block types (a renamed or removed block type must not keep
+ * emitting a rule for a selector nothing matches).
+ *
+ * An absent or malformed map inherits `fallback` (the repo baseline) WHOLESALE
+ * rather than per key: the map is sparse, so a per-key merge would make
+ * clearing an override locally impossible — the baseline's entry would keep
+ * coming back on the next normalize.
+ */
+function normalizeBlockLayout(
+  raw: unknown,
+  fallback: StyleRailSettings["blockLayout"] | undefined,
+): StyleRailSettings["blockLayout"] {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return { ...fallback };
+  const kept: StyleRailSettings["blockLayout"] = {};
+  for (const [type, value] of Object.entries(raw as Record<string, unknown>)) {
+    if (!isBlockLayoutType(type)) continue;
+    const override = normalizeBlockLayoutOverride(value);
+    if (override) kept[type] = override;
+  }
+  return kept;
+}
 
 const FONT_STACKS: Record<FontChoice, string> = {
   sans: "ui-sans-serif, system-ui, sans-serif",
@@ -401,8 +625,19 @@ function normalizeComponentOverrides(raw: unknown): StyleRailSettings["component
   return kept;
 }
 
-export function normalizeSettings(raw: unknown): StyleRailSettings {
-  const d = DEFAULT_STYLE_RAIL_SETTINGS;
+/**
+ * Validates/clamps an arbitrary blob into settings, filling every missing
+ * or invalid key from `baseline`. The default baseline is the REPO's saved
+ * rail settings, which is what makes a partial or stale-schema localStorage
+ * blob layer key-by-key over the repo's tuning instead of snapping those
+ * keys back to stock. Pass DEFAULT_STYLE_RAIL_SETTINGS explicitly to
+ * normalize against stock (that is how the baseline itself is loaded).
+ */
+export function normalizeSettings(
+  raw: unknown,
+  baseline: StyleRailSettings = getStyleRailBaseline(),
+): StyleRailSettings {
+  const d = baseline;
   const input = (raw ?? {}) as Partial<StyleRailSettings> & {
     // v1 blobs kept contentWidth under typography and the surface knobs
     // under `surfaces` — migrate them if present.
@@ -441,7 +676,8 @@ export function normalizeSettings(raw: unknown): StyleRailSettings {
     },
     layout: {
       contentWidth: clampNumber(layout.contentWidth ?? typography.contentWidth, 60, 140, d.layout.contentWidth),
-      contentMargin: clampNumber(layout.contentMargin, 0, 96, d.layout.contentMargin),
+      wideWidth: clampNumber(layout.wideWidth, 900, 2400, d.layout.wideWidth),
+      contentMargin: clampNumber(layout.contentMargin, 0, 240, d.layout.contentMargin),
       topPadding: clampNumber(layout.topPadding, 0, 240, d.layout.topPadding),
       titlePadding: clampNumber(layout.titlePadding, 0, 240, d.layout.titlePadding),
       bottomPadding: clampNumber(layout.bottomPadding, 0, 600, d.layout.bottomPadding),
@@ -520,9 +756,13 @@ export function normalizeSettings(raw: unknown): StyleRailSettings {
       ),
     },
     annotate: {
-      accent: pickHexColor(annotate.accent),
-      add: pickHexColor(annotate.add),
-      del: pickHexColor(annotate.del),
+      // Nullable colors distinguish an explicit `null` (return to the
+      // active theme) from an omitted key in a stale localStorage cache
+      // (inherit the repo's railDefaults baseline).
+      accent:
+        annotate.accent === undefined ? d.annotate.accent : pickHexColor(annotate.accent),
+      add: annotate.add === undefined ? d.annotate.add : pickHexColor(annotate.add),
+      del: annotate.del === undefined ? d.annotate.del : pickHexColor(annotate.del),
       washOpacity: clampNumber(annotate.washOpacity, 0, 0.3, d.annotate.washOpacity),
       actionPaneWidth: clampNumber(
         annotate.actionPaneWidth,
@@ -531,7 +771,17 @@ export function normalizeSettings(raw: unknown): StyleRailSettings {
         d.annotate.actionPaneWidth,
       ),
     },
+    // Component token overrides deliberately do NOT fall back to the
+    // baseline: the repo persists those as real `themes/<id>/components/
+    // *.json` token files that compile into the theme's CSS layer, so they
+    // already reach every consumer without riding the inline overlay.
+    // Inheriting them here too would double-apply the same tokens.
     components: normalizeComponentOverrides(input.components),
+    // Lane overrides, unlike component tokens, DO inherit the baseline: they
+    // ride `manifest.railDefaults` (App.tsx's themeWritePayload), so the repo
+    // theme is their only durable home and a blob that omits the map must
+    // keep rendering what the repo committed.
+    blockLayout: normalizeBlockLayout(input.blockLayout, d.blockLayout),
     grain: {
       enabled: typeof grain.enabled === "boolean" ? grain.enabled : d.grain.enabled,
       opacity: clampNumber(grain.opacity, 0, 0.5, d.grain.opacity),
@@ -547,21 +797,23 @@ export function normalizeSettings(raw: unknown): StyleRailSettings {
   };
 }
 
+/**
+ * Reads the browser cache, filling any omitted keys from the installed
+ * baseline. App uses this only as the first-frame/offline fallback when the
+ * active repo theme has no railDefaults; a repo railDefaults block is the
+ * durable authority and replaces stale cache during normal boot.
+ */
 export function loadStyleRailSettings(): StyleRailSettings {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return DEFAULT_STYLE_RAIL_SETTINGS;
+    if (!raw) return getStyleRailBaseline();
     return normalizeSettings(JSON.parse(raw));
   } catch {
-    return DEFAULT_STYLE_RAIL_SETTINGS;
+    return getStyleRailBaseline();
   }
 }
 
-/**
- * True when this browser has rail settings persisted. A fresh browser must
- * seed from the repo's saved default theme, not the compiled-in stock
- * settings — see the boot seed in App.tsx.
- */
+/** True when a browser cache exists; retained for cache-aware hosts/tests. */
 export function hasStoredStyleRailSettings(): boolean {
   try {
     return window.localStorage.getItem(STORAGE_KEY) !== null;
@@ -579,9 +831,16 @@ export function saveStyleRailSettings(settings: StyleRailSettings) {
 }
 
 /**
- * Settings → CSS custom properties. `null` = at default, remove the
- * override. Color values stay var()/color-mix expressions over the palette
- * vars so they re-resolve when the light/dark class flips on <html>.
+ * Settings → CSS custom properties. `null` = at STOCK, remove the override.
+ * Color values stay var()/color-mix expressions over the palette vars so
+ * they re-resolve when the light/dark class flips on <html>.
+ *
+ * The comparison here is against STOCK, never against the repo baseline —
+ * `null` removes the inline property and hands the answer back to
+ * theme/semantic.css, which only knows stock values. A knob parked at a
+ * repo baseline that differs from stock must therefore still EMIT, and
+ * that emission is precisely how the repo's tuning reaches a --theme-locked
+ * serve, a static export, or a browser with no localStorage of its own.
  */
 export function styleRailVars(settings: StyleRailSettings): Record<string, string | null> {
   const d = DEFAULT_STYLE_RAIL_SETTINGS;
@@ -673,6 +932,11 @@ export function styleRailVars(settings: StyleRailSettings): Record<string, strin
         : FONT_STACKS[typography.numberFont],
     "--style-content-width":
       layout.contentWidth === d.layout.contentWidth ? null : `${layout.contentWidth}ch`,
+    // Wide lane for data-heavy blocks. In px because those blocks size to a
+    // grid, not to the body font's ch. Consumers carry the 1040px fallback
+    // inline, so the default deliberately emits nothing.
+    "--style-wide-width":
+      layout.wideWidth === d.layout.wideWidth ? null : `${layout.wideWidth}px`,
     "--style-content-margin":
       layout.contentMargin === d.layout.contentMargin ? null : `${layout.contentMargin}px`,
     "--style-content-top":
@@ -831,6 +1095,83 @@ export function applyStyleRailVars(settings: StyleRailSettings) {
   }
 }
 
+/** The single <style> element the lane overrides live in. */
+export const BLOCK_LAYOUT_STYLE_ELEMENT_ID = "docs-style-rail-block-layout";
+
+/** Named lane widths, resolved to the same values docBlockLayoutClasses uses. */
+const BLOCK_LAYOUT_WIDTH_VALUES: Record<BlockLayoutWidth, string> = {
+  text: "var(--style-content-width,100ch)",
+  wide: "var(--style-wide-width,1040px)",
+  full: "none",
+};
+
+/**
+ * Per-block-type lane overrides as CSS TEXT.
+ *
+ * These cannot ride applyStyleRailVars: custom properties on <html> are
+ * global, and this knob is per block type. So the rail emits real rules keyed
+ * on the `data-doc-lane` + `data-doc-block-type` attribute pair. Every
+ * top-level read/annotate block carries that pair; in edit mode it is carried
+ * by atom NodeViews (including state-shape), while ordinary ProseMirror text
+ * nodes continue to use the editor's global text lane.
+ *
+ * SPECIFICITY, deliberately: the pair is two attribute selectors — (0,2,0) —
+ * against the (0,1,0) of the Tailwind utility class the lane element also
+ * wears (`max-w-[…]`, `mx-auto`). The override therefore wins on specificity
+ * alone, with no `!important` and no dependence on stylesheet order. Do not
+ * add `!important` here; it would also outrank a block's own component CSS,
+ * which is not what this knob means.
+ *
+ * The loop walks DOC_BLOCK_TYPES rather than the settings map's own keys, so
+ * only a known, literal block-type name can ever reach the selector — an
+ * unknown key cannot inject anything, whatever the theme file says.
+ */
+export function blockLayoutOverrideCss(settings: StyleRailSettings): string {
+  const rules: string[] = [];
+  for (const type of DOC_BLOCK_TYPES) {
+    const override = settings.blockLayout?.[type];
+    if (!override) continue;
+    const declarations: string[] = [];
+    if (override.width !== undefined) {
+      const width = (BLOCK_LAYOUT_WIDTH_VALUES as Record<string, string | undefined>)[override.width]
+        ?? override.width;
+      declarations.push(`max-width: ${width};`);
+    }
+    if (override.justify === "left") declarations.push("margin-left: 0;", "margin-right: auto;");
+    else if (override.justify === "center") declarations.push("margin-inline: auto;");
+    // The split rides as a custom property rather than a grid-template, so the
+    // component keeps ownership of its own track structure (gaps, minmax
+    // floors, the single-column stack below its breakpoint) and this only
+    // supplies the one number the author actually chose.
+    if (override.columnSplit !== undefined && hasBlockColumnSplit(type)) {
+      declarations.push(`--docs-pane-split: ${override.columnSplit}%;`);
+    }
+    if (declarations.length === 0) continue;
+    rules.push(
+      `[data-doc-lane][data-doc-block-type="${type}"] { ${declarations.join(" ")} }`,
+    );
+  }
+  return rules.join("\n");
+}
+
+/**
+ * Sibling of applyStyleRailVars for the rules that cannot be expressed as
+ * custom properties. Maintains ONE <style> element in <head>, created once
+ * and then only ever refilled, so the overrides can never accumulate stale
+ * copies. No overrides = an empty element, not a removed one.
+ */
+export function applyBlockLayoutOverrideCss(settings: StyleRailSettings) {
+  if (typeof document === "undefined") return;
+  let element = document.getElementById(BLOCK_LAYOUT_STYLE_ELEMENT_ID) as HTMLStyleElement | null;
+  if (!element) {
+    element = document.createElement("style");
+    element.id = BLOCK_LAYOUT_STYLE_ELEMENT_ID;
+    document.head.appendChild(element);
+  }
+  const css = blockLayoutOverrideCss(settings);
+  if (element.textContent !== css) element.textContent = css;
+}
+
 /**
  * Full-viewport SVG turbulence grain (ported from ccbcu's
  * DashboardStyleOverlay). Opacity/blend come from the CSS vars;
@@ -896,6 +1237,7 @@ export function StyleRail({
   activeThemeId,
   onSelectTheme,
   onSaveTheme,
+  onSaveStyleToRepo,
 }: {
   collapsed: boolean;
   onCollapsedChange: (collapsed: boolean) => void;
@@ -909,6 +1251,13 @@ export function StyleRail({
   onSelectTheme: (id: string) => void;
   /** Absent in static exports (no server to write the folder). */
   onSaveTheme?: (name: string) => void;
+  /**
+   * Promotes the current knobs to the repo BASELINE by writing them into
+   * `themes/<id>/theme.json`. Absent whenever this host may not author the
+   * theme — a static export, or a serve that is (or might still be)
+   * `--theme-locked`; the server refuses such a write with 403 regardless.
+   */
+  onSaveStyleToRepo?: () => void;
 }) {
   const [selectedPaneId, setSelectedPaneId] = useState<StyleRailPaneId>(() => {
     // docs-style-rail-section:* keys are retired; selection is the persisted pane UI state.
@@ -1039,9 +1388,26 @@ export function StyleRail({
                 />
               </label>
             </div>
+            {/* Writes the current knobs into the repo theme file, making
+                them the baseline every consumer inherits. The debounced
+                auto-save in App.tsx already does this in the background;
+                this is the explicit, immediate affordance for "make what I
+                am looking at the repo default". */}
+            {onSaveStyleToRepo && (
+              <button
+                className="w-full rounded-md border px-2 py-1.5 text-xs text-foreground hover:bg-muted hover:text-foreground"
+                onClick={onSaveStyleToRepo}
+                type="button"
+              >
+                Save style to repo
+              </button>
+            )}
+            {/* "Defaults" means the REPO baseline, not stock: resetting
+                returns to the committed theme file, so a reset here matches
+                what every other consumer of this repo already renders. */}
             <button
               className="w-full rounded-md border px-2 py-1.5 text-xs text-foreground hover:bg-muted hover:text-foreground"
-              onClick={() => onSettingsChange(DEFAULT_STYLE_RAIL_SETTINGS)}
+              onClick={() => onSettingsChange(getStyleRailBaseline())}
               type="button"
             >
               Reset to defaults

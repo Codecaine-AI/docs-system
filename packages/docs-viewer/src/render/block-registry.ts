@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import type { DeltaSpan, DocBlock, DocBlockType } from "@codecaine-ai/docs-model/doc-schema";
 import { DOC_BLOCK_TYPES } from "@codecaine-ai/docs-model/doc-schema";
+import type { DocBlockLayout } from "./block-layout";
 import { descriptors as canvasDescriptors } from "../components/canvas/descriptor";
 import { descriptors as codeDescriptors } from "../components/code/descriptor";
 import { descriptors as fileTreeDescriptors } from "../components/file-tree/descriptor";
@@ -46,6 +47,15 @@ export type DocBlockDescriptor = {
   agentDescription: string;
   /** Typed doc ops applicable to this block type (see doc-ops.ts DocOp union). */
   patchOps: readonly string[];
+  /**
+   * Where this block type sits on the page: which width lane it claims and
+   * whether that lane is left-anchored or centered (block-layout.ts). Omit
+   * for the default — the standard text measure, left-justified — which is
+   * what every text-like block type wants. The read renderer and atom editor
+   * NodeViews read this declaration; editable text nodes use the editor
+   * host's shared text-lane fallback.
+   */
+  layout?: DocBlockLayout;
   render: (block: DocBlock, ctx: DocBlockRenderContext) => ReactNode;
 };
 

@@ -25,6 +25,17 @@ export type ThemeModeValue = string | { light: string; dark: string };
 
 export type ThemeComponents = Record<string, Record<string, ThemeModeValue>>;
 
+/** Theme manifests may override any rail leaf without restating its siblings. */
+export type StyleRailDefaults = {
+  [Key in keyof StyleRailSettings]?: StyleRailSettings[Key] extends object
+    ? DeepPartial<StyleRailSettings[Key]>
+    : StyleRailSettings[Key];
+};
+
+type DeepPartial<Value> = Value extends object
+  ? { [Key in keyof Value]?: DeepPartial<Value[Key]> }
+  : Value;
+
 export type ThemeManifest = {
   name: string;
   /** Id of the theme this one layers over; missing token values fall through. */
@@ -33,8 +44,15 @@ export type ThemeManifest = {
   dark?: boolean;
   /** Font stacks written to the per-surface font tokens (custom stacks allowed). */
   fonts?: Partial<Record<"body" | "heading" | "code" | "number", string>>;
-  /** Style-rail knob values applied when the theme is selected (a preset ride-along, not a live link). */
-  railDefaults?: Partial<StyleRailSettings>;
+  /**
+   * The repo-side style-rail settings file: this block IS where the rail's
+   * knobs persist, and loading a theme installs it as the rail's BASELINE
+   * (StyleRail.tsx setStyleRailBaseline) — what "default" means, what Reset
+   * returns to, and what a --theme-locked serve or static export renders.
+   * Browser localStorage is only a cache/fallback when this block is absent;
+   * it never overrides a loaded repo value.
+   */
+  railDefaults?: StyleRailDefaults;
 };
 
 export type ThemeDefinition = {
@@ -77,8 +95,8 @@ const color = (...vars: string[]): ThemeTokenDefinition => ({ vars, kind: "color
  *
  * The file names mirror the frozen 16-type BLOCK VOCABULARY exactly (one
  * theme file per block type; each type's vocabulary doc states its keys),
- * plus five non-block files: shell, surfaces, inline-code (the text mark),
- * editor-controls, and linking (the shared linked-panels layer).
+ * plus six non-block files: shell, surfaces, inline-code (the text mark),
+ * editor-controls, linking (the shared linked-panels layer), and annotate.
  */
 export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefinition>> = {
   // -- non-block surfaces ---------------------------------------------------
@@ -358,10 +376,14 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       vars: ["--docs-shape-row-pad"],
       kind: "length",
       min: 4,
-      max: 16,
+      max: 24,
       step: 1,
       unit: "px",
-      defaultValue: 9,
+      // Must match semantic.css's --docs-shape-row-pad default so the slider
+      // starts where the unstyled block actually renders. 10px: 14px made a
+      // handful of fields fill a whole screen, and the row already separates
+      // by name weight and a hairline, so it does not need the extra air.
+      defaultValue: 10,
     },
   },
   // The Process Outline connector rail is drawn as overlapping elbow + stem
@@ -497,7 +519,7 @@ export function readThemeDefinition(
     if (Object.keys(fonts).length > 0) manifest.fonts = fonts;
   }
   if (isRecord(manifestRaw.railDefaults)) {
-    manifest.railDefaults = manifestRaw.railDefaults as Partial<StyleRailSettings>;
+    manifest.railDefaults = manifestRaw.railDefaults as StyleRailDefaults;
   }
   const components: ThemeComponents = {};
   const componentsRaw = isRecord(raw.components) ? raw.components : {};
@@ -512,6 +534,26 @@ export function readThemeDefinition(
     if (Object.keys(kept).length > 0) components[file] = kept;
   }
   return { id, manifest, components, source };
+}
+
+/**
+ * Theme inheritance is leaf-wise for rail settings, just like it is for
+ * component tokens. A child that changes one annotate color, one layout
+ * dimension, or one block lane must not discard the base theme's sibling
+ * settings in the same group.
+ */
+function mergeRailDefaults(
+  base: StyleRailDefaults | undefined,
+  override: StyleRailDefaults,
+): StyleRailDefaults {
+  const merged: Record<string, unknown> = { ...(base ?? {}) };
+  for (const [key, value] of Object.entries(override)) {
+    const inherited = merged[key];
+    merged[key] = isRecord(inherited) && isRecord(value)
+      ? mergeRailDefaults(inherited as StyleRailDefaults, value as StyleRailDefaults)
+      : value;
+  }
+  return merged as StyleRailDefaults;
 }
 
 /** Flattens a base chain (base-first) into one definition; cycles/missing bases just stop the walk. */
@@ -539,10 +581,10 @@ export function resolveThemeChain(
       merged.manifest.fonts = { ...merged.manifest.fonts, ...layer.manifest.fonts };
     }
     if (layer.manifest.railDefaults) {
-      merged.manifest.railDefaults = {
-        ...merged.manifest.railDefaults,
-        ...layer.manifest.railDefaults,
-      };
+      merged.manifest.railDefaults = mergeRailDefaults(
+        merged.manifest.railDefaults,
+        layer.manifest.railDefaults,
+      );
     }
     for (const [file, tokens] of Object.entries(layer.components)) {
       merged.components[file] = { ...merged.components[file], ...tokens };

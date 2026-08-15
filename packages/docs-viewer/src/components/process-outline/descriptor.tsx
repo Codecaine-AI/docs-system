@@ -1,6 +1,7 @@
 import { createElement } from "react";
 import { readProcessOutlineSteps } from "@codecaine-ai/docs-model";
 import type { DocBlockDescriptor } from "../../render/block-registry";
+import { WIDE_LEFT_BLOCK_LAYOUT } from "../../render/block-layout";
 import { STRUCTURAL_OPS, blockAttrs, el } from "../../render/descriptor-helpers";
 import { AGENT_DESCRIPTION, LABEL, ProcessOutlineDocsBlock } from "./ProcessOutlineDocsBlock";
 
@@ -11,6 +12,9 @@ export const descriptors: DocBlockDescriptor[] = [
     label: LABEL,
     agentDescription: AGENT_DESCRIPTION,
     patchOps: STRUCTURAL_OPS,
+    // Wide-data block: the step rail + note cards need more than a prose
+    // measure (block-layout.ts).
+    layout: WIDE_LEFT_BLOCK_LAYOUT,
     render: (block, ctx) =>
       el(
         "div",

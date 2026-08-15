@@ -1,4 +1,5 @@
 import type { DocBlockDescriptor } from "../../render/block-registry";
+import { WIDE_LEFT_BLOCK_LAYOUT } from "../../render/block-layout";
 import {
   STRUCTURAL_OPS,
   blockAttrs,
@@ -14,6 +15,9 @@ export const descriptors: DocBlockDescriptor[] = [
     agentDescription:
       "An embedded interactive canvas; props: canvasId (central canvas id) or src (legacy sidecar path), view (optional container id crop, D4).",
     patchOps: STRUCTURAL_OPS,
+    // Canvas media takes the wide lane on the shared left rail. Centering is
+    // an explicit theme/rail override (block-layout.ts).
+    layout: WIDE_LEFT_BLOCK_LAYOUT,
     render: (block, ctx) => {
       const canvasId = stringProp(block, "canvasId");
       const src = stringProp(block, "src");

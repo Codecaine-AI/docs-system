@@ -45,7 +45,12 @@ const PROCESS_OUTLINE_CSS = `
     --po-arrow-gap: var(--docs-process-outline-arrow-gap, 4px);
     --po-stroke: var(--docs-process-outline-stroke, 1.5px);
     --po-arrow: var(--docs-process-outline-arrow-size, 6px);
-    min-width: 640px;
+    /* Fill the lane, but keep a floor so the rail geometry (fixed-px indents
+       and elbows) never squeezes into an unreadable column. The floor is
+       min()-capped at the container width so a narrow viewport wraps text
+       instead of forcing the section's horizontal scrollbar. */
+    width: 100%;
+    min-width: min(560px, 100%);
     color: var(--docs-process-outline-ink, var(--foreground));
     font-family: var(--docs-font-code, ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace);
     font-size: var(--docs-process-outline-text-size, 12.5px);
@@ -56,7 +61,10 @@ const PROCESS_OUTLINE_CSS = `
   }
   .docs-process-outline__line {
     position: relative;
-    max-width: 700px;
+    /* Step text keeps a reading measure that scales with the font instead of
+       a fixed px column; it grows with the wide lane but never runs edge to
+       edge on a 1600px page. */
+    max-width: min(100ch, 100%);
     line-height: var(--po-line);
   }
   .docs-process-outline__children {
@@ -128,7 +136,9 @@ const PROCESS_OUTLINE_CSS = `
   }
   .docs-process-outline__note-card {
     display: block;
-    max-width: 580px;
+    /* Notes stay narrower than the step lines they hang off, but still scale
+       with the lane rather than sitting at a fixed 580px. */
+    max-width: min(85ch, 100%);
     border: 1px solid var(--docs-process-outline-note-border, var(--border));
     border-radius: calc(var(--radius) * 0.8);
     background: var(--docs-process-outline-note-bg, transparent);
@@ -311,7 +321,7 @@ export function ProcessOutlineDocsBlock({
 
   return (
     <section
-      className="not-prose my-4 overflow-x-auto"
+      className="not-prose my-4 w-full overflow-x-auto"
       data-docs-block-type="process-outline"
       data-source-id={id}
     >

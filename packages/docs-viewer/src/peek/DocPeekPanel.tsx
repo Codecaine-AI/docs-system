@@ -110,23 +110,32 @@ export function DocPeekPanel({ projectId, onNavigate, resolveAssetSrc }: DocPeek
             {/* Parity contract: same typography + vertical rhythm as the main
                 doc surface — this column + the DOC_SURFACE_TYPOGRAPHY_CLASSES
                 wrapper mirror the DocPage wrapper (docs-workbench
-                web/src/pages/DocPage.tsx: `mx-auto w-full max-w-[var(
-                --style-content-width,100ch)] px-[var(--style-content-margin,
-                2rem)] pt-[var(--style-content-top,1.5rem)] pb-[var(
-                --style-content-bottom,1.5rem)]` around the docs-markdown
-                prose wrapper), so a peeked doc reads as a secondary document
-                beside the main one. Horizontal padding is the ONLY
+                web/src/pages/DocPage.tsx: `w-full px-[var(
+                --style-content-margin,5.5rem)] pt-[var(--style-content-top,
+                1.5rem)] pb-[var(--style-content-bottom,1.5rem)]` around the
+                docs-markdown prose wrapper), so a peeked doc reads as a
+                secondary document beside the main one. Like DocPage this is a
+                left-anchored FULL-WIDTH page with no `mx-auto max-w-…`
+                column: width is a per-block concern now (docs-viewer
+                render/block-layout.ts), and the panel's own width is already
+                the constraint here. Horizontal padding is the ONLY
                 peek-specific spacing: `--docs-peek-padding` replaces
                 DocPage's `--style-content-margin`. Keep the rest in sync
                 with DocPage. */}
-            <div className="mx-auto w-full max-w-[var(--style-content-width,100ch)] px-[var(--docs-peek-padding,1.5rem)] pt-[var(--style-content-top,1.5rem)] pb-[var(--style-content-bottom,1.5rem)]">
+            <div className="w-full px-[var(--docs-peek-padding,1.5rem)] pt-[var(--style-content-top,1.5rem)] pb-[var(--style-content-bottom,1.5rem)]">
               {/* Fixed page title, same furniture as the main doc surface
                   (DocPage's h1: class + margin come from the host-global
                   `.docs-page-title` rule) and the SAME derivation
                   (docTitleFromPath on the bundle path), so a peeked doc
                   opens with the identical title the full page shows.
-                  Read-only here — no rename affordance in a preview. */}
-              <h1 className="docs-page-title">{docTitleFromPath(state.ref.path)}</h1>
+                  Read-only here — no rename affordance in a preview.
+                  The `text-sm` lane wrapper mirrors DocPage: it gives the
+                  title the same text measure the prose gets, resolved at the
+                  doc's base font size rather than the h1's own 2.25rem (the
+                  measure is in `ch`). */}
+              <div className="w-full max-w-[var(--style-content-width,100ch)] text-sm">
+                <h1 className="docs-page-title">{docTitleFromPath(state.ref.path)}</h1>
+              </div>
               {state.load.status === "loading" && (
                 <div className="text-sm text-muted-foreground">Loading preview…</div>
               )}

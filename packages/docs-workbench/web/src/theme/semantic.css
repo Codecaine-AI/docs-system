@@ -34,6 +34,16 @@
  * consumers never branch on theme.
  */
 
+/* Theme-independent page-lane defaults. The document shell is left-anchored:
+ * --style-content-margin is its left rail, while each block caps itself at
+ * the text or wide measure and defaults to left justification. Style-rail
+ * settings may override these on <html>; an unset rail still renders the
+ * primary lane presentation rather than falling back to a centered column. */
+:root {
+  --style-wide-width: 1040px;
+  --style-content-margin: 88px;
+}
+
 :root, [data-theme="light"] {
   color-scheme: light;
 
@@ -171,13 +181,18 @@
   --docs-shape-border: var(--border);
   --docs-shape-bg: var(--background);
   --docs-shape-name: var(--foreground);
-  --docs-shape-type: #b45309;
-  --docs-shape-muted: var(--muted-foreground);
-  --docs-shape-rule: var(--border);
+  /* AAA CONTRAST (>=7:1 on the pane background) is the floor for every piece
+     of text in this block, in BOTH themes. Hierarchy is carried by SIZE and
+     WEIGHT (13px/600 name vs 11px/400 type vs 12px description vs 10px
+     uppercase marker), never by washing the color out — an earlier pass muted
+     the type to 3.4:1 and the marker to 2.7:1, which was unreadable. */
+  --docs-shape-type: #4a4842;
+  --docs-shape-muted: #4a4842;
+  --docs-shape-rule: color-mix(in srgb, var(--border) 65%, transparent);
   --docs-shape-header-bg: color-mix(in srgb, var(--muted) 35%, transparent);
-  --docs-shape-desc-fg: color-mix(in srgb, var(--foreground) 72%, transparent);
-  --docs-shape-child-rule: color-mix(in srgb, var(--docs-shape-rule, var(--border)) 50%, transparent);
-  --docs-shape-row-pad: 9px;
+  --docs-shape-desc-fg: #42403a;
+  --docs-shape-child-rule: color-mix(in srgb, var(--foreground) 22%, transparent);
+  --docs-shape-row-pad: 10px;
   /* Shared linked-panels layer (docs-viewer components/linked-panels;
      theme-folders.ts "linking" entry): zebra stripe on even code lines,
      lit-extent background wash, and the pin/rail accent — one token set
@@ -221,7 +236,9 @@
   --docs-annotation-add-bg: color-mix(in srgb, var(--color-text-green) 14%, transparent);
   --docs-annotation-del: var(--color-text-red);
   --docs-annotation-del-bg: color-mix(in srgb, var(--color-text-red) 14%, transparent);
-  --docs-annotation-wash: color-mix(in srgb, var(--annotation-accent) 14%, transparent);
+  /* Must match StyleRail's stock washOpacity (0.08): a stock knob removes
+     its inline override and hands this value back to the theme. */
+  --docs-annotation-wash: color-mix(in srgb, var(--annotation-accent) 8%, transparent);
   --docs-action-pane-width: 520px;
   /* Side-peek panel + inline doc-reference chip (docs-viewer DocPeekPanel /
      reference chip); color tokens stay references so they track the theme. */
@@ -391,13 +408,18 @@
   --docs-shape-border: var(--border);
   --docs-shape-bg: var(--background);
   --docs-shape-name: var(--foreground);
-  --docs-shape-type: #fcd34d;
-  --docs-shape-muted: var(--muted-foreground);
-  --docs-shape-rule: var(--border);
+  /* AAA CONTRAST (>=7:1 on the pane background) is the floor for every piece
+     of text in this block, in BOTH themes. Hierarchy is carried by SIZE and
+     WEIGHT (13px/600 name vs 11px/400 type vs 12px description vs 10px
+     uppercase marker), never by washing the color out — an earlier pass muted
+     the type to 3.4:1 and the marker to 2.7:1, which was unreadable. */
+  --docs-shape-type: #ced1d2;
+  --docs-shape-muted: #ced1d2;
+  --docs-shape-rule: color-mix(in srgb, var(--border) 65%, transparent);
   --docs-shape-header-bg: color-mix(in srgb, var(--muted) 35%, transparent);
-  --docs-shape-desc-fg: color-mix(in srgb, var(--foreground) 72%, transparent);
-  --docs-shape-child-rule: color-mix(in srgb, var(--docs-shape-rule, var(--border)) 50%, transparent);
-  --docs-shape-row-pad: 9px;
+  --docs-shape-desc-fg: #d8dadb;
+  --docs-shape-child-rule: color-mix(in srgb, var(--foreground) 22%, transparent);
+  --docs-shape-row-pad: 10px;
   /* Shared linked-panels layer (docs-viewer components/linked-panels;
      theme-folders.ts "linking" entry): zebra stripe on even code lines,
      lit-extent background wash, and the pin/rail accent — one token set
@@ -441,7 +463,8 @@
   --docs-annotation-add-bg: color-mix(in srgb, var(--color-text-green) 18%, transparent);
   --docs-annotation-del: var(--color-text-red);
   --docs-annotation-del-bg: color-mix(in srgb, var(--color-text-red) 18%, transparent);
-  --docs-annotation-wash: color-mix(in srgb, var(--annotation-accent) 18%, transparent);
+  /* Keep the rail's mode-independent opacity stable across theme flips. */
+  --docs-annotation-wash: color-mix(in srgb, var(--annotation-accent) 8%, transparent);
   --docs-action-pane-width: 520px;
   /* Side-peek panel + inline doc-reference chip (docs-viewer DocPeekPanel /
      reference chip); color tokens stay references so they track the theme. */

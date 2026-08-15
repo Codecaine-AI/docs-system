@@ -44,6 +44,10 @@ Slash menu: **Callout** (aliases: note, info, tip). No input rule — type `/cal
 
 ## Agent Notes
 
+- Keep the body to one or two sentences — the labeled fact itself. Mechanics, rationale, history, and examples go in a heading-led section (`heading` level 2 or 3 plus paragraphs) placed after the callout; a callout that scrolls is a section wearing a border.
+
+- Decision records are two parts: a short dated callout stating the call, then an H3 section holding the reasoning and consequences. The callout stays greppable; the section carries the why.
+
 - Prefer `kind` for semantic labels ("Decision", "Boundary under review") and `tone` for the visual register; the pair is how this corpus encodes decision records.
 
 - No typed actions — patch `tone`/`kind`/`title` via `updateBlock`, edit the body via text ops.

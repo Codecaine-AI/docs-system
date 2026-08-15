@@ -111,6 +111,93 @@ describe("theme folder routes", () => {
     expect(missing.status).toBe(404);
   });
 
+  test("railDefaults round-trip: the style rail's repo-side settings file", async () => {
+    // The style rail persists its knobs as manifest.railDefaults — that
+    // block IS the repo settings file every consumer reads as its baseline
+    // (a --theme-locked serve, a static export, a fresh browser). The
+    // server keeps it opaque, so the round-trip must be byte-for-byte.
+    const railDefaults = {
+      accent: "purple",
+      typography: { fontSize: 16 },
+      layout: { contentWidth: 88, wideWidth: 1040, contentMargin: 88 },
+      annotate: {
+        accent: "#7c3aed",
+        add: "#15803d",
+        del: "#b91c1c",
+        washOpacity: 0.14,
+        actionPaneWidth: 640,
+      },
+      blockLayout: { "state-shape": { width: "1120px" } },
+    };
+    const created = await app.handle(
+      new Request("http://localhost/api/themes", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          id: "default",
+          manifest: { name: "Default", dark: false, railDefaults },
+          components: {
+            paragraph: { fg: "#111111" },
+            annotate: { surface: "#f5f3ff", border: "#c4b5fd" },
+          },
+        }),
+      }),
+    );
+    expect(created.status).toBe(201);
+
+    const onDisk = JSON.parse(
+      await readFile(join(themesRootFor(docsRoot), "default", "theme.json"), "utf8"),
+    ) as { railDefaults: unknown };
+    expect(onDisk.railDefaults).toEqual(railDefaults);
+
+    const read = await app.handle(new Request("http://localhost/api/themes/default"));
+    const body = (await read.json()) as { theme: { manifest: { railDefaults: unknown } } };
+    expect(body.theme.manifest.railDefaults).toEqual(railDefaults);
+  });
+
+  test("a theme-locked serve still READS railDefaults but cannot write them", async () => {
+    // The whole point of the lock: consumers inherit the repo baseline,
+    // authors are the only ones who may move it.
+    const dir = join(themesRootFor(docsRoot), "default");
+    await mkdir(dir, { recursive: true });
+    const railDefaults = {
+      layout: { wideWidth: 1040, contentMargin: 88 },
+      annotate: { actionPaneWidth: 640, washOpacity: 0.14 },
+      blockLayout: { "state-shape": { width: "1120px" } },
+    };
+    await writeFile(join(dir, "theme.json"), JSON.stringify({ name: "Default", railDefaults }));
+
+    const locked = createDocsRoutes(createDocsStore(docsRoot), { themeLocked: true });
+    const read = await locked.handle(new Request("http://localhost/api/themes/default"));
+    expect(read.status).toBe(200);
+    const body = (await read.json()) as { theme: { manifest: { railDefaults: unknown } } };
+    expect(body.theme.manifest.railDefaults).toEqual(railDefaults);
+
+    const refused = await locked.handle(
+      new Request("http://localhost/api/themes", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          id: "default",
+          manifest: {
+            name: "Default",
+            railDefaults: {
+              layout: { contentMargin: 8 },
+              annotate: { actionPaneWidth: 380 },
+              blockLayout: { "state-shape": { width: "centered" } },
+            },
+          },
+        }),
+      }),
+    );
+    expect(refused.status).toBe(403);
+    // The file on disk is untouched — the refusal precedes the write.
+    const stillOnDisk = JSON.parse(await readFile(join(dir, "theme.json"), "utf8")) as {
+      railDefaults: unknown;
+    };
+    expect(stillOnDisk.railDefaults).toEqual(railDefaults);
+  });
+
   test("POST is refused with 403 on a theme-locked serve, before any write", async () => {
     const locked = createDocsRoutes(createDocsStore(docsRoot), { themeLocked: true });
     const refused = await locked.handle(

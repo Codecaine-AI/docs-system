@@ -38,16 +38,16 @@
           }
         },
         {
-          "insert": ", resolved against a built-in base, and compiled into a CSS layer. The workbench persists the active Default settings back to "
+          "insert": ", resolved against a built-in base, and compiled into a CSS layer. The workbench persists style-rail settings back to the active theme folder, making its "
         },
         {
-          "insert": "themes/default/",
+          "insert": "railDefaults",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": ". What themes are allowed to change is specified by "
+          "insert": " the durable authority. What themes are allowed to change is specified by "
         },
         {
           "insert": "Themes",
@@ -137,7 +137,7 @@
           ],
           [
             "dark",
-            "Mode applied on explicit selection and fresh-profile hydration."
+            "Mode applied when the folder becomes active."
           ],
           [
             "fonts",
@@ -145,7 +145,7 @@
           ],
           [
             "railDefaults",
-            "Style-rail settings applied on explicit selection and used to seed a profile with no stored settings."
+            "Durable style-rail settings loaded from and written back to the active theme folder."
           ]
         ]
       },
@@ -256,7 +256,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Default autosave"
+          "insert": "Active-theme autosave"
         }
       ],
       "children": [
@@ -269,10 +269,28 @@
       "props": {},
       "text": [
         {
-          "insert": "An unlocked, non-static workbench writes after 1.5 seconds without another settings change. The manifest receives the complete normalized non-component settings as "
+          "insert": "An unlocked, non-static workbench writes after 1.5 seconds without another settings change. The active theme manifest receives the complete normalized non-component settings as "
         },
         {
           "insert": "railDefaults",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", including "
+        },
+        {
+          "insert": "annotate",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " settings and per-block lane settings in "
+        },
+        {
+          "insert": "blockLayout",
           "attributes": {
             "code": true
           }
@@ -288,18 +306,12 @@
       "type": "callout",
       "props": {
         "kind": "Implementation guard",
-        "title": "Fresh profiles hydrate before writing",
+        "title": "Repository railDefaults are authoritative",
         "tone": "info"
       },
       "text": [
         {
-          "insert": "hasStoredStyleRailSettings",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " distinguishes a fresh profile from a stored one. A fresh profile loads and normalizes the repository Default's "
+          "insert": "The active theme folder's "
         },
         {
           "insert": "railDefaults",
@@ -308,16 +320,16 @@
           }
         },
         {
-          "insert": " before "
+          "insert": " is the durable authority. "
         },
         {
-          "insert": "settingsSeededRef",
+          "insert": "localStorage",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " enables the autosave effect. Stock settings cannot overwrite the saved folder during boot."
+          "insert": " is only a cache and a fallback when repository settings are absent; it never overrides settings loaded from the folder."
         }
       ],
       "children": []
@@ -347,7 +359,16 @@
           }
         },
         {
-          "insert": " accepts lowercase slug ids and writes folders beside the docs root. Folders created directly use the same tolerant reader, which drops unknown fields and registry keys. Theme-locked serves reject the route with 403; static and locked workbenches never start the writer."
+          "insert": " accepts lowercase slug ids and writes folders beside the docs root. Folders created directly use the same tolerant reader, which drops unknown fields and registry keys. A host started with "
+        },
+        {
+          "insert": "--theme-locked",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " hides the style rail, never starts the writer, and rejects this route with 403. Static workbenches also never start the writer."
         }
       ],
       "children": []

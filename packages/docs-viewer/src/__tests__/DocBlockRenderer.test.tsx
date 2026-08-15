@@ -300,4 +300,60 @@ describe("DocBlockRenderer", () => {
     // Clicking a block is inert — no handler, nothing to throw.
     fireEvent.click(screen.getByText("Docs Model Sample"));
   });
+
+  it("wraps each top-level block in its declared page lane, and leaves nested blocks unlaned", () => {
+    const doc = loadFixture();
+    const { container } = render(
+      <DocsClientProvider canvasEmbed={FakeCanvasEmbed}>
+        <DocBlockRenderer document={doc} />
+      </DocsClientProvider>,
+    );
+
+    const docRoot = container.querySelector("[data-doc-root]");
+    if (!docRoot) throw new Error("doc root not rendered");
+
+    // Every direct child of the doc root is a lane element — that is what
+    // makes the page left-anchored and full-width instead of one centered
+    // column (render/block-layout.ts).
+    const topLevel = [...docRoot.children];
+    expect(topLevel.length).toBe(doc.blocks[doc.root]!.children.length);
+    for (const lane of topLevel) {
+      expect(lane.getAttribute("data-doc-lane")).toBeTruthy();
+      expect(lane.className).toContain("w-full");
+      // The lane also carries its block type — the pair
+      // [data-doc-lane][data-doc-block-type=…] is the per-block-type override
+      // hook a theme uses to retune one type's width/justification.
+      expect(lane.getAttribute("data-doc-block-type")).toBeTruthy();
+    }
+    const stateShapeByType = docRoot.querySelector(
+      ':scope > [data-doc-lane][data-doc-block-type="state-shape"]',
+    );
+    expect(stateShapeByType).toBeTruthy();
+
+    // A text block takes the text measure on the left rail...
+    const paragraphLane = docRoot.querySelector(':scope > [data-doc-lane="text-left"]');
+    expect(paragraphLane).toBeTruthy();
+    expect(paragraphLane?.className).toContain("max-w-[var(--style-content-width,100ch)]");
+    expect(paragraphLane?.className).toContain("ml-0 mr-auto");
+
+    // ...a state-shape takes the shared wide lane, still left-anchored...
+    const stateShapeLane = [...topLevel].find((lane) =>
+      lane.querySelector('[data-doc-block="state-shape"]'),
+    );
+    expect(stateShapeLane?.getAttribute("data-doc-lane")).toBe("wide-left");
+    expect(stateShapeLane?.className).toContain("max-w-[var(--style-wide-width,1040px)]");
+
+    // ...and media also stays on that left rail by default. Centering is an
+    // explicit theme/rail blockLayout override.
+    const canvasLane = [...topLevel].find((lane) =>
+      lane.querySelector('[data-doc-block="canvas"]'),
+    );
+    expect(canvasLane?.getAttribute("data-doc-lane")).toBe("wide-left");
+    expect(canvasLane?.className).toContain("ml-0 mr-auto");
+
+    // Nested blocks inherit their ancestor's lane rather than claiming their
+    // own — otherwise a paragraph inside a callout would escape the callout.
+    const nestedLane = docRoot.querySelector("[data-doc-lane] [data-doc-lane]");
+    expect(nestedLane).toBeNull();
+  });
 });

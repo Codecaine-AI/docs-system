@@ -163,7 +163,14 @@ export function StandaloneCanvasEmbed({
   // targeting wires onObjectSelect so canvas objects stay selectable; the
   // inert path wraps the same render and adds the full-screen affordance.
   const inlineViewer = (
-    <div className="not-prose my-4 overflow-hidden rounded-md border">
+    <div
+      className="not-prose my-4 overflow-hidden rounded-md border"
+      // The bare viewer fills its parent (height: 100%), so the wrapper must
+      // own the height: derive it from the board's aspect ratio.
+      style={{
+        aspectRatio: `${viewerDocument.size?.width ?? 16} / ${viewerDocument.size?.height ?? 9}`,
+      }}
+    >
       <InteractiveCanvasViewer
         document={viewerDocument}
         view={view}

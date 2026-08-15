@@ -1,4 +1,4 @@
-A global theme is loaded from `themes/<id>/`, resolved against a built-in base, and compiled into a CSS layer. The workbench persists the active Default settings back to `themes/default/`. What themes are allowed to change is specified by Themes.
+A global theme is loaded from `themes/<id>/`, resolved against a built-in base, and compiled into a CSS layer. The workbench persists style-rail settings back to the active theme folder, making its `railDefaults` the durable authority. What themes are allowed to change is specified by Themes.
 
 ## Structure
 
@@ -8,9 +8,9 @@ Each folder contains a `theme.json` manifest and optional `components/<surface>.
 | --- | --- |
 | name | Theme label returned by the repository catalogue. |
 | base | Built-in theme id resolved before this folder; missing bases stop the chain. |
-| dark | Mode applied on explicit selection and fresh-profile hydration. |
+| dark | Mode applied when the folder becomes active. |
 | fonts | Optional body, heading, code, and number stacks compiled into font variables. |
-| railDefaults | Style-rail settings applied on explicit selection and used to seed a profile with no stored settings. |
+| railDefaults | Durable style-rail settings loaded from and written back to the active theme folder. |
 
 ```json
 {
@@ -30,15 +30,15 @@ Each folder contains a `theme.json` manifest and optional `components/<surface>.
 
 ## Persistence
 
-- Default autosave
+- Active-theme autosave
 
-  - An unlocked, non-static workbench writes after 1.5 seconds without another settings change. The manifest receives the complete normalized non-component settings as `railDefaults`; registered component overrides are sent as sparse files.
+  - An unlocked, non-static workbench writes after 1.5 seconds without another settings change. The active theme manifest receives the complete normalized non-component settings as `railDefaults`, including `annotate` settings and per-block lane settings in `blockLayout`; registered component overrides are sent as sparse files.
 
-> **Implementation guard: Fresh profiles hydrate before writing** — `hasStoredStyleRailSettings` distinguishes a fresh profile from a stored one. A fresh profile loads and normalizes the repository Default's `railDefaults` before `settingsSeededRef` enables the autosave effect. Stock settings cannot overwrite the saved folder during boot.
+> **Implementation guard: Repository railDefaults are authoritative** — The active theme folder's `railDefaults` is the durable authority. `localStorage` is only a cache and a fallback when repository settings are absent; it never overrides settings loaded from the folder.
 
 - Repository authority
 
-  - `POST /api/themes` accepts lowercase slug ids and writes folders beside the docs root. Folders created directly use the same tolerant reader, which drops unknown fields and registry keys. Theme-locked serves reject the route with 403; static and locked workbenches never start the writer.
+  - `POST /api/themes` accepts lowercase slug ids and writes folders beside the docs root. Folders created directly use the same tolerant reader, which drops unknown fields and registry keys. A host started with `--theme-locked` hides the style rail, never starts the writer, and rejects this route with 403. Static workbenches also never start the writer.
 
 - Local file transfer
 

@@ -1,4 +1,5 @@
 import type { DocBlockDescriptor } from "../../render/block-registry";
+import { WIDE_LEFT_BLOCK_LAYOUT } from "../../render/block-layout";
 import {
   STRUCTURAL_OPS,
   blockAttrs,
@@ -14,6 +15,9 @@ export const descriptors: DocBlockDescriptor[] = [
     agentDescription:
       "An embedded sequence diagram; props: sequenceId (central sequence id) or src (sidecar path), title.",
     patchOps: STRUCTURAL_OPS,
+    // Diagram media uses the shared wide-left lane; a theme may explicitly
+    // opt it into centering (block-layout.ts).
+    layout: WIDE_LEFT_BLOCK_LAYOUT,
     render: (block, ctx) => {
       const sequenceId = stringProp(block, "sequenceId");
       const src = stringProp(block, "src");

@@ -2,6 +2,7 @@ import { createElement } from "react";
 import { readStateShapeExample, type Field } from "@codecaine-ai/docs-model";
 import type { DocBlock } from "@codecaine-ai/docs-model/doc-schema";
 import type { DocBlockDescriptor } from "../../render/block-registry";
+import { WIDE_LEFT_BLOCK_LAYOUT } from "../../render/block-layout";
 import {
   STRUCTURAL_OPS,
   blockAttrs,
@@ -67,6 +68,9 @@ export const descriptors: DocBlockDescriptor[] = [
     label: STATE_SHAPE_LABEL,
     agentDescription: STATE_SHAPE_AGENT_DESCRIPTION,
     patchOps: STRUCTURAL_OPS,
+    // Wide-data block: the two-pane field list + sticky example needs the wide
+    // lane (block-layout.ts).
+    layout: WIDE_LEFT_BLOCK_LAYOUT,
     render: (block, ctx) => {
       const fields = stateShapeFields(block.props.fields);
       const source = stateShapeSource(block);

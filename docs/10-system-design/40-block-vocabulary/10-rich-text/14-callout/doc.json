@@ -25,6 +25,8 @@
         "b-15-callout-proj-h-6",
         "b-15-callout-proj-7",
         "b-15-callout-agent-h-12",
+        "b-15-callout-agent-0-length",
+        "b-15-callout-agent-0-decision-pattern",
         "b-15-callout-agent-1-13",
         "b-15-callout-agent-2-14",
         "b-15-callout-theming-heading",
@@ -414,6 +416,37 @@
       "text": [
         {
           "insert": "Agent Notes"
+        }
+      ],
+      "children": []
+    },
+    "b-15-callout-agent-0-length": {
+      "id": "b-15-callout-agent-0-length",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Keep the body to one or two sentences — the labeled fact itself. Mechanics, rationale, history, and examples go in a heading-led section ("
+        },
+        {
+          "insert": "heading",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " level 2 or 3 plus paragraphs) placed after the callout; a callout that scrolls is a section wearing a border."
+        }
+      ],
+      "children": []
+    },
+    "b-15-callout-agent-0-decision-pattern": {
+      "id": "b-15-callout-agent-0-decision-pattern",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Decision records are two parts: a short dated callout stating the call, then an H3 section holding the reasoning and consequences. The callout stays greppable; the section carries the why."
         }
       ],
       "children": []

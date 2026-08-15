@@ -265,7 +265,7 @@ function NoteRow({ note, depth }: { note: ParamNote; depth: number }) {
       {note.description && (
         <div
           data-note-description="true"
-          className="mt-0.5 max-w-[46ch] text-[11px] leading-4 text-muted-foreground"
+          className="mt-0.5 max-w-[70ch] text-[11px] leading-4 text-muted-foreground"
         >
           {note.description}
         </div>
@@ -339,7 +339,7 @@ export function InteractionSurfaceBlock({
   const useBare = new Set(bare).size === operations.length;
   return (
     <section
-      className="not-prose my-4"
+      className="not-prose my-4 w-full"
       data-docs-block-type="interaction-surface"
       data-source-id={id}
     >
@@ -375,8 +375,13 @@ export function InteractionSurfaceBlock({
                   className={cn(
                     "overflow-hidden rounded-md border",
                     "border-[color:var(--docs-interaction-border,var(--border))] bg-[color:var(--docs-interaction-bg,var(--background))]",
+                    // Left pane's share comes from the style rail as
+                    // `--docs-pane-split` (Layout > Column split). The 52%
+                    // fallback MUST match BLOCK_COLUMN_SPLIT_DEFAULTS in the
+                    // workbench's StyleRail — an unset knob emits nothing, so
+                    // this literal is what renders.
                     withNotes
-                      ? "grid grid-cols-1 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]"
+                      ? "grid grid-cols-1 lg:grid-cols-[minmax(0,var(--docs-pane-split,52%))_minmax(0,1fr)]"
                       : "grid grid-cols-1",
                   )}
                 >
@@ -410,7 +415,7 @@ export function InteractionSurfaceBlock({
                               cn("border-b border-solid", HAIRLINE_BORDER),
                           )}
                         >
-                          <div className="max-w-[52ch]">{operation.description}</div>
+                          <div className="max-w-[70ch]">{operation.description}</div>
                         </div>
                       )}
                       {operation.description && notes.length > 0 && (
