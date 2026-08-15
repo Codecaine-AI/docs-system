@@ -28,6 +28,8 @@ export interface DocLabProps {
 	threads: ComponentProps<typeof ActionPane>;
 	/** Focuses a queue target in the document surface. */
 	onFocusTarget: (target: DocEditTarget) => void;
+	/** Reports the panel's rendered width so the host rail can reserve it. */
+	onPanelWidthChange?: (width: number) => void;
 }
 
 /**
@@ -42,6 +44,7 @@ export function DocLab({
 	lab,
 	threads,
 	onFocusTarget,
+	onPanelWidthChange,
 }: DocLabProps) {
 	const sections = useMemo(() => deriveDocOutline(doc), [doc]);
 	const outline = useOutlineSpy({
@@ -81,7 +84,7 @@ export function DocLab({
 	const requestErrors = Object.entries(lab.requestErrors);
 
 	return (
-		<GlassPanel tab={tab} onTabSelect={onTabSelect}>
+		<GlassPanel tab={tab} onTabSelect={onTabSelect} onWidthChange={onPanelWidthChange}>
 			{tab === "edit" ? (
 				<PanelZone id="outline" label="Outline">
 					<OutlineList

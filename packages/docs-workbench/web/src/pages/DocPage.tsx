@@ -68,6 +68,7 @@ import {
 import { docSegmentFromTitle, docTitleFromPath } from "../lib/doc-title";
 import { blockTextRangeFromDomRange } from "../lib/annotate-range";
 import { DocLab } from "../lab/DocLab";
+import { DOCK_DEFAULT_WIDTH } from "@codecaine-ai/docs-viewer/lab";
 import { useDocLabSession } from "../lab/doc-lab-controller";
 import { useDocsKernelSession } from "../lab/use-docs-kernel-session";
 import {
@@ -299,6 +300,9 @@ export function DocPage({
   const [backlinks, setBacklinks] = useState<BacklinkRow[]>([]);
 
   const [mode, setMode] = useState<WorkbenchMode>("edit");
+  // Reserved width of the lab rail (push layout, not overlay); GlassPanel
+  // reports its real width on tab changes via onPanelWidthChange.
+  const [labPanelWidth, setLabPanelWidth] = useState<number>(DOCK_DEFAULT_WIDTH);
   const [saveState, setSaveState] = useState<DocEditorSaveState>("saved");
   const [selection, setSelection] = useState<PlannotatorSelection | null>(null);
   const [canvasIndex, setCanvasIndex] = useState<CanvasIndex | undefined>(undefined);
@@ -1506,30 +1510,45 @@ export function DocPage({
             )}
           </div>
           </div>
-          {!isStatic && (
-            <DocLab
-              tab={mode === "annotate" ? "ai" : "edit"}
-              onTabSelect={handleLabTabSelect}
-              doc={doc}
-              outlineScrollerSelector="[data-docs-scroller]"
-              lab={lab}
-              threads={{
-                annotations: annotations?.annotations ?? [],
-                document: doc,
-                canvases: canvasIndex,
-                selection,
-                onClearSelection: () => setSelection(null),
-                onAddAnnotation: handleAddAnnotation,
-                onAddReply: handleAddReply,
-                onResolveAnnotation: handleResolveAnnotation,
-                onFocusTarget: handleFocusTarget,
-                isSubmitting: isAnnotationSubmitting,
-                error: paneError,
-              }}
-              onFocusTarget={handleFocusDocEditTarget}
-            />
-          )}
         </div>
+          {!isStatic && (
+            /* The lab rail RESERVES layout width (Ford: the panel must push
+               the document left, never float over it). GlassPanel still
+               positions absolutely, but against this rail — the rail's
+               animated width is what the content column yields to. Width =
+               panel width + 24px right gutter + 12px breathing gap. */
+            <aside
+              data-docs-lab-rail=""
+              className="relative min-h-0 shrink-0"
+              style={{
+                width: labPanelWidth + 36,
+                transition: "width 260ms cubic-bezier(0.32, 0.72, 0, 1)",
+              }}
+            >
+              <DocLab
+                tab={mode === "annotate" ? "ai" : "edit"}
+                onTabSelect={handleLabTabSelect}
+                doc={doc}
+                outlineScrollerSelector="[data-docs-scroller]"
+                lab={lab}
+                onPanelWidthChange={setLabPanelWidth}
+                threads={{
+                  annotations: annotations?.annotations ?? [],
+                  document: doc,
+                  canvases: canvasIndex,
+                  selection,
+                  onClearSelection: () => setSelection(null),
+                  onAddAnnotation: handleAddAnnotation,
+                  onAddReply: handleAddReply,
+                  onResolveAnnotation: handleResolveAnnotation,
+                  onFocusTarget: handleFocusTarget,
+                  isSubmitting: isAnnotationSubmitting,
+                  error: paneError,
+                }}
+                onFocusTarget={handleFocusDocEditTarget}
+              />
+            </aside>
+          )}
       </div>
     </div>
   );
