@@ -9,6 +9,7 @@ import type {
 import {
 	createDocsKernelSessionSource,
 	docsKernelFailureMessage,
+	reduceDocsEditSessionEvent,
 } from "../docs-kernel-session-source";
 
 const request = (
@@ -91,6 +92,27 @@ function mockClient(createResult: Awaited<ReturnType<DocsKernelClient["createSes
 const flush = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
 
 describe("docs kernel session source", () => {
+	it("preserves cross-document proposal paths from staged events", () => {
+		const next = reduceDocsEditSessionEvent(session(), {
+			type: "proposal-staged",
+			sessionId: "session-1",
+			proposal: {
+				proposalId: "proposal-2",
+				requestAlias: "R1",
+				baseHash: "hash-1",
+				ops: [],
+				changedBlockIds: ["p2"],
+				summary: "Rewrite another document",
+				createdAt: "2026-01-01T00:02:00.000Z",
+				docPath: "10-architecture/20-north-star",
+			},
+		});
+
+		expect(next.proposals.at(-1)?.docPath).toBe(
+			"10-architecture/20-north-star",
+		);
+	});
+
 	it("mirrors stream request statuses into the live annotation overlay", async () => {
 		const mock = mockClient({ state: session() });
 		const source = createDocsKernelSessionSource({ client: mock.client, path: "guide", onSessionEnd() {} });

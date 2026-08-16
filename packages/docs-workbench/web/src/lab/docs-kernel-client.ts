@@ -50,6 +50,7 @@ export interface DocsEditProposalState {
   review: DocsEditReviewStatus;
   patchId?: string;
   supersededProposalIds?: string[];
+  docPath?: string;
 }
 
 export interface DocsEditSessionState {
@@ -62,6 +63,7 @@ export interface DocsEditSessionState {
   instruction?: string;
   createdAt: string;
   scope: string[] | null;
+  touchedDocPaths?: string[];
   requests: DocsEditRequestState[];
   proposals: DocsEditProposalState[];
   nextAcceptAlias: string | null;

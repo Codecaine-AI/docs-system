@@ -56,6 +56,8 @@ export interface DocsEditSessionRequestState {
 export interface DocsEditSessionProposalState {
   proposalId: string;
   requestAlias: string;
+  /** Always emitted; optional on the wire for compatibility with old clients. */
+  docPath?: string;
   baseHash: string;
   ops: DocsEditProposal["ops"];
   changedBlockIds: string[];
@@ -84,6 +86,7 @@ export interface DocsEditSessionState {
   instruction?: string;
   createdAt: string;
   scope: string[] | null;
+  touchedDocPaths: string[];
   requests: DocsEditSessionRequestState[];
   proposals: DocsEditSessionProposalState[];
   nextAcceptAlias: string | null;
@@ -138,6 +141,40 @@ export type AcceptDocsEditProposalResult =
     }
   | { ok: false; failure: AcceptDocsEditProposalFailure };
 
+export type DocsEditAcceptAllProposalResult =
+  | {
+      ok: true;
+      alias: string;
+      docPath: string;
+      proposalId: string;
+      patchId: string;
+      hash: string;
+      annotation: DocsEditAnnotationOutcome;
+      /** Present when the apply succeeded but was reversed after a later failure. */
+      rolledBack?: true;
+    }
+  | {
+      ok: false;
+      alias: string;
+      docPath: string;
+      proposalId: string;
+      status: number;
+      detail: string;
+      currentHash?: string;
+    };
+
+export type DocsEditAcceptAllResult =
+  | {
+      ok: true;
+      results: Array<Extract<DocsEditAcceptAllProposalResult, { ok: true }>>;
+    }
+  | {
+      ok: false;
+      failure: { alias: string; status: number; detail: string };
+      rolledBack: true;
+      results: DocsEditAcceptAllProposalResult[];
+    };
+
 export type RejectDocsEditProposalFailure =
   | { kind: "writes_disabled" }
   | { kind: "unknown_request"; alias: string }
@@ -185,6 +222,7 @@ export interface DocsEditSessionService {
   getLaunch(sessionId: string): LaunchedDocsEditSession | null;
   subscribe(sessionId: string, listener: DocsEditSessionStreamListener): (() => void) | null;
   acceptProposal(sessionId: string, alias: string): Promise<AcceptDocsEditProposalResult | null>;
+  acceptAll(sessionId: string): Promise<DocsEditAcceptAllResult | null>;
   rejectProposal(sessionId: string, alias: string, note?: string): Promise<RejectDocsEditProposalResult | null>;
   undoAccepted(sessionId: string, alias: string): Promise<UndoAcceptedDocsProposalResult | null>;
   replyToRequest(sessionId: string, alias: string, body: string): Promise<DocsEditSimpleResult | null>;
@@ -202,6 +240,7 @@ export interface CreateDocsEditSessionServiceOptions {
 
 interface AppliedRecord {
   alias: string;
+  docPath: string;
   proposalId: string;
   patchId: string;
 }
@@ -210,6 +249,7 @@ interface ManagedSession {
   session: DocsEditSession;
   launch: LaunchedDocsEditSession;
   normalizedPath: string;
+  touchedDocPaths: Set<string>;
   createdAt: string;
   currentHash: string;
   review: Map<string, DocsEditReviewStatus>;
@@ -254,6 +294,7 @@ export function createDocsEditSessionService(
     return {
       proposalId: proposal.proposalId,
       requestAlias: proposal.requestAlias,
+      docPath: proposal.docPath,
       baseHash: proposal.baseHash,
       ops: proposal.ops,
       changedBlockIds: proposal.changedBlockIds,
@@ -284,6 +325,7 @@ export function createDocsEditSessionService(
       ...(managed.session.instruction !== undefined ? { instruction: managed.session.instruction } : {}),
       createdAt: managed.createdAt,
       scope: managed.launch.scope === null ? null : [...managed.launch.scope],
+      touchedDocPaths: [...managed.touchedDocPaths],
       requests: managed.session.requests().map((entry) => requestState(managed, entry)),
       proposals: managed.session.proposals().map((proposal) => proposalState(managed, proposal)),
       nextAcceptAlias: nextAcceptAlias(managed),
@@ -372,20 +414,24 @@ export function createDocsEditSessionService(
     managed: ManagedSession,
     entry: DocsEditRequestEntry,
     proposal: DocsEditProposal,
+    rejectPrevious = true,
   ): Promise<
     | { ok: true; proposal: DocsEditProposal }
     | { ok: false; status: number; detail: string; current_hash?: string; issues?: unknown }
   > {
-    const loaded = await loadDocBundle(options.docsRoot, managed.session.path);
+    const loaded = await loadDocBundle(options.docsRoot, proposal.docPath);
     if ("error" in loaded) return { ok: false as const, status: loaded.error.status, detail: loaded.error.detail };
     const staged = await stageBundleProposal(
       options.docsRoot,
-      managed.session.path,
+      proposal.docPath,
       {
         ops: proposal.ops,
         summary: proposal.summary,
         expectedHash: loaded.docHash,
-        annotationId: entry.sidecarBacked ? entry.annotationId : undefined,
+        annotationId:
+          entry.sidecarBacked && proposal.docPath === managed.normalizedPath
+            ? entry.annotationId
+            : undefined,
         alias: entry.alias,
         sessionId: managed.session.id,
       },
@@ -395,6 +441,7 @@ export function createDocsEditSessionService(
     const replacement: DocsEditProposal = {
       proposalId: staged.proposal.id,
       requestAlias: entry.alias,
+      docPath: proposal.docPath,
       baseHash: staged.proposal.baseHash,
       ops: [...staged.proposal.ops],
       changedBlockIds: [...staged.proposal.changedBlockIds],
@@ -408,10 +455,13 @@ export function createDocsEditSessionService(
     // A stale proposal is still staged and should no longer appear as a live
     // candidate. After undo the prior proposal is already accepted, so there
     // is nothing to reject; the new proposal is the single re-accept target.
-    if ((managed.review.get(entry.alias) ?? "pending") !== "undone") {
+    if (
+      rejectPrevious &&
+      (managed.review.get(entry.alias) ?? "pending") !== "undone"
+    ) {
       const rejected = await rejectBundleProposal(
         options.docsRoot,
-        managed.session.path,
+        proposal.docPath,
         proposal.proposalId,
         { sessionId: managed.session.id },
       );
@@ -432,7 +482,9 @@ export function createDocsEditSessionService(
 
     async createSession(input) {
       const normalized = normalizeBundlePath(input.path);
-      const busy = [...sessions.values()].find((candidate) => candidate.normalizedPath === normalized);
+      const busy = [...sessions.values()].find((candidate) =>
+        candidate.touchedDocPaths.has(normalized),
+      );
       if (busy) {
         return { ok: false, reason: "agent-busy", path: normalized, sessionId: busy.session.id };
       }
@@ -449,6 +501,7 @@ export function createDocsEditSessionService(
         session: launch.session,
         launch,
         normalizedPath: launch.session.path,
+        touchedDocPaths: new Set([launch.session.path]),
         createdAt: now(),
         currentHash: launch.session.baseHash,
         review: new Map(),
@@ -460,7 +513,12 @@ export function createDocsEditSessionService(
         pendingRerunAliases: new Set(),
         disposed: false,
       };
-      managed.unsubscribeSession = launch.session.subscribe((event) => emit(managed, event));
+      managed.unsubscribeSession = launch.session.subscribe((event) => {
+        if (event.type === "proposal-staged") {
+          managed.touchedDocPaths.add(event.proposal.docPath);
+        }
+        emit(managed, event);
+      });
       sessions.set(launch.session.id, managed);
       runAgentTurn(managed, launch, []);
       return { ok: true, state: snapshot(managed) };
@@ -521,7 +579,7 @@ export function createDocsEditSessionService(
 
       let accepted = await acceptBundleProposal(
         options.docsRoot,
-        managed.session.path,
+        proposal.docPath,
         proposal.proposalId,
         { sessionId: managed.session.id },
       );
@@ -531,19 +589,207 @@ export function createDocsEditSessionService(
         proposal = refreshed.proposal;
         accepted = await acceptBundleProposal(
           options.docsRoot,
-          managed.session.path,
+          proposal.docPath,
           proposal.proposalId,
           { sessionId: managed.session.id },
         );
       }
       if (!accepted.ok) return { ok: false, failure: failureFromBackend("apply_failure", accepted) };
 
-      managed.currentHash = accepted.hash;
+      if (proposal.docPath === managed.normalizedPath) {
+        managed.currentHash = accepted.hash;
+      }
       managed.review.set(alias, "applied");
-      managed.applied.push({ alias, proposalId: proposal.proposalId, patchId: accepted.patchId });
+      managed.applied.push({
+        alias,
+        docPath: proposal.docPath,
+        proposalId: proposal.proposalId,
+        patchId: accepted.patchId,
+      });
       managed.session.markApplied(alias, accepted.patchId, proposal.proposalId, accepted.hash);
-      const annotation = await annotationOutcome(managed, entry, proposal.summary, entry.sidecarBacked);
+      const annotation = await annotationOutcome(
+        managed,
+        entry,
+        proposal.summary,
+        entry.sidecarBacked && proposal.docPath === managed.normalizedPath,
+      );
       return { ok: true, alias, proposalId: proposal.proposalId, patchId: accepted.patchId, hash: accepted.hash, annotation };
+    },
+
+    async acceptAll(sessionId) {
+      const managed = sessions.get(sessionId);
+      if (!managed) return null;
+      const batch = managed.session.proposals().filter((proposal) => {
+        const review = managed.review.get(proposal.requestAlias) ?? "pending";
+        return review === "pending" || review === "undone";
+      });
+      if (!allowWrites) {
+        return {
+          ok: false,
+          failure: {
+            alias: batch[0]?.requestAlias ?? "",
+            status: 403,
+            detail: "Docs writes are disabled — the kernel is not running in dev mode",
+          },
+          rolledBack: true,
+          results: [],
+        };
+      }
+
+      const appliedPrefix: Array<{
+        entry: DocsEditRequestEntry;
+        proposal: DocsEditProposal;
+        patchId: string;
+        hash: string;
+      }> = [];
+      const results: Array<
+        Extract<DocsEditAcceptAllProposalResult, { ok: true }>
+      > = [];
+      const rollback = async (
+        failed: Extract<DocsEditAcceptAllProposalResult, { ok: false }>,
+      ): Promise<DocsEditAcceptAllResult> => {
+        // Undo consumes each patch ledger entry. Re-stage each accepted
+        // proposal after restoring its document so the whole batch remains
+        // reviewable and the service's proposal order/reviews stay intact.
+        for (const applied of [...appliedPrefix].reverse()) {
+          const undone = await undo_patch(options.docsRoot, applied.patchId);
+          if (!undone.ok || undone.kind !== "doc") {
+            throw new Error(
+              `acceptAll rollback failed for ${applied.entry.alias}: ${
+                undone.ok ? "Patch was not a document patch" : undone.detail
+              }`,
+            );
+          }
+          const replacement = await restage(
+            managed,
+            applied.entry,
+            applied.proposal,
+            false,
+          );
+          if (!replacement.ok) {
+            throw new Error(
+              `acceptAll could not restore staged proposal ${applied.entry.alias}: ${replacement.detail}`,
+            );
+          }
+        }
+        for (const result of results) result.rolledBack = true;
+        return {
+          ok: false,
+          failure: { alias: failed.alias, status: failed.status, detail: failed.detail },
+          rolledBack: true,
+          results: [...results, failed],
+        };
+      };
+
+      for (const candidate of batch) {
+        const entry = managed.session.requests().find(
+          (request) => request.alias === candidate.requestAlias,
+        );
+        let proposal = candidate;
+        if (!entry) {
+          const failed = {
+            ok: false as const,
+            alias: proposal.requestAlias,
+            docPath: proposal.docPath,
+            proposalId: proposal.proposalId,
+            status: 404,
+            detail: `Request ${proposal.requestAlias} not found`,
+          };
+          return rollback(failed);
+        }
+
+        // An undone proposal has already been accepted in its sidecar. Refresh
+        // it before the atomic window so the batch itself never auto-restages.
+        if (managed.review.get(proposal.requestAlias) === "undone") {
+          const refreshed = await restage(managed, entry, proposal);
+          if (!refreshed.ok) {
+            const failed = {
+              ok: false as const,
+              alias: proposal.requestAlias,
+              docPath: proposal.docPath,
+              proposalId: proposal.proposalId,
+              status: refreshed.status,
+              detail: refreshed.detail,
+              ...(refreshed.current_hash !== undefined
+                ? { currentHash: refreshed.current_hash }
+                : {}),
+            };
+            return rollback(failed);
+          }
+          proposal = refreshed.proposal;
+        }
+
+        const accepted = await acceptBundleProposal(
+          options.docsRoot,
+          proposal.docPath,
+          proposal.proposalId,
+          { sessionId: managed.session.id },
+        );
+        if (!accepted.ok) {
+          const failed = {
+            ok: false as const,
+            alias: proposal.requestAlias,
+            docPath: proposal.docPath,
+            proposalId: proposal.proposalId,
+            status: accepted.status,
+            detail: accepted.detail,
+            ...(accepted.current_hash !== undefined
+              ? { currentHash: accepted.current_hash }
+              : {}),
+          };
+          return rollback(failed);
+        }
+
+        appliedPrefix.push({
+          entry,
+          proposal,
+          patchId: accepted.patchId,
+          hash: accepted.hash,
+        });
+        results.push({
+          ok: true,
+          alias: proposal.requestAlias,
+          docPath: proposal.docPath,
+          proposalId: proposal.proposalId,
+          patchId: accepted.patchId,
+          hash: accepted.hash,
+        });
+      }
+
+      // Only publish applied review state/events and resolve annotations after
+      // every per-document accept has succeeded.
+      for (const applied of appliedPrefix) {
+        if (applied.proposal.docPath === managed.normalizedPath) {
+          managed.currentHash = applied.hash;
+        }
+        managed.review.set(applied.entry.alias, "applied");
+        managed.applied.push({
+          alias: applied.entry.alias,
+          docPath: applied.proposal.docPath,
+          proposalId: applied.proposal.proposalId,
+          patchId: applied.patchId,
+        });
+        managed.session.markApplied(
+          applied.entry.alias,
+          applied.patchId,
+          applied.proposal.proposalId,
+          applied.hash,
+        );
+        const annotation = await annotationOutcome(
+          managed,
+          applied.entry,
+          applied.proposal.summary,
+          applied.entry.sidecarBacked &&
+            applied.proposal.docPath === managed.normalizedPath,
+        );
+        const result = results.find(
+          (candidate) =>
+            candidate.ok &&
+            candidate.proposalId === applied.proposal.proposalId,
+        );
+        if (result) result.annotation = annotation;
+      }
+      return { ok: true, results };
     },
 
     async rejectProposal(sessionId, requestedAlias, note) {
@@ -558,7 +804,7 @@ export function createDocsEditSessionService(
       if (!proposal) return { ok: false, failure: { kind: "no_staged_proposal", alias } };
       const rejected = await rejectBundleProposal(
         options.docsRoot,
-        managed.session.path,
+        proposal.docPath,
         proposal.proposalId,
         { sessionId: managed.session.id },
       );
@@ -590,7 +836,9 @@ export function createDocsEditSessionService(
         return { ok: false, failure: { kind: "undo_failed", status: 400, detail: "Patch was not a document patch" } };
       }
       managed.applied.pop();
-      managed.currentHash = undone.hash;
+      if (latest.docPath === managed.normalizedPath) {
+        managed.currentHash = undone.hash;
+      }
       managed.review.set(alias, "undone");
       managed.session.markUndone(alias, undone.hash);
       return { ok: true, alias, proposalId: latest.proposalId, patchId: latest.patchId, hash: undone.hash };

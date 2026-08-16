@@ -1,10 +1,10 @@
 /**
  * Shared docs-edit-session vocabulary.
  *
- * A session works one doc bundle at a time. Annotation ids remain the durable
- * identity; R1, R2, ... aliases are session-local and follow sidecar order.
- * Edits are staged as docs-server DocProposals and are only written by the
- * service's explicit review path.
+ * A session originates from one doc bundle and may stage proposals across the
+ * docs corpus. Annotation ids remain the durable identity; R1, R2, ... aliases
+ * are session-local and follow sidecar order. Edits are staged as docs-server
+ * DocProposals and are only written by the service's explicit review path.
  */
 import type { DocOp } from "@codecaine-ai/docs-model/doc-ops";
 
@@ -117,6 +117,8 @@ export interface DocsEditRequestEntry {
 export interface DocsEditProposal {
   proposalId: string;
   requestAlias: string;
+  /** Normalized docs-root-relative path of the proposal's document bundle. */
+  docPath: string;
   baseHash: string;
   ops: DocOp[];
   changedBlockIds: string[];

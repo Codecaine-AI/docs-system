@@ -99,6 +99,8 @@ export type {
   CreateDocsEditSessionResult,
   CreateDocsEditSessionServiceOptions,
   DocsEditAnnotationOutcome,
+  DocsEditAcceptAllProposalResult,
+  DocsEditAcceptAllResult,
   DocsEditReviewStatus,
   DocsEditSessionAgentState,
   DocsEditSessionProposalState,

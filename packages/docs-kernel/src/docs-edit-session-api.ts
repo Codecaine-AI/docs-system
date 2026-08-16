@@ -1,6 +1,6 @@
 /**
- * Docs-edit session routes. The service owns one live session per normalized
- * doc path; this module only validates the wire shape, maps typed failures to
+ * Docs-edit session routes. The service prevents live sessions from touching
+ * overlapping normalized doc paths; this module validates the wire shape, maps typed failures to
  * HTTP responses, and forwards the service event stream as SSE.
  *
  *   POST   <prefix>/docs-edit-sessions
@@ -8,6 +8,7 @@
  *   GET    <prefix>/docs-edit-sessions/:id
  *   GET    <prefix>/docs-edit-sessions/:id/events
  *   POST   <prefix>/docs-edit-sessions/:id/requests
+ *   POST   <prefix>/docs-edit-sessions/:id/accept-all
  *   POST   <prefix>/docs-edit-sessions/:id/requests/:alias/accept
  *   POST   <prefix>/docs-edit-sessions/:id/requests/:alias/reject
  *   POST   <prefix>/docs-edit-sessions/:id/requests/:alias/undo
@@ -28,6 +29,7 @@ import { Elysia } from "elysia";
 
 import type {
 	AcceptDocsEditProposalResult,
+	DocsEditAcceptAllResult,
 	DocsEditSessionService,
 	RejectDocsEditProposalResult,
 	UndoAcceptedDocsProposalResult,
@@ -65,6 +67,20 @@ type ReviewResult =
 	| AcceptDocsEditProposalResult
 	| RejectDocsEditProposalResult
 	| UndoAcceptedDocsProposalResult;
+
+/** Accept-all failures are atomic review conflicts and retain their batch result. */
+function answerAcceptAll(
+	result: DocsEditAcceptAllResult | null,
+	sessionId: string,
+	set: { status?: number | string },
+): unknown {
+	if (result === null) {
+		set.status = 404;
+		return { error: `Docs-edit session ${sessionId} not found` };
+	}
+	if (!result.ok) set.status = 409;
+	return result;
+}
 
 /** Shared failure mapping for accept/reject/undo. */
 function answerReview(
@@ -198,7 +214,7 @@ export function createDocsEditSessionApi(
 					if (result.reason === "agent-busy") {
 						set.status = 409;
 						return {
-							error: `Doc path ${input.path as string} already has an open docs-edit session (${result.sessionId})`,
+								error: `Doc path ${result.path} already has an open docs-edit session (${result.sessionId})`,
 							failure: result,
 						};
 					}
@@ -317,6 +333,23 @@ export function createDocsEditSessionApi(
 				return { error: "Failed to add docs-edit session request" };
 			}
 		})
+		.post(
+			`${prefix}/docs-edit-sessions/:id/accept-all`,
+			async ({ params, set }) => {
+				if (!allowWrites) return readOnly(set);
+				try {
+					return answerAcceptAll(
+						await sessions.acceptAll(params.id),
+						params.id,
+						set,
+					);
+				} catch (error) {
+					console.error("Error accepting all docs-edit proposals:", error);
+					set.status = 500;
+					return { error: "Failed to accept all docs-edit proposals" };
+				}
+			},
+		)
 		.post(
 			`${prefix}/docs-edit-sessions/:id/requests/:alias/accept`,
 			async ({ params, set }) => {

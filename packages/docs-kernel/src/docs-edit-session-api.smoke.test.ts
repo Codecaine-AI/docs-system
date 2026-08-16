@@ -9,6 +9,7 @@ import type {
 	AcceptDocsEditProposalResult,
 	CreateDocsEditSessionInput,
 	CreateDocsEditSessionResult,
+	DocsEditAcceptAllResult,
 	DocsEditSessionService,
 	DocsEditSessionState,
 	DocsEditSessionStreamListener,
@@ -30,6 +31,7 @@ function stateFixture(): DocsEditSessionState {
 	return {
 		sessionId: SESSION_ID,
 		path: "00-foundation/overview",
+		touchedDocPaths: ["00-foundation/overview"],
 		docId: "doc-root",
 		baseHash: "hash-0",
 		currentHash: "hash-0",
@@ -70,6 +72,7 @@ interface FakeServiceControls {
 	createdInputs: CreateDocsEditSessionInput[];
 	setCreateResult(result: CreateDocsEditSessionResult): void;
 	setAcceptResult(result: AcceptDocsEditProposalResult): void;
+	setAcceptAllResult(result: DocsEditAcceptAllResult | null): void;
 	setRejectResult(result: RejectDocsEditProposalResult): void;
 	setUndoResult(result: UndoAcceptedDocsProposalResult): void;
 }
@@ -83,6 +86,10 @@ function fakeService(): FakeServiceControls {
 	let acceptResult: AcceptDocsEditProposalResult = {
 		ok: false,
 		failure: { kind: "no_staged_proposal", alias: "R1" },
+	};
+	let acceptAllResult: DocsEditAcceptAllResult | null = {
+		ok: true,
+		results: [],
 	};
 	let rejectResult: RejectDocsEditProposalResult = {
 		ok: false,
@@ -144,6 +151,9 @@ function fakeService(): FakeServiceControls {
 		async acceptProposal() {
 			return acceptResult;
 		},
+		async acceptAll() {
+			return acceptAllResult;
+		},
 		async rejectProposal() {
 			return rejectResult;
 		},
@@ -180,6 +190,9 @@ function fakeService(): FakeServiceControls {
 		},
 		setAcceptResult(result) {
 			acceptResult = result;
+		},
+		setAcceptAllResult(result) {
+			acceptAllResult = result;
 		},
 		setRejectResult(result) {
 			rejectResult = result;
@@ -348,6 +361,58 @@ describe("docs-edit session HTTP smoke", () => {
 				detail: "document moved",
 				currentHash: "hash-live",
 			},
+		});
+	});
+
+	test("accept-all maps success, rollback conflict, unknown session, and write gate", async () => {
+		const fake = fakeService();
+		const app = createDocsEditSessionApi(fake.service);
+
+		const accepted = await post(
+			app,
+			`/kernel/docs-edit-sessions/${SESSION_ID}/accept-all`,
+		);
+		expect(accepted.status).toBe(200);
+		expect(await accepted.json()).toEqual({ ok: true, results: [] });
+
+		fake.setAcceptAllResult({
+			ok: false,
+			failure: { alias: "R2", status: 409, detail: "stale-proposal" },
+			rolledBack: true,
+			results: [],
+		});
+		const rolledBack = await post(
+			app,
+			`/kernel/docs-edit-sessions/${SESSION_ID}/accept-all`,
+		);
+		expect(rolledBack.status).toBe(409);
+		expect(await rolledBack.json()).toEqual({
+			ok: false,
+			failure: { alias: "R2", status: 409, detail: "stale-proposal" },
+			rolledBack: true,
+			results: [],
+		});
+
+		fake.setAcceptAllResult(null);
+		const missing = await post(
+			app,
+			`/kernel/docs-edit-sessions/no-such-session/accept-all`,
+		);
+		expect(missing.status).toBe(404);
+		expect(await missing.json()).toEqual({
+			error: "Docs-edit session no-such-session not found",
+		});
+
+		const readOnlyApp = createDocsEditSessionApi(fake.service, {
+			allowWrites: false,
+		});
+		const forbidden = await post(
+			readOnlyApp,
+			`/kernel/docs-edit-sessions/${SESSION_ID}/accept-all`,
+		);
+		expect(forbidden.status).toBe(403);
+		expect(await forbidden.json()).toEqual({
+			error: "Docs writes are disabled — the kernel is not running in dev mode",
 		});
 	});
 

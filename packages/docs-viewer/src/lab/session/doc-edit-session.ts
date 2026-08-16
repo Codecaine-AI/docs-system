@@ -22,15 +22,16 @@ export type DocEditRequestStatus =
 
 /** Where a filed request lives in a document. */
 export type DocEditTarget =
-	| { kind: "block"; blockId: string }
+	| { kind: "block"; blockId: string; docPath?: string }
 	| {
 			kind: "text-range";
 			blockId: string;
 			start: number;
 			end: number;
 			quote: string;
+			docPath?: string;
 		}
-	| { kind: "doc" };
+	| { kind: "doc"; docPath?: string };
 
 /** A request is either queued against a target or filed for the whole document. */
 export type DocRequestDisposition = "batch" | "global";
@@ -53,6 +54,8 @@ export interface DocRequestFiling {
 /** One R-alias request in the session queue. */
 export interface DocEditRequest {
 	id: string;
+	/** Normalized bundle path; absent means the open/session document. */
+	docPath?: string;
 	/** Queue alias — "R1", "R2", agent-authored notes "A1"… Unique per session. */
 	alias: string;
 	/** The driving annotation, when the request came from the annotate flow. */
@@ -73,6 +76,8 @@ export interface DocEditRequest {
  */
 export interface DocEditProposal {
 	transactionId: string;
+	/** Normalized bundle path; absent means the open/session document. */
+	docPath?: string;
 	alias: string;
 	summary: string;
 	ops: DocOp[];

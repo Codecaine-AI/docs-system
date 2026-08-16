@@ -1,5 +1,5 @@
 /**
- * docs-edit-session/session — one document bundle, one stable request queue.
+ * docs-edit-session/session — one origin document, one stable request queue.
  *
  * Unlike prompt-edit sessions, DocProposals do not form a synthetic working
  * document. Each proposal is dry-run validated and persisted by docs-server's
@@ -11,6 +11,7 @@ import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import type { DocOp } from "@codecaine-ai/docs-model/doc-ops";
 import {
 	addBundleAnnotationReply,
+	normalizeBundlePath,
 	resolveBundleAnnotation,
 	stageBundleProposal,
 } from "@codecaine-ai/docs-server";
@@ -66,6 +67,7 @@ export interface DocsEditSession {
 		requestAliasOrId: string,
 		ops: readonly DocOp[],
 		summary: string,
+		docPath?: string,
 	): Promise<DocsEditProposeResult>;
 	resolve(
 		aliasOrId: string,
@@ -194,6 +196,7 @@ export function createDocsEditSession(
 		requestAliasOrId: string,
 		ops: readonly DocOp[],
 		summary: string,
+		docPath?: string,
 	): Promise<DocsEditProposeResult> {
 		if (typeof summary !== "string" || summary.trim() === "") {
 			return {
@@ -234,14 +237,29 @@ export function createDocsEditSession(
 			};
 		}
 
+		const targetPath = docPath ?? path;
+		if (typeof targetPath !== "string" || targetPath.trim() === "") {
+			return {
+				ok: false,
+				failure: {
+					kind: "invalid_params",
+					message:
+						"propose_ops docPath must be a non-empty docs-root-relative bundle path.",
+				},
+			};
+		}
+		const normalizedTargetPath = normalizeBundlePath(targetPath.trim());
+		const normalizedOriginPath = normalizeBundlePath(path);
+
 		try {
 			const staged = await stageBundleProposal(
 				options.docsRoot,
-				path,
+				targetPath.trim(),
 				{
 					ops: [...ops],
 					summary: summary.trim(),
-					...(entry.sidecarBacked
+					...(entry.sidecarBacked &&
+						normalizedTargetPath === normalizedOriginPath
 						? { annotationId: entry.annotationId }
 						: {}),
 					alias: entry.alias,
@@ -270,6 +288,7 @@ export function createDocsEditSession(
 			const proposal: DocsEditProposal = {
 				proposalId: staged.proposal.id,
 				requestAlias: entry.alias,
+				docPath: normalizedTargetPath,
 				baseHash: staged.proposal.baseHash,
 				ops: [...staged.proposal.ops],
 				changedBlockIds: [...staged.proposal.changedBlockIds],

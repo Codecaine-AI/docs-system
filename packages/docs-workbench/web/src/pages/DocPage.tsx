@@ -1558,6 +1558,7 @@ export function DocPage({
                 tab={mode === "annotate" ? "ai" : "edit"}
                 onTabSelect={handleLabTabSelect}
                 doc={doc}
+                openDocPath={path}
                 outlineScrollerSelector="[data-docs-scroller]"
                 lab={lab}
                 onPanelWidthChange={setLabPanelWidth}

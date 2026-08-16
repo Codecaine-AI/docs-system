@@ -150,6 +150,33 @@ describe("labelForTarget", () => {
 			"Paragraph: 123456789012345678901234567890123456789012...",
 		);
 	});
+
+	it("prefixes only cross-document targets without changing legacy labels", () => {
+		const target = { kind: "block", blockId: "body-1" } as const;
+		const legacyLabel = labelForTarget(DOC, target);
+
+		expect(labelForTarget(DOC, target, "docs/10-architecture/10-overview/")).toBe(
+			legacyLabel,
+		);
+		expect(
+			labelForTarget(
+				DOC,
+				{ ...target, docPath: "10-architecture/20-north-star" },
+				"docs/10-architecture/10-overview/",
+			),
+		).toBe("north star → Paragraph: Overview body");
+		expect(
+			labelForTarget(
+				DOC,
+				{
+					kind: "block",
+					blockId: "other-doc-block",
+					docPath: "docs/20-guides/30-api-reference/",
+				},
+				"10-architecture/10-overview",
+			),
+		).toBe("api reference → block");
+	});
 });
 
 describe("DocLab", () => {

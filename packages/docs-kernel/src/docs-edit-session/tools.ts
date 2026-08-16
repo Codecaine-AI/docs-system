@@ -70,6 +70,7 @@ export interface DocsEditToolSession {
     alias: string,
     ops: DocOp[],
     summary: string,
+    docPath?: string,
   ): Promise<DocsEditProposeResult>;
   resolve(
     alias: string,
@@ -538,7 +539,12 @@ export async function toolDocsRead(
 
 export async function toolProposeOps(
   session: DocsEditToolSession,
-  params: { requestAlias?: unknown; ops?: unknown; summary?: unknown },
+  params: {
+    requestAlias?: unknown;
+    ops?: unknown;
+    summary?: unknown;
+    docPath?: unknown;
+  },
 ): Promise<DocsEditToolResult> {
   const alias =
     typeof params.requestAlias === "string" ? params.requestAlias.trim() : "";
@@ -550,6 +556,15 @@ export async function toolProposeOps(
   }
   if (typeof params.summary !== "string" || params.summary.trim() === "") {
     return toolFailure("propose_ops", "summary must be a non-empty string.");
+  }
+  if (
+    params.docPath !== undefined &&
+    (typeof params.docPath !== "string" || params.docPath.trim() === "")
+  ) {
+    return toolFailure(
+      "propose_ops",
+      "docPath must be a non-empty docs-root-relative bundle path when provided.",
+    );
   }
   const parsed = parseDocsEditOps(params.ops);
   if (!parsed.ok) {
@@ -566,7 +581,14 @@ export async function toolProposeOps(
   }
 
   try {
-    const result = await session.propose(alias, parsed.ops, params.summary);
+    const docPath =
+      typeof params.docPath === "string" ? params.docPath.trim() : undefined;
+    const result = await session.propose(
+      alias,
+      parsed.ops,
+      params.summary,
+      docPath,
+    );
     if (!result.ok) {
       return toolFailure("propose_ops", proposeFailureText(result), {
         failure: result.failure,
@@ -593,6 +615,7 @@ function proposalDetails(proposal: DocsEditProposal): Record<string, unknown> {
     ok: true,
     proposalId: proposal.proposalId,
     requestAlias: proposal.requestAlias,
+    docPath: proposal.docPath,
     baseHash: proposal.baseHash,
     changedBlockIds: proposal.changedBlockIds,
   };
@@ -779,8 +802,9 @@ export function registerDocsEditSessionTools(
     name: "propose_ops",
     label: "Propose document operations",
     description:
-      "Strictly validate and stage id-stable DocOps for one request. The proposal is held for human review and never applied by this tool.",
-    promptSnippet: "Stage validated DocOps for one request alias.",
+      "Strictly validate and stage id-stable DocOps for one request, optionally against another document via docPath for cross-doc staging. The proposal is held for human review and never applied by this tool.",
+    promptSnippet:
+      "Stage validated DocOps for one request alias, using docPath for cross-doc staging when needed.",
     parameters: objectSchema(
       {
         requestAlias: {
@@ -795,6 +819,11 @@ export function registerDocsEditSessionTools(
         summary: {
           type: "string",
           description: "One-line reviewer summary.",
+        },
+        docPath: {
+          type: "string",
+          description:
+            "Optional docs-root-relative document bundle path for cross-doc staging; defaults to the session document.",
         },
       },
       ["requestAlias", "ops", "summary"],

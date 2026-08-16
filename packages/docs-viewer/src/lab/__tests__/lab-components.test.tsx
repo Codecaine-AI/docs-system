@@ -56,6 +56,39 @@ describe("PanelQueue", () => {
 		expect(apply.disabled).toBe(false);
 		expect(apply.getAttribute("title")).toBe("Run the queued notes");
 	});
+
+	it("renders labels from mixed-document targets without inspecting them", () => {
+		const mixedSession: DocEditSession = {
+			requests: [
+				{
+					...session.requests[0]!,
+					id: "request-cross-doc",
+					alias: "R1",
+					target: { kind: "block", blockId: "block-1", docPath: "docs/10-architecture/20-north-star" },
+				},
+				{
+					...session.requests[0]!,
+					id: "request-same-doc",
+					alias: "R2",
+					target: { kind: "block", blockId: "block-2", docPath: "docs/10-architecture/10-overview" },
+				},
+			],
+			proposals: [],
+		};
+
+		render(
+			<PanelQueue
+				session={mixedSession}
+				queue={buildRequestQueue({ requests: mixedSession.requests, proposals: [], applying: false })}
+				applying={false}
+				onApply={() => {}}
+				labelForTarget={(target) => target.docPath?.endsWith("20-north-star") ? "north star → block" : "Overview"}
+			/>,
+		);
+
+		expect(document.querySelector('[data-docs-lab-card-target="R1"]')?.textContent).toBe("north star → block");
+		expect(document.querySelector('[data-docs-lab-card-target="R2"]')?.textContent).toBe("Overview");
+	});
 });
 
 describe("GlassPanel", () => {

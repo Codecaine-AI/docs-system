@@ -23,6 +23,8 @@ export interface DocLabProps {
 	tab: LabPanelTab;
 	onTabSelect: (tab: LabPanelTab) => void;
 	doc: DocDocument;
+	/** Normalized bundle path for the document currently open in the workbench. */
+	openDocPath?: string;
 	outlineScrollerSelector: string;
 	lab: DocLabSessionResult;
 	threads: ComponentProps<typeof ActionPane>;
@@ -40,6 +42,7 @@ export function DocLab({
 	tab,
 	onTabSelect,
 	doc,
+	openDocPath,
 	outlineScrollerSelector,
 	lab,
 	threads,
@@ -71,8 +74,8 @@ export function DocLab({
 		[conflictedAliases, lab.session.proposals, lab.session.requests],
 	);
 	const targetLabel = useCallback(
-		(target: DocEditTarget) => labelForTarget(doc, target),
-		[doc],
+		(target: DocEditTarget) => labelForTarget(doc, target, openDocPath),
+		[doc, openDocPath],
 	);
 	const applyQueue = useCallback(() => {
 		const annotationIds = queue.queue
