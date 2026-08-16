@@ -176,40 +176,77 @@ accept path (the protocol calls it, never reimplements it), agent-kernel core.
 - happy-dom: assert card semantics/attributes, not computed styles (standing
   gotcha).
 
-## 5. File tree (vertical slices)
+## 5. File tree (end state, all phases)
+
+`NEW` = created by this build; `mod` = existing file edited; unmarked = untouched.
 
 ```
 docs-system/
+├─ CHANGESETS-DESIGN.md                          mod  (updated to as-built in Phase 4)
+├─ docs/
+│  ├─ .changesets/                               NEW  runtime sidecar dir (committed, like annotations.json;
+│  │  └─ <changeset-id>.json                          excluded from tree walk + audit, like .index/)
+│  └─ 10-system-design/30-data-model/
+│     └─ <nn>-change-sets/doc.json               NEW  corpus page (Phase 4, goldens via one-off script)
+│
 ├─ packages/docs-server/src/
-│  ├─ changesets/                     ← NEW slice (owns everything change-set)
-│  │  ├─ changeset-ops.ts             record CRUD, accept protocol, rollback
-│  │  ├─ changesets-sidecar.ts        read/write docs/.changesets/*
-│  │  ├─ move-blocks.ts               compound generator + migrations
+│  ├─ changesets/                                NEW  ← the server slice; owns ALL change-set logic
+│  │  ├─ changesets-sidecar.ts                   NEW  atomic/mutexed CRUD over docs/.changesets/
+│  │  ├─ changeset-ops.ts                        NEW  create/list/get, accept protocol (ordered locks,
+│  │  │                                               prefix rollback, compound ledger), reject, undo
+│  │  ├─ tree-ops.ts                             NEW  create-doc/delete-doc/move-doc executors + inverses
+│  │  ├─ move-blocks.ts                          NEW  generator: id-preserving pairs, collision remap,
+│  │  │                                               annotation migration, link retargeting; merge/split
 │  │  └─ __tests__/
-│  ├─ proposal-ops.ts                 (unchanged API; called by the protocol)
-│  ├─ routes.ts                       +GET/POST /api/changesets, /:id/accept, /:id/reject
-│  └─ agent-tools.ts                  +changeset_list/_stage, move_blocks
+│  │     ├─ changeset-ops.test.ts                NEW  happy path / rollback / concurrency / treeOps
+│  │     ├─ move-blocks.test.ts                  NEW  id preservation / collision remap / migration
+│  │     └─ roundtrip.test.ts                    NEW  Phase-4 accept→undo battery
+│  ├─ proposal-ops.ts                                 (untouched — protocol calls it)
+│  ├─ patch-ledger.ts                            mod  +compound entry {patchIds[]} + batched undo
+│  ├─ bundle.ts                                  mod  +createDocBundle/deleteDocBundle helpers
+│  ├─ docs-tree.ts                               mod  exclude .changesets/ from the walk
+│  ├─ routes.ts                                  mod  +5 routes (/api/changesets, accept/reject/undo)
+│  ├─ agent-tools.ts                             mod  +changeset_list/_stage, move_blocks
+│  ├─ store.ts / index.ts                        mod  wiring + exports (./changesets subpath export)
+│  └─ __tests__/                                 mod  audit-exclusion coverage
+│
 ├─ packages/docs-kernel/src/
-│  └─ docs-edit-session/              docPath on propose_ops, propose_move_blocks,
-│                                     multi-doc locks, changeset events
+│  ├─ docs-edit-session/
+│  │  ├─ tools.ts                                mod  propose_ops(+docPath), +propose_move_blocks
+│  │  ├─ service.ts                              mod  touchedDocPaths busy-ness, cross-doc accept-all,
+│  │  │                                               auto-persist record, changeset events
+│  │  └─ __tests__/                              mod  overlap-409, rollback, propose_move_blocks e2e
+│  └─ docs-edit-session-api.ts                   mod  changeset passthrough routes + SSE events
+│
 ├─ packages/docs-viewer/src/lab/
-│  ├─ changeset/                      ← NEW slice (props-only UI)
-│  │  ├─ ChangeSetCard.tsx
-│  │  ├─ changeset-model.ts
-│  │  └─ __tests__/
-│  └─ session/doc-edit-session.ts     +DocChangeSet types
-├─ packages/docs-workbench/web/src/lab/
-│  ├─ doc-lab-controller.ts           +changeset state/overlay
-│  ├─ docs-kernel-client.ts           +changeset transport
-│  └─ DocLab.tsx                      mount ChangeSetCard in transcript slot
-└─ docs/.changesets/                  ← runtime sidecar dir (gitignored? no —
-                                        committed like annotations.json)
+│  ├─ changeset/                                 NEW  ← the UI slice; props-only, no fetches
+│  │  ├─ changeset-model.ts                      NEW  pure derivations: counts, staleness, progress
+│  │  ├─ ChangeSetCard.tsx                       NEW  PR card: rows, chips, Accept/Reject/Undo
+│  │  └─ __tests__/changeset.test.tsx            NEW
+│  ├─ session/doc-edit-session.ts                mod  +DocChangeSet types, +docPath on request/proposal
+│  ├─ annotate/PanelQueue.tsx                         (untouched — card mounts via existing children slot)
+│  └─ index.ts                                   mod  re-export the changeset slice
+│
+├─ packages/docs-workbench/web/src/
+│  ├─ lab/
+│  │  ├─ doc-lab-changesets.ts                   NEW  fetch/overlay helpers (keeps the controller lean)
+│  │  ├─ doc-lab-controller.ts                   mod  changeset state + SSE overlay
+│  │  ├─ docs-kernel-client.ts                   mod  +changeset transport
+│  │  ├─ docs-kernel-session-source.ts           mod  +changeset-updated reduction
+│  │  ├─ target-label.ts                         mod  doc prefix for cross-doc targets
+│  │  ├─ DocLab.tsx                              mod  mount ChangeSetCard in the transcript slot
+│  │  └─ __tests__/                              mod
+│  ├─ data/api.ts                                mod  +changeset client fns
+│  └─ pages/DocPage.tsx                          mod  row-click cross-doc navigation, AI mode preserved
+│
+└─ packages/docs-model/                               (untouched — the design's explicit goal)
 ```
 
-Slice rule (matches the lab convention): `changesets/` in docs-server and
-`changeset/` in docs-viewer own their domain completely — no change-set logic
-leaks into `proposal-ops.ts`, `PanelQueue.tsx`, or DocPage beyond mounting and
-navigation.
+Slice rule (matches the lab convention): the four NEW clusters are
+self-contained verticals; every `mod` outside them is a mount point, a wire,
+or an additive type. Removing the feature = delete the clusters, revert ~14
+small edits. No change-set logic in `proposal-ops.ts`, `PanelQueue.tsx`, or
+DocPage beyond mounting and navigation.
 
 ## 6. Build phases — changes and testing strategy
 
