@@ -211,28 +211,153 @@ Slice rule (matches the lab convention): `changesets/` in docs-server and
 leaks into `proposal-ops.ts`, `PanelQueue.tsx`, or DocPage beyond mounting and
 navigation.
 
-## 6. Build phases
+## 6. Build phases — changes and testing strategy
 
-**Phase 1 — Cross-doc staging.** `propose_ops(docPath?)`, multi-doc session
-locks, doc-prefixed queue labels, "Apply all" = ordered accepts with prefix
-rollback (protocol without the record). *Accept:* session on doc A stages into
-doc B; B shows regions; mid-sequence 409 rolls back cleanly.
+Cross-phase testing doctrine (applies to every phase):
 
-**Phase 2 — The record + PR card.** Sidecar, 4 routes, compound ledger entry,
-ChangeSetCard with jump navigation, changeset accept/reject/undo end-to-end,
-treeOps (move/create/delete doc). *Accept:* full card lifecycle live,
-audit/tree-walk ignores `.changesets/`.
+- **Pure logic** tests colocated in each slice's `__tests__/` (the lab
+  convention) — no server, no DOM.
+- **Server integration** tests run against a tmp docs root (the existing
+  docs-server test pattern) — real files, real sidecars, real hashes.
+- **UI** tests in happy-dom assert semantics and data attributes, never
+  computed styles (standing gotcha: happy-dom drops `var()`/`calc()`).
+- **Phase acceptance** is a LIVE check in the preview browser or via curl
+  against a booted stack — a phase is not done on unit tests alone.
+- **Regression gate** closes every phase: full docs-system suite at or above
+  the running baseline (at time of writing: workbench+viewer 796/4/0,
+  model+server 638/0, docs-server+kernel 164+20, agent-kernel kernel 411),
+  `tsc --noEmit` clean. Update the pinned numbers here as phases land.
 
-**Phase 3 — move_blocks + compositions.** Generator with annotation
-migration + link retargeting, `propose_move_blocks` session tool, docs-writer
-prompt addendum, `merge_docs`/`split_doc`. *Accept:* live e2e — annotate
-"move this section to X" → PR card → accept → content in X **with its
-annotations intact** and inbound links retargeted; undo restores both docs.
+### Phase 1 — Cross-doc staging
 
-**Phase 4 — Hardening.** Collision-fallback remap test, staleness chips per
-entry, corpus docs page + goldens, suite sweep (baselines at time of writing:
-workbench+viewer 796/4/0, model+server 638/0, docs-server+kernel 164+20,
-kernel 411).
+**What changes**
+
+| Where | Change |
+|---|---|
+| docs-kernel `docs-edit-session/tools.ts` | `propose_ops` gains optional `docPath` (docs-root confinement validated; defaults to the session doc) |
+| docs-kernel `service.ts` | session tracks `touchedDocPaths: Set`; busy-ness = set overlap (launch 409s `agent-busy` on any intersection); accept-all iterates proposals in staging order ACROSS docs via in-process per-doc `acceptBundleProposal`, collecting patch ids; on failure, replay collected inverses newest-first (prefix rollback) |
+| docs-viewer `lab/session/doc-edit-session.ts` | additive `docPath?` on `DocEditProposal`/`DocEditRequest` |
+| docs-viewer target labels | doc prefix when a target's doc ≠ the open doc (`architecture/20-… → North Star`) |
+| docs-workbench controller | kernel-session SSE overlay carries cross-doc proposals; static (sessionless) projection stays per-doc — documented limitation until Phase 2 |
+| docs-server | nothing structural (`proposal_stage` is already per-docPath) |
+
+**Testing strategy**
+
+1. Kernel unit: `propose_ops` with `docPath` writes the OTHER doc's
+   `proposals.json`; path-escape (`../`) rejected; busy-ness overlap 409
+   (two sessions touching one shared doc), disjoint sessions coexist.
+2. Kernel integration (tmp docs root): stage into A and B, accept-all →
+   both docs mutated in order; then the rollback test — stage A+B, mutate
+   B's hash between stage and accept, accept-all → **A's bytes and hash
+   restored exactly**, session reports the failed entry, both proposals
+   still `staged`/stale.
+3. Contract: all existing single-doc session tests pass unmodified (the
+   `docPath` field is additive).
+4. UI unit: queue with mixed-doc entries renders doc-prefixed labels;
+   same-doc entries unprefixed.
+5. Acceptance (live): boot kernel + UI; session opened on doc A stages a
+   proposal into doc B via curl; browser visit to doc B shows its staged
+   region with zero UI changes beyond labels.
+
+### Phase 2 — Change-set record + PR card
+
+**What changes**
+
+| Where | Change |
+|---|---|
+| docs-server NEW `src/changesets/` | `changesets-sidecar.ts` (atomic, mutexed CRUD over `docs/.changesets/*.json`); `changeset-ops.ts` (create/list/get + the accept protocol: path locks ordered by path, ordered entry accepts, treeOps at recorded positions, prefix rollback, compound ledger entry on full success; reject; compound undo); per-entry staleness computed on read |
+| docs-server `bundle.ts` / tree | `create-doc` / `delete-doc` executors (reuse `moveDoc` for moves); rollback inverses for each treeOp kind |
+| docs-server `patch-ledger.ts` | compound entry `{patchIds[]}` + batched undo |
+| docs-server `routes.ts` | `GET /api/changesets`, `POST /api/changesets`, `POST /:id/accept`, `POST /:id/reject`, `POST /:id/undo` (existing error conventions: 409 hash / 423 lock / 404) |
+| docs-server `agent-tools.ts` | `changeset_list`, `changeset_stage` |
+| docs-tree + docs-cli audit | exclude `docs/.changesets/` from the bundle walk and audit (mirror `.index/`) |
+| docs-kernel | cross-doc sessions auto-persist a record on first cross-doc proposal; `changeset-updated` SSE events; API passthrough |
+| docs-viewer NEW `lab/changeset/` | `changeset-model.ts` (pure: per-doc add/del counts from proposals, staleness, progress) + `ChangeSetCard.tsx` (rows, chips, Accept/Reject/Undo, progress state) |
+| docs-workbench | `data/api.ts` changeset fns; controller changeset state + SSE overlay; `DocLab` mounts the card in the transcript slot; DocPage row-click → navigate to that doc **preserving AI mode** |
+
+**Testing strategy**
+
+1. Server unit (tmp root): sidecar round-trip; accept happy path — N docs
+   mutated, ONE compound ledger entry, originating annotation gets
+   `agentRun` + resolved; reject leaves every doc byte-identical;
+   mid-sequence failure → full prefix rollback, record stays `open`,
+   per-entry statuses reported; compound undo restores all docs.
+2. TreeOps: create/move/delete each covered, including rollback of a
+   move-doc that had already applied when a later entry failed.
+3. Concurrency: two overlapping change-sets accepted concurrently — ordered
+   path locking means no deadlock, loser gets a clean 409/stale result
+   (deterministic assertion, not a timing flake).
+4. Corpus hygiene: with a populated `.changesets/`, `docs-cli audit` and
+   `links check` report zero issues and the tree route omits it.
+5. UI unit: card derivations (counts, staleness, progress after a partial
+   per-doc accept); callback wiring; happy-dom semantic assertions only.
+6. Controller integration: mocked client + SSE event stream → card state
+   transitions (open → accepting → applied / failed-with-rollback).
+7. Acceptance (live): seed a two-doc change-set, card renders in the AI
+   transcript with correct counts; row click jumps docs without leaving AI
+   mode; Accept mutates both docs (verify content via API); Undo restores
+   both; harness follow-up — `bun run docs:check` + repo-policy tests in
+   gamecube-decomp-harness still green against live packages.
+
+### Phase 3 — `move_blocks` + merge/split (the annotate-and-move flow)
+
+**What changes**
+
+| Where | Change |
+|---|---|
+| docs-server `changesets/move-blocks.ts` | generator: dest `insertBlock` ops with the SAME block ids (collision check → fresh-id fallback + remap table), source `deleteBlock` ops, annotation-migration step (sidecar entries move source→dest inside the accept transaction, remap applied), link-retarget entries built from docs-index inbound links — all wrapped as one change-set |
+| docs-index | helper: enumerate inbound links to a set of block ids / a doc |
+| docs-server `agent-tools.ts` | `move_blocks` tool |
+| docs-kernel tools | `propose_move_blocks(sourceDocPath?, blockIds, destDocPath, destPosition)` |
+| compositions | `merge_docs(a,b)` = move all root children + `delete-doc` + retarget; `split_doc` = `create-doc` + `move_blocks` |
+| docs-writer catalog | prompt addendum ("move/merge/split use propose_move_blocks; never hand-copy across docs") — regenerate via `render-prompts`, update pinned gate-test prose in the same change |
+
+**Testing strategy**
+
+1. Generator unit: output shape (paired proposals, id preservation);
+   forced-collision case → fresh ids AND the remap table flows through to
+   annotation migration (this is the risk-register item — test it first).
+2. Integration (tmp root, the core guarantee): move blocks A→B, accept →
+   B contains the blocks **with the same ids**; annotations that targeted
+   them now live in B's sidecar and pass dangling detection; A's sidecar no
+   longer has them; docs-index rescan shows zero broken inbound links;
+   compound undo restores docs, sidecars, AND links to the pre-move state.
+3. Text-range targets: a range annotation on a moved block survives with
+   offsets intact (offsets are block-relative, so this should be free —
+   pin it with a test anyway).
+4. Merge/split: corpus-fixture tests — merge then `links check` = 0 errors
+   and A is gone; split produces a bundle that passes `docs-cli audit`.
+5. Kernel: `propose_move_blocks` end-to-end with a scripted spawn stub —
+   request in, change-set staged, session events carry it.
+6. Prompt gates: `render-prompts --check` green; TUI dry-boot if the
+   catalog manifest changed.
+7. Acceptance (live, THE demo): in the browser — annotate a section on one
+   doc with "move this to <other doc>", agent session produces the PR card,
+   Accept, then visually verify: content present in the destination with
+   its annotation intact and openable, gone from the source, inbound link
+   followed to the new home. Then Undo and verify full restoration.
+
+### Phase 4 — Hardening
+
+**What changes**: retention decision implemented for applied/declined
+records; per-entry staleness chip polish; failure-message wording pass;
+corpus docs — a change-set page under `10-system-design/30-data-model/` and a
+mutation-model addendum, goldens regenerated via the documented one-off
+script (never hand-edited); this design record updated to as-built.
+
+**Testing strategy**
+
+1. Round-trip battery: a seeded table of multi-doc op batches (including
+   treeOps and moves) each run through accept→undo asserting byte-identical
+   docs, sidecars, and index state — the closest thing to a fuzz pass
+   without nondeterminism in CI.
+2. Corpus-wide `docs-cli audit` + `links check` = 0/0 with change-set
+   history present.
+3. Full cross-repo sweep: every docs-system package, agent-kernel kernel
+   suite, harness `docs:check` + repo-policy + `ui:check`.
+4. Manual preview audit against the light theme (the standing bar): card in
+   both themes, no layout shifts entering AI mode, scrollbar and composer
+   behavior untouched from the shipped baseline.
 
 ## 7. Open decisions (decide in the build thread)
 
