@@ -5,6 +5,7 @@ import { ChangeSetCard } from "../ChangeSetCard";
 import {
 	acceptDisabledReason,
 	changesetDocRows,
+	changesetEntryChip,
 	changesetProgressLabel,
 	changesetTreeOpRows,
 	rejectDisabledReason,
@@ -97,12 +98,20 @@ describe("change-set model", () => {
 
 		expect(acceptDisabledReason(fixture())).toBeNull();
 		expect(rejectDisabledReason(fixture())).toBeNull();
-		expect(acceptDisabledReason(stale)).toBe("stale entries — refresh");
+		expect(acceptDisabledReason(stale)).toBe("One document changed since staging — refresh to restage.");
 		expect(rejectDisabledReason(stale)).toBeNull();
-		expect(acceptDisabledReason(resolved)).not.toBeNull();
-		expect(rejectDisabledReason(resolved)).not.toBeNull();
-		expect(acceptDisabledReason(fixture({ status: "declined" }))).not.toBeNull();
-		expect(rejectDisabledReason(fixture({ status: "applied" }))).not.toBeNull();
+		expect(acceptDisabledReason(resolved)).toBe("There are no staged documents to accept.");
+		expect(rejectDisabledReason(resolved)).toBe("There are no staged documents to reject.");
+		expect(acceptDisabledReason(fixture({ status: "declined" }))).toBe("This change-set has already been resolved.");
+		expect(rejectDisabledReason(fixture({ status: "applied" }))).toBe("This change-set has already been resolved.");
+	});
+
+	it("defines the label and plain-language title for every entry chip", () => {
+		expect(changesetEntryChip({ stale: true, status: "staged" })).toEqual({ state: "stale", label: "stale", title: "This document changed since staging and needs to be refreshed." });
+		expect(changesetEntryChip({ stale: false, status: "missing" })).toEqual({ state: "missing", label: "missing", title: "This staged document is no longer available." });
+		expect(changesetEntryChip({ stale: false, status: "rejected" })).toEqual({ state: "rejected", label: "rejected", title: "This document change was rejected." });
+		expect(changesetEntryChip({ stale: false, status: "accepted" })).toEqual({ state: "accepted", label: "done", title: "This document change was applied." });
+		expect(changesetEntryChip({ stale: false, status: "staged" })).toBeNull();
 	});
 
 	it("offers undo only for an applied change-set with a compound patch", () => {
@@ -129,7 +138,23 @@ describe("ChangeSetCard", () => {
 		expect(openRow?.textContent).toContain("+4");
 		expect(openRow?.textContent).toContain("−1");
 		expect(document.querySelector('[data-docs-lab-changeset-stale]')).toBeTruthy();
+		expect(document.querySelector('[data-docs-lab-changeset-entry-state="stale"]')?.className).toContain("--annotation-thread-accent");
+		expect(document.querySelector('[data-docs-lab-changeset-entry-state="accepted"]')?.className).toContain("--annotation-accept");
 		expect(document.querySelectorAll('[data-docs-lab-changeset-treeop]')).toHaveLength(2);
+	});
+
+	it("renders missing and rejected entry states with muted chips", () => {
+		render(<ChangeSetCard changeset={fixture({ entries: [
+			{ ...fixture().entries[0]!, status: "missing" },
+			{ ...fixture().entries[1]!, status: "rejected" },
+		] })} />);
+
+		const chips = Array.from(document.querySelectorAll("[data-docs-lab-changeset-entry-state]"));
+		expect(chips.map((chip) => chip.getAttribute("data-docs-lab-changeset-entry-state"))).toEqual(["missing", "rejected"]);
+		for (const chip of chips) {
+			expect(chip.className).toContain("--docs-muted-foreground");
+			expect(chip.getAttribute("title")?.endsWith(".")).toBe(true);
+		}
 	});
 
 	it("sends the selected document path to the host", () => {

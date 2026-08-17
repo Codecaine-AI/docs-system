@@ -42,6 +42,12 @@ export type ChangeSetDocRow = Pick<
 
 export type ChangeSetTreeOpRow = { key: string; label: string };
 
+export type ChangeSetEntryChip = {
+	state: "stale" | "missing" | "rejected" | "accepted";
+	label: string;
+	title: string;
+};
+
 /** The compact document naming rule shared by change-set rows and tree ops. */
 function displayNameForPath(docPath: string): string {
 	const normalized = docPath
@@ -95,22 +101,60 @@ export function changesetProgressLabel(view: DocChangeSetView): string | null {
 	return `${view.progress.accepted} of ${view.progress.total} applied`;
 }
 
+/** The single visible state chip for an entry, ordered by actionability. */
+export function changesetEntryChip(
+	entry: Pick<DocChangeSetEntryView, "stale" | "status">,
+): ChangeSetEntryChip | null {
+	if (entry.stale) {
+		return {
+			state: "stale",
+			label: "stale",
+			title: "This document changed since staging and needs to be refreshed.",
+		};
+	}
+	if (entry.status === "missing") {
+		return {
+			state: "missing",
+			label: "missing",
+			title: "This staged document is no longer available.",
+		};
+	}
+	if (entry.status === "rejected") {
+		return {
+			state: "rejected",
+			label: "rejected",
+			title: "This document change was rejected.",
+		};
+	}
+	if (entry.status === "accepted") {
+		return {
+			state: "accepted",
+			label: "done",
+			title: "This document change was applied.",
+		};
+	}
+	return null;
+}
+
 export function acceptDisabledReason(view: DocChangeSetView): string | null {
-	if (view.status !== "open") return "change-set is not open";
+	if (view.status !== "open") return "This change-set has already been resolved.";
 	if (view.entries.every((entry) => entry.status !== "staged")) {
-		return "no staged entries";
+		return "There are no staged documents to accept.";
 	}
 	if (view.entries.some((entry) => entry.stale)) {
-		return "stale entries — refresh";
+		const count = view.entries.filter((entry) => entry.stale).length;
+		return count === 1
+			? "One document changed since staging — refresh to restage."
+			: `${count} documents changed since staging — refresh to restage.`;
 	}
 	return null;
 }
 
 export function rejectDisabledReason(view: DocChangeSetView): string | null {
-	if (view.status !== "open") return "change-set is not open";
+	if (view.status !== "open") return "This change-set has already been resolved.";
 	return view.entries.some((entry) => entry.status === "staged")
 		? null
-		: "no staged entries";
+		: "There are no staged documents to reject.";
 }
 
 export function undoAvailable(view: DocChangeSetView): boolean {

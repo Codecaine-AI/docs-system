@@ -5,6 +5,7 @@
 import {
 	acceptDisabledReason,
 	changesetDocRows,
+	changesetEntryChip,
 	changesetProgressLabel,
 	changesetTreeOpRows,
 	rejectDisabledReason,
@@ -74,7 +75,14 @@ export function ChangeSetCard({
 			</header>
 
 			{docRows.length > 0 && <div className="flex flex-col gap-1" aria-label="Changed documents">
-				{docRows.map((row) => <button
+				{docRows.map((row) => {
+					const chip = changesetEntryChip(row);
+					const chipTone = chip?.state === "stale"
+						? "border-[color:var(--annotation-thread-accent,#d29922)] text-[color:var(--annotation-thread-accent,#d29922)]"
+						: chip?.state === "accepted"
+							? "border-[color:var(--annotation-accept,#3fb950)] text-[color:var(--annotation-accept,#3fb950)]"
+							: "border-[color:var(--docs-muted-foreground,var(--muted-foreground,#a1a1aa))] text-[color:var(--docs-muted-foreground,var(--muted-foreground,#a1a1aa))]";
+					return <button
 					key={row.proposalId}
 					type="button"
 					data-docs-lab-changeset-row={row.docPath}
@@ -86,9 +94,9 @@ export function ChangeSetCard({
 					<span className="min-w-0 flex-1 truncate text-[color:var(--foreground,#e4e4e7)]">{row.displayName}</span>
 					<span className="shrink-0" style={{ color: "var(--annotation-accept,#3fb950)" }}>+{row.addCount}</span>
 					<span className="shrink-0" style={{ color: "var(--annotation-reject,#f85149)" }}>−{row.delCount}</span>
-					{row.stale && <span data-docs-lab-changeset-stale className="shrink-0 rounded-[var(--radius,0.375rem)] border px-1 text-[10px]" style={{ color: "var(--annotation-reject,#f85149)", borderColor: "color-mix(in srgb, var(--annotation-reject,#f85149) 45%, transparent)" }}>stale</span>}
-					{row.status === "accepted" && <span className="shrink-0 rounded-[var(--radius,0.375rem)] border px-1 text-[10px]" style={{ color: "var(--annotation-accept,#3fb950)", borderColor: "color-mix(in srgb, var(--annotation-accept,#3fb950) 45%, transparent)" }}>done</span>}
-				</button>)}
+					{chip && <span data-docs-lab-changeset-entry-state={chip.state} data-docs-lab-changeset-stale={chip.state === "stale" ? "" : undefined} title={chip.title} className={`shrink-0 rounded-[var(--radius,0.375rem)] border px-1 text-[10px] ${chipTone}`}>{chip.label}</span>}
+				</button>;
+				})}
 			</div>}
 
 			{treeOpRows.length > 0 && <div className="flex flex-col gap-0.5 border-t pt-1.5 text-[11px] text-[color:var(--docs-muted-foreground,var(--muted-foreground,#a1a1aa))]" style={{ borderColor: "var(--docs-panel-border,var(--border,#2b2b2b))" }}>

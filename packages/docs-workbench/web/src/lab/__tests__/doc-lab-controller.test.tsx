@@ -192,7 +192,9 @@ describe("useDocLabSession", () => {
 		changesets = [{ ...changesets[0]!, status: "open", compound_patch_id: undefined, resolved_at: undefined }];
 		await act(async () => { await result.current.refetchChangesets(); });
 		await act(async () => { await result.current.acceptChangeset("cs-1"); });
-		expect(result.current.changesetErrors["cs-1"]).toBe("rollback complete");
+		expect(result.current.changesetErrors["cs-1"]).toBe(
+			"This change-set is no longer open — refresh to see its current status.",
+		);
 		expect(result.current.changesets[0]?.status).toBe("open");
 	});
 

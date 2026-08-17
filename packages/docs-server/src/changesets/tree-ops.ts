@@ -5,6 +5,7 @@ import {
   readFile,
   readdir,
   rename,
+  rmdir,
   rm,
   writeFile,
 } from "node:fs/promises";
@@ -38,14 +39,26 @@ export type DeletedBundleFile = {
  * deleted bundle snapshots.
  */
 export type TreeOpInverse =
-  | { kind: "delete-doc"; docPath: string }
+  | {
+      kind: "restore-created-doc";
+      docPath: string;
+      directoryExisted: boolean;
+      directories: string[];
+      files: DeletedBundleFile[];
+      createdParentDirectories: string[];
+    }
   | {
       kind: "restore-doc";
       docPath: string;
       directories: string[];
       files: DeletedBundleFile[];
     }
-  | { kind: "move-doc"; from: string; to: string };
+  | {
+      kind: "move-doc";
+      from: string;
+      to: string;
+      createdParentDirectories: string[];
+    };
 
 type TreeOpError = {
   ok: false;
@@ -59,7 +72,7 @@ export type CreateDocBundleResult =
       ok: true;
       docPath: string;
       document: DocDocument;
-      inverse: Extract<TreeOpInverse, { kind: "delete-doc" }>;
+      inverse: Extract<TreeOpInverse, { kind: "restore-created-doc" }>;
     }
   | TreeOpError;
 
@@ -144,6 +157,56 @@ async function pathExists(absPath: string): Promise<boolean> {
   }
 }
 
+/** Records absent ancestors that a recursive mkdir may create below docsRoot. */
+async function missingParentDirectories(docsRoot: string, bundleAbs: string): Promise<string[]> {
+  const rootAbs = resolve(docsRoot);
+  const missing: string[] = [];
+  let current = dirname(bundleAbs);
+  while (current !== rootAbs) {
+    if (await pathExists(current)) break;
+    missing.push(relative(rootAbs, current).split(sep).join("/"));
+    current = dirname(current);
+  }
+  return missing;
+}
+
+async function removeCreatedParentDirectories(
+  docsRoot: string,
+  paths: string[],
+): Promise<ReplayTreeOpInverseResult> {
+  const rootAbs = resolve(docsRoot);
+  const deepestFirst = [...paths].sort(
+    (left, right) => right.split("/").length - left.split("/").length,
+  );
+  for (const path of deepestFirst) {
+    if (!isSafeSnapshotPath(path)) {
+      return { ok: false, status: 422, detail: "Tree inverse contains an invalid parent path." };
+    }
+    const directoryAbs = resolve(rootAbs, path);
+    if (!directoryAbs.startsWith(`${rootAbs}${sep}`)) {
+      return { ok: false, status: 422, detail: "Tree inverse contains an invalid parent path." };
+    }
+    try {
+      await rmdir(directoryAbs);
+    } catch (error) {
+      if (isNodeError(error) && error.code === "ENOENT") continue;
+      if (isNodeError(error) && error.code === "ENOTEMPTY") {
+        return {
+          ok: false,
+          status: 409,
+          detail: `Cannot restore the original tree: created parent is no longer empty (${path})`,
+        };
+      }
+      return {
+        ok: false,
+        status: 500,
+        detail: `Failed to remove created parent directory ${path}: ${errorDetail(error)}`,
+      };
+    }
+  }
+  return { ok: true };
+}
+
 function isNodeError(error: unknown): error is NodeJS.ErrnoException {
   return error instanceof Error && "code" in error;
 }
@@ -164,8 +227,12 @@ export async function createDocBundle(
   }
 
   try {
-    let createdDirectory = false;
-    if (await pathExists(target.bundleAbs)) {
+    const directoryExisted = await pathExists(target.bundleAbs);
+    const createdParentDirectories = directoryExisted
+      ? []
+      : await missingParentDirectories(docsRoot, target.bundleAbs);
+    let previous: BundleSnapshot = { directories: [], files: [] };
+    if (directoryExisted) {
       if (await pathExists(target.jsonAbs)) {
         return { ok: false, status: 409, detail: `A doc bundle already exists at ${docPath}` };
       }
@@ -173,11 +240,13 @@ export async function createDocBundle(
       if (pendingEntries.some((entry) => entry !== "proposals.json")) {
         return { ok: false, status: 409, detail: `A path already exists at ${docPath}` };
       }
+      const snapshot = await snapshotBundle(target.bundleAbs);
+      if ("ok" in snapshot) return snapshot;
+      previous = snapshot;
     } else {
       await mkdir(dirname(target.bundleAbs), { recursive: true });
       try {
         await mkdir(target.bundleAbs);
-        createdDirectory = true;
       } catch (error) {
         if (isNodeError(error) && error.code === "EEXIST") {
           return { ok: false, status: 409, detail: `A path already exists at ${docPath}` };
@@ -187,14 +256,25 @@ export async function createDocBundle(
     }
 
     const document = createEmptyDocDocument(target.docPath, title);
+    const inverse: Extract<TreeOpInverse, { kind: "restore-created-doc" }> = {
+      kind: "restore-created-doc",
+      docPath: target.docPath,
+      directoryExisted,
+      directories: previous.directories,
+      files: previous.files,
+      createdParentDirectories,
+    };
 
     try {
       await atomicWriteFile(target.jsonAbs, serializeDocDocument(document));
     } catch (error) {
-      // The target directory was created by this call and contains no user
-      // state if its sole atomic write failed.
-      if (createdDirectory) {
-        await rm(target.bundleAbs, { recursive: true, force: true }).catch(() => undefined);
+      const restored = await restoreCreatedDocBundle(docsRoot, inverse);
+      if (!restored.ok) {
+        return {
+          ok: false,
+          status: 500,
+          detail: `Failed to create doc bundle: ${errorDetail(error)}; ${restored.detail}`,
+        };
       }
       throw error;
     }
@@ -203,7 +283,7 @@ export async function createDocBundle(
       ok: true,
       docPath: target.docPath,
       document,
-      inverse: { kind: "delete-doc", docPath: target.docPath },
+      inverse,
     };
   } catch (error) {
     return { ok: false, status: 500, detail: `Failed to create doc bundle: ${errorDetail(error)}` };
@@ -322,6 +402,103 @@ function isSafeSnapshotPath(relativePath: string): boolean {
     .every((segment) => segment.length > 0 && segment !== "." && segment !== "..");
 }
 
+function hasSafeSnapshotPaths(directories: string[], files: DeletedBundleFile[]): boolean {
+  return directories.every(isSafeSnapshotPath) &&
+    files.every((file) => isSafeSnapshotPath(file.relativePath));
+}
+
+/** Reconciles an existing directory to a byte-identical captured snapshot. */
+async function restoreBundleContents(
+  bundleAbs: string,
+  directories: string[],
+  files: DeletedBundleFile[],
+): Promise<TreeOpError | null> {
+  const current = await snapshotBundle(bundleAbs);
+  if ("ok" in current) return current;
+
+  const expectedDirectories = new Set(directories);
+  const expectedFiles = new Set(files.map((file) => file.relativePath));
+  try {
+    for (const file of current.files) {
+      if (!expectedFiles.has(file.relativePath)) {
+        await rm(join(bundleAbs, file.relativePath));
+      }
+    }
+    for (const directory of [...current.directories].sort(
+      (left, right) => right.split("/").length - left.split("/").length,
+    )) {
+      if (!expectedDirectories.has(directory)) {
+        await rm(join(bundleAbs, directory), { recursive: true });
+      }
+    }
+
+    for (const directory of [...directories].sort(
+      (left, right) => left.split("/").length - right.split("/").length,
+    )) {
+      const directoryAbs = join(bundleAbs, directory);
+      if (await pathExists(directoryAbs)) {
+        const stat = await lstat(directoryAbs);
+        if (!stat.isDirectory()) await rm(directoryAbs);
+      }
+      await mkdir(directoryAbs, { recursive: true });
+    }
+    for (const file of files) {
+      const fileAbs = join(bundleAbs, file.relativePath);
+      if (await pathExists(fileAbs)) {
+        const stat = await lstat(fileAbs);
+        if (!stat.isFile()) await rm(fileAbs, { recursive: true });
+      }
+      await mkdir(dirname(fileAbs), { recursive: true });
+      await writeFile(fileAbs, file.bytes);
+    }
+    return null;
+  } catch (error) {
+    return {
+      ok: false,
+      status: 500,
+      detail: `Failed to restore prior bundle contents: ${errorDetail(error)}`,
+    };
+  }
+}
+
+/** Restores the exact bundle-directory state captured immediately before create-doc. */
+async function restoreCreatedDocBundle(
+  docsRoot: string,
+  inverse: Extract<TreeOpInverse, { kind: "restore-created-doc" }>,
+): Promise<ReplayTreeOpInverseResult> {
+  const target = resolveBundlePath(docsRoot, inverse.docPath);
+  if (!target) {
+    return { ok: false, status: 400, detail: `Invalid docs path: ${inverse.docPath}` };
+  }
+  if (!hasSafeSnapshotPaths(inverse.directories, inverse.files)) {
+    return { ok: false, status: 422, detail: "Created bundle snapshot contains an invalid path." };
+  }
+
+  try {
+    if (!inverse.directoryExisted) {
+      await rm(target.bundleAbs, { recursive: true, force: true });
+    } else {
+      if (!(await pathExists(target.bundleAbs))) {
+        await mkdir(target.bundleAbs, { recursive: true });
+      }
+      const failure = await restoreBundleContents(
+        target.bundleAbs,
+        inverse.directories,
+        inverse.files,
+      );
+      if (failure) return failure;
+    }
+  } catch (error) {
+    return {
+      ok: false,
+      status: 500,
+      detail: `Failed to restore created doc bundle: ${errorDetail(error)}`,
+    };
+  }
+
+  return removeCreatedParentDirectories(docsRoot, inverse.createdParentDirectories);
+}
+
 /** Restore into a sibling temp directory, then rename the completed snapshot into place. */
 async function restoreDeletedDocBundle(
   docsRoot: string,
@@ -331,10 +508,7 @@ async function restoreDeletedDocBundle(
   if (!target) {
     return { ok: false, status: 400, detail: `Invalid docs path: ${inverse.docPath}` };
   }
-  if (
-    inverse.directories.some((path) => !isSafeSnapshotPath(path)) ||
-    inverse.files.some((file) => !isSafeSnapshotPath(file.relativePath))
-  ) {
+  if (!hasSafeSnapshotPaths(inverse.directories, inverse.files)) {
     return { ok: false, status: 422, detail: "Deleted bundle snapshot contains an invalid path." };
   }
 
@@ -413,11 +587,26 @@ export async function moveDocTreeBundle(
   from: string,
   to: string,
 ): Promise<MoveDocTreeBundleResult> {
+  const target = resolveBundlePath(docsRoot, to);
+  if (!target) {
+    return { ok: false, status: 400, detail: `Invalid docs path: ${to}` };
+  }
+  let createdParentDirectories: string[];
+  try {
+    createdParentDirectories = await missingParentDirectories(docsRoot, target.bundleAbs);
+  } catch (error) {
+    return { ok: false, status: 500, detail: `Failed to inspect move destination: ${errorDetail(error)}` };
+  }
   const moved = await executeMove(docsRoot, from, to);
   if (!moved.ok) return moved;
   return {
     ...moved,
-    inverse: { kind: "move-doc", from: moved.moved.toPath, to: moved.moved.fromPath },
+    inverse: {
+      kind: "move-doc",
+      from: moved.moved.toPath,
+      to: moved.moved.fromPath,
+      createdParentDirectories,
+    },
   };
 }
 
@@ -442,16 +631,15 @@ export async function replayTreeOpInverse(
   inverse: TreeOpInverse,
 ): Promise<ReplayTreeOpInverseResult> {
   switch (inverse.kind) {
-    case "delete-doc": {
-      const deleted = await deleteDocBundle(docsRoot, inverse.docPath);
-      return deleted.ok ? { ok: true } : deleted;
-    }
+    case "restore-created-doc":
+      return restoreCreatedDocBundle(docsRoot, inverse);
     case "restore-doc":
       return restoreDeletedDocBundle(docsRoot, inverse);
     case "move-doc": {
       const moved = await executeMove(docsRoot, inverse.from, inverse.to);
       if (!moved.ok) return moved;
-      return moved.failures.length > 0 ? { ok: true, failures: moved.failures } : { ok: true };
+      if (moved.failures.length > 0) return { ok: true, failures: moved.failures };
+      return removeCreatedParentDirectories(docsRoot, inverse.createdParentDirectories);
     }
   }
 }

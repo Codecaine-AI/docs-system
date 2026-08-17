@@ -29,6 +29,7 @@ import {
 } from "./doc-lab-projection";
 import type { DocsKernelSessionHandle } from "./docs-kernel-session-source";
 import { overlayChangesets, selectChangesetsForDoc } from "./doc-lab-changesets";
+import { changesetFailureMessage, type ChangesetAction } from "./doc-lab-changeset-messages";
 
 export interface UseDocLabSessionOptions {
 	path: string;
@@ -388,6 +389,7 @@ export function useDocLabSession(options: UseDocLabSessionOptions): DocLabSessio
 	const runChangesetAction = useCallback(async (
 		id: string,
 		busy: "accepting" | "rejecting" | "undoing",
+		actionName: ChangesetAction,
 		action: (id: string) => Promise<DocChangeSetView>,
 	) => {
 		setChangesetBusy((current) => ({ ...current, [id]: busy }));
@@ -404,7 +406,10 @@ export function useDocLabSession(options: UseDocLabSessionOptions): DocLabSessio
 				refreshBundleRef.current(),
 			]);
 		} catch (error) {
-			setChangesetErrors((current) => ({ ...current, [id]: errorMessage(error) }));
+			setChangesetErrors((current) => ({
+				...current,
+				[id]: changesetFailureMessage(error, actionName),
+			}));
 		} finally {
 			setChangesetBusy((current) => {
 				const next = { ...current };
@@ -414,15 +419,15 @@ export function useDocLabSession(options: UseDocLabSessionOptions): DocLabSessio
 		}
 	}, []);
 	const acceptChangeset = useCallback(
-		(id: string) => runChangesetAction(id, "accepting", acceptChangesetApi),
+		(id: string) => runChangesetAction(id, "accepting", "accept", acceptChangesetApi),
 		[runChangesetAction],
 	);
 	const rejectChangeset = useCallback(
-		(id: string) => runChangesetAction(id, "rejecting", rejectChangesetApi),
+		(id: string) => runChangesetAction(id, "rejecting", "reject", rejectChangesetApi),
 		[runChangesetAction],
 	);
 	const undoChangeset = useCallback(
-		(id: string) => runChangesetAction(id, "undoing", undoChangesetApi),
+		(id: string) => runChangesetAction(id, "undoing", "undo", undoChangesetApi),
 		[runChangesetAction],
 	);
 

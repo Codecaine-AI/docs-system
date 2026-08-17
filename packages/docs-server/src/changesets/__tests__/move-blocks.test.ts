@@ -1,4 +1,4 @@
-import { access, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { access, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -415,6 +415,7 @@ describe("move-blocks change-set generator", () => {
     expect(staged.changeset.treeOps).toEqual([
       { kind: "create-doc", docPath: "40-split", title: "Split Document", position: 0 },
     ]);
+    const proposalsBefore = await readFile(join(docsRoot, "40-split", "proposals.json"), "utf8");
 
     const accepted = await acceptChangeSet(docsRoot, staged.changeset.id);
     expect(accepted.ok).toBe(true);
@@ -433,7 +434,9 @@ describe("move-blocks change-set generator", () => {
 
     const undone = await undoChangeSet(docsRoot, staged.changeset.id);
     expect(undone.ok).toBe(true);
-    expect(await exists(join(docsRoot, "40-split"))).toBe(false);
+    expect(await readdir(join(docsRoot, "40-split"))).toEqual(["proposals.json"]);
+    expect(await readFile(join(docsRoot, "40-split", "proposals.json"), "utf8"))
+      .toBe(proposalsBefore);
     expect(await readFile(join(docsRoot, "10-a", "doc.json"), "utf8")).toBe(aBefore);
     expect(await readFile(join(docsRoot, "10-a", "annotations.json"), "utf8"))
       .toBe(annotationsBefore);

@@ -1,0 +1,484 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-30-data-model-60-change-sets",
+  "title": "Multi-Document Change Sets",
+  "root": "b-change-sets-root",
+  "blocks": {
+    "b-change-sets-root": {
+      "id": "b-change-sets-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-change-sets-intro",
+        "b-change-sets-structure",
+        "b-change-sets-record",
+        "b-change-sets-sidecar",
+        "b-change-sets-entry-state",
+        "b-change-sets-entry-state-lead",
+        "b-change-sets-entry-state-table",
+        "b-change-sets-accept",
+        "b-change-sets-accept-lead",
+        "b-change-sets-accept-lock",
+        "b-change-sets-accept-entries",
+        "b-change-sets-accept-failure",
+        "b-change-sets-accept-success",
+        "b-change-sets-accept-escape",
+        "b-change-sets-resolution",
+        "b-change-sets-reject",
+        "b-change-sets-undo",
+        "b-change-sets-retention",
+        "b-change-sets-primitives",
+        "b-change-sets-primitives-lead",
+        "b-change-sets-move-blocks",
+        "b-change-sets-merge",
+        "b-change-sets-split",
+        "b-change-sets-why",
+        "b-change-sets-why-content",
+        "b-change-sets-why-identity"
+      ]
+    },
+    "b-change-sets-intro": {
+      "id": "b-change-sets-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A change-set is the reviewable unit for one logical change spanning multiple documents. It groups ordinary per-document proposals with document-tree operations, then accepts, rejects, and undoes the group as one PR-like action. The model keeps the existing proposal mutation path intact, so each document retains its own staged diff and hash precondition."
+        }
+      ],
+      "children": []
+    },
+    "b-change-sets-structure": {
+      "id": "b-change-sets-structure",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Structure"
+        }
+      ],
+      "children": []
+    },
+    "b-change-sets-record": {
+      "id": "b-change-sets-record",
+      "type": "code",
+      "props": {
+        "language": "ts"
+      },
+      "text": [
+        {
+          "insert": "type DocChangeSet = {\n  id: string;\n  summary: string;\n  status: \"open\" | \"applied\" | \"declined\";\n  sessionId?: string;\n  annotationId?: string;\n  alias?: string;\n  entries: Array<{ docPath: string; proposalId: string }>;\n  treeOps: Array<\n    | { kind: \"create-doc\"; docPath: string; title: string }\n    | { kind: \"delete-doc\"; docPath: string }\n    | { kind: \"move-doc\"; from: string; to: string }\n  >;\n  createdAt: string;\n  resolvedAt?: string;\n};"
+        }
+      ],
+      "children": []
+    },
+    "b-change-sets-sidecar": {
+      "id": "b-change-sets-sidecar",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each record is one file at "
+        },
+        {
+          "insert": "docs/.changesets/<id>.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". The corpus-level sidecar sits outside every bundle because its entries span bundles; its absence means no change-sets, writes are atomic and path-mutex guarded, and the dot-directory is invisible to the document tree and corpus audit."
+        }
+      ],
+      "children": []
+    },
+    "b-change-sets-entry-state": {
+      "id": "b-change-sets-entry-state",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Entry State and Review"
+        }
+      ],
+      "children": []
+    },
+    "b-change-sets-entry-state-lead": {
+      "id": "b-change-sets-entry-state-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "An entry points at the staged proposal in one document, while the change-set supplies the cross-document order and review state. The card derives state from those proposals instead of creating a second mutation representation."
+        }
+      ],
+      "children": []
+    },
+    "b-change-sets-entry-state-table": {
+      "id": "b-change-sets-entry-state-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "derived state",
+          "source",
+          "review meaning"
+        ],
+        "density": "compact",
+        "rows": [
+          [
+            "staleness",
+            "the entry proposal's base hash and current document",
+            "A changed document makes its entry stale before acceptance."
+          ],
+          [
+            "progress",
+            "entries already accepted through the ordinary proposal route",
+            "The card shows partial completion without hiding the remaining entries."
+          ],
+          [
+            "adds and deletes",
+            "the staged ops for each proposal",
+            "Each row shows the document-local diff summary and navigates to that document's existing staged regions."
+          ]
+        ],
+        "title": "Change-set entry state"
+      },
+      "children": []
+    },
+    "b-change-sets-accept": {
+      "id": "b-change-sets-accept",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The Accept Protocol"
+        }
+      ],
+      "children": []
+    },
+    "b-change-sets-accept-lead": {
+      "id": "b-change-sets-accept-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Accept is one ordered action with rollback, not a second write authority. Every proposal still goes through the ordinary per-document accept path, which preserves its hash check, draft lock, ledger inverse, and change notification."
+        }
+      ],
+      "children": []
+    },
+    "b-change-sets-accept-lock": {
+      "id": "b-change-sets-accept-lock",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The coordinator acquires locks for every entry path and every tree-operation target in sorted path order, so overlapping change-sets cannot deadlock."
+        }
+      ],
+      "children": []
+    },
+    "b-change-sets-accept-entries": {
+      "id": "b-change-sets-accept-entries",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "It accepts entries in recorded order, applying tree operations at their recorded positions through the document-tree operations."
+        }
+      ],
+      "children": []
+    },
+    "b-change-sets-accept-failure": {
+      "id": "b-change-sets-accept-failure",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A failed entry replays the already applied prefix's ledger inverses in reverse order. The record remains open and reports the stale or failed entry, so no partial merge is represented as applied."
+        }
+      ],
+      "children": []
+    },
+    "b-change-sets-accept-success": {
+      "id": "b-change-sets-accept-success",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A complete accept marks the record applied, attaches the agent run, resolves its originating annotation, and records one compound ledger entry containing the member patch ids."
+        }
+      ],
+      "children": []
+    },
+    "b-change-sets-accept-escape": {
+      "id": "b-change-sets-accept-escape",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A reviewer may accept one entry through the ordinary proposal route. That resolves only that entry and updates change-set progress; the grouped Accept action remains the primary review path."
+        }
+      ],
+      "children": []
+    },
+    "b-change-sets-resolution": {
+      "id": "b-change-sets-resolution",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Reject, Undo, and Retention"
+        }
+      ],
+      "children": []
+    },
+    "b-change-sets-reject": {
+      "id": "b-change-sets-reject",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Reject drops every staged entry through the existing per-document reject behavior and marks the record declined. It never changes document content."
+        }
+      ],
+      "children": []
+    },
+    "b-change-sets-undo": {
+      "id": "b-change-sets-undo",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Undo consumes the successful compound ledger entry and replays the grouped work as one action, restoring the member patches through the same inverse mechanism used by "
+        },
+        {
+          "insert": "undo and redo",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/50-mutation-model/10-undo-redo"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-change-sets-retention": {
+      "id": "b-change-sets-retention",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Applied and declined records remain in "
+        },
+        {
+          "insert": "docs/.changesets/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " as review history. Resolution changes status and records "
+        },
+        {
+          "insert": "resolvedAt",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "; it does not prune the record."
+        }
+      ],
+      "children": []
+    },
+    "b-change-sets-primitives": {
+      "id": "b-change-sets-primitives",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Cross-Document Primitives"
+        }
+      ],
+      "children": []
+    },
+    "b-change-sets-primitives-lead": {
+      "id": "b-change-sets-primitives-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "move_blocks is the primitive that turns a cross-document structural change into a generic change-set. Merge and split compose it, so content identity and sidecars follow the same rules in every document-level workflow."
+        }
+      ],
+      "children": []
+    },
+    "b-change-sets-move-blocks": {
+      "id": "b-change-sets-move-blocks",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "move_blocks(sourceDocPath, blockIds[], destDocPath, destPosition)",
+          "attributes": {
+            "code": true
+          }
+        }
+      ],
+      "children": [
+        "b-change-sets-move-blocks-dest",
+        "b-change-sets-move-blocks-collision",
+        "b-change-sets-move-blocks-annotations",
+        "b-change-sets-move-blocks-links"
+      ]
+    },
+    "b-change-sets-move-blocks-dest": {
+      "id": "b-change-sets-move-blocks-dest",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The destination proposal inserts the selected blocks with their existing ids and content, while the source proposal deletes those ids."
+        }
+      ],
+      "children": []
+    },
+    "b-change-sets-move-blocks-collision": {
+      "id": "b-change-sets-move-blocks-collision",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A destination id collision mints fresh ids and carries an id-remap map through the rest of the transaction."
+        }
+      ],
+      "children": []
+    },
+    "b-change-sets-move-blocks-annotations": {
+      "id": "b-change-sets-move-blocks-annotations",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "After both proposals apply, matching annotation sidecar entries move from source to destination; block targets remain valid when ids persist, text-range offsets move verbatim, and collision fallback rewrites targets through the remap."
+        }
+      ],
+      "children": []
+    },
+    "b-change-sets-move-blocks-links": {
+      "id": "b-change-sets-move-blocks-links",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Inbound references found by the docs index retarget to the destination docPath as additional reviewable entries in the same change-set."
+        }
+      ],
+      "children": []
+    },
+    "b-change-sets-merge": {
+      "id": "b-change-sets-merge",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "merge_docs(a, b)",
+          "attributes": {
+            "code": true
+          }
+        }
+      ],
+      "children": [
+        "b-change-sets-merge-detail"
+      ]
+    },
+    "b-change-sets-merge-detail": {
+      "id": "b-change-sets-merge-detail",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Moves every root child of a into b, deletes a, and retargets inbound links to a."
+        }
+      ],
+      "children": []
+    },
+    "b-change-sets-split": {
+      "id": "b-change-sets-split",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "split_doc",
+          "attributes": {
+            "code": true
+          }
+        }
+      ],
+      "children": [
+        "b-change-sets-split-detail"
+      ]
+    },
+    "b-change-sets-split-detail": {
+      "id": "b-change-sets-split-detail",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Creates the destination document, then delegates the selected block move to move_blocks."
+        }
+      ],
+      "children": []
+    },
+    "b-change-sets-why": {
+      "id": "b-change-sets-why",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why"
+        }
+      ],
+      "children": []
+    },
+    "b-change-sets-why-content": {
+      "id": "b-change-sets-why-content",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A cross-document request is one review decision even when it produces several document diffs. Grouping the existing proposals preserves local visibility while the ordered protocol supplies the missing all-or-rollback boundary."
+        }
+      ],
+      "children": []
+    },
+    "b-change-sets-why-identity": {
+      "id": "b-change-sets-why-identity",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Stable block ids keep annotations and links anchored through a move. The collision remap and reviewable link-retarget entries make the exceptional case explicit instead of silently stranding references."
+        }
+      ],
+      "children": []
+    }
+  }
+}

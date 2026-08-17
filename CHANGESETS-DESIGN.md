@@ -1,8 +1,11 @@
 # Multi-Doc Change-Sets ("Doc PRs") — Design & Build Plan
 
-2026-08-15 design record. Status: **designed, not built** — this doc is the
-handoff for the build thread. Baseline commit at time of writing: `8a87d98`
-(docs lab polish) on docs-system main.
+2026-08-15 design record. Status: **built / as-built** — Phase 1
+`a68fd6c`, Phase 2 `59eb615`, and Phase 3 `ea1b35b`; Phase 4 is in the
+working tree. Baseline commit at time of writing: `8a87d98` (docs lab polish)
+on docs-system main.
+
+2026-08-17 as-built record.
 
 ## 1. Product model
 
@@ -12,8 +15,8 @@ The docs lab's review loop is deliberately layered like git:
 |---|---|---|
 | Ops on one document | edits in one file | ✅ shipped (`DocOp`/`applyOps`, staged proposals, hash+lock+ledger accept) |
 | Per-doc staged diff | a file diff | ✅ shipped (red/green staged regions + `ProposalActionBar`) |
-| **Change-set across docs** | **a PR** | ❌ this design |
-| Doc-level operations | file create/delete/rename | ❌ this design (enabler) |
+| **Change-set across docs** | **a PR** | ✅ built (Phases 1–4) |
+| Doc-level operations | file create/delete/rename | ✅ built (change-set treeOps) |
 
 Driving use case (Ford): *annotate a section on the architecture doc → "move
 this to <other doc/section>" → agent proposes it → review one PR-like unit
@@ -176,7 +179,7 @@ accept path (the protocol calls it, never reimplements it), agent-kernel core.
 - happy-dom: assert card semantics/attributes, not computed styles (standing
   gotcha).
 
-## 5. File tree (end state, all phases)
+## 5. File tree (as built, all phases)
 
 `NEW` = created by this build; `mod` = existing file edited; unmarked = untouched.
 
@@ -184,27 +187,27 @@ accept path (the protocol calls it, never reimplements it), agent-kernel core.
 docs-system/
 ├─ CHANGESETS-DESIGN.md                          mod  (updated to as-built in Phase 4)
 ├─ docs/
-│  ├─ .changesets/                               NEW  runtime sidecar dir (committed, like annotations.json;
-│  │  └─ <changeset-id>.json                          excluded from tree walk + audit, like .index/)
+│  ├─ .changesets/                               NEW  runtime sidecar dir
+│  │  └─ <changeset-id>.json                          already invisible to walkers (dot-dir)
 │  └─ 10-system-design/30-data-model/
-│     └─ <nn>-change-sets/doc.json               NEW  corpus page (Phase 4, goldens via one-off script)
+│     └─ 60-change-sets/doc.json                 NEW  corpus page (Phase 4 working tree)
 │
 ├─ packages/docs-server/src/
 │  ├─ changesets/                                NEW  ← the server slice; owns ALL change-set logic
 │  │  ├─ changesets-sidecar.ts                   NEW  atomic/mutexed CRUD over docs/.changesets/
+│  │  ├─ index.ts                                NEW  public slice exports
 │  │  ├─ changeset-ops.ts                        NEW  create/list/get, accept protocol (ordered locks,
 │  │  │                                               prefix rollback, compound ledger), reject, undo
 │  │  ├─ tree-ops.ts                             NEW  create-doc/delete-doc/move-doc executors + inverses
 │  │  ├─ move-blocks.ts                          NEW  generator: id-preserving pairs, collision remap,
 │  │  │                                               annotation migration, link retargeting; merge/split
+│  │  ├─ annotation-migrations.ts                NEW  migration execution + inverse capture
 │  │  └─ __tests__/
 │  │     ├─ changeset-ops.test.ts                NEW  happy path / rollback / concurrency / treeOps
 │  │     ├─ move-blocks.test.ts                  NEW  id preservation / collision remap / migration
 │  │     └─ roundtrip.test.ts                    NEW  Phase-4 accept→undo battery
-│  ├─ proposal-ops.ts                                 (untouched — protocol calls it)
+│  ├─ proposal-ops.ts                            mod  +virtual-base `stageBundleProposalAgainstDocument`
 │  ├─ patch-ledger.ts                            mod  +compound entry {patchIds[]} + batched undo
-│  ├─ bundle.ts                                  mod  +createDocBundle/deleteDocBundle helpers
-│  ├─ docs-tree.ts                               mod  exclude .changesets/ from the walk
 │  ├─ routes.ts                                  mod  +5 routes (/api/changesets, accept/reject/undo)
 │  ├─ agent-tools.ts                             mod  +changeset_list/_stage, move_blocks
 │  ├─ store.ts / index.ts                        mod  wiring + exports (./changesets subpath export)
@@ -216,7 +219,9 @@ docs-system/
 │  │  ├─ service.ts                              mod  touchedDocPaths busy-ness, cross-doc accept-all,
 │  │  │                                               auto-persist record, changeset events
 │  │  └─ __tests__/                              mod  overlap-409, rollback, propose_move_blocks e2e
-│  └─ docs-edit-session-api.ts                   mod  changeset passthrough routes + SSE events
+│  ├─ docs-edit-session-api.ts                   mod  changeset passthrough routes + SSE events
+│  ├─ cors.ts                                    NEW  localhost dev-web CORS headers
+│  └─ app.ts                                     mod  health/kernel/SSE + preflight CORS wiring
 │
 ├─ packages/docs-viewer/src/lab/
 │  ├─ changeset/                                 NEW  ← the UI slice; props-only, no fetches
@@ -230,6 +235,7 @@ docs-system/
 ├─ packages/docs-workbench/web/src/
 │  ├─ lab/
 │  │  ├─ doc-lab-changesets.ts                   NEW  fetch/overlay helpers (keeps the controller lean)
+│  │  ├─ doc-lab-changeset-messages.ts           NEW  change-set failure messages
 │  │  ├─ doc-lab-controller.ts                   mod  changeset state + SSE overlay
 │  │  ├─ docs-kernel-client.ts                   mod  +changeset transport
 │  │  ├─ docs-kernel-session-source.ts           mod  +changeset-updated reduction
@@ -239,14 +245,48 @@ docs-system/
 │  ├─ data/api.ts                                mod  +changeset client fns
 │  └─ pages/DocPage.tsx                          mod  row-click cross-doc navigation, AI mode preserved
 │
+├─ packages/docs-index/src/backlinks.ts           mod  inbound-link enumeration and retarget support
+│
 └─ packages/docs-model/                               (untouched — the design's explicit goal)
 ```
 
 Slice rule (matches the lab convention): the four NEW clusters are
 self-contained verticals; every `mod` outside them is a mount point, a wire,
 or an additive type. Removing the feature = delete the clusters, revert ~14
-small edits. No change-set logic in `proposal-ops.ts`, `PanelQueue.tsx`, or
-DocPage beyond mounting and navigation.
+small edits. `PanelQueue.tsx` remains untouched as planned; `DocPage.tsx` is
+modified only for the planned cross-doc navigation and AI-mode preservation.
+
+## As-built deviations
+
+- `treeOps` carry `position`, the entry index before which each op runs;
+  the designed shape had no interleaving information.
+- The record gained `annotationDocPath`, `compoundPatchId`, and optional
+  `annotationMigrations[{fromDocPath,toDocPath,blockIds,remap?}]`; migrations
+  run inside accept with full inverse capture.
+- Accept serializes with ordered SENTINEL path-mutex keys under `.changesets/`,
+  not OS file locks: `withPathLock` is non-reentrant, and per-entry accepts
+  acquire their real locks internally.
+- The in-memory, process-lifetime patch ledger gained a fourth
+  `compound {patchIds[]}` arm; `undo_patch` undoes it batched.
+- `proposal-ops` gained additive `stageBundleProposalAgainstDocument` for
+  virtual-base split/create-doc staging; the accept path is untouched.
+- No `.changesets/` exclusion code was needed: every walker already skips
+  dot-dirs. `fs-watch` therefore never reports it, so change-set SSE is
+  published explicitly.
+- docs-kernel gained CORS headers for health, kernel, SSE, and preflight;
+  without them the `:4805` dev-web UI could not reach `:4840`.
+- Same-alias restage in `propose_move_blocks` supersedes earlier staged
+  proposals across docs, fixing self-colliding double-move records.
+- Create-doc undo restores pre-accept directory contents; the round-trip
+  battery caught wholesale deletion losing pre-staged sidecars.
+- AI-mode preservation across cross-doc jumps uses a one-shot module-level
+  handoff flag consumed by DocPage's path-change effect.
+- The corpus page landed only as the new
+  `10-system-design/30-data-model/60-change-sets/` bundle. The mutation-model
+  addendum and golden regeneration are deferred until the owner's uncommitted
+  implementation-layer corpus edits are committed; the docs-writer prompt
+  addendum is regenerated and gate-checked, but left uncommitted, in the
+  agent-kernel peer repo.
 
 ## 6. Build phases — changes and testing strategy
 
@@ -260,10 +300,11 @@ Cross-phase testing doctrine (applies to every phase):
   computed styles (standing gotcha: happy-dom drops `var()`/`calc()`).
 - **Phase acceptance** is a LIVE check in the preview browser or via curl
   against a booted stack — a phase is not done on unit tests alone.
-- **Regression gate** closes every phase: full docs-system suite at or above
-  the running baseline (at time of writing: workbench+viewer 796/4/0,
-  model+server 638/0, docs-server+kernel 164+20, agent-kernel kernel 411),
-  `tsc --noEmit` clean. Update the pinned numbers here as phases land.
+- **Regression gate** as built: full docs-system suite **1701 pass / 4 skip /
+  4 pre-existing fails** (3 corpus-golden failures from unrelated uncommitted
+  implementation-layer docs edits; 1 external/canvas import-boundary);
+  occasionally a flaky edit-mode 409-save-banner timing test. `tsc --noEmit`
+  is clean; agent-kernel kernel is **411**; harness repo-policy is **6**.
 
 ### Phase 1 — Cross-doc staging
 
@@ -378,9 +419,10 @@ Cross-phase testing doctrine (applies to every phase):
 
 **What changes**: retention decision implemented for applied/declined
 records; per-entry staleness chip polish; failure-message wording pass;
-corpus docs — a change-set page under `10-system-design/30-data-model/` and a
-mutation-model addendum, goldens regenerated via the documented one-off
-script (never hand-edited); this design record updated to as-built.
+round-trip hardening; the new `60-change-sets` corpus bundle; and this design
+record updated to as-built. The mutation-model addendum and golden regeneration
+are deferred to avoid colliding with the owner's uncommitted implementation-layer
+corpus edits.
 
 **Testing strategy**
 
@@ -396,17 +438,16 @@ script (never hand-edited); this design record updated to as-built.
    both themes, no layout shifts entering AI mode, scrollbar and composer
    behavior untouched from the shipped baseline.
 
-## 7. Open decisions (decide in the build thread)
+## 7. Decisions (made in the build thread)
 
-1. **Accept semantics** — recommended: single Accept with rollback (PR merge
-   button) + per-doc escape hatch. Alternative: checklist-only. Ford leaned
-   PR-metaphor in the design conversation.
-2. **Implicit vs explicit change-sets** — recommended: any cross-doc session
-   auto-persists a record; single-doc sessions stay recordless.
-3. **`.changesets/` retention** — keep applied/declined records as history, or
-   prune on resolve? (Recommended: keep; they're the PR history.)
-4. **Link-retarget scope** — inbound links only (recommended for v1) vs also
-   rewriting outbound relative references inside moved blocks.
+1. **Accept semantics** — single Accept with rollback (the PR merge button) +
+   a per-doc escape hatch.
+2. **Implicit change-sets** — auto-persist on the first cross-doc proposal;
+   single-doc sessions remain recordless.
+3. **`.changesets/` retention** — keep applied/declined records as history.
+   The UI renders only the newest undoable applied set per doc and hides
+   declined records.
+4. **Link-retarget scope** — inbound links only.
 
 ## 8. Execution notes for the build thread
 
