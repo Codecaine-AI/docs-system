@@ -3,8 +3,8 @@
  *
  * This harness only reads `.agent-kernel/kernel.json`; the manifest is an
  * authoring surface owned by docs-system. The generic docs-writer remains in
- * agent-kernel/catalog and joins this registry unlisted when the sibling repo
- * is present, so it is spawnable without appearing in this kernel's catalog.
+ * agent-kernel/catalog and joins this registry when the sibling repo is
+ * present, so its bundles appear in this kernel's catalog.
  */
 import { existsSync, mkdirSync } from "node:fs";
 import { isAbsolute, join, resolve } from "node:path";
@@ -154,7 +154,7 @@ export async function bootDocsKernel(
 		);
 	}
 	const kernelCatalogRoots: CatalogRootSpec[] = docsWriterCatalogPresent
-		? [...catalogRoots, { path: agentKernelCatalogDir, listed: false }]
+		? [...catalogRoots, { path: agentKernelCatalogDir, listed: true }]
 		: [...catalogRoots];
 
 	mkdirSync(piSessionsDir, { recursive: true });
