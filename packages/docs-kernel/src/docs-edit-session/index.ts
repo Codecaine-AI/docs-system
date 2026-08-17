@@ -1,6 +1,6 @@
 export {
   DOCS_EDIT_TERMINAL_REQUEST_STATUSES,
-  DOCS_WRITER_AGENT_NAME,
+  DOCS_LAB_EDITOR_AGENT_NAME,
   docsEditDispositionForTarget,
   isDocsEditRequestTerminal,
 } from "./types";

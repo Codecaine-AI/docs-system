@@ -8,7 +8,7 @@
  */
 import type { DocOp } from "@codecaine-ai/docs-model/doc-ops";
 
-export const DOCS_WRITER_AGENT_NAME = "docs-writer" as const;
+export const DOCS_LAB_EDITOR_AGENT_NAME = "docs-lab-editor" as const;
 
 // ---------------------------------------------------------------------------
 // Targets and request threads

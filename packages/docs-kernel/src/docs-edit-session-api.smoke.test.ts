@@ -20,7 +20,7 @@ import type {
 } from "./docs-edit-session";
 import {
 	DOCS_EDIT_TOOL_NAMES,
-	DOCS_WRITER_AGENT_NAME,
+	DOCS_LAB_EDITOR_AGENT_NAME,
 	docsEditSharedTools,
 	enqueueDocsEditLaunch,
 } from "./docs-edit";
@@ -501,7 +501,7 @@ describe("docs-edit session HTTP smoke", () => {
 });
 
 describe("docs-edit session tool policy smoke", () => {
-	test("docs-writer gets exactly seven session tools and docs_write is blocked", () => {
+	test("docs-lab-editor gets exactly seven session tools and docs_write is blocked", () => {
 		const binder = () => undefined;
 		const launch = { tools: binder } as unknown as LaunchedDocsEditSession;
 		enqueueDocsEditLaunch(launch);
@@ -510,7 +510,7 @@ describe("docs-edit session tool policy smoke", () => {
 		expect(docsEditSharedTools(unrelated)).toEqual([]);
 
 		const config = {
-			name: DOCS_WRITER_AGENT_NAME,
+			name: DOCS_LAB_EDITOR_AGENT_NAME,
 			tools: ["docs_write", "docs_check"],
 			disallowedTools: ["write"],
 		} as AgentConfig;
@@ -520,7 +520,7 @@ describe("docs-edit session tool policy smoke", () => {
 		expect(config.tools).not.toContain("docs_write");
 		expect(config.disallowedTools).toEqual(["write", "docs_write"]);
 
-		// The launch is single-use: a second docs-writer spawn gets nothing.
+		// The launch is single-use: a second docs-lab-editor spawn gets nothing.
 		expect(docsEditSharedTools(config)).toEqual([]);
 	});
 });

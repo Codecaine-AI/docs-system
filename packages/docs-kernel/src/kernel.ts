@@ -2,9 +2,9 @@
  * Docs kernel boot — docs-system running as a repo-owned kernel.
  *
  * This harness only reads `.agent-kernel/kernel.json`; the manifest is an
- * authoring surface owned by docs-system. The generic docs-writer remains in
- * agent-kernel/catalog and joins this registry when the sibling repo is
- * present, so its bundles appear in this kernel's catalog.
+ * authoring surface owned by docs-system. Generic bundles in the sibling
+ * agent-kernel catalog remain resolvable for legacy spawns, but are not listed
+ * as docs-system agents.
  */
 import { existsSync, mkdirSync } from "node:fs";
 import { isAbsolute, join, resolve } from "node:path";
@@ -29,6 +29,7 @@ export const KERNEL_ID = "docs-system";
 export const DISPLAY_NAME = "Docs System";
 export const DEFAULT_PORT = 4840;
 export const DEFAULT_DOCS_WRITER_MODEL = "codex-lb/gpt-5.6-sol";
+export const DEFAULT_DOCS_LAB_EDITOR_MODEL = DEFAULT_DOCS_WRITER_MODEL;
 
 /** This file lives at docs-system/packages/docs-kernel/src/kernel.ts. */
 export const REPO_ROOT = resolve(import.meta.dir, "..", "..", "..");
@@ -54,6 +55,7 @@ export interface DocsKernelBootOptions {
 	docsRoot?: string;
 	piAgentDir?: string;
 	docsWriterModel?: string;
+	docsLabEditorModel?: string;
 	/** Override the sibling catalog location in isolated tests. */
 	agentKernelCatalogDir?: string;
 }
@@ -69,7 +71,9 @@ export interface DocsKernelBoot {
 	/** Browseable catalog roots from the manifest (or catalog/ fallback). */
 	catalogRoots: string[];
 	docsWriterCatalogPresent: boolean;
+	docsLabEditorCatalogPresent: boolean;
 	docsWriterModel: string;
+	docsLabEditorModel: string;
 	db: KernelDatabase;
 	kernel: KernelInstance<unknown>;
 	closeDatabase: () => void;
@@ -134,6 +138,10 @@ export async function bootDocsKernel(
 		options.docsWriterModel
 			?? Bun.env.DOCS_KERNEL_DOCS_WRITER_MODEL
 			?? DEFAULT_DOCS_WRITER_MODEL;
+	const docsLabEditorModel =
+		options.docsLabEditorModel
+			?? Bun.env.DOCS_KERNEL_DOCS_LAB_EDITOR_MODEL
+			?? DEFAULT_DOCS_LAB_EDITOR_MODEL;
 
 	const missingRoots = catalogRoots.filter((root) => !existsSync(root));
 	if (missingRoots.length > 0) {
@@ -153,8 +161,17 @@ export async function bootDocsKernel(
 				+ "(standalone checkout without the sibling agent-kernel repo).",
 		);
 	}
+	const docsLabEditorCatalogPresent = existsSync(
+		join(rootDir, "catalog", "docs-lab-editor"),
+	);
+	if (!docsLabEditorCatalogPresent) {
+		console.warn(
+			`docs-kernel: docs-lab-editor catalog bundle not found at ${join(rootDir, "catalog", "docs-lab-editor")}; `
+				+ "docs-edit sessions will not resolve docs-lab-editor.",
+		);
+	}
 	const kernelCatalogRoots: CatalogRootSpec[] = docsWriterCatalogPresent
-		? [...catalogRoots, { path: agentKernelCatalogDir, listed: true }]
+		? [...catalogRoots, { path: agentKernelCatalogDir, listed: false }]
 		: [...catalogRoots];
 
 	mkdirSync(piSessionsDir, { recursive: true });
@@ -168,7 +185,12 @@ export async function bootDocsKernel(
 			id: manifest?.kernelId ?? KERNEL_ID,
 			db: database.db,
 			catalog: { roots: kernelCatalogRoots },
-			models: { aliases: { "docs-writer": docsWriterModel } },
+			models: {
+				aliases: {
+					"docs-writer": docsWriterModel,
+					"docs-lab-editor": docsLabEditorModel,
+				},
+			},
 			sharedTools: docsEditSharedTools,
 			piSessionsDir,
 			piAgentDir,
@@ -189,7 +211,9 @@ export async function bootDocsKernel(
 			piAgentDir,
 			catalogRoots,
 			docsWriterCatalogPresent,
+			docsLabEditorCatalogPresent,
 			docsWriterModel,
+			docsLabEditorModel,
 			db: database.db,
 			kernel,
 			closeDatabase: database.close,

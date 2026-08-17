@@ -22,10 +22,10 @@ import {
 	type LaunchedDocsEditSession,
 } from "./docs-edit-session";
 
-export const DOCS_WRITER_AGENT_NAME = "docs-writer";
+export const DOCS_LAB_EDITOR_AGENT_NAME = "docs-lab-editor";
 
 /**
- * The only active tools for session-mode docs-writer spawns. The bundle's
+ * The only active tools for session-mode docs-lab-editor spawns. The bundle's
  * docs_write tool is deliberately absent because whole-document rewrites
  * regenerate block ids and detach annotations.
  */
@@ -41,16 +41,16 @@ export const DOCS_EDIT_TOOL_NAMES = [
 
 const pendingLaunches: LaunchedDocsEditSession[] = [];
 
-/** Queue a launch for the next docs-writer spawn. Exported for focused tests. */
+/** Queue a launch for the next docs-lab-editor spawn. Exported for focused tests. */
 export function enqueueDocsEditLaunch(launch: LaunchedDocsEditSession): void {
 	pendingLaunches.push(launch);
 }
 
-/** Bind session tools only to docs-writer spawns, consuming the FIFO once. */
+/** Bind session tools only to docs-lab-editor spawns, consuming the FIFO once. */
 export const docsEditSharedTools: NonNullable<
 	CreateKernelConfig["sharedTools"]
 > = (config) => {
-	if (config.name !== DOCS_WRITER_AGENT_NAME) return [];
+	if (config.name !== DOCS_LAB_EDITOR_AGENT_NAME) return [];
 	const launch = pendingLaunches.shift();
 	if (!launch) return [];
 	// resolveSpawnConfig gives this spawn a shallow config copy. Assigning new
@@ -101,7 +101,7 @@ export function createDocsKernelDocsEditSessions<TToolRuntime>(
 			try {
 				enqueueDocsEditLaunch(launch);
 				await kernel.spawnAgent(
-					DOCS_WRITER_AGENT_NAME,
+					DOCS_LAB_EDITOR_AGENT_NAME,
 					launch.spawn.prompt,
 					null,
 					{

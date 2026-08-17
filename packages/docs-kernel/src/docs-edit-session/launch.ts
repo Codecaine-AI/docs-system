@@ -32,7 +32,7 @@ export interface LaunchedDocsEditSession {
   skipped: SkippedDocsAnnotation[];
   scope: readonly string[] | null;
   spawn: {
-    agentName: "docs-writer";
+    agentName: "docs-lab-editor";
     prompt: string;
     sessionData: DocsEditSessionData;
   };
@@ -105,7 +105,7 @@ export async function launchDocsEditSession(
     skipped: loaded.skipped,
     scope: options.requestIds ?? null,
     spawn: {
-      agentName: "docs-writer",
+      agentName: "docs-lab-editor",
       prompt: options.instruction
         ? `${DEFAULT_DOCS_EDIT_KICKOFF}\n\nOperator instruction: ${options.instruction}`
         : DEFAULT_DOCS_EDIT_KICKOFF,
@@ -123,7 +123,7 @@ export function relaunchDocsEditSession(
     ...previous,
     tools: docsEditSessionTools(previous.session),
     spawn: {
-      agentName: "docs-writer",
+      agentName: "docs-lab-editor",
       sessionData,
       prompt: docsEditRerunKickoff(aliases),
     },

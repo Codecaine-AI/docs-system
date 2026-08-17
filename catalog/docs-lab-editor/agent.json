@@ -1,0 +1,11 @@
+{
+	"$schema": "agent-kernel/agent-v1",
+	"name": "docs-lab-editor",
+	"description": "Docs Lab's request-queue session agent. It investigates annotation-driven requests and stages reviewable proposals or change-sets only; a human reviews and merges every documentation change in the Lab UI.",
+	"model": "docs-lab-editor",
+	"host": "any",
+	"disallowedTools": ["write", "edit", "docs_write"],
+	"thinking": "medium",
+	"maxTurns": 40,
+	"extensions": false
+}

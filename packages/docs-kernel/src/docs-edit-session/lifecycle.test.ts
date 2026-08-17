@@ -62,7 +62,7 @@ describe("docs-edit launch and service lifecycle", () => {
 			{ alias: "R1", annotationId: "ann-block" },
 			{ alias: "R2", annotationId: "ann-doc" },
 		]);
-		expect(launched.spawn.agentName).toBe("docs-writer");
+		expect(launched.spawn.agentName).toBe("docs-lab-editor");
 		expect(launched.spawn.prompt).toContain("Keep the examples.");
 	});
 

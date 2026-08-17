@@ -1,5 +1,5 @@
 /**
- * Session data consumed by agent-kernel/catalog/docs-writer/state.
+ * Session data consumed by the docs-lab-editor bundle.
  *
  * The bundle deliberately seeds only the target path and task notes; document
  * content and the live queue are served by the host-bound session tools.
