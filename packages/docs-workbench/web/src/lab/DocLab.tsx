@@ -4,6 +4,7 @@ import { useCallback, useMemo, type ComponentProps } from "react";
 import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import {
 	GlassPanel,
+	ChangeSetCard,
 	OutlineList,
 	PanelQueue,
 	PanelZone,
@@ -17,6 +18,7 @@ import {
 
 import { ActionPane } from "../pages/ActionPane";
 import type { DocLabSessionResult } from "./doc-lab-controller";
+import { navigateToDoc } from "./doc-lab-changesets";
 import { labelForTarget } from "./target-label";
 
 export interface DocLabProps {
@@ -112,6 +114,19 @@ export function DocLab({
 						onFocusTarget={onFocusTarget}
 						labelForTarget={targetLabel}
 					>
+						{lab.changesets.map((changeset) => (
+							<ChangeSetCard
+								key={changeset.id}
+								changeset={changeset}
+								openDocPath={openDocPath}
+								busy={lab.changesetBusy[changeset.id] ?? null}
+								error={lab.changesetErrors[changeset.id] ?? null}
+								onAccept={() => lab.acceptChangeset(changeset.id)}
+								onReject={() => lab.rejectChangeset(changeset.id)}
+								onUndo={() => lab.undoChangeset(changeset.id)}
+								onOpenDoc={navigateToDoc}
+							/>
+						))}
 						{lab.proposalsError ? (
 							<p
 								data-docs-lab-proposals-error=""

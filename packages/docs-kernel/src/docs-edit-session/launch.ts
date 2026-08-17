@@ -1,4 +1,4 @@
-import type { DocsEditRequestInput } from "./types";
+import type { DocsEditProposal, DocsEditRequestInput } from "./types";
 import type { SkippedDocsAnnotation } from "./from-annotations";
 import { loadDocsEditRequestsFromAnnotations } from "./from-annotations";
 import { createDocsEditSession, type DocsEditSession } from "./session";
@@ -15,6 +15,8 @@ export interface LaunchDocsEditSessionOptions {
   extraRequests?: DocsEditRequestInput[];
   instruction?: string;
   sessionId?: string;
+  /** Service-owned persistence hook; direct launch callers can omit it. */
+  onProposalStaged?: (proposal: DocsEditProposal) => void | Promise<void>;
 }
 
 export interface LaunchedDocsEditSession {
@@ -85,6 +87,7 @@ export async function launchDocsEditSession(
     requests,
     instruction: options.instruction,
     sessionId: options.sessionId,
+    onProposalStaged: options.onProposalStaged,
   });
   const sessionData = sessionDataForDocsEditSession(session);
   return {

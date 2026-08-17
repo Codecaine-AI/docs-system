@@ -91,6 +91,17 @@ function mockClient(createResult: Awaited<ReturnType<DocsKernelClient["createSes
 
 const flush = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
 
+const changeset = (summary: string) => ({
+	id: "changeset-1",
+	summary,
+	status: "open" as const,
+	sessionId: "session-1",
+	entries: [],
+	treeOps: [],
+	createdAt: "2026-01-01T00:02:00.000Z",
+	progress: { accepted: 0, total: 0 },
+});
+
 describe("docs kernel session source", () => {
 	it("preserves cross-document proposal paths from staged events", () => {
 		const next = reduceDocsEditSessionEvent(session(), {
@@ -118,12 +129,27 @@ describe("docs kernel session source", () => {
 		const source = createDocsKernelSessionSource({ client: mock.client, path: "guide", onSessionEnd() {} });
 
 		await source.applyQueue(["ann-1"]);
+		expect(source.sessionId()).toBe("session-1");
 		mock.emit({ type: "session-state", sessionId: "session-1", state: session() });
 		mock.emit({ type: "request-updated", sessionId: "session-1", request: request("working") });
 		expect(source.statusOverlay().get("ann-1")).toBe("working");
 		mock.emit({ type: "request-updated", sessionId: "session-1", request: request("waiting") });
 		expect(source.statusOverlay().get("ann-1")).toBe("waiting");
 		expect(source.statusOverlay().has("ann-outside")).toBe(false);
+	});
+
+	it("stores the latest changeset view from matching session events", async () => {
+		const mock = mockClient({ state: session() });
+		const source = createDocsKernelSessionSource({ client: mock.client, path: "guide", onSessionEnd() {} });
+		await source.applyQueue(["ann-1"]);
+
+		mock.emit({ type: "changeset-updated", sessionId: "other-session", changeset: changeset("ignored") });
+		expect(source.changesets().size).toBe(0);
+
+		mock.emit({ type: "changeset-updated", sessionId: "session-1", changeset: changeset("first") });
+		mock.emit({ type: "changeset-updated", sessionId: "session-1", changeset: changeset("latest") });
+		expect(source.changesets().get("changeset-1")?.summary).toBe("latest");
+		expect(source.getSnapshot().changesets.get("changeset-1")?.summary).toBe("latest");
 	});
 
 	it("clears a disposed session and announces its end once", async () => {

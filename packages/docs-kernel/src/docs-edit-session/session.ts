@@ -40,6 +40,8 @@ export interface CreateDocsEditSessionOptions {
 	instruction?: string;
 	sessionId?: string;
 	now?: () => string;
+	/** Awaited after the session has retained a newly staged proposal. */
+	onProposalStaged?: (proposal: DocsEditProposal) => void | Promise<void>;
 }
 
 export type DocsEditRequestMutationResult =
@@ -315,6 +317,7 @@ export function createDocsEditSession(
 			emit({ type: "proposal-staged", sessionId: id, proposal });
 			emit({ type: "request-updated", sessionId: id, request: updated });
 			refreshStatus();
+			await options.onProposalStaged?.(proposal);
 			return { ok: true, proposal };
 		} catch (error) {
 			return {
@@ -634,6 +637,11 @@ export function createDocsEditSession(
 		if (!proposal?.patchId) {
 			return { ok: false, message: `${entry.alias} has no applied patch to undo.` };
 		}
+		stagedProposals = stagedProposals.map((candidate) => {
+			if (candidate.proposalId !== proposal.proposalId) return candidate;
+			const { patchId: _patchId, ...withoutPatch } = candidate;
+			return withoutPatch;
+		});
 		const updated = updateRequest(entry, {
 			status: "ready",
 			waitingOnHuman: false,

@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 
 import type { AgentConfig } from "@agent-kernel/kernel";
+import type { DocChangeSetView } from "@codecaine-ai/docs-server";
 
 import {
 	createDocsEditSessionApi,
@@ -25,7 +26,31 @@ import {
 } from "./docs-edit";
 
 const SESSION_ID = "docs-session-api-smoke";
+const CHANGESET_ID = "changeset-api-smoke";
 const NOW = "2026-08-14T12:00:00.000Z";
+
+function changesetFixture(): DocChangeSetView {
+	return {
+		id: CHANGESET_ID,
+		summary: "Work the queue.",
+		status: "open",
+		sessionId: SESSION_ID,
+		entries: [
+			{
+				docPath: "10-guides/quickstart",
+				proposalId: "proposal-1",
+				status: "staged",
+				stale: false,
+				summary: "Tighten the quickstart.",
+				addCount: 1,
+				delCount: 1,
+			},
+		],
+		treeOps: [],
+		createdAt: NOW,
+		progress: { accepted: 0, total: 1 },
+	};
+}
 
 function stateFixture(): DocsEditSessionState {
 	return {
@@ -73,6 +98,7 @@ interface FakeServiceControls {
 	setCreateResult(result: CreateDocsEditSessionResult): void;
 	setAcceptResult(result: AcceptDocsEditProposalResult): void;
 	setAcceptAllResult(result: DocsEditAcceptAllResult | null): void;
+	setChangeSet(changeset: DocChangeSetView | null): void;
 	setRejectResult(result: RejectDocsEditProposalResult): void;
 	setUndoResult(result: UndoAcceptedDocsProposalResult): void;
 }
@@ -91,6 +117,7 @@ function fakeService(): FakeServiceControls {
 		ok: true,
 		results: [],
 	};
+	let changeset: DocChangeSetView | null = null;
 	let rejectResult: RejectDocsEditProposalResult = {
 		ok: false,
 		failure: { kind: "no_staged_proposal", alias: "R1" },
@@ -143,6 +170,9 @@ function fakeService(): FakeServiceControls {
 		},
 		getSession: () => null,
 		getLaunch: () => null,
+		async getChangeSet(sessionId) {
+			return !disposed && sessionId === SESSION_ID ? changeset : null;
+		},
 		subscribe(sessionId, listener) {
 			if (disposed || sessionId !== SESSION_ID) return null;
 			listeners.add(listener);
@@ -193,6 +223,10 @@ function fakeService(): FakeServiceControls {
 		},
 		setAcceptAllResult(result) {
 			acceptAllResult = result;
+		},
+		setChangeSet(result) {
+			changeset = result;
+			state.changesetId = result?.id;
 		},
 		setRejectResult(result) {
 			rejectResult = result;
@@ -299,6 +333,28 @@ describe("docs-edit session HTTP smoke", () => {
 			new Request(url("/kernel/docs-edit-sessions/no-such-session")),
 		);
 		expect(missing.status).toBe(404);
+	});
+
+	test("change-set passthrough returns the enriched view or 404 when absent", async () => {
+		const fake = fakeService();
+		const app = createDocsEditSessionApi(fake.service);
+		const changeset = changesetFixture();
+		fake.setChangeSet(changeset);
+
+		const found = await app.handle(
+			new Request(url(`/kernel/docs-edit-sessions/${SESSION_ID}/changeset`)),
+		);
+		expect(found.status).toBe(200);
+		expect(await found.json()).toEqual({ changeset });
+
+		fake.setChangeSet(null);
+		const missing = await app.handle(
+			new Request(url(`/kernel/docs-edit-sessions/${SESSION_ID}/changeset`)),
+		);
+		expect(missing.status).toBe(404);
+		expect(await missing.json()).toEqual({
+			error: `No change-set for docs-edit session ${SESSION_ID}`,
+		});
 	});
 
 	test("review routes preserve 404/409/400 mappings and typed failures", async () => {

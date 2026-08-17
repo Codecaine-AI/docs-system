@@ -118,6 +118,14 @@ import {
   type DocsChangeEvent,
 } from "./docs-events";
 import { getBacklinksDb } from "./backlinks-cache";
+import {
+  acceptChangeSet,
+  createChangeSet,
+  getChangeSet,
+  listChangeSets,
+  rejectChangeSet,
+  undoChangeSet,
+} from "./changesets/changeset-ops";
 
 /**
  * `createDocsStore(docsRoot)` — the docs framework's single mutation
@@ -147,6 +155,8 @@ export interface DocsStore {
   projection(path: string): Promise<DocProjectionResult | DocBundleLoadError>;
   annotations(path: string): Promise<BundleAnnotationsReadResult>;
   proposals(path: string): Promise<GetBundleProposalsResult>;
+  changesets(path?: string): ReturnType<typeof listChangeSets>;
+  changesetGet(id: string): ReturnType<typeof getChangeSet>;
   docGet(path: string): Promise<DocGetResult>;
   canvasGet(src: string): Promise<CanvasGetResult>;
   canvasByDocPath(
@@ -180,6 +190,10 @@ export interface DocsStore {
     proposalId: string,
     input?: RejectBundleProposalInput,
   ): Promise<RejectBundleProposalResult>;
+  changesetStage(input: Parameters<typeof createChangeSet>[1]): ReturnType<typeof createChangeSet>;
+  changesetAccept(id: string, sessionId?: string): ReturnType<typeof acceptChangeSet>;
+  changesetReject(id: string, sessionId?: string): ReturnType<typeof rejectChangeSet>;
+  changesetUndo(id: string, sessionId?: string): ReturnType<typeof undoChangeSet>;
   forwardCanvasAction(
     path: string,
     op: Extract<DocOp, { type: "componentAction" }>,
@@ -552,6 +566,8 @@ export function createDocsStore(docsRoot: string): DocsStore {
     projection: (path) => loadDocProjection(root, path),
     annotations: (path) => getBundleAnnotations(root, path),
     proposals: (path) => getBundleProposals(root, path),
+    changesets: (path) => listChangeSets(root, path),
+    changesetGet: (id) => getChangeSet(root, id),
     docGet: (path) => doc_get(root, path),
     canvasGet: (src) => canvas_get(root, src),
     canvasByDocPath: (docPath, src) => loadCanvasSidecarByDocPath(root, docPath, src),
@@ -568,6 +584,47 @@ export function createDocsStore(docsRoot: string): DocsStore {
       acceptBundleProposal(root, path, proposalId, input),
     rejectProposal: (path, proposalId, input) =>
       rejectBundleProposal(root, path, proposalId, input),
+    changesetStage: async (input) => {
+      const result = await createChangeSet(root, input);
+      if (result.ok) {
+        publishDocsChangeEvent(channel, {
+          path: "",
+          changedIds: [],
+          patchId: `changeset-${result.changeset.id}`,
+          actor: input.sessionId ?? "anonymous",
+        });
+      }
+      return result;
+    },
+    changesetAccept: (id, sessionId) =>
+      acceptChangeSet(root, id, {
+        sessionId,
+        publishChange: (event: DocsChangeEvent) => publishDocsChangeEvent(channel, event),
+      }),
+    changesetReject: async (id, sessionId) => {
+      const result = await rejectChangeSet(root, id, { sessionId });
+      if (result.ok) {
+        publishDocsChangeEvent(channel, {
+          path: "",
+          changedIds: [],
+          patchId: `changeset-${id}`,
+          actor: sessionId ?? result.changeset.sessionId ?? "anonymous",
+        });
+      }
+      return result;
+    },
+    changesetUndo: async (id, sessionId) => {
+      const result = await undoChangeSet(root, id, { sessionId });
+      if (result.ok) {
+        publishDocsChangeEvent(channel, {
+          path: "",
+          changedIds: [],
+          patchId: `changeset-${id}`,
+          actor: sessionId ?? result.changeset.sessionId ?? "anonymous",
+        });
+      }
+      return result;
+    },
     forwardCanvasAction: (path, op, expectedDocHash, expectedCanvasHash, sessionId) =>
       forwardCanvasAction(root, path, op, expectedDocHash, expectedCanvasHash, sessionId),
     forwardSequenceAction: (path, op, expectedDocHash, expectedSequenceHash, sessionId) =>

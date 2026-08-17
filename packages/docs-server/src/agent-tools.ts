@@ -57,10 +57,16 @@ import {
   type GetBundleProposalsResult,
   type StageBundleProposalResult,
 } from "./proposal-ops";
+import type { CreateDocChangeSetInput } from "./changesets/changesets-sidecar";
+import type {
+  ChangeSetFailure,
+  DocChangeSetView,
+} from "./changesets/changeset-ops";
 import {
   deleteStoredPatch,
   getStoredPatch,
   recordCanvasPatch,
+  recordCompoundPatch,
   recordSequencePatch,
 } from "./patch-ledger";
 
@@ -69,6 +75,7 @@ export {
   deleteStoredPatch,
   getStoredPatch,
   recordCanvasPatch,
+  recordCompoundPatch,
   recordDocPatch,
   recordSequencePatch,
   type StoredPatch,
@@ -679,7 +686,15 @@ export type UndoPatchResult =
   | { ok: true; kind: "doc"; doc: DocDocument; hash: string }
   | { ok: true; kind: "canvas"; canvas: InteractiveCanvasDocument; hash: string }
   | { ok: true; kind: "sequence"; sequence: SequenceDocument; hash: string }
-  | { ok: false; status: number; detail: string; current_hash?: string };
+  | { ok: true; kind: "compound"; undonePatchIds: string[] }
+  | {
+      ok: false;
+      status: number;
+      detail: string;
+      current_hash?: string;
+      failedPatchId?: string;
+      undonePatchIds?: string[];
+    };
 
 /**
  * `undo_patch(patchId)` — undo FAILS LOUDLY rather than force-applying.
@@ -695,6 +710,9 @@ export type UndoPatchResult =
  *   -document replace, but ONLY after verifying the current on-disk hash
  *   still equals `hashAfterApply`. Runs inside `withPathLock` for the same
  *   lost-update protection every other canvas write gets.
+ * - compound patches: member patches are undone newest-first. Successfully
+ *   undone members remain consumed if a later member fails, while the
+ *   compound entry remains available as the record of that partial result.
  *
  * On success, the patch is removed from the ledger (a patch can only be
  * undone once — undoing consumes it).
@@ -703,6 +721,26 @@ export async function undo_patch(docsRoot: string, patchId: string): Promise<Und
   const stored = getStoredPatch(patchId);
   if (!stored) {
     return { ok: false, status: 404, detail: `No undoable patch found for id: ${patchId}` };
+  }
+
+  if (stored.kind === "compound") {
+    const undonePatchIds: string[] = [];
+    for (const memberPatchId of [...stored.patchIds].reverse()) {
+      const result = await undo_patch(docsRoot, memberPatchId);
+      if (!result.ok) {
+        return {
+          ok: false,
+          status: result.status,
+          detail: `Cannot undo compound patch ${patchId}: member ${memberPatchId} failed: ${result.detail}`,
+          current_hash: result.current_hash,
+          failedPatchId: memberPatchId,
+          undonePatchIds,
+        };
+      }
+      undonePatchIds.push(memberPatchId);
+    }
+    deleteStoredPatch(patchId);
+    return { ok: true, kind: "compound", undonePatchIds };
   }
 
   if (stored.kind === "doc") {
@@ -868,6 +906,35 @@ export async function proposal_list(
   docPath: string,
 ): Promise<ProposalListResult> {
   return getBundleProposals(docsRoot, docPath);
+}
+
+// ---------------------------------------------------------------------------
+// changeset_list / changeset_stage
+// ---------------------------------------------------------------------------
+
+export type ChangeSetListResult =
+  | { ok: true; changesets: DocChangeSetView[] }
+  | ChangeSetFailure;
+
+/** Lists every corpus-level multi-document change-set with live enrichment. */
+export async function changeset_list(docsRoot: string): Promise<ChangeSetListResult> {
+  // Dynamic imports avoid a runtime cycle: the change-set accept protocol
+  // calls undo_patch from this module during prefix rollback.
+  const { listChangeSets } = await import("./changesets/changeset-ops");
+  return listChangeSets(docsRoot);
+}
+
+export type ChangeSetStageResult =
+  | { ok: true; changeset: DocChangeSetView }
+  | ChangeSetFailure;
+
+/** Creates one open multi-document change-set record. */
+export async function changeset_stage(
+  docsRoot: string,
+  input: CreateDocChangeSetInput,
+): Promise<ChangeSetStageResult> {
+  const { createChangeSet } = await import("./changesets/changeset-ops");
+  return createChangeSet(docsRoot, input);
 }
 
 // Re-export so callers only need to import from this one module for the

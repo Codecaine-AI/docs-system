@@ -6,6 +6,7 @@
  *   POST   <prefix>/docs-edit-sessions
  *   GET    <prefix>/docs-edit-sessions
  *   GET    <prefix>/docs-edit-sessions/:id
+ *   GET    <prefix>/docs-edit-sessions/:id/changeset
  *   GET    <prefix>/docs-edit-sessions/:id/events
  *   POST   <prefix>/docs-edit-sessions/:id/requests
  *   POST   <prefix>/docs-edit-sessions/:id/accept-all
@@ -245,6 +246,19 @@ export function createDocsEditSessionApi(
 			if (!state) return notFound(params.id, set);
 			return { state };
 		})
+		.get(
+			`${prefix}/docs-edit-sessions/:id/changeset`,
+			async ({ params, set }) => {
+				const changeset = await sessions.getChangeSet(params.id);
+				if (!changeset) {
+					set.status = 404;
+					return {
+						error: `No change-set for docs-edit session ${params.id}`,
+					};
+				}
+				return { changeset };
+			},
+		)
 		.get(`${prefix}/docs-edit-sessions/:id/events`, ({ params, set }) => {
 			const state = sessions.getState(params.id);
 			if (!state) return notFound(params.id, set);

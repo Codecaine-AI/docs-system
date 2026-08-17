@@ -1,4 +1,5 @@
 import type { DocOp } from "@codecaine-ai/docs-model/doc-ops";
+import type { DocChangeSetView } from "@codecaine-ai/docs-viewer/lab";
 
 export type DocsEditRequestStatus =
   | "open"
@@ -64,6 +65,7 @@ export interface DocsEditSessionState {
   createdAt: string;
   scope: string[] | null;
   touchedDocPaths?: string[];
+  changesetId?: string;
   requests: DocsEditRequestState[];
   proposals: DocsEditProposalState[];
   nextAcceptAlias: string | null;
@@ -97,6 +99,7 @@ export type DocsEditSessionStreamEvent =
   | { type: "session-disposed"; sessionId: string }
   | { type: "request-updated"; sessionId: string; request: DocsEditRequestState }
   | { type: "thread-updated"; sessionId: string; alias: string; request: DocsEditRequestState }
+  | { type: "changeset-updated"; sessionId: string; changeset: DocChangeSetView }
   | { type: "proposal-staged"; sessionId: string; proposal: Omit<DocsEditProposalState, "review"> }
   | { type: "session-status"; sessionId: string; status: "running" | "completed" }
   | { type: "proposal-applied"; sessionId: string; alias: string; proposalId: string; patchId: string; hash: string }

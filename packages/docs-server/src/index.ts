@@ -114,6 +114,9 @@ export {
   type StageBundleProposalResult,
 } from "./proposal-ops";
 
+// Multi-document change-sets
+export * from "./changesets";
+
 // Assets
 export {
   readDocAsset,
@@ -188,6 +191,8 @@ export {
   annotation_resolve,
   canvas_apply_patch,
   canvas_get,
+  changeset_list,
+  changeset_stage,
   deleteStoredPatch,
   doc_get,
   doc_update_blocks,
@@ -195,6 +200,7 @@ export {
   proposal_list,
   proposal_stage,
   recordCanvasPatch,
+  recordCompoundPatch,
   recordDocPatch,
   recordSequencePatch,
   sequence_apply_patch,
@@ -205,6 +211,8 @@ export {
   type CanvasAgentPatchOperation,
   type CanvasApplyPatchResult,
   type CanvasGetResult,
+  type ChangeSetListResult,
+  type ChangeSetStageResult,
   type DocGetResult,
   type DocUpdateBlocksResult,
   type ProposalListResult,

@@ -7,14 +7,22 @@
  * same DocOps against the current document before applying. Undo uses the
  * in-process docs-server ledger and leaves the annotation resolved.
  */
+import { randomUUID } from "node:crypto";
+
 import {
   acceptBundleProposal,
+  createDocsStore,
   loadDocBundle,
   normalizeBundlePath,
+  readChangeSetRecord,
+  recordCompoundPatch,
   rejectBundleProposal,
   resolveBundleAnnotation,
   stageBundleProposal,
   undo_patch,
+  writeChangeSetRecord,
+  type DocChangeSetEntry,
+  type DocChangeSetView,
 } from "@codecaine-ai/docs-server";
 
 import type { SkippedDocsAnnotation } from "./from-annotations";
@@ -87,6 +95,7 @@ export interface DocsEditSessionState {
   createdAt: string;
   scope: string[] | null;
   touchedDocPaths: string[];
+  changesetId?: string;
   requests: DocsEditSessionRequestState[];
   proposals: DocsEditSessionProposalState[];
   nextAcceptAlias: string | null;
@@ -112,6 +121,7 @@ export interface DocsEditSessionSummary {
 export type DocsEditSessionStreamEvent =
   | DocsEditSessionEvent
   | { type: "session-state"; sessionId: string; state: DocsEditSessionState }
+  | { type: "changeset-updated"; sessionId: string; changeset: DocChangeSetView }
   | { type: "session-disposed"; sessionId: string };
 export type DocsEditSessionStreamListener = (event: DocsEditSessionStreamEvent) => void;
 
@@ -220,6 +230,7 @@ export interface DocsEditSessionService {
   list(): DocsEditSessionSummary[];
   getSession(sessionId: string): DocsEditSession | null;
   getLaunch(sessionId: string): LaunchedDocsEditSession | null;
+  getChangeSet(sessionId: string): Promise<DocChangeSetView | null>;
   subscribe(sessionId: string, listener: DocsEditSessionStreamListener): (() => void) | null;
   acceptProposal(sessionId: string, alias: string): Promise<AcceptDocsEditProposalResult | null>;
   acceptAll(sessionId: string): Promise<DocsEditAcceptAllResult | null>;
@@ -250,6 +261,8 @@ interface ManagedSession {
   launch: LaunchedDocsEditSession;
   normalizedPath: string;
   touchedDocPaths: Set<string>;
+  changesetId?: string;
+  changesetSyncTail: Promise<void>;
   createdAt: string;
   currentHash: string;
   review: Map<string, DocsEditReviewStatus>;
@@ -268,10 +281,102 @@ export function createDocsEditSessionService(
   const allowWrites = options.allowWrites ?? true;
   const now = options.now ?? (() => new Date().toISOString());
   const sessions = new Map<string, ManagedSession>();
+  const docsStore = createDocsStore(options.docsRoot);
 
   const emit = (managed: ManagedSession, event: DocsEditSessionStreamEvent) => {
     for (const listener of [...managed.listeners]) listener(event);
   };
+
+  function changeSetEntries(managed: ManagedSession): DocChangeSetEntry[] {
+    return managed.session.proposals().map((proposal) => ({
+      docPath: proposal.docPath,
+      proposalId: proposal.proposalId,
+    }));
+  }
+
+  async function emitFreshChangeSet(
+    managed: ManagedSession,
+  ): Promise<DocChangeSetView | null> {
+    if (!managed.changesetId) return null;
+    const loaded = await docsStore.changesetGet(managed.changesetId);
+    if (!loaded.ok) return null;
+    emit(managed, {
+      type: "changeset-updated",
+      sessionId: managed.session.id,
+      changeset: loaded.changeset,
+    });
+    return loaded.changeset;
+  }
+
+  async function synchronizeChangeSet(
+    managed: ManagedSession,
+    drivingProposal?: DocsEditProposal,
+  ): Promise<void> {
+    const entries = changeSetEntries(managed);
+    if (!entries.some((entry) => entry.docPath !== managed.normalizedPath)) return;
+
+    if (!managed.changesetId) {
+      const driving = drivingProposal ?? managed.session.proposals().find(
+        (proposal) => proposal.docPath !== managed.normalizedPath,
+      );
+      const drivingRequest = driving
+        ? managed.session.requests().find(
+            (request) => request.alias === driving.requestAlias,
+          )
+        : undefined;
+      const instruction = managed.session.instruction?.trim();
+      const summary = instruction || managed.session.requests()[0]?.body.trim() || "Docs edit";
+      const created = await docsStore.changesetStage({
+        summary,
+        sessionId: managed.session.id,
+        ...(drivingRequest?.sidecarBacked
+          ? {
+              annotationId: drivingRequest.annotationId,
+              annotationDocPath: managed.normalizedPath,
+            }
+          : {}),
+        ...(drivingRequest ? { alias: drivingRequest.alias } : {}),
+        entries,
+      });
+      if (!created.ok) {
+        throw new Error(`Failed to persist session change-set: ${created.detail}`);
+      }
+      managed.changesetId = created.changeset.id;
+      emit(managed, {
+        type: "changeset-updated",
+        sessionId: managed.session.id,
+        changeset: created.changeset,
+      });
+      return;
+    }
+
+    const loaded = await readChangeSetRecord(options.docsRoot, managed.changesetId);
+    if (!loaded.ok) {
+      throw new Error(`Failed to read session change-set: ${loaded.detail}`);
+    }
+    const written = await writeChangeSetRecord(options.docsRoot, {
+      ...loaded.changeset,
+      entries,
+    });
+    if (!written.ok) {
+      throw new Error(`Failed to update session change-set: ${written.detail}`);
+    }
+    const enriched = await emitFreshChangeSet(managed);
+    if (!enriched) {
+      throw new Error(`Failed to enrich session change-set: ${managed.changesetId}`);
+    }
+  }
+
+  async function queueChangeSetSync(
+    managed: ManagedSession,
+    drivingProposal?: DocsEditProposal,
+  ): Promise<void> {
+    const run = managed.changesetSyncTail.then(() =>
+      synchronizeChangeSet(managed, drivingProposal),
+    );
+    managed.changesetSyncTail = run.catch(() => undefined);
+    await run;
+  }
 
   function requestState(managed: ManagedSession, entry: DocsEditRequestEntry): DocsEditSessionRequestState {
     return {
@@ -326,6 +431,7 @@ export function createDocsEditSessionService(
       createdAt: managed.createdAt,
       scope: managed.launch.scope === null ? null : [...managed.launch.scope],
       touchedDocPaths: [...managed.touchedDocPaths],
+      ...(managed.changesetId ? { changesetId: managed.changesetId } : {}),
       requests: managed.session.requests().map((entry) => requestState(managed, entry)),
       proposals: managed.session.proposals().map((proposal) => proposalState(managed, proposal)),
       nextAcceptAlias: nextAcceptAlias(managed),
@@ -469,12 +575,203 @@ export function createDocsEditSessionService(
         return rejected;
       }
     }
+    await queueChangeSetSync(managed, replacement);
     const active = managed.session.proposals().find(
       (candidate) => candidate.requestAlias === entry.alias,
     );
     return active
       ? { ok: true, proposal: active }
       : { ok: false, status: 500, detail: "Restaged proposal was not retained by the session" };
+  }
+
+  async function acceptRecordedBatch(
+    managed: ManagedSession,
+    batch: DocsEditProposal[],
+  ): Promise<DocsEditAcceptAllResult | null> {
+    if (!managed.changesetId) return null;
+    const record = await readChangeSetRecord(options.docsRoot, managed.changesetId);
+    if (!record.ok || record.changeset.status !== "open") return null;
+    const covered = record.changeset.entries.length === batch.length &&
+      record.changeset.entries.every((entry, index) => {
+        const proposal = batch[index];
+        return proposal !== undefined &&
+          entry.docPath === proposal.docPath &&
+          entry.proposalId === proposal.proposalId;
+    });
+    if (!covered) return null;
+
+    // Cross-doc proposals intentionally omit annotation ids from their
+    // per-doc sidecars. Keep the record metadata durable, but let the kernel
+    // resolve every request after the compound commit so Phase-1 per-request
+    // agentRun semantics remain unchanged.
+    const annotationMetadata = record.changeset.annotationId &&
+      record.changeset.annotationDocPath
+      ? {
+          annotationId: record.changeset.annotationId,
+          annotationDocPath: record.changeset.annotationDocPath,
+        }
+      : null;
+    if (annotationMetadata) {
+      const withoutAnnotation = { ...record.changeset };
+      delete withoutAnnotation.annotationId;
+      delete withoutAnnotation.annotationDocPath;
+      const written = await writeChangeSetRecord(options.docsRoot, withoutAnnotation);
+      if (!written.ok) return null;
+    }
+    const accepted = await docsStore.changesetAccept(
+      managed.changesetId,
+      managed.session.id,
+    );
+    if (annotationMetadata) {
+      const latest = await readChangeSetRecord(options.docsRoot, managed.changesetId);
+      if (!latest.ok) {
+        throw new Error(`Failed to restore session change-set metadata: ${latest.detail}`);
+      }
+      const restored = await writeChangeSetRecord(options.docsRoot, {
+        ...latest.changeset,
+        ...annotationMetadata,
+      });
+      if (!restored.ok) {
+        throw new Error(`Failed to restore session change-set metadata: ${restored.detail}`);
+      }
+    }
+    if (!accepted.ok) {
+      const results: DocsEditAcceptAllProposalResult[] = accepted.results
+        .filter((result) => result.kind === "entry")
+        .map((result) => {
+          const proposal = batch.find(
+            (candidate) => candidate.proposalId === result.proposalId,
+          );
+          const alias = proposal?.requestAlias ?? "";
+          if (result.ok) {
+            const request = managed.session.requests().find(
+              (candidate) => candidate.alias === alias,
+            );
+            return {
+              ok: true as const,
+              alias,
+              docPath: result.docPath,
+              proposalId: result.proposalId,
+              patchId: result.patchId ?? "",
+              hash: proposal?.baseHash ?? managed.currentHash,
+              annotation: {
+                annotationId: request?.annotationId ?? "",
+                attached: false,
+                resolved: false,
+                detail: "rolled-back",
+              },
+              ...(result.rolledBack ? { rolledBack: true as const } : {}),
+            };
+          }
+          return {
+            ok: false as const,
+            alias,
+            docPath: result.docPath,
+            proposalId: result.proposalId,
+            status: result.status ?? accepted.status,
+            detail: result.detail ?? accepted.detail,
+          };
+        });
+      const failedProposal = accepted.failedEntry
+        ? batch.find(
+            (proposal) => proposal.proposalId === accepted.failedEntry?.proposalId,
+          )
+        : batch.find((proposal) =>
+            results.some(
+              (result) => !result.ok && result.proposalId === proposal.proposalId,
+            ),
+          );
+      await emitFreshChangeSet(managed);
+      return {
+        ok: false,
+        failure: {
+          alias: failedProposal?.requestAlias ?? batch[0]?.requestAlias ?? "",
+          status: accepted.status,
+          detail: accepted.detail,
+        },
+        rolledBack: true,
+        results,
+      };
+    }
+
+    const hashes = new Map<string, string>();
+    await Promise.all(
+      [...new Set(batch.map((proposal) => proposal.docPath))].map(async (path) => {
+        const loaded = await loadDocBundle(options.docsRoot, path);
+        if (!("error" in loaded)) hashes.set(path, loaded.docHash);
+      }),
+    );
+    const results: Array<Extract<DocsEditAcceptAllProposalResult, { ok: true }>> = [];
+    for (const proposal of batch) {
+      const entry = managed.session.requests().find(
+        (request) => request.alias === proposal.requestAlias,
+      );
+      if (!entry) continue;
+      const backend = accepted.results.find(
+        (result) => result.kind === "entry" && result.proposalId === proposal.proposalId,
+      );
+      const patchId = backend?.kind === "entry" && backend.patchId
+        ? backend.patchId
+        : accepted.patchId;
+      const hash = hashes.get(proposal.docPath) ?? proposal.baseHash;
+      if (proposal.docPath === managed.normalizedPath) managed.currentHash = hash;
+      managed.review.set(entry.alias, "applied");
+      managed.applied.push({
+        alias: entry.alias,
+        docPath: proposal.docPath,
+        proposalId: proposal.proposalId,
+        patchId,
+      });
+      managed.session.markApplied(entry.alias, patchId, proposal.proposalId, hash);
+      const annotation = await annotationOutcome(
+        managed,
+        entry,
+        proposal.summary,
+        entry.sidecarBacked && proposal.docPath === managed.normalizedPath,
+      );
+      results.push({
+        ok: true,
+        alias: entry.alias,
+        docPath: proposal.docPath,
+        proposalId: proposal.proposalId,
+        patchId,
+        hash,
+        annotation,
+      });
+    }
+    await emitFreshChangeSet(managed);
+    return { ok: true, results };
+  }
+
+  async function reconcileFallbackRecord(
+    managed: ManagedSession,
+    appliedSuccessfully: boolean,
+  ): Promise<void> {
+    if (!managed.changesetId) return;
+    await queueChangeSetSync(managed);
+    if (!appliedSuccessfully) return;
+
+    const loaded = await readChangeSetRecord(options.docsRoot, managed.changesetId);
+    if (!loaded.ok || loaded.changeset.status !== "open") return;
+    const patchIds = loaded.changeset.entries.map((entry) =>
+      [...managed.applied].reverse().find(
+        (applied) => applied.docPath === entry.docPath &&
+          applied.proposalId === entry.proposalId,
+      )?.patchId,
+    );
+    if (patchIds.some((patchId) => patchId === undefined)) return;
+    const compoundPatchId = randomUUID();
+    recordCompoundPatch(compoundPatchId, patchIds as string[]);
+    const written = await writeChangeSetRecord(options.docsRoot, {
+      ...loaded.changeset,
+      status: "applied",
+      resolvedAt: now(),
+      compoundPatchId,
+    });
+    if (!written.ok) {
+      throw new Error(`Failed to reconcile session change-set: ${written.detail}`);
+    }
+    await emitFreshChangeSet(managed);
   }
 
   return {
@@ -488,6 +785,7 @@ export function createDocsEditSessionService(
       if (busy) {
         return { ok: false, reason: "agent-busy", path: normalized, sessionId: busy.session.id };
       }
+      let managedForPersistence: ManagedSession | null = null;
       const launch = await launchDocsEditSession({
         docsRoot: options.docsRoot,
         path: input.path,
@@ -495,6 +793,10 @@ export function createDocsEditSessionService(
         requestIds: input.requestIds,
         extraRequests: input.extraRequests,
         sessionId: input.sessionId,
+        onProposalStaged: (proposal) => {
+          if (!managedForPersistence) return;
+          return queueChangeSetSync(managedForPersistence, proposal);
+        },
       });
       if (!launch.ok) return launch;
       const managed: ManagedSession = {
@@ -502,6 +804,7 @@ export function createDocsEditSessionService(
         launch,
         normalizedPath: launch.session.path,
         touchedDocPaths: new Set([launch.session.path]),
+        changesetSyncTail: Promise.resolve(),
         createdAt: now(),
         currentHash: launch.session.baseHash,
         review: new Map(),
@@ -513,6 +816,7 @@ export function createDocsEditSessionService(
         pendingRerunAliases: new Set(),
         disposed: false,
       };
+      managedForPersistence = managed;
       managed.unsubscribeSession = launch.session.subscribe((event) => {
         if (event.type === "proposal-staged") {
           managed.touchedDocPaths.add(event.proposal.docPath);
@@ -547,6 +851,12 @@ export function createDocsEditSessionService(
 
     getSession: (sessionId) => sessions.get(sessionId)?.session ?? null,
     getLaunch: (sessionId) => sessions.get(sessionId)?.launch ?? null,
+    async getChangeSet(sessionId) {
+      const managed = sessions.get(sessionId);
+      if (!managed?.changesetId) return null;
+      const loaded = await docsStore.changesetGet(managed.changesetId);
+      return loaded.ok ? loaded.changeset : null;
+    },
     subscribe(sessionId, listener) {
       const managed = sessions.get(sessionId);
       if (!managed) return null;
@@ -569,7 +879,7 @@ export function createDocsEditSessionService(
         return { ok: false, failure: { kind: "out_of_order", alias, nextAlias: nextAlias ?? alias } };
       }
 
-      if (managed.review.get(alias) === "undone") {
+      if (managed.review.get(alias) === "undone" && proposal.patchId) {
         const refreshed = await restage(managed, entry, proposal);
         if (!refreshed.ok) {
           return { ok: false, failure: failureFromBackend("apply_failure", refreshed) };
@@ -613,6 +923,7 @@ export function createDocsEditSessionService(
         proposal.summary,
         entry.sidecarBacked && proposal.docPath === managed.normalizedPath,
       );
+      await emitFreshChangeSet(managed);
       return { ok: true, alias, proposalId: proposal.proposalId, patchId: accepted.patchId, hash: accepted.hash, annotation };
     },
 
@@ -635,6 +946,9 @@ export function createDocsEditSessionService(
           results: [],
         };
       }
+
+      const recorded = await acceptRecordedBatch(managed, batch);
+      if (recorded) return recorded;
 
       const appliedPrefix: Array<{
         entry: DocsEditRequestEntry;
@@ -673,12 +987,14 @@ export function createDocsEditSessionService(
           }
         }
         for (const result of results) result.rolledBack = true;
-        return {
+        const rolledBack: DocsEditAcceptAllResult = {
           ok: false,
           failure: { alias: failed.alias, status: failed.status, detail: failed.detail },
           rolledBack: true,
           results: [...results, failed],
         };
+        await reconcileFallbackRecord(managed, false);
+        return rolledBack;
       };
 
       for (const candidate of batch) {
@@ -700,7 +1016,7 @@ export function createDocsEditSessionService(
 
         // An undone proposal has already been accepted in its sidecar. Refresh
         // it before the atomic window so the batch itself never auto-restages.
-        if (managed.review.get(proposal.requestAlias) === "undone") {
+        if (managed.review.get(proposal.requestAlias) === "undone" && proposal.patchId) {
           const refreshed = await restage(managed, entry, proposal);
           if (!refreshed.ok) {
             const failed = {
@@ -753,6 +1069,12 @@ export function createDocsEditSessionService(
           proposalId: proposal.proposalId,
           patchId: accepted.patchId,
           hash: accepted.hash,
+          annotation: {
+            annotationId: entry.annotationId,
+            attached: false,
+            resolved: false,
+            detail: "pending-batch",
+          },
         });
       }
 
@@ -789,6 +1111,7 @@ export function createDocsEditSessionService(
         );
         if (result) result.annotation = annotation;
       }
+      await reconcileFallbackRecord(managed, true);
       return { ok: true, results };
     },
 
@@ -814,6 +1137,27 @@ export function createDocsEditSessionService(
       managed.session.markRejected(alias, closingNote);
       const annotation = await annotationOutcome(managed, entry, closingNote, false);
       const request = managed.session.requests().find((candidate) => candidate.alias === alias)!;
+      const rejectedEverything = managed.changesetId !== undefined &&
+        managed.session.proposals().every(
+          (candidate) => managed.review.get(candidate.requestAlias) === "rejected",
+        );
+      if (rejectedEverything) {
+        const changeset = await docsStore.changesetReject(
+          managed.changesetId!,
+          managed.session.id,
+        );
+        if (changeset.ok) {
+          emit(managed, {
+            type: "changeset-updated",
+            sessionId: managed.session.id,
+            changeset: changeset.changeset,
+          });
+        } else {
+          await emitFreshChangeSet(managed);
+        }
+      } else {
+        await emitFreshChangeSet(managed);
+      }
       return { ok: true, alias, proposalId: proposal.proposalId, request, annotation };
     },
 
@@ -830,6 +1174,52 @@ export function createDocsEditSessionService(
       if (!latest || latest.alias !== alias) {
         return { ok: false, failure: { kind: "not_latest_applied", alias, lastAppliedAlias: latest?.alias ?? alias } };
       }
+
+      if (managed.changesetId) {
+        const changeset = await docsStore.changesetGet(managed.changesetId);
+        if (changeset.ok && changeset.changeset.status === "applied") {
+          const undone = await docsStore.changesetUndo(
+            managed.changesetId,
+            managed.session.id,
+          );
+          if (!undone.ok) {
+            return {
+              ok: false,
+              failure: failureFromBackend("undo_failed", undone),
+            };
+          }
+          const hashes = new Map<string, string>();
+          await Promise.all(
+            [...new Set(managed.applied.map((applied) => applied.docPath))].map(
+              async (path) => {
+                const loaded = await loadDocBundle(options.docsRoot, path);
+                if (!("error" in loaded)) hashes.set(path, loaded.docHash);
+              },
+            ),
+          );
+          const appliedBatch = [...managed.applied];
+          managed.applied = [];
+          for (const applied of appliedBatch) {
+            const hash = hashes.get(applied.docPath) ?? managed.session.baseHash;
+            if (applied.docPath === managed.normalizedPath) managed.currentHash = hash;
+            managed.review.set(applied.alias, "undone");
+            managed.session.markUndone(applied.alias, hash);
+          }
+          emit(managed, {
+            type: "changeset-updated",
+            sessionId: managed.session.id,
+            changeset: undone.changeset,
+          });
+          return {
+            ok: true,
+            alias,
+            proposalId: latest.proposalId,
+            patchId: latest.patchId,
+            hash: hashes.get(latest.docPath) ?? managed.session.baseHash,
+          };
+        }
+      }
+
       const undone = await undo_patch(options.docsRoot, latest.patchId);
       if (!undone.ok) return { ok: false, failure: failureFromBackend("undo_failed", undone) };
       if (undone.kind !== "doc") {
@@ -841,6 +1231,14 @@ export function createDocsEditSessionService(
       }
       managed.review.set(alias, "undone");
       managed.session.markUndone(alias, undone.hash);
+      const entry = managed.session.requests().find(
+        (candidate) => candidate.alias === alias,
+      );
+      const proposal = managed.session.proposals().find(
+        (candidate) => candidate.requestAlias === alias,
+      );
+      if (entry && proposal) await restage(managed, entry, proposal, false);
+      await emitFreshChangeSet(managed);
       return { ok: true, alias, proposalId: latest.proposalId, patchId: latest.patchId, hash: undone.hash };
     },
 

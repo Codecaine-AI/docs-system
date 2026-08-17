@@ -45,6 +45,19 @@ const CORS_HEADERS = {
   "access-control-allow-headers": "Content-Type",
 } as const;
 
+/** Convert internal camelCase records into the server's snake_case wire shape. */
+function toSnakeCaseWire(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(toSnakeCaseWire);
+  if (value === null || typeof value !== "object") return value;
+
+  return Object.fromEntries(
+    Object.entries(value).map(([key, entry]) => [
+      key.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`),
+      toSnakeCaseWire(entry),
+    ]),
+  );
+}
+
 /**
  * `createDocsRoutes(store)` — the full docs read+write HTTP surface as an
  * Elysia plugin, mounted under `/api/*`. Read routes keep the exact
@@ -77,6 +90,11 @@ const CORS_HEADERS = {
  *   POST /api/proposals                     -> 201 { proposal, proposals, hash } | 400/409/423
  *   POST /api/proposals/:id/accept          -> accepted proposal + applied doc/patch | 404/409/423
  *   POST /api/proposals/:id/reject          -> rejected proposal + proposal sidecar | 404/409/423
+ *   GET  /api/changesets                    -> { changesets } (optional ?path= filter)
+ *   POST /api/changesets                    -> 201 { changeset } | 400/422/423
+ *   POST /api/changesets/:id/accept         -> { changeset, patch_id } | 404/409/423
+ *   POST /api/changesets/:id/reject         -> { changeset } | 404/409/423
+ *   POST /api/changesets/:id/undo           -> { changeset } | 404/409/423
  *   POST /api/draft-lock/acquire            -> { ok, lock } | 423 { ok:false, reason, heldBy }
  *   POST /api/draft-lock/heartbeat          -> same as acquire
  *   POST /api/draft-lock/release            -> { ok: true }
@@ -759,6 +777,158 @@ export function createDocsRoutes(store: DocsStore, options?: { themeLocked?: boo
       },
     )
 
+    // -- multi-document change-sets -----------------------------------------
+    .get(
+      "/api/changesets",
+      async ({ query, set }) => {
+        const result = await store.changesets(query.path);
+        if (!result.ok) {
+          set.status = result.status;
+          return { detail: result.detail };
+        }
+        return { changesets: toSnakeCaseWire(result.changesets) };
+      },
+      { query: t.Object({ path: t.Optional(t.String({ minLength: 1 })) }) },
+    )
+    .post(
+      "/api/changesets",
+      async ({ body, set }) => {
+        const result = await store.changesetStage({
+          summary: body.summary,
+          sessionId: body.session_id,
+          annotationId: body.annotation_id,
+          annotationDocPath: body.annotation_doc_path,
+          alias: body.alias,
+          entries: body.entries.map((entry) => ({
+            docPath: entry.path,
+            proposalId: entry.proposal_id,
+          })),
+          treeOps: (body.tree_ops ?? []).map((op) => {
+            if (op.kind === "create-doc") {
+              return {
+                kind: op.kind,
+                docPath: op.doc_path,
+                title: op.title,
+                position: op.position,
+              };
+            }
+            if (op.kind === "delete-doc") {
+              return { kind: op.kind, docPath: op.doc_path, position: op.position };
+            }
+            return { kind: op.kind, from: op.from, to: op.to, position: op.position };
+          }),
+        });
+        if (!result.ok) {
+          set.status = result.status;
+          return { detail: result.detail };
+        }
+        set.status = 201;
+        return { changeset: toSnakeCaseWire(result.changeset) };
+      },
+      {
+        body: t.Object({
+          summary: t.String({ minLength: 1 }),
+          session_id: t.Optional(t.String({ minLength: 1 })),
+          annotation_id: t.Optional(t.String({ minLength: 1 })),
+          annotation_doc_path: t.Optional(t.String({ minLength: 1 })),
+          alias: t.Optional(t.String({ minLength: 1 })),
+          entries: t.Array(
+            t.Object({
+              path: t.String({ minLength: 1 }),
+              proposal_id: t.String({ minLength: 1 }),
+            }),
+          ),
+          tree_ops: t.Optional(
+            t.Array(
+              t.Union([
+                t.Object({
+                  kind: t.Literal("create-doc"),
+                  doc_path: t.String({ minLength: 1 }),
+                  title: t.String({ minLength: 1 }),
+                  position: t.Integer({ minimum: 0 }),
+                }),
+                t.Object({
+                  kind: t.Literal("delete-doc"),
+                  doc_path: t.String({ minLength: 1 }),
+                  position: t.Integer({ minimum: 0 }),
+                }),
+                t.Object({
+                  kind: t.Literal("move-doc"),
+                  from: t.String({ minLength: 1 }),
+                  to: t.String({ minLength: 1 }),
+                  position: t.Integer({ minimum: 0 }),
+                }),
+              ]),
+            ),
+          ),
+        }),
+      },
+    )
+    .post(
+      "/api/changesets/:id/accept",
+      async ({ params, body, set }) => {
+        const result = await store.changesetAccept(params.id, body.session_id);
+        if (!result.ok) {
+          set.status = result.status;
+          return {
+            detail: result.detail,
+            ...(result.failedEntry
+              ? {
+                  failed_entry: {
+                    path: result.failedEntry.docPath,
+                    proposal_id: result.failedEntry.proposalId,
+                  },
+                }
+              : {}),
+            ...(result.results ? { results: toSnakeCaseWire(result.results) } : {}),
+            ...(result.rolledBack !== undefined ? { rolled_back: result.rolledBack } : {}),
+            ...(result.rollbackFailures
+              ? { rollback_failures: toSnakeCaseWire(result.rollbackFailures) }
+              : {}),
+          };
+        }
+        return {
+          changeset: toSnakeCaseWire(result.changeset),
+          patch_id: result.patchId,
+          ...(result.annotationFailure
+            ? { annotation_failure: toSnakeCaseWire(result.annotationFailure) }
+            : {}),
+        };
+      },
+      { body: t.Object({ session_id: t.Optional(t.String({ minLength: 1 })) }) },
+    )
+    .post(
+      "/api/changesets/:id/reject",
+      async ({ params, body, set }) => {
+        const result = await store.changesetReject(params.id, body.session_id);
+        if (!result.ok) {
+          set.status = result.status;
+          return { detail: result.detail };
+        }
+        return { changeset: toSnakeCaseWire(result.changeset) };
+      },
+      { body: t.Object({ session_id: t.Optional(t.String({ minLength: 1 })) }) },
+    )
+    .post(
+      "/api/changesets/:id/undo",
+      async ({ params, body, set }) => {
+        const result = await store.changesetUndo(params.id, body.session_id);
+        if (!result.ok) {
+          set.status = result.status;
+          return {
+            detail: result.detail,
+            failed_patch_id: result.failedPatchId,
+            undone_patch_ids: result.undonePatchIds,
+            proposal_failures: result.proposalFailures
+              ? toSnakeCaseWire(result.proposalFailures)
+              : undefined,
+          };
+        }
+        return { changeset: toSnakeCaseWire(result.changeset) };
+      },
+      { body: t.Object({ session_id: t.Optional(t.String({ minLength: 1 })) }) },
+    )
+
     // -- draft locks ---------------------------------------------------------------
     .post(
       "/api/draft-lock/acquire",
@@ -888,7 +1058,13 @@ export function createDocsRoutes(store: DocsStore, options?: { themeLocked?: boo
         const result = await store.undoPatch(body.patch_id);
         if (!result.ok) {
           set.status = result.status;
-          return { ok: false, detail: result.detail, current_hash: result.current_hash };
+          return {
+            ok: false,
+            detail: result.detail,
+            current_hash: result.current_hash,
+            failed_patch_id: result.failedPatchId,
+            undone_patch_ids: result.undonePatchIds,
+          };
         }
         store.publishChange({
           path: "",
@@ -901,6 +1077,9 @@ export function createDocsRoutes(store: DocsStore, options?: { themeLocked?: boo
         }
         if (result.kind === "sequence") {
           return { ok: true, sequence: result.sequence, hash: result.hash };
+        }
+        if (result.kind === "compound") {
+          return { ok: true, undone_patch_ids: result.undonePatchIds };
         }
         return { ok: true, canvas: result.canvas, hash: result.hash };
       },

@@ -3,10 +3,9 @@ import type { InteractiveCanvasDocument } from "@codecaine-ai/canvas/schema";
 import type { SequenceDocument } from "@codecaine-ai/sequence/schema";
 
 /**
- * Shared patch/inverse store (undo ledger). A stored patch is EITHER a
- * doc-ops patch (inverse = `DocOp[]`, replayed through `applyDocOpsToBundle`)
- * OR a canvas patch (inverse = the full pre-patch canvas snapshot, replayed
- * as a whole-document replace). Canvas patch operations don't carry a
+ * Shared patch/inverse store (undo ledger). A stored patch is a doc-ops
+ * inverse, a full prior canvas/sequence snapshot, or a compound entry that
+ * orders member patch ids. Canvas and sequence operations don't carry a
  * generic per-op inverse the way `DocOp`s do — a whole-snapshot inverse is
  * the simplest thing that is ALWAYS correct (apply-then-undo) at the cost of
  * coarser undo granularity.
@@ -31,7 +30,8 @@ export type StoredPatch =
       priorSnapshot: SequenceDocument;
       hashAfterApply: string;
       createdAt: string;
-    };
+    }
+  | { kind: "compound"; patchIds: string[]; createdAt: string };
 
 const patchesById = new Map<string, StoredPatch>();
 
@@ -76,6 +76,14 @@ export function recordSequencePatch(
     path,
     priorSnapshot,
     hashAfterApply,
+    createdAt: new Date().toISOString(),
+  });
+}
+
+export function recordCompoundPatch(patchId: string, patchIds: string[]): void {
+  patchesById.set(patchId, {
+    kind: "compound",
+    patchIds: [...patchIds],
     createdAt: new Date().toISOString(),
   });
 }

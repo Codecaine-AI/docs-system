@@ -1,4 +1,7 @@
-import type { DocEditRequestStatus } from "@codecaine-ai/docs-viewer/lab";
+import type {
+	DocChangeSetView,
+	DocEditRequestStatus,
+} from "@codecaine-ai/docs-viewer/lab";
 
 import {
 	isFailure,
@@ -13,6 +16,7 @@ export interface DocsKernelSessionSnapshot {
 	starting: boolean;
 	state: DocsEditSessionState | null;
 	statusOverlay: ReadonlyMap<string, DocEditRequestStatus>;
+	changesets: ReadonlyMap<string, DocChangeSetView>;
 	sessionError?: string;
 	streamError?: string;
 }
@@ -24,7 +28,9 @@ export type DocsKernelSessionActionResult =
 
 export interface DocsKernelSessionHandle {
 	live(): boolean;
+	sessionId(): string | undefined;
 	statusOverlay(): ReadonlyMap<string, DocEditRequestStatus>;
+	changesets(): ReadonlyMap<string, DocChangeSetView>;
 	accept(annotationId: string): Promise<DocsKernelSessionActionResult>;
 	reject(annotationId: string, note?: string): Promise<DocsKernelSessionActionResult>;
 	undo(annotationId: string): Promise<DocsKernelSessionActionResult>;
@@ -142,6 +148,8 @@ export function reduceDocsEditSessionEvent(
 					...(event.phase === "failed" ? { error: event.error } : {}),
 				},
 			};
+		case "changeset-updated":
+			return state;
 	}
 }
 
@@ -191,6 +199,7 @@ export function createDocsKernelSessionSource(
 	let unsubscribeStream: (() => void) | null = null;
 	let snapshot: DocsKernelSessionSnapshot | null = null;
 	let lastChangedHash: string | null = null;
+	const changesets = new Map<string, DocChangeSetView>();
 	const endedSessions = new Set<string>();
 	const disposingSessions = new Set<string>();
 
@@ -214,6 +223,7 @@ export function createDocsKernelSessionSource(
 		if (state?.sessionId !== sessionId) return;
 		stopStream();
 		state = null;
+		changesets.clear();
 		notify();
 		announceEnd(sessionId);
 	}
@@ -259,6 +269,10 @@ export function createDocsKernelSessionSource(
 		}
 		if (event.type === "session-state") {
 			state = event.state;
+			notify();
+		} else if (event.type === "changeset-updated") {
+			if (state === null || event.sessionId !== state.sessionId) return;
+			changesets.set(event.changeset.id, event.changeset);
 			notify();
 		} else if (state !== null) {
 			state = reduceDocsEditSessionEvent(state, event);
@@ -320,6 +334,7 @@ export function createDocsKernelSessionSource(
 	const api: DocsKernelSessionSource = {
 		async applyQueue(annotationIds) {
 			if (state !== null || starting) return;
+			changesets.clear();
 			starting = true;
 			sessionError = undefined;
 			notify();
@@ -427,8 +442,14 @@ export function createDocsKernelSessionSource(
 
 		live: () => state !== null,
 
+		sessionId: () => state?.sessionId,
+
 		statusOverlay() {
 			return api.getSnapshot().statusOverlay;
+		},
+
+		changesets() {
+			return api.getSnapshot().changesets;
 		},
 
 		getSnapshot() {
@@ -444,6 +465,7 @@ export function createDocsKernelSessionSource(
 				starting,
 				state,
 				statusOverlay: overlay,
+				changesets: new Map(changesets),
 				...(sessionError !== undefined ? { sessionError } : {}),
 				...(streamError !== undefined ? { streamError } : {}),
 			};

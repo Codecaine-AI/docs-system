@@ -2,19 +2,24 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { AnnotationsDocument, AnnotationTarget } from "@codecaine-ai/docs-model/annotations-schema";
 import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import type {
+	DocChangeSetView,
 	DocEditRequest,
 	DocEditSession,
 } from "@codecaine-ai/docs-viewer/lab";
 
 import {
 	ApiError,
+	acceptChangeset as acceptChangesetApi,
 	acceptProposal,
 	addAnnotation,
 	addAnnotationReply,
+	listChangesets,
 	listProposals,
+	rejectChangeset as rejectChangesetApi,
 	rejectProposal,
 	subscribeDocsEvents,
 	undoPatch,
+	undoChangeset as undoChangesetApi,
 	type DocProposal,
 } from "../data/api";
 import {
@@ -23,6 +28,7 @@ import {
 	staleStagedProposals,
 } from "./doc-lab-projection";
 import type { DocsKernelSessionHandle } from "./docs-kernel-session-source";
+import { overlayChangesets, selectChangesetsForDoc } from "./doc-lab-changesets";
 
 export interface UseDocLabSessionOptions {
 	path: string;
@@ -48,8 +54,15 @@ export interface DocLabSessionResult {
 	staleProposals: (DocProposal & { stale: boolean })[];
 	requestErrors: Record<string, string>;
 	proposalsError: string | null;
+	changesets: DocChangeSetView[];
+	changesetBusy: Record<string, "accepting" | "rejecting" | "undoing">;
+	changesetErrors: Record<string, string>;
 	agentConnected: boolean;
 	refetchProposals: () => Promise<void>;
+	refetchChangesets: () => Promise<void>;
+	acceptChangeset: (id: string) => Promise<void>;
+	rejectChangeset: (id: string) => Promise<void>;
+	undoChangeset: (id: string) => Promise<void>;
 }
 
 type UndoableAccept = { alias: string; patchId: string };
@@ -66,9 +79,13 @@ export function useDocLabSession(options: UseDocLabSessionOptions): DocLabSessio
 	proposalsRef.current = proposals;
 	const proposalsHashRef = useRef<string | null>(null);
 	const [proposalsError, setProposalsError] = useState<string | null>(null);
+	const [fetchedChangesets, setFetchedChangesets] = useState<DocChangeSetView[]>([]);
+	const [changesetBusy, setChangesetBusy] = useState<Record<string, "accepting" | "rejecting" | "undoing">>({});
+	const [changesetErrors, setChangesetErrors] = useState<Record<string, string>>({});
 	const [requestErrors, setRequestErrors] = useState<Record<string, string>>({});
 	const [undoable, setUndoable] = useState<UndoableAccept | null>(null);
 	const fetchSequenceRef = useRef(0);
+	const changesetFetchSequenceRef = useRef(0);
 	const pathRef = useRef(path);
 	const annotationsHashRef = useRef(annotationsHash);
 	const docHashRef = useRef(docHash);
@@ -99,29 +116,62 @@ export function useDocLabSession(options: UseDocLabSessionOptions): DocLabSessio
 		}
 	}, [enabled, path]);
 
+	const refetchChangesets = useCallback(async () => {
+		if (!enabled) return;
+		const requestedPath = path;
+		const sequence = ++changesetFetchSequenceRef.current;
+		try {
+			const next = await listChangesets();
+			if (sequence !== changesetFetchSequenceRef.current || pathRef.current !== requestedPath) return;
+			setFetchedChangesets(next);
+		} catch (error) {
+			if (sequence !== changesetFetchSequenceRef.current || pathRef.current !== requestedPath) return;
+			setChangesetErrors((current) => ({ ...current, _list: errorMessage(error) }));
+		}
+	}, [enabled, path]);
+
 	useEffect(() => {
 		fetchSequenceRef.current += 1;
+		changesetFetchSequenceRef.current += 1;
 		setProposals([]);
 		proposalsHashRef.current = null;
 		setUndoable(null);
 		setRequestErrors({});
 		setProposalsError(null);
-		if (enabled) void refetchProposals();
-	}, [enabled, path, refetchProposals]);
+		setFetchedChangesets([]);
+		setChangesetBusy({});
+		setChangesetErrors({});
+		if (enabled) {
+			void refetchProposals();
+			void refetchChangesets();
+		}
+	}, [enabled, path, refetchProposals, refetchChangesets]);
 
 	const refetchProposalsRef = useRef(refetchProposals);
 	refetchProposalsRef.current = refetchProposals;
+	const refetchChangesetsRef = useRef(refetchChangesets);
+	refetchChangesetsRef.current = refetchChangesets;
 	useEffect(() => {
 		if (!enabled) return;
 		return subscribeDocsEvents((event) => {
 			if (event.path === pathRef.current || event.path === "") {
 				void refetchProposalsRef.current();
+				void refetchChangesetsRef.current();
 			}
 		});
 	}, [enabled]);
 
 	const kernelLive = options.kernelSession?.live() ?? false;
 	const kernelStatusOverlay = options.kernelSession?.statusOverlay();
+	const kernelChangesets = options.kernelSession?.changesets?.() ?? new Map<string, DocChangeSetView>();
+	const changesets = useMemo(
+		() => selectChangesetsForDoc(
+			overlayChangesets(fetchedChangesets, kernelChangesets.values()),
+			path,
+			options.kernelSession?.sessionId?.(),
+		),
+		[fetchedChangesets, kernelChangesets, path, options.kernelSession],
+	);
 	const requests = useMemo(() => {
 		const projected = deriveDocEditRequests({ annotations, proposals, doc });
 		if (!kernelLive || !kernelStatusOverlay) return projected;
@@ -335,6 +385,47 @@ export function useDocLabSession(options: UseDocLabSessionOptions): DocLabSessio
 		? (annotationIds: string[]) => onApplyQueueRef.current?.(annotationIds)
 		: undefined, [options.onApplyQueue]);
 
+	const runChangesetAction = useCallback(async (
+		id: string,
+		busy: "accepting" | "rejecting" | "undoing",
+		action: (id: string) => Promise<DocChangeSetView>,
+	) => {
+		setChangesetBusy((current) => ({ ...current, [id]: busy }));
+		setChangesetErrors((current) => {
+			const next = { ...current };
+			delete next[id];
+			return next;
+		});
+		try {
+			await action(id);
+			await Promise.all([
+				refetchProposalsRef.current(),
+				refetchChangesetsRef.current(),
+				refreshBundleRef.current(),
+			]);
+		} catch (error) {
+			setChangesetErrors((current) => ({ ...current, [id]: errorMessage(error) }));
+		} finally {
+			setChangesetBusy((current) => {
+				const next = { ...current };
+				delete next[id];
+				return next;
+			});
+		}
+	}, []);
+	const acceptChangeset = useCallback(
+		(id: string) => runChangesetAction(id, "accepting", acceptChangesetApi),
+		[runChangesetAction],
+	);
+	const rejectChangeset = useCallback(
+		(id: string) => runChangesetAction(id, "rejecting", rejectChangesetApi),
+		[runChangesetAction],
+	);
+	const undoChangeset = useCallback(
+		(id: string) => runChangesetAction(id, "undoing", undoChangesetApi),
+		[runChangesetAction],
+	);
+
 	const session = useMemo<DocEditSession>(() => ({
 		requests,
 		proposals: staged,
@@ -356,7 +447,14 @@ export function useDocLabSession(options: UseDocLabSessionOptions): DocLabSessio
 		staleProposals: stale,
 		requestErrors,
 		proposalsError,
+		changesets,
+		changesetBusy,
+		changesetErrors,
 		agentConnected: Boolean(options.onApplyQueue),
 		refetchProposals,
+		refetchChangesets,
+		acceptChangeset,
+		rejectChangeset,
+		undoChangeset,
 	};
 }

@@ -60,6 +60,7 @@ const stagedProposal = (overrides: Partial<WireProposal> = {}): WireProposal => 
 type RequestCall = { url: string; method: string; body: Record<string, unknown> | null };
 let calls: RequestCall[];
 let proposals: WireProposal[];
+let changesets: Array<Record<string, unknown>>;
 let routeOverrides: Array<(call: RequestCall) => Response | undefined>;
 let realFetch: typeof fetch;
 let realEventSource: typeof EventSource | undefined;
@@ -85,6 +86,7 @@ class QuietEventSource {
 beforeEach(() => {
   calls = [];
   proposals = [];
+  changesets = [];
   routeOverrides = [];
   realFetch = globalThis.fetch;
   realEventSource = globalThis.EventSource;
@@ -99,6 +101,7 @@ beforeEach(() => {
       if (response) return response;
     }
     if (url.startsWith("api/proposals?") && call.method === "GET") return json(proposalList());
+    if (url === "api/changesets" && call.method === "GET") return json({ changesets });
     if (url.endsWith("/reject")) {
       proposals = proposals.map((proposal) =>
         proposal.id === "proposal-1" ? { ...proposal, status: "rejected", stale: false } : proposal,
@@ -136,6 +139,63 @@ function renderSession(overrides: Partial<Parameters<typeof useDocLabSession>[0]
 }
 
 describe("useDocLabSession", () => {
+	it("fetches change-sets and overlays the latest kernel event view", async () => {
+		changesets = [{
+			id: "cs-1", summary: "Move content", status: "open", session_id: "session-1",
+			entries: [{ doc_path: "guide", proposal_id: "p-cs", status: "staged", stale: false, summary: "Remove", add_count: 0, del_count: 1 }],
+			tree_ops: [], created_at: "2026-01-01T00:00:00.000Z", progress: { accepted: 0, total: 1 },
+		}];
+		let liveViews = new Map();
+		const kernelSession = {
+			live: () => true,
+			statusOverlay: () => new Map(),
+			changesets: () => liveViews,
+			sessionId: () => "session-1",
+		} as never;
+		const { result, rerender } = renderSession({ kernelSession });
+		await waitFor(() => expect(result.current.changesets[0]?.summary).toBe("Move content"));
+		liveViews = new Map([["cs-1", { ...result.current.changesets[0]!, summary: "Move content now", entries: [{ ...result.current.changesets[0]!.entries[0]!, addCount: 2 }] }]]);
+		rerender();
+		expect(result.current.changesets[0]?.summary).toBe("Move content now");
+		expect(result.current.changesets[0]?.entries[0]?.addCount).toBe(2);
+	});
+
+	it("tracks accept busy state through the applied refetch and records failures", async () => {
+		changesets = [{
+			id: "cs-1", summary: "Move content", status: "open",
+			entries: [{ doc_path: "guide", proposal_id: "p-cs", status: "staged", stale: false, summary: "Remove", add_count: 0, del_count: 1 }],
+			tree_ops: [], created_at: "2026-01-01T00:00:00.000Z", progress: { accepted: 0, total: 1 },
+		}];
+		let releaseAccept!: () => void;
+		const accepting = new Promise<void>((resolve) => { releaseAccept = resolve; });
+		routeOverrides.push((call) => {
+			if (call.url !== "api/changesets/cs-1/accept") return;
+			return new Response(new ReadableStream({ async start(controller) {
+				await accepting;
+				changesets = [{ ...changesets[0]!, status: "applied", compound_patch_id: "patch-cs", resolved_at: "2026-01-01T00:01:00.000Z" }];
+				controller.enqueue(new TextEncoder().encode(JSON.stringify({ changeset: changesets[0] })));
+				controller.close();
+			} }), { headers: { "Content-Type": "application/json" } });
+		});
+		const { result } = renderSession();
+		await waitFor(() => expect(result.current.changesets).toHaveLength(1));
+		let action!: Promise<void>;
+		act(() => { action = result.current.acceptChangeset("cs-1"); });
+		await waitFor(() => expect(result.current.changesetBusy["cs-1"]).toBe("accepting"));
+		releaseAccept();
+		await act(async () => { await action; });
+		expect(result.current.changesetBusy["cs-1"]).toBeUndefined();
+		expect(result.current.changesets[0]?.status).toBe("applied");
+		expect(calls.find((call) => call.url.endsWith("/accept"))?.body).toEqual({ session_id: expect.any(String) });
+
+		routeOverrides.unshift((call) => call.url.endsWith("/accept") ? json({ detail: "rollback complete" }, 409) : undefined);
+		changesets = [{ ...changesets[0]!, status: "open", compound_patch_id: undefined, resolved_at: undefined }];
+		await act(async () => { await result.current.refetchChangesets(); });
+		await act(async () => { await result.current.acceptChangeset("cs-1"); });
+		expect(result.current.changesetErrors["cs-1"]).toBe("rollback complete");
+		expect(result.current.changesets[0]?.status).toBe("open");
+	});
+
 	it("overlays live kernel request statuses by annotation id", async () => {
 		const kernelSession = {
 			live: () => true,

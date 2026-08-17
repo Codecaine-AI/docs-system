@@ -5,11 +5,13 @@ import type {
 	DocEditProposal,
 	DocEditRequest,
 	DocEditSession,
+	DocChangeSetView,
 } from "@codecaine-ai/docs-viewer/lab";
 
 import { DocLab, type DocLabProps } from "../DocLab";
 import type { DocLabSessionResult } from "../doc-lab-controller";
 import { labelForTarget } from "../target-label";
+import { consumeAiModeHandoff } from "../doc-lab-changesets";
 
 afterEach(cleanup);
 
@@ -120,8 +122,15 @@ function lab(
 		staleProposals: [],
 		requestErrors: {},
 		proposalsError: null,
+		changesets: [],
+		changesetBusy: {},
+		changesetErrors: {},
 		agentConnected: Boolean(session.onApplyQueue),
 		refetchProposals: mock(async () => {}),
+		refetchChangesets: mock(async () => {}),
+		acceptChangeset: mock(async () => {}),
+		rejectChangeset: mock(async () => {}),
+		undoChangeset: mock(async () => {}),
 		...overrides,
 	};
 }
@@ -180,6 +189,46 @@ describe("labelForTarget", () => {
 });
 
 describe("DocLab", () => {
+	it("mounts change-set cards before threads and preserves AI mode on row navigation", () => {
+		consumeAiModeHandoff();
+		window.location.hash = "#/guide";
+		const changeset: DocChangeSetView = {
+			id: "cs-1",
+			summary: "Move a section",
+			status: "open",
+			entries: [{
+				docPath: "reference/api",
+				proposalId: "proposal-cs-1",
+				status: "staged",
+				stale: false,
+				summary: "Add section",
+				addCount: 2,
+				delCount: 0,
+			}],
+			treeOps: [],
+			createdAt: "2026-01-01T00:00:00.000Z",
+			progress: { accepted: 0, total: 1 },
+		};
+		render(
+			<div className="relative h-[800px]">
+				<DocLab tab="ai" onTabSelect={mock(() => {})} doc={DOC}
+					openDocPath="guide" outlineScrollerSelector="[data-test-scroller]"
+					lab={lab({ requests: [], proposals: [] }, { changesets: [changeset] })}
+					threads={threads()} onFocusTarget={mock(() => {})} />
+			</div>,
+		);
+		const card = document.querySelector('[data-docs-lab-changeset="cs-1"]');
+		const threadZone = document.querySelector('[data-lab-zone="threads"]');
+		expect(card).toBeTruthy();
+		expect(threadZone).toBeTruthy();
+		expect(Boolean(card!.compareDocumentPosition(threadZone!) & Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true);
+
+		fireEvent.click(document.querySelector('[data-docs-lab-changeset-row="reference/api"]')!);
+		expect(window.location.hash).toBe("#/reference/api");
+		expect(consumeAiModeHandoff()).toBe(true);
+		expect(consumeAiModeHandoff()).toBe(false);
+	});
+
 	it("renders the edit outline and delegates tab selection", () => {
 		const onTabSelect = mock(() => {});
 		render(

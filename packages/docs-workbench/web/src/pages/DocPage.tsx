@@ -70,6 +70,7 @@ import { blockTextRangeFromDomRange } from "../lib/annotate-range";
 import { DocLab } from "../lab/DocLab";
 import { DOCK_DEFAULT_WIDTH } from "@codecaine-ai/docs-viewer/lab";
 import { useDocLabSession } from "../lab/doc-lab-controller";
+import { consumeAiModeHandoff } from "../lab/doc-lab-changesets";
 import { useDocsKernelSession } from "../lab/use-docs-kernel-session";
 import {
   blocksInStagedRegions,
@@ -407,7 +408,7 @@ export function DocPage({
     setAnnotations(null);
     setAnnotationsHash(null);
     setBacklinks([]);
-    setMode("edit");
+    setMode(consumeAiModeHandoff() ? "annotate" : "edit");
     setSaveState("saved");
     setSelection(null);
     setPaneError(null);
