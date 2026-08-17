@@ -115,32 +115,6 @@
           }
         },
         {
-          "insert": ". The model contract lives in "
-        },
-        {
-          "insert": "packages/docs-model/src/components/code/",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-model/src/components/code"
-            }
-          }
-        },
-        {
-          "insert": "; every doc surface lives in "
-        },
-        {
-          "insert": "packages/docs-viewer/src/components/code/",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-viewer/src/components/code"
-            }
-          }
-        },
-        {
           "insert": "."
         }
       ],
@@ -657,8 +631,7 @@
       ],
       "children": [
         "b-codefam-act-set-a",
-        "b-codefam-act-set-b",
-        "b-codefam-act-set-c"
+        "b-codefam-act-set-b"
       ]
     },
     "b-codefam-act-set-a": {
@@ -701,30 +674,6 @@
       ],
       "children": []
     },
-    "b-codefam-act-set-c": {
-      "id": "b-codefam-act-set-c",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Defined in "
-        },
-        {
-          "insert": "packages/docs-model/src/components/code/actions/set-annotation.ts",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-model/src/components/code/actions/set-annotation.ts"
-            }
-          }
-        },
-        {
-          "insert": "."
-        }
-      ],
-      "children": []
-    },
     "b-codefam-act-remove": {
       "id": "b-codefam-act-remove",
       "type": "list-item",
@@ -738,8 +687,7 @@
         }
       ],
       "children": [
-        "b-codefam-act-remove-a",
-        "b-codefam-act-remove-b"
+        "b-codefam-act-remove-a"
       ]
     },
     "b-codefam-act-remove-a": {
@@ -758,30 +706,6 @@
         },
         {
           "insert": " instead of silently no-opping."
-        }
-      ],
-      "children": []
-    },
-    "b-codefam-act-remove-b": {
-      "id": "b-codefam-act-remove-b",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Defined in "
-        },
-        {
-          "insert": "packages/docs-model/src/components/code/actions/remove-annotation.ts",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-model/src/components/code/actions/remove-annotation.ts"
-            }
-          }
-        },
-        {
-          "insert": "."
         }
       ],
       "children": []
@@ -890,72 +814,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Three surfaces, one shell: the plain read surface ("
-        },
-        {
-          "insert": "packages/docs-viewer/src/components/code/descriptor.tsx",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-viewer/src/components/code/descriptor.tsx"
-            }
-          }
-        },
-        {
-          "insert": "), the annotated read surface ("
-        },
-        {
-          "insert": "packages/docs-viewer/src/components/code/CodeAnnotations.tsx",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-viewer/src/components/code/CodeAnnotations.tsx"
-            }
-          }
-        },
-        {
-          "insert": "), and the edit surface ("
-        },
-        {
-          "insert": "packages/docs-viewer/src/components/code/editor-node-view.tsx",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-viewer/src/components/code/editor-node-view.tsx"
-            }
-          }
-        },
-        {
-          "insert": "). Shared furniture — header row, sticky gutter, zebra striping, notes aside — comes from "
-        },
-        {
-          "insert": "packages/docs-viewer/src/components/code/CodeShell.tsx",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-viewer/src/components/code/CodeShell.tsx"
-            }
-          }
-        },
-        {
-          "insert": " and the class constants in "
-        },
-        {
-          "insert": "packages/docs-viewer/src/components/code/classes.ts",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-viewer/src/components/code/classes.ts"
-            }
-          }
-        },
-        {
-          "insert": ", so the three surfaces look identical."
+          "insert": "Three surfaces, one shell: the plain read surface, the annotated read surface, and the edit surface. Shared furniture — header row, sticky gutter, zebra striping, notes aside — comes from the shared shell, so the three surfaces look identical."
         }
       ],
       "children": []
@@ -1160,19 +1019,6 @@
           "insert": "CODE_LINE_HEIGHT_PX = 20",
           "attributes": {
             "code": true
-          }
-        },
-        {
-          "insert": " in "
-        },
-        {
-          "insert": "packages/docs-viewer/src/components/code/classes.ts",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-viewer/src/components/code/classes.ts"
-            }
           }
         },
         {
@@ -1415,20 +1261,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Input rule ("
-        },
-        {
-          "insert": "packages/docs-viewer/src/components/code/input-rules.ts",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-viewer/src/components/code/input-rules.ts"
-            }
-          }
-        },
-        {
-          "insert": "): the paragraph converts the moment the third backtick lands — no trailing space, no typed language tag."
+          "insert": "Input rule: the paragraph converts the moment the third backtick lands — no trailing space, no typed language tag."
         }
       ],
       "children": []
@@ -1506,20 +1339,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Highlighting ("
-        },
-        {
-          "insert": "packages/docs-viewer/src/components/code/highlight.ts",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-viewer/src/components/code/highlight.ts"
-            }
-          }
-        },
-        {
-          "insert": ") uses highlight.js core with a curated set of 13 registered grammars — never the all-languages bundle."
+          "insert": "Highlighting uses highlight.js core with a curated set of 13 registered grammars — never the all-languages bundle."
         }
       ],
       "children": [
@@ -1660,20 +1480,7 @@
       "props": {},
       "text": [
         {
-          "insert": "On the agent surface ("
-        },
-        {
-          "insert": "packages/docs-model/src/components/code/agent-view.ts",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-model/src/components/code/agent-view.ts"
-            }
-          }
-        },
-        {
-          "insert": ") the block renders as a fenced markdown block: the fence tag is "
+          "insert": "On the agent surface the block renders as a fenced markdown block: the fence tag is "
         },
         {
           "insert": "props.language",

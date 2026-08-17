@@ -14,7 +14,6 @@
         "pm-mrutq8v1-33-sqikfr",
         "pm-mrutq8v1-35-n5hqjq",
         "b-dm2-pure-2",
-        "pm-mrutq8v1-36-en5ri1",
         "b-dm2-shapes-h-3",
         "b-dm2-idx-tree-4",
         "b-dm2-idx-state-6",
@@ -112,26 +111,6 @@
       "text": [
         {
           "insert": "This section describes shapes and invariants, not transport wiring. "
-        }
-      ],
-      "children": []
-    },
-    "pm-mrutq8v1-36-en5ri1": {
-      "id": "pm-mrutq8v1-36-en5ri1",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "Everything here is defined in "
-        },
-        {
-          "insert": "packages/docs-model",
-          "attributes": {
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-model"
-            }
-          }
         }
       ],
       "children": []
@@ -343,14 +322,14 @@
           }
         },
         {
-          "insert": "'s subject; type counts live there. How bytes reach disk is the "
+          "insert": "'s subject; type counts live there. Package structure and transport wiring are the "
         },
         {
-          "insert": "save pipeline",
+          "insert": "implementation tier",
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "20-implementation/30-save-pipeline"
+              "path": "20-implementation"
             }
           }
         },

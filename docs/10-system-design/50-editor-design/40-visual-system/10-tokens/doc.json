@@ -363,14 +363,11 @@
       "id": "b-tokn-accent-open",
       "type": "callout",
       "props": {
-        "kind": "Open call",
-        "title": "Editor accent registry ownership",
-        "tone": "warning"
+        "kind": "Boundary",
+        "title": "Editor accent is not a theme key",
+        "tone": "info"
       },
       "text": [
-        {
-          "insert": "Whether "
-        },
         {
           "insert": "--docs-editor-accent",
           "attributes": {
@@ -378,7 +375,7 @@
           }
         },
         {
-          "insert": " joins the closed theme registry remains undecided. It is a semantic token, not a theme-folder key."
+          "insert": " is a semantic token, not a theme-folder key; the closed theme registry does not include it."
         }
       ],
       "children": []

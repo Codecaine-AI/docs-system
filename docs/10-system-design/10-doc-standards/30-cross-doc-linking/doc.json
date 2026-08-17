@@ -21,6 +21,7 @@
         "b-xl2-ancestors-15",
         "b-xl2-claim-17",
         "b-xl2-deferral-21",
+        "b-xl2-governedby-36",
         "b-xl2-why-h-24",
         "b-xl2-why-rot-25",
         "b-xl2-why-name-27",
@@ -371,6 +372,57 @@
       "text": [
         {
           "insert": "One doc owns the substance; the other references it."
+        }
+      ],
+      "children": []
+    },
+    "b-xl2-governedby-36": {
+      "id": "b-xl2-governedby-36",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Governed-by links run upward",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-xl2-gov-sub1-37",
+        "b-xl2-gov-sub2-38"
+      ]
+    },
+    "b-xl2-gov-sub1-37": {
+      "id": "b-xl2-gov-sub1-37",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An implementation area page links one-way up to the design docs that constrain it; design never links back down."
+        }
+      ],
+      "children": []
+    },
+    "b-xl2-gov-sub2-38": {
+      "id": "b-xl2-gov-sub2-38",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every restraint rule on this page applies; the "
+        },
+        {
+          "insert": "implementation layer",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/10-doc-standards/60-implementation-layer"
+            }
+          }
+        },
+        {
+          "insert": " standard owns the area-page shape."
         }
       ],
       "children": []

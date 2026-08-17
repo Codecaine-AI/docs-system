@@ -310,7 +310,7 @@
           }
         },
         {
-          "insert": " mint fresh ids for the blocks they create. Anything that anchors to a split or merged block must expect the anchor to dangle."
+          "insert": " mint fresh ids for the blocks they create. A type change is an identity boundary too: a block converted to another type is a new block with a fresh id — in-place edits keep identity, changes of kind do not. Anything that anchors to a split, merged, or converted block must expect the anchor to dangle."
         }
       ],
       "children": []

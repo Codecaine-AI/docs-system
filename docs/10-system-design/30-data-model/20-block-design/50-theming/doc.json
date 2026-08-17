@@ -15,6 +15,7 @@
         "b-bdt-rule-h-4",
         "b-bdt-file-5",
         "b-bdt-typed-6",
+        "b-bdt-sparse-11",
         "b-bdt-resolve-7",
         "b-bdt-why-h-8",
         "b-bdt-why-state-9",
@@ -128,6 +129,57 @@
       "text": [
         {
           "insert": "Color, length, and number kinds — so the style rail can render the right control for every knob without knowing the component."
+        }
+      ],
+      "children": []
+    },
+    "b-bdt-sparse-11": {
+      "id": "b-bdt-sparse-11",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Overrides are sparse and tolerant",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-bdt-sparse-s1",
+        "b-bdt-sparse-s2",
+        "b-bdt-sparse-s3"
+      ]
+    },
+    "b-bdt-sparse-s1": {
+      "id": "b-bdt-sparse-s1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A theme file carries only the knobs it changes; an absent knob falls through to the base theme and the component's declared default."
+        }
+      ],
+      "children": []
+    },
+    "b-bdt-sparse-s2": {
+      "id": "b-bdt-sparse-s2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A knob value is a single scalar or a light/dark pair; a scalar applies to both modes."
+        }
+      ],
+      "children": []
+    },
+    "b-bdt-sparse-s3": {
+      "id": "b-bdt-sparse-s3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Unknown files, unknown knobs, and malformed values are ignored rather than applied — a value survives only when it parses as its declared kind, and lengths and numbers must fall inside the knob's declared range."
         }
       ],
       "children": []

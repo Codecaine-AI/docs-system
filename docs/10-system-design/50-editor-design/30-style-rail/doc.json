@@ -13,7 +13,6 @@
         "b-srail-structure-heading",
         "b-srail-layout-decision",
         "b-srail-geometry-table",
-        "b-srail-geometry-source",
         "b-srail-nav-theme",
         "b-srail-nav-layout",
         "b-srail-nav-blocks",
@@ -116,43 +115,6 @@
           ]
         ]
       },
-      "children": []
-    },
-    "b-srail-geometry-source": {
-      "id": "b-srail-geometry-source",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "The expanded and collapsed panel widths are anchored in "
-        },
-        {
-          "insert": "packages/docs-workbench/web/src/shell/StyleRail.tsx",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-workbench/web/src/shell/StyleRail.tsx"
-            }
-          }
-        },
-        {
-          "insert": ". The two-pane grid and navigation width are anchored in "
-        },
-        {
-          "insert": "packages/docs-workbench/web/src/theme/style-rail.css",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-workbench/web/src/theme/style-rail.css"
-            }
-          }
-        },
-        {
-          "insert": "."
-        }
-      ],
       "children": []
     },
     "b-srail-nav-theme": {

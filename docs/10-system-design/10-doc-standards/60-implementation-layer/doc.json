@@ -1,0 +1,745 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-10-doc-standards-60-implementation-layer",
+  "title": "Implementation layer",
+  "root": "b-impl-root",
+  "blocks": {
+    "b-impl-root": {
+      "id": "b-impl-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-impl-intro-1",
+        "b-impl-intro-2",
+        "b-impl-laidout-h-3",
+        "b-impl-tree-4",
+        "b-impl-shape-lead-5",
+        "b-impl-shape-role-6",
+        "b-impl-shape-gov-8",
+        "b-impl-shape-entries-10",
+        "b-impl-shape-roster-12",
+        "b-impl-rule-h-14",
+        "b-impl-test-15",
+        "b-impl-format-18",
+        "b-impl-conform-25",
+        "b-impl-lazy-28",
+        "b-impl-onelevel-31",
+        "b-impl-staysout-33",
+        "b-impl-staysout-table-35",
+        "b-impl-salvage-47",
+        "b-impl-why-h-36",
+        "b-impl-why-home-37",
+        "b-impl-why-deliberate-40",
+        "b-impl-why-lazy-42",
+        "b-impl-why-shallow-45"
+      ]
+    },
+    "b-impl-intro-1": {
+      "id": "b-impl-intro-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The implementation layer records structural decisions about the current code — how it is organized and why — so an agent adding code conforms to the standardized architecture instead of quietly restructuring it. An agent whose change conflicts with an entry files a proposal; it never silently deviates. "
+        }
+      ],
+      "children": []
+    },
+    "b-impl-intro-2": {
+      "id": "b-impl-intro-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This page states the shape of an area page, the test an entry must pass, and why the layer accretes lazily."
+        }
+      ],
+      "children": []
+    },
+    "b-impl-laidout-h-3": {
+      "id": "b-impl-laidout-h-3",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Structure"
+        }
+      ],
+      "children": []
+    },
+    "b-impl-tree-4": {
+      "id": "b-impl-tree-4",
+      "type": "file-tree",
+      "props": {
+        "entries": [
+          {
+            "path": "20-implementation/",
+            "note": "L1 — the layer's parent doc: orientation map of top-level source dirs, one line of ownership each"
+          },
+          {
+            "path": "20-implementation/30-connectors/",
+            "note": "an area page — mirrors src/connectors/, one level per genuine subdivision"
+          },
+          {
+            "path": "20-implementation/30-connectors/10-http/",
+            "note": "does not exist — deeper structure becomes entries on the connectors page"
+          }
+        ]
+      },
+      "children": []
+    },
+    "b-impl-shape-lead-5": {
+      "id": "b-impl-shape-lead-5",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "An area page reads top to bottom in four parts:"
+        }
+      ],
+      "children": []
+    },
+    "b-impl-shape-role-6": {
+      "id": "b-impl-shape-role-6",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Role line",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-impl-shape-role-7"
+      ]
+    },
+    "b-impl-shape-role-7": {
+      "id": "b-impl-shape-role-7",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "One sentence on what the area does, ending in the source path it documents."
+        }
+      ],
+      "children": []
+    },
+    "b-impl-shape-gov-8": {
+      "id": "b-impl-shape-gov-8",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Governed-by links",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-impl-shape-gov-9"
+      ]
+    },
+    "b-impl-shape-gov-9": {
+      "id": "b-impl-shape-gov-9",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "References up to the design docs that constrain the area — the governed-by convention in "
+        },
+        {
+          "insert": "cross-doc linking",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/10-doc-standards/30-cross-doc-linking"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-impl-shape-entries-10": {
+      "id": "b-impl-shape-entries-10",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Decision entries",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-impl-shape-entries-11"
+      ]
+    },
+    "b-impl-shape-entries-11": {
+      "id": "b-impl-shape-entries-11",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every structural decision in force, in the entry format below."
+        }
+      ],
+      "children": []
+    },
+    "b-impl-shape-roster-12": {
+      "id": "b-impl-shape-roster-12",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Orientation roster (optional)",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-impl-shape-roster-13"
+      ]
+    },
+    "b-impl-shape-roster-13": {
+      "id": "b-impl-shape-roster-13",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "One line per instance when the area is a set — an agent roster, a connector list."
+        }
+      ],
+      "children": []
+    },
+    "b-impl-rule-h-14": {
+      "id": "b-impl-rule-h-14",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The Rule"
+        }
+      ],
+      "children": []
+    },
+    "b-impl-test-15": {
+      "id": "b-impl-test-15",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An entry governs unwritten code",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-impl-test-16",
+        "b-impl-test-17"
+      ]
+    },
+    "b-impl-test-16": {
+      "id": "b-impl-test-16",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The inclusion test: an entry states a rule that governs code that does not exist yet."
+        }
+      ],
+      "children": []
+    },
+    "b-impl-test-17": {
+      "id": "b-impl-test-17",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Thirty data connectors extend a base class, so connector #31 must too — an inline comment cannot govern a file nobody has written, and system design does not care: behavior is identical either way."
+        }
+      ],
+      "children": []
+    },
+    "b-impl-format-18": {
+      "id": "b-impl-format-18",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Decision / Why / Applies to",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-impl-format-dec-19",
+        "b-impl-format-why-21",
+        "b-impl-format-applies-23"
+      ]
+    },
+    "b-impl-format-dec-19": {
+      "id": "b-impl-format-dec-19",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Decision",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-impl-format-dec-20"
+      ]
+    },
+    "b-impl-format-dec-20": {
+      "id": "b-impl-format-dec-20",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The rule, in one sentence."
+        }
+      ],
+      "children": []
+    },
+    "b-impl-format-why-21": {
+      "id": "b-impl-format-why-21",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Why",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-impl-format-why-22"
+      ]
+    },
+    "b-impl-format-why-22": {
+      "id": "b-impl-format-why-22",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The reasoning behind it — including the alternative that was rejected, when it is known."
+        }
+      ],
+      "children": []
+    },
+    "b-impl-format-applies-23": {
+      "id": "b-impl-format-applies-23",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Applies to",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-impl-format-applies-24"
+      ]
+    },
+    "b-impl-format-applies-24": {
+      "id": "b-impl-format-applies-24",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The source paths the rule covers, explicitly including future code under them."
+        }
+      ],
+      "children": []
+    },
+    "b-impl-conform-25": {
+      "id": "b-impl-conform-25",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Conform or propose",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-impl-conform-26",
+        "b-impl-conform-27"
+      ]
+    },
+    "b-impl-conform-26": {
+      "id": "b-impl-conform-26",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An agent whose change fits the entries follows them; one whose change conflicts files a proposal."
+        }
+      ],
+      "children": []
+    },
+    "b-impl-conform-27": {
+      "id": "b-impl-conform-27",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Silent deviation is never an option."
+        }
+      ],
+      "children": []
+    },
+    "b-impl-lazy-28": {
+      "id": "b-impl-lazy-28",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Lazy accretion",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-impl-lazy-29",
+        "b-impl-lazy-30"
+      ]
+    },
+    "b-impl-lazy-29": {
+      "id": "b-impl-lazy-29",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An entry appears when a structure is standardized or violated — never proactively per directory."
+        }
+      ],
+      "children": []
+    },
+    "b-impl-lazy-30": {
+      "id": "b-impl-lazy-30",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A near-empty area page that only routes upward through its governed-by links is correct, not incomplete."
+        }
+      ],
+      "children": []
+    },
+    "b-impl-onelevel-31": {
+      "id": "b-impl-onelevel-31",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "One level per genuine subdivision",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-impl-onelevel-32"
+      ]
+    },
+    "b-impl-onelevel-32": {
+      "id": "b-impl-onelevel-32",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The mirror descends one level for each genuine subdivision of the source; deeper structure becomes entries on the area page, not sub-pages."
+        }
+      ],
+      "children": []
+    },
+    "b-impl-staysout-33": {
+      "id": "b-impl-staysout-33",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "What stays out",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-impl-staysout-34"
+      ]
+    },
+    "b-impl-staysout-34": {
+      "id": "b-impl-staysout-34",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Everything below already has a home; an area page carries none of it."
+        }
+      ],
+      "children": []
+    },
+    "b-impl-staysout-table-35": {
+      "id": "b-impl-staysout-table-35",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Content",
+          "Belongs in"
+        ],
+        "rows": [
+          [
+            "Schemas and state models",
+            [
+              {
+                "insert": "10-system-design",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " — design owns them"
+              }
+            ]
+          ],
+          [
+            "Behavior",
+            [
+              {
+                "insert": "10-system-design",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " — behavior is design, wherever the code lives"
+              }
+            ]
+          ],
+          [
+            "File-local detail",
+            "In-code docs — file headers and docstrings"
+          ],
+          [
+            "Point-in-time reports",
+            "Nowhere in the docs tree — the docs describe present state, not moments"
+          ],
+          [
+            "Deep file trees",
+            "Nowhere — the mirror stops at one level"
+          ]
+        ]
+      },
+      "children": []
+    },
+    "b-impl-salvage-47": {
+      "id": "b-impl-salvage-47",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Salvage before delete",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-impl-salvage-48",
+        "b-impl-salvage-49"
+      ]
+    },
+    "b-impl-salvage-48": {
+      "id": "b-impl-salvage-48",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "When report content is removed from a docs tree, still-normative rules buried in it are first extracted into the owning tier — a parity analysis may hold live behavioral contracts; a findings log may hold a real decision."
+        }
+      ],
+      "children": []
+    },
+    "b-impl-salvage-49": {
+      "id": "b-impl-salvage-49",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Deletion happens after the salvage pass, never instead of it."
+        }
+      ],
+      "children": []
+    },
+    "b-impl-why-h-36": {
+      "id": "b-impl-why-h-36",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why"
+        }
+      ],
+      "children": []
+    },
+    "b-impl-why-home-37": {
+      "id": "b-impl-why-home-37",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A rule for unwritten code needs a home",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-impl-why-home-38",
+        "b-impl-why-home-39"
+      ]
+    },
+    "b-impl-why-home-38": {
+      "id": "b-impl-why-home-38",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "In-code docs reach only files that exist; nothing in the source can govern a file nobody has written."
+        }
+      ],
+      "children": []
+    },
+    "b-impl-why-home-39": {
+      "id": "b-impl-why-home-39",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Design cannot hold it either — the system behaves identically whether the structure is followed or not."
+        }
+      ],
+      "children": []
+    },
+    "b-impl-why-deliberate-40": {
+      "id": "b-impl-why-deliberate-40",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Proposals keep the architecture deliberate",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-impl-why-deliberate-41"
+      ]
+    },
+    "b-impl-why-deliberate-41": {
+      "id": "b-impl-why-deliberate-41",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A standardized layout survives only while every restructuring is a recorded decision; one silent deviation makes the next one invisible."
+        }
+      ],
+      "children": []
+    },
+    "b-impl-why-lazy-42": {
+      "id": "b-impl-why-lazy-42",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Lazy entries stay load-bearing",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-impl-why-lazy-43",
+        "b-impl-why-lazy-44"
+      ]
+    },
+    "b-impl-why-lazy-43": {
+      "id": "b-impl-why-lazy-43",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A page written proactively per directory echoes the file tree and rots with it."
+        }
+      ],
+      "children": []
+    },
+    "b-impl-why-lazy-44": {
+      "id": "b-impl-why-lazy-44",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An entry written when a structure is standardized or violated records a rule someone actually needed."
+        }
+      ],
+      "children": []
+    },
+    "b-impl-why-shallow-45": {
+      "id": "b-impl-why-shallow-45",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A shallow mirror survives churn",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-impl-why-shallow-46"
+      ]
+    },
+    "b-impl-why-shallow-46": {
+      "id": "b-impl-why-shallow-46",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Sub-pages tracking the source tree file by file go stale with every move; entries on an area page move with the page."
+        }
+      ],
+      "children": []
+    }
+  }
+}

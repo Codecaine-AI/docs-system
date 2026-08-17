@@ -420,38 +420,12 @@
       "props": {},
       "text": [
         {
-          "insert": "Three actions, lifted at module load in "
-        },
-        {
-          "insert": "actions/lift.ts",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-model/src/components/sequence/actions/lift.ts"
-            }
-          }
-        },
-        {
-          "insert": " from "
+          "insert": "Three actions, lifted at module load from the engine's "
         },
         {
           "insert": "SEQUENCE_AGENT_PATCH_OPERATIONS",
           "attributes": {
             "code": true
-          }
-        },
-        {
-          "insert": " in the engine's "
-        },
-        {
-          "insert": "agent-schema.ts",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "external/sequence/packages/sequence/src/agent-schema.ts"
-            }
           }
         },
         {
@@ -566,20 +540,7 @@
           }
         },
         {
-          "insert": " in the engine's "
-        },
-        {
-          "insert": "actions.ts",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "external/sequence/packages/sequence/src/actions.ts"
-            }
-          }
-        },
-        {
-          "insert": " gives each verb its semantics:"
+          "insert": " in the engine gives each verb its semantics:"
         }
       ],
       "children": []
@@ -899,20 +860,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The viewer descriptor in "
-        },
-        {
-          "insert": "packages/docs-viewer/src/components/sequence/descriptor.tsx",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-viewer/src/components/sequence/descriptor.tsx"
-            }
-          }
-        },
-        {
-          "insert": " renders the block through the host's "
+          "insert": "The viewer descriptor renders the block through the host's "
         },
         {
           "insert": "renderSequence",
@@ -952,20 +900,7 @@
           }
         },
         {
-          "insert": " ("
-        },
-        {
-          "insert": "DocBlockRenderer.tsx",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-viewer/src/render/DocBlockRenderer.tsx"
-            }
-          }
-        },
-        {
-          "insert": ") builds "
+          "insert": " builds "
         },
         {
           "insert": "renderSequence",
@@ -1049,20 +984,7 @@
           }
         },
         {
-          "insert": " ("
-        },
-        {
-          "insert": "SequenceEmbed.tsx",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-workbench/web/src/pages/SequenceEmbed.tsx"
-            }
-          }
-        },
-        {
-          "insert": ") loads the sidecar through the serve/export data layer, validates with "
+          "insert": " loads the sidecar through the serve/export data layer, validates with "
         },
         {
           "insert": "validateSequenceDocument",
@@ -1146,19 +1068,6 @@
           }
         },
         {
-          "insert": " in "
-        },
-        {
-          "insert": "editor-nodes.ts",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-viewer/src/components/sequence/editor-nodes.ts"
-            }
-          }
-        },
-        {
           "insert": "); the shared atom node view reuses the same descriptor and slot, so edit mode shows the same embed as reading."
         }
       ],
@@ -1183,20 +1092,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The markdown projection in "
-        },
-        {
-          "insert": "agent-view.ts",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-model/src/components/sequence/agent-view.ts"
-            }
-          }
-        },
-        {
-          "insert": " is one comment line — a greppable reference, not the diagram:"
+          "insert": "The markdown projection is one comment line — a greppable reference, not the diagram:"
         }
       ],
       "children": []
@@ -1316,20 +1212,7 @@
           }
         },
         {
-          "insert": " ("
-        },
-        {
-          "insert": "agent-tools.ts",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-server/src/agent-tools.ts"
-            }
-          }
-        },
-        {
-          "insert": ") and writes back through the forwarded actions."
+          "insert": " and writes back through the forwarded actions."
         }
       ],
       "children": []
@@ -1355,20 +1238,7 @@
           }
         },
         {
-          "insert": " ("
-        },
-        {
-          "insert": "language/index.ts",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "external/sequence/packages/sequence/src/language/index.ts"
-            }
-          }
-        },
-        {
-          "insert": ") round-trip document and program, so the compact program is the agent-facing text of the diagram."
+          "insert": " round-trip document and program, so the compact program is the agent-facing text of the diagram."
         }
       ],
       "children": []
@@ -1950,7 +1820,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The adapter contract's target design adds a sequence-specialist processing agent whose context loader assembles the sequence source instead of the doc render alone; its writeback path is the forwarding above."
+          "insert": "A sequence-specialist processing agent handles the type's annotations: its context loader assembles the sequence source instead of the doc render alone, and its writeback path is the forwarding above."
         }
       ],
       "children": []

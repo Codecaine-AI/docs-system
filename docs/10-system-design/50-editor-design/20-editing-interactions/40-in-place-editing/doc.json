@@ -262,13 +262,13 @@
       "id": "b-inpl-open-call",
       "type": "callout",
       "props": {
-        "kind": "Open call",
-        "title": "Which Object Blocks Require Editable Node Views?",
-        "tone": "info"
+        "kind": "Decision",
+        "title": "Editability Is Per-Type and Deliberate",
+        "tone": "decision"
       },
       "text": [
         {
-          "insert": "No general policy determines which object types must support in-place editing. Each type needs a deliberate decision; the shared read-only atom view remains the fallback."
+          "insert": "No general policy grants object types in-place editing. Each editable node view is a deliberate per-type decision, and the shared read-only atom view is the designed fallback for every type without one."
         }
       ],
       "children": []

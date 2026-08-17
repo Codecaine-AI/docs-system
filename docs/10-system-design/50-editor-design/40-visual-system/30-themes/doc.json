@@ -12,16 +12,26 @@
         "b-them-intro",
         "b-them-structure-heading",
         "b-them-tree",
+        "b-them-manifest-table",
         "b-them-rule-heading",
         "b-them-reach-heading",
         "b-them-registry",
         "b-them-sparse",
         "b-them-values",
+        "b-them-resolution-heading",
+        "b-them-res-chain",
+        "b-them-res-shadow",
+        "b-them-res-modes",
+        "b-them-res-select",
+        "b-them-res-transfer",
         "b-them-authority-table",
         "b-them-default-heading",
         "b-them-default-living",
         "b-them-default-storage",
         "b-them-default-overlay",
+        "b-them-default-authority",
+        "b-them-default-hydrate",
+        "b-them-default-locked",
         "b-them-boundary-heading",
         "b-them-boundary-contract",
         "b-them-why-heading",
@@ -36,7 +46,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A theme may change registered document-surface roles while fixed system UI structure preserves the tool's identity. Theme folders are sparse, closed inputs; the style rail is a higher-precedence user layer over them. Loading, validation, compilation, and persistence mechanics live in "
+          "insert": "A theme may change registered document-surface roles while fixed system UI structure preserves the tool's identity. Theme folders are sparse, closed inputs; the style rail is a higher-precedence user layer over them. Structural decisions about the theming code live in "
         },
         {
           "insert": "Theming: Overview",
@@ -73,7 +83,7 @@
         "entries": [
           {
             "path": "themes/<id>/",
-            "note": "one theme folder"
+            "note": "one theme folder; the folder name is the theme id"
           },
           {
             "path": "themes/<id>/theme.json",
@@ -89,8 +99,41 @@
           },
           {
             "path": "themes/default/",
-            "note": "the living Default written by the workbench"
+            "note": "the living Default"
           }
+        ]
+      },
+      "children": []
+    },
+    "b-them-manifest-table": {
+      "id": "b-them-manifest-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Manifest field",
+          "Meaning"
+        ],
+        "rows": [
+          [
+            "name",
+            "The theme's display label."
+          ],
+          [
+            "base",
+            "The built-in theme this folder layers over."
+          ],
+          [
+            "dark",
+            "The light or dark mode the theme declares."
+          ],
+          [
+            "fonts",
+            "Optional body, heading, code, and numeric stacks."
+          ],
+          [
+            "railDefaults",
+            "The theme's durable style-rail settings."
+          ]
         ]
       },
       "children": []
@@ -163,6 +206,74 @@
       ],
       "children": []
     },
+    "b-them-resolution-heading": {
+      "id": "b-them-resolution-heading",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Resolution and Selection"
+        }
+      ],
+      "children": []
+    },
+    "b-them-res-chain": {
+      "id": "b-them-res-chain",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A theme resolves over a base chain: the folder's values apply over its named built-in base, and an unknown base ends the chain rather than failing the theme."
+        }
+      ],
+      "children": []
+    },
+    "b-them-res-shadow": {
+      "id": "b-them-res-shadow",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A repository theme shadows a built-in theme with the same id."
+        }
+      ],
+      "children": []
+    },
+    "b-them-res-modes": {
+      "id": "b-them-res-modes",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every theme resolves to a light and a dark value set; a single scalar value applies to both modes."
+        }
+      ],
+      "children": []
+    },
+    "b-them-res-select": {
+      "id": "b-them-res-select",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Selecting a theme applies its declared mode, adopts its rail defaults as the working settings, and persists as the active selection across sessions."
+        }
+      ],
+      "children": []
+    },
+    "b-them-res-transfer": {
+      "id": "b-them-res-transfer",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Theme settings also travel as an exported file; import validates and normalizes the payload, and an invalid file leaves the active state unchanged."
+        }
+      ],
+      "children": []
+    },
     "b-them-authority-table": {
       "id": "b-them-authority-table",
       "type": "structured-table",
@@ -216,16 +327,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Default is the workbench's living repo theme. Every rail setting, dark toggle, and component override auto-saves into "
-        },
-        {
-          "insert": "themes/default/",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ". Selecting Default restores the saved look."
+          "insert": "Default is the workbench's living theme. Every rail setting, dark toggle, and component override auto-saves into it shortly after the last change; selecting Default restores the saved look."
         }
       ],
       "children": []
@@ -236,7 +338,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The manifest carries complete scalar rail defaults."
+          "insert": "The saved state is complete: every scalar setting carries a saved value, so Default restores the whole look rather than a diff; component values are saved only where they diverge."
         }
       ],
       "children": []
@@ -247,7 +349,40 @@
       "props": {},
       "text": [
         {
-          "insert": "Component files carry only token divergences; active rail overrides still win over those files."
+          "insert": "Active rail overrides still win over the saved values."
+        }
+      ],
+      "children": []
+    },
+    "b-them-default-authority": {
+      "id": "b-them-default-authority",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The repository copy is the durable authority: browser-local state is a cache and a fallback, and never overrides settings loaded from the repository."
+        }
+      ],
+      "children": []
+    },
+    "b-them-default-hydrate": {
+      "id": "b-them-default-hydrate",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A fresh browser profile hydrates from the repository Default before autosave engages."
+        }
+      ],
+      "children": []
+    },
+    "b-them-default-locked": {
+      "id": "b-them-default-locked",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A theme-locked serve applies the repository Default unconditionally, hides the rail, and rejects theme writes; a static export is read-only."
         }
       ],
       "children": []

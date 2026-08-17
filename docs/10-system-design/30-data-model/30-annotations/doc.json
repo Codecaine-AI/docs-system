@@ -11,6 +11,7 @@
       "children": [
         "b-ann-intro-1",
         "pm-mruwavol-1-4mo7xu",
+        "b-ann-sidecar-hash",
         "b-ann-laidout-h-2",
         "b-ann-example-3",
         "b-ann-fields-h-4",
@@ -18,6 +19,7 @@
         "b-ann-fields-table-6",
         "b-ann2-targets-h-1",
         "b-ann2-targets-lead-2",
+        "b-ann2-targets-capture",
         "b-ann2-tk-block-3",
         "b-ann2-tk-range-4",
         "b-ann2-tk-point-5",
@@ -28,7 +30,6 @@
         "b-ann-life-receipt-15",
         "b-ann-life-exec-27",
         "b-ann-life-kept-18",
-        "b-ann-direction-21",
         "b-ann-additive-22",
         "b-ann-shared-23",
         "b-ann-dangling-h-24",
@@ -310,7 +311,7 @@
           }
         },
         {
-          "insert": " offsets into the block's rendered text and the quoted slice) is this kind's persisted form today; a drifted quote surfaces as dangling rather than re-anchoring."
+          "insert": " offsets into the block's rendered text and the quoted slice) is this kind's persisted form; a drifted quote surfaces as dangling rather than re-anchoring."
         }
       ],
       "children": []
@@ -403,7 +404,7 @@
           }
         },
         {
-          "insert": ", or a region rectangle) is this kind's persisted form today."
+          "insert": ", or a region rectangle) is this kind's persisted form."
         }
       ],
       "children": []
@@ -615,21 +616,6 @@
       ],
       "children": []
     },
-    "b-ann-direction-21": {
-      "id": "b-ann-direction-21",
-      "type": "callout",
-      "props": {
-        "kind": "Direction",
-        "title": "Annotate mode is not wired up yet",
-        "tone": "warning"
-      },
-      "text": [
-        {
-          "insert": "The surface flow — leave annotations, an AI processes them and reports back — is the target design, not current behavior. The shapes and validation for all of it exist today; the processing loop does not."
-        }
-      ],
-      "children": []
-    },
     "b-ann-additive-22": {
       "id": "b-ann-additive-22",
       "type": "callout",
@@ -746,6 +732,28 @@
         },
         {
           "insert": " is genuinely dangling."
+        }
+      ],
+      "children": []
+    },
+    "b-ann-sidecar-hash": {
+      "id": "b-ann-sidecar-hash",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Annotation writes carry a sidecar hash precondition: a write against stale sidecar bytes fails instead of overwriting a concurrent edit."
+        }
+      ],
+      "children": []
+    },
+    "b-ann2-targets-capture": {
+      "id": "b-ann2-targets-capture",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Capture is surface-native: pointing at a block emits a stable block target, Cmd/Ctrl+drag across a block's text emits a text-range target, and an embedded canvas emits canvas-object targets from the objects it renders."
         }
       ],
       "children": []

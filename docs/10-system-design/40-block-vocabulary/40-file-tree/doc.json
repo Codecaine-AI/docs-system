@@ -71,33 +71,7 @@
           }
         },
         {
-          "insert": "-command drawing, with per-entry notes and change markers for describing repo slices and refactors. State and actions live in "
-        },
-        {
-          "insert": "packages/docs-model/src/components/file-tree/",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-model/src/components/file-tree"
-            }
-          }
-        },
-        {
-          "insert": "; the doc render lives in "
-        },
-        {
-          "insert": "packages/docs-viewer/src/components/file-tree/",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-viewer/src/components/file-tree"
-            }
-          }
-        },
-        {
-          "insert": "."
+          "insert": "-command drawing, with per-entry notes and change markers for describing repo slices and refactors."
         }
       ],
       "children": []
@@ -478,41 +452,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Three actions — one file each under "
-        },
-        {
-          "insert": "actions/",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-model/src/components/file-tree/actions"
-            }
-          }
-        },
-        {
-          "insert": " — are the type's whole custom write surface. "
-        },
-        {
-          "insert": "addEntry",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " is the Structure excerpt on "
-        },
-        {
-          "insert": "Typed actions",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "10-system-design/30-data-model/20-block-design/20-typed-actions"
-            }
-          }
-        },
-        {
-          "insert": "."
+          "insert": "Three actions are the type's whole custom write surface."
         }
       ],
       "children": []
@@ -866,20 +806,7 @@
           }
         },
         {
-          "insert": " ("
-        },
-        {
-          "insert": "FileTreeDocsBlock.tsx",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-viewer/src/components/file-tree/FileTreeDocsBlock.tsx"
-            }
-          }
-        },
-        {
-          "insert": ") draws the block on the doc surface — reader and editor alike — as a bordered monospace panel: a "
+          "insert": " draws the block on the doc surface — reader and editor alike — as a bordered monospace panel: a "
         },
         {
           "insert": ".",
@@ -1159,19 +1086,6 @@
           }
         },
         {
-          "insert": " in "
-        },
-        {
-          "insert": "schema.ts",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-viewer/src/editor/core/schema.ts"
-            }
-          }
-        },
-        {
           "insert": "): read-only, rendered by the same "
         },
         {
@@ -1219,19 +1133,6 @@
           "insert": "projectFileTree",
           "attributes": {
             "code": true
-          }
-        },
-        {
-          "insert": " in "
-        },
-        {
-          "insert": "agent-view.ts",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-model/src/components/file-tree/agent-view.ts"
-            }
           }
         },
         {

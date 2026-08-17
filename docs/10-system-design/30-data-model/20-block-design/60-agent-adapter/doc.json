@@ -15,7 +15,6 @@
         "b-bdaa-default-3",
         "b-bdaa-own-4",
         "b-bdaa-disc-5",
-        "b-bdaa-direction-6",
         "b-bdaa-why-h-7",
         "b-bdaa-why-knows-8",
         "b-bdaa-why-queue-9"
@@ -50,7 +49,7 @@
       "props": {},
       "text": [
         {
-          "insert": "This is the contract's target-design element: the shape is settled, the wiring lands with annotate mode."
+          "insert": "The adapter is the execute step of the annotations lifecycle: annotate mode's processing reaches each type through it."
         }
       ],
       "children": []
@@ -169,21 +168,6 @@
       "text": [
         {
           "insert": "The annotation router learns from the registry which agent handles which type — routing is data, not hardcoded knowledge."
-        }
-      ],
-      "children": []
-    },
-    "b-bdaa-direction-6": {
-      "id": "b-bdaa-direction-6",
-      "type": "callout",
-      "props": {
-        "kind": "Direction",
-        "title": "Lands with annotate mode",
-        "tone": "warning"
-      },
-      "text": [
-        {
-          "insert": "No adapter is implemented yet. The five other contract elements exist today; the adapter is the settled design for the execute step of the annotations lifecycle."
         }
       ],
       "children": []

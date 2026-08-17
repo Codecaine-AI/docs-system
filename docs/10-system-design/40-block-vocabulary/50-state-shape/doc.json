@@ -83,33 +83,7 @@
           }
         },
         {
-          "insert": ". A block carries a recursive field tree — name, type, optionality, meaning — an optional link to the defining source symbol, and an optional JSON example instance rendered beside the tree. Model code lives in "
-        },
-        {
-          "insert": "packages/docs-model/src/components/state-shape/",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-model/src/components/state-shape"
-            }
-          }
-        },
-        {
-          "insert": "; the doc renderer in "
-        },
-        {
-          "insert": "packages/docs-viewer/src/components/state-shape/",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-viewer/src/components/state-shape"
-            }
-          }
-        },
-        {
-          "insert": "."
+          "insert": ". A block carries a recursive field tree — name, type, optionality, meaning — an optional link to the defining source symbol, and an optional JSON example instance rendered beside the tree."
         }
       ],
       "children": []
@@ -578,20 +552,7 @@
           }
         },
         {
-          "insert": " contract element, defined one file each in "
-        },
-        {
-          "insert": "packages/docs-model/src/components/state-shape/actions/",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-model/src/components/state-shape/actions"
-            }
-          }
-        },
-        {
-          "insert": ". Params validate against each action's TypeBox schema before "
+          "insert": " contract element. Params validate against each action's TypeBox schema before "
         },
         {
           "insert": "apply()",
@@ -1041,20 +1002,7 @@
           }
         },
         {
-          "insert": " in "
-        },
-        {
-          "insert": "packages/docs-viewer/src/components/state-shape/StateShapeDocsBlock.tsx",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-viewer/src/components/state-shape/StateShapeDocsBlock.tsx"
-            }
-          }
-        },
-        {
-          "insert": ", wired through the descriptor in the same folder. The render is a quiet bordered two-pane card — no title bar, never a language tag, state is always JSON: the structure tree left and, when "
+          "insert": ". The render is a quiet bordered two-pane card — no title bar, never a language tag, state is always JSON: the structure tree left and, when "
         },
         {
           "insert": "example",
@@ -1374,20 +1322,7 @@
           }
         },
         {
-          "insert": " contract element: a deterministic markdown projection in "
-        },
-        {
-          "insert": "packages/docs-model/src/components/state-shape/agent-view.ts",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-model/src/components/state-shape/agent-view.ts"
-            }
-          }
-        },
-        {
-          "insert": "."
+          "insert": " contract element: a deterministic markdown projection."
         }
       ],
       "children": []

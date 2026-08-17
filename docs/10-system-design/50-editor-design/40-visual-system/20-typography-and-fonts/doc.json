@@ -24,8 +24,7 @@
         "b-typo-stack-rule",
         "b-typo-file-status",
         "b-typo-why-heading",
-        "b-typo-why-seams",
-        "b-typo-why-record"
+        "b-typo-why-seams"
       ]
     },
     "b-typo-intro": {
@@ -34,7 +33,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Typography assigns font families by reading role: body, heading, code, and numeric. Shared reading metrics set the size, line height, and tracking for the document column. Theme loading and variable-injection mechanics live in "
+          "insert": "Typography assigns font families by reading role: body, heading, code, and numeric. Shared reading metrics set the size, line height, and tracking for the document column. The structural decisions behind theme loading and variable injection live in "
         },
         {
           "insert": "Theming: Overview",
@@ -312,13 +311,13 @@
       "id": "b-typo-file-status",
       "type": "callout",
       "props": {
-        "kind": "Designed, not built",
-        "title": "Custom font-file loading",
-        "tone": "warning"
+        "kind": "Boundary",
+        "title": "Fonts resolve from the host",
+        "tone": "info"
       },
       "text": [
         {
-          "insert": "Themes can name any font family the browser can already resolve. The workbench does not load repository font binaries or register "
+          "insert": "A theme names font families; a stack resolves only when the browser or host already provides the face. The workbench loads no repository font binaries and registers no "
         },
         {
           "insert": "@font-face",
@@ -327,7 +326,7 @@
           }
         },
         {
-          "insert": " rules for them. Custom font-file loading is designed but not built."
+          "insert": " rules."
         }
       ],
       "children": []
@@ -368,33 +367,6 @@
       "text": [
         {
           "insert": "A theme can separate code or numerals without changing prose, headings, or individual components."
-        }
-      ],
-      "children": []
-    },
-    "b-typo-why-record": {
-      "id": "b-typo-why-record",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "The defaults are facts, not reconstructed intent",
-          "attributes": {
-            "bold": true
-          }
-        }
-      ],
-      "children": [
-        "b-typo-why-record-gloss"
-      ]
-    },
-    "b-typo-why-record-gloss": {
-      "id": "b-typo-why-record-gloss",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "No recorded rationale selects the four-role split, the current face aliases, or the 16px / 1.5 / 0.005em metrics."
         }
       ],
       "children": []

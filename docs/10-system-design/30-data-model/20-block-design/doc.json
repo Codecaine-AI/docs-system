@@ -10,9 +10,6 @@
       "props": {},
       "children": [
         "b-bd-intro-1",
-        "b-bd-laidout-h-2",
-        "b-bd-laidout-intro-3a",
-        "b-bd-laidout-tree-3",
         "b-bd-contract-h-4",
         "b-bd-state-5",
         "b-bd-actions-8",
@@ -55,59 +52,6 @@
           "insert": "'s story."
         }
       ],
-      "children": []
-    },
-    "b-bd-laidout-h-2": {
-      "id": "b-bd-laidout-h-2",
-      "type": "heading",
-      "props": {
-        "level": 2
-      },
-      "text": [
-        {
-          "insert": "Structure"
-        }
-      ],
-      "children": []
-    },
-    "b-bd-laidout-intro-3a": {
-      "id": "b-bd-laidout-intro-3a",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "One component, every home (structured-table):"
-        }
-      ],
-      "children": []
-    },
-    "b-bd-laidout-tree-3": {
-      "id": "b-bd-laidout-tree-3",
-      "type": "file-tree",
-      "props": {
-        "entries": [
-          {
-            "path": "packages/docs-model/src/components/structured-table/state.ts",
-            "note": "the state schema — closed TypeBox props"
-          },
-          {
-            "path": "packages/docs-model/src/components/structured-table/actions/",
-            "note": "typed actions — the update logic, as data"
-          },
-          {
-            "path": "packages/docs-model/src/components/structured-table/agent-view.ts",
-            "note": "the agent renderer — state → markdown"
-          },
-          {
-            "path": "packages/docs-viewer/src/components/structured-table/descriptor.tsx",
-            "note": "the doc renderer — state → the editor component"
-          },
-          {
-            "path": "themes/default/components/structured-table.json",
-            "note": "the theme — the component's style knobs"
-          }
-        ]
-      },
       "children": []
     },
     "b-bd-contract-h-4": {
@@ -356,8 +300,7 @@
       ],
       "children": [
         "b-bd-adapter-sub1-33",
-        "b-bd-adapter-sub2-34",
-        "b-bd-adapter-sub3-35"
+        "b-bd-adapter-sub2-34"
       ]
     },
     "b-bd-adapter-sub1-33": {
@@ -378,17 +321,6 @@
       "text": [
         {
           "insert": "Complex types — canvas, sequence — declare their own agent: a context loader that assembles what that agent needs, and writeback through the type's own actions."
-        }
-      ],
-      "children": []
-    },
-    "b-bd-adapter-sub3-35": {
-      "id": "b-bd-adapter-sub3-35",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Target design: the adapter lands with annotate mode. The rest of the contract exists today."
         }
       ],
       "children": []

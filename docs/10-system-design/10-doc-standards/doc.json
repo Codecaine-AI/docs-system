@@ -14,6 +14,7 @@
         "pm-mruq0c12-107-u8o42s",
         "b-da3-layers-heading-7",
         "b-da3-layers-table-8",
+        "b-da3-ext-tiers-9",
         "b-da3-why-heading-10",
         "b-da3-why-para-11",
         "pm-mruq0c12-108-dfykqf",
@@ -26,7 +27,8 @@
         "b-ds-std-numbering-2",
         "b-ds-std-xlink-3",
         "b-ds-std-clink-4",
-        "b-ds-std-icd-5"
+        "b-ds-std-icd-5",
+        "b-ds-std-impl-6"
       ]
     },
     "b-da3-title-1": {
@@ -118,11 +120,34 @@
                 }
               }
             ],
-            "Functionality, decisions, etc. of the current code",
+            "Structural decisions about the current code — how it's organized and why, so additions conform",
             "With the code"
           ]
         ]
       },
+      "children": []
+    },
+    "b-da3-ext-tiers-9": {
+      "id": "b-da3-ext-tiers-9",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A repo may declare additional numbered root tiers (30 and above, below 99) for procedural guide content the three layers cannot hold — "
+        },
+        {
+          "insert": "structure",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/10-doc-standards/10-structure"
+            }
+          }
+        },
+        {
+          "insert": " owns the rule."
+        }
+      ],
       "children": []
     },
     "b-da3-why-heading-10": {
@@ -224,7 +249,7 @@
           },
           {
             "path": "10-system-design/10-doc-standards/",
-            "note": "this section — the structure itself, plus five standards docs"
+            "note": "this section — the structure itself, plus six standards docs"
           },
           {
             "path": "20-implementation/",
@@ -253,7 +278,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Five standards, one concern each. Every one shows how things are laid out, states the rule, and defends it."
+          "insert": "Six standards, one concern each. Every one shows how things are laid out, states the rule, and defends it."
         }
       ],
       "children": []
@@ -404,6 +429,36 @@
       "text": [
         {
           "insert": "File headers, docstrings, and inline comments: where documentation continues into the source."
+        }
+      ],
+      "children": []
+    },
+    "b-ds-std-impl-6": {
+      "id": "b-ds-std-impl-6",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Implementation layer",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/10-doc-standards/60-implementation-layer"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-ds-std-impl-6-gloss"
+      ]
+    },
+    "b-ds-std-impl-6-gloss": {
+      "id": "b-ds-std-impl-6-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Area pages, decision entries, the unwritten-code test, and lazy accretion."
         }
       ],
       "children": []

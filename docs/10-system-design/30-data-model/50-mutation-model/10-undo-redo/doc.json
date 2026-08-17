@@ -137,7 +137,9 @@
       ],
       "children": [
         "b-ur-ledger-s1",
-        "b-ur-ledger-s2"
+        "b-ur-ledger-s2",
+        "b-ur-ledger-s3",
+        "b-ur-ledger-s4"
       ]
     },
     "b-ur-ledger-s1": {
@@ -167,6 +169,28 @@
       "text": [
         {
           "insert": "Any surface can undo any patch: a human undoing an agent's change and an agent undoing its own are the same call."
+        }
+      ],
+      "children": []
+    },
+    "b-ur-ledger-s3": {
+      "id": "b-ur-ledger-s3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A patch records its inverses together with the document hash after the apply, and undo re-enters the same hash-checked mutation authority with that hash as its precondition — if the document has moved on since, the undo refuses and the later edits survive untouched. Canvas and sequence patches restore a validated prior snapshot under the same rule."
+        }
+      ],
+      "children": []
+    },
+    "b-ur-ledger-s4": {
+      "id": "b-ur-ledger-s4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An undo token is single-use: success consumes it, and a second attempt fails cleanly. The ledger is a live undo stack for the running authority, not durable history — the document file stays the only canonical record."
         }
       ],
       "children": []

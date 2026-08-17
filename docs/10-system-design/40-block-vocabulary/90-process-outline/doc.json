@@ -10,8 +10,6 @@
       "props": {},
       "children": [
         "b-90-process-outline-lead",
-        "b-90-process-outline-lead-model",
-        "b-90-process-outline-lead-viewer",
         "b-90-process-outline-split-intro",
         "b-90-process-outline-split-canvas",
         "b-90-process-outline-split-sequence",
@@ -41,7 +39,6 @@
         "b-90-process-outline-actions-h",
         "b-90-process-outline-actions-intro",
         "b-90-process-outline-actions-surface",
-        "b-90-process-outline-actions-b0a",
         "b-90-process-outline-actions-b0b",
         "b-90-process-outline-actions-b1",
         "b-90-process-outline-actions-b3",
@@ -129,52 +126,6 @@
         },
         {
           "insert": " turns it back into steps on bulk import."
-        }
-      ],
-      "children": []
-    },
-    "b-90-process-outline-lead-model": {
-      "id": "b-90-process-outline-lead-model",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Model code: "
-        },
-        {
-          "insert": "packages/docs-model/src/components/process-outline/",
-          "attributes": {
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-model/src/components/process-outline"
-            }
-          }
-        },
-        {
-          "insert": "."
-        }
-      ],
-      "children": []
-    },
-    "b-90-process-outline-lead-viewer": {
-      "id": "b-90-process-outline-lead-viewer",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Doc renderer: "
-        },
-        {
-          "insert": "packages/docs-viewer/src/components/process-outline/",
-          "attributes": {
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-viewer/src/components/process-outline"
-            }
-          }
-        },
-        {
-          "insert": "."
         }
       ],
       "children": []
@@ -510,8 +461,7 @@
       ],
       "children": [
         "b-90-process-outline-not-indent-1",
-        "b-90-process-outline-not-indent-2",
-        "pm-mrwee4hr-1-fhp9oc"
+        "b-90-process-outline-not-indent-2"
       ]
     },
     "b-90-process-outline-not-indent-1": {
@@ -532,17 +482,6 @@
       "text": [
         {
           "insert": "Irregular indentation still nests, and a depth already assigned never changes when a new width appears later."
-        }
-      ],
-      "children": []
-    },
-    "pm-mrwee4hr-1-fhp9oc": {
-      "id": "pm-mrwee4hr-1-fhp9oc",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "/"
         }
       ],
       "children": []
@@ -1052,29 +991,6 @@
       },
       "children": []
     },
-    "b-90-process-outline-actions-b0a": {
-      "id": "b-90-process-outline-actions-b0a",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Each action is one file in "
-        },
-        {
-          "insert": "packages/docs-model/src/components/process-outline/actions/",
-          "attributes": {
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-model/src/components/process-outline/actions"
-            }
-          }
-        },
-        {
-          "insert": "."
-        }
-      ],
-      "children": []
-    },
     "b-90-process-outline-actions-b0b": {
       "id": "b-90-process-outline-actions-b0b",
       "type": "list-item",
@@ -1218,7 +1134,7 @@
           }
         },
         {
-          "insert": " contract element: "
+          "insert": " contract element, "
         },
         {
           "insert": "ProcessOutlineDocsBlock",
@@ -1227,19 +1143,7 @@
           }
         },
         {
-          "insert": " in "
-        },
-        {
-          "insert": "packages/docs-viewer/src/components/process-outline/ProcessOutlineDocsBlock.tsx",
-          "attributes": {
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-viewer/src/components/process-outline/ProcessOutlineDocsBlock.tsx"
-            }
-          }
-        },
-        {
-          "insert": ", wired through the descriptor in the same folder:"
+          "insert": ":"
         }
       ],
       "children": []
@@ -1680,18 +1584,6 @@
           }
         },
         {
-          "insert": " in "
-        },
-        {
-          "insert": "editor-nodes.ts",
-          "attributes": {
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-viewer/src/components/process-outline/editor-nodes.ts"
-            }
-          }
-        },
-        {
           "insert": "); the shared atom node view reuses the same descriptor, so edit mode shows the same render as reading."
         }
       ],
@@ -1728,19 +1620,7 @@
           }
         },
         {
-          "insert": " contract element: the markdown projection in "
-        },
-        {
-          "insert": "agent-view.ts",
-          "attributes": {
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-model/src/components/process-outline/agent-view.ts"
-            }
-          }
-        },
-        {
-          "insert": " is a "
+          "insert": " contract element: the markdown projection is a "
         },
         {
           "insert": "process-outline",

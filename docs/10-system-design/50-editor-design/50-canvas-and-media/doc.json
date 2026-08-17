@@ -25,7 +25,6 @@
         "b-cmed-rule-file",
         "b-cmed-rule-video",
         "b-cmed-rule-image",
-        "b-cmed-image-open",
         "b-cmed-why-h",
         "b-cmed-why-reading",
         "b-cmed-why-exploration",
@@ -533,7 +532,8 @@
       ],
       "children": [
         "b-cmed-rule-image-state",
-        "b-cmed-rule-image-edit"
+        "b-cmed-rule-image-edit",
+        "b-cmed-rule-image-viewer"
       ]
     },
     "b-cmed-rule-image-state": {
@@ -581,21 +581,6 @@
       "text": [
         {
           "insert": "The editor treats the block as an atom and provides no in-place props surface."
-        }
-      ],
-      "children": []
-    },
-    "b-cmed-image-open": {
-      "id": "b-cmed-image-open",
-      "type": "callout",
-      "props": {
-        "kind": "Open call",
-        "title": "Fullscreen Image Viewing",
-        "tone": "decision"
-      },
-      "text": [
-        {
-          "insert": "The canvas viewer contract does not imply a general image lightbox. Click-to-fullscreen image viewing has no settled interaction design."
         }
       ],
       "children": []
@@ -744,6 +729,17 @@
       "text": [
         {
           "insert": "Provider players, native local playback, safe link fallback, and a simple image figure match the source instead of forcing every visual artifact through canvas."
+        }
+      ],
+      "children": []
+    },
+    "b-cmed-rule-image-viewer": {
+      "id": "b-cmed-rule-image-viewer",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The canvas viewer contract does not extend to images: an image renders as a figure, with no lightbox or click-to-fullscreen viewer."
         }
       ],
       "children": []

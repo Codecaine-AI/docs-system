@@ -15,7 +15,9 @@
         "b-edsn-editing",
         "b-edsn-rail",
         "b-edsn-visual",
-        "b-edsn-media"
+        "b-edsn-media",
+        "b-edsn25-degrade-h",
+        "b-edsn25-degrade"
       ]
     },
     "b-edsn-opener": {
@@ -200,6 +202,30 @@
       "text": [
         {
           "insert": "The inline and expanded viewing behavior for canvas, image, and video content."
+        }
+      ],
+      "children": []
+    },
+    "b-edsn25-degrade-h": {
+      "id": "b-edsn25-degrade-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Capability Degradation"
+        }
+      ],
+      "children": []
+    },
+    "b-edsn25-degrade": {
+      "id": "b-edsn25-degrade",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The designed surface degrades by capability, not by error. Every host-dependent power — persistence, annotation writes, live change events, theme writes, asset upload — is a supplied capability, and an absent capability removes its affordances instead of failing. A static export is the limit case: the same surface with no write capabilities renders the same documents read-only, with editing, annotation composing, live updates, and theme authoring simply absent rather than broken."
         }
       ],
       "children": []

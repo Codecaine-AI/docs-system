@@ -347,14 +347,7 @@
       },
       "text": [
         {
-          "insert": "lift.ts",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-model/src/components/canvas/actions/lift.ts"
-            }
-          }
+          "insert": "The lift"
         }
       ],
       "children": [
@@ -584,20 +577,7 @@
       "props": {},
       "text": [
         {
-          "insert": "docs-viewer owns the descriptor ("
-        },
-        {
-          "insert": "descriptor.tsx",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-viewer/src/components/canvas/descriptor.tsx"
-            }
-          }
-        },
-        {
-          "insert": ") but not the pixels: the render calls the host-injected canvas slot — DocsClientProvider's "
+          "insert": "docs-viewer owns the descriptor but not the pixels: the render calls the host-injected canvas slot — DocsClientProvider's "
         },
         {
           "insert": "canvasEmbed",
@@ -635,20 +615,7 @@
           }
         },
         {
-          "insert": " ("
-        },
-        {
-          "insert": "CanvasEmbed.tsx",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-workbench/web/src/pages/CanvasEmbed.tsx"
-            }
-          }
-        },
-        {
-          "insert": ") into the slot — a read-only embed:"
+          "insert": " into the slot — a read-only embed:"
         }
       ],
       "children": []
@@ -982,20 +949,7 @@
           }
         },
         {
-          "insert": " and calls the same descriptor render the read surface uses ("
-        },
-        {
-          "insert": "node-views.tsx",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-viewer/src/editor/views/node-views.tsx"
-            }
-          }
-        },
-        {
-          "insert": "), so the block looks identical in view and edit mode; edit mode's embed adds the Edit in Canvas action."
+          "insert": " and calls the same descriptor render the read surface uses, so the block looks identical in view and edit mode; edit mode's embed adds the Edit in Canvas action."
         }
       ],
       "children": []
@@ -1046,20 +1000,7 @@
           }
         },
         {
-          "insert": " wins when both are present ("
-        },
-        {
-          "insert": "agent-view.ts",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-model/src/components/canvas/agent-view.ts"
-            }
-          }
-        },
-        {
-          "insert": "). Chosen over a markdown image because a canvas is not an image asset; the comment form greps cleanly on "
+          "insert": " wins when both are present. Chosen over a markdown image because a canvas is not an image asset; the comment form greps cleanly on "
         },
         {
           "insert": "<!-- canvas:",
@@ -1618,12 +1559,11 @@
       },
       "text": [
         {
-          "insert": "Target design"
+          "insert": "The processing agent"
         }
       ],
       "children": [
-        "b-24-canvas-adapter-li-target-a",
-        "b-24-canvas-adapter-li-target-b"
+        "b-24-canvas-adapter-li-target-a"
       ]
     },
     "b-24-canvas-adapter-li-target-a": {
@@ -1634,20 +1574,7 @@
       },
       "text": [
         {
-          "insert": "Per the contract's settled design, canvas declares an annotation-processing agent of its own, with a context loader that assembles the canvas file and a router that discovers the agent from the registry."
-        }
-      ],
-      "children": []
-    },
-    "b-24-canvas-adapter-li-target-b": {
-      "id": "b-24-canvas-adapter-li-target-b",
-      "type": "list-item",
-      "props": {
-        "ordered": false
-      },
-      "text": [
-        {
-          "insert": "That adapter is not wired in this repo; the forwarded action path above is the piece that exists."
+          "insert": "Canvas declares an annotation-processing agent of its own, with a context loader that assembles the canvas file and a router that discovers the agent from the registry."
         }
       ],
       "children": []

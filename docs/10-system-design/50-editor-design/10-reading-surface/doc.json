@@ -23,8 +23,7 @@
         "b-rsurf-why-rhythm",
         "b-rsurf-why-context",
         "b-rsurf-why-identity",
-        "b-rsurf-why-link-home",
-        "b-rsurf-backlinks-rationale"
+        "b-rsurf-why-link-home"
       ]
     },
     "b-rsurf-opener": {
@@ -69,46 +68,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The living Default in "
-        },
-        {
-          "insert": "themes/default/theme.json",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "themes/default/theme.json"
-            }
-          }
-        },
-        {
-          "insert": " defines the document frame below. "
-        },
-        {
-          "insert": "packages/docs-workbench/web/src/shell/StyleRail.tsx",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-workbench/web/src/shell/StyleRail.tsx"
-            }
-          }
-        },
-        {
-          "insert": " exposes the values as CSS variables consumed by "
-        },
-        {
-          "insert": "packages/docs-workbench/web/src/pages/DocPage.tsx",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-workbench/web/src/pages/DocPage.tsx"
-            }
-          }
-        },
-        {
-          "insert": "."
+          "insert": "The living Default theme defines the document frame below."
         }
       ],
       "children": []
@@ -630,17 +590,6 @@
         },
         {
           "insert": "."
-        }
-      ],
-      "children": []
-    },
-    "b-rsurf-backlinks-rationale": {
-      "id": "b-rsurf-backlinks-rationale",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "The plain “Referenced by” footer and its source-path-only presentation have no recorded rationale."
         }
       ],
       "children": []

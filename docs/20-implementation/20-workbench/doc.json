@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "20-implementation-20-workbench",
-  "title": "Using the workbench",
+  "title": "Workbench",
   "root": "b-00-using-the-workbench-root-28",
   "blocks": {
     "b-00-using-the-workbench-root-28": {
@@ -9,280 +9,45 @@
       "type": "paragraph",
       "props": {},
       "children": [
-        "b-00-using-the-workbench-docs-serve-opens-the-w-2",
-        "b-00-using-the-workbench-edit-mode-default-3",
-        "b-00-using-the-workbench-the-page-is-the-editor-4",
-        "b-00-using-the-workbench-auto-save-edits-sav-5",
-        "b-00-using-the-workbench-the-header-indicator-7",
-        "b-00-using-the-workbench-undo-last-save-in-th-9",
-        "b-00-using-the-workbench-live-changes-if-ano-11",
-        "b-00-using-the-workbench-links-cmd-ctrl-k-with-29",
-        "b-00-using-the-workbench-video-paste-a-youtube-30",
-        "b-00-using-the-workbench-conflicts-13",
-        "b-00-using-the-workbench-two-layers-both-server-14",
-        "b-00-using-the-workbench-stale-hash-409-ev-15",
-        "b-00-using-the-workbench-draft-lock-423-go-17",
-        "b-00-using-the-workbench-annotate-mode-19",
-        "b-00-using-the-workbench-for-pointing-at-things-a-20",
-        "b-00-using-the-workbench-hover-any-block-for-an-o-21",
-        "b-00-using-the-workbench-canvas-objects-inside-em-22",
-        "b-00-using-the-workbench-compose-a-comment-with-23",
-        "b-00-using-the-workbench-comments-live-in-the-bun-25",
-        "b-00-using-the-workbench-block-library-31",
-        "b-00-using-the-workbench-blocks-opens-a-searc-32",
-        "b-00-using-the-workbench-static-export-26",
-        "b-00-using-the-workbench-docs-export-produces-t-27"
+        "b-wb-role",
+        "b-wb-gov-h",
+        "b-wb-gov-editor",
+        "b-wb-gov-interactions",
+        "b-wb-gov-mut",
+        "b-wb-decisions-h",
+        "b-wb-thin-h",
+        "b-wb-thin-d",
+        "b-wb-thin-w",
+        "b-wb-thin-a",
+        "b-wb-input-h",
+        "b-wb-input-d",
+        "b-wb-input-w",
+        "b-wb-input-a",
+        "b-wb-catalog-h",
+        "b-wb-catalog-d",
+        "b-wb-catalog-w",
+        "b-wb-catalog-a",
+        "b-wb-static-h",
+        "b-wb-static-d",
+        "b-wb-static-w",
+        "b-wb-static-a"
       ]
     },
-    "b-00-using-the-workbench-docs-serve-opens-the-w-2": {
-      "id": "b-00-using-the-workbench-docs-serve-opens-the-w-2",
+    "b-wb-role": {
+      "id": "b-wb-role",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "docs serve",
-          "attributes": {
-            "code": true
-          }
+          "insert": "Structural decisions for the workbench composition host — the shell that binds the viewer and server into a running app. Source: "
         },
         {
-          "insert": " starts the workbench host over one docs root. The host composes navigation, viewer/editor callbacks, persistence, annotations, live events, and static-export degradation. Human interaction semantics live in "
-        },
-        {
-          "insert": "Editing Interactions",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "10-system-design/50-editor-design/20-editing-interactions"
-            }
-          }
-        },
-        {
-          "insert": "; this page covers the runtime wiring."
-        }
-      ],
-      "children": []
-    },
-    "b-00-using-the-workbench-edit-mode-default-3": {
-      "id": "b-00-using-the-workbench-edit-mode-default-3",
-      "type": "heading",
-      "props": {
-        "level": 2
-      },
-      "text": [
-        {
-          "insert": "Edit Persistence"
-        }
-      ],
-      "children": []
-    },
-    "b-00-using-the-workbench-the-page-is-the-editor-4": {
-      "id": "b-00-using-the-workbench-the-page-is-the-editor-4",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "packages/docs-workbench/web/src/pages/DocPage.tsx",
+          "insert": "packages/docs-workbench",
           "attributes": {
             "code": true,
             "reference": {
               "kind": "source",
-              "path": "packages/docs-workbench/web/src/pages/DocPage.tsx"
-            }
-          }
-        },
-        {
-          "insert": " mounts the viewer editor and supplies the host callbacks that send typed operations, acquire locks, upload assets, and adopt server results."
-        }
-      ],
-      "children": []
-    },
-    "b-00-using-the-workbench-auto-save-edits-sav-5": {
-      "id": "b-00-using-the-workbench-auto-save-edits-sav-5",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Flush triggers"
-        }
-      ],
-      "children": [
-        "b-00-using-the-workbench-continuous-typing-still-6"
-      ]
-    },
-    "b-00-using-the-workbench-continuous-typing-still-6": {
-      "id": "b-00-using-the-workbench-continuous-typing-still-6",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "The editor flushes after about 1 second idle with a 5 second maximum wait. "
-        },
-        {
-          "insert": "Cmd/Ctrl+S",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", blur, tab hiding, mode changes, document navigation, and unmount also request a flush."
-        }
-      ],
-      "children": []
-    },
-    "b-00-using-the-workbench-the-header-indicator-7": {
-      "id": "b-00-using-the-workbench-the-header-indicator-7",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Pipeline handoff"
-        }
-      ],
-      "children": [
-        "b-00-using-the-workbench-times-8"
-      ]
-    },
-    "b-00-using-the-workbench-times-8": {
-      "id": "b-00-using-the-workbench-times-8",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Every trigger uses "
-        },
-        {
-          "insert": "The save pipeline: keystroke to disk",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "20-implementation/30-save-pipeline"
-            }
-          }
-        },
-        {
-          "insert": ": editor state becomes "
-        },
-        {
-          "insert": "DocOp[]",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " and reaches "
-        },
-        {
-          "insert": "POST /api/ops",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " with the expected hash and session id."
-        }
-      ],
-      "children": []
-    },
-    "b-00-using-the-workbench-undo-last-save-in-th-9": {
-      "id": "b-00-using-the-workbench-undo-last-save-in-th-9",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Undo"
-        }
-      ],
-      "children": [
-        "b-00-using-the-workbench-single-use-powered-by-10"
-      ]
-    },
-    "b-00-using-the-workbench-single-use-powered-by-10": {
-      "id": "b-00-using-the-workbench-single-use-powered-by-10",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "The host sends the latest single-use token to the server's inverse-op ledger. Undo re-enters the same hash-checked mutation authority."
-        }
-      ],
-      "children": []
-    },
-    "b-00-using-the-workbench-live-changes-if-ano-11": {
-      "id": "b-00-using-the-workbench-live-changes-if-ano-11",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Remote changes"
-        }
-      ],
-      "children": [
-        "b-00-using-the-workbench-while-your-editor-is-cle-12"
-      ]
-    },
-    "b-00-using-the-workbench-while-your-editor-is-cle-12": {
-      "id": "b-00-using-the-workbench-while-your-editor-is-cle-12",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "An SSE update reloads a clean editor. A dirty or saving editor suppresses the reload and leaves conflict ownership to the next hash-checked save."
-        }
-      ],
-      "children": []
-    },
-    "b-00-using-the-workbench-links-cmd-ctrl-k-with-29": {
-      "id": "b-00-using-the-workbench-links-cmd-ctrl-k-with-29",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Editor-owned input"
-        }
-      ],
-      "children": [
-        "b-00-using-the-workbench-links-cmd-ctrl-k-with-29-gloss"
-      ]
-    },
-    "b-00-using-the-workbench-links-cmd-ctrl-k-with-29-gloss": {
-      "id": "b-00-using-the-workbench-links-cmd-ctrl-k-with-29-gloss",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Link authoring, keyboard behavior, paste conversion, and slash insertion stay inside docs-viewer editor extensions. The workbench receives document updates rather than reimplementing those interactions."
-        }
-      ],
-      "children": []
-    },
-    "b-00-using-the-workbench-video-paste-a-youtube-30": {
-      "id": "b-00-using-the-workbench-video-paste-a-youtube-30",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Media handoff"
-        }
-      ],
-      "children": [
-        "b-00-using-the-workbench-video-paste-a-youtube-30-gloss"
-      ]
-    },
-    "b-00-using-the-workbench-video-paste-a-youtube-30-gloss": {
-      "id": "b-00-using-the-workbench-video-paste-a-youtube-30-gloss",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "The viewer recognizes media input; the workbench supplies asset upload and canvas/sequence embed slots. The designed interaction is specified by "
-        },
-        {
-          "insert": "Canvas and Media",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "10-system-design/50-editor-design/50-canvas-and-media"
+              "path": "packages/docs-workbench"
             }
           }
         },
@@ -292,182 +57,256 @@
       ],
       "children": []
     },
-    "b-00-using-the-workbench-conflicts-13": {
-      "id": "b-00-using-the-workbench-conflicts-13",
+    "b-wb-gov-h": {
+      "id": "b-wb-gov-h",
       "type": "heading",
       "props": {
         "level": 2
       },
       "text": [
         {
-          "insert": "Conflict Handling"
+          "insert": "Governed By"
         }
       ],
       "children": []
     },
-    "b-00-using-the-workbench-two-layers-both-server-14": {
-      "id": "b-00-using-the-workbench-two-layers-both-server-14",
+    "b-wb-gov-editor": {
+      "id": "b-wb-gov-editor",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "Two server outcomes pause autosave without discarding the editor draft."
-        }
-      ],
-      "children": []
-    },
-    "b-00-using-the-workbench-stale-hash-409-ev-15": {
-      "id": "b-00-using-the-workbench-stale-hash-409-ev-15",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Stale hash (409)"
-        }
-      ],
-      "children": [
-        "b-00-using-the-workbench-the-doc-changed-undernea-16"
-      ]
-    },
-    "b-00-using-the-workbench-the-doc-changed-undernea-16": {
-      "id": "b-00-using-the-workbench-the-doc-changed-undernea-16",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "The server rejects an operation batch whose expected hash is stale. The draft remains local until the caller adopts current server state or retries from a current baseline."
-        }
-      ],
-      "children": []
-    },
-    "b-00-using-the-workbench-draft-lock-423-go-17": {
-      "id": "b-00-using-the-workbench-draft-lock-423-go-17",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Draft lock (423)"
-        }
-      ],
-      "children": [
-        "b-00-using-the-workbench-heartbeat-renewed-if-18"
-      ]
-    },
-    "b-00-using-the-workbench-heartbeat-renewed-if-18": {
-      "id": "b-00-using-the-workbench-heartbeat-renewed-if-18",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Going dirty requests a heartbeat-renewed TTL lock. A lock held by another session pauses saves until the heartbeat observes availability; the expected hash remains the correctness check."
-        }
-      ],
-      "children": []
-    },
-    "b-00-using-the-workbench-annotate-mode-19": {
-      "id": "b-00-using-the-workbench-annotate-mode-19",
-      "type": "heading",
-      "props": {
-        "level": 2
-      },
-      "text": [
-        {
-          "insert": "Annotation Persistence"
-        }
-      ],
-      "children": []
-    },
-    "b-00-using-the-workbench-for-pointing-at-things-a-20": {
-      "id": "b-00-using-the-workbench-for-pointing-at-things-a-20",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "Annotate mode composes viewer targeting with a workbench-owned annotations sidecar."
-        }
-      ],
-      "children": []
-    },
-    "b-00-using-the-workbench-hover-any-block-for-an-o-21": {
-      "id": "b-00-using-the-workbench-hover-any-block-for-an-o-21",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "docs-viewer emits stable block targets, Cmd/Ctrl+drag over a block's text emits text-range targets, and the injected canvas embed emits canvas-object targets."
-        }
-      ],
-      "children": []
-    },
-    "b-00-using-the-workbench-canvas-objects-inside-em-22": {
-      "id": "b-00-using-the-workbench-canvas-objects-inside-em-22",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "The workbench stores target, intent, body, and resolution state in "
+          "insert": "Editor design",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design",
+              "label": "Editor design"
+            }
+          }
         },
         {
-          "insert": "annotations.json",
+          "insert": " — the surfaces the host composes."
+        }
+      ],
+      "children": []
+    },
+    "b-wb-gov-interactions": {
+      "id": "b-wb-gov-interactions",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Editing Interactions",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/20-editing-interactions",
+              "label": "Editing Interactions"
+            }
+          }
+        },
+        {
+          "insert": " — the human interaction semantics, including save, conflict, and reload behavior."
+        }
+      ],
+      "children": []
+    },
+    "b-wb-gov-mut": {
+      "id": "b-wb-gov-mut",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The mutation model",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/50-mutation-model",
+              "label": "The mutation model"
+            }
+          }
+        },
+        {
+          "insert": " — the write contract behind every host callback."
+        }
+      ],
+      "children": []
+    },
+    "b-wb-decisions-h": {
+      "id": "b-wb-decisions-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Decisions"
+        }
+      ],
+      "children": []
+    },
+    "b-wb-thin-h": {
+      "id": "b-wb-thin-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "The workbench is a thin composition host"
+        }
+      ],
+      "children": []
+    },
+    "b-wb-thin-d": {
+      "id": "b-wb-thin-d",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Decision: Capabilities live in docs-viewer and docs-server; the workbench composes them and supplies the callbacks — data, persistence, locks, uploads, navigation, embeds — without defining block rendering, editor semantics, or write rules of its own."
+        }
+      ],
+      "children": []
+    },
+    "b-wb-thin-w": {
+      "id": "b-wb-thin-w",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Why: Reimplementing interactions in the host was rejected — a second implementation drifts from the packages and breaks every other host that embeds them."
+        }
+      ],
+      "children": []
+    },
+    "b-wb-thin-a": {
+      "id": "b-wb-thin-a",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Applies to: "
+        },
+        {
+          "insert": "packages/docs-workbench",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " beside the bundle."
+          "insert": " — every future host page and shell feature stays composition glue."
         }
       ],
       "children": []
     },
-    "b-00-using-the-workbench-compose-a-comment-with-23": {
-      "id": "b-00-using-the-workbench-compose-a-comment-with-23",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Targets whose block or canvas object is absent remain readable and are marked dangling by resolution logic."
-        }
-      ],
-      "children": []
-    },
-    "b-00-using-the-workbench-comments-live-in-the-bun-25": {
-      "id": "b-00-using-the-workbench-comments-live-in-the-bun-25",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "Annotation writes carry the sidecar hash precondition, so concurrent annotation edits fail instead of overwriting one another."
-        }
-      ],
-      "children": []
-    },
-    "b-00-using-the-workbench-block-library-31": {
-      "id": "b-00-using-the-workbench-block-library-31",
+    "b-wb-input-h": {
+      "id": "b-wb-input-h",
       "type": "heading",
       "props": {
-        "level": 2
+        "level": 3
       },
       "text": [
         {
-          "insert": "Block Catalog"
+          "insert": "Editor-owned input stays inside the viewer"
         }
       ],
       "children": []
     },
-    "b-00-using-the-workbench-blocks-opens-a-searc-32": {
-      "id": "b-00-using-the-workbench-blocks-opens-a-searc-32",
-      "type": "paragraph",
-      "props": {},
+    "b-wb-input-d": {
+      "id": "b-wb-input-d",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
       "text": [
         {
-          "insert": "The workbench does not maintain a parallel block reference. Definitions and examples live in "
+          "insert": "Decision: Link authoring, keyboard behavior, paste conversion, and slash insertion live inside docs-viewer's editor extensions; the workbench receives document updates through the host callbacks rather than intercepting input."
+        }
+      ],
+      "children": []
+    },
+    "b-wb-input-w": {
+      "id": "b-wb-input-w",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Why: One interaction implementation serves every host; host-side input handling was rejected because it duplicates editor behavior per host."
+        }
+      ],
+      "children": []
+    },
+    "b-wb-input-a": {
+      "id": "b-wb-input-a",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Applies to: "
+        },
+        {
+          "insert": "packages/docs-viewer/src/editor",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "packages/docs-workbench/web/src/pages",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — future input features land as viewer extensions."
+        }
+      ],
+      "children": []
+    },
+    "b-wb-catalog-h": {
+      "id": "b-wb-catalog-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "No parallel block catalog"
+        }
+      ],
+      "children": []
+    },
+    "b-wb-catalog-d": {
+      "id": "b-wb-catalog-d",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Decision: The workbench maintains no block reference of its own; block definitions and examples belong to "
         },
         {
           "insert": "Block vocabulary",
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "10-system-design/40-block-vocabulary"
+              "path": "10-system-design/40-block-vocabulary",
+              "label": "Block vocabulary"
             }
           }
         },
@@ -477,32 +316,155 @@
       ],
       "children": []
     },
-    "b-00-using-the-workbench-static-export-26": {
-      "id": "b-00-using-the-workbench-static-export-26",
-      "type": "heading",
+    "b-wb-catalog-w": {
+      "id": "b-wb-catalog-w",
+      "type": "list-item",
       "props": {
-        "level": 2
+        "ordered": false
       },
       "text": [
         {
-          "insert": "Static Export"
+          "insert": "Why: A host-local catalog was rejected — it drifts from the model registry and the design vocabulary the moment a block changes."
         }
       ],
       "children": []
     },
-    "b-00-using-the-workbench-docs-export-produces-t-27": {
-      "id": "b-00-using-the-workbench-docs-export-produces-t-27",
-      "type": "paragraph",
-      "props": {},
+    "b-wb-catalog-a": {
+      "id": "b-wb-catalog-a",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
       "text": [
         {
-          "insert": "docs export",
+          "insert": "Applies to: "
+        },
+        {
+          "insert": "packages/docs-workbench",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " builds the same SPA against a generated data snapshot. Static mode omits mutation callbacks, annotation writes, SSE, theme writes, and server-only asset operations, so viewer capabilities degrade through absent host services."
+          "insert": " — future block UI reads the model registries and design docs, never a host copy."
+        }
+      ],
+      "children": []
+    },
+    "b-wb-static-h": {
+      "id": "b-wb-static-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Static export is read-only by construction"
+        }
+      ],
+      "children": []
+    },
+    "b-wb-static-d": {
+      "id": "b-wb-static-d",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Decision: The static export ships no write endpoints — the exported artifact contains no mutation surface — and the build-time data adapter in "
+        },
+        {
+          "insert": "packages/docs-workbench/web/src/data/api.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/data/api.ts"
+            }
+          }
+        },
+        {
+          "insert": ", the reduced "
+        },
+        {
+          "insert": "DocsClient",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " wiring in "
+        },
+        {
+          "insert": "packages/docs-workbench/web/src/data/client.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/data/client.ts"
+            }
+          }
+        },
+        {
+          "insert": ", and the page selection over "
+        },
+        {
+          "insert": "packages/docs-workbench/src/export.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/src/export.ts"
+            }
+          }
+        },
+        {
+          "insert": " must agree on the same capability set."
+        }
+      ],
+      "children": []
+    },
+    "b-wb-static-w": {
+      "id": "b-wb-static-w",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Why: Runtime capability flags alone were rejected — an export that merely hides write UI but still ships write paths can drift; omitting the endpoints makes the read-only guarantee structural."
+        }
+      ],
+      "children": []
+    },
+    "b-wb-static-a": {
+      "id": "b-wb-static-a",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Applies to: "
+        },
+        {
+          "insert": "packages/docs-workbench/src/export.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "packages/docs-workbench/web/src/data",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — future capability additions must be wired through the same adapter and capability agreement."
         }
       ],
       "children": []

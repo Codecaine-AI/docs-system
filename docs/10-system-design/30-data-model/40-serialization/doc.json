@@ -198,25 +198,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The content hash is SHA-256 hex over the on-disk bytes. One helper — "
-        },
-        {
-          "insert": "createContentHash",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " in docs-server's "
-        },
-        {
-          "insert": "content-hash.ts",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " — is shared by every surface that hashes content: doc hashes, annotation-sidecar hashes, and canvas hashes all derive byte-identical values for identical content."
+          "insert": "The content hash is SHA-256 hex over the on-disk bytes. One hash definition is shared by every surface that hashes content: doc hashes, annotation-sidecar hashes, and canvas hashes all derive byte-identical values for identical content."
         }
       ],
       "children": []
@@ -227,14 +209,14 @@
       "props": {},
       "text": [
         {
-          "insert": "Hashes are the staleness precondition on writes: a mutation names the hash of the document it thinks it is editing, and the write authority rejects the op if the file has moved on. That only works because serialization is canonical — the hash changes when and only when the document actually changes. The locking and atomic-write machinery around this lives in "
+          "insert": "Hashes are the staleness precondition on writes: a mutation names the hash of the document it thinks it is editing, and the write authority rejects the op if the file has moved on. That only works because serialization is canonical — the hash changes when and only when the document actually changes. A successful write persists the validated, normalized document rather than the raw operation result, so the hash a save returns is exactly the hash the next load computes from disk. The refusal, locking, and atomicity behavior built on this precondition lives in "
         },
         {
-          "insert": "the save pipeline",
+          "insert": "the mutation model",
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "docs/20-implementation/30-save-pipeline.md"
+              "path": "10-system-design/30-data-model/50-mutation-model"
             }
           }
         },

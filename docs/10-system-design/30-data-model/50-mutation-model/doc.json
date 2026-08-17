@@ -26,11 +26,17 @@
         "b-20-mutation-model-refusals-intro-12",
         "b-20-mutation-model-expected-hash-13",
         "b-20-mutation-model-draft-lock-14",
+        "b-mm25-session-1",
+        "b-mm25-atomic-h",
+        "b-mm25-critical-1",
+        "b-mm25-gate-1",
         "b-10-save-pipeline-typed-block-actions-the-21",
         "b-10-save-pipeline-structured-object-blocks-22",
         "b-10-save-pipeline-block-action-examples-23",
+        "b-mm25-forwarded-1",
         "b-20-mutation-model-change-events-15",
         "b-20-mutation-model-change-events-sse-16",
+        "b-mm25-event-shape-1",
         "b-20-mutation-model-dirty-suppression-17",
         "b-10-save-pipeline-callout-dirty-suppress-20",
         "b-20-mutation-model-discovery-18",
@@ -75,14 +81,14 @@
           }
         },
         {
-          "insert": ". For concrete wiring, read "
+          "insert": ". For package structure and transport wiring, read "
         },
         {
-          "insert": "the save pipeline — how bytes reach disk",
+          "insert": "the implementation tier",
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "docs/20-implementation/30-save-pipeline.md"
+              "path": "20-implementation"
             }
           }
         },
@@ -446,7 +452,7 @@
           }
         },
         {
-          "insert": ". splitBlock and mergeBlocks are not revalidated because they copy existing props. Reads and loads remain tolerant: structural validation never rejects a document for props content."
+          "insert": ". splitBlock and mergeBlocks are not revalidated because they copy existing props. Ops also refuse structural illegality outright — a missing target block, an invalid child index, an illegal root change, or a move that would create a cycle. Reads and loads remain tolerant: structural validation never rejects a document for props content."
         },
         {
           "insert": " Undo replay is exempt from strict props validation because it restores a previously-accepted state."
@@ -490,7 +496,7 @@
       },
       "text": [
         {
-          "insert": "draft lock — a per-session lock rejects a writer with a different session identity. Over HTTP this is "
+          "insert": "draft lock — an expiring, heartbeat-renewed per-session claim rejects a writer with a different session identity. Over HTTP this is "
         },
         {
           "insert": "423",
@@ -499,7 +505,93 @@
           }
         },
         {
-          "insert": "."
+          "insert": ". The lock is coordination, not correctness: expiry, absence, or loss of a lock never proves freshness, so the hash precondition remains the correctness check."
+        }
+      ],
+      "children": []
+    },
+    "b-mm25-session-1": {
+      "id": "b-mm25-session-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "One session identity threads through all of this. Each editing session — a browser tab, an agent run — carries a single "
+        },
+        {
+          "insert": "session_id",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " on its writes. That one id is checked against the draft lock, names the actor on the resulting change event, and lets a session filter its own echoes out of the change stream. If a session's locks and writes named different identities, the authority would reject the session's own saves as a foreign writer."
+        }
+      ],
+      "children": []
+    },
+    "b-mm25-atomic-h": {
+      "id": "b-mm25-atomic-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Atomicity and the Validation Gate"
+        }
+      ],
+      "children": []
+    },
+    "b-mm25-critical-1": {
+      "id": "b-mm25-critical-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The write authority serializes the whole read–check–apply–write sequence per document, and the "
+        },
+        {
+          "insert": "expected_hash",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " comparison happens inside that critical section — two writers holding the same baseline cannot both pass and overwrite one another. Writes to different documents proceed concurrently, and a refused batch does not poison the writers queued behind it. A batch is all-or-nothing: on success every op applies, the inverse batch is recorded under a "
+        },
+        {
+          "insert": "patch_id",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", a change event broadcasts, and the new document and hash return to the caller. On any refusal, nothing is written."
+        }
+      ],
+      "children": []
+    },
+    "b-mm25-gate-1": {
+      "id": "b-mm25-gate-1",
+      "type": "callout",
+      "props": {
+        "kind": "Write gate",
+        "title": "Invalid post-op documents never reach disk",
+        "tone": "warning"
+      },
+      "text": [
+        {
+          "insert": "Applying ops cannot by itself establish that every span and cross-reference is reloadable, so the authority validates the complete post-op document before persistence. Failure refuses the batch ("
+        },
+        {
+          "insert": "422",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " over HTTP) with typed issue paths; the existing file, undo ledger, and derived indexes stay untouched. What persists on success is the validator's normalized document, so the returned hash matches the next load's canonical bytes — an editor or agent bug cannot save a document the next load refuses."
         }
       ],
       "children": []
@@ -600,6 +692,17 @@
       },
       "children": []
     },
+    "b-mm25-forwarded-1": {
+      "id": "b-mm25-forwarded-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Canvas and sequence actions are the exception that proves the authority boundary: they carry their owning engine's schema truth and forward to that engine's authority instead of patching document props. A forwarded action travels alone — a batch that mixes one with any other op is refused, because no single transaction can span the document file and another authority's sidecar, and the model does not pretend otherwise. The document's bytes stay unchanged; the sidecar authority applies the action under its own hash precondition and returns its own hash and undo token."
+        }
+      ],
+      "children": []
+    },
     "b-20-mutation-model-change-events-15": {
       "id": "b-20-mutation-model-change-events-15",
       "type": "heading",
@@ -620,6 +723,35 @@
       "text": [
         {
           "insert": "A successful apply broadcasts an SSE change event carrying the ids of blocks whose content or placement changed. Consumers use that id set to flash the affected blocks; the event is a notification of the applied patch, not a second write path."
+        }
+      ],
+      "children": []
+    },
+    "b-mm25-event-shape-1": {
+      "id": "b-mm25-event-shape-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The event carries "
+        },
+        {
+          "insert": "{ path, changedIds, patchId, actor }",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and publishes only after the mutation commits — never for a refused write. It is a hint, not state: canonical content stays on disk and consumers re-fetch it. Out-of-band filesystem edits enter the same stream under the actor "
+        },
+        {
+          "insert": "fs",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Derived indexes such as backlinks update best-effort after the commit; a broken or unavailable index can make derived lookups stale but can never veto a valid save."
         }
       ],
       "children": []

@@ -496,20 +496,7 @@
           }
         },
         {
-          "insert": " array — one file each in "
-        },
-        {
-          "insert": "packages/docs-model/src/components/interaction-surface/actions",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-model/src/components/interaction-surface/actions"
-            }
-          }
-        },
-        {
-          "insert": ". The surface below documents itself."
+          "insert": " array. The surface below documents itself."
         }
       ],
       "children": []
@@ -711,33 +698,7 @@
           }
         },
         {
-          "insert": " in "
-        },
-        {
-          "insert": "packages/docs-viewer/src/components/interaction-surface/InteractionSurfaceDocsBlock.tsx",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-viewer/src/components/interaction-surface/InteractionSurfaceDocsBlock.tsx"
-            }
-          }
-        },
-        {
-          "insert": ", in the linked-panels family it shares with state-shape and code. The descriptor ("
-        },
-        {
-          "insert": "packages/docs-viewer/src/components/interaction-surface/descriptor.tsx",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-viewer/src/components/interaction-surface/descriptor.tsx"
-            }
-          }
-        },
-        {
-          "insert": ") reads props strictly: any malformed operation renders the invalid-block placeholder instead of a partial card."
+          "insert": ", in the linked-panels family it shares with state-shape and code. The descriptor reads props strictly: any malformed operation renders the invalid-block placeholder instead of a partial card."
         }
       ],
       "children": []
@@ -1066,19 +1027,6 @@
           }
         },
         {
-          "insert": ", "
-        },
-        {
-          "insert": "packages/docs-viewer/src/components/interaction-surface/editor-nodes.ts",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-viewer/src/components/interaction-surface/editor-nodes.ts"
-            }
-          }
-        },
-        {
           "insert": "); the node view calls the same descriptor render, so a surface looks identical in view and edit mode. No slash-menu entry — surfaces enter through agent ops or existing content."
         }
       ],
@@ -1103,20 +1051,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The markdown render ("
-        },
-        {
-          "insert": "packages/docs-model/src/components/interaction-surface/agent-view.ts",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-model/src/components/interaction-surface/agent-view.ts"
-            }
-          }
-        },
-        {
-          "insert": "): an optional "
+          "insert": "The markdown render: an optional "
         },
         {
           "insert": "**<title>**",

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "20-implementation",
-  "title": "Implementation",
+  "title": "Implementation Overview",
   "root": "b-impl-ov-root",
   "blocks": {
     "b-impl-ov-root": {
@@ -9,227 +9,259 @@
       "type": "paragraph",
       "props": {},
       "children": [
-        "b-impl-ov-opener",
-        "b-impl-ov-index-h",
-        "b-impl-ov-ix-packages",
-        "b-impl-ov-ix-workbench",
-        "b-impl-ov-ix-save",
-        "b-impl-ov-ix-theming",
-        "b-impl-ov-ix-devloop",
-        "b-impl-ov-quickstart"
+        "b-implov-opening",
+        "b-implov-areas-h",
+        "b-implov-area-packages",
+        "b-implov-area-workbench",
+        "b-implov-area-external",
+        "b-implov-area-themes",
+        "b-implov-tier-h",
+        "b-implov-tier-purpose",
+        "b-implov-tier-inclusion",
+        "b-implov-tier-conform",
+        "b-implov-tier-standard"
       ]
     },
-    "b-impl-ov-opener": {
-      "id": "b-impl-ov-opener",
+    "b-implov-opening": {
+      "id": "b-implov-opening",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "This section documents how the current build is cut and operated: package boundaries, the workbench host, the save pipeline, theme application, and the local development loop. It owns code-shaped mechanics and the reasons for code boundaries; designed interaction and appearance live in system design."
+          "insert": "Structural decisions about the current docs-system code: how the source is organized and why, so agents adding code conform to the standardized architecture instead of quietly restructuring it."
         }
       ],
       "children": []
     },
-    "b-impl-ov-index-h": {
-      "id": "b-impl-ov-index-h",
+    "b-implov-areas-h": {
+      "id": "b-implov-areas-h",
       "type": "heading",
       "props": {
         "level": 2
       },
       "text": [
         {
-          "insert": "In This Section"
+          "insert": "Source Areas"
         }
       ],
       "children": []
     },
-    "b-impl-ov-ix-packages": {
-      "id": "b-impl-ov-ix-packages",
+    "b-implov-area-packages": {
+      "id": "b-implov-area-packages",
       "type": "list-item",
-      "props": {},
+      "props": {
+        "ordered": false
+      },
       "text": [
+        {
+          "insert": "packages/",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "packages",
+              "label": "packages/"
+            }
+          }
+        },
+        {
+          "insert": " — the workspace packages: the pure document model, the derived backlinks index, the mutation authority, the browser viewer/editor, the runnable workbench, the command-line dialect, and the methodology package; decisions live under "
+        },
         {
           "insert": "Packages",
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "20-implementation/10-packages"
+              "path": "20-implementation/10-packages",
+              "label": "Packages"
             }
           }
-        }
-      ],
-      "children": [
-        "b-impl-ov-ix-packages-gloss"
-      ]
-    },
-    "b-impl-ov-ix-packages-gloss": {
-      "id": "b-impl-ov-ix-packages-gloss",
-      "type": "list-item",
-      "props": {},
-      "text": [
+        },
         {
-          "insert": "Where the code is allowed to be cut — the boundaries, and the as-built map of every package."
+          "insert": " and its per-package children."
         }
       ],
       "children": []
     },
-    "b-impl-ov-ix-workbench": {
-      "id": "b-impl-ov-ix-workbench",
+    "b-implov-area-workbench": {
+      "id": "b-implov-area-workbench",
       "type": "list-item",
-      "props": {},
+      "props": {
+        "ordered": false
+      },
       "text": [
         {
-          "insert": "Using the workbench",
+          "insert": "packages/docs-workbench",
           "attributes": {
             "reference": {
-              "kind": "doc",
-              "path": "20-implementation/20-workbench"
+              "kind": "source",
+              "path": "packages/docs-workbench",
+              "label": "packages/docs-workbench"
             }
           }
-        }
-      ],
-      "children": [
-        "b-impl-ov-ix-workbench-gloss"
-      ]
-    },
-    "b-impl-ov-ix-workbench-gloss": {
-      "id": "b-impl-ov-ix-workbench-gloss",
-      "type": "list-item",
-      "props": {},
-      "text": [
+        },
         {
-          "insert": "The host runtime: edit persistence, conflict handling, annotations, media handoffs, and static degradation."
-        }
-      ],
-      "children": []
-    },
-    "b-impl-ov-ix-save": {
-      "id": "b-impl-ov-ix-save",
-      "type": "list-item",
-      "props": {},
-      "text": [
+          "insert": " — the composition host where the server and viewer meet; host-wiring decisions live under "
+        },
         {
-          "insert": "The save pipeline: keystroke to disk",
+          "insert": "Workbench",
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "20-implementation/30-save-pipeline"
-            }
-          }
-        }
-      ],
-      "children": [
-        "b-impl-ov-ix-save-gloss"
-      ]
-    },
-    "b-impl-ov-ix-save-gloss": {
-      "id": "b-impl-ov-ix-save-gloss",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "How an edit becomes validated canonical bytes."
-        }
-      ],
-      "children": []
-    },
-    "b-impl-ov-ix-theming": {
-      "id": "b-impl-ov-ix-theming",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Theming: Overview",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "20-implementation/40-theming"
-            }
-          }
-        }
-      ],
-      "children": [
-        "b-impl-ov-ix-theming-gloss"
-      ]
-    },
-    "b-impl-ov-ix-theming-gloss": {
-      "id": "b-impl-ov-ix-theming-gloss",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Theme-folder resolution, registry validation, style-state application, font stacks, and Default persistence."
-        }
-      ],
-      "children": []
-    },
-    "b-impl-ov-ix-devloop": {
-      "id": "b-impl-ov-ix-devloop",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Local development loop",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "20-implementation/99-appendix/00-local-dev-loop"
-            }
-          }
-        }
-      ],
-      "children": [
-        "b-impl-ov-ix-devloop-gloss"
-      ]
-    },
-    "b-impl-ov-ix-devloop-gloss": {
-      "id": "b-impl-ov-ix-devloop-gloss",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Running, testing, and iterating on the tooling itself."
-        }
-      ],
-      "children": []
-    },
-    "b-impl-ov-quickstart": {
-      "id": "b-impl-ov-quickstart",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "To read these docs live, run "
-        },
-        {
-          "insert": "bun run docs serve",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " from the repo root — the workbench opens at "
-        },
-        {
-          "insert": "http://localhost:4800",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ". The full loop is "
-        },
-        {
-          "insert": "Local development loop",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "20-implementation/99-appendix/00-local-dev-loop"
+              "path": "20-implementation/20-workbench",
+              "label": "Workbench"
             }
           }
         },
         {
           "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-implov-area-external": {
+      "id": "b-implov-area-external",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "external/",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "external",
+              "label": "external/"
+            }
+          }
+        },
+        {
+          "insert": " — the independently owned Canvas and Sequence projects, mounted as submodules; boundary decisions live under "
+        },
+        {
+          "insert": "External Canvas and Sequence",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/10-packages/80-external-canvas",
+              "label": "External Canvas and Sequence"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-implov-area-themes": {
+      "id": "b-implov-area-themes",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "themes/",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "themes",
+              "label": "themes/"
+            }
+          }
+        },
+        {
+          "insert": " — theme folders and component style knobs; decisions live under "
+        },
+        {
+          "insert": "Theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/40-theming",
+              "label": "Theming"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-implov-tier-h": {
+      "id": "b-implov-tier-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Tier Contract"
+        }
+      ],
+      "children": []
+    },
+    "b-implov-tier-purpose": {
+      "id": "b-implov-tier-purpose",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This tier records structural decisions so additions conform. Design owns behavior, state models, and load-bearing schemas; the code owns file-local detail; reports do not belong in the docs tree at all."
+        }
+      ],
+      "children": []
+    },
+    "b-implov-tier-inclusion": {
+      "id": "b-implov-tier-inclusion",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Inclusion test",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": ": an entry states a rule that governs code that doesn't exist yet."
+        }
+      ],
+      "children": []
+    },
+    "b-implov-tier-conform": {
+      "id": "b-implov-tier-conform",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Agents adding code either conform to the decisions recorded here or file a proposal to change them — never silently deviate."
+        }
+      ],
+      "children": []
+    },
+    "b-implov-tier-standard": {
+      "id": "b-implov-tier-standard",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The layer's shape, entry format, and rationale are defined by the "
+        },
+        {
+          "insert": "Implementation layer",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/10-doc-standards/60-implementation-layer",
+              "label": "Implementation layer"
+            }
+          }
+        },
+        {
+          "insert": " standard."
         }
       ],
       "children": []

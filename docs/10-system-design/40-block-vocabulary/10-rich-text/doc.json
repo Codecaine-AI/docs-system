@@ -45,8 +45,6 @@
         "b-20-rich-text-carriers-table-13",
         "b-rtfam-actions-h-32",
         "b-rtfam-actions-note-33",
-        "b-rtfam-renderers-h-34",
-        "b-rtfam-renderers-doc-35",
         "b-rtfam-agentrender-h-40",
         "b-20-rich-text-bridges-out-15",
         "b-20-rich-text-bridges-in-16",
@@ -63,20 +61,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The rich-text component owns the text-and-media block types that make up ordinary document flow. They share one implementation home ("
-        },
-        {
-          "insert": "packages/docs-viewer/src/components/rich-text/",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-viewer/src/components/rich-text"
-            }
-          }
-        },
-        {
-          "insert": ", one file per type), the delta-span text model, and the markdown-shortcut input rules — which is why they live grouped here, one doc per type."
+          "insert": "The rich-text component owns the text-and-media block types that make up ordinary document flow. They share the delta-span text model and the markdown-shortcut input rules — which is why they live grouped here, one doc per type."
         }
       ],
       "children": []
@@ -935,43 +920,6 @@
         },
         {
           "insert": " verbs."
-        }
-      ],
-      "children": []
-    },
-    "b-rtfam-renderers-h-34": {
-      "id": "b-rtfam-renderers-h-34",
-      "type": "heading",
-      "props": {
-        "level": 2
-      },
-      "text": [
-        {
-          "insert": "Doc Renderer"
-        }
-      ],
-      "children": []
-    },
-    "b-rtfam-renderers-doc-35": {
-      "id": "b-rtfam-renderers-doc-35",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "On the doc surface — reader and editor alike — each type renders through its own file in "
-        },
-        {
-          "insert": "packages/docs-viewer/src/components/rich-text/",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-viewer/src/components/rich-text"
-            }
-          }
-        },
-        {
-          "insert": "."
         }
       ],
       "children": []
