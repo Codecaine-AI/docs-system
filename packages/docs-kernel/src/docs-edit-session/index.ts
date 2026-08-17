@@ -55,6 +55,7 @@ export {
   toolDocsRead,
   toolDocsTree,
   toolProposeOps,
+  toolProposeMoveBlocks,
   toolReadDoc,
   toolReplyRequest,
   toolResolveRequest,

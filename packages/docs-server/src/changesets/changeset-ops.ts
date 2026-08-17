@@ -14,6 +14,8 @@ import {
   deleteStoredPatch,
   getStoredPatch,
   recordCompoundPatch,
+  recordSidecarPatch,
+  recordTreePatch,
 } from "../patch-ledger";
 import { withPathLock } from "../path-mutex";
 import {
@@ -35,11 +37,9 @@ import {
   type DocChangeSetEntry,
   type PositionedDocChangeSetTreeOp,
 } from "./changesets-sidecar";
-import {
-  executeTreeOp,
-  replayTreeOpInverse,
-  type TreeOpInverse,
-} from "./tree-ops";
+import { createContentHash } from "../content-hash";
+import { applyAnnotationMigrations, prepareAnnotationMigrations } from "./annotation-migrations";
+import { executeTreeOp } from "./tree-ops";
 
 export type DocChangeSetEntryView = {
   docPath: string;
@@ -159,10 +159,12 @@ type AppliedEntry = {
 type AppliedTreeOp = {
   kind: "tree-op";
   resultIndex: number;
-  inverse: TreeOpInverse;
+  patchId: string;
 };
 
-type AppliedStep = AppliedEntry | AppliedTreeOp;
+type AppliedSidecars = { kind: "sidecars"; patchId: string };
+
+type AppliedStep = AppliedEntry | AppliedTreeOp | AppliedSidecars;
 
 type AppliedProposalRef = {
   patchId: string;
@@ -267,7 +269,9 @@ function touchesPath(changeset: DocChangeSet, path: string): boolean {
         return normalizedPath(op.from) === target || normalizedPath(op.to) === target;
       }
       return normalizedPath(op.docPath) === target;
-    });
+    }) || changeset.annotationMigrations?.some((migration) =>
+      normalizedPath(migration.fromDocPath) === target ||
+      normalizedPath(migration.toDocPath) === target) === true;
 }
 
 export async function createChangeSet(
@@ -314,6 +318,10 @@ function lockPaths(changeset: DocChangeSet): string[] {
     } else {
       paths.add(normalizedPath(op.docPath));
     }
+  }
+  for (const migration of changeset.annotationMigrations ?? []) {
+    paths.add(normalizedPath(migration.fromDocPath));
+    paths.add(normalizedPath(migration.toDocPath));
   }
   return [...paths].sort((left, right) => left.localeCompare(right));
 }
@@ -439,6 +447,14 @@ export async function acceptChangeSet(
       };
     }
 
+    const preparedMigrations = await prepareAnnotationMigrations(
+      docsRoot,
+      record.annotationMigrations ?? [],
+    );
+    if (!Array.isArray(preparedMigrations)) {
+      return { ...preparedMigrations, results: [], rolledBack: true };
+    }
+
     const results: ChangeSetAcceptStepResult[] = [];
     const applied: AppliedStep[] = [];
     const patchIds: string[] = [];
@@ -457,18 +473,20 @@ export async function acceptChangeSet(
       if (failure.ok) return failure;
       const rollbackFailures: ChangeSetRollbackFailure[] = [];
       for (const step of [...applied].reverse()) {
-        if (step.kind === "entry") {
+        if (step.kind === "entry" || step.kind === "sidecars") {
           const undone = await undo_patch(docsRoot, step.patchId);
           if (!undone.ok) {
             rollbackFailures.push({
               kind: "entry",
               patchId: step.patchId,
-              docPath: step.docPath,
-              proposalId: step.proposalId,
+              ...(step.kind === "entry"
+                ? { docPath: step.docPath, proposalId: step.proposalId }
+                : {}),
               detail: undone.detail,
             });
             continue;
           }
+          if (step.kind === "sidecars") continue;
           results[step.resultIndex].rolledBack = true;
           const reopened = await reopenProposal(docsRoot, step.docPath, step.proposalId);
           if (!reopened.ok) {
@@ -481,12 +499,12 @@ export async function acceptChangeSet(
           }
           continue;
         }
-        const replayed = await replayTreeOpInverse(docsRoot, step.inverse);
-        if (!replayed.ok || replayed.failures?.length) {
+        const replayed = await undo_patch(docsRoot, step.patchId);
+        if (!replayed.ok) {
           rollbackFailures.push({
             kind: "tree-op",
-            detail: replayed.ok ? "Tree-op inverse completed with residual failures." : replayed.detail,
-            ...(replayed.failures ? { failures: replayed.failures } : {}),
+            patchId: step.patchId,
+            detail: replayed.detail,
           });
         } else {
           results[step.resultIndex].rolledBack = true;
@@ -548,7 +566,10 @@ export async function acceptChangeSet(
             ? { failures: executed.failures }
             : {}),
         });
-        applied.push({ kind: "tree-op", resultIndex, inverse: executed.inverse });
+        const patchId = randomUUID();
+        recordTreePatch(patchId, executed.inverse);
+        patchIds.push(patchId);
+        applied.push({ kind: "tree-op", resultIndex, patchId });
         for (const path of treeMutationPaths(op)) notePathMutation(path);
       }
 
@@ -625,6 +646,45 @@ export async function acceptChangeSet(
     }
 
     const compoundPatchId = randomUUID();
+    const migrated = await applyAnnotationMigrations(docsRoot, preparedMigrations);
+    if (!migrated.ok) {
+      return rollback(resultFailure(migrated.status, migrated.detail, record, results));
+    }
+
+    let annotationFailure: { status: number; detail: string } | undefined;
+    if (record.annotationId && record.annotationDocPath) {
+      const changedIds = [...new Set(
+        applied
+          .filter((step): step is AppliedEntry => step.kind === "entry")
+          .flatMap((step) => step.proposal.changedBlockIds),
+      )];
+      const effectiveAnnotationPath = migrated.migratedAnnotationPaths.get(record.annotationId) ??
+        record.annotationDocPath;
+      const attached = await attachAgentRunToAnnotation(docsRoot, effectiveAnnotationPath, {
+        annotationId: record.annotationId,
+        sessionId: options.sessionId ?? record.sessionId ?? "anonymous",
+        patchId: compoundPatchId,
+        summary: record.summary,
+        changedIds,
+      });
+      if (!attached.ok) annotationFailure = { status: attached.status, detail: attached.detail };
+    }
+
+    if (migrated.files.length > 0) {
+      for (const file of migrated.files) {
+        try {
+          const raw = await readFile(join(resolve(docsRoot), file.path), "utf8");
+          file.hashAfterApply = createContentHash(raw);
+        } catch (error) {
+          file.hashAfterApply = (error as NodeJS.ErrnoException).code === "ENOENT" ? null : file.hashAfterApply;
+        }
+      }
+      const migrationPatchId = randomUUID();
+      recordSidecarPatch(migrationPatchId, migrated.files);
+      patchIds.push(migrationPatchId);
+      applied.push({ kind: "sidecars", patchId: migrationPatchId });
+    }
+
     recordCompoundPatch(compoundPatchId, patchIds);
     const resolved: DocChangeSet = {
       ...record,
@@ -638,23 +698,6 @@ export async function acceptChangeSet(
       return rollback(resultFailure(written.status, written.detail, record, results));
     }
     appliedProposalsByCompoundPatch.set(compoundPatchId, appliedProposalRefs);
-
-    let annotationFailure: { status: number; detail: string } | undefined;
-    if (record.annotationId && record.annotationDocPath) {
-      const changedIds = [...new Set(
-        applied
-          .filter((step): step is AppliedEntry => step.kind === "entry")
-          .flatMap((step) => step.proposal.changedBlockIds),
-      )];
-      const attached = await attachAgentRunToAnnotation(docsRoot, record.annotationDocPath, {
-        annotationId: record.annotationId,
-        sessionId: options.sessionId ?? record.sessionId ?? "anonymous",
-        patchId: compoundPatchId,
-        summary: record.summary,
-        changedIds,
-      });
-      if (!attached.ok) annotationFailure = { status: attached.status, detail: attached.detail };
-    }
 
     for (const [path, changedIds] of changedIdsByPath) {
       options.publishChange?.({

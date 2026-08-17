@@ -817,6 +817,12 @@ export function createDocsRoutes(store: DocsStore, options?: { themeLocked?: boo
             }
             return { kind: op.kind, from: op.from, to: op.to, position: op.position };
           }),
+          annotationMigrations: body.annotation_migrations?.map((migration) => ({
+            fromDocPath: migration.from_doc_path,
+            toDocPath: migration.to_doc_path,
+            blockIds: migration.block_ids,
+            remap: migration.remap,
+          })),
         });
         if (!result.ok) {
           set.status = result.status;
@@ -861,6 +867,12 @@ export function createDocsRoutes(store: DocsStore, options?: { themeLocked?: boo
               ]),
             ),
           ),
+          annotation_migrations: t.Optional(t.Array(t.Object({
+            from_doc_path: t.String({ minLength: 1 }),
+            to_doc_path: t.String({ minLength: 1 }),
+            block_ids: t.Array(t.String({ minLength: 1 })),
+            remap: t.Optional(t.Record(t.String({ minLength: 1 }), t.String({ minLength: 1 }))),
+          }))),
         }),
       },
     )
@@ -1081,7 +1093,10 @@ export function createDocsRoutes(store: DocsStore, options?: { themeLocked?: boo
         if (result.kind === "compound") {
           return { ok: true, undone_patch_ids: result.undonePatchIds };
         }
-        return { ok: true, canvas: result.canvas, hash: result.hash };
+        if (result.kind === "canvas") {
+          return { ok: true, canvas: result.canvas, hash: result.hash };
+        }
+        return { ok: true, kind: result.kind };
       },
       {
         body: t.Object({

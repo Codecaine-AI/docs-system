@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 
-import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
+import { serializeDocDocument, type DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import { applyOps, type DocOp } from "@codecaine-ai/docs-model/doc-ops";
 import { resolveDocBundleJsonPath } from "@codecaine-ai/docs-index/paths";
 
@@ -211,6 +211,58 @@ export async function stageBundleProposal(
       ...(input.alias !== undefined ? { alias: input.alias } : {}),
       ...(input.sessionId !== undefined ? { sessionId: input.sessionId } : {}),
       status: "staged", createdAt: new Date().toISOString(),
+    };
+    const proposals = { schemaVersion: 1 as const, proposals: [...existing.proposals.proposals, proposal] };
+    const written = await writeProposalsSidecar(sidecarAbs, proposals);
+    return { ok: true as const, proposal, proposals, hash: written.hash };
+  });
+}
+
+/**
+ * Stages against a supplied virtual base document. Split-doc uses this for
+ * the destination proposal before its create-doc tree op materializes the
+ * canonical doc.json. The proposal remains ordinary: after create-doc runs,
+ * its baseHash matches that minimal document and normal accept logic applies.
+ */
+export async function stageBundleProposalAgainstDocument(
+  docsRoot: string,
+  path: string,
+  input: StageBundleProposalInput,
+  baseDocument: DocDocument,
+  sessionId?: string,
+): Promise<StageBundleProposalResult> {
+  const jsonAbs = resolveDocBundleJsonPath(docsRoot, path);
+  if (!jsonAbs) return { ok: false, status: 400, detail: `Invalid docs path: ${path}` };
+  if (!Array.isArray(input.ops) || !input.ops.every(isDocOp)) {
+    return { ok: false, status: 400, detail: "Doc ops failed to apply", issues: [{ path: "$.ops", message: "Proposal ops are invalid." }] };
+  }
+  const baseHash = createContentHash(serializeDocDocument(baseDocument));
+  if (input.expectedHash && input.expectedHash !== baseHash) {
+    return { ok: false, status: 409, detail: "Virtual document is stale.", current_hash: baseHash, expected_hash: input.expectedHash };
+  }
+  const dryRun = applyOps(baseDocument, input.ops, () => randomUUID());
+  if (!dryRun.ok) return { ok: false, status: 400, detail: "Doc ops failed to apply", issues: dryRun.issues };
+
+  const sidecarAbs = proposalSidecarAbs(jsonAbs);
+  return withPathLock(sidecarAbs, async () => {
+    const lock = draftLockStore.checkForMutation(
+      { kind: "doc", path: normalizeBundlePath(path) },
+      sessionId ?? input.sessionId,
+    );
+    if (lock.blocked) return { ok: false as const, status: 423, detail: "Draft in progress — another session is editing this file.", held_by: lock.heldBy };
+    const existing = await readProposalsSidecar(sidecarAbs);
+    if (!existing.ok) return existing;
+    const proposal: DocProposal = {
+      id: randomUUID(),
+      ops: input.ops,
+      changedBlockIds: changedBlockIds(input.ops),
+      summary: input.summary,
+      baseHash,
+      ...(input.annotationId !== undefined ? { annotationId: input.annotationId } : {}),
+      ...(input.alias !== undefined ? { alias: input.alias } : {}),
+      ...(input.sessionId !== undefined ? { sessionId: input.sessionId } : {}),
+      status: "staged",
+      createdAt: new Date().toISOString(),
     };
     const proposals = { schemaVersion: 1 as const, proposals: [...existing.proposals.proposals, proposal] };
     const written = await writeProposalsSidecar(sidecarAbs, proposals);

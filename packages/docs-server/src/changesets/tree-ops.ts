@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import {
   lstat,
   mkdir,
@@ -90,6 +90,24 @@ export type ReplayTreeOpInverseResult =
   | { ok: true; failures?: MoveDocFailure[] }
   | TreeOpError;
 
+/** Deterministic minimal document shared by split staging and create-doc accept. */
+export function createEmptyDocDocument(docPath: string, title: string): DocDocument {
+  return {
+    schemaVersion: 1,
+    id: `doc-${createHash("sha256").update(docPath).digest("hex").slice(0, 32)}`,
+    title,
+    root: "root",
+    blocks: {
+      root: {
+        id: "root",
+        type: "paragraph",
+        props: {},
+        children: [],
+      },
+    },
+  };
+}
+
 type ResolvedBundlePath = {
   docPath: string;
   bundleAbs: string;
@@ -146,41 +164,38 @@ export async function createDocBundle(
   }
 
   try {
+    let createdDirectory = false;
     if (await pathExists(target.bundleAbs)) {
-      return { ok: false, status: 409, detail: `A doc bundle already exists at ${docPath}` };
-    }
-
-    await mkdir(dirname(target.bundleAbs), { recursive: true });
-    try {
-      await mkdir(target.bundleAbs);
-    } catch (error) {
-      if (isNodeError(error) && error.code === "EEXIST") {
+      if (await pathExists(target.jsonAbs)) {
         return { ok: false, status: 409, detail: `A doc bundle already exists at ${docPath}` };
       }
-      throw error;
+      const pendingEntries = await readdir(target.bundleAbs);
+      if (pendingEntries.some((entry) => entry !== "proposals.json")) {
+        return { ok: false, status: 409, detail: `A path already exists at ${docPath}` };
+      }
+    } else {
+      await mkdir(dirname(target.bundleAbs), { recursive: true });
+      try {
+        await mkdir(target.bundleAbs);
+        createdDirectory = true;
+      } catch (error) {
+        if (isNodeError(error) && error.code === "EEXIST") {
+          return { ok: false, status: 409, detail: `A path already exists at ${docPath}` };
+        }
+        throw error;
+      }
     }
 
-    const document: DocDocument = {
-      schemaVersion: 1,
-      id: randomUUID(),
-      title,
-      root: "root",
-      blocks: {
-        root: {
-          id: "root",
-          type: "paragraph",
-          props: {},
-          children: [],
-        },
-      },
-    };
+    const document = createEmptyDocDocument(target.docPath, title);
 
     try {
       await atomicWriteFile(target.jsonAbs, serializeDocDocument(document));
     } catch (error) {
       // The target directory was created by this call and contains no user
       // state if its sole atomic write failed.
-      await rm(target.bundleAbs, { recursive: true, force: true }).catch(() => undefined);
+      if (createdDirectory) {
+        await rm(target.bundleAbs, { recursive: true, force: true }).catch(() => undefined);
+      }
       throw error;
     }
 

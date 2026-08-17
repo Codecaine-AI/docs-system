@@ -10,6 +10,7 @@ import {
   extractDocRefs,
   openBacklinksDb,
   queryInbound,
+  queryInboundToBlocks,
   queryInboundTolerant,
   removeForSource,
   rescanAll,
@@ -435,5 +436,96 @@ describe("backlinks: queryInboundTolerant (heterogeneous stored forms)", () => {
 
     const rows = queryInboundTolerant(db, "apps/frontend/src/lib/types.ts");
     expect(rows).toHaveLength(1);
+  });
+});
+
+describe("backlinks: queryInboundToBlocks", () => {
+  let db: Database;
+
+  beforeEach(async () => {
+    db = await openBacklinksDb(":memory:");
+  });
+
+  afterEach(() => {
+    db.close();
+  });
+
+  test("matches selected block anchors in target_section or target_symbol only", () => {
+    upsertForSource(db, "source/doc.json", [
+      {
+        sourceBlockId: "source-block",
+        targetKind: "doc",
+        targetPath: "docs/target/doc.json",
+        targetSection: "moved-section",
+      },
+      {
+        sourceBlockId: "source-block",
+        targetKind: "doc",
+        targetPath: "docs/target/doc.json",
+        targetSymbol: "moved-symbol",
+      },
+      {
+        sourceBlockId: "source-block",
+        targetKind: "doc",
+        targetPath: "docs/target/doc.json",
+        targetSection: "stays-put",
+      },
+      {
+        sourceBlockId: "source-block",
+        targetKind: "doc",
+        targetPath: "docs/target/doc.json",
+      },
+      {
+        sourceBlockId: "source-block",
+        targetKind: "source",
+        targetPath: "docs/target/doc.json",
+        targetSymbol: "moved-symbol",
+      },
+    ]);
+
+    const rows = queryInboundToBlocks(db, "target", ["moved-section", "moved-symbol"]);
+
+    expect(rows).toHaveLength(2);
+    expect(rows.map((row) => row.targetSection ?? row.targetSymbol).sort()).toEqual([
+      "moved-section",
+      "moved-symbol",
+    ]);
+  });
+
+  test("empty blockIds returns doc-level references only for merge discovery", () => {
+    upsertForSource(db, "source/doc.json", [
+      {
+        sourceBlockId: "doc-link",
+        targetKind: "doc",
+        targetPath: "docs/target.md",
+      },
+      {
+        sourceBlockId: "block-link",
+        targetKind: "doc",
+        targetPath: "docs/target.md",
+        targetSection: "block-1",
+      },
+    ]);
+
+    const rows = queryInboundToBlocks(db, "target", []);
+
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({
+      sourceBlockId: "doc-link",
+      targetSection: null,
+      targetSymbol: null,
+    });
+  });
+
+  test("returns no doc-level rows when a block list is provided", () => {
+    upsertForSource(db, "source/doc.json", [
+      {
+        sourceBlockId: "doc-link",
+        targetKind: "doc",
+        targetPath: "target",
+      },
+    ]);
+
+    expect(queryInboundToBlocks(db, "target", ["block-1"])).toEqual([]);
   });
 });

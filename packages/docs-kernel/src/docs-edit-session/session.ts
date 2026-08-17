@@ -11,7 +11,9 @@ import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import type { DocOp } from "@codecaine-ai/docs-model/doc-ops";
 import {
 	addBundleAnnotationReply,
+	type DocChangeSetView,
 	normalizeBundlePath,
+	rejectBundleProposal,
 	resolveBundleAnnotation,
 	stageBundleProposal,
 } from "@codecaine-ai/docs-server";
@@ -42,6 +44,13 @@ export interface CreateDocsEditSessionOptions {
 	now?: () => string;
 	/** Awaited after the session has retained a newly staged proposal. */
 	onProposalStaged?: (proposal: DocsEditProposal) => void | Promise<void>;
+	/** Adopt a generator-persisted change-set without creating a duplicate. */
+	onChangeSetStaged?: (changeset: DocChangeSetView) => void | Promise<void>;
+	/** Persist removal of proposals superseded before a generator stages replacements. */
+	onProposalsSuperseded?: (
+		alias: string,
+		proposals: readonly DocsEditProposal[],
+	) => void | Promise<void>;
 }
 
 export type DocsEditRequestMutationResult =
@@ -71,6 +80,14 @@ export interface DocsEditSession {
 		summary: string,
 		docPath?: string,
 	): Promise<DocsEditProposeResult>;
+	adoptChangeSet(
+		aliasOrId: string,
+		changeset: DocChangeSetView,
+		proposals: readonly DocsEditProposal[],
+	): Promise<DocsEditRequestMutationResult>;
+	supersedeProposals(
+		aliasOrId: string,
+	): Promise<DocsEditRequestMutationResult>;
 	resolve(
 		aliasOrId: string,
 		outcome: "done" | "declined",
@@ -694,6 +711,79 @@ export function createDocsEditSession(
 		return { ok: true, request: updated };
 	}
 
+	async function adoptChangeSet(
+		aliasOrId: string,
+		changeset: DocChangeSetView,
+		proposals: readonly DocsEditProposal[],
+	): Promise<DocsEditRequestMutationResult> {
+		const entry = findEntry(aliasOrId);
+		if (!entry) {
+			return { ok: false, message: `No request "${aliasOrId.trim()}" in the queue.` };
+		}
+		if (isDocsEditRequestTerminal(entry.status)) {
+			return { ok: false, message: `${entry.alias} is already ${entry.status}.` };
+		}
+		const adopted = proposals.map((proposal) => ({
+			...proposal,
+			requestAlias: entry.alias,
+		}));
+		stagedProposals = [
+			...stagedProposals.filter((proposal) => proposal.requestAlias !== entry.alias),
+			...adopted,
+		];
+		const updated = replaceEntry(entry.alias, {
+			status: "ready",
+			waitingOnHuman: false,
+			proposalId: adopted[0]?.proposalId,
+		});
+		for (const proposal of adopted) {
+			emit({ type: "proposal-staged", sessionId: id, proposal });
+		}
+		emit({ type: "request-updated", sessionId: id, request: updated });
+		refreshStatus();
+		await options.onChangeSetStaged?.(changeset);
+		return { ok: true, request: updated };
+	}
+
+	async function supersedeProposals(
+		aliasOrId: string,
+	): Promise<DocsEditRequestMutationResult> {
+		const entry = findEntry(aliasOrId);
+		if (!entry) {
+			return { ok: false, message: `No request "${aliasOrId.trim()}" in the queue.` };
+		}
+		if (isDocsEditRequestTerminal(entry.status)) {
+			return { ok: false, message: `${entry.alias} is already ${entry.status}.` };
+		}
+		const superseded = stagedProposals.filter(
+			(proposal) => proposal.requestAlias === entry.alias,
+		);
+		if (superseded.length === 0) return { ok: true, request: entry };
+
+		for (const proposal of superseded) {
+			const rejected = await rejectBundleProposal(
+				options.docsRoot,
+				proposal.docPath,
+				proposal.proposalId,
+				{ sessionId: id },
+			);
+			if (!rejected.ok && rejected.status !== 409) {
+				return {
+					ok: false,
+					message: `Failed to supersede proposal ${proposal.proposalId}: ${rejected.detail}`,
+				};
+			}
+		}
+
+		stagedProposals = stagedProposals.filter(
+			(proposal) => proposal.requestAlias !== entry.alias,
+		);
+		const updated = replaceEntry(entry.alias, { proposalId: undefined });
+		await options.onProposalsSuperseded?.(entry.alias, superseded);
+		emit({ type: "request-updated", sessionId: id, request: updated });
+		return { ok: true, request: updated };
+	}
+
 	return {
 		id,
 		docsRoot: options.docsRoot,
@@ -712,6 +802,8 @@ export function createDocsEditSession(
 			return () => listeners.delete(listener);
 		},
 		propose,
+		adoptChangeSet,
+		supersedeProposals,
 		resolve,
 		reply: (aliasOrId, body) => appendReply(aliasOrId, "agent", body),
 		appendHumanReply: (aliasOrId, body) =>

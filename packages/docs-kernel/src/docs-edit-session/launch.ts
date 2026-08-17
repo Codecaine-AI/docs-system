@@ -1,3 +1,4 @@
+import type { DocChangeSetView } from "@codecaine-ai/docs-server";
 import type { DocsEditProposal, DocsEditRequestInput } from "./types";
 import type { SkippedDocsAnnotation } from "./from-annotations";
 import { loadDocsEditRequestsFromAnnotations } from "./from-annotations";
@@ -17,6 +18,11 @@ export interface LaunchDocsEditSessionOptions {
   sessionId?: string;
   /** Service-owned persistence hook; direct launch callers can omit it. */
   onProposalStaged?: (proposal: DocsEditProposal) => void | Promise<void>;
+  onChangeSetStaged?: (changeset: DocChangeSetView) => void | Promise<void>;
+  onProposalsSuperseded?: (
+    alias: string,
+    proposals: readonly DocsEditProposal[],
+  ) => void | Promise<void>;
 }
 
 export interface LaunchedDocsEditSession {
@@ -47,7 +53,7 @@ export type LaunchDocsEditSessionResult = LaunchedDocsEditSession | LaunchDocsEd
 export const DEFAULT_DOCS_EDIT_KICKOFF = [
   "Work the request queue for this documentation bundle in docs-edit session mode.",
   "Call read_doc first. Whole-document docs_write is unavailable because it would regenerate block ids.",
-  "Use only read_doc, docs_tree, docs_read, propose_ops, resolve_request, and reply_request.",
+  "Use only read_doc, docs_tree, docs_read, propose_ops, propose_move_blocks, resolve_request, and reply_request.",
   "Stage id-stable DocOps with propose_ops, one proposal per request, then resolve each request.",
 ].join(" ");
 
@@ -88,6 +94,8 @@ export async function launchDocsEditSession(
     instruction: options.instruction,
     sessionId: options.sessionId,
     onProposalStaged: options.onProposalStaged,
+    onChangeSetStaged: options.onChangeSetStaged,
+    onProposalsSuperseded: options.onProposalsSuperseded,
   });
   const sessionData = sessionDataForDocsEditSession(session);
   return {

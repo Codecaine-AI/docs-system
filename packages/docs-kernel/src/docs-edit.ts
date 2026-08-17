@@ -34,6 +34,7 @@ export const DOCS_EDIT_TOOL_NAMES = [
 	"docs_tree",
 	"docs_read",
 	"propose_ops",
+	"propose_move_blocks",
 	"resolve_request",
 	"reply_request",
 ] as const;
@@ -54,7 +55,7 @@ export const docsEditSharedTools: NonNullable<
 	if (!launch) return [];
 	// resolveSpawnConfig gives this spawn a shallow config copy. Assigning new
 	// arrays narrows only the queued session spawn: host session tools survive
-	// kernel allowlist scoping and the private whole-document tool is blocked.
+						// kernel allowlist scoping and the private whole-document tool is blocked.
 	config.tools = [...DOCS_EDIT_TOOL_NAMES];
 	config.disallowedTools = [
 		...new Set([...(config.disallowedTools ?? []), "docs_write"]),
@@ -112,7 +113,7 @@ export function createDocsKernelDocsEditSessions<TToolRuntime>(
 						sessionData: launch.spawn.sessionData,
 						// Private sidecar tools are registered before this hook. Replace
 						// the active roster so session spawns cannot call docs_write (or
-						// docs_check) and all six host-side session tools are enabled.
+						// docs_check) and all seven host-side session tools are enabled.
 						onSessionCreated(session) {
 							session.setActiveToolsByName([...DOCS_EDIT_TOOL_NAMES]);
 						},

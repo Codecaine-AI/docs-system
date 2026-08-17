@@ -13,8 +13,8 @@
  * treatment the doc-ops path has.
  */
 import { randomUUID } from "node:crypto";
-import { join } from "node:path";
-import { readFile, stat } from "node:fs/promises";
+import { join, resolve, sep } from "node:path";
+import { readFile, stat, unlink } from "node:fs/promises";
 
 import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import type { DocOp } from "@codecaine-ai/docs-model/doc-ops";
@@ -62,12 +62,20 @@ import type {
   ChangeSetFailure,
   DocChangeSetView,
 } from "./changesets/changeset-ops";
+import type {
+  MergeDocsChangeSetInput,
+  MoveBlocksChangeSetInput,
+  MoveBlocksChangeSetResult,
+  SplitDocChangeSetInput,
+} from "./changesets/move-blocks";
 import {
   deleteStoredPatch,
   getStoredPatch,
   recordCanvasPatch,
   recordCompoundPatch,
+  recordSidecarPatch,
   recordSequencePatch,
+  recordTreePatch,
 } from "./patch-ledger";
 
 // Re-export the ledger surface so tool consumers only need this module.
@@ -77,7 +85,9 @@ export {
   recordCanvasPatch,
   recordCompoundPatch,
   recordDocPatch,
+  recordSidecarPatch,
   recordSequencePatch,
+  recordTreePatch,
   type StoredPatch,
 } from "./patch-ledger";
 
@@ -686,6 +696,8 @@ export type UndoPatchResult =
   | { ok: true; kind: "doc"; doc: DocDocument; hash: string }
   | { ok: true; kind: "canvas"; canvas: InteractiveCanvasDocument; hash: string }
   | { ok: true; kind: "sequence"; sequence: SequenceDocument; hash: string }
+  | { ok: true; kind: "tree" }
+  | { ok: true; kind: "sidecars" }
   | { ok: true; kind: "compound"; undonePatchIds: string[] }
   | {
       ok: false;
@@ -765,6 +777,76 @@ export async function undo_patch(docsRoot: string, patchId: string): Promise<Und
     }
     deleteStoredPatch(patchId);
     return { ok: true, kind: "doc", doc: result.doc, hash: result.hash };
+  }
+
+  if (stored.kind === "tree") {
+    const { replayTreeOpInverse } = await import("./changesets/tree-ops");
+    const replayed = await replayTreeOpInverse(docsRoot, stored.inverse);
+    if (!replayed.ok || replayed.failures?.length) {
+      return {
+        ok: false,
+        status: replayed.ok ? 409 : replayed.status,
+        detail: replayed.ok
+          ? "Cannot undo: the tree operation inverse left unresolved link rewrites."
+          : replayed.detail,
+      };
+    }
+    deleteStoredPatch(patchId);
+    return { ok: true, kind: "tree" };
+  }
+
+  if (stored.kind === "sidecars") {
+    const root = resolve(docsRoot);
+    const files = [...stored.files].sort((left, right) => left.path.localeCompare(right.path));
+    const resolvedFiles = files.map((file) => {
+      const abs = resolve(root, file.path);
+      return abs.startsWith(`${root}${sep}`) ? { ...file, abs } : null;
+    });
+    if (resolvedFiles.some((file) => file === null)) {
+      return { ok: false, status: 400, detail: "Cannot undo: invalid sidecar snapshot path." };
+    }
+    const locked = resolvedFiles as Array<(typeof files)[number] & { abs: string }>;
+    const acquire = async (index: number): Promise<UndoPatchResult> => {
+      if (index < locked.length) {
+        return withPathLock(locked[index].abs, () => acquire(index + 1));
+      }
+
+      for (const file of locked) {
+        let current: string | null;
+        try {
+          current = await readFile(file.abs, "utf8");
+        } catch (error) {
+          if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
+            return { ok: false, status: 500, detail: `Cannot read sidecar: ${file.path}` };
+          }
+          current = null;
+        }
+        const currentHash = current === null ? null : createContentHash(current);
+        if (currentHash !== file.hashAfterApply) {
+          return {
+            ok: false,
+            status: 409,
+            detail: `Cannot undo: sidecar changed since this patch was applied: ${file.path}`,
+            current_hash: currentHash ?? undefined,
+          };
+        }
+      }
+
+      for (const file of locked) {
+        if (file.beforeContent === null) {
+          try {
+            await unlink(file.abs);
+          } catch (error) {
+            if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+          }
+        } else {
+          await atomicWriteFile(file.abs, file.beforeContent);
+        }
+      }
+      deleteStoredPatch(patchId);
+      return { ok: true, kind: "sidecars" };
+    };
+    return acquire(0);
   }
 
   if (stored.kind === "sequence") {
@@ -935,6 +1017,33 @@ export async function changeset_stage(
 ): Promise<ChangeSetStageResult> {
   const { createChangeSet } = await import("./changesets/changeset-ops");
   return createChangeSet(docsRoot, input);
+}
+
+/** Stages one identity-preserving cross-document block move. */
+export async function move_blocks(
+  docsRoot: string,
+  input: MoveBlocksChangeSetInput,
+): Promise<MoveBlocksChangeSetResult> {
+  const { moveBlocksChangeSet } = await import("./changesets/move-blocks");
+  return moveBlocksChangeSet(docsRoot, input);
+}
+
+/** Stages a document merge as move-all plus a final delete-doc tree op. */
+export async function merge_docs(
+  docsRoot: string,
+  input: MergeDocsChangeSetInput,
+): Promise<MoveBlocksChangeSetResult> {
+  const { mergeDocsChangeSet } = await import("./changesets/move-blocks");
+  return mergeDocsChangeSet(docsRoot, input);
+}
+
+/** Stages a split as create-doc plus the shared move primitive. */
+export async function split_doc(
+  docsRoot: string,
+  input: SplitDocChangeSetInput,
+): Promise<MoveBlocksChangeSetResult> {
+  const { splitDocChangeSet } = await import("./changesets/move-blocks");
+  return splitDocChangeSet(docsRoot, input);
 }
 
 // Re-export so callers only need to import from this one module for the

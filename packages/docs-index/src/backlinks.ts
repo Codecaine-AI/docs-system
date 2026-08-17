@@ -174,13 +174,52 @@ export function queryInboundTolerant(db: Database, targetPath: string): Backlink
   const out: BacklinkRow[] = [];
   for (const form of forms) {
     for (const row of queryInbound(db, form)) {
-      const key = `${row.sourcePath}::${row.sourceBlockId}::${row.targetPath}`;
+      const key = [
+        row.sourcePath,
+        row.sourceBlockId,
+        row.targetKind,
+        row.targetPath,
+        row.targetSymbol ?? "",
+        row.targetLine ?? "",
+        row.targetSection ?? "",
+      ].join("::");
       if (seen.has(key)) continue;
       seen.add(key);
       out.push(row);
     }
   }
   return out;
+}
+
+/**
+ * Returns doc-kind inbound references to selected blocks in `targetDocPath`.
+ * Doc anchors are stored verbatim by `extractDocRefs`: modern references use
+ * `target_section`, while compatible/older producers may use
+ * `target_symbol`, so a block id in either column is a match.
+ *
+ * Passing a non-empty `blockIds` list returns only references anchored to one
+ * of those blocks. Passing an empty list returns only unanchored, doc-level
+ * references. The latter gives merge-doc callers the doc-level half of their
+ * inbound discovery without adding another query API or changing the schema.
+ * Path matching is tolerant of every bundle-path alias accepted by
+ * `queryInboundTolerant`.
+ */
+export function queryInboundToBlocks(
+  db: Database,
+  targetDocPath: string,
+  blockIds: string[],
+): BacklinkRow[] {
+  const ids = new Set(blockIds);
+  return queryInboundTolerant(db, targetDocPath).filter((row) => {
+    if (row.targetKind !== "doc") return false;
+    if (ids.size === 0) {
+      return row.targetSection === null && row.targetSymbol === null;
+    }
+    return (
+      (row.targetSection !== null && ids.has(row.targetSection)) ||
+      (row.targetSymbol !== null && ids.has(row.targetSymbol))
+    );
+  });
 }
 
 /**

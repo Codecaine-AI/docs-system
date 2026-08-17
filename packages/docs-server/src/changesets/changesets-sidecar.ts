@@ -21,6 +21,13 @@ export type PositionedDocChangeSetTreeOp = DocChangeSetTreeOp & { position: numb
 
 export type DocChangeSetEntry = { docPath: string; proposalId: string };
 
+export type DocChangeSetAnnotationMigration = {
+  fromDocPath: string;
+  toDocPath: string;
+  blockIds: string[];
+  remap?: Record<string, string>;
+};
+
 export type DocChangeSet = {
   id: string;
   summary: string;
@@ -31,6 +38,7 @@ export type DocChangeSet = {
   alias?: string;
   entries: DocChangeSetEntry[];
   treeOps: PositionedDocChangeSetTreeOp[];
+  annotationMigrations?: DocChangeSetAnnotationMigration[];
   createdAt: string;
   resolvedAt?: string;
   compoundPatchId?: string;
@@ -44,6 +52,7 @@ export type CreateDocChangeSetInput = {
   alias?: string;
   entries: DocChangeSetEntry[];
   treeOps?: PositionedDocChangeSetTreeOp[];
+  annotationMigrations?: DocChangeSetAnnotationMigration[];
 };
 
 export type ChangeSetSidecarFailure = {
@@ -111,6 +120,24 @@ function isValidTreeOp(
   }
 }
 
+function isValidAnnotationMigration(
+  value: unknown,
+): value is DocChangeSetAnnotationMigration {
+  if (!isRecord(value) ||
+      typeof value.fromDocPath !== "string" ||
+      !isSafeRelativePath(value.fromDocPath) ||
+      typeof value.toDocPath !== "string" ||
+      !isSafeRelativePath(value.toDocPath) ||
+      !Array.isArray(value.blockIds) ||
+      !value.blockIds.every((id) => typeof id === "string" && id.length > 0)) {
+    return false;
+  }
+  if (value.remap === undefined) return true;
+  return isRecord(value.remap) && Object.entries(value.remap).every(
+    ([from, to]) => from.length > 0 && typeof to === "string" && to.length > 0,
+  );
+}
+
 /** Runtime schema guard used for every record loaded from or written to disk. */
 export function isDocChangeSet(value: unknown): value is DocChangeSet {
   if (!isRecord(value)) return false;
@@ -138,6 +165,11 @@ export function isDocChangeSet(value: unknown): value is DocChangeSet {
   const entryCount = value.entries.length;
   if (!Array.isArray(value.treeOps) ||
       !value.treeOps.every((op) => isValidTreeOp(op, entryCount))) {
+    return false;
+  }
+  if (value.annotationMigrations !== undefined &&
+      (!Array.isArray(value.annotationMigrations) ||
+       !value.annotationMigrations.every(isValidAnnotationMigration))) {
     return false;
   }
   return typeof value.createdAt === "string";
@@ -268,6 +300,9 @@ export async function createChangeSetRecord(
     ...(input.alias === undefined ? {} : { alias: input.alias }),
     entries: input.entries,
     treeOps: input.treeOps ?? [],
+    ...(input.annotationMigrations === undefined
+      ? {}
+      : { annotationMigrations: input.annotationMigrations }),
     createdAt: new Date().toISOString(),
   };
   if (!isDocChangeSet(changeset)) {

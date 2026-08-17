@@ -156,6 +156,12 @@ describe("multi-document change-set operations", () => {
       sessionId: "session-1",
       entries: [{ docPath: "10-guide", proposalId: "proposal-1" }],
       treeOps: [],
+      annotationMigrations: [{
+        fromDocPath: "10-guide",
+        toDocPath: "20-guide",
+        blockIds: ["block-1"],
+        remap: { "block-1": "block-2" },
+      }],
     });
     expect(created.ok).toBe(true);
     if (!created.ok) return;
@@ -163,6 +169,12 @@ describe("multi-document change-set operations", () => {
     const listed = await listChangeSetRecords(docsRoot);
     expect(listed).toEqual({ ok: true, changesets: [created.changeset] });
     expect(await readChangeSetRecord(docsRoot, created.changeset.id)).toEqual(created);
+    expect(created.changeset.annotationMigrations).toEqual([{
+      fromDocPath: "10-guide",
+      toDocPath: "20-guide",
+      blockIds: ["block-1"],
+      remap: { "block-1": "block-2" },
+    }]);
 
     const invalid = await readChangeSetRecord(docsRoot, "../outside");
     expect(invalid).toMatchObject({ ok: false, status: 400 });

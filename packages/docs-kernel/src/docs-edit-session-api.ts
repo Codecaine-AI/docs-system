@@ -28,6 +28,8 @@
  */
 import { Elysia } from "elysia";
 
+import { CORS_HEADERS } from "./cors";
+
 import type {
 	AcceptDocsEditProposalResult,
 	DocsEditAcceptAllResult,
@@ -308,6 +310,7 @@ export function createDocsEditSessionApi(
 			});
 			return new Response(stream, {
 				headers: {
+					...CORS_HEADERS,
 					"content-type": "text/event-stream",
 					"cache-control": "no-cache",
 					connection: "keep-alive",

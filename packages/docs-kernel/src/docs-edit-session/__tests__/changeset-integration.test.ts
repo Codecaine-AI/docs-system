@@ -6,6 +6,7 @@ import { join } from "node:path";
 import { serializeDocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import {
 	getChangeSet,
+	getBundleProposals,
 	listChangeSetRecords,
 	loadDocBundle,
 	type DocChangeSetView,
@@ -25,7 +26,7 @@ import {
 	updateTextOp,
 	writeBundle,
 } from "../test-fixtures";
-import { toolProposeOps } from "../tools";
+import { toolProposeMoveBlocks, toolProposeOps } from "../tools";
 
 const tempRoots: string[] = [];
 
@@ -161,6 +162,209 @@ afterEach(async () => {
 });
 
 describe("docs-edit change-set integration", () => {
+	test("propose_move_blocks adopts the generator record and emits every staged proposal", async () => {
+		const docsRoot = await makeDocsRoot();
+		const { service, session, sessionId } = await createSession(docsRoot, "move-blocks-e2e");
+		const stagedEvents: string[] = [];
+		const updates: DocChangeSetView[] = [];
+		service.subscribe(sessionId, (event) => {
+			if (event.type === "proposal-staged") stagedEvents.push(event.proposal.proposalId);
+			if (event.type === "changeset-updated") updates.push(event.changeset);
+		});
+
+		const result = await toolProposeMoveBlocks(session, {
+			requestAlias: "R1",
+			blockIds: ["p1"],
+			destDocPath: OTHER_FIXTURE_PATH,
+			destPosition: 1,
+		});
+		expect(result.isError).not.toBe(true);
+		expect(result.text).toContain("STAGED · change-set");
+
+		const changesetId = await waitForChangeSetId(service, sessionId);
+		const record = await waitForChangeSet(docsRoot, changesetId, (view) => view.entries.length === 2);
+		expect(record).toMatchObject({
+			id: changesetId,
+			sessionId,
+			annotationId: "ann-first",
+			annotationDocPath: FIXTURE_PATH,
+			alias: "R1",
+		});
+		expect(record.entries.map((entry) => entry.docPath)).toEqual([
+			OTHER_FIXTURE_PATH,
+			FIXTURE_PATH,
+		]);
+		expect(record.entries.map(({ addCount, delCount }) => ({ addCount, delCount }))).toEqual([
+			{ addCount: 1, delCount: 0 },
+			{ addCount: 0, delCount: 1 },
+		]);
+		expect(record.annotationMigrations).toMatchObject([{
+			fromDocPath: FIXTURE_PATH,
+			toDocPath: OTHER_FIXTURE_PATH,
+			blockIds: ["p1"],
+		}]);
+		expect(service.getState(sessionId)?.changesetId).toBe(changesetId);
+		expect(session.proposals()).toHaveLength(2);
+		expect(stagedEvents).toEqual(record.entries.map((entry) => entry.proposalId));
+		expect(updates.at(-1)?.id).toBe(changesetId);
+		for (const entry of record.entries) {
+			const sidecar = await getBundleProposals(docsRoot, entry.docPath);
+			expect(sidecar.ok).toBe(true);
+			if (sidecar.ok) expect(sidecar.proposals.some((proposal) => proposal.id === entry.proposalId)).toBe(true);
+		}
+	});
+
+	test("propose_move_blocks restaging replaces the alias record and moves the superset once", async () => {
+		const docsRoot = await makeDocsRoot();
+		const { service, session, sessionId } = await createSession(
+			docsRoot,
+			"move-blocks-replace",
+		);
+		const updates: DocChangeSetView[] = [];
+		service.subscribe(sessionId, (event) => {
+			if (event.type === "changeset-updated") updates.push(event.changeset);
+		});
+
+		const first = await toolProposeMoveBlocks(session, {
+			requestAlias: "R1",
+			blockIds: ["p1"],
+			destDocPath: OTHER_FIXTURE_PATH,
+			destPosition: 1,
+		});
+		expect(first.isError).not.toBe(true);
+		const firstChangeSetId = await waitForChangeSetId(service, sessionId);
+		const firstRecord = await waitForChangeSet(
+			docsRoot,
+			firstChangeSetId,
+			(view) => view.entries.length === 2,
+		);
+
+		const second = await toolProposeMoveBlocks(session, {
+			requestAlias: "R1",
+			blockIds: ["p1", "p2"],
+			destDocPath: OTHER_FIXTURE_PATH,
+			destPosition: 1,
+		});
+		expect(second.isError).not.toBe(true);
+		const generated = second.details?.changeset as DocChangeSetView;
+		let replacementChangeSetId: string | undefined;
+		await waitFor(() => {
+			replacementChangeSetId = service.getState(sessionId)?.changesetId;
+			return replacementChangeSetId !== undefined &&
+				replacementChangeSetId !== firstChangeSetId;
+		}, "the replacement move change-set");
+		const record = await waitForChangeSet(
+			docsRoot,
+			replacementChangeSetId as string,
+			(view) => view.entries.length === generated.entries.length,
+		);
+
+		expect(record.entries.map(({ docPath, proposalId }) => ({ docPath, proposalId })))
+			.toEqual(generated.entries.map(({ docPath, proposalId }) => ({ docPath, proposalId })));
+		expect(record.annotationMigrations).toEqual(generated.annotationMigrations);
+		expect(record.summary).toBe(generated.summary);
+		expect(session.proposals().map((proposal) => proposal.proposalId))
+			.toEqual(record.entries.map((entry) => entry.proposalId));
+		expect(updates.at(-1)?.id).toBe(replacementChangeSetId);
+		expect(updates.at(-1)?.entries.map((entry) => entry.proposalId))
+			.toEqual(record.entries.map((entry) => entry.proposalId));
+
+		for (const entry of firstRecord.entries) {
+			const sidecar = await getBundleProposals(docsRoot, entry.docPath);
+			expect(sidecar.ok).toBe(true);
+			if (sidecar.ok) {
+				expect(sidecar.proposals.find(
+					(proposal) => proposal.id === entry.proposalId,
+				)?.status).toBe("rejected");
+			}
+		}
+
+		const accepted = await service.acceptAll(sessionId);
+		expect(accepted?.ok).toBe(true);
+		if (!accepted?.ok) throw new Error("replacement move change-set was not accepted");
+		expect(accepted.results).toHaveLength(record.entries.length);
+
+		const source = await readDiskDoc(docsRoot, FIXTURE_PATH);
+		const destination = await readDiskDoc(docsRoot, OTHER_FIXTURE_PATH);
+		expect(source.blocks.root.children).toEqual(["h1"]);
+		expect(source.blocks.p1).toBeUndefined();
+		expect(source.blocks.p2).toBeUndefined();
+		const migration = record.annotationMigrations?.[0];
+		expect(migration?.blockIds).toEqual(["p1", "p2"]);
+		const movedIds = ["p1", "p2"].map(
+			(id) => migration?.remap?.[id] ?? id,
+		);
+		for (const movedId of movedIds) {
+			expect(destination.blocks.root.children.filter((id) => id === movedId))
+				.toHaveLength(1);
+		}
+	});
+
+	test("propose_move_blocks supersedes a propose_ops proposal for the same alias", async () => {
+		const docsRoot = await makeDocsRoot();
+		const { service, session, sessionId } = await createSession(
+			docsRoot,
+			"move-blocks-replaces-ops",
+		);
+		const stagedOps = await toolProposeOps(session, {
+			requestAlias: "R1",
+			docPath: OTHER_FIXTURE_PATH,
+			ops: [updateTextOp("h1", "Superseded destination heading")],
+			summary: "Revise the destination heading",
+		});
+		expect(stagedOps.isError).not.toBe(true);
+		const opsProposalId = session.proposals()[0]?.proposalId;
+		if (!opsProposalId) throw new Error("ops proposal was not retained");
+		const opsChangeSetId = await waitForChangeSetId(service, sessionId);
+
+		const moved = await toolProposeMoveBlocks(session, {
+			requestAlias: "R1",
+			blockIds: ["p1"],
+			destDocPath: OTHER_FIXTURE_PATH,
+			destPosition: 1,
+		});
+		expect(moved.isError).not.toBe(true);
+		const generated = moved.details?.changeset as DocChangeSetView;
+		let moveChangeSetId: string | undefined;
+		await waitFor(() => {
+			moveChangeSetId = service.getState(sessionId)?.changesetId;
+			return moveChangeSetId !== undefined && moveChangeSetId !== opsChangeSetId;
+		}, "the move change-set to replace the ops record");
+		const record = await waitForChangeSet(
+			docsRoot,
+			moveChangeSetId as string,
+			(view) => view.entries.length === generated.entries.length,
+		);
+
+		expect(record.entries.map((entry) => entry.proposalId))
+			.toEqual(generated.entries.map((entry) => entry.proposalId));
+		expect(record.entries.some((entry) => entry.proposalId === opsProposalId)).toBe(false);
+		expect(record.annotationMigrations).toEqual(generated.annotationMigrations);
+		expect(record.summary).toBe(generated.summary);
+		const sidecar = await getBundleProposals(docsRoot, OTHER_FIXTURE_PATH);
+		expect(sidecar.ok).toBe(true);
+		if (sidecar.ok) {
+			expect(sidecar.proposals.find((proposal) => proposal.id === opsProposalId)?.status)
+				.toBe("rejected");
+		}
+	});
+
+	test("propose_move_blocks rejects invalid input and generator failures without staging", async () => {
+		for (const [suffix, params] of [
+			["alias", { requestAlias: "R99", blockIds: ["p1"], destDocPath: OTHER_FIXTURE_PATH, destPosition: 0 }],
+			["empty", { requestAlias: "R1", blockIds: [], destDocPath: OTHER_FIXTURE_PATH, destPosition: 0 }],
+			["missing", { requestAlias: "R1", blockIds: ["p1"], destDocPath: "missing", destPosition: 0 }],
+		] as const) {
+			const docsRoot = await makeDocsRoot();
+			const { service, session, sessionId } = await createSession(docsRoot, `move-error-${suffix}`);
+			const result = await toolProposeMoveBlocks(session, params);
+			expect(result.isError).toBe(true);
+			expect(session.proposals()).toHaveLength(0);
+			expect(service.getState(sessionId)?.changesetId).toBeUndefined();
+			expect(await listChangeSetRecords(docsRoot)).toEqual({ ok: true, changesets: [] });
+		}
+	});
+
 	test("single-doc staging remains recordless", async () => {
 		const docsRoot = await makeDocsRoot();
 		const { service, session, sessionId } = await createSession(

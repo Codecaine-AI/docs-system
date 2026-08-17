@@ -8,6 +8,7 @@ import { Elysia } from "elysia";
 import { createDocsKernelDocsEditSessions } from "./docs-edit";
 import { createDocsEditSessionApi } from "./docs-edit-session-api";
 import { bootDocsKernel, type DocsKernelBootOptions } from "./kernel";
+import { CORS_HEADERS } from "./cors";
 
 export async function createDocsKernelHarness(
 	options: DocsKernelBootOptions = {},
@@ -34,6 +35,13 @@ export async function createDocsKernelHarness(
 	});
 
 	const app = new Elysia()
+		.onRequest(({ set }) => {
+			Object.assign(set.headers, CORS_HEADERS);
+		})
+		.options(
+			"/kernel/*",
+			() => new Response(null, { status: 204, headers: CORS_HEADERS }),
+		)
 		.use(readApi)
 		.use(catalogApi)
 		.use(docsEditApi)

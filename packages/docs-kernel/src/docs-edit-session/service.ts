@@ -21,6 +21,7 @@ import {
   stageBundleProposal,
   undo_patch,
   writeChangeSetRecord,
+  type DocChangeSetAnnotationMigration,
   type DocChangeSetEntry,
   type DocChangeSetView,
 } from "@codecaine-ai/docs-server";
@@ -262,6 +263,7 @@ interface ManagedSession {
   normalizedPath: string;
   touchedDocPaths: Set<string>;
   changesetId?: string;
+  changeSetMigrationsByAlias: Map<string, DocChangeSetAnnotationMigration[]>;
   changesetSyncTail: Promise<void>;
   createdAt: string;
   currentHash: string;
@@ -292,6 +294,14 @@ export function createDocsEditSessionService(
       docPath: proposal.docPath,
       proposalId: proposal.proposalId,
     }));
+  }
+
+  function changeSetMigrations(
+    managed: ManagedSession,
+  ): DocChangeSetAnnotationMigration[] {
+    return [...managed.changeSetMigrationsByAlias.values()].flatMap(
+      (migrations) => migrations,
+    );
   }
 
   async function emitFreshChangeSet(
@@ -797,6 +807,62 @@ export function createDocsEditSessionService(
           if (!managedForPersistence) return;
           return queueChangeSetSync(managedForPersistence, proposal);
         },
+        onProposalsSuperseded: async (alias, proposals) => {
+          if (!managedForPersistence) return;
+          managedForPersistence.changeSetMigrationsByAlias.delete(alias);
+          if (!managedForPersistence.changesetId) return;
+          const loaded = await readChangeSetRecord(
+            options.docsRoot,
+            managedForPersistence.changesetId,
+          );
+          if (!loaded.ok) {
+            throw new Error(`Failed to read session change-set: ${loaded.detail}`);
+          }
+          const removed = new Set(proposals.map(
+            (proposal) => `${proposal.docPath}\0${proposal.proposalId}`,
+          ));
+          const written = await writeChangeSetRecord(options.docsRoot, {
+            ...loaded.changeset,
+            entries: loaded.changeset.entries.filter(
+              (entry) => !removed.has(`${entry.docPath}\0${entry.proposalId}`),
+            ),
+            annotationMigrations: changeSetMigrations(managedForPersistence),
+          });
+          if (!written.ok) {
+            throw new Error(`Failed to remove superseded proposals: ${written.detail}`);
+          }
+          const fresh = await emitFreshChangeSet(managedForPersistence);
+          if (!fresh) {
+            throw new Error(
+              `Failed to load updated change-set: ${managedForPersistence.changesetId}`,
+            );
+          }
+        },
+        onChangeSetStaged: async (changeset) => {
+          if (!managedForPersistence) return;
+          if (changeset.alias) {
+            managedForPersistence.changeSetMigrationsByAlias.set(
+              changeset.alias,
+              [...(changeset.annotationMigrations ?? [])],
+            );
+          }
+          const generated = await readChangeSetRecord(options.docsRoot, changeset.id);
+          if (!generated.ok) {
+            throw new Error(`Failed to read generated change-set: ${generated.detail}`);
+          }
+          const synchronized = await writeChangeSetRecord(options.docsRoot, {
+            ...generated.changeset,
+            summary: changeset.summary,
+            entries: changeSetEntries(managedForPersistence),
+            annotationMigrations: changeSetMigrations(managedForPersistence),
+          });
+          if (!synchronized.ok) {
+            throw new Error(`Failed to synchronize generated change-set: ${synchronized.detail}`);
+          }
+          managedForPersistence.changesetId = changeset.id;
+          const fresh = await emitFreshChangeSet(managedForPersistence);
+          if (!fresh) throw new Error(`Failed to load generated change-set: ${changeset.id}`);
+        },
       });
       if (!launch.ok) return launch;
       const managed: ManagedSession = {
@@ -804,6 +870,7 @@ export function createDocsEditSessionService(
         launch,
         normalizedPath: launch.session.path,
         touchedDocPaths: new Set([launch.session.path]),
+        changeSetMigrationsByAlias: new Map(),
         changesetSyncTail: Promise.resolve(),
         createdAt: now(),
         currentHash: launch.session.baseHash,

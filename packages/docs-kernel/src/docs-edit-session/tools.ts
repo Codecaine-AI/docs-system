@@ -16,9 +16,14 @@ import { isDocBlockType } from "@codecaine-ai/docs-model/doc-schema";
 import type { DocOp } from "@codecaine-ai/docs-model/doc-ops";
 import {
   doc_get,
+  getBundleProposals,
   walkDocsDir,
   type DocsTreeNode,
 } from "@codecaine-ai/docs-server";
+import {
+  moveBlocksChangeSet,
+  type DocChangeSetView,
+} from "@codecaine-ai/docs-server/changesets";
 
 import type {
   DocsEditProposal,
@@ -26,6 +31,7 @@ import type {
   DocsEditRequestEntry,
   DocsEditSessionStatus,
 } from "./types";
+import { isDocsEditRequestTerminal } from "./types";
 
 export interface DocsEditToolResult {
   text: string;
@@ -38,6 +44,7 @@ export const DOCS_EDIT_TOOL_NAMES = [
   "docs_tree",
   "docs_read",
   "propose_ops",
+  "propose_move_blocks",
   "resolve_request",
   "reply_request",
 ] as const;
@@ -72,6 +79,12 @@ export interface DocsEditToolSession {
     summary: string,
     docPath?: string,
   ): Promise<DocsEditProposeResult>;
+  adoptChangeSet(
+    alias: string,
+    changeset: DocChangeSetView,
+    proposals: readonly DocsEditProposal[],
+  ): Promise<DocsEditRequestActionResult>;
+  supersedeProposals(alias: string): Promise<DocsEditRequestActionResult>;
   resolve(
     alias: string,
     outcome: "done" | "declined",
@@ -610,6 +623,108 @@ export async function toolProposeOps(
   }
 }
 
+export async function toolProposeMoveBlocks(
+  session: DocsEditToolSession,
+  params: {
+    requestAlias?: unknown;
+    blockIds?: unknown;
+    destDocPath?: unknown;
+    destPosition?: unknown;
+    sourceDocPath?: unknown;
+  },
+): Promise<DocsEditToolResult> {
+  const alias = typeof params.requestAlias === "string" ? params.requestAlias.trim() : "";
+  if (alias === "") {
+    return toolFailure("propose_move_blocks", 'requestAlias must name a queue entry (for example "R1").');
+  }
+  const request = session.requests().find(
+    (entry) => entry.alias === alias || entry.annotationId === alias,
+  );
+  if (!request) return toolFailure("propose_move_blocks", `No request "${alias}" in the queue.`);
+  if (isDocsEditRequestTerminal(request.status)) {
+    return toolFailure("propose_move_blocks", `${request.alias} is already ${request.status}.`);
+  }
+  if (!Array.isArray(params.blockIds) || params.blockIds.length === 0) {
+    return toolFailure("propose_move_blocks", "blockIds must be a non-empty array of strings or integers.");
+  }
+  if (!params.blockIds.every((id) => typeof id === "string" || Number.isInteger(id))) {
+    return toolFailure("propose_move_blocks", "blockIds must contain only strings or integers.");
+  }
+  const blockIds = params.blockIds.map(String);
+  if (blockIds.some((id) => id.trim() === "")) {
+    return toolFailure("propose_move_blocks", "blockIds must not contain empty strings.");
+  }
+  const destDocPath = typeof params.destDocPath === "string" ? params.destDocPath.trim() : "";
+  if (destDocPath === "") return toolFailure("propose_move_blocks", "destDocPath must name a document bundle.");
+  if (!Number.isInteger(params.destPosition)) {
+    return toolFailure("propose_move_blocks", "destPosition must be an integer.");
+  }
+  if (params.sourceDocPath !== undefined &&
+      (typeof params.sourceDocPath !== "string" || params.sourceDocPath.trim() === "")) {
+    return toolFailure("propose_move_blocks", "sourceDocPath must name a document bundle when provided.");
+  }
+  const sourceDocPath = typeof params.sourceDocPath === "string"
+    ? params.sourceDocPath.trim()
+    : session.path;
+
+  try {
+    const superseded = await session.supersedeProposals(request.alias);
+    if (!superseded.ok) {
+      return toolFailure("propose_move_blocks", superseded.message);
+    }
+    const generated = await moveBlocksChangeSet(session.docsRoot, {
+      sourceDocPath,
+      blockIds,
+      destDocPath,
+      destPosition: params.destPosition as number,
+      sessionId: session.id,
+      alias: request.alias,
+      ...(request.sidecarBacked
+        ? { annotationId: request.annotationId, annotationDocPath: session.path }
+        : {}),
+    });
+    if (!generated.ok) {
+      return toolFailure("propose_move_blocks", generated.detail, { status: generated.status });
+    }
+    const proposals: DocsEditProposal[] = [];
+    for (const entry of generated.changeset.entries) {
+      const listed = await getBundleProposals(session.docsRoot, entry.docPath);
+      if (!listed.ok) {
+        return toolFailure("propose_move_blocks", listed.detail, { status: listed.status });
+      }
+      const proposal = listed.proposals.find((candidate) => candidate.id === entry.proposalId);
+      if (!proposal) {
+        return toolFailure("propose_move_blocks", `Generated proposal ${entry.proposalId} is missing from ${entry.docPath}.`);
+      }
+      proposals.push({
+        proposalId: proposal.id,
+        requestAlias: request.alias,
+        docPath: entry.docPath,
+        baseHash: proposal.baseHash,
+        ops: [...proposal.ops],
+        changedBlockIds: [...proposal.changedBlockIds],
+        summary: proposal.summary,
+        createdAt: proposal.createdAt,
+      });
+    }
+    const adopted = await session.adoptChangeSet(request.alias, generated.changeset, proposals);
+    if (!adopted.ok) return toolFailure("propose_move_blocks", adopted.message);
+    return {
+      text: [
+        `STAGED · change-set ${generated.changeset.id} for ${request.alias} (held for human review — not applied)`,
+        ...generated.changeset.entries.map((entry) =>
+          `${entry.docPath}: +${entry.addCount} -${entry.delCount}`),
+        `annotation migrations: ${generated.changeset.annotationMigrations.length}`,
+        "",
+        session.requestsBlock(),
+      ].join("\n"),
+      details: { ok: true, changeset: generated.changeset },
+    };
+  } catch (error) {
+    return toolFailure("propose_move_blocks", errorMessage(error));
+  }
+}
+
 function proposalDetails(proposal: DocsEditProposal): Record<string, unknown> {
   return {
     ok: true,
@@ -751,7 +866,7 @@ function toPiResult(result: DocsEditToolResult): {
   };
 }
 
-/** Register the exact six-tool session-mode surface. */
+/** Register the exact seven-tool session-mode surface. */
 export function registerDocsEditSessionTools(
   pi: SharedToolApi,
   session: DocsEditToolSession,
@@ -831,6 +946,22 @@ export function registerDocsEditSessionTools(
     executionMode: "sequential",
     execute: async (_toolCallId, params) =>
       toPiResult(await toolProposeOps(session, params)),
+  });
+
+  register({
+    name: "propose_move_blocks",
+    label: "Propose moving blocks",
+    description: "Stage a multi-document change-set that moves block subtrees between documents for human review.",
+    promptSnippet: "Stage an atomic cross-document block move for one request alias.",
+    parameters: objectSchema({
+      requestAlias: { type: "string" },
+      blockIds: { type: "array", minItems: 1, items: { anyOf: [{ type: "string" }, { type: "integer" }] } },
+      destDocPath: { type: "string" },
+      destPosition: { type: "integer" },
+      sourceDocPath: { type: "string", description: "Optional source bundle path; defaults to the session document." },
+    }, ["requestAlias", "blockIds", "destDocPath", "destPosition"]),
+    executionMode: "sequential",
+    execute: async (_toolCallId, params) => toPiResult(await toolProposeMoveBlocks(session, params)),
   });
 
   register({

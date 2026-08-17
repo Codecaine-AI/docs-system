@@ -1,6 +1,7 @@
 import type { DocOp } from "@codecaine-ai/docs-model/doc-ops";
 import type { InteractiveCanvasDocument } from "@codecaine-ai/canvas/schema";
 import type { SequenceDocument } from "@codecaine-ai/sequence/schema";
+import type { TreeOpInverse } from "./changesets/tree-ops";
 
 /**
  * Shared patch/inverse store (undo ledger). A stored patch is a doc-ops
@@ -29,6 +30,16 @@ export type StoredPatch =
       path: string;
       priorSnapshot: SequenceDocument;
       hashAfterApply: string;
+      createdAt: string;
+    }
+  | { kind: "tree"; inverse: TreeOpInverse; createdAt: string }
+  | {
+      kind: "sidecars";
+      files: Array<{
+        path: string;
+        beforeContent: string | null;
+        hashAfterApply: string | null;
+      }>;
       createdAt: string;
     }
   | { kind: "compound"; patchIds: string[]; createdAt: string };
@@ -84,6 +95,25 @@ export function recordCompoundPatch(patchId: string, patchIds: string[]): void {
   patchesById.set(patchId, {
     kind: "compound",
     patchIds: [...patchIds],
+    createdAt: new Date().toISOString(),
+  });
+}
+
+export function recordTreePatch(patchId: string, inverse: TreeOpInverse): void {
+  patchesById.set(patchId, {
+    kind: "tree",
+    inverse,
+    createdAt: new Date().toISOString(),
+  });
+}
+
+export function recordSidecarPatch(
+  patchId: string,
+  files: Extract<StoredPatch, { kind: "sidecars" }>["files"],
+): void {
+  patchesById.set(patchId, {
+    kind: "sidecars",
+    files: files.map((file) => ({ ...file })),
     createdAt: new Date().toISOString(),
   });
 }
