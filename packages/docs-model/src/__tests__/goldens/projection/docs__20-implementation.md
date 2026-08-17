@@ -1,25 +1,21 @@
-This section documents how the current build is cut and operated: package boundaries, the workbench host, the save pipeline, theme application, and the local development loop. It owns code-shaped mechanics and the reasons for code boundaries; designed interaction and appearance live in system design.
+Structural decisions about the current docs-system code: how the source is organized and why, so agents adding code conform to the standardized architecture instead of quietly restructuring it.
 
-## In This Section
+## Source Areas
 
-- Packages
+- packages/ — the workspace packages: the pure document model, the derived backlinks index, the mutation authority, the browser viewer/editor, the runnable workbench, the command-line dialect, and the methodology package; decisions live under Packages and its per-package children.
 
-  - Where the code is allowed to be cut — the boundaries, and the as-built map of every package.
+- packages/docs-workbench — the composition host where the server and viewer meet; host-wiring decisions live under Workbench.
 
-- Using the workbench
+- external/ — the independently owned Canvas and Sequence projects, mounted as submodules; boundary decisions live under External Canvas and Sequence.
 
-  - The host runtime: edit persistence, conflict handling, annotations, media handoffs, and static degradation.
+- themes/ — theme folders and component style knobs; decisions live under Theming.
 
-- The save pipeline: keystroke to disk
+## Tier Contract
 
-  - How an edit becomes validated canonical bytes.
+This tier records structural decisions so additions conform. Design owns behavior, state models, and load-bearing schemas; the code owns file-local detail; reports do not belong in the docs tree at all.
 
-- Theming: Overview
+**Inclusion test**: an entry states a rule that governs code that doesn't exist yet.
 
-  - Theme-folder resolution, registry validation, style-state application, font stacks, and Default persistence.
+Agents adding code either conform to the decisions recorded here or file a proposal to change them — never silently deviate.
 
-- Local development loop
-
-  - Running, testing, and iterating on the tooling itself.
-
-To read these docs live, run `bun run docs serve` from the repo root — the workbench opens at `http://localhost:4800`. The full loop is Local development loop.
+The layer's shape, entry format, and rationale are defined by the Implementation layer standard.

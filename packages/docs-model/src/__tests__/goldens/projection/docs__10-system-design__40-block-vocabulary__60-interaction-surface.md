@@ -65,7 +65,7 @@ No text (`carriesText: false`) — every fact lives in the two props above. The 
 
 ## Typed Actions
 
-Three actions maintain the `operations` array — one file each in `packages/docs-model/src/components/interaction-surface/actions`. The surface below documents itself.
+Three actions maintain the `operations` array. The surface below documents itself.
 
 **interaction-surface — operation actions**
 
@@ -85,7 +85,7 @@ interaction-surface.removeOperation(name: string) -> props patch: { operations }
 
 ## Doc Renderer
 
-On the doc surface — reader and editor alike — the block renders through `InteractionSurfaceBlock` in `packages/docs-viewer/src/components/interaction-surface/InteractionSurfaceDocsBlock.tsx`, in the linked-panels family it shares with state-shape and code. The descriptor (`packages/docs-viewer/src/components/interaction-surface/descriptor.tsx`) reads props strictly: any malformed operation renders the invalid-block placeholder instead of a partial card.
+On the doc surface — reader and editor alike — the block renders through `InteractionSurfaceBlock`, in the linked-panels family it shares with state-shape and code. The descriptor reads props strictly: any malformed operation renders the invalid-block placeholder instead of a partial card.
 
 - One card per operation.
 
@@ -121,11 +121,11 @@ On the doc surface — reader and editor alike — the block renders through `In
 
   - Hovering or focusing a note lights the param's signature lines and vice versa; a click pins, Escape clears pins.
 
-In the editor the type is a non-editable atom leaf node (`DocInteractionSurface`, `packages/docs-viewer/src/components/interaction-surface/editor-nodes.ts`); the node view calls the same descriptor render, so a surface looks identical in view and edit mode. No slash-menu entry — surfaces enter through agent ops or existing content.
+In the editor the type is a non-editable atom leaf node (`DocInteractionSurface`); the node view calls the same descriptor render, so a surface looks identical in view and edit mode. No slash-menu entry — surfaces enter through agent ops or existing content.
 
 ## Agent Renderer
 
-The markdown render (`packages/docs-model/src/components/interaction-surface/agent-view.ts`): an optional `**<title>**` bold line, then a bare fence with one signature line per operation, in document order.
+The markdown render: an optional `**<title>**` bold line, then a bare fence with one signature line per operation, in document order.
 
 - The signature line: `[kind] name(param: type, optional?: type) -> returns  # description` — the `[kind]` prefix only for query and event, the `-> returns` and `# description` tails only when present.
 

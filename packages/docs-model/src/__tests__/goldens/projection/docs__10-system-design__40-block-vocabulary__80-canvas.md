@@ -35,7 +35,7 @@ No text (`carriesText: false`); all state lives in the four props. A block with 
 
 The family's five actions are lifted at module load from `CANVAS_AGENT_PATCH_OPERATIONS` in `@codecaine-ai/canvas/agent-schema` — docs-model reuses the canvas package's schemas and descriptions, and never redefines them.
 
-- `lift.ts`
+- The lift
 
   - Maps each descriptor to a `canvas.<type>` action on the `canvas` block type.
 
@@ -59,9 +59,9 @@ canvas.fitContainerToChildren(containerId: string, padding?: number) -> forwarde
 
 ## Doc Renderer
 
-docs-viewer owns the descriptor (`descriptor.tsx`) but not the pixels: the render calls the host-injected canvas slot — DocsClientProvider's `canvasEmbed` component — with `{ id, canvasId, src, view, title }`. A host with no canvas renderer gets the neutral Canvas embed unavailable card, so the seam ports to any React host.
+docs-viewer owns the descriptor but not the pixels: the render calls the host-injected canvas slot — DocsClientProvider's `canvasEmbed` component — with `{ id, canvasId, src, view, title }`. A host with no canvas renderer gets the neutral Canvas embed unavailable card, so the seam ports to any React host.
 
-The workbench wires `StandaloneCanvasEmbed` (`CanvasEmbed.tsx`) into the slot — a read-only embed:
+The workbench wires `StandaloneCanvasEmbed` into the slot — a read-only embed:
 
 - Inline surface
 
@@ -95,11 +95,11 @@ The workbench wires `StandaloneCanvasEmbed` (`CanvasEmbed.tsx`) into the slot �
 
   - Any other `canvasId` renders an honest unavailable card with an Open Canvas Studio link — central boards are not stored in the docs repo.
 
-In the editor — slash menu: **Canvas** (aliases: diagram, drawing). The block is a non-editable atom leaf: its node view rebuilds the `DocBlock` and calls the same descriptor render the read surface uses (`node-views.tsx`), so the block looks identical in view and edit mode; edit mode's embed adds the Edit in Canvas action.
+In the editor — slash menu: **Canvas** (aliases: diagram, drawing). The block is a non-editable atom leaf: its node view rebuilds the `DocBlock` and calls the same descriptor render the read surface uses, so the block looks identical in view and edit mode; edit mode's embed adds the Edit in Canvas action.
 
 ## Agent Renderer
 
-The agent view is one HTML-comment reference line — `<!-- canvas: <src-or-canvasId> [view=<view>] [title="<title>"] -->`, or `<!-- canvas: (missing src) -->` when neither source prop is set; `src` wins when both are present (`agent-view.ts`). Chosen over a markdown image because a canvas is not an image asset; the comment form greps cleanly on `<!-- canvas:` without being misread as a broken image link.
+The agent view is one HTML-comment reference line — `<!-- canvas: <src-or-canvasId> [view=<view>] [title="<title>"] -->`, or `<!-- canvas: (missing src) -->` when neither source prop is set; `src` wins when both are present. Chosen over a markdown image because a canvas is not an image asset; the comment form greps cleanly on `<!-- canvas:` without being misread as a broken image link.
 
 ## Theme
 
@@ -139,8 +139,6 @@ How agents edit canvas content — the vocabulary's flagship non-default instanc
 
   - `"canvas"` is a registered entry in the model's `KNOWN_AUTHORITIES` list, beside `"sequence"`.
 
-- Target design
+- The processing agent
 
-  - Per the contract's settled design, canvas declares an annotation-processing agent of its own, with a context loader that assembles the canvas file and a router that discovers the agent from the registry.
-
-  - That adapter is not wired in this repo; the forwarded action path above is the piece that exists.
+  - Canvas declares an annotation-processing agent of its own, with a context loader that assembles the canvas file and a router that discovers the agent from the registry.

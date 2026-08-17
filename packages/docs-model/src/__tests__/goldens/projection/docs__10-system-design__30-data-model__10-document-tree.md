@@ -72,7 +72,7 @@ The kind key is `type`; the retired `flavour` key is rejected with a typed valid
 
 Document ids, block ids, and child references are all stable ASCII ids matching `^[A-Za-z0-9][A-Za-z0-9_.:-]{0,96}$`. Every block's `id` must equal its key in the `blocks` map — the id is stored twice on purpose, so a block stays self-describing when it travels without its map.
 
-> **Anchor contract** — Annotations, patches, and backlinks anchor to block ids, so id stability is a behavioral contract: `updateBlock` and `moveBlock` preserve ids, while `splitBlock` and `mergeBlocks` mint fresh ids for the blocks they create. Anything that anchors to a split or merged block must expect the anchor to dangle.
+> **Anchor contract** — Annotations, patches, and backlinks anchor to block ids, so id stability is a behavioral contract: `updateBlock` and `moveBlock` preserve ids, while `splitBlock` and `mergeBlocks` mint fresh ids for the blocks they create. A type change is an identity boundary too: a block converted to another type is a new block with a fresh id — in-place edits keep identity, changes of kind do not. Anything that anchors to a split, merged, or converted block must expect the anchor to dangle.
 
 ## Graph Invariants
 

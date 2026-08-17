@@ -74,7 +74,7 @@ Images and videos stay in the document instead of passing through the canvas vie
 
   - The editor treats the block as an atom and provides no in-place props surface.
 
-> **Open call: Fullscreen Image Viewing** — The canvas viewer contract does not imply a general image lightbox. Click-to-fullscreen image viewing has no settled interaction design.
+  - The canvas viewer contract does not extend to images: an image renders as a figure, with no lightbox or click-to-fullscreen viewer.
 
 ## Why
 

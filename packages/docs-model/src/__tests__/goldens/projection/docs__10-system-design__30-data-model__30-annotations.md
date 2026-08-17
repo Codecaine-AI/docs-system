@@ -2,6 +2,8 @@ An annotation marks a spot in a doc and says what should change there. It is the
 
 They never live inside `doc.json` — each bundle may carry an `annotations.json` sidecar, so annotation churn never touches content bytes or content hashes.
 
+Annotation writes carry a sidecar hash precondition: a write against stale sidecar bytes fails instead of overwriting a concurrent edit.
+
 ## Structure
 
 ```json
@@ -63,6 +65,8 @@ Annotation ids follow the same stable-ASCII id rule as block ids and must be uni
 
 A target addresses anything a reader can point at. The annotation shape is the same for every one of them — what differs is how it gets processed, and that is the block type's business, not the annotation's.
 
+Capture is surface-native: pointing at a block emits a stable block target, Cmd/Ctrl+drag across a block's text emits a text-range target, and an embedded canvas emits canvas-object targets from the objects it renders.
+
 - `block`
 
   - A whole block by id; survives edits and moves because the generic ops preserve ids.
@@ -71,7 +75,7 @@ A target addresses anything a reader can point at. The annotation shape is the s
 
   - A span inside a block's text: offsets plus the quoted text and its surrounding context, so the anchor can re-attach after edits.
 
-  - The sidecar's text-range target (`blockId` plus `start`/`end` offsets into the block's rendered text and the quoted slice) is this kind's persisted form today; a drifted quote surfaces as dangling rather than re-anchoring.
+  - The sidecar's text-range target (`blockId` plus `start`/`end` offsets into the block's rendered text and the quoted slice) is this kind's persisted form; a drifted quote surfaces as dangling rather than re-anchoring.
 
 - `visual_point`
 
@@ -81,7 +85,7 @@ A target addresses anything a reader can point at. The annotation shape is the s
 
   - An element inside a complex component — a canvas object, a connection, a sequence participant — by element id and type.
 
-  - The sidecar's canvas-object target (`canvasSrc` plus exactly one selector: `objectId`, `connectionId`, or a region rectangle) is this kind's persisted form today.
+  - The sidecar's canvas-object target (`canvasSrc` plus exactly one selector: `objectId`, `connectionId`, or a region rectangle) is this kind's persisted form.
 
 The shape never specializes: an annotation on a sequence diagram looks exactly like an annotation on a paragraph. Special cases are handled at processing time by the type's agent adapter. The sidecar schema persists block, canvas-object, and text-range targets today; the remaining kinds land additively, under the same optional-fields growth rule.
 
@@ -106,8 +110,6 @@ The shape never specializes: an annotation on a sequence diagram looks exactly l
   - Resolving persists an optional `resolution` note; nothing is deleted.
 
   - The kept record is reference material — real request-to-change pairs, including for building eval sets.
-
-> **Direction: Annotate mode is not wired up yet** — The surface flow — leave annotations, an AI processes them and reports back — is the target design, not current behavior. The shapes and validation for all of it exist today; the processing loop does not.
 
 > **Compatibility** — `changedIds` and `resolution` are optional and additive: sidecars written before those fields existed still validate unchanged. The schema grows by adding optional fields, not by bumping `schemaVersion`.
 

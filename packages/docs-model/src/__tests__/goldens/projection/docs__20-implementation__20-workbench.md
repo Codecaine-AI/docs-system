@@ -1,61 +1,43 @@
-`docs serve` starts the workbench host over one docs root. The host composes navigation, viewer/editor callbacks, persistence, annotations, live events, and static-export degradation. Human interaction semantics live in Editing Interactions; this page covers the runtime wiring.
+Structural decisions for the workbench composition host — the shell that binds the viewer and server into a running app. Source: `packages/docs-workbench`.
 
-## Edit Persistence
+## Governed By
 
-`packages/docs-workbench/web/src/pages/DocPage.tsx` mounts the viewer editor and supplies the host callbacks that send typed operations, acquire locks, upload assets, and adopt server results.
+Editor design — the surfaces the host composes.
 
-- Flush triggers
+Editing Interactions — the human interaction semantics, including save, conflict, and reload behavior.
 
-  - The editor flushes after about 1 second idle with a 5 second maximum wait. `Cmd/Ctrl+S`, blur, tab hiding, mode changes, document navigation, and unmount also request a flush.
+The mutation model — the write contract behind every host callback.
 
-- Pipeline handoff
+## Decisions
 
-  - Every trigger uses The save pipeline: keystroke to disk: editor state becomes `DocOp[]` and reaches `POST /api/ops` with the expected hash and session id.
+### The workbench is a thin composition host
 
-- Undo
+- Decision: Capabilities live in docs-viewer and docs-server; the workbench composes them and supplies the callbacks — data, persistence, locks, uploads, navigation, embeds — without defining block rendering, editor semantics, or write rules of its own.
 
-  - The host sends the latest single-use token to the server's inverse-op ledger. Undo re-enters the same hash-checked mutation authority.
+- Why: Reimplementing interactions in the host was rejected — a second implementation drifts from the packages and breaks every other host that embeds them.
 
-- Remote changes
+- Applies to: `packages/docs-workbench` — every future host page and shell feature stays composition glue.
 
-  - An SSE update reloads a clean editor. A dirty or saving editor suppresses the reload and leaves conflict ownership to the next hash-checked save.
+### Editor-owned input stays inside the viewer
 
-- Editor-owned input
+- Decision: Link authoring, keyboard behavior, paste conversion, and slash insertion live inside docs-viewer's editor extensions; the workbench receives document updates through the host callbacks rather than intercepting input.
 
-  - Link authoring, keyboard behavior, paste conversion, and slash insertion stay inside docs-viewer editor extensions. The workbench receives document updates rather than reimplementing those interactions.
+- Why: One interaction implementation serves every host; host-side input handling was rejected because it duplicates editor behavior per host.
 
-- Media handoff
+- Applies to: `packages/docs-viewer/src/editor`, `packages/docs-workbench/web/src/pages` — future input features land as viewer extensions.
 
-  - The viewer recognizes media input; the workbench supplies asset upload and canvas/sequence embed slots. The designed interaction is specified by Canvas and Media.
+### No parallel block catalog
 
-## Conflict Handling
+- Decision: The workbench maintains no block reference of its own; block definitions and examples belong to Block vocabulary.
 
-Two server outcomes pause autosave without discarding the editor draft.
+- Why: A host-local catalog was rejected — it drifts from the model registry and the design vocabulary the moment a block changes.
 
-- Stale hash (409)
+- Applies to: `packages/docs-workbench` — future block UI reads the model registries and design docs, never a host copy.
 
-  - The server rejects an operation batch whose expected hash is stale. The draft remains local until the caller adopts current server state or retries from a current baseline.
+### Static export is read-only by construction
 
-- Draft lock (423)
+- Decision: The static export ships no write endpoints — the exported artifact contains no mutation surface — and the build-time data adapter in `packages/docs-workbench/web/src/data/api.ts`, the reduced `DocsClient` wiring in `packages/docs-workbench/web/src/data/client.ts`, and the page selection over `packages/docs-workbench/src/export.ts` must agree on the same capability set.
 
-  - Going dirty requests a heartbeat-renewed TTL lock. A lock held by another session pauses saves until the heartbeat observes availability; the expected hash remains the correctness check.
+- Why: Runtime capability flags alone were rejected — an export that merely hides write UI but still ships write paths can drift; omitting the endpoints makes the read-only guarantee structural.
 
-## Annotation Persistence
-
-Annotate mode composes viewer targeting with a workbench-owned annotations sidecar.
-
-- docs-viewer emits stable block targets, Cmd/Ctrl+drag over a block's text emits text-range targets, and the injected canvas embed emits canvas-object targets.
-
-- The workbench stores target, intent, body, and resolution state in `annotations.json` beside the bundle.
-
-- Targets whose block or canvas object is absent remain readable and are marked dangling by resolution logic.
-
-Annotation writes carry the sidecar hash precondition, so concurrent annotation edits fail instead of overwriting one another.
-
-## Block Catalog
-
-The workbench does not maintain a parallel block reference. Definitions and examples live in Block vocabulary.
-
-## Static Export
-
-`docs export` builds the same SPA against a generated data snapshot. Static mode omits mutation callbacks, annotation writes, SSE, theme writes, and server-only asset operations, so viewer capabilities degrade through absent host services.
+- Applies to: `packages/docs-workbench/src/export.ts`, `packages/docs-workbench/web/src/data` — future capability additions must be wired through the same adapter and capability agreement.

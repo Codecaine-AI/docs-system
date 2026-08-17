@@ -1,4 +1,4 @@
-The code component owns a single block type, `code` — the language-tagged block for real, annotated source listings in the Block vocabulary. The source lives in the block's delta text; the language tag and structured line annotations live in `props`. The model contract lives in `packages/docs-model/src/components/code/`; every doc surface lives in `packages/docs-viewer/src/components/code/`.
+The code component owns a single block type, `code` — the language-tagged block for real, annotated source listings in the Block vocabulary. The source lives in the block's delta text; the language tag and structured line annotations live in `props`.
 
 In the documentation doctrine the type is the source-evidence surface: state-shape blocks carry state examples, code blocks carry the evidence — annotated listings of the defining source.
 
@@ -96,13 +96,9 @@ The component registers exactly two typed actions, both built with `defineCompon
 
   - A `label` omitted from params stays omitted in the stored entry.
 
-  - Defined in `packages/docs-model/src/components/code/actions/set-annotation.ts`.
-
 - `code.removeAnnotation`
 
   - Refuses a key that does not exist — the failure reports issue path `$.params.lines` instead of silently no-opping.
-
-  - Defined in `packages/docs-model/src/components/code/actions/remove-annotation.ts`.
 
 **code — annotation actions**
 
@@ -131,7 +127,7 @@ apply(block, { lines, note, label }) {
 
 ## Doc Renderer
 
-Three surfaces, one shell: the plain read surface (`packages/docs-viewer/src/components/code/descriptor.tsx`), the annotated read surface (`packages/docs-viewer/src/components/code/CodeAnnotations.tsx`), and the edit surface (`packages/docs-viewer/src/components/code/editor-node-view.tsx`). Shared furniture — header row, sticky gutter, zebra striping, notes aside — comes from `packages/docs-viewer/src/components/code/CodeShell.tsx` and the class constants in `packages/docs-viewer/src/components/code/classes.ts`, so the three surfaces look identical.
+Three surfaces, one shell: the plain read surface, the annotated read surface, and the edit surface. Shared furniture — header row, sticky gutter, zebra striping, notes aside — comes from the shared shell, so the three surfaces look identical.
 
 ### Shared Shell
 
@@ -163,7 +159,7 @@ Three surfaces, one shell: the plain read surface (`packages/docs-viewer/src/com
 
 ### The 20px Line
 
-- `CODE_LINE_HEIGHT_PX = 20` in `packages/docs-viewer/src/components/code/classes.ts` is a layout constant, not a theme token.
+- `CODE_LINE_HEIGHT_PX = 20` is a layout constant, not a theme token.
 
   - The zebra gradient period, the gutter row height, and every annotation overlay's top and height are computed from it, so it must never drift per host.
 
@@ -193,7 +189,7 @@ Three surfaces, one shell: the plain read surface (`packages/docs-viewer/src/com
 
 - Slash menu: **Code Block** (aliases `codeblock`, `code`, `````).
 
-- Input rule (`packages/docs-viewer/src/components/code/input-rules.ts`): the paragraph converts the moment the third backtick lands — no trailing space, no typed language tag.
+- Input rule: the paragraph converts the moment the third backtick lands — no trailing space, no typed language tag.
 
 - The header label is the language picker.
 
@@ -203,7 +199,7 @@ Three surfaces, one shell: the plain read surface (`packages/docs-viewer/src/com
 
 ### Highlighting and JSON Display
 
-- Highlighting (`packages/docs-viewer/src/components/code/highlight.ts`) uses highlight.js core with a curated set of 13 registered grammars — never the all-languages bundle.
+- Highlighting uses highlight.js core with a curated set of 13 registered grammars — never the all-languages bundle.
 
   - bash, css, diff, go, javascript, json, markdown, python, rust, sql, typescript, xml, yaml — plus each grammar's aliases (ts, tsx, js, sh, yml, md, py…).
 
@@ -221,7 +217,7 @@ Three surfaces, one shell: the plain read surface (`packages/docs-viewer/src/com
 
 ## Agent Renderer
 
-On the agent surface (`packages/docs-model/src/components/code/agent-view.ts`) the block renders as a fenced markdown block: the fence tag is `props.language` (a bare fence when unset), the body is the delta text as plain text. Annotations follow the fence, one blockquote line per entry:
+On the agent surface the block renders as a fenced markdown block: the fence tag is `props.language` (a bare fence when unset), the body is the delta text as plain text. Annotations follow the fence, one blockquote line per entry:
 
 ```
 > **L4-9 (Validation):** Rejects orphan children.

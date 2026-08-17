@@ -77,6 +77,17 @@
       ],
       "children": []
     },
+    "b-ann-sidecar-hash": {
+      "id": "b-ann-sidecar-hash",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Annotation writes carry a sidecar hash precondition: a write against stale sidecar bytes fails instead of overwriting a concurrent edit."
+        }
+      ],
+      "children": []
+    },
     "b-ann-laidout-h-2": {
       "id": "b-ann-laidout-h-2",
       "type": "heading",
@@ -219,6 +230,17 @@
       "text": [
         {
           "insert": "A target addresses anything a reader can point at. The annotation shape is the same for every one of them — what differs is how it gets processed, and that is the block type's business, not the annotation's."
+        }
+      ],
+      "children": []
+    },
+    "b-ann2-targets-capture": {
+      "id": "b-ann2-targets-capture",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Capture is surface-native: pointing at a block emits a stable block target, Cmd/Ctrl+drag across a block's text emits a text-range target, and an embedded canvas emits canvas-object targets from the objects it renders."
         }
       ],
       "children": []
@@ -732,28 +754,6 @@
         },
         {
           "insert": " is genuinely dangling."
-        }
-      ],
-      "children": []
-    },
-    "b-ann-sidecar-hash": {
-      "id": "b-ann-sidecar-hash",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "Annotation writes carry a sidecar hash precondition: a write against stale sidecar bytes fails instead of overwriting a concurrent edit."
-        }
-      ],
-      "children": []
-    },
-    "b-ann2-targets-capture": {
-      "id": "b-ann2-targets-capture",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "Capture is surface-native: pointing at a block emits a stable block target, Cmd/Ctrl+drag across a block's text emits a text-range target, and an embedded canvas emits canvas-object targets from the objects it renders."
         }
       ],
       "children": []

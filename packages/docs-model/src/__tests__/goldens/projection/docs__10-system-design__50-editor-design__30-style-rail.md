@@ -11,8 +11,6 @@ The style rail is the right-docked authoring surface for tuning the active value
 | Navigation rail | Right, at the screen edge | 13rem fixed width |
 | Collapsed panel | Right edge | 3.25rem total width |
 
-The expanded and collapsed panel widths are anchored in `packages/docs-workbench/web/src/shell/StyleRail.tsx`. The two-pane grid and navigation width are anchored in `packages/docs-workbench/web/src/theme/style-rail.css`.
-
 - **Theme**
 
   - Presets, Colors, Typography, Background, and Surfaces.

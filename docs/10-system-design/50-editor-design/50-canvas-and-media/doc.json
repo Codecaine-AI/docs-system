@@ -585,6 +585,17 @@
       ],
       "children": []
     },
+    "b-cmed-rule-image-viewer": {
+      "id": "b-cmed-rule-image-viewer",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The canvas viewer contract does not extend to images: an image renders as a figure, with no lightbox or click-to-fullscreen viewer."
+        }
+      ],
+      "children": []
+    },
     "b-cmed-why-h": {
       "id": "b-cmed-why-h",
       "type": "heading",
@@ -729,17 +740,6 @@
       "text": [
         {
           "insert": "Provider players, native local playback, safe link fallback, and a simple image figure match the source instead of forcing every visual artifact through canvas."
-        }
-      ],
-      "children": []
-    },
-    "b-cmed-rule-image-viewer": {
-      "id": "b-cmed-rule-image-viewer",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "The canvas viewer contract does not extend to images: an image renders as a figure, with no lightbox or click-to-fullscreen viewer."
         }
       ],
       "children": []

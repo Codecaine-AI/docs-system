@@ -1,9 +1,5 @@
 The Process Outline component owns one type of the Block vocabulary: `process-outline`, the ordered process-outline block — the virtual form of a nested procedural outline drawn on a connected rail. A block stores a typed recursive step tree in `steps`; process-outline notation is the text form of that tree — `serializeProcessOutline` writes it for the agent surface, `parseProcessOutline` turns it back into steps on bulk import.
 
-- Model code: packages/docs-model/src/components/process-outline/.
-
-- Doc renderer: packages/docs-viewer/src/components/process-outline/.
-
 It is the vocabulary's third diagram type, and the three split by question:
 
 - canvas
@@ -60,8 +56,6 @@ Process-outline notation is the block's plain-text form: `serializeProcessOutlin
   - A line's depth is the rank of its indent width among the distinct widths seen so far, sorted ascending.
 
   - Irregular indentation still nests, and a depth already assigned never changes when a new width appears later.
-
-  - /
 
 - Backticks
 
@@ -144,8 +138,6 @@ process-outline.moveStep(from: number[], to: number[]) -> props patch: { steps }
   to: number[]  # Insertion index path (last element = insert position), resolved after the step is detached.
 ```
 
-- Each action is one file in packages/docs-model/src/components/process-outline/actions/.
-
 - Params validate against the action's TypeBox schema before `apply()` runs; each returns a shallow props patch.
 
 - `process-outline.setSteps` is the bulk edit: it replaces the entire step tree in one validated call — an agent still edits by rewriting what it reads.
@@ -158,7 +150,7 @@ process-outline.moveStep(from: number[], to: number[]) -> props patch: { steps }
 
 ## Doc Renderer
 
-The Doc renderer contract element: `ProcessOutlineDocsBlock` in packages/docs-viewer/src/components/process-outline/ProcessOutlineDocsBlock.tsx, wired through the descriptor in the same folder:
+The Doc renderer contract element, `ProcessOutlineDocsBlock`:
 
 - Render loop
 
@@ -198,11 +190,11 @@ The Doc renderer contract element: `ProcessOutlineDocsBlock` in packages/docs-vi
 
 - Editor surface
 
-  - The block is a non-editable atom leaf (`docProcessOutline` in editor-nodes.ts); the shared atom node view reuses the same descriptor, so edit mode shows the same render as reading.
+  - The block is a non-editable atom leaf (`docProcessOutline`); the shared atom node view reuses the same descriptor, so edit mode shows the same render as reading.
 
 ## Agent Renderer
 
-The Agent renderer contract element: the markdown projection in agent-view.ts is a `process-outline` fence whose body is `serializeProcessOutline` over the step tree. Projected, the live Example above is:
+The Agent renderer contract element: the markdown projection is a `process-outline` fence whose body is `serializeProcessOutline` over the step tree. Projected, the live Example above is:
 
 ```
 ```process-outline

@@ -30,7 +30,7 @@ Object blocks edit inside the surface where they render; no modal editor replace
 
   - Their state changes through Typed actions until the type deliberately earns an editable node view.
 
-> **Open call: Which Object Blocks Require Editable Node Views?** — No general policy determines which object types must support in-place editing. Each type needs a deliberate decision; the shared read-only atom view remains the fallback.
+> **Decision: Editability Is Per-Type and Deliberate** — No general policy grants object types in-place editing. Each editable node view is a deliberate per-type decision, and the shared read-only atom view is the designed fallback for every type without one.
 
 ## Why
 

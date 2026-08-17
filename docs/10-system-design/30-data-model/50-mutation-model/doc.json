@@ -40,7 +40,9 @@
         "b-20-mutation-model-dirty-suppression-17",
         "b-10-save-pipeline-callout-dirty-suppress-20",
         "b-20-mutation-model-discovery-18",
-        "b-20-mutation-model-discovery-surface-19"
+        "b-20-mutation-model-discovery-surface-19",
+        "b-mm-change-sets-h-20",
+        "b-mm-change-sets-bridge-21"
       ]
     },
     "b-20-mutation-model-opening-seven-2": {
@@ -853,6 +855,42 @@
         },
         {
           "insert": ". TypeBox state and params schemas are served verbatim as JSON Schema. There is no text/object category."
+        }
+      ],
+      "children": []
+    },
+    "b-mm-change-sets-h-20": {
+      "id": "b-mm-change-sets-h-20",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Multi-Document Change-Sets"
+        }
+      ],
+      "children": []
+    },
+    "b-mm-change-sets-bridge-21": {
+      "id": "b-mm-change-sets-bridge-21",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Multi-document change-sets extend this model without adding a second mutation path. Each member proposal still accepts through the per-document path, preserving its hash precondition, draft lock, and ledger inverse; the coordinator accepts members in recorded order, interleaves document-tree operations and annotation migrations, and rolls back the applied prefix on failure. A successful set records one compound ledger entry, so undo is one action. "
+        },
+        {
+          "insert": "The change-sets page",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/60-change-sets"
+            }
+          }
+        },
+        {
+          "insert": " defines the record and protocol."
         }
       ],
       "children": []

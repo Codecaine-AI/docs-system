@@ -1,4 +1,4 @@
-The file-tree component owns one block type, `file-tree`: the vocabulary's annotated path tree. A flat list of path entries in props renders — on both surfaces — as a `tree`-command drawing, with per-entry notes and change markers for describing repo slices and refactors. State and actions live in `packages/docs-model/src/components/file-tree/`; the doc render lives in `packages/docs-viewer/src/components/file-tree/`.
+The file-tree component owns one block type, `file-tree`: the vocabulary's annotated path tree. A flat list of path entries in props renders — on both surfaces — as a `tree`-command drawing, with per-entry notes and change markers for describing repo slices and refactors.
 
 ## Example
 
@@ -66,7 +66,7 @@ All state is one props key: `entries`, an array of path entries validated by the
 
 ## Typed Actions
 
-Three actions — one file each under `actions/` — are the type's whole custom write surface. `addEntry` is the Structure excerpt on Typed actions.
+Three actions are the type's whole custom write surface.
 
 - `addEntry`
 
@@ -96,7 +96,7 @@ Every `apply` is pure — entries in, a props patch `{ entries }` out — and th
 
 ## Doc Renderer
 
-`FileTreeDocsBlock` (`FileTreeDocsBlock.tsx`) draws the block on the doc surface — reader and editor alike — as a bordered monospace panel: a `.` root line, then one row per node with `tree`-style guides (`├──`, `└──`, `│`). An empty `entries` array renders a `(no entries)` placeholder. The contract is Doc renderer.
+`FileTreeDocsBlock` draws the block on the doc surface — reader and editor alike — as a bordered monospace panel: a `.` root line, then one row per node with `tree`-style guides (`├──`, `└──`, `│`). An empty `entries` array renders a `(no entries)` placeholder. The contract is Doc renderer.
 
 - Ordering
 
@@ -116,13 +116,13 @@ Every `apply` is pure — entries in, a props patch `{ entries }` out — and th
 
 - In the editor
 
-  - `file-tree` is an atom leaf node (`ATOM_BLOCK_TYPES` in `schema.ts`): read-only, rendered by the same `FileTreeDocsBlock` through the shared atom node view.
+  - `file-tree` is an atom leaf node (`ATOM_BLOCK_TYPES`): read-only, rendered by the same `FileTreeDocsBlock` through the shared atom node view.
 
   - No slash-menu entry — file trees enter through agent ops or existing content.
 
 ## Agent Renderer
 
-`projectFileTree` in `agent-view.ts` renders the same tree as literal text inside a bare fence — the greppable form an agent reads. The Example block above projects to:
+`projectFileTree` renders the same tree as literal text inside a bare fence — the greppable form an agent reads. The Example block above projects to:
 
 ```text
   packages/

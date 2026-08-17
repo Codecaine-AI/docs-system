@@ -57,7 +57,7 @@ title?: string  # Display title.
 
 ## Typed Actions
 
-Three actions, lifted at module load in `actions/lift.ts` from `SEQUENCE_AGENT_PATCH_OPERATIONS` in the engine's `agent-schema.ts` — schema truth stays in the sequence package; the lift strips only the envelope discriminant and prefixes the family name. Each rides a `componentAction` op as `sequence.<verb>` and carries `forward: { authority: "sequence" }` instead of a local `apply` — the forwarded shape of Typed actions.
+Three actions, lifted at module load from the engine's `SEQUENCE_AGENT_PATCH_OPERATIONS` — schema truth stays in the sequence package; the lift strips only the envelope discriminant and prefixes the family name. Each rides a `componentAction` op as `sequence.<verb>` and carries `forward: { authority: "sequence" }` instead of a local `apply` — the forwarded shape of Typed actions.
 
 **sequence — forwarded patch operations**
 
@@ -67,7 +67,7 @@ sequence.setStyle(style: SequenceStylePatch) -> forwarded to the sequence author
 sequence.setTitle(title: string) -> forwarded to the sequence authority  # Set the document title without changing structure or style.
 ```
 
-`applySequenceOperations` in the engine's `actions.ts` gives each verb its semantics:
+`applySequenceOperations` in the engine gives each verb its semantics:
 
 - `setProgram`
 
@@ -106,27 +106,27 @@ seq
 
 ## Doc Renderer
 
-The viewer descriptor in `packages/docs-viewer/src/components/sequence/descriptor.tsx` renders the block through the host's `renderSequence` slot; with no host wired, a dashed placeholder card names the source instead.
+The viewer descriptor renders the block through the host's `renderSequence` slot; with no host wired, a dashed placeholder card names the source instead.
 
 - Slot chain
 
-  - `DocBlockRenderer` (`DocBlockRenderer.tsx`) builds `renderSequence` from `DocsClientProvider`'s `sequenceEmbed` slot — the sequence counterpart of the canvas embed slot.
+  - `DocBlockRenderer` builds `renderSequence` from `DocsClientProvider`'s `sequenceEmbed` slot — the sequence counterpart of the canvas embed slot.
 
   - `resolveBundleSequenceSrc` canonicalizes the src first: a `./` prefix resolves against the doc bundle's own assets; anything else is docs-root-relative.
 
 - Workbench host
 
-  - `StandaloneSequenceEmbed` (`SequenceEmbed.tsx`) loads the sidecar through the serve/export data layer, validates with `validateSequenceDocument`, and renders the read-only `SequenceViewer` — no editing, no saving.
+  - `StandaloneSequenceEmbed` loads the sidecar through the serve/export data layer, validates with `validateSequenceDocument`, and renders the read-only `SequenceViewer` — no editing, no saving.
 
   - A `sequenceId` without a `src` renders an Open in Sequence Studio affordance instead of an inline diagram.
 
 - Editor surface
 
-  - The block is a non-editable atom leaf (`docSequence` in `editor-nodes.ts`); the shared atom node view reuses the same descriptor and slot, so edit mode shows the same embed as reading.
+  - The block is a non-editable atom leaf (`docSequence`); the shared atom node view reuses the same descriptor and slot, so edit mode shows the same embed as reading.
 
 ## Agent Renderer
 
-The markdown projection in `agent-view.ts` is one comment line — a greppable reference, not the diagram:
+The markdown projection is one comment line — a greppable reference, not the diagram:
 
 ```
 <!-- sequence: assets/sequences/login-flow.sequence.json title="Login flow" -->
@@ -140,9 +140,9 @@ The markdown projection in `agent-view.ts` is one comment line — a greppable r
 
 - Content lives behind the reference
 
-  - An agent that needs the diagram reads the `SequenceDocument` with `sequence_get` (`agent-tools.ts`) and writes back through the forwarded actions.
+  - An agent that needs the diagram reads the `SequenceDocument` with `sequence_get` and writes back through the forwarded actions.
 
-  - `parseSequenceProgram` and `serializeSequenceProgram` (`language/index.ts`) round-trip document and program, so the compact program is the agent-facing text of the diagram.
+  - `parseSequenceProgram` and `serializeSequenceProgram` round-trip document and program, so the compact program is the agent-facing text of the diagram.
 
 ## Theme
 
@@ -186,4 +186,4 @@ A forwarded action travels four steps:
 
 - The processing agent
 
-  - The adapter contract's target design adds a sequence-specialist processing agent whose context loader assembles the sequence source instead of the doc render alone; its writeback path is the forwarding above.
+  - A sequence-specialist processing agent handles the type's annotations: its context loader assembles the sequence source instead of the doc render alone, and its writeback path is the forwarding above.

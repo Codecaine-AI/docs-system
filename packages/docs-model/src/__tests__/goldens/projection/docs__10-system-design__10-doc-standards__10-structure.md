@@ -15,7 +15,7 @@ This page states the depth ladder, the folder rules, and why the shape holds.
 └── 10-doc-standards/  # L2 — a section: the folder is itself a doc introducing its children
     └── 10-structure/  # L3 — a concept doc: one coherent idea (this one)
 20-implementation/
-├── 30-save-pipeline/  # a single doc — one concept covers it
+├── 20-workbench/  # a single doc — one concept covers it
 └── 40-theming/  # a folder — themes split four ways
 ```
 
@@ -46,11 +46,31 @@ Six levels — three in the doc tree, three in the source:
 
 - Implementation mirrors the source: `src/core/workflow/` documents at `docs/20-implementation/10-core/10-workflow/`. Cross-cutting concerns — logging, caching, error handling — get one primary home, never a scatter.
 
+  - The mirror goes one level per genuine subdivision — deeper structure becomes entries on the area page, not sub-pages; the implementation layer standard owns the rule.
+
 - A section folder is itself a document: it carries its own `doc.json` — the parent doc — introducing its immediate children, one level deep, one line each.
 
   - An abstract, not a table of contents: after reading it, a reader can explain the domain and descends only where the task lives.
 
 - A topic becomes a folder when it needs about three related docs or has clear room to grow; until then it stays a single doc. A folder holding only its parent doc plus one child collapses back into a single doc.
+
+## Extension Tiers
+
+Foundation owns intent, design owns behavior, implementation owns structural decisions — none owns procedure. A repo may declare additional numbered root tiers (30 and above, below 99) for procedural how-to content the three layers cannot hold: authoring recipes, operator guides.
+
+- **Announced as a guides tier**
+
+  - The tier's parent doc names it a guides tier, so a reader knows on arrival that it carries procedure, not contracts.
+
+- **Non-normative**
+
+  - The tier defers authority to the three layers via links and never restates their contracts — a rule found there is a pointer, not a source.
+
+- **Reports stay banned**
+
+  - Point-in-time reports are banned in an extension tier exactly as they are everywhere else in the docs tree.
+
+- An authoring guide tier holding `defineContext` and `defineState` recipes extends the tree without stretching design to hold procedure.
 
 ## Why
 

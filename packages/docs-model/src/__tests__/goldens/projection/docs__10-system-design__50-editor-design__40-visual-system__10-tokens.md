@@ -51,7 +51,7 @@ The fixed semantic token `--docs-editor-accent` gives selection outlines, drop i
 | Dark | rgb(82, 156, 202) |
 | Host-neutral consumer fallback | #2383e2 |
 
-> **Open call: Editor accent registry ownership** — Whether `--docs-editor-accent` joins the closed theme registry remains undecided. It is a semantic token, not a theme-folder key.
+> **Boundary: Editor accent is not a theme key** — `--docs-editor-accent` is a semantic token, not a theme-folder key; the closed theme registry does not include it.
 
 ### Fixed Geometry
 

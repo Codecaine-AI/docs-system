@@ -1,6 +1,6 @@
 How an agent edits a type when it processes an annotation. 
 
-This is the contract's target-design element: the shape is settled, the wiring lands with annotate mode.
+The adapter is the execute step of the annotations lifecycle: annotate mode's processing reaches each type through it.
 
 ## The Design
 
@@ -19,8 +19,6 @@ This is the contract's target-design element: the shape is settled, the wiring l
 - **Discovery advertises the adapter**
 
   - The annotation router learns from the registry which agent handles which type — routing is data, not hardcoded knowledge.
-
-> **Direction: Lands with annotate mode** — No adapter is implemented yet. The five other contract elements exist today; the adapter is the settled design for the execute step of the annotations lifecycle.
 
 ## Why
 

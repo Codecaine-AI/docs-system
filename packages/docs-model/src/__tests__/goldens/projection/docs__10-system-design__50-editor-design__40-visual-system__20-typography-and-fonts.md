@@ -1,4 +1,4 @@
-Typography assigns font families by reading role: body, heading, code, and numeric. Shared reading metrics set the size, line height, and tracking for the document column. Theme loading and variable-injection mechanics live in Theming: Overview.
+Typography assigns font families by reading role: body, heading, code, and numeric. Shared reading metrics set the size, line height, and tracking for the document column. The structural decisions behind theme loading and variable injection live in Theming: Overview.
 
 ## Structure
 
@@ -41,14 +41,10 @@ The style rail exposes all four family roles plus font size, line height, and le
 
 System Sans resolves to `ui-sans-serif, system-ui, sans-serif`. Mono resolves to `ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace`. Numeric emits no separate family while it follows body.
 
-> **Designed, not built: Custom font-file loading** — Themes can name any font family the browser can already resolve. The workbench does not load repository font binaries or register `@font-face` rules for them. Custom font-file loading is designed but not built.
+> **Boundary: Fonts resolve from the host** — A theme names font families; a stack resolves only when the browser or host already provides the face. The workbench loads no repository font binaries and registers no `@font-face` rules.
 
 ## Why
 
 - **Reading roles are explicit seams**
 
   - A theme can separate code or numerals without changing prose, headings, or individual components.
-
-- **The defaults are facts, not reconstructed intent**
-
-  - No recorded rationale selects the four-role split, the current face aliases, or the 16px / 1.5 / 0.005em metrics.

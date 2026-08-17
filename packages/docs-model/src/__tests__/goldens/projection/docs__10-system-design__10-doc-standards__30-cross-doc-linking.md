@@ -58,6 +58,12 @@ This page states the reference object, which directions links run, and the restr
 
   - One doc owns the substance; the other references it.
 
+- **Governed-by links run upward**
+
+  - An implementation area page links one-way up to the design docs that constrain it; design never links back down.
+
+  - Every restraint rule on this page applies; the implementation layer standard owns the area-page shape.
+
 ## Why
 
 - **Tracked links cannot rot**

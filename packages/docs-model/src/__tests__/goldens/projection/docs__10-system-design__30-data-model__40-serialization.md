@@ -23,6 +23,6 @@ The second derived form is the runtime markdown render: pure, never written to d
 
 ## Content Hashes
 
-The content hash is SHA-256 hex over the on-disk bytes. One helper — `createContentHash` in docs-server's `content-hash.ts` — is shared by every surface that hashes content: doc hashes, annotation-sidecar hashes, and canvas hashes all derive byte-identical values for identical content.
+The content hash is SHA-256 hex over the on-disk bytes. One hash definition is shared by every surface that hashes content: doc hashes, annotation-sidecar hashes, and canvas hashes all derive byte-identical values for identical content.
 
-Hashes are the staleness precondition on writes: a mutation names the hash of the document it thinks it is editing, and the write authority rejects the op if the file has moved on. That only works because serialization is canonical — the hash changes when and only when the document actually changes. The locking and atomic-write machinery around this lives in the save pipeline.
+Hashes are the staleness precondition on writes: a mutation names the hash of the document it thinks it is editing, and the write authority rejects the op if the file has moved on. That only works because serialization is canonical — the hash changes when and only when the document actually changes. A successful write persists the validated, normalized document rather than the raw operation result, so the hash a save returns is exactly the hash the next load computes from disk. The refusal, locking, and atomicity behavior built on this precondition lives in the mutation model.

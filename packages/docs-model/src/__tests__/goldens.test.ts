@@ -21,6 +21,7 @@ const CORPUS_PATHS = [
   "docs/10-system-design/10-doc-standards/30-cross-doc-linking/doc.json",
   "docs/10-system-design/10-doc-standards/40-code-linking/doc.json",
   "docs/10-system-design/10-doc-standards/50-in-code-docs/doc.json",
+  "docs/10-system-design/10-doc-standards/60-implementation-layer/doc.json",
   "docs/10-system-design/20-translation-layer/doc.json",
   "docs/10-system-design/20-translation-layer/10-human-surface/doc.json",
   "docs/10-system-design/20-translation-layer/20-agent-surface/doc.json",
@@ -38,6 +39,7 @@ const CORPUS_PATHS = [
   "docs/10-system-design/30-data-model/50-mutation-model/doc.json",
   "docs/10-system-design/30-data-model/50-mutation-model/10-undo-redo/doc.json",
   "docs/10-system-design/30-data-model/50-mutation-model/20-copy-paste/doc.json",
+  "docs/10-system-design/30-data-model/60-change-sets/doc.json",
   "docs/10-system-design/40-block-vocabulary/doc.json",
   "docs/10-system-design/40-block-vocabulary/10-rich-text/doc.json",
   "docs/10-system-design/40-block-vocabulary/10-rich-text/10-paragraph/doc.json",
@@ -80,13 +82,8 @@ const CORPUS_PATHS = [
   "docs/20-implementation/10-packages/70-framework/doc.json",
   "docs/20-implementation/10-packages/80-external-canvas/doc.json",
   "docs/20-implementation/20-workbench/doc.json",
-  "docs/20-implementation/30-save-pipeline/doc.json",
   "docs/20-implementation/40-theming/doc.json",
-  "docs/20-implementation/40-theming/10-global-themes/doc.json",
-  "docs/20-implementation/40-theming/20-component-themes/doc.json",
-  "docs/20-implementation/40-theming/30-fonts/doc.json",
-  "docs/20-implementation/40-theming/40-system-ui/doc.json",
-  "docs/20-implementation/99-appendix/00-local-dev-loop/doc.json",
+  "docs/20-implementation/40-theming/10-system-ui/doc.json",
 ] as const;
 const DOCUMENT_PATHS = [FIXTURE_PATH, ...CORPUS_PATHS] as const;
 

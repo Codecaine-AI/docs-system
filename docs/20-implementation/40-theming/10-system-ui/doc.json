@@ -7,14 +7,7 @@
     "b-system-ui-root": {
       "id": "b-system-ui-root",
       "type": "paragraph",
-      "props": {
-        "concepts": [
-          "style-rail",
-          "settings-pipeline",
-          "css-variables",
-          "persistence-gating"
-        ]
-      },
+      "props": {},
       "children": [
         "b-system-ui-role-1",
         "b-system-ui-gov-h",

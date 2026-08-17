@@ -2,7 +2,7 @@ The reading surface is a left-justified full-width page where each top-level blo
 
 ## Structure
 
-The living Default in `themes/default/theme.json` defines the document frame below. `packages/docs-workbench/web/src/shell/StyleRail.tsx` exposes the values as CSS variables consumed by `packages/docs-workbench/web/src/pages/DocPage.tsx`.
+The living Default theme defines the document frame below.
 
 | Control | Living Default | Effect |
 | --- | --- | --- |
@@ -67,5 +67,3 @@ The living Default in `themes/default/theme.json` defines the document frame bel
   - The move-based rename keeps the displayed identity, storage path, inbound references, and sidebar entry aligned.
 
 The division between tree navigation and substantive reference links is governed by Cross-doc linking.
-
-The plain “Referenced by” footer and its source-path-only presentation have no recorded rationale.

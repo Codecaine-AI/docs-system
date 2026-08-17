@@ -1,4 +1,4 @@
-The state-shape component owns one block type, `state-shape` — the object-shape block of the block vocabulary. A block carries a recursive field tree — name, type, optionality, meaning — an optional link to the defining source symbol, and an optional JSON example instance rendered beside the tree. Model code lives in `packages/docs-model/src/components/state-shape/`; the doc renderer in `packages/docs-viewer/src/components/state-shape/`.
+The state-shape component owns one block type, `state-shape` — the object-shape block of the block vocabulary. A block carries a recursive field tree — name, type, optionality, meaning — an optional link to the defining source symbol, and an optional JSON example instance rendered beside the tree.
 
 It is the state carrier of the corpus documentation doctrine: a state-shape block carries the shape of state and an example instance side by side, an interaction-surface lists the operations that change or query it, and annotated code blocks hold the source evidence. State first, then operations; a code block is for material that is not an instance of the shape — a real source listing.
 
@@ -95,7 +95,7 @@ example?: string  # JSON text of an example instance of this shape; renders as t
 
 ## Typed Actions
 
-Four actions instantiate the Typed actions contract element, defined one file each in `packages/docs-model/src/components/state-shape/actions/`. Params validate against each action's TypeBox schema before `apply()` runs; every action returns a shallow props patch — `{ fields }` from the tree actions, `{ example }` from `setExample`.
+Four actions instantiate the Typed actions contract element. Params validate against each action's TypeBox schema before `apply()` runs; every action returns a shallow props patch — `{ fields }` from the tree actions, `{ example }` from `setExample`.
 
 - Dot-path addressing over sibling-unique names: `"operations.params"` names the `params` field under `operations`; `""` or an omitted path names the root `fields` array.
 
@@ -135,7 +135,7 @@ state-shape.setExample(example: string | null) -> props patch: { example }  # Se
 
 ## Doc Renderer
 
-The Doc renderer contract element: `StateShapeBlock` in `packages/docs-viewer/src/components/state-shape/StateShapeDocsBlock.tsx`, wired through the descriptor in the same folder. The render is a quiet bordered two-pane card — no title bar, never a language tag, state is always JSON: the structure tree left and, when `example` parses as JSON, a line-numbered example pane right.
+The Doc renderer contract element: `StateShapeBlock`. The render is a quiet bordered two-pane card — no title bar, never a language tag, state is always JSON: the structure tree left and, when `example` parses as JSON, a line-numbered example pane right.
 
 - Tree pane
 
@@ -169,7 +169,7 @@ In the editor the block is a ProseMirror atom leaf (`docStateShape`) rendered re
 
 ## Agent Renderer
 
-The Agent renderer contract element: a deterministic markdown projection in `packages/docs-model/src/components/state-shape/agent-view.ts`.
+The Agent renderer contract element: a deterministic markdown projection.
 
 - Header line: `**<name>**`, with ` — <path>#<symbol>` appended when a source is present; without a name the source stands alone as `— <path>`.
 

@@ -1,29 +1,5 @@
 A block type is a component with a closed contract: it owns its state schema, its update logic, its renderer on each surface, and its theme. This page states that contract and the path for adding a new block type. What each type is for — with an example — is the block vocabulary's story.
 
-## Structure
-
-One component, every home (structured-table):
-
-```
-packages/
-├── docs-model/
-│   └── src/
-│       └── components/
-│           └── structured-table/
-│               ├── actions/  # typed actions — the update logic, as data
-│               ├── agent-view.ts  # the agent renderer — state → markdown
-│               └── state.ts  # the state schema — closed TypeBox props
-└── docs-viewer/
-    └── src/
-        └── components/
-            └── structured-table/
-                └── descriptor.tsx  # the doc renderer — state → the editor component
-themes/
-└── default/
-    └── components/
-        └── structured-table.json  # the theme — the component's style knobs
-```
-
 ## The Contract
 
 - State schema
@@ -57,8 +33,6 @@ themes/
   - How an agent edits the type when it processes an annotation. The default is generic: typed ops over the doc render — most types need nothing more.
 
   - Complex types — canvas, sequence — declare their own agent: a context loader that assembles what that agent needs, and writeback through the type's own actions.
-
-  - Target design: the adapter lands with annotate mode. The rest of the contract exists today.
 
 The contract is generic; the instances are not. Each block family defines how every element works for it in its block vocabulary doc — inline where short, subpages where a family needs depth.
 

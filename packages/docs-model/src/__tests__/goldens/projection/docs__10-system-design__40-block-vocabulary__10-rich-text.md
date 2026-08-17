@@ -1,4 +1,4 @@
-The rich-text component owns the text-and-media block types that make up ordinary document flow. They share one implementation home (`packages/docs-viewer/src/components/rich-text/`, one file per type), the delta-span text model, and the markdown-shortcut input rules — which is why they live grouped here, one doc per type.
+The rich-text component owns the text-and-media block types that make up ordinary document flow. They share the delta-span text model and the markdown-shortcut input rules — which is why they live grouped here, one doc per type.
 
 - paragraph
 
@@ -157,10 +157,6 @@ Whether a type carries delta text is a per-type fact, declared as `carriesText` 
 ## Typed Actions
 
 The rich-text types expose no typed actions — they edit through the generic op kernel (block ops plus delta text edits), not `componentAction` verbs.
-
-## Doc Renderer
-
-On the doc surface — reader and editor alike — each type renders through its own file in `packages/docs-viewer/src/components/rich-text/`.
 
 ## Agent Renderer
 
