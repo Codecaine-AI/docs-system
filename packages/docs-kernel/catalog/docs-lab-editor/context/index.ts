@@ -67,9 +67,19 @@ function loadedPath(input: LoadedMap[number]): string {
 		: "";
 }
 
+const INDENT = "  ";
+
+function indent(body: string): string {
+	return body
+		.split("\n")
+		.map((line) => (line.length > 0 ? `${INDENT}${line}` : line))
+		.join("\n");
+}
+
+/** Wraps body in a tag, indenting it one level; nested calls accumulate. */
 function block(tag: string, attrs: string, body: string): string {
 	const open = attrs.length > 0 ? `<${tag} ${attrs}>` : `<${tag}>`;
-	return [open, body, `</${tag}>`].join("\n");
+	return [open, indent(body), `</${tag}>`].join("\n");
 }
 
 // ---------------------------------------------------------------------------
@@ -237,21 +247,21 @@ function renderBlockType(
 	type: BlocksDiscoveryComponent["types"][number],
 	printer: ReturnType<typeof createSchemaPrinter>,
 ): string {
-	const lines: string[] = [
-		`<block_type name="${type.type}" text="${type.carriesText ? "yes" : "no"}">`,
-		`  props: ${printer.print(type.state)}`,
-	];
+	const lines: string[] = [`props: ${printer.print(type.state)}`];
 	for (const action of component.actions) {
 		if (!action.action.startsWith(`${type.type}.`)) continue;
-		lines.push(`  ${action.action} ${printer.print(action.params)}`);
+		lines.push(`${action.action} ${printer.print(action.params)}`);
 		if (action.description.length > 0) {
-			lines.push(`      ${action.description}`);
+			lines.push(`${INDENT.repeat(2)}${action.description}`);
 		}
 	}
 	const note = USAGE_NOTES[type.type];
-	if (note !== undefined) lines.push(`  note: ${note}`);
-	lines.push("</block_type>");
-	return lines.join("\n");
+	if (note !== undefined) lines.push(`note: ${note}`);
+	return block(
+		"block_type",
+		`name="${type.type}" text="${type.carriesText ? "yes" : "no"}"`,
+		lines.join("\n"),
+	);
 }
 
 function renderEditingReference(): string {
