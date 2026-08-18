@@ -8,6 +8,7 @@
  * in-process docs-server ledger and leaves the annotation resolved.
  */
 import { randomUUID } from "node:crypto";
+import { basename, dirname, resolve } from "node:path";
 
 import {
   acceptBundleProposal,
@@ -33,7 +34,11 @@ import {
   type LaunchedDocsEditSession,
   type LaunchDocsEditSessionFailure,
 } from "./launch";
-import type { DocsEditSession, DocsEditSimpleResult } from "./session";
+import type {
+  DocsEditPathClaimResult,
+  DocsEditSession,
+  DocsEditSimpleResult,
+} from "./session";
 import type {
   DocsEditProposal,
   DocsEditRequestAuthor,
@@ -87,6 +92,7 @@ export interface DocsEditSessionAgentState {
 
 export interface DocsEditSessionState {
   sessionId: string;
+  corpus: string;
   path: string;
   docId: string;
   baseHash: string;
@@ -107,6 +113,7 @@ export interface DocsEditSessionState {
 
 export interface DocsEditSessionSummary {
   sessionId: string;
+  corpus: string;
   path: string;
   docId: string;
   status: DocsEditSessionStatus;
@@ -209,6 +216,7 @@ export type UndoAcceptedDocsProposalResult =
   | { ok: false; failure: UndoAcceptedDocsProposalFailure };
 
 export interface CreateDocsEditSessionInput {
+  corpus?: string;
   path: string;
   instruction?: string;
   requestIds?: readonly string[];
@@ -219,7 +227,8 @@ export interface CreateDocsEditSessionInput {
 
 export type CreateDocsEditSessionFailure =
   | LaunchDocsEditSessionFailure
-  | { ok: false; reason: "agent-busy"; path: string; sessionId: string };
+  | { ok: false; reason: "agent-busy"; path: string; sessionId: string }
+  | { ok: false; reason: "unknown-corpus"; corpus: string; known: string[] };
 export type CreateDocsEditSessionResult =
   | { ok: true; state: DocsEditSessionState }
   | CreateDocsEditSessionFailure;
@@ -243,8 +252,15 @@ export interface DocsEditSessionService {
   disposeAll(): void;
 }
 
-export interface CreateDocsEditSessionServiceOptions {
+export interface DocsEditCorpus {
+  name: string;
   docsRoot: string;
+}
+
+export interface CreateDocsEditSessionServiceOptions {
+  corpora?: readonly DocsEditCorpus[];
+  /** Legacy single-corpus form retained for direct callers and tests. */
+  docsRoot?: string;
   spawnAgent?: (launch: LaunchedDocsEditSession) => void | Promise<void>;
   allowWrites?: boolean;
   now?: () => string;
@@ -259,6 +275,7 @@ interface AppliedRecord {
 
 interface ManagedSession {
   session: DocsEditSession;
+  claimOwnerId: string;
   launch: LaunchedDocsEditSession;
   normalizedPath: string;
   touchedDocPaths: Set<string>;
@@ -283,7 +300,76 @@ export function createDocsEditSessionService(
   const allowWrites = options.allowWrites ?? true;
   const now = options.now ?? (() => new Date().toISOString());
   const sessions = new Map<string, ManagedSession>();
-  const docsStore = createDocsStore(options.docsRoot);
+  const corpora = options.corpora && options.corpora.length > 0
+    ? [...options.corpora]
+    : options.docsRoot
+      ? [{
+          name: basename(dirname(resolve(options.docsRoot))),
+          docsRoot: options.docsRoot,
+        }]
+      : [];
+  if (corpora.length === 0) {
+    throw new Error("docs-edit session service requires at least one corpus");
+  }
+  const docsStores = new Map<string, ReturnType<typeof createDocsStore>>();
+  const pathClaims = new Map<string, {
+    corpus: string;
+    path: string;
+    sessionId: string;
+    ownerId: string;
+  }>();
+  const claimKey = (corpus: string, path: string) => `${corpus}\0${path}`;
+  const claimPaths = (
+    corpus: string,
+    ownerId: string,
+    sessionId: string,
+    paths: readonly string[],
+  ): DocsEditPathClaimResult & { ownerSessionId?: string; path?: string } => {
+    const normalizedPaths = [...new Set(paths.map((path) => normalizeBundlePath(path)))];
+    for (const path of normalizedPaths) {
+      const existing = pathClaims.get(claimKey(corpus, path));
+      if (existing && existing.ownerId !== ownerId) {
+        return {
+          ok: false,
+          message: `Document ${path} is already owned by docs-edit session ${existing.sessionId}.`,
+          ownerSessionId: existing.sessionId,
+          path,
+        };
+      }
+    }
+    const newlyClaimed: string[] = [];
+    for (const path of normalizedPaths) {
+      const key = claimKey(corpus, path);
+      if (pathClaims.has(key)) continue;
+      pathClaims.set(key, { corpus, path, sessionId, ownerId });
+      newlyClaimed.push(key);
+    }
+    let released = false;
+    return {
+      ok: true,
+      release: () => {
+        if (released) return;
+        released = true;
+        for (const key of newlyClaimed) {
+          if (pathClaims.get(key)?.ownerId === ownerId) pathClaims.delete(key);
+        }
+      },
+    };
+  };
+  const releaseSessionClaims = (ownerId: string) => {
+    for (const [key, claim] of pathClaims) {
+      if (claim.ownerId === ownerId) pathClaims.delete(key);
+    }
+  };
+  const docsStoreFor = (managed: ManagedSession) => {
+    const root = managed.session.docsRoot;
+    let store = docsStores.get(root);
+    if (!store) {
+      store = createDocsStore(root);
+      docsStores.set(root, store);
+    }
+    return store;
+  };
 
   const emit = (managed: ManagedSession, event: DocsEditSessionStreamEvent) => {
     for (const listener of [...managed.listeners]) listener(event);
@@ -308,7 +394,7 @@ export function createDocsEditSessionService(
     managed: ManagedSession,
   ): Promise<DocChangeSetView | null> {
     if (!managed.changesetId) return null;
-    const loaded = await docsStore.changesetGet(managed.changesetId);
+    const loaded = await docsStoreFor(managed).changesetGet(managed.changesetId);
     if (!loaded.ok) return null;
     emit(managed, {
       type: "changeset-updated",
@@ -336,7 +422,7 @@ export function createDocsEditSessionService(
         : undefined;
       const instruction = managed.session.instruction?.trim();
       const summary = instruction || managed.session.requests()[0]?.body.trim() || "Docs edit";
-      const created = await docsStore.changesetStage({
+      const created = await docsStoreFor(managed).changesetStage({
         summary,
         sessionId: managed.session.id,
         ...(drivingRequest?.sidecarBacked
@@ -360,11 +446,11 @@ export function createDocsEditSessionService(
       return;
     }
 
-    const loaded = await readChangeSetRecord(options.docsRoot, managed.changesetId);
+    const loaded = await readChangeSetRecord(managed.session.docsRoot, managed.changesetId);
     if (!loaded.ok) {
       throw new Error(`Failed to read session change-set: ${loaded.detail}`);
     }
-    const written = await writeChangeSetRecord(options.docsRoot, {
+    const written = await writeChangeSetRecord(managed.session.docsRoot, {
       ...loaded.changeset,
       entries,
     });
@@ -432,6 +518,7 @@ export function createDocsEditSessionService(
   function snapshot(managed: ManagedSession): DocsEditSessionState {
     return {
       sessionId: managed.session.id,
+      corpus: managed.session.corpus,
       path: managed.session.path,
       docId: managed.session.docId,
       baseHash: managed.session.baseHash,
@@ -507,7 +594,7 @@ export function createDocsEditSessionService(
     outcome.attached = attached;
     try {
       const result = await resolveBundleAnnotation(
-        options.docsRoot,
+        managed.session.docsRoot,
         managed.session.path,
         entry.annotationId,
         undefined,
@@ -535,10 +622,10 @@ export function createDocsEditSessionService(
     | { ok: true; proposal: DocsEditProposal }
     | { ok: false; status: number; detail: string; current_hash?: string; issues?: unknown }
   > {
-    const loaded = await loadDocBundle(options.docsRoot, proposal.docPath);
+    const loaded = await loadDocBundle(managed.session.docsRoot, proposal.docPath);
     if ("error" in loaded) return { ok: false as const, status: loaded.error.status, detail: loaded.error.detail };
     const staged = await stageBundleProposal(
-      options.docsRoot,
+      managed.session.docsRoot,
       proposal.docPath,
       {
         ops: proposal.ops,
@@ -576,7 +663,7 @@ export function createDocsEditSessionService(
       (managed.review.get(entry.alias) ?? "pending") !== "undone"
     ) {
       const rejected = await rejectBundleProposal(
-        options.docsRoot,
+        managed.session.docsRoot,
         proposal.docPath,
         proposal.proposalId,
         { sessionId: managed.session.id },
@@ -599,7 +686,7 @@ export function createDocsEditSessionService(
     batch: DocsEditProposal[],
   ): Promise<DocsEditAcceptAllResult | null> {
     if (!managed.changesetId) return null;
-    const record = await readChangeSetRecord(options.docsRoot, managed.changesetId);
+    const record = await readChangeSetRecord(managed.session.docsRoot, managed.changesetId);
     if (!record.ok || record.changeset.status !== "open") return null;
     const covered = record.changeset.entries.length === batch.length &&
       record.changeset.entries.every((entry, index) => {
@@ -625,19 +712,19 @@ export function createDocsEditSessionService(
       const withoutAnnotation = { ...record.changeset };
       delete withoutAnnotation.annotationId;
       delete withoutAnnotation.annotationDocPath;
-      const written = await writeChangeSetRecord(options.docsRoot, withoutAnnotation);
+      const written = await writeChangeSetRecord(managed.session.docsRoot, withoutAnnotation);
       if (!written.ok) return null;
     }
-    const accepted = await docsStore.changesetAccept(
+    const accepted = await docsStoreFor(managed).changesetAccept(
       managed.changesetId,
       managed.session.id,
     );
     if (annotationMetadata) {
-      const latest = await readChangeSetRecord(options.docsRoot, managed.changesetId);
+      const latest = await readChangeSetRecord(managed.session.docsRoot, managed.changesetId);
       if (!latest.ok) {
         throw new Error(`Failed to restore session change-set metadata: ${latest.detail}`);
       }
-      const restored = await writeChangeSetRecord(options.docsRoot, {
+      const restored = await writeChangeSetRecord(managed.session.docsRoot, {
         ...latest.changeset,
         ...annotationMetadata,
       });
@@ -707,7 +794,7 @@ export function createDocsEditSessionService(
     const hashes = new Map<string, string>();
     await Promise.all(
       [...new Set(batch.map((proposal) => proposal.docPath))].map(async (path) => {
-        const loaded = await loadDocBundle(options.docsRoot, path);
+        const loaded = await loadDocBundle(managed.session.docsRoot, path);
         if (!("error" in loaded)) hashes.set(path, loaded.docHash);
       }),
     );
@@ -761,7 +848,7 @@ export function createDocsEditSessionService(
     await queueChangeSetSync(managed);
     if (!appliedSuccessfully) return;
 
-    const loaded = await readChangeSetRecord(options.docsRoot, managed.changesetId);
+    const loaded = await readChangeSetRecord(managed.session.docsRoot, managed.changesetId);
     if (!loaded.ok || loaded.changeset.status !== "open") return;
     const patchIds = loaded.changeset.entries.map((entry) =>
       [...managed.applied].reverse().find(
@@ -772,7 +859,7 @@ export function createDocsEditSessionService(
     if (patchIds.some((patchId) => patchId === undefined)) return;
     const compoundPatchId = randomUUID();
     recordCompoundPatch(compoundPatchId, patchIds as string[]);
-    const written = await writeChangeSetRecord(options.docsRoot, {
+    const written = await writeChangeSetRecord(managed.session.docsRoot, {
       ...loaded.changeset,
       status: "applied",
       resolvedAt: now(),
@@ -788,85 +875,113 @@ export function createDocsEditSessionService(
     allowWrites,
 
     async createSession(input) {
+      const corpus = input.corpus === undefined
+        ? corpora[0]!
+        : corpora.find((candidate) => candidate.name === input.corpus);
+      if (!corpus) {
+        return {
+          ok: false,
+          reason: "unknown-corpus",
+          corpus: input.corpus!,
+          known: corpora.map((candidate) => candidate.name),
+        };
+      }
       const normalized = normalizeBundlePath(input.path);
-      const busy = [...sessions.values()].find((candidate) =>
-        candidate.touchedDocPaths.has(normalized),
-      );
-      if (busy) {
-        return { ok: false, reason: "agent-busy", path: normalized, sessionId: busy.session.id };
+      const sessionId = input.sessionId ?? `des-${randomUUID()}`;
+      const claimOwnerId = randomUUID();
+      const originClaim = claimPaths(corpus.name, claimOwnerId, sessionId, [normalized]);
+      if (!originClaim.ok) {
+        return {
+          ok: false,
+          reason: "agent-busy",
+          path: normalized,
+          sessionId: originClaim.ownerSessionId!,
+        };
       }
       let managedForPersistence: ManagedSession | null = null;
-      const launch = await launchDocsEditSession({
-        docsRoot: options.docsRoot,
-        path: input.path,
-        instruction: input.instruction,
-        requestIds: input.requestIds,
-        extraRequests: input.extraRequests,
-        sessionId: input.sessionId,
-        onProposalStaged: (proposal) => {
-          if (!managedForPersistence) return;
-          return queueChangeSetSync(managedForPersistence, proposal);
-        },
-        onProposalsSuperseded: async (alias, proposals) => {
-          if (!managedForPersistence) return;
-          managedForPersistence.changeSetMigrationsByAlias.delete(alias);
-          if (!managedForPersistence.changesetId) return;
-          const loaded = await readChangeSetRecord(
-            options.docsRoot,
-            managedForPersistence.changesetId,
-          );
-          if (!loaded.ok) {
-            throw new Error(`Failed to read session change-set: ${loaded.detail}`);
-          }
-          const removed = new Set(proposals.map(
-            (proposal) => `${proposal.docPath}\0${proposal.proposalId}`,
-          ));
-          const written = await writeChangeSetRecord(options.docsRoot, {
-            ...loaded.changeset,
-            entries: loaded.changeset.entries.filter(
-              (entry) => !removed.has(`${entry.docPath}\0${entry.proposalId}`),
-            ),
-            annotationMigrations: changeSetMigrations(managedForPersistence),
-          });
-          if (!written.ok) {
-            throw new Error(`Failed to remove superseded proposals: ${written.detail}`);
-          }
-          const fresh = await emitFreshChangeSet(managedForPersistence);
-          if (!fresh) {
-            throw new Error(
-              `Failed to load updated change-set: ${managedForPersistence.changesetId}`,
+      let launch: Awaited<ReturnType<typeof launchDocsEditSession>>;
+      try {
+        launch = await launchDocsEditSession({
+          corpus: corpus.name,
+          docsRoot: corpus.docsRoot,
+          path: input.path,
+          instruction: input.instruction,
+          requestIds: input.requestIds,
+          extraRequests: input.extraRequests,
+          sessionId,
+          claimPaths: (paths) => claimPaths(corpus.name, claimOwnerId, sessionId, paths),
+          onProposalStaged: (proposal) => {
+            if (!managedForPersistence) return;
+            return queueChangeSetSync(managedForPersistence, proposal);
+          },
+          onProposalsSuperseded: async (alias, proposals) => {
+            if (!managedForPersistence) return;
+            managedForPersistence.changeSetMigrationsByAlias.delete(alias);
+            if (!managedForPersistence.changesetId) return;
+            const loaded = await readChangeSetRecord(
+              managedForPersistence.session.docsRoot,
+              managedForPersistence.changesetId,
             );
-          }
-        },
-        onChangeSetStaged: async (changeset) => {
-          if (!managedForPersistence) return;
-          if (changeset.alias) {
-            managedForPersistence.changeSetMigrationsByAlias.set(
-              changeset.alias,
-              [...(changeset.annotationMigrations ?? [])],
-            );
-          }
-          const generated = await readChangeSetRecord(options.docsRoot, changeset.id);
-          if (!generated.ok) {
-            throw new Error(`Failed to read generated change-set: ${generated.detail}`);
-          }
-          const synchronized = await writeChangeSetRecord(options.docsRoot, {
-            ...generated.changeset,
-            summary: changeset.summary,
-            entries: changeSetEntries(managedForPersistence),
-            annotationMigrations: changeSetMigrations(managedForPersistence),
-          });
-          if (!synchronized.ok) {
-            throw new Error(`Failed to synchronize generated change-set: ${synchronized.detail}`);
-          }
-          managedForPersistence.changesetId = changeset.id;
-          const fresh = await emitFreshChangeSet(managedForPersistence);
-          if (!fresh) throw new Error(`Failed to load generated change-set: ${changeset.id}`);
-        },
-      });
-      if (!launch.ok) return launch;
+            if (!loaded.ok) {
+              throw new Error(`Failed to read session change-set: ${loaded.detail}`);
+            }
+            const removed = new Set(proposals.map(
+              (proposal) => `${proposal.docPath}\0${proposal.proposalId}`,
+            ));
+            const written = await writeChangeSetRecord(managedForPersistence.session.docsRoot, {
+              ...loaded.changeset,
+              entries: loaded.changeset.entries.filter(
+                (entry) => !removed.has(`${entry.docPath}\0${entry.proposalId}`),
+              ),
+              annotationMigrations: changeSetMigrations(managedForPersistence),
+            });
+            if (!written.ok) {
+              throw new Error(`Failed to remove superseded proposals: ${written.detail}`);
+            }
+            const fresh = await emitFreshChangeSet(managedForPersistence);
+            if (!fresh) {
+              throw new Error(
+                `Failed to load updated change-set: ${managedForPersistence.changesetId}`,
+              );
+            }
+          },
+          onChangeSetStaged: async (changeset) => {
+            if (!managedForPersistence) return;
+            if (changeset.alias) {
+              managedForPersistence.changeSetMigrationsByAlias.set(
+                changeset.alias,
+                [...(changeset.annotationMigrations ?? [])],
+              );
+            }
+            const generated = await readChangeSetRecord(managedForPersistence.session.docsRoot, changeset.id);
+            if (!generated.ok) {
+              throw new Error(`Failed to read generated change-set: ${generated.detail}`);
+            }
+            const synchronized = await writeChangeSetRecord(managedForPersistence.session.docsRoot, {
+              ...generated.changeset,
+              summary: changeset.summary,
+              entries: changeSetEntries(managedForPersistence),
+              annotationMigrations: changeSetMigrations(managedForPersistence),
+            });
+            if (!synchronized.ok) {
+              throw new Error(`Failed to synchronize generated change-set: ${synchronized.detail}`);
+            }
+            managedForPersistence.changesetId = changeset.id;
+            const fresh = await emitFreshChangeSet(managedForPersistence);
+            if (!fresh) throw new Error(`Failed to load generated change-set: ${changeset.id}`);
+          },
+        });
+      } catch (error) {
+        releaseSessionClaims(claimOwnerId);
+        throw error;
+      }
+      if (!launch.ok) {
+        releaseSessionClaims(claimOwnerId);
+        return launch;
+      }
       const managed: ManagedSession = {
         session: launch.session,
+        claimOwnerId,
         launch,
         normalizedPath: launch.session.path,
         touchedDocPaths: new Set([launch.session.path]),
@@ -903,6 +1018,7 @@ export function createDocsEditSessionService(
     list() {
       return [...sessions.values()].map((managed) => ({
         sessionId: managed.session.id,
+        corpus: managed.session.corpus,
         path: managed.session.path,
         docId: managed.session.docId,
         status: managed.session.status(),
@@ -921,7 +1037,7 @@ export function createDocsEditSessionService(
     async getChangeSet(sessionId) {
       const managed = sessions.get(sessionId);
       if (!managed?.changesetId) return null;
-      const loaded = await docsStore.changesetGet(managed.changesetId);
+      const loaded = await docsStoreFor(managed).changesetGet(managed.changesetId);
       return loaded.ok ? loaded.changeset : null;
     },
     subscribe(sessionId, listener) {
@@ -955,7 +1071,7 @@ export function createDocsEditSessionService(
       }
 
       let accepted = await acceptBundleProposal(
-        options.docsRoot,
+        managed.session.docsRoot,
         proposal.docPath,
         proposal.proposalId,
         { sessionId: managed.session.id },
@@ -965,7 +1081,7 @@ export function createDocsEditSessionService(
         if (!refreshed.ok) return { ok: false, failure: failureFromBackend("apply_failure", refreshed) };
         proposal = refreshed.proposal;
         accepted = await acceptBundleProposal(
-          options.docsRoot,
+          managed.session.docsRoot,
           proposal.docPath,
           proposal.proposalId,
           { sessionId: managed.session.id },
@@ -1033,7 +1149,7 @@ export function createDocsEditSessionService(
         // proposal after restoring its document so the whole batch remains
         // reviewable and the service's proposal order/reviews stay intact.
         for (const applied of [...appliedPrefix].reverse()) {
-          const undone = await undo_patch(options.docsRoot, applied.patchId);
+          const undone = await undo_patch(managed.session.docsRoot, applied.patchId);
           if (!undone.ok || undone.kind !== "doc") {
             throw new Error(
               `acceptAll rollback failed for ${applied.entry.alias}: ${
@@ -1103,7 +1219,7 @@ export function createDocsEditSessionService(
         }
 
         const accepted = await acceptBundleProposal(
-          options.docsRoot,
+          managed.session.docsRoot,
           proposal.docPath,
           proposal.proposalId,
           { sessionId: managed.session.id },
@@ -1193,7 +1309,7 @@ export function createDocsEditSessionService(
       const proposal = managed.session.proposals().find((candidate) => candidate.requestAlias === alias);
       if (!proposal) return { ok: false, failure: { kind: "no_staged_proposal", alias } };
       const rejected = await rejectBundleProposal(
-        options.docsRoot,
+        managed.session.docsRoot,
         proposal.docPath,
         proposal.proposalId,
         { sessionId: managed.session.id },
@@ -1209,7 +1325,7 @@ export function createDocsEditSessionService(
           (candidate) => managed.review.get(candidate.requestAlias) === "rejected",
         );
       if (rejectedEverything) {
-        const changeset = await docsStore.changesetReject(
+        const changeset = await docsStoreFor(managed).changesetReject(
           managed.changesetId!,
           managed.session.id,
         );
@@ -1243,9 +1359,9 @@ export function createDocsEditSessionService(
       }
 
       if (managed.changesetId) {
-        const changeset = await docsStore.changesetGet(managed.changesetId);
+        const changeset = await docsStoreFor(managed).changesetGet(managed.changesetId);
         if (changeset.ok && changeset.changeset.status === "applied") {
-          const undone = await docsStore.changesetUndo(
+          const undone = await docsStoreFor(managed).changesetUndo(
             managed.changesetId,
             managed.session.id,
           );
@@ -1259,7 +1375,7 @@ export function createDocsEditSessionService(
           await Promise.all(
             [...new Set(managed.applied.map((applied) => applied.docPath))].map(
               async (path) => {
-                const loaded = await loadDocBundle(options.docsRoot, path);
+                const loaded = await loadDocBundle(managed.session.docsRoot, path);
                 if (!("error" in loaded)) hashes.set(path, loaded.docHash);
               },
             ),
@@ -1287,7 +1403,7 @@ export function createDocsEditSessionService(
         }
       }
 
-      const undone = await undo_patch(options.docsRoot, latest.patchId);
+      const undone = await undo_patch(managed.session.docsRoot, latest.patchId);
       if (!undone.ok) return { ok: false, failure: failureFromBackend("undo_failed", undone) };
       if (undone.kind !== "doc") {
         return { ok: false, failure: { kind: "undo_failed", status: 400, detail: "Patch was not a document patch" } };
@@ -1342,6 +1458,7 @@ export function createDocsEditSessionService(
       managed.unsubscribeSession();
       managed.listeners.clear();
       sessions.delete(sessionId);
+      releaseSessionClaims(managed.claimOwnerId);
       return true;
     },
 

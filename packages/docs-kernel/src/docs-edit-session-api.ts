@@ -172,6 +172,9 @@ export function createDocsEditSessionApi(
 				) {
 					errors.push("sessionId: expected a string");
 				}
+				if (input.corpus !== undefined && typeof input.corpus !== "string") {
+					errors.push("corpus: expected a string");
+				}
 				if (input.spawn !== undefined && typeof input.spawn !== "boolean") {
 					errors.push("spawn: expected a boolean");
 				}
@@ -198,6 +201,7 @@ export function createDocsEditSessionApi(
 
 				const result = await sessions.createSession({
 					path: input.path as string,
+					corpus: input.corpus as string | undefined,
 					instruction: input.instruction as string | undefined,
 					sessionId: input.sessionId as string | undefined,
 					spawn: input.spawn as boolean | undefined,
@@ -207,6 +211,14 @@ export function createDocsEditSessionApi(
 					extraRequests: input.extraRequests as never,
 				});
 				if (!result.ok) {
+					if (result.reason === "unknown-corpus") {
+						set.status = 400;
+						return {
+							errors: [
+								`corpus: unknown corpus ${result.corpus}; known: ${result.known.join(", ")}`,
+							],
+						};
+					}
 					if (result.reason === "unknown-doc") {
 						set.status = 404;
 						return {

@@ -15,7 +15,7 @@ export async function createDocsKernelHarness(
 ) {
 	const boot = await bootDocsKernel(options);
 	const docsEditSessions = createDocsKernelDocsEditSessions(boot.kernel, {
-		docsRoot: boot.docsRoot,
+		corpora: boot.corpora,
 		sessionRoot: join(boot.kernelRoot, "docs-edit-sessions"),
 		workingDir: boot.rootDir,
 	});
@@ -47,7 +47,11 @@ export async function createDocsKernelHarness(
 		.use(docsEditApi)
 		.get("/health", () => {
 			boot.db.run(sql`select 1`);
-			return { status: "ok", kernel: boot.kernel.id };
+			return {
+				status: "ok",
+				kernel: boot.kernel.id,
+				corpora: boot.corpora.map(({ name, docsRoot }) => ({ name, docsRoot })),
+			};
 		});
 
 	let disposed = false;

@@ -38,6 +38,8 @@ import { isDocsEditRequestTerminal } from "./types";
 
 export interface CreateDocsEditSessionOptions {
 	docsRoot: string;
+	/** Named corpus that owns docsRoot. */
+	corpus?: string;
 	/** Canonical docs-root-relative bundle path. */
 	path: string;
 	document: DocDocument;
@@ -48,6 +50,8 @@ export interface CreateDocsEditSessionOptions {
 	now?: () => string;
 	/** Awaited after the session has retained a newly staged proposal. */
 	onProposalStaged?: (proposal: DocsEditProposal) => void | Promise<void>;
+	/** Atomically claim corpus-relative paths before staging persistence. */
+	claimPaths?: (paths: readonly string[]) => DocsEditPathClaimResult;
 	/** Adopt a generator-persisted change-set without creating a duplicate. */
 	onChangeSetStaged?: (changeset: DocChangeSetView) => void | Promise<void>;
 	/** Persist removal of proposals superseded before a generator stages replacements. */
@@ -64,8 +68,13 @@ export type DocsEditRequestMutationResult =
 /** Service/API-friendly alias retained alongside the state-machine name. */
 export type DocsEditSimpleResult = DocsEditRequestMutationResult;
 
+export type DocsEditPathClaimResult =
+	| { ok: true; release: () => void }
+	| { ok: false; message: string };
+
 export interface DocsEditSession {
 	readonly id: string;
+	readonly corpus: string;
 	readonly docsRoot: string;
 	readonly path: string;
 	readonly docId: string;
@@ -77,6 +86,7 @@ export interface DocsEditSession {
 	document(): DocDocument;
 	renderedDocument(): string;
 	requestsBlock(): string;
+	claimPaths(paths: readonly string[]): DocsEditPathClaimResult;
 	subscribe(listener: DocsEditSessionListener): () => void;
 	propose(
 		requestAliasOrId: string,
@@ -273,6 +283,21 @@ export function createDocsEditSession(
 		}
 		const normalizedTargetPath = normalizeBundlePath(targetPath.trim());
 		const normalizedOriginPath = normalizeBundlePath(path);
+		const claimed = options.claimPaths?.([normalizedTargetPath]) ?? {
+			ok: true as const,
+			release: () => {},
+		};
+		if (!claimed.ok) {
+			return {
+				ok: false,
+				failure: {
+					kind: "stage_failed",
+					status: 409,
+					detail: claimed.message,
+				},
+			};
+		}
+		let persisted = false;
 
 		try {
 			const staged = await stageBundleProposal(
@@ -291,6 +316,7 @@ export function createDocsEditSession(
 				id,
 			);
 			if (!staged.ok) {
+				claimed.release();
 				return {
 					ok: false,
 					failure: {
@@ -307,6 +333,7 @@ export function createDocsEditSession(
 					},
 				};
 			}
+			persisted = true;
 
 			const proposal: DocsEditProposal = {
 				proposalId: staged.proposal.id,
@@ -341,6 +368,7 @@ export function createDocsEditSession(
 			await options.onProposalStaged?.(proposal);
 			return { ok: true, proposal };
 		} catch (error) {
+			if (!persisted) claimed.release();
 			return {
 				ok: false,
 				failure: {
@@ -790,6 +818,7 @@ export function createDocsEditSession(
 
 	return {
 		id,
+		corpus: options.corpus ?? "default",
 		docsRoot: options.docsRoot,
 		path,
 		docId: document.id,
@@ -802,6 +831,10 @@ export function createDocsEditSession(
 		renderedDocument: () =>
 			`${renderDocsDocument(document)}\n\n${renderDocsBlockMap(document)}`,
 		requestsBlock: () => formatDocsEditRequestsBlock(entries),
+		claimPaths: (paths) => options.claimPaths?.(paths) ?? {
+			ok: true,
+			release: () => {},
+		},
 		subscribe: (listener) => {
 			listeners.add(listener);
 			return () => listeners.delete(listener);

@@ -26,6 +26,10 @@ export interface RunServeOptions {
    * inherit the primary docs-system theme rather than tune their own.
    */
   themeLocked?: boolean;
+  /** Docs kernel origin exposed to the lab UI. */
+  kernelUrl?: string;
+  /** Kernel corpus this served docs tree belongs to. */
+  corpus?: string;
   log?: (message: string) => void;
 }
 
@@ -47,6 +51,8 @@ export async function runServe(options: RunServeOptions): Promise<void> {
       staticDir: null,
       watchFs: true,
       themeLocked: options.themeLocked,
+      kernelUrl: options.kernelUrl,
+      corpus: options.corpus,
     });
     log(`[docs-workbench] API listening on http://${displayHost}:${port} (docs root: ${docsRoot})`);
     log(`[docs-workbench] Starting vite dev server (proxying /api -> :${port})...`);
@@ -82,6 +88,8 @@ export async function runServe(options: RunServeOptions): Promise<void> {
     staticDir,
     watchFs: true,
     themeLocked: options.themeLocked,
+    kernelUrl: options.kernelUrl,
+    corpus: options.corpus,
   });
   log(`[docs-workbench] Serving docs from ${docsRoot}`);
   log(`[docs-workbench] http://${displayHost}:${port}`);

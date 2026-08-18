@@ -8,9 +8,16 @@ import {
 } from "./docs-edit-session";
 import {
 	DOCS_EDIT_TOOL_NAMES,
+	docsEditTraceLabel,
 	docsEditSharedTools,
 	enqueueDocsEditLaunch,
 } from "./docs-edit";
+
+test("docs-edit trace labels include corpus and path", () => {
+	expect(
+		docsEditTraceLabel("gamecube-decomp-harness", "10-guides/quickstart"),
+	).toBe("Edit docs: gamecube-decomp-harness · 10-guides/quickstart");
+});
 
 type SharedToolsConfig = Parameters<
 	NonNullable<CreateKernelConfig["sharedTools"]>

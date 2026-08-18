@@ -40,7 +40,7 @@ docs: ## Docs lab: dev-web UI on :4805 (API :4803) + docs kernel :4840 (DOCS_KER
 		bun run docs serve --root docs --dev --port 4803 --ui-port 4805; \
 	else \
 		echo "docs kernel: starting on :$$KERNEL_PORT"; \
-		DOCS_KERNEL_PORT=$$KERNEL_PORT bun run --cwd packages/docs-kernel start & KERNEL_PID=$$!; \
+		env -u DOCS_KERNEL_DOCS_ROOT DOCS_KERNEL_PORT=$$KERNEL_PORT bun run --cwd packages/docs-kernel start & KERNEL_PID=$$!; \
 		trap 'kill $$KERNEL_PID 2>/dev/null' EXIT INT TERM; \
 		bun run docs serve --root docs --dev --port 4803 --ui-port 4805; \
 	fi

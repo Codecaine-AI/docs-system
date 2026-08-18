@@ -55,6 +55,7 @@ function changesetFixture(): DocChangeSetView {
 function stateFixture(): DocsEditSessionState {
 	return {
 		sessionId: SESSION_ID,
+		corpus: "docs-system",
 		path: "00-foundation/overview",
 		touchedDocPaths: ["00-foundation/overview"],
 		docId: "doc-root",
@@ -155,6 +156,7 @@ function fakeService(): FakeServiceControls {
 				: [
 						{
 							sessionId: state.sessionId,
+							corpus: state.corpus,
 							path: state.path,
 							docId: state.docId,
 							status: state.status,
@@ -258,12 +260,14 @@ describe("docs-edit session HTTP smoke", () => {
 
 		const invalid = await post(app, "/kernel/docs-edit-sessions", {
 			path: "",
+			corpus: 42,
 			requestIds: [],
 		});
 		expect(invalid.status).toBe(400);
 		expect((await invalid.json()) as unknown).toEqual({
 			errors: [
 				"path: expected a non-empty string",
+				"corpus: expected a string",
 				"requestIds: expected at least one id",
 			],
 		});
@@ -274,12 +278,48 @@ describe("docs-edit session HTTP smoke", () => {
 			spawn: false,
 		});
 		expect(created.status).toBe(201);
-		expect(((await created.json()) as { state: { sessionId: string } }).state.sessionId).toBe(
-			SESSION_ID,
-		);
+		expect(
+			((await created.json()) as {
+				state: { sessionId: string; corpus: string };
+			}).state,
+		).toEqual(expect.objectContaining({
+			sessionId: SESSION_ID,
+			corpus: "docs-system",
+		}));
 		expect(fake.createdInputs).toEqual([
-			expect.objectContaining({ path: fake.state.path, spawn: false }),
+			expect.objectContaining({
+				path: fake.state.path,
+				corpus: undefined,
+				spawn: false,
+			}),
 		]);
+
+		const selected = await post(app, "/kernel/docs-edit-sessions", {
+			path: fake.state.path,
+			corpus: "gamecube-decomp-harness",
+			spawn: false,
+		});
+		expect(selected.status).toBe(201);
+		expect(fake.createdInputs.at(-1)).toEqual(
+			expect.objectContaining({ corpus: "gamecube-decomp-harness" }),
+		);
+
+		fake.setCreateResult({
+			ok: false,
+			reason: "unknown-corpus",
+			corpus: "missing-corpus",
+			known: ["docs-system", "gamecube-decomp-harness"],
+		});
+		const unknownCorpus = await post(app, "/kernel/docs-edit-sessions", {
+			path: fake.state.path,
+			corpus: "missing-corpus",
+		});
+		expect(unknownCorpus.status).toBe(400);
+		expect(await unknownCorpus.json()).toEqual({
+			errors: [
+				"corpus: unknown corpus missing-corpus; known: docs-system, gamecube-decomp-harness",
+			],
+		});
 
 		fake.setCreateResult({
 			ok: false,
@@ -306,15 +346,20 @@ describe("docs-edit session HTTP smoke", () => {
 
 		const listing = await app.handle(new Request(url("/kernel/docs-edit-sessions")));
 		expect(listing.status).toBe(200);
-		expect(((await listing.json()) as { sessions: unknown[] }).sessions).toHaveLength(1);
+		expect(
+			((await listing.json()) as { sessions: Array<{ corpus: string }> }).sessions,
+		).toEqual([expect.objectContaining({ corpus: "docs-system" })]);
 
 		const detail = await app.handle(
 			new Request(url(`/kernel/docs-edit-sessions/${SESSION_ID}`)),
 		);
 		expect(detail.status).toBe(200);
-		expect(((await detail.json()) as { state: { path: string } }).state.path).toBe(
-			fake.state.path,
-		);
+		expect(
+			((await detail.json()) as { state: { path: string; corpus: string } }).state,
+		).toEqual(expect.objectContaining({
+			path: fake.state.path,
+			corpus: "docs-system",
+		}));
 
 		const added = await post(app, `/kernel/docs-edit-sessions/${SESSION_ID}/requests`, {
 			target: { kind: "doc" },

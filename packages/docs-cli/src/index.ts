@@ -259,7 +259,7 @@ function usage(): string {
     "  docs-cli links check [docsRoot]",
     "  docs-cli audit [docsRoot]",
     "  docs-cli migrate [repoRoot] [--drafts] [--dry-run]",
-    "  docs-cli serve [--root <path>] [--port <port>] [--ui-port <port>] [--host <addr>] [--dev] [--rebuild] [--theme-locked]",
+    "  docs-cli serve [--root <path>] [--port <port>] [--ui-port <port>] [--host <addr>] [--kernel-url <url>] [--corpus <name>] [--dev] [--rebuild] [--theme-locked]",
     "  docs-cli export [--root <path>] --out <dir> [--rebuild]",
     "",
     "migrate is NON-DESTRUCTIVE by default: it writes doc.json bundles",
@@ -408,7 +408,7 @@ async function main() {
 
     if (command === "serve") {
       // Standalone read-only docs server + viewer SPA (packages/docs-workbench).
-      //   docs-cli serve [--root <path>] [--port <port>] [--ui-port <port>] [--host <addr>] [--dev] [--rebuild] [--theme-locked]
+      //   docs-cli serve [--root <path>] [--port <port>] [--ui-port <port>] [--host <addr>] [--kernel-url <url>] [--corpus <name>] [--dev] [--rebuild] [--theme-locked]
       // Default mode vite-builds the SPA once (cached) and serves API + SPA
       // from one port; --dev spawns `vite dev` with an /api proxy instead.
       // Binds loopback unless --host is given (the docs tree may be private).
@@ -439,6 +439,8 @@ async function main() {
         dev: args.includes("--dev"),
         forceBuild: args.includes("--rebuild"),
         themeLocked: args.includes("--theme-locked"),
+        kernelUrl: flagValue(args, "--kernel-url") ?? "http://127.0.0.1:4840",
+        corpus: flagValue(args, "--corpus") ?? "docs-system",
       });
       return;
     }

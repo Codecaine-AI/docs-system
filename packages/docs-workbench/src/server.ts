@@ -61,6 +61,10 @@ export interface DocsServeAppOptions {
    * without it each origin's localStorage rail state wins and viewers drift.
    */
   themeLocked?: boolean;
+  /** Docs kernel origin exposed to the lab UI. */
+  kernelUrl?: string;
+  /** Kernel corpus this served docs tree belongs to. */
+  corpus?: string;
 }
 
 /**
@@ -96,13 +100,16 @@ export function createDocsServeApp(options: DocsServeAppOptions) {
 
   const store = createDocsStore(docsRoot);
   const themeLocked = !!options.themeLocked;
+  const kernelUrl = options.kernelUrl ?? "http://127.0.0.1:4840";
+  const corpus = options.corpus ?? "docs-system";
   const app = new Elysia()
     .use(createDocsRoutes(store, { themeLocked }))
     // Serve config lives at the WORKBENCH level, not in the docs-server
     // route table: themeLocked is a property of this serve invocation, not
     // of the docs tree, so hosts embedding createDocsRoutes directly are
     // untouched. The SPA reads it once at boot to pick its theme path.
-    .get("/api/serve-config", () => ({ themeLocked }));
+    .get("/api/serve-config", () => ({ themeLocked }))
+    .get("/api/lab-config", () => ({ kernelUrl, corpus }));
 
   if (options.watchFs) {
     // External edits (hand edits, agents, CLI writes) surface as the same

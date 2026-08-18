@@ -55,7 +55,7 @@ export const docsEditSharedTools: NonNullable<
 	if (!launch) return [];
 	// resolveSpawnConfig gives this spawn a shallow config copy. Assigning new
 	// arrays narrows only the queued session spawn: host session tools survive
-						// kernel allowlist scoping and the private whole-document tool is blocked.
+	// kernel allowlist scoping and the private whole-document tool is blocked.
 	config.tools = [...DOCS_EDIT_TOOL_NAMES];
 	config.disallowedTools = [
 		...new Set([...(config.disallowedTools ?? []), "docs_write"]),
@@ -64,9 +64,13 @@ export const docsEditSharedTools: NonNullable<
 };
 
 export interface DocsKernelDocsEditSessionOptions {
-	docsRoot: string;
+	corpora: readonly { name: string; docsRoot: string }[];
 	sessionRoot: string;
 	workingDir: string;
+}
+
+export function docsEditTraceLabel(corpus: string, path: string): string {
+	return `Edit docs: ${corpus} · ${path}`;
 }
 
 export function createDocsKernelDocsEditSessions<TToolRuntime>(
@@ -74,19 +78,23 @@ export function createDocsKernelDocsEditSessions<TToolRuntime>(
 	options: DocsKernelDocsEditSessionOptions,
 ): DocsEditSessionService {
 	return createDocsEditSessionService({
-		docsRoot: options.docsRoot,
+		corpora: options.corpora,
 		spawnAgent: async (launch) => {
 			const sessionDir = join(options.sessionRoot, launch.session.id);
 			mkdirSync(sessionDir, { recursive: true });
 			const container = await kernel.container({
 				kind: "session",
 				key: ["docs-edit", launch.session.id],
-				label: `Edit docs: ${launch.session.path}`,
+				label: docsEditTraceLabel(launch.session.corpus, launch.session.path),
 				phase: "docs-edit",
 				phaseVocabulary: ["docs-edit"],
 				workingDir: options.workingDir,
 				metadata: {
-					topic: `Edit docs: ${launch.session.path}`,
+					topic: docsEditTraceLabel(
+						launch.session.corpus,
+						launch.session.path,
+					),
+					corpus: launch.session.corpus,
 					docPath: launch.session.path,
 					docsEditSessionId: launch.session.id,
 				},

@@ -129,6 +129,7 @@ export function isFailure<T>(result: DocsKernelClientResult<T>): result is DocsK
 
 export interface CreateDocsEditSessionInput {
   path: string;
+  corpus?: string;
   instruction?: string;
   requestIds?: string[];
   extraRequests?: Array<{ target: DocsEditTarget; body: string; id?: string; author?: "human" }>;

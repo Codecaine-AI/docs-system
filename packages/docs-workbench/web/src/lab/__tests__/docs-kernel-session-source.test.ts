@@ -240,6 +240,16 @@ describe("docs kernel session source", () => {
 		).toBe("kernel launch exploded");
 	});
 
+	it("maps an unknown corpus to the kernel registration guard", () => {
+		expect(docsKernelFailureMessage({
+			ok: false,
+			status: 400,
+			errors: ["corpus: unknown corpus product-docs"],
+		})).toBe(
+			"The docs kernel doesn't serve this corpus — restart it with this corpus registered.",
+		);
+	});
+
 	it("applies through the live route and deduplicates the stream hash refresh", async () => {
 		const hashes: string[] = [];
 		const mock = mockClient({ state: session() });

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 
+import { fetchLabConfig, type LabConfig } from "../data/api";
 import { createDocsKernelClient, type DocsKernelClient } from "./docs-kernel-client";
 import {
 	createDocsKernelSessionSource,
@@ -24,13 +25,32 @@ export interface UseDocsKernelSessionResult {
 	agentConnected: boolean;
 }
 
+let labConfigPromise: Promise<LabConfig> | null = null;
+const loadLabConfig = () => (labConfigPromise ??= fetchLabConfig());
+
+const pendingClient = createDocsKernelClient({
+	fetchImpl: (async () => { throw new Error("lab config pending"); }) as unknown as typeof fetch,
+});
+
 export function useDocsKernelSession(
 	options: UseDocsKernelSessionOptions,
 ): UseDocsKernelSessionResult {
-	const client = useMemo(
-		() => options.client ?? createDocsKernelClient(),
-		[options.client],
-	);
+	const [configured, setConfigured] = useState<
+		{ client: DocsKernelClient; corpus: string } | null
+	>(null);
+	useEffect(() => {
+		if (options.client) return;
+		let active = true;
+		void loadLabConfig().then((config) => {
+			if (active) setConfigured({
+				client: createDocsKernelClient({ baseUrl: config.kernelUrl }),
+				corpus: config.corpus,
+			});
+		});
+		return () => { active = false; };
+	}, [options.client]);
+	const client = options.client ?? configured?.client ?? pendingClient;
+	const corpus = options.client ? undefined : configured?.corpus;
 	const callbacksRef = useRef({
 		onSessionEnd: options.onSessionEnd,
 		onDocChanged: options.onDocChanged,
@@ -44,10 +64,11 @@ export function useDocsKernelSession(
 		() => createDocsKernelSessionSource({
 			client,
 			path: options.path,
+			corpus,
 			onSessionEnd: () => callbacksRef.current.onSessionEnd(),
 			onDocChanged: (hash) => callbacksRef.current.onDocChanged?.(hash),
 		}),
-		[client, options.path],
+		[client, corpus, options.path],
 	);
 	const snapshot = useSyncExternalStore(
 		source.subscribe,
@@ -59,7 +80,7 @@ export function useDocsKernelSession(
 	useEffect(() => {
 		let active = true;
 		setHealthy(false);
-		if (options.enabled) {
+		if (options.enabled && (options.client || configured)) {
 			void probeKernelHealth(client).then((ok) => {
 				if (active) setHealthy(ok);
 			});
@@ -68,7 +89,7 @@ export function useDocsKernelSession(
 			active = false;
 			source.dispose();
 		};
-	}, [client, options.enabled, options.path, source]);
+	}, [client, configured, options.client, options.enabled, options.path, source]);
 
 	const applyQueue = useCallback(
 		(annotationIds: string[]) => source.applyQueue(annotationIds),

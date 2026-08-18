@@ -55,6 +55,7 @@ export interface DocsKernelSessionSource extends DocsKernelSessionHandle {
 export interface CreateDocsKernelSessionSourceOptions {
 	client: DocsKernelClient;
 	path: string;
+	corpus?: string;
 	onSessionEnd: () => void | Promise<void>;
 	onDocChanged?: (hash: string) => void | Promise<void>;
 }
@@ -162,6 +163,12 @@ export function reduceDocsEditSessionEvent(
 
 export function docsKernelFailureMessage(failure: DocsKernelClientFailure): string {
 	if (failure.offline || failure.status === 0) return "docs agent not connected";
+	if (
+		failure.status === 400 &&
+		failure.errors.some((error) => error.startsWith("corpus: unknown corpus"))
+	) {
+		return "The docs kernel doesn't serve this corpus — restart it with this corpus registered.";
+	}
 	const typed = failure.failure;
 	if (typed && typeof typed === "object" && "reason" in typed) {
 		if (typed.reason === "agent-busy") return "agent is busy with another document";
@@ -362,6 +369,7 @@ export function createDocsKernelSessionSource(
 			notify();
 			const result = await options.client.createSession({
 				path: options.path,
+				...(options.corpus ? { corpus: options.corpus } : {}),
 				...(annotationIds.length > 0 ? { requestIds: [...annotationIds] } : {}),
 			});
 			starting = false;

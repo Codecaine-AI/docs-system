@@ -73,6 +73,7 @@ export type {
 export { createDocsEditSession } from "./session";
 export type {
   CreateDocsEditSessionOptions,
+  DocsEditPathClaimResult,
   DocsEditRequestMutationResult,
   DocsEditSimpleResult,
   DocsEditSession,
@@ -99,6 +100,7 @@ export type {
   CreateDocsEditSessionInput,
   CreateDocsEditSessionResult,
   CreateDocsEditSessionServiceOptions,
+  DocsEditCorpus,
   DocsEditAnnotationOutcome,
   DocsEditAcceptAllProposalResult,
   DocsEditAcceptAllResult,

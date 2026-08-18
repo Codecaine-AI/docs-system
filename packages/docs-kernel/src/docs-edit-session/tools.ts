@@ -34,6 +34,7 @@ import type {
   DocsEditRequestEntry,
   DocsEditSessionStatus,
 } from "./types";
+import type { DocsEditPathClaimResult } from "./session";
 import { isDocsEditRequestTerminal } from "./types";
 import { renderDocsBlockMap } from "./render";
 
@@ -68,6 +69,7 @@ export type DocsEditRequestActionResult =
  */
 export interface DocsEditToolSession {
   readonly id: string;
+  readonly corpus: string;
   readonly docsRoot: string;
   readonly path: string;
   readonly docId: string;
@@ -77,6 +79,7 @@ export interface DocsEditToolSession {
   requests(): readonly DocsEditRequestEntry[];
   requestsBlock(): string;
   status(): DocsEditSessionStatus;
+  claimPaths?(paths: readonly string[]): DocsEditPathClaimResult;
   propose(
     alias: string,
     ops: DocOp[],
@@ -516,6 +519,7 @@ export function toolReadDoc(session: DocsEditToolSession): DocsEditToolResult {
         session.requestsBlock(),
       ].join("\n"),
       details: {
+        corpus: session.corpus,
         path: session.path,
         docId: document.id,
         rootBlockId: document.root,
@@ -702,10 +706,20 @@ export async function toolProposeMoveBlocks(
   const sourceDocPath = typeof params.sourceDocPath === "string"
     ? params.sourceDocPath.trim()
     : session.path;
+  let claimed: DocsEditPathClaimResult | undefined;
+  let persisted = false;
 
   try {
+    claimed = session.claimPaths?.([sourceDocPath, destDocPath]) ?? {
+      ok: true as const,
+      release: () => {},
+    };
+    if (!claimed.ok) {
+      return toolFailure("propose_move_blocks", claimed.message);
+    }
     const superseded = await session.supersedeProposals(request.alias);
     if (!superseded.ok) {
+      claimed.release();
       return toolFailure("propose_move_blocks", superseded.message);
     }
     const generated = await moveBlocksChangeSet(session.docsRoot, {
@@ -720,8 +734,10 @@ export async function toolProposeMoveBlocks(
         : {}),
     });
     if (!generated.ok) {
+      claimed.release();
       return toolFailure("propose_move_blocks", generated.detail, { status: generated.status });
     }
+    persisted = true;
     const proposals: DocsEditProposal[] = [];
     for (const entry of generated.changeset.entries) {
       const listed = await getBundleProposals(session.docsRoot, entry.docPath);
@@ -750,13 +766,14 @@ export async function toolProposeMoveBlocks(
         `STAGED · change-set ${generated.changeset.id} for ${request.alias} (held for human review — not applied)`,
         ...generated.changeset.entries.map((entry) =>
           `${entry.docPath}: +${entry.addCount} -${entry.delCount}`),
-        `annotation migrations: ${generated.changeset.annotationMigrations.length}`,
+        `annotation migrations: ${generated.changeset.annotationMigrations?.length ?? 0}`,
         "",
         session.requestsBlock(),
       ].join("\n"),
       details: { ok: true, changeset: generated.changeset },
     };
   } catch (error) {
+    if (!persisted && claimed?.ok) claimed.release();
     return toolFailure("propose_move_blocks", errorMessage(error));
   }
 }

@@ -13,7 +13,7 @@ import {
 	updateTextOp,
 	writeBundle,
 } from "../test-fixtures";
-import { toolProposeOps } from "../tools";
+import { toolProposeMoveBlocks, toolProposeOps } from "../tools";
 
 const THIRD_FIXTURE_PATH = "third";
 const tempRoots: string[] = [];
@@ -52,7 +52,109 @@ afterEach(async () => {
 });
 
 describe("docs-edit cross-doc staging", () => {
-	test("propose_ops stages into docPath and rejects a path escape without a sidecar write", async () => {
+	test("an existing session rejects cross-doc proposal and move claims before persistence", async () => {
+		const docsRoot = await makeDocsRoot();
+		const service = createDocsEditSessionService({ docsRoot });
+		const [origin, target] = await Promise.all([
+			service.createSession({ path: FIXTURE_PATH, sessionId: "origin-owner", spawn: false }),
+			service.createSession({ path: OTHER_FIXTURE_PATH, sessionId: "target-owner", spawn: false }),
+		]);
+		if (!origin.ok || !target.ok) throw new Error("failed to create collision sessions");
+		const session = service.getSession(origin.state.sessionId);
+		if (!session) throw new Error("origin session was not retained");
+
+		const proposed = await toolProposeOps(session, {
+			requestAlias: "R1",
+			docPath: OTHER_FIXTURE_PATH,
+			ops: [updateTextOp("p1", "This must not be staged.")],
+			summary: "Colliding cross-document update",
+		});
+		expect(proposed.isError).toBe(true);
+		expect(proposed.text).toContain("target-owner");
+		expect(proposed.details).toMatchObject({
+			failure: { kind: "stage_failed", status: 409 },
+		});
+
+		const moved = await toolProposeMoveBlocks(session, {
+			requestAlias: "R1",
+			blockIds: ["p1"],
+			destDocPath: OTHER_FIXTURE_PATH,
+			destPosition: 0,
+		});
+		expect(moved.isError).toBe(true);
+		expect(moved.text).toContain("target-owner");
+		expect(await pathExists(join(docsRoot, OTHER_FIXTURE_PATH, "proposals.json"))).toBe(false);
+		expect(await pathExists(join(docsRoot, ".changesets"))).toBe(false);
+		expect(session.proposals()).toHaveLength(0);
+	});
+
+	test("concurrent creates atomically reserve one corpus path", async () => {
+		const docsRoot = await makeDocsRoot();
+		const service = createDocsEditSessionService({ docsRoot });
+		const results = await Promise.all([
+			service.createSession({ path: FIXTURE_PATH, sessionId: "racer-one", spawn: false }),
+			service.createSession({ path: `${FIXTURE_PATH}/doc.json`, sessionId: "racer-two", spawn: false }),
+		]);
+		const created = results.filter((result) => result.ok);
+		const busy = results.filter((result) => !result.ok && result.reason === "agent-busy");
+		expect(created).toHaveLength(1);
+		expect(busy).toHaveLength(1);
+		if (!created[0]?.ok || busy[0]?.ok || busy[0]?.reason !== "agent-busy") return;
+		expect(busy[0].sessionId).toBe(created[0].state.sessionId);
+	});
+
+	test("failed staging and disposal release newly reserved paths", async () => {
+		const docsRoot = await makeDocsRoot();
+		const service = createDocsEditSessionService({ docsRoot });
+		const failedLaunch = await service.createSession({
+			path: "missing-at-launch",
+			sessionId: "failed-launch-owner",
+			spawn: false,
+		});
+		expect(failedLaunch).toMatchObject({ ok: false, reason: "unknown-doc" });
+		await writeBundle(docsRoot, "missing-at-launch", {
+			doc: fixtureDoc({ id: "launch-retry", title: "Launch Retry" }),
+		});
+		expect(await service.createSession({
+			path: "missing-at-launch",
+			sessionId: "launch-retry-owner",
+			spawn: false,
+		})).toMatchObject({ ok: true });
+
+		const created = await service.createSession({
+			path: FIXTURE_PATH,
+			sessionId: "release-owner",
+			spawn: false,
+		});
+		if (!created.ok) throw new Error(`session create failed: ${created.reason}`);
+		const session = service.getSession(created.state.sessionId);
+		if (!session) throw new Error("release session was not retained");
+
+		const failedStage = await toolProposeOps(session, {
+			requestAlias: "R1",
+			docPath: "created-later",
+			ops: [updateTextOp("p1", "No document exists yet.")],
+			summary: "Fail before proposal persistence",
+		});
+		expect(failedStage.isError).toBe(true);
+		await writeBundle(docsRoot, "created-later", {
+			doc: fixtureDoc({ id: "created-later", title: "Created Later" }),
+		});
+		expect(await service.createSession({
+			path: "created-later",
+			sessionId: "later-owner",
+			spawn: false,
+		})).toMatchObject({ ok: true });
+
+		expect(service.dispose(created.state.sessionId)).toBe(true);
+		expect(await service.createSession({
+			path: FIXTURE_PATH,
+			sessionId: "replacement-owner",
+			spawn: false,
+		})).toMatchObject({ ok: true });
+	});
+
+	test("cross-doc tools reject path escapes without a sidecar write", async () => {
 		const docsRoot = await makeDocsRoot();
 		const service = createDocsEditSessionService({ docsRoot });
 		const created = await service.createSession({
@@ -80,6 +182,16 @@ describe("docs-edit cross-doc staging", () => {
 			await pathExists(join(docsRoot, "..", "escape", "proposals.json")),
 		).toBe(false);
 		expect(session.proposals()).toHaveLength(0);
+
+		const escapedMove = await toolProposeMoveBlocks(session, {
+			requestAlias: "R1",
+			blockIds: ["p1"],
+			destDocPath: "../escape",
+			destPosition: 0,
+		});
+		expect(escapedMove.isError).toBe(true);
+		expect(escapedMove.text).toContain("Invalid docs path: ../escape");
+		expect(await pathExists(join(docsRoot, ".changesets"))).toBe(false);
 
 		const staged = await toolProposeOps(session, {
 			requestAlias: "R1",

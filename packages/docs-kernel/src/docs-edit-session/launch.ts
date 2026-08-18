@@ -2,7 +2,11 @@ import type { DocChangeSetView } from "@codecaine-ai/docs-server";
 import type { DocsEditProposal, DocsEditRequestInput } from "./types";
 import type { SkippedDocsAnnotation } from "./from-annotations";
 import { loadDocsEditRequestsFromAnnotations } from "./from-annotations";
-import { createDocsEditSession, type DocsEditSession } from "./session";
+import {
+  createDocsEditSession,
+  type DocsEditPathClaimResult,
+  type DocsEditSession,
+} from "./session";
 import { docsEditSessionTools } from "./tools";
 import {
   sessionDataForDocsEditSession,
@@ -11,6 +15,7 @@ import {
 
 export interface LaunchDocsEditSessionOptions {
   docsRoot: string;
+  corpus?: string;
   path: string;
   requestIds?: readonly string[];
   extraRequests?: DocsEditRequestInput[];
@@ -18,6 +23,7 @@ export interface LaunchDocsEditSessionOptions {
   sessionId?: string;
   /** Service-owned persistence hook; direct launch callers can omit it. */
   onProposalStaged?: (proposal: DocsEditProposal) => void | Promise<void>;
+  claimPaths?: (paths: readonly string[]) => DocsEditPathClaimResult;
   onChangeSetStaged?: (changeset: DocChangeSetView) => void | Promise<void>;
   onProposalsSuperseded?: (
     alias: string,
@@ -87,6 +93,7 @@ export async function launchDocsEditSession(
 
   const session = createDocsEditSession({
     docsRoot: options.docsRoot,
+    corpus: options.corpus,
     path: loaded.path,
     document: loaded.document,
     baseHash: loaded.docHash,
@@ -94,6 +101,7 @@ export async function launchDocsEditSession(
     instruction: options.instruction,
     sessionId: options.sessionId,
     onProposalStaged: options.onProposalStaged,
+    claimPaths: options.claimPaths,
     onChangeSetStaged: options.onChangeSetStaged,
     onProposalsSuperseded: options.onProposalsSuperseded,
   });

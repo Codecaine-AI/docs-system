@@ -70,6 +70,13 @@ export type BacklinkRow = {
   updatedAt: string;
 };
 
+export type LabConfig = { kernelUrl: string; corpus: string };
+
+export const DEFAULT_LAB_CONFIG: LabConfig = {
+  kernelUrl: "http://127.0.0.1:4840",
+  corpus: "docs-system",
+};
+
 /** Error carrying the HTTP status + parsed body, so callers can branch on 409/423/404. */
 export class ApiError extends Error {
   readonly status: number;
@@ -133,6 +140,15 @@ function bundlePathOf(path: string): string {
 // ---------------------------------------------------------------------------
 // Reads (serve + static)
 // ---------------------------------------------------------------------------
+
+/** Static exports have no config route, so every failure preserves localhost defaults. */
+export async function fetchLabConfig(): Promise<LabConfig> {
+  try {
+    return await fetchJson<LabConfig>(`api/lab-config`);
+  } catch {
+    return DEFAULT_LAB_CONFIG;
+  }
+}
 
 export async function getTree(): Promise<{ tree: DocsTreeNode[] }> {
   if (IS_STATIC) return fetchJson(`data/tree.json`);

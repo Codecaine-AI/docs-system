@@ -6,8 +6,8 @@
  * agent-kernel catalog remain resolvable for legacy spawns, but are not listed
  * as docs-system agents.
  */
-import { existsSync, mkdirSync } from "node:fs";
-import { isAbsolute, join, resolve } from "node:path";
+import { existsSync, mkdirSync, readFileSync, statSync } from "node:fs";
+import { basename, dirname, isAbsolute, join, resolve } from "node:path";
 
 import {
 	ensureKernelObservabilitySchema,
@@ -52,6 +52,8 @@ export interface DocsKernelBootOptions {
 	rootDir?: string;
 	/** Override for tests or nonstandard local layouts. */
 	dbPath?: string;
+	corpora?: DocsKernelCorpus[];
+	/** Legacy single-corpus override. */
 	docsRoot?: string;
 	piAgentDir?: string;
 	docsWriterModel?: string;
@@ -60,11 +62,19 @@ export interface DocsKernelBootOptions {
 	agentKernelCatalogDir?: string;
 }
 
+export interface DocsKernelCorpus {
+	name: string;
+	docsRoot: string;
+}
+
 export interface DocsKernelBoot {
 	rootDir: string;
 	kernelRoot: string;
 	kernelId: string;
 	dbPath: string;
+	/** Ordered corpora; the first corpus is the default. */
+	corpora: DocsKernelCorpus[];
+	/** Compatibility alias for the default corpus root. */
 	docsRoot: string;
 	piSessionsDir: string;
 	piAgentDir: string;
@@ -81,6 +91,134 @@ export interface DocsKernelBoot {
 
 function resolveAgainst(base: string, path: string): string {
 	return isAbsolute(path) ? path : resolve(base, path);
+}
+
+interface DocsCorporaEnvironment {
+	DOCS_KERNEL_DOCS_ROOTS?: string;
+	DOCS_KERNEL_CORPORA_FILE?: string;
+	DOCS_KERNEL_DOCS_ROOT?: string;
+}
+
+interface ResolveDocsCorporaContext {
+	rootDir: string;
+	env?: DocsCorporaEnvironment;
+	cwd?: string;
+	warn?: (message: string) => void;
+}
+
+interface CorporaFileShape {
+	corpora: DocsKernelCorpus[];
+}
+
+function parseCorporaFile(path: string): DocsKernelCorpus[] {
+	let parsed: unknown;
+	try {
+		parsed = JSON.parse(readFileSync(path, "utf8"));
+	} catch (error) {
+		throw new Error(
+			`docs-kernel corpora file could not be read at ${path}: ${error instanceof Error ? error.message : String(error)}`,
+		);
+	}
+
+	const corpora = (parsed as Partial<CorporaFileShape> | null)?.corpora;
+	if (!Array.isArray(corpora)) {
+		throw new Error(
+			`docs-kernel corpora file at ${path} must contain a corpora array`,
+		);
+	}
+	return corpora.map((entry, index) => {
+		if (
+			!entry
+			|| typeof entry.name !== "string"
+			|| entry.name.trim().length === 0
+			|| typeof entry.docsRoot !== "string"
+			|| entry.docsRoot.trim().length === 0
+		) {
+			throw new Error(
+				`docs-kernel corpora file at ${path} has an invalid entry at index ${index}`,
+			);
+		}
+		return {
+			name: entry.name.trim(),
+			docsRoot: resolve(dirname(path), entry.docsRoot.trim()),
+		};
+	});
+}
+
+function parseEnvCorpora(value: string, cwd: string): DocsKernelCorpus[] {
+	return value.split(",").map((pair, index) => {
+		const separator = pair.indexOf("=");
+		const name = separator === -1 ? "" : pair.slice(0, separator).trim();
+		const docsRoot = separator === -1 ? "" : pair.slice(separator + 1).trim();
+		if (!name || !docsRoot) {
+			throw new Error(
+				`DOCS_KERNEL_DOCS_ROOTS entry ${index + 1} must be a name=path pair`,
+			);
+		}
+		return { name, docsRoot: resolve(cwd, docsRoot) };
+	});
+}
+
+function isDirectory(path: string): boolean {
+	try {
+		return statSync(path).isDirectory();
+	} catch {
+		return false;
+	}
+}
+
+/** Resolve, normalize, and validate the ordered docs corpora used at boot. */
+export function resolveDocsKernelCorpora(
+	options: Pick<DocsKernelBootOptions, "corpora" | "docsRoot">,
+	context: ResolveDocsCorporaContext,
+): DocsKernelCorpus[] {
+	const env = context.env ?? Bun.env;
+	const cwd = context.cwd ?? process.cwd();
+	const warn = context.warn ?? console.warn;
+	let candidates: DocsKernelCorpus[];
+
+	if (options.corpora !== undefined) {
+		candidates = options.corpora.map(({ name, docsRoot }) => ({
+			name,
+			docsRoot: resolve(cwd, docsRoot),
+		}));
+	} else if (env.DOCS_KERNEL_DOCS_ROOTS) {
+		candidates = parseEnvCorpora(env.DOCS_KERNEL_DOCS_ROOTS, cwd);
+	} else {
+		const configuredCorporaFile = env.DOCS_KERNEL_CORPORA_FILE;
+		const corporaFile = configuredCorporaFile
+			? resolve(cwd, configuredCorporaFile)
+			: join(context.rootDir, "docs-kernel.corpora.json");
+		if (configuredCorporaFile || existsSync(corporaFile)) {
+			candidates = parseCorporaFile(corporaFile);
+		} else {
+			const legacyDocsRoot = options.docsRoot ?? env.DOCS_KERNEL_DOCS_ROOT;
+			if (legacyDocsRoot) {
+				const docsRoot = resolve(cwd, legacyDocsRoot);
+				candidates = [{
+					name: basename(dirname(docsRoot)),
+					docsRoot,
+				}];
+			} else {
+				candidates = [{
+					name: "docs-system",
+					docsRoot: join(context.rootDir, "docs"),
+				}];
+			}
+		}
+	}
+
+	const corpora = candidates.filter((corpus) => {
+		if (isDirectory(corpus.docsRoot)) return true;
+		warn(
+			`docs-kernel: docs root for corpus ${corpus.name} not found at ${corpus.docsRoot}; skipping.`,
+		);
+		return false;
+	});
+	if (corpora.length === 0) {
+		throw new Error("docs-kernel: no valid docs corpora found");
+	}
+	return corpora;
 }
 
 async function readDocsManifest(
@@ -126,11 +264,8 @@ export async function bootDocsKernel(
 			?? Bun.env.DOCS_KERNEL_PI_AGENT_DIR
 			?? DEFAULT_PI_AGENT_DIR,
 	);
-	const docsRoot = resolve(
-		options.docsRoot
-			?? Bun.env.DOCS_KERNEL_DOCS_ROOT
-			?? join(rootDir, "docs"),
-	);
+	const corpora = resolveDocsKernelCorpora(options, { rootDir });
+	const docsRoot = corpora[0]!.docsRoot;
 	const catalogRoots = (
 		manifest?.catalogRoots ?? [join(rootDir, "catalog")]
 	).map((root) => resolveAgainst(rootDir, root));
@@ -206,6 +341,7 @@ export async function bootDocsKernel(
 			kernelRoot,
 			kernelId: manifest?.kernelId ?? KERNEL_ID,
 			dbPath,
+			corpora,
 			docsRoot,
 			piSessionsDir,
 			piAgentDir,

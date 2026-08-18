@@ -17,6 +17,21 @@ afterAll(async () => {
 });
 
 describe("docs kernel CORS", () => {
+	test("health reports ordered corpora", async () => {
+		const response = await harness.app.handle(
+			new Request("http://localhost/health"),
+		);
+		expect(response.status).toBe(200);
+		expect(await response.json()).toEqual({
+			status: "ok",
+			kernel: harness.boot.kernel.id,
+			corpora: harness.boot.corpora.map(({ name, docsRoot }) => ({
+				name,
+				docsRoot,
+			})),
+		});
+	});
+
 	test.each([
 		["health", new Request("http://localhost/health"), 200],
 		[
@@ -41,6 +56,7 @@ describe("docs kernel CORS", () => {
 
 test("catalog listing includes only docs-system catalog bundles", async () => {
 	const root = mkdtempSync(join(tmpdir(), "docs-kernel-catalog-listing-"));
+	mkdirSync(join(root, "docs"), { recursive: true });
 	const docsAgentDir = join(root, "catalog", "docs-lab-editor");
 	const genericAgentDir = join(root, "agent-kernel-catalog", "generic-fixture");
 	const prompt = JSON.stringify({

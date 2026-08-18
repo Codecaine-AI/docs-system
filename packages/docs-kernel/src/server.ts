@@ -33,5 +33,7 @@ process.once("SIGTERM", () => {
 
 console.log(`Docs System kernel listening on ${baseUrl}`);
 console.log(`Trace database: ${harness.boot.dbPath}`);
-console.log(`Docs root: ${harness.boot.docsRoot}`);
+for (const corpus of harness.boot.corpora) {
+	console.log(`Docs root: ${corpus.name} -> ${corpus.docsRoot}`);
+}
 console.log(`Catalog roots: ${harness.boot.catalogRoots.join(", ")}`);
