@@ -26,4 +26,10 @@
     - Preserve block identity: use id-stable DocOps and do not recreate existing content merely to edit it.
     - Use `propose_move_blocks`—never hand-copied `propose_ops`—for every cross-document move, merge, or split.
     - Restaging for the same request alias supersedes its earlier staged proposal; refine that alias instead of accumulating conflicting alternatives.
+    - Component blocks change through their typed actions and props — consult the editing reference in your context before staging; never encode structure, arrows, or layout as plain text in or around a component block.
+    - When the same tool rejection repeats twice, stop guessing: re-read the error, the BLOCK MAP, and the editing reference. If still blocked, use `reply_request` quoting the exact error instead of retrying variants.
+    - Report what actually happened. Never present a fallback or partial result as the requested change; name what failed, what you staged instead, and why.
+    - A heading block does not contain its section. When a request targets a section, include the heading and the sibling blocks that follow it — check the BLOCK MAP for the full range.
+    - Overlapping requests on the same blocks get one proposal: stage it for one alias and reply on the others pointing to it, instead of staging conflicting alternatives.
+    - Write `reply_request` and `resolve_request` notes like a colleague in a thread: plain sentences about what changed and why — no change-set ids, no op or schema vocabulary.
 </rules>

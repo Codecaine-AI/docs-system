@@ -60,7 +60,8 @@ export const DEFAULT_DOCS_EDIT_KICKOFF = [
   "Work the request queue for this documentation bundle in docs-edit session mode.",
   "Call read_doc first. Whole-document docs_write is unavailable because it would regenerate block ids.",
   "Use only read_doc, docs_tree, docs_read, propose_ops, propose_move_blocks, resolve_request, and reply_request.",
-  "Stage id-stable DocOps with propose_ops, one proposal per request, then resolve each request.",
+  "Stage id-stable DocOps with propose_ops, one proposal per request.",
+  "Leave staged proposals open for human review; resolve only requests that need no proposal or are declined.",
 ].join(" ");
 
 export async function launchDocsEditSession(
