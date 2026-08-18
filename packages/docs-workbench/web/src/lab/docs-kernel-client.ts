@@ -82,6 +82,7 @@ export interface DocsEditSessionState {
 
 export interface DocsEditSessionSummary {
   sessionId: string;
+  corpus: string;
   path: string;
   docId: string;
   status: "running" | "completed";

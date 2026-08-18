@@ -60,9 +60,18 @@ function mockClient(createResult: Awaited<ReturnType<DocsKernelClient["createSes
 	let onError: ((error: Error) => void) | undefined;
 	let subscriptions = 0;
 	let disposals = 0;
+	let creates = 0;
 	const client = {
 		health: async () => true,
-		createSession: async () => createResult,
+		createSession: async () => {
+			creates += 1;
+			return createResult;
+		},
+		getSession: async () =>
+			isCreateSuccess(createResult)
+				? createResult
+				: { state: session() },
+		listSessions: async () => ({ sessions: [] }),
 		subscribeSessionEvents: (
 			_id: string,
 			next: (event: DocsEditSessionStreamEvent) => void,
@@ -91,7 +100,14 @@ function mockClient(createResult: Awaited<ReturnType<DocsKernelClient["createSes
 		failStream: () => onError?.(new Error("docs edit session stream dropped")),
 		subscriptions: () => subscriptions,
 		disposals: () => disposals,
+		creates: () => creates,
 	};
+}
+
+function isCreateSuccess(
+	result: Awaited<ReturnType<DocsKernelClient["createSession"]>>,
+): result is { state: DocsEditSessionState } {
+	return !("ok" in result && result.ok === false);
 }
 
 const flush = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
@@ -109,7 +125,113 @@ const changeset = (summary: string) => ({
 	progress: { accepted: 0, total: 0 },
 });
 
+const summary = (path: string) => ({
+	sessionId: "session-1",
+	corpus: "product-docs",
+	path,
+	docId: "doc-1",
+	status: "running" as const,
+	createdAt: "2026-01-01T00:00:00.000Z",
+	baseHash: "hash-1",
+	currentHash: "hash-1",
+	requestCount: 1,
+	proposalCount: 1,
+	appliedCount: 0,
+	scope: ["ann-1"],
+});
+
 describe("docs kernel session source", () => {
+	it("reattaches a matching live session on startup", async () => {
+		const mock = mockClient({ state: session() });
+		mock.client.listSessions = async () => ({
+			sessions: [{
+				sessionId: "session-1",
+				corpus: "product-docs",
+				path: "guide/doc.json",
+				docId: "doc-1",
+				status: "running",
+				createdAt: "2026-01-01T00:00:00.000Z",
+				baseHash: "hash-1",
+				currentHash: "hash-1",
+				requestCount: 1,
+				proposalCount: 1,
+				appliedCount: 0,
+				scope: ["ann-1"],
+			}],
+		});
+		const source = createDocsKernelSessionSource({
+			client: mock.client,
+			corpus: "product-docs",
+			path: "guide/",
+			onSessionEnd() {},
+		});
+
+		await flush();
+
+		expect(source.sessionId()).toBe("session-1");
+		expect(mock.subscriptions()).toBe(1);
+		expect(mock.creates()).toBe(0);
+	});
+
+	it("reattaches the matching owner after an agent-busy create failure", async () => {
+		const mock = mockClient({
+			ok: false,
+			status: 409,
+			errors: ["busy"],
+			failure: { reason: "agent-busy", sessionId: "session-1", path: "guide" },
+		});
+		mock.client.listSessions = async () => ({
+			sessions: [{ ...summary("guide"), corpus: "product-docs" }],
+		});
+		let lists = 0;
+		const listSessions = mock.client.listSessions;
+		mock.client.listSessions = async () => {
+			lists += 1;
+			return lists === 1 ? { sessions: [] } : listSessions();
+		};
+		const source = createDocsKernelSessionSource({ client: mock.client, corpus: "product-docs", path: "guide", onSessionEnd() {} });
+
+		await source.applyQueue(["ann-1"]);
+
+		expect(source.sessionId()).toBe("session-1");
+		expect(source.getSnapshot().sessionError).toBeUndefined();
+		expect(mock.subscriptions()).toBe(1);
+	});
+
+	it("names a different owner path after an agent-busy create failure", async () => {
+		const mock = mockClient({
+			ok: false,
+			status: 409,
+			errors: ["busy"],
+			failure: { reason: "agent-busy", sessionId: "session-1", path: "other-guide" },
+		});
+		let lists = 0;
+		mock.client.listSessions = async () => ({
+			sessions: lists++ === 0 ? [] : [{ ...summary("other-guide"), corpus: "product-docs" }],
+		});
+		const source = createDocsKernelSessionSource({ client: mock.client, corpus: "product-docs", path: "guide", onSessionEnd() {} });
+
+		await source.applyQueue(["ann-1"]);
+
+		expect(source.getSnapshot().sessionError).toBe(
+			"The docs agent is busy with another document (other-guide).",
+		);
+		expect(source.getSnapshot().live).toBe(false);
+	});
+
+	it("silently ignores startup listing failure and creates later", async () => {
+		const mock = mockClient({ state: session() });
+		mock.client.listSessions = async () => ({ ok: false, status: 0, errors: [], offline: true });
+		const source = createDocsKernelSessionSource({ client: mock.client, corpus: "product-docs", path: "guide", onSessionEnd() {} });
+
+		await flush();
+		expect(source.getSnapshot().live).toBe(false);
+		expect(source.getSnapshot().sessionError).toBeUndefined();
+
+		await source.applyQueue(["ann-1"]);
+		expect(source.sessionId()).toBe("session-1");
+		expect(mock.creates()).toBe(1);
+	});
 	it("derives applying across session creation, a running turn, and settlement", async () => {
 		let resolveCreate!: (result: { state: DocsEditSessionState }) => void;
 		const creating = new Promise<{ state: DocsEditSessionState }>((resolve) => {
@@ -223,8 +345,12 @@ describe("docs kernel session source", () => {
 
 	it("treats a recovery 404 like a session-disposed event", async () => {
 		let ends = 0;
+		let gets = 0;
 		const mock = mockClient({ state: session() });
-		mock.client.getSession = async () => ({ ok: false, status: 404, errors: ["gone"] });
+		mock.client.getSession = async () =>
+			gets++ === 0
+				? { state: session() }
+				: { ok: false, status: 404, errors: ["gone"] };
 		const source = createDocsKernelSessionSource({ client: mock.client, path: "guide", onSessionEnd: () => { ends += 1; } });
 		await source.applyQueue(["ann-1"]);
 
@@ -238,8 +364,13 @@ describe("docs kernel session source", () => {
 
 	it("surfaces a fallback error after recovery retries fail", async () => {
 		let attempts = 0;
+		let initialGet = true;
 		const mock = mockClient({ state: session() });
 		mock.client.getSession = async () => {
+			if (initialGet) {
+				initialGet = false;
+				return { state: session() };
+			}
 			attempts += 1;
 			return { ok: false, status: 0, errors: [], offline: true };
 		};
@@ -272,7 +403,7 @@ describe("docs kernel session source", () => {
 		const notificationsAtDispose = notifications;
 		await wait(350);
 
-		expect(attempts).toBe(0);
+		expect(attempts).toBe(1);
 		expect(mock.subscriptions()).toBe(1);
 		expect(notifications).toBe(notificationsAtDispose);
 	});
@@ -281,7 +412,7 @@ describe("docs kernel session source", () => {
 		const busy = mockClient({ ok: false, status: 409, errors: ["busy"], failure: { reason: "agent-busy" } });
 		const busySource = createDocsKernelSessionSource({ client: busy.client, path: "guide", onSessionEnd() {} });
 		await busySource.applyQueue(["ann-1"]);
-		expect(busySource.getSnapshot().sessionError).toBe("agent is busy with another document");
+		expect(busySource.getSnapshot().sessionError).toBe("The docs agent is busy with another document.");
 		expect(busySource.getSnapshot().live).toBe(false);
 		expect(busy.subscriptions()).toBe(0);
 

@@ -171,7 +171,9 @@ export function docsKernelFailureMessage(failure: DocsKernelClientFailure): stri
 	}
 	const typed = failure.failure;
 	if (typed && typeof typed === "object" && "reason" in typed) {
-		if (typed.reason === "agent-busy") return "agent is busy with another document";
+		if (typed.reason === "agent-busy") {
+			return "The docs agent is busy with another document.";
+		}
 		if (typed.reason === "unknown-doc") {
 			return "The docs agent is running against a different docs root — it doesn't know this document.";
 		}
@@ -215,6 +217,18 @@ const TERMINAL = new Set<DocEditRequestStatus>([
 	"failed",
 ]);
 
+function normalizedDocPath(path: string): string {
+	const withForwardSlashes = path.replaceAll("\\", "/");
+	if (withForwardSlashes.toLowerCase() === "doc.json") return "";
+	if (withForwardSlashes.toLowerCase().endsWith("/doc.json")) {
+		return withForwardSlashes.slice(0, -"/doc.json".length);
+	}
+	if (withForwardSlashes.toLowerCase().endsWith(".json")) {
+		return withForwardSlashes.slice(0, -".json".length);
+	}
+	return withForwardSlashes.replace(/\/+$/, "");
+}
+
 export function createDocsKernelSessionSource(
 	options: CreateDocsKernelSessionSourceOptions,
 ): DocsKernelSessionSource {
@@ -228,6 +242,7 @@ export function createDocsKernelSessionSource(
 	let recoveryTimer: ReturnType<typeof setTimeout> | null = null;
 	let recoveryGeneration = 0;
 	let recoveringSession: string | null = null;
+	let attaching = false;
 	let disposed = false;
 	let snapshot: DocsKernelSessionSnapshot | null = null;
 	let lastChangedHash: string | null = null;
@@ -337,6 +352,27 @@ export function createDocsKernelSessionSource(
 		);
 	}
 
+	async function attach(sessionId: string): Promise<boolean> {
+		if (disposed || state !== null || attaching) return false;
+		attaching = true;
+		try {
+			const result = await options.client.getSession(sessionId);
+			if (disposed || state !== null || isFailure(result)) return false;
+			state = result.state;
+			sessionError = undefined;
+			streamError = undefined;
+			lastChangedHash = result.state.currentHash;
+			subscribeStream(result.state.sessionId);
+			notify();
+			releaseSettledSession();
+			return true;
+		} catch {
+			return false;
+		} finally {
+			attaching = false;
+		}
+	}
+
 	function recoverStream(sessionId: string): void {
 		if (
 			disposed ||
@@ -428,14 +464,37 @@ export function createDocsKernelSessionSource(
 		return { ok: true };
 	}
 
+	const startupReattach = (async () => {
+		try {
+			const result = await options.client.listSessions();
+			if (disposed || state !== null || isFailure(result)) return;
+			const path = normalizedDocPath(options.path);
+			const match = result.sessions.find(
+				(candidate) =>
+					candidate.corpus === options.corpus &&
+					normalizedDocPath(candidate.path) === path,
+			);
+			if (match) await attach(match.sessionId);
+		} catch {
+			// Startup discovery is best-effort; remain detached on failure.
+		}
+	})();
+
 	const api: DocsKernelSessionSource = {
 		async applyQueue(annotationIds) {
-			if (state !== null || starting) return;
+			if (disposed || state !== null || starting || attaching) return;
 			changesets.clear();
 			starting = true;
 			startingAnnotationIds = new Set(annotationIds);
 			sessionError = undefined;
 			notify();
+			await startupReattach;
+			if (disposed || state !== null || attaching) {
+				starting = false;
+				startingAnnotationIds.clear();
+				notify();
+				return;
+			}
 			const result = await options.client.createSession({
 				path: options.path,
 				...(options.corpus ? { corpus: options.corpus } : {}),
@@ -443,17 +502,44 @@ export function createDocsKernelSessionSource(
 			});
 			starting = false;
 			startingAnnotationIds.clear();
+			if (disposed) return;
 			if (isFailure(result)) {
+				const typed = result.failure;
+				if (
+					typed &&
+					typeof typed === "object" &&
+					typed.reason === "agent-busy" &&
+					typeof typed.sessionId === "string"
+				) {
+					try {
+						const listed = await options.client.listSessions();
+						if (!disposed && !isFailure(listed)) {
+							const owner = listed.sessions.find(
+								(candidate) => candidate.sessionId === typed.sessionId,
+							);
+							if (
+								owner &&
+								owner.corpus === options.corpus &&
+								normalizedDocPath(owner.path) === normalizedDocPath(options.path)
+							) {
+								await attach(owner.sessionId);
+								return;
+							}
+							if (owner) {
+								sessionError = `The docs agent is busy with another document (${owner.path}).`;
+								notify();
+								return;
+							}
+						}
+					} catch {
+						// Fall through to the generic busy message.
+					}
+				}
 				sessionError = docsKernelFailureMessage(result);
 				notify();
 				return;
 			}
-			state = result.state;
-			streamError = undefined;
-			lastChangedHash = result.state.currentHash;
-			subscribeStream(result.state.sessionId);
-			notify();
-			releaseSettledSession();
+			await attach(result.state.sessionId);
 		},
 
 		accept(annotationId) {
