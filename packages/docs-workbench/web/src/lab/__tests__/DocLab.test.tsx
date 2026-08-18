@@ -8,7 +8,7 @@ import type {
 	DocChangeSetView,
 } from "@codecaine-ai/docs-viewer/lab";
 
-import { DocLab, type DocLabProps } from "../DocLab";
+import { DocLab } from "../DocLab";
 import type { DocLabSessionResult } from "../doc-lab-controller";
 import { labelForTarget } from "../target-label";
 import { consumeAiModeHandoff } from "../doc-lab-changesets";
@@ -97,22 +97,6 @@ function proposal(alias: string): DocEditProposal {
 	};
 }
 
-function threads(): DocLabProps["threads"] {
-	return {
-		annotations: [],
-		document: DOC,
-		canvases: null,
-		selection: null,
-		onClearSelection: mock(() => {}),
-		onAddAnnotation: mock(async () => {}),
-		onAddReply: mock(async () => {}),
-		onResolveAnnotation: mock(async () => {}),
-		onFocusTarget: mock(() => {}),
-		isSubmitting: false,
-		error: null,
-	};
-}
-
 function lab(
 	session: DocEditSession,
 	overrides: Partial<DocLabSessionResult> = {},
@@ -192,7 +176,7 @@ describe("labelForTarget", () => {
 });
 
 describe("DocLab", () => {
-	it("mounts change-set cards before threads and preserves AI mode on row navigation", () => {
+	it("mounts change-set cards without a threads list and preserves AI mode on row navigation", () => {
 		consumeAiModeHandoff();
 		window.location.hash = "#/guide";
 		const changeset: DocChangeSetView = {
@@ -217,14 +201,12 @@ describe("DocLab", () => {
 				<DocLab tab="ai" onTabSelect={mock(() => {})} doc={DOC}
 					openDocPath="guide" outlineScrollerSelector="[data-test-scroller]"
 					lab={lab({ requests: [], proposals: [] }, { changesets: [changeset] })}
-					threads={threads()} onFocusTarget={mock(() => {})} />
+					onFocusTarget={mock(() => {})} />
 			</div>,
 		);
 		const card = document.querySelector('[data-docs-lab-changeset="cs-1"]');
-		const threadZone = document.querySelector('[data-lab-zone="threads"]');
 		expect(card).toBeTruthy();
-		expect(threadZone).toBeTruthy();
-		expect(Boolean(card!.compareDocumentPosition(threadZone!) & Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true);
+		expect(document.querySelector('[data-lab-zone="threads"]')).toBeNull();
 
 		fireEvent.click(document.querySelector('[data-docs-lab-changeset-row="reference/api"]')!);
 		expect(window.location.hash).toBe("#/reference/api");
@@ -242,7 +224,6 @@ describe("DocLab", () => {
 					doc={DOC}
 					outlineScrollerSelector="[data-test-scroller]"
 					lab={lab({ requests: [], proposals: [] })}
-					threads={threads()}
 					onFocusTarget={mock(() => {})}
 				/>
 			</div>,
@@ -270,7 +251,7 @@ describe("DocLab", () => {
 						proposalsError: "Could not load proposals",
 						requestErrors: { R1: "Request failed" },
 					})}
-					threads={threads()}
+					annotationsError="Could not load annotations"
 					onFocusTarget={mock(() => {})}
 				/>
 			</div>,
@@ -281,6 +262,9 @@ describe("DocLab", () => {
 		expect(apply.getAttribute("title")).toBe("docs agent not connected");
 		expect(document.querySelector('[data-docs-lab-card-conflict="R1"]')).toBeTruthy();
 		expect(screen.getByText("Could not load proposals")).toBeTruthy();
+		expect(
+			document.querySelector("[data-docs-lab-annotations-error]")?.textContent,
+		).toBe("Could not load annotations");
 		expect(screen.getByText("R1: Request failed")).toBeTruthy();
 	});
 
@@ -295,7 +279,6 @@ describe("DocLab", () => {
 			onTabSelect: mock(() => {}),
 			doc: DOC,
 			outlineScrollerSelector: "[data-test-scroller]",
-			threads: threads(),
 			onFocusTarget: mock(() => {}),
 		};
 		const view = render(
@@ -355,7 +338,6 @@ describe("DocLab", () => {
 			onTabSelect: mock(() => {}),
 			doc: DOC,
 			outlineScrollerSelector: "[data-test-scroller]",
-			threads: threads(),
 			onFocusTarget: mock(() => {}),
 		};
 		const view = render(
@@ -399,7 +381,6 @@ describe("DocLab", () => {
 					doc={DOC}
 					outlineScrollerSelector="[data-test-scroller]"
 					lab={lab(session)}
-					threads={threads()}
 					onFocusTarget={mock(() => {})}
 				/>
 			</div>,

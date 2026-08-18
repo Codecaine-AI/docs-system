@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, type ComponentProps } from "react";
+import { useCallback, useMemo } from "react";
 import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import {
 	GlassPanel,
@@ -16,7 +16,6 @@ import {
 	type LabPanelTab,
 } from "@codecaine-ai/docs-viewer/lab";
 
-import { ActionPane } from "../pages/ActionPane";
 import type { DocLabSessionResult } from "./doc-lab-controller";
 import { navigateToDoc } from "./doc-lab-changesets";
 import { labelForTarget } from "./target-label";
@@ -29,7 +28,7 @@ export interface DocLabProps {
 	openDocPath?: string;
 	outlineScrollerSelector: string;
 	lab: DocLabSessionResult;
-	threads: ComponentProps<typeof ActionPane>;
+	annotationsError?: string | null;
 	/** Focuses a queue target in the document surface. */
 	onFocusTarget: (target: DocEditTarget) => void;
 	/** Reports the panel's rendered width so the host rail can reserve it. */
@@ -47,7 +46,7 @@ export function DocLab({
 	openDocPath,
 	outlineScrollerSelector,
 	lab,
-	threads,
+	annotationsError,
 	onFocusTarget,
 	onPanelWidthChange,
 }: DocLabProps) {
@@ -137,6 +136,14 @@ export function DocLab({
 								{lab.proposalsError}
 							</p>
 						) : null}
+						{annotationsError ? (
+							<p
+								data-docs-lab-annotations-error=""
+								className="px-1.5 py-1 text-xs text-destructive"
+							>
+								{annotationsError}
+							</p>
+						) : null}
 						{requestErrors.map(([alias, message]) => (
 							<p
 								key={alias}
@@ -146,9 +153,6 @@ export function DocLab({
 								{alias}: {message}
 							</p>
 						))}
-						<PanelZone id="threads" label="Threads">
-							<ActionPane {...threads} />
-						</PanelZone>
 					</PanelQueue>
 				</div>
 			)}

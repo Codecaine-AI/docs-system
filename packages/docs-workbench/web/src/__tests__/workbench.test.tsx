@@ -705,16 +705,12 @@ describe("annotate mode", () => {
   const composerSelector = "[data-docs-lab-composer]";
   const composerPlaceholder = "What should change here?";
 
-  it("creates an agent-request annotation against a clicked block and resolves it", async () => {
+  it("creates an agent-request annotation against a clicked block", async () => {
     renderDocPage("50-annotations");
     await waitFor(() => {
       expect(screen.getByText("Hello from Annotations")).toBeTruthy();
     });
     fireEvent.click(screen.getByRole("button", { name: "AI" }));
-    // level 2: the Threads-zone annotation header — the fixture's page title (h1)
-    // also reads "Annotations" since the R2-D11 page-title furniture.
-    expect(screen.getByRole("heading", { name: "Annotations", level: 2 })).toBeTruthy();
-
     // Click the paragraph block -> the anchored composer popover opens.
     const block = document.querySelector('[data-block-id="para-1"]');
     expect(block).toBeTruthy();
@@ -730,7 +726,7 @@ describe("annotate mode", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "Queue" }));
 
-    // Successful post closes the popover and lists the annotation. (Boolean
+    // Successful post closes the popover and lists the request. (Boolean
     // coercion keeps failure output small — element dumps here are huge.)
     await waitFor(
       () => {
@@ -739,24 +735,12 @@ describe("annotate mode", () => {
       },
       { timeout: 5000 },
     );
-    // "1 open" renders in both the pane header and the target group badge.
-    expect(screen.getAllByText("1 open").length).toBeGreaterThanOrEqual(1);
-
     // Persisted to the bundle's annotations sidecar — as an agent request
     // (the annotate flow has no note intent anymore).
     const annotationsRaw = await readFile(join(docsRoot, "50-annotations", "annotations.json"), "utf8");
     expect(annotationsRaw).toContain("Tighten this paragraph.");
     expect(annotationsRaw).toContain('"intent": "agent-request"');
 
-    fireEvent.click(screen.getByRole("button", { name: /Resolve/ }));
-    await waitFor(
-      () => {
-        expect(!!screen.getByText("Resolved")).toBe(true);
-      },
-      { timeout: 5000 },
-    );
-    const resolvedRaw = await readFile(join(docsRoot, "50-annotations", "annotations.json"), "utf8");
-    expect(resolvedRaw).toContain('"resolved"');
   });
 
   it("hover-targets a block (glide ring + block type chip) and clicking opens the anchored composer", async () => {

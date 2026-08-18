@@ -57,7 +57,6 @@ import {
   addAnnotationReply,
   getBacklinks,
   getBundle,
-  getCanvasBySrc,
   moveDoc,
   resolveAnnotation,
   subscribeDocsEvents,
@@ -232,31 +231,6 @@ function canvasBlockIdsForSrc(
   return ids;
 }
 
-/** Canvas srcs referenced by the doc's canvas blocks + existing annotation targets. */
-function referencedCanvasSrcs(
-  doc: DocDocument | null,
-  annotations: AnnotationsDocument | null,
-  bundlePath: string,
-): string[] {
-  const srcs = new Set<string>();
-  for (const annotation of annotations?.annotations ?? []) {
-    if (annotation.target.kind === "canvas-object") srcs.add(annotation.target.canvasSrc);
-  }
-  if (doc) {
-    for (const block of Object.values(doc.blocks)) {
-      if (block.type === "canvas" && typeof block.props?.src === "string") {
-        srcs.add(resolveBundleCanvasSrc(bundlePath, block.props.src));
-      }
-    }
-  }
-  return Array.from(srcs).sort();
-}
-
-type CanvasIndex = Record<
-  string,
-  { objectIds: ReadonlySet<string>; connectionIds: ReadonlySet<string> }
->;
-
 export interface DocPageProps {
   path: string;
   /**
@@ -306,7 +280,6 @@ export function DocPage({
   const [labPanelWidth, setLabPanelWidth] = useState<number>(DOCK_DEFAULT_WIDTH);
   const [saveState, setSaveState] = useState<DocEditorSaveState>("saved");
   const [selection, setSelection] = useState<PlannotatorSelection | null>(null);
-  const [canvasIndex, setCanvasIndex] = useState<CanvasIndex | undefined>(undefined);
   const [paneError, setPaneError] = useState<string | null>(null);
   const [isAnnotationSubmitting, setIsAnnotationSubmitting] = useState(false);
 
@@ -487,55 +460,7 @@ export function DocPage({
     };
   }, [highlightedIds, bundle, canvasEpoch, mode]);
 
-  // ---------------------------------------------------------------------
-  // Canvas object index (dangling-target detection for Plannotator)
-  // ---------------------------------------------------------------------
-
   const doc = bundle?.doc ?? null;
-  const canvasSrcs = useMemo(
-    () => referencedCanvasSrcs(doc, annotations, path),
-    [doc, annotations, path],
-  );
-
-  useEffect(() => {
-    if (isStatic || mode !== "annotate") return;
-    if (canvasSrcs.length === 0) {
-      setCanvasIndex({});
-      return;
-    }
-    let cancelled = false;
-    setCanvasIndex(undefined); // loading — Plannotator skips canvas checks
-    void Promise.all(
-      canvasSrcs.map(async (src) => {
-        try {
-          const payload = await getCanvasBySrc(src);
-          const canvas = payload.canvas as {
-            objects?: Array<{ id: string }>;
-            connections?: Array<{ id: string }>;
-          };
-          return [
-            src,
-            {
-              objectIds: new Set((canvas.objects ?? []).map((object) => object.id)),
-              connectionIds: new Set((canvas.connections ?? []).map((c) => c.id)),
-            },
-          ] as const;
-        } catch {
-          return null; // omitted -> detectDanglingTargets reports it dangling
-        }
-      }),
-    ).then((entries) => {
-      if (cancelled) return;
-      const index: CanvasIndex = {};
-      for (const entry of entries) {
-        if (entry) index[entry[0]] = entry[1];
-      }
-      setCanvasIndex(index);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [canvasSrcs, mode, canvasEpoch]);
 
   // ---------------------------------------------------------------------
   // Edit-mode save loop
@@ -1564,19 +1489,7 @@ export function DocPage({
                 outlineScrollerSelector="[data-docs-scroller]"
                 lab={lab}
                 onPanelWidthChange={setLabPanelWidth}
-                threads={{
-                  annotations: annotations?.annotations ?? [],
-                  document: doc,
-                  canvases: canvasIndex,
-                  selection,
-                  onClearSelection: () => setSelection(null),
-                  onAddAnnotation: handleAddAnnotation,
-                  onAddReply: handleAddReply,
-                  onResolveAnnotation: handleResolveAnnotation,
-                  onFocusTarget: handleFocusTarget,
-                  isSubmitting: isAnnotationSubmitting,
-                  error: paneError,
-                }}
+                annotationsError={paneError}
                 onFocusTarget={handleFocusDocEditTarget}
             />
           )}

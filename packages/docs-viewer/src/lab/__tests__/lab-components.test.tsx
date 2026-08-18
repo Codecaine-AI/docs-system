@@ -23,6 +23,93 @@ const session: DocEditSession = {
 };
 
 describe("PanelQueue", () => {
+	it("filters open requests and completed records with accurate counts", () => {
+		const completedRequest = {
+			...session.requests[0]!,
+			id: "request-2",
+			alias: "R2",
+			status: "resolved" as const,
+		};
+		const mixedSession: DocEditSession = {
+			requests: [...session.requests, completedRequest],
+			proposals: [],
+		};
+
+		render(
+			<PanelQueue
+				session={mixedSession}
+				queue={buildRequestQueue({ requests: mixedSession.requests, proposals: [], applying: false })}
+				applying={false}
+				agentStatus="connected"
+				onApply={() => {}}
+				labelForTarget={() => "Paragraph"}
+			/>,
+		);
+
+		const open = document.querySelector<HTMLButtonElement>('[data-docs-lab-filter="open"]')!;
+		const done = document.querySelector<HTMLButtonElement>('[data-docs-lab-filter="done"]')!;
+		expect(open.textContent).toBe("Open (1)");
+		expect(done.textContent).toBe("Done (1)");
+		expect(open.getAttribute("aria-pressed")).toBe("true");
+		expect(done.getAttribute("aria-pressed")).toBe("false");
+		expect(document.querySelector('[data-docs-lab-session-card="R1"]')).toBeTruthy();
+		expect(document.querySelector('[data-docs-lab-session-record="R2"]')).toBeNull();
+
+		fireEvent.click(done);
+		expect(open.getAttribute("aria-pressed")).toBe("false");
+		expect(done.getAttribute("aria-pressed")).toBe("true");
+		expect(document.querySelector('[data-docs-lab-session-card="R1"]')).toBeNull();
+		expect(document.querySelector('[data-docs-lab-session-record="R2"]')).toBeTruthy();
+	});
+
+	it("switches from done to open when the dock files a document note", () => {
+		const onFileGlobal = mock(() => {});
+		const completedSession: DocEditSession = {
+			requests: [{ ...session.requests[0]!, status: "resolved" }],
+			proposals: [],
+		};
+		render(
+			<PanelQueue
+				session={completedSession}
+				queue={buildRequestQueue({ requests: completedSession.requests, proposals: [], applying: false })}
+				applying={false}
+				agentStatus="connected"
+				onApply={() => {}}
+				onFileGlobal={onFileGlobal}
+				labelForTarget={() => "Paragraph"}
+			/>,
+		);
+
+		fireEvent.click(document.querySelector<HTMLButtonElement>('[data-docs-lab-filter="done"]')!);
+		expect(screen.getByText("R1")).toBeTruthy();
+		const input = screen.getByRole("textbox", { name: "Message the whole document" });
+		fireEvent.change(input, { target: { value: "Tighten the introduction" } });
+		fireEvent.keyDown(input, { key: "Enter" });
+
+		expect(onFileGlobal).toHaveBeenCalledWith("Tighten the introduction");
+		expect(document.querySelector('[data-docs-lab-filter="open"]')?.getAttribute("aria-pressed")).toBe("true");
+		expect(screen.getByText("Nothing queued — click a block, or hold Cmd/Ctrl and drag across text, to open the composer next to it. Canvas objects are clickable too.")).toBeTruthy();
+		expect(document.querySelector('[data-docs-lab-session-record="R1"]')).toBeNull();
+	});
+
+	it("shows the open and done empty states", () => {
+		const emptySession: DocEditSession = { requests: [], proposals: [] };
+		render(
+			<PanelQueue
+				session={emptySession}
+				queue={buildRequestQueue({ requests: [], proposals: [], applying: false })}
+				applying={false}
+				agentStatus="offline"
+				onApply={() => {}}
+				labelForTarget={() => "Paragraph"}
+			/>,
+		);
+
+		expect(screen.getByText("Nothing queued — click a block, or hold Cmd/Ctrl and drag across text, to open the composer next to it. Canvas objects are clickable too.")).toBeTruthy();
+		fireEvent.click(document.querySelector<HTMLButtonElement>('[data-docs-lab-filter="done"]')!);
+		expect(screen.getByText("Nothing finished yet.")).toBeTruthy();
+	});
+
 	it("gives an external Apply disabled reason precedence over an applicable queue", () => {
 		render(
 			<PanelQueue
