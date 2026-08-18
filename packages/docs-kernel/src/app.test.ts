@@ -57,7 +57,6 @@ describe("docs kernel CORS", () => {
 test("catalog listing includes only docs-system catalog bundles", async () => {
 	const root = mkdtempSync(join(tmpdir(), "docs-kernel-catalog-listing-"));
 	mkdirSync(join(root, "docs"), { recursive: true });
-	const docsAgentDir = join(root, "catalog", "docs-lab-editor");
 	const genericAgentDir = join(root, "agent-kernel-catalog", "generic-fixture");
 	const prompt = JSON.stringify({
 		kind: "prompt",
@@ -70,7 +69,6 @@ test("catalog listing includes only docs-system catalog bundles", async () => {
 		}],
 	});
 	for (const [agentDir, name, model] of [
-		[docsAgentDir, "docs-lab-editor", "docs-lab-editor"],
 		[genericAgentDir, "generic-fixture", "docs-writer"],
 	] as const) {
 		mkdirSync(agentDir, { recursive: true });
@@ -94,8 +92,11 @@ test("catalog listing includes only docs-system catalog bundles", async () => {
 			new Request("http://localhost/kernel/catalog/agents"),
 		);
 		expect(response.status).toBe(200);
-		const body = await response.json() as { agents: Array<{ name: string }> };
+		const body = await response.json() as {
+			agents: Array<{ name: string; valid: boolean }>;
+		};
 		expect(body.agents.map(({ name }) => name)).toEqual(["docs-lab-editor"]);
+		expect(body.agents[0]?.valid).toBe(true);
 	} finally {
 		await fixtureHarness.dispose();
 		rmSync(root, { recursive: true, force: true });

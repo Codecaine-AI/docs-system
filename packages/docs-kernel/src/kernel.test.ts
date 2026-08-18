@@ -8,11 +8,53 @@ import {
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
-import { resolveDocsKernelCorpora } from "./kernel";
+import {
+	BUILTIN_DOCS_CATALOG_ROOT,
+	resolveDocsCatalogRoots,
+	resolveDocsKernelCorpora,
+} from "./kernel";
 
 function makeTempRoot(): string {
 	return mkdtempSync(join(tmpdir(), "docs-kernel-corpora-"));
 }
+
+describe("docs kernel catalog resolution", () => {
+	test("defaults to the built-in catalog and tolerates a missing repo extension", () => {
+		const root = makeTempRoot();
+		try {
+			expect(resolveDocsCatalogRoots(undefined, root)).toEqual([
+				BUILTIN_DOCS_CATALOG_ROOT,
+			]);
+		} finally {
+			rmSync(root, { recursive: true, force: true });
+		}
+	});
+
+	test("includes an existing repo extension after the built-in catalog", () => {
+		const root = makeTempRoot();
+		try {
+			const extensionRoot = join(root, "catalog");
+			mkdirSync(extensionRoot);
+			expect(resolveDocsCatalogRoots(undefined, root)).toEqual([
+				BUILTIN_DOCS_CATALOG_ROOT,
+				extensionRoot,
+			]);
+		} finally {
+			rmSync(root, { recursive: true, force: true });
+		}
+	});
+
+	test("manifest catalog roots replace the defaults", () => {
+		const root = makeTempRoot();
+		try {
+			expect(resolveDocsCatalogRoots(["custom-catalog"], root)).toEqual([
+				join(root, "custom-catalog"),
+			]);
+		} finally {
+			rmSync(root, { recursive: true, force: true });
+		}
+	});
+});
 
 describe("docs kernel corpus resolution", () => {
 	test("options.corpora wins and resolves relative roots against CWD", () => {

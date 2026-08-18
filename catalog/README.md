@@ -1,5 +1,8 @@
 # Docs System catalog
 
-This listed catalog root hosts docs-system's own agents.
+The built-in `docs-lab-editor` agent ships in
+`packages/docs-kernel/catalog/`.
 
-- `docs-lab-editor` — Docs Lab's propose-only request-queue agent; humans review and merge its staged documentation changes.
+This repo-level `catalog/` is an optional extension root for additional agents.
+It does not override built-in agents: duplicate agent names across catalog roots
+are rejected.

@@ -8,6 +8,7 @@
  */
 import { existsSync, mkdirSync, readFileSync, statSync } from "node:fs";
 import { basename, dirname, isAbsolute, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 import {
 	ensureKernelObservabilitySchema,
@@ -32,10 +33,12 @@ export const DEFAULT_DOCS_WRITER_MODEL = "codex-lb/gpt-5.6-sol";
 export const DEFAULT_DOCS_LAB_EDITOR_MODEL = DEFAULT_DOCS_WRITER_MODEL;
 
 /** This file lives at docs-system/packages/docs-kernel/src/kernel.ts. */
-export const REPO_ROOT = resolve(import.meta.dir, "..", "..", "..");
-export const PACKAGE_ROOT = resolve(import.meta.dir, "..");
+const MODULE_DIR = dirname(fileURLToPath(import.meta.url));
+export const REPO_ROOT = resolve(MODULE_DIR, "..", "..", "..");
+export const PACKAGE_ROOT = resolve(MODULE_DIR, "..");
 export const KERNEL_ROOT = join(REPO_ROOT, ".agent-kernel");
 export const DOCS_CATALOG_ROOT = join(REPO_ROOT, "catalog");
+export const BUILTIN_DOCS_CATALOG_ROOT = join(PACKAGE_ROOT, "catalog");
 export const DEFAULT_DOCS_ROOT = join(REPO_ROOT, "docs");
 export const DEFAULT_PI_AGENT_DIR = join(PACKAGE_ROOT, ".pi-agent");
 
@@ -78,7 +81,7 @@ export interface DocsKernelBoot {
 	docsRoot: string;
 	piSessionsDir: string;
 	piAgentDir: string;
-	/** Browseable catalog roots from the manifest (or catalog/ fallback). */
+	/** Browseable catalog roots from the manifest (or package + extension defaults). */
 	catalogRoots: string[];
 	docsWriterCatalogPresent: boolean;
 	docsLabEditorCatalogPresent: boolean;
@@ -91,6 +94,20 @@ export interface DocsKernelBoot {
 
 function resolveAgainst(base: string, path: string): string {
 	return isAbsolute(path) ? path : resolve(base, path);
+}
+
+export function resolveDocsCatalogRoots(
+	manifestCatalogRoots: string[] | undefined,
+	rootDir: string,
+): string[] {
+	if (manifestCatalogRoots) {
+		return manifestCatalogRoots.map((root) => resolveAgainst(rootDir, root));
+	}
+	const repoCatalogRoot = join(rootDir, "catalog");
+	return [
+		BUILTIN_DOCS_CATALOG_ROOT,
+		...(existsSync(repoCatalogRoot) ? [repoCatalogRoot] : []),
+	];
 }
 
 interface DocsCorporaEnvironment {
@@ -228,7 +245,7 @@ async function readDocsManifest(
 	if (!manifest) {
 		console.error(
 			`docs-kernel: kernel manifest not found at ${join(rootDir, ".agent-kernel/kernel.json")}; `
-				+ `booting on contract defaults (kernelId ${KERNEL_ID}, catalog root ${join(rootDir, "catalog")}, `
+				+ `booting on contract defaults (kernelId ${KERNEL_ID}, built-in catalog root ${BUILTIN_DOCS_CATALOG_ROOT}, `
 				+ `db ${kernelDatabasePath(rootDir)}). Write the repo-owned manifest to make this kernel discoverable.`,
 		);
 		return undefined;
@@ -266,9 +283,14 @@ export async function bootDocsKernel(
 	);
 	const corpora = resolveDocsKernelCorpora(options, { rootDir });
 	const docsRoot = corpora[0]!.docsRoot;
-	const catalogRoots = (
-		manifest?.catalogRoots ?? [join(rootDir, "catalog")]
-	).map((root) => resolveAgainst(rootDir, root));
+	const resolvedCatalogRoots = resolveDocsCatalogRoots(
+		manifest?.catalogRoots,
+		rootDir,
+	);
+	const optionalRepoCatalogRoot = join(rootDir, "catalog");
+	const catalogRoots = resolvedCatalogRoots.filter((root) =>
+		root !== optionalRepoCatalogRoot || existsSync(root)
+	);
 	const docsWriterModel =
 		options.docsWriterModel
 			?? Bun.env.DOCS_KERNEL_DOCS_WRITER_MODEL
@@ -297,11 +319,11 @@ export async function bootDocsKernel(
 		);
 	}
 	const docsLabEditorCatalogPresent = existsSync(
-		join(rootDir, "catalog", "docs-lab-editor"),
+		join(BUILTIN_DOCS_CATALOG_ROOT, "docs-lab-editor"),
 	);
 	if (!docsLabEditorCatalogPresent) {
 		console.warn(
-			`docs-kernel: docs-lab-editor catalog bundle not found at ${join(rootDir, "catalog", "docs-lab-editor")}; `
+			`docs-kernel: docs-lab-editor catalog bundle not found at ${join(BUILTIN_DOCS_CATALOG_ROOT, "docs-lab-editor")}; `
 				+ "docs-edit sessions will not resolve docs-lab-editor.",
 		);
 	}
