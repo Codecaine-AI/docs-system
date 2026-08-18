@@ -1,5 +1,7 @@
 The spatial-canvas family of the Block vocabulary. It owns one type, `canvas`. The block itself is only a reference — the canvas document, its objects, and its schema live in the external canvas system (`external/canvas`, the vendored sibling project); the doc block points at one canvas and optionally crops it to a named view.
 
+Reach for canvas when the question is how things relate — spatial boards, architecture maps, annotated relationships. Exact exchanges belong to the sequence block, and an end-to-end process flow belongs to process-outline.
+
 The family is the vocabulary's flagship non-default Agent adapter case: the canvas project is the authority, schema truth stays in the canvas package, and every content action forwards there instead of patching doc props.
 
 ## Example

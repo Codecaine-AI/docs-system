@@ -10,6 +10,7 @@
       "props": {},
       "children": [
         "b-24-canvas-lead-2",
+        "b-24-canvas-when-to-use",
         "b-24-canvas-lead-adapter",
         "b-24-canvas-ex-h",
         "b-24-canvas-ex-intro",
@@ -88,6 +89,17 @@
         },
         {
           "insert": ", the vendored sibling project); the doc block points at one canvas and optionally crops it to a named view."
+        }
+      ],
+      "children": []
+    },
+    "b-24-canvas-when-to-use": {
+      "id": "b-24-canvas-when-to-use",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Reach for canvas when the question is how things relate — spatial boards, architecture maps, annotated relationships. Exact exchanges belong to the sequence block, and an end-to-end process flow belongs to process-outline."
         }
       ],
       "children": []

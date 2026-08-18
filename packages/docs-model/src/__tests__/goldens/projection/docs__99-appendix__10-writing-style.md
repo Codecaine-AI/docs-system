@@ -7,7 +7,3 @@ How every doc in this corpus is written. This is working guidance for whoever is
 - Structure
 
   - How shape carries meaning: bullets and the join test, lists, headings, titles and openers.
-
-- Block conventions
-
-  - Callout discipline, decision records, state-plus-operations, and media rules.

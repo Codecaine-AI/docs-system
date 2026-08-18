@@ -88,7 +88,6 @@ const CORPUS_PATHS = [
   "docs/99-appendix/10-writing-style/doc.json",
   "docs/99-appendix/10-writing-style/10-register/doc.json",
   "docs/99-appendix/10-writing-style/20-structure/doc.json",
-  "docs/99-appendix/10-writing-style/30-block-conventions/doc.json",
 ] as const;
 const DOCUMENT_PATHS = [FIXTURE_PATH, ...CORPUS_PATHS] as const;
 

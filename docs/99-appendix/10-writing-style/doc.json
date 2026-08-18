@@ -11,8 +11,7 @@
       "children": [
         "b-ws-intro-1",
         "b-ws-reg-2",
-        "b-ws-struct-4",
-        "b-ws-blocks-6"
+        "b-ws-struct-4"
       ]
     },
     "b-ws-intro-1": {
@@ -84,37 +83,6 @@
       "text": [
         {
           "insert": "How shape carries meaning: bullets and the join test, lists, headings, titles and openers."
-        }
-      ],
-      "children": []
-    },
-    "b-ws-blocks-6": {
-      "id": "b-ws-blocks-6",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Block conventions",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "99-appendix/10-writing-style/30-block-conventions",
-              "label": "Block conventions"
-            }
-          }
-        }
-      ],
-      "children": [
-        "b-ws-blocks-gloss-7"
-      ]
-    },
-    "b-ws-blocks-gloss-7": {
-      "id": "b-ws-blocks-gloss-7",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Callout discipline, decision records, state-plus-operations, and media rules."
         }
       ],
       "children": []

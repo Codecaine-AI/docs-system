@@ -10,6 +10,7 @@
       "props": {},
       "children": [
         "b-21-file-tree-lead-2",
+        "b-21-file-tree-when-to-use",
         "b-21-file-tree-example-heading",
         "b-21-file-tree-example-intro",
         "b-21-file-tree-example-block",
@@ -72,6 +73,17 @@
         },
         {
           "insert": "-command drawing, with per-entry notes and change markers for describing repo slices and refactors."
+        }
+      ],
+      "children": []
+    },
+    "b-21-file-tree-when-to-use": {
+      "id": "b-21-file-tree-when-to-use",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Reach for it when the nested structure is files, not steps — repo slices, refactor plans, layout conventions. A process that flows end to end belongs to process-outline."
         }
       ],
       "children": []

@@ -53,7 +53,15 @@ export const WRITING_STYLE_BUNDLES: ReadonlyArray<string> = [
 	"99-appendix/10-writing-style",
 	"99-appendix/10-writing-style/10-register",
 	"99-appendix/10-writing-style/20-structure",
-	"99-appendix/10-writing-style/30-block-conventions",
+];
+
+/**
+ * The block-vocabulary index alone: the sixteen-type purpose table and the
+ * doctrine roles — what each block is and when to use it — without hauling in
+ * the per-family contract pages.
+ */
+export const BLOCK_VOCABULARY_BUNDLES: ReadonlyArray<string> = [
+	"10-system-design/40-block-vocabulary",
 ];
 
 const standardsFile = (bundle: string): string =>
@@ -62,6 +70,7 @@ const standardsFile = (bundle: string): string =>
 const loaders: AgentContextResolver["loaders"] = [
 	...STANDARDS_BUNDLES,
 	...WRITING_STYLE_BUNDLES,
+	...BLOCK_VOCABULARY_BUNDLES,
 ].map((bundle) => ({
 	kind: "file" as const,
 	path: standardsFile(bundle),
@@ -335,6 +344,11 @@ function assemble(loaded: LoadedMap, _ctx: SpawnContext): string {
 			"docs_writing_style",
 			'source="docs-system corpus · 99-appendix/10-writing-style"',
 			renderBundles(WRITING_STYLE_BUNDLES),
+		),
+		block(
+			"docs_block_vocabulary",
+			'source="docs-system corpus · 10-system-design/40-block-vocabulary"',
+			renderBundles(BLOCK_VOCABULARY_BUNDLES),
 		),
 		renderEditingReference(),
 	].join("\n");

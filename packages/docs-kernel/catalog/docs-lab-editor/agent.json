@@ -5,7 +5,13 @@
 	"model": "docs-lab-editor",
 	"host": "any",
 	"disallowedTools": ["write", "edit", "docs_write"],
-	"thinking": "medium",
+	"thinking": "low",
 	"maxTurns": 40,
+	"state": {
+		"window": {
+			"strategy": "token-budget",
+			"maxTokens": 60000
+		}
+	},
 	"extensions": false
 }

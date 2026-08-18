@@ -1,11 +1,12 @@
 /**
  * Writing-style section: authors docs/99-appendix/10-writing-style/ — the
- * 99-appendix tier parent, the section parent, and three pages (register,
- * structure, block conventions) — and writes their projection goldens.
+ * 99-appendix tier parent, the section parent, and two pages (register and
+ * structure) — and writes their projection goldens.
  * Consolidated from the seven-page first cut: anti-patterns (negative
  * restatements of the positive rules), why-these-hold (pure rationale), and
  * the philosophy halves of design-narrative and titles-and-openings carry no
- * instruction the remaining pages lack. Canonical serializer bytes;
+ * instruction the remaining pages lack; block-conventions dissolved into the
+ * block-vocabulary pages' own usage guidance. Canonical serializer bytes;
  * idempotent.
  */
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -120,7 +121,7 @@ buildDoc(APPENDIX, "99-appendix", "appendix", "Appendix", [
   liNest("ws", [r("Writing style", WS_REF)], [
     li(
       "ws-gloss",
-      t("How every doc in this corpus is written — register, structure, and block conventions."),
+      t("How every doc in this corpus is written — its register and structure."),
     ),
   ]),
 ]);
@@ -140,9 +141,6 @@ buildDoc(WS, "99-appendix-10-writing-style", "ws", "Writing style", [
   ]),
   liNest("struct", [r("Structure", `${WS_REF}/20-structure`)], [
     li("struct-gloss", t("How shape carries meaning: bullets and the join test, lists, headings, titles and openers.")),
-  ]),
-  liNest("blocks", [r("Block conventions", `${WS_REF}/30-block-conventions`)], [
-    li("blocks-gloss", t("Callout discipline, decision records, state-plus-operations, and media rules.")),
   ]),
 ]);
 
@@ -230,46 +228,5 @@ buildDoc(`${WS}/20-structure`, "99-appendix-10-writing-style-20-structure", "ws-
   ),
 ]);
 
-// ---------------------------------------------------------------------------
-// 30-block-conventions
-// ---------------------------------------------------------------------------
-buildDoc(
-  `${WS}/30-block-conventions`,
-  "99-appendix-10-writing-style-30-block-conventions",
-  "ws-blocks",
-  "Block conventions",
-  [
-    p(
-      "intro",
-      t(
-        "How content maps onto the block vocabulary: callout discipline, the decision-record pattern, state-plus-operations, and media rules.",
-      ),
-    ),
-    li(
-      "callouts",
-      t(
-        "Decisions and warnings are callouts: kind carries the semantic label (“Decision”, “Open call”, “Named deviation”), tone carries the register. A callout body is one or two sentences — the labeled fact itself; mechanics, rationale, and examples get a heading after the callout and live in paragraphs.",
-      ),
-    ),
-    li(
-      "decision-record",
-      t(
-        "The decision-record pattern is two parts: a short dated callout stating the call (“Decision (2026-08-12) — sync publishes atomically.”), then an H3 section holding the reasoning and consequences.",
-      ),
-    ),
-    li(
-      "state-plus-ops",
-      t(
-        "System behavior documents as state plus operations: a code block of real, annotated JSON shows the state, an interaction-surface block lists the typed operations. State first, then operations.",
-      ),
-    ),
-    li(
-      "media",
-      t(
-        "Images always carry alt text — the agent surface is text-first. No empty-paragraph spacers; spacing is the theme's job.",
-      ),
-    ),
-  ],
-);
 
 console.log("done");
