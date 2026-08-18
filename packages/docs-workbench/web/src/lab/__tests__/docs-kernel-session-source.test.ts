@@ -477,6 +477,29 @@ describe("docs kernel session source", () => {
 		expect(hashes).toEqual(["hash-2"]);
 	});
 
+	it("announces a staged proposal from the attached session", async () => {
+		let staged = 0;
+		const mock = mockClient({ state: session() });
+		const source = createDocsKernelSessionSource({
+			client: mock.client,
+			path: "guide",
+			onSessionEnd() {},
+			onProposalStaged: () => { staged += 1; },
+		});
+		await source.applyQueue(["ann-1"]);
+
+		mock.emit({
+			type: "proposal-staged",
+			sessionId: "session-1",
+			proposal: {
+				...session().proposals[0]!,
+				proposalId: "proposal-2",
+			},
+		});
+
+		expect(staged).toBe(1);
+	});
+
 	it("auto-disposes a completed settled session and announces its end once", async () => {
 		let ends = 0;
 		const settled = session({

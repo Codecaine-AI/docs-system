@@ -601,6 +601,7 @@ export function DocPage({
       await labRefreshRef.current();
     },
     onDocChanged: () => fetchBundleRef.current(),
+    onProposalStaged: () => labRefreshRef.current(),
   });
 
   const lab = useDocLabSession({

@@ -58,6 +58,7 @@ export interface CreateDocsKernelSessionSourceOptions {
 	corpus?: string;
 	onSessionEnd: () => void | Promise<void>;
 	onDocChanged?: (hash: string) => void | Promise<void>;
+	onProposalStaged?: () => void | Promise<void>;
 }
 
 function replaceRequest(
@@ -335,6 +336,9 @@ export function createDocsKernelSessionSource(
 		} else return;
 		if (event.type === "proposal-applied" || event.type === "proposal-undone") {
 			docChanged(event.hash);
+		}
+		if (event.type === "proposal-staged") {
+			void options.onProposalStaged?.();
 		}
 		releaseSettledSession();
 	}

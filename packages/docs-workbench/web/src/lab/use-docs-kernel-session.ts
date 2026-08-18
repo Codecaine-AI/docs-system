@@ -14,6 +14,7 @@ export interface UseDocsKernelSessionOptions {
 	enabled: boolean;
 	onSessionEnd: () => void | Promise<void>;
 	onDocChanged?: (hash: string) => void | Promise<void>;
+	onProposalStaged?: () => void | Promise<void>;
 	/** Test seam; production uses the default localhost kernel client. */
 	client?: DocsKernelClient;
 }
@@ -54,10 +55,12 @@ export function useDocsKernelSession(
 	const callbacksRef = useRef({
 		onSessionEnd: options.onSessionEnd,
 		onDocChanged: options.onDocChanged,
+		onProposalStaged: options.onProposalStaged,
 	});
 	callbacksRef.current = {
 		onSessionEnd: options.onSessionEnd,
 		onDocChanged: options.onDocChanged,
+		onProposalStaged: options.onProposalStaged,
 	};
 
 	const source = useMemo(
@@ -67,6 +70,7 @@ export function useDocsKernelSession(
 			corpus,
 			onSessionEnd: () => callbacksRef.current.onSessionEnd(),
 			onDocChanged: (hash) => callbacksRef.current.onDocChanged?.(hash),
+			onProposalStaged: () => callbacksRef.current.onProposalStaged?.(),
 		}),
 		[client, corpus, options.path],
 	);
