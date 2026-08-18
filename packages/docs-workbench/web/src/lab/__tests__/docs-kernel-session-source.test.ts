@@ -57,6 +57,7 @@ const session = (overrides: Partial<DocsEditSessionState> = {}): DocsEditSession
 
 function mockClient(createResult: Awaited<ReturnType<DocsKernelClient["createSession"]>>) {
 	let onEvent: ((event: DocsEditSessionStreamEvent) => void) | undefined;
+	let onError: ((error: Error) => void) | undefined;
 	let subscriptions = 0;
 	let disposals = 0;
 	const client = {
@@ -65,9 +66,11 @@ function mockClient(createResult: Awaited<ReturnType<DocsKernelClient["createSes
 		subscribeSessionEvents: (
 			_id: string,
 			next: (event: DocsEditSessionStreamEvent) => void,
+			error?: (error: Error) => void,
 		) => {
 			subscriptions += 1;
 			onEvent = next;
+			onError = error;
 			return () => {};
 		},
 		acceptProposal: async () => ({
@@ -85,12 +88,15 @@ function mockClient(createResult: Awaited<ReturnType<DocsKernelClient["createSes
 	return {
 		client,
 		emit: (event: DocsEditSessionStreamEvent) => onEvent?.(event),
+		failStream: () => onError?.(new Error("docs edit session stream dropped")),
 		subscriptions: () => subscriptions,
 		disposals: () => disposals,
 	};
 }
 
 const flush = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
+const wait = (milliseconds: number) =>
+	new Promise<void>((resolve) => setTimeout(resolve, milliseconds));
 
 const changeset = (summary: string) => ({
 	id: "changeset-1",
@@ -197,6 +203,78 @@ describe("docs kernel session source", () => {
 		expect(source.getSnapshot().live).toBe(false);
 		expect(source.statusOverlay().size).toBe(0);
 		expect(ends).toBe(1);
+	});
+
+	it("resyncs session state and resubscribes after a stream error", async () => {
+		const mock = mockClient({ state: session() });
+		mock.client.getSession = async () => ({
+			state: session({ agent: { spawned: true, running: false, turns: 1, rerunPending: false } }),
+		});
+		const source = createDocsKernelSessionSource({ client: mock.client, path: "guide", onSessionEnd() {} });
+		await source.applyQueue(["ann-1"]);
+
+		mock.failStream();
+		await wait(350);
+
+		expect(source.getSnapshot().state?.agent.running).toBe(false);
+		expect(source.getSnapshot().streamError).toBeUndefined();
+		expect(mock.subscriptions()).toBe(2);
+	});
+
+	it("treats a recovery 404 like a session-disposed event", async () => {
+		let ends = 0;
+		const mock = mockClient({ state: session() });
+		mock.client.getSession = async () => ({ ok: false, status: 404, errors: ["gone"] });
+		const source = createDocsKernelSessionSource({ client: mock.client, path: "guide", onSessionEnd: () => { ends += 1; } });
+		await source.applyQueue(["ann-1"]);
+
+		mock.failStream();
+		await wait(350);
+
+		expect(source.getSnapshot().live).toBe(false);
+		expect(source.getSnapshot().streamError).toBeUndefined();
+		expect(ends).toBe(1);
+	});
+
+	it("surfaces a fallback error after recovery retries fail", async () => {
+		let attempts = 0;
+		const mock = mockClient({ state: session() });
+		mock.client.getSession = async () => {
+			attempts += 1;
+			return { ok: false, status: 0, errors: [], offline: true };
+		};
+		const source = createDocsKernelSessionSource({ client: mock.client, path: "guide", onSessionEnd() {} });
+		await source.applyQueue(["ann-1"]);
+
+		mock.failStream();
+		await wait(3_100);
+
+		expect(attempts).toBe(3);
+		expect(source.getSnapshot().streamError).toBe(
+			"Lost the agent session stream — showing the last known state; reload to re-sync.",
+		);
+	});
+
+	it("cancels stream recovery when disposed", async () => {
+		let attempts = 0;
+		const mock = mockClient({ state: session() });
+		mock.client.getSession = async () => {
+			attempts += 1;
+			return { state: session() };
+		};
+		const source = createDocsKernelSessionSource({ client: mock.client, path: "guide", onSessionEnd() {} });
+		let notifications = 0;
+		source.subscribe(() => { notifications += 1; });
+		await source.applyQueue(["ann-1"]);
+
+		mock.failStream();
+		source.dispose();
+		const notificationsAtDispose = notifications;
+		await wait(350);
+
+		expect(attempts).toBe(0);
+		expect(mock.subscriptions()).toBe(1);
+		expect(notifications).toBe(notificationsAtDispose);
 	});
 
 	it("maps agent-busy and offline create failures without opening a stream", async () => {

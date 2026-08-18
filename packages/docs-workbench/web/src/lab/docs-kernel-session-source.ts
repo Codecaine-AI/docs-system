@@ -225,6 +225,10 @@ export function createDocsKernelSessionSource(
 	let sessionError: string | undefined;
 	let streamError: string | undefined;
 	let unsubscribeStream: (() => void) | null = null;
+	let recoveryTimer: ReturnType<typeof setTimeout> | null = null;
+	let recoveryGeneration = 0;
+	let recoveringSession: string | null = null;
+	let disposed = false;
 	let snapshot: DocsKernelSessionSnapshot | null = null;
 	let lastChangedHash: string | null = null;
 	const changesets = new Map<string, DocChangeSetView>();
@@ -236,9 +240,17 @@ export function createDocsKernelSessionSource(
 		for (const listener of [...listeners]) listener();
 	}
 
+	function cancelRecovery(): void {
+		recoveryGeneration += 1;
+		recoveringSession = null;
+		if (recoveryTimer !== null) clearTimeout(recoveryTimer);
+		recoveryTimer = null;
+	}
+
 	function stopStream(): void {
 		unsubscribeStream?.();
 		unsubscribeStream = null;
+		cancelRecovery();
 	}
 
 	function announceEnd(sessionId: string): void {
@@ -319,10 +331,67 @@ export function createDocsKernelSessionSource(
 			sessionId,
 			handleEvent,
 			(error) => {
-				streamError = error.message;
-				notify();
+				void error;
+				recoverStream(sessionId);
 			},
 		);
+	}
+
+	function recoverStream(sessionId: string): void {
+		if (
+			disposed ||
+			state?.sessionId !== sessionId ||
+			recoveringSession === sessionId
+		) return;
+		recoveringSession = sessionId;
+		const generation = ++recoveryGeneration;
+		const delays = [300, 900, 1_800];
+
+		const attempt = (index: number): void => {
+			recoveryTimer = setTimeout(async () => {
+				recoveryTimer = null;
+				if (
+					disposed ||
+					generation !== recoveryGeneration ||
+					state?.sessionId !== sessionId
+				) return;
+
+				let result: Awaited<ReturnType<DocsKernelClient["getSession"]>>;
+				try {
+					result = await options.client.getSession(sessionId);
+				} catch {
+					result = { ok: false, status: 0, errors: [], offline: true };
+				}
+				if (
+					disposed ||
+					generation !== recoveryGeneration ||
+					state?.sessionId !== sessionId
+				) return;
+				if (!isFailure(result)) {
+					state = result.state;
+					streamError = undefined;
+					subscribeStream(sessionId);
+					notify();
+					releaseSettledSession();
+					return;
+				}
+				if (result.status === 404) {
+					streamError = undefined;
+					clearSession(sessionId);
+					return;
+				}
+				if (index + 1 < delays.length) {
+					attempt(index + 1);
+					return;
+				}
+				recoveringSession = null;
+				streamError =
+					"Lost the agent session stream — showing the last known state; reload to re-sync.";
+				notify();
+			}, delays[index]);
+		};
+
+		attempt(0);
 	}
 
 	function aliasFor(annotationId: string): string | null {
@@ -513,6 +582,7 @@ export function createDocsKernelSessionSource(
 		},
 
 		dispose() {
+			disposed = true;
 			stopStream();
 			listeners.clear();
 		},
