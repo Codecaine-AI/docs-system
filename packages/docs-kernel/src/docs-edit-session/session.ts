@@ -12,6 +12,7 @@ import type { DocOp } from "@codecaine-ai/docs-model/doc-ops";
 import {
 	addBundleAnnotationReply,
 	type DocChangeSetView,
+	loadDocBundle,
 	normalizeBundlePath,
 	rejectBundleProposal,
 	resolveBundleAnnotation,
@@ -122,19 +123,146 @@ export interface DocsEditSession {
 	markApplied(
 		aliasOrId: string,
 		patchId: string,
-		proposalId?: string,
+		proposalId: string,
 		hash?: string,
 	): DocsEditRequestMutationResult;
-	markRejected(aliasOrId: string, note?: string): DocsEditRequestMutationResult;
+	markRejected(
+		aliasOrId: string,
+		proposalId: string,
+		note?: string,
+	): DocsEditRequestMutationResult;
 	markUndone(
 		aliasOrId: string,
+		proposalId: string,
 		hash?: string,
 	): DocsEditRequestMutationResult;
 	/** Replace the active proposal after the service restages a stale one. */
 	replaceProposal(
 		aliasOrId: string,
+		proposalId: string,
 		proposal: DocsEditProposal,
 	): DocsEditRequestMutationResult;
+}
+
+type IndexedDocOp = { op: DocOp; opIndex: number };
+
+function docParentMap(document: DocDocument): Map<string, string> {
+	const parents = new Map<string, string>();
+	for (const block of Object.values(document.blocks)) {
+		for (const childId of block.children) parents.set(childId, block.id);
+	}
+	return parents;
+}
+
+function topLevelAncestor(
+	document: DocDocument,
+	parents: ReadonlyMap<string, string>,
+	blockId: string,
+): string | null {
+	if (blockId === document.root || document.blocks[blockId] === undefined) {
+		return null;
+	}
+	let current = blockId;
+	let parent = parents.get(current);
+	while (parent !== undefined && parent !== document.root) {
+		current = parent;
+		parent = parents.get(current);
+	}
+	return parent === document.root ? current : null;
+}
+
+function opTopLevelAncestor(
+	document: DocDocument,
+	parents: ReadonlyMap<string, string>,
+	op: DocOp,
+): string | null {
+	if (op.type === "insertBlock") {
+		return topLevelAncestor(document, parents, op.parentId);
+	}
+	if (op.type === "moveBlock") {
+		const source = topLevelAncestor(document, parents, op.blockId);
+		const destination = topLevelAncestor(document, parents, op.toParentId);
+		return source !== null && source === destination ? source : null;
+	}
+	if (op.type === "mergeBlocks") {
+		const ancestors = op.blockIds.map((blockId) =>
+			topLevelAncestor(document, parents, blockId)
+		);
+		const first = ancestors[0] ?? null;
+		return first !== null && ancestors.every((ancestor) => ancestor === first)
+			? first
+			: null;
+	}
+	return topLevelAncestor(document, parents, op.blockId);
+}
+
+/** Split one batch into the same contiguous top-level runs used for review. */
+function proposalOpGroups(
+	document: DocDocument,
+	ops: readonly DocOp[],
+): DocOp[][] {
+	const parents = docParentMap(document);
+	const rootChildren = document.blocks[document.root]?.children ?? [];
+	const byAncestor = new Map<string, IndexedDocOp[]>();
+	const resolvedOps: Array<IndexedDocOp & { ancestor: string }> = [];
+	const unresolvedOps: IndexedDocOp[] = [];
+
+	for (const [opIndex, op] of ops.entries()) {
+		const indexed = { op, opIndex };
+		const ancestor = opTopLevelAncestor(document, parents, op);
+		if (ancestor === null) {
+			unresolvedOps.push(indexed);
+			continue;
+		}
+		resolvedOps.push({ ...indexed, ancestor });
+		const group = byAncestor.get(ancestor) ?? [];
+		group.push(indexed);
+		byAncestor.set(ancestor, group);
+	}
+
+	// Root-level inserts and cross-section structural ops have no single owning
+	// section. Keep them with the closest resolvable operation in batch order.
+	for (const unresolved of unresolvedOps) {
+		let nearest: (IndexedDocOp & { ancestor: string }) | undefined;
+		let nearestDistance = Number.POSITIVE_INFINITY;
+		for (const candidate of resolvedOps) {
+			const distance = Math.abs(candidate.opIndex - unresolved.opIndex);
+			if (distance >= nearestDistance) continue;
+			nearest = candidate;
+			nearestDistance = distance;
+		}
+		if (nearest === undefined) continue;
+		const group = byAncestor.get(nearest.ancestor) ?? [];
+		group.push(unresolved);
+		byAncestor.set(nearest.ancestor, group);
+	}
+
+	const ordered = [...byAncestor.entries()]
+		.map(([ancestor, indexedOps]) => ({
+			ancestor,
+			rootIndex: rootChildren.indexOf(ancestor),
+			indexedOps,
+		}))
+		.filter((group) => group.rootIndex >= 0)
+		.sort((a, b) => a.rootIndex - b.rootIndex);
+	const merged: Array<{ endIndex: number; indexedOps: IndexedDocOp[] }> = [];
+	for (const group of ordered) {
+		const previous = merged.at(-1);
+		if (previous !== undefined && group.rootIndex === previous.endIndex + 1) {
+			previous.endIndex = group.rootIndex;
+			previous.indexedOps.push(...group.indexedOps);
+			continue;
+		}
+		merged.push({ endIndex: group.rootIndex, indexedOps: [...group.indexedOps] });
+	}
+
+	const groupedOps = merged.map((group) =>
+		group.indexedOps
+			.sort((a, b) => a.opIndex - b.opIndex)
+			.map(({ op }) => op)
+	);
+	if (resolvedOps.length === 0) groupedOps.push(unresolvedOps.map(({ op }) => op));
+	return groupedOps;
 }
 
 let sessionCounter = 0;
@@ -167,6 +295,7 @@ export function createDocsEditSession(
 	);
 	let aliasCounter = entries.length;
 	let stagedProposals: DocsEditProposal[] = [];
+	const rejectedProposalIds = new Set<string>();
 	let activeTurnAliases: string[] = [];
 	const listeners = new Set<DocsEditSessionListener>();
 
@@ -297,91 +426,146 @@ export function createDocsEditSession(
 				},
 			};
 		}
-		let persisted = false;
-
+		const proposals: DocsEditProposal[] = [];
+		let retained = false;
 		try {
-			const staged = await stageBundleProposal(
-				options.docsRoot,
-				targetPath.trim(),
-				{
-					ops: [...ops],
-					summary: summary.trim(),
-					...(entry.sidecarBacked &&
-						normalizedTargetPath === normalizedOriginPath
-						? { annotationId: entry.annotationId }
-						: {}),
-					alias: entry.alias,
-					sessionId: id,
-				},
-				id,
-			);
-			if (!staged.ok) {
+			const loaded = await loadDocBundle(options.docsRoot, targetPath.trim());
+			if ("error" in loaded) {
 				claimed.release();
 				return {
 					ok: false,
 					failure: {
 						kind: "stage_failed",
-						status: staged.status,
-						detail: staged.detail,
-						...(staged.issues !== undefined ? { issues: staged.issues } : {}),
-						...(staged.current_hash !== undefined
-							? { currentHash: staged.current_hash }
-							: {}),
-						...(staged.expected_hash !== undefined
-							? { expectedHash: staged.expected_hash }
-							: {}),
+						status: loaded.error.status,
+						detail: loaded.error.detail,
 					},
 				};
 			}
-			persisted = true;
 
-			const proposal: DocsEditProposal = {
-				proposalId: staged.proposal.id,
-				requestAlias: entry.alias,
-				docPath: normalizedTargetPath,
-				baseHash: staged.proposal.baseHash,
-				ops: [...staged.proposal.ops],
-				changedBlockIds: [...staged.proposal.changedBlockIds],
-				summary: staged.proposal.summary,
-				createdAt: staged.proposal.createdAt,
-			};
-			const existingIndex = stagedProposals.findIndex(
-				(candidate) => candidate.requestAlias === entry.alias,
-			);
-			if (existingIndex < 0) stagedProposals = [...stagedProposals, proposal];
-			else {
-				const previous = stagedProposals[existingIndex];
-				if (previous) {
-					try {
-						await rejectBundleProposal(
-							options.docsRoot,
-							previous.docPath,
-							previous.proposalId,
-							{ sessionId: id },
-						);
-					} catch {
-						// The replacement is already persisted, so rejection is best-effort.
+			const groupedOps = proposalOpGroups(loaded.document, ops);
+			for (const groupOps of groupedOps) {
+				const staged = await stageBundleProposal(
+					options.docsRoot,
+					targetPath.trim(),
+					{
+						ops: groupOps,
+						summary: summary.trim(),
+						...(groupedOps.length === 1 &&
+							entry.sidecarBacked &&
+							normalizedTargetPath === normalizedOriginPath
+							? { annotationId: entry.annotationId }
+							: {}),
+						alias: entry.alias,
+						sessionId: id,
+					},
+					id,
+				);
+				if (!staged.ok) {
+					for (const proposal of proposals) {
+						try {
+							await rejectBundleProposal(
+								options.docsRoot,
+								proposal.docPath,
+								proposal.proposalId,
+								{ sessionId: id },
+							);
+						} catch {
+							// Rollback is best-effort; preserve the original staging failure.
+						}
 					}
+					claimed.release();
+					return {
+						ok: false,
+						failure: {
+							kind: "stage_failed",
+							status: staged.status,
+							detail: staged.detail,
+							...(staged.issues !== undefined
+								? { issues: staged.issues }
+								: {}),
+							...(staged.current_hash !== undefined
+								? { currentHash: staged.current_hash }
+								: {}),
+							...(staged.expected_hash !== undefined
+								? { expectedHash: staged.expected_hash }
+								: {}),
+						},
+					};
 				}
-				// Re-proposals are independent (no synthetic working document). Move
-				// the replacement to the end so review order remains staging order.
-				stagedProposals = [
-					...stagedProposals.filter((_, index) => index !== existingIndex),
-					proposal,
-				];
+				proposals.push({
+					proposalId: staged.proposal.id,
+					requestAlias: entry.alias,
+					docPath: normalizedTargetPath,
+					baseHash: staged.proposal.baseHash,
+					ops: [...staged.proposal.ops],
+					changedBlockIds: [...staged.proposal.changedBlockIds],
+					summary: staged.proposal.summary,
+					createdAt: staged.proposal.createdAt,
+				});
 			}
+
+			const superseded = stagedProposals.filter(
+				(candidate) =>
+					candidate.requestAlias === entry.alias &&
+					candidate.docPath === normalizedTargetPath &&
+					candidate.patchId === undefined &&
+					!rejectedProposalIds.has(candidate.proposalId),
+			);
+			for (const previous of superseded) {
+				try {
+					await rejectBundleProposal(
+						options.docsRoot,
+						previous.docPath,
+						previous.proposalId,
+						{ sessionId: id },
+					);
+				} catch {
+					// The replacement set is persisted, so rejection is best-effort.
+				}
+			}
+			for (const previous of stagedProposals) {
+				if (previous.requestAlias === entry.alias) {
+					rejectedProposalIds.delete(previous.proposalId);
+				}
+			}
+			stagedProposals = [
+				...stagedProposals.filter(
+					(candidate) => candidate.requestAlias !== entry.alias,
+				),
+				...proposals,
+			];
+			retained = true;
+			const proposal = proposals.at(-1)!;
 			const updated = replaceEntry(entry.alias, {
 				status: "ready",
 				waitingOnHuman: false,
 				proposalId: proposal.proposalId,
 			});
-			emit({ type: "proposal-staged", sessionId: id, proposal });
+			for (const stagedProposal of proposals) {
+				emit({ type: "proposal-staged", sessionId: id, proposal: stagedProposal });
+			}
 			emit({ type: "request-updated", sessionId: id, request: updated });
 			refreshStatus();
-			await options.onProposalStaged?.(proposal);
+			for (const stagedProposal of proposals) {
+				await options.onProposalStaged?.(stagedProposal);
+			}
 			return { ok: true, proposal };
 		} catch (error) {
-			if (!persisted) claimed.release();
+			if (!retained) {
+				for (const proposal of proposals) {
+					try {
+						await rejectBundleProposal(
+							options.docsRoot,
+							proposal.docPath,
+							proposal.proposalId,
+							{ sessionId: id },
+						);
+					} catch {
+						// Rollback is best-effort; preserve the original exception.
+					}
+				}
+				claimed.release();
+			}
 			return {
 				ok: false,
 				failure: {
@@ -624,35 +808,71 @@ export function createDocsEditSession(
 		return { ok: true, request: updated };
 	}
 
+	function reviewedRequestStatus(
+		alias: string,
+	): "ready" | "applied" | "declined" | undefined {
+		const proposals = stagedProposals.filter(
+			(proposal) => proposal.requestAlias === alias,
+		);
+		if (
+			proposals.some(
+				(proposal) =>
+					proposal.patchId === undefined &&
+					!rejectedProposalIds.has(proposal.proposalId),
+			)
+		) {
+			return "ready";
+		}
+		if (proposals.some((proposal) => proposal.patchId !== undefined)) {
+			return "applied";
+		}
+		if (
+			proposals.length > 0 &&
+			proposals.every((proposal) =>
+				rejectedProposalIds.has(proposal.proposalId)
+			)
+		) {
+			return "declined";
+		}
+		return undefined;
+	}
+
 	function markApplied(
 		aliasOrId: string,
 		patchId: string,
-		proposalId?: string,
+		proposalId: string,
 		hash = baseHash,
 	): DocsEditRequestMutationResult {
 		const entry = findEntry(aliasOrId);
 		if (!entry) {
 			return { ok: false, message: `No request "${aliasOrId.trim()}" in the queue.` };
 		}
-		const activeProposalId = proposalId ?? entry.proposalId;
-		if (!activeProposalId) {
-			return { ok: false, message: `${entry.alias} has no staged proposal.` };
+		const proposal = stagedProposals.find(
+			(candidate) =>
+				candidate.requestAlias === entry.alias &&
+				candidate.proposalId === proposalId,
+		);
+		if (!proposal) {
+			return {
+				ok: false,
+				message: `${entry.alias} has no proposal "${proposalId}".`,
+			};
 		}
 		stagedProposals = stagedProposals.map((proposal) =>
-			proposal.proposalId === activeProposalId
+			proposal.proposalId === proposalId
 				? { ...proposal, patchId }
 				: proposal,
 		);
+		rejectedProposalIds.delete(proposalId);
 		const updated = updateRequest(entry, {
-			status: "applied",
+			status: reviewedRequestStatus(entry.alias) ?? "applied",
 			waitingOnHuman: false,
-			proposalId: activeProposalId,
 		});
 		emit({
 			type: "proposal-applied",
 			sessionId: id,
 			alias: entry.alias,
-			proposalId: activeProposalId,
+			proposalId,
 			patchId,
 			hash,
 		});
@@ -661,17 +881,27 @@ export function createDocsEditSession(
 
 	function markRejected(
 		aliasOrId: string,
+		proposalId: string,
 		note?: string,
 	): DocsEditRequestMutationResult {
 		const entry = findEntry(aliasOrId);
 		if (!entry) {
 			return { ok: false, message: `No request "${aliasOrId.trim()}" in the queue.` };
 		}
-		if (!entry.proposalId) {
-			return { ok: false, message: `${entry.alias} has no staged proposal.` };
+		const proposal = stagedProposals.find(
+			(candidate) =>
+				candidate.requestAlias === entry.alias &&
+				candidate.proposalId === proposalId,
+		);
+		if (!proposal) {
+			return {
+				ok: false,
+				message: `${entry.alias} has no proposal "${proposalId}".`,
+			};
 		}
+		rejectedProposalIds.add(proposalId);
 		const updated = updateRequest(entry, {
-			status: "declined",
+			status: reviewedRequestStatus(entry.alias) ?? "declined",
 			waitingOnHuman: false,
 			...(note?.trim() ? { note: note.trim() } : {}),
 		});
@@ -679,7 +909,7 @@ export function createDocsEditSession(
 			type: "proposal-rejected",
 			sessionId: id,
 			alias: entry.alias,
-			proposalId: entry.proposalId,
+			proposalId,
 			...(note !== undefined ? { note } : {}),
 		});
 		return { ok: true, request: updated };
@@ -687,6 +917,7 @@ export function createDocsEditSession(
 
 	function markUndone(
 		aliasOrId: string,
+		proposalId: string,
 		hash = baseHash,
 	): DocsEditRequestMutationResult {
 		const entry = findEntry(aliasOrId);
@@ -694,7 +925,9 @@ export function createDocsEditSession(
 			return { ok: false, message: `No request "${aliasOrId.trim()}" in the queue.` };
 		}
 		const proposal = stagedProposals.find(
-			(candidate) => candidate.proposalId === entry.proposalId,
+			(candidate) =>
+				candidate.requestAlias === entry.alias &&
+				candidate.proposalId === proposalId,
 		);
 		if (!proposal?.patchId) {
 			return { ok: false, message: `${entry.alias} has no applied patch to undo.` };
@@ -704,8 +937,9 @@ export function createDocsEditSession(
 			const { patchId: _patchId, ...withoutPatch } = candidate;
 			return withoutPatch;
 		});
+		rejectedProposalIds.delete(proposal.proposalId);
 		const updated = updateRequest(entry, {
-			status: "ready",
+			status: reviewedRequestStatus(entry.alias) ?? "ready",
 			waitingOnHuman: false,
 		});
 		emit({
@@ -721,6 +955,7 @@ export function createDocsEditSession(
 
 	function replaceProposal(
 		aliasOrId: string,
+		proposalId: string,
 		proposal: DocsEditProposal,
 	): DocsEditRequestMutationResult {
 		const entry = findEntry(aliasOrId);
@@ -728,29 +963,35 @@ export function createDocsEditSession(
 			return { ok: false, message: `No request "${aliasOrId.trim()}" in the queue.` };
 		}
 		const oldProposal = stagedProposals.find(
-			(candidate) => candidate.requestAlias === entry.alias,
+			(candidate) =>
+				candidate.requestAlias === entry.alias &&
+				candidate.proposalId === proposalId,
 		);
+		if (!oldProposal) {
+			return {
+				ok: false,
+				message: `${entry.alias} has no proposal "${proposalId}".`,
+			};
+		}
 		const replacement: DocsEditProposal = {
 			...proposal,
 			requestAlias: entry.alias,
-			...(oldProposal
-				? {
-					supersededProposalIds: [
-						...(oldProposal.supersededProposalIds ?? []),
-						oldProposal.proposalId,
-					],
-				}
-				: {}),
+			supersededProposalIds: [
+				...(oldProposal.supersededProposalIds ?? []),
+				oldProposal.proposalId,
+			],
 		};
-		if (oldProposal) {
-			stagedProposals = stagedProposals.map((candidate) =>
-				candidate.requestAlias === entry.alias ? replacement : candidate,
-			);
-		} else stagedProposals = [...stagedProposals, replacement];
+		stagedProposals = stagedProposals.map((candidate) =>
+			candidate.proposalId === oldProposal.proposalId ? replacement : candidate,
+		);
+		rejectedProposalIds.delete(oldProposal.proposalId);
+		rejectedProposalIds.delete(replacement.proposalId);
 		const updated = updateRequest(entry, {
 			status: "ready",
 			waitingOnHuman: false,
-			proposalId: replacement.proposalId,
+			proposalId: entry.proposalId === proposalId
+				? replacement.proposalId
+				: entry.proposalId,
 		});
 		emit({ type: "proposal-staged", sessionId: id, proposal: replacement });
 		return { ok: true, request: updated };
@@ -772,6 +1013,11 @@ export function createDocsEditSession(
 			...proposal,
 			requestAlias: entry.alias,
 		}));
+		for (const previous of stagedProposals) {
+			if (previous.requestAlias === entry.alias) {
+				rejectedProposalIds.delete(previous.proposalId);
+			}
+		}
 		stagedProposals = [
 			...stagedProposals.filter((proposal) => proposal.requestAlias !== entry.alias),
 			...adopted,
@@ -779,7 +1025,7 @@ export function createDocsEditSession(
 		const updated = replaceEntry(entry.alias, {
 			status: "ready",
 			waitingOnHuman: false,
-			proposalId: adopted[0]?.proposalId,
+			proposalId: adopted.at(-1)?.proposalId,
 		});
 		for (const proposal of adopted) {
 			emit({ type: "proposal-staged", sessionId: id, proposal });
@@ -823,6 +1069,9 @@ export function createDocsEditSession(
 		stagedProposals = stagedProposals.filter(
 			(proposal) => proposal.requestAlias !== entry.alias,
 		);
+		for (const proposal of superseded) {
+			rejectedProposalIds.delete(proposal.proposalId);
+		}
 		const updated = replaceEntry(entry.alias, { proposalId: undefined });
 		await options.onProposalsSuperseded?.(entry.alias, superseded);
 		emit({ type: "request-updated", sessionId: id, request: updated });

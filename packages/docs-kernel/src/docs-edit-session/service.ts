@@ -2,8 +2,7 @@
  * Host lifecycle/review service for docs-edit sessions.
  *
  * Unlike prompt transactions, DocProposals do not chain on an in-memory
- * working document: reject may consume any pending proposal. Accept still
- * follows staging order for predictable review. A stale accept re-stages the
+ * working document: accept/reject may consume any pending proposal. A stale accept re-stages the
  * same DocOps against the current document before applying. Undo uses the
  * in-process docs-server ledger and leaves the annotation resolved.
  */
@@ -242,9 +241,9 @@ export interface DocsEditSessionService {
   getLaunch(sessionId: string): LaunchedDocsEditSession | null;
   getChangeSet(sessionId: string): Promise<DocChangeSetView | null>;
   subscribe(sessionId: string, listener: DocsEditSessionStreamListener): (() => void) | null;
-  acceptProposal(sessionId: string, alias: string): Promise<AcceptDocsEditProposalResult | null>;
+  acceptProposal(sessionId: string, alias: string, proposalId?: string): Promise<AcceptDocsEditProposalResult | null>;
   acceptAll(sessionId: string): Promise<DocsEditAcceptAllResult | null>;
-  rejectProposal(sessionId: string, alias: string, note?: string): Promise<RejectDocsEditProposalResult | null>;
+  rejectProposal(sessionId: string, alias: string, note?: string, proposalId?: string): Promise<RejectDocsEditProposalResult | null>;
   undoAccepted(sessionId: string, alias: string): Promise<UndoAcceptedDocsProposalResult | null>;
   replyToRequest(sessionId: string, alias: string, body: string): Promise<DocsEditSimpleResult | null>;
   addHumanRequest(sessionId: string, input: { id?: string; target: DocsEditTarget; body: string; author?: DocsEditRequestAuthor }): Promise<DocsEditSimpleResult | null>;
@@ -474,6 +473,22 @@ export function createDocsEditSessionService(
     await run;
   }
 
+  function reviewForRequest(
+    managed: ManagedSession,
+    alias: string,
+  ): DocsEditReviewStatus {
+    const reviews = managed.session.proposals()
+      .filter((proposal) => proposal.requestAlias === alias)
+      .map((proposal) => managed.review.get(proposal.proposalId) ?? "pending");
+    if (reviews.some((review) => review === "pending")) return "pending";
+    if (reviews.some((review) => review === "undone")) return "undone";
+    if (reviews.some((review) => review === "applied")) return "applied";
+    if (reviews.length > 0 && reviews.every((review) => review === "rejected")) {
+      return "rejected";
+    }
+    return "pending";
+  }
+
   function requestState(managed: ManagedSession, entry: DocsEditRequestEntry): DocsEditSessionRequestState {
     return {
       alias: entry.alias,
@@ -487,7 +502,7 @@ export function createDocsEditSessionService(
       waitingOnHuman: entry.waitingOnHuman,
       ...(entry.note !== undefined ? { note: entry.note } : {}),
       ...(entry.proposalId !== undefined ? { proposalId: entry.proposalId } : {}),
-      review: managed.review.get(entry.alias) ?? "pending",
+      review: reviewForRequest(managed, entry.alias),
     };
   }
 
@@ -501,7 +516,7 @@ export function createDocsEditSessionService(
       changedBlockIds: proposal.changedBlockIds,
       summary: proposal.summary,
       createdAt: proposal.createdAt,
-      review: managed.review.get(proposal.requestAlias) ?? "pending",
+      review: managed.review.get(proposal.proposalId) ?? "pending",
       ...(proposal.patchId ? { patchId: proposal.patchId } : {}),
       ...(proposal.supersededProposalIds ? { supersededProposalIds: [...proposal.supersededProposalIds] } : {}),
     };
@@ -509,7 +524,7 @@ export function createDocsEditSessionService(
 
   function nextAcceptAlias(managed: ManagedSession): string | null {
     for (const proposal of managed.session.proposals()) {
-      const review = managed.review.get(proposal.requestAlias) ?? "pending";
+      const review = managed.review.get(proposal.proposalId) ?? "pending";
       if (review === "pending" || review === "undone") return proposal.requestAlias;
     }
     return null;
@@ -624,6 +639,16 @@ export function createDocsEditSessionService(
   > {
     const loaded = await loadDocBundle(managed.session.docsRoot, proposal.docPath);
     if ("error" in loaded) return { ok: false as const, status: loaded.error.status, detail: loaded.error.detail };
+    const hasOtherUnsettledProposal = managed.session.proposals().some((candidate) => {
+      if (
+        candidate.requestAlias !== entry.alias ||
+        candidate.proposalId === proposal.proposalId
+      ) {
+        return false;
+      }
+      const review = managed.review.get(candidate.proposalId) ?? "pending";
+      return review === "pending" || review === "undone";
+    });
     const staged = await stageBundleProposal(
       managed.session.docsRoot,
       proposal.docPath,
@@ -632,7 +657,9 @@ export function createDocsEditSessionService(
         summary: proposal.summary,
         expectedHash: loaded.docHash,
         annotationId:
-          entry.sidecarBacked && proposal.docPath === managed.normalizedPath
+          !hasOtherUnsettledProposal &&
+          entry.sidecarBacked &&
+          proposal.docPath === managed.normalizedPath
             ? entry.annotationId
             : undefined,
         alias: entry.alias,
@@ -651,7 +678,12 @@ export function createDocsEditSessionService(
       summary: staged.proposal.summary,
       createdAt: staged.proposal.createdAt,
     };
-    const replaced = managed.session.replaceProposal(entry.alias, replacement);
+    const previousReview = managed.review.get(proposal.proposalId) ?? "pending";
+    const replaced = managed.session.replaceProposal(
+      entry.alias,
+      proposal.proposalId,
+      replacement,
+    );
     if (!replaced.ok) {
       return { ok: false, status: 400, detail: replaced.message };
     }
@@ -660,7 +692,7 @@ export function createDocsEditSessionService(
     // is nothing to reject; the new proposal is the single re-accept target.
     if (
       rejectPrevious &&
-      (managed.review.get(entry.alias) ?? "pending") !== "undone"
+      previousReview !== "undone"
     ) {
       const rejected = await rejectBundleProposal(
         managed.session.docsRoot,
@@ -672,9 +704,11 @@ export function createDocsEditSessionService(
         return rejected;
       }
     }
+    managed.review.delete(proposal.proposalId);
+    managed.review.set(replacement.proposalId, previousReview);
     await queueChangeSetSync(managed, replacement);
     const active = managed.session.proposals().find(
-      (candidate) => candidate.requestAlias === entry.alias,
+      (candidate) => candidate.proposalId === replacement.proposalId,
     );
     return active
       ? { ok: true, proposal: active }
@@ -812,20 +846,32 @@ export function createDocsEditSessionService(
         : accepted.patchId;
       const hash = hashes.get(proposal.docPath) ?? proposal.baseHash;
       if (proposal.docPath === managed.normalizedPath) managed.currentHash = hash;
-      managed.review.set(entry.alias, "applied");
+      managed.review.set(proposal.proposalId, "applied");
       managed.applied.push({
         alias: entry.alias,
         docPath: proposal.docPath,
         proposalId: proposal.proposalId,
         patchId,
       });
-      managed.session.markApplied(entry.alias, patchId, proposal.proposalId, hash);
-      const annotation = await annotationOutcome(
-        managed,
-        entry,
-        proposal.summary,
-        entry.sidecarBacked && proposal.docPath === managed.normalizedPath,
+      const marked = managed.session.markApplied(
+        entry.alias,
+        patchId,
+        proposal.proposalId,
+        hash,
       );
+      const annotation = marked.ok && marked.request.status === "applied"
+        ? await annotationOutcome(
+            managed,
+            entry,
+            proposal.summary,
+            entry.sidecarBacked && proposal.docPath === managed.normalizedPath,
+          )
+        : {
+            annotationId: entry.annotationId,
+            attached: false,
+            resolved: false,
+            detail: "request-still-ready",
+          };
       results.push({
         ok: true,
         alias: entry.alias,
@@ -917,6 +963,9 @@ export function createDocsEditSessionService(
           onProposalsSuperseded: async (alias, proposals) => {
             if (!managedForPersistence) return;
             managedForPersistence.changeSetMigrationsByAlias.delete(alias);
+            for (const proposal of proposals) {
+              managedForPersistence.review.delete(proposal.proposalId);
+            }
             if (!managedForPersistence.changesetId) return;
             const loaded = await readChangeSetRecord(
               managedForPersistence.session.docsRoot,
@@ -1047,22 +1096,33 @@ export function createDocsEditSessionService(
       return () => managed.listeners.delete(listener);
     },
 
-    async acceptProposal(sessionId, requestedAlias) {
+    async acceptProposal(sessionId, requestedAlias, requestedProposalId) {
       const managed = sessions.get(sessionId);
       if (!managed) return null;
       const alias = requestedAlias.trim();
+      const proposalId = requestedProposalId?.trim();
       if (!allowWrites) return { ok: false, failure: { kind: "writes_disabled" } };
       const entry = managed.session.requests().find((candidate) => candidate.alias === alias);
       if (!entry) return { ok: false, failure: { kind: "unknown_request", alias } };
-      if (managed.review.get(alias) === "applied") return { ok: false, failure: { kind: "already_applied", alias } };
-      let proposal = managed.session.proposals().find((candidate) => candidate.requestAlias === alias);
+      let proposal = proposalId
+        ? managed.session.proposals().find(
+            (candidate) => candidate.requestAlias === alias && candidate.proposalId === proposalId,
+          )
+        : managed.session.proposals().find((candidate) => {
+            if (candidate.requestAlias !== alias) return false;
+            const review = managed.review.get(candidate.proposalId) ?? "pending";
+            return review === "pending" || review === "undone";
+          });
       if (!proposal) return { ok: false, failure: { kind: "no_staged_proposal", alias } };
-      const nextAlias = nextAcceptAlias(managed);
-      if (nextAlias !== alias) {
-        return { ok: false, failure: { kind: "out_of_order", alias, nextAlias: nextAlias ?? alias } };
+      const proposalReview = managed.review.get(proposal.proposalId) ?? "pending";
+      if (proposalReview === "applied") {
+        return { ok: false, failure: { kind: "already_applied", alias } };
+      }
+      if (proposalReview === "rejected") {
+        return { ok: false, failure: { kind: "no_staged_proposal", alias } };
       }
 
-      if (managed.review.get(alias) === "undone" && proposal.patchId) {
+      if (proposalReview === "undone" && proposal.patchId) {
         const refreshed = await restage(managed, entry, proposal);
         if (!refreshed.ok) {
           return { ok: false, failure: failureFromBackend("apply_failure", refreshed) };
@@ -1092,20 +1152,32 @@ export function createDocsEditSessionService(
       if (proposal.docPath === managed.normalizedPath) {
         managed.currentHash = accepted.hash;
       }
-      managed.review.set(alias, "applied");
+      managed.review.set(proposal.proposalId, "applied");
       managed.applied.push({
         alias,
         docPath: proposal.docPath,
         proposalId: proposal.proposalId,
         patchId: accepted.patchId,
       });
-      managed.session.markApplied(alias, accepted.patchId, proposal.proposalId, accepted.hash);
-      const annotation = await annotationOutcome(
-        managed,
-        entry,
-        proposal.summary,
-        entry.sidecarBacked && proposal.docPath === managed.normalizedPath,
+      const marked = managed.session.markApplied(
+        alias,
+        accepted.patchId,
+        proposal.proposalId,
+        accepted.hash,
       );
+      const annotation = marked.ok && marked.request.status === "applied"
+        ? await annotationOutcome(
+            managed,
+            entry,
+            proposal.summary,
+            entry.sidecarBacked && proposal.docPath === managed.normalizedPath,
+          )
+        : {
+            annotationId: entry.annotationId,
+            attached: false,
+            resolved: false,
+            detail: "request-still-ready",
+          };
       await emitFreshChangeSet(managed);
       return { ok: true, alias, proposalId: proposal.proposalId, patchId: accepted.patchId, hash: accepted.hash, annotation };
     },
@@ -1114,7 +1186,7 @@ export function createDocsEditSessionService(
       const managed = sessions.get(sessionId);
       if (!managed) return null;
       const batch = managed.session.proposals().filter((proposal) => {
-        const review = managed.review.get(proposal.requestAlias) ?? "pending";
+        const review = managed.review.get(proposal.proposalId) ?? "pending";
         return review === "pending" || review === "undone";
       });
       if (!allowWrites) {
@@ -1199,7 +1271,7 @@ export function createDocsEditSessionService(
 
         // An undone proposal has already been accepted in its sidecar. Refresh
         // it before the atomic window so the batch itself never auto-restages.
-        if (managed.review.get(proposal.requestAlias) === "undone" && proposal.patchId) {
+        if (managed.review.get(proposal.proposalId) === "undone" && proposal.patchId) {
           const refreshed = await restage(managed, entry, proposal);
           if (!refreshed.ok) {
             const failed = {
@@ -1267,26 +1339,33 @@ export function createDocsEditSessionService(
         if (applied.proposal.docPath === managed.normalizedPath) {
           managed.currentHash = applied.hash;
         }
-        managed.review.set(applied.entry.alias, "applied");
+        managed.review.set(applied.proposal.proposalId, "applied");
         managed.applied.push({
           alias: applied.entry.alias,
           docPath: applied.proposal.docPath,
           proposalId: applied.proposal.proposalId,
           patchId: applied.patchId,
         });
-        managed.session.markApplied(
+        const marked = managed.session.markApplied(
           applied.entry.alias,
           applied.patchId,
           applied.proposal.proposalId,
           applied.hash,
         );
-        const annotation = await annotationOutcome(
-          managed,
-          applied.entry,
-          applied.proposal.summary,
-          applied.entry.sidecarBacked &&
-            applied.proposal.docPath === managed.normalizedPath,
-        );
+        const annotation = marked.ok && marked.request.status === "applied"
+          ? await annotationOutcome(
+              managed,
+              applied.entry,
+              applied.proposal.summary,
+              applied.entry.sidecarBacked &&
+                applied.proposal.docPath === managed.normalizedPath,
+            )
+          : {
+              annotationId: applied.entry.annotationId,
+              attached: false,
+              resolved: false,
+              detail: "request-still-ready",
+            };
         const result = results.find(
           (candidate) =>
             candidate.ok &&
@@ -1298,16 +1377,31 @@ export function createDocsEditSessionService(
       return { ok: true, results };
     },
 
-    async rejectProposal(sessionId, requestedAlias, note) {
+    async rejectProposal(sessionId, requestedAlias, note, requestedProposalId) {
       const managed = sessions.get(sessionId);
       if (!managed) return null;
       const alias = requestedAlias.trim();
+      const proposalId = requestedProposalId?.trim();
       if (!allowWrites) return { ok: false, failure: { kind: "writes_disabled" } };
       const entry = managed.session.requests().find((candidate) => candidate.alias === alias);
       if (!entry) return { ok: false, failure: { kind: "unknown_request", alias } };
-      if (managed.review.get(alias) === "applied") return { ok: false, failure: { kind: "already_applied", alias } };
-      const proposal = managed.session.proposals().find((candidate) => candidate.requestAlias === alias);
+      const proposal = proposalId
+        ? managed.session.proposals().find(
+            (candidate) => candidate.requestAlias === alias && candidate.proposalId === proposalId,
+          )
+        : managed.session.proposals().find((candidate) => {
+            if (candidate.requestAlias !== alias) return false;
+            const review = managed.review.get(candidate.proposalId) ?? "pending";
+            return review === "pending" || review === "undone";
+          });
       if (!proposal) return { ok: false, failure: { kind: "no_staged_proposal", alias } };
+      const proposalReview = managed.review.get(proposal.proposalId) ?? "pending";
+      if (proposalReview === "applied") {
+        return { ok: false, failure: { kind: "already_applied", alias } };
+      }
+      if (proposalReview === "rejected") {
+        return { ok: false, failure: { kind: "no_staged_proposal", alias } };
+      }
       const rejected = await rejectBundleProposal(
         managed.session.docsRoot,
         proposal.docPath,
@@ -1316,13 +1410,24 @@ export function createDocsEditSessionService(
       );
       if (!rejected.ok) return { ok: false, failure: failureFromBackend("reject_failed", rejected) };
       const closingNote = note?.trim() || "Rejected in review.";
-      managed.review.set(alias, "rejected");
-      managed.session.markRejected(alias, closingNote);
-      const annotation = await annotationOutcome(managed, entry, closingNote, false);
+      managed.review.set(proposal.proposalId, "rejected");
+      const marked = managed.session.markRejected(
+        alias,
+        proposal.proposalId,
+        closingNote,
+      );
+      const annotation = marked.ok && marked.request.status !== "ready"
+        ? await annotationOutcome(managed, entry, closingNote, false)
+        : {
+            annotationId: entry.annotationId,
+            attached: false,
+            resolved: false,
+            detail: "request-still-ready",
+          };
       const request = managed.session.requests().find((candidate) => candidate.alias === alias)!;
       const rejectedEverything = managed.changesetId !== undefined &&
         managed.session.proposals().every(
-          (candidate) => managed.review.get(candidate.requestAlias) === "rejected",
+          (candidate) => managed.review.get(candidate.proposalId) === "rejected",
         );
       if (rejectedEverything) {
         const changeset = await docsStoreFor(managed).changesetReject(
@@ -1352,9 +1457,12 @@ export function createDocsEditSessionService(
       if (!managed.session.requests().some((entry) => entry.alias === alias)) {
         return { ok: false, failure: { kind: "unknown_request", alias } };
       }
-      if (managed.review.get(alias) !== "applied") return { ok: false, failure: { kind: "not_applied", alias } };
+      const latestForAlias = [...managed.applied].reverse().find(
+        (applied) => applied.alias === alias && managed.review.get(applied.proposalId) === "applied",
+      );
+      if (!latestForAlias) return { ok: false, failure: { kind: "not_applied", alias } };
       const latest = managed.applied.at(-1);
-      if (!latest || latest.alias !== alias) {
+      if (!latest || latest.proposalId !== latestForAlias.proposalId) {
         return { ok: false, failure: { kind: "not_latest_applied", alias, lastAppliedAlias: latest?.alias ?? alias } };
       }
 
@@ -1385,8 +1493,8 @@ export function createDocsEditSessionService(
           for (const applied of appliedBatch) {
             const hash = hashes.get(applied.docPath) ?? managed.session.baseHash;
             if (applied.docPath === managed.normalizedPath) managed.currentHash = hash;
-            managed.review.set(applied.alias, "undone");
-            managed.session.markUndone(applied.alias, hash);
+            managed.review.set(applied.proposalId, "undone");
+            managed.session.markUndone(applied.alias, applied.proposalId, hash);
           }
           emit(managed, {
             type: "changeset-updated",
@@ -1412,13 +1520,13 @@ export function createDocsEditSessionService(
       if (latest.docPath === managed.normalizedPath) {
         managed.currentHash = undone.hash;
       }
-      managed.review.set(alias, "undone");
-      managed.session.markUndone(alias, undone.hash);
+      managed.review.set(latest.proposalId, "undone");
+      managed.session.markUndone(alias, latest.proposalId, undone.hash);
       const entry = managed.session.requests().find(
         (candidate) => candidate.alias === alias,
       );
       const proposal = managed.session.proposals().find(
-        (candidate) => candidate.requestAlias === alias,
+        (candidate) => candidate.proposalId === latest.proposalId,
       );
       if (entry && proposal) await restage(managed, entry, proposal, false);
       await emitFreshChangeSet(managed);

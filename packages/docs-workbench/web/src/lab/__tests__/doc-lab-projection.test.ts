@@ -233,6 +233,26 @@ describe("proposal projections", () => {
 		]);
 	});
 
+	it("gives sibling staged proposals the same linked request alias", () => {
+		const requests = deriveDocEditRequests({
+			doc,
+			annotations: [annotation("linked")],
+			proposals: [],
+		});
+		const proposals = [
+			proposal("section-one", { annotationId: "linked" }),
+			proposal("section-two", { annotationId: "linked" }),
+		];
+
+		expect(deriveStagedProposals({ proposals, requests }).map((row) => ({
+			transactionId: row.transactionId,
+			alias: row.alias,
+		}))).toEqual([
+			{ transactionId: "section-one", alias: "R1" },
+			{ transactionId: "section-two", alias: "R1" },
+		]);
+	});
+
 	it("excludes stale staged proposals and returns them from the conflict projection", () => {
 		const proposals = [
 			proposal("active"),

@@ -218,10 +218,10 @@ export function useDocLabSession(options: UseDocLabSessionOptions): DocLabSessio
 		setRequestErrors((current) => ({ ...current, [alias]: message }));
 	}, []);
 
-	const onAccept = useCallback(async (alias: string) => {
+	const onAccept = useCallback(async (alias: string, transactionId?: string) => {
 		const request = requestsRef.current.find((row) => row.alias === alias);
 		if (options.kernelSession?.live() && request?.annotationId) {
-			const result = await options.kernelSession.accept(request.annotationId);
+			const result = await options.kernelSession.accept(request.annotationId, transactionId);
 			if (result.ok) {
 				clearAliasError(alias);
 				await refreshBundleRef.current();
@@ -233,7 +233,9 @@ export function useDocLabSession(options: UseDocLabSessionOptions): DocLabSessio
 				return;
 			}
 		}
-		const stagedProposal = stagedRef.current.find((proposal) => proposal.alias === alias);
+		const stagedProposal = transactionId
+			? stagedRef.current.find((proposal) => proposal.transactionId === transactionId)
+			: stagedRef.current.find((proposal) => proposal.alias === alias);
 		if (!stagedProposal) return;
 		try {
 			const response = await acceptProposal(
@@ -261,10 +263,10 @@ export function useDocLabSession(options: UseDocLabSessionOptions): DocLabSessio
 		}
 	}, [path, options.kernelSession, clearAliasError, setAliasError]);
 
-	const onReject = useCallback(async (alias: string) => {
+	const onReject = useCallback(async (alias: string, note?: string, transactionId?: string) => {
 		const request = requestsRef.current.find((row) => row.alias === alias);
 		if (options.kernelSession?.live() && request?.annotationId) {
-			const result = await options.kernelSession.reject(request.annotationId);
+			const result = await options.kernelSession.reject(request.annotationId, note, transactionId);
 			if (result.ok) {
 				clearAliasError(alias);
 				await refreshBundleRef.current();
@@ -276,7 +278,9 @@ export function useDocLabSession(options: UseDocLabSessionOptions): DocLabSessio
 				return;
 			}
 		}
-		const stagedProposal = stagedRef.current.find((proposal) => proposal.alias === alias);
+		const stagedProposal = transactionId
+			? stagedRef.current.find((proposal) => proposal.transactionId === transactionId)
+			: stagedRef.current.find((proposal) => proposal.alias === alias);
 		const rawProposal = proposalsRef.current.find((proposal) => {
 			if (proposal.id === stagedProposal?.transactionId || proposal.alias === alias) {
 				return true;
@@ -287,10 +291,10 @@ export function useDocLabSession(options: UseDocLabSessionOptions): DocLabSessio
 					request.annotationId === proposal.annotationId && request.alias === alias,
 			);
 		});
-		const transactionId = stagedProposal?.transactionId ?? rawProposal?.id;
-		if (!transactionId) return;
+		const proposalId = transactionId ?? stagedProposal?.transactionId ?? rawProposal?.id;
+		if (!proposalId) return;
 		try {
-			const response = await rejectProposal(path, transactionId);
+			const response = await rejectProposal(path, proposalId);
 			proposalsHashRef.current = response.hash;
 			setProposals(response.proposals.map((proposal) => ({
 				...proposal,

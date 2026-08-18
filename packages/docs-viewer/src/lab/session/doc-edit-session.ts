@@ -92,9 +92,11 @@ export interface DocEditProposal {
  * discipline, enforced by the lab's buttons (disabled + tooltip reason,
  * never an error after click):
  *
- * - `proposals` is the STAGING ORDER. Accept is enabled only on the first
- *   staged proposal; later Accepts are disabled until their turn.
- * - Reject is enabled only on the LAST staged proposal.
+ * - `proposals` is the STAGING ORDER. Legacy alias-only Accept is enabled only
+ *   on the first staged proposal; transaction-targeted Accept may select any
+ *   staged proposal.
+ * - Legacy alias-only Reject is enabled only on the LAST staged proposal;
+ *   transaction-targeted Reject may select any staged proposal.
  * - Undo is enabled only on the request named by `undoableAlias` (the most
  *   recently applied change).
  * - While any proposal is staged the lab blocks manual editing of the blocks
@@ -108,8 +110,10 @@ export interface DocEditSession {
 	undoableAlias?: string;
 	/** File a request from an inline or document-level composer. */
 	onFileRequest?: (filing: DocRequestFiling) => void | Promise<void>;
-	onAccept?: (alias: string) => void | Promise<void>;
-	onReject?: (alias: string, note?: string) => void | Promise<void>;
+	/** Accept a request, optionally targeting one staged proposal by transaction id. */
+	onAccept?: (alias: string, transactionId?: string) => void | Promise<void>;
+	/** Reject a request, optionally targeting one staged proposal by transaction id. */
+	onReject?: (alias: string, note?: string, transactionId?: string) => void | Promise<void>;
 	/** Files the note as revision feedback instead of closing the loop — in a live session the agent reruns and supersedes the staged proposal. */
 	onRejectWithFeedback?: (alias: string, note: string) => void | Promise<void>;
 	onUndo?: (alias: string) => void | Promise<void>;
@@ -137,7 +141,11 @@ export function requestRunId(
 export function acceptDisabledReason(
 	proposals: readonly DocEditProposal[],
 	alias: string,
+	transactionId?: string,
 ): string | null {
+	if (transactionId && proposals.some((proposal) => proposal.transactionId === transactionId)) {
+		return null;
+	}
 	const index = proposals.findIndex((proposal) => proposal.alias === alias);
 	if (index <= 0) return null;
 	return `Accept ${proposals[0]!.alias} first — accepts apply in staging order.`;
@@ -147,7 +155,11 @@ export function acceptDisabledReason(
 export function rejectDisabledReason(
 	proposals: readonly DocEditProposal[],
 	alias: string,
+	transactionId?: string,
 ): string | null {
+	if (transactionId && proposals.some((proposal) => proposal.transactionId === transactionId)) {
+		return null;
+	}
 	const index = proposals.findIndex((proposal) => proposal.alias === alias);
 	if (index === -1 || index === proposals.length - 1) return null;
 	return `Only the latest staged proposal (${proposals[proposals.length - 1]!.alias}) can be rejected.`;

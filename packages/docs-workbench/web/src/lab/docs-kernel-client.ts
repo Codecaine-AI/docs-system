@@ -154,8 +154,8 @@ export interface DocsKernelClient {
   getSession(id: string): Promise<DocsKernelClientResult<{ state: DocsEditSessionState }>>;
   listSessions(): Promise<DocsKernelClientResult<{ sessions: DocsEditSessionSummary[] }>>;
   subscribeSessionEvents(id: string, onEvent: (event: DocsEditSessionStreamEvent) => void, onError?: (error: Error) => void): () => void;
-  acceptProposal(id: string, alias: string): Promise<DocsKernelClientResult<DocsEditReviewSuccess>>;
-  rejectProposal(id: string, alias: string, note?: string): Promise<DocsKernelClientResult<DocsEditReviewSuccess>>;
+  acceptProposal(id: string, alias: string, proposalId?: string): Promise<DocsKernelClientResult<DocsEditReviewSuccess>>;
+  rejectProposal(id: string, alias: string, note?: string, proposalId?: string): Promise<DocsKernelClientResult<DocsEditReviewSuccess>>;
   undoProposal(id: string, alias: string): Promise<DocsKernelClientResult<DocsEditReviewSuccess>>;
   replyToRequest(id: string, alias: string, body: string): Promise<DocsKernelClientResult<{ ok: true; request: DocsEditRequestState }>>;
   addRequest(id: string, input: { target: DocsEditTarget; body: string }): Promise<DocsKernelClientResult<{ ok: true; request: DocsEditRequestState }>>;
@@ -257,8 +257,17 @@ export function createDocsKernelClient(options: CreateDocsKernelClientOptions = 
     createSession: (input) => post(sessionsPath, input),
     getSession: (id) => request(sessionPath(id)),
     listSessions: () => request(sessionsPath),
-    acceptProposal: (id, alias) => post(`${requestPath(id, alias)}/accept`),
-    rejectProposal: (id, alias, note) => post(`${requestPath(id, alias)}/reject`, note === undefined ? {} : { note }),
+    acceptProposal: (id, alias, proposalId) => post(
+      `${requestPath(id, alias)}/accept`,
+      proposalId === undefined ? {} : { proposalId },
+    ),
+    rejectProposal: (id, alias, note, proposalId) => post(
+      `${requestPath(id, alias)}/reject`,
+      {
+        ...(note === undefined ? {} : { note }),
+        ...(proposalId === undefined ? {} : { proposalId }),
+      },
+    ),
     undoProposal: (id, alias) => post(`${requestPath(id, alias)}/undo`),
     replyToRequest: (id, alias, body) => post(`${requestPath(id, alias)}/replies`, { body }),
     addRequest: (id, input) => post(`${sessionPath(id)}/requests`, input),

@@ -368,6 +368,29 @@ describe("useDocLabSession", () => {
     expect(calls.filter((call) => call.url.startsWith("api/proposals?")).length).toBe(2);
   });
 
+  it("targets a live kernel accept by transaction id", async () => {
+    proposals = [stagedProposal()];
+    const accepts: Array<[string, string | undefined]> = [];
+    const kernelSession = {
+      live: () => true,
+      accept: async (annotationId: string, proposalId?: string) => {
+        accepts.push([annotationId, proposalId]);
+        return { ok: true };
+      },
+      statusOverlay: () => new Map(),
+      changesets: () => new Map(),
+      sessionId: () => "session-1",
+    } as never;
+    const { result } = renderSession({ kernelSession });
+    await waitFor(() => expect(result.current.session.proposals).toHaveLength(1));
+
+    await act(async () => {
+      await result.current.session.onAccept?.("R1", "proposal-1");
+    });
+
+    expect(accepts).toEqual([["ann-1", "proposal-1"]]);
+  });
+
   it("rejects the staged proposal and refreshes the bundle", async () => {
     proposals = [stagedProposal()];
     let refreshes = 0;

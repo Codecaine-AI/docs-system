@@ -1062,13 +1062,15 @@ export function DocPage({
           acceptDisabledReason={acceptDisabledReason(
             lab.session.proposals,
             proposal.alias,
+            proposal.transactionId,
           )}
           rejectDisabledReason={rejectDisabledReason(
             lab.session.proposals,
             proposal.alias,
+            proposal.transactionId,
           )}
-          onAccept={() => void lab.session.onAccept?.(proposal.alias)}
-          onReject={() => void lab.session.onReject?.(proposal.alias)}
+          onAccept={() => void lab.session.onAccept?.(proposal.alias, proposal.transactionId)}
+          onReject={() => void lab.session.onReject?.(proposal.alias, undefined, proposal.transactionId)}
           onRejectWithFeedback={lab.session.onRejectWithFeedback
             ? (note) => void lab.session.onRejectWithFeedback?.(proposal.alias, note)
             : undefined}

@@ -381,11 +381,27 @@ export function createDocsEditSessionApi(
 		)
 		.post(
 			`${prefix}/docs-edit-sessions/:id/requests/:alias/accept`,
-			async ({ params, set }) => {
+			async ({ params, body, set }) => {
 				if (!allowWrites) return readOnly(set);
 				try {
+					const input = body === undefined || body === null ? {} : body;
+					if (!isPlainObject(input)) {
+						set.status = 400;
+						return { errors: ["accept: expected an object body"] };
+					}
+					if (
+						input.proposalId !== undefined &&
+						typeof input.proposalId !== "string"
+					) {
+						set.status = 400;
+						return { errors: ["proposalId: expected a string"] };
+					}
 					return answerReview(
-						await sessions.acceptProposal(params.id, params.alias),
+						await sessions.acceptProposal(
+							params.id,
+							params.alias,
+							input.proposalId,
+						),
 						params.id,
 						set,
 					);
@@ -410,8 +426,20 @@ export function createDocsEditSessionApi(
 						set.status = 400;
 						return { errors: ["note: expected a string"] };
 					}
+					if (
+						input.proposalId !== undefined &&
+						typeof input.proposalId !== "string"
+					) {
+						set.status = 400;
+						return { errors: ["proposalId: expected a string"] };
+					}
 					return answerReview(
-						await sessions.rejectProposal(params.id, params.alias, input.note),
+						await sessions.rejectProposal(
+							params.id,
+							params.alias,
+							input.note,
+							input.proposalId,
+						),
 						params.id,
 						set,
 					);

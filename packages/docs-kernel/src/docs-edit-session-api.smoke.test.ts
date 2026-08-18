@@ -96,6 +96,13 @@ interface FakeServiceControls {
 	service: DocsEditSessionService;
 	state: DocsEditSessionState;
 	createdInputs: CreateDocsEditSessionInput[];
+	acceptInputs: Array<{ sessionId: string; alias: string; proposalId?: string }>;
+	rejectInputs: Array<{
+		sessionId: string;
+		alias: string;
+		note?: string;
+		proposalId?: string;
+	}>;
 	setCreateResult(result: CreateDocsEditSessionResult): void;
 	setAcceptResult(result: AcceptDocsEditProposalResult): void;
 	setAcceptAllResult(result: DocsEditAcceptAllResult | null): void;
@@ -107,6 +114,8 @@ interface FakeServiceControls {
 function fakeService(): FakeServiceControls {
 	const state = stateFixture();
 	const createdInputs: CreateDocsEditSessionInput[] = [];
+	const acceptInputs: FakeServiceControls["acceptInputs"] = [];
+	const rejectInputs: FakeServiceControls["rejectInputs"] = [];
 	const listeners = new Set<DocsEditSessionStreamListener>();
 	let disposed = false;
 	let createResult: CreateDocsEditSessionResult = { ok: true, state };
@@ -180,13 +189,24 @@ function fakeService(): FakeServiceControls {
 			listeners.add(listener);
 			return () => listeners.delete(listener);
 		},
-		async acceptProposal() {
+		async acceptProposal(sessionId, alias, proposalId) {
+			acceptInputs.push({
+				sessionId,
+				alias,
+				...(proposalId !== undefined ? { proposalId } : {}),
+			});
 			return acceptResult;
 		},
 		async acceptAll() {
 			return acceptAllResult;
 		},
-		async rejectProposal() {
+		async rejectProposal(sessionId, alias, note, proposalId) {
+			rejectInputs.push({
+				sessionId,
+				alias,
+				...(note !== undefined ? { note } : {}),
+				...(proposalId !== undefined ? { proposalId } : {}),
+			});
 			return rejectResult;
 		},
 		async undoAccepted() {
@@ -217,6 +237,8 @@ function fakeService(): FakeServiceControls {
 		service,
 		state,
 		createdInputs,
+		acceptInputs,
+		rejectInputs,
 		setCreateResult(result) {
 			createResult = result;
 		},
@@ -414,6 +436,33 @@ describe("docs-edit session HTTP smoke", () => {
 		expect(((await early.json()) as { failure: { kind: string } }).failure.kind).toBe(
 			"no_staged_proposal",
 		);
+		expect(fake.acceptInputs.at(-1)).toEqual({
+			sessionId: SESSION_ID,
+			alias: "R1",
+		});
+
+		const targetedAccept = await post(
+			app,
+			`/kernel/docs-edit-sessions/${SESSION_ID}/requests/R1/accept`,
+			{ proposalId: "proposal-section-2" },
+		);
+		expect(targetedAccept.status).toBe(409);
+		expect(fake.acceptInputs.at(-1)).toEqual({
+			sessionId: SESSION_ID,
+			alias: "R1",
+			proposalId: "proposal-section-2",
+		});
+		const acceptCallsBeforeInvalid = fake.acceptInputs.length;
+		const invalidAcceptBody = await post(
+			app,
+			`/kernel/docs-edit-sessions/${SESSION_ID}/requests/R1/accept`,
+			{ proposalId: 42 },
+		);
+		expect(invalidAcceptBody.status).toBe(400);
+		expect(await invalidAcceptBody.json()).toEqual({
+			errors: ["proposalId: expected a string"],
+		});
+		expect(fake.acceptInputs).toHaveLength(acceptCallsBeforeInvalid);
 
 		fake.setAcceptResult({
 			ok: false,
@@ -432,13 +481,30 @@ describe("docs-edit session HTTP smoke", () => {
 		const invalid = await post(
 			app,
 			`/kernel/docs-edit-sessions/${SESSION_ID}/requests/R1/reject`,
-			{ note: "No." },
+			{ note: "No.", proposalId: "proposal-section-1" },
 		);
 		expect(invalid.status).toBe(400);
+		expect(fake.rejectInputs.at(-1)).toEqual({
+			sessionId: SESSION_ID,
+			alias: "R1",
+			note: "No.",
+			proposalId: "proposal-section-1",
+		});
 		expect(await invalid.json()).toEqual({
 			errors: ["invalid proposal"],
 			failure: { kind: "reject_failed", status: 422, detail: "invalid proposal" },
 		});
+		const rejectCallsBeforeInvalid = fake.rejectInputs.length;
+		const invalidRejectBody = await post(
+			app,
+			`/kernel/docs-edit-sessions/${SESSION_ID}/requests/R1/reject`,
+			{ proposalId: false },
+		);
+		expect(invalidRejectBody.status).toBe(400);
+		expect(await invalidRejectBody.json()).toEqual({
+			errors: ["proposalId: expected a string"],
+		});
+		expect(fake.rejectInputs).toHaveLength(rejectCallsBeforeInvalid);
 
 		fake.setUndoResult({
 			ok: false,

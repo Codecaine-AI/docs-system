@@ -14,6 +14,7 @@ import {
 	fixtureAnnotation,
 	fixtureAnnotations,
 	readDiskDoc,
+	updateTextOp,
 	writeBundle,
 } from "./test-fixtures";
 import { createDocsEditToolset } from "./tools";
@@ -115,7 +116,7 @@ describe("docs-edit proposal/review integration", () => {
 		expect(await readDiskDoc(docsRoot)).toEqual(before);
 	});
 
-	test("restaging the same request rejects the replaced ledger proposal", async () => {
+	test("restaging the same request supersedes every proposal in the replaced set", async () => {
 		const docsRoot = await makeDocsRoot();
 		await writeBundle(docsRoot, FIXTURE_PATH, {
 			annotations: fixtureAnnotations([
@@ -134,27 +135,29 @@ describe("docs-edit proposal/review integration", () => {
 		const session = service.getSession(created.state.sessionId);
 		if (!session) throw new Error("created session was not retained");
 
-		const tools = createDocsEditToolset(session);
-		const first = await tools.call("write_text", {
-			requestAlias: "R1",
-			blockId: "p1",
-			markdown: "First staged revision.",
-			summary: "Stage the first revision",
-		});
-		expect(first.isError).not.toBe(true);
-		const firstProposalId = session.proposals()[0]?.proposalId;
-		expect(firstProposalId).toBeString();
+		const first = await session.propose(
+			"R1",
+			[
+				updateTextOp("p2", "First revision of the last section."),
+				updateTextOp("h1", "First revision of the first section."),
+			],
+			"Stage the first revision set",
+		);
+		expect(first.ok).toBe(true);
+		const firstProposalIds = session
+			.proposals()
+			.map((proposal) => proposal.proposalId);
+		expect(firstProposalIds).toHaveLength(2);
 
-		const second = await tools.call("write_text", {
-			requestAlias: "R1",
-			blockId: "p1",
-			markdown: "Second staged revision.",
-			summary: "Stage the second revision",
-		});
-		expect(second.isError).not.toBe(true);
+		const second = await session.propose(
+			"R1",
+			[updateTextOp("p1", "Second staged revision.")],
+			"Stage the second revision",
+		);
+		expect(second.ok).toBe(true);
 		const active = session.proposals();
 		expect(active).toHaveLength(1);
-		expect(active[0]?.proposalId).not.toBe(firstProposalId);
+		expect(firstProposalIds).not.toContain(active[0]?.proposalId);
 
 		const listed = await getBundleProposals(docsRoot, FIXTURE_PATH);
 		expect(listed.ok).toBe(true);
@@ -167,8 +170,175 @@ describe("docs-edit proposal/review integration", () => {
 				}),
 			]);
 		expect(
-			listed.proposals.find((proposal) => proposal.id === firstProposalId),
-		).toMatchObject({ status: "rejected", summary: "Stage the first revision" });
+			firstProposalIds.map(
+				(proposalId) =>
+					listed.proposals.find((proposal) => proposal.id === proposalId)?.status,
+			),
+		).toEqual(["rejected", "rejected"]);
+	});
+
+	test("split section proposals accept independently and stale-restage the remaining section", async () => {
+		const docsRoot = await makeDocsRoot();
+		await writeBundle(docsRoot, FIXTURE_PATH, {
+			annotations: fixtureAnnotations([
+				fixtureAnnotation({ id: "ann-split" }),
+			]),
+		});
+		const original = await readDiskDoc(docsRoot);
+		const service = createDocsEditSessionService({ docsRoot });
+		const created = await service.createSession({
+			path: FIXTURE_PATH,
+			requestIds: ["ann-split"],
+			sessionId: "split-review-session",
+			spawn: false,
+		});
+		expect(created.ok).toBe(true);
+		if (!created.ok) throw new Error(`session create failed: ${created.reason}`);
+		const sessionId = created.state.sessionId;
+		const session = service.getSession(sessionId);
+		if (!session) throw new Error("created session was not retained");
+
+		const staged = await session.propose(
+			"R1",
+			[
+				updateTextOp("p2", "Last section, revised."),
+				updateTextOp("h1", "First section, revised."),
+			],
+			"Revise two separated sections",
+		);
+		expect(staged.ok).toBe(true);
+		const proposals = session.proposals();
+		expect(proposals.map((proposal) => proposal.changedBlockIds)).toEqual([
+			["h1"],
+			["p2"],
+		]);
+		const [firstProposal, secondProposal] = proposals;
+		if (!firstProposal || !secondProposal) {
+			throw new Error("expected two section proposals");
+		}
+
+		let ledger = await getBundleProposals(docsRoot, FIXTURE_PATH);
+		expect(ledger.ok).toBe(true);
+		if (!ledger.ok) throw new Error(ledger.detail);
+		expect(
+			ledger.proposals
+				.filter((proposal) => proposal.status === "staged")
+				.map((proposal) => ({
+					id: proposal.id,
+					changedBlockIds: proposal.changedBlockIds,
+				})),
+		).toEqual([
+			{ id: firstProposal.proposalId, changedBlockIds: ["h1"] },
+			{ id: secondProposal.proposalId, changedBlockIds: ["p2"] },
+		]);
+
+		const acceptedFirst = await service.acceptProposal(
+			sessionId,
+			"R1",
+			firstProposal.proposalId,
+		);
+		expect(acceptedFirst?.ok).toBe(true);
+		let disk = await readDiskDoc(docsRoot);
+		expect(disk.blocks.h1?.text).toEqual([{ insert: "First section, revised." }]);
+		expect(disk.blocks.p2?.text).toEqual(original.blocks.p2?.text);
+		expect(service.getState(sessionId)?.requests[0]).toMatchObject({
+			alias: "R1",
+			status: "ready",
+		});
+		ledger = await getBundleProposals(docsRoot, FIXTURE_PATH);
+		expect(ledger.ok).toBe(true);
+		if (!ledger.ok) throw new Error(ledger.detail);
+		expect(
+			ledger.proposals.find(
+				(proposal) => proposal.id === secondProposal.proposalId,
+			),
+		).toMatchObject({ status: "staged" });
+
+		const acceptedSecond = await service.acceptProposal(
+			sessionId,
+			"R1",
+			secondProposal.proposalId,
+		);
+		expect(acceptedSecond?.ok).toBe(true);
+		if (!acceptedSecond?.ok) throw new Error("second section accept failed");
+		expect(acceptedSecond.proposalId).not.toBe(secondProposal.proposalId);
+		disk = await readDiskDoc(docsRoot);
+		expect(disk.blocks.h1?.text).toEqual([{ insert: "First section, revised." }]);
+		expect(disk.blocks.p2?.text).toEqual([{ insert: "Last section, revised." }]);
+		expect(service.getState(sessionId)?.requests[0]).toMatchObject({
+			alias: "R1",
+			status: "applied",
+		});
+	});
+
+	test("rejecting one section and accepting another leaves a mixed request applied", async () => {
+		const docsRoot = await makeDocsRoot();
+		await writeBundle(docsRoot, FIXTURE_PATH, {
+			annotations: fixtureAnnotations([
+				fixtureAnnotation({ id: "ann-mixed" }),
+			]),
+		});
+		const original = await readDiskDoc(docsRoot);
+		const service = createDocsEditSessionService({ docsRoot });
+		const created = await service.createSession({
+			path: FIXTURE_PATH,
+			requestIds: ["ann-mixed"],
+			sessionId: "mixed-review-session",
+			spawn: false,
+		});
+		expect(created.ok).toBe(true);
+		if (!created.ok) throw new Error(`session create failed: ${created.reason}`);
+		const sessionId = created.state.sessionId;
+		const session = service.getSession(sessionId);
+		if (!session) throw new Error("created session was not retained");
+
+		const staged = await session.propose(
+			"R1",
+			[
+				updateTextOp("h1", "Rejected first section."),
+				updateTextOp("p2", "Accepted last section."),
+			],
+			"Review two separated sections",
+		);
+		expect(staged.ok).toBe(true);
+		const [rejectedProposal, acceptedProposal] = session.proposals();
+		if (!rejectedProposal || !acceptedProposal) {
+			throw new Error("expected two section proposals");
+		}
+
+		const rejected = await service.rejectProposal(
+			sessionId,
+			"R1",
+			"Keep the first section unchanged.",
+			rejectedProposal.proposalId,
+		);
+		expect(rejected?.ok).toBe(true);
+		expect(service.getState(sessionId)?.requests[0]?.status).toBe("ready");
+
+		const accepted = await service.acceptProposal(
+			sessionId,
+			"R1",
+			acceptedProposal.proposalId,
+		);
+		expect(accepted?.ok).toBe(true);
+		expect(service.getState(sessionId)?.requests[0]?.status).toBe("applied");
+		const disk = await readDiskDoc(docsRoot);
+		expect(disk.blocks.h1?.text).toEqual(original.blocks.h1?.text);
+		expect(disk.blocks.p2?.text).toEqual([{ insert: "Accepted last section." }]);
+
+		const ledger = await getBundleProposals(docsRoot, FIXTURE_PATH);
+		expect(ledger.ok).toBe(true);
+		if (!ledger.ok) throw new Error(ledger.detail);
+		expect(
+			ledger.proposals.find(
+				(proposal) => proposal.id === rejectedProposal.proposalId,
+			),
+		).toMatchObject({ status: "rejected" });
+		expect(
+			ledger.proposals.find(
+				(proposal) => proposal.id === acceptedProposal.proposalId,
+			),
+		).toMatchObject({ status: "accepted" });
 	});
 
 	test("rejectProposal resolves the driving sidecar annotation with explicit and default notes", async () => {
@@ -241,7 +411,7 @@ describe("docs-edit proposal/review integration", () => {
 		});
 	});
 
-	test("reviews in stage order, restages stale accepts, resolves annotations, and enforces reversible latest-only undo", async () => {
+	test("reviews in any order, restages stale accepts, resolves annotations, and enforces reversible latest-only undo", async () => {
 		const docsRoot = await makeDocsRoot();
 		await writeBundle(docsRoot, FIXTURE_PATH, {
 			annotations: fixtureAnnotations([
@@ -283,10 +453,12 @@ describe("docs-edit proposal/review integration", () => {
 		expect(service.getState(sessionId)?.nextAcceptAlias).toBe("R1");
 
 		const outOfOrder = await service.acceptProposal(sessionId, "R2");
-		expect(outOfOrder).toEqual({
-			ok: false,
-			failure: { kind: "out_of_order", alias: "R2", nextAlias: "R1" },
-		});
+		expect(outOfOrder?.ok).toBe(true);
+		let disk = await readDiskDoc(docsRoot);
+		expect(disk.blocks.p1?.text).toEqual(original.blocks.p1?.text);
+		expect(disk.blocks.p2?.text).toEqual([{ insert: "Second paragraph, revised." }]);
+		expect((await service.undoAccepted(sessionId, "R2"))?.ok).toBe(true);
+		expect(await readDiskDoc(docsRoot)).toEqual(original);
 
 		const acceptedFirst = await service.acceptProposal(sessionId, "R1");
 		expect(acceptedFirst?.ok).toBe(true);
@@ -296,7 +468,7 @@ describe("docs-edit proposal/review integration", () => {
 			attached: true,
 			resolved: true,
 		});
-		let disk = await readDiskDoc(docsRoot);
+		disk = await readDiskDoc(docsRoot);
 		expect(disk.blocks.p1?.text).toEqual([{ insert: "First paragraph, revised." }]);
 		expect(disk.blocks.p2?.text).toEqual(original.blocks.p2?.text);
 

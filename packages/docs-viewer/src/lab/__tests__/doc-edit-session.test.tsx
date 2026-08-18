@@ -26,10 +26,22 @@ describe("doc-edit-session ordering discipline", () => {
 		expect(acceptDisabledReason(proposals, "R2")).toContain("R1");
 	});
 
+	test("a transaction-targeted staged proposal can accept independently", () => {
+		const proposals = [proposal("R1"), proposal("R2")];
+		expect(acceptDisabledReason(proposals, "R2", "txn-R2")).toBeNull();
+		expect(acceptDisabledReason(proposals, "R2", "txn-missing")).toContain("R1");
+	});
+
 	test("only the tail of staging order can reject", () => {
 		const proposals = [proposal("R1"), proposal("R2")];
 		expect(rejectDisabledReason(proposals, "R2")).toBeNull();
 		expect(rejectDisabledReason(proposals, "R1")).toContain("R2");
+	});
+
+	test("a transaction-targeted staged proposal can reject independently", () => {
+		const proposals = [proposal("R1"), proposal("R2")];
+		expect(rejectDisabledReason(proposals, "R1", "txn-R1")).toBeNull();
+		expect(rejectDisabledReason(proposals, "R1", "txn-missing")).toContain("R2");
 	});
 
 	test("only the latest applied request can undo", () => {

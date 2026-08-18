@@ -38,8 +38,8 @@ export interface DocsKernelSessionHandle {
 	sessionId(): string | undefined;
 	statusOverlay(): ReadonlyMap<string, DocEditRequestStatus>;
 	changesets(): ReadonlyMap<string, DocChangeSetView>;
-	accept(annotationId: string): Promise<DocsKernelSessionActionResult>;
-	reject(annotationId: string, note?: string): Promise<DocsKernelSessionActionResult>;
+	accept(annotationId: string, proposalId?: string): Promise<DocsKernelSessionActionResult>;
+	reject(annotationId: string, note?: string, proposalId?: string): Promise<DocsKernelSessionActionResult>;
 	undo(annotationId: string): Promise<DocsKernelSessionActionResult>;
 	reply(annotationId: string, body: string): Promise<DocsKernelSessionActionResult>;
 	subscribe(listener: () => void): () => void;
@@ -447,7 +447,8 @@ export function createDocsKernelSessionSource(
 
 	async function review(
 		annotationId: string,
-		call: (sessionId: string, alias: string) => ReturnType<
+		proposalId: string | undefined,
+		call: (sessionId: string, alias: string, proposalId?: string) => ReturnType<
 			DocsKernelClient["acceptProposal"]
 		>,
 		toEvent: (result: Record<string, unknown>, sessionId: string, alias: string) =>
@@ -456,7 +457,7 @@ export function createDocsKernelSessionSource(
 		const current = state;
 		const alias = aliasFor(annotationId);
 		if (!current || !alias) return miss();
-		const result = await call(current.sessionId, alias);
+		const result = await call(current.sessionId, alias, proposalId);
 		if (isFailure(result)) {
 			const message = docsKernelFailureMessage(result);
 			sessionError = message;
@@ -546,10 +547,12 @@ export function createDocsKernelSessionSource(
 			await attach(result.state.sessionId);
 		},
 
-		accept(annotationId) {
+		accept(annotationId, proposalId) {
 			return review(
 				annotationId,
-				(id, alias) => options.client.acceptProposal(id, alias),
+				proposalId,
+				(id, alias, targetProposalId) =>
+					options.client.acceptProposal(id, alias, targetProposalId),
 				(result, sessionId, alias) => ({
 					type: "proposal-applied",
 					sessionId,
@@ -561,10 +564,12 @@ export function createDocsKernelSessionSource(
 			);
 		},
 
-		reject(annotationId, note) {
+		reject(annotationId, note, proposalId) {
 			return review(
 				annotationId,
-				(id, alias) => options.client.rejectProposal(id, alias, note),
+				proposalId,
+				(id, alias, targetProposalId) =>
+					options.client.rejectProposal(id, alias, note, targetProposalId),
 				(result, sessionId, alias) => ({
 					type: "proposal-rejected",
 					sessionId,
@@ -578,6 +583,7 @@ export function createDocsKernelSessionSource(
 		undo(annotationId) {
 			return review(
 				annotationId,
+				undefined,
 				(id, alias) => options.client.undoProposal(id, alias),
 				(result, sessionId, alias) => ({
 					type: "proposal-undone",

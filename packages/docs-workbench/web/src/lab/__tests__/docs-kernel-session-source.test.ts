@@ -61,6 +61,8 @@ function mockClient(createResult: Awaited<ReturnType<DocsKernelClient["createSes
 	let subscriptions = 0;
 	let disposals = 0;
 	let creates = 0;
+	const accepts: unknown[][] = [];
+	const rejects: unknown[][] = [];
 	const client = {
 		health: async () => true,
 		createSession: async () => {
@@ -82,13 +84,24 @@ function mockClient(createResult: Awaited<ReturnType<DocsKernelClient["createSes
 			onError = error;
 			return () => {};
 		},
-		acceptProposal: async () => ({
+		acceptProposal: async (...args: unknown[]) => {
+			accepts.push(args);
+			return {
 			ok: true as const,
 			alias: "R1",
 			proposalId: "proposal-1",
 			patchId: "patch-1",
 			hash: "hash-2",
-		}),
+			};
+		},
+		rejectProposal: async (...args: unknown[]) => {
+			rejects.push(args);
+			return {
+				ok: true as const,
+				alias: "R1",
+				proposalId: "proposal-1",
+			};
+		},
 		disposeSession: async () => {
 			disposals += 1;
 			return { ok: true as const };
@@ -101,6 +114,8 @@ function mockClient(createResult: Awaited<ReturnType<DocsKernelClient["createSes
 		subscriptions: () => subscriptions,
 		disposals: () => disposals,
 		creates: () => creates,
+		accepts,
+		rejects,
 	};
 }
 
@@ -475,6 +490,24 @@ describe("docs kernel session source", () => {
 		expect(source.statusOverlay().get("ann-1")).toBe("applied");
 		mock.emit({ type: "proposal-applied", sessionId: "session-1", alias: "R1", proposalId: "proposal-1", patchId: "patch-1", hash: "hash-2" });
 		expect(hashes).toEqual(["hash-2"]);
+	});
+
+	it("targets a specific staged proposal when accepting or rejecting", async () => {
+		const mock = mockClient({ state: session() });
+		const source = createDocsKernelSessionSource({
+			client: mock.client,
+			path: "guide",
+			onSessionEnd() {},
+		});
+		await source.applyQueue(["ann-1"]);
+
+		expect(await source.accept("ann-1", "proposal-2")).toEqual({ ok: true });
+		expect(mock.accepts).toEqual([["session-1", "R1", "proposal-2"]]);
+
+		expect(await source.reject("ann-1", "Needs work", "proposal-3")).toEqual({ ok: true });
+		expect(mock.rejects).toEqual([
+			["session-1", "R1", "Needs work", "proposal-3"],
+		]);
 	});
 
 	it("announces a staged proposal from the attached session", async () => {

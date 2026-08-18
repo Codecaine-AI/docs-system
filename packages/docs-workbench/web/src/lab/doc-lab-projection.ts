@@ -148,10 +148,21 @@ export function deriveStagedProposals({
 	let fallbackNumber = 1;
 
 	return staged.map((proposal) => {
-		const requestAlias = proposal.annotationId
-			? requestByAnnotationId.get(proposal.annotationId)?.alias
+		const matchingRequest = proposal.annotationId
+			? requestByAnnotationId.get(proposal.annotationId)
 			: undefined;
-		let alias = requestAlias ?? proposal.alias;
+		if (matchingRequest) {
+			return {
+				transactionId: proposal.id,
+				alias: matchingRequest.alias,
+				summary: proposal.summary,
+				ops: proposal.ops,
+				changedBlockIds: proposal.changedBlockIds,
+				baseHash: proposal.baseHash,
+			};
+		}
+
+		let alias = proposal.alias;
 		if (!alias) {
 			do {
 				alias = `A${fallbackNumber++}`;
