@@ -63,6 +63,22 @@ describe("docs-edit proposal/review integration", () => {
 		});
 		expect(invalid.isError).toBe(true);
 		expect(invalid.text).toContain("malformed ops");
+		const supportedTypes =
+			"Supported op types: insertBlock, updateBlock, deleteBlock, moveBlock, splitBlock, mergeBlocks, componentAction.";
+		const unsupported = await toolProposeOps(session, {
+			requestAlias: "R1",
+			ops: [{ type: "replace_block", blockId: "p1" }],
+			summary: "Unsupported operation type",
+		});
+		expect(unsupported.isError).toBe(true);
+		expect(unsupported.text).toContain(supportedTypes);
+		const nonObject = await toolProposeOps(session, {
+			requestAlias: "R1",
+			ops: ["updateBlock"],
+			summary: "Non-object operation",
+		});
+		expect(nonObject.isError).toBe(true);
+		expect(nonObject.text).toContain(supportedTypes);
 		expect(session.proposals()).toHaveLength(0);
 		const afterInvalid = await getBundleProposals(docsRoot, FIXTURE_PATH);
 		expect(afterInvalid.ok).toBe(true);

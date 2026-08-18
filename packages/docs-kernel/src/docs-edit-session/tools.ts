@@ -109,6 +109,29 @@ export type ParseDocsEditOpsResult =
   | { ok: true; ops: DocOp[] }
   | { ok: false; errors: DocsEditOpParseError[] };
 
+const SUPPORTED_DOC_OP_TYPES = [
+  "insertBlock",
+  "updateBlock",
+  "deleteBlock",
+  "moveBlock",
+  "splitBlock",
+  "mergeBlocks",
+  "componentAction",
+] as const;
+
+const SUPPORTED_DOC_OP_TYPES_MESSAGE =
+  `Supported op types: ${SUPPORTED_DOC_OP_TYPES.join(", ")}.`;
+
+const DOC_OP_CHEAT_SHEET = [
+  "insertBlock {blockId, parentId, index, blockType, props, text?} — mint a NEW id for new content",
+  "updateBlock {blockId, props?, text?} — edit an existing block in place (id-stable); text may be delta spans or null",
+  'deleteBlock {blockId, mode?: "subtree"|"reparent"}',
+  "moveBlock {blockId, toParentId, toIndex}",
+  "splitBlock {blockId, offset}",
+  "mergeBlocks {blockIds}",
+  "componentAction {blockId, action, params}",
+].join("\n");
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
@@ -220,7 +243,10 @@ function parseOneDocOp(
   opIndex: number,
 ): DocOp | DocsEditOpParseError {
   if (!isRecord(value) || typeof value.type !== "string") {
-    return invalidOp(opIndex, "Each op must be an object with a supported type.");
+    return invalidOp(
+      opIndex,
+      `Each op must be an object with a supported type. ${SUPPORTED_DOC_OP_TYPES_MESSAGE}`,
+    );
   }
 
   switch (value.type) {
@@ -391,7 +417,10 @@ function parseOneDocOp(
       };
 
     default:
-      return invalidOp(opIndex, `Unsupported doc op type: ${value.type}`);
+      return invalidOp(
+        opIndex,
+        `Unsupported doc op type: ${value.type}. ${SUPPORTED_DOC_OP_TYPES_MESSAGE}`,
+      );
   }
 }
 
@@ -918,7 +947,7 @@ export function registerDocsEditSessionTools(
     name: "propose_ops",
     label: "Propose document operations",
     description:
-      "Strictly validate and stage id-stable DocOps for one request, optionally against another document via docPath for cross-doc staging. The proposal is held for human review and never applied by this tool.",
+      `Strictly validate and stage id-stable DocOps for one request, optionally against another document via docPath for cross-doc staging. The proposal is held for human review and never applied by this tool. ${SUPPORTED_DOC_OP_TYPES_MESSAGE}`,
     promptSnippet:
       "Stage validated DocOps for one request alias, using docPath for cross-doc staging when needed.",
     parameters: objectSchema(
@@ -930,7 +959,11 @@ export function registerDocsEditSessionTools(
         ops: {
           type: "array",
           minItems: 1,
-          items: { type: "object", additionalProperties: true },
+          items: {
+            type: "object",
+            description: DOC_OP_CHEAT_SHEET,
+            additionalProperties: true,
+          },
         },
         summary: {
           type: "string",
