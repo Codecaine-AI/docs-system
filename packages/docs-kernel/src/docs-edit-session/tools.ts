@@ -1444,6 +1444,23 @@ function buildToolDefinitions(
   return definitions;
 }
 
+export interface DocsEditToolPreview {
+  name: string;
+  label: string;
+  description: string;
+  parameters: Record<string, unknown>;
+}
+
+/** Static tool-surface preview (no session): names, descriptions, schemas. */
+export function docsEditToolPreviews(): DocsEditToolPreview[] {
+  return buildToolDefinitions(async () => ({ text: "" })).map((definition) => ({
+    name: definition.name,
+    label: definition.label,
+    description: definition.description,
+    parameters: definition.parameters,
+  }));
+}
+
 /** Register the session-mode editing surface on a pi tool API. */
 export function registerDocsEditSessionTools(
   pi: SharedToolApi,

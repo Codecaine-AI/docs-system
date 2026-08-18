@@ -5,7 +5,8 @@ import { createKernelTraceReadApi } from "@agent-kernel/kernel/read-api";
 import { sql } from "drizzle-orm";
 import { Elysia } from "elysia";
 
-import { createDocsKernelDocsEditSessions } from "./docs-edit";
+import { createDocsKernelDocsEditSessions, DOCS_LAB_EDITOR_AGENT_NAME } from "./docs-edit";
+import { docsEditToolPreviews } from "./docs-edit-session/tools";
 import { createDocsEditSessionApi } from "./docs-edit-session-api";
 import { bootDocsKernel, type DocsKernelBootOptions } from "./kernel";
 import { CORS_HEADERS } from "./cors";
@@ -20,7 +21,11 @@ export async function createDocsKernelHarness(
 		workingDir: boot.rootDir,
 	});
 	const catalogApi = createKernelCatalogApi(
-		boot.kernel.catalogApiService({ allowWrites: true }),
+		boot.kernel.catalogApiService({
+			allowWrites: true,
+			toolsPreview: (agentName) =>
+				agentName === DOCS_LAB_EDITOR_AGENT_NAME ? docsEditToolPreviews() : null,
+		}),
 		{
 			prefix: "/kernel",
 			allowWrites: true,
