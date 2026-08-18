@@ -1,7 +1,7 @@
 /**
- * Writing-style section: authors docs/99-appendix/10-writing-style/ — the
- * 99-appendix tier parent, the section parent, and two pages (register and
- * structure) — and writes their projection goldens.
+ * Style-guide section: authors docs/99-appendix/10-style-guide/ — the
+ * 99-appendix tier parent, the section parent, and two pages (writing style
+ * and structure) — and writes their projection goldens.
  * Consolidated from the seven-page first cut: anti-patterns (negative
  * restatements of the positive rules), why-these-hold (pure rationale), and
  * the philosophy halves of design-narrative and titles-and-openings carry no
@@ -103,8 +103,8 @@ function buildDoc(
 }
 
 const APPENDIX = "docs/99-appendix";
-const WS = `${APPENDIX}/10-writing-style`;
-const WS_REF = "99-appendix/10-writing-style";
+const SG = `${APPENDIX}/10-style-guide`;
+const SG_REF = "99-appendix/10-style-guide";
 
 // ---------------------------------------------------------------------------
 // 99-appendix (tier parent)
@@ -118,36 +118,36 @@ buildDoc(APPENDIX, "99-appendix", "appendix", "Appendix", [
     c("99-"),
     t(" per the numbering standard."),
   ),
-  liNest("ws", [r("Writing style", WS_REF)], [
+  liNest("sg", [r("Style guide", SG_REF)], [
     li(
-      "ws-gloss",
-      t("How every doc in this corpus is written — its register and structure."),
+      "sg-gloss",
+      t("How every doc in this corpus is written — its writing style and structure."),
     ),
   ]),
 ]);
 
 // ---------------------------------------------------------------------------
-// 10-writing-style (section parent)
+// 10-style-guide (section parent)
 // ---------------------------------------------------------------------------
-buildDoc(WS, "99-appendix-10-writing-style", "ws", "Writing style", [
+buildDoc(SG, "99-appendix-10-style-guide", "sg", "Style guide", [
   p(
     "intro",
     t(
       "How every doc in this corpus is written. This is working guidance for whoever is writing — human or agent — not part of the system's design. Load it before authoring or editing docs.",
     ),
   ),
-  liNest("reg", [r("Register", `${WS_REF}/10-register`)], [
-    li("reg-gloss", t("The matter-of-fact voice: lead with the fact, concrete over vague, present-state prose.")),
+  liNest("ws", [r("Writing style", `${SG_REF}/10-writing-style`)], [
+    li("ws-gloss", t("The matter-of-fact voice: lead with the fact, concrete over vague, present-state prose.")),
   ]),
-  liNest("struct", [r("Structure", `${WS_REF}/20-structure`)], [
+  liNest("struct", [r("Structure", `${SG_REF}/20-structure`)], [
     li("struct-gloss", t("How shape carries meaning: bullets and the join test, lists, headings, titles and openers.")),
   ]),
 ]);
 
 // ---------------------------------------------------------------------------
-// 10-register
+// 10-writing-style
 // ---------------------------------------------------------------------------
-buildDoc(`${WS}/10-register`, "99-appendix-10-writing-style-10-register", "ws-reg", "Register", [
+buildDoc(`${SG}/10-writing-style`, "99-appendix-10-style-guide-10-writing-style", "sg-ws", "Writing style", [
   p(
     "intro",
     t(
@@ -175,7 +175,7 @@ buildDoc(`${WS}/10-register`, "99-appendix-10-writing-style-10-register", "ws-re
 // ---------------------------------------------------------------------------
 // 20-structure
 // ---------------------------------------------------------------------------
-buildDoc(`${WS}/20-structure`, "99-appendix-10-writing-style-20-structure", "ws-struct", "Structure", [
+buildDoc(`${SG}/20-structure`, "99-appendix-10-style-guide-20-structure", "sg-struct", "Structure", [
   p(
     "intro",
     t(
@@ -227,6 +227,5 @@ buildDoc(`${WS}/20-structure`, "99-appendix-10-writing-style-20-structure", "ws-
     ),
   ),
 ]);
-
 
 console.log("done");

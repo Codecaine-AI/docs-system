@@ -1,25 +1,25 @@
 {
   "schemaVersion": 1,
-  "id": "99-appendix-10-writing-style-10-register",
-  "title": "Register",
-  "root": "b-ws-reg-root",
+  "id": "99-appendix-10-style-guide-10-writing-style",
+  "title": "Writing style",
+  "root": "b-sg-ws-root",
   "blocks": {
-    "b-ws-reg-root": {
-      "id": "b-ws-reg-root",
+    "b-sg-ws-root": {
+      "id": "b-sg-ws-root",
       "type": "paragraph",
       "props": {},
       "children": [
-        "b-ws-reg-intro-1",
-        "b-ws-reg-lead-2",
-        "b-ws-reg-one-idea-3",
-        "b-ws-reg-concrete-4",
-        "b-ws-reg-no-preamble-5",
-        "b-ws-reg-no-memory-6",
-        "b-ws-reg-present-state-7"
+        "b-sg-ws-intro-1",
+        "b-sg-ws-lead-2",
+        "b-sg-ws-one-idea-3",
+        "b-sg-ws-concrete-4",
+        "b-sg-ws-no-preamble-5",
+        "b-sg-ws-no-memory-6",
+        "b-sg-ws-present-state-7"
       ]
     },
-    "b-ws-reg-intro-1": {
-      "id": "b-ws-reg-intro-1",
+    "b-sg-ws-intro-1": {
+      "id": "b-sg-ws-intro-1",
       "type": "paragraph",
       "props": {},
       "text": [
@@ -29,8 +29,8 @@
       ],
       "children": []
     },
-    "b-ws-reg-lead-2": {
-      "id": "b-ws-reg-lead-2",
+    "b-sg-ws-lead-2": {
+      "id": "b-sg-ws-lead-2",
       "type": "list-item",
       "props": {},
       "text": [
@@ -40,8 +40,8 @@
       ],
       "children": []
     },
-    "b-ws-reg-one-idea-3": {
-      "id": "b-ws-reg-one-idea-3",
+    "b-sg-ws-one-idea-3": {
+      "id": "b-sg-ws-one-idea-3",
       "type": "list-item",
       "props": {},
       "text": [
@@ -51,8 +51,8 @@
       ],
       "children": []
     },
-    "b-ws-reg-concrete-4": {
-      "id": "b-ws-reg-concrete-4",
+    "b-sg-ws-concrete-4": {
+      "id": "b-sg-ws-concrete-4",
       "type": "list-item",
       "props": {},
       "text": [
@@ -62,8 +62,8 @@
       ],
       "children": []
     },
-    "b-ws-reg-no-preamble-5": {
-      "id": "b-ws-reg-no-preamble-5",
+    "b-sg-ws-no-preamble-5": {
+      "id": "b-sg-ws-no-preamble-5",
       "type": "list-item",
       "props": {},
       "text": [
@@ -73,8 +73,8 @@
       ],
       "children": []
     },
-    "b-ws-reg-no-memory-6": {
-      "id": "b-ws-reg-no-memory-6",
+    "b-sg-ws-no-memory-6": {
+      "id": "b-sg-ws-no-memory-6",
       "type": "list-item",
       "props": {},
       "text": [
@@ -84,8 +84,8 @@
       ],
       "children": []
     },
-    "b-ws-reg-present-state-7": {
-      "id": "b-ws-reg-present-state-7",
+    "b-sg-ws-present-state-7": {
+      "id": "b-sg-ws-present-state-7",
       "type": "list-item",
       "props": {},
       "text": [

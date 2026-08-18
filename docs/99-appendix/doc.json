@@ -10,7 +10,7 @@
       "props": {},
       "children": [
         "b-appendix-intro-1",
-        "b-appendix-ws-2"
+        "b-appendix-sg-2"
       ]
     },
     "b-appendix-intro-1": {
@@ -33,33 +33,33 @@
       ],
       "children": []
     },
-    "b-appendix-ws-2": {
-      "id": "b-appendix-ws-2",
+    "b-appendix-sg-2": {
+      "id": "b-appendix-sg-2",
       "type": "list-item",
       "props": {},
       "text": [
         {
-          "insert": "Writing style",
+          "insert": "Style guide",
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "99-appendix/10-writing-style",
-              "label": "Writing style"
+              "path": "99-appendix/10-style-guide",
+              "label": "Style guide"
             }
           }
         }
       ],
       "children": [
-        "b-appendix-ws-gloss-3"
+        "b-appendix-sg-gloss-3"
       ]
     },
-    "b-appendix-ws-gloss-3": {
-      "id": "b-appendix-ws-gloss-3",
+    "b-appendix-sg-gloss-3": {
+      "id": "b-appendix-sg-gloss-3",
       "type": "list-item",
       "props": {},
       "text": [
         {
-          "insert": "How every doc in this corpus is written — its register and structure."
+          "insert": "How every doc in this corpus is written — its writing style and structure."
         }
       ],
       "children": []

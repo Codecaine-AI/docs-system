@@ -48,11 +48,11 @@ export const STANDARDS_BUNDLES: ReadonlyArray<string> = [
 	"10-system-design/10-doc-standards/60-implementation-layer",
 ];
 
-/** The corpus bundles rendered into <docs_writing_style>, in reading order. */
-export const WRITING_STYLE_BUNDLES: ReadonlyArray<string> = [
-	"99-appendix/10-writing-style",
-	"99-appendix/10-writing-style/10-register",
-	"99-appendix/10-writing-style/20-structure",
+/** The corpus bundles rendered into <docs_style_guide>, in reading order. */
+export const STYLE_GUIDE_BUNDLES: ReadonlyArray<string> = [
+	"99-appendix/10-style-guide",
+	"99-appendix/10-style-guide/10-writing-style",
+	"99-appendix/10-style-guide/20-structure",
 ];
 
 /**
@@ -69,7 +69,7 @@ const standardsFile = (bundle: string): string =>
 
 const loaders: AgentContextResolver["loaders"] = [
 	...STANDARDS_BUNDLES,
-	...WRITING_STYLE_BUNDLES,
+	...STYLE_GUIDE_BUNDLES,
 	...BLOCK_VOCABULARY_BUNDLES,
 ].map((bundle) => ({
 	kind: "file" as const,
@@ -341,9 +341,9 @@ function assemble(loaded: LoadedMap, _ctx: SpawnContext): string {
 			renderBundles(STANDARDS_BUNDLES),
 		),
 		block(
-			"docs_writing_style",
-			'source="docs-system corpus · 99-appendix/10-writing-style"',
-			renderBundles(WRITING_STYLE_BUNDLES),
+			"docs_style_guide",
+			'source="docs-system corpus · 99-appendix/10-style-guide"',
+			renderBundles(STYLE_GUIDE_BUNDLES),
 		),
 		block(
 			"docs_block_vocabulary",

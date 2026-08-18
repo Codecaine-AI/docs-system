@@ -1,25 +1,25 @@
 {
   "schemaVersion": 1,
-  "id": "99-appendix-10-writing-style-20-structure",
+  "id": "99-appendix-10-style-guide-20-structure",
   "title": "Structure",
-  "root": "b-ws-struct-root",
+  "root": "b-sg-struct-root",
   "blocks": {
-    "b-ws-struct-root": {
-      "id": "b-ws-struct-root",
+    "b-sg-struct-root": {
+      "id": "b-sg-struct-root",
       "type": "paragraph",
       "props": {},
       "children": [
-        "b-ws-struct-intro-1",
-        "b-ws-struct-bullets-2",
-        "b-ws-struct-lead-gloss-3",
-        "b-ws-struct-no-reenumerate-4",
-        "b-ws-struct-lists-5",
-        "b-ws-struct-headings-6",
-        "b-ws-struct-title-opener-7"
+        "b-sg-struct-intro-1",
+        "b-sg-struct-bullets-2",
+        "b-sg-struct-lead-gloss-3",
+        "b-sg-struct-no-reenumerate-4",
+        "b-sg-struct-lists-5",
+        "b-sg-struct-headings-6",
+        "b-sg-struct-title-opener-7"
       ]
     },
-    "b-ws-struct-intro-1": {
-      "id": "b-ws-struct-intro-1",
+    "b-sg-struct-intro-1": {
+      "id": "b-sg-struct-intro-1",
       "type": "paragraph",
       "props": {},
       "text": [
@@ -29,8 +29,8 @@
       ],
       "children": []
     },
-    "b-ws-struct-bullets-2": {
-      "id": "b-ws-struct-bullets-2",
+    "b-sg-struct-bullets-2": {
+      "id": "b-sg-struct-bullets-2",
       "type": "list-item",
       "props": {},
       "text": [
@@ -40,8 +40,8 @@
       ],
       "children": []
     },
-    "b-ws-struct-lead-gloss-3": {
-      "id": "b-ws-struct-lead-gloss-3",
+    "b-sg-struct-lead-gloss-3": {
+      "id": "b-sg-struct-lead-gloss-3",
       "type": "list-item",
       "props": {},
       "text": [
@@ -60,8 +60,8 @@
       ],
       "children": []
     },
-    "b-ws-struct-no-reenumerate-4": {
-      "id": "b-ws-struct-no-reenumerate-4",
+    "b-sg-struct-no-reenumerate-4": {
+      "id": "b-sg-struct-no-reenumerate-4",
       "type": "list-item",
       "props": {},
       "text": [
@@ -71,8 +71,8 @@
       ],
       "children": []
     },
-    "b-ws-struct-lists-5": {
-      "id": "b-ws-struct-lists-5",
+    "b-sg-struct-lists-5": {
+      "id": "b-sg-struct-lists-5",
       "type": "list-item",
       "props": {},
       "text": [
@@ -82,8 +82,8 @@
       ],
       "children": []
     },
-    "b-ws-struct-headings-6": {
-      "id": "b-ws-struct-headings-6",
+    "b-sg-struct-headings-6": {
+      "id": "b-sg-struct-headings-6",
       "type": "list-item",
       "props": {},
       "text": [
@@ -120,8 +120,8 @@
       ],
       "children": []
     },
-    "b-ws-struct-title-opener-7": {
-      "id": "b-ws-struct-title-opener-7",
+    "b-sg-struct-title-opener-7": {
+      "id": "b-sg-struct-title-opener-7",
       "type": "list-item",
       "props": {},
       "text": [

@@ -1,21 +1,21 @@
 {
   "schemaVersion": 1,
-  "id": "99-appendix-10-writing-style",
-  "title": "Writing style",
-  "root": "b-ws-root",
+  "id": "99-appendix-10-style-guide",
+  "title": "Style guide",
+  "root": "b-sg-root",
   "blocks": {
-    "b-ws-root": {
-      "id": "b-ws-root",
+    "b-sg-root": {
+      "id": "b-sg-root",
       "type": "paragraph",
       "props": {},
       "children": [
-        "b-ws-intro-1",
-        "b-ws-reg-2",
-        "b-ws-struct-4"
+        "b-sg-intro-1",
+        "b-sg-ws-2",
+        "b-sg-struct-4"
       ]
     },
-    "b-ws-intro-1": {
-      "id": "b-ws-intro-1",
+    "b-sg-intro-1": {
+      "id": "b-sg-intro-1",
       "type": "paragraph",
       "props": {},
       "text": [
@@ -25,28 +25,28 @@
       ],
       "children": []
     },
-    "b-ws-reg-2": {
-      "id": "b-ws-reg-2",
+    "b-sg-ws-2": {
+      "id": "b-sg-ws-2",
       "type": "list-item",
       "props": {},
       "text": [
         {
-          "insert": "Register",
+          "insert": "Writing style",
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "99-appendix/10-writing-style/10-register",
-              "label": "Register"
+              "path": "99-appendix/10-style-guide/10-writing-style",
+              "label": "Writing style"
             }
           }
         }
       ],
       "children": [
-        "b-ws-reg-gloss-3"
+        "b-sg-ws-gloss-3"
       ]
     },
-    "b-ws-reg-gloss-3": {
-      "id": "b-ws-reg-gloss-3",
+    "b-sg-ws-gloss-3": {
+      "id": "b-sg-ws-gloss-3",
       "type": "list-item",
       "props": {},
       "text": [
@@ -56,8 +56,8 @@
       ],
       "children": []
     },
-    "b-ws-struct-4": {
-      "id": "b-ws-struct-4",
+    "b-sg-struct-4": {
+      "id": "b-sg-struct-4",
       "type": "list-item",
       "props": {},
       "text": [
@@ -66,18 +66,18 @@
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "99-appendix/10-writing-style/20-structure",
+              "path": "99-appendix/10-style-guide/20-structure",
               "label": "Structure"
             }
           }
         }
       ],
       "children": [
-        "b-ws-struct-gloss-5"
+        "b-sg-struct-gloss-5"
       ]
     },
-    "b-ws-struct-gloss-5": {
-      "id": "b-ws-struct-gloss-5",
+    "b-sg-struct-gloss-5": {
+      "id": "b-sg-struct-gloss-5",
       "type": "list-item",
       "props": {},
       "text": [
