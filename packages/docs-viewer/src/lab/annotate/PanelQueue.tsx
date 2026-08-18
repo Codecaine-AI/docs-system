@@ -5,8 +5,8 @@
 //               records under a hairline, then any host-provided tail
 //               (threads). Filing order holds within each section.
 //   DOCK        pinned at the very bottom, chat-composer position: the
-//               whole-document input plus Apply. Enter files a document
-//               note; Apply is click-only — a keystroke never starts the
+//               whole-document input plus Run queue. Enter files a document
+//               note; Run queue is click-only — a keystroke never starts the
 //               batch by accident.
 "use client";
 
@@ -34,6 +34,10 @@ export interface PanelQueueProps {
 	session: DocEditSession;
 	queue: RequestQueueModel;
 	applying: boolean;
+	/** Current docs-agent connectivity/run state, always shown in the dock. */
+	agentStatus: "connected" | "offline" | "running";
+	/** Session-level create/stream failure, already mapped for display by the host. */
+	sessionError?: string | null;
 	/** Host-level reason Apply is unavailable, independent of the queue model. */
 	applyDisabledReason?: string | null;
 	/** Starts the batch over the queue's current open requests. */
@@ -53,8 +57,8 @@ export interface PanelQueueProps {
 
 /** Queue rail, chat-shaped: scrolling transcript (block notes, document
  * notes, closed-loop records, host tail) over a pinned composer dock
- * (whole-document input + Apply). */
-export function PanelQueue({ session, queue, applying, applyDisabledReason, onApply, onFileGlobal, onFocusTarget, onHoverTarget, labelForTarget, children }: PanelQueueProps) {
+ * (whole-document input + Run queue). */
+export function PanelQueue({ session, queue, applying, agentStatus, sessionError, applyDisabledReason, onApply, onFileGlobal, onFocusTarget, onHoverTarget, labelForTarget, children }: PanelQueueProps) {
 	const docInputRef = useRef<HTMLInputElement | null>(null);
 	const sendDocMessage = () => {
 		const body = docInputRef.current?.value.trim() ?? "";
@@ -66,6 +70,8 @@ export function PanelQueue({ session, queue, applying, applyDisabledReason, onAp
 	};
 	const documentEntries = queue.queue.filter((entry) => entry.disposition === "global");
 	const targetEntries = queue.queue.filter((entry) => entry.disposition !== "global");
+	const queuedCount = queue.queue.filter((entry) => !entry.staged).length;
+	const runLabel = queuedCount > 0 ? `Run queue (${queuedCount})` : "Run queue";
 	const renderRow = (entry: QueueEntry) => <QueueRow key={entry.request.alias} entry={entry} session={session} onFocusTarget={onFocusTarget} onHoverTarget={onHoverTarget} labelForTarget={labelForTarget} />;
 	const showDocInput = Boolean(onFileGlobal ?? session.onFileRequest);
 	return <div className="flex h-full min-h-0 flex-col" data-docs-lab-session-rail="">
@@ -79,16 +85,37 @@ export function PanelQueue({ session, queue, applying, applyDisabledReason, onAp
 				{documentEntries.map(renderRow)}
 			</>}
 			{queue.records.length > 0 && <><div aria-hidden className="mx-1.5 mb-1 mt-2 h-px shrink-0 bg-[color:var(--docs-panel-border,var(--border,#2b2b2b))]" />{queue.records.map((record) => <RecordRow key={record.request.alias} record={record} session={session} onFocusTarget={onFocusTarget} labelForTarget={labelForTarget} />)}</>}
+			{sessionError ? <p data-docs-lab-session-error="" role="alert" className="px-1.5 py-1 text-xs text-[color:var(--destructive,#f85149)]">{sessionError}</p> : null}
 			{children}
 		</div>
 		{/* THE DOCK — chat-composer position, pinned bottommost: the
-		    whole-document input plus Apply. Enter files a note; only a click
+		    whole-document input plus Run queue. Enter files a note; only a click
 		    runs the batch. */}
 		<div className="mt-2 flex shrink-0 items-center justify-end gap-2 border-t border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] pt-2.5">
+			<AgentStatus status={agentStatus} />
 			{showDocInput && <input ref={docInputRef} aria-label="Message the whole document" placeholder="Note about the whole document…" className="min-w-0 flex-1 rounded-[var(--radius,0.375rem)] border border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] bg-[color:var(--background,#181818)] px-2 py-1.5 text-[13px] outline-none focus:border-[color:var(--annotation-accent,#a99af5)]" onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); sendDocMessage(); } }} />}
-			<button type="button" aria-label="Apply queue" data-docs-lab-queue-apply="" disabled={applyDisabledReason !== null && applyDisabledReason !== undefined ? true : !queue.canApply} title={applyDisabledReason ?? (queue.canApply ? "Run the queued notes" : applying ? "The queue is running" : "Nothing queued")} className="shrink-0 rounded-[var(--radius,0.375rem)] border border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] bg-[color:var(--annotation-accent-fill,rgba(138,122,176,.11))] px-2.5 py-1 text-[12px] tracking-[0.02em] text-[color:var(--annotation-accent,#a99af5)] transition-colors disabled:cursor-default disabled:opacity-50" onClick={onApply}>{applying ? "running…" : "Apply"}</button>
+			<button type="button" aria-label="Apply queue" data-docs-lab-queue-apply="" disabled={applying || (applyDisabledReason !== null && applyDisabledReason !== undefined) || !queue.canApply} title={applyDisabledReason ?? (applying ? "The queue is running" : queue.canApply ? "Run the queued notes" : "Nothing queued")} className="shrink-0 rounded-[var(--radius,0.375rem)] border border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] bg-[color:var(--annotation-accent-fill,rgba(138,122,176,.11))] px-2.5 py-1 text-[12px] tracking-[0.02em] text-[color:var(--annotation-accent,#a99af5)] transition-colors disabled:cursor-default disabled:opacity-50" onClick={onApply}>{applying ? "running…" : runLabel}</button>
 		</div>
 	</div>;
+}
+
+const AGENT_STATUS_COPY = {
+	connected: { label: "connected", title: "Docs agent connected" },
+	offline: { label: "not connected", title: "Docs agent not connected" },
+	running: { label: "session running", title: "Docs agent session running" },
+} as const;
+
+function AgentStatus({ status }: { status: PanelQueueProps["agentStatus"] }) {
+	const copy = AGENT_STATUS_COPY[status];
+	const color = status === "offline"
+		? "var(--docs-muted-foreground,var(--muted-foreground,#71717a))"
+		: status === "running"
+			? "var(--annotation-accent,#a99af5)"
+			: "var(--annotation-accept,#3fb950)";
+	return <span data-docs-lab-agent-status={status} title={copy.title} className="flex shrink-0 items-center gap-1 text-[10px] tracking-[0.03em]" style={{ color }}>
+		<span aria-hidden className={`h-[5px] w-[5px] rounded-full bg-current ${status === "running" ? "animate-pulse" : ""}`} />
+		{copy.label}
+	</span>;
 }
 
 function newAnnotationId(): string {

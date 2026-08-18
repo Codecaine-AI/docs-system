@@ -688,6 +688,7 @@ export function DocPage({
     onDocApplied: handleLabDocApplied,
     onApplyQueue: kernelSession.onApplyQueue,
     kernelSession: kernelSession.handle,
+    kernelSnapshot: kernelSession.snapshot,
     enabled: !isStatic,
   });
   labRefreshRef.current = lab.refetchProposals;

@@ -9,6 +9,7 @@ import type {
 import {
 	createDocsKernelSessionSource,
 	docsKernelFailureMessage,
+	docsKernelSessionApplying,
 	reduceDocsEditSessionEvent,
 } from "../docs-kernel-session-source";
 
@@ -103,6 +104,38 @@ const changeset = (summary: string) => ({
 });
 
 describe("docs kernel session source", () => {
+	it("derives applying across session creation, a running turn, and settlement", async () => {
+		let resolveCreate!: (result: { state: DocsEditSessionState }) => void;
+		const creating = new Promise<{ state: DocsEditSessionState }>((resolve) => {
+			resolveCreate = resolve;
+		});
+		const mock = mockClient({ state: session() });
+		mock.client.createSession = () => creating;
+		const source = createDocsKernelSessionSource({
+			client: mock.client,
+			path: "guide",
+			onSessionEnd() {},
+		});
+
+		const applying = source.applyQueue(["ann-1"]);
+		expect(docsKernelSessionApplying(source.getSnapshot())).toBe(true);
+		expect(source.getSnapshot().starting).toBe(true);
+		expect(source.statusOverlay().get("ann-1")).toBe("working");
+
+		resolveCreate({ state: session() });
+		await applying;
+		expect(docsKernelSessionApplying(source.getSnapshot())).toBe(true);
+
+		mock.emit({
+			type: "agent-turn",
+			sessionId: "session-1",
+			phase: "finished",
+			turn: 1,
+			aliases: ["R1"],
+		});
+		expect(docsKernelSessionApplying(source.getSnapshot())).toBe(false);
+	});
+
 	it("preserves cross-document proposal paths from staged events", () => {
 		const next = reduceDocsEditSessionEvent(session(), {
 			type: "proposal-staged",
@@ -179,6 +212,32 @@ describe("docs kernel session source", () => {
 		await offlineSource.applyQueue([]);
 		expect(offlineSource.getSnapshot().sessionError).toBe("docs agent not connected");
 		expect(docsKernelFailureMessage({ ok: false, status: 0, errors: [], offline: true })).toBe("docs agent not connected");
+	});
+
+	it("maps a kernel rooted at different docs and preserves generic failure text", async () => {
+		const wrongRoot = {
+			ok: false as const,
+			status: 404,
+			errors: ["Doc path guide not found"],
+			failure: { reason: "unknown-doc" },
+		};
+		const source = createDocsKernelSessionSource({
+			client: mockClient(wrongRoot).client,
+			path: "guide",
+			onSessionEnd() {},
+		});
+		await source.applyQueue(["ann-1"]);
+
+		expect(source.getSnapshot().sessionError).toBe(
+			"The docs agent is running against a different docs root — it doesn't know this document.",
+		);
+		expect(
+			docsKernelFailureMessage({
+				ok: false,
+				status: 500,
+				errors: ["kernel launch exploded"],
+			}),
+		).toBe("kernel launch exploded");
 	});
 
 	it("applies through the live route and deduplicates the stream hash refresh", async () => {

@@ -4,6 +4,7 @@ import type { AnnotationsDocument } from "@codecaine-ai/docs-model/annotations-s
 import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 
 import { useDocLabSession } from "../doc-lab-controller";
+import type { DocsKernelSessionSnapshot } from "../docs-kernel-session-source";
 
 const DOC: DocDocument = {
   schemaVersion: 1,
@@ -207,6 +208,92 @@ describe("useDocLabSession", () => {
 
 		await waitFor(() => expect(result.current.session.requests).toHaveLength(1));
 		expect(result.current.session.requests[0]?.status).toBe("working");
+	});
+
+	it("optimistically overlays submitted requests while the kernel session starts", async () => {
+		const kernelSession = {
+			live: () => false,
+			statusOverlay: () => new Map([["ann-1", "working"]]),
+		} as never;
+		const kernelSnapshot: DocsKernelSessionSnapshot = {
+			live: false,
+			starting: true,
+			state: null,
+			statusOverlay: new Map([["ann-1", "working" as const]]),
+			changesets: new Map(),
+		};
+		const { result } = renderSession({
+			kernelSession,
+			kernelSnapshot,
+			onApplyQueue: async () => {},
+		});
+
+		await waitFor(() => expect(result.current.session.requests).toHaveLength(1));
+		expect(result.current.session.requests[0]?.status).toBe("working");
+		expect(result.current.applying).toBe(true);
+		expect(result.current.agentStatus).toBe("running");
+	});
+
+	it("derives connected, running, and settled controller state from the snapshot", async () => {
+		const idleSnapshot: DocsKernelSessionSnapshot = {
+			live: false,
+			starting: false,
+			state: null,
+			statusOverlay: new Map(),
+			changesets: new Map(),
+		};
+		const options: Partial<Parameters<typeof useDocLabSession>[0]> = {
+			onApplyQueue: async () => {},
+			kernelSnapshot: idleSnapshot,
+		};
+		const { result, rerender } = renderSession(options);
+		await waitFor(() => expect(result.current.session.requests).toHaveLength(1));
+		expect(result.current.applying).toBe(false);
+		expect(result.current.agentStatus).toBe("connected");
+
+		options.kernelSnapshot = {
+			...idleSnapshot,
+			live: true,
+			state: {
+				sessionId: "session-1",
+				path: "guide",
+				docId: "doc-1",
+				baseHash: "hash-1",
+				currentHash: "hash-1",
+				status: "running" as const,
+				createdAt: "2026-01-01T00:00:00.000Z",
+				scope: ["ann-1"],
+				requests: [],
+				proposals: [],
+				nextAcceptAlias: null,
+				undoableAlias: null,
+				skipped: [],
+				agent: {
+					spawned: true,
+					running: true,
+					turns: 1,
+					rerunPending: false,
+				},
+			},
+		};
+		rerender();
+		expect(result.current.applying).toBe(true);
+		expect(result.current.agentStatus).toBe("running");
+
+		options.kernelSnapshot = {
+			...options.kernelSnapshot,
+			state: {
+				...options.kernelSnapshot.state!,
+				status: "completed",
+				agent: {
+					...options.kernelSnapshot.state!.agent,
+					running: false,
+				},
+			},
+		};
+		rerender();
+		expect(result.current.applying).toBe(false);
+		expect(result.current.agentStatus).toBe("connected");
 	});
 
 	it("keeps the static projection when the kernel session is not live", async () => {

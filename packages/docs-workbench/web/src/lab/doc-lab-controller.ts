@@ -27,7 +27,11 @@ import {
 	deriveStagedProposals,
 	staleStagedProposals,
 } from "./doc-lab-projection";
-import type { DocsKernelSessionHandle } from "./docs-kernel-session-source";
+import {
+	docsKernelSessionApplying,
+	type DocsKernelSessionHandle,
+	type DocsKernelSessionSnapshot,
+} from "./docs-kernel-session-source";
 import { overlayChangesets, selectChangesetsForDoc } from "./doc-lab-changesets";
 import { changesetFailureMessage, type ChangesetAction } from "./doc-lab-changeset-messages";
 
@@ -46,6 +50,8 @@ export interface UseDocLabSessionOptions {
 	onApplyQueue?: (annotationIds: string[]) => void | Promise<void>;
 	/** Optional live kernel session overlay and review router. */
 	kernelSession?: DocsKernelSessionHandle;
+	/** Reactive snapshot paired with kernelSession (including session creation). */
+	kernelSnapshot?: DocsKernelSessionSnapshot;
 	/** Serve-mode gate; static exports do not call proposal/write routes. */
 	enabled?: boolean;
 }
@@ -59,6 +65,9 @@ export interface DocLabSessionResult {
 	changesetBusy: Record<string, "accepting" | "rejecting" | "undoing">;
 	changesetErrors: Record<string, string>;
 	agentConnected: boolean;
+	applying: boolean;
+	sessionError: string | null;
+	agentStatus: "connected" | "offline" | "running";
 	refetchProposals: () => Promise<void>;
 	refetchChangesets: () => Promise<void>;
 	acceptChangeset: (id: string) => Promise<void>;
@@ -164,6 +173,7 @@ export function useDocLabSession(options: UseDocLabSessionOptions): DocLabSessio
 
 	const kernelLive = options.kernelSession?.live() ?? false;
 	const kernelStatusOverlay = options.kernelSession?.statusOverlay();
+	const kernelStarting = options.kernelSnapshot?.starting ?? false;
 	const kernelChangesets = options.kernelSession?.changesets?.() ?? new Map<string, DocChangeSetView>();
 	const changesets = useMemo(
 		() => selectChangesetsForDoc(
@@ -175,7 +185,7 @@ export function useDocLabSession(options: UseDocLabSessionOptions): DocLabSessio
 	);
 	const requests = useMemo(() => {
 		const projected = deriveDocEditRequests({ annotations, proposals, doc });
-		if (!kernelLive || !kernelStatusOverlay) return projected;
+		if ((!kernelLive && !kernelStarting) || !kernelStatusOverlay) return projected;
 		return projected.map((request) => {
 			const status = request.annotationId
 				? kernelStatusOverlay.get(request.annotationId)
@@ -183,7 +193,7 @@ export function useDocLabSession(options: UseDocLabSessionOptions): DocLabSessio
 			return status === undefined ? request : { ...request, status };
 		});
 	},
-		[annotations, proposals, doc, kernelLive, kernelStatusOverlay],
+		[annotations, proposals, doc, kernelLive, kernelStarting, kernelStatusOverlay],
 	);
 	const staged = useMemo(
 		() => deriveStagedProposals({ proposals, requests }),
@@ -447,6 +457,11 @@ export function useDocLabSession(options: UseDocLabSessionOptions): DocLabSessio
 		onDismissRequest: undefined,
 	}), [requests, staged, undoable, onFileRequest, onAccept, onReject, onUndo, onReplyToRequest, onApplyQueue]);
 
+	const agentConnected = Boolean(options.onApplyQueue);
+	const applying = options.kernelSnapshot
+		? docsKernelSessionApplying(options.kernelSnapshot)
+		: false;
+
 	return {
 		session,
 		staleProposals: stale,
@@ -455,7 +470,17 @@ export function useDocLabSession(options: UseDocLabSessionOptions): DocLabSessio
 		changesets,
 		changesetBusy,
 		changesetErrors,
-		agentConnected: Boolean(options.onApplyQueue),
+		agentConnected,
+		applying,
+		sessionError:
+			options.kernelSnapshot?.sessionError ??
+			options.kernelSnapshot?.streamError ??
+			null,
+		agentStatus: applying
+			? "running"
+			: agentConnected
+				? "connected"
+				: "offline",
 		refetchProposals,
 		refetchChangesets,
 		acceptChangeset,

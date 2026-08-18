@@ -5,6 +5,7 @@ import {
 	createDocsKernelSessionSource,
 	probeKernelHealth,
 	type DocsKernelSessionHandle,
+	type DocsKernelSessionSnapshot,
 } from "./docs-kernel-session-source";
 
 export interface UseDocsKernelSessionOptions {
@@ -19,6 +20,7 @@ export interface UseDocsKernelSessionOptions {
 export interface UseDocsKernelSessionResult {
 	onApplyQueue?: (annotationIds: string[]) => Promise<void>;
 	handle: DocsKernelSessionHandle;
+	snapshot: DocsKernelSessionSnapshot;
 	agentConnected: boolean;
 }
 
@@ -47,7 +49,11 @@ export function useDocsKernelSession(
 		}),
 		[client, options.path],
 	);
-	useSyncExternalStore(source.subscribe, source.getSnapshot, source.getSnapshot);
+	const snapshot = useSyncExternalStore(
+		source.subscribe,
+		source.getSnapshot,
+		source.getSnapshot,
+	);
 
 	const [healthy, setHealthy] = useState(false);
 	useEffect(() => {
@@ -72,6 +78,7 @@ export function useDocsKernelSession(
 	return {
 		onApplyQueue: healthy && options.enabled ? applyQueue : undefined,
 		handle: source,
+		snapshot,
 		agentConnected: healthy && options.enabled,
 	};
 }

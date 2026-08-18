@@ -21,6 +21,13 @@ export interface DocsKernelSessionSnapshot {
 	streamError?: string;
 }
 
+/** The queue is applying while session creation or an agent turn is in flight. */
+export function docsKernelSessionApplying(
+	snapshot: Pick<DocsKernelSessionSnapshot, "starting" | "state">,
+): boolean {
+	return snapshot.starting || Boolean(snapshot.state?.agent.running);
+}
+
 export type DocsKernelSessionActionResult =
 	| { ok: true }
 	| { ok: false; miss: true; message: string }
@@ -158,6 +165,9 @@ export function docsKernelFailureMessage(failure: DocsKernelClientFailure): stri
 	const typed = failure.failure;
 	if (typed && typeof typed === "object" && "reason" in typed) {
 		if (typed.reason === "agent-busy") return "agent is busy with another document";
+		if (typed.reason === "unknown-doc") {
+			return "The docs agent is running against a different docs root — it doesn't know this document.";
+		}
 		if (typed.reason === "empty-scope") {
 			return "none of the queued notes is an open request";
 		}
@@ -166,6 +176,16 @@ export function docsKernelFailureMessage(failure: DocsKernelClientFailure): stri
 		if (typed.kind === "out_of_order") {
 			return "accept proposals in staging order";
 		}
+	}
+	if (
+		failure.status === 404 &&
+		failure.errors.some((message) =>
+			/(?:doc|document).*(?:path)?.*not found|not found.*(?:doc|document)/i.test(
+				message,
+			),
+		)
+	) {
+		return "The docs agent is running against a different docs root — it doesn't know this document.";
 	}
 	return failure.errors.join("; ") || `request failed (${failure.status})`;
 }
@@ -194,6 +214,7 @@ export function createDocsKernelSessionSource(
 	const listeners = new Set<() => void>();
 	let state: DocsEditSessionState | null = null;
 	let starting = false;
+	let startingAnnotationIds = new Set<string>();
 	let sessionError: string | undefined;
 	let streamError: string | undefined;
 	let unsubscribeStream: (() => void) | null = null;
@@ -336,6 +357,7 @@ export function createDocsKernelSessionSource(
 			if (state !== null || starting) return;
 			changesets.clear();
 			starting = true;
+			startingAnnotationIds = new Set(annotationIds);
 			sessionError = undefined;
 			notify();
 			const result = await options.client.createSession({
@@ -343,12 +365,14 @@ export function createDocsKernelSessionSource(
 				...(annotationIds.length > 0 ? { requestIds: [...annotationIds] } : {}),
 			});
 			starting = false;
+			startingAnnotationIds.clear();
 			if (isFailure(result)) {
 				sessionError = docsKernelFailureMessage(result);
 				notify();
 				return;
 			}
 			state = result.state;
+			streamError = undefined;
 			lastChangedHash = result.state.currentHash;
 			subscribeStream(result.state.sessionId);
 			notify();
@@ -455,6 +479,9 @@ export function createDocsKernelSessionSource(
 		getSnapshot() {
 			if (snapshot) return snapshot;
 			const overlay = new Map<string, DocEditRequestStatus>();
+			for (const annotationId of startingAnnotationIds) {
+				overlay.set(annotationId, "working");
+			}
 			if (state) {
 				for (const request of state.requests) {
 					overlay.set(request.annotationId, request.status);

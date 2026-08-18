@@ -70,10 +70,10 @@ export function DocLab({
 			buildRequestQueue({
 				requests: lab.session.requests,
 				proposals: lab.session.proposals,
-				applying: false,
+				applying: lab.applying,
 				conflictedAliases,
 			}),
-		[conflictedAliases, lab.session.proposals, lab.session.requests],
+		[conflictedAliases, lab.applying, lab.session.proposals, lab.session.requests],
 	);
 	const targetLabel = useCallback(
 		(target: DocEditTarget) => labelForTarget(doc, target, openDocPath),
@@ -106,7 +106,9 @@ export function DocLab({
 					<PanelQueue
 						session={lab.session}
 						queue={queue}
-						applying={false}
+						applying={lab.applying}
+						sessionError={lab.sessionError}
+						agentStatus={lab.agentStatus}
 						onApply={applyQueue}
 						applyDisabledReason={
 							lab.agentConnected ? null : "docs agent not connected"
