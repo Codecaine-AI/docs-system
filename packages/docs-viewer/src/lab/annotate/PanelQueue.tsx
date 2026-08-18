@@ -166,12 +166,9 @@ function QueueRow({ entry, session, onFocusTarget, onHoverTarget, labelForTarget
 			<span data-docs-lab-card-state={request.alias} className="ml-auto shrink-0 text-[10px] tracking-[0.04em]" style={{ color: entry.staged ? "var(--annotation-accept,#3fb950)" : entry.processing ? "var(--annotation-accent,#a99af5)" : waiting ? "var(--annotation-thread-accent,#f59e0b)" : undefined }}>{stateLabel}</span>
 			{session.onDismissRequest && !entry.processing && !entry.staged && <button type="button" aria-label={`Dismiss ${request.alias}`} title={`Dismiss ${request.alias} — removes it from the queue`} className="shrink-0 text-[12px] leading-none text-[color:transparent] transition-colors group-hover:text-[color:var(--docs-muted-foreground,var(--muted-foreground,#71717a))] hover:!text-[color:var(--annotation-reject,#f85149)]" onClick={() => void session.onDismissRequest?.(request.id)}>✕</button>}
 		</div>
-		<p className="mt-0.5 pl-4 text-[13px] leading-[1.55] text-[color:var(--foreground,#e4e4e7)]">{request.body}</p>
+		<div className="mt-1"><MessageBubble author="user" body={request.body} /></div>
 		{entry.conflict && <p data-docs-lab-card-conflict={request.alias} title="An accepted change touched this block after the note was filed." className="mt-0.5 text-[11px] text-[color:var(--annotation-thread-accent,#f59e0b)]">target changed since filed</p>}
-		{request.thread.length > 0 && <div className="mt-1">
-			<button type="button" data-docs-lab-thread-toggle={request.alias} aria-expanded={threadOpen} className="px-0.5 py-0.5 text-[11px] text-[color:var(--docs-muted-foreground,var(--muted-foreground,#71717a))]" onClick={() => setThreadOpen((open) => !open)}>{threadOpen ? "▾" : "▸"} {request.thread.length} {request.thread.length === 1 ? "reply" : "replies"}</button>
-			{threadOpen && <div className="mt-0.5 flex flex-col gap-1.5 border-l-2 border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] pl-2">{request.thread.map((message) => <div key={message.id} className="flex flex-col gap-0.5"><span className={message.author === "agent" ? "text-[10px] tracking-[0.04em] text-[color:var(--annotation-agent-accent,#2dd4bf)]" : "text-[10px] tracking-[0.04em] text-[color:var(--docs-muted-foreground,var(--muted-foreground,#71717a))]"}>{message.author === "user" ? "you" : message.author}</span><span className="text-[12px] leading-relaxed text-[color:var(--docs-muted-foreground,var(--muted-foreground,#a1a1aa))]">{message.body}</span></div>)}</div>}
-		</div>}
+		<ReplyDisclosure alias={request.alias} thread={request.thread} open={threadOpen} onToggle={() => setThreadOpen((open) => !open)} />
 		{waiting && session.onReplyToRequest && <div className="mt-1 flex gap-1.5"><input ref={replyRef} aria-label={`Reply to unblock ${request.alias}`} placeholder={`Reply to unblock ${request.alias}…`} className="min-w-0 flex-1 rounded-[var(--radius,0.375rem)] border border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] bg-[color:var(--background,#181818)] px-2 py-1 text-[12px] outline-none focus:border-[color:var(--annotation-thread-accent,#f59e0b)]" onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); sendReply(); } }} /><button type="button" aria-label={`Rail reply to ${request.alias}`} className="rounded-[var(--radius,0.375rem)] border border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] px-2 py-0.5 text-[11px] text-[color:var(--docs-muted-foreground,var(--muted-foreground,#a1a1aa))]" onClick={sendReply}>Reply</button></div>}
 	</div>;
 }
@@ -180,22 +177,30 @@ function RecordRow({ record, session, onFocusTarget, labelForTarget }: { record:
 	const { request } = record;
 	const target = request.target.kind === "doc" ? null : request.target;
 	const undoReason = undoDisabledReason(session, request.alias);
+	const [threadOpen, setThreadOpen] = useState(false);
 	return <div data-docs-lab-session-record={request.alias} data-docs-lab-record-state={record.stateLabel} className={`rounded-[var(--radius,0.375rem)] px-1.5 py-1 text-[color:var(--docs-muted-foreground,var(--muted-foreground,#a1a1aa))] ${target ? "cursor-pointer hover:bg-white/[0.03]" : ""}`} onClick={(event) => { if (event.target instanceof HTMLElement && event.target.closest("button")) return; if (target) onFocusTarget?.(target); }}>
 		<div className="flex items-baseline gap-2 text-[12px] leading-[1.55]">
 			<span className="min-w-0 truncate text-[color:var(--annotation-accent,#a99af5)]">{target ? labelForTarget(target) : "document"}</span>
 			<span className="ml-auto shrink-0" style={{ color: record.ok ? "var(--annotation-accept,#3fb950)" : "var(--annotation-reject,#f85149)" }}><span aria-hidden>{record.ok ? "✓" : "✕"}</span> {record.stateLabel}</span>
 			{request.status === "applied" && session.onUndo && <button type="button" aria-label={`Undo ${request.alias}`} disabled={undoReason !== null} title={undoReason ?? `Undo ${request.alias}`} data-docs-lab-record-undo={request.id} className="shrink-0 rounded-[var(--radius,0.375rem)] border border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] px-2 text-[10px] disabled:cursor-not-allowed disabled:opacity-40" onClick={() => void session.onUndo?.(request.alias)}>Undo</button>}
 		</div>
-		<p className="mt-0.5 pl-4 text-[13px] leading-[1.55] text-[color:var(--foreground,#e4e4e7)]">{request.body}</p>
-		<ThreadDisclosure alias={request.alias} thread={request.thread} />
+		<div className="mt-1"><MessageBubble author="user" body={request.body} /></div>
+		<ReplyDisclosure alias={request.alias} thread={request.thread} open={threadOpen} onToggle={() => setThreadOpen((open) => !open)} />
 	</div>;
 }
 
-function ThreadDisclosure({ alias, thread }: { alias: string; thread: RecordEntry["request"]["thread"] }) {
-	const [open, setOpen] = useState(false);
+function ReplyDisclosure({ alias, thread, open, onToggle }: { alias: string; thread: RecordEntry["request"]["thread"]; open: boolean; onToggle: () => void }) {
 	if (thread.length === 0) return null;
 	return <div className="mt-1">
-		<button type="button" data-docs-lab-thread-toggle={alias} aria-expanded={open} className="px-0.5 py-0.5 text-[11px] text-[color:var(--docs-muted-foreground,var(--muted-foreground,#71717a))]" onClick={() => setOpen((value) => !value)}>{open ? "▾" : "▸"} {thread.length} {thread.length === 1 ? "reply" : "replies"}</button>
-		{open && <div className="mt-0.5 flex flex-col gap-1.5 border-l-2 border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] pl-2">{thread.map((message) => <div key={message.id} className="flex flex-col gap-0.5"><span className={message.author === "agent" ? "text-[10px] tracking-[0.04em] text-[color:var(--annotation-agent-accent,#2dd4bf)]" : "text-[10px] tracking-[0.04em] text-[color:var(--docs-muted-foreground,var(--muted-foreground,#71717a))]"}>{message.author === "user" ? "you" : message.author}</span><span className="text-[12px] leading-relaxed text-[color:var(--docs-muted-foreground,var(--muted-foreground,#a1a1aa))]">{message.body}</span></div>)}</div>}
+		<button type="button" data-docs-lab-thread-toggle={alias} aria-expanded={open} className="px-0.5 py-0.5 text-[11px] text-[color:var(--docs-muted-foreground,var(--muted-foreground,#71717a))]" onClick={onToggle}>{open ? "▾" : "▸"} {thread.length} {thread.length === 1 ? "reply" : "replies"}</button>
+		{open && <div className="mt-1 flex flex-col gap-1.5">{thread.map((message) => <MessageBubble key={message.id} author={message.author} body={message.body} />)}</div>}
+	</div>;
+}
+
+function MessageBubble({ author, body }: { author: "user" | "agent"; body: string }) {
+	const user = author === "user";
+	return <div data-docs-lab-msg={author} className={`flex flex-col ${user ? "ml-auto items-end" : "mr-auto items-start"} max-w-[85%]`} aria-label={user ? `you: ${body}` : undefined}>
+		{user ? <span className="sr-only">you</span> : <span className="mb-0.5 px-1 text-[10px] tracking-[0.08em] text-[color:var(--annotation-agent-accent,#2dd4bf)]">agent</span>}
+		<div className={`rounded-[var(--radius,0.375rem)] px-2.5 py-1.5 text-[13px] leading-[1.45] text-[color:var(--foreground,#e4e4e7)] ${user ? "bg-[color:var(--annotation-accent-fill,rgba(138,122,176,.11))]" : "bg-[color:var(--docs-panel-raise,var(--background,#232323))]"}`}>{body}</div>
 	</div>;
 }

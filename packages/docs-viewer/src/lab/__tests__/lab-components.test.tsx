@@ -53,6 +53,7 @@ describe("PanelQueue", () => {
 		expect(open.getAttribute("aria-pressed")).toBe("true");
 		expect(done.getAttribute("aria-pressed")).toBe("false");
 		expect(document.querySelector('[data-docs-lab-session-card="R1"]')).toBeTruthy();
+		expect(document.querySelector('[data-docs-lab-session-card="R1"] [data-docs-lab-msg="user"]')?.textContent).toContain("Clarify this paragraph");
 		expect(document.querySelector('[data-docs-lab-session-record="R2"]')).toBeNull();
 
 		fireEvent.click(done);
@@ -160,6 +161,8 @@ describe("PanelQueue", () => {
 		expect(screen.queryByText("Applied reply")).toBeNull();
 		fireEvent.click(toggle);
 		expect(screen.getByText("Applied reply")).toBeTruthy();
+		expect(record.querySelector('[data-docs-lab-msg="user"]')?.textContent).toContain("Clarify this paragraph");
+		expect(record.querySelector('[data-docs-lab-msg="agent"]')?.textContent).toContain("agentApplied reply");
 		fireEvent.click(record);
 		expect(onFocusTarget).toHaveBeenCalledWith(session.requests[0]!.target);
 		fireEvent.click(record.querySelector<HTMLButtonElement>('[data-docs-lab-record-undo="request-1"]')!);
@@ -194,7 +197,7 @@ describe("PanelQueue", () => {
 		fireEvent.click(toggle);
 		expect(toggle.textContent).toBe("▾ 1 reply");
 		expect(toggle.getAttribute("aria-expanded")).toBe("true");
-		expect(screen.getByText("you")).toBeTruthy();
+		expect(document.querySelectorAll('[data-docs-lab-msg="user"]')).toHaveLength(2);
 		expect(screen.getByText("Human reply")).toBeTruthy();
 
 		fireEvent.click(toggle);
@@ -230,6 +233,8 @@ describe("PanelQueue", () => {
 		expect(toggle.textContent).toBe("▾ 2 replies");
 		expect(toggle.getAttribute("aria-expanded")).toBe("true");
 		expect(screen.getByText("Which audience?")).toBeTruthy();
+		expect(document.querySelector('[data-docs-lab-msg="agent"]')?.textContent).toContain("agentWhich audience?");
+		expect(document.querySelectorAll('[data-docs-lab-msg="user"]')).toHaveLength(2);
 		expect(screen.queryByText("waiting on you")).toBeNull();
 		expect(document.querySelector('[data-docs-lab-card-state="R1"]')?.textContent).toBe("");
 		expect(screen.getByRole("textbox", { name: "Reply to unblock R1" })).toBeTruthy();
