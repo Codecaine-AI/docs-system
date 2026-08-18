@@ -70,11 +70,8 @@ Fetch sub-files via `skill_read({ skill: "docs-framework", file: "<key>" })`:
 
 ```
 docs-framework/
-├── 00-reference/      # Pointer to the host corpus (no doctrine here)
 ├── 10-cookbook/       # Intent-based entry points
-├── 20-standards/      # Structure rules
-├── 30-workflows/      # Step-by-step task guides
-└── 40-templates/      # Document templates
+└── 30-workflows/      # Interview scripts (foundation, design, codebase)
 ```
 
 ## Where the Why Lives
@@ -84,7 +81,7 @@ This skill is operational: it says what to do. The canonical standards — rule,
 - `docs/10-system-design/10-doc-standards/` — every structural standard (structure, numbering, cross-doc linking, code linking, in-code docs) as child docs of one section; titles/openings guidance lives in `writingstyle.md` at the repo root
 - `docs/00-foundation/00-manifesto` — the intent: knowledge transfer between humans and AI; docs define behavior; code is the projection of specs
 
-The `20-standards/` files here are operational copies, retained until a context loader renders standards directly from the corpus (the declared direction). When a standard changes, the corpus doc changes first and the copy here is synced in the same change.
+This skill no longer carries operational copies of the standards. Agent contexts render them directly from the corpus (the docs-lab-editor context loads `10-doc-standards` through the agent markdown projection), so a standard changes in exactly one place: its corpus doc.
 
 ## Reference
 
@@ -92,7 +89,6 @@ The `20-standards/` files here are operational copies, retained until a context 
 |-------|----------|
 | Structural standards (canonical) | `docs/10-system-design/10-doc-standards/` (host corpus) |
 | Intent and philosophy | `docs/00-foundation/00-manifesto` (host corpus) |
-| State model and interaction surfaces | `docs/10-system-design/20-interaction-surfaces` (host corpus) |
-| Standards (operational copies) | `20-standards/` |
-| Workflows | `30-workflows/` |
-| Templates | `40-templates/` |
+| State model and agent surface | `docs/10-system-design/20-translation-layer` (host corpus) |
+| Block vocabulary and component actions | `docs/10-system-design/40-block-vocabulary` (host corpus) |
+| Interview scripts | `30-workflows/` |

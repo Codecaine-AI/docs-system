@@ -21,7 +21,7 @@ larger system.
 
 | Package | What it is |
 |---|---|
-| [`packages/framework`](packages/framework/SKILL.md) | The skill/manual: `SKILL.md` entry point plus `00-reference` (philosophy, architecture), `10-cookbook` (navigate/produce/maintain), `20-standards` (structure rules), `30-workflows` (the `/docs:*` commands), `40-templates` (document templates), `99-appendix` (setup, operations). |
+| [`packages/framework`](packages/framework/SKILL.md) | The skill/manual: `SKILL.md` entry point plus `10-cookbook` (navigate/produce/maintain) and `30-workflows` (interview scripts). Standards live only in the corpus (`docs/10-system-design/10-doc-standards`); agent contexts render them from there. |
 | [`packages/docs-model`](packages/docs-model) | Pure TypeScript, no React, no I/O. The `doc.json` schema (a normalized, id-keyed block tree, 14 block types, delta/rich-text spans), a 7-op mutation vocabulary — six generic structural/text ops plus `blockAction`, which expands typed per-block actions (13, defined in `src/components/`) into `updateBlock` patches — with a pure `applyOp(doc, op) -> { doc, inverse }`, the comments schema, and Markdown projection in both directions (`projectToMarkdown`, Markdown → delta). |
 | [`packages/docs-index`](packages/docs-index) | A `bun:sqlite`-backed backlinks index. Derived state lives at `<docsRoot>/.index/` (gitignored — always rebuildable via rescan). Also: reference matching, `move-doc` with inbound-reference rewriting, and path-confinement helpers so operations can't escape the docs root. |
 | [`packages/docs-server`](packages/docs-server) | The embeddable mutation authority. `createDocsStore(docsRoot)` gives per-path mutexed, atomic (temp-then-rename) writes, TTL-based draft locks (423 on conflict), a single-use inverse-op undo ledger, and SSE change events. `createDocsRoutes(store)` turns that into an Elysia route factory exposing the full read+write `/api/*` table; mutating ops take an `expected_hash` and return 409 on staleness. |
@@ -57,9 +57,8 @@ bun run docs serve      # http://127.0.0.1:4800
 
 That's the whole loop: add the submodule, install its dependencies, wire a
 `docs` script, migrate existing Markdown (non-destructive — see below), and
-serve. See [`packages/framework/99-appendix/10-setup-guide.md`](packages/framework/99-appendix/10-setup-guide.md)
-for the full walkthrough, including the skill-mount convention for Claude
-Code / Codex agents and the `--root`/`--host`/`--port` flags on `serve`.
+serve. The Adoption section below covers the skill-mount convention for
+Claude Code / Codex agents; `serve` takes `--root`/`--host`/`--port` flags.
 
 `docs migrate` is non-destructive by default: it writes `doc.json` bundles
 alongside existing `.md`/`.mdx` sources and never deletes them. `.mdx` is
