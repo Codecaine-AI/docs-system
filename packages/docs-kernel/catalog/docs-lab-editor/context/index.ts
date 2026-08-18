@@ -1,13 +1,13 @@
 /**
  * Section ② — standing docs-system knowledge for the Docs Lab editor.
  *
- * Two live sources replace the retired packages/framework markdown copies:
- * structure standards and writing style render from the corpus's own doc.json
- * bundles through the sanctioned agent projection (projectToMarkdown), and
- * the editing reference renders from the component registry
- * (buildBlocksDiscovery), so all three stay current by construction. The live
- * document and request queue stay section ③/session-tool data and are not
- * loaded here.
+ * Two corpus-rendered sources: structure standards and the style guide, each
+ * loaded as doc.json bundles and rendered through the sanctioned agent
+ * projection (projectToMarkdown), so they stay current by construction.
+ * Editing mechanics deliberately live in the tool definitions themselves —
+ * every tool's schema and description is generated from the component
+ * registry, so the context carries no tool teaching. The live document and
+ * request queue stay section ③/session-tool data and are not loaded here.
  *
  * There is deliberately no outer <context> envelope: the kernel supplies it.
  */
@@ -20,10 +20,8 @@ import type {
 	SpawnContext,
 } from "@agent-kernel/kernel/context";
 import {
-	buildBlocksDiscovery,
 	projectToMarkdown,
 	validateDocDocument,
-	type BlocksDiscoveryComponent,
 } from "@codecaine-ai/docs-model";
 
 /**
@@ -53,25 +51,15 @@ export const STYLE_GUIDE_BUNDLES: ReadonlyArray<string> = [
 	"99-appendix/10-style-guide/20-structure",
 ];
 
-/**
- * The block-vocabulary index alone: the sixteen-type purpose table and the
- * doctrine roles — what each block is and when to use it — without hauling in
- * the per-family contract pages.
- */
-export const BLOCK_VOCABULARY_BUNDLES: ReadonlyArray<string> = [
-	"10-system-design/40-block-vocabulary",
-];
-
-const standardsFile = (bundle: string): string =>
+const bundleFile = (bundle: string): string =>
 	join(DOCS_ROOT, bundle, "doc.json");
 
 const loaders: AgentContextResolver["loaders"] = [
 	...STANDARDS_BUNDLES,
 	...STYLE_GUIDE_BUNDLES,
-	...BLOCK_VOCABULARY_BUNDLES,
 ].map((bundle) => ({
 	kind: "file" as const,
-	path: standardsFile(bundle),
+	path: bundleFile(bundle),
 }));
 
 function loadedPath(input: LoadedMap[number]): string {
@@ -95,11 +83,6 @@ function block(tag: string, attrs: string, body: string): string {
 	return [open, indent(body), `</${tag}>`].join("\n");
 }
 
-// ---------------------------------------------------------------------------
-// <docs_structure_standards> / <docs_writing_style> — corpus doc.json →
-// agent markdown
-// ---------------------------------------------------------------------------
-
 function renderCorpusDoc(bundle: string, raw: string): string {
 	let parsed: unknown;
 	try {
@@ -119,211 +102,6 @@ function renderCorpusDoc(bundle: string, raw: string): string {
 	);
 }
 
-// ---------------------------------------------------------------------------
-// <docs_editing_reference> — component registry → agent reference
-// ---------------------------------------------------------------------------
-
-/** Tool-name prefix per action-owning block type (mirrors the session tools). */
-const FAMILY_TOOL_PREFIX: Readonly<Record<string, string>> = {
-	code: "code",
-	"structured-table": "table",
-	"file-tree": "tree",
-	"state-shape": "shape",
-	"interaction-surface": "surface",
-	"process-outline": "outline",
-};
-
-const DELEGATED_TYPES: ReadonlySet<string> = new Set(["canvas", "sequence"]);
-
-function toolNameFor(actionKey: string): string | null {
-	const [blockType, verb] = actionKey.split(".", 2);
-	if (blockType === undefined || verb === undefined) return null;
-	if (DELEGATED_TYPES.has(blockType)) return null;
-	const prefix = FAMILY_TOOL_PREFIX[blockType];
-	if (prefix === undefined) return null;
-	return `${prefix}_${verb.replace(/([A-Z])/g, "_$1").toLowerCase()}`;
-}
-
-const EDITING_TOOLS_OVERVIEW = [
-	"Every edit call carries the requestAlias it belongs to; editing the same alias again extends that request's edit set.",
-	"structure:",
-	"  insert_block (type, parentId, index) — inserts a BLANK block and returns its id; content comes through the type's tools",
-	'  delete_block (blockId, mode?: "subtree" | "reparent") · move_block (blockId, toParentId, toIndex)',
-	"  split_block (blockId, offset) · merge_blocks (blockIds) — text blocks only",
-	"  move_blocks (blockIds, destDocPath, destPosition) — cross-document move preserving identity, annotations, links",
-	"text blocks:",
-	"  write_text (blockId, markdown) — inline markdown (bold, italic, code, links); structure comes from blocks, not markdown syntax",
-	"  set_props (blockId, props) — rich-text scalar props only (heading level, callout tone/kind, image src/alt, code language…)",
-	"component blocks: one tool per typed action — see each block type below.",
-	"canvas / sequence: edit_canvas and edit_sequence hand the change to that system's editor.",
-].join("\n");
-
-/** Hand-held guidance where trace evidence showed agents guessing. */
-const USAGE_NOTES: Readonly<Record<string, string>> = {
-	"process-outline":
-		'Structure lives in steps and their nesting (kind "note" for annotations); never encode arrows or layout in step text — the renderer owns presentation.',
-	"interaction-surface":
-		"Carries no text at all; content changes only through the surface_* tools.",
-	"structured-table":
-		"Edit cells, rows, and columns through the table_* tools, never by rewriting props.",
-	"state-shape": "Edit fields through the shape_* tools, never by rewriting props.",
-	canvas:
-		"Owned by the canvas system — use edit_canvas to hand the change to its editor.",
-	sequence:
-		"Owned by the sequence system — use edit_sequence to hand the change to its editor.",
-};
-
-type SchemaNode = Record<string, unknown>;
-
-/**
- * Compact structural rendering of a TypeBox JSON Schema. Named ($id) schemas
- * are hoisted into a defs list so recursive shapes (ProcessOutlineStep,
- * Field) print once. Falls back to raw JSON for unrecognized nodes.
- */
-function createSchemaPrinter(): {
-	print(schema: unknown): string;
-	defs(): string[];
-} {
-	const defs = new Map<string, string>();
-
-	function print(node: unknown): string {
-		if (node === null || typeof node !== "object") return "json";
-		const schema = node as SchemaNode;
-
-		const ref = schema.$ref;
-		if (typeof ref === "string") return ref.replace(/^#\/?/, "");
-
-		const id = typeof schema.$id === "string" ? schema.$id : undefined;
-		if (id !== undefined) {
-			if (!defs.has(id)) {
-				defs.set(id, "…"); // guard recursion before rendering the body
-				defs.set(id, printBody(schema));
-			}
-			return id;
-		}
-		return printBody(schema);
-	}
-
-	function printBody(schema: SchemaNode): string {
-		if ("const" in schema) return JSON.stringify(schema.const);
-		if (Array.isArray(schema.enum)) {
-			return schema.enum.map((value) => JSON.stringify(value)).join(" | ");
-		}
-		if (Array.isArray(schema.anyOf)) {
-			return schema.anyOf.map(print).join(" | ");
-		}
-		if (Array.isArray(schema.allOf) && schema.allOf.length === 1) {
-			return print(schema.allOf[0]);
-		}
-
-		switch (schema.type) {
-			case "string":
-				return "str";
-			case "number":
-				return "num";
-			case "integer":
-				return "int";
-			case "boolean":
-				return "bool";
-			case "null":
-				return "null";
-			case "array": {
-				const items = print(schema.items);
-				const itemsNode =
-					schema.items !== null && typeof schema.items === "object"
-						? (schema.items as SchemaNode)
-						: undefined;
-				const isUnion =
-					itemsNode !== undefined &&
-					((Array.isArray(itemsNode.anyOf) && itemsNode.anyOf.length > 1) ||
-						(Array.isArray(itemsNode.enum) && itemsNode.enum.length > 1));
-				return isUnion ? `(${items})[]` : `${items}[]`;
-			}
-			case "object": {
-				const properties =
-					schema.properties !== null && typeof schema.properties === "object"
-						? (schema.properties as Record<string, unknown>)
-						: {};
-				const required = new Set(
-					Array.isArray(schema.required)
-						? schema.required.filter(
-								(key): key is string => typeof key === "string",
-							)
-						: [],
-				);
-				const entries = Object.entries(properties).map(
-					([key, value]) =>
-						`${key}${required.has(key) ? "" : "?"}: ${print(value)}`,
-				);
-				return `{${entries.join(", ")}}`;
-			}
-			default:
-				return JSON.stringify(schema);
-		}
-	}
-
-	return {
-		print,
-		defs: () =>
-			Array.from(defs.entries()).map(([name, body]) => `${name} = ${body}`),
-	};
-}
-
-function renderBlockType(
-	component: BlocksDiscoveryComponent,
-	type: BlocksDiscoveryComponent["types"][number],
-	printer: ReturnType<typeof createSchemaPrinter>,
-): string {
-	const lines: string[] = [`props: ${printer.print(type.state)}`];
-	for (const action of component.actions) {
-		if (!action.action.startsWith(`${type.type}.`)) continue;
-		const toolName = toolNameFor(action.action);
-		if (toolName === null) continue;
-		lines.push(`${toolName} ${printer.print(action.params)}`);
-		if (action.description.length > 0) {
-			lines.push(`${INDENT.repeat(2)}${action.description}`);
-		}
-	}
-	const note = USAGE_NOTES[type.type];
-	if (note !== undefined) lines.push(`note: ${note}`);
-	return block(
-		"block_type",
-		`name="${type.type}" text="${type.carriesText ? "yes" : "no"}"`,
-		lines.join("\n"),
-	);
-}
-
-function renderEditingReference(): string {
-	const discovery = buildBlocksDiscovery();
-	const printer = createSchemaPrinter();
-
-	const blockTypes = discovery.components
-		.flatMap((component) =>
-			component.types.map((type) =>
-				renderBlockType(component, type, printer),
-			),
-		)
-		.join("\n");
-
-	const defs = printer.defs();
-	const defsBlock =
-		defs.length > 0 ? block("shared_shapes", "", defs.join("\n")) : null;
-
-	return block(
-		"docs_editing_reference",
-		'schemaVersion="2"',
-		[
-			block("editing_tools", "", EDITING_TOOLS_OVERVIEW),
-			block("block_types", "", blockTypes),
-			...(defsBlock !== null ? [defsBlock] : []),
-		].join("\n"),
-	);
-}
-
-// ---------------------------------------------------------------------------
-// assemble
-// ---------------------------------------------------------------------------
-
 // Standing knowledge is session-invariant; the session aim belongs to state.
 function assemble(loaded: LoadedMap, _ctx: SpawnContext): string {
 	const loadedByPath = new Map(loaded.map((input) => [loadedPath(input), input]));
@@ -331,7 +109,7 @@ function assemble(loaded: LoadedMap, _ctx: SpawnContext): string {
 	const renderBundles = (bundles: ReadonlyArray<string>): string =>
 		bundles
 			.map((bundle) => {
-				const input = loadedByPath.get(standardsFile(bundle));
+				const input = loadedByPath.get(bundleFile(bundle));
 				if (input === undefined || input.status !== "ok") {
 					return `<doc path="${bundle}" status="${input?.status ?? "missing"}"></doc>`;
 				}
@@ -350,12 +128,6 @@ function assemble(loaded: LoadedMap, _ctx: SpawnContext): string {
 			'source="docs-system corpus · 99-appendix/10-style-guide"',
 			renderBundles(STYLE_GUIDE_BUNDLES),
 		),
-		block(
-			"docs_block_vocabulary",
-			'source="docs-system corpus · 10-system-design/40-block-vocabulary"',
-			renderBundles(BLOCK_VOCABULARY_BUNDLES),
-		),
-		renderEditingReference(),
 	].join("\n");
 }
 

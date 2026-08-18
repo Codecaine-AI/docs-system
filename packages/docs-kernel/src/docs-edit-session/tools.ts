@@ -207,6 +207,52 @@ function snakeCase(verb: string): string {
   return verb.replace(/([A-Z])/g, "_$1").toLowerCase();
 }
 
+/**
+ * Compact per-type props summary for the set_props description, generated
+ * from the registry schemas (the generic `props: object` field would
+ * otherwise be the only place these shapes could live).
+ */
+function propsShapeSummary(): string {
+  const entries: string[] = [];
+  for (const type of EDITABLE_BLOCK_TYPES) {
+    if (!SET_PROPS_TYPES.has(type)) continue;
+    const schema = stateFor(type).schema as unknown as Record<string, unknown>;
+    const properties =
+      schema.properties !== null && typeof schema.properties === "object"
+        ? (schema.properties as Record<string, unknown>)
+        : {};
+    const keys = Object.keys(properties);
+    if (keys.length === 0) continue;
+    const fields = keys
+      .map((key) => {
+        const node = properties[key] as Record<string, unknown> | null;
+        const variants =
+          node !== null && Array.isArray(node.anyOf)
+            ? node.anyOf
+                .map((entry) =>
+                  entry !== null && typeof entry === "object" && "const" in entry
+                    ? JSON.stringify((entry as Record<string, unknown>).const)
+                    : null,
+                )
+                .filter((entry): entry is string => entry !== null)
+            : [];
+        if (variants.length > 0) return `${key}: ${variants.join("|")}`;
+        if (
+          node !== null &&
+          node.type === "integer" &&
+          typeof node.minimum === "number" &&
+          typeof node.maximum === "number"
+        ) {
+          return `${key}: ${node.minimum}-${node.maximum}`;
+        }
+        return key;
+      })
+      .join(", ");
+    entries.push(`${type} {${fields}}`);
+  }
+  return entries.join("; ");
+}
+
 type SchemaNode = Record<string, unknown>;
 
 /**
@@ -1251,7 +1297,7 @@ function buildToolDefinitions(
       name: "set_props",
       label: "Set block props",
       description:
-        "Shallow-merge a props patch into a rich-text or code block (heading level, callout tone/kind/title, list ordered, image src/alt/caption, code language). Structured component blocks use their typed tools instead.",
+        `Shallow-merge a props patch into a rich-text or code block. Structured component blocks use their typed tools instead. Props by type: ${propsShapeSummary()}.`,
       promptSnippet: "Patch scalar props on a rich-text or code block.",
       parameters: objectSchema(
         {
