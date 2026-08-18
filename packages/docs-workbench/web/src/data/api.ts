@@ -533,6 +533,7 @@ export async function addAnnotationReply(
   assertWritable("Replying to annotations");
   return postJson(`api/annotations/${encodeURIComponent(annotationId)}/replies`, {
     path: bundlePathOf(path),
+    author: "you",
     body,
     expected_hash: expectedHash ?? undefined,
     session_id: getSessionId(),

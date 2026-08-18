@@ -88,11 +88,11 @@ describe("PanelQueue", () => {
 
 		expect(onFileGlobal).toHaveBeenCalledWith("Tighten the introduction");
 		expect(document.querySelector('[data-docs-lab-filter="open"]')?.getAttribute("aria-pressed")).toBe("true");
-		expect(screen.getByText("Nothing queued — click a block, or hold Cmd/Ctrl and drag across text, to open the composer next to it. Canvas objects are clickable too.")).toBeTruthy();
+		expect(screen.queryByText("Targets")).toBeNull();
 		expect(document.querySelector('[data-docs-lab-session-record="R1"]')).toBeNull();
 	});
 
-	it("shows the open and done empty states", () => {
+	it("omits an empty Targets group and shows the done empty state", () => {
 		const emptySession: DocEditSession = { requests: [], proposals: [] };
 		render(
 			<PanelQueue
@@ -105,9 +105,33 @@ describe("PanelQueue", () => {
 			/>,
 		);
 
-		expect(screen.getByText("Nothing queued — click a block, or hold Cmd/Ctrl and drag across text, to open the composer next to it. Canvas objects are clickable too.")).toBeTruthy();
+		expect(screen.queryByText("Targets")).toBeNull();
 		fireEvent.click(document.querySelector<HTMLButtonElement>('[data-docs-lab-filter="done"]')!);
 		expect(screen.getByText("Nothing finished yet.")).toBeTruthy();
+	});
+
+	it("shows the Targets group and labels user replies as you", () => {
+		const threadedSession: DocEditSession = {
+			...session,
+			requests: [{
+				...session.requests[0]!,
+				thread: [{ id: "reply-1", author: "user", body: "Human reply", at: "t1" }],
+			}],
+		};
+		render(
+			<PanelQueue
+				session={threadedSession}
+				queue={buildRequestQueue({ requests: threadedSession.requests, proposals: [], applying: false })}
+				applying={false}
+				agentStatus="connected"
+				onApply={() => {}}
+				labelForTarget={() => "Paragraph"}
+			/>,
+		);
+
+		expect(screen.getByText("Targets")).toBeTruthy();
+		expect(screen.getByText("you ·")).toBeTruthy();
+		expect(screen.queryByText("user ·")).toBeNull();
 	});
 
 	it("gives an external Apply disabled reason precedence over an applicable queue", () => {

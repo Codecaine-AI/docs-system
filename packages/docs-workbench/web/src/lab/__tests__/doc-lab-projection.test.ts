@@ -138,8 +138,10 @@ describe("deriveDocEditRequests", () => {
 				annotation("threaded", {
 					target: { kind: "block", blockId: "paragraph", fingerprint: `${fingerprint}-stale` },
 					replies: [
-						{ id: "reply-user", author: "ford", body: "User reply", createdAt: "t1" },
-						{ id: "reply-agent", author: "agent", body: "Agent reply", createdAt: "t2" },
+						{ id: "reply-anonymous", author: "anonymous", body: "Anonymous reply", createdAt: "t1" },
+						{ id: "reply-you", author: "you", body: "Your reply", createdAt: "t2" },
+						{ id: "reply-agent", author: "agent", body: "Agent reply", createdAt: "t3" },
+						{ id: "reply-system", author: "system", body: "System reply", createdAt: "t4" },
 					],
 				}),
 				annotation("canvas", {
@@ -149,8 +151,10 @@ describe("deriveDocEditRequests", () => {
 		});
 
 		expect(requests[0]?.thread).toEqual([
-			{ id: "reply-user", author: "user", body: "User reply", at: "t1" },
-			{ id: "reply-agent", author: "agent", body: "Agent reply", at: "t2" },
+			{ id: "reply-anonymous", author: "user", body: "Anonymous reply", at: "t1" },
+			{ id: "reply-you", author: "user", body: "Your reply", at: "t2" },
+			{ id: "reply-agent", author: "agent", body: "Agent reply", at: "t3" },
+			{ id: "reply-system", author: "agent", body: "System reply", at: "t4" },
 		]);
 		expect(requests[0]?.targetChanged).toBe(true);
 		expect(requests).toHaveLength(1);

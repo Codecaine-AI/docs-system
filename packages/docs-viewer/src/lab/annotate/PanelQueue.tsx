@@ -81,8 +81,10 @@ export function PanelQueue({ session, queue, applying, agentStatus, sessionError
 		    stays put below while this scrolls. */}
 		<div className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto overscroll-contain">
 			{view === "open" ? <>
-				<GroupHeader label="Targets" />
-				{targetEntries.length === 0 ? <p className="px-1.5 py-1 text-[13px] leading-relaxed text-[color:var(--docs-muted-foreground,var(--muted-foreground,#71717a))]">Nothing queued — click a block, or hold Cmd/Ctrl and drag across text, to open the composer next to it. Canvas objects are clickable too.</p> : targetEntries.map(renderRow)}
+				{targetEntries.length > 0 && <>
+					<GroupHeader label="Targets" />
+					{targetEntries.map(renderRow)}
+				</>}
 				{documentEntries.length > 0 && <>
 					<GroupHeader label="Document" />
 					{documentEntries.map(renderRow)}
@@ -160,7 +162,7 @@ function QueueRow({ entry, session, onFocusTarget, onHoverTarget, labelForTarget
 		</div>
 		<p className="mt-0.5 pl-4 text-[13px] leading-[1.55] text-[color:var(--foreground,#e4e4e7)]">{request.body}</p>
 		{entry.conflict && <p data-docs-lab-card-conflict={request.alias} title="An accepted change touched this block after the note was filed." className="mt-0.5 text-[11px] text-[color:var(--annotation-thread-accent,#f59e0b)]">target changed since filed</p>}
-		{request.thread.length > 0 && <div className="mt-1 border-l-2 border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] pl-2">{request.thread.map((message) => <p key={message.id} className="mb-0.5 text-[12px] leading-[1.5]"><span className={message.author === "agent" ? "text-teal-400 text-[11px]" : "text-[11px] text-[color:var(--docs-muted-foreground,var(--muted-foreground,#71717a))]"}>{message.author} · </span><span className="text-[color:var(--docs-muted-foreground,var(--muted-foreground,#a1a1aa))]">{message.body}</span></p>)}</div>}
+		{request.thread.length > 0 && <div className="mt-1 border-l-2 border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] pl-2">{request.thread.map((message) => <p key={message.id} className="mb-0.5 text-[12px] leading-[1.5]"><span className={message.author === "agent" ? "text-teal-400 text-[11px]" : "text-[11px] text-[color:var(--docs-muted-foreground,var(--muted-foreground,#71717a))]"}>{message.author === "user" ? "you" : message.author} · </span><span className="text-[color:var(--docs-muted-foreground,var(--muted-foreground,#a1a1aa))]">{message.body}</span></p>)}</div>}
 		{waiting && session.onReplyToRequest && <div className="mt-1 flex gap-1.5"><input ref={replyRef} aria-label={`Reply to unblock ${request.alias}`} placeholder={`Reply to unblock ${request.alias}…`} className="min-w-0 flex-1 rounded-[var(--radius,0.375rem)] border border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] bg-[color:var(--background,#181818)] px-2 py-1 text-[12px] outline-none focus:border-[color:var(--annotation-thread-accent,#f59e0b)]" onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); sendReply(); } }} /><button type="button" aria-label={`Rail reply to ${request.alias}`} className="rounded-[var(--radius,0.375rem)] border border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] px-2 py-0.5 text-[11px] text-[color:var(--docs-muted-foreground,var(--muted-foreground,#a1a1aa))]" onClick={sendReply}>Reply</button></div>}
 	</div>;
 }

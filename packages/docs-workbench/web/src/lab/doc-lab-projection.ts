@@ -112,7 +112,7 @@ export function deriveDocEditRequests({
 			disposition: target.kind === "doc" ? "global" : "batch",
 			thread: (annotation.replies ?? []).map((reply) => ({
 				id: reply.id,
-				author: reply.author === annotation.author ? "user" : "agent",
+				author: reply.author === "agent" || reply.author === "system" ? "agent" : "user",
 				body: reply.body,
 				at: reply.createdAt,
 			})),
