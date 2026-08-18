@@ -59,9 +59,10 @@ export type LaunchDocsEditSessionResult = LaunchedDocsEditSession | LaunchDocsEd
 export const DEFAULT_DOCS_EDIT_KICKOFF = [
   "Work the request queue for this documentation bundle in docs-edit session mode.",
   "Call read_doc first. Whole-document docs_write is unavailable because it would regenerate block ids.",
-  "Use only read_doc, docs_tree, docs_read, propose_ops, propose_move_blocks, resolve_request, and reply_request.",
-  "Stage id-stable DocOps with propose_ops, one proposal per request.",
-  "Leave staged proposals open for human review; resolve only requests that need no proposal or are declined.",
+  "Edit through the block tools: insert_block creates a blank block of a type; write_text and set_props edit text blocks;",
+  "structured blocks change through their typed tools (table_*, tree_*, shape_*, surface_*, outline_*, code_*);",
+  "move_blocks handles cross-document structure. Tag every edit with its requestAlias.",
+  "A request you have edited stays open on its own; resolve only requests that need no edit or are declined.",
 ].join(" ");
 
 export async function launchDocsEditSession(
@@ -144,6 +145,6 @@ export function docsEditRerunKickoff(aliases: readonly string[]): string {
   return [
     `The human replied on ${aliases.join(", ")}.`,
     "Continue the same docs-edit session. Read the live queue with read_doc, account for the reply,",
-    "and revise the request by staging id-stable DocOps through propose_ops. docs_write remains unavailable.",
+    "and revise your edits for the request with the block tools — editing the same alias again updates its edit set. docs_write remains unavailable.",
   ].join(" ");
 }

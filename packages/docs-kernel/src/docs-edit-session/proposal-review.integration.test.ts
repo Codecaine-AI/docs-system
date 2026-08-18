@@ -14,10 +14,9 @@ import {
 	fixtureAnnotation,
 	fixtureAnnotations,
 	readDiskDoc,
-	updateTextOp,
 	writeBundle,
 } from "./test-fixtures";
-import { toolProposeOps } from "./tools";
+import { createDocsEditToolset } from "./tools";
 
 const tempRoots: string[] = [];
 
@@ -36,7 +35,7 @@ afterEach(async () => {
 });
 
 describe("docs-edit proposal/review integration", () => {
-	test("propose_ops rejects malformed ops and persists valid proposal metadata without mutating the doc", async () => {
+	test("edit tools reject malformed calls and persist valid edit metadata without mutating the doc", async () => {
 		const docsRoot = await makeDocsRoot();
 		await writeBundle(docsRoot, FIXTURE_PATH, {
 			annotations: fixtureAnnotations([
@@ -56,42 +55,32 @@ describe("docs-edit proposal/review integration", () => {
 		const session = service.getSession(created.state.sessionId);
 		if (!session) throw new Error("created session was not retained");
 
-		const invalid = await toolProposeOps(session, {
+		const tools = createDocsEditToolset(session);
+		const invalid = await tools.call("write_text", {
 			requestAlias: "R1",
-			ops: [{ type: "updateBlock", blockId: "p1", text: 42 }],
-			summary: "Malformed nested text payload",
+			blockId: "p1",
+			markdown: 42,
 		});
 		expect(invalid.isError).toBe(true);
-		expect(invalid.text).toContain("malformed ops");
-		const supportedTypes =
-			"Supported op types: insertBlock, updateBlock, deleteBlock, moveBlock, splitBlock, mergeBlocks, componentAction.";
-		const unsupported = await toolProposeOps(session, {
+		expect(invalid.text).toContain("markdown must be a string");
+		const unknown = await tools.call("replace_block", {
 			requestAlias: "R1",
-			ops: [{ type: "replace_block", blockId: "p1" }],
-			summary: "Unsupported operation type",
+			blockId: "p1",
 		});
-		expect(unsupported.isError).toBe(true);
-		expect(unsupported.text).toContain(supportedTypes);
-		const nonObject = await toolProposeOps(session, {
-			requestAlias: "R1",
-			ops: ["updateBlock"],
-			summary: "Non-object operation",
+		expect(unknown.isError).toBe(true);
+		expect(unknown.text).toContain("unknown docs-edit tool");
+		const badAlias = await tools.call("write_text", {
+			requestAlias: "R99",
+			blockId: "p1",
+			markdown: "text",
 		});
-		expect(nonObject.isError).toBe(true);
-		expect(nonObject.text).toContain(supportedTypes);
-		const invalidBlockType = await toolProposeOps(session, {
+		expect(badAlias.isError).toBe(true);
+		expect(badAlias.text).toContain('No request "R99"');
+		const invalidBlockType = await tools.call("insert_block", {
 			requestAlias: "R1",
-			ops: [
-				{
-					type: "insertBlock",
-					blockId: "new-block",
-					parentId: "root",
-					index: 0,
-					blockType: "bogus-block-type",
-					props: {},
-				},
-			],
-			summary: "Invalid block type",
+			type: "bogus-block-type",
+			parentId: "root",
+			index: 0,
 		});
 		expect(invalidBlockType.isError).toBe(true);
 		expect(invalidBlockType.text).toContain("process-outline");
@@ -101,13 +90,14 @@ describe("docs-edit proposal/review integration", () => {
 		if (!afterInvalid.ok) throw new Error(afterInvalid.detail);
 		expect(afterInvalid.proposals).toHaveLength(0);
 
-		const valid = await toolProposeOps(session, {
+		const valid = await tools.call("write_text", {
 			requestAlias: "R1",
-			ops: [updateTextOp("p1", "A clearer first paragraph.")],
+			blockId: "p1",
+			markdown: "A clearer first paragraph.",
 			summary: "Clarify the first paragraph",
 		});
 		expect(valid.isError).not.toBe(true);
-		expect(valid.text).toContain("STAGED");
+		expect(valid.text).toContain("EDITED");
 		expect(session.proposals()).toHaveLength(1);
 
 		const listed = await getBundleProposals(docsRoot, FIXTURE_PATH);
@@ -146,14 +136,17 @@ describe("docs-edit proposal/review integration", () => {
 		const session = service.getSession(sessionId);
 		if (!session) throw new Error("created session was not retained");
 
-		const stagedExplicit = await toolProposeOps(session, {
+		const tools = createDocsEditToolset(session);
+		const stagedExplicit = await tools.call("write_text", {
 			requestAlias: "R1",
-			ops: [updateTextOp("p1", "A rejected first paragraph.")],
+			blockId: "p1",
+			markdown: "A rejected first paragraph.",
 			summary: "Reject the first proposal",
 		});
-		const stagedDefault = await toolProposeOps(session, {
+		const stagedDefault = await tools.call("write_text", {
 			requestAlias: "R2",
-			ops: [updateTextOp("p2", "A rejected second paragraph.")],
+			blockId: "p2",
+			markdown: "A rejected second paragraph.",
 			summary: "Reject the second proposal",
 		});
 		expect(stagedExplicit.isError).not.toBe(true);
@@ -214,14 +207,17 @@ describe("docs-edit proposal/review integration", () => {
 		const session = service.getSession(sessionId);
 		if (!session) throw new Error("created session was not retained");
 
-		const stagedFirst = await toolProposeOps(session, {
+		const tools = createDocsEditToolset(session);
+		const stagedFirst = await tools.call("write_text", {
 			requestAlias: "R1",
-			ops: [updateTextOp("p1", "First paragraph, revised.")],
+			blockId: "p1",
+			markdown: "First paragraph, revised.",
 			summary: "Revise the first paragraph",
 		});
-		const stagedSecond = await toolProposeOps(session, {
+		const stagedSecond = await tools.call("write_text", {
 			requestAlias: "R2",
-			ops: [updateTextOp("p2", "Second paragraph, revised.")],
+			blockId: "p2",
+			markdown: "Second paragraph, revised.",
 			summary: "Revise the second paragraph",
 		});
 		expect(stagedFirst.isError).not.toBe(true);

@@ -23,10 +23,22 @@ import {
 	fixtureAnnotations,
 	fixtureDoc,
 	readDiskDoc,
-	updateTextOp,
 	writeBundle,
 } from "../test-fixtures";
-import { toolProposeMoveBlocks, toolProposeOps } from "../tools";
+import { createDocsEditToolset } from "../tools";
+import type { DocsEditToolSession } from "../tools";
+
+function editText(
+	session: DocsEditToolSession,
+	params: { requestAlias: string; blockId: string; markdown: string; summary?: string; docPath?: string },
+) {
+	return createDocsEditToolset(session).call("write_text", params);
+}
+
+function moveBlocks(session: DocsEditToolSession, params: Record<string, unknown>) {
+	return createDocsEditToolset(session).call("move_blocks", params);
+}
+
 
 const tempRoots: string[] = [];
 
@@ -130,15 +142,17 @@ async function createRecordedTwoDocBatch(
 	sessionId: string,
 ) {
 	const created = await createSession(docsRoot, sessionId);
-	const origin = await toolProposeOps(created.session, {
+	const origin = await editText(created.session, {
 		requestAlias: "R1",
-		ops: [updateTextOp("p1", "Origin document, revised first.")],
+		blockId: "p1",
+		markdown: "Origin document, revised first.",
 		summary: "Revise the origin document",
 	});
-	const other = await toolProposeOps(created.session, {
+	const other = await editText(created.session, {
 		requestAlias: "R2",
 		docPath: OTHER_FIXTURE_PATH,
-		ops: [updateTextOp("p2", "Other document, revised second.")],
+		blockId: "p2",
+			markdown: "Other document, revised second.",
 		summary: "Revise the other document",
 	});
 	if (origin.isError || other.isError) {
@@ -162,7 +176,7 @@ afterEach(async () => {
 });
 
 describe("docs-edit change-set integration", () => {
-	test("propose_move_blocks adopts the generator record and emits every staged proposal", async () => {
+	test("move_blocks adopts the generator record and emits every staged proposal", async () => {
 		const docsRoot = await makeDocsRoot();
 		const { service, session, sessionId } = await createSession(docsRoot, "move-blocks-e2e");
 		const stagedEvents: string[] = [];
@@ -172,14 +186,14 @@ describe("docs-edit change-set integration", () => {
 			if (event.type === "changeset-updated") updates.push(event.changeset);
 		});
 
-		const result = await toolProposeMoveBlocks(session, {
+		const result = await moveBlocks(session, {
 			requestAlias: "R1",
 			blockIds: ["p1"],
 			destDocPath: OTHER_FIXTURE_PATH,
 			destPosition: 1,
 		});
 		expect(result.isError).not.toBe(true);
-		expect(result.text).toContain("STAGED · change-set");
+		expect(result.text).toContain("MOVED ·");
 
 		const changesetId = await waitForChangeSetId(service, sessionId);
 		const record = await waitForChangeSet(docsRoot, changesetId, (view) => view.entries.length === 2);
@@ -214,7 +228,7 @@ describe("docs-edit change-set integration", () => {
 		}
 	});
 
-	test("propose_move_blocks restaging replaces the alias record and moves the superset once", async () => {
+	test("move_blocks restaging replaces the alias record and moves the superset once", async () => {
 		const docsRoot = await makeDocsRoot();
 		const { service, session, sessionId } = await createSession(
 			docsRoot,
@@ -225,7 +239,7 @@ describe("docs-edit change-set integration", () => {
 			if (event.type === "changeset-updated") updates.push(event.changeset);
 		});
 
-		const first = await toolProposeMoveBlocks(session, {
+		const first = await moveBlocks(session, {
 			requestAlias: "R1",
 			blockIds: ["p1"],
 			destDocPath: OTHER_FIXTURE_PATH,
@@ -239,7 +253,7 @@ describe("docs-edit change-set integration", () => {
 			(view) => view.entries.length === 2,
 		);
 
-		const second = await toolProposeMoveBlocks(session, {
+		const second = await moveBlocks(session, {
 			requestAlias: "R1",
 			blockIds: ["p1", "p2"],
 			destDocPath: OTHER_FIXTURE_PATH,
@@ -306,10 +320,11 @@ describe("docs-edit change-set integration", () => {
 			docsRoot,
 			"move-blocks-replaces-ops",
 		);
-		const stagedOps = await toolProposeOps(session, {
+		const stagedOps = await editText(session, {
 			requestAlias: "R1",
 			docPath: OTHER_FIXTURE_PATH,
-			ops: [updateTextOp("h1", "Superseded destination heading")],
+			blockId: "h1",
+			markdown: "Superseded destination heading",
 			summary: "Revise the destination heading",
 		});
 		expect(stagedOps.isError).not.toBe(true);
@@ -317,7 +332,7 @@ describe("docs-edit change-set integration", () => {
 		if (!opsProposalId) throw new Error("ops proposal was not retained");
 		const opsChangeSetId = await waitForChangeSetId(service, sessionId);
 
-		const moved = await toolProposeMoveBlocks(session, {
+		const moved = await moveBlocks(session, {
 			requestAlias: "R1",
 			blockIds: ["p1"],
 			destDocPath: OTHER_FIXTURE_PATH,
@@ -357,7 +372,7 @@ describe("docs-edit change-set integration", () => {
 		] as const) {
 			const docsRoot = await makeDocsRoot();
 			const { service, session, sessionId } = await createSession(docsRoot, `move-error-${suffix}`);
-			const result = await toolProposeMoveBlocks(session, params);
+			const result = await moveBlocks(session, params);
 			expect(result.isError).toBe(true);
 			expect(session.proposals()).toHaveLength(0);
 			expect(service.getState(sessionId)?.changesetId).toBeUndefined();
@@ -372,9 +387,10 @@ describe("docs-edit change-set integration", () => {
 			"single-doc-recordless",
 		);
 
-		const staged = await toolProposeOps(session, {
+		const staged = await editText(session, {
 			requestAlias: "R1",
-			ops: [updateTextOp("p1", "Only the origin document changes.")],
+			blockId: "p1",
+			markdown: "Only the origin document changes.",
 			summary: "Revise only the origin document",
 		});
 		expect(staged.isError).not.toBe(true);
@@ -401,10 +417,11 @@ describe("docs-edit change-set integration", () => {
 		});
 		if (!unsubscribe) throw new Error("created session was not subscribable");
 
-		const first = await toolProposeOps(session, {
+		const first = await editText(session, {
 			requestAlias: "R2",
 			docPath: OTHER_FIXTURE_PATH,
-			ops: [updateTextOp("p2", "The first cross-document edit.")],
+			blockId: "p2",
+			markdown: "The first cross-document edit.",
 			summary: "Revise the other document first",
 		});
 		expect(first.isError).not.toBe(true);
@@ -433,9 +450,10 @@ describe("docs-edit change-set integration", () => {
 			],
 		});
 
-		const second = await toolProposeOps(session, {
+		const second = await editText(session, {
 			requestAlias: "R1",
-			ops: [updateTextOp("p1", "The later origin-document edit.")],
+			blockId: "p1",
+			markdown: "The later origin-document edit.",
 			summary: "Revise the origin document second",
 		});
 		expect(second.isError).not.toBe(true);
@@ -470,16 +488,18 @@ describe("docs-edit change-set integration", () => {
 			"changeset-restage",
 		);
 
-		const first = await toolProposeOps(session, {
+		const first = await editText(session, {
 			requestAlias: "R1",
 			docPath: OTHER_FIXTURE_PATH,
-			ops: [updateTextOp("p1", "First edit in the shared target.")],
+			blockId: "p1",
+			markdown: "First edit in the shared target.",
 			summary: "Revise the first target block",
 		});
-		const second = await toolProposeOps(session, {
+		const second = await editText(session, {
 			requestAlias: "R2",
 			docPath: OTHER_FIXTURE_PATH,
-			ops: [updateTextOp("p2", "Second edit in the shared target.")],
+			blockId: "p2",
+			markdown: "Second edit in the shared target.",
 			summary: "Revise the second target block",
 		});
 		if (first.isError || second.isError) {

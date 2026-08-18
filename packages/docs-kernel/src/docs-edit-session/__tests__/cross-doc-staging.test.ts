@@ -10,10 +10,22 @@ import {
 	FIXTURE_PATH,
 	OTHER_FIXTURE_PATH,
 	fixtureDoc,
-	updateTextOp,
 	writeBundle,
 } from "../test-fixtures";
-import { toolProposeMoveBlocks, toolProposeOps } from "../tools";
+import { createDocsEditToolset } from "../tools";
+import type { DocsEditToolSession } from "../tools";
+
+function editText(
+	session: DocsEditToolSession,
+	params: { requestAlias: string; blockId: string; markdown: string; summary?: string; docPath?: string },
+) {
+	return createDocsEditToolset(session).call("write_text", params);
+}
+
+function moveBlocks(session: DocsEditToolSession, params: Record<string, unknown>) {
+	return createDocsEditToolset(session).call("move_blocks", params);
+}
+
 
 const THIRD_FIXTURE_PATH = "third";
 const tempRoots: string[] = [];
@@ -63,10 +75,11 @@ describe("docs-edit cross-doc staging", () => {
 		const session = service.getSession(origin.state.sessionId);
 		if (!session) throw new Error("origin session was not retained");
 
-		const proposed = await toolProposeOps(session, {
+		const proposed = await editText(session, {
 			requestAlias: "R1",
 			docPath: OTHER_FIXTURE_PATH,
-			ops: [updateTextOp("p1", "This must not be staged.")],
+			blockId: "p1",
+			markdown: "This must not be staged.",
 			summary: "Colliding cross-document update",
 		});
 		expect(proposed.isError).toBe(true);
@@ -75,7 +88,7 @@ describe("docs-edit cross-doc staging", () => {
 			failure: { kind: "stage_failed", status: 409 },
 		});
 
-		const moved = await toolProposeMoveBlocks(session, {
+		const moved = await moveBlocks(session, {
 			requestAlias: "R1",
 			blockIds: ["p1"],
 			destDocPath: OTHER_FIXTURE_PATH,
@@ -130,10 +143,11 @@ describe("docs-edit cross-doc staging", () => {
 		const session = service.getSession(created.state.sessionId);
 		if (!session) throw new Error("release session was not retained");
 
-		const failedStage = await toolProposeOps(session, {
+		const failedStage = await editText(session, {
 			requestAlias: "R1",
 			docPath: "created-later",
-			ops: [updateTextOp("p1", "No document exists yet.")],
+			blockId: "p1",
+			markdown: "No document exists yet.",
 			summary: "Fail before proposal persistence",
 		});
 		expect(failedStage.isError).toBe(true);
@@ -167,10 +181,11 @@ describe("docs-edit cross-doc staging", () => {
 		const session = service.getSession(created.state.sessionId);
 		if (!session) throw new Error("created session was not retained");
 
-		const escaped = await toolProposeOps(session, {
+		const escaped = await editText(session, {
 			requestAlias: "R1",
 			docPath: "../escape",
-			ops: [updateTextOp("p1", "This must never be written.")],
+			blockId: "p1",
+			markdown: "This must never be written.",
 			summary: "Attempt an escaping write",
 		});
 		expect(escaped.isError).toBe(true);
@@ -183,7 +198,7 @@ describe("docs-edit cross-doc staging", () => {
 		).toBe(false);
 		expect(session.proposals()).toHaveLength(0);
 
-		const escapedMove = await toolProposeMoveBlocks(session, {
+		const escapedMove = await moveBlocks(session, {
 			requestAlias: "R1",
 			blockIds: ["p1"],
 			destDocPath: "../escape",
@@ -193,14 +208,15 @@ describe("docs-edit cross-doc staging", () => {
 		expect(escapedMove.text).toContain("Invalid docs path: ../escape");
 		expect(await pathExists(join(docsRoot, ".changesets"))).toBe(false);
 
-		const staged = await toolProposeOps(session, {
+		const staged = await editText(session, {
 			requestAlias: "R1",
 			docPath: `${OTHER_FIXTURE_PATH}/doc.json`,
-			ops: [updateTextOp("p1", "Updated in the other document.")],
+			blockId: "p1",
+			markdown: "Updated in the other document.",
 			summary: "Update the other document",
 		});
 		expect(staged.isError).not.toBe(true);
-		expect(staged.text).toContain("STAGED");
+		expect(staged.text).toContain("EDITED");
 
 		const originProposals = await getBundleProposals(docsRoot, FIXTURE_PATH);
 		expect(originProposals.ok).toBe(true);
@@ -240,10 +256,11 @@ describe("docs-edit cross-doc staging", () => {
 		const session = service.getSession(first.state.sessionId);
 		if (!session) throw new Error("created session was not retained");
 
-		const staged = await toolProposeOps(session, {
+		const staged = await editText(session, {
 			requestAlias: "R1",
 			docPath: OTHER_FIXTURE_PATH,
-			ops: [updateTextOp("p1", "Shared document update.")],
+			blockId: "p1",
+			markdown: "Shared document update.",
 			summary: "Touch the shared document",
 		});
 		expect(staged.isError).not.toBe(true);

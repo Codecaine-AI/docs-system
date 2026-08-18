@@ -49,25 +49,22 @@ export type {
 
 export {
   DOCS_EDIT_TOOL_NAMES,
+  createDocsEditToolset,
   docsEditSessionTools,
-  parseDocsEditOps,
   registerDocsEditSessionTools,
   toolDocsRead,
   toolDocsTree,
-  toolProposeOps,
-  toolProposeMoveBlocks,
   toolReadDoc,
   toolReplyRequest,
   toolResolveRequest,
 } from "./tools";
 export type {
-  DocsEditOpParseError,
   DocsEditRequestActionResult,
   DocsEditToolName,
   DocsEditToolOptions,
   DocsEditToolResult,
   DocsEditToolSession,
-  ParseDocsEditOpsResult,
+  DocsEditToolset,
 } from "./tools";
 
 export { createDocsEditSession } from "./session";

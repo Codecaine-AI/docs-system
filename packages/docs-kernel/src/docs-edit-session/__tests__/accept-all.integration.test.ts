@@ -18,10 +18,22 @@ import {
 	fixtureDoc,
 	readDiskAnnotations,
 	readDiskDoc,
-	updateTextOp,
 	writeBundle,
 } from "../test-fixtures";
-import { toolProposeOps } from "../tools";
+import { createDocsEditToolset } from "../tools";
+import type { DocsEditToolSession } from "../tools";
+
+function editText(
+	session: DocsEditToolSession,
+	params: { requestAlias: string; blockId: string; markdown: string; summary?: string; docPath?: string },
+) {
+	return createDocsEditToolset(session).call("write_text", params);
+}
+
+function moveBlocks(session: DocsEditToolSession, params: Record<string, unknown>) {
+	return createDocsEditToolset(session).call("move_blocks", params);
+}
+
 
 const tempRoots: string[] = [];
 
@@ -67,15 +79,17 @@ async function createTwoDocBatch(docsRoot: string, sessionId: string) {
 	const session = service.getSession(created.state.sessionId);
 	if (!session) throw new Error("created session was not retained");
 
-	const origin = await toolProposeOps(session, {
+	const origin = await editText(session, {
 		requestAlias: "R1",
-		ops: [updateTextOp("p1", "Origin document, revised first.")],
+		blockId: "p1",
+		markdown: "Origin document, revised first.",
 		summary: "Revise the origin document",
 	});
-	const other = await toolProposeOps(session, {
+	const other = await editText(session, {
 		requestAlias: "R2",
 		docPath: OTHER_FIXTURE_PATH,
-		ops: [updateTextOp("p2", "Other document, revised second.")],
+		blockId: "p2",
+			markdown: "Other document, revised second.",
 		summary: "Revise the other document",
 	});
 	if (origin.isError || other.isError) {

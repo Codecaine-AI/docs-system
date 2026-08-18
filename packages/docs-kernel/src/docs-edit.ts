@@ -25,19 +25,14 @@ import {
 export const DOCS_LAB_EDITOR_AGENT_NAME = "docs-lab-editor";
 
 /**
- * The only active tools for session-mode docs-lab-editor spawns. The bundle's
- * docs_write tool is deliberately absent because whole-document rewrites
- * regenerate block ids and detach annotations.
+ * The only active tools for session-mode docs-lab-editor spawns — the editing
+ * surface defined in docs-edit-session/tools (fixed names plus per-component
+ * action tools generated from the registry). The bundle's docs_write tool is
+ * deliberately absent because whole-document rewrites regenerate block ids
+ * and detach annotations.
  */
-export const DOCS_EDIT_TOOL_NAMES = [
-	"read_doc",
-	"docs_tree",
-	"docs_read",
-	"propose_ops",
-	"propose_move_blocks",
-	"resolve_request",
-	"reply_request",
-] as const;
+export { DOCS_EDIT_TOOL_NAMES } from "./docs-edit-session/tools";
+import { DOCS_EDIT_TOOL_NAMES } from "./docs-edit-session/tools";
 
 const pendingLaunches: LaunchedDocsEditSession[] = [];
 

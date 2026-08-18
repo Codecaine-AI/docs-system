@@ -546,7 +546,7 @@ describe("docs-edit session HTTP smoke", () => {
 });
 
 describe("docs-edit session tool policy smoke", () => {
-	test("docs-lab-editor gets exactly seven session tools and docs_write is blocked", () => {
+	test("docs-lab-editor gets exactly the editing tool surface and docs_write is blocked", () => {
 		const binder = () => undefined;
 		const launch = { tools: binder } as unknown as LaunchedDocsEditSession;
 		enqueueDocsEditLaunch(launch);
@@ -561,7 +561,10 @@ describe("docs-edit session tool policy smoke", () => {
 		} as AgentConfig;
 		expect(docsEditSharedTools(config)).toEqual([binder]);
 		expect(config.tools).toEqual([...DOCS_EDIT_TOOL_NAMES]);
-		expect(config.tools).toHaveLength(7);
+		expect(config.tools).toContain("insert_block");
+		expect(config.tools).toContain("write_text");
+		expect(config.tools).toContain("outline_insert_step");
+		expect(config.tools).not.toContain("propose_ops");
 		expect(config.tools).not.toContain("docs_write");
 		expect(config.disallowedTools).toEqual(["write", "docs_write"]);
 
