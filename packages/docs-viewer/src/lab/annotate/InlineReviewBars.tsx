@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 /** A compact request alias. Agent-authored aliases use the amber thread tone. */
 export function AliasChip({
@@ -39,6 +39,7 @@ export interface ProposalActionBarProps {
 	rejectDisabledReason: string | null;
 	onAccept: () => void;
 	onReject: () => void;
+	onRejectWithFeedback?: (note: string) => void;
 }
 
 /** Action furniture above a staged document region. */
@@ -50,27 +51,68 @@ export function ProposalActionBar({
 	rejectDisabledReason,
 	onAccept,
 	onReject,
+	onRejectWithFeedback,
 }: ProposalActionBarProps) {
+	const [showRejectStrip, setShowRejectStrip] = useState(false);
+	const [feedback, setFeedback] = useState("");
+	const note = feedback.trim();
+	const requestChanges = () => {
+		if (!note) return;
+		onRejectWithFeedback?.(note);
+		setShowRejectStrip(false);
+		setFeedback("");
+	};
+	const discard = () => {
+		onReject();
+		setShowRejectStrip(false);
+		setFeedback("");
+	};
+
 	return (
 		<div
 			data-docs-lab-proposal-bar={alias}
-			className="flex items-center gap-2.5 rounded-[var(--radius,0.5rem)] border px-2.5 py-1"
+			className="flex flex-col gap-1.5 rounded-[var(--radius,0.5rem)] border px-2.5 py-1"
 			style={{
 				maxWidth: 560,
 				background: "var(--docs-panel-raise,var(--background,#232323))",
 				borderColor: "var(--docs-panel-border,var(--border,#2b2b2b))",
 			}}
 		>
-			<AliasChip alias={alias} author={author} />
-			<span className="min-w-0 flex-1 truncate text-[11px] text-[color:var(--docs-muted-foreground,var(--muted-foreground,#a1a1aa))]">
-				{summary}
-			</span>
-			<button type="button" aria-label={`Reject ${alias}`} disabled={rejectDisabledReason !== null} title={rejectDisabledReason ?? `Reject ${alias}`} className="rounded-[var(--radius,0.375rem)] border border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] bg-transparent px-2 py-0.5 text-[12px] text-[color:var(--docs-muted-foreground,var(--muted-foreground,#a1a1aa))] disabled:cursor-not-allowed disabled:opacity-40" onClick={onReject}>
-				Reject
-			</button>
-			<button type="button" aria-label={`Accept ${alias}`} disabled={acceptDisabledReason !== null} title={acceptDisabledReason ?? `Accept ${alias}`} className="rounded-[var(--radius,0.375rem)] bg-[color:var(--annotation-accept,#3fb950)] px-3 py-0.5 text-[12px] font-semibold text-[#06210d] disabled:cursor-not-allowed disabled:opacity-40" onClick={onAccept}>
-				Accept
-			</button>
+			<div className="flex items-center gap-2.5">
+				<AliasChip alias={alias} author={author} />
+				<span className="min-w-0 flex-1 truncate text-[11px] text-[color:var(--docs-muted-foreground,var(--muted-foreground,#a1a1aa))]">
+					{summary}
+				</span>
+				<button type="button" aria-label={`Reject ${alias}`} disabled={rejectDisabledReason !== null} title={rejectDisabledReason ?? `Reject ${alias}`} className="rounded-[var(--radius,0.375rem)] border border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] bg-transparent px-2 py-0.5 text-[12px] text-[color:var(--docs-muted-foreground,var(--muted-foreground,#a1a1aa))] disabled:cursor-not-allowed disabled:opacity-40" onClick={onRejectWithFeedback ? () => setShowRejectStrip(true) : onReject}>
+					Reject
+				</button>
+				<button type="button" aria-label={`Accept ${alias}`} disabled={acceptDisabledReason !== null} title={acceptDisabledReason ?? `Accept ${alias}`} className="rounded-[var(--radius,0.375rem)] bg-[color:var(--annotation-accept,#3fb950)] px-3 py-0.5 text-[12px] font-semibold text-[#06210d] disabled:cursor-not-allowed disabled:opacity-40" onClick={onAccept}>
+					Accept
+				</button>
+			</div>
+			{showRejectStrip && rejectDisabledReason === null && onRejectWithFeedback ? (
+				<div data-docs-lab-reject-strip={alias} className="flex gap-1.5 border-t border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] pt-1.5">
+					<input
+						value={feedback}
+						onChange={(event) => setFeedback(event.currentTarget.value)}
+						placeholder="What should change? Feedback reruns the agent…"
+						aria-label={`Feedback for ${alias}`}
+						className="min-w-0 flex-1 rounded-[var(--radius,0.375rem)] border border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] bg-[color:var(--docs-panel-input-bg,var(--background,#141414))] px-2 py-1 text-[12px] text-[color:var(--foreground,#e4e4e7)] outline-none"
+						onKeyDown={(event) => {
+							if (event.key === "Enter" && note) {
+								event.preventDefault();
+								requestChanges();
+							} else if (event.key === "Escape") {
+								event.preventDefault();
+								setShowRejectStrip(false);
+							}
+							event.stopPropagation();
+						}}
+					/>
+					<button data-docs-lab-reject-discard={alias} type="button" className="rounded-[var(--radius,0.375rem)] border border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] px-2 py-0.5 text-[12px] text-[color:var(--docs-muted-foreground,var(--muted-foreground,#a1a1aa))]" onClick={discard}>Discard</button>
+					<button data-docs-lab-reject-feedback={alias} type="button" disabled={!note} className="rounded-[var(--radius,0.375rem)] bg-[color:var(--annotation-accent,#58a6ff)] px-2 py-0.5 text-[12px] font-semibold text-[#0b1021] disabled:cursor-not-allowed disabled:opacity-40" onClick={requestChanges}>Request changes</button>
+				</div>
+			) : null}
 		</div>
 	);
 }

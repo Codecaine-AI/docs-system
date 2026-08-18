@@ -381,6 +381,50 @@ describe("useDocLabSession", () => {
     expect(calls.find((call) => call.url.endsWith("/reject"))?.body).toMatchObject({ path: "guide" });
   });
 
+  it("sends reject feedback through a live kernel session and refetches proposals", async () => {
+    proposals = [stagedProposal()];
+    const replies: Array<[string, string]> = [];
+    const kernelSession = {
+      live: () => true,
+      reply: async (annotationId: string, note: string) => {
+        replies.push([annotationId, note]);
+        return { ok: true };
+      },
+      statusOverlay: () => new Map(),
+      changesets: () => new Map(),
+      sessionId: () => "session-1",
+    } as never;
+    const { result } = renderSession({ kernelSession });
+    await waitFor(() => expect(result.current.session.proposals).toHaveLength(1));
+
+    await act(async () => {
+      await result.current.session.onRejectWithFeedback?.("R1", "Keep the opening sentence");
+    });
+
+    expect(replies).toEqual([["ann-1", "Keep the opening sentence"]]);
+    expect(calls.filter((call) => call.url.startsWith("api/proposals?")).length).toBe(2);
+  });
+
+  it("rejects without resolving the annotation before adding fallback feedback", async () => {
+    proposals = [stagedProposal()];
+    const { result } = renderSession();
+    await waitFor(() => expect(result.current.session.proposals).toHaveLength(1));
+
+    await act(async () => {
+      await result.current.session.onRejectWithFeedback?.("R1", "Use a concrete example");
+    });
+
+    expect(calls.find((call) => call.url.endsWith("/reject"))?.body).toMatchObject({
+      path: "guide",
+      resolve_annotation: false,
+    });
+    expect(calls.find((call) => call.url.includes("ann-1/replies"))?.body).toMatchObject({
+      path: "guide",
+      body: "Use a concrete example",
+      expected_hash: "annotations-hash",
+    });
+  });
+
   it("undoes the most recently accepted proposal", async () => {
     proposals = [stagedProposal()];
     routeOverrides.push((call) => {

@@ -777,7 +777,7 @@ export function createDocsRoutes(store: DocsStore, options?: { themeLocked?: boo
                 (proposal.status === "staged" || proposal.status === "accepted"),
             )
           : false;
-        if (annotationId && !hasActiveSibling) {
+        if (body.resolve_annotation !== false && annotationId && !hasActiveSibling) {
           try {
             await store.resolveAnnotation(
               body.path,
@@ -797,6 +797,7 @@ export function createDocsRoutes(store: DocsStore, options?: { themeLocked?: boo
           path: t.String({ minLength: 1 }),
           expected_hash: t.Optional(t.String()),
           session_id: t.Optional(t.String()),
+          resolve_annotation: t.Optional(t.Boolean()),
         }),
       },
     )

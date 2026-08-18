@@ -1069,6 +1069,9 @@ export function DocPage({
           )}
           onAccept={() => void lab.session.onAccept?.(proposal.alias)}
           onReject={() => void lab.session.onReject?.(proposal.alias)}
+          onRejectWithFeedback={lab.session.onRejectWithFeedback
+            ? (note) => void lab.session.onRejectWithFeedback?.(proposal.alias, note)
+            : undefined}
         />
         {lab.requestErrors[proposal.alias] ? (
           <p

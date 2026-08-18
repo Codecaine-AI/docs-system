@@ -485,11 +485,16 @@ export async function acceptProposal(
 export async function rejectProposal(
   path: string,
   proposalId: string,
+  options?: { resolveAnnotation?: boolean },
 ): Promise<RejectProposalResponse> {
   assertWritable("Rejecting proposals");
   const response = await postJson<ProposalMutationWire<RejectProposalResponse>>(
     `api/proposals/${encodeURIComponent(proposalId)}/reject`,
-    { path: bundlePathOf(path), session_id: getSessionId() },
+    {
+      path: bundlePathOf(path),
+      session_id: getSessionId(),
+      ...(options?.resolveAnnotation === false ? { resolve_annotation: false } : {}),
+    },
   );
   return normalizeProposalMutation(response);
 }

@@ -110,6 +110,8 @@ export interface DocEditSession {
 	onFileRequest?: (filing: DocRequestFiling) => void | Promise<void>;
 	onAccept?: (alias: string) => void | Promise<void>;
 	onReject?: (alias: string, note?: string) => void | Promise<void>;
+	/** Files the note as revision feedback instead of closing the loop — in a live session the agent reruns and supersedes the staged proposal. */
+	onRejectWithFeedback?: (alias: string, note: string) => void | Promise<void>;
 	onUndo?: (alias: string) => void | Promise<void>;
 	onAcceptAll?: () => void | Promise<void>;
 	onDiscardDraft?: () => void | Promise<void>;

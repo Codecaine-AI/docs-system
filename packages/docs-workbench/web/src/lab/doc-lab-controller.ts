@@ -304,6 +304,54 @@ export function useDocLabSession(options: UseDocLabSessionOptions): DocLabSessio
 		}
 	}, [path, options.kernelSession, clearAliasError, setAliasError]);
 
+	const onRejectWithFeedback = useCallback(async (alias: string, note: string) => {
+		const request = requestsRef.current.find((row) => row.alias === alias);
+		if (!request?.annotationId) {
+			setAliasError(alias, `Request ${alias} has no annotation.`);
+			return;
+		}
+		const annotationId = request.annotationId;
+		try {
+			if (options.kernelSession?.live()) {
+				const result = await options.kernelSession.reply(annotationId, note);
+				if (result.ok) {
+					clearAliasError(alias);
+					await refreshBundleRef.current();
+					await refetchProposalsRef.current();
+					return;
+				}
+				if (!result.miss) {
+					setAliasError(alias, result.message);
+					return;
+				}
+			}
+			const stagedProposal = stagedRef.current.find((proposal) => proposal.alias === alias);
+			const rawProposal = proposalsRef.current.find((proposal) => {
+				if (proposal.id === stagedProposal?.transactionId || proposal.alias === alias) {
+					return true;
+				}
+				if (!proposal.annotationId) return false;
+				return requestsRef.current.some(
+					(row) => row.annotationId === proposal.annotationId && row.alias === alias,
+				);
+			});
+			const transactionId = stagedProposal?.transactionId ?? rawProposal?.id;
+			if (!transactionId) return;
+			const response = await rejectProposal(path, transactionId, { resolveAnnotation: false });
+			await addAnnotationReply(path, annotationId, note, annotationsHashRef.current);
+			proposalsHashRef.current = response.hash;
+			setProposals(response.proposals.map((proposal) => ({
+				...proposal,
+				stale: proposal.status === "staged" && proposal.baseHash !== docHashRef.current,
+			})));
+			clearAliasError(alias);
+			await refreshBundleRef.current();
+			await refetchProposalsRef.current();
+		} catch (error) {
+			setAliasError(alias, errorMessage(error));
+		}
+	}, [path, options.kernelSession, clearAliasError, setAliasError]);
+
 	const onUndo = useCallback(async (alias: string) => {
 		const request = requestsRef.current.find((row) => row.alias === alias);
 		if (options.kernelSession?.live() && request?.annotationId) {
@@ -476,6 +524,7 @@ export function useDocLabSession(options: UseDocLabSessionOptions): DocLabSessio
 		onFileRequest,
 		onAccept,
 		onReject,
+		onRejectWithFeedback,
 		onUndo,
 		onReplyToRequest,
 		onApplyQueue,
@@ -483,7 +532,7 @@ export function useDocLabSession(options: UseDocLabSessionOptions): DocLabSessio
 		onAcceptAll: undefined,
 		onDiscardDraft: undefined,
 		onDismissRequest,
-	}), [requests, staged, undoable, onFileRequest, onAccept, onReject, onUndo, onReplyToRequest, onApplyQueue, onDismissRequest]);
+	}), [requests, staged, undoable, onFileRequest, onAccept, onReject, onRejectWithFeedback, onUndo, onReplyToRequest, onApplyQueue, onDismissRequest]);
 
 	const agentConnected = Boolean(options.onApplyQueue);
 	const applying = options.kernelSnapshot

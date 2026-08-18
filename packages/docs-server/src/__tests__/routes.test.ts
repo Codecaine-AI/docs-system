@@ -374,6 +374,42 @@ describe("createDocsRoutes (write contracts)", () => {
     expect(lockedReply.status).toBe(423);
   });
 
+  test("proposal reject can leave its driving annotation open for follow-up feedback", async () => {
+    const annotationRes = await postJson("/api/annotations", {
+      path: "guide",
+      target: { kind: "block", blockId: "h1" },
+      body: "Raise this heading",
+      intent: "agent-request",
+      author: "tester",
+    });
+    expect(annotationRes.status).toBe(201);
+    const { annotation } = (await annotationRes.json()) as { annotation: { id: string } };
+
+    const stageRes = await postJson("/api/proposals", {
+      path: "guide",
+      ops: [{ type: "updateBlock", blockId: "h1", props: { level: 2 } }],
+      summary: "Raise heading",
+      annotation_id: annotation.id,
+      session_id: "agent-session",
+    });
+    expect(stageRes.status).toBe(201);
+    const staged = (await stageRes.json()) as { proposal: { id: string } };
+
+    const rejectRes = await postJson(`/api/proposals/${staged.proposal.id}/reject`, {
+      path: "guide",
+      session_id: "agent-session",
+      resolve_annotation: false,
+    });
+    expect(rejectRes.status).toBe(200);
+    expect(await rejectRes.json()).toMatchObject({ proposal: { status: "rejected" } });
+
+    const annotationsRes = await get("/api/annotations?path=guide");
+    expect(annotationsRes.status).toBe(200);
+    expect(await annotationsRes.json()).toMatchObject({
+      annotations: { annotations: [{ id: annotation.id, status: "open" }] },
+    });
+  });
+
   test("undo replays the inverse once and fails loudly on double-use", async () => {
     const opsRes = await postJson("/api/ops", {
       path: "guide",
