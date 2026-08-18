@@ -165,6 +165,75 @@ describe("proposal staging routes", () => {
     expect(persisted.blocks.h1.props.level).toBe(1);
   });
 
+  test("reject resolves its driving annotation with the review note", async () => {
+    const annotationRes = await postJson("/api/annotations", {
+      path: "guide",
+      target: { kind: "block", blockId: "h1" },
+      body: "Raise this heading",
+      intent: "agent-request",
+      author: "tester",
+    });
+    expect(annotationRes.status).toBe(201);
+    const annotation = (await annotationRes.json()) as { annotation: { id: string } };
+
+    const staged = await stage("Raise heading", 2, {
+      annotation_id: annotation.annotation.id,
+    });
+    const rejectRes = await postJson(`/api/proposals/${staged.body.proposal.id}/reject`, {
+      path: "guide",
+      session_id: "review-session",
+    });
+    expect(rejectRes.status).toBe(200);
+
+    const annotations = JSON.parse(
+      await readFile(join(docsRoot, "guide", "annotations.json"), "utf8"),
+    ) as { annotations: Array<{ id: string; status: string; resolution?: string }> };
+    expect(
+      annotations.annotations.find((item) => item.id === annotation.annotation.id),
+    ).toMatchObject({
+      status: "resolved",
+      resolution: "Rejected in review.",
+    });
+  });
+
+  test("reject leaves the driving annotation open while another staged proposal remains", async () => {
+    const annotationRes = await postJson("/api/annotations", {
+      path: "guide",
+      target: { kind: "block", blockId: "h1" },
+      body: "Choose a heading level",
+      intent: "agent-request",
+      author: "tester",
+    });
+    expect(annotationRes.status).toBe(201);
+    const annotation = (await annotationRes.json()) as { annotation: { id: string } };
+
+    const first = await stage("Use level two", 2, {
+      annotation_id: annotation.annotation.id,
+    });
+    const second = await stage("Use level three", 3, {
+      annotation_id: annotation.annotation.id,
+    });
+    expect(second.response.status).toBe(201);
+
+    const rejectRes = await postJson(`/api/proposals/${first.body.proposal.id}/reject`, {
+      path: "guide",
+      session_id: "review-session",
+    });
+    expect(rejectRes.status).toBe(200);
+
+    const annotations = JSON.parse(
+      await readFile(join(docsRoot, "guide", "annotations.json"), "utf8"),
+    ) as { annotations: Array<{ id: string; status: string; resolution?: string }> };
+    expect(
+      annotations.annotations.find((item) => item.id === annotation.annotation.id),
+    ).toMatchObject({
+      status: "open",
+    });
+    expect(
+      annotations.annotations.find((item) => item.id === annotation.annotation.id)?.resolution,
+    ).toBeUndefined();
+  });
+
   test("stage refuses ops that fail the in-memory dry run and writes no sidecar entry", async () => {
     const response = await postJson("/api/proposals", {
       path: "guide",

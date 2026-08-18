@@ -125,6 +125,73 @@ describe("docs-edit proposal/review integration", () => {
 		expect(await readDiskDoc(docsRoot)).toEqual(before);
 	});
 
+	test("rejectProposal resolves the driving sidecar annotation with explicit and default notes", async () => {
+		const docsRoot = await makeDocsRoot();
+		await writeBundle(docsRoot, FIXTURE_PATH, {
+			annotations: fixtureAnnotations([
+				fixtureAnnotation({ id: "ann-x" }),
+				fixtureAnnotation({ id: "ann-default" }),
+			]),
+		});
+		const service = createDocsEditSessionService({ docsRoot });
+		const created = await service.createSession({
+			path: FIXTURE_PATH,
+			requestIds: ["ann-x", "ann-default"],
+			sessionId: "reject-session",
+			spawn: false,
+		});
+		expect(created.ok).toBe(true);
+		if (!created.ok) throw new Error(`session create failed: ${created.reason}`);
+		const sessionId = created.state.sessionId;
+		const session = service.getSession(sessionId);
+		if (!session) throw new Error("created session was not retained");
+
+		const stagedExplicit = await toolProposeOps(session, {
+			requestAlias: "R1",
+			ops: [updateTextOp("p1", "A rejected first paragraph.")],
+			summary: "Reject the first proposal",
+		});
+		const stagedDefault = await toolProposeOps(session, {
+			requestAlias: "R2",
+			ops: [updateTextOp("p2", "A rejected second paragraph.")],
+			summary: "Reject the second proposal",
+		});
+		expect(stagedExplicit.isError).not.toBe(true);
+		expect(stagedDefault.isError).not.toBe(true);
+
+		const explicit = await service.rejectProposal(
+			sessionId,
+			"R1",
+			"not what I wanted",
+		);
+		expect(explicit?.ok).toBe(true);
+		if (!explicit?.ok) throw new Error("R1 reject failed");
+		expect(explicit.annotation.resolved).toBe(true);
+
+		const fallback = await service.rejectProposal(sessionId, "R2");
+		expect(fallback?.ok).toBe(true);
+		if (!fallback?.ok) throw new Error("R2 reject failed");
+		expect(fallback.annotation.resolved).toBe(true);
+
+		const listed = await getBundleAnnotations(docsRoot, FIXTURE_PATH);
+		expect(listed.ok).toBe(true);
+		if (!listed.ok) throw new Error(listed.detail);
+		expect(
+			listed.annotations.annotations.find((annotation) => annotation.id === "ann-x"),
+		).toMatchObject({
+			status: "resolved",
+			resolution: "not what I wanted",
+		});
+		expect(
+			listed.annotations.annotations.find(
+				(annotation) => annotation.id === "ann-default",
+			),
+		).toMatchObject({
+			status: "resolved",
+			resolution: "Rejected in review.",
+		});
+	});
+
 	test("reviews in stage order, restages stale accepts, resolves annotations, and enforces reversible latest-only undo", async () => {
 		const docsRoot = await makeDocsRoot();
 		await writeBundle(docsRoot, FIXTURE_PATH, {

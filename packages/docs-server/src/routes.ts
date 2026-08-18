@@ -624,6 +624,7 @@ export function createDocsRoutes(store: DocsStore, options?: { themeLocked?: boo
           params.annotationId,
           body.expected_hash,
           body.session_id,
+          body.response,
         );
         if (!result.ok) {
           set.status = result.status;
@@ -641,6 +642,7 @@ export function createDocsRoutes(store: DocsStore, options?: { themeLocked?: boo
           path: t.String({ minLength: 1 }),
           expected_hash: t.Optional(t.String()),
           session_id: t.Optional(t.String()),
+          response: t.Optional(t.String()),
         }),
       },
     )
@@ -765,6 +767,28 @@ export function createDocsRoutes(store: DocsStore, options?: { themeLocked?: boo
             issues: result.issues,
             held_by: result.held_by,
           };
+        }
+        const annotationId = result.proposal.annotationId;
+        const hasActiveSibling = annotationId
+          ? result.proposals.proposals.some(
+              (proposal) =>
+                proposal.id !== result.proposal.id &&
+                proposal.annotationId === annotationId &&
+                (proposal.status === "staged" || proposal.status === "accepted"),
+            )
+          : false;
+        if (annotationId && !hasActiveSibling) {
+          try {
+            await store.resolveAnnotation(
+              body.path,
+              annotationId,
+              undefined,
+              body.session_id,
+              "Rejected in review.",
+            );
+          } catch {
+            // Annotation closure is best-effort; the proposal reject already succeeded.
+          }
         }
         return { proposal: result.proposal, proposals: result.proposals, hash: result.hash };
       },

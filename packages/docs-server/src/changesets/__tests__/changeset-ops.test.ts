@@ -109,12 +109,18 @@ describe("multi-document change-set operations", () => {
     return app.handle(new Request(`http://localhost${path}`));
   }
 
-  async function stage(path: string, level: number, summary = `Update ${path}`): Promise<any> {
+  async function stage(
+    path: string,
+    level: number,
+    summary = `Update ${path}`,
+    annotationId?: string,
+  ): Promise<any> {
     const response = await postJson("/api/proposals", {
       path,
       ops: [{ type: "updateBlock", blockId: "h1", props: { level } }],
       summary,
       session_id: "changeset-test",
+      annotation_id: annotationId,
     });
     expect(response.status).toBe(201);
     return response.json();
@@ -294,8 +300,28 @@ describe("multi-document change-set operations", () => {
   test("reject preserves every doc byte and rejects every staged proposal", async () => {
     const aBefore = await writeDoc("10-a");
     const bBefore = await writeDoc("20-b");
-    const a = await stage("10-a", 2);
-    const b = await stage("20-b", 3);
+    const annotationResponses = await Promise.all([
+      postJson("/api/annotations", {
+        path: "10-a",
+        target: { kind: "block", blockId: "h1" },
+        body: "Update A",
+        intent: "agent-request",
+        author: "tester",
+      }),
+      postJson("/api/annotations", {
+        path: "20-b",
+        target: { kind: "block", blockId: "h1" },
+        body: "Update B",
+        intent: "agent-request",
+        author: "tester",
+      }),
+    ]);
+    expect(annotationResponses.map((response) => response.status)).toEqual([201, 201]);
+    const [annotationA, annotationB] = await Promise.all(
+      annotationResponses.map((response) => response.json() as Promise<any>),
+    );
+    const a = await stage("10-a", 2, "Update 10-a", annotationA.annotation.id);
+    const b = await stage("20-b", 3, "Update 20-b", annotationB.annotation.id);
     const staged = await createChangeSet("Decline both", [
       { path: "10-a", proposal_id: a.proposal.id },
       { path: "20-b", proposal_id: b.proposal.id },
@@ -315,6 +341,59 @@ describe("multi-document change-set operations", () => {
       const proposals = await proposalsResponse.json() as any;
       expect(proposals.proposals.find((proposal: any) => proposal.id === id)?.status).toBe("rejected");
     }
+
+    for (const [path, id] of [
+      ["10-a", annotationA.annotation.id],
+      ["20-b", annotationB.annotation.id],
+    ]) {
+      const annotations = JSON.parse(
+        await readFile(join(docsRoot, path, "annotations.json"), "utf8"),
+      );
+      expect(annotations.annotations.find((annotation: any) => annotation.id === id)).toMatchObject({
+        status: "resolved",
+        resolution: "Rejected in review.",
+      });
+    }
+  });
+
+  test("reject keeps an annotation open while another linked proposal remains staged", async () => {
+    await writeDoc("10-a");
+    const annotationResponse = await postJson("/api/annotations", {
+      path: "10-a",
+      target: { kind: "block", blockId: "h1" },
+      body: "Choose one update",
+      intent: "agent-request",
+      author: "tester",
+    });
+    expect(annotationResponse.status).toBe(201);
+    const annotation = await annotationResponse.json() as any;
+    const first = await stage("10-a", 2, "First option", annotation.annotation.id);
+    const second = await stage("10-a", 3, "Second option", annotation.annotation.id);
+    const staged = await createChangeSet("Decline one option", [
+      { path: "10-a", proposal_id: first.proposal.id },
+    ]);
+
+    const response = await postJson(`/api/changesets/${staged.changeset.id}/reject`, {
+      session_id: "changeset-test",
+    });
+    expect(response.status).toBe(200);
+
+    const annotations = JSON.parse(
+      await readFile(join(docsRoot, "10-a", "annotations.json"), "utf8"),
+    );
+    expect(annotations.annotations[0]).toMatchObject({
+      id: annotation.annotation.id,
+      status: "open",
+    });
+    expect(annotations.annotations[0].resolution).toBeUndefined();
+
+    const proposalsResponse = await get("/api/proposals?path=10-a");
+    expect(proposalsResponse.status).toBe(200);
+    const proposals = await proposalsResponse.json() as any;
+    expect(proposals.proposals.find((proposal: any) => proposal.id === first.proposal.id)?.status)
+      .toBe("rejected");
+    expect(proposals.proposals.find((proposal: any) => proposal.id === second.proposal.id)?.status)
+      .toBe("staged");
   });
 
   test("a stale third entry rolls back the accepted prefix byte-for-byte without a compound patch", async () => {

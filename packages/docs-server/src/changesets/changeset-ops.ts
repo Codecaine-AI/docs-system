@@ -7,7 +7,7 @@ import type { DocOp } from "@codecaine-ai/docs-model/doc-ops";
 
 import { undo_patch } from "../agent-tools";
 import { atomicWriteFile } from "../atomic-write";
-import { attachAgentRunToAnnotation } from "../doc-ops";
+import { attachAgentRunToAnnotation, resolveBundleAnnotation } from "../doc-ops";
 import type { DocsChangeEvent } from "../docs-events";
 import { draftLockStore } from "../draft-locks";
 import {
@@ -767,6 +767,27 @@ export async function rejectChangeSet(
       results.push({ ...entry, ok: false, status: rejected.status, detail: rejected.detail, tolerated });
       if (!tolerated) return { ok: false, status: rejected.status, detail: rejected.detail, results };
       continue;
+    }
+    const annotationId = rejected.proposal.annotationId;
+    const hasActiveProposal = annotationId !== undefined && rejected.proposals.proposals.some(
+      (proposal) =>
+        proposal.id !== rejected.proposal.id &&
+        proposal.annotationId === annotationId &&
+        (proposal.status === "staged" || proposal.status === "accepted"),
+    );
+    if (annotationId && !hasActiveProposal) {
+      try {
+        await resolveBundleAnnotation(
+          docsRoot,
+          entry.docPath,
+          annotationId,
+          undefined,
+          options.sessionId ?? loaded.changeset.sessionId,
+          "Rejected in review.",
+        );
+      } catch {
+        // Annotation closure is best-effort; this proposal reject already succeeded.
+      }
     }
     results.push({ ...entry, ok: true });
   }

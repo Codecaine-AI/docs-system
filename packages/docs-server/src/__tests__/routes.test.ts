@@ -277,13 +277,20 @@ describe("createDocsRoutes (write contracts)", () => {
     const resolveRes = await postJson(`/api/annotations/${added.annotation.id}/resolve`, {
       path: "guide",
       expected_hash: added.hash,
+      response: "Reviewed and closed.",
     });
     expect(resolveRes.status).toBe(200);
     const resolved = (await resolveRes.json()) as {
-      annotations: { annotations: Array<{ status: string }> };
+      annotations: { annotations: Array<{ status: string; resolution?: string }> };
       hash: string;
     };
     expect(resolved.annotations.annotations[0]?.status).toBe("resolved");
+    expect(resolved.annotations.annotations[0]?.resolution).toBe("Reviewed and closed.");
+
+    const persisted = JSON.parse(
+      await readFile(join(docsRoot, "guide", "annotations.json"), "utf8"),
+    ) as { annotations: Array<{ resolution?: string }> };
+    expect(persisted.annotations[0]?.resolution).toBe("Reviewed and closed.");
 
     const missingRes = await postJson("/api/annotations/nope/resolve", { path: "guide" });
     expect(missingRes.status).toBe(404);
