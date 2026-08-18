@@ -98,7 +98,7 @@ describe("buildRequestQueue populations", () => {
 			proposals: [],
 			applying: false,
 		});
-		expect(model.records.map((record) => record.stateLabel)).toEqual(["discarded", "resolved"]);
+		expect(model.records.map((record) => record.stateLabel)).toEqual(["rejected", "resolved"]);
 		expect(model.records[0]!.ok).toBe(false);
 		expect(model.records[1]!.targetLabel).toBe("document");
 	});

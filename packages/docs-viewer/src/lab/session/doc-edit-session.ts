@@ -63,6 +63,8 @@ export interface DocEditRequest {
 	target: DocEditTarget;
 	body: string;
 	status: DocEditRequestStatus;
+	/** Closing note recorded when the loop closed, e.g. the rejection reason. */
+	note?: string;
 	disposition: DocRequestDisposition;
 	thread: DocEditThreadMessage[];
 	/** True when the original target no longer matches the current document. */

@@ -531,10 +531,12 @@ export async function resolveAnnotation(
   path: string,
   annotationId: string,
   expectedHash?: string | null,
+  response?: string,
 ): Promise<{ annotations: AnnotationsDocument; hash: string }> {
   assertWritable("Resolving annotations");
   return postJson(`api/annotations/${encodeURIComponent(annotationId)}/resolve`, {
     path: bundlePathOf(path),
+    response,
     expected_hash: expectedHash ?? undefined,
     session_id: getSessionId(),
   });

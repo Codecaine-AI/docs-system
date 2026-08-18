@@ -55,7 +55,7 @@ export interface RecordEntry {
 	disposition: DocRequestDisposition;
 	/** Accepted/closed cleanly (`applied` | `resolved`) vs declined or failed. */
 	ok: boolean;
-	/** `resolved` | `discarded` | `failed`. */
+	/** `resolved` | `rejected` | `failed`. */
 	stateLabel: string;
 	/** The block the record names — `document` for global notes. */
 	targetLabel: string;
@@ -128,7 +128,7 @@ export function buildRequestQueue({
 						? "failed"
 						: ok
 							? "resolved"
-							: "discarded",
+							: "rejected",
 				targetLabel:
 					disposition === "global"
 						? "document"

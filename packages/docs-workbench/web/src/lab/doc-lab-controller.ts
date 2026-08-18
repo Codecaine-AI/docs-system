@@ -15,6 +15,7 @@ import {
 	addAnnotationReply,
 	listChangesets,
 	listProposals,
+	resolveAnnotation,
 	rejectChangeset as rejectChangesetApi,
 	rejectProposal,
 	subscribeDocsEvents,
@@ -392,6 +393,33 @@ export function useDocLabSession(options: UseDocLabSessionOptions): DocLabSessio
 		}
 	}, [path, options.kernelSession, clearAliasError, setAliasError]);
 
+	const onDismissRequest = useCallback(async (requestId: string) => {
+		const request = requestsRef.current.find((row) => row.id === requestId);
+		if (!request?.annotationId) return;
+		const { alias, annotationId } = request;
+		if (options.kernelSession?.live()) {
+			const status = options.kernelSession.statusOverlay().get(annotationId);
+			if (
+				status !== undefined &&
+				status !== "applied" &&
+				status !== "declined" &&
+				status !== "resolved" &&
+				status !== "failed"
+			) {
+				setAliasError(alias, "This note is part of the running session — it can't be removed right now.");
+				return;
+			}
+		}
+		try {
+			await resolveAnnotation(path, annotationId, undefined, "Dismissed from the queue.");
+			clearAliasError(alias);
+			await refreshBundleRef.current();
+			await refetchProposalsRef.current();
+		} catch (error) {
+			setAliasError(alias, errorMessage(error));
+		}
+	}, [path, options.kernelSession, clearAliasError, setAliasError]);
+
 	const onApplyQueue = useMemo(() => options.onApplyQueue
 		? (annotationIds: string[]) => onApplyQueueRef.current?.(annotationIds)
 		: undefined, [options.onApplyQueue]);
@@ -451,11 +479,11 @@ export function useDocLabSession(options: UseDocLabSessionOptions): DocLabSessio
 		onUndo,
 		onReplyToRequest,
 		onApplyQueue,
-		// Accept-all, draft discard, and request dismissal are not wired in wave 1.
+		// Accept-all and draft discard are not wired in wave 1.
 		onAcceptAll: undefined,
 		onDiscardDraft: undefined,
-		onDismissRequest: undefined,
-	}), [requests, staged, undoable, onFileRequest, onAccept, onReject, onUndo, onReplyToRequest, onApplyQueue]);
+		onDismissRequest,
+	}), [requests, staged, undoable, onFileRequest, onAccept, onReject, onUndo, onReplyToRequest, onApplyQueue, onDismissRequest]);
 
 	const agentConnected = Boolean(options.onApplyQueue);
 	const applying = options.kernelSnapshot

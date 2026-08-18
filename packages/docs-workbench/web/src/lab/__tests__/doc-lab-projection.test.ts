@@ -97,7 +97,10 @@ describe("deriveDocEditRequests", () => {
 	it("keeps filed aliases stable across resolved rows and projects every status branch", () => {
 		const annotations = [
 			annotation("applied", { status: "resolved" }),
-			annotation("declined", { status: "resolved" }),
+			annotation("declined", {
+				status: "resolved",
+				resolution: "Rejected because the requested wording is inaccurate.",
+			}),
 			annotation("resolved", { status: "resolved" }),
 			annotation("ready"),
 			annotation("waiting", {
@@ -126,6 +129,10 @@ describe("deriveDocEditRequests", () => {
 			{ annotationId: "waiting", alias: "R5", status: "waiting" },
 			{ annotationId: "open", alias: "R6", status: "open" },
 		]);
+		expect(requests.find((request) => request.annotationId === "declined")?.note).toBe(
+			"Rejected because the requested wording is inaccurate.",
+		);
+		expect(requests.find((request) => request.annotationId === "resolved")?.note).toBeUndefined();
 	});
 
 	it("maps thread authors and target drift while excluding canvas requests", () => {

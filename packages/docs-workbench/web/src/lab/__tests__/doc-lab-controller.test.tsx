@@ -487,4 +487,40 @@ describe("useDocLabSession", () => {
     expect(calls.some((call) => call.url.includes("ann-1/replies"))).toBe(true);
     expect(refreshes).toBe(1);
   });
+
+  it("dismisses a request by resolving its annotation and refetching", async () => {
+    let refreshes = 0;
+    routeOverrides.push((call) => {
+      if (call.url !== "api/annotations/ann-1/resolve") return;
+      return json({ annotations: ANNOTATIONS, hash: "annotations-hash-2" });
+    });
+    const { result } = renderSession({ refreshBundle: () => { refreshes += 1; } });
+    await waitFor(() => expect(result.current.session.requests).toHaveLength(1));
+
+    await act(async () => { await result.current.session.onDismissRequest?.("ann-1"); });
+
+    expect(calls.find((call) => call.url === "api/annotations/ann-1/resolve")?.body).toMatchObject({
+      path: "guide",
+      response: "Dismissed from the queue.",
+    });
+    expect(refreshes).toBe(1);
+    expect(calls.filter((call) => call.url.startsWith("api/proposals?")).length).toBe(2);
+    expect(result.current.requestErrors.R1).toBeUndefined();
+  });
+
+  it("blocks dismissing a request held by a live kernel session", async () => {
+    const kernelSession = {
+      live: () => true,
+      statusOverlay: () => new Map([["ann-1", "working"]]),
+    } as never;
+    const { result } = renderSession({ kernelSession });
+    await waitFor(() => expect(result.current.session.requests).toHaveLength(1));
+
+    await act(async () => { await result.current.session.onDismissRequest?.("ann-1"); });
+
+    expect(result.current.requestErrors.R1).toBe(
+      "This note is part of the running session — it can't be removed right now.",
+    );
+    expect(calls.some((call) => call.url.includes("/resolve"))).toBe(false);
+  });
 });

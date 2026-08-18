@@ -102,13 +102,18 @@ export function deriveDocEditRequests({
 			doc?.root,
 		);
 		if (!target) return [];
+		const status = requestStatus(annotation, proposals);
 		return [{
 			id: annotation.id,
 			alias: `R${index + 1}`,
 			annotationId: annotation.id,
 			target,
 			body: annotation.body,
-			status: requestStatus(annotation, proposals),
+			status,
+			note:
+				status === "declined" && typeof annotation.resolution === "string"
+					? annotation.resolution
+					: undefined,
 			disposition: target.kind === "doc" ? "global" : "batch",
 			thread: (annotation.replies ?? []).map((reply) => ({
 				id: reply.id,

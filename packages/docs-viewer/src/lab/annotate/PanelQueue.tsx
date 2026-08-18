@@ -185,6 +185,7 @@ function RecordRow({ record, session, onFocusTarget, labelForTarget }: { record:
 			{request.status === "applied" && session.onUndo && <button type="button" aria-label={`Undo ${request.alias}`} disabled={undoReason !== null} title={undoReason ?? `Undo ${request.alias}`} data-docs-lab-record-undo={request.id} className="shrink-0 rounded-[var(--radius,0.375rem)] border border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] px-2 text-[10px] disabled:cursor-not-allowed disabled:opacity-40" onClick={() => void session.onUndo?.(request.alias)}>Undo</button>}
 		</div>
 		<div className="mt-1"><MessageBubble author="user" body={request.body} /></div>
+		{request.note?.trim() ? <p data-docs-lab-record-note={request.alias} className="mt-0.5 truncate text-[11px] text-[color:var(--docs-muted-foreground,var(--muted-foreground,#71717a))]">{request.note}</p> : null}
 		<ReplyDisclosure alias={request.alias} thread={request.thread} open={threadOpen} onToggle={() => setThreadOpen((open) => !open)} />
 	</div>;
 }
