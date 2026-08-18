@@ -996,22 +996,18 @@ export function DocPage({
   );
 
   const waitingRequests = useMemo(() => {
-    const atDocument: DocEditRequest[] = [];
     const byTopLevel = new Map<string, DocEditRequest[]>();
-    if (!doc) return { atDocument, byTopLevel };
+    if (!doc) return { byTopLevel };
     for (const request of lab.session.requests) {
       if (request.status !== "waiting") continue;
-      if (request.target.kind === "doc") {
-        atDocument.push(request);
-        continue;
-      }
+      if (request.target.kind === "doc") continue;
       const topLevel = topLevelAncestor(doc, request.target.blockId);
       if (!topLevel) continue;
       const rows = byTopLevel.get(topLevel) ?? [];
       rows.push(request);
       byTopLevel.set(topLevel, rows);
     }
-    return { atDocument, byTopLevel };
+    return { byTopLevel };
   }, [doc, lab.session.requests]);
 
   const renderThreadBars = (requests: readonly DocEditRequest[]): ReactNode =>
@@ -1439,7 +1435,6 @@ export function DocPage({
                     })}
                   </div>
                 )}
-                {renderThreadBars(waitingRequests.atDocument)}
                 {renderAiDocumentFlow()}
                 {targeting.overlays}
                 <style>{ANNOTATE_CURSOR_CSS}</style>

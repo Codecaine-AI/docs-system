@@ -10,25 +10,13 @@
 //               batch by accident.
 "use client";
 
-import { useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
 	undoDisabledReason,
-	type DocEditRequest,
 	type DocEditSession,
 	type DocEditTarget,
 } from "../session/doc-edit-session";
 import type { QueueEntry, RecordEntry, RequestQueueModel } from "../session/request-queue";
-
-const STATUS_LABEL: Record<DocEditRequest["status"], string> = {
-	open: "open",
-	working: "working",
-	waiting: "waiting on you",
-	ready: "proposal ready",
-	applied: "applied",
-	declined: "declined",
-	resolved: "resolved",
-	failed: "failed",
-};
 
 export interface PanelQueueProps {
 	session: DocEditSession;
@@ -81,14 +69,10 @@ export function PanelQueue({ session, queue, applying, agentStatus, sessionError
 		    stays put below while this scrolls. */}
 		<div className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto overscroll-contain">
 			{view === "open" ? <>
-				{targetEntries.length > 0 && <>
-					<GroupHeader label="Targets" />
-					{targetEntries.map(renderRow)}
-				</>}
-				{documentEntries.length > 0 && <>
-					<GroupHeader label="Document" />
-					{documentEntries.map(renderRow)}
-				</>}
+				<GroupHeader label="Targets" />
+				{targetEntries.length > 0 ? targetEntries.map(renderRow) : <EmptyGroup />}
+				<GroupHeader label="Document" />
+				{documentEntries.length > 0 ? documentEntries.map(renderRow) : <EmptyGroup />}
 			</> : queue.records.length > 0
 				? queue.records.map((record) => <RecordRow key={record.request.alias} record={record} session={session} onFocusTarget={onFocusTarget} labelForTarget={labelForTarget} />)
 				: <p className="px-1.5 py-1 text-[13px] leading-relaxed text-[color:var(--docs-muted-foreground,var(--muted-foreground,#71717a))]">Nothing finished yet.</p>}
@@ -141,12 +125,22 @@ function GroupHeader({ label }: { label: string }) {
 	return <div className="px-1.5 pb-0.5 pt-2 text-[10px] uppercase tracking-[0.14em] text-[color:var(--docs-muted-foreground,var(--muted-foreground,#71717a))] first:pt-0.5">{label}</div>;
 }
 
+function EmptyGroup() {
+	return <div className="px-1.5 py-0.5 text-[11px] text-[color:var(--docs-muted-foreground,var(--muted-foreground,#71717a))]">empty</div>;
+}
+
 function QueueRow({ entry, session, onFocusTarget, onHoverTarget, labelForTarget }: { entry: QueueEntry; session: DocEditSession; onFocusTarget?: (target: DocEditTarget) => void; onHoverTarget?: (target: DocEditTarget | null) => void; labelForTarget: (target: DocEditTarget) => string }) {
 	const { request } = entry;
 	const replyRef = useRef<HTMLInputElement | null>(null);
 	const target = request.target.kind === "doc" ? null : request.target;
 	const waiting = request.status === "waiting";
-	const stateLabel = entry.staged ? "staged" : entry.processing ? "processing" : waiting ? STATUS_LABEL.waiting : "";
+	const [threadOpen, setThreadOpen] = useState(waiting);
+	const previousWaitingRef = useRef(waiting);
+	useEffect(() => {
+		if (!previousWaitingRef.current && waiting) setThreadOpen(true);
+		previousWaitingRef.current = waiting;
+	}, [waiting]);
+	const stateLabel = entry.staged ? "staged" : entry.processing ? "processing" : "";
 	const sendReply = () => {
 		const body = replyRef.current?.value.trim() ?? "";
 		if (!body || !session.onReplyToRequest) return;
@@ -162,7 +156,10 @@ function QueueRow({ entry, session, onFocusTarget, onHoverTarget, labelForTarget
 		</div>
 		<p className="mt-0.5 pl-4 text-[13px] leading-[1.55] text-[color:var(--foreground,#e4e4e7)]">{request.body}</p>
 		{entry.conflict && <p data-docs-lab-card-conflict={request.alias} title="An accepted change touched this block after the note was filed." className="mt-0.5 text-[11px] text-[color:var(--annotation-thread-accent,#f59e0b)]">target changed since filed</p>}
-		{request.thread.length > 0 && <div className="mt-1 border-l-2 border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] pl-2">{request.thread.map((message) => <p key={message.id} className="mb-0.5 text-[12px] leading-[1.5]"><span className={message.author === "agent" ? "text-teal-400 text-[11px]" : "text-[11px] text-[color:var(--docs-muted-foreground,var(--muted-foreground,#71717a))]"}>{message.author === "user" ? "you" : message.author} · </span><span className="text-[color:var(--docs-muted-foreground,var(--muted-foreground,#a1a1aa))]">{message.body}</span></p>)}</div>}
+		{request.thread.length > 0 && <div className="mt-1">
+			<button type="button" data-docs-lab-thread-toggle={request.alias} aria-expanded={threadOpen} className="px-0.5 py-0.5 text-[11px] text-[color:var(--docs-muted-foreground,var(--muted-foreground,#71717a))]" onClick={() => setThreadOpen((open) => !open)}>{threadOpen ? "▾" : "▸"} {request.thread.length} {request.thread.length === 1 ? "reply" : "replies"}</button>
+			{threadOpen && <div className="mt-0.5 flex flex-col gap-1.5 border-l-2 border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] pl-2">{request.thread.map((message) => <div key={message.id} className="flex flex-col gap-0.5"><span className={message.author === "agent" ? "text-[10px] tracking-[0.04em] text-[color:var(--annotation-agent-accent,#2dd4bf)]" : "text-[10px] tracking-[0.04em] text-[color:var(--docs-muted-foreground,var(--muted-foreground,#71717a))]"}>{message.author === "user" ? "you" : message.author}</span><span className="text-[12px] leading-relaxed text-[color:var(--docs-muted-foreground,var(--muted-foreground,#a1a1aa))]">{message.body}</span></div>)}</div>}
+		</div>}
 		{waiting && session.onReplyToRequest && <div className="mt-1 flex gap-1.5"><input ref={replyRef} aria-label={`Reply to unblock ${request.alias}`} placeholder={`Reply to unblock ${request.alias}…`} className="min-w-0 flex-1 rounded-[var(--radius,0.375rem)] border border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] bg-[color:var(--background,#181818)] px-2 py-1 text-[12px] outline-none focus:border-[color:var(--annotation-thread-accent,#f59e0b)]" onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); sendReply(); } }} /><button type="button" aria-label={`Rail reply to ${request.alias}`} className="rounded-[var(--radius,0.375rem)] border border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] px-2 py-0.5 text-[11px] text-[color:var(--docs-muted-foreground,var(--muted-foreground,#a1a1aa))]" onClick={sendReply}>Reply</button></div>}
 	</div>;
 }

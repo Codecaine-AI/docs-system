@@ -88,11 +88,13 @@ describe("PanelQueue", () => {
 
 		expect(onFileGlobal).toHaveBeenCalledWith("Tighten the introduction");
 		expect(document.querySelector('[data-docs-lab-filter="open"]')?.getAttribute("aria-pressed")).toBe("true");
-		expect(screen.queryByText("Targets")).toBeNull();
+		expect(screen.getByText("Targets")).toBeTruthy();
+		expect(screen.getByText("Document")).toBeTruthy();
+		expect(screen.getAllByText("empty")).toHaveLength(2);
 		expect(document.querySelector('[data-docs-lab-session-record="R1"]')).toBeNull();
 	});
 
-	it("omits an empty Targets group and shows the done empty state", () => {
+	it("always shows open group headers with minimal empty states and shows the done empty state", () => {
 		const emptySession: DocEditSession = { requests: [], proposals: [] };
 		render(
 			<PanelQueue
@@ -105,12 +107,14 @@ describe("PanelQueue", () => {
 			/>,
 		);
 
-		expect(screen.queryByText("Targets")).toBeNull();
+		expect(screen.getByText("Targets")).toBeTruthy();
+		expect(screen.getByText("Document")).toBeTruthy();
+		expect(screen.getAllByText("empty")).toHaveLength(2);
 		fireEvent.click(document.querySelector<HTMLButtonElement>('[data-docs-lab-filter="done"]')!);
 		expect(screen.getByText("Nothing finished yet.")).toBeTruthy();
 	});
 
-	it("shows the Targets group and labels user replies as you", () => {
+	it("collapses non-waiting threads and toggles their readable replies", () => {
 		const threadedSession: DocEditSession = {
 			...session,
 			requests: [{
@@ -130,8 +134,103 @@ describe("PanelQueue", () => {
 		);
 
 		expect(screen.getByText("Targets")).toBeTruthy();
-		expect(screen.getByText("you ·")).toBeTruthy();
-		expect(screen.queryByText("user ·")).toBeNull();
+		const toggle = document.querySelector<HTMLButtonElement>('[data-docs-lab-thread-toggle="R1"]')!;
+		expect(toggle.textContent).toBe("▸ 1 reply");
+		expect(toggle.getAttribute("aria-expanded")).toBe("false");
+		expect(screen.queryByText("Human reply")).toBeNull();
+
+		fireEvent.click(toggle);
+		expect(toggle.textContent).toBe("▾ 1 reply");
+		expect(toggle.getAttribute("aria-expanded")).toBe("true");
+		expect(screen.getByText("you")).toBeTruthy();
+		expect(screen.getByText("Human reply")).toBeTruthy();
+
+		fireEvent.click(toggle);
+		expect(toggle.getAttribute("aria-expanded")).toBe("false");
+		expect(screen.queryByText("Human reply")).toBeNull();
+	});
+
+	it("starts waiting threads expanded without status copy and keeps the reply affordance", () => {
+		const waitingSession: DocEditSession = {
+			requests: [{
+				...session.requests[0]!,
+				status: "waiting",
+				thread: [
+					{ id: "reply-1", author: "agent", body: "Which audience?", at: "t1" },
+					{ id: "reply-2", author: "user", body: "Developers", at: "t2" },
+				],
+			}],
+			proposals: [],
+			onReplyToRequest: mock(() => {}),
+		};
+		render(
+			<PanelQueue
+				session={waitingSession}
+				queue={buildRequestQueue({ requests: waitingSession.requests, proposals: [], applying: false })}
+				applying={false}
+				agentStatus="connected"
+				onApply={() => {}}
+				labelForTarget={() => "Paragraph"}
+			/>,
+		);
+
+		const toggle = document.querySelector<HTMLButtonElement>('[data-docs-lab-thread-toggle="R1"]')!;
+		expect(toggle.textContent).toBe("▾ 2 replies");
+		expect(toggle.getAttribute("aria-expanded")).toBe("true");
+		expect(screen.getByText("Which audience?")).toBeTruthy();
+		expect(screen.queryByText("waiting on you")).toBeNull();
+		expect(document.querySelector('[data-docs-lab-card-state="R1"]')?.textContent).toBe("");
+		expect(screen.getByRole("textbox", { name: "Reply to unblock R1" })).toBeTruthy();
+		expect(screen.getByRole("button", { name: "Rail reply to R1" })).toBeTruthy();
+
+		fireEvent.click(toggle);
+		expect(toggle.textContent).toBe("▸ 2 replies");
+		expect(toggle.getAttribute("aria-expanded")).toBe("false");
+		expect(screen.queryByText("Which audience?")).toBeNull();
+	});
+
+	it("expands a collapsed thread when its request transitions to waiting", () => {
+		const openSession: DocEditSession = {
+			...session,
+			requests: [{
+				...session.requests[0]!,
+				thread: [{ id: "reply-1", author: "user", body: "Initial context", at: "t1" }],
+			}],
+		};
+		const { rerender } = render(
+			<PanelQueue
+				session={openSession}
+				queue={buildRequestQueue({ requests: openSession.requests, proposals: [], applying: false })}
+				applying={false}
+				agentStatus="connected"
+				onApply={() => {}}
+				labelForTarget={() => "Paragraph"}
+			/>,
+		);
+
+		const toggle = document.querySelector<HTMLButtonElement>('[data-docs-lab-thread-toggle="R1"]')!;
+		expect(toggle.getAttribute("aria-expanded")).toBe("false");
+		const waitingSession: DocEditSession = {
+			...openSession,
+			requests: [{
+				...openSession.requests[0]!,
+				status: "waiting",
+				thread: [...openSession.requests[0]!.thread, { id: "reply-2", author: "agent", body: "Which audience?", at: "t2" }],
+			}],
+		};
+		rerender(
+			<PanelQueue
+				session={waitingSession}
+				queue={buildRequestQueue({ requests: waitingSession.requests, proposals: [], applying: false })}
+				applying={false}
+				agentStatus="connected"
+				onApply={() => {}}
+				labelForTarget={() => "Paragraph"}
+			/>,
+		);
+
+		expect(toggle.getAttribute("aria-expanded")).toBe("true");
+		expect(screen.getByText("Which audience?")).toBeTruthy();
 	});
 
 	it("gives an external Apply disabled reason precedence over an applicable queue", () => {
