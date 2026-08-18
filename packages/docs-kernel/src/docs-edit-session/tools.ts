@@ -32,6 +32,7 @@ import type {
   DocsEditSessionStatus,
 } from "./types";
 import { isDocsEditRequestTerminal } from "./types";
+import { renderDocsBlockMap } from "./render";
 
 export interface DocsEditToolResult {
   text: string;
@@ -473,7 +474,7 @@ export function toolReadDoc(session: DocsEditToolSession): DocsEditToolResult {
     return {
       text: [
         `DOCUMENT · ${session.path} · id ${session.docId} · base ${session.baseHash}`,
-        "Block ids are stable identifiers used by DocOps.",
+        "Block ids are stable identifiers used by DocOps; the BLOCK MAP section lists every block.",
         "",
         session.renderedDocument(),
         "",
@@ -535,7 +536,7 @@ export async function toolDocsRead(
       });
     }
     return {
-      text: result.markdown,
+      text: `${result.markdown}\n\n${renderDocsBlockMap(result.doc)}`,
       details: {
         ok: true,
         path: result.bundlePath,
@@ -880,7 +881,7 @@ export function registerDocsEditSessionTools(
     name: "read_doc",
     label: "Read session document",
     description:
-      "Read the session document as sanctioned markdown plus its live request queue. Call this before proposing operations and after a thread reply.",
+      "Read the session document as sanctioned markdown plus a block map of stable block ids and the live request queue. Call this before proposing operations and after a thread reply.",
     promptSnippet: "Read the current document and docs-edit request queue.",
     parameters: objectSchema({}),
     executionMode: "sequential",
@@ -902,7 +903,7 @@ export function registerDocsEditSessionTools(
     name: "docs_read",
     label: "Read another document",
     description:
-      "Read another document bundle as sanctioned markdown. This is read-only and paths are relative to the configured docs root.",
+      "Read another document bundle as sanctioned markdown. Includes a block map of stable block ids. This is read-only and paths are relative to the configured docs root.",
     promptSnippet: "Read a related document through the sanctioned render path.",
     parameters: objectSchema(
       { path: { type: "string", description: "Document bundle path." } },

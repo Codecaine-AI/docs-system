@@ -18,7 +18,11 @@ import {
 	stageBundleProposal,
 } from "@codecaine-ai/docs-server";
 
-import { formatDocsEditRequestsBlock, renderDocsDocument } from "./render";
+import {
+	formatDocsEditRequestsBlock,
+	renderDocsBlockMap,
+	renderDocsDocument,
+} from "./render";
 import type {
 	DocsEditProposal,
 	DocsEditProposeResult,
@@ -795,7 +799,8 @@ export function createDocsEditSession(
 		requests: () => entries,
 		proposals: () => stagedProposals,
 		document: () => document,
-		renderedDocument: () => renderDocsDocument(document),
+		renderedDocument: () =>
+			`${renderDocsDocument(document)}\n\n${renderDocsBlockMap(document)}`,
 		requestsBlock: () => formatDocsEditRequestsBlock(entries),
 		subscribe: (listener) => {
 			listeners.add(listener);

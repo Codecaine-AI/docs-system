@@ -13,6 +13,38 @@ export function renderDocsDocument(doc: DocDocument): string {
   return projectToMarkdown(doc);
 }
 
+/** Renders stable block ids in document order for id-based DocOps. */
+export function renderDocsBlockMap(doc: DocDocument): string {
+  const lines: string[] = [];
+
+  function visit(blockId: string, depth: number): void {
+    const block = doc.blocks[blockId];
+    let detail = "";
+    if (block.text && block.text.length > 0) {
+      const text = block.text
+        .map((span) => span.insert)
+        .join("")
+        .replace(/\s+/g, " ")
+        .trim();
+      const snippet = text.length > 60 ? `${text.slice(0, 60)}…` : text;
+      detail = ` · "${snippet}"`;
+    } else {
+      const fallback =
+        typeof block.props.title === "string"
+          ? block.props.title
+          : typeof block.props.src === "string"
+            ? block.props.src
+            : undefined;
+      if (fallback !== undefined) detail = ` · ${fallback}`;
+    }
+    lines.push(`${"  ".repeat(depth)}${block.id} · ${block.type}${detail}`);
+    for (const childId of block.children) visit(childId, depth + 1);
+  }
+
+  visit(doc.root, 0);
+  return [`BLOCK MAP · ${lines.length} blocks`, ...lines].join("\n");
+}
+
 export function docsEditTargetText(target: DocsEditTarget): string {
   switch (target.kind) {
     case "doc":
