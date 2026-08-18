@@ -12,7 +12,10 @@ import type {
   DeltaSpanAttributes,
   DocDocument,
 } from "@codecaine-ai/docs-model/doc-schema";
-import { isDocBlockType } from "@codecaine-ai/docs-model/doc-schema";
+import {
+  DOC_BLOCK_TYPES,
+  isDocBlockType,
+} from "@codecaine-ai/docs-model/doc-schema";
 import type { DocOp } from "@codecaine-ai/docs-model/doc-ops";
 import {
   doc_get,
@@ -122,8 +125,11 @@ const SUPPORTED_DOC_OP_TYPES = [
 const SUPPORTED_DOC_OP_TYPES_MESSAGE =
   `Supported op types: ${SUPPORTED_DOC_OP_TYPES.join(", ")}.`;
 
+const VALID_BLOCK_TYPES_MESSAGE =
+  `Valid blockType values: ${DOC_BLOCK_TYPES.join(", ")}.`;
+
 const DOC_OP_CHEAT_SHEET = [
-  "insertBlock {blockId, parentId, index, blockType, props, text?} — mint a NEW id for new content",
+  `insertBlock {blockId, parentId, index, blockType, props, text?} — mint a NEW id for new content; blockType one of: ${DOC_BLOCK_TYPES.join(", ")}`,
   "updateBlock {blockId, props?, text?} — edit an existing block in place (id-stable); text may be delta spans or null",
   'deleteBlock {blockId, mode?: "subtree"|"reparent"}',
   "moveBlock {blockId, toParentId, toIndex}",
@@ -266,7 +272,7 @@ function parseOneDocOp(
       ) {
         return invalidOp(
           opIndex,
-          "insertBlock requires valid blockId, parentId, non-negative index, blockType, and JSON-object props.",
+          `insertBlock requires valid blockId, parentId, non-negative index, blockType, and JSON-object props. ${VALID_BLOCK_TYPES_MESSAGE}`,
         );
       }
       let text: DeltaSpan[] | undefined;

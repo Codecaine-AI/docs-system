@@ -79,6 +79,22 @@ describe("docs-edit proposal/review integration", () => {
 		});
 		expect(nonObject.isError).toBe(true);
 		expect(nonObject.text).toContain(supportedTypes);
+		const invalidBlockType = await toolProposeOps(session, {
+			requestAlias: "R1",
+			ops: [
+				{
+					type: "insertBlock",
+					blockId: "new-block",
+					parentId: "root",
+					index: 0,
+					blockType: "bogus-block-type",
+					props: {},
+				},
+			],
+			summary: "Invalid block type",
+		});
+		expect(invalidBlockType.isError).toBe(true);
+		expect(invalidBlockType.text).toContain("process-outline");
 		expect(session.proposals()).toHaveLength(0);
 		const afterInvalid = await getBundleProposals(docsRoot, FIXTURE_PATH);
 		expect(afterInvalid.ok).toBe(true);
