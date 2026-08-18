@@ -2,6 +2,8 @@
 
 import type { DocBlockType } from "../doc-schema";
 import { assertComponentRegistry } from "./checks";
+import { deriveEmptyProps } from "./empty-state";
+import { checkStateProps } from "./validate";
 import { canvasComponent } from "./canvas";
 import { codeComponent } from "./code";
 import { fileTreeComponent } from "./file-tree";
@@ -98,3 +100,39 @@ export function agentViewFor(type: DocBlockType): ComponentBundle["agentView"] {
 }
 
 assertComponentRegistry(ALL_COMPONENTS);
+
+export { deriveEmptyProps } from "./empty-state";
+
+/** Schema-derived blank props per type — what a blank insert starts as. */
+export const EMPTY_STATE_BY_TYPE: ReadonlyMap<
+  DocBlockType,
+  Record<string, unknown>
+> = new Map(
+  ALL_COMPONENTS.flatMap((component) =>
+    component.manifest.ownedTypes.map((type) => {
+      const state = component.states[type];
+      if (!state) throw new Error(`No component state registered for block type "${type}".`);
+      return [type, deriveEmptyProps(state.schema)] as const;
+    }),
+  ),
+);
+
+/** A fresh copy of the blank props for a type (safe to mutate). */
+export function emptyStateFor(type: DocBlockType): Record<string, unknown> {
+  const empty = EMPTY_STATE_BY_TYPE.get(type);
+  if (!empty) throw new Error(`No blank state registered for block type "${type}".`);
+  return structuredClone(empty);
+}
+
+// Boot invariant: every type must be blank-insertable — a schema change that
+// makes the derived blank invalid fails here, at import time.
+for (const [type, empty] of EMPTY_STATE_BY_TYPE) {
+  const issues = checkStateProps(type, empty);
+  if (issues.length > 0) {
+    throw new Error(
+      `Blank props for block type "${type}" fail validation: ${issues
+        .map((issue) => `${issue.path}: ${issue.message}`)
+        .join("; ")}`,
+    );
+  }
+}
