@@ -115,6 +115,62 @@ describe("docs-edit proposal/review integration", () => {
 		expect(await readDiskDoc(docsRoot)).toEqual(before);
 	});
 
+	test("restaging the same request rejects the replaced ledger proposal", async () => {
+		const docsRoot = await makeDocsRoot();
+		await writeBundle(docsRoot, FIXTURE_PATH, {
+			annotations: fixtureAnnotations([
+				fixtureAnnotation({ id: "ann-restage" }),
+			]),
+		});
+		const service = createDocsEditSessionService({ docsRoot });
+		const created = await service.createSession({
+			path: FIXTURE_PATH,
+			requestIds: ["ann-restage"],
+			sessionId: "restage-session",
+			spawn: false,
+		});
+		expect(created.ok).toBe(true);
+		if (!created.ok) throw new Error(`session create failed: ${created.reason}`);
+		const session = service.getSession(created.state.sessionId);
+		if (!session) throw new Error("created session was not retained");
+
+		const tools = createDocsEditToolset(session);
+		const first = await tools.call("write_text", {
+			requestAlias: "R1",
+			blockId: "p1",
+			markdown: "First staged revision.",
+			summary: "Stage the first revision",
+		});
+		expect(first.isError).not.toBe(true);
+		const firstProposalId = session.proposals()[0]?.proposalId;
+		expect(firstProposalId).toBeString();
+
+		const second = await tools.call("write_text", {
+			requestAlias: "R1",
+			blockId: "p1",
+			markdown: "Second staged revision.",
+			summary: "Stage the second revision",
+		});
+		expect(second.isError).not.toBe(true);
+		const active = session.proposals();
+		expect(active).toHaveLength(1);
+		expect(active[0]?.proposalId).not.toBe(firstProposalId);
+
+		const listed = await getBundleProposals(docsRoot, FIXTURE_PATH);
+		expect(listed.ok).toBe(true);
+		if (!listed.ok) throw new Error(listed.detail);
+		expect(listed.proposals.filter((proposal) => proposal.status === "staged"))
+			.toEqual([
+				expect.objectContaining({
+					id: active[0]?.proposalId,
+					summary: "Stage the second revision",
+				}),
+			]);
+		expect(
+			listed.proposals.find((proposal) => proposal.id === firstProposalId),
+		).toMatchObject({ status: "rejected", summary: "Stage the first revision" });
+	});
+
 	test("rejectProposal resolves the driving sidecar annotation with explicit and default notes", async () => {
 		const docsRoot = await makeDocsRoot();
 		await writeBundle(docsRoot, FIXTURE_PATH, {

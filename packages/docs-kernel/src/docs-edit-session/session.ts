@@ -350,6 +350,19 @@ export function createDocsEditSession(
 			);
 			if (existingIndex < 0) stagedProposals = [...stagedProposals, proposal];
 			else {
+				const previous = stagedProposals[existingIndex];
+				if (previous) {
+					try {
+						await rejectBundleProposal(
+							options.docsRoot,
+							previous.docPath,
+							previous.proposalId,
+							{ sessionId: id },
+						);
+					} catch {
+						// The replacement is already persisted, so rejection is best-effort.
+					}
+				}
 				// Re-proposals are independent (no synthetic working document). Move
 				// the replacement to the end so review order remains staging order.
 				stagedProposals = [
