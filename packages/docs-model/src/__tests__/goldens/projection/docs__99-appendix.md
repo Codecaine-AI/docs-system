@@ -2,4 +2,4 @@ Operational and meta content that supports working on the corpus without being p
 
 - Writing style
 
-  - How every doc in this corpus is written — register, structure, block conventions, and the anti-patterns to repair.
+  - How every doc in this corpus is written — register, structure, and block conventions.

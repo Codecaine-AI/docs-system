@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "id": "99-appendix-10-writing-style-30-block-conventions",
+  "title": "Block conventions",
+  "root": "b-ws-blocks-root",
+  "blocks": {
+    "b-ws-blocks-root": {
+      "id": "b-ws-blocks-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-ws-blocks-intro-1",
+        "b-ws-blocks-callouts-2",
+        "b-ws-blocks-decision-record-3",
+        "b-ws-blocks-state-plus-ops-4",
+        "b-ws-blocks-media-5"
+      ]
+    },
+    "b-ws-blocks-intro-1": {
+      "id": "b-ws-blocks-intro-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "How content maps onto the block vocabulary: callout discipline, the decision-record pattern, state-plus-operations, and media rules."
+        }
+      ],
+      "children": []
+    },
+    "b-ws-blocks-callouts-2": {
+      "id": "b-ws-blocks-callouts-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Decisions and warnings are callouts: kind carries the semantic label (“Decision”, “Open call”, “Named deviation”), tone carries the register. A callout body is one or two sentences — the labeled fact itself; mechanics, rationale, and examples get a heading after the callout and live in paragraphs."
+        }
+      ],
+      "children": []
+    },
+    "b-ws-blocks-decision-record-3": {
+      "id": "b-ws-blocks-decision-record-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The decision-record pattern is two parts: a short dated callout stating the call (“Decision (2026-08-12) — sync publishes atomically.”), then an H3 section holding the reasoning and consequences."
+        }
+      ],
+      "children": []
+    },
+    "b-ws-blocks-state-plus-ops-4": {
+      "id": "b-ws-blocks-state-plus-ops-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "System behavior documents as state plus operations: a code block of real, annotated JSON shows the state, an interaction-surface block lists the typed operations. State first, then operations."
+        }
+      ],
+      "children": []
+    },
+    "b-ws-blocks-media-5": {
+      "id": "b-ws-blocks-media-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Images always carry alt text — the agent surface is text-first. No empty-paragraph spacers; spacing is the theme's job."
+        }
+      ],
+      "children": []
+    }
+  }
+}

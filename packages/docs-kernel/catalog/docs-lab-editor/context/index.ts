@@ -53,11 +53,7 @@ export const WRITING_STYLE_BUNDLES: ReadonlyArray<string> = [
 	"99-appendix/10-writing-style",
 	"99-appendix/10-writing-style/10-register",
 	"99-appendix/10-writing-style/20-structure",
-	"99-appendix/10-writing-style/30-design-narrative",
-	"99-appendix/10-writing-style/40-titles-and-openings",
-	"99-appendix/10-writing-style/50-block-conventions",
-	"99-appendix/10-writing-style/60-anti-patterns",
-	"99-appendix/10-writing-style/70-why-these-hold",
+	"99-appendix/10-writing-style/30-block-conventions",
 ];
 
 const standardsFile = (bundle: string): string =>

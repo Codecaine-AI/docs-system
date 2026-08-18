@@ -6,6 +6,8 @@ Write matter-of-fact: short declarative sentences that state what is, in the ord
 
 - Concrete over vague: real numbers, real paths, real names. “Sixteen types”, never “several”.
 
-- No preamble, no recap, no closing remarks. Start at the answer; stop when it is stated.
+- No preamble, no recap, no closing remarks. Start at the answer; stop when it is stated. Tangents move to their own home and get a link, not a sidebar.
 
 - Assume no memory: a section stands alone or links to what it needs. Never “as mentioned above”.
+
+- Present-state prose: a finished doc describes what exists now. No change-log voice (“now”, “previously”, “no longer”) unless the doc is explicitly about migration history.

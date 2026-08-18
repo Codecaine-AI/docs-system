@@ -12,11 +12,7 @@
         "b-ws-intro-1",
         "b-ws-reg-2",
         "b-ws-struct-4",
-        "b-ws-narrative-6",
-        "b-ws-titles-8",
-        "b-ws-blocks-10",
-        "b-ws-anti-12",
-        "b-ws-why-14"
+        "b-ws-blocks-6"
       ]
     },
     "b-ws-intro-1": {
@@ -25,7 +21,7 @@
       "props": {},
       "text": [
         {
-          "insert": "How every doc in this corpus is written. This is working guidance for whoever is writing — human or agent — not part of the system's design. Load it before authoring or editing docs; each page below owns one aspect of the craft."
+          "insert": "How every doc in this corpus is written. This is working guidance for whoever is writing — human or agent — not part of the system's design. Load it before authoring or editing docs."
         }
       ],
       "children": []
@@ -56,7 +52,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The matter-of-fact voice: lead with the fact, one idea per sentence, concrete over vague."
+          "insert": "The matter-of-fact voice: lead with the fact, concrete over vague, present-state prose."
         }
       ],
       "children": []
@@ -87,75 +83,13 @@
       "props": {},
       "text": [
         {
-          "insert": "Bullets as the default reading shape, the join test, nesting, list caps, and heading discipline."
+          "insert": "How shape carries meaning: bullets and the join test, lists, headings, titles and openers."
         }
       ],
       "children": []
     },
-    "b-ws-narrative-6": {
-      "id": "b-ws-narrative-6",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Design narrative",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "99-appendix/10-writing-style/30-design-narrative",
-              "label": "Design narrative"
-            }
-          }
-        }
-      ],
-      "children": [
-        "b-ws-narrative-gloss-7"
-      ]
-    },
-    "b-ws-narrative-gloss-7": {
-      "id": "b-ws-narrative-gloss-7",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Writing about a designed system so the reader leaves with the model, not a pile of attributes."
-        }
-      ],
-      "children": []
-    },
-    "b-ws-titles-8": {
-      "id": "b-ws-titles-8",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Titles and openings",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "99-appendix/10-writing-style/40-titles-and-openings",
-              "label": "Titles and openings"
-            }
-          }
-        }
-      ],
-      "children": [
-        "b-ws-titles-gloss-9"
-      ]
-    },
-    "b-ws-titles-gloss-9": {
-      "id": "b-ws-titles-gloss-9",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "What titles and opening paragraphs must do, and the SCAN/SKIM/READ model they serve."
-        }
-      ],
-      "children": []
-    },
-    "b-ws-blocks-10": {
-      "id": "b-ws-blocks-10",
+    "b-ws-blocks-6": {
+      "id": "b-ws-blocks-6",
       "type": "list-item",
       "props": {},
       "text": [
@@ -164,85 +98,23 @@
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "99-appendix/10-writing-style/50-block-conventions",
+              "path": "99-appendix/10-writing-style/30-block-conventions",
               "label": "Block conventions"
             }
           }
         }
       ],
       "children": [
-        "b-ws-blocks-gloss-11"
+        "b-ws-blocks-gloss-7"
       ]
     },
-    "b-ws-blocks-gloss-11": {
-      "id": "b-ws-blocks-gloss-11",
+    "b-ws-blocks-gloss-7": {
+      "id": "b-ws-blocks-gloss-7",
       "type": "list-item",
       "props": {},
       "text": [
         {
-          "insert": "How content maps onto blocks: present-state prose, heading budget, callouts, decision records, media."
-        }
-      ],
-      "children": []
-    },
-    "b-ws-anti-12": {
-      "id": "b-ws-anti-12",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Anti-patterns",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "99-appendix/10-writing-style/60-anti-patterns",
-              "label": "Anti-patterns"
-            }
-          }
-        }
-      ],
-      "children": [
-        "b-ws-anti-gloss-13"
-      ]
-    },
-    "b-ws-anti-gloss-13": {
-      "id": "b-ws-anti-gloss-13",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "The shapes that mark a doc as needing repair, named so review can point at them."
-        }
-      ],
-      "children": []
-    },
-    "b-ws-why-14": {
-      "id": "b-ws-why-14",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Why these hold",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "99-appendix/10-writing-style/70-why-these-hold",
-              "label": "Why these hold"
-            }
-          }
-        }
-      ],
-      "children": [
-        "b-ws-why-gloss-15"
-      ]
-    },
-    "b-ws-why-gloss-15": {
-      "id": "b-ws-why-gloss-15",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "The rationale: decay rules, greppability on the agent surface, golden-pinned renders."
+          "insert": "Callout discipline, decision records, state-plus-operations, and media rules."
         }
       ],
       "children": []

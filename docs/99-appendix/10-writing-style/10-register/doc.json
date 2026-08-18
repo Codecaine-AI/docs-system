@@ -14,7 +14,8 @@
         "b-ws-reg-one-idea-3",
         "b-ws-reg-concrete-4",
         "b-ws-reg-no-preamble-5",
-        "b-ws-reg-no-memory-6"
+        "b-ws-reg-no-memory-6",
+        "b-ws-reg-present-state-7"
       ]
     },
     "b-ws-reg-intro-1": {
@@ -67,7 +68,7 @@
       "props": {},
       "text": [
         {
-          "insert": "No preamble, no recap, no closing remarks. Start at the answer; stop when it is stated."
+          "insert": "No preamble, no recap, no closing remarks. Start at the answer; stop when it is stated. Tangents move to their own home and get a link, not a sidebar."
         }
       ],
       "children": []
@@ -79,6 +80,17 @@
       "text": [
         {
           "insert": "Assume no memory: a section stands alone or links to what it needs. Never “as mentioned above”."
+        }
+      ],
+      "children": []
+    },
+    "b-ws-reg-present-state-7": {
+      "id": "b-ws-reg-present-state-7",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Present-state prose: a finished doc describes what exists now. No change-log voice (“now”, “previously”, “no longer”) unless the doc is explicitly about migration history."
         }
       ],
       "children": []

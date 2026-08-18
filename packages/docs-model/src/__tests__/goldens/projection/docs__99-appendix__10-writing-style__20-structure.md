@@ -1,21 +1,13 @@
-How meaning is carried by shape: bullets as the default reading form, the tests that keep them prose-complete, and the discipline for lists and headings.
+How meaning is carried by shape: bullets and the tests that keep them prose-complete, list discipline, headings, and the title and opener every doc owes its reader.
 
-- Bullets are the default reading shape, and they carry prose meaning. A section opens with a lead sentence or short paragraph stating the design claim; the supporting material breaks into bullets at its natural seams, each bullet a complete sentence with its relationships, qualifiers, and consequences attached.
+- Bullets are the default reading shape and carry prose meaning: a lead sentence states the claim, and each bullet is a complete sentence with its relationships and qualifiers attached. The join test: the lead plus the bullets, read in order, should reconstruct a well-written paragraph — consecutive fragments sharing one subject shape (“X carries A.” / “X carries B.”) mean the relating sentence was deleted.
 
-- The join test: reading the lead plus the bullets in order should reconstruct a well-written paragraph. Choppy fragments mean meaning was stripped; a bullet the reader cannot understand without guessing means context was stripped.
+- A bullet never reads `lead — gloss` on one line: the lead — a bold label, a link, a short phrase — is the parent bullet by itself, and the gloss and facts go in sub-bullets. Nest a second independent idea instead of packing the line; never split one thought into fragments to manufacture nesting.
 
-- Nest a sub-bullet under its parent instead of packing a second independent idea into the line — but never split one thought into fragments to manufacture nesting.
+- Never re-enumerate an adjacent structured block: writing before a table or state-shape orients the reader; bullets that restate its rows are duplication that will drift.
 
-- A bullet never reads `lead — gloss` on one line. The lead — a bold label, a link, or a short phrase — is the parent bullet by itself; the gloss and every fact go in sub-bullets beneath it. This applies to index lists, why-sections, invariant lists — everywhere.
+- Multi-step work is a numbered list, each step one bounded action. Lists cap at about five items — past that, split or rank.
 
-- Multi-step work is a numbered list; each step is one bounded action.
+- Headings carry the skim path — a section scans in one screen. They are Title Case (minor words stay lowercase; acronyms and code-marked spans keep their exact form), at most one H1 per doc with sections on H2. Standards and design docs share the flow `Structure`, `The Rule`, `Why`.
 
-- Lists cap at about five items. Past that, split the list or rank it.
-
-- Tangents move to their own home and get a link, not a sidebar.
-
-- Headings carry the skim path; a section should scan in one screen.
-
-- Headings are Title Case: the first letter of every word is capitalized, except minor words (a, an, and, as, at, but, by, for, in, nor, of, on, or, per, the, to, via, vs) which stay lowercase mid-heading. Only a word's first letter changes — acronyms, camelCase identifiers, and code-marked spans keep their exact form. Body text is unaffected: mid-sentence words are never capitalized for style.
-
-- Standards and design docs share one section flow and one set of heading names: `Structure` (show the thing — a file tree or annotated code), then `The Rule`, then `Why`.
+- The title differentiates the doc from its siblings in a bare listing — “Component themes”, never “Themes, continued”. The body opens with a 2–4 sentence paragraph a reader arriving mid-corpus can judge relevance from alone.
