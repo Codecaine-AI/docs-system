@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "id": "99-appendix-10-writing-style-40-titles-and-openings",
+  "title": "Titles and openings",
+  "root": "b-ws-titles-root",
+  "blocks": {
+    "b-ws-titles-root": {
+      "id": "b-ws-titles-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-ws-titles-intro-1",
+        "b-ws-titles-title-2",
+        "b-ws-titles-opener-3",
+        "b-ws-titles-three-cuts-4",
+        "b-ws-titles-taxes-5"
+      ]
+    },
+    "b-ws-titles-intro-1": {
+      "id": "b-ws-titles-intro-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "What a title and an opening paragraph each owe the reader, and the three-cut reading model (SCAN, SKIM, READ) those obligations serve."
+        }
+      ],
+      "children": []
+    },
+    "b-ws-titles-title-2": {
+      "id": "b-ws-titles-title-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The title is bundle metadata, rendered as the page title on every surface. Make it differentiate the doc from its siblings at a glance — “Component themes”, never “Themes, continued”. It must work in a bare listing with no body in sight."
+        }
+      ],
+      "children": []
+    },
+    "b-ws-titles-opener-3": {
+      "id": "b-ws-titles-opener-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every doc opens with a 2–4 sentence paragraph a reader can judge relevance from alone: what this covers, what reading it gets you. It must work for a reader arriving mid-corpus with no surrounding context."
+        }
+      ],
+      "children": []
+    },
+    "b-ws-titles-three-cuts-4": {
+      "id": "b-ws-titles-three-cuts-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The reading model is three cuts: SCAN takes the title and first line and answers “potentially relevant?”; SKIM takes the opening paragraph and answers “is this enough context?”; READ takes the full body, only when the task lives there. Titles serve SCAN; openers serve SKIM."
+        }
+      ],
+      "children": []
+    },
+    "b-ws-titles-taxes-5": {
+      "id": "b-ws-titles-taxes-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A vague title forces SKIM on every scan; a missing opener forces READ on every visit. Both taxes are paid by every reader on every traversal."
+        }
+      ],
+      "children": []
+    }
+  }
+}

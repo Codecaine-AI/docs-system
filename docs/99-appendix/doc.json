@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "id": "99-appendix",
+  "title": "Appendix",
+  "root": "b-appendix-root",
+  "blocks": {
+    "b-appendix-root": {
+      "id": "b-appendix-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-appendix-intro-1",
+        "b-appendix-ws-2"
+      ]
+    },
+    "b-appendix-intro-1": {
+      "id": "b-appendix-intro-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Operational and meta content that supports working on the corpus without being part of the system's design: guidance for writers and maintainers rather than statements about the system. The tier is reserved at "
+        },
+        {
+          "insert": "99-",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " per the numbering standard."
+        }
+      ],
+      "children": []
+    },
+    "b-appendix-ws-2": {
+      "id": "b-appendix-ws-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Writing style",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "99-appendix/10-writing-style",
+              "label": "Writing style"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-appendix-ws-gloss-3"
+      ]
+    },
+    "b-appendix-ws-gloss-3": {
+      "id": "b-appendix-ws-gloss-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "How every doc in this corpus is written — register, structure, block conventions, and the anti-patterns to repair."
+        }
+      ],
+      "children": []
+    }
+  }
+}

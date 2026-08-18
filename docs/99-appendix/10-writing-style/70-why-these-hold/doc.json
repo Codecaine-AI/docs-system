@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "id": "99-appendix-10-writing-style-70-why-these-hold",
+  "title": "Why these hold",
+  "root": "b-ws-why-root",
+  "blocks": {
+    "b-ws-why-root": {
+      "id": "b-ws-why-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-ws-why-intro-1",
+        "b-ws-why-decay-2",
+        "b-ws-why-greppable-3",
+        "b-ws-why-alt-text-4",
+        "b-ws-why-goldens-5"
+      ]
+    },
+    "b-ws-why-intro-1": {
+      "id": "b-ws-why-intro-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The rationale behind the register and the block conventions: rules chosen for how they age and how they serve both reading surfaces, not for taste."
+        }
+      ],
+      "children": []
+    },
+    "b-ws-why-decay-2": {
+      "id": "b-ws-why-decay-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Present-state voice is a decay rule: change-log narration goes stale the day it lands; describing what exists dates far more slowly."
+        }
+      ],
+      "children": []
+    },
+    "b-ws-why-greppable-3": {
+      "id": "b-ws-why-greppable-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Heading discipline and labeled callouts serve the agent surface, where structure is only as real as it is greppable: "
+        },
+        {
+          "insert": "docs grep '> \\*\\*Decision'",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " enumerates every decision record; "
+        },
+        {
+          "insert": "docs grep '^## '",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " returns a clean outline because H1 stays scarce."
+        }
+      ],
+      "children": []
+    },
+    "b-ws-why-alt-text-4": {
+      "id": "b-ws-why-alt-text-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Alt text is a two-reader obligation: the agent surface is text-first, and an image without alt is a blank line to half the audience."
+        }
+      ],
+      "children": []
+    },
+    "b-ws-why-goldens-5": {
+      "id": "b-ws-why-goldens-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every render is pinned by goldens, so a convention regression shows up as a diff, not a vibe."
+        }
+      ],
+      "children": []
+    }
+  }
+}

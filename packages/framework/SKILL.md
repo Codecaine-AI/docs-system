@@ -78,7 +78,7 @@ docs-framework/
 
 This skill is operational: it says what to do. The canonical standards — rule, setup, and rationale together — live in the host corpus:
 
-- `docs/10-system-design/10-doc-standards/` — every structural standard (structure, numbering, cross-doc linking, code linking, in-code docs) as child docs of one section; titles/openings guidance lives in `writingstyle.md` at the repo root
+- `docs/10-system-design/10-doc-standards/` — every structural standard (structure, numbering, cross-doc linking, code linking, in-code docs) as child docs of one section; writing style (register, titles/openings, block conventions) lives at `docs/99-appendix/10-writing-style/`
 - `docs/00-foundation/00-manifesto` — the intent: knowledge transfer between humans and AI; docs define behavior; code is the projection of specs
 
 This skill no longer carries operational copies of the standards. Agent contexts render them directly from the corpus (the docs-lab-editor context loads `10-doc-standards` through the agent markdown projection), so a standard changes in exactly one place: its corpus doc.

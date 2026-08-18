@@ -84,6 +84,15 @@ const CORPUS_PATHS = [
   "docs/20-implementation/20-workbench/doc.json",
   "docs/20-implementation/40-theming/doc.json",
   "docs/20-implementation/40-theming/10-system-ui/doc.json",
+  "docs/99-appendix/doc.json",
+  "docs/99-appendix/10-writing-style/doc.json",
+  "docs/99-appendix/10-writing-style/10-register/doc.json",
+  "docs/99-appendix/10-writing-style/20-structure/doc.json",
+  "docs/99-appendix/10-writing-style/30-design-narrative/doc.json",
+  "docs/99-appendix/10-writing-style/40-titles-and-openings/doc.json",
+  "docs/99-appendix/10-writing-style/50-block-conventions/doc.json",
+  "docs/99-appendix/10-writing-style/60-anti-patterns/doc.json",
+  "docs/99-appendix/10-writing-style/70-why-these-hold/doc.json",
 ] as const;
 const DOCUMENT_PATHS = [FIXTURE_PATH, ...CORPUS_PATHS] as const;
 

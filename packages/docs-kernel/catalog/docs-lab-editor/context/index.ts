@@ -2,12 +2,12 @@
  * Section ② — standing docs-system knowledge for the Docs Lab editor.
  *
  * Two live sources replace the retired packages/framework markdown copies:
- * structure standards render from the corpus's own doc.json bundles through
- * the sanctioned agent projection (projectToMarkdown), and the editing
- * reference renders from the component registry (buildBlocksDiscovery), so
- * both stay current by construction. Writing style remains the repo-root
- * file. The live document and request queue stay section ③/session-tool data
- * and are not loaded here.
+ * structure standards and writing style render from the corpus's own doc.json
+ * bundles through the sanctioned agent projection (projectToMarkdown), and
+ * the editing reference renders from the component registry
+ * (buildBlocksDiscovery), so all three stay current by construction. The live
+ * document and request queue stay section ③/session-tool data and are not
+ * loaded here.
  *
  * There is deliberately no outer <context> envelope: the kernel supplies it.
  */
@@ -48,18 +48,28 @@ export const STANDARDS_BUNDLES: ReadonlyArray<string> = [
 	"10-system-design/10-doc-standards/60-implementation-layer",
 ];
 
-const WRITING_STYLE_FILE = join(DOCS_SYSTEM_ROOT, "writingstyle.md");
+/** The corpus bundles rendered into <docs_writing_style>, in reading order. */
+export const WRITING_STYLE_BUNDLES: ReadonlyArray<string> = [
+	"99-appendix/10-writing-style",
+	"99-appendix/10-writing-style/10-register",
+	"99-appendix/10-writing-style/20-structure",
+	"99-appendix/10-writing-style/30-design-narrative",
+	"99-appendix/10-writing-style/40-titles-and-openings",
+	"99-appendix/10-writing-style/50-block-conventions",
+	"99-appendix/10-writing-style/60-anti-patterns",
+	"99-appendix/10-writing-style/70-why-these-hold",
+];
 
 const standardsFile = (bundle: string): string =>
 	join(DOCS_ROOT, bundle, "doc.json");
 
 const loaders: AgentContextResolver["loaders"] = [
-	...STANDARDS_BUNDLES.map((bundle) => ({
-		kind: "file" as const,
-		path: standardsFile(bundle),
-	})),
-	{ kind: "file" as const, path: WRITING_STYLE_FILE },
-];
+	...STANDARDS_BUNDLES,
+	...WRITING_STYLE_BUNDLES,
+].map((bundle) => ({
+	kind: "file" as const,
+	path: standardsFile(bundle),
+}));
 
 function loadedPath(input: LoadedMap[number]): string {
 	return typeof input.decl === "object" && "path" in input.decl
@@ -83,10 +93,11 @@ function block(tag: string, attrs: string, body: string): string {
 }
 
 // ---------------------------------------------------------------------------
-// <docs_structure_standards> — corpus doc.json → agent markdown
+// <docs_structure_standards> / <docs_writing_style> — corpus doc.json →
+// agent markdown
 // ---------------------------------------------------------------------------
 
-function renderStandardsDoc(bundle: string, raw: string): string {
+function renderCorpusDoc(bundle: string, raw: string): string {
 	let parsed: unknown;
 	try {
 		parsed = JSON.parse(raw);
@@ -307,27 +318,28 @@ function renderEditingReference(): string {
 function assemble(loaded: LoadedMap, _ctx: SpawnContext): string {
 	const loadedByPath = new Map(loaded.map((input) => [loadedPath(input), input]));
 
-	const standards = STANDARDS_BUNDLES.map((bundle) => {
-		const input = loadedByPath.get(standardsFile(bundle));
-		if (input === undefined || input.status !== "ok") {
-			return `<doc path="${bundle}" status="${input?.status ?? "missing"}"></doc>`;
-		}
-		return renderStandardsDoc(bundle, input.content);
-	}).join("\n");
-
-	const style = loadedByPath.get(WRITING_STYLE_FILE);
-	const styleBlock =
-		style !== undefined && style.status === "ok"
-			? block("docs_writing_style", 'source="writingstyle.md"', style.content)
-			: `<docs_writing_style status="${style?.status ?? "missing"}"></docs_writing_style>`;
+	const renderBundles = (bundles: ReadonlyArray<string>): string =>
+		bundles
+			.map((bundle) => {
+				const input = loadedByPath.get(standardsFile(bundle));
+				if (input === undefined || input.status !== "ok") {
+					return `<doc path="${bundle}" status="${input?.status ?? "missing"}"></doc>`;
+				}
+				return renderCorpusDoc(bundle, input.content);
+			})
+			.join("\n");
 
 	return [
 		block(
 			"docs_structure_standards",
 			'source="docs-system corpus · 10-system-design/10-doc-standards"',
-			standards,
+			renderBundles(STANDARDS_BUNDLES),
 		),
-		styleBlock,
+		block(
+			"docs_writing_style",
+			'source="docs-system corpus · 99-appendix/10-writing-style"',
+			renderBundles(WRITING_STYLE_BUNDLES),
+		),
 		renderEditingReference(),
 	].join("\n");
 }

@@ -34,7 +34,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The agent-loadable operational manual — cookbooks, standards, workflows, and templates behind a "
+          "insert": "The agent-loadable operational manual — cookbooks and interview scripts behind a "
         },
         {
           "insert": "SKILL.md",
@@ -90,7 +90,7 @@
           }
         },
         {
-          "insert": " — the canonical rules whose operational copies this package carries."
+          "insert": " — the canonical rules; agent contexts render them from the corpus rather than from copies here."
         }
       ],
       "children": []
@@ -256,7 +256,7 @@
       },
       "text": [
         {
-          "insert": "Corpus authority; standards are operational copies"
+          "insert": "Corpus authority; no operational copies"
         }
       ],
       "children": []
@@ -269,29 +269,7 @@
       },
       "text": [
         {
-          "insert": "Decision: The docs corpus is the canonical home of every structural rule; each standard under "
-        },
-        {
-          "insert": "packages/framework/20-standards",
-          "attributes": {
-            "code": true,
-            "reference": {
-              "kind": "source",
-              "path": "packages/framework/20-standards"
-            }
-          }
-        },
-        {
-          "insert": " is an operational copy ending in a literal "
-        },
-        {
-          "insert": "Canonical:",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " pointer, and a structural change updates the corpus doc first and synchronizes the copy in the same change. The reference area stays a pointer stub holding no doctrine."
+          "insert": "Decision: The docs corpus is the sole home of every structural rule. This package carries no standard copies; standing agent knowledge renders from the corpus doc.json bundles through the agent markdown projection at context-assembly time."
         }
       ],
       "children": []
@@ -304,7 +282,7 @@
       },
       "text": [
         {
-          "insert": "Why: Framework must not become a second decision-memory home. The copies are hand-maintained Markdown — a named deviation from the rendered-text agent contract — contained by the canonical pointers and same-change synchronization; a generator was rejected as machinery the deviation does not yet earn."
+          "insert": "Why: Framework must not become a second decision-memory home. A copy tier requires hand synchronization and drifts toward teaching retired conventions; rendering from the corpus leaves one canonical text and nothing to synchronize."
         }
       ],
       "children": []
@@ -320,22 +298,13 @@
           "insert": "Applies to: "
         },
         {
-          "insert": "packages/framework/20-standards",
+          "insert": "packages/framework",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": ", "
-        },
-        {
-          "insert": "packages/framework/00-reference",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " — every future standard copy carries a canonical pointer."
+          "insert": " — standing agent knowledge loads from the corpus, never from standards files here."
         }
       ],
       "children": []
@@ -405,7 +374,7 @@
           }
         },
         {
-          "insert": " — every future cookbook, workflow, standard, and template key."
+          "insert": " — every future cookbook and workflow key."
         }
       ],
       "children": []

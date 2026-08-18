@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "id": "99-appendix-10-writing-style-10-register",
+  "title": "Register",
+  "root": "b-ws-reg-root",
+  "blocks": {
+    "b-ws-reg-root": {
+      "id": "b-ws-reg-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-ws-reg-intro-1",
+        "b-ws-reg-lead-2",
+        "b-ws-reg-one-idea-3",
+        "b-ws-reg-concrete-4",
+        "b-ws-reg-no-preamble-5",
+        "b-ws-reg-no-memory-6"
+      ]
+    },
+    "b-ws-reg-intro-1": {
+      "id": "b-ws-reg-intro-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Write matter-of-fact: short declarative sentences that state what is, in the order the reader needs it."
+        }
+      ],
+      "children": []
+    },
+    "b-ws-reg-lead-2": {
+      "id": "b-ws-reg-lead-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Lead with the fact. The first sentence of a doc or section states the thing itself — no setup, no “the idea here is”."
+        }
+      ],
+      "children": []
+    },
+    "b-ws-reg-one-idea-3": {
+      "id": "b-ws-reg-one-idea-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "One idea per sentence, one topic per block. A plain lead sentence plus fact bullets beats a paragraph of prose."
+        }
+      ],
+      "children": []
+    },
+    "b-ws-reg-concrete-4": {
+      "id": "b-ws-reg-concrete-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Concrete over vague: real numbers, real paths, real names. “Sixteen types”, never “several”."
+        }
+      ],
+      "children": []
+    },
+    "b-ws-reg-no-preamble-5": {
+      "id": "b-ws-reg-no-preamble-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "No preamble, no recap, no closing remarks. Start at the answer; stop when it is stated."
+        }
+      ],
+      "children": []
+    },
+    "b-ws-reg-no-memory-6": {
+      "id": "b-ws-reg-no-memory-6",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Assume no memory: a section stands alone or links to what it needs. Never “as mentioned above”."
+        }
+      ],
+      "children": []
+    }
+  }
+}
