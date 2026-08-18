@@ -39,7 +39,6 @@ const DOCS_ROOT = join(DOCS_SYSTEM_ROOT, "docs");
  * order. Standards live in the docs-system corpus for every session corpus.
  */
 export const STANDARDS_BUNDLES: ReadonlyArray<string> = [
-	"10-system-design/10-doc-standards",
 	"10-system-design/10-doc-standards/10-structure",
 	"10-system-design/10-doc-standards/20-numbering",
 	"10-system-design/10-doc-standards/30-cross-doc-linking",
@@ -50,7 +49,6 @@ export const STANDARDS_BUNDLES: ReadonlyArray<string> = [
 
 /** The corpus bundles rendered into <docs_style_guide>, in reading order. */
 export const STYLE_GUIDE_BUNDLES: ReadonlyArray<string> = [
-	"99-appendix/10-style-guide",
 	"99-appendix/10-style-guide/10-writing-style",
 	"99-appendix/10-style-guide/20-structure",
 ];
@@ -125,42 +123,55 @@ function renderCorpusDoc(bundle: string, raw: string): string {
 // <docs_editing_reference> — component registry → agent reference
 // ---------------------------------------------------------------------------
 
-/**
- * Op argument shapes, kept in sync with the authoritative DocOp union in
- * docs-model doc-ops.ts (same maintenance contract as the discovery op
- * descriptions those lines accompany).
- */
-const OP_SIGNATURES: Readonly<Record<string, string>> = {
-	insertBlock:
-		"{blockId (fresh, non-colliding), parentId, index, blockType, props, text?: DeltaSpan[]}",
-	updateBlock: "{blockId, props?: shallow-merge patch, text?: DeltaSpan[] | null}",
-	deleteBlock: '{blockId, mode?: "subtree" (default) | "reparent"}',
-	moveBlock: "{blockId, toParentId, toIndex}",
-	splitBlock: "{blockId, offset}",
-	mergeBlocks: "{blockIds: [two or more contiguous siblings, document order]}",
-	componentAction: '{blockId, action: "<blockType>.<verb>", params}',
+/** Tool-name prefix per action-owning block type (mirrors the session tools). */
+const FAMILY_TOOL_PREFIX: Readonly<Record<string, string>> = {
+	code: "code",
+	"structured-table": "table",
+	"file-tree": "tree",
+	"state-shape": "shape",
+	"interaction-surface": "surface",
+	"process-outline": "outline",
 };
+
+const DELEGATED_TYPES: ReadonlySet<string> = new Set(["canvas", "sequence"]);
+
+function toolNameFor(actionKey: string): string | null {
+	const [blockType, verb] = actionKey.split(".", 2);
+	if (blockType === undefined || verb === undefined) return null;
+	if (DELEGATED_TYPES.has(blockType)) return null;
+	const prefix = FAMILY_TOOL_PREFIX[blockType];
+	if (prefix === undefined) return null;
+	return `${prefix}_${verb.replace(/([A-Z])/g, "_$1").toLowerCase()}`;
+}
+
+const EDITING_TOOLS_OVERVIEW = [
+	"Every edit call carries the requestAlias it belongs to; editing the same alias again extends that request's edit set.",
+	"structure:",
+	"  insert_block (type, parentId, index) — inserts a BLANK block and returns its id; content comes through the type's tools",
+	'  delete_block (blockId, mode?: "subtree" | "reparent") · move_block (blockId, toParentId, toIndex)',
+	"  split_block (blockId, offset) · merge_blocks (blockIds) — text blocks only",
+	"  move_blocks (blockIds, destDocPath, destPosition) — cross-document move preserving identity, annotations, links",
+	"text blocks:",
+	"  write_text (blockId, markdown) — inline markdown (bold, italic, code, links); structure comes from blocks, not markdown syntax",
+	"  set_props (blockId, props) — rich-text scalar props only (heading level, callout tone/kind, image src/alt, code language…)",
+	"component blocks: one tool per typed action — see each block type below.",
+	"canvas / sequence: edit_canvas and edit_sequence hand the change to that system's editor.",
+].join("\n");
 
 /** Hand-held guidance where trace evidence showed agents guessing. */
 const USAGE_NOTES: Readonly<Record<string, string>> = {
 	"process-outline":
 		'Structure lives in steps and their nesting (kind "note" for annotations); never encode arrows or layout in step text — the renderer owns presentation.',
 	"interaction-surface":
-		"Carries no text at all; content changes only through the operation actions.",
+		"Carries no text at all; content changes only through the surface_* tools.",
 	"structured-table":
-		"Prefer the row/column/cell actions over replacing the whole props object.",
-	"state-shape": "Prefer the field actions over replacing the whole fields tree.",
+		"Edit cells, rows, and columns through the table_* tools, never by rewriting props.",
+	"state-shape": "Edit fields through the shape_* tools, never by rewriting props.",
 	canvas:
-		"Forwarded to the canvas authority; a forwarded action must travel alone, not batched with other ops.",
+		"Owned by the canvas system — use edit_canvas to hand the change to its editor.",
 	sequence:
-		"Forwarded to the sequence authority; a forwarded action must travel alone, not batched with other ops.",
+		"Owned by the sequence system — use edit_sequence to hand the change to its editor.",
 };
-
-const TEXT_FORMAT = [
-	"Block text is always a DeltaSpan array, never a bare string:",
-	'  [{insert: "…", attributes?: {bold?: true, italic?: true, strike?: true, code?: true, link?: string}}]',
-	"Applies to insertBlock/updateBlock `text` and to splitBlock offsets.",
-].join("\n");
 
 type SchemaNode = Record<string, unknown>;
 
@@ -266,7 +277,9 @@ function renderBlockType(
 	const lines: string[] = [`props: ${printer.print(type.state)}`];
 	for (const action of component.actions) {
 		if (!action.action.startsWith(`${type.type}.`)) continue;
-		lines.push(`${action.action} ${printer.print(action.params)}`);
+		const toolName = toolNameFor(action.action);
+		if (toolName === null) continue;
+		lines.push(`${toolName} ${printer.print(action.params)}`);
 		if (action.description.length > 0) {
 			lines.push(`${INDENT.repeat(2)}${action.description}`);
 		}
@@ -284,13 +297,6 @@ function renderEditingReference(): string {
 	const discovery = buildBlocksDiscovery();
 	const printer = createSchemaPrinter();
 
-	const ops = discovery.ops
-		.flatMap((entry) => [
-			`${entry.op} ${OP_SIGNATURES[entry.op] ?? ""}`.trimEnd(),
-			`    ${entry.description}`,
-		])
-		.join("\n");
-
 	const blockTypes = discovery.components
 		.flatMap((component) =>
 			component.types.map((type) =>
@@ -307,8 +313,7 @@ function renderEditingReference(): string {
 		"docs_editing_reference",
 		'schemaVersion="2"',
 		[
-			block("doc_ops", "", ops),
-			block("text_format", "", TEXT_FORMAT),
+			block("editing_tools", "", EDITING_TOOLS_OVERVIEW),
 			block("block_types", "", blockTypes),
 			...(defsBlock !== null ? [defsBlock] : []),
 		].join("\n"),
