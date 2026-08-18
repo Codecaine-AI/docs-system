@@ -1,6 +1,7 @@
 // Slice: the AI panel's queue — a CHAT PANEL, same shape as prompt-kit's
 // PanelQueue:
 //
+//   TOP BAR     pinned: Open/Done filters plus agent status.
 //   TRANSCRIPT  scrolls: open TARGET/DOCUMENT notes or closed-loop ✓/✕
 //               records, then any host-provided tail. Filing order holds
 //               within each section.
@@ -22,7 +23,7 @@ export interface PanelQueueProps {
 	session: DocEditSession;
 	queue: RequestQueueModel;
 	applying: boolean;
-	/** Current docs-agent connectivity/run state, always shown in the dock. */
+	/** Current docs-agent connectivity/run state, always shown in the top bar. */
 	agentStatus: "connected" | "offline" | "running";
 	/** Session-level create/stream failure, already mapped for display by the host. */
 	sessionError?: string | null;
@@ -60,11 +61,20 @@ export function PanelQueue({ session, queue, applying, agentStatus, sessionError
 	};
 	const documentEntries = queue.queue.filter((entry) => entry.disposition === "global");
 	const targetEntries = queue.queue.filter((entry) => entry.disposition !== "global");
+	const documentRecords = queue.records.filter((record) => record.disposition === "global");
+	const targetRecords = queue.records.filter((record) => record.disposition !== "global");
 	const queuedCount = queue.queue.filter((entry) => !entry.staged).length;
 	const runLabel = queuedCount > 0 ? `Run queue (${queuedCount})` : "Run queue";
 	const renderRow = (entry: QueueEntry) => <QueueRow key={entry.request.alias} entry={entry} session={session} onFocusTarget={onFocusTarget} onHoverTarget={onHoverTarget} labelForTarget={labelForTarget} />;
 	const showDocInput = Boolean(onFileGlobal ?? session.onFileRequest);
 	return <div className="flex h-full min-h-0 flex-col" data-docs-lab-session-rail="">
+		<div data-docs-lab-queue-top-bar="" className="flex shrink-0 items-center justify-between gap-2 border-b border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] px-1.5 pb-2">
+			<div className="flex gap-1">
+				<FilterButton active={view === "open"} filter="open" onClick={() => setView("open")}>Open ({queue.queue.length})</FilterButton>
+				<FilterButton active={view === "done"} filter="done" onClick={() => setView("done")}>Done ({queue.records.length})</FilterButton>
+			</div>
+			<AgentStatus status={agentStatus} />
+		</div>
 		{/* THE TRANSCRIPT — everything filed, top-down like a chat; the dock
 		    stays put below while this scrolls. */}
 		<div className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto overscroll-contain">
@@ -73,23 +83,25 @@ export function PanelQueue({ session, queue, applying, agentStatus, sessionError
 				{targetEntries.length > 0 ? targetEntries.map(renderRow) : <EmptyGroup />}
 				<GroupHeader label="Document" />
 				{documentEntries.length > 0 ? documentEntries.map(renderRow) : <EmptyGroup />}
-			</> : queue.records.length > 0
-				? queue.records.map((record) => <RecordRow key={record.request.alias} record={record} session={session} onFocusTarget={onFocusTarget} labelForTarget={labelForTarget} />)
-				: <p className="px-1.5 py-1 text-[13px] leading-relaxed text-[color:var(--docs-muted-foreground,var(--muted-foreground,#71717a))]">Nothing finished yet.</p>}
+			</> : <>
+				<GroupHeader label="Targets" />
+				{targetRecords.length > 0 ? targetRecords.map((record) => <RecordRow key={record.request.alias} record={record} session={session} onFocusTarget={onFocusTarget} labelForTarget={labelForTarget} />) : <EmptyGroup />}
+				<GroupHeader label="Document" />
+				{documentRecords.length > 0 ? documentRecords.map((record) => <RecordRow key={record.request.alias} record={record} session={session} onFocusTarget={onFocusTarget} labelForTarget={labelForTarget} />) : <EmptyGroup />}
+			</>}
 			{sessionError ? <p data-docs-lab-session-error="" role="alert" className="px-1.5 py-1 text-xs text-[color:var(--destructive,#f85149)]">{sessionError}</p> : null}
 			{children}
-		</div>
-		<div className="flex shrink-0 gap-1 border-t border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] px-1.5 pt-2">
-			<FilterButton active={view === "open"} filter="open" onClick={() => setView("open")}>Open ({queue.queue.length})</FilterButton>
-			<FilterButton active={view === "done"} filter="done" onClick={() => setView("done")}>Done ({queue.records.length})</FilterButton>
 		</div>
 		{/* THE DOCK — chat-composer position, pinned bottommost: the
 		    whole-document input plus Run queue. Enter files a note; only a click
 		    runs the batch. */}
-		<div className="mt-2 flex shrink-0 items-center justify-end gap-2 border-t border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] pt-2.5">
-			<AgentStatus status={agentStatus} />
-			{showDocInput && <input ref={docInputRef} aria-label="Message the whole document" placeholder="Note about the whole document…" className="min-w-0 flex-1 rounded-[var(--radius,0.375rem)] border border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] bg-[color:var(--background,#181818)] px-2 py-1.5 text-[13px] outline-none focus:border-[color:var(--annotation-accent,#a99af5)]" onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); sendDocMessage(); } }} />}
-			<button type="button" aria-label="Apply queue" data-docs-lab-queue-apply="" disabled={applying || (applyDisabledReason !== null && applyDisabledReason !== undefined) || !queue.canApply} title={applyDisabledReason ?? (applying ? "The queue is running" : queue.canApply ? "Run the queued notes" : "Nothing queued")} className="shrink-0 rounded-[var(--radius,0.375rem)] border border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] bg-[color:var(--annotation-accent-fill,rgba(138,122,176,.11))] px-2.5 py-1 text-[12px] tracking-[0.02em] text-[color:var(--annotation-accent,#a99af5)] transition-colors disabled:cursor-default disabled:opacity-50" onClick={onApply}>{applying ? "running…" : runLabel}</button>
+		<div data-docs-lab-queue-dock="" className="mt-2 flex shrink-0 flex-col gap-2">
+			<div data-docs-lab-queue-dock-input="" className="flex border-t border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] pt-2.5">
+				{showDocInput && <input ref={docInputRef} aria-label="Message the whole document" placeholder="Note about the whole document…" className="min-w-0 w-full rounded-[var(--radius,0.375rem)] border border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] bg-[color:var(--background,#181818)] px-2 py-1.5 text-[13px] outline-none focus:border-[color:var(--annotation-accent,#a99af5)]" onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); sendDocMessage(); } }} />}
+			</div>
+			<div data-docs-lab-queue-dock-run="" className="flex justify-end">
+				<button type="button" aria-label="Apply queue" data-docs-lab-queue-apply="" disabled={applying || (applyDisabledReason !== null && applyDisabledReason !== undefined) || !queue.canApply} title={applyDisabledReason ?? (applying ? "The queue is running" : queue.canApply ? "Run the queued notes" : "Nothing queued")} className="shrink-0 rounded-[var(--radius,0.375rem)] border border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] bg-[color:var(--annotation-accent-fill,rgba(138,122,176,.11))] px-2.5 py-1 text-[12px] tracking-[0.02em] text-[color:var(--annotation-accent,#a99af5)] transition-colors disabled:cursor-default disabled:opacity-50" onClick={onApply}>{applying ? "running…" : runLabel}</button>
+			</div>
 		</div>
 	</div>;
 }
@@ -168,8 +180,22 @@ function RecordRow({ record, session, onFocusTarget, labelForTarget }: { record:
 	const { request } = record;
 	const target = request.target.kind === "doc" ? null : request.target;
 	const undoReason = undoDisabledReason(session, request.alias);
-	return <div data-docs-lab-session-record={request.alias} data-docs-lab-record-state={record.stateLabel} className={`flex items-baseline gap-2 px-1.5 py-0.5 text-[12px] leading-[1.55] text-[color:var(--docs-muted-foreground,var(--muted-foreground,#a1a1aa))] ${target ? "cursor-pointer hover:text-[color:var(--foreground,#e4e4e7)]" : ""}`} title={request.body} onClick={(event) => { if (event.target instanceof HTMLElement && event.target.closest("button")) return; if (target) onFocusTarget?.(target); }}>
-		<span aria-hidden style={{ color: record.ok ? "var(--annotation-accept,#3fb950)" : "var(--annotation-reject,#f85149)" }}>{record.ok ? "✓" : "✕"}</span><span>{request.alias}</span><span className="opacity-40">·</span><span className="min-w-0 truncate">{target ? labelForTarget(target) : "document"}</span><span className="opacity-40">·</span><span className="text-[11px] opacity-60">{record.stateLabel}</span>
-		{request.status === "applied" && session.onUndo && <button type="button" aria-label={`Undo ${request.alias}`} disabled={undoReason !== null} title={undoReason ?? `Undo ${request.alias}`} data-docs-lab-record-undo={request.id} className="ml-auto rounded-[var(--radius,0.375rem)] border border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] px-2 text-[10px] disabled:cursor-not-allowed disabled:opacity-40" onClick={() => void session.onUndo?.(request.alias)}>Undo</button>}
+	return <div data-docs-lab-session-record={request.alias} data-docs-lab-record-state={record.stateLabel} className={`rounded-[var(--radius,0.375rem)] px-1.5 py-1 text-[color:var(--docs-muted-foreground,var(--muted-foreground,#a1a1aa))] ${target ? "cursor-pointer hover:bg-white/[0.03]" : ""}`} onClick={(event) => { if (event.target instanceof HTMLElement && event.target.closest("button")) return; if (target) onFocusTarget?.(target); }}>
+		<div className="flex items-baseline gap-2 text-[12px] leading-[1.55]">
+			<span className="min-w-0 truncate text-[color:var(--annotation-accent,#a99af5)]">{target ? labelForTarget(target) : "document"}</span>
+			<span className="ml-auto shrink-0" style={{ color: record.ok ? "var(--annotation-accept,#3fb950)" : "var(--annotation-reject,#f85149)" }}><span aria-hidden>{record.ok ? "✓" : "✕"}</span> {record.stateLabel}</span>
+			{request.status === "applied" && session.onUndo && <button type="button" aria-label={`Undo ${request.alias}`} disabled={undoReason !== null} title={undoReason ?? `Undo ${request.alias}`} data-docs-lab-record-undo={request.id} className="shrink-0 rounded-[var(--radius,0.375rem)] border border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] px-2 text-[10px] disabled:cursor-not-allowed disabled:opacity-40" onClick={() => void session.onUndo?.(request.alias)}>Undo</button>}
+		</div>
+		<p className="mt-0.5 pl-4 text-[13px] leading-[1.55] text-[color:var(--foreground,#e4e4e7)]">{request.body}</p>
+		<ThreadDisclosure alias={request.alias} thread={request.thread} />
+	</div>;
+}
+
+function ThreadDisclosure({ alias, thread }: { alias: string; thread: RecordEntry["request"]["thread"] }) {
+	const [open, setOpen] = useState(false);
+	if (thread.length === 0) return null;
+	return <div className="mt-1">
+		<button type="button" data-docs-lab-thread-toggle={alias} aria-expanded={open} className="px-0.5 py-0.5 text-[11px] text-[color:var(--docs-muted-foreground,var(--muted-foreground,#71717a))]" onClick={() => setOpen((value) => !value)}>{open ? "▾" : "▸"} {thread.length} {thread.length === 1 ? "reply" : "replies"}</button>
+		{open && <div className="mt-0.5 flex flex-col gap-1.5 border-l-2 border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] pl-2">{thread.map((message) => <div key={message.id} className="flex flex-col gap-0.5"><span className={message.author === "agent" ? "text-[10px] tracking-[0.04em] text-[color:var(--annotation-agent-accent,#2dd4bf)]" : "text-[10px] tracking-[0.04em] text-[color:var(--docs-muted-foreground,var(--muted-foreground,#71717a))]"}>{message.author === "user" ? "you" : message.author}</span><span className="text-[12px] leading-relaxed text-[color:var(--docs-muted-foreground,var(--muted-foreground,#a1a1aa))]">{message.body}</span></div>)}</div>}
 	</div>;
 }

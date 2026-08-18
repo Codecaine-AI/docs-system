@@ -60,6 +60,7 @@ describe("PanelQueue", () => {
 		expect(done.getAttribute("aria-pressed")).toBe("true");
 		expect(document.querySelector('[data-docs-lab-session-card="R1"]')).toBeNull();
 		expect(document.querySelector('[data-docs-lab-session-record="R2"]')).toBeTruthy();
+		expect(screen.getByText("Clarify this paragraph")).toBeTruthy();
 	});
 
 	it("switches from done to open when the dock files a document note", () => {
@@ -81,7 +82,7 @@ describe("PanelQueue", () => {
 		);
 
 		fireEvent.click(document.querySelector<HTMLButtonElement>('[data-docs-lab-filter="done"]')!);
-		expect(screen.getByText("R1")).toBeTruthy();
+		expect(document.querySelector('[data-docs-lab-session-record="R1"]')).toBeTruthy();
 		const input = screen.getByRole("textbox", { name: "Message the whole document" });
 		fireEvent.change(input, { target: { value: "Tighten the introduction" } });
 		fireEvent.keyDown(input, { key: "Enter" });
@@ -94,7 +95,7 @@ describe("PanelQueue", () => {
 		expect(document.querySelector('[data-docs-lab-session-record="R1"]')).toBeNull();
 	});
 
-	it("always shows open group headers with minimal empty states and shows the done empty state", () => {
+	it("always shows grouped headers with minimal empty states in both views", () => {
 		const emptySession: DocEditSession = { requests: [], proposals: [] };
 		render(
 			<PanelQueue
@@ -111,7 +112,58 @@ describe("PanelQueue", () => {
 		expect(screen.getByText("Document")).toBeTruthy();
 		expect(screen.getAllByText("empty")).toHaveLength(2);
 		fireEvent.click(document.querySelector<HTMLButtonElement>('[data-docs-lab-filter="done"]')!);
-		expect(screen.getByText("Nothing finished yet.")).toBeTruthy();
+		expect(screen.getByText("Targets")).toBeTruthy();
+		expect(screen.getByText("Document")).toBeTruthy();
+		expect(screen.getAllByText("empty")).toHaveLength(2);
+	});
+
+	it("puts filters and status in the top bar and splits the dock into filing and run rows", () => {
+		render(
+			<PanelQueue session={session} queue={buildRequestQueue({ requests: session.requests, proposals: [], applying: false })} applying={false} agentStatus="connected" onApply={() => {}} onFileGlobal={() => {}} labelForTarget={() => "Paragraph"} />,
+		);
+
+		const topBar = document.querySelector('[data-docs-lab-queue-top-bar]')!;
+		const dock = document.querySelector('[data-docs-lab-queue-dock]')!;
+		expect(topBar.querySelector('[data-docs-lab-filter="open"]')).toBeTruthy();
+		expect(topBar.querySelector('[data-docs-lab-filter="done"]')).toBeTruthy();
+		expect(topBar.querySelector('[data-docs-lab-agent-status="connected"]')).toBeTruthy();
+		expect(dock.querySelector('[data-docs-lab-agent-status]')).toBeNull();
+		expect(document.querySelector('[data-docs-lab-queue-dock-input] input[aria-label="Message the whole document"]')).toBeTruthy();
+		expect(document.querySelector('[data-docs-lab-queue-dock-run] [data-docs-lab-queue-apply]')).toBeTruthy();
+	});
+
+	it("groups done records, shows bodies and collapsed replies, focuses targets, and undoes applied work", () => {
+		const onUndo = mock(() => {});
+		const onFocusTarget = mock(() => {});
+		const doneSession: DocEditSession = {
+			requests: [
+				{ ...session.requests[0]!, status: "applied", thread: [{ id: "reply-1", author: "agent", body: "Applied reply", at: "t1" }] },
+				{ ...session.requests[0]!, id: "request-2", alias: "R2", target: { kind: "doc" }, body: "Fix the whole document", status: "resolved", disposition: "global" },
+			],
+			proposals: [],
+			undoableAlias: "R1",
+			onUndo,
+		};
+		render(
+			<PanelQueue session={doneSession} queue={buildRequestQueue({ requests: doneSession.requests, proposals: [], applying: false })} applying={false} agentStatus="connected" onApply={() => {}} onFocusTarget={onFocusTarget} labelForTarget={() => "Paragraph"} />,
+		);
+
+		fireEvent.click(document.querySelector<HTMLButtonElement>('[data-docs-lab-filter="done"]')!);
+		expect(screen.getByText("Targets")).toBeTruthy();
+		expect(screen.getByText("Document")).toBeTruthy();
+		expect(screen.getByText("Clarify this paragraph")).toBeTruthy();
+		expect(screen.getByText("Fix the whole document")).toBeTruthy();
+		const record = document.querySelector<HTMLElement>('[data-docs-lab-session-record="R1"]')!;
+		expect(record.getAttribute("data-docs-lab-record-state")).toBe("resolved");
+		const toggle = record.querySelector<HTMLButtonElement>('[data-docs-lab-thread-toggle="R1"]')!;
+		expect(toggle.getAttribute("aria-expanded")).toBe("false");
+		expect(screen.queryByText("Applied reply")).toBeNull();
+		fireEvent.click(toggle);
+		expect(screen.getByText("Applied reply")).toBeTruthy();
+		fireEvent.click(record);
+		expect(onFocusTarget).toHaveBeenCalledWith(session.requests[0]!.target);
+		fireEvent.click(record.querySelector<HTMLButtonElement>('[data-docs-lab-record-undo="request-1"]')!);
+		expect(onUndo).toHaveBeenCalledWith("R1");
 	});
 
 	it("collapses non-waiting threads and toggles their readable replies", () => {
