@@ -216,7 +216,7 @@ export async function saveSequenceSidecar(
         original_hash: input.originalHash,
       };
     }
-    const lockCheck = draftLockStore.checkForMutation(
+    const lockCheck = draftLockStore.forRoot(docsRoot).checkForMutation(
       { kind: "sequence", path: loaded.sequenceRelPath },
       input.sessionId,
     );
@@ -322,7 +322,7 @@ export async function createSequenceSidecar(
         detail: `Sequence sidecar already exists: ${sequenceRelPath}`,
       };
     }
-    const lockCheck = draftLockStore.checkForMutation(
+    const lockCheck = draftLockStore.forRoot(docsRoot).checkForMutation(
       { kind: "sequence", path: sequenceRelPath },
       input.sessionId,
     );

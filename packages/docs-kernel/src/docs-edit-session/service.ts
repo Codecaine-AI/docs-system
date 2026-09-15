@@ -1,3 +1,4 @@
+import type { LintReport } from "@codecaine-ai/docs-model/lint";
 /**
  * Host lifecycle/review service for docs-edit sessions.
  *
@@ -67,6 +68,7 @@ export interface DocsEditSessionRequestState {
 }
 
 export interface DocsEditSessionProposalState {
+  lint?: LintReport;
   proposalId: string;
   requestAlias: string;
   /** Always emitted; optional on the wire for compatibility with old clients. */
@@ -145,7 +147,7 @@ export type AcceptDocsEditProposalFailure =
   | { kind: "no_staged_proposal"; alias: string }
   | { kind: "already_applied"; alias: string }
   | { kind: "out_of_order"; alias: string; nextAlias: string }
-  | { kind: "apply_failure"; status: number; detail: string; currentHash?: string; issues?: unknown };
+  | { kind: "apply_failure"; status: number; detail: string; currentHash?: string; issues?: unknown; lint?: LintReport };
 
 export type AcceptDocsEditProposalResult =
   | {
@@ -155,6 +157,7 @@ export type AcceptDocsEditProposalResult =
       patchId: string;
       hash: string;
       annotation: DocsEditAnnotationOutcome;
+      lint?: LintReport;
     }
   | { ok: false; failure: AcceptDocsEditProposalFailure };
 
@@ -167,6 +170,7 @@ export type DocsEditAcceptAllProposalResult =
       patchId: string;
       hash: string;
       annotation: DocsEditAnnotationOutcome;
+      lint?: LintReport;
       /** Present when the apply succeeded but was reversed after a later failure. */
       rolledBack?: true;
     }
@@ -178,6 +182,7 @@ export type DocsEditAcceptAllProposalResult =
       status: number;
       detail: string;
       currentHash?: string;
+      lint?: LintReport;
     };
 
 export type DocsEditAcceptAllResult =
@@ -509,6 +514,7 @@ export function createDocsEditSessionService(
   function proposalState(managed: ManagedSession, proposal: DocsEditProposal): DocsEditSessionProposalState {
     return {
       proposalId: proposal.proposalId,
+      lint: proposal.lint,
       requestAlias: proposal.requestAlias,
       docPath: proposal.docPath,
       baseHash: proposal.baseHash,
@@ -670,6 +676,7 @@ export function createDocsEditSessionService(
     if (!staged.ok) return staged;
     const replacement: DocsEditProposal = {
       proposalId: staged.proposal.id,
+      lint: staged.lint,
       requestAlias: entry.alias,
       docPath: proposal.docPath,
       baseHash: staged.proposal.baseHash,
@@ -785,6 +792,7 @@ export function createDocsEditSessionService(
               proposalId: result.proposalId,
               patchId: result.patchId ?? "",
               hash: proposal?.baseHash ?? managed.currentHash,
+              lint: result.lint,
               annotation: {
                 annotationId: request?.annotationId ?? "",
                 attached: false,
@@ -801,6 +809,7 @@ export function createDocsEditSessionService(
             proposalId: result.proposalId,
             status: result.status ?? accepted.status,
             detail: result.detail ?? accepted.detail,
+            lint: result.lint,
           };
         });
       const failedProposal = accepted.failedEntry
@@ -879,6 +888,7 @@ export function createDocsEditSessionService(
         proposalId: proposal.proposalId,
         patchId,
         hash,
+        lint: backend?.kind === "entry" ? backend.lint : undefined,
         annotation,
       });
     }
@@ -904,7 +914,7 @@ export function createDocsEditSessionService(
     );
     if (patchIds.some((patchId) => patchId === undefined)) return;
     const compoundPatchId = randomUUID();
-    recordCompoundPatch(compoundPatchId, patchIds as string[]);
+    recordCompoundPatch(compoundPatchId, patchIds as string[], managed.session.docsRoot);
     const written = await writeChangeSetRecord(managed.session.docsRoot, {
       ...loaded.changeset,
       status: "applied",
@@ -1179,7 +1189,7 @@ export function createDocsEditSessionService(
             detail: "request-still-ready",
           };
       await emitFreshChangeSet(managed);
-      return { ok: true, alias, proposalId: proposal.proposalId, patchId: accepted.patchId, hash: accepted.hash, annotation };
+      return { ok: true, alias, proposalId: proposal.proposalId, patchId: accepted.patchId, hash: accepted.hash, annotation, lint: accepted.lint };
     },
 
     async acceptAll(sessionId) {
@@ -1304,6 +1314,7 @@ export function createDocsEditSessionService(
             proposalId: proposal.proposalId,
             status: accepted.status,
             detail: accepted.detail,
+            lint: accepted.lint,
             ...(accepted.current_hash !== undefined
               ? { currentHash: accepted.current_hash }
               : {}),
@@ -1324,6 +1335,7 @@ export function createDocsEditSessionService(
           proposalId: proposal.proposalId,
           patchId: accepted.patchId,
           hash: accepted.hash,
+          lint: accepted.lint,
           annotation: {
             annotationId: entry.annotationId,
             attached: false,
@@ -1578,13 +1590,14 @@ export function createDocsEditSessionService(
 
 function failureFromBackend<K extends "apply_failure" | "reject_failed" | "undo_failed">(
   kind: K,
-  value: { status?: number; detail?: string; current_hash?: string; issues?: unknown },
-): { kind: K; status: number; detail: string; currentHash?: string; issues?: unknown } {
+  value: { status?: number; detail?: string; current_hash?: string; issues?: unknown; lint?: LintReport },
+): { kind: K; status: number; detail: string; currentHash?: string; issues?: unknown; lint?: LintReport } {
   return {
     kind,
     status: value.status ?? 400,
     detail: value.detail ?? "Docs operation failed",
     ...(value.current_hash !== undefined ? { currentHash: value.current_hash } : {}),
     ...(value.issues !== undefined ? { issues: value.issues } : {}),
+    ...(value.lint !== undefined ? { lint: value.lint } : {}),
   };
 }

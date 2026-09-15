@@ -157,15 +157,45 @@ const TOKEN_KEY_LABELS: Record<string, string> = {
   pin: "Pin & rail",
   ink: "Ink",
   rail: "Rail",
+  cycle1: "Depth 1 color",
+  cycle2: "Depth 2 color",
+  cycle3: "Depth 3 color",
+  cycle4: "Depth 4 color",
+  cycle5: "Depth 5 color",
+  keywordFg: "Loop keyword",
   noteBg: "Note background",
   noteBorder: "Note border",
   codeBg: "Code background",
   indent: "Indent",
   rowGap: "Row gap",
+  branchGap: "Branch gap",
+  rootGap: "Root gap",
   arrowGap: "Arrow gap",
   lineHeight: "Line height",
   textSize: "Text size",
+  rootTextSize: "Root text size",
+  rootWeight: "Root weight",
+  branchWeight: "Sublayer 1 weight",
+  stepWeight: "Sublayer weight",
+  emptyTextSize: "Empty text size",
   noteTextSize: "Note text size",
+  noteLineHeight: "Note line height",
+  noteInset: "Note inset",
+  noteBorderWidth: "Note border width",
+  noteRuleWidth: "Note rule width",
+  notePadY: "Note padding Y",
+  notePadX: "Note padding X",
+  noteAccent: "Note accent strength",
+  chipTint: "Chip tint strength",
+  chipInkMix: "Chip label mix",
+  traceBg: "Trace pill background",
+  traceTextSize: "Trace pill size",
+  traceTint: "Trace pill tint",
+  traceInkMix: "Trace pill label mix",
+  focusRing: "Focused line ring",
+  selectBg: "Selected line background",
+  selectTint: "Selected line tint",
+  selectPad: "Selected line padding",
   arrowSize: "Arrow size",
   stroke: "Stroke",
   ruleWidth: "Rule width",
@@ -1112,6 +1142,33 @@ export function StyleRailPane({
               value={settings.scrollbar.padding}
               valueLabel={`${settings.scrollbar.padding}px`}
             />
+          </ControlGroup>
+        );
+
+      case "layout.transitions":
+        return (
+          <ControlGroup>
+            <SelectRow
+              label="Transition type"
+              leaf={settingLeaf("transition.type")}
+              value={settings.transition.type}
+              options={[{ id: "fade", label: "Fade" }, { id: "none", label: "None" }]}
+              onChange={(type) => onSettingsChange({ ...settings, transition: { ...settings.transition, type } })}
+            />
+            {(["fadeOutMs", "fadeInMs"] as const).map((field) => (
+              <SliderRow
+                key={field}
+                label={field === "fadeOutMs" ? "Fade out" : "Fade in"}
+                leaf={settingLeaf(`transition.${field}`)}
+                min={0}
+                max={800}
+                step={10}
+                value={settings.transition[field]}
+                valueLabel={`${settings.transition[field]}ms`}
+                onChange={(value) => onSettingsChange({ ...settings, transition: { ...settings.transition, [field]: value } })}
+              />
+            ))}
+            <p className="text-xs text-muted-foreground">Page changes and linked previews. Reduced motion skips fades.</p>
           </ControlGroup>
         );
 

@@ -79,6 +79,8 @@ beforeAll(async () => {
       "serve",
       "--root",
       smokeRoot,
+      "--themes-root",
+      join(smokeRoot, ".themes"),
       "--port",
       String(port),
     ],
@@ -148,8 +150,8 @@ describe("live smoke (real server, real docs copy)", () => {
       },
       { timeout: 10000 },
     );
-    expect(!!screen.getByRole("complementary", { name: "Lab panel" })).toBe(true);
-    expect(!!screen.getByRole("button", { name: "AI" })).toBe(true);
+    expect(screen.queryByRole("complementary", { name: "AI workspace" })).toBeNull();
+    expect(!!screen.getByRole("button", { name: "Show AI panel" })).toBe(true);
     // The sidebar rendered at least one bundle link from the real tree.
     expect(document.querySelectorAll("nav a[href^='#/']").length).toBeGreaterThan(0);
   });
@@ -191,7 +193,8 @@ describe("live smoke (real server, real docs copy)", () => {
         },
         { timeout: 10000 },
       );
-      fireEvent.click(screen.getByRole("button", { name: "Edit" }));
+      const closeAi = screen.queryByRole("button", { name: "Hide AI panel" });
+      if (closeAi) fireEvent.click(closeAi);
       await waitFor(
         () => {
           expect(editor).toBeTruthy();
@@ -253,7 +256,7 @@ describe("live smoke (real server, real docs copy)", () => {
         },
         { timeout: 10000 },
       );
-      fireEvent.click(screen.getByRole("button", { name: "AI" }));
+      fireEvent.click(screen.getByRole("button", { name: "Show AI panel" }));
       const block = document.querySelector(`[data-block-id="${firstBlockId}"]`);
       expect(!!block).toBe(true);
 

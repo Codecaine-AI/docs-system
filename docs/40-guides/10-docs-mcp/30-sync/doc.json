@@ -1,0 +1,296 @@
+{
+  "schemaVersion": 1,
+  "id": "doc-d6cceb91726bd4cd57e9659a71c701d8",
+  "title": "Synchronization and Updates",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "maintenance-0",
+        "maintenance-1",
+        "maintenance-2",
+        "maintenance-3",
+        "maintenance-4",
+        "maintenance-5",
+        "maintenance-6",
+        "maintenance-7",
+        "maintenance-8",
+        "maintenance-9",
+        "maintenance-10",
+        "maintenance-11",
+        "maintenance-12",
+        "maintenance-13",
+        "maintenance-14",
+        "maintenance-15",
+        "maintenance-16",
+        "maintenance-17",
+        "maintenance-18"
+      ]
+    },
+    "maintenance-0": {
+      "id": "maintenance-0",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Use this runbook when code, standards, skill instructions, or checkout locations change. Synchronization currently means shared source rendering, generated installed references, and explicit process reloads. It is not an automatic package-release resolver."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-1": {
+      "id": "maintenance-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Docs MCP",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "30-implementation/10-packages/85-docs-mcp"
+            }
+          }
+        },
+        {
+          "insert": " defines the runtime boundaries this runbook operates within."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-2": {
+      "id": "maintenance-2",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Choose the Refresh"
+        }
+      ],
+      "children": []
+    },
+    "maintenance-3": {
+      "id": "maintenance-3",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Changed item",
+          "Refresh required",
+          "Verify"
+        ],
+        "rows": [
+          [
+            "Canonical standard, style, or component document",
+            "New docs_begin loads current corpus text. Reinstall to refresh installed references. Existing tasks retain their snapshot.",
+            "Inspect docs_guidance and the new snapshot ID."
+          ],
+          [
+            "Source SKILL.md",
+            "Reinstall and start a fresh client task so the new skill is loaded.",
+            "Doctor and an implicit documentation request."
+          ],
+          [
+            "Manifest, renderer, tool schema, store, or imported runtime code",
+            "Finish tasks; stop service; reconnect clients; restart shared UI; regenerate/install when guidance changed.",
+            "New docs_begin, tools listing, affected tests, and a real edit."
+          ],
+          [
+            "Checkout location or Bun path",
+            "Reinstall absolute client paths; stop the old checkout service before switching. Rediscover projects.",
+            "Doctor, discovery, and docs_begin."
+          ],
+          [
+            "Package dependency or version",
+            "Install dependencies at Core root; restart affected processes; record a new snapshot.",
+            "Typecheck and affected package/internal-session tests."
+          ]
+        ]
+      },
+      "children": []
+    },
+    "maintenance-4": {
+      "id": "maintenance-4",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Generate and Install"
+        }
+      ],
+      "children": []
+    },
+    "maintenance-5": {
+      "id": "maintenance-5",
+      "type": "code",
+      "props": {
+        "language": "sh"
+      },
+      "text": [
+        {
+          "insert": "bun packages/docs-mcp/src/cli.ts guidance --write\nbun packages/docs-mcp/src/cli.ts install\nbun packages/docs-mcp/src/cli.ts install --write > /tmp/codecaine-docs-refresh.json\nbun packages/docs-mcp/src/cli.ts doctor"
+        }
+      ],
+      "children": []
+    },
+    "maintenance-6": {
+      "id": "maintenance-6",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "guidance --write refreshes references in the package skill directory. The installer also generates current references in a temporary directory while building its planned changes, so installation does not depend on manually generated copies being current. Keep the source and installed locations distinct. Review generated reference changes instead of editing them by hand."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-7": {
+      "id": "maintenance-7",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Reload Runtime Code"
+        }
+      ],
+      "children": []
+    },
+    "maintenance-8": {
+      "id": "maintenance-8",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "1. End active documentation tasks after checking their changed pages. Finish any standalone or kernel editing activity on the same documents."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-9": {
+      "id": "maintenance-9",
+      "type": "code",
+      "props": {
+        "language": "sh"
+      },
+      "text": [
+        {
+          "insert": "bun packages/docs-mcp/src/cli.ts status\nbun packages/docs-mcp/src/cli.ts stop\nbun packages/docs-mcp/src/cli.ts start"
+        }
+      ],
+      "children": []
+    },
+    "maintenance-10": {
+      "id": "maintenance-10",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "2. Reconnect coding clients and restart shared workbenches. Workbenches bind to the service URL and token at launch. Begin a new task and read fresh hashes before continuing."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-11": {
+      "id": "maintenance-11",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "3. Run the affected validation checks and record a snapshot after the code and guidance settle."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-12": {
+      "id": "maintenance-12",
+      "type": "code",
+      "props": {
+        "language": "sh"
+      },
+      "text": [
+        {
+          "insert": "bun test packages/docs-mcp/src\nbunx tsc -p packages/docs-mcp/tsconfig.json --noEmit\nbun packages/docs-mcp/src/cli.ts snapshot --out /tmp/codecaine-docs-snapshot.json"
+        }
+      ],
+      "children": []
+    },
+    "maintenance-13": {
+      "id": "maintenance-13",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "What a Snapshot Records"
+        }
+      ],
+      "children": []
+    },
+    "maintenance-14": {
+      "id": "maintenance-14",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The development manifest records runtime package source hashes, repository commits and dirty flags, guidance sources and identity, client declarations, and the tool-contract hash. Source hashing covers package.json and selected src TypeScript and JSON files, excluding tests and fixtures. A snapshot identifies these inputs; it is not a full repository archive."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-15": {
+      "id": "maintenance-15",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Runtime coverage includes docs-mcp, docs-model, docs-server, docs-index, docs-workbench, Canvas, Sequence, and Annotations. Repository metadata includes docs-system, canvas, sequence, annotations, agent-kernel, and prompt-kit. A recorded repository is not proof that it has a product adapter or normalized documentation corpus."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-16": {
+      "id": "maintenance-16",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The package is currently private and uses workspace dependencies. The skill has version metadata, while snapshot hashes identify the actual development sources. No release lockfile installer, published compatibility matrix, or automatic six-package version selection exists. Changing a version field alone does not update installed files or running services."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-17": {
+      "id": "maintenance-17",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Maintain Documentation with Code"
+        }
+      ],
+      "children": []
+    },
+    "maintenance-18": {
+      "id": "maintenance-18",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Update the implementation contract when ownership or behavior changes. Update these procedures when commands or refresh steps change. Keep installation examples in the package README and the HTML handoff linked to the maintained corpus. Keep dated test results and user acceptance reports in objective artifacts rather than turning reference pages into status reports."
+        }
+      ],
+      "children": []
+    }
+  }
+}

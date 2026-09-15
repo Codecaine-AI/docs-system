@@ -174,20 +174,17 @@
   --docs-interaction-child-rule: color-mix(in srgb, var(--border) 50%, transparent);
   --docs-interaction-row-pad: 8px;
   --docs-interaction-op-gap: 14px;
-  /* State-shape card + field-row tokens; name/type carry the same cyan/amber
-     hues the interaction-surface signature tokens use (cyan-700/amber-700
-     light, cyan-300/amber-300 dark), and the interaction-surface param rows
-     share the field-row tokens through the shared FieldRows component. */
+  /* State-shape text stays AAA on the pane background: names ride --foreground,
+     types use a soft blue chip, and optional markers use an ochre pill.
+     Hue, size, and weight carry the hierarchy; the style-rail test pins >=7:1. */
   --docs-shape-border: var(--border);
   --docs-shape-bg: var(--background);
   --docs-shape-name: var(--foreground);
-  /* AAA CONTRAST (>=7:1 on the pane background) is the floor for every piece
-     of text in this block, in BOTH themes. Hierarchy is carried by SIZE and
-     WEIGHT (13px/600 name vs 11px/400 type vs 12px description vs 10px
-     uppercase marker), never by washing the color out — an earlier pass muted
-     the type to 3.4:1 and the marker to 2.7:1, which was unreadable. */
-  --docs-shape-type: #4a4842;
+  --docs-shape-type: #0A5779;
+  --docs-shape-type-bg: color-mix(in srgb, var(--color-bg-blue) 55%, transparent);
   --docs-shape-muted: #4a4842;
+  --docs-shape-optional-fg: #6B4708;
+  --docs-shape-optional-bg: color-mix(in srgb, var(--color-bg-yellow) 70%, transparent);
   --docs-shape-rule: color-mix(in srgb, var(--border) 65%, transparent);
   --docs-shape-header-bg: color-mix(in srgb, var(--muted) 35%, transparent);
   --docs-shape-desc-fg: #42403a;
@@ -202,24 +199,71 @@
   --docs-zebra: color-mix(in srgb, var(--muted) 20%, transparent);
   --docs-link-bg: color-mix(in srgb, var(--docs-link-pin) 14%, transparent);
   --docs-link-pin: #b48f2e;
-  /* Process Outline block (docs-viewer process-outline/ProcessOutlineDocsBlock). The rail is
-     OPAQUE on purpose — the elbow and stem strokes overlap where sublayers
+  /* Process Outline block (docs-viewer process-outline/ProcessOutlineDocsBlock). Rail strokes
+     are OPAQUE on purpose — the elbow and stem strokes overlap where sublayers
      stack, so any alpha doubles up at the joins. Deep ink (depth >= 3 lines)
-     derives from ink so the two track together. */
+     derives from ink so the two track together.
+     The rail is drawn in the DEPTH CYCLE: --docs-process-outline-cycle-1..5 is
+     re-declared once per nesting level in the component, and the level's rail,
+     elbow, arrowhead, chip tint and note accent all resolve from that one
+     value. --docs-process-outline-rail survives as the cycle's fallback.
+     The -tint / -mix / -accent knobs are UNITLESS PERCENT NUMBERS: the
+     component multiplies them by 1% inside color-mix(), because a var() in a
+     custom property resolves where the property is COMPUTED (here, :root) and
+     the depth colour only exists further down the tree — so the mixing has to
+     happen at the use site, and only the strength can travel as a token. */
   --docs-process-outline-ink: var(--docs-viewer-text-body);
   --docs-process-outline-deep-ink: color-mix(in srgb, var(--docs-process-outline-ink) 78%, transparent);
   --docs-process-outline-rail: #b3b1ad;
-  --docs-process-outline-note-fg: var(--docs-process-outline-ink);
+  --docs-process-outline-cycle-1: #5b7c99;
+  --docs-process-outline-cycle-2: #5f8a6b;
+  --docs-process-outline-cycle-3: #8a6a95;
+  --docs-process-outline-cycle-4: #4f8189;
+  --docs-process-outline-cycle-5: #9a8442;
+  --docs-process-outline-keyword-fg: #a4552c;
+  /* Notes are BOXLESS by default: bare bullet lines under their parent step,
+     held subordinate by size and ink alone. The box tokens (bg, border width,
+     rule width, padding) all sit at zero/transparent here, and a theme that
+     wants the old bordered card back sets them — the classic theme does. */
+  --docs-process-outline-note-fg: color-mix(in srgb, var(--docs-process-outline-ink) 72%, transparent);
   --docs-process-outline-note-bg: transparent;
   --docs-process-outline-note-border: var(--border);
-  --docs-process-outline-code-bg: var(--muted);
-  --docs-process-outline-indent: 36px;
-  --docs-process-outline-row-gap: 7px;
+  /* Transparent so the chip fill IS the depth tint; a theme that wants the old
+     flat chip sets this to an opaque colour and chip-tint to 0. */
+  --docs-process-outline-code-bg: transparent;
+  --docs-process-outline-indent: 46px;
+  --docs-process-outline-row-gap: 12px;
+  --docs-process-outline-branch-gap: 20px;
+  --docs-process-outline-root-gap: 30px;
   --docs-process-outline-arrow-gap: 4px;
   --docs-process-outline-line-height: 22px;
   --docs-process-outline-text-size: 12.5px;
-  --docs-process-outline-note-text-size: var(--docs-process-outline-text-size);
+  --docs-process-outline-root-text-size: 13.5px;
+  --docs-process-outline-root-weight: 650;
+  --docs-process-outline-branch-weight: 400;
+  --docs-process-outline-step-weight: 400;
+  --docs-process-outline-empty-text-size: 12px;
+  --docs-process-outline-note-text-size: 11.5px;
+  --docs-process-outline-note-line-height: 17px;
+  --docs-process-outline-note-inset: 10px;
+  --docs-process-outline-note-border-width: 0px;
+  --docs-process-outline-note-rule-width: 0px;
+  --docs-process-outline-note-pad-y: 0px;
+  --docs-process-outline-note-pad-x: 0px;
+  --docs-process-outline-note-accent: 55;
+  --docs-process-outline-chip-tint: 13;
+  --docs-process-outline-chip-ink-mix: 60;
   --docs-process-outline-arrow-size: 6px;
+  /* Trace pill — same tint/mix formula as the backtick chips, one notch
+     quieter, so the mark reads as kin to the chips on its own line. */
+  --docs-process-outline-trace-bg: transparent;
+  --docs-process-outline-trace-text-size: 9.5px;
+  --docs-process-outline-trace-tint: 16;
+  --docs-process-outline-trace-ink-mix: 70;
+  --docs-process-outline-select-bg: transparent;
+  --docs-process-outline-select-tint: 22;
+  --docs-process-outline-select-pad: 2px;
+  --docs-process-outline-focus-ring: 0px;
   --docs-process-outline-stroke: 1.5px;
   --docs-canvas-border: var(--border);
   /* Annotation targeting UI: the annotate/AI layer keeps its OWN violet
@@ -260,8 +304,9 @@
   --docs-peek-divider-width: 1px;
   --docs-peek-divider-style: solid;
   --docs-peek-padding: 1.5rem;
-  --docs-ref-color: var(--muted-foreground);
-  --docs-ref-underline-color: color-mix(in srgb, var(--foreground) 40%, transparent);
+  --docs-ref-color: var(--color-text-navigation);
+  --docs-navigation-fg: var(--color-text-navigation);
+  --docs-ref-underline-color: currentColor;
   --docs-ref-icon-size: 12px;
   --docs-ref-icon-color: currentColor;
   --docs-ref-icon-gap: 2px;
@@ -413,20 +458,17 @@
   --docs-interaction-child-rule: color-mix(in srgb, var(--border) 50%, transparent);
   --docs-interaction-row-pad: 8px;
   --docs-interaction-op-gap: 14px;
-  /* State-shape card + field-row tokens; name/type carry the same cyan/amber
-     hues the interaction-surface signature tokens use (cyan-700/amber-700
-     light, cyan-300/amber-300 dark), and the interaction-surface param rows
-     share the field-row tokens through the shared FieldRows component. */
+  /* State-shape text stays AAA on the pane background: names ride --foreground,
+     types use a soft blue chip, and optional markers use an ochre pill.
+     Hue, size, and weight carry the hierarchy; the style-rail test pins >=7:1. */
   --docs-shape-border: var(--border);
   --docs-shape-bg: var(--background);
   --docs-shape-name: var(--foreground);
-  /* AAA CONTRAST (>=7:1 on the pane background) is the floor for every piece
-     of text in this block, in BOTH themes. Hierarchy is carried by SIZE and
-     WEIGHT (13px/600 name vs 11px/400 type vs 12px description vs 10px
-     uppercase marker), never by washing the color out — an earlier pass muted
-     the type to 3.4:1 and the marker to 2.7:1, which was unreadable. */
-  --docs-shape-type: #ced1d2;
+  --docs-shape-type: #A5D3F0;
+  --docs-shape-type-bg: color-mix(in srgb, var(--color-bg-blue) 60%, transparent);
   --docs-shape-muted: #ced1d2;
+  --docs-shape-optional-fg: #E8C27A;
+  --docs-shape-optional-bg: color-mix(in srgb, var(--color-bg-yellow) 70%, transparent);
   --docs-shape-rule: color-mix(in srgb, var(--border) 65%, transparent);
   --docs-shape-header-bg: color-mix(in srgb, var(--muted) 35%, transparent);
   --docs-shape-desc-fg: #d8dadb;
@@ -441,24 +483,58 @@
   --docs-zebra: color-mix(in srgb, var(--muted) 20%, transparent);
   --docs-link-bg: color-mix(in srgb, var(--docs-link-pin) 18%, transparent);
   --docs-link-pin: #d4af4a;
-  /* Process Outline block (docs-viewer process-outline/ProcessOutlineDocsBlock). The rail is
-     OPAQUE on purpose — the elbow and stem strokes overlap where sublayers
-     stack, so any alpha doubles up at the joins. Deep ink (depth >= 3 lines)
-     derives from ink so the two track together. */
+  /* Process Outline block (docs-viewer process-outline/ProcessOutlineDocsBlock). Same contract
+     as the light block: opaque rail strokes, ink-derived deep ink, and the
+     five-step depth cycle the component re-declares per nesting level. The
+     dark cycle hues are lifted, not derived — a light-tuned hue at these
+     strengths sinks into the dark background. Strength knobs run one notch
+     hotter in dark for the same reason. */
   --docs-process-outline-ink: var(--docs-viewer-text-body);
   --docs-process-outline-deep-ink: color-mix(in srgb, var(--docs-process-outline-ink) 78%, transparent);
   --docs-process-outline-rail: #5d6266;
-  --docs-process-outline-note-fg: var(--docs-process-outline-ink);
+  --docs-process-outline-cycle-1: #86adc9;
+  --docs-process-outline-cycle-2: #86b394;
+  --docs-process-outline-cycle-3: #b299bd;
+  --docs-process-outline-cycle-4: #79b3ba;
+  --docs-process-outline-cycle-5: #c4ae72;
+  --docs-process-outline-keyword-fg: #e2a07e;
+  /* Boxless notes, same contract as the light block. */
+  --docs-process-outline-note-fg: color-mix(in srgb, var(--docs-process-outline-ink) 72%, transparent);
   --docs-process-outline-note-bg: transparent;
   --docs-process-outline-note-border: var(--border);
-  --docs-process-outline-code-bg: var(--muted);
-  --docs-process-outline-indent: 36px;
-  --docs-process-outline-row-gap: 7px;
+  --docs-process-outline-code-bg: transparent;
+  --docs-process-outline-indent: 46px;
+  --docs-process-outline-row-gap: 12px;
+  --docs-process-outline-branch-gap: 20px;
+  --docs-process-outline-root-gap: 30px;
   --docs-process-outline-arrow-gap: 4px;
   --docs-process-outline-line-height: 22px;
   --docs-process-outline-text-size: 12.5px;
-  --docs-process-outline-note-text-size: var(--docs-process-outline-text-size);
+  --docs-process-outline-root-text-size: 13.5px;
+  --docs-process-outline-root-weight: 650;
+  --docs-process-outline-branch-weight: 400;
+  --docs-process-outline-step-weight: 400;
+  --docs-process-outline-empty-text-size: 12px;
+  --docs-process-outline-note-text-size: 11.5px;
+  --docs-process-outline-note-line-height: 17px;
+  --docs-process-outline-note-inset: 10px;
+  --docs-process-outline-note-border-width: 0px;
+  --docs-process-outline-note-rule-width: 0px;
+  --docs-process-outline-note-pad-y: 0px;
+  --docs-process-outline-note-pad-x: 0px;
+  --docs-process-outline-note-accent: 60;
+  --docs-process-outline-chip-tint: 15;
+  --docs-process-outline-chip-ink-mix: 70;
   --docs-process-outline-arrow-size: 6px;
+  /* Trace pill — one notch hotter than light, like the chip strengths above. */
+  --docs-process-outline-trace-bg: transparent;
+  --docs-process-outline-trace-text-size: 9.5px;
+  --docs-process-outline-trace-tint: 18;
+  --docs-process-outline-trace-ink-mix: 78;
+  --docs-process-outline-select-bg: transparent;
+  --docs-process-outline-select-tint: 26;
+  --docs-process-outline-select-pad: 2px;
+  --docs-process-outline-focus-ring: 0px;
   --docs-process-outline-stroke: 1.5px;
   --docs-canvas-border: var(--border);
   /* Annotation targeting UI: same violet identity as light mode, using the
@@ -495,8 +571,9 @@
   --docs-peek-divider-width: 1px;
   --docs-peek-divider-style: solid;
   --docs-peek-padding: 1.5rem;
-  --docs-ref-color: var(--muted-foreground);
-  --docs-ref-underline-color: color-mix(in srgb, var(--foreground) 40%, transparent);
+  --docs-ref-color: var(--color-text-navigation);
+  --docs-navigation-fg: var(--color-text-navigation);
+  --docs-ref-underline-color: currentColor;
   --docs-ref-icon-size: 12px;
   --docs-ref-icon-color: currentColor;
   --docs-ref-icon-gap: 2px;

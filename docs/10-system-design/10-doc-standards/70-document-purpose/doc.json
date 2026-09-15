@@ -1,0 +1,450 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-10-doc-standards-70-document-purpose",
+  "title": "Document Purpose",
+  "root": "b-70-document-purpose-root-29",
+  "blocks": {
+    "b-70-document-purpose-root-29": {
+      "id": "b-70-document-purpose-root-29",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-70-document-purpose-every-document-has-one-p-1",
+        "b-70-document-purpose-structure-2",
+        "b-70-document-purpose-diataxis-distinguishes-f-3",
+        "b-70-document-purpose-tutorial-4",
+        "b-70-document-purpose-how-to-6",
+        "b-70-document-purpose-reference-8",
+        "b-70-document-purpose-explanation-10",
+        "b-70-document-purpose-the-rule-12",
+        "b-70-document-purpose-choose-the-primary-purpo-13",
+        "b-70-document-purpose-preserve-the-three-layer-14",
+        "b-70-document-purpose-keep-one-main-reader-tas-17",
+        "b-70-document-purpose-keep-the-established-sta-20",
+        "b-70-document-purpose-match-the-detail-to-the-23",
+        "b-70-document-purpose-why-26",
+        "b-70-document-purpose-a-primary-purpose-gives-27",
+        "b-70-document-purpose-the-diataxis-distinction-28"
+      ]
+    },
+    "b-70-document-purpose-every-document-has-one-p-1": {
+      "id": "b-70-document-purpose-every-document-has-one-p-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every document has one primary reader purpose within the corpus's existing layers. Supporting reasons and reference details belong when they help the reader finish that purpose."
+        }
+      ],
+      "children": []
+    },
+    "b-70-document-purpose-structure-2": {
+      "id": "b-70-document-purpose-structure-2",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Structure"
+        }
+      ],
+      "children": []
+    },
+    "b-70-document-purpose-diataxis-distinguishes-f-3": {
+      "id": "b-70-document-purpose-diataxis-distinguishes-f-3",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Diataxis distinguishes four purposes by whether the reader needs action or understanding, for learning or for work."
+        }
+      ],
+      "children": []
+    },
+    "b-70-document-purpose-tutorial-4": {
+      "id": "b-70-document-purpose-tutorial-4",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Tutorial",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-70-document-purpose-help-a-learner-build-som-5"
+      ]
+    },
+    "b-70-document-purpose-help-a-learner-build-som-5": {
+      "id": "b-70-document-purpose-help-a-learner-build-som-5",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Help a learner build something through a controlled sequence. State the result at the start and show expected output throughout."
+        }
+      ],
+      "children": []
+    },
+    "b-70-document-purpose-how-to-6": {
+      "id": "b-70-document-purpose-how-to-6",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "How-To",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-70-document-purpose-help-a-competent-reader-7"
+      ]
+    },
+    "b-70-document-purpose-help-a-competent-reader-7": {
+      "id": "b-70-document-purpose-help-a-competent-reader-7",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Help a competent reader finish a task. Use direct steps, relevant conditions, and decision points. Name the guide by the task."
+        }
+      ],
+      "children": []
+    },
+    "b-70-document-purpose-reference-8": {
+      "id": "b-70-document-purpose-reference-8",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Reference",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-70-document-purpose-supply-facts-for-lookup-9"
+      ]
+    },
+    "b-70-document-purpose-supply-facts-for-lookup-9": {
+      "id": "b-70-document-purpose-supply-facts-for-lookup-9",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Supply facts for lookup. Mirror the thing described and state its options, limits, and errors. Generate facts from code where practical."
+        }
+      ],
+      "children": []
+    },
+    "b-70-document-purpose-explanation-10": {
+      "id": "b-70-document-purpose-explanation-10",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Explanation",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-70-document-purpose-answer-a-bounded-why-que-11"
+      ]
+    },
+    "b-70-document-purpose-answer-a-bounded-why-que-11": {
+      "id": "b-70-document-purpose-answer-a-bounded-why-que-11",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Answer a bounded why question with context, constraints, alternatives, and reasons for a decision."
+        }
+      ],
+      "children": []
+    },
+    "b-70-document-purpose-the-rule-12": {
+      "id": "b-70-document-purpose-the-rule-12",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The Rule"
+        }
+      ],
+      "children": []
+    },
+    "b-70-document-purpose-choose-the-primary-purpo-13": {
+      "id": "b-70-document-purpose-choose-the-primary-purpo-13",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Choose the primary purpose before authoring. Purpose guides the reader's task; the corpus layers still determine location and authority."
+        }
+      ],
+      "children": []
+    },
+    "b-70-document-purpose-preserve-the-three-layer-14": {
+      "id": "b-70-document-purpose-preserve-the-three-layer-14",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Preserve the four layers and the templates defined in "
+        },
+        {
+          "insert": "Structure",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "docs/10-system-design/10-doc-standards/10-structure"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": [
+        "b-70-document-purpose-foundation-owns-intent-15",
+        "b-70-document-purpose-procedure-belongs-in-an-16"
+      ]
+    },
+    "b-70-document-purpose-foundation-owns-intent-15": {
+      "id": "b-70-document-purpose-foundation-owns-intent-15",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Foundation owns intent. Design owns behavior. Agents owns agent definitions. Implementation maps the design to current code and explains key implementation choices."
+        }
+      ],
+      "children": []
+    },
+    "b-70-document-purpose-procedure-belongs-in-an-16": {
+      "id": "b-70-document-purpose-procedure-belongs-in-an-16",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Procedure belongs in an existing, declared guides tier. Do not create new root categories merely to match Diataxis."
+        }
+      ],
+      "children": []
+    },
+    "b-70-document-purpose-keep-one-main-reader-tas-17": {
+      "id": "b-70-document-purpose-keep-one-main-reader-tas-17",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Keep one main reader task per page."
+        }
+      ],
+      "children": [
+        "b-70-document-purpose-a-standard-can-state-a-r-18",
+        "b-70-document-purpose-split-and-link-when-a-se-19"
+      ]
+    },
+    "b-70-document-purpose-a-standard-can-state-a-r-18": {
+      "id": "b-70-document-purpose-a-standard-can-state-a-r-18",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "A standard can state a rule and explain why. A how-to can include a small reference detail needed for its next step."
+        }
+      ],
+      "children": []
+    },
+    "b-70-document-purpose-split-and-link-when-a-se-19": {
+      "id": "b-70-document-purpose-split-and-link-when-a-se-19",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Split and link when a secondary purpose becomes an independently useful page or interrupts the main task."
+        }
+      ],
+      "children": []
+    },
+    "b-70-document-purpose-keep-the-established-sta-20": {
+      "id": "b-70-document-purpose-keep-the-established-sta-20",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Keep the established standard flow of Structure, The Rule, and Why."
+        }
+      ],
+      "children": [
+        "b-70-document-purpose-keep-implementation-area-21",
+        "b-70-document-purpose-templates-define-the-pag-22"
+      ]
+    },
+    "b-70-document-purpose-keep-implementation-area-21": {
+      "id": "b-70-document-purpose-keep-implementation-area-21",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Keep implementation area pages and decision entries in the "
+        },
+        {
+          "insert": "Implementation Layer",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "docs/10-system-design/10-doc-standards/60-implementation-layer"
+            }
+          }
+        },
+        {
+          "insert": " format."
+        }
+      ],
+      "children": []
+    },
+    "b-70-document-purpose-templates-define-the-pag-22": {
+      "id": "b-70-document-purpose-templates-define-the-pag-22",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Templates define the page's shape. Purpose determines what belongs inside that shape."
+        }
+      ],
+      "children": []
+    },
+    "b-70-document-purpose-match-the-detail-to-the-23": {
+      "id": "b-70-document-purpose-match-the-detail-to-the-23",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Match the detail to the task."
+        }
+      ],
+      "children": [
+        "b-70-document-purpose-tutorials-show-visible-r-24",
+        "b-70-document-purpose-reference-presents-facts-25"
+      ]
+    },
+    "b-70-document-purpose-tutorials-show-visible-r-24": {
+      "id": "b-70-document-purpose-tutorials-show-visible-r-24",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Tutorials show visible results and link extended explanation. How-to guides assume competence and omit lessons unrelated to the task."
+        }
+      ],
+      "children": []
+    },
+    "b-70-document-purpose-reference-presents-facts-25": {
+      "id": "b-70-document-purpose-reference-presents-facts-25",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Reference presents facts for lookup. Explanation weighs alternatives and states the reasoning."
+        }
+      ],
+      "children": []
+    },
+    "b-70-document-purpose-why-26": {
+      "id": "b-70-document-purpose-why-26",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why"
+        }
+      ],
+      "children": []
+    },
+    "b-70-document-purpose-a-primary-purpose-gives-27": {
+      "id": "b-70-document-purpose-a-primary-purpose-gives-27",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A primary purpose gives the reader a predictable path through a document. Supporting reasons preserve the corpus's requirement that each decision carries its why, without turning every page into a tutorial or an exhaustive catalog."
+        }
+      ],
+      "children": []
+    },
+    "b-70-document-purpose-the-diataxis-distinction-28": {
+      "id": "b-70-document-purpose-the-diataxis-distinction-28",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The Diataxis distinction comes from "
+        },
+        {
+          "insert": "Diataxis",
+          "attributes": {
+            "link": "https://diataxis.fr"
+          }
+        },
+        {
+          "insert": ". The Technical Writing source skill records a fetch on 2026-07-18. This attribution does not claim a new fetch."
+        }
+      ],
+      "children": []
+    }
+  }
+}

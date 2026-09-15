@@ -1,0 +1,2 @@
+# Validation and Handoff
+Run new package tests/typecheck, affected docs-model/server/kernel tests, existing writer context checks, MCP SDK client workflow on temporary corpora, concurrent isolation and UI proxy tests, installer round trips. Use real tool edits for docs additions only after QA. Record evidence under artifacts. Final guide differentiates automated QA from user client exercises; no claim of model interaction without a real run.

@@ -14,7 +14,10 @@
     "./project-markdown": "./src/project-markdown.ts",
     "./markdown-to-delta": "./src/markdown-to-delta.ts",
     "./spectre-ref": "./src/spectre-ref.ts",
-    "./fixtures/sample.doc.json": "./src/__fixtures__/sample.doc.json"
+    "./fixtures/sample.doc.json": "./src/__fixtures__/sample.doc.json",
+    "./lint": "./src/lint/index.ts",
+    "./visual-component-guidance": "./src/visual-component-guidance.ts",
+    "./authoring-guidance": "./src/authoring-guidance.ts"
   },
   "dependencies": {
     "@codecaine-ai/annotations": "workspace:*",

@@ -183,6 +183,7 @@ export function App() {
   const [tree, setTree] = useState<DocsTreeNode[] | null>(null);
   const [treeError, setTreeError] = useState<string | null>(null);
   const [path, setPath] = useState<string | null>(readHashPath());
+  const [sidePeekOpen, setSidePeekOpen] = useState(false);
   const [dark, setDark] = useState<boolean>(
     () => localStorage.getItem(THEME_STORAGE_KEY) === "dark",
   );
@@ -481,6 +482,7 @@ export function App() {
           {path ? (
             <DocPage
               path={path}
+              sidePeekOpen={sidePeekOpen}
               onDocMoved={(newPath) => {
                 // A title rename moved the bundle: follow it and let the
                 // sidebar pick up the new name.
@@ -502,6 +504,7 @@ export function App() {
             the host only supplies navigation + asset resolution. */}
         <DocPeekPanel
           projectId="local"
+          onOpenChange={setSidePeekOpen}
           onNavigate={(ref: SpectreRef) => {
             if (ref.kind === "doc") {
               window.location.hash = `#/${ref.path}`;

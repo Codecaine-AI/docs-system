@@ -40,7 +40,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The implementation layer records structural decisions about the current code — how it is organized and why — so an agent adding code conforms to the standardized architecture instead of quietly restructuring it. An agent whose change conflicts with an entry files a proposal; it never silently deviates. "
+          "insert": "The implementation layer concisely maps the system design to the current codebase: how the code realizes the design, how it is organized, and why key implementation choices were made. An agent whose change conflicts with a recorded structural decision files a proposal; it never silently deviates."
         }
       ],
       "children": []
@@ -75,15 +75,15 @@
       "props": {
         "entries": [
           {
-            "path": "20-implementation/",
+            "path": "30-implementation/",
             "note": "L1 — the layer's parent doc: orientation map of top-level source dirs, one line of ownership each"
           },
           {
-            "path": "20-implementation/30-connectors/",
+            "path": "30-implementation/30-connectors/",
             "note": "an area page — mirrors src/connectors/, one level per genuine subdivision"
           },
           {
-            "path": "20-implementation/30-connectors/10-http/",
+            "path": "30-implementation/30-connectors/10-http/",
             "note": "does not exist — deeper structure becomes entries on the connectors page"
           }
         ]
@@ -216,7 +216,7 @@
       "props": {},
       "text": [
         {
-          "insert": "One line per instance when the area is a set — an agent roster, a connector list."
+          "insert": "One line per instance when the area is a set, such as a module roster or connector list. Agent definitions belong in Agents."
         }
       ],
       "children": []
@@ -240,7 +240,7 @@
       "props": {},
       "text": [
         {
-          "insert": "An entry governs unwritten code",
+          "insert": "An entry connects design to code",
           "attributes": {
             "bold": true
           }
@@ -257,7 +257,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The inclusion test: an entry states a rule that governs code that does not exist yet."
+          "insert": "The inclusion test: an entry helps the reader locate how the design is implemented or understand why the current code is built this way. Rules governing future additions remain part of that explanation."
         }
       ],
       "children": []
@@ -434,7 +434,7 @@
       "props": {},
       "text": [
         {
-          "insert": "An entry appears when a structure is standardized or violated — never proactively per directory."
+          "insert": "An entry appears when the design-to-code mapping or a structural choice needs explanation. Do not add filler per directory."
         }
       ],
       "children": []
@@ -538,6 +538,20 @@
               },
               {
                 "insert": " — behavior is design, wherever the code lives"
+              }
+            ]
+          ],
+          [
+            "Agent definitions, context, tools, and outputs",
+            [
+              {
+                "insert": "20-agents",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " owns the agent contracts"
               }
             ]
           ],

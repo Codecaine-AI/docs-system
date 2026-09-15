@@ -1,0 +1,15 @@
+{
+  "name": "Spectre / Canvas",
+  "root": "/Users/Ford/Github Repos/Codecaine/Apps/spectre/packages/canvas",
+  "status": "Blocked: legacy format",
+  "agent": "migrate_spectre_canvas",
+  "oldImplementationDirectoryExists": true,
+  "newImplementationDirectoryExists": false,
+  "recovery": [],
+  "validation": {
+    "status": "blocked",
+    "reason": "All corpus pages use retired block.flavour format. Current docs_discover rejects corpus because validation requires block.type, returning no project IDs. Native docs_move and docs_check cannot target this corpus. No supported schema migration tool is exposed; CLI migrate converts MDX, not existing legacy bundles.",
+    "nextRequirement": "Provide supported legacy bundle compatibility or schema migration before applying native section moves."
+  },
+  "fullReport": "/tmp/docs-layout-review/migrate_spectre_canvas.json"
+}

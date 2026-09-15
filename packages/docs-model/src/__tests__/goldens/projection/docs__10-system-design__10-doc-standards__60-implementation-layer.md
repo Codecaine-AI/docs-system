@@ -1,11 +1,11 @@
-The implementation layer records structural decisions about the current code — how it is organized and why — so an agent adding code conforms to the standardized architecture instead of quietly restructuring it. An agent whose change conflicts with an entry files a proposal; it never silently deviates. 
+The implementation layer concisely maps the system design to the current codebase: how the code realizes the design, how it is organized, and why key implementation choices were made. An agent whose change conflicts with a recorded structural decision files a proposal; it never silently deviates.
 
 This page states the shape of an area page, the test an entry must pass, and why the layer accretes lazily.
 
 ## Structure
 
 ```
-20-implementation/  # L1 — the layer's parent doc: orientation map of top-level source dirs, one line of ownership each
+30-implementation/  # L1 — the layer's parent doc: orientation map of top-level source dirs, one line of ownership each
 └── 30-connectors/  # an area page — mirrors src/connectors/, one level per genuine subdivision
     └── 10-http/  # does not exist — deeper structure becomes entries on the connectors page
 ```
@@ -26,13 +26,13 @@ An area page reads top to bottom in four parts:
 
 - **Orientation roster (optional)**
 
-  - One line per instance when the area is a set — an agent roster, a connector list.
+  - One line per instance when the area is a set, such as a module roster or connector list. Agent definitions belong in Agents.
 
 ## The Rule
 
-- **An entry governs unwritten code**
+- **An entry connects design to code**
 
-  - The inclusion test: an entry states a rule that governs code that does not exist yet.
+  - The inclusion test: an entry helps the reader locate how the design is implemented or understand why the current code is built this way. Rules governing future additions remain part of that explanation.
 
   - Thirty data connectors extend a base class, so connector #31 must too — an inline comment cannot govern a file nobody has written, and system design does not care: behavior is identical either way.
 
@@ -58,7 +58,7 @@ An area page reads top to bottom in four parts:
 
 - **Lazy accretion**
 
-  - An entry appears when a structure is standardized or violated — never proactively per directory.
+  - An entry appears when the design-to-code mapping or a structural choice needs explanation. Do not add filler per directory.
 
   - A near-empty area page that only routes upward through its governed-by links is correct, not incomplete.
 
@@ -74,6 +74,7 @@ An area page reads top to bottom in four parts:
 | --- | --- |
 | Schemas and state models | `10-system-design` — design owns them |
 | Behavior | `10-system-design` — behavior is design, wherever the code lives |
+| Agent definitions, context, tools, and outputs | `20-agents` owns the agent contracts |
 | File-local detail | In-code docs — file headers and docstrings |
 | Point-in-time reports | Nowhere in the docs tree — the docs describe present state, not moments |
 | Deep file trees | Nowhere — the mirror stops at one level |

@@ -1,5 +1,6 @@
 "use client";
 
+import type { DocOp } from "@codecaine-ai/docs-model/doc-ops";
 import { Fragment, useMemo, type ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
@@ -71,6 +72,7 @@ export type DocBlockSaveResult =
        * reflected back, don't reset the cursor by re-seeding content".
        */
       doc?: DocDocument;
+      normalization?: { ops: DocOp[]; message: string };
     }
   | { ok: false; stale: boolean; message: string };
 

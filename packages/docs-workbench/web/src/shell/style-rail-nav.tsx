@@ -109,6 +109,7 @@ export type StyleRailPaneId =
   | "theme.annotate"
   | "theme.references"
   | BlockPaneId
+  | "layout.transitions"
   | "layout.sidebar"
   | "layout.scrollbar"
   | "layout.side-peek"
@@ -143,6 +144,7 @@ export const STYLE_RAIL_GROUPS: readonly StyleRailNavGroup[] = [
     id: "layout",
     label: "Layout",
     items: [
+      { id: "layout.transitions", label: "Transitions", icon: Sparkles },
       { id: "layout.sidebar", label: "Sidebar", icon: PanelLeft },
       { id: "layout.editor", label: "Editor", icon: FileCode2 },
       { id: "layout.side-peek", label: "Side peek", icon: PanelRightOpen },

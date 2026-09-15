@@ -1,0 +1,902 @@
+[
+  {
+    "name": "docs_discover",
+    "ok": true
+  },
+  {
+    "name": "docs_guidance",
+    "ok": true
+  },
+  {
+    "name": "docs_create",
+    "path": "30-guides",
+    "ok": true
+  },
+  {
+    "name": "docs_read",
+    "path": "30-guides",
+    "ok": true
+  },
+  {
+    "name": "docs_apply_ops",
+    "path": "30-guides",
+    "ok": true
+  },
+  {
+    "name": "docs_create",
+    "path": "30-guides/10-docs-mcp",
+    "ok": true
+  },
+  {
+    "name": "docs_read",
+    "path": "30-guides/10-docs-mcp",
+    "ok": true
+  },
+  {
+    "name": "docs_apply_ops",
+    "path": "30-guides/10-docs-mcp",
+    "ok": true
+  },
+  {
+    "name": "docs_create",
+    "path": "30-guides/10-docs-mcp/10-setup",
+    "ok": true
+  },
+  {
+    "name": "docs_read",
+    "path": "30-guides/10-docs-mcp/10-setup",
+    "ok": true
+  },
+  {
+    "name": "docs_apply_ops",
+    "path": "30-guides/10-docs-mcp/10-setup",
+    "ok": true
+  },
+  {
+    "name": "docs_create",
+    "path": "30-guides/10-docs-mcp/20-skills",
+    "ok": true
+  },
+  {
+    "name": "docs_read",
+    "path": "30-guides/10-docs-mcp/20-skills",
+    "ok": true
+  },
+  {
+    "name": "docs_apply_ops",
+    "path": "30-guides/10-docs-mcp/20-skills",
+    "ok": true
+  },
+  {
+    "name": "docs_create",
+    "path": "30-guides/10-docs-mcp/30-sync",
+    "ok": true
+  },
+  {
+    "name": "docs_read",
+    "path": "30-guides/10-docs-mcp/30-sync",
+    "ok": true
+  },
+  {
+    "name": "docs_apply_ops",
+    "path": "30-guides/10-docs-mcp/30-sync",
+    "ok": true
+  },
+  {
+    "name": "docs_create",
+    "path": "30-guides/10-docs-mcp/40-recovery",
+    "ok": true
+  },
+  {
+    "name": "docs_read",
+    "path": "30-guides/10-docs-mcp/40-recovery",
+    "ok": true
+  },
+  {
+    "name": "docs_apply_ops",
+    "path": "30-guides/10-docs-mcp/40-recovery",
+    "ok": true
+  },
+  {
+    "name": "docs_read",
+    "path": "20-implementation/10-packages/85-docs-mcp",
+    "ok": true
+  },
+  {
+    "name": "docs_apply_ops",
+    "path": "20-implementation/10-packages/85-docs-mcp",
+    "ok": true
+  },
+  {
+    "name": "docs_read",
+    "path": "20-implementation/10-packages",
+    "ok": true
+  },
+  {
+    "name": "docs_apply_ops",
+    "path": "20-implementation/10-packages",
+    "ok": true
+  },
+  {
+    "name": "docs_check",
+    "path": "30-guides",
+    "ok": true,
+    "result": {
+      "ok": true,
+      "structurally_valid": true,
+      "hash": "00dd9c9cd2d96e51a043fe342bce914568745505866ecf68c5fb375ac6ebcb66",
+      "lint": {
+        "phase": "complete",
+        "findings": [],
+        "blocking": []
+      },
+      "components": []
+    }
+  },
+  {
+    "name": "docs_read",
+    "path": "30-guides",
+    "ok": true
+  },
+  {
+    "path": "30-guides",
+    "hash": "00dd9c9cd2d96e51a043fe342bce914568745505866ecf68c5fb375ac6ebcb66",
+    "markdown": "This guides tier contains non-normative operating and maintenance procedures. The foundation, system design, and implementation documents own the contracts. These guides explain how to use and maintain those contracts; they do not introduce project-specific standards.\n\nDocs MCP Maintenance explains installation, multi-project discovery, skills, updates, and recovery.\n"
+  },
+  {
+    "name": "docs_read",
+    "path": "30-guides/10-docs-mcp",
+    "ok": true
+  },
+  {
+    "name": "docs_check",
+    "path": "30-guides/10-docs-mcp",
+    "ok": true,
+    "result": {
+      "ok": true,
+      "structurally_valid": true,
+      "hash": "5b06b53cdf37818cc95a22dab294f65418cc5fe044f8e39662a3defbcf91e306",
+      "lint": {
+        "phase": "complete",
+        "findings": [],
+        "blocking": []
+      },
+      "components": []
+    }
+  },
+  {
+    "name": "docs_read",
+    "path": "30-guides/10-docs-mcp",
+    "ok": true
+  },
+  {
+    "path": "30-guides/10-docs-mcp",
+    "hash": "5b06b53cdf37818cc95a22dab294f65418cc5fe044f8e39662a3defbcf91e306",
+    "markdown": "Start with the procedure that matches the change. These guides cover the local development checkout and its external coding-agent connections.\n\nDocs MCP owns the architecture, source ownership, and runtime boundaries.\n\nClient Setup and Project Discovery connects Codex, Claude Code, and pi to documentation corpora.\n\nSkills and Component Knowledge identifies the maintained sources and explains how to change them.\n\nSynchronization and Updates maps each change to regeneration, installation, restart, and verification.\n\nValidation and Recovery provides repeatable acceptance checks and failure recovery.\n"
+  },
+  {
+    "name": "docs_read",
+    "path": "20-implementation/10-packages/85-docs-mcp",
+    "ok": true
+  },
+  {
+    "name": "docs_read",
+    "path": "30-guides/10-docs-mcp/10-setup",
+    "ok": true
+  },
+  {
+    "name": "docs_read",
+    "path": "30-guides/10-docs-mcp/20-skills",
+    "ok": true
+  },
+  {
+    "name": "docs_read",
+    "path": "30-guides/10-docs-mcp/30-sync",
+    "ok": true
+  },
+  {
+    "name": "docs_read",
+    "path": "30-guides/10-docs-mcp/40-recovery",
+    "ok": true
+  },
+  {
+    "name": "docs_check",
+    "path": "30-guides/10-docs-mcp/10-setup",
+    "ok": true,
+    "result": {
+      "ok": true,
+      "structurally_valid": true,
+      "hash": "201d5bea463045919ad5f0b498ad2fb483f81786174b8f225960ff67349b0f93",
+      "lint": {
+        "phase": "complete",
+        "findings": [],
+        "blocking": []
+      },
+      "components": []
+    }
+  },
+  {
+    "name": "docs_read",
+    "path": "30-guides/10-docs-mcp/10-setup",
+    "ok": true
+  },
+  {
+    "path": "30-guides/10-docs-mcp/10-setup",
+    "hash": "201d5bea463045919ad5f0b498ad2fb483f81786174b8f225960ff67349b0f93",
+    "markdown": "Run commands from the docs-system repository unless a step names another directory. This installation references the development checkout through absolute paths. Keep Bun and the checkout available to each client.\n\n## Install the Connection\n\n1. Install workspace dependencies from the parent Core directory. Its workspace lockfile owns the linked package dependencies.\n\n```sh\ncd ..\nbun install\ncd docs-system\n```\n\n2. Preview the installation. Use --clients codex,claude,pi to select clients, or omit the flag for all three. Preview does not change client files.\n\n```sh\nbun packages/docs-mcp/src/cli.ts install\n```\n\n3. Write the installation and save its report. Changed files receive backups. The saved report is the input to the guarded restore command.\n\n```sh\nbun packages/docs-mcp/src/cli.ts install --write > /tmp/codecaine-docs-install.json\nbun packages/docs-mcp/src/cli.ts doctor\n```\n\n4. Restart Codex and Claude Code. In pi, run /reload. Open a new task in the target workspace so the client can load the installed skill and tools.\n\n## Client Files\n\n| Client | Connection | Skill location |\n| --- | --- | --- |\n| Codex | MCP stdio entry mcp_servers.codecaine-docs in ~/.codex/config.toml; CODEX_HOME changes the config directory. | ~/.agents/skills/codecaine-docs |\n| Claude Code | MCP stdio entry mcpServers.codecaine-docs in ~/.claude.json. | ~/.claude/skills/codecaine-docs |\n| pi Agent | ~/.pi/agent/extensions/codecaine-docs.ts imports the bridge from the checkout; PI_CODING_AGENT_DIR changes the pi directory. | ~/.agents/skills/codecaine-docs |\n\nThe installer preserves unrelated settings and refuses an unmanaged entry with the same name. Its --home option supports alternate home directories. Custom Claude paths require installer API options; the CLI does not expose every custom path setting. Inspect the preview before writing a customized installation.\n\n## Discover the Workspace\n\nA single connection routes operations to explicit project IDs. Start in a project to work on its docs, or in Core to discover multiple declared projects. Discovery uses the workspace itself, members.json directory entries, supported package workspace patterns, and explicit projects in codecaine.docs.json. It does not scan the whole machine.\n\n```sh\nbun packages/docs-mcp/src/cli.ts discover --workspace ..\n```\n\nThe workspace defaults to --workspace, then CLAUDE_PROJECT_DIR, then the process working directory. MCP roots can update the client workspace. pi passes its session directory. If discovery is wrong, explicitly supply the intended absolute workspace to docs_discover and begin a new task there.\n\nUse this optional configuration in a project or umbrella workspace. Omit projects for a single repository. The docsRoot directory must contain at least one valid normalized doc.json bundle.\n\n```json\n{\n  \"name\": \"my-workspace\",\n  \"docsRoot\": \"docs\",\n  \"products\": [\"docs\"],\n  \"projects\": [\"child-project-a\", \"child-project-b\"]\n}\n```\n\nMember paths must remain inside the workspace. docsRoot must remain inside its project, including after resolving symlinks. Absolute member paths and recursive ** globs are unsupported. Declare explicit relative members instead. Markdown-only repositories are not migrated; malformed candidate bundles produce discovery warnings.\n\nProject IDs depend on the project name and canonical docs-root path. Rediscover after moving or renaming a checkout. For a prompt that edits two projects, use the two returned IDs on separate tool calls and check each changed page. There is no cross-project transaction or rollback.\n\n## Inspect Changes in the Shared UI\n\n```sh\nbun packages/docs-mcp/src/cli.ts ui --workspace .. --project docs-system --port 4808\n```\n\nThis workbench uses the same editing service as the external clients. Valid tool edits become visible immediately. Existing standalone or kernel workbenches have separate process-local coordination; finish their edits before editing the same documents through MCP.\n\nWebsite publication remains a separate build, export, or embedding integration over the corpus. Editing a document does not deploy it. The local MCP service is not the public website server.\n"
+  },
+  {
+    "name": "docs_check",
+    "path": "30-guides/10-docs-mcp/20-skills",
+    "ok": true,
+    "result": {
+      "ok": true,
+      "structurally_valid": true,
+      "hash": "142891bafa5a2d1c6783db1563b10efc26795369d83a056b1cf16a5949616f07",
+      "lint": {
+        "phase": "complete",
+        "findings": [],
+        "blocking": []
+      },
+      "components": []
+    }
+  },
+  {
+    "name": "docs_read",
+    "path": "30-guides/10-docs-mcp/20-skills",
+    "ok": true
+  },
+  {
+    "path": "30-guides/10-docs-mcp/20-skills",
+    "hash": "142891bafa5a2d1c6783db1563b10efc26795369d83a056b1cf16a5949616f07",
+    "markdown": "Change the maintained source, regenerate derived references, and refresh installed copies. Editing an installed skill alone creates a local difference that the next installation can overwrite.\n\nDocs MCP describes the service and the shared authoring context.\n\n## Maintained Sources\n\npackages/docs-mcp/skills/codecaine-docs/SKILL.md owns the external-agent workflow, trigger description, and skill metadata.\n\npackages/docs-model/src/authoring-guidance.ts owns AUTHORING_BUNDLES, the standard and style document lists, component catalog assembly, and shared rendering.\n\npackages/docs-model/src/components/index.ts registers component bundles. Each component manifest supplies authoring metadata with whenToUse, example, and docsPath.\n\npackages/docs-model/src/visual-component-guidance.ts owns the shared visual-selection text used with the component catalog.\n\npackages/docs-mcp/src/guidance.ts loads and validates canonical documents, hashes guidance sources, and generates portable skill references.\n\n## What the Agent Receives\n\nThe server advertises tools and startup instructions. docs_begin returns the writing standards, full component-selection catalog, task ID, and snapshot identity. docs_guidance can retrieve one component reference by component name. The MCP resource codecaine://docs/guidance exposes current rendered guidance. There is no MCP prompts capability in this implementation.\n\nThe installed skill tells the coding agent when and how to use those tools. Installation places references/standards.md, references/components.md, references/components/<name>.md, and snapshot.json beside SKILL.md. These files are generated from the canonical corpus and manifests; they are not independent standards.\n\nThe catalog covers rich text, annotated Code, File Tree, Structured Table, State Shape, Interaction Surface, Canvas, Sequence, and Process Outline. Component purposes load together; detailed references can be fetched only when needed. Connecting an MCP does not prove a client selected the skill. Test implicit use in each client.\n\n## Change Writing or Component Guidance\n\n1. For wording and standards, read the canonical document through Docs tools, apply a typed edit, and run docs_check. For tool-use workflow, edit the source SKILL.md. Project-specific standards overrides are not implemented.\n\n2. For component selection, update the component manifest authoring metadata and its canonical reference together. Change the shared visual guidance only when the selection rule itself changes.\n\n3. For a new component, register its bundle, state schema, typed actions, and rendering using the existing component contract. Add its canonical documentation and manifest metadata. A skill reference alone does not implement editing tools.\n\n4. Refresh the client installation and begin a new authoring task. Restart the service first when imported TypeScript changed. Inspect docs_guidance for the changed component and verify a real typed edit.\n\nSynchronization and Updates gives the commands and restart decisions.\n\n## Built-in Agents and PromptKit\n\nThe Docs Lab context loader at packages/docs-kernel/catalog/docs-lab-editor/context/index.ts and the sibling agent-kernel/catalog/docs-writer/context/index.ts both use the shared authoring-guidance renderer. Their prompts, model configuration, context loading, and staged editing sessions remain owned by those agents. External MCP edits do not run those agents.\n\nPromptKit remains responsible for its own prompt machinery. This integration has no PromptKit editing adapter and does not turn every internal prompt into an MCP prompt. A future product service can follow the same separation between typed operations, maintained knowledge, and client installation. Such adapters must document their own state ownership and validation before claiming coverage.\n"
+  },
+  {
+    "name": "docs_read",
+    "path": "20-implementation/10-packages/85-docs-mcp",
+    "ok": true
+  },
+  {
+    "name": "docs_read",
+    "path": "30-guides/10-docs-mcp/30-sync",
+    "ok": true
+  },
+  {
+    "name": "docs_check",
+    "path": "30-guides/10-docs-mcp/30-sync",
+    "ok": true,
+    "result": {
+      "ok": true,
+      "structurally_valid": true,
+      "hash": "4982dbaee160b7c267ff6325b742eed92e7fe1d12dd8f3031baa3b1c450307bf",
+      "lint": {
+        "phase": "complete",
+        "findings": [],
+        "blocking": []
+      },
+      "components": []
+    }
+  },
+  {
+    "name": "docs_read",
+    "path": "30-guides/10-docs-mcp/30-sync",
+    "ok": true
+  },
+  {
+    "path": "30-guides/10-docs-mcp/30-sync",
+    "hash": "4982dbaee160b7c267ff6325b742eed92e7fe1d12dd8f3031baa3b1c450307bf",
+    "markdown": "Use this runbook when code, standards, skill instructions, or checkout locations change. Synchronization currently means shared source rendering, generated installed references, and explicit process reloads. It is not an automatic package-release resolver.\n\nDocs MCP defines the runtime boundaries this runbook operates within.\n\n## Choose the Refresh\n\n| Changed item | Refresh required | Verify |\n| --- | --- | --- |\n| Canonical standard, style, or component document | New docs_begin loads current corpus text. Reinstall to refresh installed references. Existing tasks retain their snapshot. | Inspect docs_guidance and the new snapshot ID. |\n| Source SKILL.md | Reinstall and start a fresh client task so the new skill is loaded. | Doctor and an implicit documentation request. |\n| Manifest, renderer, tool schema, store, or imported runtime code | Finish tasks; stop service; reconnect clients; restart shared UI; regenerate/install when guidance changed. | New docs_begin, tools listing, affected tests, and a real edit. |\n| Checkout location or Bun path | Reinstall absolute client paths; stop the old checkout service before switching. Rediscover projects. | Doctor, discovery, and docs_begin. |\n| Package dependency or version | Install dependencies at Core root; restart affected processes; record a new snapshot. | Typecheck and affected package/internal-session tests. |\n\n## Generate and Install\n\n```sh\nbun packages/docs-mcp/src/cli.ts guidance --write\nbun packages/docs-mcp/src/cli.ts install\nbun packages/docs-mcp/src/cli.ts install --write > /tmp/codecaine-docs-refresh.json\nbun packages/docs-mcp/src/cli.ts doctor\n```\n\nguidance --write refreshes references in the package skill directory. The installer also generates current references in a temporary directory while building its planned changes, so installation does not depend on manually generated copies being current. Keep the source and installed locations distinct. Review generated reference changes instead of editing them by hand.\n\n## Reload Runtime Code\n\n1. End active documentation tasks after checking their changed pages. Finish any standalone or kernel editing activity on the same documents.\n\n```sh\nbun packages/docs-mcp/src/cli.ts status\nbun packages/docs-mcp/src/cli.ts stop\nbun packages/docs-mcp/src/cli.ts start\n```\n\n2. Reconnect coding clients and restart shared workbenches. Workbenches bind to the service URL and token at launch. Begin a new task and read fresh hashes before continuing.\n\n3. Run the affected validation checks and record a snapshot after the code and guidance settle.\n\n```sh\nbun test packages/docs-mcp/src\nbunx tsc -p packages/docs-mcp/tsconfig.json --noEmit\nbun packages/docs-mcp/src/cli.ts snapshot --out /tmp/codecaine-docs-snapshot.json\n```\n\n## What a Snapshot Records\n\nThe development manifest records runtime package source hashes, repository commits and dirty flags, guidance sources and identity, client declarations, and the tool-contract hash. Source hashing covers package.json and selected src TypeScript and JSON files, excluding tests and fixtures. A snapshot identifies these inputs; it is not a full repository archive.\n\nRuntime coverage includes docs-mcp, docs-model, docs-server, docs-index, docs-workbench, Canvas, Sequence, and Annotations. Repository metadata includes docs-system, canvas, sequence, annotations, agent-kernel, and prompt-kit. A recorded repository is not proof that it has a product adapter or normalized documentation corpus.\n\nThe package is currently private and uses workspace dependencies. The skill has version metadata, while snapshot hashes identify the actual development sources. No release lockfile installer, published compatibility matrix, or automatic six-package version selection exists. Changing a version field alone does not update installed files or running services.\n\n## Maintain Documentation with Code\n\nUpdate the implementation contract when ownership or behavior changes. Update these procedures when commands or refresh steps change. Keep installation examples in the package README and the HTML handoff linked to the maintained corpus. Keep dated test results and user acceptance reports in objective artifacts rather than turning reference pages into status reports.\n"
+  },
+  {
+    "name": "docs_read",
+    "path": "20-implementation/10-packages/85-docs-mcp",
+    "ok": true
+  },
+  {
+    "name": "docs_check",
+    "path": "30-guides/10-docs-mcp/40-recovery",
+    "ok": true,
+    "result": {
+      "ok": true,
+      "structurally_valid": true,
+      "hash": "afb2cc8b7fa0d4dfb6874f4179c18fb89c24beed90f59eb883b28132610a1d3e",
+      "lint": {
+        "phase": "complete",
+        "findings": [],
+        "blocking": []
+      },
+      "components": []
+    }
+  },
+  {
+    "name": "docs_read",
+    "path": "30-guides/10-docs-mcp/40-recovery",
+    "ok": true
+  },
+  {
+    "path": "30-guides/10-docs-mcp/40-recovery",
+    "hash": "afb2cc8b7fa0d4dfb6874f4179c18fb89c24beed90f59eb883b28132610a1d3e",
+    "markdown": "Start with doctor for installed-file differences, discovery for workspace coverage, and a small real edit for end-to-end acceptance. These checks answer different questions.\n\n## Repeatable Acceptance\n\n1. Open a new client session in the target project. Ask it to explain one existing documentation page without editing. Expect docs_discover and a tree, search, or read call against the correct project ID.\n\n2. Ask for one source-supported documentation correction without naming the tools. Expect docs_begin before mutation, docs_read for the current document hash, and a typed edit with the returned task_id and expected_hash. docs_guidance is useful for a component-specific reference but is not required on every edit.\n\n3. Expect docs_check on each changed page and docs_end when the task finishes. Read back the page and inspect it in the shared UI. A successful tool response alone does not establish that the prose is correct.\n\n4. For a Canvas or Sequence edit, expect docs_component_read and an advertised typed component action using the document and sidecar revision hashes. For a multi-project request, verify each project separately and report partial success explicitly.\n\n5. Repeat the implicit request in each supported coding client. Separately exercise a built-in agent through its existing staged review flow after shared guidance changes. Protocol tests, installer checks, and external edits do not prove model behavior in every client.\n\n## Find Tool Names\n\n```sh\nbun packages/docs-mcp/src/cli.ts tools\nbun packages/docs-mcp/src/cli.ts doctor\nbun packages/docs-mcp/src/cli.ts discover --workspace ..\n```\n\nUse advertised schemas for exact arguments. Common edits include docs_write_text, docs_insert, and docs_apply_ops. Component action names are generated from the registered actions; do not infer a name or bypass an unsupported action with a filesystem write.\n\n## Connection and Discovery Failures\n\n| Symptom | Cause to check | Recovery |\n| --- | --- | --- |\n| Tools absent | Client has not loaded its config or pi extension; configured checkout path moved. | Run doctor, preview reinstall, restart client or reload pi. |\n| No projects or wrong project | Wrong workspace, undeclared member, invalid docsRoot, or no normalized corpus. | Inspect discovery warnings; declare relative members; rediscover in the intended workspace. |\n| Unknown task or project | Task belongs to another workspace, service restarted, or project identity changed. | Rediscover; begin a new task; reread the target. |\n| Another checkout owns the service | A healthy daemon belongs to a different package root. | Finish work and stop that service before switching installations. |\n| Service will not start | Startup or dependency failure. | Inspect service.log in the configured state directory; correct the reported error before reconnecting. |\n\n## Editing Failures\n\n| Symptom | Meaning | Recovery |\n| --- | --- | --- |\n| Revision conflict | Content changed after the read. | Read again, reconcile the intended change, and submit the fresh hash. |\n| Sidecar revision conflict | Embedded Canvas or Sequence state changed. | Reread both document and component; reconcile both revisions. |\n| Implementation changed | Imported source differs from the running service. | Finish or abandon the task, restart service and clients, and begin again. |\n| Required lint or invalid structure | The operation or final page violates a checked rule. | Inspect returned findings and repair through typed tools; do not rewrite doc.json. |\n| Undo unavailable or rejected | Patch is outside this process, belongs elsewhere, has a conflicting revision, or is page creation. | Use a new reviewed typed correction. Page creation has no exposed undo. |\n\n## Backups and Restore\n\n```sh\nbun packages/docs-mcp/src/cli.ts restore /tmp/codecaine-docs-install.json\nbun packages/docs-mcp/src/cli.ts restore /tmp/codecaine-docs-install.json --write\n```\n\nPreview restore first. Restore verifies backup and installed-file hashes and refuses to overwrite post-install changes. Claude can update its configuration during normal use, so an exact restore may refuse. To remove only its MCP entry, use claude mcp remove codecaine-docs -s user and preserve the newer file. Skill copies and pi configuration require their own reviewed cleanup.\n\n## Local State and Evidence\n\nRuntime state defaults to ~/.local/state/codecaine-docs or CODECAINE_DOCS_STATE_DIR. daemon.json contains the bearer credential and service address. daemon.lock and startup.lock coordinate startup; service.log records daemon output. Do not share daemon.json as a diagnostic artifact. No model API key is needed for this editing service.\n\nTask contexts and guarded undo are process-local. docs_end releases guidance and does not revert applied edits. Stopping the service loses that in-memory state, while saved documents remain on disk. Cross-project edits are not atomic.\n\nSave tool results, final hashes, lint findings, and a reviewed content diff when recording acceptance. Label a user-reported successful exercise separately from automated evidence. Keep those dated records in objectives/docs-mcp-integration/artifacts and the handoff, outside the maintained corpus.\n"
+  },
+  {
+    "name": "docs_check",
+    "path": "20-implementation/10-packages/85-docs-mcp",
+    "ok": true,
+    "result": {
+      "ok": true,
+      "structurally_valid": true,
+      "hash": "b38c567616ee1c7b2ed169000c660e082586bbdd9b490a4d14f851f52fc61f43",
+      "lint": {
+        "phase": "complete",
+        "findings": [],
+        "blocking": []
+      },
+      "components": []
+    }
+  },
+  {
+    "name": "docs_read",
+    "path": "20-implementation/10-packages/85-docs-mcp",
+    "ok": true
+  },
+  {
+    "path": "20-implementation/10-packages/85-docs-mcp",
+    "hash": "b38c567616ee1c7b2ed169000c660e082586bbdd9b490a4d14f851f52fc61f43",
+    "markdown": "The Docs MCP package connects external coding agents to the existing Docs service. Codex and Claude Code use an MCP stdio connection. pi Agent uses an extension that forwards the same tool definitions.\n\n## Read and Edit\n\nDiscover the active workspace with docs_discover. Before editing, call docs_begin to load shared writing standards and component guidance. Read the target document through docs_read, then supply its revision hash and the task ID to a typed editing tool. Valid changes apply immediately.\n\nThe service rejects invalid structure and stale revisions. Editing calls return draft writing findings. Run docs_check before reporting completion, and repair required findings or state what remains unresolved. A failed update in one project does not roll back successful updates in another project.\n\n## Component Knowledge\n\nComponent manifests declare selection guidance and examples. The shared authoring-guidance renderer supplies the catalog to external tools and both built-in Docs agent contexts. Use docs_guidance with a component name to read its canonical reference.\n\n## Shared Service\n\nThe CLI automatically starts one local editing service. The client connections share that process, and explicit project IDs route operations to a discovered corpus. The shared workbench mode proxies its API to the same authority. Standalone workbench and kernel modes remain available with their existing process-local state.\n\n## Development Setup\n\nFrom the Docs System repository, run bun packages/docs-mcp/src/cli.ts install to preview the client configuration and skill files. Add --write to install with backups. Run doctor to check those installed files. Restart the coding clients or reload pi after installation.\n\nUse the ui command with a workspace and project ID to inspect edits through the shared workbench. Publication remains separate: the same corpus can be exported or embedded in a website without deploying after every edit.\n\n## Source Ownership\n\n```\npackages/\n├── docs-mcp/\n│   ├── skills/\n│   │   └── codecaine-docs/\n│   │       └── SKILL.md  # External authoring workflow\n│   └── src/  # MCP bridge, local service, client setup and typed tools\n├── docs-model/\n│   └── src/\n│       └── authoring-guidance.ts  # Shared standards and component catalog renderer\n├── docs-server/\n│   └── src/\n│       └── store.ts  # Root-bound read and mutation authority\n└── docs-workbench/\n    └── src/\n        └── shared-api.ts  # UI proxy to the shared service\n```\n\n## Compatibility\n\nThe snapshot command records package source hashes, repository revisions, tool contracts, and guidance sources. Standards reload between documentation tasks. Imported implementation changes require restarting the service. The built-in Docs Lab editor and generic docs-writer retain their existing staged review behavior.\n\nContent and component edits expose guarded undo while the service is running. Page creation does not expose undo because the existing tree inverse cannot safely remove a page after later additions.\n\n## Maintained Procedures\n\nDocs MCP Maintenance contains the setup, skill-authoring, synchronization, and recovery procedures.\n\n## Process and Task Ownership\n\nCodex and Claude use stdio MCP bridges; pi uses its extension bridge. They connect to one authenticated loopback daemon per state directory. The service resolves an explicit project to its canonical docs root and calls the existing store through typed tools. No model or kernel process is started by an external documentation task.\n\nThe service owns workspace membership and in-memory task snapshots. Store operations own structural validation, revision checks, and root-scoped mutation coordination. Task IDs are bound to the workspace; they pin authoring knowledge without creating a transaction. Direct valid edits persist immediately. The shared workbench proxies to this same daemon. Standalone workbenches and kernel processes retain independent process-local state.\n\n## Maintained and Derived Files\n\n```\npackages/\n├── docs-kernel/\n│   └── catalog/\n│       └── docs-lab-editor/\n│           └── context/\n│               └── index.ts  # Internal Docs Lab authoring context consumer\n├── docs-mcp/\n│   ├── skills/\n│   │   └── codecaine-docs/  # Maintained SKILL.md plus generated references and snapshot\n│   └── src/\n│       ├── cli.ts  # Command dispatch, workspace defaults, setup and diagnostics\n│       ├── daemon.ts  # Authenticated local HTTP service\n│       ├── discovery.ts  # Workspace member and normalized-corpus discovery\n│       ├── guidance.ts  # Canonical guidance loading and generated skill references\n│       ├── install.ts  # Client configuration, skill generation, backups, doctor and restore\n│       ├── lifecycle.ts  # State directory, startup locks and checkout ownership\n│       ├── mcp.ts  # MCP tools, instructions, guidance resource, client workspace roots\n│       ├── pi-extension.ts  # pi tool registration and bridge\n│       ├── service.ts  # Project membership, tasks, guidance and mutation gate\n│       ├── snapshot.ts  # Development source and tool-contract fingerprinting\n│       └── tools.ts  # Typed Docs operations and generated component actions\n├── docs-model/\n│   └── src/\n│       ├── components/  # Registered schemas, actions, rendering and authoring metadata\n│       └── authoring-guidance.ts  # Shared renderer for internal and external authors\n├── docs-server/\n│   └── src/\n│       └── store.ts  # Canonical document mutation authority\n└── docs-workbench/\n    └── src/\n        └── shared-api.ts  # Shared UI proxy\n```\n\n## Ecosystem Coverage\n\nThe implemented adapter edits Docs corpora, including documentation for other packages when those corpora are discoverable. Embedded Canvas and Sequence operations use the Docs component adapters. This does not provide standalone Canvas, Sequence, PromptKit, Annotations, or Agent Kernel product services. Recording sibling repositories in a development snapshot does not establish adapter support.\n\nCanonical corpus standards, style documents, component references, manifests, and the source skill feed generated knowledge. Installed skill references are copies. Internal context loaders share the renderer while retaining their own prompts and staged editing lifecycle. Runtime source fingerprints guard against using changed implementation files in an existing service. Published release compatibility and automatic package-version resolution remain unimplemented.\n"
+  },
+  {
+    "name": "docs_read",
+    "path": "30-guides/10-docs-mcp",
+    "ok": true
+  },
+  {
+    "name": "docs_check",
+    "path": "20-implementation/10-packages",
+    "ok": false,
+    "result": {
+      "ok": false,
+      "structurally_valid": true,
+      "hash": "8ca3773a802e1563abf865a530353b3264e6cb02b45f40bb58f8ac38e2c691d5",
+      "lint": {
+        "phase": "complete",
+        "findings": [
+          {
+            "blockId": "b-pkga-role",
+            "field": "text",
+            "evidence": "Structural decisions for the workspace package cut — how the docs system's code divides into packages and why the walls sit where they do. Source: \u0000 and \u0000.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-gov-design",
+            "field": "text",
+            "evidence": "\u0000 — owns the contracts these packages implement; the package cut only decides where the implementations live.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-firewall-w",
+            "field": "text",
+            "evidence": "Why: Directory organization follows dependency permission, not feature grouping — a feature-shaped cut was rejected because it lets one consumer's runtime and host policy leak into every other consumer of the shared code.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-firewall-a",
+            "field": "text",
+            "evidence": "Applies to: \u0000, \u0000 — including every future package and external mount.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-walls-d",
+            "field": "text",
+            "evidence": "Decision: Four runtime walls hold regardless of package renames — pure model (\u0000: free of React, TipTap, DOM, filesystem, network, and host code), server-side (\u0000, \u0000, and command-only \u0000 paths: Bun, SQLite, filesystem, and HTTP may live here and never enter browser packages), browser-side (\u0000: React and TipTap may live here; transport, persistence, routing, server policy, and external engines stay behind host seams), and the runnable app (\u0000: may import both sides because composition is its purpose; no lower package imports it). The dependency chain reads strictly downward: \u0000 → \u0000 → \u0000 → \u0000 → \u0000, with \u0000 depending only on \u0000 and \u0000 carrying no dependency edges at all.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-walls-w",
+            "field": "text",
+            "evidence": "Why: Collapsing a wall was rejected because it forces some consumer to carry a runtime it cannot use — the model in a browser bundle would drag Bun I/O, the viewer in a server would drag React. The workspace holds more directories than walls because each wall can contain smaller responsibility or distribution cuts.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-walls-a",
+            "field": "text",
+            "evidence": "Applies to: \u0000, \u0000 — a new package must land inside exactly one wall, and a new dependency edge must point downward.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-index-w",
+            "field": "text",
+            "evidence": "Why: SQLite forces server-side placement but not a separate package. Folding the index into docs-server was considered — the server is its primary consumer and owns the save hooks and connection cache, so co-location would remove glue — and rejected so rebuildable link analysis stays usable by link checks and maintenance scripts without constructing a server.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-index-a",
+            "field": "text",
+            "evidence": "Applies to: \u0000, \u0000 — future derived-state services follow the same HTTP-free library shape.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-cli-w",
+            "field": "text",
+            "evidence": "Why: Command-only use — render, search, migration, integrity — must be scriptable without starting the browser stack. Merging the CLI into the workbench was considered, since the CLI already depends on it and no runtime incompatibility separates them, and rejected to preserve a named executable surface whose install graph stays deliberate for command-only callers.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-cli-a",
+            "field": "text",
+            "evidence": "Applies to: \u0000, \u0000 — future app-shaped capability loads lazily behind a command.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-fw-w",
+            "field": "text",
+            "evidence": "Why: Workspace packaging makes the manual resolvable, versionable, and symlinkable into host repositories. Unpackaging it into plain repository content was considered — a running installation behaves identically without it — and rejected only on delivery convenience; the boundary names a distribution unit, not a runtime wall.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-fw-a",
+            "field": "text",
+            "evidence": "Applies to: \u0000 — including any future content-only package.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-ext-w",
+            "field": "text",
+            "evidence": "Why: The layout records ownership — moving either project into \u0000 would falsely assign its engine and editor to the docs-system package graph. Rejected: vendoring the engines as docs-system packages.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-ext-a",
+            "field": "text",
+            "evidence": "Applies to: \u0000, \u0000 — every future externally owned project; seam rules live on \u0000.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-enf-a",
+            "field": "text",
+            "evidence": "Applies to: \u0000, \u0000, \u0000 — every future package joins the scoped suite.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-roster-model",
+            "field": "text",
+            "evidence": "\u0000 — the dependency-pure format authority: schema, operations, component registries, validation, and agent rendering.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-roster-index",
+            "field": "text",
+            "evidence": "\u0000 — the Bun/SQLite derived backlinks index, reference identity, and move fixup.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-roster-server",
+            "field": "text",
+            "evidence": "\u0000 — the embeddable mutation authority for one docs tree.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-roster-viewer",
+            "field": "text",
+            "evidence": "\u0000 — the browser-pure React renderer and editor with injected data and embed seams.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-roster-workbench",
+            "field": "text",
+            "evidence": "\u0000 — the runnable composition host; a running installation is docs-model + docs-index + docs-server + docs-viewer composed by this package.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-roster-cli",
+            "field": "text",
+            "evidence": "\u0000 — the scriptable command dialect an agent interacting with an installation speaks.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-roster-framework",
+            "field": "text",
+            "evidence": "\u0000 — the runtime-optional methodology, templates, and agent skill.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-roster-external",
+            "field": "text",
+            "evidence": "\u0000 — the independently owned engines and studios mounted under \u0000.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          }
+        ],
+        "blocking": [
+          {
+            "blockId": "b-pkga-role",
+            "field": "text",
+            "evidence": "Structural decisions for the workspace package cut — how the docs system's code divides into packages and why the walls sit where they do. Source: \u0000 and \u0000.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-gov-design",
+            "field": "text",
+            "evidence": "\u0000 — owns the contracts these packages implement; the package cut only decides where the implementations live.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-firewall-w",
+            "field": "text",
+            "evidence": "Why: Directory organization follows dependency permission, not feature grouping — a feature-shaped cut was rejected because it lets one consumer's runtime and host policy leak into every other consumer of the shared code.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-firewall-a",
+            "field": "text",
+            "evidence": "Applies to: \u0000, \u0000 — including every future package and external mount.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-walls-d",
+            "field": "text",
+            "evidence": "Decision: Four runtime walls hold regardless of package renames — pure model (\u0000: free of React, TipTap, DOM, filesystem, network, and host code), server-side (\u0000, \u0000, and command-only \u0000 paths: Bun, SQLite, filesystem, and HTTP may live here and never enter browser packages), browser-side (\u0000: React and TipTap may live here; transport, persistence, routing, server policy, and external engines stay behind host seams), and the runnable app (\u0000: may import both sides because composition is its purpose; no lower package imports it). The dependency chain reads strictly downward: \u0000 → \u0000 → \u0000 → \u0000 → \u0000, with \u0000 depending only on \u0000 and \u0000 carrying no dependency edges at all.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-walls-w",
+            "field": "text",
+            "evidence": "Why: Collapsing a wall was rejected because it forces some consumer to carry a runtime it cannot use — the model in a browser bundle would drag Bun I/O, the viewer in a server would drag React. The workspace holds more directories than walls because each wall can contain smaller responsibility or distribution cuts.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-walls-a",
+            "field": "text",
+            "evidence": "Applies to: \u0000, \u0000 — a new package must land inside exactly one wall, and a new dependency edge must point downward.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-index-w",
+            "field": "text",
+            "evidence": "Why: SQLite forces server-side placement but not a separate package. Folding the index into docs-server was considered — the server is its primary consumer and owns the save hooks and connection cache, so co-location would remove glue — and rejected so rebuildable link analysis stays usable by link checks and maintenance scripts without constructing a server.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-index-a",
+            "field": "text",
+            "evidence": "Applies to: \u0000, \u0000 — future derived-state services follow the same HTTP-free library shape.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-cli-w",
+            "field": "text",
+            "evidence": "Why: Command-only use — render, search, migration, integrity — must be scriptable without starting the browser stack. Merging the CLI into the workbench was considered, since the CLI already depends on it and no runtime incompatibility separates them, and rejected to preserve a named executable surface whose install graph stays deliberate for command-only callers.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-cli-a",
+            "field": "text",
+            "evidence": "Applies to: \u0000, \u0000 — future app-shaped capability loads lazily behind a command.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-fw-w",
+            "field": "text",
+            "evidence": "Why: Workspace packaging makes the manual resolvable, versionable, and symlinkable into host repositories. Unpackaging it into plain repository content was considered — a running installation behaves identically without it — and rejected only on delivery convenience; the boundary names a distribution unit, not a runtime wall.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-fw-a",
+            "field": "text",
+            "evidence": "Applies to: \u0000 — including any future content-only package.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-ext-w",
+            "field": "text",
+            "evidence": "Why: The layout records ownership — moving either project into \u0000 would falsely assign its engine and editor to the docs-system package graph. Rejected: vendoring the engines as docs-system packages.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-ext-a",
+            "field": "text",
+            "evidence": "Applies to: \u0000, \u0000 — every future externally owned project; seam rules live on \u0000.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-enf-a",
+            "field": "text",
+            "evidence": "Applies to: \u0000, \u0000, \u0000 — every future package joins the scoped suite.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-roster-model",
+            "field": "text",
+            "evidence": "\u0000 — the dependency-pure format authority: schema, operations, component registries, validation, and agent rendering.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-roster-index",
+            "field": "text",
+            "evidence": "\u0000 — the Bun/SQLite derived backlinks index, reference identity, and move fixup.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-roster-server",
+            "field": "text",
+            "evidence": "\u0000 — the embeddable mutation authority for one docs tree.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-roster-viewer",
+            "field": "text",
+            "evidence": "\u0000 — the browser-pure React renderer and editor with injected data and embed seams.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-roster-workbench",
+            "field": "text",
+            "evidence": "\u0000 — the runnable composition host; a running installation is docs-model + docs-index + docs-server + docs-viewer composed by this package.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-roster-cli",
+            "field": "text",
+            "evidence": "\u0000 — the scriptable command dialect an agent interacting with an installation speaks.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-roster-framework",
+            "field": "text",
+            "evidence": "\u0000 — the runtime-optional methodology, templates, and agent skill.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          },
+          {
+            "blockId": "b-pkga-roster-external",
+            "field": "text",
+            "evidence": "\u0000 — the independently owned engines and studios mounted under \u0000.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": true
+          }
+        ]
+      },
+      "components": []
+    }
+  },
+  {
+    "name": "docs_end",
+    "ok": true
+  }
+]

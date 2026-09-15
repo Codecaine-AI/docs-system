@@ -2,10 +2,12 @@ import type { DocBlockDescriptor } from "../../render/block-registry";
 import { calloutDescriptor } from "./callout";
 import { dividerDescriptor } from "./divider";
 import { headingDescriptor } from "./heading";
+import { imageGridDescriptor } from "./image-grid";
 import { imageDescriptor } from "./image";
 import { listItemDescriptor } from "./list-item";
 import { paragraphDescriptor } from "./paragraph";
 import { quoteDescriptor } from "./quote";
+import { htmlDescriptor } from "./html";
 import { videoDescriptor } from "./video";
 
 /**
@@ -21,6 +23,8 @@ export const descriptors: DocBlockDescriptor[] = [
   quoteDescriptor,
   dividerDescriptor,
   imageDescriptor,
+  imageGridDescriptor,
   videoDescriptor,
+  htmlDescriptor,
   calloutDescriptor,
 ];

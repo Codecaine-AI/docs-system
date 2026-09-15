@@ -1,0 +1,377 @@
+{
+  "schemaVersion": 1,
+  "id": "doc-88bcfc08e626f60cdb02f02c4d76ab98",
+  "title": "Document and Asset Management",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "full-management-0",
+        "full-management-1",
+        "full-management-2",
+        "full-management-3",
+        "full-management-4",
+        "full-management-5",
+        "full-management-6",
+        "full-management-7",
+        "full-management-8",
+        "full-management-9",
+        "full-management-10",
+        "full-management-11",
+        "full-management-12",
+        "full-management-13",
+        "full-management-14",
+        "full-management-15",
+        "full-management-16",
+        "full-management-17",
+        "full-management-18",
+        "full-management-19",
+        "full-management-20",
+        "full-management-21",
+        "full-management-22",
+        "full-management-23"
+      ]
+    },
+    "full-management-0": {
+      "id": "full-management-0",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Use the connected tools for normal authoring and for reorganizing documentation. Section moves include descendants. Asset relocation transfers ownership while updating the pages that use the asset. These procedures use the shared Docs service and do not run an internal model agent."
+        }
+      ],
+      "children": []
+    },
+    "full-management-1": {
+      "id": "full-management-1",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Authoring Coverage"
+        }
+      ],
+      "children": []
+    },
+    "full-management-2": {
+      "id": "full-management-2",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Need",
+          "Tools",
+          "Behavior"
+        ],
+        "rows": [
+          [
+            "Pages and sections",
+            "docs_create, docs_move, docs_rename, docs_delete, docs_set_title",
+            "Create pages, relocate or renumber subtrees, change display titles, and delete reviewed pages or subtrees."
+          ],
+          [
+            "Assets and components",
+            "docs_assets, docs_asset_read, docs_asset_upload, docs_asset_move, docs_asset_delete, docs_component_create",
+            "Inventory unused files; upload media; create validated Canvas or Sequence sidecars; transfer or remove assets without dangling references."
+          ],
+          [
+            "Content",
+            "docs_apply_ops, docs_insert, docs_write_text, docs_component_read, generated component actions",
+            "Edit typed block structure and component state with revisions; preserve document and block IDs."
+          ],
+          [
+            "Review and recovery",
+            "docs_annotation_*, docs_proposals, docs_proposal_*, docs_changesets, docs_changeset_*, docs_undo, docs_management_restore",
+            "Handle discussion and staged review. Content patches and management journals have separate restore mechanisms."
+          ],
+          [
+            "Discovery and verification",
+            "docs_discover, docs_tree, docs_search, docs_backlinks, docs_begin, docs_guidance, docs_check, docs_end",
+            "Find the project and pages, load maintained guidance, and verify every affected document."
+          ]
+        ]
+      },
+      "children": []
+    },
+    "full-management-3": {
+      "id": "full-management-3",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The advertised schemas are the current tool contract. Runtime administration, client installation, publication, and arbitrary filesystem commands are separate from document authoring. An unavailable future operation still requires an explicit service adapter rather than direct storage-file edits."
+        }
+      ],
+      "children": []
+    },
+    "full-management-4": {
+      "id": "full-management-4",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Rename or Move a Section"
+        }
+      ],
+      "children": []
+    },
+    "full-management-5": {
+      "id": "full-management-5",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "1. Discover the project, begin a task, and read the section root with docs_read. Keep its hash. docs_rename takes the section path and a new directory name; docs_move takes the source path and a destination path in the same project."
+        }
+      ],
+      "children": []
+    },
+    "full-management-6": {
+      "id": "full-management-6",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "2. Call the operation with its source expected_hash. Preview is the default. Review files, children, and rewritten_sources. The service plans descendant document links, Canvas links, media references, and paths to assets outside the moving subtree."
+        }
+      ],
+      "children": []
+    },
+    "full-management-7": {
+      "id": "full-management-7",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "3. Apply with preview:false and expected_tree_hash set to the preview tree_hash. A change anywhere in the captured corpus invalidates that plan. Read the destination and run docs_check on affected documents. A directory rename preserves page IDs, block IDs, and titles; use docs_set_title when the display title should change."
+        }
+      ],
+      "children": []
+    },
+    "full-management-8": {
+      "id": "full-management-8",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Move a Shared Canvas Before Deleting Its Old Page"
+        }
+      ],
+      "children": []
+    },
+    "full-management-9": {
+      "id": "full-management-9",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "1. Use docs_assets or the referencing block to locate the Canvas. Read its source path with docs_asset_read to get the asset hash. Asset paths are relative to the docs root."
+        }
+      ],
+      "children": []
+    },
+    "full-management-10": {
+      "id": "full-management-10",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "2. Preview docs_asset_move with path, to, and expected_hash. The destination must be in an existing page assets directory and retain the component file type. For example, move an Architecture Canvas into System Design assets/canvases before removing Architecture."
+        }
+      ],
+      "children": []
+    },
+    "full-management-11": {
+      "id": "full-management-11",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "3. Apply the reviewed preview. The service moves the asset bytes and rewrites referring src values. It also maintains attachment links, media posters, and annotation Canvas targets. Read the System Design page and component, then run docs_check to verify the surviving embed."
+        }
+      ],
+      "children": []
+    },
+    "full-management-12": {
+      "id": "full-management-12",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "4. Preview docs_delete on the old page with its fresh document hash. Repair any remaining inbound links. Use recursive:true only when the intended deletion includes all children. Apply the reviewed preview and inspect the remaining tree."
+        }
+      ],
+      "children": []
+    },
+    "full-management-13": {
+      "id": "full-management-13",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A reference to a file inside an old page does not transfer ownership. Move the asset itself before deleting the owning page. Deletion refuses references from outside the deletion set, including references to descendant pages and bundled assets."
+        }
+      ],
+      "children": []
+    },
+    "full-management-14": {
+      "id": "full-management-14",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Recovery and Coordination"
+        }
+      ],
+      "children": []
+    },
+    "full-management-15": {
+      "id": "full-management-15",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Keep tree_change_id from every applied management operation. docs_management_restore previews restoring that change. Apply its reviewed tree hash to restore captured content. Restore refuses changed files, added descendants, occupied original paths, and active draft locks. It does not overwrite later work."
+        }
+      ],
+      "children": []
+    },
+    "full-management-16": {
+      "id": "full-management-16",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Management journals live under .changesets/file-management/<id>. They record the plan, captured bytes, application status, and hashes after application. Deleted bundles remain in the journal for recovery. Journals are not published documentation. A process or storage failure may require inspecting the retained journal; a failed rollback is reported explicitly."
+        }
+      ],
+      "children": []
+    },
+    "full-management-17": {
+      "id": "full-management-17",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Shared-store callers serialize corpus operations, while document and sidecar locks coordinate lower-level edits. Management checks the complete corpus before applying and checks draft locks on affected files. Separate service processes still do not share in-memory coordination. Finish standalone or internal editing activity before reorganizing the same corpus."
+        }
+      ],
+      "children": []
+    },
+    "full-management-18": {
+      "id": "full-management-18",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Symlinks, overlapping source/destination paths, destination collisions, invalid rewritten documents, and ambiguous asset paths are rejected. Management restore is distinct from docs_undo, which handles tracked content patches. Cross-project relocation is not an operation; use each project's explicit tools and ownership."
+        }
+      ],
+      "children": []
+    },
+    "full-management-19": {
+      "id": "full-management-19",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Source Ownership"
+        }
+      ],
+      "children": []
+    },
+    "full-management-20": {
+      "id": "full-management-20",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/docs-server/src/manage-files.ts",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-server/src/manage-files.ts"
+            }
+          }
+        },
+        {
+          "insert": " owns preview planning, reference rewrites, file locking, recovery journals, and guarded restoration."
+        }
+      ],
+      "children": []
+    },
+    "full-management-21": {
+      "id": "full-management-21",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/docs-server/src/store.ts",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-server/src/store.ts"
+            }
+          }
+        },
+        {
+          "insert": " exposes management through the shared authority and publishes change events."
+        }
+      ],
+      "children": []
+    },
+    "full-management-22": {
+      "id": "full-management-22",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/docs-mcp/src/tools.ts",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-mcp/src/tools.ts"
+            }
+          }
+        },
+        {
+          "insert": " owns typed schemas and adapters for external clients. The tool list is generated from these definitions and component actions."
+        }
+      ],
+      "children": []
+    },
+    "full-management-23": {
+      "id": "full-management-23",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/docs-mcp/skills/codecaine-docs/SKILL.md",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-mcp/skills/codecaine-docs/SKILL.md"
+            }
+          }
+        },
+        {
+          "insert": " teaches agents how to choose management and review tools. Refresh installed copies through the installer after changing it."
+        }
+      ],
+      "children": []
+    }
+  }
+}

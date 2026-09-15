@@ -1,3 +1,11 @@
+import { realpathSync } from "node:fs";
+import { resolve } from "node:path";
+
+/** Resolve symlink aliases so every host identifies the same corpus. */
+export function canonicalDocsRoot(docsRoot: string): string {
+  try { return realpathSync(docsRoot); } catch { return resolve(docsRoot); }
+}
+
 export type DraftLockKey = { kind: "doc" | "canvas" | "sequence"; path: string };
 
 /**
@@ -46,10 +54,18 @@ export type AcquireDraftLockResult =
 
 export class DraftLockStore {
   private readonly ttlMs: number;
-  private readonly locks = new Map<string, DraftLockInfo>();
+  private readonly locks: Map<string, DraftLockInfo>;
+  private readonly root: string;
 
-  constructor(ttlMs = 180_000) {
+  constructor(ttlMs = 180_000, locks = new Map<string, DraftLockInfo>(), root = "") {
     this.ttlMs = ttlMs;
+    this.locks = locks;
+    this.root = root;
+  }
+
+  /** Share leases within a corpus without colliding with another project. */
+  forRoot(docsRoot: string): DraftLockStore {
+    return new DraftLockStore(this.ttlMs, this.locks, canonicalDocsRoot(docsRoot));
   }
 
   acquire(key: DraftLockKey, sessionId: string, now = new Date()): AcquireDraftLockResult {
@@ -121,7 +137,7 @@ export class DraftLockStore {
   }
 
   private toLockKey(key: DraftLockKey): string {
-    return `${key.kind}:${canonicalDraftLockPath(key.path)}`;
+    return JSON.stringify([this.root, key.kind, canonicalDraftLockPath(key.path)]);
   }
 }
 

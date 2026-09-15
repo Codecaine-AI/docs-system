@@ -1,0 +1,54 @@
+{
+  "name": "Budget / Docs Framework",
+  "root": "/Users/Ford/Github Repos/Lascari AI/personal-budget/packages/docs-framework",
+  "status": "Applied",
+  "agent": "migrate_budget_framework",
+  "oldImplementationDirectoryExists": false,
+  "newImplementationDirectoryExists": true,
+  "recovery": [
+    {
+      "kind": "tree_change_id",
+      "id": "0d39d751-e91e-4e8b-81fd-f60cada446c5"
+    },
+    {
+      "kind": "patchId",
+      "id": "28528b33-b5b0-4b53-aaca-f0c9ab8108ce"
+    },
+    {
+      "kind": "patchId",
+      "id": "9c66e6c0-fc45-4bad-b196-554fc9103b1c"
+    },
+    {
+      "kind": "patchId",
+      "id": "f548b32d-45fc-4c0a-87cc-62ff5bb2f7f7"
+    },
+    {
+      "kind": "patchId",
+      "id": "6a57c5af-cf54-4557-954e-1438b7d420ad"
+    }
+  ],
+  "validation": {
+    "status": "complete",
+    "validation": {
+      "docsCheck": 38,
+      "staleReferences": 0,
+      "focusedTests": {
+        "pass": 10,
+        "fail": 0,
+        "expectCalls": 175
+      },
+      "gitDiffCheck": "pass",
+      "note": "Initial unqualified bun test paths also matched excluded nested corpus and failed missing dependencies there. Rerun with ./ paths passed both owned test files."
+    },
+    "preserved": {
+      "docs": 77,
+      "blocks": 2294,
+      "failures": []
+    },
+    "lint": {
+      "legacyFindings": 378,
+      "introduced": []
+    }
+  },
+  "fullReport": "/tmp/docs-layout-review/migrate_budget_framework.json"
+}

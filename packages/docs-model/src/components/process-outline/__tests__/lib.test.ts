@@ -2,8 +2,10 @@
 
 import { describe, expect, it } from "bun:test";
 import {
+  cloneStep,
   nodesToSteps,
   parseProcessOutline,
+  readStepTree,
   serializeProcessOutline,
   stepNodes,
 } from "../lib";
@@ -17,22 +19,25 @@ describe("parseProcessOutline", () => {
       {
         text: "Run mode",
         note: false,
+        trace: false,
         depth: 0,
         children: [
           {
             text: "Get candidates",
             note: false,
+            trace: false,
             depth: 1,
             children: [
-              { text: "Exclude locked work", note: false, depth: 2, children: [] },
+              { text: "Exclude locked work", note: false, trace: false, depth: 2, children: [] },
             ],
           },
           {
             text: "Drain workers",
             note: false,
+            trace: false,
             depth: 1,
             children: [
-              { text: "Spawn workers", note: false, depth: 2, children: [] },
+              { text: "Spawn workers", note: false, trace: false, depth: 2, children: [] },
             ],
           },
         ],
@@ -45,6 +50,7 @@ describe("parseProcessOutline", () => {
     expect(root.children[0].children[0]).toEqual({
       text: "workers produce tentative evidence",
       note: true,
+      trace: false,
       depth: 2,
       children: [],
     });
@@ -89,10 +95,10 @@ describe("parseProcessOutline", () => {
     const [root] = parseProcessOutline("Root\n       -> A\n  -> B\n       -> C");
     const a = root.children[0];
     const b = root.children[1];
-    expect(a).toEqual({ text: "A", note: false, depth: 1, children: [] });
+    expect(a).toEqual({ text: "A", note: false, trace: false, depth: 1, children: [] });
     expect(b.text).toBe("B");
     expect(b.depth).toBe(1);
-    expect(b.children).toEqual([{ text: "C", note: false, depth: 2, children: [] }]);
+    expect(b.children).toEqual([{ text: "C", note: false, trace: false, depth: 2, children: [] }]);
   });
 });
 
@@ -170,6 +176,38 @@ describe("serialize/parse round-trip", () => {
       const steps = randomSteps(rand, 0);
       expect(parseProcessOutline(serializeProcessOutline(steps))).toEqual(stepNodes(steps));
     }
+  });
+
+  it("parses `=>` as a trace-marked step and keeps the marker out of the text", () => {
+    const nodes = parseProcessOutline("Run\n  => Drain\n  -> Sweep");
+    expect(nodes[0].children[0]).toEqual({
+      text: "Drain",
+      note: false,
+      trace: true,
+      depth: 1,
+      children: [],
+    });
+    expect(nodes[0].children[1].trace).toBe(false);
+  });
+
+  it("serializes a trace-marked step as `=>` at every depth, roots included", () => {
+    const steps: ProcessOutlineStep[] = [
+      { text: "Run", trace: true, steps: [{ text: "Drain", trace: true }, { text: "Sweep" }] },
+    ];
+    expect(serializeProcessOutline(steps)).toBe("=> Run\n     => Drain\n     -> Sweep");
+  });
+
+  it("round-trips trace marks through notation", () => {
+    const steps: ProcessOutlineStep[] = [
+      { text: "Run", trace: true, steps: [{ text: "Drain" }, { text: "why", kind: "note" }] },
+    ];
+    expect(parseProcessOutline(serializeProcessOutline(steps))).toEqual(stepNodes(steps));
+  });
+
+  it("carries the trace flag through the tolerant read and the clone", () => {
+    const tree = readStepTree([{ text: "Run", trace: true }, { text: "Sweep", trace: false }]);
+    expect(tree).toEqual([{ text: "Run", trace: true }, { text: "Sweep" }]);
+    expect(cloneStep(tree[0])).toEqual({ text: "Run", trace: true });
   });
 
   it("round-trips parse output through nodesToSteps and back", () => {

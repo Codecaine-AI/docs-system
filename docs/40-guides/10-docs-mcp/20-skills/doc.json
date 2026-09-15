@@ -1,0 +1,338 @@
+{
+  "schemaVersion": 1,
+  "id": "doc-fbcae849d48a5ffd75b457615fdd12ef",
+  "title": "Skills and Component Knowledge",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "maintenance-0",
+        "maintenance-1",
+        "maintenance-2",
+        "maintenance-3",
+        "maintenance-4",
+        "maintenance-5",
+        "maintenance-6",
+        "maintenance-7",
+        "maintenance-8",
+        "maintenance-9",
+        "maintenance-10",
+        "maintenance-11",
+        "maintenance-12",
+        "maintenance-13",
+        "maintenance-14",
+        "maintenance-15",
+        "maintenance-16",
+        "maintenance-17",
+        "maintenance-18",
+        "maintenance-19",
+        "maintenance-20"
+      ]
+    },
+    "maintenance-0": {
+      "id": "maintenance-0",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Change the maintained source, regenerate derived references, and refresh installed copies. Editing an installed skill alone creates a local difference that the next installation can overwrite."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-1": {
+      "id": "maintenance-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Docs MCP",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "30-implementation/10-packages/85-docs-mcp"
+            }
+          }
+        },
+        {
+          "insert": " describes the service and the shared authoring context."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-2": {
+      "id": "maintenance-2",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Maintained Sources"
+        }
+      ],
+      "children": []
+    },
+    "maintenance-3": {
+      "id": "maintenance-3",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/docs-mcp/skills/codecaine-docs/SKILL.md",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-mcp/skills/codecaine-docs/SKILL.md"
+            }
+          }
+        },
+        {
+          "insert": " owns the external-agent workflow, trigger description, and skill metadata."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-4": {
+      "id": "maintenance-4",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/docs-model/src/authoring-guidance.ts",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/authoring-guidance.ts"
+            }
+          }
+        },
+        {
+          "insert": " owns AUTHORING_BUNDLES, the standard and style document lists, component catalog assembly, and shared rendering."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-5": {
+      "id": "maintenance-5",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/docs-model/src/components/index.ts",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/components/index.ts"
+            }
+          }
+        },
+        {
+          "insert": " registers component bundles. Each component manifest supplies authoring metadata with whenToUse, example, and docsPath."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-6": {
+      "id": "maintenance-6",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/docs-model/src/visual-component-guidance.ts",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/visual-component-guidance.ts"
+            }
+          }
+        },
+        {
+          "insert": " owns the shared visual-selection text used with the component catalog."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-7": {
+      "id": "maintenance-7",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/docs-mcp/src/guidance.ts",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-mcp/src/guidance.ts"
+            }
+          }
+        },
+        {
+          "insert": " loads and validates canonical documents, hashes guidance sources, and generates portable skill references."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-8": {
+      "id": "maintenance-8",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "What the Agent Receives"
+        }
+      ],
+      "children": []
+    },
+    "maintenance-9": {
+      "id": "maintenance-9",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The server advertises tools and startup instructions. docs_begin returns the writing standards, full component-selection catalog, task ID, and snapshot identity. docs_guidance can retrieve one component reference by component name. The MCP resource codecaine://docs/guidance exposes current rendered guidance. There is no MCP prompts capability in this implementation."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-10": {
+      "id": "maintenance-10",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The installed skill tells the coding agent when and how to use those tools. Installation places references/standards.md, references/components.md, references/components/<name>.md, and snapshot.json beside SKILL.md. These files are generated from the canonical corpus and manifests; they are not independent standards."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-11": {
+      "id": "maintenance-11",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The catalog covers rich text, annotated Code, File Tree, Structured Table, State Shape, Interaction Surface, Canvas, Sequence, and Process Outline. Component purposes load together; detailed references can be fetched only when needed. Connecting an MCP does not prove a client selected the skill. Test implicit use in each client."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-12": {
+      "id": "maintenance-12",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Change Writing or Component Guidance"
+        }
+      ],
+      "children": []
+    },
+    "maintenance-13": {
+      "id": "maintenance-13",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "1. For wording and standards, read the canonical document through Docs tools, apply a typed edit, and run docs_check. For tool-use workflow, edit the source SKILL.md. Project-specific standards overrides are not implemented."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-14": {
+      "id": "maintenance-14",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "2. For component selection, update the component manifest authoring metadata and its canonical reference together. Change the shared visual guidance only when the selection rule itself changes."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-15": {
+      "id": "maintenance-15",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "3. For a new component, register its bundle, state schema, typed actions, and rendering using the existing component contract. Add its canonical documentation and manifest metadata. A skill reference alone does not implement editing tools."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-16": {
+      "id": "maintenance-16",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "4. Refresh the client installation and begin a new authoring task. Restart the service first when imported TypeScript changed. Inspect docs_guidance for the changed component and verify a real typed edit."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-17": {
+      "id": "maintenance-17",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Synchronization and Updates",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "40-guides/10-docs-mcp/30-sync"
+            }
+          }
+        },
+        {
+          "insert": " gives the commands and restart decisions."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-18": {
+      "id": "maintenance-18",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Built-in Agents and PromptKit"
+        }
+      ],
+      "children": []
+    },
+    "maintenance-19": {
+      "id": "maintenance-19",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The Docs Lab context loader at packages/docs-kernel/catalog/docs-lab-editor/context/index.ts and the sibling agent-kernel/catalog/docs-writer/context/index.ts both use the shared authoring-guidance renderer. Their prompts, model configuration, context loading, and staged editing sessions remain owned by those agents. External MCP edits do not run those agents."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-20": {
+      "id": "maintenance-20",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "PromptKit remains responsible for its own prompt machinery. This integration has no PromptKit editing adapter and does not turn every internal prompt into an MCP prompt. A future product service can follow the same separation between typed operations, maintained knowledge, and client installation. Such adapters must document their own state ownership and validation before claiming coverage."
+        }
+      ],
+      "children": []
+    }
+  }
+}

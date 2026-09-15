@@ -1,0 +1,566 @@
+{
+  "schemaVersion": 1,
+  "id": "20-implementation-10-packages-40-docs-viewer",
+  "title": "docs-viewer",
+  "root": "b-40-docs-viewer-root",
+  "blocks": {
+    "b-40-docs-viewer-root": {
+      "id": "b-40-docs-viewer-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-dv-role",
+        "b-dv-gov-h",
+        "b-dv-gov-editor",
+        "b-dv-gov-vocab",
+        "b-dv-decisions-h",
+        "b-dv-dep-h",
+        "b-dv-dep-d",
+        "b-dv-dep-w",
+        "b-dv-dep-a",
+        "b-dv-ops-h",
+        "b-dv-ops-d",
+        "b-dv-ops-w",
+        "b-dv-ops-a",
+        "b-dv-mirror-h",
+        "b-dv-mirror-d",
+        "b-dv-mirror-w",
+        "b-dv-mirror-a",
+        "grid-doc-1789403405144-0",
+        "grid-doc-1789403405144-1",
+        "grid-doc-1789403405144-2",
+        "grid-doc-1789403405144-3"
+      ]
+    },
+    "b-dv-role": {
+      "id": "b-dv-role",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The browser-only React package that turns validated documents into reading, editing, peeking, and annotation surfaces, with hosts supplying data access, navigation, persistence callbacks, and embed implementations. Source: "
+        },
+        {
+          "insert": "packages/docs-viewer",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-dv-gov-h": {
+      "id": "b-dv-gov-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Governed By"
+        }
+      ],
+      "children": []
+    },
+    "b-dv-gov-editor": {
+      "id": "b-dv-gov-editor",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Editor design",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design",
+              "label": "Editor design"
+            }
+          }
+        },
+        {
+          "insert": ". the interaction and presentation rules the package implements."
+        }
+      ],
+      "children": []
+    },
+    "b-dv-gov-vocab": {
+      "id": "b-dv-gov-vocab",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Block vocabulary",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary",
+              "label": "Block vocabulary"
+            }
+          }
+        },
+        {
+          "insert": ". the block definitions each renderer realizes."
+        }
+      ],
+      "children": []
+    },
+    "b-dv-decisions-h": {
+      "id": "b-dv-decisions-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Decisions"
+        }
+      ],
+      "children": []
+    },
+    "b-dv-dep-h": {
+      "id": "b-dv-dep-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Model-only dependency; host actions leave through seams"
+        }
+      ],
+      "children": []
+    },
+    "b-dv-dep-d": {
+      "id": "b-dv-dep-d",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Decision: The package's only workspace dependency is docs-model; it imports no docs-index, docs-server, docs-workbench, filesystem, SQLite, or external engine code. Every host-dependent action. data reads, navigation, persistence, locks, uploads, canvas and sequence embeds. enters or leaves through the "
+        },
+        {
+          "insert": "DocsClientProvider",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " seams and typed callbacks in "
+        },
+        {
+          "insert": "packages/docs-viewer/src/client.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/client.tsx"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-dv-dep-w": {
+      "id": "b-dv-dep-w",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Why: Browser purity in both directions keeps the format dependency-pure and the viewer liftable into an arbitrary React host. Rejected: importing transport, storage, or engines directly, which would weld the viewer to one host."
+        }
+      ],
+      "children": []
+    },
+    "b-dv-dep-a": {
+      "id": "b-dv-dep-a",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Applies to: "
+        },
+        {
+          "insert": "packages/docs-viewer",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". every future surface and capability; host-app imports are enforced by "
+        },
+        {
+          "insert": "import-boundaries.test.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "import-boundaries.test.ts"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-dv-ops-h": {
+      "id": "b-dv-ops-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "The editor emits operations, never bytes"
+        }
+      ],
+      "children": []
+    },
+    "b-dv-ops-d": {
+      "id": "b-dv-ops-d",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Decision: The editor produces "
+        },
+        {
+          "insert": "DocOp[]",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " batches by identity diff. "
+        },
+        {
+          "insert": "pmToDoc",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": "diffToOps",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "packages/docs-viewer/src/editor/core/convert.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/editor/core/convert.ts"
+            }
+          }
+        },
+        {
+          "insert": ". and hands them to the host through the single "
+        },
+        {
+          "insert": "onApplyOps",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " callback. It never constructs requests, writes documents, or learns URLs, expected-hash envelopes, disk, undo storage, or event delivery."
+        }
+      ],
+      "children": []
+    },
+    "b-dv-ops-w": {
+      "id": "b-dv-ops-w",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Why: A direct write would cross the host boundary and bypass the mutation authority's hash, validation, undo, and event guarantees. Rejected: editor-owned persistence."
+        }
+      ],
+      "children": []
+    },
+    "b-dv-ops-a": {
+      "id": "b-dv-ops-a",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Applies to: "
+        },
+        {
+          "insert": "packages/docs-viewer/src/editor",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". every future editing surface and flush trigger converges on the same conversion, diff, and "
+        },
+        {
+          "insert": "onApplyOps",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " boundary."
+        }
+      ],
+      "children": []
+    },
+    "b-dv-mirror-h": {
+      "id": "b-dv-mirror-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Renderer components mirror model component ownership"
+        }
+      ],
+      "children": []
+    },
+    "b-dv-mirror-d": {
+      "id": "b-dv-mirror-d",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Decision: Each model component has a same-named folder under "
+        },
+        {
+          "insert": "packages/docs-viewer/src/components",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/components"
+            }
+          }
+        },
+        {
+          "insert": " owning its read descriptor and its "
+        },
+        {
+          "insert": "editor-nodes.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " exports; the rich-text family subdivides one file per type inside its folder, and "
+        },
+        {
+          "insert": "linked-panels",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is the explicit shared primitive layer. "
+        },
+        {
+          "insert": "packages/docs-viewer/src/__tests__/component-mirror.test.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/__tests__/component-mirror.test.ts"
+            }
+          }
+        },
+        {
+          "insert": " enforces exact folder parity with docs-model's "
+        },
+        {
+          "insert": "ALL_COMPONENTS",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in both directions, the descriptor registry closes over "
+        },
+        {
+          "insert": "DOC_BLOCK_TYPES",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "editor-nodes-sync.test.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " pins the node/block mappings. A new block component adds its viewer folder, descriptor, and node exports to pass."
+        }
+      ],
+      "children": []
+    },
+    "b-dv-mirror-w": {
+      "id": "b-dv-mirror-w",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Why: Folder parity and registry closure prevent a model component or block type from silently becoming unreadable, and keep the central literals reviewable while the tests stop either side from drifting. Rejected: one central renderers file, which hides ownership and breaks the mirror."
+        }
+      ],
+      "children": []
+    },
+    "b-dv-mirror-a": {
+      "id": "b-dv-mirror-a",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Applies to: "
+        },
+        {
+          "insert": "packages/docs-viewer/src/components",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "packages/docs-viewer/src/render/block-registry.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", the two parity tests. every future block component."
+        }
+      ],
+      "children": []
+    },
+    "grid-doc-1789403405144-0": {
+      "id": "grid-doc-1789403405144-0",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Image Grid Rendering and Editing"
+        }
+      ],
+      "children": []
+    },
+    "grid-doc-1789403405144-1": {
+      "id": "grid-doc-1789403405144-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Decision: The rich-text image-grid descriptor and editor node view share ImageGrid. The editor modifies typed props through updateAttributes and the existing operation diff."
+        }
+      ],
+      "children": []
+    },
+    "grid-doc-1789403405144-2": {
+      "id": "grid-doc-1789403405144-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Why: One image renderer keeps asset resolution, ordering, and proportions consistent in readers, editor previews, static Docs exports, and published articles. CSS handles column wrapping without a client layout dependency."
+        }
+      ],
+      "children": []
+    },
+    "grid-doc-1789403405144-3": {
+      "id": "grid-doc-1789403405144-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Applies to: "
+        },
+        {
+          "insert": "image-grid.tsx",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/components/rich-text/image-grid.tsx"
+            }
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "image-grid-editor-node-view.tsx",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/components/rich-text/image-grid-editor-node-view.tsx"
+            }
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "image-grid.css",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/styles/image-grid.css"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    }
+  }
+}

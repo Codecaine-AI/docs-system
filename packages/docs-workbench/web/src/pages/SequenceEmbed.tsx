@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { ExternalLinkIcon } from "lucide-react";
+import { createPortal } from "react-dom";
+import { ExternalLinkIcon, Maximize2Icon, XIcon } from "lucide-react";
 import type { SequenceEmbedProps } from "@codecaine-ai/docs-viewer/client";
 import {
   SequenceViewer,
@@ -8,6 +9,7 @@ import {
 } from "@codecaine-ai/sequence";
 
 import { getSequenceBySrc } from "../data/api";
+import "./sequence-embed.css";
 
 /**
  * Read-only standalone sequence embed, wired into DocBlockRenderer through
@@ -26,13 +28,40 @@ import { getSequenceBySrc } from "../data/api";
  *
  * No editing, no saving — this viewer is read-only by design.
  */
-export function StandaloneSequenceEmbed({ src, sequenceId, id, title }: SequenceEmbedProps) {
-  const [document, setDocument] = useState<SequenceDocument | null>(null);
+type StandaloneSequenceEmbedProps = SequenceEmbedProps & {
+  /** Static hosts reuse this UI without a workbench transport. */
+  initialDocument?: SequenceDocument;
+  initiallyOpen?: boolean;
+  onViewerClose?: () => void;
+};
+export function StandaloneSequenceEmbed({ src, sequenceId, id, title, initialDocument, initiallyOpen = false, onViewerClose }: StandaloneSequenceEmbedProps) {
+  const [document, setDocument] = useState<SequenceDocument | null>(initialDocument ?? null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const loadSeqRef = useRef(0);
+  const [viewerOpen, setViewerOpen] = useState(initiallyOpen);
+  useEffect(() => { if (!viewerOpen) onViewerClose?.(); }, [viewerOpen, onViewerClose]);
+  const [zoom, setZoom] = useState(1);
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const previewRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
+    if (!viewerOpen) return;
+    const dialog = dialogRef.current;
+    const previousOverflow = window.document.body.style.overflow;
+    dialog?.showModal();
+    window.document.body.style.overflow = "hidden";
+    return () => {
+      dialog?.close();
+      window.document.body.style.overflow = previousOverflow;
+      previewRef.current?.focus();
+    };
+  }, [viewerOpen]);
+
+  useEffect(() => {
+    if (initialDocument && !src) return;
+    setViewerOpen(false);
+    setDocument(null);
     if (!src) return;
     const seq = ++loadSeqRef.current;
     const isCurrent = () => seq === loadSeqRef.current;
@@ -55,7 +84,8 @@ export function StandaloneSequenceEmbed({ src, sequenceId, id, title }: Sequence
         if (isCurrent()) setIsLoading(false);
       }
     })();
-  }, [src]);
+    return () => { loadSeqRef.current += 1; };
+  }, [src, initialDocument]);
 
   if (sequenceId && !src) {
     const studioOrigin =
@@ -120,13 +150,53 @@ export function StandaloneSequenceEmbed({ src, sequenceId, id, title }: Sequence
     );
   }
 
+  const viewerDocument = { ...document, title: title ?? document.title };
+  const viewerTitle = viewerDocument.title ?? "Sequence diagram";
+
   return (
-    <section
-      className="not-prose my-4 overflow-x-auto"
-      data-docs-block-type="sequence"
-      data-source-id={id}
-    >
-      <SequenceViewer document={{ ...document, title: title ?? document.title }} />
-    </section>
+    <>
+      <section
+        className="not-prose my-4 docs-sequence-preview"
+        data-docs-block-type="sequence"
+        data-source-id={id}
+      >
+        <button
+          ref={previewRef}
+          type="button"
+          className="docs-sequence-preview-button"
+          aria-label={`Open ${viewerTitle} in full-screen viewer`}
+          onMouseDown={(event) => event.stopPropagation()}
+          onClick={(event) => { event.stopPropagation(); setZoom(1); setViewerOpen(true); }}
+        >
+          <SequenceViewer document={viewerDocument} />
+          <span className="docs-sequence-expand"><Maximize2Icon size={14} /> View larger</span>
+        </button>
+      </section>
+      {viewerOpen && createPortal(
+        <dialog
+          ref={dialogRef}
+          className="docs-sequence-dialog not-prose bg-background text-foreground"
+          aria-label={`${viewerTitle} sequence viewer`}
+          onCancel={() => setViewerOpen(false)}
+          onClose={() => setViewerOpen(false)}
+        >
+          <header className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b p-3">
+            <div className="min-w-0 flex-1 truncate font-medium">{viewerTitle}</div>
+            <div className="flex items-center gap-2">
+              <button type="button" className="rounded border px-3 py-1 disabled:opacity-40" aria-label="Zoom out" disabled={zoom <= 1} onClick={() => setZoom(value => Math.max(1, value - 0.5))}>−</button>
+              <output className="w-12 text-center text-sm" aria-label="Zoom level">{Math.round(zoom * 100)}%</output>
+              <button type="button" className="rounded border px-3 py-1 disabled:opacity-40" aria-label="Zoom in" disabled={zoom >= 4} onClick={() => setZoom(value => Math.min(4, value + 0.5))}>+</button>
+              <button type="button" className="rounded border px-3 py-1" onClick={() => setZoom(1)}>Fit</button>
+              <button type="button" className="rounded border p-2" aria-label="Close sequence viewer" onClick={() => setViewerOpen(false)}><XIcon size={18} /></button>
+            </div>
+          </header>
+          <div className="docs-sequence-viewport" tabIndex={0} aria-label="Scrollable sequence diagram">
+            <div className="docs-sequence-expanded" style={{ width: `${zoom * 100}%`, height: `${zoom * 100}%` }}>
+              <SequenceViewer document={viewerDocument} />
+            </div>
+          </div>
+        </dialog>, window.document.body,
+      )}
+    </>
   );
 }

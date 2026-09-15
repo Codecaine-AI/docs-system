@@ -1,0 +1,162 @@
+/* Shared list markers for the Docs editor and static renderer. */
+.docs-markdown [data-doc-list-marker] {
+  font-family: var(--docs-font-numeric, inherit);
+  color: var(--docs-list-marker-fg, inherit);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--docs-list-indent, 1.5rem);
+  height: 1.7em;
+  height: 1lh;
+  line-height: inherit;
+}
+
+/*
+ * List-item nested children carry NO extra indent (Notion metrics): a nested
+ * list item's own 24px marker box supplies the per-level step, and a nested
+ * paragraph aligns flush with the parent item's text. The read surface's
+ * children wrapper (LIST_ITEM_CHILDREN_CLASSES) is likewise indent-free, so
+ * the editor needs no mirroring rule anymore.
+ *
+ * Ordered list numbering: consecutive `data-doc-ordered` siblings form one
+ * counter run — the run's FIRST item carries the counter-reset (a reset
+ * scopes the counter over the element and its following siblings), so a
+ * bullet/paragraph between runs restarts the numbering, and a nested run
+ * (whose first ordered item follows the item's text wrapper or starts its
+ * children div) numbers independently of its ancestors' run.
+ */
+.docs-markdown [data-doc-ordered="true"] {
+  counter-increment: docs-ordered-list;
+}
+
+.docs-markdown [data-doc-ordered="true"]:first-child,
+.docs-markdown :not([data-doc-ordered="true"]) + [data-doc-ordered="true"] {
+  counter-reset: docs-ordered-list;
+}
+
+/*
+ * Marker style cycles with ordered-nesting depth like Notion: 1. → a. → i.,
+ * then repeats. Depth = number of ordered-item ancestors (the descendant
+ * combinator crosses the content column on both surfaces); deeper selectors
+ * are more specific, so the deepest matching rule wins.
+ */
+.docs-markdown [data-doc-ordered="true"] > [data-doc-list-marker]::before {
+  content: counter(docs-ordered-list) ".";
+}
+
+.docs-markdown [data-doc-ordered="true"] [data-doc-ordered="true"] > [data-doc-list-marker]::before {
+  content: counter(docs-ordered-list, lower-alpha) ".";
+}
+
+.docs-markdown
+  [data-doc-ordered="true"]
+  [data-doc-ordered="true"]
+  [data-doc-ordered="true"]
+  > [data-doc-list-marker]::before {
+  content: counter(docs-ordered-list, lower-roman) ".";
+}
+
+.docs-markdown
+  [data-doc-ordered="true"]
+  [data-doc-ordered="true"]
+  [data-doc-ordered="true"]
+  [data-doc-ordered="true"]
+  > [data-doc-list-marker]::before {
+  content: counter(docs-ordered-list) ".";
+}
+
+.docs-markdown
+  [data-doc-ordered="true"]
+  [data-doc-ordered="true"]
+  [data-doc-ordered="true"]
+  [data-doc-ordered="true"]
+  [data-doc-ordered="true"]
+  > [data-doc-list-marker]::before {
+  content: counter(docs-ordered-list, lower-alpha) ".";
+}
+
+.docs-markdown
+  [data-doc-ordered="true"]
+  [data-doc-ordered="true"]
+  [data-doc-ordered="true"]
+  [data-doc-ordered="true"]
+  [data-doc-ordered="true"]
+  [data-doc-ordered="true"]
+  > [data-doc-list-marker]::before {
+  content: counter(docs-ordered-list, lower-roman) ".";
+}
+
+/*
+ * Unordered markers use a fixed disc → circle → square cycle, then
+ * repeat with bullet-nesting depth. Depth = number of bullet-item ancestors;
+ * deeper selectors are more specific, so the deepest matching rule wins.
+ * --docs-list-disc-size, --docs-list-circle-size,
+ * --docs-list-circle-thickness, --docs-list-square-size, and
+ * --docs-list-indent are style-rail knobs. The one-line-height marker box
+ * centers each drawn shape on the first text line without growing the row.
+ */
+.docs-markdown [data-doc-bullet="true"] > [data-doc-list-marker]::before {
+  content: "";
+  display: block;
+}
+
+.docs-markdown
+  [data-doc-bullet="true"]
+  > [data-doc-list-marker]::before,
+.docs-markdown
+  [data-doc-bullet="true"]
+  [data-doc-bullet="true"]
+  [data-doc-bullet="true"]
+  [data-doc-bullet="true"]
+  > [data-doc-list-marker]::before {
+  width: var(--docs-list-disc-size, 6px);
+  height: var(--docs-list-disc-size, 6px);
+  border: 0;
+  border-radius: 9999px;
+  background: currentColor;
+  box-sizing: border-box;
+}
+
+.docs-markdown [data-doc-bullet="true"] [data-doc-bullet="true"] > [data-doc-list-marker]::before,
+.docs-markdown
+  [data-doc-bullet="true"]
+  [data-doc-bullet="true"]
+  [data-doc-bullet="true"]
+  [data-doc-bullet="true"]
+  [data-doc-bullet="true"]
+  > [data-doc-list-marker]::before {
+  width: var(--docs-list-circle-size, 6px);
+  height: var(--docs-list-circle-size, 6px);
+  border: var(--docs-list-circle-thickness, 1.5px) solid currentColor;
+  border-radius: 9999px;
+  background: transparent;
+  box-sizing: border-box;
+}
+
+.docs-markdown
+  [data-doc-bullet="true"]
+  [data-doc-bullet="true"]
+  [data-doc-bullet="true"]
+  > [data-doc-list-marker]::before,
+.docs-markdown
+  [data-doc-bullet="true"]
+  [data-doc-bullet="true"]
+  [data-doc-bullet="true"]
+  [data-doc-bullet="true"]
+  [data-doc-bullet="true"]
+  [data-doc-bullet="true"]
+  > [data-doc-list-marker]::before {
+  width: var(--docs-list-square-size, 5px);
+  height: var(--docs-list-square-size, 5px);
+  border: 0;
+  border-radius: 0;
+  background: currentColor;
+  box-sizing: border-box;
+}
+
+
+/* Static render lanes wrap each item. Reset on the first lane in a run,
+   not on every item that is the first child of its own lane. */
+.docs-markdown [data-doc-lane] > [data-doc-ordered="true"] {counter-reset:none;}
+.docs-markdown [data-doc-lane]:has(> [data-doc-ordered="true"]):first-child,
+.docs-markdown :not([data-doc-lane]:has(> [data-doc-ordered="true"])) + [data-doc-lane]:has(> [data-doc-ordered="true"]) {counter-reset:docs-ordered-list;}

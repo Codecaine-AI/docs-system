@@ -1,0 +1,3 @@
+$ bunx --bun tsc --noEmit
+packages/docs-model/src/lint/index.ts(2,30): error TS2307: Cannot find module '../writing/rules' or its corresponding type declarations.
+packages/docs-model/src/lint/index.ts(3,36): error TS2307: Cannot find module '../page-structure/rules' or its corresponding type declarations.

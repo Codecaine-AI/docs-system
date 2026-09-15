@@ -1,0 +1,479 @@
+{
+  "schemaVersion": 1,
+  "id": "doc-f70be2732e6052a62041317fd74033de",
+  "title": "Validation and Recovery",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "maintenance-0",
+        "maintenance-1",
+        "maintenance-2",
+        "maintenance-3",
+        "maintenance-4",
+        "maintenance-5",
+        "maintenance-6",
+        "maintenance-7",
+        "maintenance-8",
+        "maintenance-9",
+        "maintenance-10",
+        "maintenance-11",
+        "maintenance-12",
+        "maintenance-13",
+        "maintenance-14",
+        "maintenance-15",
+        "maintenance-16",
+        "maintenance-17",
+        "maintenance-18",
+        "maintenance-19",
+        "maintenance-20",
+        "page-tree-tools-0",
+        "page-tree-tools-1",
+        "page-tree-tools-2",
+        "page-tree-tools-3",
+        "page-tree-tools-4",
+        "page-tree-tools-5",
+        "full-management-0"
+      ]
+    },
+    "maintenance-0": {
+      "id": "maintenance-0",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Start with doctor for installed-file differences, discovery for workspace coverage, and a small real edit for end-to-end acceptance. These checks answer different questions."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-1": {
+      "id": "maintenance-1",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Repeatable Acceptance"
+        }
+      ],
+      "children": []
+    },
+    "maintenance-2": {
+      "id": "maintenance-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "1. Open a new client session in the target project. Ask it to explain one existing documentation page without editing. Expect docs_discover and a tree, search, or read call against the correct project ID."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-3": {
+      "id": "maintenance-3",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "2. Ask for one source-supported documentation correction without naming the tools. Expect docs_begin before mutation, docs_read for the current document hash, and a typed edit with the returned task_id and expected_hash. docs_guidance is useful for a component-specific reference but is not required on every edit."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-4": {
+      "id": "maintenance-4",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "3. Expect docs_check on each changed page and docs_end when the task finishes. Read back the page and inspect it in the shared UI. A successful tool response alone does not establish that the prose is correct."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-5": {
+      "id": "maintenance-5",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "4. For a Canvas or Sequence edit, expect docs_component_read and an advertised typed component action using the document and sidecar revision hashes. For a multi-project request, verify each project separately and report partial success explicitly."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-6": {
+      "id": "maintenance-6",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "5. Repeat the implicit request in each supported coding client. Separately exercise a built-in agent through its existing staged review flow after shared guidance changes. Protocol tests, installer checks, and external edits do not prove model behavior in every client."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-7": {
+      "id": "maintenance-7",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Find Tool Names"
+        }
+      ],
+      "children": []
+    },
+    "maintenance-8": {
+      "id": "maintenance-8",
+      "type": "code",
+      "props": {
+        "language": "sh"
+      },
+      "text": [
+        {
+          "insert": "bun packages/docs-mcp/src/cli.ts tools\nbun packages/docs-mcp/src/cli.ts doctor\nbun packages/docs-mcp/src/cli.ts discover --workspace .."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-9": {
+      "id": "maintenance-9",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Use advertised schemas for exact arguments. Common edits include docs_write_text, docs_insert, and docs_apply_ops. Component action names are generated from the registered actions; do not infer a name or bypass an unsupported action with a filesystem write."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-10": {
+      "id": "maintenance-10",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Connection and Discovery Failures"
+        }
+      ],
+      "children": []
+    },
+    "maintenance-11": {
+      "id": "maintenance-11",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Symptom",
+          "Cause to check",
+          "Recovery"
+        ],
+        "rows": [
+          [
+            "Tools absent",
+            "Client has not loaded its config or pi extension; configured checkout path moved.",
+            "Run doctor, preview reinstall, restart client or reload pi."
+          ],
+          [
+            "No projects or wrong project",
+            "Wrong workspace, undeclared member, invalid docsRoot, or no normalized corpus.",
+            "Inspect discovery warnings; declare relative members; rediscover in the intended workspace."
+          ],
+          [
+            "Unknown task or project",
+            "Task belongs to another workspace, service restarted, or project identity changed.",
+            "Rediscover; begin a new task; reread the target."
+          ],
+          [
+            "Another checkout owns the service",
+            "A healthy daemon belongs to a different package root.",
+            "Finish work and stop that service before switching installations."
+          ],
+          [
+            "Service will not start",
+            "Startup or dependency failure.",
+            "Inspect service.log in the configured state directory; correct the reported error before reconnecting."
+          ]
+        ]
+      },
+      "children": []
+    },
+    "maintenance-12": {
+      "id": "maintenance-12",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Editing Failures"
+        }
+      ],
+      "children": []
+    },
+    "maintenance-13": {
+      "id": "maintenance-13",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Symptom",
+          "Meaning",
+          "Recovery"
+        ],
+        "rows": [
+          [
+            "Revision conflict",
+            "Content changed after the read.",
+            "Read again, reconcile the intended change, and submit the fresh hash."
+          ],
+          [
+            "Sidecar revision conflict",
+            "Embedded Canvas or Sequence state changed.",
+            "Reread both document and component; reconcile both revisions."
+          ],
+          [
+            "Implementation changed",
+            "Imported source differs from the running service.",
+            "Finish or abandon the task, restart service and clients, and begin again."
+          ],
+          [
+            "Required lint or invalid structure",
+            "The operation or final page violates a checked rule.",
+            "Inspect returned findings and repair through typed tools; do not rewrite doc.json."
+          ],
+          [
+            "Undo unavailable or rejected",
+            "Patch is outside this process, belongs elsewhere, has a conflicting revision, or is page creation.",
+            "Use a new reviewed typed correction. Page creation has no exposed undo."
+          ]
+        ]
+      },
+      "children": []
+    },
+    "maintenance-14": {
+      "id": "maintenance-14",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Backups and Restore"
+        }
+      ],
+      "children": []
+    },
+    "maintenance-15": {
+      "id": "maintenance-15",
+      "type": "code",
+      "props": {
+        "language": "sh"
+      },
+      "text": [
+        {
+          "insert": "bun packages/docs-mcp/src/cli.ts restore /tmp/codecaine-docs-install.json\nbun packages/docs-mcp/src/cli.ts restore /tmp/codecaine-docs-install.json --write"
+        }
+      ],
+      "children": []
+    },
+    "maintenance-16": {
+      "id": "maintenance-16",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Preview restore first. Restore verifies backup and installed-file hashes and refuses to overwrite post-install changes. Claude can update its configuration during normal use, so an exact restore may refuse. To remove only its MCP entry, use claude mcp remove codecaine-docs -s user and preserve the newer file. Skill copies and pi configuration require their own reviewed cleanup."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-17": {
+      "id": "maintenance-17",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Local State and Evidence"
+        }
+      ],
+      "children": []
+    },
+    "maintenance-18": {
+      "id": "maintenance-18",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Runtime state defaults to ~/.local/state/codecaine-docs or CODECAINE_DOCS_STATE_DIR. daemon.json contains the bearer credential and service address. daemon.lock and startup.lock coordinate startup; service.log records daemon output. Do not share daemon.json as a diagnostic artifact. No model API key is needed for this editing service."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-19": {
+      "id": "maintenance-19",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Task contexts and guarded undo are process-local. docs_end releases guidance and does not revert applied edits. Stopping the service loses that in-memory state, while saved documents remain on disk. Cross-project edits are not atomic."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-20": {
+      "id": "maintenance-20",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Save tool results, final hashes, lint findings, and a reviewed content diff when recording acceptance. Label a user-reported successful exercise separately from automated evidence. Keep those dated records in objectives/docs-mcp-integration/artifacts and the handoff, outside the maintained corpus."
+        }
+      ],
+      "children": []
+    },
+    "page-tree-tools-0": {
+      "id": "page-tree-tools-0",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Page Creation, Move, Rename, and Deletion"
+        }
+      ],
+      "children": []
+    },
+    "page-tree-tools-1": {
+      "id": "page-tree-tools-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Page and section operations now include descendants. docs"
+        },
+        {
+          "insert": "move and docs",
+          "attributes": {
+            "italic": true
+          }
+        },
+        {
+          "insert": "rename preview their complete file and reference changes; apply with preview:false and expected"
+        },
+        {
+          "insert": "tree",
+          "attributes": {
+            "italic": true
+          }
+        },
+        {
+          "insert": "hash. Use docs"
+        },
+        {
+          "insert": "set",
+          "attributes": {
+            "italic": true
+          }
+        },
+        {
+          "insert": "title for display titles."
+        }
+      ],
+      "children": []
+    },
+    "page-tree-tools-2": {
+      "id": "page-tree-tools-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Management operations keep recovery journals and expose docs"
+        },
+        {
+          "insert": "management",
+          "attributes": {
+            "italic": true
+          }
+        },
+        {
+          "insert": "restore. Restore refuses subsequent edits or added descendants. Shared-store operations serialize during a reorganization; independent service processes remain separate authorities."
+        }
+      ],
+      "children": []
+    },
+    "page-tree-tools-3": {
+      "id": "page-tree-tools-3",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "To delete, first call docs_delete with path and expected_hash. Its default preview returns the files to remove and tree_hash. Review those files and the user's deletion authorization. Apply with preview:false and expected_tree_hash set to that preview hash. Changes to corpus files invalidate the preview. No user documentation is deleted merely by requesting the preview."
+        }
+      ],
+      "children": []
+    },
+    "page-tree-tools-4": {
+      "id": "page-tree-tools-4",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Deletion refuses external references into the deleted subtree. Relocate shared assets with docs"
+        },
+        {
+          "insert": "asset",
+          "attributes": {
+            "italic": true
+          }
+        },
+        {
+          "insert": "move before removing their owner page. Section moves rewrite both descendant links and shared or external asset paths. Use recursive:true to request deletion of a section and all descendants."
+        }
+      ],
+      "children": []
+    },
+    "page-tree-tools-5": {
+      "id": "page-tree-tools-5",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "After a move or rename, read the destination, inspect rewritten links, and run docs_check on affected pages. After deletion, inspect docs_tree and check remaining affected pages. Reconnect clients after the service restart so their tool catalogs include docs_move, docs_rename, and docs_delete. Restart shared workbenches when the daemon address changes."
+        }
+      ],
+      "children": []
+    },
+    "full-management-0": {
+      "id": "full-management-0",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Document and Asset Management",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "40-guides/10-docs-mcp/50-document-management"
+            }
+          }
+        },
+        {
+          "insert": " gives the complete section, asset, and recovery procedure."
+        }
+      ],
+      "children": []
+    }
+  }
+}

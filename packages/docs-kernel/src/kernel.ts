@@ -29,7 +29,7 @@ import { docsEditSharedTools } from "./docs-edit";
 export const KERNEL_ID = "docs-system";
 export const DISPLAY_NAME = "Docs System";
 export const DEFAULT_PORT = 4840;
-export const DEFAULT_DOCS_WRITER_MODEL = "codex-lb/gpt-5.6-sol";
+export const DEFAULT_DOCS_WRITER_MODEL = "codex-lb/gpt-6-astra";
 export const DEFAULT_DOCS_LAB_EDITOR_MODEL = DEFAULT_DOCS_WRITER_MODEL;
 
 /** This file lives at docs-system/packages/docs-kernel/src/kernel.ts. */

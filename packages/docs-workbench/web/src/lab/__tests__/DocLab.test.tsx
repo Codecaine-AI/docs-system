@@ -198,8 +198,8 @@ describe("DocLab", () => {
 		};
 		render(
 			<div className="relative h-[800px]">
-				<DocLab tab="ai" onTabSelect={mock(() => {})} doc={DOC}
-					openDocPath="guide" outlineScrollerSelector="[data-test-scroller]"
+				<DocLab doc={DOC}
+					openDocPath="guide"
 					lab={lab({ requests: [], proposals: [] }, { changesets: [changeset] })}
 					onFocusTarget={mock(() => {})} />
 			</div>,
@@ -214,25 +214,21 @@ describe("DocLab", () => {
 		expect(consumeAiModeHandoff()).toBe(false);
 	});
 
-	it("renders the edit outline and delegates tab selection", () => {
-		const onTabSelect = mock(() => {});
+	it("renders AI directly without outline or mode tabs", () => {
 		render(
 			<div className="relative h-[800px]">
 				<DocLab
-					tab="edit"
-					onTabSelect={onTabSelect}
 					doc={DOC}
-					outlineScrollerSelector="[data-test-scroller]"
 					lab={lab({ requests: [], proposals: [] })}
 					onFocusTarget={mock(() => {})}
 				/>
 			</div>,
 		);
 
-		expect(screen.getByRole("navigation", { name: "Document outline" })).toBeTruthy();
-		expect(screen.getByRole("button", { name: "Overview" })).toBeTruthy();
-		fireEvent.click(screen.getByRole("button", { name: "AI" }));
-		expect(onTabSelect).toHaveBeenCalledWith("ai");
+		expect(screen.getByRole("complementary", { name: "AI workspace" })).toBeTruthy();
+		expect(screen.queryByRole("navigation", { name: "Document outline" })).toBeNull();
+		expect(document.querySelector("[data-lab-panel-tab]")).toBeNull();
+
 	});
 
 	it("disables Run queue without an agent and surfaces session errors", () => {
@@ -243,10 +239,7 @@ describe("DocLab", () => {
 		render(
 			<div className="relative h-[800px]">
 				<DocLab
-					tab="ai"
-					onTabSelect={mock(() => {})}
 					doc={DOC}
-					outlineScrollerSelector="[data-test-scroller]"
 					lab={lab(session, {
 						proposalsError: "Could not load proposals",
 						requestErrors: { R1: "Request failed" },
@@ -275,10 +268,7 @@ describe("DocLab", () => {
 			onApplyQueue: mock(async () => {}),
 		};
 		const props = {
-			tab: "ai" as const,
-			onTabSelect: mock(() => {}),
 			doc: DOC,
-			outlineScrollerSelector: "[data-test-scroller]",
 			onFocusTarget: mock(() => {}),
 		};
 		const view = render(
@@ -334,10 +324,7 @@ describe("DocLab", () => {
 			onApplyQueue: mock(async () => {}),
 		};
 		const props = {
-			tab: "ai" as const,
-			onTabSelect: mock(() => {}),
 			doc: DOC,
-			outlineScrollerSelector: "[data-test-scroller]",
 			onFocusTarget: mock(() => {}),
 		};
 		const view = render(
@@ -376,10 +363,7 @@ describe("DocLab", () => {
 		render(
 			<div className="relative h-[800px]">
 				<DocLab
-					tab="ai"
-					onTabSelect={mock(() => {})}
 					doc={DOC}
-					outlineScrollerSelector="[data-test-scroller]"
 					lab={lab(session)}
 					onFocusTarget={mock(() => {})}
 				/>

@@ -22,10 +22,22 @@
         "b-90-process-outline-notation-intro",
         "b-90-process-outline-not-root",
         "b-90-process-outline-not-step",
+        "b-90-process-outline-not-trace",
         "b-90-process-outline-not-indent",
         "b-90-process-outline-not-code",
         "b-90-process-outline-not-note",
         "b-90-process-outline-not-blank",
+        "b-90-process-outline-writing-h",
+        "b-90-process-outline-wr-intro",
+        "b-90-process-outline-wr-trace",
+        "b-90-process-outline-wr-steps",
+        "b-90-process-outline-wr-notes",
+        "b-90-process-outline-wr-branch",
+        "b-90-process-outline-wr-loops",
+        "b-90-process-outline-wr-chips",
+        "b-90-process-outline-wr-split",
+        "b-90-process-outline-wr-example-intro",
+        "b-90-process-outline-wr-example-block",
         "b-90-process-outline-state-h",
         "b-90-process-outline-state-intro",
         "b-90-process-outline-state-shape",
@@ -394,7 +406,7 @@
           }
         },
         {
-          "insert": ". Six rules cover all of it:"
+          "insert": ". Seven rules cover all of it:"
         }
       ],
       "children": []
@@ -446,6 +458,72 @@
       "text": [
         {
           "insert": "An arrow line is one step of the flow."
+        }
+      ],
+      "children": []
+    },
+    "b-90-process-outline-not-trace": {
+      "id": "b-90-process-outline-not-trace",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "=> step",
+          "attributes": {
+            "code": true
+          }
+        }
+      ],
+      "children": [
+        "b-90-process-outline-not-trace-1",
+        "b-90-process-outline-not-trace-2"
+      ]
+    },
+    "b-90-process-outline-not-trace-1": {
+      "id": "b-90-process-outline-not-trace-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A "
+        },
+        {
+          "insert": "=>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " line is a step that a real trace event corresponds to. It is a step in every other respect — it nests, it takes chips, it can own substeps."
+        }
+      ],
+      "children": []
+    },
+    "b-90-process-outline-not-trace-2": {
+      "id": "b-90-process-outline-not-trace-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The marker replaces "
+        },
+        {
+          "insert": "->",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and it marks root lines too, so a trace-marked root reads "
+        },
+        {
+          "insert": "=> text",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " rather than bare."
         }
       ],
       "children": []
@@ -576,6 +654,391 @@
           "insert": "Blank lines are ignored."
         }
       ],
+      "children": []
+    },
+    "b-90-process-outline-writing-h": {
+      "id": "b-90-process-outline-writing-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Writing Rules"
+        }
+      ],
+      "children": []
+    },
+    "b-90-process-outline-wr-intro": {
+      "id": "b-90-process-outline-wr-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A process outline is the matter-of-fact flow of how a process operates, written in enough detail that reading it prepares you for what the system's traces show. Step text carries the actions; notes carry the prose. Seven rules follow from that:"
+        }
+      ],
+      "children": []
+    },
+    "b-90-process-outline-wr-trace": {
+      "id": "b-90-process-outline-wr-trace",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Mark the trace events"
+        }
+      ],
+      "children": [
+        "b-90-process-outline-wr-trace-1",
+        "b-90-process-outline-wr-trace-2"
+      ]
+    },
+    "b-90-process-outline-wr-trace-1": {
+      "id": "b-90-process-outline-wr-trace-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An outline reads as the trace skeleton plus its smaller pieces: mark the steps that correspond to real trace events with "
+        },
+        {
+          "insert": "=>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-90-process-outline-wr-trace-2": {
+      "id": "b-90-process-outline-wr-trace-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Keep unmarked steps to the connective flow between those events. Do not narrate code."
+        }
+      ],
+      "children": []
+    },
+    "b-90-process-outline-wr-steps": {
+      "id": "b-90-process-outline-wr-steps",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Verb-first steps"
+        }
+      ],
+      "children": [
+        "b-90-process-outline-wr-steps-1",
+        "b-90-process-outline-wr-steps-2"
+      ]
+    },
+    "b-90-process-outline-wr-steps-1": {
+      "id": "b-90-process-outline-wr-steps-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An arrow step is one action in present tense, verb first, and roughly ten words or fewer."
+        }
+      ],
+      "children": []
+    },
+    "b-90-process-outline-wr-steps-2": {
+      "id": "b-90-process-outline-wr-steps-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "No "
+        },
+        {
+          "insert": "so",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "because",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", or "
+        },
+        {
+          "insert": "which means",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " clauses — the moment a step explains itself, the explanation belongs in a note."
+        }
+      ],
+      "children": []
+    },
+    "b-90-process-outline-wr-notes": {
+      "id": "b-90-process-outline-wr-notes",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Prose lives in notes"
+        }
+      ],
+      "children": [
+        "b-90-process-outline-wr-notes-1",
+        "b-90-process-outline-wr-notes-2"
+      ]
+    },
+    "b-90-process-outline-wr-notes-1": {
+      "id": "b-90-process-outline-wr-notes-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Rationale, invariants, and mechanism detail go in a note step — "
+        },
+        {
+          "insert": ">",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in notation — under the step they clarify."
+        }
+      ],
+      "children": []
+    },
+    "b-90-process-outline-wr-notes-2": {
+      "id": "b-90-process-outline-wr-notes-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Notes are prose, and notes never have children: a note that wants substructure is a step."
+        }
+      ],
+      "children": []
+    },
+    "b-90-process-outline-wr-branch": {
+      "id": "b-90-process-outline-wr-branch",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Branches are steps"
+        }
+      ],
+      "children": [
+        "b-90-process-outline-wr-branch-1"
+      ]
+    },
+    "b-90-process-outline-wr-branch-1": {
+      "id": "b-90-process-outline-wr-branch-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A branch or a failure path is its own step, never a trailing clause on the step it hangs off."
+        }
+      ],
+      "children": []
+    },
+    "b-90-process-outline-wr-loops": {
+      "id": "b-90-process-outline-wr-loops",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Loops name their exit"
+        }
+      ],
+      "children": [
+        "b-90-process-outline-wr-loops-1"
+      ]
+    },
+    "b-90-process-outline-wr-loops-1": {
+      "id": "b-90-process-outline-wr-loops-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A loop leads with "
+        },
+        {
+          "insert": "Repeat",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "While",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", or "
+        },
+        {
+          "insert": "For each",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and names its exit with "
+        },
+        {
+          "insert": "until",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-90-process-outline-wr-chips": {
+      "id": "b-90-process-outline-wr-chips",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Backticks are the only chip syntax"
+        }
+      ],
+      "children": [
+        "b-90-process-outline-wr-chips-1",
+        "b-90-process-outline-wr-chips-2"
+      ]
+    },
+    "b-90-process-outline-wr-chips-1": {
+      "id": "b-90-process-outline-wr-chips-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Backtick code identifiers and the key nouns of a step — including actors like "
+        },
+        {
+          "insert": "Worker",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " or "
+        },
+        {
+          "insert": "Operator",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Each span renders as a chip in its line's depth color, and multi-word spans work."
+        }
+      ],
+      "children": []
+    },
+    "b-90-process-outline-wr-chips-2": {
+      "id": "b-90-process-outline-wr-chips-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Name an actor when it changes, not on every step."
+        }
+      ],
+      "children": []
+    },
+    "b-90-process-outline-wr-split": {
+      "id": "b-90-process-outline-wr-split",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Split relentlessly"
+        }
+      ],
+      "children": [
+        "b-90-process-outline-wr-split-1"
+      ]
+    },
+    "b-90-process-outline-wr-split-1": {
+      "id": "b-90-process-outline-wr-split-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "If a step wants a second clause, it is two steps, or a step plus a note. Depth is cheap; long lines are not."
+        }
+      ],
+      "children": []
+    },
+    "b-90-process-outline-wr-example-intro": {
+      "id": "b-90-process-outline-wr-example-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The same content written both ways — one overloaded sentence-step, then three short steps and the note that carries what the sentence was explaining:"
+        }
+      ],
+      "children": []
+    },
+    "b-90-process-outline-wr-example-block": {
+      "id": "b-90-process-outline-wr-example-block",
+      "type": "process-outline",
+      "props": {
+        "steps": [
+          {
+            "text": "Before",
+            "steps": [
+              {
+                "text": "Spawn a worker in an isolated worktree so tentative evidence never reaches the map, and retry the item if the build fails"
+              }
+            ]
+          },
+          {
+            "text": "After",
+            "steps": [
+              {
+                "text": "Spawn a `Worker` in an isolated worktree"
+              },
+              {
+                "text": "the worktree keeps tentative evidence off the authoritative map",
+                "kind": "note"
+              },
+              {
+                "text": "Run the full build"
+              },
+              {
+                "text": "Retry the item once when the build fails"
+              }
+            ]
+          }
+        ]
+      },
       "children": []
     },
     "b-90-process-outline-state-h": {
@@ -1217,12 +1680,13 @@
       "props": {},
       "text": [
         {
-          "insert": "One ink, one rail"
+          "insert": "One ink, one rail per depth"
         }
       ],
       "children": [
         "b-90-process-outline-dr-rail-1",
         "b-90-process-outline-dr-rail-geom",
+        "b-90-process-outline-dr-rail-depth",
         "b-90-process-outline-dr-rail-run",
         "b-90-process-outline-dr-rail-tokens",
         "b-90-process-outline-dr-rail-2"
@@ -1234,7 +1698,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Every flow is free text on one connected rail: a trunk drops from each parent, turns a rounded elbow into each child, and runs into an open-V arrowhead whose tip lands just before the text."
+          "insert": "Every flow is free text on one connected rail: a trunk drops from each parent, turns a rounded elbow into each child, and runs into an open-V arrowhead whose tip lands just before the text. Each nesting level draws that rail in its own hue, cycling through five muted colors and repeating."
         }
       ],
       "children": []
@@ -1299,7 +1763,54 @@
           }
         },
         {
-          "insert": " — indent sets the per-level inset and the elbow's left edge, arrow-gap is the distance from the arrowhead tip to the first letter, and the elbow lands on the first-line center while the trunk overlaps into both sibling gaps, so segments always meet."
+          "insert": " — indent sets the per-level inset and the elbow's left edge, arrow-gap is the distance from the arrowhead tip to the first letter, and the elbow lands on the first-line center while the trunk overlaps into both sibling gaps, so segments always meet. "
+        },
+        {
+          "insert": "--po-gap",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is re-declared at every level, so the wider gap that depth-one phase groups use never leaks into their own substeps and the elbow math always matches the gap it sits in."
+        }
+      ],
+      "children": []
+    },
+    "b-90-process-outline-dr-rail-depth": {
+      "id": "b-90-process-outline-dr-rail-depth",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Depth color is one cascading variable, "
+        },
+        {
+          "insert": "--po-c",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", re-declared once per nesting level through the five-hue cycle. The level's rail, elbow, arrowhead, chip tint and note rule all resolve from it, so there are no per-node classes and the renderer never has to know a node's depth. Mixes against it happen at the use site: a "
+        },
+        {
+          "insert": "var()",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " inside a custom property resolves where that property is computed — at "
+        },
+        {
+          "insert": ":root",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", where the depth color does not exist — so only the mix strength travels as a token, as a unitless percentage."
         }
       ],
       "children": []
@@ -1384,10 +1895,46 @@
           }
         },
         {
-          "insert": "; step text size reads "
+          "insert": ", plus "
+        },
+        {
+          "insert": "--docs-process-outline-branch-gap",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " for depth-one phase groups and "
+        },
+        {
+          "insert": "--docs-process-outline-root-gap",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " between root steps; step text size reads "
         },
         {
           "insert": "--docs-process-outline-text-size",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", the root line reads "
+        },
+        {
+          "insert": "--docs-process-outline-root-text-size",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and the empty placeholder reads "
+        },
+        {
+          "insert": "--docs-process-outline-empty-text-size",
           "attributes": {
             "code": true
           }
@@ -1404,7 +1951,7 @@
       "props": {},
       "text": [
         {
-          "insert": "No kind colors, no icons, no collapse — the simplicity is deliberate, carried over from the pen-and-paper prototype."
+          "insert": "No kind colors, no icons, no collapse — the simplicity is deliberate, carried over from the pen-and-paper prototype. Color encodes depth and nothing else: it never marks what a step is, only how deep it sits."
         }
       ],
       "children": []
@@ -1474,7 +2021,7 @@
           }
         },
         {
-          "insert": " anywhere in it render bold as keywords."
+          "insert": " anywhere in it render bold as keywords, in a rust accent held deliberately outside the depth cycle so loop control reads the same at every level."
         }
       ],
       "children": []
@@ -1485,7 +2032,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Backtick spans render as code chips on a muted background."
+          "insert": "Backticks are the only inline syntax, and a backtick span renders as a chip in its line's depth color: the fill is that color at chip-tint strength, the label is that color mixed into the inherited ink. Multi-word spans work — the chip is a span, not a word match."
         }
       ],
       "children": []
@@ -1511,7 +2058,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A note step renders as a bordered card — the component's only box — hung under its step, deliberately off the rail: no elbow, no arrowhead."
+          "insert": "A note step renders as a filled, bordered card — the component's only box — pulled in under its step and deliberately off the rail: no elbow, no arrowhead. Its left edge is the one part that takes the level's color, at note-accent strength over the card border."
         }
       ],
       "children": []
@@ -1533,7 +2080,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Note text renders at the step ink and step text size by default — "
+          "insert": "Note text keeps the step ink — "
         },
         {
           "insert": "--docs-process-outline-note-fg",
@@ -1542,7 +2089,7 @@
           }
         },
         {
-          "insert": " defaults to the ink, "
+          "insert": " defaults to it — but is subordinate in size and rhythm: "
         },
         {
           "insert": "--docs-process-outline-note-text-size",
@@ -1551,7 +2098,25 @@
           }
         },
         {
-          "insert": " to the text size — so the card keeps only its fill and border."
+          "insert": " and "
+        },
+        {
+          "insert": "--docs-process-outline-note-line-height",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " set their own smaller pair, and the card re-declares "
+        },
+        {
+          "insert": "--po-line",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " from the note line height so its bullet dots center on it."
         }
       ],
       "children": []
@@ -1763,7 +2328,7 @@
           }
         },
         {
-          "insert": " contract element: the renderer paints from fifteen "
+          "insert": " contract element: the renderer paints from thirty-one "
         },
         {
           "insert": "--docs-process-outline-*",
@@ -1819,7 +2384,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Fourteen knobs under Theme → Components → Process Outline: six color — Ink, Rail, Note text, Note background, Note border, Code background — plus eight length sliders."
+          "insert": "Thirty knobs under Theme → Components → Process Outline: twelve color — Ink, Rail, Depth 1–5 color, Loop keyword, Note text, Note background, Note border, Code background — plus fifteen length sliders and three unitless strength sliders."
         }
       ],
       "children": []
@@ -1830,7 +2395,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Length sliders and ranges: Indent 16–72 px, Row gap 0–24 px, Arrow gap 0–16 px, Line height 16–40 px, Text size 10–18 px, Note text size 10–18 px, Arrow size 3–12 px, Stroke 0.5–4 px."
+          "insert": "Length sliders and ranges: Indent 16–72 px, Row gap 0–24 px, Branch gap 0–48 px, Root gap 0–64 px, Arrow gap 0–16 px, Line height 16–40 px, Text size 10–18 px, Root text size 10–22 px, Empty text size 9–18 px, Note text size 10–18 px, Note line height 12–32 px, Note inset 0–40 px, Note rule width 0–6 px, Arrow size 3–12 px, Stroke 0.5–4 px. The three strength sliders — Note accent, Chip tint, Chip label mix — run 0–100 with no unit; the renderer multiplies each by 1% inside a color-mix against the depth color."
         }
       ],
       "children": []
@@ -1941,7 +2506,7 @@
           }
         },
         {
-          "insert": " is opaque by contract: overlapping elbow and trunk strokes double alpha at the joins."
+          "insert": " is the depth cycle's fallback, and it — like every cycle color — is opaque by contract: overlapping elbow and trunk strokes double alpha at the joins. A theme that drops a cycle slot degrades to this flat rail rather than to an invalid color."
         }
       ],
       "children": []
@@ -1998,7 +2563,17 @@
           [
             "--docs-process-outline-rail",
             "#b3b1ad light · #5d6266 dark",
-            "The rail — trunks, elbows, arrowheads"
+            "Fallback for the depth cycle — used wherever a cycle slot is missing"
+          ],
+          [
+            "--docs-process-outline-cycle-1..5",
+            "steel blue, sage, plum, slate teal, ochre",
+            "The depth cycle — one hue per nesting level, then it repeats"
+          ],
+          [
+            "--docs-process-outline-keyword-fg",
+            "#a4552c light · #e2a07e dark",
+            "Loop keywords — outside the depth cycle on purpose"
           ],
           [
             "--docs-process-outline-note-fg",
@@ -2007,28 +2582,38 @@
           ],
           [
             "--docs-process-outline-note-bg",
-            "--muted",
-            "Note card background"
+            "#f2f1ed light · rgba(255,255,255,.045) dark",
+            "Note card fill — flat and muted, never depth-tinted"
           ],
           [
             "--docs-process-outline-note-border",
             "--border",
-            "Note card border"
+            "Note card border, and what the accented left rule mixes into"
           ],
           [
             "--docs-process-outline-code-bg",
-            "--muted",
-            "Backtick code-chip background"
+            "transparent",
+            "What the chip tint mixes over — set it opaque for a flat chip"
           ],
           [
             "--docs-process-outline-indent",
-            "36px",
+            "46px",
             "Horizontal inset per nesting level — also the elbow's left edge"
           ],
           [
             "--docs-process-outline-row-gap",
-            "7px",
+            "12px",
             "Vertical gap between sibling rows"
+          ],
+          [
+            "--docs-process-outline-branch-gap",
+            "20px",
+            "Row gap inside a depth-one phase group — does not cascade deeper"
+          ],
+          [
+            "--docs-process-outline-root-gap",
+            "30px",
+            "Separation between root steps"
           ],
           [
             "--docs-process-outline-arrow-gap",
@@ -2046,9 +2631,49 @@
             "Step text size"
           ],
           [
+            "--docs-process-outline-root-text-size",
+            "13.5px",
+            "Root step text size"
+          ],
+          [
+            "--docs-process-outline-empty-text-size",
+            "12px",
+            "Empty-outline placeholder text size"
+          ],
+          [
             "--docs-process-outline-note-text-size",
-            "the text size",
+            "11.5px",
             "Note card text size"
+          ],
+          [
+            "--docs-process-outline-note-line-height",
+            "17px",
+            "Note card line height — bullet dots center on half of it"
+          ],
+          [
+            "--docs-process-outline-note-inset",
+            "10px",
+            "How far the note card is pulled in under its parent step"
+          ],
+          [
+            "--docs-process-outline-note-rule-width",
+            "2px",
+            "Width of the note card's accented left rule"
+          ],
+          [
+            "--docs-process-outline-note-accent",
+            "55 light · 60 dark",
+            "Depth-color strength in the note rule and bullet dots (unitless %)"
+          ],
+          [
+            "--docs-process-outline-chip-tint",
+            "13 light · 15 dark",
+            "Depth-color strength in the chip fill (unitless %)"
+          ],
+          [
+            "--docs-process-outline-chip-ink-mix",
+            "60 light · 70 dark",
+            "Depth-color strength in the chip label, mixed into the ink (unitless %)"
           ],
           [
             "--docs-process-outline-arrow-size",

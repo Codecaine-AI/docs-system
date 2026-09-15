@@ -14,7 +14,7 @@ This page states the depth ladder, the folder rules, and why the shape holds.
 10-system-design/  # L1 — the layer's parent doc: summary plus an index of every section
 └── 10-doc-standards/  # L2 — a section: the folder is itself a doc introducing its children
     └── 10-structure/  # L3 — a concept doc: one coherent idea (this one)
-20-implementation/
+30-implementation/
 ├── 20-workbench/  # a single doc — one concept covers it
 └── 40-theming/  # a folder — themes split four ways
 ```
@@ -25,7 +25,7 @@ Six levels — three in the doc tree, three in the source:
 
 | Level | Lives at | Carries |
 | --- | --- | --- |
-| L1 | A layer's parent doc (00-foundation, 10-system-design, 20-implementation) | Layer summary plus a section index linking every L2 |
+| L1 | A layer's parent doc (00-foundation, 10-system-design, 20-agents, 30-implementation) | Layer summary plus a section index linking every L2 |
 | L2 | XX-section (the section's parent doc) | Section scope and its children, one line each |
 | L3 | A concept doc | One coherent idea — atomic, link-rich, code-connected |
 | L4 | Top of a source file | The file's contract: responsibilities, dependencies, invariants — kept under 50 lines |
@@ -34,7 +34,7 @@ Six levels — three in the doc tree, three in the source:
 
 - The ladder is the same in every layer
 
-  - L1–L3 structure foundation and system design exactly as they structure implementation.
+  - L1–L3 structure foundation, system design, and agents exactly as they structure implementation.
 
 - The doc tree stays at three levels; a subsection appears only when a section genuinely subdivides.
 
@@ -44,7 +44,7 @@ Six levels — three in the doc tree, three in the source:
 
 - A doc is a folder containing `doc.json` — `10-authentication/` holding a bundle, not `10-authentication.md`. The folder name is the doc's address; the bundle inside is its state.
 
-- Implementation mirrors the source: `src/core/workflow/` documents at `docs/20-implementation/10-core/10-workflow/`. Cross-cutting concerns — logging, caching, error handling — get one primary home, never a scatter.
+- Implementation mirrors the source: `src/core/workflow/` documents at `docs/30-implementation/10-core/10-workflow/`. Cross-cutting concerns — logging, caching, error handling — get one primary home, never a scatter.
 
   - The mirror goes one level per genuine subdivision — deeper structure becomes entries on the area page, not sub-pages; the implementation layer standard owns the rule.
 
@@ -56,7 +56,7 @@ Six levels — three in the doc tree, three in the source:
 
 ## Extension Tiers
 
-Foundation owns intent, design owns behavior, implementation owns structural decisions — none owns procedure. A repo may declare additional numbered root tiers (30 and above, below 99) for procedural how-to content the three layers cannot hold: authoring recipes, operator guides.
+Foundation owns intent, design owns behavior, agents owns agent definitions, and implementation maps the design to the current code and explains key choices. None owns procedure. A repo may declare additional numbered root tiers (40 and above, below 99) for procedural how-to content the four layers cannot hold: authoring recipes, operator guides.
 
 - **Announced as a guides tier**
 
@@ -64,7 +64,7 @@ Foundation owns intent, design owns behavior, implementation owns structural dec
 
 - **Non-normative**
 
-  - The tier defers authority to the three layers via links and never restates their contracts — a rule found there is a pointer, not a source.
+  - The tier defers authority to the four layers via links and never restates their contracts. A rule found there is a pointer, not a source.
 
 - **Reports stay banned**
 

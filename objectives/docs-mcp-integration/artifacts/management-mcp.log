@@ -1,0 +1,63 @@
+bun test v1.3.10 (30e609e0)
+
+packages/docs-mcp/src/mcp.test.ts:
+(pass) two MCP clients share one authority; typed edits, UI visibility, stale rejection and undo cross protocol [793.71ms]
+
+packages/docs-mcp/src/install.test.ts:
+(pass) client installation > preview creates no user files and includes all three clients [2.44ms]
+(pass) client installation > preserves user settings, creates backups, and reinstalls without changes [7.85ms]
+(pass) client installation > invalid existing config aborts before any install writes [0.67ms]
+(pass) client installation > individual clients install only their bindings; doctor reports skill drift [2.47ms]
+(pass) client installation > does not overwrite unmanaged or customized Codex server entries [0.04ms]
+(pass) client installation > rejects skill path traversal before installation [0.51ms]
+(pass) client installation > restore previews, restores exact old configuration, and refuses later edits [4.91ms]
+
+packages/docs-mcp/src/guidance.test.ts:
+(pass) external guidance uses the shared renderer and covers every registered component [27.07ms]
+(pass) registered components cannot silently omit selection guidance [0.05ms]
+(pass) canonical edits change the next snapshot while existing snapshots remain unchanged [32.68ms]
+(pass) generated references contain maintained content and one matching snapshot [11.80ms]
+
+packages/docs-mcp/src/discovery.test.ts:
+(pass) discovers declared projects, skips disabled products, returns stable explicit identities [5.60ms]
+(pass) rejects project traversal and escaping symlinks [1.33ms]
+
+packages/docs-mcp/src/pi-extension.test.ts:
+(pass) pi MCP bridge > connects at session start, preserves schemas and arguments, closes at shutdown [0.45ms]
+(pass) pi MCP bridge > MCP tool failures are errors in pi rather than successful text results
+
+packages/docs-mcp/src/review.test.ts:
+(pass) service requires a live task in the current workspace for every write [107.23ms]
+(pass) a project learned in another workspace remains unavailable to this workspace [70.24ms]
+(pass) invalid edits leave their project unchanged without rolling back another project [106.22ms]
+(pass) UI reads immediately see changes made through the tool authority [96.94ms]
+(pass) focused guidance returns the canonical component chapter from the task snapshot [66.97ms]
+(pass) isolated daemon authenticates local requests and removes its state on shutdown [327.54ms]
+
+packages/docs-mcp/src/__tests__/tools.test.ts:
+(pass) direct Docs MCP tools > reads stable IDs and projections, then writes immediately through the store [9.31ms]
+(pass) direct Docs MCP tools > rejects missing preconditions and malformed operations without writing [5.40ms]
+(pass) direct Docs MCP tools > rejects a stale hash and admits only one concurrent writer [6.42ms]
+(pass) direct Docs MCP tools > registry-generated component edits validate their parameters [6.58ms]
+(pass) direct Docs MCP tools > inserts text and components using registry defaults and returns final lint [7.34ms]
+(pass) direct Docs MCP tools > undo cannot use another project's patch [7.78ms]
+(pass) direct Docs MCP tools > refuses traversal and symlink access outside the corpus [2.81ms]
+(pass) direct Docs MCP tools > creates a new bundle through the tree service without replacing an existing one [7.73ms]
+(pass) direct Docs MCP tools > reads and edits a Sequence sidecar with both hashes and refuses stale content [15.87ms]
+(pass) complete corpus management > renumbers subtree, rewrites descendant and canvas links, and preserves IDs [23.66ms]
+(pass) complete corpus management > moves shared canvas to overview then deletes old architecture without breaking the canvas [21.47ms]
+(pass) complete corpus management > moving section updates both incoming shared assets and outgoing relative assets [13.09ms]
+(pass) complete corpus management > preview detects changed descendants and title editing preserves path [10.71ms]
+(pass) complete corpus management > recursive delete needs explicit subtree scope and refuses external descendant links [11.06ms]
+(pass) complete corpus management > refuses stale hashes, collisions, symlinks, overlapping paths and draft locks [7.44ms]
+(pass) complete corpus management > uploads, reads and deletes unused attachments through tools [9.56ms]
+(pass) creates a Sequence through the service and preserves annotation targets when relocated [12.07ms]
+(pass) stages and accepts reviewed edits and can restore deletion without overwriting later edits [17.63ms]
+(pass) changeset review tools keep staged multi-page edits available [7.78ms]
+(pass) inventories unused assets and searches pages without filesystem instructions [3.55ms]
+(pass) management restore refuses newly added descendants [10.37ms]
+
+ 43 pass
+ 0 fail
+ 402 expect() calls
+Ran 43 tests across 7 files. [2.20s]

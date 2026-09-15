@@ -1,0 +1,1403 @@
+{
+  "name": "Personal Budget",
+  "root": "/Users/Ford/Github Repos/Lascari AI/personal-budget",
+  "status": "Applied",
+  "agent": "migrate_budget",
+  "oldImplementationDirectoryExists": false,
+  "newImplementationDirectoryExists": true,
+  "recovery": [
+    {
+      "kind": "tree_change_id",
+      "id": "12972a08-dc1e-471d-8d31-65b19e4dffba"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "53e61cb6-7669-4b9a-8f7b-e9e47aceb820"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "a67b6289-312d-4124-a9c1-b4e29216675d"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "9bf6320f-bac4-4069-8717-080fad18484a"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "91ceb2ab-15d7-4b31-8851-27710fefa263"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "351e11fd-cc82-428a-a0cd-b8b657e45c23"
+    },
+    {
+      "kind": "contentPatchId",
+      "id": "a41e081b-d73a-4290-bae1-2b3da4c67ae9"
+    },
+    {
+      "kind": "patchId",
+      "id": "8ae35999-ccfd-423b-aba0-f1c3875e6297"
+    },
+    {
+      "kind": "patchId",
+      "id": "054dd910-00a5-490e-ac09-7d3a0bbb63e6"
+    }
+  ],
+  "validation": {
+    "status": "applied",
+    "links": {
+      "beforeStale": 0,
+      "afterStale": 0
+    },
+    "assetFixes": [
+      {
+        "path": "30-implementation/00-overview",
+        "after": {
+          "ok": true,
+          "doc": {
+            "schemaVersion": 1,
+            "id": "20-implementation-00-overview",
+            "title": "Personal Budget: Implementation Overview",
+            "root": "b-00-overview-root-26",
+            "blocks": {
+              "b-00-overview-root-26": {
+                "id": "b-00-overview-root-26",
+                "type": "paragraph",
+                "props": {
+                  "concepts": [
+                    "implementation",
+                    "monorepo",
+                    "architecture"
+                  ],
+                  "covers": "Planned monorepo implementation architecture and navigation for future source-level documentation.",
+                  "design_refs": [
+                    "10-system-design/15-data-models/00-overview.md",
+                    "10-system-design/20-data-ingestion.md",
+                    "10-system-design/30-account-ownership-views.md",
+                    "10-system-design/40-budget-guidelines.md"
+                  ],
+                  "type": "overview"
+                },
+                "children": [
+                  "b-00-overview-the-implementation-is-a-2",
+                  "b-00-overview-divider-3",
+                  "b-00-overview-system-mental-model-4",
+                  "b-00-overview-the-app-is-built-around-5",
+                  "b-00-overview-mermaid-6",
+                  "b-00-overview-key-architectural-decisi-7",
+                  "b-00-overview-monorepo-keep-front-8",
+                  "b-00-overview-provider-adapters-i-9",
+                  "b-00-overview-shared-domain-package-10",
+                  "b-00-overview-preview-before-persist-11",
+                  "b-00-overview-background-sync-later-12",
+                  "b-00-overview-server-side-secrets-13",
+                  "b-00-overview-file-tree-14",
+                  "b-00-overview-text-15",
+                  "b-00-overview-section-index-16",
+                  "b-00-overview-10-monorepo-10-monore-17",
+                  "b-00-overview-planned-monorepo-package-18",
+                  "b-00-overview-99-appendix-99-append-19",
+                  "b-00-overview-operational-and-referenc-20",
+                  "b-00-overview-cross-cutting-concerns-21",
+                  "b-00-overview-provider-sync-behavior-22",
+                  "b-00-overview-canonical-models-th-23",
+                  "b-00-overview-budget-views-the-a-24",
+                  "b-00-overview-budget-calculations-25"
+                ]
+              },
+              "b-00-overview-the-implementation-is-a-2": {
+                "id": "b-00-overview-the-implementation-is-a-2",
+                "type": "paragraph",
+                "props": {},
+                "text": [
+                  {
+                    "insert": "The implementation is a TypeScript npm workspace with a frontend app, backend API, shared configuration package, and provider adapter package. The first slice previews live Mercury and SimpleFIN data without storing it yet."
+                  }
+                ],
+                "children": []
+              },
+              "b-00-overview-divider-3": {
+                "id": "b-00-overview-divider-3",
+                "type": "divider",
+                "props": {},
+                "children": []
+              },
+              "b-00-overview-system-mental-model-4": {
+                "id": "b-00-overview-system-mental-model-4",
+                "type": "heading",
+                "props": {
+                  "level": 2
+                },
+                "text": [
+                  {
+                    "insert": "System Mental Model"
+                  }
+                ],
+                "children": []
+              },
+              "b-00-overview-the-app-is-built-around-5": {
+                "id": "b-00-overview-the-app-is-built-around-5",
+                "type": "paragraph",
+                "props": {},
+                "text": [
+                  {
+                    "insert": "The app is built around a provider-neutral budget core. External providers feed normalized records into the backend, the backend returns a read-only preview, and the frontend presents provider status, account groups, transaction previews, and SimpleFIN setup helpers."
+                  }
+                ],
+                "children": []
+              },
+              "b-00-overview-mermaid-6": {
+                "id": "b-00-overview-mermaid-6",
+                "type": "canvas",
+                "props": {
+                  "src": "./assets/canvases/00-overview.canvas.json",
+                  "title": "Budget System Architecture"
+                },
+                "children": []
+              },
+              "b-00-overview-key-architectural-decisi-7": {
+                "id": "b-00-overview-key-architectural-decisi-7",
+                "type": "heading",
+                "props": {
+                  "level": 2
+                },
+                "text": [
+                  {
+                    "insert": "Key Architectural Decisions"
+                  }
+                ],
+                "children": []
+              },
+              "b-00-overview-monorepo-keep-front-8": {
+                "id": "b-00-overview-monorepo-keep-front-8",
+                "type": "list-item",
+                "props": {
+                  "ordered": false
+                },
+                "text": [
+                  {
+                    "insert": "Monorepo",
+                    "attributes": {
+                      "bold": true
+                    }
+                  },
+                  {
+                    "insert": ": Keep frontend, backend, shared domain logic, provider adapters, and operational scripts in one repository."
+                  }
+                ],
+                "children": []
+              },
+              "b-00-overview-provider-adapters-i-9": {
+                "id": "b-00-overview-provider-adapters-i-9",
+                "type": "list-item",
+                "props": {
+                  "ordered": false
+                },
+                "text": [
+                  {
+                    "insert": "Provider adapters",
+                    "attributes": {
+                      "bold": true
+                    }
+                  },
+                  {
+                    "insert": ": Isolate Mercury, SimpleFIN, Plaid, and future importers behind a normalized ingestion boundary."
+                  }
+                ],
+                "children": []
+              },
+              "b-00-overview-shared-domain-package-10": {
+                "id": "b-00-overview-shared-domain-package-10",
+                "type": "list-item",
+                "props": {
+                  "ordered": false
+                },
+                "text": [
+                  {
+                    "insert": "Shared domain package",
+                    "attributes": {
+                      "bold": true
+                    }
+                  },
+                  {
+                    "insert": ": Keep account types, budget scopes, classification, ownership, and reporting rules reusable across backend and frontend."
+                  }
+                ],
+                "children": []
+              },
+              "b-00-overview-preview-before-persist-11": {
+                "id": "b-00-overview-preview-before-persist-11",
+                "type": "list-item",
+                "props": {
+                  "ordered": false
+                },
+                "text": [
+                  {
+                    "insert": "Preview before persistence",
+                    "attributes": {
+                      "bold": true
+                    }
+                  },
+                  {
+                    "insert": ": The first implementation fetches live provider data on demand and does not store accounts or transactions."
+                  }
+                ],
+                "children": []
+              },
+              "b-00-overview-background-sync-later-12": {
+                "id": "b-00-overview-background-sync-later-12",
+                "type": "list-item",
+                "props": {
+                  "ordered": false
+                },
+                "text": [
+                  {
+                    "insert": "Background sync later",
+                    "attributes": {
+                      "bold": true
+                    }
+                  },
+                  {
+                    "insert": ": Scheduled imports belong outside request-response UI flows once persistence exists."
+                  }
+                ],
+                "children": []
+              },
+              "b-00-overview-server-side-secrets-13": {
+                "id": "b-00-overview-server-side-secrets-13",
+                "type": "list-item",
+                "props": {
+                  "ordered": false
+                },
+                "text": [
+                  {
+                    "insert": "Server-side secrets",
+                    "attributes": {
+                      "bold": true
+                    }
+                  },
+                  {
+                    "insert": ": Store provider credentials only behind the backend boundary."
+                  }
+                ],
+                "children": []
+              },
+              "b-00-overview-file-tree-14": {
+                "id": "b-00-overview-file-tree-14",
+                "type": "heading",
+                "props": {
+                  "level": 2
+                },
+                "text": [
+                  {
+                    "insert": "File Tree"
+                  }
+                ],
+                "children": []
+              },
+              "b-00-overview-text-15": {
+                "id": "b-00-overview-text-15",
+                "type": "file-tree",
+                "props": {
+                  "entries": [
+                    {
+                      "path": "30-implementation/"
+                    },
+                    {
+                      "path": "30-implementation/00-overview/doc.json",
+                      "note": "(this file)"
+                    },
+                    {
+                      "path": "30-implementation/10-monorepo/",
+                      "note": "Planned source layout and package boundaries"
+                    },
+                    {
+                      "path": "30-implementation/10-monorepo/00-monorepo-index/doc.json"
+                    },
+                    {
+                      "path": "30-implementation/10-monorepo/10-proposed-source-layout/doc.json"
+                    },
+                    {
+                      "path": "30-implementation/99-appendix/",
+                      "note": "Operational notes and external references"
+                    },
+                    {
+                      "path": "30-implementation/99-appendix/00-reference-index/doc.json"
+                    },
+                    {
+                      "path": "30-implementation/99-appendix/10-external-references/doc.json"
+                    }
+                  ]
+                },
+                "children": []
+              },
+              "b-00-overview-section-index-16": {
+                "id": "b-00-overview-section-index-16",
+                "type": "heading",
+                "props": {
+                  "level": 2
+                },
+                "text": [
+                  {
+                    "insert": "Section Index"
+                  }
+                ],
+                "children": []
+              },
+              "b-00-overview-10-monorepo-10-monore-17": {
+                "id": "b-00-overview-10-monorepo-10-monore-17",
+                "type": "heading",
+                "props": {
+                  "level": 3
+                },
+                "text": [
+                  {
+                    "insert": "10-monorepo/",
+                    "attributes": {
+                      "reference": {
+                        "kind": "doc",
+                        "path": "30-implementation/10-monorepo/00-monorepo-index"
+                      }
+                    }
+                  }
+                ],
+                "children": []
+              },
+              "b-00-overview-planned-monorepo-package-18": {
+                "id": "b-00-overview-planned-monorepo-package-18",
+                "type": "paragraph",
+                "props": {},
+                "text": [
+                  {
+                    "insert": "Planned monorepo package boundaries for the web app, backend API, sync worker, shared domain logic, provider adapters, database layer, and configuration."
+                  }
+                ],
+                "children": []
+              },
+              "b-00-overview-99-appendix-99-append-19": {
+                "id": "b-00-overview-99-appendix-99-append-19",
+                "type": "heading",
+                "props": {
+                  "level": 3
+                },
+                "text": [
+                  {
+                    "insert": "99-appendix/",
+                    "attributes": {
+                      "reference": {
+                        "kind": "doc",
+                        "path": "30-implementation/99-appendix/00-reference-index"
+                      }
+                    }
+                  }
+                ],
+                "children": []
+              },
+              "b-00-overview-operational-and-referenc-20": {
+                "id": "b-00-overview-operational-and-referenc-20",
+                "type": "paragraph",
+                "props": {},
+                "text": [
+                  {
+                    "insert": "Operational and reference material, including external API notes and provider documentation links."
+                  }
+                ],
+                "children": []
+              },
+              "b-00-overview-cross-cutting-concerns-21": {
+                "id": "b-00-overview-cross-cutting-concerns-21",
+                "type": "heading",
+                "props": {
+                  "level": 2
+                },
+                "text": [
+                  {
+                    "insert": "Cross-Cutting Concerns"
+                  }
+                ],
+                "children": []
+              },
+              "b-00-overview-provider-sync-behavior-22": {
+                "id": "b-00-overview-provider-sync-behavior-22",
+                "type": "list-item",
+                "props": {
+                  "ordered": false
+                },
+                "text": [
+                  {
+                    "insert": "Provider sync behavior",
+                    "attributes": {
+                      "bold": true
+                    }
+                  },
+                  {
+                    "insert": ": The "
+                  },
+                  {
+                    "insert": "data ingestion design",
+                    "attributes": {
+                      "reference": {
+                        "kind": "doc",
+                        "path": "docs/10-system-design/20-data-ingestion.md",
+                        "label": "data ingestion design"
+                      }
+                    }
+                  },
+                  {
+                    "insert": " defines the provider-neutral contracts."
+                  }
+                ],
+                "children": []
+              },
+              "b-00-overview-canonical-models-th-23": {
+                "id": "b-00-overview-canonical-models-th-23",
+                "type": "list-item",
+                "props": {
+                  "ordered": false
+                },
+                "text": [
+                  {
+                    "insert": "Canonical models",
+                    "attributes": {
+                      "bold": true
+                    }
+                  },
+                  {
+                    "insert": ": The "
+                  },
+                  {
+                    "insert": "data model design",
+                    "attributes": {
+                      "reference": {
+                        "kind": "doc",
+                        "path": "10-system-design/15-data-models/00-model-index"
+                      }
+                    }
+                  },
+                  {
+                    "insert": " defines accounts, balances, transactions, holdings, scopes, and classification records."
+                  }
+                ],
+                "children": []
+              },
+              "b-00-overview-budget-views-the-a-24": {
+                "id": "b-00-overview-budget-views-the-a-24",
+                "type": "list-item",
+                "props": {
+                  "ordered": false
+                },
+                "text": [
+                  {
+                    "insert": "Budget views",
+                    "attributes": {
+                      "bold": true
+                    }
+                  },
+                  {
+                    "insert": ": The "
+                  },
+                  {
+                    "insert": "account ownership view design",
+                    "attributes": {
+                      "reference": {
+                        "kind": "doc",
+                        "path": "docs/10-system-design/30-account-ownership-views.md",
+                        "label": "account ownership view design"
+                      }
+                    }
+                  },
+                  {
+                    "insert": " defines the account grouping and scope model."
+                  }
+                ],
+                "children": []
+              },
+              "b-00-overview-budget-calculations-25": {
+                "id": "b-00-overview-budget-calculations-25",
+                "type": "list-item",
+                "props": {
+                  "ordered": false
+                },
+                "text": [
+                  {
+                    "insert": "Budget calculations",
+                    "attributes": {
+                      "bold": true
+                    }
+                  },
+                  {
+                    "insert": ": The "
+                  },
+                  {
+                    "insert": "budget guideline design",
+                    "attributes": {
+                      "reference": {
+                        "kind": "doc",
+                        "path": "docs/10-system-design/40-budget-guidelines.md",
+                        "label": "budget guideline design"
+                      }
+                    }
+                  },
+                  {
+                    "insert": " defines categories, axes, targets, and diagnostics."
+                  }
+                ],
+                "children": []
+              }
+            }
+          },
+          "hash": "a91a03098024b7d60fa77a345545791901847483424b0c3c76ba237853b99ca2",
+          "markdown": "The implementation is a TypeScript npm workspace with a frontend app, backend API, shared configuration package, and provider adapter package. The first slice previews live Mercury and SimpleFIN data without storing it yet.\n\n---\n\n## System Mental Model\n\nThe app is built around a provider-neutral budget core. External providers feed normalized records into the backend, the backend returns a read-only preview, and the frontend presents provider status, account groups, transaction previews, and SimpleFIN setup helpers.\n\n<!-- canvas: ./assets/canvases/00-overview.canvas.json title=\"Budget System Architecture\" -->\n\n## Key Architectural Decisions\n\n- **Monorepo**: Keep frontend, backend, shared domain logic, provider adapters, and operational scripts in one repository.\n\n- **Provider adapters**: Isolate Mercury, SimpleFIN, Plaid, and future importers behind a normalized ingestion boundary.\n\n- **Shared domain package**: Keep account types, budget scopes, classification, ownership, and reporting rules reusable across backend and frontend.\n\n- **Preview before persistence**: The first implementation fetches live provider data on demand and does not store accounts or transactions.\n\n- **Background sync later**: Scheduled imports belong outside request-response UI flows once persistence exists.\n\n- **Server-side secrets**: Store provider credentials only behind the backend boundary.\n\n## File Tree\n\n```\n30-implementation/\n├── 00-overview/\n│   └── doc.json  # (this file)\n├── 10-monorepo/  # Planned source layout and package boundaries\n│   ├── 00-monorepo-index/\n│   │   └── doc.json\n│   └── 10-proposed-source-layout/\n│       └── doc.json\n└── 99-appendix/  # Operational notes and external references\n    ├── 00-reference-index/\n    │   └── doc.json\n    └── 10-external-references/\n        └── doc.json\n```\n\n## Section Index\n\n### 10-monorepo/\n\nPlanned monorepo package boundaries for the web app, backend API, sync worker, shared domain logic, provider adapters, database layer, and configuration.\n\n### 99-appendix/\n\nOperational and reference material, including external API notes and provider documentation links.\n\n## Cross-Cutting Concerns\n\n- **Provider sync behavior**: The data ingestion design defines the provider-neutral contracts.\n\n- **Canonical models**: The data model design defines accounts, balances, transactions, holdings, scopes, and classification records.\n\n- **Budget views**: The account ownership view design defines the account grouping and scope model.\n\n- **Budget calculations**: The budget guideline design defines categories, axes, targets, and diagnostics.\n",
+          "bundlePath": "30-implementation/00-overview",
+          "expected_hash": "a91a03098024b7d60fa77a345545791901847483424b0c3c76ba237853b99ca2",
+          "lint": {
+            "phase": "complete",
+            "findings": [],
+            "blocking": []
+          }
+        },
+        "check": {
+          "ok": true,
+          "structurally_valid": true,
+          "hash": "a91a03098024b7d60fa77a345545791901847483424b0c3c76ba237853b99ca2",
+          "lint": {
+            "phase": "complete",
+            "findings": [],
+            "blocking": []
+          },
+          "components": [
+            {
+              "blockId": "b-00-overview-mermaid-6",
+              "type": "canvas",
+              "ok": true
+            }
+          ]
+        },
+        "patchId": "8ae35999-ccfd-423b-aba0-f1c3875e6297"
+      },
+      {
+        "path": "30-implementation/10-monorepo/20-provider-preview",
+        "after": {
+          "ok": true,
+          "doc": {
+            "schemaVersion": 1,
+            "id": "20-implementation-10-monorepo-20-provider-preview",
+            "title": "Provider Preview",
+            "root": "b-20-provider-preview-root-19",
+            "blocks": {
+              "b-20-provider-preview-root-19": {
+                "id": "b-20-provider-preview-root-19",
+                "type": "paragraph",
+                "props": {
+                  "concepts": [
+                    "provider-preview",
+                    "mercury",
+                    "simplefin",
+                    "frontend",
+                    "backend"
+                  ],
+                  "covers": "The first backend and frontend slice for previewing Mercury and SimpleFIN account and transaction data.",
+                  "design_refs": [
+                    "10-system-design/15-data-models/00-overview.md",
+                    "10-system-design/20-data-ingestion.md"
+                  ]
+                },
+                "children": [
+                  "b-20-provider-preview-the-provider-preview-is-2",
+                  "b-20-provider-preview-divider-3",
+                  "b-20-provider-preview-current-flow-4",
+                  "b-20-provider-preview-mermaid-5",
+                  "b-20-provider-preview-environment-variables-6",
+                  "b-20-provider-preview-variable-purpose-7",
+                  "b-20-provider-preview-api-endpoints-8",
+                  "b-20-provider-preview-endpoint-purpose-9",
+                  "b-20-provider-preview-code-references-10",
+                  "b-20-provider-preview-file-purpose-11",
+                  "b-20-provider-preview-boundaries-12",
+                  "b-20-provider-preview-the-preview-does-not-per-13",
+                  "b-20-provider-preview-provider-credentials-rem-14",
+                  "b-20-provider-preview-the-frontend-receives-no-15",
+                  "b-20-provider-preview-simplefin-setup-token-cl-16",
+                  "b-20-provider-preview-simplefin-requests-use-a-17",
+                  "b-20-provider-preview-mercury-personal-and-bus-18",
+                  "mercury-credit-heading",
+                  "mercury-credit-contract",
+                  "mercury-credit-errors",
+                  "mercury-credit-source",
+                  "spending-heading",
+                  "spending-overview",
+                  "spending-treatments",
+                  "spending-boundary",
+                  "spending-future",
+                  "spending-source"
+                ]
+              },
+              "b-20-provider-preview-the-provider-preview-is-2": {
+                "id": "b-20-provider-preview-the-provider-preview-is-2",
+                "type": "paragraph",
+                "props": {},
+                "text": [
+                  {
+                    "insert": "The provider preview is the first runnable version of the app. It loads credentials from the server environment, fetches live Mercury and SimpleFIN data on demand, normalizes the response shape enough for inspection, and renders accounts and transactions in the frontend."
+                  }
+                ],
+                "children": []
+              },
+              "b-20-provider-preview-divider-3": {
+                "id": "b-20-provider-preview-divider-3",
+                "type": "divider",
+                "props": {},
+                "children": []
+              },
+              "b-20-provider-preview-current-flow-4": {
+                "id": "b-20-provider-preview-current-flow-4",
+                "type": "heading",
+                "props": {
+                  "level": 2
+                },
+                "text": [
+                  {
+                    "insert": "Current Flow"
+                  }
+                ],
+                "children": []
+              },
+              "b-20-provider-preview-mermaid-5": {
+                "id": "b-20-provider-preview-mermaid-5",
+                "type": "sequence",
+                "props": {
+                  "src": "./assets/sequences/20-provider-preview.sequence.json",
+                  "title": "Provider Preview Request Path"
+                },
+                "children": []
+              },
+              "b-20-provider-preview-environment-variables-6": {
+                "id": "b-20-provider-preview-environment-variables-6",
+                "type": "heading",
+                "props": {
+                  "level": 2
+                },
+                "text": [
+                  {
+                    "insert": "Environment Variables"
+                  }
+                ],
+                "children": []
+              },
+              "b-20-provider-preview-variable-purpose-7": {
+                "id": "b-20-provider-preview-variable-purpose-7",
+                "type": "structured-table",
+                "props": {
+                  "columns": [
+                    "Variable",
+                    "Purpose"
+                  ],
+                  "rows": [
+                    [
+                      [
+                        {
+                          "insert": "PORT",
+                          "attributes": {
+                            "code": true
+                          }
+                        }
+                      ],
+                      [
+                        {
+                          "insert": "API port, defaulting to "
+                        },
+                        {
+                          "insert": "8787",
+                          "attributes": {
+                            "code": true
+                          }
+                        },
+                        {
+                          "insert": "."
+                        }
+                      ]
+                    ],
+                    [
+                      [
+                        {
+                          "insert": "CORS_ORIGIN",
+                          "attributes": {
+                            "code": true
+                          }
+                        }
+                      ],
+                      "Frontend origin allowed to call the API."
+                    ],
+                    [
+                      [
+                        {
+                          "insert": "MERCURY_AUTH_MODE",
+                          "attributes": {
+                            "code": true
+                          }
+                        }
+                      ],
+                      [
+                        {
+                          "insert": "bearer",
+                          "attributes": {
+                            "code": true
+                          }
+                        },
+                        {
+                          "insert": " by default, or "
+                        },
+                        {
+                          "insert": "basic",
+                          "attributes": {
+                            "code": true
+                          }
+                        },
+                        {
+                          "insert": " for username-only token auth."
+                        }
+                      ]
+                    ],
+                    [
+                      [
+                        {
+                          "insert": "MERCURY_PERSONAL_API_TOKEN",
+                          "attributes": {
+                            "code": true
+                          }
+                        }
+                      ],
+                      "Mercury token for personal accounts."
+                    ],
+                    [
+                      [
+                        {
+                          "insert": "MERCURY_BUSINESS_API_TOKEN",
+                          "attributes": {
+                            "code": true
+                          }
+                        }
+                      ],
+                      "Mercury token for business accounts."
+                    ],
+                    [
+                      [
+                        {
+                          "insert": "SIMPLEFIN_ACCESS_URL",
+                          "attributes": {
+                            "code": true
+                          }
+                        }
+                      ],
+                      "Claimed SimpleFIN access URL."
+                    ],
+                    [
+                      [
+                        {
+                          "insert": "SIMPLEFIN_LOOKBACK_DAYS",
+                          "attributes": {
+                            "code": true
+                          }
+                        }
+                      ],
+                      "SimpleFIN transaction lookback window, clamped to 1-90 days and defaulting to 30."
+                    ],
+                    [
+                      [
+                        {
+                          "insert": "VITE_API_BASE_URL",
+                          "attributes": {
+                            "code": true
+                          }
+                        }
+                      ],
+                      "Frontend API base URL."
+                    ]
+                  ]
+                },
+                "children": []
+              },
+              "b-20-provider-preview-api-endpoints-8": {
+                "id": "b-20-provider-preview-api-endpoints-8",
+                "type": "heading",
+                "props": {
+                  "level": 2
+                },
+                "text": [
+                  {
+                    "insert": "API Endpoints"
+                  }
+                ],
+                "children": []
+              },
+              "b-20-provider-preview-endpoint-purpose-9": {
+                "id": "b-20-provider-preview-endpoint-purpose-9",
+                "type": "structured-table",
+                "props": {
+                  "columns": [
+                    "Endpoint",
+                    "Purpose"
+                  ],
+                  "rows": [
+                    [
+                      [
+                        {
+                          "insert": "GET /api/health",
+                          "attributes": {
+                            "code": true
+                          }
+                        }
+                      ],
+                      "Shows API health and provider configuration status."
+                    ],
+                    [
+                      [
+                        {
+                          "insert": "GET /api/snapshot",
+                          "attributes": {
+                            "code": true
+                          }
+                        }
+                      ],
+                      "Loads all configured account and transaction previews."
+                    ],
+                    [
+                      [
+                        {
+                          "insert": "GET /api/mercury/accounts",
+                          "attributes": {
+                            "code": true
+                          }
+                        }
+                      ],
+                      "Loads Mercury accounts for configured Mercury tokens."
+                    ],
+                    [
+                      [
+                        {
+                          "insert": "GET /api/mercury/transactions",
+                          "attributes": {
+                            "code": true
+                          }
+                        }
+                      ],
+                      "Loads Mercury transactions for configured Mercury tokens."
+                    ],
+                    [
+                      [
+                        {
+                          "insert": "GET /api/simplefin/accounts",
+                          "attributes": {
+                            "code": true
+                          }
+                        }
+                      ],
+                      [
+                        {
+                          "insert": "Loads SimpleFIN accounts from "
+                        },
+                        {
+                          "insert": "SIMPLEFIN_ACCESS_URL",
+                          "attributes": {
+                            "code": true
+                          }
+                        },
+                        {
+                          "insert": ", with an optional "
+                        },
+                        {
+                          "insert": "days",
+                          "attributes": {
+                            "code": true
+                          }
+                        },
+                        {
+                          "insert": " query parameter."
+                        }
+                      ]
+                    ],
+                    [
+                      [
+                        {
+                          "insert": "GET /api/simplefin/transactions",
+                          "attributes": {
+                            "code": true
+                          }
+                        }
+                      ],
+                      [
+                        {
+                          "insert": "Flattens SimpleFIN account transactions for preview, with an optional "
+                        },
+                        {
+                          "insert": "days",
+                          "attributes": {
+                            "code": true
+                          }
+                        },
+                        {
+                          "insert": " query parameter."
+                        }
+                      ]
+                    ],
+                    [
+                      [
+                        {
+                          "insert": "POST /api/simplefin/claim",
+                          "attributes": {
+                            "code": true
+                          }
+                        }
+                      ],
+                      "Exchanges a one-time setup token for a SimpleFIN access URL."
+                    ]
+                  ]
+                },
+                "children": []
+              },
+              "b-20-provider-preview-code-references-10": {
+                "id": "b-20-provider-preview-code-references-10",
+                "type": "heading",
+                "props": {
+                  "level": 2
+                },
+                "text": [
+                  {
+                    "insert": "Code References"
+                  }
+                ],
+                "children": []
+              },
+              "b-20-provider-preview-file-purpose-11": {
+                "id": "b-20-provider-preview-file-purpose-11",
+                "type": "structured-table",
+                "props": {
+                  "columns": [
+                    "File",
+                    "Purpose"
+                  ],
+                  "rows": [
+                    [
+                      [
+                        {
+                          "insert": "apps/api/src/index.ts",
+                          "attributes": {
+                            "code": true
+                          }
+                        }
+                      ],
+                      "Express server and preview endpoints."
+                    ],
+                    [
+                      [
+                        {
+                          "insert": "apps/web/src/main.tsx",
+                          "attributes": {
+                            "code": true
+                          }
+                        }
+                      ],
+                      "React UI for provider status, SimpleFIN setup, accounts, and transactions."
+                    ],
+                    [
+                      [
+                        {
+                          "insert": "packages/config/src/index.ts",
+                          "attributes": {
+                            "code": true
+                          }
+                        }
+                      ],
+                      [
+                        {
+                          "insert": "Loads "
+                        },
+                        {
+                          "insert": ".env",
+                          "attributes": {
+                            "code": true
+                          }
+                        },
+                        {
+                          "insert": " and parses server configuration."
+                        }
+                      ]
+                    ],
+                    [
+                      [
+                        {
+                          "insert": "packages/providers/src/mercury.ts",
+                          "attributes": {
+                            "code": true
+                          }
+                        }
+                      ],
+                      "Mercury API client and lightweight normalization."
+                    ],
+                    [
+                      [
+                        {
+                          "insert": "packages/providers/src/simplefin.ts",
+                          "attributes": {
+                            "code": true
+                          }
+                        }
+                      ],
+                      "SimpleFIN setup-token claim, account fetch, and lightweight normalization."
+                    ],
+                    [
+                      [
+                        {
+                          "insert": ".env.example",
+                          "attributes": {
+                            "code": true
+                          }
+                        }
+                      ],
+                      "Local environment variable template."
+                    ]
+                  ]
+                },
+                "children": []
+              },
+              "b-20-provider-preview-boundaries-12": {
+                "id": "b-20-provider-preview-boundaries-12",
+                "type": "heading",
+                "props": {
+                  "level": 2
+                },
+                "text": [
+                  {
+                    "insert": "Boundaries"
+                  }
+                ],
+                "children": []
+              },
+              "b-20-provider-preview-the-preview-does-not-per-13": {
+                "id": "b-20-provider-preview-the-preview-does-not-per-13",
+                "type": "list-item",
+                "props": {
+                  "ordered": false
+                },
+                "text": [
+                  {
+                    "insert": "The preview does not persist data."
+                  }
+                ],
+                "children": []
+              },
+              "b-20-provider-preview-provider-credentials-rem-14": {
+                "id": "b-20-provider-preview-provider-credentials-rem-14",
+                "type": "list-item",
+                "props": {
+                  "ordered": false
+                },
+                "text": [
+                  {
+                    "insert": "Provider credentials remain server-side."
+                  }
+                ],
+                "children": []
+              },
+              "b-20-provider-preview-the-frontend-receives-no-15": {
+                "id": "b-20-provider-preview-the-frontend-receives-no-15",
+                "type": "list-item",
+                "props": {
+                  "ordered": false
+                },
+                "text": [
+                  {
+                    "insert": "The frontend receives normalized preview records and raw provider payloads are only carried in API responses for inspection."
+                  }
+                ],
+                "children": []
+              },
+              "b-20-provider-preview-simplefin-setup-token-cl-16": {
+                "id": "b-20-provider-preview-simplefin-setup-token-cl-16",
+                "type": "list-item",
+                "props": {
+                  "ordered": false
+                },
+                "text": [
+                  {
+                    "insert": "SimpleFIN setup-token claim returns the access URL, but the app does not write it into "
+                  },
+                  {
+                    "insert": ".env",
+                    "attributes": {
+                      "code": true
+                    }
+                  },
+                  {
+                    "insert": "."
+                  }
+                ],
+                "children": []
+              },
+              "b-20-provider-preview-simplefin-requests-use-a-17": {
+                "id": "b-20-provider-preview-simplefin-requests-use-a-17",
+                "type": "list-item",
+                "props": {
+                  "ordered": false
+                },
+                "text": [
+                  {
+                    "insert": "SimpleFIN requests use an explicit date window because the provider default can return very few transactions."
+                  }
+                ],
+                "children": []
+              },
+              "b-20-provider-preview-mercury-personal-and-bus-18": {
+                "id": "b-20-provider-preview-mercury-personal-and-bus-18",
+                "type": "list-item",
+                "props": {
+                  "ordered": false
+                },
+                "text": [
+                  {
+                    "insert": "Mercury personal and business tokens are treated as separate connections."
+                  }
+                ],
+                "children": []
+              },
+              "mercury-credit-heading": {
+                "id": "mercury-credit-heading",
+                "type": "heading",
+                "props": {
+                  "level": 2
+                },
+                "text": [
+                  {
+                    "insert": "Mercury Business Credit Balances"
+                  }
+                ],
+                "children": []
+              },
+              "mercury-credit-contract": {
+                "id": "mercury-credit-contract",
+                "type": "paragraph",
+                "props": {},
+                "text": [
+                  {
+                    "insert": "The snapshot fetches Mercury business credit accounts from GET /credit, separately from GET /accounts. MercuryClient.listCreditAccounts skips personal connections and preserves the signed currentBalance. availableBalance never substitutes for the debt balance. Each credit account is included once by its provider ID, with kind card and the Mercury Business connection's Lascari AI ownership."
+                  }
+                ],
+                "children": []
+              },
+              "mercury-credit-errors": {
+                "id": "mercury-credit-errors",
+                "type": "paragraph",
+                "props": {},
+                "text": [
+                  {
+                    "insert": "A negative current balance contributes to liabilities; a positive credit balance remains an asset. Missing current balances stay unknown. Failed credit requests preserve successful bank results and mark account coverage partial with a connection warning. Individual issued cards do not create duplicate liabilities."
+                  }
+                ],
+                "children": []
+              },
+              "mercury-credit-source": {
+                "id": "mercury-credit-source",
+                "type": "paragraph",
+                "props": {},
+                "text": [
+                  {
+                    "insert": "The provider contract lives in "
+                  },
+                  {
+                    "insert": "MercuryClient",
+                    "attributes": {
+                      "reference": {
+                        "kind": "source",
+                        "path": "packages/providers/src/mercury.ts"
+                      }
+                    }
+                  },
+                  {
+                    "insert": "; the snapshot joins credit and bank results in "
+                  },
+                  {
+                    "insert": "dashboard.ts",
+                    "attributes": {
+                      "reference": {
+                        "kind": "source",
+                        "path": "apps/api/src/dashboard.ts"
+                      }
+                    }
+                  },
+                  {
+                    "insert": ". "
+                  },
+                  {
+                    "insert": "Mercury's credit account reference",
+                    "attributes": {
+                      "link": "https://docs.mercury.com/reference/listcredit"
+                    }
+                  },
+                  {
+                    "insert": " documents the business-only endpoint."
+                  }
+                ],
+                "children": []
+              },
+              "spending-heading": {
+                "id": "spending-heading",
+                "type": "heading",
+                "props": {
+                  "level": 2
+                },
+                "text": [
+                  {
+                    "insert": "Monthly Spending Preview"
+                  }
+                ],
+                "children": []
+              },
+              "spending-overview": {
+                "id": "spending-overview",
+                "type": "paragraph",
+                "props": {},
+                "text": [
+                  {
+                    "insert": "The Spending route opens August 2026 with Ford, Caroline, and Shared Household selected. Businesses are excluded by default. Month and owner selections are URL parameters. The page reuses the Net Worth layout for income, spending, and transfer Sankey views, with owner summaries and account-filtered transaction details."
+                  }
+                ],
+                "children": []
+              },
+              "spending-treatments": {
+                "id": "spending-treatments",
+                "type": "structured-table",
+                "props": {
+                  "columns": [
+                    "Activity",
+                    "Current Treatment"
+                  ],
+                  "rows": [
+                    [
+                      "Income and other inflows",
+                      "Positive non-investment activity without refund or unresolved-transfer evidence. Includes funding from outside the selected owners; not necessarily earned income."
+                    ],
+                    [
+                      "Net spending",
+                      "Provisional negative purchases less explicitly labeled refunds or reversals. Unlabeled positive card credits remain in review."
+                    ],
+                    [
+                      "Matched transfers",
+                      "Unique reciprocal opposite-cent records within four days, with transfer wording and transfer or owner-name evidence on the other record. Matching uses the full fetched window; monthly views use each record's provider date portion. Matches are suggestions, not confirmed classifications."
+                    ],
+                    [
+                      "Needs review",
+                      "Unmatched or ambiguous transfers, payment-like labels, unlabeled card credits, unknown account types, and transfers out to excluded owners. Excluded from income and spending."
+                    ],
+                    [
+                      "Investment activity",
+                      "Unmatched investment account activity stays separate from spendable income and spending. Gross matched transfers into savings or investments are shown separately and do not establish net saving."
+                    ]
+                  ]
+                },
+                "children": []
+              },
+              "spending-boundary": {
+                "id": "spending-boundary",
+                "type": "paragraph",
+                "props": {},
+                "text": [
+                  {
+                    "insert": "Amounts aggregate in integer cents. Only posted USD records with finite amounts, valid dates, and known accounts enter totals. Duplicate account/transaction IDs count once. Closed accounts retain historical activity. The page reports excluded records and warns that returned history may be incomplete; an empty month does not establish zero spending. The monthly difference is inflows less net spending, not a cash balance or budget remaining."
+                  }
+                ],
+                "children": []
+              },
+              "spending-future": {
+                "id": "spending-future",
+                "type": "paragraph",
+                "props": {},
+                "text": [
+                  {
+                    "insert": "Bucket targets, confirmed classifications, current-month budget remaining, and past-month over/under reviews remain proposed. They require persisted budget periods and targets; the preview does not fabricate those values."
+                  }
+                ],
+                "children": []
+              },
+              "spending-source": {
+                "id": "spending-source",
+                "type": "paragraph",
+                "props": {},
+                "text": [
+                  {
+                    "insert": "The "
+                  },
+                  {
+                    "insert": "monthly model",
+                    "attributes": {
+                      "reference": {
+                        "kind": "source",
+                        "path": "apps/web/src/pages/spending/model.ts"
+                      }
+                    }
+                  },
+                  {
+                    "insert": " owns filtering, suggested transfer matches, and graph aggregation. The "
+                  },
+                  {
+                    "insert": "Spending page",
+                    "attributes": {
+                      "reference": {
+                        "kind": "source",
+                        "path": "apps/web/src/pages/spending/page.tsx"
+                      }
+                    }
+                  },
+                  {
+                    "insert": " owns controls and drill-down. "
+                  },
+                  {
+                    "insert": "Spending tests",
+                    "attributes": {
+                      "reference": {
+                        "kind": "source",
+                        "path": "apps/web/tests/spending.test.ts"
+                      }
+                    }
+                  },
+                  {
+                    "insert": " cover month boundaries, payment handling, refunds, ownership, ambiguous matches, investment activity, and record exclusions."
+                  }
+                ],
+                "children": []
+              }
+            }
+          },
+          "hash": "548b203be9dfd1319c4a7c7972ebe59c4e0942ac8a3e48052f6b743a0cccc044",
+          "markdown": "The provider preview is the first runnable version of the app. It loads credentials from the server environment, fetches live Mercury and SimpleFIN data on demand, normalizes the response shape enough for inspection, and renders accounts and transactions in the frontend.\n\n---\n\n## Current Flow\n\n<!-- sequence: ./assets/sequences/20-provider-preview.sequence.json title=\"Provider Preview Request Path\" -->\n\n## Environment Variables\n\n| Variable | Purpose |\n| --- | --- |\n| `PORT` | API port, defaulting to `8787`. |\n| `CORS_ORIGIN` | Frontend origin allowed to call the API. |\n| `MERCURY_AUTH_MODE` | `bearer` by default, or `basic` for username-only token auth. |\n| `MERCURY_PERSONAL_API_TOKEN` | Mercury token for personal accounts. |\n| `MERCURY_BUSINESS_API_TOKEN` | Mercury token for business accounts. |\n| `SIMPLEFIN_ACCESS_URL` | Claimed SimpleFIN access URL. |\n| `SIMPLEFIN_LOOKBACK_DAYS` | SimpleFIN transaction lookback window, clamped to 1-90 days and defaulting to 30. |\n| `VITE_API_BASE_URL` | Frontend API base URL. |\n\n## API Endpoints\n\n| Endpoint | Purpose |\n| --- | --- |\n| `GET /api/health` | Shows API health and provider configuration status. |\n| `GET /api/snapshot` | Loads all configured account and transaction previews. |\n| `GET /api/mercury/accounts` | Loads Mercury accounts for configured Mercury tokens. |\n| `GET /api/mercury/transactions` | Loads Mercury transactions for configured Mercury tokens. |\n| `GET /api/simplefin/accounts` | Loads SimpleFIN accounts from `SIMPLEFIN_ACCESS_URL`, with an optional `days` query parameter. |\n| `GET /api/simplefin/transactions` | Flattens SimpleFIN account transactions for preview, with an optional `days` query parameter. |\n| `POST /api/simplefin/claim` | Exchanges a one-time setup token for a SimpleFIN access URL. |\n\n## Code References\n\n| File | Purpose |\n| --- | --- |\n| `apps/api/src/index.ts` | Express server and preview endpoints. |\n| `apps/web/src/main.tsx` | React UI for provider status, SimpleFIN setup, accounts, and transactions. |\n| `packages/config/src/index.ts` | Loads `.env` and parses server configuration. |\n| `packages/providers/src/mercury.ts` | Mercury API client and lightweight normalization. |\n| `packages/providers/src/simplefin.ts` | SimpleFIN setup-token claim, account fetch, and lightweight normalization. |\n| `.env.example` | Local environment variable template. |\n\n## Boundaries\n\n- The preview does not persist data.\n\n- Provider credentials remain server-side.\n\n- The frontend receives normalized preview records and raw provider payloads are only carried in API responses for inspection.\n\n- SimpleFIN setup-token claim returns the access URL, but the app does not write it into `.env`.\n\n- SimpleFIN requests use an explicit date window because the provider default can return very few transactions.\n\n- Mercury personal and business tokens are treated as separate connections.\n\n## Mercury Business Credit Balances\n\nThe snapshot fetches Mercury business credit accounts from GET /credit, separately from GET /accounts. MercuryClient.listCreditAccounts skips personal connections and preserves the signed currentBalance. availableBalance never substitutes for the debt balance. Each credit account is included once by its provider ID, with kind card and the Mercury Business connection's Lascari AI ownership.\n\nA negative current balance contributes to liabilities; a positive credit balance remains an asset. Missing current balances stay unknown. Failed credit requests preserve successful bank results and mark account coverage partial with a connection warning. Individual issued cards do not create duplicate liabilities.\n\nThe provider contract lives in MercuryClient; the snapshot joins credit and bank results in dashboard.ts. [Mercury's credit account reference](https://docs.mercury.com/reference/listcredit) documents the business-only endpoint.\n\n## Monthly Spending Preview\n\nThe Spending route opens August 2026 with Ford, Caroline, and Shared Household selected. Businesses are excluded by default. Month and owner selections are URL parameters. The page reuses the Net Worth layout for income, spending, and transfer Sankey views, with owner summaries and account-filtered transaction details.\n\n| Activity | Current Treatment |\n| --- | --- |\n| Income and other inflows | Positive non-investment activity without refund or unresolved-transfer evidence. Includes funding from outside the selected owners; not necessarily earned income. |\n| Net spending | Provisional negative purchases less explicitly labeled refunds or reversals. Unlabeled positive card credits remain in review. |\n| Matched transfers | Unique reciprocal opposite-cent records within four days, with transfer wording and transfer or owner-name evidence on the other record. Matching uses the full fetched window; monthly views use each record's provider date portion. Matches are suggestions, not confirmed classifications. |\n| Needs review | Unmatched or ambiguous transfers, payment-like labels, unlabeled card credits, unknown account types, and transfers out to excluded owners. Excluded from income and spending. |\n| Investment activity | Unmatched investment account activity stays separate from spendable income and spending. Gross matched transfers into savings or investments are shown separately and do not establish net saving. |\n\nAmounts aggregate in integer cents. Only posted USD records with finite amounts, valid dates, and known accounts enter totals. Duplicate account/transaction IDs count once. Closed accounts retain historical activity. The page reports excluded records and warns that returned history may be incomplete; an empty month does not establish zero spending. The monthly difference is inflows less net spending, not a cash balance or budget remaining.\n\nBucket targets, confirmed classifications, current-month budget remaining, and past-month over/under reviews remain proposed. They require persisted budget periods and targets; the preview does not fabricate those values.\n\nThe monthly model owns filtering, suggested transfer matches, and graph aggregation. The Spending page owns controls and drill-down. Spending tests cover month boundaries, payment handling, refunds, ownership, ambiguous matches, investment activity, and record exclusions.\n",
+          "bundlePath": "30-implementation/10-monorepo/20-provider-preview",
+          "expected_hash": "548b203be9dfd1319c4a7c7972ebe59c4e0942ac8a3e48052f6b743a0cccc044",
+          "lint": {
+            "phase": "complete",
+            "findings": [],
+            "blocking": []
+          }
+        },
+        "check": {
+          "ok": true,
+          "structurally_valid": true,
+          "hash": "548b203be9dfd1319c4a7c7972ebe59c4e0942ac8a3e48052f6b743a0cccc044",
+          "lint": {
+            "phase": "complete",
+            "findings": [],
+            "blocking": []
+          },
+          "components": [
+            {
+              "blockId": "b-20-provider-preview-mermaid-5",
+              "type": "sequence",
+              "ok": true
+            }
+          ]
+        },
+        "patchId": "054dd910-00a5-490e-ac09-7d3a0bbb63e6"
+      }
+    ],
+    "viewerAssetResolution": "Both moved Canvas and Sequence restored original ./ prefix through typed ops and verified actual viewer resolvers resolve existing files."
+  },
+  "fullReport": "/tmp/docs-layout-review/migrate_budget.json"
+}

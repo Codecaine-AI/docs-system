@@ -1,0 +1,21 @@
+{
+  "name": "Spectre / Pi Agent Kernel",
+  "root": "/Users/Ford/Github Repos/Codecaine/Apps/spectre/packages/pi-agent-kernel",
+  "status": "Blocked: legacy format",
+  "agent": "migrate_spectre_kernel",
+  "oldImplementationDirectoryExists": true,
+  "newImplementationDirectoryExists": false,
+  "recovery": [],
+  "validation": {
+    "status": "blocked_legacy_schema",
+    "notes": [
+      "Reserve 20 for Agents; no Agents section exists.",
+      "28 Markdown files also exist as legacy parallel sources.",
+      "No documents or surrounding files changed.",
+      "Existing dirty .gitignore, README.md, and untracked SPECTRE_SOURCE.md preserved."
+    ],
+    "blocker": "Bundles use retired block.flavour instead of block.type. Current Docs discovery rejects all bundles, so docs_move cannot address this corpus.",
+    "nextRequirement": "A supported legacy-schema normalization or compatible section-move operation is required before this minor reorder can run through Docs tools."
+  },
+  "fullReport": "/tmp/docs-layout-review/migrate_spectre_kernel.json"
+}

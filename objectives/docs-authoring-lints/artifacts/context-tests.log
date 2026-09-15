@@ -1,0 +1,15 @@
+bun test v1.3.10 (30e609e0)
+
+packages/docs-kernel/src/authoring-context.test.ts:
+(pass) both agents load the same expanded corpus with real source paths [6.80ms]
+(pass) every engine rule resolves to a real corpus document [1.31ms]
+(pass) authored guidance passes schema and completion lints and uses typed internal links [4.84ms]
+(pass) both prompt snapshots derive from sources that require corpus guidance and lint repair [0.80ms]
+
+packages/docs-model/src/lint/corpus-contract.test.ts:
+(pass) every lint references valid corpus guidance and appears in the loaded lint standard [5.44ms]
+
+ 5 pass
+ 0 fail
+ 400 expect() calls
+Ran 5 tests across 2 files. [190.00ms]

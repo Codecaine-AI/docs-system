@@ -1,0 +1,50 @@
+[
+  {
+    "path": "30-guides/10-docs-mcp/50-document-management",
+    "ok": true,
+    "structurally_valid": true,
+    "hash": "d63ed33d4d6339fceb06f4ac1c2d0d944833a1c0c8816fa0a86fa11dc469476a",
+    "lint": {
+      "phase": "complete",
+      "findings": [],
+      "blocking": []
+    },
+    "components": []
+  },
+  {
+    "path": "30-guides/10-docs-mcp",
+    "ok": true,
+    "structurally_valid": true,
+    "hash": "1944b0da0bf4e66b35c41511e3dc79759e37a8cee284ca77d412019ce758ab83",
+    "lint": {
+      "phase": "complete",
+      "findings": [],
+      "blocking": []
+    },
+    "components": []
+  },
+  {
+    "path": "30-guides/10-docs-mcp/40-recovery",
+    "ok": true,
+    "structurally_valid": true,
+    "hash": "48c65bbe262b127bae68159cc10138a49332f9ea0c7931f03af660a7e821c0fb",
+    "lint": {
+      "phase": "complete",
+      "findings": [],
+      "blocking": []
+    },
+    "components": []
+  },
+  {
+    "path": "20-implementation/10-packages/85-docs-mcp",
+    "ok": true,
+    "structurally_valid": true,
+    "hash": "a4c560eadf53ad0dbb9f823d79dfe4b936ee2c70b5d64d0a04cc1142903082da",
+    "lint": {
+      "phase": "complete",
+      "findings": [],
+      "blocking": []
+    },
+    "components": []
+  }
+]

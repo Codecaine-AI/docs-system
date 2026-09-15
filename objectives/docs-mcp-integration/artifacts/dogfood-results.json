@@ -1,0 +1,188 @@
+[
+  {
+    "tool": "docs_discover",
+    "ok": true
+  },
+  {
+    "tool": "docs_begin",
+    "ok": true,
+    "snapshot": "sha256:064f9ef7746cc58803bc4b0864159eae77cd81af4e0f90fae92a8067200d712e"
+  },
+  {
+    "tool": "docs_tree",
+    "project": "docs-system-b85750c6",
+    "ok": true
+  },
+  {
+    "tool": "docs_create",
+    "project": "docs-system-b85750c6",
+    "path": "20-implementation/10-packages/85-docs-mcp",
+    "ok": true,
+    "hash": "e51030a95c8fc459b90c901aeff65291195de8a86c0997cae4cbcc8968f14cc4"
+  },
+  {
+    "tool": "docs_read",
+    "project": "docs-system-b85750c6",
+    "path": "20-implementation/10-packages/85-docs-mcp",
+    "ok": true,
+    "hash": "e51030a95c8fc459b90c901aeff65291195de8a86c0997cae4cbcc8968f14cc4"
+  },
+  {
+    "tool": "docs_apply_ops",
+    "project": "docs-system-b85750c6",
+    "path": "20-implementation/10-packages/85-docs-mcp",
+    "ok": true,
+    "hash": "48c818fd06dc745b05d75961f1e4949927a78cfc4fc7fd8a693871e8b48ec3b2"
+  },
+  {
+    "tool": "docs_read",
+    "project": "docs-system-b85750c6",
+    "path": "20-implementation/10-packages/85-docs-mcp",
+    "ok": true,
+    "hash": "48c818fd06dc745b05d75961f1e4949927a78cfc4fc7fd8a693871e8b48ec3b2"
+  },
+  {
+    "tool": "docs_file_tree_add_entry",
+    "project": "docs-system-b85750c6",
+    "path": "20-implementation/10-packages/85-docs-mcp",
+    "ok": true,
+    "hash": "2d8dbc90806a124975973cd56b627954009f8b314818d8850754842b238504a2"
+  },
+  {
+    "tool": "docs_read",
+    "project": "docs-system-b85750c6",
+    "path": "20-implementation/10-packages/85-docs-mcp",
+    "ok": true,
+    "hash": "2d8dbc90806a124975973cd56b627954009f8b314818d8850754842b238504a2"
+  },
+  {
+    "tool": "docs_file_tree_add_entry",
+    "project": "docs-system-b85750c6",
+    "path": "20-implementation/10-packages/85-docs-mcp",
+    "ok": true,
+    "hash": "03337bd0a0c42542d824e75f47df1793268a6d1b2d26666491b221f4d0b9f718"
+  },
+  {
+    "tool": "docs_read",
+    "project": "docs-system-b85750c6",
+    "path": "20-implementation/10-packages/85-docs-mcp",
+    "ok": true,
+    "hash": "03337bd0a0c42542d824e75f47df1793268a6d1b2d26666491b221f4d0b9f718"
+  },
+  {
+    "tool": "docs_file_tree_add_entry",
+    "project": "docs-system-b85750c6",
+    "path": "20-implementation/10-packages/85-docs-mcp",
+    "ok": true,
+    "hash": "1291cdd1c7e170f0f081ad11e6bb4bcde5a4aa6b6dbebee0f7e1959aef3dcae0"
+  },
+  {
+    "tool": "docs_read",
+    "project": "docs-system-b85750c6",
+    "path": "20-implementation/10-packages/85-docs-mcp",
+    "ok": true,
+    "hash": "1291cdd1c7e170f0f081ad11e6bb4bcde5a4aa6b6dbebee0f7e1959aef3dcae0"
+  },
+  {
+    "tool": "docs_file_tree_add_entry",
+    "project": "docs-system-b85750c6",
+    "path": "20-implementation/10-packages/85-docs-mcp",
+    "ok": true,
+    "hash": "0dae35cfa56dd2d90dcf1f661f3df9e0a918f18fe9f499b1724d4a1c179f4d7d"
+  },
+  {
+    "tool": "docs_read",
+    "project": "docs-system-b85750c6",
+    "path": "20-implementation/10-packages/85-docs-mcp",
+    "ok": true,
+    "hash": "0dae35cfa56dd2d90dcf1f661f3df9e0a918f18fe9f499b1724d4a1c179f4d7d"
+  },
+  {
+    "tool": "docs_file_tree_add_entry",
+    "project": "docs-system-b85750c6",
+    "path": "20-implementation/10-packages/85-docs-mcp",
+    "ok": true,
+    "hash": "d447f4cc6839c9246eb9ec6b7d7806e5d35706644feffe1c7c093fd94db36904"
+  },
+  {
+    "tool": "docs_check",
+    "project": "docs-system-b85750c6",
+    "path": "20-implementation/10-packages/85-docs-mcp",
+    "ok": true,
+    "hash": "d447f4cc6839c9246eb9ec6b7d7806e5d35706644feffe1c7c093fd94db36904"
+  },
+  {
+    "tool": "docs_read",
+    "project": "docs-system-b85750c6",
+    "path": "20-implementation/10-packages/85-docs-mcp",
+    "ok": true,
+    "hash": "d447f4cc6839c9246eb9ec6b7d7806e5d35706644feffe1c7c093fd94db36904"
+  },
+  {
+    "project": "docs-system-b85750c6",
+    "path": "20-implementation/10-packages/85-docs-mcp",
+    "finalHash": "d447f4cc6839c9246eb9ec6b7d7806e5d35706644feffe1c7c093fd94db36904",
+    "lint": {
+      "phase": "complete",
+      "findings": [],
+      "blocking": []
+    },
+    "markdown": "The Docs MCP package connects external coding agents to the existing Docs service. Codex and Claude Code use an MCP stdio connection. pi Agent uses an extension that forwards the same tool definitions.\n\n## Read and Edit\n\nDiscover the active workspace with docs_discover. Before editing, call docs_begin to load shared writing standards and component guidance. Read the target document through docs_read, then supply its revision hash and the task ID to a typed editing tool. Valid changes apply immediately.\n\nThe service rejects invalid structure and stale revisions. Editing calls return draft writing findings. Run docs_check before reporting completion, and repair required findings or state what remains unresolved. A failed update in one project does not roll back successful updates in another project.\n\n## Component Knowledge\n\nComponent manifests declare selection guidance and examples. The shared authoring-guidance renderer supplies the catalog to external tools and both built-in Docs agent contexts. Use docs_guidance with a component name to read its canonical reference.\n\n## Shared Service\n\nThe CLI automatically starts one local editing service. The client connections share that process, and explicit project IDs route operations to a discovered corpus. The shared workbench mode proxies its API to the same authority. Standalone workbench and kernel modes remain available with their existing process-local state.\n\n## Development Setup\n\nFrom the Docs System repository, run bun packages/docs-mcp/src/cli.ts install to preview the client configuration and skill files. Add --write to install with backups. Run doctor to check those installed files. Restart the coding clients or reload pi after installation.\n\nUse the ui command with a workspace and project ID to inspect edits through the shared workbench. Publication remains separate: the same corpus can be exported or embedded in a website without deploying after every edit.\n\n## Source Ownership\n\n```\npackages/\n├── docs-mcp/\n│   ├── skills/\n│   │   └── codecaine-docs/\n│   │       └── SKILL.md  # External authoring workflow\n│   └── src/  # MCP bridge, local service, client setup and typed tools\n├── docs-model/\n│   └── src/\n│       └── authoring-guidance.ts  # Shared standards and component catalog renderer\n├── docs-server/\n│   └── src/\n│       └── store.ts  # Root-bound read and mutation authority\n└── docs-workbench/\n    └── src/\n        └── shared-api.ts  # UI proxy to the shared service\n```\n\n## Compatibility\n\nThe snapshot command records package source hashes, repository revisions, tool contracts, and guidance sources. Standards reload between documentation tasks. Imported implementation changes require restarting the service. The built-in Docs Lab editor and generic docs-writer retain their existing staged review behavior.\n\nContent and component edits expose guarded undo while the service is running. Page creation does not expose undo because the existing tree inverse cannot safely remove a page after later additions.\n"
+  },
+  {
+    "tool": "docs_tree",
+    "project": "canvas-8961d45e",
+    "ok": true
+  },
+  {
+    "tool": "docs_create",
+    "project": "canvas-8961d45e",
+    "path": "20-implementation/95-docs-mcp-access",
+    "ok": true,
+    "hash": "37b4dcd6e49d08a505be321d6c88dd6f67ac318dbfb8e848ec26b1b14126047a"
+  },
+  {
+    "tool": "docs_read",
+    "project": "canvas-8961d45e",
+    "path": "20-implementation/95-docs-mcp-access",
+    "ok": true,
+    "hash": "37b4dcd6e49d08a505be321d6c88dd6f67ac318dbfb8e848ec26b1b14126047a"
+  },
+  {
+    "tool": "docs_apply_ops",
+    "project": "canvas-8961d45e",
+    "path": "20-implementation/95-docs-mcp-access",
+    "ok": true,
+    "hash": "8d772ff495fd25e881a5f32c5782b4f725714b2f90f0ef07a13f6618f2a6117b"
+  },
+  {
+    "tool": "docs_check",
+    "project": "canvas-8961d45e",
+    "path": "20-implementation/95-docs-mcp-access",
+    "ok": true,
+    "hash": "8d772ff495fd25e881a5f32c5782b4f725714b2f90f0ef07a13f6618f2a6117b"
+  },
+  {
+    "tool": "docs_read",
+    "project": "canvas-8961d45e",
+    "path": "20-implementation/95-docs-mcp-access",
+    "ok": true,
+    "hash": "8d772ff495fd25e881a5f32c5782b4f725714b2f90f0ef07a13f6618f2a6117b"
+  },
+  {
+    "project": "canvas-8961d45e",
+    "path": "20-implementation/95-docs-mcp-access",
+    "finalHash": "8d772ff495fd25e881a5f32c5782b4f725714b2f90f0ef07a13f6618f2a6117b",
+    "lint": {
+      "phase": "complete",
+      "findings": [],
+      "blocking": []
+    },
+    "markdown": "External coding agents can read and update this Canvas documentation corpus through the Codecaine Docs MCP integration. This uses the Docs interaction service and does not launch the Canvas specialist agent.\n\n## Connect to This Corpus\n\nInstall the Codecaine Docs client connection and companion skill once. Open the Canvas repository and call docs_discover, or discover the Core workspace to work on Canvas and Docs System documentation in the same request. Each tool call identifies its target project explicitly.\n\n## Choose and Edit Components\n\nCall docs_begin before editing. Its shared catalog explains when to use Canvas, Sequence, Process Outline, State Shape, Interaction Surface, and the other registered documentation components. Use docs_guidance for a focused component reference.\n\nRead content through docs_read and apply changes through typed tools with the current revision hash. Existing embedded Canvas and Sequence actions also require the sidecar hash returned by docs_component_read. Run docs_check before reporting completion.\n\n## Runtime Boundary\n\nThis connection edits documentation and exposes component operations already supported by the Docs service. It does not replace the standalone Canvas authoring service. Use the shared Docs workbench to inspect the same editing authority as the MCP clients.\n\nPublishing this corpus remains a separate website build or export. Local tool edits do not deploy a website.\n"
+  },
+  {
+    "tool": "docs_end",
+    "ok": true,
+    "snapshot": "sha256:064f9ef7746cc58803bc4b0864159eae77cd81af4e0f90fae92a8067200d712e"
+  }
+]

@@ -1,28 +1,10 @@
-/**
- * Section ② — standing docs-system knowledge for the Docs Lab editor.
- *
- * Two corpus-rendered sources: structure standards and the style guide, each
- * loaded as doc.json bundles and rendered through the sanctioned agent
- * projection (projectToMarkdown), so they stay current by construction.
- * Editing mechanics deliberately live in the tool definitions themselves —
- * every tool's schema and description is generated from the component
- * registry, so the context carries no tool teaching. The live document and
- * request queue stay section ③/session-tool data and are not loaded here.
- *
- * There is deliberately no outer <context> envelope: the kernel supplies it.
- */
+/** Kernel context adapter. Canonical rendering is shared with the external Docs integration. */
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineContext } from "@agent-kernel/kernel/agent-definition";
-import type {
-	AgentContextResolver,
-	LoadedMap,
-	SpawnContext,
-} from "@agent-kernel/kernel/context";
-import {
-	projectToMarkdown,
-	validateDocDocument,
-} from "@codecaine-ai/docs-model";
+import type { AgentContextResolver, LoadedMap } from "@agent-kernel/kernel/context";
+import { AUTHORING_BUNDLES, assembleAuthoringGuidance, guidanceBundleFile } from "@codecaine-ai/docs-model/authoring-guidance";
+export { STANDARDS_BUNDLES, STYLE_GUIDE_BUNDLES } from "@codecaine-ai/docs-model/authoring-guidance";
 
 /**
  * Anchor paths to this bundle so host:"any" evaluation works under Node and
@@ -32,103 +14,18 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const DOCS_SYSTEM_ROOT = resolve(HERE, "..", "..", "..", "..", "..");
 const DOCS_ROOT = join(DOCS_SYSTEM_ROOT, "docs");
 
-/**
- * The corpus bundles rendered into <docs_structure_standards>, in reading
- * order. Standards live in the docs-system corpus for every session corpus.
- */
-export const STANDARDS_BUNDLES: ReadonlyArray<string> = [
-	"10-system-design/10-doc-standards/10-structure",
-	"10-system-design/10-doc-standards/20-numbering",
-	"10-system-design/10-doc-standards/30-cross-doc-linking",
-	"10-system-design/10-doc-standards/40-code-linking",
-	"10-system-design/10-doc-standards/50-in-code-docs",
-	"10-system-design/10-doc-standards/60-implementation-layer",
-];
 
-/** The corpus bundles rendered into <docs_style_guide>, in reading order. */
-export const STYLE_GUIDE_BUNDLES: ReadonlyArray<string> = [
-	"99-appendix/10-style-guide/10-writing-style",
-	"99-appendix/10-style-guide/20-structure",
-];
-
-const bundleFile = (bundle: string): string =>
-	join(DOCS_ROOT, bundle, "doc.json");
-
-const loaders: AgentContextResolver["loaders"] = [
-	...STANDARDS_BUNDLES,
-	...STYLE_GUIDE_BUNDLES,
-].map((bundle) => ({
-	kind: "file" as const,
-	path: bundleFile(bundle),
+const loaders: AgentContextResolver["loaders"] = AUTHORING_BUNDLES.map(bundle => ({
+  kind: "file" as const,
+  path: guidanceBundleFile(DOCS_ROOT, bundle),
 }));
 
-function loadedPath(input: LoadedMap[number]): string {
-	return typeof input.decl === "object" && "path" in input.decl
-		? String(input.decl.path)
-		: "";
-}
-
-const INDENT = "  ";
-
-function indent(body: string): string {
-	return body
-		.split("\n")
-		.map((line) => (line.length > 0 ? `${INDENT}${line}` : line))
-		.join("\n");
-}
-
-/** Wraps body in a tag, indenting it one level; nested calls accumulate. */
-function block(tag: string, attrs: string, body: string): string {
-	const open = attrs.length > 0 ? `<${tag} ${attrs}>` : `<${tag}>`;
-	return [open, indent(body), `</${tag}>`].join("\n");
-}
-
-function renderCorpusDoc(bundle: string, raw: string): string {
-	let parsed: unknown;
-	try {
-		parsed = JSON.parse(raw);
-	} catch {
-		return `<doc path="${bundle}" status="unparseable"></doc>`;
-	}
-	const validated = validateDocDocument(parsed);
-	if (!validated.ok) {
-		return `<doc path="${bundle}" status="invalid"></doc>`;
-	}
-	const title = validated.document.title ?? bundle;
-	return block(
-		"doc",
-		`path="${bundle}" title="${title}"`,
-		projectToMarkdown(validated.document),
-	);
-}
-
-// Standing knowledge is session-invariant; the session aim belongs to state.
-function assemble(loaded: LoadedMap, _ctx: SpawnContext): string {
-	const loadedByPath = new Map(loaded.map((input) => [loadedPath(input), input]));
-
-	const renderBundles = (bundles: ReadonlyArray<string>): string =>
-		bundles
-			.map((bundle) => {
-				const input = loadedByPath.get(bundleFile(bundle));
-				if (input === undefined || input.status !== "ok") {
-					return `<doc path="${bundle}" status="${input?.status ?? "missing"}"></doc>`;
-				}
-				return renderCorpusDoc(bundle, input.content);
-			})
-			.join("\n");
-
-	return [
-		block(
-			"docs_structure_standards",
-			'source="docs-system corpus · 10-system-design/10-doc-standards"',
-			renderBundles(STANDARDS_BUNDLES),
-		),
-		block(
-			"docs_style_guide",
-			'source="docs-system corpus · 99-appendix/10-style-guide"',
-			renderBundles(STYLE_GUIDE_BUNDLES),
-		),
-	].join("\n");
+function assemble(loaded: LoadedMap): string {
+  return assembleAuthoringGuidance(DOCS_ROOT, loaded.map(input => ({
+    path: typeof input.decl === "object" && "path" in input.decl ? String(input.decl.path) : "",
+    status: input.status,
+    content: input.content,
+  })));
 }
 
 export const context = defineContext({ loaders, assemble });

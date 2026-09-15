@@ -234,6 +234,11 @@ export type StyleRailSettings = {
     /** Clear inset around the thumb in px — lifts it off the window edge. */
     padding: number;
   };
+  transition: {
+    type: "none" | "fade";
+    fadeOutMs: number;
+    fadeInMs: number;
+  };
   peek: {
     /** Side-peek open width in rem — --docs-peek-width (unset = the viewer's responsive min()). */
     width: number;
@@ -249,7 +254,7 @@ export type StyleRailSettings = {
     dividerStyle: PeekDividerStyle;
   };
   reference: {
-    /** Doc-reference chip rest color; null = theme muted foreground — --docs-ref-color. */
+    /** Doc-reference chip rest color; null = accessible theme navigation color — --docs-ref-color. */
     color: string | null;
     /** Chip hover underline color; null = foreground at 40% — --docs-ref-underline-color. */
     underlineColor: string | null;
@@ -343,6 +348,7 @@ export const DEFAULT_STYLE_RAIL_SETTINGS: StyleRailSettings = {
   list: { discSize: 6, circleSize: 6, circleThickness: 1.5, squareSize: 5, indent: 24 },
   grip: { gap: 12, offsetY: 6, size: 18, color: null, fadeMs: 100 },
   scrollbar: { width: 10, color: null, opacity: 1, padding: 0 },
+  transition: { type: "fade", fadeOutMs: 80, fadeInMs: 120 },
   peek: {
     width: 48,
     durationMs: 300,
@@ -653,6 +659,7 @@ export function normalizeSettings(
   const highlight = input.highlight ?? ({} as Partial<StyleRailSettings["highlight"]>);
   const grip = input.grip ?? ({} as Partial<StyleRailSettings["grip"]>);
   const scrollbar = input.scrollbar ?? ({} as Partial<StyleRailSettings["scrollbar"]>);
+  const transition = input.transition ?? ({} as Partial<StyleRailSettings["transition"]>);
   const peek = input.peek ?? ({} as Partial<StyleRailSettings["peek"]>);
   const reference = input.reference ?? ({} as Partial<StyleRailSettings["reference"]>);
   const annotate = input.annotate ?? ({} as Partial<StyleRailSettings["annotate"]>);
@@ -734,6 +741,11 @@ export function normalizeSettings(
       color: pickHexColor(scrollbar.color),
       opacity: clampNumber(scrollbar.opacity, 0.1, 1, d.scrollbar.opacity),
       padding: clampNumber(scrollbar.padding, 0, 12, d.scrollbar.padding),
+    },
+    transition: {
+      type: transition.type === "none" || transition.type === "fade" ? transition.type : d.transition.type,
+      fadeOutMs: clampNumber(transition.fadeOutMs, 0, 800, d.transition.fadeOutMs),
+      fadeInMs: clampNumber(transition.fadeInMs, 0, 800, d.transition.fadeInMs),
     },
     peek: {
       width: clampNumber(peek.width, 24, 80, d.peek.width),
@@ -1019,6 +1031,9 @@ export function styleRailVars(settings: StyleRailSettings): Record<string, strin
     // (DocPeekPanel / the inline reference chip); semantic.css carries the
     // canonical defaults, so a knob at default removes its override and the
     // theme-tracking token (e.g. var(--border)) stays authoritative.
+    "--docs-page-transition-type": settings.transition.type,
+    "--docs-page-fade-out": `${settings.transition.fadeOutMs}ms`,
+    "--docs-page-fade-in": `${settings.transition.fadeInMs}ms`,
     "--docs-peek-width": peek.width === d.peek.width ? null : `${peek.width}rem`,
     "--docs-peek-duration":
       peek.durationMs === d.peek.durationMs ? null : `${peek.durationMs}ms`,

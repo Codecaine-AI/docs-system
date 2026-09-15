@@ -1,0 +1,66 @@
+bun test v1.3.10 (30e609e0)
+
+packages/docs-mcp/src/mcp.test.ts:
+(pass) two MCP clients share one authority; typed edits, UI visibility, stale rejection and undo cross protocol [693.33ms]
+
+packages/docs-mcp/src/install.test.ts:
+(pass) client installation > preview creates no user files and includes all three clients [2.33ms]
+(pass) client installation > preserves user settings, creates backups, and reinstalls without changes [7.67ms]
+(pass) client installation > invalid existing config aborts before any install writes [0.46ms]
+(pass) client installation > individual clients install only their bindings; doctor reports skill drift [2.35ms]
+(pass) client installation > does not overwrite unmanaged or customized Codex server entries [0.07ms]
+(pass) client installation > rejects skill path traversal before installation [0.54ms]
+(pass) client installation > restore previews, restores exact old configuration, and refuses later edits [3.51ms]
+
+packages/docs-mcp/src/guidance.test.ts:
+(pass) external guidance uses the shared renderer and covers every registered component [21.61ms]
+(pass) registered components cannot silently omit selection guidance [0.40ms]
+(pass) canonical edits change the next snapshot while existing snapshots remain unchanged [32.32ms]
+(pass) generated references contain maintained content and one matching snapshot [10.56ms]
+
+packages/docs-mcp/src/discovery.test.ts:
+(pass) discovers declared projects, skips disabled products, returns stable explicit identities [6.23ms]
+(pass) rejects project traversal and escaping symlinks [1.53ms]
+
+packages/docs-mcp/src/pi-extension.test.ts:
+(pass) pi MCP bridge > connects at session start, preserves schemas and arguments, closes at shutdown [0.50ms]
+(pass) pi MCP bridge > MCP tool failures are errors in pi rather than successful text results [0.14ms]
+
+packages/docs-mcp/src/review.test.ts:
+(pass) service requires a live task in the current workspace for every write [104.15ms]
+(pass) a project learned in another workspace remains unavailable to this workspace [71.41ms]
+(pass) invalid edits leave their project unchanged without rolling back another project [101.56ms]
+(pass) UI reads immediately see changes made through the tool authority [98.49ms]
+(pass) focused guidance returns the canonical component chapter from the task snapshot [72.05ms]
+(pass) isolated daemon authenticates local requests and removes its state on shutdown [329.57ms]
+
+packages/docs-mcp/src/__tests__/tools.test.ts:
+(pass) direct Docs MCP tools > reads stable IDs and projections, then writes immediately through the store [6.06ms]
+(pass) direct Docs MCP tools > rejects missing preconditions and malformed operations without writing [2.87ms]
+[backlinks] failed to index doc source page/doc.json: 71 |     return db;
+72 |   }
+73 |   const dbPath = backlinksDbPath(dbPathOrDocsRoot);
+74 |   await mkdir(dirname(dbPath), { recursive: true });
+75 |   const db = new Database(dbPath, { create: true });
+76 |   db.exec(SCHEMA_SQL);
+          ^
+SQLiteError: no such table: main.backlinks
+      errno: 1,
+ byteOffset: -1,
+
+      at run (bun:sqlite:336:21)
+      at openBacklinksDb (/Users/Ford/Github Repos/Codecaine/Core/docs-system/packages/docs-index/src/backlinks.ts:76:6)
+      at async indexDocSourceBestEffort (/Users/Ford/Github Repos/Codecaine/Core/docs-system/packages/docs-server/src/backlinks-cache.ts:55:28)
+
+(pass) direct Docs MCP tools > rejects a stale hash and admits only one concurrent writer [2.94ms]
+(pass) direct Docs MCP tools > registry-generated component edits validate their parameters [5.16ms]
+(pass) direct Docs MCP tools > inserts text and components using registry defaults and returns final lint [5.60ms]
+(pass) direct Docs MCP tools > undo cannot use another project's patch [6.24ms]
+(pass) direct Docs MCP tools > refuses traversal and symlink access outside the corpus [2.57ms]
+(pass) direct Docs MCP tools > creates a new bundle through the tree service without replacing an existing one [7.55ms]
+(pass) direct Docs MCP tools > reads and edits a Sequence sidecar with both hashes and refuses stale content [10.55ms]
+
+ 31 pass
+ 0 fail
+ 241 expect() calls
+Ran 31 tests across 7 files. [1.92s]

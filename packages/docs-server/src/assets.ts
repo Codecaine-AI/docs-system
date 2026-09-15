@@ -257,8 +257,8 @@ export type ReadDocAssetResult =
 
 /**
  * Resolves + validates a docs-ROOT-relative asset path for serving.
- * Defense in depth: re-checks MAX_ASSET_BYTES on read even though upload
- * already enforced it, in case the file was replaced out-of-band.
+ * Rechecks the matching upload cap on read. Video uploads allow larger
+ * files than images and attachments, so reads must use the same limit.
  */
 export async function readDocAsset(docsRoot: string, path: string): Promise<ReadDocAssetResult> {
   const assetAbs = resolveAssetRootRelativePath(docsRoot, path);
@@ -274,7 +274,9 @@ export async function readDocAsset(docsRoot: string, path: string): Promise<Read
   if (!st.isFile()) {
     return { ok: false, status: 404, detail: `Asset path is not a file: ${path}` };
   }
-  if (st.size > MAX_ASSET_BYTES) {
+  const maxBytes = ALLOWED_VIDEO_ASSET_EXT.has(extname(assetAbs).toLowerCase())
+    ? MAX_VIDEO_ASSET_BYTES : MAX_ASSET_BYTES;
+  if (st.size > maxBytes) {
     return { ok: false, status: 413, detail: `Asset exceeds size cap: ${path}` };
   }
   return { ok: true, assetAbs, contentType: inferAssetContentType(assetAbs) };

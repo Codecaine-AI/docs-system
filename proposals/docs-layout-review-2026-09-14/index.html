@@ -1,0 +1,1189 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Docs Layout · Applied Minimal Changes</title><style>
+:root{color-scheme:light;font:16px/1.55 system-ui,-apple-system,sans-serif;color:#20313d;background:#f4f5f6}*{box-sizing:border-box}body{margin:0}header.hero{padding:28px 34px 20px;background:white;border-bottom:1px solid #dce2e6}h1{font-size:30px;letter-spacing:-.7px;margin:6px 0}h2{font-size:23px;margin:6px 0 12px}h3{font-size:17px}p{max-width:85ch}.eyebrow{font-size:12px;letter-spacing:1.4px;color:#527082;font-weight:650}.badge{display:inline-block;border:1px solid #d8b759;border-radius:5px;background:#fff7dc;padding:3px 8px;font-size:12px}.hero p{margin:8px 0}.nav{display:flex;gap:6px;padding:10px 30px;position:sticky;top:0;z-index:2;background:#fff;border-bottom:1px solid #dce2e6;overflow:auto}.nav button{padding:10px 16px;border:0;border-radius:6px;background:#edf1f4;color:#304c60;cursor:pointer;font:inherit;white-space:nowrap}.nav button[aria-selected=true]{background:#245a81;color:white}main{max-width:1450px;margin:auto;padding:26px 32px 80px}.panel[hidden]{display:none}.card,.edit{background:white;border:1px solid #dce2e6;border-radius:9px;margin-bottom:22px;padding:24px}.compare{display:grid;grid-template-columns:1fr 1fr;gap:22px}.compare>section{min-width:0;padding:18px;border:1px solid #e2e7eb;border-radius:6px;overflow-wrap:anywhere}.compare .proposed{border-top:3px solid #367657;background:#fcfffd}.compare h3{margin-top:0;color:#527082}.path,.paths,pre,code{font-family:ui-monospace,SFMono-Regular,monospace;font-size:12px}.path{color:#657989;overflow-wrap:anywhere}.paths>div{padding:7px 10px;border-bottom:1px solid #eef0f2;overflow-wrap:anywhere}.paths{background:#f7f9fa;border-radius:5px}pre{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.7;background:#f5f7f8;padding:16px;border-radius:5px}.diff{padding:0;font-size:12px;max-height:560px;overflow:auto}.diff>div{padding:1px 12px}.add{background:#e4f4e8;color:#205e35}.del{background:#fbe7e7;color:#8e3434}.same{color:#677887}.note{color:#62727e;font-size:13px}a{color:#245a81}table{border-collapse:collapse;width:100%;font-size:14px}td,th{text-align:left;vertical-align:top;border-bottom:1px solid #dde3e8;padding:10px}th{color:#527082}details{margin-top:18px}summary{cursor:pointer;color:#245a81;font-weight:600;padding:8px 0}.stat{font-size:32px;font-weight:650;color:#245a81}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.stats .card{margin:0}.linkrow{display:flex;gap:22px;margin-top:14px}.edit{scroll-margin-top:75px}.compare p{font-size:14px}.compare li{font-size:14px}.compare h2{font-size:19px}.compare table{font-size:12px}.pending{background:#fffaf0}.chips{display:flex;flex-wrap:wrap;gap:8px}.chips button{border:1px solid #d9e0e5;background:#fff;border-radius:5px;padding:7px 10px;cursor:pointer;color:#245a81}@media(max-width:850px){main{padding:18px}.compare{grid-template-columns:1fr}.hero{padding:20px!important}.nav{padding:10px}.card,.edit{padding:17px}.stats{grid-template-columns:1fr}}@media print{.nav{position:static}.panel[hidden]{display:block}details{display:block}}
+.diff{max-height:none}.hero .badge{border-color:#799584;background:#eef8f1}.compare p{white-space:normal}</style><header class="hero"><span class="badge">APPLIED · MINIMAL EDITS · SEPTEMBER 14, 2026</span><h1>Layer Order and Implementation Purpose</h1><p>The broad proposal is withdrawn. This replacement preserves all 192 existing blocks, their nesting, formatting, examples, and detailed context.</p><p><strong>25 blocks updated. Zero blocks deleted or added.</strong></p><div class="linkrow"><a href="http://localhost:4808/" target="_blank">Open live Docs</a><a href="proposal.md" download>Download the corrected proposal</a></div></header><nav class="nav" aria-label="Review sections"><button data-tab="order" aria-selected="true">1. Applied Layer Order</button><button data-tab="edits">2. Minimal Doc Edits</button><button data-tab="skill">3. Minimal Skill Edits</button><button data-tab="files">4. File Impact</button></nav><main>
+<div id="order" class="panel"><div class="card"><h2>Only the Layering Changes</h2><pre>00-foundation/
+10-system-design/
+20-agents/
+30-implementation/
+40-guides/
+99-appendix/</pre><p>Foundation explains the project's intent. System Design explains how it works. Agents defines the agents involved. Implementation briefly connects the design to the code and explains why it was built that way.</p></div><div class="card"><h2>Existing Guidance Stays</h2><p>The L1–L6 depth ladder, three-level doc tree, folder rules, nested bullets, typed components, decision-entry format, examples, source maps, and rationale are retained. Cross-doc linking and code-linking rules are unchanged.</p><p>The six document edits and both folder moves are applied. Installed skills and generated references are refreshed. Agents is reserved at 20; no new agent pages were created in this pass. The comparisons below preserve the approved review.</p></div><div class="card"><h2>Start With the Actual Diff</h2><p>Open <strong>Minimal Doc Edits</strong>. Only changed lines and nearby context are shown initially. Each page can expand into its complete current and proposed document.</p></div></div>
+<div id="edits" class="panel" hidden><div class="card"><h2>Six Focused Document Edits</h2><p>Layer names, numbered paths, and the wording that defines Implementation. All other blocks remain byte-for-byte identical in the proposed document model.</p></div><article class="edit" id="edit-0"><header><h2>Doc standards</h2><p class="path">docs/10-system-design/10-doc-standards/doc.json</p><p>Add Agents to the existing layer table and tree; retain the surrounding explanation and standards index.</p><p class="note">6 existing blocks updated. No blocks removed, inserted, moved, or re-nested.</p></header><pre class="diff"><div class="same">… unchanged context …</div><div class="same">  - With 10, 20, or 100+ agents working a codebase, every change needs one canonical place to land</div><div class="same">  </div><div class="add">+ ## The Four Layers</div><div class="del">- ## The Three Layers</div><div class="same">  </div><div class="same">  | Layer | Holds | Changes |</div><div class="same">… unchanged context …</div><div class="same">  | `00-foundation` | Core idea behind the system and why it exists | Rarely |</div><div class="same">  | `10-system-design` | Behavior, implementation-agnostic | When behavior changes |</div><div class="add">+ | `20-agents` | Participating agents, their definitions, context, tools, outputs, and responsibilities | When agent contracts change |</div><div class="add">+ | `30-implementation` | How the current code realizes the system design, including its organization and the reasons for key implementation choices | With the code |</div><div class="del">- | `20-implementation` | Structural decisions about the current code, including its organization and the reasons additions must follow it | With the code |</div><div class="same">  </div><div class="add">+ A repo may declare additional numbered root tiers (40 and above, below 99) for procedural guide content the four layers cannot hold. structure owns the rule.</div><div class="del">- A repo may declare additional numbered root tiers (30 and above, below 99) for procedural guide content the three layers cannot hold. structure owns the rule.</div><div class="same">  </div><div class="same">  ## The &quot;Why&quot; Travels With Every Decision</div><div class="same">… unchanged context …</div><div class="same">  10-system-design/  # behavior: implementation-agnostic; what the system does and why</div><div class="same">  └── 10-doc-standards/  # this section: the structure itself, plus its standards docs</div><div class="add">+ 20-agents/  # the agents involved: definitions, context, tools, outputs, and responsibilities</div><div class="add">+ 30-implementation/  # the current code: mirrors the source tree, churns with it</div><div class="del">- 20-implementation/  # the current code: mirrors the source tree, churns with it</div><div class="same">  ```</div><div class="same">  </div><div class="same">… unchanged context …</div><div class="same">  - Structure</div><div class="same">  </div><div class="add">+   - The four layers, the depth ladder, folders and parent docs, and when a topic earns a folder.</div><div class="del">-   - The three layers, the depth ladder, folders and parent docs, and when a topic earns a folder.</div><div class="same">  </div><div class="same">  - Numbering</div><div class="same">… unchanged context …</div><div class="same">  - Implementation layer</div><div class="same">  </div><div class="add">+   - Area pages, decision entries, the design-to-code mapping, and lazy accretion.</div><div class="del">-   - Area pages, decision entries, the unwritten-code test, and lazy accretion.</div><div class="same">  </div><div class="same">  - Document Purpose</div></pre><details><summary>Read the full document before and after</summary><div class="compare"><section><h3>Current</h3><p>Documentation defines what a system should do without the code.</p>
+<p>The structure defined in these standards is built for many agents at once.</p>
+<ul>
+<li>With 10, 20, or 100+ agents working a codebase, every change needs one canonical place to land</li>
+</ul>
+<h2>The Three Layers</h2>
+<table>
+<thead>
+<tr><th>Layer</th><th>Holds</th><th>Changes</th></tr>
+</thead>
+<tbody>
+<tr><td><code>00-foundation</code></td><td>Core idea behind the system and why it exists</td><td>Rarely</td></tr>
+<tr><td><code>10-system-design</code></td><td>Behavior, implementation-agnostic</td><td>When behavior changes</td></tr>
+<tr><td><code>20-implementation</code></td><td>Structural decisions about the current code, including its organization and the reasons additions must follow it</td><td>With the code</td></tr>
+</tbody>
+</table>
+<p>A repo may declare additional numbered root tiers (30 and above, below 99) for procedural guide content the three layers cannot hold. structure owns the rule.</p>
+<h2>The &quot;Why&quot; Travels With Every Decision</h2>
+<p>Every decision in these docs carries its why</p>
+<ul>
+<li>
+<p>The what can be re-derived from the system; the why cannot</p>
+</li>
+<li>
+<p>Recorded, it does two jobs</p>
+<ul>
+<li>
+<p>A returning human sees exactly why a choice was made a month ago and easily re-onboard to the project</p>
+</li>
+<li>
+<p>An agent checking its work against the docs cannot overturn deliberate intent by accident</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2>The Shape on Disk</h2>
+<pre><code>00-foundation/  # intent: what this is and why; every change is compared against it
+10-system-design/  # behavior: implementation-agnostic; what the system does and why
+└── 10-doc-standards/  # this section: the structure itself, plus its standards docs
+20-implementation/  # the current code: mirrors the source tree, churns with it
+</code></pre>
+<h2>The Standards</h2>
+<p>Each standard owns one concern. Every one shows how things are laid out, states the rule, and defends it.</p>
+<ul>
+<li>
+<p>Structure</p>
+<ul>
+<li>The three layers, the depth ladder, folders and parent docs, and when a topic earns a folder.</li>
+</ul>
+</li>
+<li>
+<p>Numbering</p>
+<ul>
+<li>Two-digit prefixes, reading order in the filesystem, gaps, and the one named deviation.</li>
+</ul>
+</li>
+<li>
+<p>Cross-doc linking</p>
+<ul>
+<li>Reference spans, canonical-home targets, and the restraint rules against overlinking.</li>
+</ul>
+</li>
+<li>
+<p>Code linking</p>
+<ul>
+<li>One-way doc-to-code references by full path, updated when code moves.</li>
+</ul>
+</li>
+<li>
+<p>In-code docs</p>
+<ul>
+<li>File headers, docstrings, and inline comments: where documentation continues into the source.</li>
+</ul>
+</li>
+<li>
+<p>Implementation layer</p>
+<ul>
+<li>Area pages, decision entries, the unwritten-code test, and lazy accretion.</li>
+</ul>
+</li>
+<li>
+<p>Document Purpose</p>
+<ul>
+<li>One primary reader purpose within the existing layers, with supporting reasons and reference details.</li>
+</ul>
+</li>
+<li>
+<p>Authoring Lints</p>
+<ul>
+<li>Rule ownership, draft and completion checks, and the distinction between required findings and editorial warnings.</li>
+</ul>
+</li>
+</ul>
+</section><section class="proposed"><h3>Proposed</h3><p>Documentation defines what a system should do without the code.</p>
+<p>The structure defined in these standards is built for many agents at once.</p>
+<ul>
+<li>With 10, 20, or 100+ agents working a codebase, every change needs one canonical place to land</li>
+</ul>
+<h2>The Four Layers</h2>
+<table>
+<thead>
+<tr><th>Layer</th><th>Holds</th><th>Changes</th></tr>
+</thead>
+<tbody>
+<tr><td><code>00-foundation</code></td><td>Core idea behind the system and why it exists</td><td>Rarely</td></tr>
+<tr><td><code>10-system-design</code></td><td>Behavior, implementation-agnostic</td><td>When behavior changes</td></tr>
+<tr><td><code>20-agents</code></td><td>Participating agents, their definitions, context, tools, outputs, and responsibilities</td><td>When agent contracts change</td></tr>
+<tr><td><code>30-implementation</code></td><td>How the current code realizes the system design, including its organization and the reasons for key implementation choices</td><td>With the code</td></tr>
+</tbody>
+</table>
+<p>A repo may declare additional numbered root tiers (40 and above, below 99) for procedural guide content the four layers cannot hold. structure owns the rule.</p>
+<h2>The &quot;Why&quot; Travels With Every Decision</h2>
+<p>Every decision in these docs carries its why</p>
+<ul>
+<li>
+<p>The what can be re-derived from the system; the why cannot</p>
+</li>
+<li>
+<p>Recorded, it does two jobs</p>
+<ul>
+<li>
+<p>A returning human sees exactly why a choice was made a month ago and easily re-onboard to the project</p>
+</li>
+<li>
+<p>An agent checking its work against the docs cannot overturn deliberate intent by accident</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2>The Shape on Disk</h2>
+<pre><code>00-foundation/  # intent: what this is and why; every change is compared against it
+10-system-design/  # behavior: implementation-agnostic; what the system does and why
+└── 10-doc-standards/  # this section: the structure itself, plus its standards docs
+20-agents/  # the agents involved: definitions, context, tools, outputs, and responsibilities
+30-implementation/  # the current code: mirrors the source tree, churns with it
+</code></pre>
+<h2>The Standards</h2>
+<p>Each standard owns one concern. Every one shows how things are laid out, states the rule, and defends it.</p>
+<ul>
+<li>
+<p>Structure</p>
+<ul>
+<li>The four layers, the depth ladder, folders and parent docs, and when a topic earns a folder.</li>
+</ul>
+</li>
+<li>
+<p>Numbering</p>
+<ul>
+<li>Two-digit prefixes, reading order in the filesystem, gaps, and the one named deviation.</li>
+</ul>
+</li>
+<li>
+<p>Cross-doc linking</p>
+<ul>
+<li>Reference spans, canonical-home targets, and the restraint rules against overlinking.</li>
+</ul>
+</li>
+<li>
+<p>Code linking</p>
+<ul>
+<li>One-way doc-to-code references by full path, updated when code moves.</li>
+</ul>
+</li>
+<li>
+<p>In-code docs</p>
+<ul>
+<li>File headers, docstrings, and inline comments: where documentation continues into the source.</li>
+</ul>
+</li>
+<li>
+<p>Implementation layer</p>
+<ul>
+<li>Area pages, decision entries, the design-to-code mapping, and lazy accretion.</li>
+</ul>
+</li>
+<li>
+<p>Document Purpose</p>
+<ul>
+<li>One primary reader purpose within the existing layers, with supporting reasons and reference details.</li>
+</ul>
+</li>
+<li>
+<p>Authoring Lints</p>
+<ul>
+<li>Rule ownership, draft and completion checks, and the distinction between required findings and editorial warnings.</li>
+</ul>
+</li>
+</ul>
+</section></div></details><a href="http://localhost:4808/#/10-system-design/10-doc-standards" target="_blank">Open live document</a></article><article class="edit" id="edit-1"><header><h2>Structure</h2><p class="path">docs/10-system-design/10-doc-standards/10-structure/doc.json</p><p>Update layer names and numbered paths only. Preserve the full depth ladder, folder rules, examples, and rationale.</p><p class="note">6 existing blocks updated. No blocks removed, inserted, moved, or re-nested.</p></header><pre class="diff"><div class="same">… unchanged context …</div><div class="same">  └── 10-doc-standards/  # L2 — a section: the folder is itself a doc introducing its children</div><div class="same">      └── 10-structure/  # L3 — a concept doc: one coherent idea (this one)</div><div class="add">+ 30-implementation/</div><div class="del">- 20-implementation/</div><div class="same">  ├── 20-workbench/  # a single doc — one concept covers it</div><div class="same">  └── 40-theming/  # a folder — themes split four ways</div><div class="same">… unchanged context …</div><div class="same">  | Level | Lives at | Carries |</div><div class="same">  | --- | --- | --- |</div><div class="add">+ | L1 | A layer's parent doc (00-foundation, 10-system-design, 20-agents, 30-implementation) | Layer summary plus a section index linking every L2 |</div><div class="del">- | L1 | A layer's parent doc (00-foundation, 10-system-design, 20-implementation) | Layer summary plus a section index linking every L2 |</div><div class="same">  | L2 | XX-section (the section's parent doc) | Section scope and its children, one line each |</div><div class="same">  | L3 | A concept doc | One coherent idea — atomic, link-rich, code-connected |</div><div class="same">… unchanged context …</div><div class="same">  - The ladder is the same in every layer</div><div class="same">  </div><div class="add">+   - L1–L3 structure foundation, system design, and agents exactly as they structure implementation.</div><div class="del">-   - L1–L3 structure foundation and system design exactly as they structure implementation.</div><div class="same">  </div><div class="same">  - The doc tree stays at three levels; a subsection appears only when a section genuinely subdivides.</div><div class="same">… unchanged context …</div><div class="same">  - A doc is a folder containing `doc.json` — `10-authentication/` holding a bundle, not `10-authentication.md`. The folder name is the doc's address; the bundle inside is its state.</div><div class="same">  </div><div class="add">+ - Implementation mirrors the source: `src/core/workflow/` documents at `docs/30-implementation/10-core/10-workflow/`. Cross-cutting concerns — logging, caching, error handling — get one primary home, never a scatter.</div><div class="del">- - Implementation mirrors the source: `src/core/workflow/` documents at `docs/20-implementation/10-core/10-workflow/`. Cross-cutting concerns — logging, caching, error handling — get one primary home, never a scatter.</div><div class="same">  </div><div class="same">    - The mirror goes one level per genuine subdivision — deeper structure becomes entries on the area page, not sub-pages; the implementation layer standard owns the rule.</div><div class="same">… unchanged context …</div><div class="same">  ## Extension Tiers</div><div class="same">  </div><div class="add">+ Foundation owns intent, design owns behavior, agents owns agent definitions, and implementation maps the design to the current code and explains key choices. None owns procedure. A repo may declare additional numbered root tiers (40 and above, below 99) for procedural how-to content the four layers cannot hold: authoring recipes, operator guides.</div><div class="del">- Foundation owns intent, design owns behavior, implementation owns structural decisions — none owns procedure. A repo may declare additional numbered root tiers (30 and above, below 99) for procedural how-to content the three layers cannot hold: authoring recipes, operator guides.</div><div class="same">  </div><div class="same">  - **Announced as a guides tier**</div><div class="same">… unchanged context …</div><div class="same">  - **Non-normative**</div><div class="same">  </div><div class="add">+   - The tier defers authority to the four layers via links and never restates their contracts. A rule found there is a pointer, not a source.</div><div class="del">-   - The tier defers authority to the three layers via links and never restates their contracts — a rule found there is a pointer, not a source.</div><div class="same">  </div><div class="same">  - **Reports stay banned**</div></pre><details><summary>Read the full document before and after</summary><div class="compare"><section><h3>Current</h3><p>Within every layer, the docs keep the same substructure.</p>
+<p>A tree of bundle folders descending L1–L6</p>
+<ul>
+<li>
+<p>Three levels in the doc tree</p>
+</li>
+<li>
+<p>Three in the source</p>
+</li>
+</ul>
+<p>This page states the depth ladder, the folder rules, and why the shape holds.</p>
+<h2>Structure</h2>
+<pre><code>10-system-design/  # L1 — the layer's parent doc: summary plus an index of every section
+└── 10-doc-standards/  # L2 — a section: the folder is itself a doc introducing its children
+    └── 10-structure/  # L3 — a concept doc: one coherent idea (this one)
+20-implementation/
+├── 20-workbench/  # a single doc — one concept covers it
+└── 40-theming/  # a folder — themes split four ways
+</code></pre>
+<h2>The Depth Ladder</h2>
+<p>Six levels — three in the doc tree, three in the source:</p>
+<table>
+<thead>
+<tr><th>Level</th><th>Lives at</th><th>Carries</th></tr>
+</thead>
+<tbody>
+<tr><td>L1</td><td>A layer's parent doc (00-foundation, 10-system-design, 20-implementation)</td><td>Layer summary plus a section index linking every L2</td></tr>
+<tr><td>L2</td><td>XX-section (the section's parent doc)</td><td>Section scope and its children, one line each</td></tr>
+<tr><td>L3</td><td>A concept doc</td><td>One coherent idea — atomic, link-rich, code-connected</td></tr>
+<tr><td>L4</td><td>Top of a source file</td><td>The file's contract: responsibilities, dependencies, invariants — kept under 50 lines</td></tr>
+<tr><td>L5</td><td>Function docstrings</td><td>The function's contract: purpose, inputs, outputs, side effects, errors</td></tr>
+<tr><td>L6</td><td>The code</td><td>The implementation itself — read only after L4/L5 confirm you are in the right place</td></tr>
+</tbody>
+</table>
+<ul>
+<li>
+<p>The ladder is the same in every layer</p>
+<ul>
+<li>L1–L3 structure foundation and system design exactly as they structure implementation.</li>
+</ul>
+</li>
+<li>
+<p>The doc tree stays at three levels; a subsection appears only when a section genuinely subdivides.</p>
+</li>
+<li>
+<p>Below L3 the rungs live in the source — in-code docs owns them.</p>
+</li>
+</ul>
+<h2>Folders and Bundles</h2>
+<ul>
+<li>
+<p>A doc is a folder containing <code>doc.json</code> — <code>10-authentication/</code> holding a bundle, not <code>10-authentication.md</code>. The folder name is the doc's address; the bundle inside is its state.</p>
+</li>
+<li>
+<p>Implementation mirrors the source: <code>src/core/workflow/</code> documents at <code>docs/20-implementation/10-core/10-workflow/</code>. Cross-cutting concerns — logging, caching, error handling — get one primary home, never a scatter.</p>
+<ul>
+<li>The mirror goes one level per genuine subdivision — deeper structure becomes entries on the area page, not sub-pages; the implementation layer standard owns the rule.</li>
+</ul>
+</li>
+<li>
+<p>A section folder is itself a document: it carries its own <code>doc.json</code> — the parent doc — introducing its immediate children, one level deep, one line each.</p>
+<ul>
+<li>An abstract, not a table of contents: after reading it, a reader can explain the domain and descends only where the task lives.</li>
+</ul>
+</li>
+<li>
+<p>A topic becomes a folder when it needs about three related docs or has clear room to grow; until then it stays a single doc. A folder holding only its parent doc plus one child collapses back into a single doc.</p>
+</li>
+</ul>
+<h2>Extension Tiers</h2>
+<p>Foundation owns intent, design owns behavior, implementation owns structural decisions — none owns procedure. A repo may declare additional numbered root tiers (30 and above, below 99) for procedural how-to content the three layers cannot hold: authoring recipes, operator guides.</p>
+<ul>
+<li>
+<p><strong>Announced as a guides tier</strong></p>
+<ul>
+<li>The tier's parent doc names it a guides tier, so a reader knows on arrival that it carries procedure, not contracts.</li>
+</ul>
+</li>
+<li>
+<p><strong>Non-normative</strong></p>
+<ul>
+<li>The tier defers authority to the three layers via links and never restates their contracts — a rule found there is a pointer, not a source.</li>
+</ul>
+</li>
+<li>
+<p><strong>Reports stay banned</strong></p>
+<ul>
+<li>Point-in-time reports are banned in an extension tier exactly as they are everywhere else in the docs tree.</li>
+</ul>
+</li>
+<li>
+<p>An authoring guide tier holding <code>defineContext</code> and <code>defineState</code> recipes extends the tree without stretching design to hold procedure.</p>
+</li>
+</ul>
+<h2>Why</h2>
+<ul>
+<li>
+<p><strong>On disk, next to the code</strong></p>
+<ul>
+<li>
+<p>Every doc is a folder in the repo, versioned with the source it describes.</p>
+<ul>
+<li>
+<p>An agent reads and edits it with plain file access — no special tooling.</p>
+</li>
+<li>
+<p>Docs and code change in the same place, so they track together.</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Progressive disclosure</strong></p>
+<ul>
+<li>
+<p>Read only what the task needs.</p>
+<ul>
+<li>
+<p>The concept doc points at a source file; the file's header says whether to keep going; docstrings answer for each function.</p>
+</li>
+<li>
+<p>Each level rules the next in or out</p>
+<ul>
+<li>No scattered hunting.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>A clear place for everything</strong></p>
+<ul>
+<li>
+<p>The structure answers where a thing lives and where a new thing goes.</p>
+<ul>
+<li>
+<p>A human files and finds by walking the numbered tree.</p>
+</li>
+<li>
+<p>An agent searches along the same explicit structure instead of guessing.</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</section><section class="proposed"><h3>Proposed</h3><p>Within every layer, the docs keep the same substructure.</p>
+<p>A tree of bundle folders descending L1–L6</p>
+<ul>
+<li>
+<p>Three levels in the doc tree</p>
+</li>
+<li>
+<p>Three in the source</p>
+</li>
+</ul>
+<p>This page states the depth ladder, the folder rules, and why the shape holds.</p>
+<h2>Structure</h2>
+<pre><code>10-system-design/  # L1 — the layer's parent doc: summary plus an index of every section
+└── 10-doc-standards/  # L2 — a section: the folder is itself a doc introducing its children
+    └── 10-structure/  # L3 — a concept doc: one coherent idea (this one)
+30-implementation/
+├── 20-workbench/  # a single doc — one concept covers it
+└── 40-theming/  # a folder — themes split four ways
+</code></pre>
+<h2>The Depth Ladder</h2>
+<p>Six levels — three in the doc tree, three in the source:</p>
+<table>
+<thead>
+<tr><th>Level</th><th>Lives at</th><th>Carries</th></tr>
+</thead>
+<tbody>
+<tr><td>L1</td><td>A layer's parent doc (00-foundation, 10-system-design, 20-agents, 30-implementation)</td><td>Layer summary plus a section index linking every L2</td></tr>
+<tr><td>L2</td><td>XX-section (the section's parent doc)</td><td>Section scope and its children, one line each</td></tr>
+<tr><td>L3</td><td>A concept doc</td><td>One coherent idea — atomic, link-rich, code-connected</td></tr>
+<tr><td>L4</td><td>Top of a source file</td><td>The file's contract: responsibilities, dependencies, invariants — kept under 50 lines</td></tr>
+<tr><td>L5</td><td>Function docstrings</td><td>The function's contract: purpose, inputs, outputs, side effects, errors</td></tr>
+<tr><td>L6</td><td>The code</td><td>The implementation itself — read only after L4/L5 confirm you are in the right place</td></tr>
+</tbody>
+</table>
+<ul>
+<li>
+<p>The ladder is the same in every layer</p>
+<ul>
+<li>L1–L3 structure foundation, system design, and agents exactly as they structure implementation.</li>
+</ul>
+</li>
+<li>
+<p>The doc tree stays at three levels; a subsection appears only when a section genuinely subdivides.</p>
+</li>
+<li>
+<p>Below L3 the rungs live in the source — in-code docs owns them.</p>
+</li>
+</ul>
+<h2>Folders and Bundles</h2>
+<ul>
+<li>
+<p>A doc is a folder containing <code>doc.json</code> — <code>10-authentication/</code> holding a bundle, not <code>10-authentication.md</code>. The folder name is the doc's address; the bundle inside is its state.</p>
+</li>
+<li>
+<p>Implementation mirrors the source: <code>src/core/workflow/</code> documents at <code>docs/30-implementation/10-core/10-workflow/</code>. Cross-cutting concerns — logging, caching, error handling — get one primary home, never a scatter.</p>
+<ul>
+<li>The mirror goes one level per genuine subdivision — deeper structure becomes entries on the area page, not sub-pages; the implementation layer standard owns the rule.</li>
+</ul>
+</li>
+<li>
+<p>A section folder is itself a document: it carries its own <code>doc.json</code> — the parent doc — introducing its immediate children, one level deep, one line each.</p>
+<ul>
+<li>An abstract, not a table of contents: after reading it, a reader can explain the domain and descends only where the task lives.</li>
+</ul>
+</li>
+<li>
+<p>A topic becomes a folder when it needs about three related docs or has clear room to grow; until then it stays a single doc. A folder holding only its parent doc plus one child collapses back into a single doc.</p>
+</li>
+</ul>
+<h2>Extension Tiers</h2>
+<p>Foundation owns intent, design owns behavior, agents owns agent definitions, and implementation maps the design to the current code and explains key choices. None owns procedure. A repo may declare additional numbered root tiers (40 and above, below 99) for procedural how-to content the four layers cannot hold: authoring recipes, operator guides.</p>
+<ul>
+<li>
+<p><strong>Announced as a guides tier</strong></p>
+<ul>
+<li>The tier's parent doc names it a guides tier, so a reader knows on arrival that it carries procedure, not contracts.</li>
+</ul>
+</li>
+<li>
+<p><strong>Non-normative</strong></p>
+<ul>
+<li>The tier defers authority to the four layers via links and never restates their contracts. A rule found there is a pointer, not a source.</li>
+</ul>
+</li>
+<li>
+<p><strong>Reports stay banned</strong></p>
+<ul>
+<li>Point-in-time reports are banned in an extension tier exactly as they are everywhere else in the docs tree.</li>
+</ul>
+</li>
+<li>
+<p>An authoring guide tier holding <code>defineContext</code> and <code>defineState</code> recipes extends the tree without stretching design to hold procedure.</p>
+</li>
+</ul>
+<h2>Why</h2>
+<ul>
+<li>
+<p><strong>On disk, next to the code</strong></p>
+<ul>
+<li>
+<p>Every doc is a folder in the repo, versioned with the source it describes.</p>
+<ul>
+<li>
+<p>An agent reads and edits it with plain file access — no special tooling.</p>
+</li>
+<li>
+<p>Docs and code change in the same place, so they track together.</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Progressive disclosure</strong></p>
+<ul>
+<li>
+<p>Read only what the task needs.</p>
+<ul>
+<li>
+<p>The concept doc points at a source file; the file's header says whether to keep going; docstrings answer for each function.</p>
+</li>
+<li>
+<p>Each level rules the next in or out</p>
+<ul>
+<li>No scattered hunting.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>A clear place for everything</strong></p>
+<ul>
+<li>
+<p>The structure answers where a thing lives and where a new thing goes.</p>
+<ul>
+<li>
+<p>A human files and finds by walking the numbered tree.</p>
+</li>
+<li>
+<p>An agent searches along the same explicit structure instead of guessing.</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</section></div></details><a href="http://localhost:4808/#/10-system-design/10-doc-standards/10-structure" target="_blank">Open live document</a></article><article class="edit" id="edit-2"><header><h2>Numbering</h2><p class="path">docs/10-system-design/10-doc-standards/20-numbering/doc.json</p><p>Insert Agents and update the Implementation prefix in the existing example; retain the numbering guidance.</p><p class="note">1 existing blocks updated. No blocks removed, inserted, moved, or re-nested.</p></header><pre class="diff"><div class="same">… unchanged context …</div><div class="same">  └── 40-block-vocabulary/</div><div class="same">      └── 10-rich-text/  # the named deviation: type pages run 10–17 dense, one family as a unit</div><div class="add">+ 20-agents/  # participating agents and their definitions</div><div class="add">+ 30-implementation/  # the current code: design mapping and implementation choices</div><div class="del">- 20-implementation/  # 99 — appendix and meta only</div><div class="same">  ```</div><div class="same">  </div></pre><details><summary>Read the full document before and after</summary><div class="compare"><section><h3>Current</h3><p>Every doc and folder carries a two-digit prefix, and every listing — sidebar, terminal, render — sorts by it identically.</p>
+<p>This page states the scheme, the reserved ranges, and what running out of gap space actually means.</p>
+<h2>Structure</h2>
+<pre><code>00-foundation/  # 00 — early/foundational slot, used sparingly
+10-system-design/  # top-level sections gap by ten: 10-, 20-, 30-…
+├── 10-doc-standards/
+│   ├── 10-structure/  # children start at 10
+│   ├── 20-numbering/  # siblings continue 20-, 30-, 40-…
+│   └── 25-new-standard/  # ← a mid-gap insertion lands here; nothing renumbers (hypothetical)
+└── 40-block-vocabulary/
+    └── 10-rich-text/  # the named deviation: type pages run 10–17 dense, one family as a unit
+20-implementation/  # 99 — appendix and meta only
+</code></pre>
+<h2>The Rule</h2>
+<ul>
+<li>
+<p>Prefix every doc and directory with two digits and a hyphen: <code>XX-lowercase-hyphenated-name</code>.</p>
+</li>
+<li>
+<p>Leave gaps of ten (<code>10-</code>, <code>20-</code>, <code>30-</code>) so a new doc can be inserted without renumbering anything.</p>
+</li>
+<li>
+<p>Insert mid-gap first — <code>25-</code> between <code>20-</code> and <code>30-</code> — before considering any reorganization.</p>
+</li>
+<li>
+<p>When the gaps are exhausted, the number line is telling you the section has outgrown its shape: reorganize into a subfolder rather than packing consecutive numbers.</p>
+</li>
+</ul>
+<table>
+<thead>
+<tr><th>Range</th><th>Reserved for</th></tr>
+</thead>
+<tbody>
+<tr><td>00–09</td><td>Early or foundational content, used sparingly — 00 is a plain sort prefix, not a reserved slot; new sections start children at 10</td></tr>
+<tr><td>10–89</td><td>Main content</td></tr>
+<tr><td>90–98</td><td>Late or supplementary content</td></tr>
+<tr><td>99</td><td>Appendix and meta</td></tr>
+</tbody>
+</table>
+<p>Violations look like: consecutive numbers with no gaps, mixed formats (<code>1-intro</code>, <code>02-setup</code>, <code>section-3</code>), <code>99-</code> on anything but appendix material.</p>
+<h2>Why</h2>
+<ul>
+<li>
+<p><strong>Ordered for human reading</strong></p>
+<ul>
+<li>
+<p>The numbers are for people first.</p>
+</li>
+<li>
+<p>Prefixes put reading order in the filesystem itself — sidebar, terminal, and render agree without a manifest.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Insertion is local</strong></p>
+<ul>
+<li>A new doc lands mid-gap and nothing else moves, which matters when paths are reference targets.</li>
+</ul>
+</li>
+<li>
+<p><strong>A clean search path for agents</strong></p>
+<ul>
+<li>
+<p>Second to human reading, and just as real.</p>
+</li>
+<li>
+<p>The same explicit order tells an agent where to search and where to land a change — structure instead of hand-waving.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Exhaustion is a signal</strong></p>
+<ul>
+<li>The moment you cannot number a doc, the section needs a subfolder. Packing consecutive numbers silences that signal.</li>
+</ul>
+</li>
+</ul>
+</section><section class="proposed"><h3>Proposed</h3><p>Every doc and folder carries a two-digit prefix, and every listing — sidebar, terminal, render — sorts by it identically.</p>
+<p>This page states the scheme, the reserved ranges, and what running out of gap space actually means.</p>
+<h2>Structure</h2>
+<pre><code>00-foundation/  # 00 — early/foundational slot, used sparingly
+10-system-design/  # top-level sections gap by ten: 10-, 20-, 30-…
+├── 10-doc-standards/
+│   ├── 10-structure/  # children start at 10
+│   ├── 20-numbering/  # siblings continue 20-, 30-, 40-…
+│   └── 25-new-standard/  # ← a mid-gap insertion lands here; nothing renumbers (hypothetical)
+└── 40-block-vocabulary/
+    └── 10-rich-text/  # the named deviation: type pages run 10–17 dense, one family as a unit
+20-agents/  # participating agents and their definitions
+30-implementation/  # the current code: design mapping and implementation choices
+</code></pre>
+<h2>The Rule</h2>
+<ul>
+<li>
+<p>Prefix every doc and directory with two digits and a hyphen: <code>XX-lowercase-hyphenated-name</code>.</p>
+</li>
+<li>
+<p>Leave gaps of ten (<code>10-</code>, <code>20-</code>, <code>30-</code>) so a new doc can be inserted without renumbering anything.</p>
+</li>
+<li>
+<p>Insert mid-gap first — <code>25-</code> between <code>20-</code> and <code>30-</code> — before considering any reorganization.</p>
+</li>
+<li>
+<p>When the gaps are exhausted, the number line is telling you the section has outgrown its shape: reorganize into a subfolder rather than packing consecutive numbers.</p>
+</li>
+</ul>
+<table>
+<thead>
+<tr><th>Range</th><th>Reserved for</th></tr>
+</thead>
+<tbody>
+<tr><td>00–09</td><td>Early or foundational content, used sparingly — 00 is a plain sort prefix, not a reserved slot; new sections start children at 10</td></tr>
+<tr><td>10–89</td><td>Main content</td></tr>
+<tr><td>90–98</td><td>Late or supplementary content</td></tr>
+<tr><td>99</td><td>Appendix and meta</td></tr>
+</tbody>
+</table>
+<p>Violations look like: consecutive numbers with no gaps, mixed formats (<code>1-intro</code>, <code>02-setup</code>, <code>section-3</code>), <code>99-</code> on anything but appendix material.</p>
+<h2>Why</h2>
+<ul>
+<li>
+<p><strong>Ordered for human reading</strong></p>
+<ul>
+<li>
+<p>The numbers are for people first.</p>
+</li>
+<li>
+<p>Prefixes put reading order in the filesystem itself — sidebar, terminal, and render agree without a manifest.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Insertion is local</strong></p>
+<ul>
+<li>A new doc lands mid-gap and nothing else moves, which matters when paths are reference targets.</li>
+</ul>
+</li>
+<li>
+<p><strong>A clean search path for agents</strong></p>
+<ul>
+<li>
+<p>Second to human reading, and just as real.</p>
+</li>
+<li>
+<p>The same explicit order tells an agent where to search and where to land a change — structure instead of hand-waving.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Exhaustion is a signal</strong></p>
+<ul>
+<li>The moment you cannot number a doc, the section needs a subfolder. Packing consecutive numbers silences that signal.</li>
+</ul>
+</li>
+</ul>
+</section></div></details><a href="http://localhost:4808/#/10-system-design/10-doc-standards/20-numbering" target="_blank">Open live document</a></article><article class="edit" id="edit-3"><header><h2>Implementation layer</h2><p class="path">docs/10-system-design/10-doc-standards/60-implementation-layer/doc.json</p><p>Adjust the purpose and inclusion test in place; retain the page template, decision format, examples, and detailed rationale.</p><p class="note">7 existing blocks updated. No blocks removed, inserted, moved, or re-nested.</p></header><pre class="diff"><div class="same">… unchanged context …</div><div class="add">+ The implementation layer concisely maps the system design to the current codebase: how the code realizes the design, how it is organized, and why key implementation choices were made. An agent whose change conflicts with a recorded structural decision files a proposal; it never silently deviates.</div><div class="del">- The implementation layer records structural decisions about the current code — how it is organized and why — so an agent adding code conforms to the standardized architecture instead of quietly restructuring it. An agent whose change conflicts with an entry files a proposal; it never silently deviates. </div><div class="same">  </div><div class="same">  This page states the shape of an area page, the test an entry must pass, and why the layer accretes lazily.</div><div class="same">… unchanged context …</div><div class="same">  </div><div class="same">  ```</div><div class="add">+ 30-implementation/  # L1 — the layer's parent doc: orientation map of top-level source dirs, one line of ownership each</div><div class="del">- 20-implementation/  # L1 — the layer's parent doc: orientation map of top-level source dirs, one line of ownership each</div><div class="same">  └── 30-connectors/  # an area page — mirrors src/connectors/, one level per genuine subdivision</div><div class="same">      └── 10-http/  # does not exist — deeper structure becomes entries on the connectors page</div><div class="same">… unchanged context …</div><div class="same">  - **Orientation roster (optional)**</div><div class="same">  </div><div class="add">+   - One line per instance when the area is a set, such as a module roster or connector list. Agent definitions belong in Agents.</div><div class="del">-   - One line per instance when the area is a set — an agent roster, a connector list.</div><div class="same">  </div><div class="same">  ## The Rule</div><div class="same">  </div><div class="add">+ - **An entry connects design to code**</div><div class="del">- - **An entry governs unwritten code**</div><div class="same">  </div><div class="add">+   - The inclusion test: an entry helps the reader locate how the design is implemented or understand why the current code is built this way. Rules governing future additions remain part of that explanation.</div><div class="del">-   - The inclusion test: an entry states a rule that governs code that does not exist yet.</div><div class="same">  </div><div class="same">    - Thirty data connectors extend a base class, so connector #31 must too — an inline comment cannot govern a file nobody has written, and system design does not care: behavior is identical either way.</div><div class="same">… unchanged context …</div><div class="same">  - **Lazy accretion**</div><div class="same">  </div><div class="add">+   - An entry appears when the design-to-code mapping or a structural choice needs explanation. Do not add filler per directory.</div><div class="del">-   - An entry appears when a structure is standardized or violated — never proactively per directory.</div><div class="same">  </div><div class="same">    - A near-empty area page that only routes upward through its governed-by links is correct, not incomplete.</div><div class="same">… unchanged context …</div><div class="same">  | Schemas and state models | `10-system-design` — design owns them |</div><div class="same">  | Behavior | `10-system-design` — behavior is design, wherever the code lives |</div><div class="add">+ | Agent definitions, context, tools, and outputs | `20-agents` owns the agent contracts |</div><div class="same">  | File-local detail | In-code docs — file headers and docstrings |</div><div class="same">  | Point-in-time reports | Nowhere in the docs tree — the docs describe present state, not moments |</div></pre><details><summary>Read the full document before and after</summary><div class="compare"><section><h3>Current</h3><p>The implementation layer records structural decisions about the current code — how it is organized and why — so an agent adding code conforms to the standardized architecture instead of quietly restructuring it. An agent whose change conflicts with an entry files a proposal; it never silently deviates.</p>
+<p>This page states the shape of an area page, the test an entry must pass, and why the layer accretes lazily.</p>
+<h2>Structure</h2>
+<pre><code>20-implementation/  # L1 — the layer's parent doc: orientation map of top-level source dirs, one line of ownership each
+└── 30-connectors/  # an area page — mirrors src/connectors/, one level per genuine subdivision
+    └── 10-http/  # does not exist — deeper structure becomes entries on the connectors page
+</code></pre>
+<p>An area page reads top to bottom in four parts:</p>
+<ul>
+<li>
+<p><strong>Role line</strong></p>
+<ul>
+<li>One sentence on what the area does, ending in the source path it documents.</li>
+</ul>
+</li>
+<li>
+<p><strong>Governed-by links</strong></p>
+<ul>
+<li>References up to the design docs that constrain the area — the governed-by convention in cross-doc linking.</li>
+</ul>
+</li>
+<li>
+<p><strong>Decision entries</strong></p>
+<ul>
+<li>Every structural decision in force, in the entry format below.</li>
+</ul>
+</li>
+<li>
+<p><strong>Orientation roster (optional)</strong></p>
+<ul>
+<li>One line per instance when the area is a set — an agent roster, a connector list.</li>
+</ul>
+</li>
+</ul>
+<h2>The Rule</h2>
+<ul>
+<li>
+<p><strong>An entry governs unwritten code</strong></p>
+<ul>
+<li>
+<p>The inclusion test: an entry states a rule that governs code that does not exist yet.</p>
+</li>
+<li>
+<p>Thirty data connectors extend a base class, so connector #31 must too — an inline comment cannot govern a file nobody has written, and system design does not care: behavior is identical either way.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Decision / Why / Applies to</strong></p>
+<ul>
+<li>
+<p><strong>Decision</strong></p>
+<ul>
+<li>The rule, in one sentence.</li>
+</ul>
+</li>
+<li>
+<p><strong>Why</strong></p>
+<ul>
+<li>The reasoning behind it — including the alternative that was rejected, when it is known.</li>
+</ul>
+</li>
+<li>
+<p><strong>Applies to</strong></p>
+<ul>
+<li>The source paths the rule covers, explicitly including future code under them.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Conform or propose</strong></p>
+<ul>
+<li>
+<p>An agent whose change fits the entries follows them; one whose change conflicts files a proposal.</p>
+</li>
+<li>
+<p>Silent deviation is never an option.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Lazy accretion</strong></p>
+<ul>
+<li>
+<p>An entry appears when a structure is standardized or violated — never proactively per directory.</p>
+</li>
+<li>
+<p>A near-empty area page that only routes upward through its governed-by links is correct, not incomplete.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>One level per genuine subdivision</strong></p>
+<ul>
+<li>The mirror descends one level for each genuine subdivision of the source; deeper structure becomes entries on the area page, not sub-pages.</li>
+</ul>
+</li>
+<li>
+<p><strong>What stays out</strong></p>
+<ul>
+<li>Everything below already has a home; an area page carries none of it.</li>
+</ul>
+</li>
+</ul>
+<table>
+<thead>
+<tr><th>Content</th><th>Belongs in</th></tr>
+</thead>
+<tbody>
+<tr><td>Schemas and state models</td><td><code>10-system-design</code> — design owns them</td></tr>
+<tr><td>Behavior</td><td><code>10-system-design</code> — behavior is design, wherever the code lives</td></tr>
+<tr><td>File-local detail</td><td>In-code docs — file headers and docstrings</td></tr>
+<tr><td>Point-in-time reports</td><td>Nowhere in the docs tree — the docs describe present state, not moments</td></tr>
+<tr><td>Deep file trees</td><td>Nowhere — the mirror stops at one level</td></tr>
+</tbody>
+</table>
+<ul>
+<li>
+<p><strong>Salvage before delete</strong></p>
+<ul>
+<li>
+<p>When report content is removed from a docs tree, still-normative rules buried in it are first extracted into the owning tier — a parity analysis may hold live behavioral contracts; a findings log may hold a real decision.</p>
+</li>
+<li>
+<p>Deletion happens after the salvage pass, never instead of it.</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2>Why</h2>
+<ul>
+<li>
+<p><strong>A rule for unwritten code needs a home</strong></p>
+<ul>
+<li>
+<p>In-code docs reach only files that exist; nothing in the source can govern a file nobody has written.</p>
+</li>
+<li>
+<p>Design cannot hold it either — the system behaves identically whether the structure is followed or not.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Proposals keep the architecture deliberate</strong></p>
+<ul>
+<li>A standardized layout survives only while every restructuring is a recorded decision; one silent deviation makes the next one invisible.</li>
+</ul>
+</li>
+<li>
+<p><strong>Lazy entries stay load-bearing</strong></p>
+<ul>
+<li>
+<p>A page written proactively per directory echoes the file tree and rots with it.</p>
+</li>
+<li>
+<p>An entry written when a structure is standardized or violated records a rule someone actually needed.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>A shallow mirror survives churn</strong></p>
+<ul>
+<li>Sub-pages tracking the source tree file by file go stale with every move; entries on an area page move with the page.</li>
+</ul>
+</li>
+</ul>
+</section><section class="proposed"><h3>Proposed</h3><p>The implementation layer concisely maps the system design to the current codebase: how the code realizes the design, how it is organized, and why key implementation choices were made. An agent whose change conflicts with a recorded structural decision files a proposal; it never silently deviates.</p>
+<p>This page states the shape of an area page, the test an entry must pass, and why the layer accretes lazily.</p>
+<h2>Structure</h2>
+<pre><code>30-implementation/  # L1 — the layer's parent doc: orientation map of top-level source dirs, one line of ownership each
+└── 30-connectors/  # an area page — mirrors src/connectors/, one level per genuine subdivision
+    └── 10-http/  # does not exist — deeper structure becomes entries on the connectors page
+</code></pre>
+<p>An area page reads top to bottom in four parts:</p>
+<ul>
+<li>
+<p><strong>Role line</strong></p>
+<ul>
+<li>One sentence on what the area does, ending in the source path it documents.</li>
+</ul>
+</li>
+<li>
+<p><strong>Governed-by links</strong></p>
+<ul>
+<li>References up to the design docs that constrain the area — the governed-by convention in cross-doc linking.</li>
+</ul>
+</li>
+<li>
+<p><strong>Decision entries</strong></p>
+<ul>
+<li>Every structural decision in force, in the entry format below.</li>
+</ul>
+</li>
+<li>
+<p><strong>Orientation roster (optional)</strong></p>
+<ul>
+<li>One line per instance when the area is a set, such as a module roster or connector list. Agent definitions belong in Agents.</li>
+</ul>
+</li>
+</ul>
+<h2>The Rule</h2>
+<ul>
+<li>
+<p><strong>An entry connects design to code</strong></p>
+<ul>
+<li>
+<p>The inclusion test: an entry helps the reader locate how the design is implemented or understand why the current code is built this way. Rules governing future additions remain part of that explanation.</p>
+</li>
+<li>
+<p>Thirty data connectors extend a base class, so connector #31 must too — an inline comment cannot govern a file nobody has written, and system design does not care: behavior is identical either way.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Decision / Why / Applies to</strong></p>
+<ul>
+<li>
+<p><strong>Decision</strong></p>
+<ul>
+<li>The rule, in one sentence.</li>
+</ul>
+</li>
+<li>
+<p><strong>Why</strong></p>
+<ul>
+<li>The reasoning behind it — including the alternative that was rejected, when it is known.</li>
+</ul>
+</li>
+<li>
+<p><strong>Applies to</strong></p>
+<ul>
+<li>The source paths the rule covers, explicitly including future code under them.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Conform or propose</strong></p>
+<ul>
+<li>
+<p>An agent whose change fits the entries follows them; one whose change conflicts files a proposal.</p>
+</li>
+<li>
+<p>Silent deviation is never an option.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Lazy accretion</strong></p>
+<ul>
+<li>
+<p>An entry appears when the design-to-code mapping or a structural choice needs explanation. Do not add filler per directory.</p>
+</li>
+<li>
+<p>A near-empty area page that only routes upward through its governed-by links is correct, not incomplete.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>One level per genuine subdivision</strong></p>
+<ul>
+<li>The mirror descends one level for each genuine subdivision of the source; deeper structure becomes entries on the area page, not sub-pages.</li>
+</ul>
+</li>
+<li>
+<p><strong>What stays out</strong></p>
+<ul>
+<li>Everything below already has a home; an area page carries none of it.</li>
+</ul>
+</li>
+</ul>
+<table>
+<thead>
+<tr><th>Content</th><th>Belongs in</th></tr>
+</thead>
+<tbody>
+<tr><td>Schemas and state models</td><td><code>10-system-design</code> — design owns them</td></tr>
+<tr><td>Behavior</td><td><code>10-system-design</code> — behavior is design, wherever the code lives</td></tr>
+<tr><td>Agent definitions, context, tools, and outputs</td><td><code>20-agents</code> owns the agent contracts</td></tr>
+<tr><td>File-local detail</td><td>In-code docs — file headers and docstrings</td></tr>
+<tr><td>Point-in-time reports</td><td>Nowhere in the docs tree — the docs describe present state, not moments</td></tr>
+<tr><td>Deep file trees</td><td>Nowhere — the mirror stops at one level</td></tr>
+</tbody>
+</table>
+<ul>
+<li>
+<p><strong>Salvage before delete</strong></p>
+<ul>
+<li>
+<p>When report content is removed from a docs tree, still-normative rules buried in it are first extracted into the owning tier — a parity analysis may hold live behavioral contracts; a findings log may hold a real decision.</p>
+</li>
+<li>
+<p>Deletion happens after the salvage pass, never instead of it.</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2>Why</h2>
+<ul>
+<li>
+<p><strong>A rule for unwritten code needs a home</strong></p>
+<ul>
+<li>
+<p>In-code docs reach only files that exist; nothing in the source can govern a file nobody has written.</p>
+</li>
+<li>
+<p>Design cannot hold it either — the system behaves identically whether the structure is followed or not.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Proposals keep the architecture deliberate</strong></p>
+<ul>
+<li>A standardized layout survives only while every restructuring is a recorded decision; one silent deviation makes the next one invisible.</li>
+</ul>
+</li>
+<li>
+<p><strong>Lazy entries stay load-bearing</strong></p>
+<ul>
+<li>
+<p>A page written proactively per directory echoes the file tree and rots with it.</p>
+</li>
+<li>
+<p>An entry written when a structure is standardized or violated records a rule someone actually needed.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>A shallow mirror survives churn</strong></p>
+<ul>
+<li>Sub-pages tracking the source tree file by file go stale with every move; entries on an area page move with the page.</li>
+</ul>
+</li>
+</ul>
+</section></div></details><a href="http://localhost:4808/#/10-system-design/10-doc-standards/60-implementation-layer" target="_blank">Open live document</a></article><article class="edit" id="edit-4"><header><h2>Document Purpose</h2><p class="path">docs/10-system-design/10-doc-standards/70-document-purpose/doc.json</p><p>Change the layer count and ownership sentence. Keep all purpose definitions and formatting guidance.</p><p class="note">2 existing blocks updated. No blocks removed, inserted, moved, or re-nested.</p></header><pre class="diff"><div class="same">… unchanged context …</div><div class="same">  Choose the primary purpose before authoring. Purpose guides the reader's task; the corpus layers still determine location and authority.</div><div class="same">  </div><div class="add">+ - Preserve the four layers and the templates defined in Structure.</div><div class="del">- - Preserve the three layers and the templates defined in Structure.</div><div class="same">  </div><div class="add">+   - Foundation owns intent. Design owns behavior. Agents owns agent definitions. Implementation maps the design to current code and explains key implementation choices.</div><div class="del">-   - Foundation owns intent. Design owns behavior. Implementation owns structural decisions about current code.</div><div class="same">  </div><div class="same">    - Procedure belongs in an existing, declared guides tier. Do not create new root categories merely to match Diataxis.</div></pre><details><summary>Read the full document before and after</summary><div class="compare"><section><h3>Current</h3><p>Every document has one primary reader purpose within the corpus's existing layers. Supporting reasons and reference details belong when they help the reader finish that purpose.</p>
+<h2>Structure</h2>
+<p>Diataxis distinguishes four purposes by whether the reader needs action or understanding, for learning or for work.</p>
+<ul>
+<li>
+<p><strong>Tutorial</strong></p>
+<ul>
+<li>Help a learner build something through a controlled sequence. State the result at the start and show expected output throughout.</li>
+</ul>
+</li>
+<li>
+<p><strong>How-To</strong></p>
+<ul>
+<li>Help a competent reader finish a task. Use direct steps, relevant conditions, and decision points. Name the guide by the task.</li>
+</ul>
+</li>
+<li>
+<p><strong>Reference</strong></p>
+<ul>
+<li>Supply facts for lookup. Mirror the thing described and state its options, limits, and errors. Generate facts from code where practical.</li>
+</ul>
+</li>
+<li>
+<p><strong>Explanation</strong></p>
+<ul>
+<li>Answer a bounded why question with context, constraints, alternatives, and reasons for a decision.</li>
+</ul>
+</li>
+</ul>
+<h2>The Rule</h2>
+<p>Choose the primary purpose before authoring. Purpose guides the reader's task; the corpus layers still determine location and authority.</p>
+<ul>
+<li>
+<p>Preserve the three layers and the templates defined in Structure.</p>
+<ul>
+<li>
+<p>Foundation owns intent. Design owns behavior. Implementation owns structural decisions about current code.</p>
+</li>
+<li>
+<p>Procedure belongs in an existing, declared guides tier. Do not create new root categories merely to match Diataxis.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Keep one main reader task per page.</p>
+<ul>
+<li>
+<p>A standard can state a rule and explain why. A how-to can include a small reference detail needed for its next step.</p>
+</li>
+<li>
+<p>Split and link when a secondary purpose becomes an independently useful page or interrupts the main task.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Keep the established standard flow of Structure, The Rule, and Why.</p>
+<ul>
+<li>
+<p>Keep implementation area pages and decision entries in the Implementation Layer format.</p>
+</li>
+<li>
+<p>Templates define the page's shape. Purpose determines what belongs inside that shape.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Match the detail to the task.</p>
+<ul>
+<li>
+<p>Tutorials show visible results and link extended explanation. How-to guides assume competence and omit lessons unrelated to the task.</p>
+</li>
+<li>
+<p>Reference presents facts for lookup. Explanation weighs alternatives and states the reasoning.</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2>Why</h2>
+<p>A primary purpose gives the reader a predictable path through a document. Supporting reasons preserve the corpus's requirement that each decision carries its why, without turning every page into a tutorial or an exhaustive catalog.</p>
+<p>The Diataxis distinction comes from <a href="https://diataxis.fr">Diataxis</a>. The Technical Writing source skill records a fetch on 2026-07-18. This attribution does not claim a new fetch.</p>
+</section><section class="proposed"><h3>Proposed</h3><p>Every document has one primary reader purpose within the corpus's existing layers. Supporting reasons and reference details belong when they help the reader finish that purpose.</p>
+<h2>Structure</h2>
+<p>Diataxis distinguishes four purposes by whether the reader needs action or understanding, for learning or for work.</p>
+<ul>
+<li>
+<p><strong>Tutorial</strong></p>
+<ul>
+<li>Help a learner build something through a controlled sequence. State the result at the start and show expected output throughout.</li>
+</ul>
+</li>
+<li>
+<p><strong>How-To</strong></p>
+<ul>
+<li>Help a competent reader finish a task. Use direct steps, relevant conditions, and decision points. Name the guide by the task.</li>
+</ul>
+</li>
+<li>
+<p><strong>Reference</strong></p>
+<ul>
+<li>Supply facts for lookup. Mirror the thing described and state its options, limits, and errors. Generate facts from code where practical.</li>
+</ul>
+</li>
+<li>
+<p><strong>Explanation</strong></p>
+<ul>
+<li>Answer a bounded why question with context, constraints, alternatives, and reasons for a decision.</li>
+</ul>
+</li>
+</ul>
+<h2>The Rule</h2>
+<p>Choose the primary purpose before authoring. Purpose guides the reader's task; the corpus layers still determine location and authority.</p>
+<ul>
+<li>
+<p>Preserve the four layers and the templates defined in Structure.</p>
+<ul>
+<li>
+<p>Foundation owns intent. Design owns behavior. Agents owns agent definitions. Implementation maps the design to current code and explains key implementation choices.</p>
+</li>
+<li>
+<p>Procedure belongs in an existing, declared guides tier. Do not create new root categories merely to match Diataxis.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Keep one main reader task per page.</p>
+<ul>
+<li>
+<p>A standard can state a rule and explain why. A how-to can include a small reference detail needed for its next step.</p>
+</li>
+<li>
+<p>Split and link when a secondary purpose becomes an independently useful page or interrupts the main task.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Keep the established standard flow of Structure, The Rule, and Why.</p>
+<ul>
+<li>
+<p>Keep implementation area pages and decision entries in the Implementation Layer format.</p>
+</li>
+<li>
+<p>Templates define the page's shape. Purpose determines what belongs inside that shape.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Match the detail to the task.</p>
+<ul>
+<li>
+<p>Tutorials show visible results and link extended explanation. How-to guides assume competence and omit lessons unrelated to the task.</p>
+</li>
+<li>
+<p>Reference presents facts for lookup. Explanation weighs alternatives and states the reasoning.</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2>Why</h2>
+<p>A primary purpose gives the reader a predictable path through a document. Supporting reasons preserve the corpus's requirement that each decision carries its why, without turning every page into a tutorial or an exhaustive catalog.</p>
+<p>The Diataxis distinction comes from <a href="https://diataxis.fr">Diataxis</a>. The Technical Writing source skill records a fetch on 2026-07-18. This attribution does not claim a new fetch.</p>
+</section></div></details><a href="http://localhost:4808/#/10-system-design/10-doc-standards/70-document-purpose" target="_blank">Open live document</a></article><article class="edit" id="edit-5"><header><h2>Implementation Overview</h2><p class="path">docs/20-implementation/doc.json</p><p>Adjust the opening, tier purpose, and inclusion test only; preserve the source map, links, and decision guidance.</p><p class="note">3 existing blocks updated. No blocks removed, inserted, moved, or re-nested.</p></header><pre class="diff"><div class="same">… unchanged context …</div><div class="add">+ How the current docs-system code realizes the system design: how the source is organized and why key implementation choices were made. This section is a concise transition from the design into the code.</div><div class="del">- Structural decisions about the current docs-system code: how the source is organized and why, so agents adding code conform to the standardized architecture instead of quietly restructuring it.</div><div class="same">  </div><div class="same">  ## Source Areas</div><div class="same">… unchanged context …</div><div class="same">  ## Tier Contract</div><div class="same">  </div><div class="add">+ This tier maps the design to current code and records key implementation choices. Design owns behavior, state models, and load-bearing schemas; Agents owns agent definitions; the code owns file-local detail; reports do not belong in the docs tree at all.</div><div class="del">- This tier records structural decisions so additions conform. Design owns behavior, state models, and load-bearing schemas; the code owns file-local detail; reports do not belong in the docs tree at all.</div><div class="same">  </div><div class="add">+ **Inclusion test**: an entry helps the reader locate how the design is implemented or understand why the code is built this way.</div><div class="del">- **Inclusion test**: an entry states a rule that governs code that doesn't exist yet.</div><div class="same">  </div><div class="same">  Agents adding code either conform to the decisions recorded here or file a proposal to change them — never silently deviate.</div></pre><details><summary>Read the full document before and after</summary><div class="compare"><section><h3>Current</h3><p>Structural decisions about the current docs-system code: how the source is organized and why, so agents adding code conform to the standardized architecture instead of quietly restructuring it.</p>
+<h2>Source Areas</h2>
+<ul>
+<li>
+<p>packages/ — the workspace packages: the pure document model, the derived backlinks index, the mutation authority, the browser viewer/editor, the runnable workbench, the command-line dialect, and the methodology package; decisions live under Packages and its per-package children.</p>
+</li>
+<li>
+<p>packages/docs-workbench — the composition host where the server and viewer meet; host-wiring decisions live under Workbench.</p>
+</li>
+<li>
+<p>external/ — the independently owned Canvas and Sequence projects, mounted as submodules; boundary decisions live under External Canvas and Sequence.</p>
+</li>
+<li>
+<p>themes/ — theme folders and component style knobs; decisions live under Theming.</p>
+</li>
+</ul>
+<h2>Tier Contract</h2>
+<p>This tier records structural decisions so additions conform. Design owns behavior, state models, and load-bearing schemas; the code owns file-local detail; reports do not belong in the docs tree at all.</p>
+<p><strong>Inclusion test</strong>: an entry states a rule that governs code that doesn't exist yet.</p>
+<p>Agents adding code either conform to the decisions recorded here or file a proposal to change them — never silently deviate.</p>
+<p>The layer's shape, entry format, and rationale are defined by the Implementation layer standard.</p>
+</section><section class="proposed"><h3>Proposed</h3><p>How the current docs-system code realizes the system design: how the source is organized and why key implementation choices were made. This section is a concise transition from the design into the code.</p>
+<h2>Source Areas</h2>
+<ul>
+<li>
+<p>packages/ — the workspace packages: the pure document model, the derived backlinks index, the mutation authority, the browser viewer/editor, the runnable workbench, the command-line dialect, and the methodology package; decisions live under Packages and its per-package children.</p>
+</li>
+<li>
+<p>packages/docs-workbench — the composition host where the server and viewer meet; host-wiring decisions live under Workbench.</p>
+</li>
+<li>
+<p>external/ — the independently owned Canvas and Sequence projects, mounted as submodules; boundary decisions live under External Canvas and Sequence.</p>
+</li>
+<li>
+<p>themes/ — theme folders and component style knobs; decisions live under Theming.</p>
+</li>
+</ul>
+<h2>Tier Contract</h2>
+<p>This tier maps the design to current code and records key implementation choices. Design owns behavior, state models, and load-bearing schemas; Agents owns agent definitions; the code owns file-local detail; reports do not belong in the docs tree at all.</p>
+<p><strong>Inclusion test</strong>: an entry helps the reader locate how the design is implemented or understand why the code is built this way.</p>
+<p>Agents adding code either conform to the decisions recorded here or file a proposal to change them — never silently deviate.</p>
+<p>The layer's shape, entry format, and rationale are defined by the Implementation layer standard.</p>
+</section></div></details><a href="http://localhost:4808/#/30-implementation" target="_blank">Open live document</a></article></div>
+<div id="skill" class="panel" hidden><div class="card"><h2>Codecaine Docs Skill</h2><p class="path">packages/docs-mcp/skills/codecaine-docs/SKILL.md</p><p>One paragraph added to the existing skill. All existing instructions stay.</p><pre class="diff"><div class="same">… unchanged context …</div><div class="same">  For an implementation change, inspect the relevant source as evidence before describing current behavior. Distinguish proposed behavior from verified behavior. Publication is a separate action; documentation edits do not deploy a website.</div><div class="same">  </div><div class="add">+ The reading order is Foundation, System Design, Agents, then Implementation. Implementation briefly maps the design to the actual codebase and explains key implementation choices. Keep agent definitions in Agents. Preserve existing page structure, formatting guidance, examples, and detailed rationale when adjusting these layers.</div><div class="add">+ </div><div class="same">  ## Guidance and Components</div><div class="same">  </div></pre></div><div class="card"><h2>Framework Skill</h2><p class="path">packages/framework/SKILL.md</p><p>Adjust its description and existing tree. No workflow or formatting rewrite.</p><pre class="diff"><div class="same">… unchanged context …</div><div class="same">  ---</div><div class="same">  name: docs-framework</div><div class="add">+ description: Agent skill for authoring, navigating, and maintaining structured documentation (Foundation, System Design, Agents, Implementation). Use when reading docs/ to understand the codebase, or when writing or maintaining documentation.</div><div class="del">- description: Agent skill for authoring, navigating, and maintaining structured three-layer documentation (Foundation, System Design, Implementation). Use when reading docs/ to understand the codebase, or when writing or maintaining documentation.</div><div class="same">  ---</div><div class="same">  </div><div class="same">… unchanged context …</div><div class="same">  ├── 00-foundation/       # Intent — what this is and why</div><div class="same">  ├── 10-system-design/    # System behavior and structural decisions, by concept</div><div class="add">+ ├── 20-agents/           # Agents involved in the system and their definitions</div><div class="add">+ └── 30-implementation/   # Current codebase — maps design to code and explains key choices</div><div class="del">- └── 20-implementation/   # Current codebase — mirrors source structure</div><div class="same">      └── 99-appendix/     # Operational (setup, tooling, infra)</div><div class="same">  ```</div></pre></div></div>
+<div id="files" class="panel" hidden><div class="card"><h2>Authored Changes</h2><div class="paths"><div>docs/10-system-design/10-doc-standards/doc.json</div><div>docs/10-system-design/10-doc-standards/10-structure/doc.json</div><div>docs/10-system-design/10-doc-standards/20-numbering/doc.json</div><div>docs/10-system-design/10-doc-standards/60-implementation-layer/doc.json</div><div>docs/10-system-design/10-doc-standards/70-document-purpose/doc.json</div><div>docs/20-implementation/doc.json</div><div>packages/docs-mcp/skills/codecaine-docs/SKILL.md</div><div>packages/framework/SKILL.md</div></div><p>Existing navigation examples that name the old paths need matching path substitutions when the moves are applied. They do not need content rewrites.</p></div><div class="card"><h2>Mechanical Folder Moves</h2><pre>docs/20-implementation/ → docs/30-implementation/
+docs/30-guides/ → docs/40-guides/</pre><p>22 existing bundles move. Their contents are preserved apart from the explicitly proposed edits and mechanical reference rewrites.</p><details><summary>Every moved file</summary><table><tr><th>Current</th><th>Proposed</th></tr><tr><td class="path">docs/20-implementation/40-theming/doc.json</td><td class="path">docs/30-implementation/40-theming/doc.json</td></tr><tr><td class="path">docs/20-implementation/40-theming/10-system-ui/doc.json</td><td class="path">docs/30-implementation/40-theming/10-system-ui/doc.json</td></tr><tr><td class="path">docs/20-implementation/doc.json</td><td class="path">docs/30-implementation/doc.json</td></tr><tr><td class="path">docs/20-implementation/10-packages/85-docs-mcp/doc.json</td><td class="path">docs/30-implementation/10-packages/85-docs-mcp/doc.json</td></tr><tr><td class="path">docs/20-implementation/10-packages/60-docs-cli/doc.json</td><td class="path">docs/30-implementation/10-packages/60-docs-cli/doc.json</td></tr><tr><td class="path">docs/20-implementation/10-packages/70-framework/doc.json</td><td class="path">docs/30-implementation/10-packages/70-framework/doc.json</td></tr><tr><td class="path">docs/20-implementation/10-packages/40-docs-viewer/doc.json</td><td class="path">docs/30-implementation/10-packages/40-docs-viewer/doc.json</td></tr><tr><td class="path">docs/20-implementation/10-packages/50-docs-workbench/doc.json</td><td class="path">docs/30-implementation/10-packages/50-docs-workbench/doc.json</td></tr><tr><td class="path">docs/20-implementation/10-packages/90-docs-publish/doc.json</td><td class="path">docs/30-implementation/10-packages/90-docs-publish/doc.json</td></tr><tr><td class="path">docs/20-implementation/10-packages/doc.json</td><td class="path">docs/30-implementation/10-packages/doc.json</td></tr><tr><td class="path">docs/20-implementation/10-packages/30-docs-server/doc.json</td><td class="path">docs/30-implementation/10-packages/30-docs-server/doc.json</td></tr><tr><td class="path">docs/20-implementation/10-packages/80-external-canvas/doc.json</td><td class="path">docs/30-implementation/10-packages/80-external-canvas/doc.json</td></tr><tr><td class="path">docs/20-implementation/10-packages/10-docs-model/doc.json</td><td class="path">docs/30-implementation/10-packages/10-docs-model/doc.json</td></tr><tr><td class="path">docs/20-implementation/10-packages/20-docs-index/doc.json</td><td class="path">docs/30-implementation/10-packages/20-docs-index/doc.json</td></tr><tr><td class="path">docs/20-implementation/20-workbench/doc.json</td><td class="path">docs/30-implementation/20-workbench/doc.json</td></tr><tr><td class="path">docs/30-guides/10-docs-mcp/30-sync/doc.json</td><td class="path">docs/40-guides/10-docs-mcp/30-sync/doc.json</td></tr><tr><td class="path">docs/30-guides/10-docs-mcp/20-skills/doc.json</td><td class="path">docs/40-guides/10-docs-mcp/20-skills/doc.json</td></tr><tr><td class="path">docs/30-guides/10-docs-mcp/50-document-management/doc.json</td><td class="path">docs/40-guides/10-docs-mcp/50-document-management/doc.json</td></tr><tr><td class="path">docs/30-guides/10-docs-mcp/doc.json</td><td class="path">docs/40-guides/10-docs-mcp/doc.json</td></tr><tr><td class="path">docs/30-guides/10-docs-mcp/40-recovery/doc.json</td><td class="path">docs/40-guides/10-docs-mcp/40-recovery/doc.json</td></tr><tr><td class="path">docs/30-guides/10-docs-mcp/10-setup/doc.json</td><td class="path">docs/40-guides/10-docs-mcp/10-setup/doc.json</td></tr><tr><td class="path">docs/30-guides/doc.json</td><td class="path">docs/40-guides/doc.json</td></tr></table></details><details><summary>Documents flagged for reference rewrites</summary><div class="paths"><div>docs/10-system-design/30-data-model/50-mutation-model/doc.json</div><div>docs/10-system-design/30-data-model/doc.json</div><div>docs/10-system-design/40-block-vocabulary/10-rich-text/10-paragraph/doc.json</div><div>docs/10-system-design/40-block-vocabulary/10-rich-text/11-heading/doc.json</div><div>docs/10-system-design/40-block-vocabulary/10-rich-text/12-list-item/doc.json</div><div>docs/10-system-design/40-block-vocabulary/10-rich-text/13-quote/doc.json</div><div>docs/10-system-design/40-block-vocabulary/10-rich-text/14-callout/doc.json</div><div>docs/10-system-design/40-block-vocabulary/10-rich-text/15-divider/doc.json</div><div>docs/10-system-design/40-block-vocabulary/10-rich-text/16-image/doc.json</div><div>docs/10-system-design/40-block-vocabulary/10-rich-text/17-video/doc.json</div><div>docs/10-system-design/40-block-vocabulary/10-rich-text/doc.json</div><div>docs/10-system-design/40-block-vocabulary/20-code-block/doc.json</div><div>docs/10-system-design/40-block-vocabulary/30-structured-table/doc.json</div><div>docs/10-system-design/40-block-vocabulary/40-file-tree/doc.json</div><div>docs/10-system-design/40-block-vocabulary/50-state-shape/doc.json</div><div>docs/10-system-design/40-block-vocabulary/60-interaction-surface/doc.json</div><div>docs/10-system-design/40-block-vocabulary/70-sequence/doc.json</div><div>docs/10-system-design/40-block-vocabulary/80-canvas/doc.json</div><div>docs/10-system-design/50-editor-design/40-visual-system/20-typography-and-fonts/doc.json</div><div>docs/10-system-design/50-editor-design/40-visual-system/30-themes/doc.json</div><div>docs/10-system-design/50-editor-design/40-visual-system/doc.json</div><div>docs/20-implementation//10-packages/70-framework/doc.json</div><div>docs/20-implementation//10-packages/doc.json</div><div>docs/20-implementation//40-theming/10-system-ui/doc.json</div><div>docs/20-implementation//40-theming/doc.json</div><div>docs/20-implementation//doc.json</div><div>docs/20-implementation/10-packages/85-docs-mcp/doc.json</div><div>docs/30-guides//10-docs-mcp/20-skills/doc.json</div><div>docs/30-guides//10-docs-mcp/40-recovery/doc.json</div><div>docs/30-guides//10-docs-mcp/doc.json</div><div>docs/30-guides//doc.json</div><div>docs/30-guides/10-docs-mcp/20-skills/doc.json</div><div>docs/30-guides/10-docs-mcp/30-sync/doc.json</div><div>docs/30-guides/10-docs-mcp/doc.json</div></div><p class="note">The independent previews must be refreshed before applying successive moves.</p></details><p>The new Agents section needs its own content pass. No new agent pages or package rewrites are included in this proposal.</p></div><div class="card"><h2>Generated Files</h2><p>Regenerate these copies after accepting the maintained source changes. All 12 files carry a guidance snapshot stamp.</p><div class="paths"><div>packages/docs-mcp/skills/codecaine-docs/references/standards.md</div><div>packages/docs-mcp/skills/codecaine-docs/references/components.md</div><div>packages/docs-mcp/skills/codecaine-docs/references/components/canvas.md</div><div>packages/docs-mcp/skills/codecaine-docs/references/components/code.md</div><div>packages/docs-mcp/skills/codecaine-docs/references/components/file-tree.md</div><div>packages/docs-mcp/skills/codecaine-docs/references/components/interaction-surface.md</div><div>packages/docs-mcp/skills/codecaine-docs/references/components/process-outline.md</div><div>packages/docs-mcp/skills/codecaine-docs/references/components/rich-text.md</div><div>packages/docs-mcp/skills/codecaine-docs/references/components/sequence.md</div><div>packages/docs-mcp/skills/codecaine-docs/references/components/state-shape.md</div><div>packages/docs-mcp/skills/codecaine-docs/references/components/structured-table.md</div><div>packages/docs-mcp/skills/codecaine-docs/snapshot.json</div></div><p>Affected golden projections and the maintained maintenance-reference HTML also need regeneration after the final paths are known. Test fixture paths and the maintenance exporter need mechanical path substitutions.</p><p>Refresh installed skill copies under <code>~/.agents/skills/codecaine-docs/</code> and the selected clients' skill directories. No client settings change is proposed.</p></div><div class="card"><h2>Validation and Status</h2><p>All 192 original block IDs, block types, and child lists are preserved. All unedited blocks are unchanged. The six proposed documents pass schema validation with zero introduced blocking lint findings.</p><p class="path">Replacement changeset: bf3bcb7f-ba4a-40bd-b5d1-2258872586e4</p><p>The earlier changeset is declined. No proposed content has been accepted.</p></div></div></main><script>document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-tab]').forEach(x=>x.setAttribute('aria-selected',String(x===b)));document.querySelectorAll('.panel').forEach(p=>p.hidden=p.id!==b.dataset.tab);window.scrollTo(0,0)}));</script></html>

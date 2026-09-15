@@ -1,0 +1,661 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Variation A — Airy Structural</title>
+    <style>
+      /* ==========================================================================
+         PAGE CHROME (preview harness only — not part of the component)
+         ========================================================================== */
+      :root {
+        --page-bg: #f6f5f3;
+        --page-ink: #37352f;
+        --page-muted: #6f6c66;
+        --page-line: rgba(55, 53, 47, 0.14);
+        --page-sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        --page-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; }
+      body {
+        background: var(--page-bg);
+        color: var(--page-ink);
+        font-family: var(--page-sans);
+        -webkit-font-smoothing: antialiased;
+      }
+      .page { margin: 0 auto; padding: 40px 32px 88px; max-width: 1560px; }
+      .page__title { margin: 0 0 6px; font-size: 22px; font-weight: 640; letter-spacing: -0.01em; }
+      .page__sub { margin: 0 0 30px; max-width: 88ch; color: var(--page-muted); font-size: 13.5px; line-height: 1.55; }
+      .page__sub code { background: rgba(55, 53, 47, 0.07); padding: 0 4px; border-radius: 3px; font-family: var(--page-mono); font-size: 12px; }
+
+      .panels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; align-items: start; }
+      @media (max-width: 1180px) { .panels { grid-template-columns: minmax(0, 1fr); } }
+
+      .panel { border: 1px solid var(--page-line); border-radius: 12px; overflow: hidden; }
+      .panel__bar {
+        display: flex; align-items: center; justify-content: space-between; gap: 12px;
+        border-bottom: 1px solid var(--page-line);
+        padding: 9px 14px;
+        font-size: 10.5px; font-weight: 620; letter-spacing: 0.1em; text-transform: uppercase;
+      }
+      .panel__bar small { font-weight: 500; letter-spacing: 0.04em; text-transform: none; opacity: 0.62; font-family: var(--page-mono); }
+      .panel__body { padding: 26px 22px 30px; overflow-x: auto; }
+
+      .panel--light .panel__bar { background: #fff; color: #55524b; }
+      .panel--light .panel__body { background: var(--po-page-bg); }
+      .panel--dark .panel__bar { background: #262b2e; color: rgba(255, 255, 255, 0.72); border-bottom-color: rgba(255, 255, 255, 0.1); }
+      .panel--dark .panel__body { background: var(--po-page-bg); }
+      .panel--dark { border-color: rgba(55, 53, 47, 0.28); }
+
+      /* ==========================================================================
+         THEME TOKENS
+         Base values are the real semantic.css values (notion palette).
+         Rows marked CHANGED / NEW are Variation A's proposal.
+         ========================================================================== */
+      .theme-light {
+        /* --- base palette (semantic.css :root, light) --- */
+        --radius: 0.5rem;
+        --background: #fbfaf8;
+        --foreground: #37352f;
+        --border: rgba(206, 205, 202, 0.5);
+        --muted: #ebeced;
+        --muted-foreground: #9b9a97;
+        --docs-viewer-text-body: #37352f;
+        --po-page-bg: #fbfaf8;
+
+        /* --- kept from baseline --- */
+        --docs-process-outline-ink: var(--docs-viewer-text-body);
+        --docs-process-outline-deep-ink: color-mix(in srgb, var(--docs-process-outline-ink) 74%, transparent);
+        --docs-process-outline-code-bg: rgba(55, 53, 47, 0.065);
+        --docs-process-outline-arrow-gap: 4px;
+        --docs-process-outline-arrow-size: 6px;
+        --docs-process-outline-stroke: 1.5px;
+        --docs-process-outline-text-size: 12.5px;
+        --docs-process-outline-line-height: 22px;
+
+        /* --- CHANGED: air --- */
+        --docs-process-outline-row-gap: 12px;   /* was 7px  */
+        --docs-process-outline-indent: 46px;    /* was 36px */
+
+        /* --- NEW: air --- */
+        --docs-process-outline-root-gap: 30px;  /* gap before each root step (was hard-coded 14px) */
+        --docs-process-outline-branch-gap: 20px;/* gap between depth-1 phases */
+
+        /* --- CHANGED: one-hue rail ramp (was flat #b3b1ad) --- */
+        --docs-process-outline-rail: #9d9a95;   /* fallback / level 1 */
+        --docs-process-outline-rail-1: #9d9a95;
+        --docs-process-outline-rail-2: #b8b5b0;
+        --docs-process-outline-rail-3: #cdcac5;
+
+        /* --- CHANGED: notes --- */
+        --docs-process-outline-note-bg: #f2f1ed;          /* was transparent */
+        --docs-process-outline-note-border: rgba(206, 205, 202, 0.55);
+        --docs-process-outline-note-fg: rgba(55, 53, 47, 0.78);
+        --docs-process-outline-note-text-size: 11.5px;     /* was = text-size */
+
+        /* --- NEW: notes --- */
+        --docs-process-outline-note-line-height: 17px;
+        --docs-process-outline-note-rule: var(--docs-process-outline-rail-2);
+        --docs-process-outline-note-inset: 10px;
+
+        /* --- NEW: actor chip --- */
+        --docs-process-outline-actor-fg: #56534c;
+        --docs-process-outline-actor-border: rgba(55, 53, 47, 0.3);
+        --docs-process-outline-actor-bg: rgba(55, 53, 47, 0.025);
+
+        /* --- NEW: weight ramp --- */
+        --docs-process-outline-weight-root: 650;
+        --docs-process-outline-weight-one: 560;
+        --docs-process-outline-weight-two: 460;
+        --docs-process-outline-weight-deep: 420;
+      }
+
+      .theme-dark {
+        /* --- base palette (semantic.css [data-theme="dark"]) --- */
+        --radius: 0.5rem;
+        --background: #2f3437;
+        --foreground: rgba(255, 255, 255, 0.9);
+        --border: rgba(206, 205, 202, 0.5);
+        --muted: #454b4e;
+        --muted-foreground: rgba(151, 154, 155, 0.95);
+        --docs-viewer-text-body: rgba(255, 255, 255, 0.9);
+        --po-page-bg: #2f3437;
+
+        --docs-process-outline-ink: var(--docs-viewer-text-body);
+        --docs-process-outline-deep-ink: color-mix(in srgb, var(--docs-process-outline-ink) 74%, transparent);
+        --docs-process-outline-code-bg: rgba(255, 255, 255, 0.085);
+        --docs-process-outline-arrow-gap: 4px;
+        --docs-process-outline-arrow-size: 6px;
+        --docs-process-outline-stroke: 1.5px;
+        --docs-process-outline-text-size: 12.5px;
+        --docs-process-outline-line-height: 22px;
+
+        --docs-process-outline-row-gap: 12px;
+        --docs-process-outline-indent: 46px;
+
+        --docs-process-outline-root-gap: 30px;
+        --docs-process-outline-branch-gap: 20px;
+
+        --docs-process-outline-rail: #6e7478;
+        --docs-process-outline-rail-1: #6e7478;
+        --docs-process-outline-rail-2: #5a6064;
+        --docs-process-outline-rail-3: #4a5053;
+
+        --docs-process-outline-note-bg: rgba(255, 255, 255, 0.045);
+        --docs-process-outline-note-border: rgba(255, 255, 255, 0.1);
+        --docs-process-outline-note-fg: rgba(255, 255, 255, 0.7);
+        --docs-process-outline-note-text-size: 11.5px;
+
+        --docs-process-outline-note-line-height: 17px;
+        --docs-process-outline-note-rule: var(--docs-process-outline-rail-1);
+        --docs-process-outline-note-inset: 10px;
+
+        --docs-process-outline-actor-fg: rgba(255, 255, 255, 0.82);
+        --docs-process-outline-actor-border: rgba(255, 255, 255, 0.26);
+        --docs-process-outline-actor-bg: rgba(255, 255, 255, 0.04);
+
+        --docs-process-outline-weight-root: 640;
+        --docs-process-outline-weight-one: 550;
+        --docs-process-outline-weight-two: 450;
+        --docs-process-outline-weight-deep: 410;
+      }
+
+      /* ==========================================================================
+         COMPONENT — Variation A
+         Rail geometry is unchanged from the shipped block: the elbow hangs at
+         -1 * indent, its horizontal run lands at half the first line, the trunk
+         overlaps into both gaps, and the arrowhead stays anchored to the elbow.
+         Only the knob VALUES and the color/weight assignment differ.
+         ========================================================================== */
+      .docs-process-outline {
+        --po-line: var(--docs-process-outline-line-height, 22px);
+        --po-gap: var(--docs-process-outline-row-gap, 12px);
+        --po-indent: var(--docs-process-outline-indent, 46px);
+        --po-arrow-gap: var(--docs-process-outline-arrow-gap, 4px);
+        --po-stroke: var(--docs-process-outline-stroke, 1.5px);
+        --po-arrow: var(--docs-process-outline-arrow-size, 6px);
+        --po-rail: var(--docs-process-outline-rail-1, var(--docs-process-outline-rail, #909498));
+        width: 100%;
+        min-width: min(560px, 100%);
+        color: var(--docs-process-outline-ink, var(--foreground));
+        font-family: var(--docs-font-code, ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace);
+        font-size: var(--docs-process-outline-text-size, 12.5px);
+        line-height: var(--po-line);
+      }
+
+      /* CHANGED: root separation is a token, and much larger */
+      .docs-process-outline__flow > .docs-process-outline__node + .docs-process-outline__node {
+        margin-top: var(--docs-process-outline-root-gap, 30px);
+      }
+
+      .docs-process-outline__line {
+        position: relative;
+        max-width: min(100ch, 100%);
+        line-height: var(--po-line);
+      }
+
+      .docs-process-outline__children {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        /* --po-gap is re-declared at every level, so a per-level override
+           never leaks downward and the elbow math always matches the gap. */
+        --po-gap: var(--docs-process-outline-row-gap, 12px);
+        gap: var(--po-gap);
+        margin-left: 5px;
+        padding-top: var(--po-gap);
+        padding-left: var(--po-indent);
+      }
+      /* CHANGED: depth-1 phases breathe more than their own substeps */
+      .docs-process-outline__children[data-level="1"] {
+        --po-gap: var(--docs-process-outline-branch-gap, 20px);
+      }
+
+      /* CHANGED: one-hue rail ramp, assigned per nesting level */
+      .docs-process-outline__children[data-level="1"] { --po-rail: var(--docs-process-outline-rail-1); }
+      .docs-process-outline__children[data-level="2"] { --po-rail: var(--docs-process-outline-rail-2); }
+      .docs-process-outline__children[data-level="3"] { --po-rail: var(--docs-process-outline-rail-3); }
+      .docs-process-outline__children[data-level="4"] { --po-rail: var(--docs-process-outline-rail-3); }
+
+      .docs-process-outline__children > .docs-process-outline__node { position: relative; }
+
+      /* elbow — geometry identical to baseline */
+      .docs-process-outline__children > .docs-process-outline__node::before {
+        position: absolute;
+        top: calc(-1 * var(--po-gap) - 2px);
+        left: calc(-1 * var(--po-indent));
+        width: calc(var(--po-indent) - 2px);
+        height: calc(var(--po-gap) + 2px + var(--po-line) / 2);
+        border-bottom: var(--po-stroke) solid var(--po-rail);
+        border-left: var(--po-stroke) solid var(--po-rail);
+        border-bottom-left-radius: calc(var(--radius) * 0.75);
+        content: "";
+      }
+      /* trunk — overlaps into both gaps so segments always meet */
+      .docs-process-outline__children > .docs-process-outline__node:not(:last-child)::after {
+        position: absolute;
+        top: calc(-1 * var(--po-gap) - 2px);
+        bottom: calc(-1 * var(--po-gap) - 2px);
+        left: calc(-1 * var(--po-indent));
+        width: 0;
+        border-left: var(--po-stroke) solid var(--po-rail);
+        content: "";
+      }
+      .docs-process-outline__children > .docs-process-outline__node > .docs-process-outline__line {
+        padding-left: var(--po-arrow-gap);
+      }
+      /* arrowhead — anchored to the elbow, unchanged */
+      .docs-process-outline__children > .docs-process-outline__node > .docs-process-outline__line::before {
+        position: absolute;
+        top: calc(var(--po-line) / 2 - var(--po-arrow) / 2 - 0.75px);
+        left: calc(-1.2 * var(--po-arrow) - 1px);
+        width: var(--po-arrow);
+        height: var(--po-arrow);
+        border-top: var(--po-stroke) solid var(--po-rail);
+        border-right: var(--po-stroke) solid var(--po-rail);
+        content: "";
+        transform: rotate(45deg);
+      }
+
+      /* CHANGED: weight ramp is tokenized and steps down one notch per level */
+      .docs-process-outline__flow > .docs-process-outline__node > .docs-process-outline__line {
+        font-size: 13.5px;
+        font-weight: var(--docs-process-outline-weight-root, 650);
+        letter-spacing: -0.005em;
+      }
+      .docs-process-outline__node--depth-one > .docs-process-outline__line {
+        font-weight: var(--docs-process-outline-weight-one, 560);
+      }
+      .docs-process-outline__node--depth-two > .docs-process-outline__line {
+        font-weight: var(--docs-process-outline-weight-two, 460);
+      }
+      .docs-process-outline__node--deep > .docs-process-outline__line {
+        color: var(--docs-process-outline-deep-ink);
+        font-weight: var(--docs-process-outline-weight-deep, 420);
+      }
+
+      /* KEPT: keywords bold, no color */
+      .docs-process-outline__keyword { font-weight: 650; }
+
+      /* KEPT: code chips */
+      .docs-process-outline__code {
+        border-radius: calc(var(--radius) * 0.45);
+        background: var(--docs-process-outline-code-bg, var(--muted));
+        padding: 0 4px;
+      }
+
+      /* NEW: actor chip — thin border, barely-there fill */
+      .docs-process-outline__actor {
+        display: inline-block;
+        margin-right: 1px;
+        border: 1px solid var(--docs-process-outline-actor-border);
+        border-radius: 4px;
+        background: var(--docs-process-outline-actor-bg);
+        padding: 0 5px;
+        color: var(--docs-process-outline-actor-fg);
+        font-size: 0.9em;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        line-height: 1.35;
+        vertical-align: 1px;
+      }
+
+      /* CHANGED: notes — muted fill, smaller text, pulled in and subordinate */
+      .docs-process-outline__node--note { margin: 2px 0 0; }
+      .docs-process-outline__note-card {
+        --po-line: var(--docs-process-outline-note-line-height, 17px);
+        display: block;
+        max-width: min(82ch, 100%);
+        margin-left: var(--docs-process-outline-note-inset, 10px);
+        border: 1px solid var(--docs-process-outline-note-border);
+        border-left: 2px solid var(--docs-process-outline-note-rule);
+        border-radius: calc(var(--radius) * 0.55);
+        background: var(--docs-process-outline-note-bg);
+        padding: 7px 12px 8px;
+        color: var(--docs-process-outline-note-fg);
+        font-size: var(--docs-process-outline-note-text-size, 11.5px);
+        font-weight: 400;
+        line-height: var(--po-line);
+      }
+      .docs-process-outline__note-bullet { position: relative; padding-left: 13px; }
+      .docs-process-outline__note-bullet + .docs-process-outline__note-bullet { margin-top: 4px; }
+      .docs-process-outline__note-bullet::before {
+        position: absolute;
+        top: calc(var(--po-line) / 2 - 1.5px);
+        left: 2px;
+        width: 3px;
+        height: 3px;
+        border-radius: 50%;
+        background: currentColor;
+        content: "";
+        opacity: 0.7;
+      }
+      /* notes hang off the rail: no elbow, no arrowhead */
+      .docs-process-outline__children > .docs-process-outline__node--note::before,
+      .docs-process-outline__children > .docs-process-outline__node--note > .docs-process-outline__line::before {
+        display: none;
+      }
+      /* the trunk must not dangle toward a trailing note */
+      .docs-process-outline__children
+        > .docs-process-outline__node:not(
+          :has(~ .docs-process-outline__node:not(.docs-process-outline__node--note))
+        )::after {
+        display: none;
+      }
+
+      /* ==========================================================================
+         TOKEN SHEET
+         ========================================================================== */
+      .sheet { margin-top: 52px; }
+      .sheet h2 { margin: 0 0 4px; font-size: 17px; font-weight: 640; }
+      .sheet p { margin: 0 0 18px; max-width: 92ch; color: var(--page-muted); font-size: 13px; line-height: 1.55; }
+      .sheet table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid var(--page-line); border-radius: 10px; overflow: hidden; }
+      .sheet caption { caption-side: top; padding: 14px 0 8px; text-align: left; font-size: 11px; font-weight: 640; letter-spacing: 0.09em; text-transform: uppercase; color: var(--page-muted); }
+      .sheet th, .sheet td { padding: 7px 12px; border-bottom: 1px solid var(--page-line); text-align: left; vertical-align: top; font-size: 12px; }
+      .sheet thead th { background: #f0efec; font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--page-muted); font-weight: 620; }
+      .sheet tbody tr:last-child td { border-bottom: 0; }
+      .sheet td.tok, .sheet td.val { font-family: var(--page-mono); font-size: 11.5px; }
+      .sheet td.tok { white-space: nowrap; }
+      .sheet td.note { color: var(--page-muted); }
+      .tag { display: inline-block; border-radius: 4px; padding: 1px 6px; font-size: 10px; font-weight: 640; letter-spacing: 0.04em; text-transform: uppercase; }
+      .tag--kept { background: rgba(55, 53, 47, 0.06); color: #6f6c66; }
+      .tag--changed { background: rgba(160, 110, 30, 0.12); color: #8a6314; }
+      .tag--new { background: rgba(40, 110, 90, 0.12); color: #1f6a55; }
+      .swatch { display: inline-block; width: 9px; height: 9px; margin-right: 6px; border: 1px solid rgba(55, 53, 47, 0.2); border-radius: 2px; vertical-align: -1px; }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <h1 class="page__title">Variation A — Airy Structural</h1>
+      <p class="page__sub">
+        Process Outline restyled spacing-first. Rail geometry, elbow/arrowhead math, code chips and keyword
+        bolding are the shipped baseline verbatim; what changes is air, indent, a single-hue rail ramp, a
+        subordinated note card, and a minimal actor chip. Both panels below use the real
+        <code>semantic.css</code> light and dark token values as their base.
+      </p>
+
+      <div class="panels">
+        <!-- ============================ LIGHT ============================ -->
+        <section class="panel panel--light theme-light">
+          <header class="panel__bar"><span>Light</span><small>--background: #FBFAF8</small></header>
+          <div class="panel__body">
+            <div class="docs-process-outline" data-docs-block-type="process-outline">
+              <div class="docs-process-outline__flow" data-process-outline-flow="true">
+
+                <div class="docs-process-outline__node" data-process-outline-depth="0">
+                  <div class="docs-process-outline__line"><span class="docs-process-outline__actor">Worker</span> executes a claimed target</div>
+
+                  <div class="docs-process-outline__children" data-level="1">
+
+                    <!-- phase 1 -->
+                    <div class="docs-process-outline__node docs-process-outline__node--depth-one" data-process-outline-depth="1">
+                      <div class="docs-process-outline__line"><span class="docs-process-outline__actor">Worker</span> claims the job and its Epoch target atomically</div>
+                      <div class="docs-process-outline__children" data-level="2">
+                        <div class="docs-process-outline__node docs-process-outline__node--depth-two" data-process-outline-depth="2">
+                          <div class="docs-process-outline__line"><span class="docs-process-outline__actor">Claim</span> returns a <span class="docs-process-outline__code">ClaimToken</span> — job id, kind, lease id</div>
+                        </div>
+                        <div class="docs-process-outline__node docs-process-outline__node--depth-two" data-process-outline-depth="2">
+                          <div class="docs-process-outline__line"><span class="docs-process-outline__actor">Task</span> re-verifies the token; mismatch rejects the write</div>
+                        </div>
+                        <div class="docs-process-outline__node docs-process-outline__node--note" data-process-outline-depth="2" data-process-outline-note="true">
+                          <div class="docs-process-outline__line">
+                            <div class="docs-process-outline__note-card">
+                              <div class="docs-process-outline__note-bullet">A stale process can never write on a claim it no longer holds. Every durable write — baseline score, session ids, widening, checkpoints — passes the token as authority.</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- phase 2 -->
+                    <div class="docs-process-outline__node docs-process-outline__node--depth-one" data-process-outline-depth="1">
+                      <div class="docs-process-outline__line">Provision an isolated sandbox at the claim's <span class="docs-process-outline__code">base_rev</span></div>
+                      <div class="docs-process-outline__children" data-level="2">
+                        <div class="docs-process-outline__node docs-process-outline__node--depth-two" data-process-outline-depth="2">
+                          <div class="docs-process-outline__line">Seed from the game snapshot; fetch the delta by git bundle</div>
+                        </div>
+                        <div class="docs-process-outline__node docs-process-outline__node--note" data-process-outline-depth="2" data-process-outline-note="true">
+                          <div class="docs-process-outline__line">
+                            <div class="docs-process-outline__note-card">
+                              <div class="docs-process-outline__note-bullet">The claim-time <span class="docs-process-outline__code">base_rev</span> is authoritative for the whole job — a value re-read after a multi-minute provision could name a commit the sandbox never fetched.</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- phase 3 -->
+                    <div class="docs-process-outline__node docs-process-outline__node--depth-one" data-process-outline-depth="1">
+                      <div class="docs-process-outline__line"><strong class="docs-process-outline__keyword" data-process-outline-keyword="Repeat">Repeat</strong>: attempt, validate, checkpoint — <strong class="docs-process-outline__keyword" data-process-outline-keyword="until">until</strong> nothing is left to repair or the claim deadline passes</div>
+                      <div class="docs-process-outline__children" data-level="2">
+                        <div class="docs-process-outline__node docs-process-outline__node--depth-two" data-process-outline-depth="2">
+                          <div class="docs-process-outline__line"><span class="docs-process-outline__actor">Agent</span> attempts the packet; workspace diff is captured</div>
+                        </div>
+                        <div class="docs-process-outline__node docs-process-outline__node--depth-two" data-process-outline-depth="2">
+                          <div class="docs-process-outline__line"><span class="docs-process-outline__actor">Validation</span> merges change check, post-return check, review lint</div>
+                        </div>
+                        <div class="docs-process-outline__node docs-process-outline__node--depth-two" data-process-outline-depth="2">
+                          <div class="docs-process-outline__line">Next attempt receives the repair reasons verbatim</div>
+                        </div>
+                        <div class="docs-process-outline__node docs-process-outline__node--depth-two" data-process-outline-depth="2">
+                          <div class="docs-process-outline__line"><strong class="docs-process-outline__keyword" data-process-outline-keyword="For each">For each</strong> attempt, a checkpoint row banks the evidence</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- phase 4 -->
+                    <div class="docs-process-outline__node docs-process-outline__node--depth-one" data-process-outline-depth="1">
+                      <div class="docs-process-outline__line"><span class="docs-process-outline__actor">Gate</span> the best checkpoint</div>
+                      <div class="docs-process-outline__children" data-level="2">
+                        <div class="docs-process-outline__node docs-process-outline__node--depth-two" data-process-outline-depth="2">
+                          <div class="docs-process-outline__line">Hard gate = runner validation passed and review lint not failed</div>
+                        </div>
+                        <div class="docs-process-outline__node docs-process-outline__node--depth-two" data-process-outline-depth="2">
+                          <div class="docs-process-outline__line">Exact match closes the Worker <span class="docs-process-outline__code">exact</span>; banked improvement closes <span class="docs-process-outline__code">timeout</span></div>
+                        </div>
+                        <div class="docs-process-outline__node docs-process-outline__node--depth-two" data-process-outline-depth="2">
+                          <div class="docs-process-outline__line"><span class="docs-process-outline__actor">Lease</span> expires → job reaped, sandbox torn down, target returns to admitted</div>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================ DARK ============================ -->
+        <section class="panel panel--dark theme-dark">
+          <header class="panel__bar"><span>Dark</span><small>--background: #2F3437</small></header>
+          <div class="panel__body">
+            <div class="docs-process-outline" data-docs-block-type="process-outline">
+              <div class="docs-process-outline__flow" data-process-outline-flow="true">
+
+                <div class="docs-process-outline__node" data-process-outline-depth="0">
+                  <div class="docs-process-outline__line"><span class="docs-process-outline__actor">Worker</span> executes a claimed target</div>
+
+                  <div class="docs-process-outline__children" data-level="1">
+
+                    <div class="docs-process-outline__node docs-process-outline__node--depth-one" data-process-outline-depth="1">
+                      <div class="docs-process-outline__line"><span class="docs-process-outline__actor">Worker</span> claims the job and its Epoch target atomically</div>
+                      <div class="docs-process-outline__children" data-level="2">
+                        <div class="docs-process-outline__node docs-process-outline__node--depth-two" data-process-outline-depth="2">
+                          <div class="docs-process-outline__line"><span class="docs-process-outline__actor">Claim</span> returns a <span class="docs-process-outline__code">ClaimToken</span> — job id, kind, lease id</div>
+                        </div>
+                        <div class="docs-process-outline__node docs-process-outline__node--depth-two" data-process-outline-depth="2">
+                          <div class="docs-process-outline__line"><span class="docs-process-outline__actor">Task</span> re-verifies the token; mismatch rejects the write</div>
+                        </div>
+                        <div class="docs-process-outline__node docs-process-outline__node--note" data-process-outline-depth="2" data-process-outline-note="true">
+                          <div class="docs-process-outline__line">
+                            <div class="docs-process-outline__note-card">
+                              <div class="docs-process-outline__note-bullet">A stale process can never write on a claim it no longer holds. Every durable write — baseline score, session ids, widening, checkpoints — passes the token as authority.</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="docs-process-outline__node docs-process-outline__node--depth-one" data-process-outline-depth="1">
+                      <div class="docs-process-outline__line">Provision an isolated sandbox at the claim's <span class="docs-process-outline__code">base_rev</span></div>
+                      <div class="docs-process-outline__children" data-level="2">
+                        <div class="docs-process-outline__node docs-process-outline__node--depth-two" data-process-outline-depth="2">
+                          <div class="docs-process-outline__line">Seed from the game snapshot; fetch the delta by git bundle</div>
+                        </div>
+                        <div class="docs-process-outline__node docs-process-outline__node--note" data-process-outline-depth="2" data-process-outline-note="true">
+                          <div class="docs-process-outline__line">
+                            <div class="docs-process-outline__note-card">
+                              <div class="docs-process-outline__note-bullet">The claim-time <span class="docs-process-outline__code">base_rev</span> is authoritative for the whole job — a value re-read after a multi-minute provision could name a commit the sandbox never fetched.</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="docs-process-outline__node docs-process-outline__node--depth-one" data-process-outline-depth="1">
+                      <div class="docs-process-outline__line"><strong class="docs-process-outline__keyword" data-process-outline-keyword="Repeat">Repeat</strong>: attempt, validate, checkpoint — <strong class="docs-process-outline__keyword" data-process-outline-keyword="until">until</strong> nothing is left to repair or the claim deadline passes</div>
+                      <div class="docs-process-outline__children" data-level="2">
+                        <div class="docs-process-outline__node docs-process-outline__node--depth-two" data-process-outline-depth="2">
+                          <div class="docs-process-outline__line"><span class="docs-process-outline__actor">Agent</span> attempts the packet; workspace diff is captured</div>
+                        </div>
+                        <div class="docs-process-outline__node docs-process-outline__node--depth-two" data-process-outline-depth="2">
+                          <div class="docs-process-outline__line"><span class="docs-process-outline__actor">Validation</span> merges change check, post-return check, review lint</div>
+                        </div>
+                        <div class="docs-process-outline__node docs-process-outline__node--depth-two" data-process-outline-depth="2">
+                          <div class="docs-process-outline__line">Next attempt receives the repair reasons verbatim</div>
+                        </div>
+                        <div class="docs-process-outline__node docs-process-outline__node--depth-two" data-process-outline-depth="2">
+                          <div class="docs-process-outline__line"><strong class="docs-process-outline__keyword" data-process-outline-keyword="For each">For each</strong> attempt, a checkpoint row banks the evidence</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="docs-process-outline__node docs-process-outline__node--depth-one" data-process-outline-depth="1">
+                      <div class="docs-process-outline__line"><span class="docs-process-outline__actor">Gate</span> the best checkpoint</div>
+                      <div class="docs-process-outline__children" data-level="2">
+                        <div class="docs-process-outline__node docs-process-outline__node--depth-two" data-process-outline-depth="2">
+                          <div class="docs-process-outline__line">Hard gate = runner validation passed and review lint not failed</div>
+                        </div>
+                        <div class="docs-process-outline__node docs-process-outline__node--depth-two" data-process-outline-depth="2">
+                          <div class="docs-process-outline__line">Exact match closes the Worker <span class="docs-process-outline__code">exact</span>; banked improvement closes <span class="docs-process-outline__code">timeout</span></div>
+                        </div>
+                        <div class="docs-process-outline__node docs-process-outline__node--depth-two" data-process-outline-depth="2">
+                          <div class="docs-process-outline__line"><span class="docs-process-outline__actor">Lease</span> expires → job reaped, sandbox torn down, target returns to admitted</div>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- ============================ TOKEN SHEET ============================ -->
+      <section class="sheet">
+        <h2>Token sheet</h2>
+        <p>
+          Every custom property Variation A reads. <span class="tag tag--kept">kept</span> means the shipped
+          value is unchanged, <span class="tag tag--changed">changed</span> means the token already exists in
+          <code>semantic.css</code> but takes a new value, <span class="tag tag--new">new</span> means the
+          variation proposes adding it. Baseline values in the notes column are the current
+          <code>semantic.css</code> ones.
+        </p>
+
+        <table>
+          <caption>Geometry &amp; air</caption>
+          <thead>
+            <tr><th style="width: 27%">Token</th><th style="width: 10%">Status</th><th style="width: 18%">Light</th><th style="width: 18%">Dark</th><th>Notes</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="tok">--docs-process-outline-row-gap</td><td><span class="tag tag--changed">changed</span></td><td class="val">12px</td><td class="val">12px</td><td class="note">Baseline 7px. Drives sibling gap, children padding-top and the elbow drop together.</td></tr>
+            <tr><td class="tok">--docs-process-outline-branch-gap</td><td><span class="tag tag--new">new</span></td><td class="val">20px</td><td class="val">20px</td><td class="note">Row gap for depth-1 phases only. Overrides <code>--po-gap</code> on <code>[data-level="1"]</code>, so elbow math follows it exactly.</td></tr>
+            <tr><td class="tok">--docs-process-outline-root-gap</td><td><span class="tag tag--new">new</span></td><td class="val">30px</td><td class="val">30px</td><td class="note">Space before each root step. Replaces the hard-coded <code>margin-top: 14px</code> in the block CSS.</td></tr>
+            <tr><td class="tok">--docs-process-outline-indent</td><td><span class="tag tag--changed">changed</span></td><td class="val">46px</td><td class="val">46px</td><td class="note">Baseline 36px. Widens the rail lane at every level; arrowhead stays anchored.</td></tr>
+            <tr><td class="tok">--docs-process-outline-line-height</td><td><span class="tag tag--kept">kept</span></td><td class="val">22px</td><td class="val">22px</td><td class="note">Elbow lands at half this value.</td></tr>
+            <tr><td class="tok">--docs-process-outline-arrow-gap</td><td><span class="tag tag--kept">kept</span></td><td class="val">4px</td><td class="val">4px</td><td class="note">Pure text offset; never moves the drawn arrow.</td></tr>
+            <tr><td class="tok">--docs-process-outline-arrow-size</td><td><span class="tag tag--kept">kept</span></td><td class="val">6px</td><td class="val">6px</td><td class="note">Arrowhead edge length.</td></tr>
+            <tr><td class="tok">--docs-process-outline-stroke</td><td><span class="tag tag--kept">kept</span></td><td class="val">1.5px</td><td class="val">1.5px</td><td class="note">Rail stroke width.</td></tr>
+            <tr><td class="tok">--docs-process-outline-text-size</td><td><span class="tag tag--kept">kept</span></td><td class="val">12.5px</td><td class="val">12.5px</td><td class="note">Monospace body size.</td></tr>
+          </tbody>
+        </table>
+
+        <table>
+          <caption>Rail — one hue, three shades</caption>
+          <thead>
+            <tr><th style="width: 27%">Token</th><th style="width: 10%">Status</th><th style="width: 18%">Light</th><th style="width: 18%">Dark</th><th>Notes</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="tok">--docs-process-outline-rail</td><td><span class="tag tag--changed">changed</span></td><td class="val"><span class="swatch" style="background:#9d9a95"></span>#9D9A95</td><td class="val"><span class="swatch" style="background:#6e7478"></span>#6E7478</td><td class="note">Baseline #B3B1AD / #5D6266. Now the fallback and level-1 value; must stay opaque or overlapping strokes stack alpha.</td></tr>
+            <tr><td class="tok">--docs-process-outline-rail-1</td><td><span class="tag tag--new">new</span></td><td class="val"><span class="swatch" style="background:#9d9a95"></span>#9D9A95</td><td class="val"><span class="swatch" style="background:#6e7478"></span>#6E7478</td><td class="note">Depth 1. Strongest shade — same warm grey hue, no second color.</td></tr>
+            <tr><td class="tok">--docs-process-outline-rail-2</td><td><span class="tag tag--new">new</span></td><td class="val"><span class="swatch" style="background:#b8b5b0"></span>#B8B5B0</td><td class="val"><span class="swatch" style="background:#5a6064"></span>#5A6064</td><td class="note">Depth 2. Recedes toward the page: lighter in light, darker in dark.</td></tr>
+            <tr><td class="tok">--docs-process-outline-rail-3</td><td><span class="tag tag--new">new</span></td><td class="val"><span class="swatch" style="background:#cdcac5"></span>#CDCAC5</td><td class="val"><span class="swatch" style="background:#4a5053"></span>#4A5053</td><td class="note">Depth 3 and deeper. Faintest step in the ramp.</td></tr>
+          </tbody>
+        </table>
+
+        <table>
+          <caption>Ink, weight, code chips</caption>
+          <thead>
+            <tr><th style="width: 27%">Token</th><th style="width: 10%">Status</th><th style="width: 18%">Light</th><th style="width: 18%">Dark</th><th>Notes</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="tok">--docs-process-outline-ink</td><td><span class="tag tag--kept">kept</span></td><td class="val">var(--docs-viewer-text-body)<br />#37352F</td><td class="val">var(--docs-viewer-text-body)<br />rgba(255,255,255,.9)</td><td class="note">Body ink.</td></tr>
+            <tr><td class="tok">--docs-process-outline-deep-ink</td><td><span class="tag tag--changed">changed</span></td><td class="val">mix(ink 74%)</td><td class="val">mix(ink 74%)</td><td class="note">Baseline 78%. One notch fainter so depth 3+ recedes with the rail ramp.</td></tr>
+            <tr><td class="tok">--docs-process-outline-code-bg</td><td><span class="tag tag--changed">changed</span></td><td class="val">rgba(55,53,47,.065)</td><td class="val">rgba(255,255,255,.085)</td><td class="note">Baseline <code>var(--muted)</code> (#EBECED / #454B4E). Softened so chips read as texture, not blocks.</td></tr>
+            <tr><td class="tok">--docs-process-outline-weight-root</td><td><span class="tag tag--new">new</span></td><td class="val">650</td><td class="val">640</td><td class="note">Root step. Was hard-coded 650.</td></tr>
+            <tr><td class="tok">--docs-process-outline-weight-one</td><td><span class="tag tag--new">new</span></td><td class="val">560</td><td class="val">550</td><td class="note">Depth 1. Was hard-coded 600.</td></tr>
+            <tr><td class="tok">--docs-process-outline-weight-two</td><td><span class="tag tag--new">new</span></td><td class="val">460</td><td class="val">450</td><td class="note">Depth 2. New rung — baseline had no depth-2 weight.</td></tr>
+            <tr><td class="tok">--docs-process-outline-weight-deep</td><td><span class="tag tag--new">new</span></td><td class="val">420</td><td class="val">410</td><td class="note">Depth 3+, paired with deep-ink.</td></tr>
+          </tbody>
+        </table>
+
+        <table>
+          <caption>Note cards</caption>
+          <thead>
+            <tr><th style="width: 27%">Token</th><th style="width: 10%">Status</th><th style="width: 18%">Light</th><th style="width: 18%">Dark</th><th>Notes</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="tok">--docs-process-outline-note-bg</td><td><span class="tag tag--changed">changed</span></td><td class="val"><span class="swatch" style="background:#f2f1ed"></span>#F2F1ED</td><td class="val">rgba(255,255,255,.045)</td><td class="note">Baseline transparent. Muted fill is what pushes the card behind the steps.</td></tr>
+            <tr><td class="tok">--docs-process-outline-note-border</td><td><span class="tag tag--changed">changed</span></td><td class="val">rgba(206,205,202,.55)</td><td class="val">rgba(255,255,255,.10)</td><td class="note">Baseline <code>var(--border)</code>. Dark needed its own value — the shared border token is a light-tuned grey.</td></tr>
+            <tr><td class="tok">--docs-process-outline-note-fg</td><td><span class="tag tag--changed">changed</span></td><td class="val">rgba(55,53,47,.78)</td><td class="val">rgba(255,255,255,.70)</td><td class="note">Baseline = ink. Dimmed for subordination.</td></tr>
+            <tr><td class="tok">--docs-process-outline-note-text-size</td><td><span class="tag tag--changed">changed</span></td><td class="val">11.5px</td><td class="val">11.5px</td><td class="note">Baseline inherits 12.5px.</td></tr>
+            <tr><td class="tok">--docs-process-outline-note-line-height</td><td><span class="tag tag--new">new</span></td><td class="val">17px</td><td class="val">17px</td><td class="note">Rebinds <code>--po-line</code> inside the card so the bullet dot recenters on the smaller text.</td></tr>
+            <tr><td class="tok">--docs-process-outline-note-rule</td><td><span class="tag tag--new">new</span></td><td class="val">= rail-2 (#B8B5B0)</td><td class="val">= rail-1 (#6E7478)</td><td class="note">2px left rule tying the card to its parent branch. Each theme picks the rail shade that stays legible against the card fill — rail-3 disappeared into the light border.</td></tr>
+            <tr><td class="tok">--docs-process-outline-note-inset</td><td><span class="tag tag--new">new</span></td><td class="val">10px</td><td class="val">10px</td><td class="note">Extra left pull-in past the rail lane.</td></tr>
+          </tbody>
+        </table>
+
+        <table>
+          <caption>Actor chip (new)</caption>
+          <thead>
+            <tr><th style="width: 27%">Token</th><th style="width: 10%">Status</th><th style="width: 18%">Light</th><th style="width: 18%">Dark</th><th>Notes</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="tok">--docs-process-outline-actor-fg</td><td><span class="tag tag--new">new</span></td><td class="val">#56534C</td><td class="val">rgba(255,255,255,.82)</td><td class="note">Chip label. Slightly off body ink so the chip reads as a label, not emphasis.</td></tr>
+            <tr><td class="tok">--docs-process-outline-actor-border</td><td><span class="tag tag--new">new</span></td><td class="val">rgba(55,53,47,.30)</td><td class="val">rgba(255,255,255,.26)</td><td class="note">1px hairline — the whole chip.</td></tr>
+            <tr><td class="tok">--docs-process-outline-actor-bg</td><td><span class="tag tag--new">new</span></td><td class="val">rgba(55,53,47,.025)</td><td class="val">rgba(255,255,255,.04)</td><td class="note">Barely-there fill; set to <code>transparent</code> for a pure outline chip.</td></tr>
+          </tbody>
+        </table>
+
+        <table>
+          <caption>Inherited from the host theme</caption>
+          <thead>
+            <tr><th style="width: 27%">Token</th><th style="width: 10%">Status</th><th style="width: 18%">Light</th><th style="width: 18%">Dark</th><th>Notes</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="tok">--radius</td><td><span class="tag tag--kept">kept</span></td><td class="val">0.5rem</td><td class="val">0.5rem</td><td class="note">Scales the elbow corner, code chip and note card radii.</td></tr>
+            <tr><td class="tok">--docs-font-code</td><td><span class="tag tag--kept">kept</span></td><td class="val">ui-monospace stack</td><td class="val">ui-monospace stack</td><td class="note">The monospace forest look depends on it.</td></tr>
+            <tr><td class="tok">--docs-viewer-text-body</td><td><span class="tag tag--kept">kept</span></td><td class="val">#37352F</td><td class="val">rgba(255,255,255,.9)</td><td class="note">Source of <code>--docs-process-outline-ink</code>.</td></tr>
+            <tr><td class="tok">--background</td><td><span class="tag tag--kept">kept</span></td><td class="val"><span class="swatch" style="background:#fbfaf8"></span>#FBFAF8</td><td class="val"><span class="swatch" style="background:#2f3437"></span>#2F3437</td><td class="note">Panel surface in this preview.</td></tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </body>
+</html>

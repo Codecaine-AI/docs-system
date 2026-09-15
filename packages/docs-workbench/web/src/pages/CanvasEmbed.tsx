@@ -10,7 +10,7 @@ import {
 
 import { syntheticInteractiveCanvas } from "../synthetic-canvas";
 
-import { getCanvasBySrc } from "../data/api";
+import { getCanvasBySrc, IS_STATIC } from "../data/api";
 
 /**
  * Read-only standalone canvas embed, wired into DocBlockRenderer through
@@ -31,6 +31,10 @@ import { getCanvasBySrc } from "../data/api";
 type StandaloneCanvasEmbedProps = CanvasEmbedProps & {
   /** Authoring-only action; read/annotate surfaces keep the embed view-only. */
   showEditAction?: boolean;
+  /** Static hosts may supply validated data and open the same Docs viewer. */
+  initialDocument?: InteractiveCanvasDocument;
+  initiallyOpen?: boolean;
+  onViewerClose?: () => void;
 };
 
 export function StandaloneCanvasEmbed({
@@ -41,23 +45,32 @@ export function StandaloneCanvasEmbed({
   view,
   onObjectSelect,
   showEditAction = false,
+  initialDocument,
+  initiallyOpen = false,
+  onViewerClose,
 }: StandaloneCanvasEmbedProps) {
   const [document, setDocument] = useState<InteractiveCanvasDocument | null>(
-    canvasId === "synthetic" && !src ? syntheticInteractiveCanvas : null,
+    initialDocument ?? (canvasId === "synthetic" && !src ? syntheticInteractiveCanvas : null),
   );
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [viewerOpen, setViewerOpen] = useState(false);
+  const [viewerOpen, setViewerOpen] = useState(initiallyOpen);
+  useEffect(() => { if (!viewerOpen) onViewerClose?.(); }, [viewerOpen, onViewerClose]);
   const loadSeqRef = useRef(0);
   const studioOrigin =
     typeof __CANVAS_STUDIO_URL__ !== "undefined"
       ? __CANVAS_STUDIO_URL__
       : "http://localhost:3999";
   const studioUrl = new URL("/", studioOrigin);
-  /** Deep link into Studio's editor for sidecar canvases; plain root otherwise. */
-  const studioEditUrl = src
-    ? `${studioUrl.toString()}?src=${encodeURIComponent(src)}`
-    : studioUrl.toString();
+  /**
+   * Sidecar deep link with the docs API origin in serve mode; static exports
+   * omit the server parameter, and links without a src stay at the plain root.
+   */
+  const studioEditUrl = new URL(studioUrl);
+  if (src) {
+    studioEditUrl.searchParams.set("src", src);
+    if (!IS_STATIC) studioEditUrl.searchParams.set("server", window.location.origin);
+  }
 
   useEffect(() => {
     if (!src) return;
@@ -198,7 +211,7 @@ export function StandaloneCanvasEmbed({
               <div className="flex items-center gap-2">
                 {showEditAction ? (
                   <a
-                    href={studioEditUrl}
+                    href={studioEditUrl.toString()}
                     target="_blank"
                     rel="noreferrer"
                     aria-label="Edit in Canvas"
@@ -261,7 +274,7 @@ export function StandaloneCanvasEmbed({
         <div className="absolute right-2 top-6 z-20 flex items-center gap-2 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
           {showEditAction ? (
             <a
-              href={studioEditUrl}
+              href={studioEditUrl.toString()}
               target="_blank"
               rel="noreferrer"
               aria-label="Edit in Canvas"

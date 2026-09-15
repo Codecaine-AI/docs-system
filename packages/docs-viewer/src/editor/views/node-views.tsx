@@ -11,15 +11,20 @@ import {
   DocDivider,
   DocFileTree,
   DocImage,
+  DocImageGrid,
   DocInteractionSurface,
   DocSequence,
   DocStateShape,
   DocStructuredTable,
   DocVideo,
+  DocHtml,
   DocProcessOutline,
   NODE_TYPE_TO_BLOCK_TYPE,
 } from "../core/schema";
 import { CodeBlockNodeView } from "../../components/code/editor-node-view";
+import { ImageGridEditorNodeView } from "../../components/rich-text/image-grid-editor-node-view";
+import { HtmlEditorNodeView } from "../../components/rich-text/html-editor-node-view";
+import { ProcessOutlineNodeView } from "../../components/process-outline/editor-node-view";
 import { StructuredTableNodeView } from "../../components/structured-table/editor-node-view";
 import { useDocEditorNodeViewContext } from "./node-view-context";
 
@@ -100,6 +105,14 @@ export const DocImageWithView = DocImage.extend({
   },
 });
 
+export const DocImageGridWithView = DocImageGrid.extend({
+  addNodeView() { return ReactNodeViewRenderer(ImageGridEditorNodeView); },
+});
+
+export const DocHtmlWithView = DocHtml.extend({
+  addNodeView() { return ReactNodeViewRenderer(HtmlEditorNodeView); },
+});
+
 export const DocVideoWithView = DocVideo.extend({
   addNodeView() {
     return ReactNodeViewRenderer(AtomBlockView);
@@ -145,9 +158,13 @@ export const DocStateShapeWithView = DocStateShape.extend({
   },
 });
 
+// The process outline swaps in its own editable node view (bullet-list-style
+// hand editing of the step tree; see
+// components/process-outline/editor-node-view.tsx) instead of the read-only
+// AtomBlockView the other atoms share.
 export const DocProcessOutlineWithView = DocProcessOutline.extend({
   addNodeView() {
-    return ReactNodeViewRenderer(AtomBlockView);
+    return ReactNodeViewRenderer(ProcessOutlineNodeView);
   },
 });
 
@@ -155,7 +172,9 @@ export const DocProcessOutlineWithView = DocProcessOutline.extend({
 export const ATOM_BLOCK_NODES_WITH_VIEWS = [
   DocDividerWithView,
   DocImageWithView,
+  DocImageGridWithView,
   DocVideoWithView,
+  DocHtmlWithView,
   DocCanvasWithView,
   DocSequenceWithView,
   DocFileTreeWithView,

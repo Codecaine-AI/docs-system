@@ -5,6 +5,7 @@ import {
   STATE_SHAPE_AGENT_DESCRIPTION,
   STATE_SHAPE_LABEL,
   StateShapeBlock,
+  classifyTypeText,
 } from "../components/state-shape/StateShapeDocsBlock";
 import { descriptors } from "../components/state-shape/descriptor";
 import type { DocBlockRenderContext } from "../render/block-registry";
@@ -90,11 +91,27 @@ function exampleLine(number: number): HTMLElement | null {
   return document.querySelector(`[data-shape-example] [data-code-line="${number}"]`);
 }
 
-describe("StateShapeBlock — S1 two-pane card", () => {
-  it("frames a bare card: no header bar, no labels, no language tag (R5)", () => {
+describe("classifyTypeText", () => {
+  it("classifies safe unions and preserves their separators", () => {
+    expect(classifyTypeText("string | null")).toEqual({
+      kind: "union",
+      parts: ["string", " | ", "null"],
+    });
+  });
+
+  it("classifies a single machine token", () => {
+    expect(classifyTypeText("Map<string,int>")).toEqual({ kind: "token" });
+  });
+
+  it("classifies prose", () => {
+    expect(classifyTypeText("score and validation refs")).toEqual({ kind: "prose" });
+  });
+});
+
+describe("StateShapeBlock — bounded header", () => {
+  it("renders the bounded header and Example column", () => {
     renderTwoPane();
-    // The card-shell header bar is gone entirely — R5 also means no
-    // language tag anywhere on the card.
+    // The shared CardShell is replaced by the approved component header.
     expect(document.querySelector("[data-card-shell]")).toBeNull();
     expect(document.querySelector("[data-card-shell-bar]")).toBeNull();
     expect(document.querySelector("[data-card-shell-label]")).toBeNull();
@@ -102,8 +119,7 @@ describe("StateShapeBlock — S1 two-pane card", () => {
     // Targeting attributes stay on the section.
     const section = document.querySelector('[data-docs-block-type="state-shape"]');
     expect(section?.getAttribute("data-source-id")).toBe("shape-1");
-    // Two panes in the grid: the field list takes the majority of the wide
-    // lane, the example the rest, and they split only from xl up.
+    // The approved default split assigns 46% of the wide lane to fields.
     const grid = document.querySelector("[data-shape-grid]");
     // The left pane's share is the style rail's Column split knob
     // (--docs-pane-split); the literal fallback is what renders unset.
@@ -112,11 +128,10 @@ describe("StateShapeBlock — S1 two-pane card", () => {
     );
     expect(document.querySelector("[data-shape-tree]")).not.toBeNull();
     expect(document.querySelector("[data-shape-example]")).not.toBeNull();
-    // The example panel sticks while the field list scrolls past — which
-    // needs the grid item started at the top (a stretched item cannot move)
-    // and no clipping card wrapper above it.
+    // The example and its separator end at content height.
     const examplePane = document.querySelector("[data-shape-example-pane]") as HTMLElement;
-    expect(examplePane.className).toContain("xl:sticky");
+    expect(examplePane.className).not.toContain("xl:sticky");
+    expect(examplePane.firstElementChild?.textContent).toBe("Example");
     expect(examplePane.className).toContain("xl:self-start");
     expect(grid?.className).toContain("xl:items-start");
     expect(document.querySelector("[data-shape-example]")?.className).toContain("overflow-y-auto");
@@ -133,7 +148,7 @@ describe("StateShapeBlock — S1 two-pane card", () => {
     expect(document.querySelector("[data-shape-name]")).toBeNull();
   });
 
-  it("heads the tree with the bold-mono shape name, muted basename#symbol source ref, and description", () => {
+  it("shows title and description while retaining source provenance", () => {
     renderTwoPane();
     // The header section is set off from the fields by a thicker (2px) bar.
     expect(document.querySelector("[data-shape-header]")?.className).toContain("border-b-2");
@@ -141,10 +156,8 @@ describe("StateShapeBlock — S1 two-pane card", () => {
     expect(heading?.textContent).toBe("StateShapeState");
     expect(heading?.className).toContain("font-mono");
     expect(heading?.className).toContain("font-bold");
-    expect(heading?.className).toContain("--docs-shape-name");
     const source = document.querySelector("[data-shape-source]") as HTMLElement;
-    expect(source.textContent).toBe("state.ts#StateShapeState");
-    expect(source.getAttribute("title")).toBe(
+    expect(source.getAttribute("data-shape-source")).toBe(
       "packages/docs-model/src/components/state-shape/state.ts#StateShapeState",
     );
     expect(document.querySelector("[data-shape-description]")?.textContent).toBe(
@@ -152,7 +165,7 @@ describe("StateShapeBlock — S1 two-pane card", () => {
     );
   });
 
-  it("groups fields: top-level rows hairline-divided, children behind a light left rule", () => {
+  it("separates field rows and ends branches at the last child", () => {
     renderTwoPane();
     const rows = Array.from(
       document.querySelectorAll("[data-shape-tree] [data-shape-path]"),
@@ -167,20 +180,15 @@ describe("StateShapeBlock — S1 two-pane card", () => {
       "fields.required",
       "missing",
     ]);
-    // ONLY top-level groups sit in the ProseRows stack — hairlines divide
-    // top-level fields, never nested rows.
-    const stack = document.querySelector("[data-shape-tree] [data-prose-rows]");
-    expect(stack?.children).toHaveLength(4);
-    expect(stack?.className).toContain("divide-y");
-    // Children nest behind a light left rule inside their parent's group.
+    expect(rows.every(row=>row.className.includes("border-b"))).toBe(true);
     expect(treeRow("source")?.getAttribute("data-shape-depth")).toBe("0");
     expect(treeRow("source.path")?.getAttribute("data-shape-depth")).toBe("1");
-    const children = document.querySelector('[data-shape-field-group="source"] [data-shape-children]');
-    expect(children?.className).toContain("border-l");
-    expect(children?.contains(treeRow("source.path"))).toBe(true);
+    expect(treeRow("source.path")?.querySelector("[data-tree-tick]")).not.toBeNull();
+    expect(treeRow("source.path")?.querySelector("[data-tree-vertical]")?.getAttribute("data-last")).toBe("false");
+    expect(treeRow("source.symbol")?.querySelector("[data-tree-vertical]")?.getAttribute("data-last")).toBe("true");
   });
 
-  it("tones row tokens: bold mono name, shape-type amber, muted ? for required: false, muted description line", () => {
+  it("renders field names, type chips, accessible optional markers, and descriptions", () => {
     renderTwoPane();
     const row = treeRow("source.symbol") as HTMLElement;
     const name = row.querySelector('[data-field-token="name"]');
@@ -190,18 +198,49 @@ describe("StateShapeBlock — S1 two-pane card", () => {
     const type = row.querySelector('[data-field-token="type"]');
     expect(type?.textContent).toBe("string");
     expect(type?.className).toContain("--docs-shape-type");
-    // Spelled out, not a bare "?" — the marker states a fact about the field.
-    expect(row.querySelector('[data-field-token="optional"]')?.textContent).toBe("optional");
+    // The compact marker retains an accessible optional label.
+    const optional = row.querySelector('[data-field-token="optional"]');
+    expect(optional?.textContent).toBe("?");
+    expect(optional?.getAttribute("aria-label")).toBe("optional");
+    expect(optional?.className).toContain("--docs-shape-optional-fg");
     // Description renders as a muted second line inside the row.
     const described = treeRow("name") as HTMLElement;
     const description = described.querySelector('[data-field-token="description"]');
     expect(description?.textContent).toBe("Shape display name");
     expect(description?.className).toContain("--docs-shape-desc-fg");
-    // Descriptions read at an API-reference measure, not the old 46ch cap.
-    expect(description?.className).toContain("max-w-[70ch]");
-    expect(description?.className).not.toContain("max-w-[46ch]");
+    // Descriptions retain the approved compact line height.
+    expect(description?.className).toContain("leading-5");
     // A required field renders no `?`.
     expect(treeRow("fields.name")?.querySelector('[data-field-token="optional"]')).toBeNull();
+  });
+
+  it("chips union members in their original order", () => {
+    const rawType = "string | null | undefined";
+    render(<StateShapeBlock id="shape-union" fields={[{ name: "value", type: rawType }]} />);
+    const type = treeRow("value")?.querySelector('[data-field-token="type"]');
+    expect(type?.querySelectorAll("[data-type-chip]")).toHaveLength(3);
+    expect(Array.from(type?.querySelectorAll("[data-type-chip]")??[]).map(n=>n.textContent)).toEqual(["string", "null", "undefined"]);
+    expect(type?.querySelectorAll("[data-type-sep]")).toHaveLength(2);
+  });
+
+  it("leaves prose types unchipped", () => {
+    render(
+      <StateShapeBlock
+        id="shape-prose"
+        fields={[{ name: "refs", type: "score and validation refs" }]}
+      />,
+    );
+    expect(treeRow("refs")?.querySelectorAll("[data-type-chip]")).toHaveLength(0);
+  });
+
+  it("chips a single machine type token", () => {
+    render(
+      <StateShapeBlock
+        id="shape-token"
+        fields={[{ name: "items", type: "Map<string,int>" }]}
+      />,
+    );
+    expect(treeRow("items")?.querySelectorAll("[data-type-chip]")).toHaveLength(1);
   });
 
   it("renders no line-number chips anywhere; mapped rows are simply linkable", () => {
@@ -320,11 +359,11 @@ describe("StateShapeBlock — S1 two-pane card", () => {
     expect(getByText("(no fields)")).toBeTruthy();
   });
 
-  it("exports the label and an agent description covering the props contract", () => {
+  it("exports the label and agent description for the approved interaction", () => {
     expect(STATE_SHAPE_LABEL).toBe("State Shape");
-    expect(STATE_SHAPE_AGENT_DESCRIPTION).toContain("fields");
-    expect(STATE_SHAPE_AGENT_DESCRIPTION).toContain("required?: boolean");
-    expect(STATE_SHAPE_AGENT_DESCRIPTION).toContain("example?: string");
+    expect(STATE_SHAPE_AGENT_DESCRIPTION).toContain("field inspector");
+    expect(STATE_SHAPE_AGENT_DESCRIPTION).toContain("field paths");
+    expect(STATE_SHAPE_AGENT_DESCRIPTION).toContain("JSON");
   });
 });
 

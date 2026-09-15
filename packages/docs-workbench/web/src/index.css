@@ -5,6 +5,9 @@
 
 /* Style rail (right-docked live theme-tuning panel) styling. */
 @import "./theme/style-rail.css";
+@import "../../../docs-viewer/src/styles/list-markers.css";
+@import "../../../docs-viewer/src/styles/code.css";
+@import "../../../docs-viewer/src/styles/image-grid.css";
 
 @plugin "@tailwindcss/typography";
 
@@ -350,249 +353,6 @@
   color: var(--docs-viewer-link);
 }
 
-/*
- * Per-surface font tokens: every code surface (blocks, inline chips, kbd)
- * follows --docs-font-code, and ordered-list CSS counters follow
- * --docs-font-numeric — both style-rail knobs. These
- * override docs-viewer's Tailwind `font-mono` fallbacks, which exist only
- * for hosts without this stylesheet.
- */
-.docs-markdown code,
-.docs-markdown pre,
-.docs-markdown kbd,
-.docs-editor-prosemirror code,
-.docs-editor-prosemirror pre {
-  font-family: var(--docs-font-code);
-}
-
-.docs-markdown [data-doc-list-marker] {
-  font-family: var(--docs-font-numeric, inherit);
-  color: var(--docs-list-marker-fg, inherit);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--docs-list-indent, 1.5rem);
-  height: 1.7em;
-  height: 1lh;
-  line-height: inherit;
-}
-
-/*
- * List-item nested children carry NO extra indent (Notion metrics): a nested
- * list item's own 24px marker box supplies the per-level step, and a nested
- * paragraph aligns flush with the parent item's text. The read surface's
- * children wrapper (LIST_ITEM_CHILDREN_CLASSES) is likewise indent-free, so
- * the editor needs no mirroring rule anymore.
- *
- * Ordered list numbering: consecutive `data-doc-ordered` siblings form one
- * counter run — the run's FIRST item carries the counter-reset (a reset
- * scopes the counter over the element and its following siblings), so a
- * bullet/paragraph between runs restarts the numbering, and a nested run
- * (whose first ordered item follows the item's text wrapper or starts its
- * children div) numbers independently of its ancestors' run.
- */
-.docs-markdown [data-doc-ordered="true"] {
-  counter-increment: docs-ordered-list;
-}
-
-.docs-markdown [data-doc-ordered="true"]:first-child,
-.docs-markdown :not([data-doc-ordered="true"]) + [data-doc-ordered="true"] {
-  counter-reset: docs-ordered-list;
-}
-
-/*
- * Marker style cycles with ordered-nesting depth like Notion: 1. → a. → i.,
- * then repeats. Depth = number of ordered-item ancestors (the descendant
- * combinator crosses the content column on both surfaces); deeper selectors
- * are more specific, so the deepest matching rule wins.
- */
-.docs-markdown [data-doc-ordered="true"] > [data-doc-list-marker]::before {
-  content: counter(docs-ordered-list) ".";
-}
-
-.docs-markdown [data-doc-ordered="true"] [data-doc-ordered="true"] > [data-doc-list-marker]::before {
-  content: counter(docs-ordered-list, lower-alpha) ".";
-}
-
-.docs-markdown
-  [data-doc-ordered="true"]
-  [data-doc-ordered="true"]
-  [data-doc-ordered="true"]
-  > [data-doc-list-marker]::before {
-  content: counter(docs-ordered-list, lower-roman) ".";
-}
-
-.docs-markdown
-  [data-doc-ordered="true"]
-  [data-doc-ordered="true"]
-  [data-doc-ordered="true"]
-  [data-doc-ordered="true"]
-  > [data-doc-list-marker]::before {
-  content: counter(docs-ordered-list) ".";
-}
-
-.docs-markdown
-  [data-doc-ordered="true"]
-  [data-doc-ordered="true"]
-  [data-doc-ordered="true"]
-  [data-doc-ordered="true"]
-  [data-doc-ordered="true"]
-  > [data-doc-list-marker]::before {
-  content: counter(docs-ordered-list, lower-alpha) ".";
-}
-
-.docs-markdown
-  [data-doc-ordered="true"]
-  [data-doc-ordered="true"]
-  [data-doc-ordered="true"]
-  [data-doc-ordered="true"]
-  [data-doc-ordered="true"]
-  [data-doc-ordered="true"]
-  > [data-doc-list-marker]::before {
-  content: counter(docs-ordered-list, lower-roman) ".";
-}
-
-/*
- * Unordered markers use a fixed disc → circle → square cycle, then
- * repeat with bullet-nesting depth. Depth = number of bullet-item ancestors;
- * deeper selectors are more specific, so the deepest matching rule wins.
- * --docs-list-disc-size, --docs-list-circle-size,
- * --docs-list-circle-thickness, --docs-list-square-size, and
- * --docs-list-indent are style-rail knobs. The one-line-height marker box
- * centers each drawn shape on the first text line without growing the row.
- */
-.docs-markdown [data-doc-bullet="true"] > [data-doc-list-marker]::before {
-  content: "";
-  display: block;
-}
-
-.docs-markdown
-  [data-doc-bullet="true"]
-  > [data-doc-list-marker]::before,
-.docs-markdown
-  [data-doc-bullet="true"]
-  [data-doc-bullet="true"]
-  [data-doc-bullet="true"]
-  [data-doc-bullet="true"]
-  > [data-doc-list-marker]::before {
-  width: var(--docs-list-disc-size, 6px);
-  height: var(--docs-list-disc-size, 6px);
-  border: 0;
-  border-radius: 9999px;
-  background: currentColor;
-  box-sizing: border-box;
-}
-
-.docs-markdown [data-doc-bullet="true"] [data-doc-bullet="true"] > [data-doc-list-marker]::before,
-.docs-markdown
-  [data-doc-bullet="true"]
-  [data-doc-bullet="true"]
-  [data-doc-bullet="true"]
-  [data-doc-bullet="true"]
-  [data-doc-bullet="true"]
-  > [data-doc-list-marker]::before {
-  width: var(--docs-list-circle-size, 6px);
-  height: var(--docs-list-circle-size, 6px);
-  border: var(--docs-list-circle-thickness, 1.5px) solid currentColor;
-  border-radius: 9999px;
-  background: transparent;
-  box-sizing: border-box;
-}
-
-.docs-markdown
-  [data-doc-bullet="true"]
-  [data-doc-bullet="true"]
-  [data-doc-bullet="true"]
-  > [data-doc-list-marker]::before,
-.docs-markdown
-  [data-doc-bullet="true"]
-  [data-doc-bullet="true"]
-  [data-doc-bullet="true"]
-  [data-doc-bullet="true"]
-  [data-doc-bullet="true"]
-  [data-doc-bullet="true"]
-  > [data-doc-list-marker]::before {
-  width: var(--docs-list-square-size, 5px);
-  height: var(--docs-list-square-size, 5px);
-  border: 0;
-  border-radius: 0;
-  background: currentColor;
-  box-sizing: border-box;
-}
-
-/*
- * Syntax highlighting — theme-token colors over hljs classes, emitted by BOTH
- * rehype-highlight (markdown-projected fenced code) and docs-viewer's
- * components/code/highlight.ts (the read surface's `code` block + annotated
- * code). The --syntax-* vars are defined per theme (light/dark) in
- * theme/semantic.css, so dark mode needs no extra rules here.
- */
-.hljs {
-  background: transparent;
-  color: var(--docs-text-secondary);
-}
-
-.hljs-keyword,
-.hljs-selector-tag,
-.hljs-built_in,
-.hljs-name,
-.hljs-tag,
-.hljs-attr,
-.hljs-property,
-.hljs-doctag,
-.hljs-selector-class,
-.hljs-selector-id,
-.hljs-selector-pseudo,
-.hljs-selector-attr {
-  color: var(--syntax-key);
-}
-
-.hljs-string,
-.hljs-title,
-.hljs-section,
-.hljs-attribute,
-.hljs-type,
-.hljs-regexp,
-.hljs-template-tag,
-.hljs-template-variable {
-  color: var(--syntax-string);
-}
-
-.hljs-number,
-.hljs-symbol,
-.hljs-bullet,
-.hljs-variable {
-  color: var(--syntax-number);
-}
-
-/* true/false/null (JSON, ts, python's True/None) read as booleans. The
-   descendant selector matters: the json grammar nests hljs-keyword INSIDE
-   hljs-literal, and the inner span would otherwise win with --syntax-key. */
-.hljs-literal,
-.hljs-literal .hljs-keyword,
-.hljs-boolean,
-.hljs-meta {
-  color: var(--syntax-boolean);
-}
-
-/* Interpolated code inside template strings is code again, not string. */
-.hljs-subst {
-  color: var(--docs-text-secondary);
-}
-
-.hljs-comment,
-.hljs-quote {
-  color: var(--docs-text-tertiary);
-}
-
-.hljs-deletion {
-  color: var(--status-danger);
-}
-
-.hljs-addition {
-  color: var(--status-success);
-}
-
 [data-block-id] {
   transition: background 0.1s ease;
   border-radius: max(0px, calc(var(--radius) - 5px));
@@ -636,6 +396,34 @@
   box-shadow: 0 0 0 var(--docs-highlight-padding, 4px)
     var(--docs-highlight-color, var(--color-bg-blue));
   outline: none;
+}
+
+/*
+ * Blocks that are EDITED IN PLACE inside an atom node view opt out of that
+ * wash while the user is working inside them. The process outline is the case
+ * that forced this: it is a ProseMirror atom, so a click anywhere in it lands
+ * a NodeSelection on the whole block, and the rule above then held the entire
+ * outline light blue for as long as the edit lasted — a selection highlight
+ * standing in for a caret. Grabbing the block by its grip still selects it and
+ * still washes it, because then the block really IS the thing selected; the
+ * node view raises `data-process-outline-editing` for the other case (a caret
+ * in a line, or a line-range selection).
+ *
+ * TWO selectors, because there are two elements. A React node view renders
+ * `<div class="react-renderer node-...">` around the component's own
+ * `NodeViewWrapper` element, and ProseMirror puts `.ProseMirror-selectednode`
+ * on the OUTER one while the flag is written on the inner one. Matching only
+ * the flag's own element (which is what this rule used to do) therefore never
+ * matched anything, and the outline washed blue on every click no matter what
+ * the node view flagged. The `:has(>` form is the one that fires today; the
+ * plain attribute form keeps working if a node view ever carries the class
+ * itself.
+ */
+.docs-editor-prosemirror .ProseMirror-selectednode[data-process-outline-editing="true"],
+.docs-editor-prosemirror
+  .ProseMirror-selectednode:has(> [data-process-outline-editing="true"]) {
+  background-color: transparent;
+  box-shadow: none;
 }
 
 /*

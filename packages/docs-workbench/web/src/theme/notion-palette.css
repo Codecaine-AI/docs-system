@@ -5,6 +5,7 @@
 
 :root, [data-theme="light"] {
   --color-text-default: #37352F;
+  --color-text-navigation: #245A81;
   /* Warm paper off-white (Notion ships pure #FFFFFF; the ~2% headroom
      below white lets the grain overlay brighten as well as darken, so
      texture costs no average brightness). */
@@ -55,6 +56,7 @@
 
 [data-theme="dark"], .dark {
   --color-text-default: rgba(255,255,255,0.9);
+  --color-text-navigation: #9BC9EA;
   --color-bg-default: #2F3437;
   /* Notion dark's slightly-lifted sidebar, paired with the classic bg. */
   --color-bg-sidebar: #373C3F;

@@ -1,0 +1,561 @@
+bun test v1.3.10 (30e609e0)
+
+packages/docs-model/src/lint/corpus-contract.test.ts:
+(pass) every lint references valid corpus guidance and appears in the loaded lint standard [13.69ms]
+
+packages/docs-model/src/lint/engine.test.ts:
+(pass) authoring lint engine > draft findings are advisory; complete new errors block [0.29ms]
+(pass) authoring lint engine > unchanged errors survive regenerated IDs and duplicate additions still block [0.22ms]
+(pass) authoring lint engine > changed content does not inherit old errors [0.03ms]
+(pass) authoring lint engine > warning-only prose never blocks and retains baseline classification [0.05ms]
+(pass) authoring lint engine > catalog rejects duplicate IDs and missing corpus references [0.17ms]
+(pass) hidden root metadata is not rendered body prose or an opening paragraph [0.07ms]
+
+packages/docs-model/src/writing/rules.test.ts:
+(pass) inline code and references separate prose, formatting does not [0.24ms]
+(pass) code, quoted examples and embedded payloads are excluded [0.12ms]
+(pass) doc-authored descriptions are included, source paths and example literals excluded [0.15ms]
+(pass) authored component fields cover table, files, operations, steps, media and callouts [0.18ms]
+(pass) plain-string code markup is excluded; document title is authored prose [0.09ms]
+(pass) dense paragraph is advisory [0.07ms]
+(pass) malformed optional component items are left for schema validation [0.07ms]
+(pass) Canvas and Sequence wrapper titles are doc-authored prose [0.06ms]
+
+packages/docs-model/src/writing/no-em-dash/index.test.ts:
+(pass) no-em-dash detects its condition and accepts the corrected form [0.04ms]
+
+packages/docs-model/src/writing/dense-paragraph/index.test.ts:
+(pass) dense-paragraph detects its condition and accepts the corrected form [0.76ms]
+
+packages/docs-model/src/writing/filler/index.test.ts:
+(pass) filler detects its condition and accepts the corrected form [0.09ms]
+
+packages/docs-model/src/page-structure/rules.test.ts:
+(pass) empty drafts are allowed; complete body reports missing opener [0.17ms]
+(pass) multiple H1 and heading jumps produce independent warnings [0.10ms]
+(pass) image alt is semantic and stable across regenerated IDs [0.23ms]
+(pass) deep list is warning only [0.13ms]
+(pass) an existing missing opener stays existing when its title level changes [0.04ms]
+
+packages/docs-model/src/page-structure/heading-order/index.test.ts:
+(pass) heading-order detects its condition and accepts the corrected form [0.06ms]
+
+packages/docs-model/src/page-structure/opening-paragraph/index.test.ts:
+(pass) opening-paragraph detects its condition and accepts the corrected form [0.07ms]
+
+packages/docs-model/src/page-structure/deep-list/index.test.ts:
+(pass) four list levels warn and three do not [0.08ms]
+
+packages/docs-model/src/page-structure/image-alt/index.test.ts:
+(pass) image-alt detects its condition and accepts the corrected form [0.77ms]
+
+packages/docs-model/src/page-structure/single-h1/index.test.ts:
+(pass) single-h1 detects its condition and accepts the corrected form [0.06ms]
+
+packages/docs-server/src/__tests__/strict-writes.routes.test.ts:
+(pass) createDocsRoutes (strict writes, tolerant reads) > POST /api/ops returns 400 with $.op.props paths for schema-refused writes [19.04ms]
+(pass) createDocsRoutes (strict writes, tolerant reads) > GET /api/bundle tolerates and preserves stray canvas props [6.85ms]
+(pass) createDocsRoutes (strict writes, tolerant reads) > POST /api/undo restores legacy props removed by an accepted cleanup op [16.46ms]
+
+packages/docs-server/src/__tests__/doc-validation-gate.routes.test.ts:
+(pass) doc.json write gate (validateDocDocument before persist) > POST /api/ops 422s the incident's corrupt reference span and leaves doc.json byte-unchanged [5.99ms]
+(pass) doc.json write gate (validateDocDocument before persist) > POST /api/ops still accepts a valid updateBlock save (well-formed reference round-trips) [10.62ms]
+(pass) doc.json write gate (validateDocDocument before persist) > POST /api/ops 422s an insertBlock introducing an invalid span and leaves doc.json byte-unchanged [5.45ms]
+(pass) doc.json write gate (validateDocDocument before persist) > POST /api/ops still accepts a valid insertBlock save [6.98ms]
+(pass) doc.json write gate (validateDocDocument before persist) > POST /api/move rewrites inbound reference spans through the gated seam and the result reloads [15.72ms]
+
+packages/docs-server/src/__tests__/canvases.routes.test.ts:
+(pass) GET /api/canvases > lists sidecar fixtures with src/canvas_path/id/title/updated_at [8.68ms]
+(pass) GET /api/canvases > still lists an unparsable sidecar, with null id/title [7.20ms]
+(pass) GET /api/canvases > excludes *.canvas.json files outside an assets/canvases/ segment [9.97ms]
+(pass) GET /api/canvases > returns an empty list for an empty docs root [4.51ms]
+(pass) PUT /api/canvas > src-rooted form saves an existing sidecar and rotates content_hash [14.78ms]
+(pass) PUT /api/canvas > src-rooted form 409s on a stale original_hash, reporting current_hash [3.94ms]
+(pass) PUT /api/canvas > src-rooted form 404s on a missing sidecar [3.17ms]
+[backlinks] failed to index canvas source guide/assets/canvases/flow.canvas.json: 71 |     return db;
+72 |   }
+73 |   const dbPath = backlinksDbPath(dbPathOrDocsRoot);
+74 |   await mkdir(dirname(dbPath), { recursive: true });
+75 |   const db = new Database(dbPath, { create: true });
+76 |   db.exec(SCHEMA_SQL);
+          ^
+SQLiteError: disk I/O error
+      errno: 6922,
+ byteOffset: -1,
+       code: "SQLITE_IOERR_VNODE"
+
+      at run (bun:sqlite:336:21)
+      at openBacklinksDb (/Users/Ford/Github Repos/Codecaine/Core/docs-system/packages/docs-index/src/backlinks.ts:76:6)
+      at async indexCanvasSourceBestEffort (/Users/Ford/Github Repos/Codecaine/Core/docs-system/packages/docs-server/src/backlinks-cache.ts:69:28)
+
+(pass) PUT /api/canvas > legacy doc-relative form (path + src) still saves [8.00ms]
+(pass) dev CORS for cross-origin canvas editors > OPTIONS /api/canvases preflight answers 204 with permissive headers [4.17ms]
+(pass) dev CORS for cross-origin canvas editors > PUT /api/canvas preflight and GET /api/canvases responses carry CORS headers [2.67ms]
+
+packages/docs-server/src/__tests__/sequence-forward.routes.test.ts:
+(pass) sequence sidecar routes + forwarded sequence actions > GET /api/sequence serves a sidecar by root-relative src [5.45ms]
+(pass) sequence sidecar routes + forwarded sequence actions > GET /api/sequence rejects traversal and non-sequence paths, 404s missing [3.78ms]
+(pass) sequence sidecar routes + forwarded sequence actions > GET /api/sequence-by-doc resolves the sidecar relative to the doc [5.92ms]
+(pass) sequence sidecar routes + forwarded sequence actions > PUT /api/sequence round-trips a whole-document save [7.49ms]
+(pass) sequence sidecar routes + forwarded sequence actions > PUT /api/sequence returns 409 for a stale original_hash without writing [4.81ms]
+(pass) sequence sidecar routes + forwarded sequence actions > PUT /api/sequence rejects an invalid sequence payload [4.46ms]
+(pass) sequence sidecar routes + forwarded sequence actions > POST /api/sequence creates a new sidecar and 409s when it exists [6.40ms]
+(pass) sequence sidecar routes + forwarded sequence actions > DELETE /api/sequence removes the sidecar [4.57ms]
+(pass) sequence sidecar routes + forwarded sequence actions > forwards setTitle, persists it, and publishes a sequence event [7.63ms]
+(pass) sequence sidecar routes + forwarded sequence actions > forwards setProgram and persists the reparsed structure [7.60ms]
+(pass) sequence sidecar routes + forwarded sequence actions > returns 400 for a setProgram that fails to parse, without writing [5.63ms]
+(pass) sequence sidecar routes + forwarded sequence actions > forwards setStyle and shallow-merges the style [7.00ms]
+(pass) sequence sidecar routes + forwarded sequence actions > undo restores the forwarded sequence patch to its prior bytes [8.40ms]
+(pass) sequence sidecar routes + forwarded sequence actions > returns 409 for a stale expected_sequence_hash without writing [7.06ms]
+(pass) sequence sidecar routes + forwarded sequence actions > returns 409 for a stale doc expected_hash before touching the sidecar [5.89ms]
+(pass) sequence sidecar routes + forwarded sequence actions > returns 423 when another session holds the sequence draft lock [6.26ms]
+(pass) sequence sidecar routes + forwarded sequence actions > returns 400 when a forwarded sequence action targets a non-sequence block [4.56ms]
+(pass) sequence sidecar routes + forwarded sequence actions > returns 400 for a sequenceId-only central sequence reference [4.58ms]
+(pass) sequence sidecar routes + forwarded sequence actions > validates forwarded params at $.params before calling the sequence authority [5.21ms]
+
+packages/docs-server/src/__tests__/routes.test.ts:
+(pass) createDocsRoutes (write contracts) > GET /api/tree and /api/bundle keep the read shapes [5.39ms]
+(pass) createDocsRoutes (write contracts) > POST /api/ops applies, returns patch_id, and 409s on a stale expected_hash [10.49ms]
+(pass) createDocsRoutes (write contracts) > POST /api/ops applies a typed componentAction end-to-end and 400s a bogus action [7.70ms]
+(pass) createDocsRoutes (write contracts) > a foreign draft lock 423-blocks ops (held_by) and the holder passes [11.16ms]
+(pass) createDocsRoutes (write contracts) > annotations add (201) then resolve, with shapes intact [9.69ms]
+(pass) createDocsRoutes (write contracts) > annotations add accepts a text-range target and rejects a malformed one [6.47ms]
+(pass) createDocsRoutes (write contracts) > annotations replies append atomically and enforce hash and draft-lock guards [8.72ms]
+(pass) createDocsRoutes (write contracts) > proposal reject can leave its driving annotation open for follow-up feedback [18.73ms]
+(pass) createDocsRoutes (write contracts) > undo replays the inverse once and fails loudly on double-use [12.76ms]
+[backlinks] failed to index doc source guide/doc.json: 71 |     return db;
+72 |   }
+73 |   const dbPath = backlinksDbPath(dbPathOrDocsRoot);
+74 |   await mkdir(dirname(dbPath), { recursive: true });
+75 |   const db = new Database(dbPath, { create: true });
+76 |   db.exec(SCHEMA_SQL);
+          ^
+SQLiteError: disk I/O error
+      errno: 6922,
+ byteOffset: -1,
+       code: "SQLITE_IOERR_VNODE"
+
+      at run (bun:sqlite:336:21)
+      at openBacklinksDb (/Users/Ford/Github Repos/Codecaine/Core/docs-system/packages/docs-index/src/backlinks.ts:76:6)
+      at async indexDocSourceBestEffort (/Users/Ford/Github Repos/Codecaine/Core/docs-system/packages/docs-server/src/backlinks-cache.ts:55:28)
+
+(pass) createDocsRoutes (write contracts) > successful ops publish a change event with the changed block ids [5.09ms]
+(pass) POST /api/assets/video (strict video upload) > happy path: writes into the bundle's assets/videos/ and returns the bundle-relative src [7.63ms]
+(pass) POST /api/assets/video (strict video upload) > collision auto-uniquifies with a numeric suffix [7.61ms]
+(pass) POST /api/assets/video (strict video upload) > rejects traversal and null-byte filenames outright (400) [3.31ms]
+(pass) POST /api/assets/video (strict video upload) > rejects non-video extensions and non-video content types (415) [3.82ms]
+(pass) POST /api/assets/video (strict video upload) > 404s for a bundle that does not exist [4.35ms]
+(pass) POST /api/assets/video (strict video upload) > 413s over the 64MB cap without trusting caller-declared size [2.81ms]
+(pass) GET /api/blocks (edit-surface discovery) > 200s with schemaVersion 2 and all 7 documented kernel ops [4.23ms]
+(pass) GET /api/blocks (edit-surface discovery) > lists all components and partitions the 15 canonical block types [9.08ms]
+(pass) GET /api/blocks (edit-surface discovery) > serves closed state schemas and object parameter schemas [3.82ms]
+(pass) GET /api/blocks (edit-surface discovery) > matches the docs-model discovery builder exactly [3.76ms]
+
+packages/docs-server/src/__tests__/path-mutex.test.ts:
+(pass) withPathLock > serializes concurrent calls on the same path without interleaving [43.58ms]
+(pass) withPathLock > does not serialize calls on different paths [52.06ms]
+(pass) withPathLock > releases the lock and runs the next queued call even if fn throws [0.43ms]
+(pass) withPathLock > does not leak a stale queue entry after work drains [27.06ms]
+
+packages/docs-server/src/__tests__/themes.routes.test.ts:
+(pass) theme folder routes > GET /api/themes returns an empty catalogue when themes/ does not exist [2.99ms]
+(pass) theme folder routes > an explicit themesRoot controls theme lists, reads, and writes [7.29ms]
+(pass) theme folder routes > without themesRoot, POST uses the sibling folder and then lists and reads back [4.94ms]
+(pass) theme folder routes > hand-authored theme folders are readable without a POST [3.86ms]
+(pass) theme folder routes > invalid theme ids are rejected on write and unroutable on read [3.49ms]
+(pass) theme folder routes > GET of an unknown theme is a 404 [2.71ms]
+(pass) theme folder routes > railDefaults round-trip: the style rail's repo-side settings file [6.18ms]
+(pass) theme folder routes > a theme-locked serve still READS railDefaults but cannot write them [5.34ms]
+(pass) theme folder routes > POST is refused with 403 on a theme-locked serve, before any write [3.06ms]
+
+packages/docs-server/src/__tests__/authoring-lint.test.ts:
+(pass) staging reports required findings; failed accept leaves document and proposal bytes unchanged; correction accepts [10.41ms]
+(pass) old required finding permits unrelated edits; fresh required finding still blocks [7.28ms]
+(pass) blank intermediate opening saves and stages; virtual staging returns the same diagnostics [5.56ms]
+(pass) HTTP save and accept responses preserve lint findings [11.31ms]
+(pass) multi-proposal lint rejection rolls back prior documents and accepted states [15.05ms]
+(pass) review-only prose warnings remain visible and do not reject acceptance [3.59ms]
+
+packages/docs-server/src/__tests__/agent-tools.test.ts:
+(pass) agent-tools: doc_get / doc_update_blocks (TG9.1) > doc_get returns the doc, hash, and a markdown projection [1.18ms]
+(pass) agent-tools: doc_get / doc_update_blocks (TG9.1) > doc_get returns 404 for a missing bundle [0.78ms]
+(pass) agent-tools: doc_get / doc_update_blocks (TG9.1) > doc_update_blocks validates, applies, persists atomically, and stores an inverse [3.25ms]
+(pass) agent-tools: doc_get / doc_update_blocks (TG9.1) > doc_update_blocks returns 409 and does not write when expected_hash is stale [2.22ms]
+(pass) agent-tools: doc_get / doc_update_blocks (TG9.1) > doc_update_blocks is blocked (423) by a foreign live draft lock (D22) [0.96ms]
+[backlinks] failed to index doc source guide/doc.json: 71 |     return db;
+72 |   }
+73 |   const dbPath = backlinksDbPath(dbPathOrDocsRoot);
+74 |   await mkdir(dirname(dbPath), { recursive: true });
+75 |   const db = new Database(dbPath, { create: true });
+76 |   db.exec(SCHEMA_SQL);
+          ^
+SQLiteError: no such table: main.backlinks
+      errno: 1,
+ byteOffset: -1,
+
+      at run (bun:sqlite:336:21)
+      at openBacklinksDb (/Users/Ford/Github Repos/Codecaine/Core/docs-system/packages/docs-index/src/backlinks.ts:76:6)
+      at async indexDocSourceBestEffort (/Users/Ford/Github Repos/Codecaine/Core/docs-system/packages/docs-server/src/backlinks-cache.ts:55:28)
+
+(pass) agent-tools: doc_get / doc_update_blocks (TG9.1) > doc_update_blocks is NOT blocked by the caller's own held lock [1.56ms]
+(pass) agent-tools: doc_get / doc_update_blocks (TG9.1) > undo_patch replays the stored inverse and removes the block that was inserted (D12) [5.26ms]
+(pass) agent-tools: doc_get / doc_update_blocks (TG9.1) > undo_patch fails loudly (409) if the doc changed since the patch was applied [6.03ms]
+(pass) agent-tools: doc_get / doc_update_blocks (TG9.1) > undo_patch returns 404 for an unknown patch id [0.85ms]
+(pass) agent-tools: canvas_get / canvas_apply_patch (TG9.1) > canvas_get returns the validated canvas document and a hash [4.25ms]
+(pass) agent-tools: canvas_get / canvas_apply_patch (TG9.1) > canvas_get returns 404 for a missing sidecar [0.88ms]
+(pass) agent-tools: canvas_get / canvas_apply_patch (TG9.1) > canvas_apply_patch validates, applies an addObject op, persists atomically, stores an inverse snapshot, and returns changedIds [2.36ms]
+(pass) agent-tools: canvas_get / canvas_apply_patch (TG9.1) > canvas_apply_patch returns 409 and does not write when expected hash is stale [1.14ms]
+(pass) agent-tools: canvas_get / canvas_apply_patch (TG9.1) > canvas_apply_patch is blocked (423) by a foreign live draft lock (D22) [1.28ms]
+(pass) agent-tools: canvas_get / canvas_apply_patch (TG9.1) > canvas_apply_patch updateObject DEEP-merges style (matches the client reducer): a partial style patch preserves existing style fields [2.98ms]
+(pass) agent-tools: canvas_get / canvas_apply_patch (TG9.1) > canvas_apply_patch supports removeObject with connection cascade [2.32ms]
+(pass) agent-tools: canvas_get / canvas_apply_patch (TG9.1) > undo_patch replays the stored prior snapshot for a canvas patch (D12) [3.06ms]
+(pass) agent-tools: canvas_get / canvas_apply_patch (TG9.1) > undo_patch fails loudly (409) if the canvas changed since the patch was applied [3.79ms]
+(pass) agent-tools: annotation_list / annotation_resolve (TG9.1) > annotation_list returns an empty list for a bundle with no annotations.json [0.82ms]
+(pass) agent-tools: annotation_list / annotation_resolve (TG9.1) > annotation_list reflects an added annotation, and annotation_resolve resolves it [2.38ms]
+(pass) agent-tools: annotation_list / annotation_resolve (TG9.1) > annotation_resolve returns 404 for an unknown annotation id [1.30ms]
+(pass) agent-tools: annotation_list / annotation_resolve (TG9.1) > annotation_resolve persists the optional response as the annotation's resolution note [2.33ms]
+
+packages/docs-server/src/__tests__/draft-locks.test.ts:
+(pass) DraftLockStore > acquire by session A succeeds, then session B fails with A heldBy info [0.09ms]
+(pass) DraftLockStore > idempotent re-acquire by same session succeeds and refreshes lock [0.03ms]
+(pass) DraftLockStore > heartbeat extends expiresAt [0.07ms]
+(pass) DraftLockStore > different session can acquire after ttl passes [0.03ms]
+(pass) DraftLockStore > release by holder clears lock [0.02ms]
+(pass) DraftLockStore > release by non-holder is silent no-op [0.04ms]
+(pass) DraftLockStore > checkForMutation handles foreign, own, absent, and expired locks [0.06ms]
+(pass) DraftLockStore > independent keys never interact [0.03ms]
+(pass) canonicalDraftLockPath (lock-key unification) > converges every accepted doc-path shape onto the bare bundle path [0.04ms]
+(pass) canonicalDraftLockPath (lock-key unification) > converges canvas sidecar shapes (docs/-prefixed vs root-relative)
+(pass) canonicalDraftLockPath (lock-key unification) > strips only a single leading docs/ segment [0.01ms]
+(pass) DraftLockStore key canonicalization (UI path shape vs mutation path shape) > a lock acquired under the UI's docs/-prefixed path blocks a mutation keyed on the bare bundle path [0.03ms]
+(pass) DraftLockStore key canonicalization (UI path shape vs mutation path shape) > release under one shape frees the lock acquired under another [0.06ms]
+
+packages/docs-server/src/__tests__/canvas-forward.routes.test.ts:
+(pass) POST /api/ops forwarded canvas actions > forwards one addObject, persists it, and publishes a canvas event [7.21ms]
+(pass) POST /api/ops forwarded canvas actions > forwards updateObject and persists the patched text [4.48ms]
+(pass) POST /api/ops forwarded canvas actions > forwards addConnection between two objects and persists it [5.39ms]
+(pass) POST /api/ops forwarded canvas actions > rejects canvas.addAnnotation now that it is not a lifted canvas action [4.90ms]
+(pass) POST /api/ops forwarded canvas actions > forwards removeObject and persists the connection cascade [11.93ms]
+(pass) POST /api/ops forwarded canvas actions > refuses a forwarded write through a canvases symlink outside docsRoot [11.14ms]
+[backlinks] failed to index doc source guide/doc.json: 71 |     return db;
+72 |   }
+73 |   const dbPath = backlinksDbPath(dbPathOrDocsRoot);
+74 |   await mkdir(dirname(dbPath), { recursive: true });
+75 |   const db = new Database(dbPath, { create: true });
+76 |   db.exec(SCHEMA_SQL);
+          ^
+SQLiteError: disk I/O error
+      errno: 6922,
+ byteOffset: -1,
+       code: "SQLITE_IOERR_VNODE"
+
+      at run (bun:sqlite:336:21)
+      at openBacklinksDb (/Users/Ford/Github Repos/Codecaine/Core/docs-system/packages/docs-index/src/backlinks.ts:76:6)
+      at async indexDocSourceBestEffort (/Users/Ford/Github Repos/Codecaine/Core/docs-system/packages/docs-server/src/backlinks-cache.ts:55:28)
+
+(pass) POST /api/ops forwarded canvas actions > holds the doc path lock until the forwarded canvas apply completes [109.87ms]
+(pass) POST /api/ops forwarded canvas actions > undo restores the forwarded canvas patch to its prior bytes [10.95ms]
+(pass) POST /api/ops forwarded canvas actions > action-derived canvas operation type overrides a stray params type [7.63ms]
+(pass) POST /api/ops forwarded canvas actions > routes a canvas block with both src and canvasId via src [5.66ms]
+(pass) POST /api/ops forwarded canvas actions > returns 400 for a canvasId-only central canvas reference [7.78ms]
+(pass) POST /api/ops forwarded canvas actions > returns 409 for a stale expected_canvas_hash without writing [6.31ms]
+(pass) POST /api/ops forwarded canvas actions > returns 409 for a stale doc expected_hash before touching the sidecar [3.91ms]
+(pass) POST /api/ops forwarded canvas actions > returns 423 when another session holds the canvas draft lock [4.64ms]
+(pass) POST /api/ops forwarded canvas actions > rejects a mixed forward/doc batch atomically with the $.ops issue [3.54ms]
+(pass) POST /api/ops forwarded canvas actions > returns 4xx when the canvas block points at an unknown sidecar [4.30ms]
+(pass) POST /api/ops forwarded canvas actions > returns 400 when a forwarded canvas action targets a non-canvas block [5.45ms]
+(pass) POST /api/ops forwarded canvas actions > returns 400 with a structured issue when the target block is missing [3.57ms]
+(pass) POST /api/ops forwarded canvas actions > validates forwarded params at $.params before calling the canvas authority [4.21ms]
+(pass) POST /api/ops forwarded canvas actions > keeps ordinary doc-op batches on the existing response path [7.14ms]
+
+packages/docs-server/src/__tests__/fs-watch.test.ts:
+(pass) fs-watch: changeTargetForRelPath filter/mapping > doc.json and annotations.json map to their bundle folder [0.12ms]
+(pass) fs-watch: changeTargetForRelPath filter/mapping > canvas sidecars map to the canvas rel path itself [0.01ms]
+(pass) fs-watch: changeTargetForRelPath filter/mapping > assets map to the nearest enclosing bundle [0.04ms]
+(pass) fs-watch: changeTargetForRelPath filter/mapping > a directory event on a bundle folder maps to that bundle
+(pass) fs-watch: changeTargetForRelPath filter/mapping > dot segments are ignored — especially .index (backlinks sqlite) [0.02ms]
+(pass) fs-watch: changeTargetForRelPath filter/mapping > atomic-write temp files are ignored (no double-fire on temp+rename)
+(pass) fs-watch: changeTargetForRelPath filter/mapping > files outside any bundle fall back to their own rel path [0.07ms]
+(pass) fs-watch: watchDocsRoot integration (recursive fs.watch) > an external doc.json edit publishes one debounced bundle event; .index and temp writes publish none [1344.38ms]
+(pass) fs-watch: watchDocsRoot integration (recursive fs.watch) > close() stops event delivery [603.58ms]
+
+packages/docs-server/src/__tests__/atomic-write.test.ts:
+(pass) atomicWriteFile > writes the exact content and it is readable back [1.13ms]
+(pass) atomicWriteFile > overwrites an existing file fully with no leftover trailing bytes [1.07ms]
+(pass) atomicWriteFile > creates missing parent directories [0.87ms]
+(pass) atomicWriteFile > best-effort: cleans up temp file on write failure and does not leave .tmp-* siblings [0.87ms]
+
+packages/docs-server/src/__tests__/docs-events.test.ts:
+(pass) docs-events: in-process pub/sub (CP9, TG9.3) > a subscriber receives events published for its own project [0.10ms]
+(pass) docs-events: in-process pub/sub (CP9, TG9.3) > events for a different project are not delivered [0.09ms]
+(pass) docs-events: in-process pub/sub (CP9, TG9.3) > unsubscribe stops further delivery and cleans up the empty listener set [0.04ms]
+(pass) docs-events: in-process pub/sub (CP9, TG9.3) > publishing with no subscribers is a safe no-op
+(pass) docs-events: in-process pub/sub (CP9, TG9.3) > multiple subscribers on the same project all receive the event
+
+packages/docs-server/src/__tests__/proposals.test.ts:
+(pass) proposal staging routes > stage then accept mutates the doc, records inverse, and resolves its annotation with agentRun [13.01ms]
+(pass) proposal staging routes > accept refuses a proposal after the document hash changes [7.55ms]
+(pass) proposal staging routes > reject marks the proposal rejected without touching the document [10.24ms]
+(pass) proposal staging routes > reject resolves its driving annotation with the review note [8.58ms]
+(pass) proposal staging routes > reject leaves the driving annotation open while another staged proposal remains [7.87ms]
+(pass) proposal staging routes > stage refuses ops that fail the in-memory dry run and writes no sidecar entry [2.78ms]
+(pass) proposal staging routes > accepting one competing proposal computes stale:true for the other without changing its stored status [7.36ms]
+
+packages/docs-server/src/changesets/__tests__/changeset-ops.test.ts:
+(pass) multi-document change-set operations > sidecar create, list, and get round-trip; empty roots and unsafe ids are handled [2.61ms]
+(pass) multi-document change-set operations > accept applies two docs, records one compound patch, and resolves the originating annotation [21.39ms]
+(pass) multi-document change-set operations > record changes publish corpus events and accept publishes one event per mutated doc [9.99ms]
+(pass) multi-document change-set operations > reject preserves every doc byte and rejects every staged proposal [16.38ms]
+(pass) multi-document change-set operations > reject keeps an annotation open while another linked proposal remains staged [10.80ms]
+(pass) multi-document change-set operations > a stale third entry rolls back the accepted prefix byte-for-byte without a compound patch [37.53ms]
+(pass) multi-document change-set operations > create, delete, and move tree operations run at their declared positions [26.58ms]
+(pass) multi-document change-set operations > a move that precedes a stale entry is moved back during rollback [14.87ms]
+(pass) multi-document change-set operations > overlapping accepts serialize without deadlock and the second returns a clean stale 409 [22.79ms]
+(pass) multi-document change-set operations > change-set undo restores both docs exactly and reopens the record [26.59ms]
+(pass) multi-document change-set operations > the existing undo_patch tool batches a compound id newest-first [19.04ms]
+(pass) multi-document change-set operations > an individually accepted entry counts as progress and is excluded from the compound patch [19.63ms]
+(pass) multi-document change-set operations > .changesets is invisible to the docs tree, CLI audit, and backlinks walk [8.13ms]
+
+packages/docs-server/src/changesets/__tests__/roundtrip.test.ts:
+(pass) seeded change-set accept/undo round trips > two docs: insert, update, delete, and move [27.29ms]
+(pass) seeded change-set accept/undo round trips > three docs: split, merge, and update [39.10ms]
+(pass) seeded change-set accept/undo round trips > create-doc tree op alone [24.67ms]
+(pass) seeded change-set accept/undo round trips > create-doc with virtual-base destination entry [15.56ms]
+(pass) seeded change-set accept/undo round trips > delete-doc tree op preserves all sidecars [70.11ms]
+(pass) seeded change-set accept/undo round trips > move-doc rewrites inbound links [20.69ms]
+(pass) seeded change-set accept/undo round trips > move_blocks plain [38.69ms]
+(pass) seeded change-set accept/undo round trips > move_blocks forced collision remap [41.39ms]
+(pass) seeded change-set accept/undo round trips > move_blocks carries block and text-range annotations [35.27ms]
+(pass) seeded change-set accept/undo round trips > move_blocks emits inbound-link retarget entries [38.43ms]
+(pass) seeded change-set accept/undo round trips > merge_docs composition [34.36ms]
+(pass) seeded change-set accept/undo round trips > split_doc composition is stable over a second cycle [45.98ms]
+(pass) failed accept rolls create, delete, and move back to the exact pre-accept tree [20.20ms]
+
+packages/docs-server/src/changesets/__tests__/move-blocks.test.ts:
+(pass) move-blocks change-set generator > forced collision remaps only the collider through inserts, internal refs, and migration [14.67ms]
+(pass) move-blocks change-set generator > accept migrates block and range annotations, retargets C, and undo is byte-identical [61.62ms]
+(pass) move-blocks change-set generator > a poisoned retarget entry rolls the prefix back and leaves the record open [26.09ms]
+(pass) move-blocks change-set generator > merge moves all children, retargets block and doc links, deletes A, and undo restores A [26.80ms]
+(pass) move-blocks change-set generator > split creates a titled valid bundle and moves the selected subtree [15.07ms]
+
+packages/docs-kernel/src/app.test.ts:
+(pass) docs kernel CORS > health reports ordered corpora [5.06ms]
+(pass) docs kernel CORS > adds CORS headers to health [0.13ms]
+(pass) docs kernel CORS > adds CORS headers to kernel route [0.22ms]
+(pass) docs kernel CORS > adds CORS headers to OPTIONS preflight [0.14ms]
+docs-kernel: kernel manifest not found at /var/folders/hd/5sskjbf10bl2v1tx3jsvg_200000gn/T/docs-kernel-catalog-listing-JyYybM/.agent-kernel/kernel.json; booting on contract defaults (kernelId docs-system, built-in catalog root /Users/Ford/Github Repos/Codecaine/Core/docs-system/packages/docs-kernel/catalog, db /var/folders/hd/5sskjbf10bl2v1tx3jsvg_200000gn/T/docs-kernel-catalog-listing-JyYybM/.agent-kernel/trace.db). Write the repo-owned manifest to make this kernel discoverable.
+(pass) catalog listing includes only docs-system catalog bundles [16.90ms]
+
+packages/docs-kernel/src/docs-edit-session-api.smoke.test.ts:
+(pass) docs-edit session HTTP smoke > create validates input and maps success plus typed create failures [3.73ms]
+(pass) docs-edit session HTTP smoke > list, detail, request, reply, and unknown-session route shapes answer [3.54ms]
+(pass) docs-edit session HTTP smoke > change-set passthrough returns the enriched view or 404 when absent [2.93ms]
+(pass) docs-edit session HTTP smoke > review routes preserve 404/409/400 mappings and typed failures [4.03ms]
+(pass) docs-edit session HTTP smoke > accept-all maps success, rollback conflict, unknown session, and write gate [5.01ms]
+(pass) docs-edit session HTTP smoke > SSE sends the snapshot first and closes after session disposal [2.86ms]
+(pass) docs-edit session tool policy smoke > docs-lab-editor gets exactly the editing tool surface and docs_write is blocked [0.08ms]
+
+packages/docs-kernel/src/authoring-context.test.ts:
+(pass) both agents load the same expanded corpus with real source paths [6.10ms]
+(pass) every engine rule resolves to a real corpus document [1.15ms]
+(pass) authored guidance passes schema and completion lints and uses typed internal links [2.68ms]
+(pass) both prompt snapshots derive from sources that require corpus guidance and lint repair [0.32ms]
+
+packages/docs-kernel/src/docs-edit.test.ts:
+(pass) docs-edit trace labels include corpus and path [0.13ms]
+(pass) docs-edit FIFO binds one launch and narrows only its docs-lab-editor spawn [0.07ms]
+
+packages/docs-kernel/src/kernel.test.ts:
+(pass) docs kernel catalog resolution > defaults to the built-in catalog and tolerates a missing repo extension [0.28ms]
+(pass) docs kernel catalog resolution > includes an existing repo extension after the built-in catalog [0.40ms]
+(pass) docs kernel catalog resolution > manifest catalog roots replace the defaults [0.18ms]
+(pass) docs kernel corpus resolution > options.corpora wins and resolves relative roots against CWD [0.43ms]
+(pass) docs kernel corpus resolution > DOCS_KERNEL_DOCS_ROOTS preserves order, resolves against CWD, and skips missing directories [0.60ms]
+(pass) docs kernel corpus resolution > corpora file roots resolve relative to the file [0.70ms]
+(pass) docs kernel corpus resolution > legacy single root derives its corpus name from the parent directory [0.74ms]
+(pass) docs kernel corpus resolution > boot resolution fails only when no valid corpus directory remains [0.29ms]
+
+packages/docs-kernel/src/docs-edit-session/from-annotations.test.ts:
+(pass) docsEditRequestsFromAnnotations > maps block, text-range, and root-block targets with the settled dispositions [0.42ms]
+(pass) docsEditRequestsFromAnnotations > reports canvas targets with a typed unsupported-target skip [0.03ms]
+(pass) docsEditRequestsFromAnnotations > gates resolved and non-agent annotations with specific skipped reasons [0.05ms]
+(pass) docsEditRequestsFromAnnotations > scope allowlisting preserves filed order and reports out-of-scope and unmatched ids [0.05ms]
+(pass) docsEditRequestsFromAnnotations > an in-scope request that fails a later gate is not double-reported [0.02ms]
+(pass) docsEditRequestsFromAnnotations > normalizes authors and carries the existing reply thread [0.05ms]
+
+packages/docs-kernel/src/docs-edit-session/proposal-review.integration.test.ts:
+(pass) docs-edit proposal/review integration > edit tools reject malformed calls and persist valid edit metadata without mutating the doc [7.65ms]
+(pass) docs-edit proposal/review integration > restaging the same request supersedes every proposal in the replaced set [9.76ms]
+(pass) docs-edit proposal/review integration > split section proposals accept independently and stale-restage the remaining section [23.53ms]
+(pass) docs-edit proposal/review integration > rejecting one section and accepting another leaves a mixed request applied [10.71ms]
+(pass) docs-edit proposal/review integration > rejectProposal resolves the driving sidecar annotation with explicit and default notes [8.39ms]
+(pass) docs-edit proposal/review integration > reviews in any order, restages stale accepts, resolves annotations, and enforces reversible latest-only undo [27.85ms]
+
+packages/docs-kernel/src/docs-edit-session/lifecycle.test.ts:
+(pass) docs-edit launch and service lifecycle > launch scopes the request queue but preserves sidecar order for aliases [3.37ms]
+(pass) docs-edit launch and service lifecycle > launch returns empty-scope with per-id skip evidence [1.10ms]
+(pass) docs-edit launch and service lifecycle > one live session per normalized doc path reports the holder [1.17ms]
+(pass) docs-edit launch and service lifecycle > agent reply waits for a human; human reply clears waiting in a headless session [2.53ms]
+(pass) docs-edit launch and service lifecycle > declined and done-without-ops requests resolve their sidecar annotations [2.95ms]
+(pass) docs-edit launch and service lifecycle > replies during a live turn coalesce into exactly one follow-up turn [4.59ms]
+
+packages/docs-kernel/src/docs-edit-session/multi-corpus.test.ts:
+(pass) docs-edit multi-corpus sessions > defaults to the first corpus and allows the same path in another corpus [4.64ms]
+(pass) docs-edit multi-corpus sessions > docs_tree and docs_read remain confined to the session corpus root [3.76ms]
+
+packages/docs-kernel/src/docs-edit-session/__tests__/authoring-lint.test.ts:
+(pass) actual edit tool returns actionable lint text and structured findings while allowing drafts [6.64ms]
+
+packages/docs-kernel/src/docs-edit-session/__tests__/cross-doc-staging.test.ts:
+(pass) docs-edit cross-doc staging > an existing session rejects cross-doc proposal and move claims before persistence [5.96ms]
+(pass) docs-edit cross-doc staging > concurrent creates atomically reserve one corpus path [2.95ms]
+(pass) docs-edit cross-doc staging > failed staging and disposal release newly reserved paths [6.17ms]
+(pass) docs-edit cross-doc staging > cross-doc tools reject path escapes without a sidecar write [8.53ms]
+(pass) docs-edit cross-doc staging > a cross-doc touch blocks overlap while a disjoint session still starts [5.37ms]
+
+packages/docs-kernel/src/docs-edit-session/__tests__/accept-all.integration.test.ts:
+(pass) docs-edit acceptAll > accepts a staged cross-doc batch in order and resolves origin annotations [20.73ms]
+(pass) docs-edit acceptAll > rolls back an applied prefix byte-for-byte when a later doc is stale [25.35ms]
+
+packages/docs-kernel/src/docs-edit-session/__tests__/render.test.ts:
+(pass) renderDocsBlockMap > renders a depth-first stable-id map with snippets and title fallback [0.08ms]
+
+packages/docs-kernel/src/docs-edit-session/__tests__/changeset-integration.test.ts:
+(pass) docs-edit change-set integration > move_blocks adopts the generator record and emits every staged proposal [16.79ms]
+(pass) docs-edit change-set integration > move_blocks restaging replaces the alias record and moves the superset once [105.88ms]
+(pass) docs-edit change-set integration > propose_move_blocks supersedes a propose_ops proposal for the same alias [18.63ms]
+(pass) docs-edit change-set integration > propose_move_blocks rejects invalid input and generator failures without staging [9.51ms]
+(pass) docs-edit change-set integration > single-doc staging remains recordless [33.42ms]
+(pass) docs-edit change-set integration > first cross-doc staging persists a record and later staging updates it and emits views [7.04ms]
+(pass) docs-edit change-set integration > stale accept restaging swaps the proposal id in the persisted record [33.87ms]
+(pass) docs-edit change-set integration > acceptAll applies a recorded session as one compound change-set [53.95ms]
+(pass) docs-edit change-set integration > acceptAll rollback leaves the persisted record open [45.74ms]
+(pass) docs-edit change-set integration > acceptAll falls back after individual progress and reconciles the record [34.13ms]
+(pass) docs-edit change-set integration > rejecting every session proposal declines the persisted record [26.19ms]
+(pass) docs-edit change-set integration > session undo reverses a recorded compound accept and emits the reopened view [23.88ms]
+
+packages/docs-cli/src/__tests__/audit.test.ts:
+(pass) docs cli audit — clean tree > reports no findings on a conforming tree [8.40ms]
+(pass) docs cli audit — clean tree > throws for a missing docsRoot [0.58ms]
+(pass) docs cli audit — clean tree > accepts 00-prefixed bundles and dense NN-prefix numbering [4.12ms]
+(pass) E1 — duplicate sibling prefix > flags two children of a bundle sharing a two-digit prefix [7.74ms]
+(pass) E1 — duplicate sibling prefix > does not flag distinct prefixes [8.09ms]
+(pass) E2 — entry naming > flags an unprefixed child of a bundle and ignores dotfiles and plain files [18.42ms]
+(pass) E2 — entry naming > accepts NN- prefixed entries [4.53ms]
+(pass) E2 — entry naming > does not reserve assets or canvases inside a non-bundle section [1.80ms]
+(pass) E3 — sections need their own parent doc.json > flags a non-root section with two children and no parent doc.json [3.12ms]
+(pass) E3 — sections need their own parent doc.json > a bundle with two child docs does not error [5.80ms]
+(pass) E3 — sections need their own parent doc.json > docs root itself is exempt even with many children and no parent doc.json [3.33ms]
+(pass) E3 — sections need their own parent doc.json > a single-child section does not need a parent doc.json [0.87ms]
+(pass) E5 — retired 00-overview convention > flags a bundle that also contains a 00-overview child [1.13ms]
+(pass) E5 — retired 00-overview convention > clean trees contain no retired overview conflicts [3.46ms]
+(pass) E4 — bundle validity > flags unparseable doc.json [1.21ms]
+(pass) E4 — bundle validity > flags a document failing validateDocDocument [0.74ms]
+(pass) E4 — bundle validity > flags a leaf directory with no doc.json [0.47ms]
+(pass) E4 — bundle validity > valid bundles produce no E4 [2.10ms]
+(pass) E4 — bundle validity > validates a child doc nested beneath a bundle [3.02ms]
+(pass) E6 — strict component-state writes > flags readable legacy props that make a non-root block unwritable [2.24ms]
+(pass) E6 — strict component-state writes > exempts invisible root metadata from component-state lint [1.38ms]
+(pass) bundle-reserved entries > ignores assets, canvases, annotations.json, and index twins inside a bundle [2.51ms]
+(pass) W1 — single level-1 heading > warns when a doc has two level-1 headings [1.81ms]
+(pass) W1 — single level-1 heading > level-2 headings do not trigger it [1.60ms]
+(pass) W2 — image alt text > warns for an image block without alt [1.36ms]
+(pass) W2 — image alt text > does not warn when alt is present [1.49ms]
+(pass) W4 — opening paragraph > warns when the block after the title is not a paragraph [2.87ms]
+(pass) W4 — opening paragraph > title followed by a paragraph does not warn [8.39ms]
+(pass) docs cli audit — subprocess smoke test > exits 1 on errors and 0 on a warnings-only tree [208.44ms]
+(pass) shared authoring lints > reports required prose findings with block and rule locations [2.88ms]
+(pass) shared authoring lints > does not flag literal code as authored prose [5.11ms]
+
+packages/docs-cli/src/__tests__/docs-cli.test.ts:
+(pass) docs cli render > renders bundle folder path directly and through CLI [95.03ms]
+(pass) docs cli render > renders explicit doc.json path [4.01ms]
+(pass) docs cli render > renders bare *.doc.json path [2.31ms]
+(pass) docs cli render > throws and exits non-zero for missing path [92.52ms]
+(pass) docs cli grep > finds case-insensitive matches with relative posix paths [4.77ms]
+(pass) docs cli grep > respects case-sensitive search [6.85ms]
+(pass) docs cli grep > returns empty array when term matches nothing [90.71ms]
+(pass) docs cli grep > skips malformed doc.json and keeps valid bundle matches [4.78ms]
+(pass) docs cli grep > does not write during render or grep, including spawned CLI runs [153.22ms]
+(pass) docs cli backlinks rescan (TG7.1) > indexes every doc.json reference span and reports counts [77.24ms]
+(pass) docs cli links check (TG7.2) > reports a stale doc reference and exits non-zero [104.99ms]
+(pass) docs cli links check (TG7.2) > does not flag a doc reference whose pre-migration file form exists [8.17ms]
+
+packages/docs-cli/src/migrate/__tests__/round-trip.test.ts:
+(pass) round-trip: mdxToDoc -> projectToMarkdown preserves content of real repo docs > preserves all prose, list, and code content in order: docs/00-foundation/00-overview.mdx [2.02ms]
+(pass) round-trip: mdxToDoc -> projectToMarkdown preserves content of real repo docs > preserves all prose, list, and code content in order: docs/10-system-design/10-system-flow/20-session-phases/40-docs-update/agents/10-interview-foundation-agent.mdx [0.62ms]
+(pass) round-trip: mdxToDoc -> projectToMarkdown preserves content of real repo docs > preserves all prose, list, and code content in order: docs/10-system-design/40-docs-mdx-lab.mdx [1.54ms]
+(pass) round-trip: mdxToDoc -> projectToMarkdown preserves content of real repo docs > preserves all prose, list, and code content in order: docs/10-system-design/10-system-flow/20-session-phases/20-plan/18-pipeline-execution.mdx [3.45ms]
+(pass) round-trip: mapped component blocks keep their key fields > 00-foundation/00-overview: Decision migrates to a kind-labeled callout with title and body [0.35ms]
+(pass) round-trip: mapped component blocks keep their key fields > 00-foundation/00-overview: Canvas projects as an HTML-comment reference with its src [0.20ms]
+(pass) round-trip: mapped component blocks keep their key fields > 00-foundation/00-overview: reference-link anchor text survives via SpectreRef.label [0.16ms]
+(pass) round-trip: unmapped component tags preserve their raw MDX source > every unmapped tag's raw MDX opening tag appears in the projection [0.56ms]
+(pass) round-trip: unmapped component tags preserve their raw MDX source > an unmapped tag's inner body survives verbatim (Mermaid diagram source) [0.49ms]
+
+packages/docs-cli/src/migrate/__tests__/mdx-to-doc.test.ts:
+(pass) parseFrontmatter > parses scalar and bracketed-array frontmatter keys
+(pass) parseFrontmatter > returns empty meta and the original source when there is no frontmatter
+(pass) parseFrontmatter > handles an empty bracketed array
+(pass) docIdFromPath > derives a stable slug from a docs/ path
+(pass) docIdFromPath > is deterministic across repeated calls
+(pass) docIdFromPath > truncates overlong slugs to fit the schema's 97-char id cap, with a hash suffix to avoid collisions
+(pass) docIdFromPath > produces different ids for two long paths that share the same tail after truncation
+(pass) docIdFromPath > stays deterministic across repeated calls even when truncated [0.29ms]
+(pass) mdxToDoc — golden sample > produces a valid DocDocument [0.07ms]
+(pass) mdxToDoc — golden sample > derives the doc id from the path and title from the first heading
+(pass) mdxToDoc — golden sample > carries frontmatter (minus title) into root block props [0.04ms]
+(pass) mdxToDoc — golden sample > builds heading, paragraph, list, code, quote, divider blocks in document order [0.07ms]
+(pass) mdxToDoc — golden sample > parses inline marks and the doc-reference link in the paragraph [0.04ms]
+(pass) mdxToDoc — golden sample > nests list items via children (Nested item under Second item) [0.09ms]
+(pass) mdxToDoc — golden sample > maps Decision/Callout/Canvas to their doc-schema block types with expected props [0.14ms]
+(pass) mdxToDoc — golden sample > falls back unmapped MDX components to a raw code block and warns [0.05ms]
+(pass) mdxToDoc — golden sample > preserves fenced code language and exact source text [0.03ms]
+(pass) mdxToDoc — golden sample > mints stable ids deterministically across repeated runs on the same input [0.26ms]
+(pass) mdxToDoc — documents without frontmatter > still produces a valid document with a derived title [0.05ms]
+
+packages/docs-cli/src/migrate/__tests__/inline-to-delta.test.ts:
+(pass) inlineToDelta > returns empty spans and no warnings for empty input [0.05ms]
+(pass) inlineToDelta > returns one unattributed span for plain text [0.03ms]
+(pass) inlineToDelta > parses bold in isolation
+(pass) inlineToDelta > parses asterisk italic in isolation [0.03ms]
+(pass) inlineToDelta > parses underscore italic in isolation [0.02ms]
+(pass) inlineToDelta > parses strike in isolation [0.05ms]
+(pass) inlineToDelta > parses inline code in isolation [0.02ms]
+(pass) inlineToDelta > keeps external links as plain link attributes [0.03ms]
+(pass) inlineToDelta > classifies doc links as doc references [0.05ms]
+(pass) inlineToDelta > classifies source links as source references [0.05ms]
+(pass) inlineToDelta > merges attrs for bold containing italic [0.03ms]
+(pass) inlineToDelta > merges attrs for italic containing bold [0.05ms]
+(pass) inlineToDelta > merges attrs for bold and strike combined
+(pass) inlineToDelta > keeps code spans verbatim and atomic inside surrounding emphasis [0.03ms]
+(pass) inlineToDelta > keeps stray single asterisk literal without corrupting surrounding text [0.03ms]
+(pass) inlineToDelta > keeps stray double asterisk literal without corrupting surrounding text [0.02ms]
+(pass) inlineToDelta > preserves whitespace inside marked spans exactly
+(pass) inlineToDelta > adds doc anchor as section [0.04ms]
+(pass) inlineToDelta > adds numeric source anchor as line number [0.04ms]
+(pass) inlineToDelta > adds non-numeric source anchor as symbol [0.03ms]
+(pass) inlineToDelta > keeps mailto links plain [0.02ms]
+(pass) inlineToDelta > keeps image-like links plain [0.02ms]
+(pass) inlineToDelta > warns for ambiguous extensionless relative paths and keeps them plain [0.06ms]
+(pass) inlineToDelta > parses a mixed real-world sentence with marks and link [0.05ms]
+
+packages/docs-cli/src/migrate/__tests__/run.test.ts:
+(pass) runMigration — bundle placement > creates a new subfolder bundle for a standalone .mdx sibling file [1.86ms]
+(pass) runMigration — bundle placement > places doc.json directly in an existing folder-with-index directory (no extra nesting) [1.31ms]
+(pass) runMigration — bundle placement > exempts docs/.drafts by default and includes it only with includeDrafts: true [1.27ms]
+(pass) runMigration — bundle placement > never modifies or deletes the source .mdx file [0.95ms]
+(pass) runMigration — bundle placement > copies a referenced local asset sidecar into the new bundle's assets/ folder [1.11ms]
+(pass) runMigration — bundle placement > reports validation-style failures without throwing, and writes zero output for the failing file [0.66ms]
+(pass) retireTwins — gated, dry-run by default > dry-run reports what would be retired without deleting anything [0.92ms]
+(pass) retireTwins — gated, dry-run by default > skips files with no migrated bundle yet [0.65ms]
+(pass) retireTwins — gated, dry-run by default > only deletes when dryRun is explicitly false [1.02ms]
+(pass) retireTwins — gated, dry-run by default > retires a .md twin whose stem matches a migrated bundle (both twins retire against one bundle) [1.20ms]
+(pass) retireTwins — gated, dry-run by default > leaves a .md with no matching bundle alone, listed in skippedNoBundle [1.08ms]
+(pass) retireTwins — gated, dry-run by default > never considers docs/.drafts files, even when deletion is enabled [1.33ms]
+(pass) runMigration — .md and twin handling > migrates plain .md sources (generic host repos are .md-only) [2.28ms]
+(pass) runMigration — .md and twin handling > prefers .mdx over a same-stem .md twin and reports the twin as skipped [1.29ms]
+
+ 391 pass
+ 0 fail
+ 2308 expect() calls
+Ran 391 tests across 50 files. [6.15s]

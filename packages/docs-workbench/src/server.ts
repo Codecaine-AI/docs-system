@@ -1,3 +1,4 @@
+import { createSharedDocsApiProxy, type SharedDocsApiOptions } from "./shared-api";
 import { existsSync } from "node:fs";
 import { readFile, stat } from "node:fs/promises";
 import { join } from "node:path";
@@ -40,8 +41,12 @@ import {
 export { validateCanvasPayload };
 
 export interface DocsServeAppOptions {
+  /** Route document API traffic through the shared authority; credentials stay server-side. */
+  sharedApi?: SharedDocsApiOptions;
   /** Absolute path to the docs tree to serve. */
   docsRoot: string;
+  /** Theme folder used by the theme API; defaults to the docs-root sibling. */
+  themesRoot?: string;
   /** Built SPA directory to serve at `/`; omit for API-only (tests). */
   staticDir?: string | null;
   /**
@@ -91,35 +96,41 @@ export function createDocsServeApp(options: DocsServeAppOptions) {
   const docsRoot = options.docsRoot;
   const staticDir = options.staticDir ?? null;
 
-  // Kicked off at app creation; the backlinks route awaits it (through the
-  // primed cache). A failed build (e.g. an unreadable tree) fails the route,
-  // not the whole server.
-  const backlinksReady = initBacklinksDb(docsRoot);
-  backlinksReady.catch(() => {});
-  primeBacklinksDb(docsRoot, backlinksReady.then((result) => result.db));
-
-  const store = createDocsStore(docsRoot);
   const themeLocked = !!options.themeLocked;
   const kernelUrl = options.kernelUrl ?? "http://127.0.0.1:4840";
   const corpus = options.corpus ?? "docs-system";
-  const app = new Elysia()
-    .use(createDocsRoutes(store, { themeLocked }))
+  const app = new Elysia();
+  if (options.sharedApi) {
+    const proxy = createSharedDocsApiProxy(options.sharedApi);
+    app.onRequest(({ request }) => {
+      const pathname = new URL(request.url).pathname;
+      if (themeLocked && /^\/api\/themes(?:\/|$)/.test(pathname) && !["GET", "HEAD", "OPTIONS"].includes(request.method)) {
+        return Response.json({ detail: "Theme is locked on this serve: edit the theme in the primary docs-system app." }, { status: 403 });
+      }
+      if (pathname.startsWith("/api/") && pathname !== "/api/serve-config" && pathname !== "/api/lab-config") {
+        return proxy(request);
+      }
+    });
+  } else {
+    // Local mode preserves existing hosts. Shared mode owns no second store,
+    // index, or watcher: all clients use the authority's locks and event stream.
+    const backlinksReady = initBacklinksDb(docsRoot);
+    backlinksReady.catch(() => {});
+    primeBacklinksDb(docsRoot, backlinksReady.then((result) => result.db));
+    const store = createDocsStore(docsRoot);
+    app.use(createDocsRoutes(store, { themeLocked, themesRoot: options.themesRoot }));
+    if (options.watchFs) {
+      const watcher = watchDocsRoot(docsRoot, (event) => store.publishChange(event));
+      app.onStop(() => watcher.close());
+    }
+  }
+  app
     // Serve config lives at the WORKBENCH level, not in the docs-server
     // route table: themeLocked is a property of this serve invocation, not
     // of the docs tree, so hosts embedding createDocsRoutes directly are
     // untouched. The SPA reads it once at boot to pick its theme path.
     .get("/api/serve-config", () => ({ themeLocked }))
     .get("/api/lab-config", () => ({ kernelUrl, corpus }));
-
-  if (options.watchFs) {
-    // External edits (hand edits, agents, CLI writes) surface as the same
-    // change events API mutations publish, so open tabs pick them up live.
-    // Events carry `actor: "fs"` — never a client session id — so no client
-    // filters them as its own echo. Duplicates after API saves (which also
-    // touch disk) are benign: clients respond with a re-fetch, not a write.
-    const watcher = watchDocsRoot(docsRoot, (event) => store.publishChange(event));
-    app.onStop(() => watcher.close());
-  }
 
   if (staticDir) {
     const indexAbs = join(staticDir, "index.html");

@@ -134,6 +134,19 @@ describe("GET /api/lab-config", () => {
   });
 });
 
+describe("GET /api/themes", () => {
+  test("uses the serve-level themesRoot override", async () => {
+    const themesRoot = await mkdtemp(join(tmpdir(), "docs-workbench-themes-"));
+    await mkdir(join(themesRoot, "shared"), { recursive: true });
+    await writeFile(join(themesRoot, "shared", "theme.json"), JSON.stringify({ name: "Shared" }));
+
+    const configured = createDocsServeApp({ docsRoot, themesRoot });
+    const response = await configured.handle(new Request("http://localhost/api/themes"));
+    expect(await response.json()).toEqual({ themes: [{ id: "shared", name: "Shared" }] });
+    await rm(themesRoot, { recursive: true, force: true });
+  });
+});
+
 describe("GET /api/blocks", () => {
   test("edit-surface discovery is mounted through the workbench serve app", async () => {
     const response = await get("/api/blocks");

@@ -1,3 +1,4 @@
+import type { LintReport } from "@codecaine-ai/docs-model/lint";
 import { randomUUID } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
@@ -63,6 +64,7 @@ export type ChangeSetFailure = {
 };
 
 export type ChangeSetAcceptEntryResult = {
+  lint?: LintReport;
   kind: "entry";
   index: number;
   docPath: string;
@@ -523,7 +525,7 @@ export async function acceptChangeSet(
         const blocked = treeMutationPaths(op)
           .map((path) => ({
             path,
-            check: draftLockStore.checkForMutation({ kind: "doc", path: normalizedPath(path) }, actor),
+            check: draftLockStore.forRoot(docsRoot).checkForMutation({ kind: "doc", path: normalizedPath(path) }, actor),
           }))
           .find((candidate) => candidate.check.blocked);
         if (blocked) {
@@ -567,7 +569,7 @@ export async function acceptChangeSet(
             : {}),
         });
         const patchId = randomUUID();
-        recordTreePatch(patchId, executed.inverse);
+        recordTreePatch(patchId, executed.inverse, docsRoot);
         patchIds.push(patchId);
         applied.push({ kind: "tree-op", resultIndex, patchId });
         for (const path of treeMutationPaths(op)) notePathMutation(path);
@@ -603,9 +605,23 @@ export async function acceptChangeSet(
         return rollback(resultFailure(409, detail, record, results, entry));
       }
 
+      // A merge empties its source before deleting it. That temporary source
+      // is a draft; the surviving destination still passes the complete gate.
+      let finalPath = entry.docPath;
+      let deletedLater = false;
+      for (const op of [...record.treeOps].sort((a, b) => a.position - b.position)) {
+        if (op.position <= position) continue;
+        if (op.kind === "move-doc" && (finalPath === op.from || finalPath.startsWith(`${op.from}/`))) {
+          finalPath = op.to + finalPath.slice(op.from.length);
+        }
+        if (op.kind === "delete-doc" && (finalPath === op.docPath || finalPath.startsWith(`${op.docPath}/`))) {
+          deletedLater = true;
+          break;
+        }
+      }
       const accepted = await acceptBundleProposal(docsRoot, entry.docPath, entry.proposalId, {
         sessionId: options.sessionId ?? record.sessionId,
-      });
+      }, { lintPhase: deletedLater ? "draft" : "complete" });
       if (!accepted.ok) {
         results.push({
           kind: "entry",
@@ -614,6 +630,7 @@ export async function acceptChangeSet(
           ok: false,
           status: accepted.status,
           detail: accepted.detail,
+          lint: accepted.lint,
         });
         return rollback(
           resultFailure(accepted.status, accepted.detail, record, results, entry),
@@ -626,6 +643,7 @@ export async function acceptChangeSet(
         ...entry,
         ok: true,
         patchId: accepted.patchId,
+        lint: accepted.lint,
       });
       patchIds.push(accepted.patchId);
       appliedProposalRefs.push({
@@ -680,12 +698,12 @@ export async function acceptChangeSet(
         }
       }
       const migrationPatchId = randomUUID();
-      recordSidecarPatch(migrationPatchId, migrated.files);
+      recordSidecarPatch(migrationPatchId, migrated.files, docsRoot);
       patchIds.push(migrationPatchId);
       applied.push({ kind: "sidecars", patchId: migrationPatchId });
     }
 
-    recordCompoundPatch(compoundPatchId, patchIds);
+    recordCompoundPatch(compoundPatchId, patchIds, docsRoot);
     const resolved: DocChangeSet = {
       ...record,
       status: "applied",
@@ -694,7 +712,7 @@ export async function acceptChangeSet(
     };
     const written = await writeChangeSetRecord(docsRoot, resolved);
     if (!written.ok) {
-      deleteStoredPatch(compoundPatchId);
+      deleteStoredPatch(compoundPatchId, docsRoot);
       return rollback(resultFailure(written.status, written.detail, record, results));
     }
     appliedProposalsByCompoundPatch.set(compoundPatchId, appliedProposalRefs);
@@ -831,7 +849,7 @@ export async function undoChangeSet(
   if (record.status !== "applied" || !record.compoundPatchId) {
     return { ok: false, status: 409, detail: "Change-set is not applied." };
   }
-  const compound = getStoredPatch(record.compoundPatchId);
+  const compound = getStoredPatch(record.compoundPatchId, docsRoot);
   if (!compound || compound.kind !== "compound") {
     return { ok: false, status: 404, detail: `No live compound patch found: ${record.compoundPatchId}` };
   }

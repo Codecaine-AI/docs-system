@@ -1,3 +1,4 @@
+import { lintDocument, formatLintReport, titleHeadingFixOps, type LintReport } from "@codecaine-ai/docs-model/lint";
 import { randomUUID } from "node:crypto";
 import { dirname, join } from "node:path";
 
@@ -45,7 +46,7 @@ import { recordDocPatch } from "./patch-ledger";
  */
 
 export type ApplyDocOpsResult =
-  | { ok: true; doc: DocDocument; hash: string; patchId: string; inverse: DocOp[] }
+  | { ok: true; doc: DocDocument; hash: string; patchId: string; inverse: DocOp[]; lint: LintReport; normalization?: { ops: DocOp[]; message: string } }
   | {
       ok: false;
       status: number;
@@ -53,6 +54,7 @@ export type ApplyDocOpsResult =
       current_hash?: string;
       expected_hash?: string;
       issues?: unknown;
+      lint?: LintReport;
       held_by?: DraftLockInfo;
     };
 
@@ -68,7 +70,7 @@ export async function applyDocOpsToBundle(
   ops: DocOp[],
   expectedHash: string | undefined,
   sessionId?: string,
-  options?: { validateProps?: boolean },
+  options?: { validateProps?: boolean; lintPhase?: "draft" | "complete"; normalize?: boolean },
 ): Promise<ApplyDocOpsResult> {
   const jsonAbs = resolveDocBundleJsonPath(docsRoot, path);
   if (!jsonAbs) {
@@ -90,7 +92,7 @@ export async function applyDocOpsToBundle(
       };
     }
 
-    const lockCheck = draftLockStore.checkForMutation(
+    const lockCheck = draftLockStore.forRoot(docsRoot).checkForMutation(
       { kind: "doc", path: loaded.bundlePath },
       sessionId,
     );
@@ -118,7 +120,7 @@ export async function applyDocOpsToBundle(
     // file is untouched. Persisting the validator's normalized `document`
     // (not `result.doc`) also guarantees the written bytes are the canonical
     // form the next load's hash derivation expects.
-    const validated = validateDocDocument(result.doc);
+    let validated = validateDocDocument(result.doc);
     if (!validated.ok) {
       return {
         ok: false,
@@ -128,17 +130,41 @@ export async function applyDocOpsToBundle(
       };
     }
 
+    // Normalize inside the same lock and undo unit, before linting or persistence.
+    // Undo deliberately bypasses this step to restore the exact previous state.
+    const normalizationOps = options?.normalize === false ? [] : titleHeadingFixOps(validated.document);
+    let inverse = result.inverse;
+    if (normalizationOps.length) {
+      const normalized = applyOps(validated.document, normalizationOps);
+      if (!normalized.ok) return { ok: false, status: 422, detail: "Title cleanup failed; save rejected.", issues: normalized.issues };
+      validated = validateDocDocument(normalized.doc);
+      if (!validated.ok) return { ok: false, status: 422, detail: "Title cleanup produced an invalid document; save rejected.", issues: validated.issues };
+      inverse = [...normalized.inverse, ...inverse];
+    }
+    const normalization = normalizationOps.length ? {
+      ops: normalizationOps,
+      message: "Automatically removed the opening H1 that repeated the display title; other headings are unchanged.",
+    } : undefined;
+
+    const lint = lintDocument(validated.document, {
+      phase: options?.lintPhase ?? "draft",
+      baseline: loaded.document,
+    });
+    if (lint.blocking.length > 0) {
+      return { ok: false, status: 422, detail: formatLintReport(lint), issues: lint.blocking, lint };
+    }
+
     const serialized = serializeDocDocument(validated.document);
     await atomicWriteFile(loaded.jsonAbs, serialized);
     const hash = createContentHash(serialized);
     const patchId = randomUUID();
-    recordDocPatch(patchId, loaded.bundlePath, result.inverse, hash);
+    recordDocPatch(patchId, loaded.bundlePath, inverse, hash, docsRoot);
 
     // Best-effort backlinks re-index — fire-and-forget, must never fail or
     // delay the save this just committed to disk.
     void indexDocSourceBestEffort(docsRoot, `${loaded.bundlePath}/doc.json`, validated.document);
 
-    return { ok: true, doc: validated.document, hash, patchId, inverse: result.inverse };
+    return { ok: true, doc: validated.document, hash, patchId, inverse, lint, ...(normalization ? { normalization } : {}) };
   });
 }
 
@@ -227,7 +253,7 @@ export async function addBundleAnnotation(
       };
     }
 
-    const lockCheck = draftLockStore.checkForMutation({ kind: "doc", path: bundlePath }, sessionId);
+    const lockCheck = draftLockStore.forRoot(docsRoot).checkForMutation({ kind: "doc", path: bundlePath }, sessionId);
     if (lockCheck.blocked) {
       return {
         ok: false,
@@ -322,7 +348,7 @@ export async function addBundleAnnotationReply(
       return { ok: false, status: 404, detail: `Annotation not found: ${annotationId}` };
     }
 
-    const lockCheck = draftLockStore.checkForMutation({ kind: "doc", path: bundlePath }, sessionId);
+    const lockCheck = draftLockStore.forRoot(docsRoot).checkForMutation({ kind: "doc", path: bundlePath }, sessionId);
     if (lockCheck.blocked) {
       return {
         ok: false,
@@ -411,7 +437,7 @@ export async function resolveBundleAnnotation(
       return { ok: false, status: 404, detail: `Annotation not found: ${annotationId}` };
     }
 
-    const lockCheck = draftLockStore.checkForMutation({ kind: "doc", path: bundlePath }, sessionId);
+    const lockCheck = draftLockStore.forRoot(docsRoot).checkForMutation({ kind: "doc", path: bundlePath }, sessionId);
     if (lockCheck.blocked) {
       return {
         ok: false,

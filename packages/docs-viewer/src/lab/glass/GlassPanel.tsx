@@ -35,6 +35,8 @@ const ANNOTATION_BORDER = "var(--annotation-border, var(--border))";
 const PANEL_BORDER = "var(--docs-lab-panel-border, var(--border))";
 
 export interface GlassPanelProps {
+	hidden?: boolean;
+	header?: ReactNode;
 	tab: LabPanelTab;
 	onTabSelect: (tab: LabPanelTab) => void;
 	busy?: boolean;
@@ -44,6 +46,8 @@ export interface GlassPanelProps {
 }
 
 export function GlassPanel({
+	hidden = false,
+	header,
 	tab,
 	onTabSelect,
 	busy = false,
@@ -129,6 +133,7 @@ export function GlassPanel({
 	return (
 		<div
 			ref={panelRef}
+			hidden={hidden}
 			data-lab-dock=""
 			data-lab-float-mode={ai ? "annotate" : "dock"}
 			{...(ai ? { "data-lab-annotate-panel": "" } : {})}
@@ -136,6 +141,7 @@ export function GlassPanel({
 			aria-label={ai ? "AI workspace" : "Lab panel"}
 			className="absolute z-30 flex flex-col overflow-hidden rounded-[var(--radius)] border"
 			style={{
+				display: hidden ? "none" : undefined,
 				top: topInset,
 				right: "var(--docs-lab-panel-right, 24px)",
 				width: geometry.width,
@@ -158,6 +164,7 @@ export function GlassPanel({
 				className="relative flex shrink-0 select-none border-b"
 				style={{ borderColor: ai ? ANNOTATION_BORDER : PANEL_BORDER }}
 			>
+				{header ?? <>
 				<span
 					aria-hidden
 					data-lab-panel-tab-indicator=""
@@ -176,11 +183,12 @@ export function GlassPanel({
 					{ai && <span data-lab-annotate-dot={busy ? "fast" : "slow"} aria-hidden className="h-[5px] w-[5px] rounded-full" style={{ background: ANNOTATION_ACCENT, animation: `docs-annotation-breathe ${busy ? "0.72s" : "2.6s"} ease-in-out infinite` }} />}
 					{ai ? <span key="label" style={fadeIn}>Annotations</span> : <Sparkles key="icon" size={12} aria-hidden style={fadeIn} />}
 				</button>
+				</>}
 			</header>
-			<div key={tab} ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-3 pt-2" style={{ animation: `labFloatContentIn ${TRANSITION_MS}ms ${EASE}` }}>
+			<div key={tab} ref={scrollRef} data-lab-panel-scroller="" className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-3 pt-2" style={{ animation: `labFloatContentIn ${TRANSITION_MS}ms ${EASE}`, scrollbarWidth: "none" }}>
 				<div ref={innerRef} className={ai ? "h-full" : undefined}>{children}</div>
 			</div>
-			<style>{`@keyframes labFloatContentIn { from { opacity: 0 } to { opacity: 1 } }`}</style>
+			<style>{`@keyframes labFloatContentIn { from { opacity: 0 } to { opacity: 1 } } [data-lab-panel-scroller]::-webkit-scrollbar { display: none; }`}</style>
 		</div>
 	);
 }

@@ -1,0 +1,85 @@
+ M .agent-kernel/trace.db
+ D catalog/README.md
+ M docs/10-system-design/40-block-vocabulary/50-state-shape/doc.json
+ M docs/10-system-design/40-block-vocabulary/90-process-outline/doc.json
+ M docs/20-implementation/10-packages/80-external-canvas/doc.json
+ M docs/20-implementation/40-theming/10-system-ui/doc.json
+ M docs/20-implementation/40-theming/doc.json
+ M objectives/style-rail-restructure/context/05_coverage_matrix.md
+ M packages/docs-cli/src/index.ts
+ M packages/docs-kernel/src/docs-edit-session/session.ts
+ M packages/docs-kernel/src/docs-edit-session/tools.ts
+ M packages/docs-kernel/src/docs-edit-session/types.ts
+ M packages/docs-model/package.json
+ M packages/docs-model/src/__tests__/goldens/projection/docs__10-system-design__40-block-vocabulary__50-state-shape.md
+ M packages/docs-model/src/__tests__/goldens/projection/docs__10-system-design__40-block-vocabulary__90-process-outline.md
+ M packages/docs-model/src/__tests__/goldens/projection/docs__20-implementation__10-packages__80-external-canvas.md
+ M packages/docs-model/src/components/process-outline/__tests__/actions.test.ts
+ M packages/docs-model/src/components/process-outline/__tests__/agent-view.test.ts
+ M packages/docs-model/src/components/process-outline/__tests__/lib.test.ts
+ M packages/docs-model/src/components/process-outline/__tests__/state.test.ts
+ M packages/docs-model/src/components/process-outline/actions/insert-step.ts
+ M packages/docs-model/src/components/process-outline/actions/set-step-text.ts
+ M packages/docs-model/src/components/process-outline/lib.ts
+ M packages/docs-model/src/components/process-outline/state.ts
+ M packages/docs-server/src/__tests__/themes.routes.test.ts
+ M packages/docs-server/src/doc-ops.ts
+ M packages/docs-server/src/proposal-ops.ts
+ M packages/docs-server/src/routes.ts
+ M packages/docs-viewer/src/__tests__/StateShapeDocsBlock.test.tsx
+ M packages/docs-viewer/src/components/process-outline/ProcessOutlineDocsBlock.tsx
+ M packages/docs-viewer/src/components/process-outline/__tests__/ProcessOutlineDocsBlock.test.tsx
+ M packages/docs-viewer/src/components/state-shape/StateShapeDocsBlock.tsx
+ M packages/docs-viewer/src/editor/views/node-views.tsx
+ M packages/docs-viewer/src/lab/glass/GlassPanel.tsx
+ M packages/docs-viewer/src/peek/DocPeekPanel.tsx
+ M packages/docs-viewer/src/peek/__tests__/DocPeekPanel.test.tsx
+ M packages/docs-workbench/src/__tests__/serve-routes.test.ts
+ M packages/docs-workbench/src/export.ts
+ M packages/docs-workbench/src/run-serve.ts
+ M packages/docs-workbench/src/server.ts
+ M packages/docs-workbench/web/src/__tests__/canvas-embed.test.tsx
+ M packages/docs-workbench/web/src/__tests__/doc-peek.test.tsx
+ M packages/docs-workbench/web/src/__tests__/live-smoke.test.tsx
+ M packages/docs-workbench/web/src/__tests__/style-rail.test.tsx
+ M packages/docs-workbench/web/src/index.css
+ M packages/docs-workbench/web/src/pages/CanvasEmbed.tsx
+ M packages/docs-workbench/web/src/pages/DocPage.tsx
+ M packages/docs-workbench/web/src/shell/App.tsx
+ M packages/docs-workbench/web/src/shell/style-rail-panes.tsx
+ M packages/docs-workbench/web/src/theme/semantic.css
+ M packages/docs-workbench/web/src/theme/theme-folders.ts
+ D themes/default/components/callout.json
+ D themes/default/components/canvas.json
+ D themes/default/components/code.json
+ D themes/default/components/divider.json
+ D themes/default/components/editor-controls.json
+ D themes/default/components/file-tree.json
+ D themes/default/components/heading.json
+ D themes/default/components/image.json
+ D themes/default/components/inline-code.json
+ D themes/default/components/interaction-surface.json
+ D themes/default/components/linking.json
+ D themes/default/components/list-item.json
+ D themes/default/components/paragraph.json
+ D themes/default/components/process-outline.json
+ D themes/default/components/quote.json
+ D themes/default/components/sequence.json
+ D themes/default/components/shell.json
+ D themes/default/components/state-shape.json
+ D themes/default/components/structured-table.json
+ D themes/default/components/surfaces.json
+ D themes/default/components/video.json
+ M themes/default/theme.json
+?? .agent-kernel/pi-sessions/
+?? .agent-kernel/state/
+?? .style-previews/
+?? .tmp/author-process-outline-writing-rules.ts
+?? objectives/docs-authoring-lints/
+?? packages/docs-model/src/lint/
+?? packages/docs-viewer/src/__tests__/process-outline-editor-view.test.tsx
+?? packages/docs-viewer/src/__tests__/process-outline-outline-edit.test.ts
+?? packages/docs-viewer/src/components/process-outline/editor-node-view.tsx
+?? packages/docs-viewer/src/components/process-outline/editor/
+?? packages/docs-workbench/web/src/__tests__/block-selection-wash.test.ts
+?? themes/docs-system-classic/

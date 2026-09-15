@@ -1,9 +1,16 @@
 "use client";
 
-/** Stored process-outline step: `kind: "note"` marks a clarification leaf. */
+/**
+ * Stored process-outline step: `kind: "note"` marks a clarification leaf,
+ * `trace` marks a step that a REAL TRACE EVENT corresponds to. Trace is the
+ * skeleton of the flow; unmarked steps are the connective tissue between the
+ * events. A note can never be trace-marked — notes are prose about a step,
+ * not a thing that happens.
+ */
 export type ProcessOutlineStep = {
   text: string;
   kind?: "step" | "note";
+  trace?: boolean;
   steps?: ProcessOutlineStep[];
 };
 
@@ -11,6 +18,7 @@ export type ProcessOutlineStep = {
 export type ProcessOutlineNode = {
   text: string;
   note: boolean;
+  trace: boolean;
   depth: number;
   children: ProcessOutlineNode[];
 };
@@ -23,13 +31,13 @@ export type ProcessOutlineNode = {
  * forest — multiple roots are allowed.
  */
 export function parseProcessOutline(text: string): ProcessOutlineNode[] {
-  const root: ProcessOutlineNode = { text: "", note: false, depth: -1, children: [] };
+  const root: ProcessOutlineNode = { text: "", note: false, trace: false, depth: -1, children: [] };
   const stack: ProcessOutlineNode[] = [root];
   const indents: number[] = [];
 
   for (const raw of text.split("\n")) {
     if (!raw.trim()) continue;
-    const match = raw.match(/^(\s*)(->|>)?\s*(.*)$/);
+    const match = raw.match(/^(\s*)(=>|->|>)?\s*(.*)$/);
     if (!match) continue;
     const indent = match[1].length;
     let depth = indents.indexOf(indent);
@@ -41,6 +49,7 @@ export function parseProcessOutline(text: string): ProcessOutlineNode[] {
     const node: ProcessOutlineNode = {
       text: match[3].trimEnd(),
       note: match[2] === ">",
+      trace: match[2] === "=>",
       depth,
       children: [],
     };
@@ -59,6 +68,10 @@ function isNoteLike(item: ProcessOutlineNode | ProcessOutlineStep): boolean {
   return "note" in item ? item.note : item.kind === "note";
 }
 
+function isTraceLike(item: ProcessOutlineNode | ProcessOutlineStep): boolean {
+  return "note" in item ? item.trace : item.trace === true;
+}
+
 function childList(item: ProcessOutlineNode | ProcessOutlineStep): readonly (ProcessOutlineNode | ProcessOutlineStep)[] {
   return ("children" in item ? item.children : item.steps) ?? [];
 }
@@ -68,7 +81,9 @@ function serializeLines(
   depth: number,
 ): string[] {
   return items.flatMap((item) => {
-    const marker = isNoteLike(item) ? "> " : depth === 0 ? "" : "-> ";
+    // `=>` outranks the depth-0 bare line: a trace-marked root still has to
+    // come back from the parser as trace-marked, so it keeps its marker.
+    const marker = isNoteLike(item) ? "> " : isTraceLike(item) ? "=> " : depth === 0 ? "" : "-> ";
     return [
       `${INDENT.repeat(depth)}${marker}${item.text}`,
       ...serializeLines(childList(item), depth + 1),
@@ -78,7 +93,7 @@ function serializeLines(
 
 /**
  * Structure → process-outline notation: root lines bare, nested steps as `-> text`,
- * notes as `> text`. parseProcessOutline(serializeProcessOutline(x)) round-trips the
+ * notes as `> text`, trace-marked steps as `=> text` at any depth. parseProcessOutline(serializeProcessOutline(x)) round-trips the
  * structure (for single-line, non-blank texts — the only kind the parser
  * itself produces).
  */
@@ -98,6 +113,7 @@ export function readStepTree(raw: unknown): ProcessOutlineStep[] {
     if (!isRecord(item) || typeof item.text !== "string") continue;
     const step: ProcessOutlineStep = { text: item.text };
     if (item.kind === "step" || item.kind === "note") step.kind = item.kind;
+    if (item.trace === true) step.trace = true;
     if (Array.isArray(item.steps)) step.steps = readStepTree(item.steps);
     steps.push(step);
   }
@@ -108,6 +124,7 @@ export function readStepTree(raw: unknown): ProcessOutlineStep[] {
 export function cloneStep(step: ProcessOutlineStep): ProcessOutlineStep {
   const out: ProcessOutlineStep = { text: step.text };
   if (step.kind !== undefined) out.kind = step.kind;
+  if (step.trace !== undefined) out.trace = step.trace;
   if (step.steps !== undefined) out.steps = step.steps.map(cloneStep);
   return out;
 }
@@ -122,6 +139,7 @@ export function stepNodes(steps: readonly ProcessOutlineStep[], depth = 0): Proc
   return steps.map((step) => ({
     text: step.text,
     note: step.kind === "note",
+    trace: step.trace === true,
     depth,
     children: stepNodes(step.steps ?? [], depth + 1),
   }));
@@ -132,6 +150,7 @@ export function nodesToSteps(nodes: readonly ProcessOutlineNode[]): ProcessOutli
   return nodes.map((node) => {
     const step: ProcessOutlineStep = { text: node.text };
     if (node.note) step.kind = "note";
+    if (node.trace) step.trace = true;
     if (node.children.length > 0) step.steps = nodesToSteps(node.children);
     return step;
   });

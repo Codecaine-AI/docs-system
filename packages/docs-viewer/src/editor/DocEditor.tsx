@@ -1,4 +1,5 @@
 "use client";
+import { titleHeadingFixOps } from "@codecaine-ai/docs-model/lint";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { EditorContent, useEditor, type Editor } from "@tiptap/react";
@@ -500,6 +501,19 @@ export default function DocEditor({
           // the identity token that lets the reseed effect above recognize
           // our own save reflected back and skip the cursor-resetting
           // setContent.
+          if (result.normalization?.ops.length && !editor.isDestroyed) {
+            // Reconcile the latest editor content, including keystrokes entered
+            // while saving, without replacing those keystrokes with the response.
+            const liveDoc = pmToDoc(editor.getJSON() as PMNode, currentDoc, makeBlockId);
+            const liveFixes = titleHeadingFixOps(liveDoc);
+            const normalized = applyOps(liveDoc, liveFixes);
+            if (normalized.ok && liveFixes.length) {
+              const selection = editor.state.selection;
+              editor.commands.setContent(docToPM(normalized.doc) as unknown as Record<string, unknown>, { emitUpdate: false });
+              const limit = editor.state.doc.content.size;
+              editor.commands.setTextSelection({ from: Math.min(selection.from, limit), to: Math.min(selection.to, limit) });
+            }
+          }
           baseDocRef.current = result.doc;
           lastSeededDocRef.current = result.doc;
         } else {

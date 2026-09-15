@@ -1,3 +1,4 @@
+import type { LintReport } from "@codecaine-ai/docs-model/lint";
 /**
  * Shared docs-edit-session vocabulary.
  *
@@ -115,6 +116,7 @@ export interface DocsEditRequestEntry {
 // ---------------------------------------------------------------------------
 
 export interface DocsEditProposal {
+  lint?: LintReport;
   proposalId: string;
   requestAlias: string;
   /** Normalized docs-root-relative path of the proposal's document bundle. */

@@ -904,3 +904,44 @@ describe("auto-save", () => {
     });
   });
 });
+
+for (const editDuringSave of [false, true]) {
+  it(`reconciles automatic title cleanup without recreating it${editDuringSave ? " while preserving in-flight typing" : ""}`, async () => {
+    const { titleHeadingFixOps } = await import("@codecaine-ai/docs-model/lint");
+    const doc: DocDocument = { schemaVersion: 1, id: "title-test", title: "Guide", root: "root", blocks: {
+      root: { id: "root", type: "paragraph", props: {}, children: ["title", "p"] },
+      title: { id: "title", type: "heading", props: { level: 1 }, text: [{ insert: "Guide" }], children: [] },
+      p: { id: "p", type: "paragraph", props: {}, text: [{ insert: "Body" }], children: [] },
+    } };
+    let persisted = doc;
+    let editor: Editor | null = null;
+    let release!: () => void;
+    const gate = new Promise<void>(resolve => { release = resolve; });
+    const batches: DocOp[][] = [];
+    renderWithClient(<DocEditor document={doc} onEditorReady={e => { editor = e; }} onApplyOps={async ops => {
+      batches.push(ops);
+      const applied = applyOps(persisted, ops);
+      if (!applied.ok) throw new Error("Save failed");
+      const fixes = titleHeadingFixOps(applied.doc);
+      const fixed = applyOps(applied.doc, fixes);
+      if (!fixed.ok) throw new Error("Normalization failed");
+      persisted = fixed.doc;
+      if (batches.length === 1) await gate;
+      return { ok: true, doc: persisted, normalization: fixes.length ? { ops: fixes, message: "Title corrected" } : undefined };
+    }} />);
+    await waitFor(() => expect(editor).toBeTruthy());
+    act(() => { editor!.commands.insertContentAt(findTextRange(editor!, "Body").to, " first"); });
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    await waitFor(() => expect(batches).toHaveLength(1));
+    if (editDuringSave) act(() => { editor!.commands.insertContentAt(findTextRange(editor!, "Body first").to, " second"); });
+    await act(async () => { release(); await gate; });
+    await waitFor(() => expect(editor!.getText()).not.toContain("Guide"));
+    expect(editor!.getText()).toContain(editDuringSave ? "Body first second" : "Body first");
+    act(() => { editor!.commands.insertContentAt(findTextRange(editor!, editDuringSave ? "Body first second" : "Body first").to, " last"); });
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    await waitFor(() => expect(batches).toHaveLength(2));
+    expect(persisted.blocks.title).toBeUndefined();
+    expect(persisted.blocks.p.text?.[0].insert).toBe(editDuringSave ? "Body first second last" : "Body first last");
+    expect(batches[1].some(op => op.type === "insertBlock" && op.blockType === "heading")).toBe(false);
+  });
+}

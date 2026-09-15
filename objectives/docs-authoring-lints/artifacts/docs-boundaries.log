@@ -1,0 +1,12 @@
+bun test v1.3.10 (30e609e0)
+
+import-boundaries.test.ts:
+(pass) import boundaries > framework code never imports host-app code [26.19ms]
+(pass) import boundaries > docs-model stays pure (no React, no DOM libs) [4.80ms]
+(pass) import boundaries > docs-model imports sequence only through the agent-schema leaf [6.48ms]
+(pass) import boundaries > docs-model imports canvas only through the agent-schema leaf [7.13ms]
+
+ 4 pass
+ 0 fail
+ 4 expect() calls
+Ran 4 tests across 1 file. [147.00ms]

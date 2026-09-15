@@ -1,0 +1,21 @@
+bun test v1.3.10 (30e609e0)
+
+packages/docs-server/src/changesets/__tests__/roundtrip.test.ts:
+(pass) seeded change-set accept/undo round trips > two docs: insert, update, delete, and move [32.45ms]
+(pass) seeded change-set accept/undo round trips > three docs: split, merge, and update [21.19ms]
+(pass) seeded change-set accept/undo round trips > create-doc tree op alone [12.89ms]
+(pass) seeded change-set accept/undo round trips > create-doc with virtual-base destination entry [15.45ms]
+(pass) seeded change-set accept/undo round trips > delete-doc tree op preserves all sidecars [11.80ms]
+(pass) seeded change-set accept/undo round trips > move-doc rewrites inbound links [24.12ms]
+(pass) seeded change-set accept/undo round trips > move_blocks plain [28.37ms]
+(pass) seeded change-set accept/undo round trips > move_blocks forced collision remap [31.24ms]
+(pass) seeded change-set accept/undo round trips > move_blocks carries block and text-range annotations [25.37ms]
+(pass) seeded change-set accept/undo round trips > move_blocks emits inbound-link retarget entries [26.77ms]
+(pass) seeded change-set accept/undo round trips > merge_docs composition [29.05ms]
+(pass) seeded change-set accept/undo round trips > split_doc composition is stable over a second cycle [40.07ms]
+(pass) failed accept rolls create, delete, and move back to the exact pre-accept tree [14.36ms]
+
+ 13 pass
+ 0 fail
+ 112 expect() calls
+Ran 13 tests across 1 file. [452.00ms]

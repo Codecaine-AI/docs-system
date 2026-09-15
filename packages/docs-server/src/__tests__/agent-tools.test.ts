@@ -126,7 +126,7 @@ describe("agent-tools: doc_get / doc_update_blocks (TG9.1)", () => {
   });
 
   test("doc_update_blocks is blocked (423) by a foreign live draft lock (D22)", async () => {
-    draftLockStore.acquire({ kind: "doc", path: "guide" }, "editor-session");
+    draftLockStore.forRoot(docsRoot).acquire({ kind: "doc", path: "guide" }, "editor-session");
     try {
       const result = await doc_update_blocks(
         docsRoot,
@@ -143,12 +143,12 @@ describe("agent-tools: doc_get / doc_update_blocks (TG9.1)", () => {
       const onDisk = JSON.parse(await Bun.file(join(docsRoot, "guide", "doc.json")).text());
       expect(onDisk.blocks.h1.props.level).toBe(1);
     } finally {
-      draftLockStore.release({ kind: "doc", path: "guide" }, "editor-session");
+      draftLockStore.forRoot(docsRoot).release({ kind: "doc", path: "guide" }, "editor-session");
     }
   });
 
   test("doc_update_blocks is NOT blocked by the caller's own held lock", async () => {
-    draftLockStore.acquire({ kind: "doc", path: "guide" }, "editor-session");
+    draftLockStore.forRoot(docsRoot).acquire({ kind: "doc", path: "guide" }, "editor-session");
     try {
       const result = await doc_update_blocks(
         docsRoot,
@@ -159,7 +159,7 @@ describe("agent-tools: doc_get / doc_update_blocks (TG9.1)", () => {
       );
       expect(result.ok).toBe(true);
     } finally {
-      draftLockStore.release({ kind: "doc", path: "guide" }, "editor-session");
+      draftLockStore.forRoot(docsRoot).release({ kind: "doc", path: "guide" }, "editor-session");
     }
   });
 
@@ -318,7 +318,7 @@ describe("agent-tools: canvas_get / canvas_apply_patch (TG9.1)", () => {
   });
 
   test("canvas_apply_patch is blocked (423) by a foreign live draft lock (D22)", async () => {
-    draftLockStore.acquire({ kind: "canvas", path: canvasRelPath }, "editor-session");
+    draftLockStore.forRoot(docsRoot).acquire({ kind: "canvas", path: canvasRelPath }, "editor-session");
     try {
       const result = await canvas_apply_patch(
         docsRoot,
@@ -330,7 +330,7 @@ describe("agent-tools: canvas_get / canvas_apply_patch (TG9.1)", () => {
       expect(result.ok).toBe(false);
       if (!result.ok) expect(result.status).toBe(423);
     } finally {
-      draftLockStore.release({ kind: "canvas", path: canvasRelPath }, "editor-session");
+      draftLockStore.forRoot(docsRoot).release({ kind: "canvas", path: canvasRelPath }, "editor-session");
     }
   });
 

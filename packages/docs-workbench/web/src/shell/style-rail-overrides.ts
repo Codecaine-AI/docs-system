@@ -74,6 +74,9 @@ export type StyleRailSettingLeafPath =
   | "scrollbar.color"
   | "scrollbar.opacity"
   | "scrollbar.padding"
+  | "transition.type"
+  | "transition.fadeOutMs"
+  | "transition.fadeInMs"
   | "peek.width"
   | "peek.durationMs"
   | "peek.padding"
@@ -109,6 +112,7 @@ export function componentLeaf(file: string, key: string): StyleRailLeafRef {
 const PANE_SETTING_LEAVES: Partial<
   Record<StyleRailPaneId, readonly StyleRailSettingLeafPath[]>
 > = {
+  "layout.transitions": ["transition.type", "transition.fadeOutMs", "transition.fadeInMs"],
   "theme.colors": ["accent", "colors.background", "colors.sidebar", "colors.text"],
   "theme.annotate": [
     "annotate.accent",

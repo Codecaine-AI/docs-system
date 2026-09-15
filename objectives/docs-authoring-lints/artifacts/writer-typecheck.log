@@ -1,0 +1,1 @@
+$ bunx --bun tsc -p packages/tui/tsconfig.json --noEmit

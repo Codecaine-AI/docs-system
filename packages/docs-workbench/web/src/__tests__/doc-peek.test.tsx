@@ -89,16 +89,46 @@ afterAll(async () => {
 
 afterEach(() => {
   cleanup();
+  localStorage.removeItem("docs-lab-panel-hidden");
   window.location.hash = "";
 });
 
 describe("doc peek wiring", () => {
+  it("toggles the lab without remounting it and remembers the choice across navigation and reload", async () => {
+    window.location.hash = "#/10-source";
+    const view = render(<App />);
+    await waitFor(() => expect(screen.getByText("Hello from Source")).toBeTruthy());
+    fireEvent.click(screen.getByRole("button", { name: "Show AI panel" }));
+    const dock = document.querySelector<HTMLElement>("[data-lab-dock]")!;
+    fireEvent.click(screen.getByRole("button", { name: "Hide AI panel" }));
+    expect(dock.hidden).toBe(true);
+    expect(document.querySelector("[data-docs-lab-reserved]")).toBeNull();
+    expect(localStorage.getItem("docs-lab-panel-hidden")).toBe("true");
+    fireEvent.click(screen.getByRole("button", { name: "Show AI panel" }));
+    expect(document.querySelector("[data-lab-dock]")).toBe(dock);
+    expect(dock.hidden).toBe(false);
+    expect(dock.getAttribute("data-lab-float-mode")).toBe("annotate");
+    expect(document.querySelector("[data-docs-lab-reserved]")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Hide AI panel" }));
+    dispatchReferenceNavigate("navigate", "10-guide");
+    await waitFor(() => expect(screen.getByText("Hello from Guide")).toBeTruthy());
+    expect(screen.getByRole("button", { name: "Show AI panel" }).getAttribute("aria-expanded")).toBe("false");
+    view.unmount();
+    render(<App />);
+    await waitFor(() => expect(screen.getByText("Hello from Guide")).toBeTruthy());
+    expect(document.querySelector<HTMLElement>("[data-lab-dock]")!.hidden).toBe(true);
+    expect(document.querySelector("[data-docs-lab-reserved]")).toBeNull();
+  });
+
   it("a doc-reference event with intent 'peek' opens the peek panel with the target doc", async () => {
     window.location.hash = "#/10-source";
     render(<App />);
     await waitFor(() => {
       expect(screen.getByText("Hello from Source")).toBeTruthy();
     });
+    fireEvent.click(screen.getByRole("button", { name: "Show AI panel" }));
+    expect(document.querySelector("[data-lab-dock]")).toBeTruthy();
+    expect(document.querySelector("[data-docs-lab-reserved]")).toBeTruthy();
 
     dispatchReferenceNavigate("peek", "90-peek-target");
 
@@ -108,8 +138,16 @@ describe("doc peek wiring", () => {
       expect(screen.getByText("Hello from PeekTarget")).toBeTruthy();
     });
     expect(screen.getByText("Hello from Source")).toBeTruthy();
+    expect(document.querySelector("[data-lab-dock]")).toBeNull();
+    expect(document.querySelector("[data-docs-lab-reserved]")).toBeNull();
     // The main route did not change: peek is an overlay-free side surface.
     expect(window.location.hash).toBe("#/10-source");
+
+    fireEvent.click(screen.getByLabelText("Close preview"));
+    await waitFor(() => {
+      expect(document.querySelector("[data-lab-dock]")).toBeTruthy();
+      expect(document.querySelector("[data-docs-lab-reserved]")).toBeTruthy();
+    });
   });
 
   it("loads a legacy overview doc ref from its canonical parent bundle", async () => {

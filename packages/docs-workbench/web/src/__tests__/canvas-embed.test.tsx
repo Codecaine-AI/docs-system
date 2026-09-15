@@ -201,8 +201,7 @@ describe("StandaloneCanvasEmbed loaded canvases", () => {
         { status: 200, headers: { "content-type": "application/json" } },
       )) as unknown as typeof fetch;
 
-    const expectedHref =
-      "http://localhost:3999/?src=guide%2Fassets%2Fcanvases%2Fflow.canvas.json";
+    const expectedHref = `http://localhost:3999/?src=guide%2Fassets%2Fcanvases%2Fflow.canvas.json&server=${encodeURIComponent(window.location.origin)}`;
     try {
       const { findByRole, getAllByRole, getByRole } = render(
         <StandaloneCanvasEmbed
@@ -242,6 +241,7 @@ describe("StandaloneCanvasEmbed loaded canvases", () => {
 
     const inlineEdit = getByRole("link", { name: "Edit in Canvas" }) as HTMLAnchorElement;
     expect(inlineEdit.href).toBe("http://localhost:3999/");
+    expect(new URL(inlineEdit.href).searchParams.has("server")).toBe(false);
     expect(inlineEdit.target).toBe("_blank");
     expect(queryByRole("dialog")).toBeNull();
 

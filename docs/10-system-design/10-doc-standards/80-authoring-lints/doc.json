@@ -1,0 +1,825 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-10-doc-standards-80-authoring-lints",
+  "title": "Authoring Lints",
+  "root": "b-80-authoring-lints-root-46",
+  "blocks": {
+    "b-80-authoring-lints-root-46": {
+      "id": "b-80-authoring-lints-root-46",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-80-authoring-lints-authoring-lints-report-w-1",
+        "b-80-authoring-lints-structure-2",
+        "b-80-authoring-lints-rule-ownership-follows-t-3",
+        "b-80-authoring-lints-shared-engine-4",
+        "b-80-authoring-lints-writing-rules-6",
+        "b-80-authoring-lints-page-structure-rules-9",
+        "b-80-authoring-lints-other-owners-12",
+        "b-80-authoring-lints-the-rule-15",
+        "b-80-authoring-lints-every-registered-rule-ha-16",
+        "b-80-authoring-lints-draft-checks-17",
+        "b-80-authoring-lints-completion-checks-21",
+        "b-80-authoring-lints-required-repairs-25",
+        "b-80-authoring-lints-editorial-review-28",
+        "b-80-authoring-lints-current-checks-31",
+        "b-80-authoring-lints-the-executable-catalog-i-32",
+        "b-80-authoring-lints-writing-error-33",
+        "b-80-authoring-lints-writing-warnings-35",
+        "b-80-authoring-lints-page-structure-errors-38",
+        "b-80-authoring-lints-page-structure-warning-42",
+        "b-80-authoring-lints-why-44",
+        "title-heading-lint",
+        "b-80-authoring-lints-shared-rules-let-cli-che-45"
+      ]
+    },
+    "b-80-authoring-lints-authoring-lints-report-w-1": {
+      "id": "b-80-authoring-lints-authoring-lints-report-w-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Authoring lints report writing and page structure problems through one docs-model engine. The corpus defines the rules; tools display findings and enforce only the checks assigned to their stage."
+        }
+      ],
+      "children": []
+    },
+    "b-80-authoring-lints-structure-2": {
+      "id": "b-80-authoring-lints-structure-2",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Structure"
+        }
+      ],
+      "children": []
+    },
+    "b-80-authoring-lints-rule-ownership-follows-t-3": {
+      "id": "b-80-authoring-lints-rule-ownership-follows-t-3",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Rule ownership follows the thing being checked."
+        }
+      ],
+      "children": []
+    },
+    "b-80-authoring-lints-shared-engine-4": {
+      "id": "b-80-authoring-lints-shared-engine-4",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Shared Engine",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-80-authoring-lints-lint-index-ts-package-5"
+      ]
+    },
+    "b-80-authoring-lints-lint-index-ts-package-5": {
+      "id": "b-80-authoring-lints-lint-index-ts-package-5",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "lint/index.ts",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/lint/index.ts",
+              "label": "lint/index.ts"
+            }
+          }
+        },
+        {
+          "insert": " exports lintDocument and lintRules. "
+        },
+        {
+          "insert": "lint/engine.ts",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/lint/engine.ts",
+              "label": "lint/engine.ts"
+            }
+          }
+        },
+        {
+          "insert": " collects findings, compares a baseline, and formats reports."
+        }
+      ],
+      "children": []
+    },
+    "b-80-authoring-lints-writing-rules-6": {
+      "id": "b-80-authoring-lints-writing-rules-6",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Writing Rules",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-80-authoring-lints-writing-rules-ts-pack-7",
+        "b-80-authoring-lints-authored-prose-includes-8"
+      ]
+    },
+    "b-80-authoring-lints-writing-rules-ts-pack-7": {
+      "id": "b-80-authoring-lints-writing-rules-ts-pack-7",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "writing/rules.ts",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/writing/rules.ts",
+              "label": "writing/rules.ts"
+            }
+          }
+        },
+        {
+          "insert": " registers rule folders with checks and tests derived from "
+        },
+        {
+          "insert": "Writing Style",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "docs/99-appendix/10-style-guide/10-writing-style",
+              "label": "Writing Style"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-80-authoring-lints-authored-prose-includes-8": {
+      "id": "b-80-authoring-lints-authored-prose-includes-8",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Authored prose includes descriptive metadata and document-owned prose fields. Code blocks, quote blocks, inline code, reference spans, paths, signatures, literal examples, and embedded Canvas or Sequence payloads are excluded."
+        }
+      ],
+      "children": []
+    },
+    "b-80-authoring-lints-page-structure-rules-9": {
+      "id": "b-80-authoring-lints-page-structure-rules-9",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Page Structure Rules",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-80-authoring-lints-page-structure-rules-ts-10",
+        "b-80-authoring-lints-the-rules-inspect-the-do-11"
+      ]
+    },
+    "b-80-authoring-lints-page-structure-rules-ts-10": {
+      "id": "b-80-authoring-lints-page-structure-rules-ts-10",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "page-structure/rules.ts",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/page-structure/rules.ts",
+              "label": "page-structure/rules.ts"
+            }
+          }
+        },
+        {
+          "insert": " registers rule folders with checks and tests derived from "
+        },
+        {
+          "insert": "Structure",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "docs/99-appendix/10-style-guide/20-structure",
+              "label": "Structure"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-80-authoring-lints-the-rules-inspect-the-do-11": {
+      "id": "b-80-authoring-lints-the-rules-inspect-the-do-11",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The rules inspect the document's block order, heading levels, image alt text, and list nesting."
+        }
+      ],
+      "children": []
+    },
+    "b-80-authoring-lints-other-owners-12": {
+      "id": "b-80-authoring-lints-other-owners-12",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Other Owners",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-80-authoring-lints-existing-schema-validato-13",
+        "b-80-authoring-lints-canvas-and-sequence-own-14"
+      ]
+    },
+    "b-80-authoring-lints-existing-schema-validato-13": {
+      "id": "b-80-authoring-lints-existing-schema-validato-13",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Existing schema validators own valid block data. Component rules belong with the component whose state they inspect."
+        }
+      ],
+      "children": []
+    },
+    "b-80-authoring-lints-canvas-and-sequence-own-14": {
+      "id": "b-80-authoring-lints-canvas-and-sequence-own-14",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Canvas and Sequence own their embedded formats. The docs-model lint engine does not inspect those formats or duplicate their checks. Block usage guidance stays in "
+        },
+        {
+          "insert": "Block Vocabulary",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "docs/10-system-design/40-block-vocabulary",
+              "label": "Block Vocabulary"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-80-authoring-lints-the-rule-15": {
+      "id": "b-80-authoring-lints-the-rule-15",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The Rule"
+        }
+      ],
+      "children": []
+    },
+    "b-80-authoring-lints-every-registered-rule-ha-16": {
+      "id": "b-80-authoring-lints-every-registered-rule-ha-16",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every registered rule has a stable ID, a corpus docsPath, a severity, enforcement phases, applicability, exclusions, and a repair suggestion. A finding identifies its field, evidence, and block when available. Optional audit metadata preserves legacy CLI labels and severities without moving rule decisions into the adapter."
+        }
+      ],
+      "children": []
+    },
+    "b-80-authoring-lints-draft-checks-17": {
+      "id": "b-80-authoring-lints-draft-checks-17",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Draft Checks",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-80-authoring-lints-draft-reports-show-findi-18",
+        "b-80-authoring-lints-direct-ui-saves-and-crea-19",
+        "b-80-authoring-lints-full-docs-writer-writes-20"
+      ]
+    },
+    "b-80-authoring-lints-draft-reports-show-findi-18": {
+      "id": "b-80-authoring-lints-draft-reports-show-findi-18",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Draft reports show findings while an author builds incomplete content. The current catalog does not block draft edits."
+        }
+      ],
+      "children": []
+    },
+    "b-80-authoring-lints-direct-ui-saves-and-crea-19": {
+      "id": "b-80-authoring-lints-direct-ui-saves-and-crea-19",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Direct UI saves and create-only blank tree operations remain draft or diagnostic operations. They do not create a general finalization workflow."
+        }
+      ],
+      "children": []
+    },
+    "b-80-authoring-lints-full-docs-writer-writes-20": {
+      "id": "b-80-authoring-lints-full-docs-writer-writes-20",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Full Docs Writer writes and Docs Lab proposal acceptance enforce introduced required findings. This policy does not gate every disk write."
+        }
+      ],
+      "children": []
+    },
+    "b-80-authoring-lints-completion-checks-21": {
+      "id": "b-80-authoring-lints-completion-checks-21",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Completion Checks",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-80-authoring-lints-a-finding-blocks-complet-22",
+        "b-80-authoring-lints-with-a-baseline-matchin-23",
+        "b-80-authoring-lints-existing-findings-remain-24",
+        "lint-doc-writer-baseline"
+      ]
+    },
+    "b-80-authoring-lints-a-finding-blocks-complet-22": {
+      "id": "b-80-authoring-lints-a-finding-blocks-complet-22",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "A finding blocks completion only when it is introduced, has error severity, and its rule enforces the complete phase."
+        }
+      ],
+      "children": []
+    },
+    "b-80-authoring-lints-with-a-baseline-matchin-23": {
+      "id": "b-80-authoring-lints-with-a-baseline-matchin-23",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "With a baseline, matching semantic evidence counts as existing even when block IDs change. Matching respects duplicate counts. Without a baseline, all findings count as introduced."
+        }
+      ],
+      "children": []
+    },
+    "b-80-authoring-lints-existing-findings-remain-24": {
+      "id": "b-80-authoring-lints-existing-findings-remain-24",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Existing findings remain visible. A baseline does not waive a different finding introduced by an edit."
+        }
+      ],
+      "children": []
+    },
+    "lint-doc-writer-baseline": {
+      "id": "lint-doc-writer-baseline",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Docs Writer retains the original valid document for the session after the first successful write. Later writes and docs_check compare against that original. Checking an untouched document runs an absolute audit. The baseline is session-local and does not persist across sessions."
+        }
+      ],
+      "children": []
+    },
+    "b-80-authoring-lints-required-repairs-25": {
+      "id": "b-80-authoring-lints-required-repairs-25",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Required Repairs",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-80-authoring-lints-agents-read-the-lint-res-26",
+        "b-80-authoring-lints-if-a-required-repair-can-27"
+      ]
+    },
+    "b-80-authoring-lints-agents-read-the-lint-res-26": {
+      "id": "b-80-authoring-lints-agents-read-the-lint-res-26",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Agents read the lint response, fix every blocking finding within the task, and check the result again before reporting completion."
+        }
+      ],
+      "children": []
+    },
+    "b-80-authoring-lints-if-a-required-repair-can-27": {
+      "id": "b-80-authoring-lints-if-a-required-repair-can-27",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "If a required repair cannot be completed, report the remaining finding. Do not claim the document passed."
+        }
+      ],
+      "children": []
+    },
+    "b-80-authoring-lints-editorial-review-28": {
+      "id": "b-80-authoring-lints-editorial-review-28",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Editorial Review",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-80-authoring-lints-warnings-ask-the-author-29",
+        "b-80-authoring-lints-human-judgment-still-gov-30"
+      ]
+    },
+    "b-80-authoring-lints-warnings-ask-the-author-29": {
+      "id": "b-80-authoring-lints-warnings-ask-the-author-29",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Warnings ask the author to inspect a passage. They do not block completion and do not prove the passage is wrong."
+        }
+      ],
+      "children": []
+    },
+    "b-80-authoring-lints-human-judgment-still-gov-30": {
+      "id": "b-80-authoring-lints-human-judgment-still-gov-30",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Human judgment still governs sentence clarity, purpose, the join test, Title Case, and most style patterns. A clean lint result does not certify every writing rule."
+        }
+      ],
+      "children": []
+    },
+    "b-80-authoring-lints-current-checks-31": {
+      "id": "b-80-authoring-lints-current-checks-31",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Current Checks"
+        }
+      ],
+      "children": []
+    },
+    "b-80-authoring-lints-the-executable-catalog-i-32": {
+      "id": "b-80-authoring-lints-the-executable-catalog-i-32",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The executable catalog is the source for exact applicability and exclusions. These checks cover only part of the corpus guidance."
+        }
+      ],
+      "children": []
+    },
+    "b-80-authoring-lints-writing-error-33": {
+      "id": "b-80-authoring-lints-writing-error-33",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Writing Error",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-80-authoring-lints-writing-no-em-dash-flags-34"
+      ]
+    },
+    "b-80-authoring-lints-writing-no-em-dash-flags-34": {
+      "id": "b-80-authoring-lints-writing-no-em-dash-flags-34",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "writing.no-em-dash flags em dashes in authored prose and descriptive metadata. It enforces completion and respects the writing exclusions above."
+        }
+      ],
+      "children": []
+    },
+    "b-80-authoring-lints-writing-warnings-35": {
+      "id": "b-80-authoring-lints-writing-warnings-35",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Writing Warnings",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-80-authoring-lints-writing-filler-flags-in-36",
+        "b-80-authoring-lints-writing-dense-paragraph-37"
+      ]
+    },
+    "b-80-authoring-lints-writing-filler-flags-in-36": {
+      "id": "b-80-authoring-lints-writing-filler-flags-in-36",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "writing.filler flags "
+        },
+        {
+          "insert": "in order to",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "due to the fact that",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "it is important to note that",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "as mentioned above",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-80-authoring-lints-writing-dense-paragraph-37": {
+      "id": "b-80-authoring-lints-writing-dense-paragraph-37",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "writing.dense-paragraph flags paragraphs over 120 prose words. This threshold is separate from the sentence-length review guidance."
+        }
+      ],
+      "children": []
+    },
+    "b-80-authoring-lints-page-structure-errors-38": {
+      "id": "b-80-authoring-lints-page-structure-errors-38",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Page Structure Warnings",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-80-authoring-lints-structure-opening-paragr-39",
+        "b-80-authoring-lints-structure-single-h1-perm-40",
+        "b-80-authoring-lints-structure-image-alt-requ-41"
+      ]
+    },
+    "b-80-authoring-lints-structure-opening-paragr-39": {
+      "id": "b-80-authoring-lints-structure-opening-paragr-39",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "structure.opening-paragraph requires a nonempty opening paragraph after an optional initial H1. It does not count opening sentences."
+        }
+      ],
+      "children": []
+    },
+    "b-80-authoring-lints-structure-single-h1-perm-40": {
+      "id": "b-80-authoring-lints-structure-single-h1-perm-40",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "H1 headings are permitted in the document body, including multiple H1 sections. The former structure.single-h1 warning is no longer active. structure.heading-order still flags skipped heading levels."
+        }
+      ],
+      "children": []
+    },
+    "b-80-authoring-lints-structure-image-alt-requ-41": {
+      "id": "b-80-authoring-lints-structure-image-alt-requ-41",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "structure.image-alt requires nonempty alt text on standalone images and every image-grid entry. Grid headings and captions also pass through the shared prose checks. These rules remain advisory, matching the existing audit policy. Promote a rule by changing its own severity and enforcement metadata after reviewing corpus impact."
+        }
+      ],
+      "children": []
+    },
+    "b-80-authoring-lints-page-structure-warning-42": {
+      "id": "b-80-authoring-lints-page-structure-warning-42",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Page Structure Warning",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-80-authoring-lints-structure-deep-list-flag-43"
+      ]
+    },
+    "b-80-authoring-lints-structure-deep-list-flag-43": {
+      "id": "b-80-authoring-lints-structure-deep-list-flag-43",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "structure.deep-list flags list nesting deeper than three list items. Nested supporting details remain valid; review whether a branch needs its own section."
+        }
+      ],
+      "children": []
+    },
+    "b-80-authoring-lints-why-44": {
+      "id": "b-80-authoring-lints-why-44",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why"
+        }
+      ],
+      "children": []
+    },
+    "title-heading-lint": {
+      "id": "title-heading-lint",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "structure.title-heading detects only an opening H1 that repeats the display title. Every document save removes that duplicate before linting and persistence, preserving its children. Distinct opening H1s and later H1s remain unchanged; heading levels are never demoted by cleanup. The edit and correction share one undo patch, and the response returns the final document and revision. Ordinary edits need no repair-tool call."
+        }
+      ],
+      "children": []
+    },
+    "b-80-authoring-lints-shared-rules-let-cli-che-45": {
+      "id": "b-80-authoring-lints-shared-rules-let-cli-che-45",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Shared rules let CLI checks and agent tools report the same evidence and repair guidance. Completion checks require new errors to be repaired at the supported completion boundaries. Keeping warnings advisory prevents a phrase match from overruling a correct quotation, precise term, or useful explanation."
+        }
+      ],
+      "children": []
+    }
+  }
+}

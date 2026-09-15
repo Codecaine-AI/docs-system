@@ -1,0 +1,602 @@
+{
+  "schemaVersion": 1,
+  "proposals": [
+    {
+      "lint": {
+        "phase": "draft",
+        "findings": [],
+        "blocking": []
+      },
+      "id": "8f25cbeb-e6bf-466a-b2ef-da1da6ccb4e4",
+      "ops": [
+        {
+          "type": "updateBlock",
+          "blockId": "b-impl-intro-1",
+          "props": {},
+          "text": [
+            {
+              "insert": "Implementation concisely maps the system design to the codebase. It follows the code's structure, explains the key reasons behind its implementation, and links to the design and source for further detail."
+            }
+          ]
+        },
+        {
+          "type": "moveBlock",
+          "blockId": "b-impl-intro-1",
+          "toParentId": "b-impl-root",
+          "toIndex": 0
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-impl-laidout-h-3",
+          "props": {
+            "level": 2
+          },
+          "text": [
+            {
+              "insert": "Structure"
+            }
+          ]
+        },
+        {
+          "type": "moveBlock",
+          "blockId": "b-impl-laidout-h-3",
+          "toParentId": "b-impl-root",
+          "toIndex": 1
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-impl-intro-2",
+          "props": {},
+          "text": [
+            {
+              "insert": "Use actual package and module names. Each page connects its code area to the design it realizes, explains meaningful choices, and points to the relevant source. A short paragraph with links may be enough."
+            }
+          ]
+        },
+        {
+          "type": "moveBlock",
+          "blockId": "b-impl-intro-2",
+          "toParentId": "b-impl-root",
+          "toIndex": 2
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-impl-rule-h-14",
+          "props": {
+            "level": 2
+          },
+          "text": [
+            {
+              "insert": "The Rule"
+            }
+          ]
+        },
+        {
+          "type": "moveBlock",
+          "blockId": "b-impl-rule-h-14",
+          "toParentId": "b-impl-root",
+          "toIndex": 3
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-impl-staysout-table-35",
+          "props": {
+            "columns": [
+              "Include",
+              "Purpose"
+            ],
+            "rows": [
+              [
+                "Design connection",
+                "Name the system responsibility or agent contract this code implements and link to its owning document."
+              ],
+              [
+                "Implementation rationale",
+                "Explain consequential library choices, module boundaries, patterns, and constraints. Preserve known reasons and relevant tradeoffs."
+              ],
+              [
+                "Code pointers",
+                "Link to the actual files, related modules, and source-level explanations needed to continue reading."
+              ]
+            ]
+          }
+        },
+        {
+          "type": "moveBlock",
+          "blockId": "b-impl-staysout-table-35",
+          "toParentId": "b-impl-root",
+          "toIndex": 4
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-impl-shape-lead-5",
+          "props": {},
+          "text": [
+            {
+              "insert": "Mirror meaningful subdivisions of the codebase. Add detail only when it improves orientation or explains a choice the reader cannot otherwise understand. A page does not need a rule governing future code to be useful."
+            }
+          ]
+        },
+        {
+          "type": "moveBlock",
+          "blockId": "b-impl-shape-lead-5",
+          "toParentId": "b-impl-root",
+          "toIndex": 5
+        },
+        {
+          "type": "insertBlock",
+          "blockId": "layout-review-6-60-implementation-layer",
+          "blockType": "paragraph",
+          "parentId": "b-impl-root",
+          "index": 6,
+          "props": {},
+          "text": [
+            {
+              "insert": "System Design owns behavior, state, and contracts. Agents owns agent definitions, context, tools, outputs, and responsibilities. Implementation may explain shared agent machinery and how it realizes those contracts. File-local detail stays in source comments."
+            }
+          ]
+        },
+        {
+          "type": "insertBlock",
+          "blockId": "layout-review-7-60-implementation-layer",
+          "blockType": "paragraph",
+          "parentId": "b-impl-root",
+          "index": 7,
+          "props": {},
+          "text": [
+            {
+              "insert": "Verify the code before describing the implementation. Record supported rationale without inventing rejected alternatives. Mark proposed behavior as proposed. Preserve important contracts and reasons in their owning documents when shortening or moving content."
+            }
+          ]
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-impl-why-h-36",
+          "props": {
+            "level": 2
+          },
+          "text": [
+            {
+              "insert": "Why"
+            }
+          ]
+        },
+        {
+          "type": "moveBlock",
+          "blockId": "b-impl-why-h-36",
+          "toParentId": "b-impl-root",
+          "toIndex": 8
+        },
+        {
+          "type": "insertBlock",
+          "blockId": "layout-review-9-60-implementation-layer",
+          "blockType": "paragraph",
+          "parentId": "b-impl-root",
+          "index": 9,
+          "props": {},
+          "text": [
+            {
+              "insert": "The section helps a reader move between an understanding of the system and its actual implementation. Concise explanations and precise links retain that connection without duplicating the design or narrating every file."
+            }
+          ]
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "b-impl-tree-4",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "b-impl-shape-role-6",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "b-impl-shape-gov-8",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "b-impl-shape-entries-10",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "b-impl-shape-roster-12",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "b-impl-test-15",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "b-impl-format-18",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "b-impl-conform-25",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "b-impl-lazy-28",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "b-impl-onelevel-31",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "b-impl-staysout-33",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "b-impl-salvage-47",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "b-impl-why-home-37",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "b-impl-why-deliberate-40",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "b-impl-why-lazy-42",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "b-impl-why-shallow-45",
+          "mode": "subtree"
+        }
+      ],
+      "changedBlockIds": [
+        "b-impl-intro-1",
+        "b-impl-root",
+        "b-impl-laidout-h-3",
+        "b-impl-intro-2",
+        "b-impl-rule-h-14",
+        "b-impl-staysout-table-35",
+        "b-impl-shape-lead-5",
+        "layout-review-6-60-implementation-layer",
+        "layout-review-7-60-implementation-layer",
+        "b-impl-why-h-36",
+        "layout-review-9-60-implementation-layer",
+        "b-impl-tree-4",
+        "b-impl-shape-role-6",
+        "b-impl-shape-gov-8",
+        "b-impl-shape-entries-10",
+        "b-impl-shape-roster-12",
+        "b-impl-test-15",
+        "b-impl-format-18",
+        "b-impl-conform-25",
+        "b-impl-lazy-28",
+        "b-impl-onelevel-31",
+        "b-impl-staysout-33",
+        "b-impl-salvage-47",
+        "b-impl-why-home-37",
+        "b-impl-why-deliberate-40",
+        "b-impl-why-lazy-42",
+        "b-impl-why-shallow-45"
+      ],
+      "summary": "Replace the unwritten-code rule and mandatory decision template with a concise design-to-code bridge.",
+      "baseHash": "6713900269395f96bc2ba9e2a652055e82241e26267b1d66c0bebdda7090e7ed",
+      "status": "rejected",
+      "createdAt": "2026-09-14T14:42:24.261Z",
+      "resolvedAt": "2026-09-14T14:50:04.842Z"
+    },
+    {
+      "lint": {
+        "phase": "draft",
+        "findings": [
+          {
+            "blockId": "b-impl-tree-4",
+            "field": "props.entries[0].note",
+            "evidence": "L1 — the layer's parent doc: orientation map of top-level source dirs, one line of ownership each",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": false
+          },
+          {
+            "blockId": "b-impl-tree-4",
+            "field": "props.entries[1].note",
+            "evidence": "an area page — mirrors src/connectors/, one level per genuine subdivision",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": false
+          },
+          {
+            "blockId": "b-impl-tree-4",
+            "field": "props.entries[2].note",
+            "evidence": "does not exist — deeper structure becomes entries on the connectors page",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": false
+          },
+          {
+            "blockId": "b-impl-shape-gov-9",
+            "field": "text",
+            "evidence": "References up to the design docs that constrain the area — the governed-by convention in \u0000.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": false
+          },
+          {
+            "blockId": "b-impl-test-17",
+            "field": "text",
+            "evidence": "Thirty data connectors extend a base class, so connector #31 must too — an inline comment cannot govern a file nobody has written, and system design does not care: behavior is identical either way.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": false
+          },
+          {
+            "blockId": "b-impl-format-why-22",
+            "field": "text",
+            "evidence": "The reasoning behind it — including the alternative that was rejected, when it is known.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": false
+          },
+          {
+            "blockId": "b-impl-staysout-table-35",
+            "field": "props.rows[0][1]",
+            "evidence": "\u0000 — design owns them",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": false
+          },
+          {
+            "blockId": "b-impl-staysout-table-35",
+            "field": "props.rows[1][1]",
+            "evidence": "\u0000 — behavior is design, wherever the code lives",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": false
+          },
+          {
+            "blockId": "b-impl-staysout-table-35",
+            "field": "props.rows[3][1]",
+            "evidence": "In-code docs — file headers and docstrings",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": false
+          },
+          {
+            "blockId": "b-impl-staysout-table-35",
+            "field": "props.rows[4][1]",
+            "evidence": "Nowhere in the docs tree — the docs describe present state, not moments",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": false
+          },
+          {
+            "blockId": "b-impl-staysout-table-35",
+            "field": "props.rows[5][1]",
+            "evidence": "Nowhere — the mirror stops at one level",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": false
+          },
+          {
+            "blockId": "b-impl-salvage-48",
+            "field": "text",
+            "evidence": "When report content is removed from a docs tree, still-normative rules buried in it are first extracted into the owning tier — a parity analysis may hold live behavioral contracts; a findings log may hold a real decision.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": false
+          },
+          {
+            "blockId": "b-impl-why-home-39",
+            "field": "text",
+            "evidence": "Design cannot hold it either — the system behaves identically whether the structure is followed or not.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": false
+          }
+        ],
+        "blocking": []
+      },
+      "id": "0971840a-bb92-4172-baff-d03addfef56a",
+      "ops": [
+        {
+          "type": "updateBlock",
+          "blockId": "b-impl-intro-1",
+          "text": [
+            {
+              "insert": "The implementation layer concisely maps the system design to the current codebase: how the code realizes the design, how it is organized, and why key implementation choices were made. An agent whose change conflicts with a recorded structural decision files a proposal; it never silently deviates."
+            }
+          ]
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-impl-tree-4",
+          "props": {
+            "entries": [
+              {
+                "path": "30-implementation/",
+                "note": "L1 — the layer's parent doc: orientation map of top-level source dirs, one line of ownership each"
+              },
+              {
+                "path": "30-implementation/30-connectors/",
+                "note": "an area page — mirrors src/connectors/, one level per genuine subdivision"
+              },
+              {
+                "path": "30-implementation/30-connectors/10-http/",
+                "note": "does not exist — deeper structure becomes entries on the connectors page"
+              }
+            ]
+          }
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-impl-test-15",
+          "text": [
+            {
+              "insert": "An entry connects design to code",
+              "attributes": {
+                "bold": true
+              }
+            }
+          ]
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-impl-test-16",
+          "text": [
+            {
+              "insert": "The inclusion test: an entry helps the reader locate how the design is implemented or understand why the current code is built this way. Rules governing future additions remain part of that explanation."
+            }
+          ]
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-impl-lazy-29",
+          "text": [
+            {
+              "insert": "An entry appears when the design-to-code mapping or a structural choice needs explanation. Do not add filler per directory."
+            }
+          ]
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-impl-shape-roster-13",
+          "text": [
+            {
+              "insert": "One line per instance when the area is a set, such as a module roster or connector list. Agent definitions belong in Agents."
+            }
+          ]
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-impl-staysout-table-35",
+          "props": {
+            "columns": [
+              "Content",
+              "Belongs in"
+            ],
+            "rows": [
+              [
+                "Schemas and state models",
+                [
+                  {
+                    "insert": "10-system-design",
+                    "attributes": {
+                      "code": true
+                    }
+                  },
+                  {
+                    "insert": " — design owns them"
+                  }
+                ]
+              ],
+              [
+                "Behavior",
+                [
+                  {
+                    "insert": "10-system-design",
+                    "attributes": {
+                      "code": true
+                    }
+                  },
+                  {
+                    "insert": " — behavior is design, wherever the code lives"
+                  }
+                ]
+              ],
+              [
+                "Agent definitions, context, tools, and outputs",
+                [
+                  {
+                    "insert": "20-agents",
+                    "attributes": {
+                      "code": true
+                    }
+                  },
+                  {
+                    "insert": " owns the agent contracts"
+                  }
+                ]
+              ],
+              [
+                "File-local detail",
+                "In-code docs — file headers and docstrings"
+              ],
+              [
+                "Point-in-time reports",
+                "Nowhere in the docs tree — the docs describe present state, not moments"
+              ],
+              [
+                "Deep file trees",
+                "Nowhere — the mirror stops at one level"
+              ]
+            ]
+          }
+        }
+      ],
+      "changedBlockIds": [
+        "b-impl-intro-1",
+        "b-impl-tree-4",
+        "b-impl-test-15",
+        "b-impl-test-16",
+        "b-impl-lazy-29",
+        "b-impl-shape-roster-13",
+        "b-impl-staysout-table-35"
+      ],
+      "summary": "Adjust the purpose and inclusion test in place; retain the page template, decision format, examples, and detailed rationale.",
+      "baseHash": "6713900269395f96bc2ba9e2a652055e82241e26267b1d66c0bebdda7090e7ed",
+      "status": "accepted",
+      "createdAt": "2026-09-14T14:52:59.142Z",
+      "resolvedAt": "2026-09-14T15:20:15.752Z"
+    }
+  ]
+}

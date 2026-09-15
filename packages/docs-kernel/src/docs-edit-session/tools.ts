@@ -1,3 +1,4 @@
+import { formatLintReport } from "@codecaine-ai/docs-model/lint";
 /**
  * docs-edit-session/tools — host-bound editing tools for one docs-edit
  * session.
@@ -200,6 +201,7 @@ const SET_PROPS_TYPES: ReadonlySet<string> = new Set([
   "divider",
   "image",
   "video",
+  "html",
   "code",
 ]);
 
@@ -374,6 +376,7 @@ const EDITABLE_BLOCK_TYPES = (
     "divider",
     "image",
     "video",
+  "html",
     "code",
     "structured-table",
     "file-tree",
@@ -706,6 +709,7 @@ export function createDocsEditToolset(
         text: [
           `EDITED · ${entry.alias} · ${described}`,
           `${ops.length} edit${ops.length === 1 ? "" : "s"} on ${proposal.docPath} · changed blocks: ${proposal.changedBlockIds.join(", ") || "(none reported)"}`,
+          ...(proposal.lint?.findings.length ? [formatLintReport(proposal.lint)] : []),
           "",
           session.requestsBlock(),
         ].join("\n"),
@@ -715,6 +719,7 @@ export function createDocsEditToolset(
           docPath: proposal.docPath,
           editCount: ops.length,
           changedBlockIds: proposal.changedBlockIds,
+          lint: proposal.lint,
           ...(op.type === "insertBlock" ? { blockId: op.blockId } : {}),
         },
       };
@@ -1065,6 +1070,7 @@ export function createDocsEditToolset(
         }
         proposals.push({
           proposalId: proposal.id,
+          lint: proposal.lint,
           requestAlias: request.alias,
           docPath: entry.docPath,
           baseHash: proposal.baseHash,
@@ -1081,11 +1087,12 @@ export function createDocsEditToolset(
           `MOVED · ${blockIds.length} block${blockIds.length === 1 ? "" : "s"} → ${destDocPath} · ${request.alias}`,
           ...generated.changeset.entries.map((entry) =>
             `${entry.docPath}: +${entry.addCount} -${entry.delCount}`),
+          ...proposals.filter(p => p.lint?.findings.length).map(p => `${p.docPath}\n${formatLintReport(p.lint!)}`),
           `annotation migrations: ${generated.changeset.annotationMigrations?.length ?? 0}`,
           "",
           session.requestsBlock(),
         ].join("\n"),
-        details: { ok: true, changeset: generated.changeset },
+        details: { ok: true, changeset: generated.changeset, lint: proposals.map(p => ({ docPath: p.docPath, report: p.lint })) },
       };
     } catch (error) {
       if (!persisted && claimed?.ok) claimed.release();

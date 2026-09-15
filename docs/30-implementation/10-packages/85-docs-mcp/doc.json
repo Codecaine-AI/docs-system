@@ -1,0 +1,535 @@
+{
+  "schemaVersion": 1,
+  "id": "doc-983dff9703878fe191c2a53ac173520f",
+  "title": "Docs MCP",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "mcp-guide-0",
+        "mcp-guide-1",
+        "mcp-guide-2",
+        "mcp-guide-3",
+        "mcp-guide-4",
+        "mcp-guide-5",
+        "mcp-guide-6",
+        "mcp-guide-7",
+        "mcp-guide-8",
+        "mcp-guide-9",
+        "mcp-guide-10",
+        "mcp-guide-11",
+        "mcp-guide-12",
+        "mcp-guide-13",
+        "mcp-guide-14",
+        "mcp-guide-15",
+        "maintenance-0",
+        "maintenance-1",
+        "maintenance-2",
+        "maintenance-3",
+        "maintenance-4",
+        "maintenance-5",
+        "maintenance-6",
+        "maintenance-7",
+        "maintenance-8",
+        "maintenance-9",
+        "page-tree-tools-0",
+        "page-tree-tools-1",
+        "page-tree-tools-2",
+        "full-management-0"
+      ]
+    },
+    "mcp-guide-0": {
+      "id": "mcp-guide-0",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The Docs MCP package connects external coding agents to the existing Docs service. Codex and Claude Code use an MCP stdio connection. pi Agent uses an extension that forwards the same tool definitions."
+        }
+      ],
+      "children": []
+    },
+    "mcp-guide-1": {
+      "id": "mcp-guide-1",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Read and Edit"
+        }
+      ],
+      "children": []
+    },
+    "mcp-guide-2": {
+      "id": "mcp-guide-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Discover the active workspace with docs_discover. Before editing, call docs_begin to load shared writing standards and component guidance. Read the target document through docs_read, then supply its revision hash and the task ID to a typed editing tool. Valid changes apply immediately."
+        }
+      ],
+      "children": []
+    },
+    "mcp-guide-3": {
+      "id": "mcp-guide-3",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The service rejects invalid structure and stale revisions. Editing calls return draft writing findings. Run docs_check before reporting completion, and repair required findings or state what remains unresolved. A failed update in one project does not roll back successful updates in another project."
+        }
+      ],
+      "children": []
+    },
+    "mcp-guide-4": {
+      "id": "mcp-guide-4",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Component Knowledge"
+        }
+      ],
+      "children": []
+    },
+    "mcp-guide-5": {
+      "id": "mcp-guide-5",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Component manifests declare selection guidance and examples. The shared authoring-guidance renderer supplies the catalog to external tools and both built-in Docs agent contexts. Use docs_guidance with a component name to read its canonical reference."
+        }
+      ],
+      "children": []
+    },
+    "mcp-guide-6": {
+      "id": "mcp-guide-6",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Shared Service"
+        }
+      ],
+      "children": []
+    },
+    "mcp-guide-7": {
+      "id": "mcp-guide-7",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The CLI automatically starts one local editing service. The client connections share that process, and explicit project IDs route operations to a discovered corpus. The shared workbench mode proxies its API to the same authority. Standalone workbench and kernel modes remain available with their existing process-local state."
+        }
+      ],
+      "children": []
+    },
+    "mcp-guide-8": {
+      "id": "mcp-guide-8",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Development Setup"
+        }
+      ],
+      "children": []
+    },
+    "mcp-guide-9": {
+      "id": "mcp-guide-9",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "From the Docs System repository, run bun packages/docs-mcp/src/cli.ts install to preview the client configuration and skill files. Add --write to install with backups. Run doctor to check those installed files. Restart the coding clients or reload pi after installation."
+        }
+      ],
+      "children": []
+    },
+    "mcp-guide-10": {
+      "id": "mcp-guide-10",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Use the ui command with a workspace and project ID to inspect edits through the shared workbench. Publication remains separate: the same corpus can be exported or embedded in a website without deploying after every edit."
+        }
+      ],
+      "children": []
+    },
+    "mcp-guide-11": {
+      "id": "mcp-guide-11",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Source Ownership"
+        }
+      ],
+      "children": []
+    },
+    "mcp-guide-12": {
+      "id": "mcp-guide-12",
+      "type": "file-tree",
+      "props": {
+        "entries": [
+          {
+            "path": "packages/docs-mcp/src/",
+            "note": "MCP bridge, local service, client setup and typed tools"
+          },
+          {
+            "path": "packages/docs-mcp/skills/codecaine-docs/SKILL.md",
+            "note": "External authoring workflow"
+          },
+          {
+            "path": "packages/docs-model/src/authoring-guidance.ts",
+            "note": "Shared standards and component catalog renderer"
+          },
+          {
+            "path": "packages/docs-server/src/store.ts",
+            "note": "Root-bound read and mutation authority"
+          },
+          {
+            "path": "packages/docs-workbench/src/shared-api.ts",
+            "note": "UI proxy to the shared service"
+          }
+        ]
+      },
+      "children": []
+    },
+    "mcp-guide-13": {
+      "id": "mcp-guide-13",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Compatibility"
+        }
+      ],
+      "children": []
+    },
+    "mcp-guide-14": {
+      "id": "mcp-guide-14",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The snapshot command records package source hashes, repository revisions, tool contracts, and guidance sources. Standards reload between documentation tasks. Imported implementation changes require restarting the service. The built-in Docs Lab editor and generic docs-writer retain their existing staged review behavior."
+        }
+      ],
+      "children": []
+    },
+    "mcp-guide-15": {
+      "id": "mcp-guide-15",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Content and component edits expose guarded undo while the service is running. Page creation does not expose undo because the existing tree inverse cannot safely remove a page after later additions."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-0": {
+      "id": "maintenance-0",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Maintained Procedures"
+        }
+      ],
+      "children": []
+    },
+    "maintenance-1": {
+      "id": "maintenance-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Docs MCP Maintenance",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "40-guides/10-docs-mcp"
+            }
+          }
+        },
+        {
+          "insert": " contains the setup, skill-authoring, synchronization, and recovery procedures."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-2": {
+      "id": "maintenance-2",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Process and Task Ownership"
+        }
+      ],
+      "children": []
+    },
+    "maintenance-3": {
+      "id": "maintenance-3",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Codex and Claude use stdio MCP bridges; pi uses its extension bridge. They connect to one authenticated loopback daemon per state directory. The service resolves an explicit project to its canonical docs root and calls the existing store through typed tools. No model or kernel process is started by an external documentation task."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-4": {
+      "id": "maintenance-4",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The service owns workspace membership and in-memory task snapshots. Store operations own structural validation, revision checks, and root-scoped mutation coordination. Task IDs are bound to the workspace; they pin authoring knowledge without creating a transaction. Direct valid edits persist immediately. The shared workbench proxies to this same daemon. Standalone workbenches and kernel processes retain independent process-local state."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-5": {
+      "id": "maintenance-5",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Maintained and Derived Files"
+        }
+      ],
+      "children": []
+    },
+    "maintenance-6": {
+      "id": "maintenance-6",
+      "type": "file-tree",
+      "props": {
+        "entries": [
+          {
+            "path": "packages/docs-mcp/src/cli.ts",
+            "note": "Command dispatch, workspace defaults, setup and diagnostics"
+          },
+          {
+            "path": "packages/docs-mcp/src/mcp.ts",
+            "note": "MCP tools, instructions, guidance resource, client workspace roots"
+          },
+          {
+            "path": "packages/docs-mcp/src/pi-extension.ts",
+            "note": "pi tool registration and bridge"
+          },
+          {
+            "path": "packages/docs-mcp/src/service.ts",
+            "note": "Project membership, tasks, guidance and mutation gate"
+          },
+          {
+            "path": "packages/docs-mcp/src/tools.ts",
+            "note": "Typed Docs operations and generated component actions"
+          },
+          {
+            "path": "packages/docs-mcp/src/discovery.ts",
+            "note": "Workspace member and normalized-corpus discovery"
+          },
+          {
+            "path": "packages/docs-mcp/src/daemon.ts",
+            "note": "Authenticated local HTTP service"
+          },
+          {
+            "path": "packages/docs-mcp/src/lifecycle.ts",
+            "note": "State directory, startup locks and checkout ownership"
+          },
+          {
+            "path": "packages/docs-mcp/src/install.ts",
+            "note": "Client configuration, skill generation, backups, doctor and restore"
+          },
+          {
+            "path": "packages/docs-mcp/src/guidance.ts",
+            "note": "Canonical guidance loading and generated skill references"
+          },
+          {
+            "path": "packages/docs-mcp/src/snapshot.ts",
+            "note": "Development source and tool-contract fingerprinting"
+          },
+          {
+            "path": "packages/docs-mcp/skills/codecaine-docs/",
+            "note": "Maintained SKILL.md plus generated references and snapshot"
+          },
+          {
+            "path": "packages/docs-model/src/authoring-guidance.ts",
+            "note": "Shared renderer for internal and external authors"
+          },
+          {
+            "path": "packages/docs-model/src/components/",
+            "note": "Registered schemas, actions, rendering and authoring metadata"
+          },
+          {
+            "path": "packages/docs-server/src/store.ts",
+            "note": "Canonical document mutation authority"
+          },
+          {
+            "path": "packages/docs-workbench/src/shared-api.ts",
+            "note": "Shared UI proxy"
+          },
+          {
+            "path": "packages/docs-kernel/catalog/docs-lab-editor/context/index.ts",
+            "note": "Internal Docs Lab authoring context consumer"
+          }
+        ]
+      },
+      "children": []
+    },
+    "maintenance-7": {
+      "id": "maintenance-7",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Ecosystem Coverage"
+        }
+      ],
+      "children": []
+    },
+    "maintenance-8": {
+      "id": "maintenance-8",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The implemented adapter edits Docs corpora, including documentation for other packages when those corpora are discoverable. Embedded Canvas and Sequence operations use the Docs component adapters. This does not provide standalone Canvas, Sequence, PromptKit, Annotations, or Agent Kernel product services. Recording sibling repositories in a development snapshot does not establish adapter support."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-9": {
+      "id": "maintenance-9",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Canonical corpus standards, style documents, component references, manifests, and the source skill feed generated knowledge. Installed skill references are copies. Internal context loaders share the renderer while retaining their own prompts and staged editing lifecycle. Runtime source fingerprints guard against using changed implementation files in an existing service. Published release compatibility and automatic package-version resolution remain unimplemented."
+        }
+      ],
+      "children": []
+    },
+    "page-tree-tools-0": {
+      "id": "page-tree-tools-0",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Page Creation, Move, Rename, and Deletion"
+        }
+      ],
+      "children": []
+    },
+    "page-tree-tools-1": {
+      "id": "page-tree-tools-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs"
+        },
+        {
+          "insert": "create adds pages. docs",
+          "attributes": {
+            "italic": true
+          }
+        },
+        {
+          "insert": "move and docs"
+        },
+        {
+          "insert": "rename relocate pages or sections with descendants. The shared management service rewrites descendant document links, Canvas links, and asset references while preserving document identity. docs",
+          "attributes": {
+            "italic": true
+          }
+        },
+        {
+          "insert": "set_title changes a display title without moving its path. Management operations use a reviewed corpus fingerprint."
+        }
+      ],
+      "children": []
+    },
+    "page-tree-tools-2": {
+      "id": "page-tree-tools-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs"
+        },
+        {
+          "insert": "asset",
+          "attributes": {
+            "italic": true
+          }
+        },
+        {
+          "insert": "move transfers shared assets and updates their references. docs"
+        },
+        {
+          "insert": "delete can remove reviewed subtrees with recursive:true and refuses remaining external references. Management journals support guarded restoration through docs",
+          "attributes": {
+            "italic": true
+          }
+        },
+        {
+          "insert": "management_restore. The maintenance guide owns the operating procedure."
+        }
+      ],
+      "children": []
+    },
+    "full-management-0": {
+      "id": "full-management-0",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Document and Asset Management",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "40-guides/10-docs-mcp/50-document-management"
+            }
+          }
+        },
+        {
+          "insert": " documents the supported management tools and their shared service ownership."
+        }
+      ],
+      "children": []
+    }
+  }
+}

@@ -56,7 +56,7 @@ export function PanelOutlineList({ sections, activeRow, onSelect }: { sections: 
 			{sections.map((section, index) => {
 				const current = index === activeRow;
 				return (
-					<button key={section.key} type="button" onClick={() => onSelect(section)} aria-current={current ? "location" : undefined} title={section.label} className={cn("border-l py-px pr-2 text-left text-[11px] leading-[1.9] transition-colors", section.depth > 0 ? "pl-6" : "pl-3", current ? "text-foreground" : "border-transparent text-muted-foreground/70 hover:text-foreground")} style={current ? { borderLeftColor: ACCENT } : undefined}>
+					<button key={section.key} type="button" onClick={() => onSelect(section)} aria-current={current ? "location" : undefined} title={section.label} className={cn("border-l py-px pr-2 text-left text-[11px] leading-[1.9] transition-colors", section.depth > 0 ? "pl-6" : "pl-3", current ? "text-foreground" : "border-transparent text-[color:var(--docs-navigation-fg,var(--foreground))] hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2")} style={current ? { borderLeftColor: ACCENT } : undefined}>
 						<span className="block truncate">{section.label}</span>
 					</button>
 				);

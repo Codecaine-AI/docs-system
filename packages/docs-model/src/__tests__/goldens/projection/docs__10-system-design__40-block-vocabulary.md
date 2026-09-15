@@ -1,12 +1,12 @@
-Every block type defines two forms of itself: a rich component in the workbench and a deterministic, greppable markdown form on the agent surface. The vocabulary is the set of sixteen types both renders speak, grouped into nine component families. These pages are the per-family reference.
+Every block type defines two forms of itself: a rich component in the workbench and a deterministic, greppable markdown form on the agent surface. The vocabulary is the set of eighteen types both renders speak, grouped into nine component families. These pages are the per-family reference.
 
-> **Decision: Sixteen types and no more** — The source of truth is `DOC_BLOCK_TYPES` in docs-model's `doc-schema.ts`: exactly sixteen type strings. A small vocabulary keeps the render stable, the editor learnable, and the agent edit surface enumerable.
+> **Decision: Eighteen Registered Types** — The source of truth is `DOC_BLOCK_TYPES` in docs-model's `doc-schema.ts`: exactly eighteen type strings. A small vocabulary keeps the render stable, the editor learnable, and the agent edit surface enumerable.
 
 For documenting agentic systems, three of those types carry the whole model:
 
 > A state-shape block carries the shape of state and an example instance side by side; an interaction-surface block lists the operations that change or query it; annotated code blocks hold the source evidence.
 
-## The Sixteen Types
+## The Eighteen Types
 
 | type | family | purpose |
 | --- | --- | --- |
@@ -17,7 +17,9 @@ For documenting agentic systems, three of those types carry the whole model:
 | callout | rich-text | Highlighted note; props.tone colors it, free-form props.kind labels the chip. |
 | divider | rich-text | A horizontal rule separating sections. |
 | image | rich-text | Image from the bundle's assets/images/; props: src, alt, caption. |
+| image-grid | rich-text | Ordered images with individual headings, alt text, captions, and responsive columns. |
 | video | rich-text | Bundle video (src) or external URL (url); YouTube/Vimeo/Loom embed privacy-friendly players. |
+| html | rich-text | Self-contained HTML/CSS artifact in an opaque-origin sandbox; optional inline scripts. |
 | code | code | Source code in text; props.language plus optional props.annotations side notes. |
 | structured-table | structured-table | Typed table from props.columns (string[]) and props.rows (string[][]). |
 | file-tree | file-tree | Rendered tree of props.entries: { path, note?, change?, from? }. |
@@ -31,7 +33,7 @@ For documenting agentic systems, three of those types carry the whole model:
 
 - Rich text
 
-  - paragraph · heading · list-item · quote · callout · divider · image · video
+  - paragraph · heading · list-item · quote · callout · divider · image · image-grid · video · html
 
 - code
 

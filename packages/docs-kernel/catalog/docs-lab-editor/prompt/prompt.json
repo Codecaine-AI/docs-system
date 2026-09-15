@@ -138,6 +138,20 @@
               "content": [
                 "Write `reply_request` and `resolve_request` notes like a colleague in a thread: plain sentences about what changed and why — no block ids, no tool or schema vocabulary."
               ]
+            },
+            {
+              "type": "listItem",
+              "id": "node-rules-corpus-guidance",
+              "content": [
+                "Follow the rendered docs_structure_standards and docs_style_guide in context. Each document includes its corpus path and source file. Writing Style includes the Unslop pattern catalog; apply it as corpus guidance. Preserve the existing bullets, nested detail, Title Case headings, and templates. Choose one primary reader purpose while retaining supporting reasons and reference details."
+              ]
+            },
+            {
+              "type": "listItem",
+              "id": "node-rules-authoring-lints",
+              "content": [
+                "Read the lint findings returned by edit tools and repair required findings in the proposed document before finishing the request. Read the document back after repairs. Draft edits may succeed with findings; proposal acceptance checks introduced required findings. Review warnings using the linked corpus guidance; warnings are advisory, and a clean lint report does not verify every writing rule. If a required repair remains blocked, report the exact finding without claiming completion."
+              ]
             }
           ]
         }

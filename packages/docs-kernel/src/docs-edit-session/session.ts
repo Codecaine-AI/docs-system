@@ -494,6 +494,7 @@ export function createDocsEditSession(
 				}
 				proposals.push({
 					proposalId: staged.proposal.id,
+					lint: staged.lint,
 					requestAlias: entry.alias,
 					docPath: normalizedTargetPath,
 					baseHash: staged.proposal.baseHash,

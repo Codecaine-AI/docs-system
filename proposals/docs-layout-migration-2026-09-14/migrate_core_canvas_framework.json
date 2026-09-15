@@ -1,0 +1,71 @@
+{
+  "name": "Core Canvas / Docs Framework",
+  "root": "/Users/Ford/Github Repos/Codecaine/Core/canvas/tools/docs-framework",
+  "status": "Applied",
+  "agent": "migrate_core_canvas_framework",
+  "oldImplementationDirectoryExists": false,
+  "newImplementationDirectoryExists": true,
+  "recovery": [
+    {
+      "kind": "tree_change_id",
+      "id": "c90ebf2b-82a6-4631-bf01-2af4062cfc4d"
+    },
+    {
+      "kind": "patchId",
+      "id": "db52bed1-baaa-477a-a94a-f5d760bd7f0a"
+    },
+    {
+      "kind": "patchId",
+      "id": "a2acda96-492e-4f85-a749-84874958dcea"
+    },
+    {
+      "kind": "patchId",
+      "id": "df85d6b4-c684-4c11-a462-9d6bb6d206d1"
+    }
+  ],
+  "validation": {
+    "status": "complete",
+    "verification": {
+      "pages": 76,
+      "blocks": 2538,
+      "structureMismatches": [],
+      "checkedPages": 44,
+      "introduced": [],
+      "beforeErrors": 235,
+      "afterErrors": 235,
+      "pathRewrites": 59,
+      "normalizedLegacyLinks": [
+        {
+          "doc": "10-system-design/30-data-model/40-serialization",
+          "path": ".blocks.b-50-canonical-bytes-hashing-why-13.text.1.attributes.reference.path",
+          "before": "docs/20-implementation/30-save-pipeline.md",
+          "after": "30-implementation/30-save-pipeline"
+        },
+        {
+          "doc": "10-system-design/30-data-model/50-mutation-model",
+          "path": ".blocks.b-20-mutation-model-opening-neighbors-3.text.3.attributes.reference.path",
+          "before": "docs/20-implementation/30-save-pipeline.md",
+          "after": "30-implementation/30-save-pipeline"
+        }
+      ],
+      "preExistingStaleLinks": 10,
+      "postMigrationStaleLinks": 10,
+      "newBrokenLinks": 0,
+      "goldensRegenerated": 44,
+      "tests": {
+        "passed": 10,
+        "failed": 0
+      },
+      "diffCheck": "passed"
+    },
+    "notes": [
+      "No Agents page created; 20 reserved.",
+      "All 2538 blocks and their types/nesting/root IDs preserved.",
+      "Three standards pages received nine minimal block updates for ordering examples.",
+      "Ten stale external/source links and 235 writing errors predate migration; no introduced findings.",
+      "Historical objective reports and unrelated nested repositories untouched.",
+      "Local framework markdown and maintained source path references updated mechanically; 18 projection golden files renamed."
+    ]
+  },
+  "fullReport": "/tmp/docs-layout-review/migrate_core_canvas_framework.json"
+}

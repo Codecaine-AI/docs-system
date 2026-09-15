@@ -1,3 +1,4 @@
+import { PageTransition } from "@codecaine-ai/docs-viewer/page-transition";
 import {
   useCallback,
   useEffect,
@@ -7,7 +8,7 @@ import {
   type ComponentProps,
   type ReactNode,
 } from "react";
-import { Undo2Icon } from "lucide-react";
+import { Sparkles, Undo2Icon } from "lucide-react";
 import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import type { DocOp } from "@codecaine-ai/docs-model/doc-ops";
 import {
@@ -38,7 +39,6 @@ import {
   rejectDisabledReason,
   type DocEditRequest,
   type DocEditTarget,
-  type LabPanelTab,
 } from "@codecaine-ai/docs-viewer/lab";
 import { useTransientHighlights } from "@codecaine-ai/docs-viewer/use-transient-highlights";
 import {
@@ -93,7 +93,7 @@ import { StandaloneSequenceEmbed } from "./SequenceEmbed";
  *    DocsClient provided in App.tsx. The header shows a subtle
  *    Saving…/Saved/Not saved indicator, and the "Referenced by" backlinks
  *    footer renders below the editor.
- *  - ANNOTATE/AI: selected from the glass panel tab. The shared targeting UX
+ *  - ANNOTATE/AI: opened from the AI toolbar toggle. The shared targeting UX
  *    covers blocks, text ranges, and canvas objects; clicking pins a target
  *    and opens InlineComposer beneath it. Block/range filings enter the docs
  *    edit session, while canvas objects remain plain annotations. The glass
@@ -233,6 +233,8 @@ function canvasBlockIdsForSrc(
 
 export interface DocPageProps {
   path: string;
+  /** Hides the floating lab dock while a side preview uses the adjacent column. */
+  sidePeekOpen?: boolean;
   /**
    * Test seam, forwarded to DocEditor's `onEditorReady`: happy-dom's DOM
    * mutation pipeline is unreliable for driving TipTap typing, so tests make
@@ -262,6 +264,7 @@ export interface DocPageProps {
 
 export function DocPage({
   path,
+  sidePeekOpen = false,
   onEditorReady,
   isStatic = IS_STATIC,
   autoSaveDelayMs,
@@ -272,11 +275,20 @@ export function DocPage({
   const [annotationsHash, setAnnotationsHash] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadedPath, setLoadedPath] = useState<string | null>(null);
   const [backlinks, setBacklinks] = useState<BacklinkRow[]>([]);
 
-  const [mode, setMode] = useState<WorkbenchMode>("edit");
   // Reserved width of the lab rail (push layout, not overlay); GlassPanel
   // reports its real width on tab changes via onPanelWidthChange.
+  const [labPanelHidden, setLabPanelHidden] = useState(() => {
+    try {
+      return localStorage.getItem("docs-lab-panel-hidden") !== "false";
+    } catch {
+      return true;
+    }
+  });
+  const mode: WorkbenchMode = labPanelHidden ? "edit" : "annotate";
+  const labPanelVisible = !isStatic && !sidePeekOpen && !labPanelHidden;
   const [labPanelWidth, setLabPanelWidth] = useState<number>(DOCK_DEFAULT_WIDTH);
   const [saveState, setSaveState] = useState<DocEditorSaveState>("saved");
   const [selection, setSelection] = useState<PlannotatorSelection | null>(null);
@@ -346,7 +358,9 @@ export function DocPage({
   // effect has already nulled `bundle`, and its `/api/ops` call must still
   // carry the old doc's hash — an unconditioned save could silently clobber
   // remote changes.
-  const expectedHashRef = useRef<string | undefined>(undefined);
+  // Outgoing editors can remain mounted during a fade. Their save flush
+  // must retain the old page hash even after the next bundle has loaded.
+  const expectedHashRef = useMemo(() => ({ current: undefined as string | undefined }), [path]);
   const pathRef = useRef(path);
   pathRef.current = path;
   const fetchBundle = useCallback(
@@ -368,7 +382,10 @@ export function DocPage({
         if (seq !== loadSeqRef.current) return;
         setError(loadError instanceof Error ? loadError.message : "Failed to load doc");
       } finally {
-        if (seq === loadSeqRef.current) setIsLoading(false);
+        if (seq === loadSeqRef.current) {
+          setIsLoading(false);
+          setLoadedPath(path);
+        }
       }
     },
     [path],
@@ -381,7 +398,10 @@ export function DocPage({
     setAnnotations(null);
     setAnnotationsHash(null);
     setBacklinks([]);
-    setMode(consumeAiModeHandoff() ? "annotate" : "edit");
+    if (consumeAiModeHandoff()) {
+      setLabPanelHidden(false);
+      try { localStorage.setItem("docs-lab-panel-hidden", "false"); } catch {}
+    }
     setSaveState("saved");
     setSelection(null);
     setPaneError(null);
@@ -487,7 +507,7 @@ export function DocPage({
         // Returning the server doc lets DocEditor advance its diff baseline
         // to exactly the backend state AND (same object identity as the
         // `document` prop after setBundle) skip the cursor-resetting reseed.
-        return { ok: true, doc: response.doc };
+        return { ok: true, doc: response.doc, normalization: response.normalization };
       } catch (saveError) {
         if (saveError instanceof ApiError && saveError.status === 409) {
           return { ok: false, stale: true, message: "Document changed elsewhere." };
@@ -740,7 +760,13 @@ export function DocPage({
   );
 
   const handleModeChange = useCallback((next: WorkbenchMode) => {
-    setMode(next);
+    const hidden = next !== "annotate";
+    setLabPanelHidden(hidden);
+    try {
+      localStorage.setItem("docs-lab-panel-hidden", String(hidden));
+    } catch {
+      // Keep the toggle usable when browser storage is unavailable.
+    }
     if (next !== "annotate") setSelection(null);
     setPaneError(null);
     // Leaving edit mode unmounts DocEditor (its unmount flush saves any
@@ -769,11 +795,6 @@ export function DocPage({
   // The targeting hook owns its containerRef; this mirror lets callbacks
   // passed INTO the hook (resolve/selected/anchors) reach the same element.
   const annotateContainerRef = useRef<HTMLDivElement | null>(null);
-
-  const handleLabTabSelect = useCallback(
-    (tab: LabPanelTab) => handleModeChange(tab === "ai" ? "annotate" : "edit"),
-    [handleModeChange],
-  );
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -1208,6 +1229,7 @@ export function DocPage({
     return nodes;
   };
 
+  const renderPage = () => {
   if (isLoading) {
     return <div className="p-8 text-sm text-muted-foreground">Loading {path}...</div>;
   }
@@ -1226,7 +1248,7 @@ export function DocPage({
   return (
     <div className="flex h-full min-h-0 flex-col" data-docs-mode={mode}>
       <header className="flex h-11 shrink-0 items-center justify-between gap-3 border-b px-3">
-        <div className="min-w-0 truncate font-mono text-xs text-muted-foreground" title={path}>
+        <div className="min-w-0 truncate font-mono text-xs text-[color:var(--docs-navigation-fg,var(--foreground))]" title={path}>
           docs/{path}
         </div>
         <div className="flex shrink-0 items-center gap-2">
@@ -1260,6 +1282,21 @@ export function DocPage({
               {isUndoing ? "Undoing..." : "Undo last save"}
             </button>
           )}
+          {!isStatic && (
+            <button
+              type="button"
+              data-docs-lab-toggle=""
+              aria-label={labPanelHidden ? "Show AI panel" : "Hide AI panel"}
+              title={sidePeekOpen ? "Close the document preview to use the AI panel" : labPanelHidden ? "Show AI panel" : "Hide AI panel"}
+              aria-expanded={labPanelVisible}
+              aria-pressed={labPanelVisible}
+              disabled={sidePeekOpen}
+              onClick={() => handleModeChange(labPanelHidden ? "annotate" : "edit")}
+              className="inline-flex h-7 w-7 items-center justify-center rounded-sm text-muted-foreground hover:bg-muted hover:text-foreground aria-pressed:bg-muted aria-pressed:text-[color:var(--annotation-accent,#8b5cf6)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-40"
+            >
+              <Sparkles className="h-4 w-4" aria-hidden="true" />
+            </button>
+          )}
         </div>
       </header>
 
@@ -1291,10 +1328,12 @@ export function DocPage({
             <div
               key={canvasEpoch}
               ref={contentRef}
+              data-docs-content=""
+              data-docs-lab-reserved={labPanelVisible ? "" : undefined}
               data-docs-annotation-wash={mode === "annotate" ? "" : undefined}
               className="w-full px-[var(--style-content-margin,88px)] pt-[var(--style-content-top,1.5rem)] pb-[var(--style-content-bottom,1.5rem)]"
               style={
-                !isStatic
+                labPanelVisible
                   ? {
                       paddingRight: `calc(var(--style-content-margin, 88px) + ${labPanelWidth + 36}px)`,
                       transition:
@@ -1475,7 +1514,7 @@ export function DocPage({
             )}
           </div>
           </div>
-          {!isStatic && (
+          {!isStatic && !sidePeekOpen && (
             /* The GlassPanel positions absolutely (top-right) against this
                `relative` region and floats over the padding the content
                wrapper reserves (paddingRight above = panel width + 24px
@@ -1483,11 +1522,9 @@ export function DocPage({
                the panel — no overlap — while the scroller underneath keeps
                the full region width. */
             <DocLab
-                tab={mode === "annotate" ? "ai" : "edit"}
-                onTabSelect={handleLabTabSelect}
+                hidden={labPanelHidden}
                 doc={doc}
                 openDocPath={path}
-                outlineScrollerSelector="[data-docs-scroller]"
                 lab={lab}
                 onPanelWidthChange={setLabPanelWidth}
                 annotationsError={paneError}
@@ -1498,4 +1535,8 @@ export function DocPage({
       </div>
     </div>
   );
+  };
+  return <PageTransition pageKey={path} ready={!isLoading && loadedPath === path} className="flex h-full min-h-0 flex-col">
+    {renderPage()}
+  </PageTransition>;
 }

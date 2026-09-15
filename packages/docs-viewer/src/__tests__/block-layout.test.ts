@@ -22,7 +22,9 @@ const WIDE_TYPES: DocBlockType[] = [
   "structured-table",
   "process-outline",
   "image",
+  "image-grid",
   "video",
+  "html",
   "canvas",
   "sequence",
 ];

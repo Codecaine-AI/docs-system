@@ -1,0 +1,144 @@
+{
+  "name": "Core Canvas",
+  "root": "/Users/Ford/Github Repos/Codecaine/Core/canvas",
+  "status": "Applied",
+  "agent": "migrate_core_canvas",
+  "oldImplementationDirectoryExists": false,
+  "newImplementationDirectoryExists": true,
+  "recovery": [
+    {
+      "kind": "tree_change_id",
+      "id": "ce6341de-731e-4164-b784-df8b2da31c84"
+    }
+  ],
+  "validation": {
+    "verification": [
+      {
+        "path": "30-implementation/30-interaction",
+        "contentOnlyPaths": true,
+        "blocks": 12,
+        "lintIdentical": true,
+        "legacyFindings": 6,
+        "structurallyValid": true
+      },
+      {
+        "path": "30-implementation/80-canvas-agent",
+        "contentOnlyPaths": true,
+        "blocks": 35,
+        "lintIdentical": true,
+        "legacyFindings": 24,
+        "structurallyValid": true
+      },
+      {
+        "path": "30-implementation/95-docs-mcp-access",
+        "contentOnlyPaths": true,
+        "blocks": 10,
+        "lintIdentical": true,
+        "legacyFindings": 0,
+        "structurallyValid": true
+      },
+      {
+        "path": "30-implementation/70-studio",
+        "contentOnlyPaths": true,
+        "blocks": 15,
+        "lintIdentical": true,
+        "legacyFindings": 5,
+        "structurallyValid": true
+      },
+      {
+        "path": "30-implementation/50-stage",
+        "contentOnlyPaths": true,
+        "blocks": 19,
+        "lintIdentical": true,
+        "legacyFindings": 11,
+        "structurallyValid": true
+      },
+      {
+        "path": "30-implementation/60-ui",
+        "contentOnlyPaths": true,
+        "blocks": 18,
+        "lintIdentical": true,
+        "legacyFindings": 9,
+        "structurallyValid": true
+      },
+      {
+        "path": "30-implementation",
+        "contentOnlyPaths": true,
+        "blocks": 37,
+        "lintIdentical": true,
+        "legacyFindings": 23,
+        "structurallyValid": true
+      },
+      {
+        "path": "30-implementation/20-objects",
+        "contentOnlyPaths": true,
+        "blocks": 17,
+        "lintIdentical": true,
+        "legacyFindings": 10,
+        "structurallyValid": true
+      },
+      {
+        "path": "30-implementation/90-canvases",
+        "contentOnlyPaths": true,
+        "blocks": 13,
+        "lintIdentical": true,
+        "legacyFindings": 6,
+        "structurallyValid": true
+      },
+      {
+        "path": "30-implementation/05-theme",
+        "contentOnlyPaths": true,
+        "blocks": 15,
+        "lintIdentical": true,
+        "legacyFindings": 8,
+        "structurallyValid": true
+      },
+      {
+        "path": "30-implementation/10-state",
+        "contentOnlyPaths": true,
+        "blocks": 16,
+        "lintIdentical": true,
+        "legacyFindings": 8,
+        "structurallyValid": true
+      },
+      {
+        "path": "30-implementation/40-connectors",
+        "contentOnlyPaths": true,
+        "blocks": 12,
+        "lintIdentical": true,
+        "legacyFindings": 6,
+        "structurallyValid": true
+      },
+      {
+        "path": "00-foundation",
+        "contentOnlyPaths": true,
+        "blocks": 41,
+        "lintIdentical": true,
+        "legacyFindings": 32,
+        "structurallyValid": true
+      },
+      {
+        "path": "10-system-design",
+        "contentOnlyPaths": true,
+        "blocks": 20,
+        "lintIdentical": true,
+        "legacyFindings": 19,
+        "structurallyValid": true
+      }
+    ],
+    "stats": {
+      "movedDocs": 12,
+      "checkedDocs": 14,
+      "preservedBlocks": 280,
+      "legacyFindings": 167,
+      "newFindings": 0,
+      "staleLinksBefore": 0,
+      "staleLinksAfter": 0
+    },
+    "notes": [
+      "Only typed doc reference paths changed; all document IDs, block IDs, content, types, nesting, props preserved.",
+      "Native management source hash uses raw bytes; docs_read normalized hash differed; used fresh current_hash returned by native preview conflict."
+    ]
+  },
+  "fullReport": "/tmp/docs-layout-review/migrate_core_canvas.json"
+}

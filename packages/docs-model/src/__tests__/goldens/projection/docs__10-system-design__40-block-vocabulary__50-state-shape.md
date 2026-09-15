@@ -44,8 +44,8 @@ source?: object  # Defining source location; renders as an em-dash suffix on the
   symbol?: string  # Symbol within that file; renders as a #symbol suffix.
 fields: Field[]  # The recursive field tree, in document order.
   name: string  # Field name; unique among siblings — dot-path addressing depends on it.
-  type?: string  # Type text, rendered after a colon.
-  required?: boolean  # false = optional and renders a ? suffix; omitted or true reads as required.
+  type?: string  # Type text. Union members render as separate blue monospace chips; free-text types render as plain blue text.
+  required?: boolean  # false = optional and renders an ochre optional pill; omitted or true reads as required.
   description?: string  # One-liner rendered as a # suffix.
   fields?: Field[]  # Child fields, rendered two spaces deeper; the node recurses.
 example?: string  # JSON text of an example instance of this shape; renders as the linked example pane.
@@ -141,7 +141,7 @@ The Doc renderer contract element: `StateShapeBlock`. The render is a quiet bord
 
   - An optional header row: bold mono shape name, muted `basename#symbol` source ref (full path in its `title` attribute), description beneath.
 
-  - Top-level fields render as hairline-divided groups: bold mono name, mono type, a muted `?` marking `required: false`, description as a smaller second line.
+  - Top-level fields render as hairline-divided groups: bold mono name in the foreground color, blue mono type chips, an ochre optional pill for `required: false`, and the description as a smaller second line. A union type such as `a | b | c` renders one chip per member. Free-text types render as plain blue text without a chip.
 
   - Nested fields sit behind a light left rule — one step per depth — with no dividers of their own.
 
@@ -205,7 +205,7 @@ and this `json` fence:
 
 ## Theme
 
-The Theming contract element: theme file `components/state-shape.json` in a theme folder (`themes/<id>/`; system docs at Theming). Every value is one string for both modes or a `{ light, dark }` pair, validated against the `state-shape` entry of `THEME_TOKEN_REGISTRY` in `packages/docs-workbench/web/src/theme/theme-folders.ts`. Ten tokens — nine colors and one length:
+The Theming contract element: theme file `components/state-shape.json` in a theme folder (`themes/<id>/`; system docs at Theming). Every value is one string for both modes or a `{ light, dark }` pair, validated against the `state-shape` entry of `THEME_TOKEN_REGISTRY` in `packages/docs-workbench/web/src/theme/theme-folders.ts`. Thirteen tokens — twelve colors and one length:
 
 | Key | CSS variable | Styles |
 | --- | --- | --- |
@@ -213,7 +213,10 @@ The Theming contract element: theme file `components/state-shape.json` in a them
 | bg | --docs-shape-bg | Card background |
 | name | --docs-shape-name | Shape name in the header row |
 | type | --docs-shape-type | Field type text |
-| muted | --docs-shape-muted | Muted detail text — optionality markers and the source ref |
+| typeBg | --docs-shape-type-bg | Type chip background |
+| muted | --docs-shape-muted | Muted detail text — the source ref and empty-state note |
+| optionalFg | --docs-shape-optional-fg | Optional marker text |
+| optionalBg | --docs-shape-optional-bg | Optional marker background |
 | rule | --docs-shape-rule | Hairlines: header underline, top-level row dividers, pane split |
 | headerBg | --docs-shape-header-bg | Header row background |
 | descFg | --docs-shape-desc-fg | Description text — header and field rows |

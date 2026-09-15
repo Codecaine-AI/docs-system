@@ -1,0 +1,26 @@
+[
+  {
+    "path": "30-guides/10-docs-mcp/40-recovery",
+    "ok": true,
+    "structurally_valid": true,
+    "hash": "5877a2126743e89765a565b845002c0b13f27c3a81352e17b98a4c48bcc63956",
+    "lint": {
+      "phase": "complete",
+      "findings": [],
+      "blocking": []
+    },
+    "components": []
+  },
+  {
+    "path": "20-implementation/10-packages/85-docs-mcp",
+    "ok": true,
+    "structurally_valid": true,
+    "hash": "b39db4b3a08349a2bad7fca745159e98ec08b0a69e5b7ba6232a079a47f96068",
+    "lint": {
+      "phase": "complete",
+      "findings": [],
+      "blocking": []
+    },
+    "components": []
+  }
+]

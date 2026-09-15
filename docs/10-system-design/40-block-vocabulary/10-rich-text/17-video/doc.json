@@ -25,7 +25,10 @@
         "b-31-video-agent-2-12",
         "b-31-video-theming-heading",
         "b-31-video-theming-para",
-        "b-31-video-theming-table"
+        "b-31-video-theming-table",
+        "grid-doc-1789403404828-0",
+        "grid-doc-1789403404828-1",
+        "grid-doc-1789403404828-2"
       ]
     },
     "b-31-video-lead-2": {
@@ -97,7 +100,7 @@
           }
         },
         {
-          "insert": "-only block — external YouTube URL, no bundle asset. The player is the "
+          "insert": "-only block. external YouTube URL, no bundle asset. The player is the "
         },
         {
           "insert": "youtube-nocookie",
@@ -240,7 +243,7 @@
           }
         },
         {
-          "insert": " — video blocks appear "
+          "insert": ". video blocks appear "
         },
         {
           "insert": "from content",
@@ -313,7 +316,7 @@
           }
         },
         {
-          "insert": " — external "
+          "insert": ". external "
         },
         {
           "insert": "url",
@@ -364,7 +367,7 @@
       "props": {},
       "text": [
         {
-          "insert": "No typed actions — patch props via "
+          "insert": "No typed actions. patch props via "
         },
         {
           "insert": "updateBlock",
@@ -411,7 +414,7 @@
           }
         },
         {
-          "insert": " — in the rendered markdown, that title is most of what a reading agent gets."
+          "insert": ". in the rendered markdown, that title is most of what a reading agent gets."
         }
       ],
       "children": []
@@ -460,7 +463,7 @@
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "20-implementation/40-theming"
+              "path": "30-implementation/40-theming"
             }
           }
         },
@@ -529,6 +532,41 @@
           ]
         ]
       },
+      "children": []
+    },
+    "grid-doc-1789403404828-0": {
+      "id": "grid-doc-1789403404828-0",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Bundled Publication"
+        }
+      ],
+      "children": []
+    },
+    "grid-doc-1789403404828-1": {
+      "id": "grid-doc-1789403404828-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A bundle-relative src ships with a published article and plays through the native video element. A provider url takes precedence when both are supplied. The dedicated video upload and asset read paths accept up to 64 MiB; generic uploads accept up to 20 MiB. Small compressed clips are practical repository assets. Longer recordings increase Git history and deployment size."
+        }
+      ],
+      "children": []
+    },
+    "grid-doc-1789403404828-2": {
+      "id": "grid-doc-1789403404828-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Static hosts must return the correct video MIME type and support byte ranges for reliable seeking. External player availability still depends on the provider and recording access settings."
+        }
+      ],
       "children": []
     }
   }

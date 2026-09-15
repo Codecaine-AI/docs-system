@@ -13,7 +13,8 @@ This page states the scheme, the reserved ranges, and what running out of gap sp
 │   └── 25-new-standard/  # ← a mid-gap insertion lands here; nothing renumbers (hypothetical)
 └── 40-block-vocabulary/
     └── 10-rich-text/  # the named deviation: type pages run 10–17 dense, one family as a unit
-20-implementation/  # 99 — appendix and meta only
+20-agents/  # participating agents and their definitions
+30-implementation/  # the current code: design mapping and implementation choices
 ```
 
 ## The Rule

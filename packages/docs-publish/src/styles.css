@@ -1,0 +1,26 @@
+@import "../../docs-workbench/node_modules/tailwindcss/theme.css";
+@import "../../docs-workbench/node_modules/tailwindcss/utilities.css" source(none);
+@import "../../docs-workbench/web/src/pages/sequence-embed.css";
+@source "../../docs-workbench/web/src/pages/CanvasEmbed.tsx";
+@source "../../docs-workbench/web/src/pages/SequenceEmbed.tsx";
+@import "../../docs-viewer/src/styles/list-markers.css";
+@import "../../docs-viewer/src/styles/code.css";
+@import "../../docs-viewer/src/styles/image-grid.css";
+@source "../../docs-viewer/src";
+@source "../../../external/canvas/packages/canvas/src";
+@source "../../../external/sequence/packages/sequence/src";
+@theme inline {
+ --color-background: var(--background); --color-foreground: var(--foreground);
+ --color-muted: var(--muted); --color-muted-foreground: var(--muted-foreground);
+ --color-border: var(--border); --color-primary: var(--primary);
+ --font-display: ui-sans-serif, system-ui, sans-serif;
+}
+:root {--background:var(--color-bg-default,#fff);--foreground:var(--color-text-default,#222);--muted:var(--color-bg-sidebar,#eee);--muted-foreground:var(--site-muted,#666);--border:var(--site-rule,#ccc);--primary:var(--color-text-navigation,#2563eb);}
+.docs-article img {max-width:100%;height:auto;}
+.docs-article pre {overflow:auto;}
+
+.docs-article [data-docs-diagram] {position:relative;margin:2rem 0;border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.docs-article [data-docs-diagram] figcaption {padding:14px 60px 14px 18px;font-weight:600;}
+.docs-diagram-preview {display:block;background:#fff;}
+.docs-article .docs-diagram-preview img {display:block;width:100%;height:auto;max-height:none;margin:0;padding:0;border:0;}
+.docs-diagram-expand {position:absolute;top:8px;right:12px;display:grid;place-items:center;width:36px;height:36px;border:1px solid #ccc;border-radius:6px;background:#fff;color:#222;font-size:25px;}

@@ -36,7 +36,42 @@ describe("theme folder routes", () => {
     expect(await response.json()).toEqual({ themes: [] });
   });
 
-  test("POST creates a theme folder that then lists and reads back", async () => {
+  test("an explicit themesRoot controls theme lists, reads, and writes", async () => {
+    const explicitRoot = join(repoRoot, "shared-themes");
+    const siblingRoot = themesRootFor(docsRoot);
+    await mkdir(join(explicitRoot, "shared", "components"), { recursive: true });
+    await writeFile(
+      join(explicitRoot, "shared", "theme.json"),
+      JSON.stringify({ name: "Shared" }),
+    );
+    await mkdir(join(siblingRoot, "sibling"), { recursive: true });
+    await writeFile(
+      join(siblingRoot, "sibling", "theme.json"),
+      JSON.stringify({ name: "Sibling" }),
+    );
+
+    const explicitApp = createDocsRoutes(createDocsStore(docsRoot), {
+      themesRoot: explicitRoot,
+    });
+    const list = await explicitApp.handle(new Request("http://localhost/api/themes"));
+    expect(await list.json()).toEqual({ themes: [{ id: "shared", name: "Shared" }] });
+
+    const read = await explicitApp.handle(new Request("http://localhost/api/themes/shared"));
+    expect(read.status).toBe(200);
+
+    const created = await explicitApp.handle(
+      new Request("http://localhost/api/themes", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ id: "written", manifest: { name: "Written" } }),
+      }),
+    );
+    expect(created.status).toBe(201);
+    expect(existsSync(join(explicitRoot, "written", "theme.json"))).toBe(true);
+    expect(existsSync(join(siblingRoot, "written", "theme.json"))).toBe(false);
+  });
+
+  test("without themesRoot, POST uses the sibling folder and then lists and reads back", async () => {
     const payload = {
       id: "my-theme",
       manifest: { name: "My Theme", base: "default", dark: true },

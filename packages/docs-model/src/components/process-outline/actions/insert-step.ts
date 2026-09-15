@@ -25,6 +25,12 @@ export const insertStep = defineComponentAction({
         description: 'Step kind; "note" is a clarification leaf. Default "step".',
       }),
     ),
+    trace: Type.Optional(
+      Type.Boolean({
+        description:
+          "Mark the step as one a real trace event corresponds to (`=>` in notation). Notes cannot be trace-marked.",
+      }),
+    ),
   }),
   apply(block, params) {
     const steps = readProcessOutlineStepTree(block);
@@ -64,8 +70,21 @@ export const insertStep = defineComponentAction({
       };
     }
 
+    if (params.kind === "note" && params.trace) {
+      return {
+        ok: false,
+        issues: [
+          {
+            path: "$.params.trace",
+            message: "A note cannot be trace-marked — notes are prose about a step, not trace events.",
+          },
+        ],
+      };
+    }
+
     const step: ProcessOutlineStep = { text: params.text };
     if (params.kind === "note") step.kind = "note";
+    if (params.trace) step.trace = true;
     resolved.siblings.splice(index, 0, step);
     return { ok: true, props: stepsPatch(steps) };
   },

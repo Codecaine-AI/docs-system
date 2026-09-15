@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "proposals": [
+    {
+      "lint": {
+        "phase": "draft",
+        "findings": [
+          {
+            "blockId": "b-xl2-intro-1",
+            "field": "text",
+            "evidence": "Docs link to docs with typed reference spans — tracked by the backlinks index, held at zero stale, rewritten when targets move — never with raw paths in prose. ",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": false
+          },
+          {
+            "blockId": "b-xl2-obj-sub1-5",
+            "field": "text",
+            "evidence": "\u0000: \u0000 plus the target's docs path — nothing else.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": false
+          },
+          {
+            "blockId": "b-xl2-name-sub1-28",
+            "field": "text",
+            "evidence": "A reference reads as the target's name mid-sentence — no bracket noise on either surface.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": false
+          }
+        ],
+        "blocking": []
+      },
+      "id": "44d6a58a-8ac2-476d-86d1-0f0137e75dba",
+      "ops": [
+        {
+          "type": "updateBlock",
+          "blockId": "b-xl2-governedby-36",
+          "text": [
+            {
+              "insert": "Design and Implementation Stay Connected"
+            }
+          ]
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-xl2-gov-sub1-37",
+          "text": [
+            {
+              "insert": "Implementation links to the System Design or Agents contracts the code realizes. Design and agent pages may link to the relevant implementation when the reader needs to locate that code. Each explanation keeps one canonical home."
+            }
+          ]
+        }
+      ],
+      "changedBlockIds": [
+        "b-xl2-governedby-36",
+        "b-xl2-gov-sub1-37"
+      ],
+      "summary": "Allow useful design-to-implementation navigation without duplicating ownership.",
+      "baseHash": "1f358b5d2b1fb6a914971d4bb555f7a8c88fb1b6c837ceff13072cf945170325",
+      "status": "rejected",
+      "createdAt": "2026-09-14T14:42:24.239Z",
+      "resolvedAt": "2026-09-14T14:50:04.842Z"
+    }
+  ]
+}

@@ -91,8 +91,8 @@ describe("POST /api/ops forwarded canvas actions", () => {
   });
 
   afterEach(async () => {
-    draftLockStore.release({ kind: "canvas", path: CANVAS_REL_PATH }, "editor-session");
-    draftLockStore.release({ kind: "canvas", path: CANVAS_REL_PATH }, "agent-session");
+    draftLockStore.forRoot(docsRoot).release({ kind: "canvas", path: CANVAS_REL_PATH }, "editor-session");
+    draftLockStore.forRoot(docsRoot).release({ kind: "canvas", path: CANVAS_REL_PATH }, "agent-session");
     await rm(docsRoot, { recursive: true, force: true });
   });
 

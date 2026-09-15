@@ -1,0 +1,37 @@
+bun test v1.3.10 (30e609e0)
+
+packages/docs-cli/src/__tests__/audit.test.ts:
+(pass) docs cli audit — clean tree > reports no findings on a conforming tree [5.50ms]
+(pass) docs cli audit — clean tree > throws for a missing docsRoot [0.39ms]
+(pass) docs cli audit — clean tree > accepts 00-prefixed bundles and dense NN-prefix numbering [1.77ms]
+(pass) E1 — duplicate sibling prefix > flags two children of a bundle sharing a two-digit prefix [1.64ms]
+(pass) E1 — duplicate sibling prefix > does not flag distinct prefixes [1.74ms]
+(pass) E2 — entry naming > flags an unprefixed child of a bundle and ignores dotfiles and plain files [3.87ms]
+(pass) E2 — entry naming > accepts NN- prefixed entries [2.47ms]
+(pass) E2 — entry naming > does not reserve assets or canvases inside a non-bundle section [0.74ms]
+(pass) E3 — sections need their own parent doc.json > flags a non-root section with two children and no parent doc.json [1.84ms]
+(pass) E3 — sections need their own parent doc.json > a bundle with two child docs does not error [1.64ms]
+(pass) E3 — sections need their own parent doc.json > docs root itself is exempt even with many children and no parent doc.json [2.02ms]
+(pass) E3 — sections need their own parent doc.json > a single-child section does not need a parent doc.json [1.17ms]
+(pass) E5 — retired 00-overview convention > flags a bundle that also contains a 00-overview child [1.26ms]
+(pass) E5 — retired 00-overview convention > clean trees contain no retired overview conflicts [2.35ms]
+(pass) E4 — bundle validity > flags unparseable doc.json [0.92ms]
+(pass) E4 — bundle validity > flags a document failing validateDocDocument [0.77ms]
+(pass) E4 — bundle validity > flags a leaf directory with no doc.json [0.44ms]
+(pass) E4 — bundle validity > valid bundles produce no E4 [1.83ms]
+(pass) E4 — bundle validity > validates a child doc nested beneath a bundle [1.31ms]
+(pass) E6 — strict component-state writes > flags readable legacy props that make a non-root block unwritable [3.09ms]
+(pass) E6 — strict component-state writes > exempts invisible root metadata from component-state lint [0.85ms]
+(pass) bundle-reserved entries > ignores assets, canvases, annotations.json, and index twins inside a bundle [2.79ms]
+(pass) W1 — single level-1 heading > warns when a doc has two level-1 headings [0.93ms]
+(pass) W1 — single level-1 heading > level-2 headings do not trigger it [0.80ms]
+(pass) W2 — image alt text > warns for an image block without alt [0.81ms]
+(pass) W2 — image alt text > does not warn when alt is present [0.88ms]
+(pass) W4 — opening paragraph > warns when the block after the title is not a paragraph [0.75ms]
+(pass) W4 — opening paragraph > title followed by a paragraph does not warn [2.04ms]
+(pass) docs cli audit — subprocess smoke test > exits 1 on errors and 0 on a warnings-only tree [122.76ms]
+
+ 29 pass
+ 0 fail
+ 66 expect() calls
+Ran 29 tests across 1 file. [660.00ms]

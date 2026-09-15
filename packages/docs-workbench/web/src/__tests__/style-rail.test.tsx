@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import { afterEach, describe, expect, it, mock } from "bun:test";
+import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { useState } from "react";
 
@@ -36,6 +36,8 @@ import {
   readThemeDefinition,
 } from "../theme/theme-folders";
 
+beforeEach(() => resetStyleRailBaseline());
+
 const STORAGE_KEY = "docs-style-rail-settings.v1";
 const SELECTED_PANE_STORAGE_KEY = "docs-style-rail-selected";
 
@@ -56,6 +58,7 @@ const EXPECTED_NAV_GROUPS = [
     id: "layout",
     label: "Layout",
     items: [
+      { id: "layout.transitions", label: "Transitions" },
       { id: "layout.sidebar", label: "Sidebar" },
       { id: "layout.editor", label: "Editor" },
       { id: "layout.side-peek", label: "Side peek" },
@@ -236,6 +239,7 @@ describe("style rail override helpers", () => {
       "blocks.process-outline": 0,
       "blocks.sequence": 0,
       "blocks.canvas": 0,
+      "layout.transitions": 0,
       "layout.sidebar": 0,
       "layout.scrollbar": 0,
       "layout.side-peek": 0,
@@ -306,7 +310,7 @@ describe("style rail override helpers", () => {
 });
 
 describe("style rail navigation", () => {
-  it("renders the six regrouped sections with all 29 pane items in order", () => {
+  it("renders the six regrouped sections with all 30 pane items in order", () => {
     expect(
       STYLE_RAIL_GROUPS.map((group) => ({
         id: group.id,
@@ -336,7 +340,7 @@ describe("style rail navigation", () => {
         expect(navigation.getByRole("button", { name: item.label })).toBeTruthy();
       }
     }
-    expect(navigation.getAllByRole("button")).toHaveLength(6 + 4 + 9 + 3 + 4 + 3);
+    expect(navigation.getAllByRole("button")).toHaveLength(6 + 5 + 9 + 3 + 4 + 3);
   });
 
   it("swaps the visible detail pane when a rail item is selected", () => {
@@ -653,7 +657,12 @@ describe("state-shape text meets WCAG AAA in both themes", () => {
     return hexToRgb(match[1]);
   };
 
-  const TEXT_TOKENS = ["--docs-shape-type", "--docs-shape-muted", "--docs-shape-desc-fg"];
+  const TEXT_TOKENS = [
+    "--docs-shape-type",
+    "--docs-shape-muted",
+    "--docs-shape-optional-fg",
+    "--docs-shape-desc-fg",
+  ];
 
   it("clears 7:1 for every state-shape text token in the light theme", () => {
     const block = blockAfter(':root, [data-theme="light"] {');
@@ -2154,7 +2163,10 @@ describe("style rail state-shape tokens", () => {
     expect(entry.bg).toEqual({ vars: ["--docs-shape-bg"], kind: "color" });
     expect(entry.name).toEqual({ vars: ["--docs-shape-name"], kind: "color" });
     expect(entry.type).toEqual({ vars: ["--docs-shape-type"], kind: "color" });
+    expect(entry.typeBg).toEqual({ vars: ["--docs-shape-type-bg"], kind: "color" });
     expect(entry.muted).toEqual({ vars: ["--docs-shape-muted"], kind: "color" });
+    expect(entry.optionalFg).toEqual({ vars: ["--docs-shape-optional-fg"], kind: "color" });
+    expect(entry.optionalBg).toEqual({ vars: ["--docs-shape-optional-bg"], kind: "color" });
     expect(entry.rule).toEqual({ vars: ["--docs-shape-rule"], kind: "color" });
     expect(entry.headerBg).toEqual({ vars: ["--docs-shape-header-bg"], kind: "color" });
     expect(entry.descFg).toEqual({ vars: ["--docs-shape-desc-fg"], kind: "color" });
@@ -2234,6 +2246,19 @@ describe("style rail process-outline tokens", () => {
     expect(entry.noteBg).toEqual({ vars: ["--docs-process-outline-note-bg"], kind: "color" });
     expect(entry.noteBorder).toEqual({ vars: ["--docs-process-outline-note-border"], kind: "color" });
     expect(entry.codeBg).toEqual({ vars: ["--docs-process-outline-code-bg"], kind: "color" });
+    // The depth cycle: five hues plus the loop-keyword accent that sits
+    // outside it. The component re-declares one var per nesting level, so
+    // these are the only colors the rail needs for the whole tree.
+    for (const level of [1, 2, 3, 4, 5]) {
+      expect(entry[`cycle${level}`]).toEqual({
+        vars: [`--docs-process-outline-cycle-${level}`],
+        kind: "color",
+      });
+    }
+    expect(entry.keywordFg).toEqual({
+      vars: ["--docs-process-outline-keyword-fg"],
+      kind: "color",
+    });
     expect(entry.indent).toEqual({
       vars: ["--docs-process-outline-indent"],
       kind: "length",
@@ -2241,7 +2266,7 @@ describe("style rail process-outline tokens", () => {
       max: 72,
       step: 1,
       unit: "px",
-      defaultValue: 36,
+      defaultValue: 46,
     });
     expect(entry.rowGap).toEqual({
       vars: ["--docs-process-outline-row-gap"],
@@ -2250,7 +2275,27 @@ describe("style rail process-outline tokens", () => {
       max: 24,
       step: 1,
       unit: "px",
-      defaultValue: 7,
+      defaultValue: 12,
+    });
+    // Branch and root separation used to be hard-coded in the component
+    // (a 14px margin); both are knobs now.
+    expect(entry.branchGap).toEqual({
+      vars: ["--docs-process-outline-branch-gap"],
+      kind: "length",
+      min: 0,
+      max: 48,
+      step: 1,
+      unit: "px",
+      defaultValue: 20,
+    });
+    expect(entry.rootGap).toEqual({
+      vars: ["--docs-process-outline-root-gap"],
+      kind: "length",
+      min: 0,
+      max: 64,
+      step: 1,
+      unit: "px",
+      defaultValue: 30,
     });
     expect(entry.arrowGap).toEqual({
       vars: ["--docs-process-outline-arrow-gap"],
@@ -2279,8 +2324,29 @@ describe("style rail process-outline tokens", () => {
       unit: "px",
       defaultValue: 12.5,
     });
-    // Note text size defaults to the step text size (semantic.css keeps the
-    // var() reference); the registry default is the same literal number.
+    // The root line's size and the empty placeholder's size were hard-coded
+    // in the component; both ride tokens now.
+    expect(entry.rootTextSize).toEqual({
+      vars: ["--docs-process-outline-root-text-size"],
+      kind: "length",
+      min: 10,
+      max: 22,
+      step: 0.5,
+      unit: "px",
+      defaultValue: 13.5,
+    });
+    expect(entry.emptyTextSize).toEqual({
+      vars: ["--docs-process-outline-empty-text-size"],
+      kind: "length",
+      min: 9,
+      max: 18,
+      step: 0.5,
+      unit: "px",
+      defaultValue: 12,
+    });
+    // Notes are subordinate now: their own smaller size, their own line
+    // rhythm, an inset that pulls the card under its parent step, and a rule
+    // width for the accented left edge.
     expect(entry.noteTextSize).toEqual({
       vars: ["--docs-process-outline-note-text-size"],
       kind: "length",
@@ -2288,7 +2354,157 @@ describe("style rail process-outline tokens", () => {
       max: 18,
       step: 0.5,
       unit: "px",
-      defaultValue: 12.5,
+      defaultValue: 11.5,
+    });
+    expect(entry.noteLineHeight).toEqual({
+      vars: ["--docs-process-outline-note-line-height"],
+      kind: "length",
+      min: 12,
+      max: 32,
+      step: 1,
+      unit: "px",
+      defaultValue: 17,
+    });
+    expect(entry.noteInset).toEqual({
+      vars: ["--docs-process-outline-note-inset"],
+      kind: "length",
+      min: 0,
+      max: 40,
+      step: 1,
+      unit: "px",
+      defaultValue: 10,
+    });
+    // Notes render BOXLESS by default — plain bullets under their parent step.
+    // The card is still expressible, purely in tokens: border, rule and padding
+    // all default to zero and the classic theme sets them to get its box back.
+    expect(entry.noteBorderWidth).toEqual({
+      vars: ["--docs-process-outline-note-border-width"],
+      kind: "length",
+      min: 0,
+      max: 4,
+      step: 0.5,
+      unit: "px",
+      defaultValue: 0,
+    });
+    expect(entry.noteRuleWidth).toEqual({
+      vars: ["--docs-process-outline-note-rule-width"],
+      kind: "length",
+      min: 0,
+      max: 6,
+      step: 0.5,
+      unit: "px",
+      defaultValue: 0,
+    });
+    expect(entry.notePadY).toEqual({
+      vars: ["--docs-process-outline-note-pad-y"],
+      kind: "length",
+      min: 0,
+      max: 16,
+      step: 1,
+      unit: "px",
+      defaultValue: 0,
+    });
+    expect(entry.notePadX).toEqual({
+      vars: ["--docs-process-outline-note-pad-x"],
+      kind: "length",
+      min: 0,
+      max: 24,
+      step: 1,
+      unit: "px",
+      defaultValue: 0,
+    });
+    // Mix strengths are unitless percentages: the component multiplies them
+    // by 1% at the use site, where the depth color actually exists.
+    expect(entry.noteAccent).toEqual({
+      vars: ["--docs-process-outline-note-accent"],
+      kind: "number",
+      min: 0,
+      max: 100,
+      step: 5,
+      defaultValue: 55,
+    });
+    expect(entry.chipTint).toEqual({
+      vars: ["--docs-process-outline-chip-tint"],
+      kind: "number",
+      min: 0,
+      max: 100,
+      step: 1,
+      defaultValue: 13,
+    });
+    expect(entry.chipInkMix).toEqual({
+      vars: ["--docs-process-outline-chip-ink-mix"],
+      kind: "number",
+      min: 0,
+      max: 100,
+      step: 5,
+      defaultValue: 60,
+    });
+    // The trace mark is a mini pill now, built on the chips' own tint/mix
+    // formula; the old dot-size and arrowhead-stroke knobs are gone with it.
+    expect(entry.traceDotSize).toBeUndefined();
+    expect(entry.traceStroke).toBeUndefined();
+    expect(entry.traceBg).toEqual({
+      vars: ["--docs-process-outline-trace-bg"],
+      kind: "color",
+    });
+    expect(entry.traceTextSize).toEqual({
+      vars: ["--docs-process-outline-trace-text-size"],
+      kind: "length",
+      min: 0,
+      max: 14,
+      step: 0.5,
+      unit: "px",
+      defaultValue: 9.5,
+    });
+    expect(entry.traceTint).toEqual({
+      vars: ["--docs-process-outline-trace-tint"],
+      kind: "number",
+      min: 0,
+      max: 100,
+      step: 1,
+      defaultValue: 16,
+    });
+    expect(entry.traceInkMix).toEqual({
+      vars: ["--docs-process-outline-trace-ink-mix"],
+      kind: "number",
+      min: 0,
+      max: 100,
+      step: 5,
+      defaultValue: 70,
+    });
+    // Dragging across step lines highlights each line in its own depth colour
+    // — the chip tint formula again, never the block-wide selection wash.
+    expect(entry.selectBg).toEqual({
+      vars: ["--docs-process-outline-select-bg"],
+      kind: "color",
+    });
+    expect(entry.selectTint).toEqual({
+      vars: ["--docs-process-outline-select-tint"],
+      kind: "number",
+      min: 0,
+      max: 100,
+      step: 1,
+      defaultValue: 22,
+    });
+    expect(entry.selectPad).toEqual({
+      vars: ["--docs-process-outline-select-pad"],
+      kind: "length",
+      min: 0,
+      max: 8,
+      step: 0.5,
+      unit: "px",
+      defaultValue: 2,
+    });
+    // Hand-editing a line shows the caret and nothing else unless a theme asks
+    // for the ring; there is no block-wide edit tint at any value.
+    expect(entry.focusRing).toEqual({
+      vars: ["--docs-process-outline-focus-ring"],
+      kind: "length",
+      min: 0,
+      max: 3,
+      step: 0.5,
+      unit: "px",
+      defaultValue: 0,
     });
     expect(entry.arrowSize).toEqual({
       vars: ["--docs-process-outline-arrow-size"],
@@ -2367,12 +2583,25 @@ describe("style rail process-outline tokens", () => {
     const settings = normalizeSettings({
       components: {
         "process-outline": {
-          indent: "36px",
-          rowGap: "7px",
+          indent: "46px",
+          rowGap: "12px",
+          branchGap: "20px",
+          rootGap: "30px",
           arrowGap: "4px",
           lineHeight: "22px",
           textSize: "12.5px",
-          noteTextSize: "12.5px",
+          rootTextSize: "13.5px",
+          emptyTextSize: "12px",
+          noteTextSize: "11.5px",
+          noteLineHeight: "17px",
+          noteInset: "10px",
+          noteBorderWidth: "0px",
+          noteRuleWidth: "0px",
+          notePadY: "0px",
+          notePadX: "0px",
+          noteAccent: "55",
+          chipTint: "13",
+          chipInkMix: "60",
           arrowSize: "6px",
           stroke: "1.5px",
         },
@@ -2382,10 +2611,23 @@ describe("style rail process-outline tokens", () => {
     const vars = styleRailVars(settings);
     expect(vars["--docs-process-outline-indent"]).toBeNull();
     expect(vars["--docs-process-outline-row-gap"]).toBeNull();
+    expect(vars["--docs-process-outline-branch-gap"]).toBeNull();
+    expect(vars["--docs-process-outline-root-gap"]).toBeNull();
     expect(vars["--docs-process-outline-arrow-gap"]).toBeNull();
     expect(vars["--docs-process-outline-line-height"]).toBeNull();
     expect(vars["--docs-process-outline-text-size"]).toBeNull();
+    expect(vars["--docs-process-outline-root-text-size"]).toBeNull();
+    expect(vars["--docs-process-outline-empty-text-size"]).toBeNull();
     expect(vars["--docs-process-outline-note-text-size"]).toBeNull();
+    expect(vars["--docs-process-outline-note-line-height"]).toBeNull();
+    expect(vars["--docs-process-outline-note-inset"]).toBeNull();
+    expect(vars["--docs-process-outline-note-border-width"]).toBeNull();
+    expect(vars["--docs-process-outline-note-rule-width"]).toBeNull();
+    expect(vars["--docs-process-outline-note-pad-y"]).toBeNull();
+    expect(vars["--docs-process-outline-note-pad-x"]).toBeNull();
+    expect(vars["--docs-process-outline-note-accent"]).toBeNull();
+    expect(vars["--docs-process-outline-chip-tint"]).toBeNull();
+    expect(vars["--docs-process-outline-chip-ink-mix"]).toBeNull();
     expect(vars["--docs-process-outline-arrow-size"]).toBeNull();
     expect(vars["--docs-process-outline-stroke"]).toBeNull();
   });
@@ -2397,16 +2639,37 @@ describe("style rail process-outline tokens", () => {
     for (const label of [
       "Ink",
       "Rail",
+      "Depth 1 color",
+      "Depth 5 color",
+      "Loop keyword",
       "Note text",
       "Note background",
       "Note border",
       "Code background",
       "Indent",
       "Row gap",
+      "Branch gap",
+      "Root gap",
       "Arrow gap",
       "Line height",
       "Text size",
+      "Root text size",
+      "Empty text size",
       "Note text size",
+      "Note line height",
+      "Note inset",
+      "Note border width",
+      "Note rule width",
+      "Note padding Y",
+      "Note padding X",
+      "Note accent strength",
+      "Chip tint strength",
+      "Chip label mix",
+      "Trace pill background",
+      "Trace pill size",
+      "Trace pill tint",
+      "Trace pill label mix",
+      "Focused line ring",
       "Arrow size",
       "Stroke",
     ]) {
@@ -2416,11 +2679,15 @@ describe("style rail process-outline tokens", () => {
     const indent = screen.getByLabelText(/^Indent/) as HTMLInputElement;
     expect(indent).toHaveProperty("min", "16");
     expect(indent).toHaveProperty("max", "72");
-    expect(indent).toHaveProperty("value", "36");
-    const rowGap = screen.getByLabelText(/Row gap/) as HTMLInputElement;
+    expect(indent).toHaveProperty("value", "46");
+    const rowGap = screen.getByLabelText(/^Row gap/) as HTMLInputElement;
     expect(rowGap).toHaveProperty("min", "0");
     expect(rowGap).toHaveProperty("max", "24");
-    expect(rowGap).toHaveProperty("value", "7");
+    expect(rowGap).toHaveProperty("value", "12");
+    // The strength knobs are unitless percentages, not lengths.
+    const chipTint = screen.getByLabelText(/Chip tint strength/) as HTMLInputElement;
+    expect(chipTint).toHaveProperty("max", "100");
+    expect(chipTint).toHaveProperty("value", "13");
     const arrowGap = screen.getByLabelText(/Arrow gap/) as HTMLInputElement;
     expect(arrowGap).toHaveProperty("min", "0");
     expect(arrowGap).toHaveProperty("max", "16");
@@ -2436,7 +2703,7 @@ describe("style rail process-outline tokens", () => {
     const noteTextSize = screen.getByLabelText(/Note text size/) as HTMLInputElement;
     expect(noteTextSize).toHaveProperty("min", "10");
     expect(noteTextSize).toHaveProperty("max", "18");
-    expect(noteTextSize).toHaveProperty("value", "12.5");
+    expect(noteTextSize).toHaveProperty("value", "11.5");
     const arrowSize = screen.getByLabelText(/Arrow size/) as HTMLInputElement;
     expect(arrowSize).toHaveProperty("min", "3");
     expect(arrowSize).toHaveProperty("max", "12");
@@ -2589,5 +2856,26 @@ describe("style rail repo baseline", () => {
     render(<RailHarness onSaveStyleToRepo={onSaveStyleToRepo} />);
     fireEvent.click(screen.getByRole("button", { name: "Save style to repo" }));
     expect(onSaveStyleToRepo).toHaveBeenCalledTimes(1);
+  });
+});
+
+
+describe("page transition styles", () => {
+  it("loads older themes with quick fade defaults and clamps incoming settings", () => {
+    expect(normalizeSettings({}).transition).toEqual({ type: "fade", fadeOutMs: 80, fadeInMs: 120 });
+    expect(normalizeSettings({ transition: { type: "bad", fadeOutMs: -2, fadeInMs: 9999 } }).transition)
+      .toEqual({ type: "fade", fadeOutMs: 0, fadeInMs: 800 });
+  });
+
+  it("carries saved transition settings into consumer CSS and resets to the theme", () => {
+    const baseline = setStyleRailBaseline({ transition: { type: "none", fadeInMs: 200 } });
+    const loaded = normalizeSettings({ transition: { fadeOutMs: 50 } });
+    expect(loaded.transition).toEqual({ type: "none", fadeOutMs: 50, fadeInMs: 200 });
+    const vars = styleRailVars(loaded);
+    expect(vars["--docs-page-transition-type"]).toBe("none");
+    expect(vars["--docs-page-fade-out"]).toBe("50ms");
+    expect(vars["--docs-page-fade-in"]).toBe("200ms");
+    expect(paneOverrideCount(loaded, "layout.transitions")).toBe(1);
+    expect(paneOverrideCount(baseline, "layout.transitions")).toBe(0);
   });
 });

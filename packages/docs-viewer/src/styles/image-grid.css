@@ -1,0 +1,14 @@
+/* A requested column count is a maximum. Narrow panes wrap at 220px per image. */
+.docs-image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, max(220px, calc((100% - (var(--docs-grid-columns, 4) - 1) * 16px) / var(--docs-grid-columns, 4)))), 1fr));
+  gap: 24px 16px;
+  margin: 16px 0;
+  width: 100%;
+  min-width: 0;
+  align-items: start;
+}
+.docs-image-grid .docs-image-grid-item { margin: 0; min-width: 0; }
+.docs-image-grid-heading { margin: 0 0 8px; font-weight: 600; overflow-wrap: anywhere; }
+.docs-image-grid img { display: block; width: 100%; max-width: 100%; height: auto; border-radius: 6px; }
+.docs-image-grid figcaption { margin-top: 8px; font-size: 0.85em; color: var(--docs-image-caption-fg, var(--muted-foreground, #737373)); overflow-wrap: anywhere; }

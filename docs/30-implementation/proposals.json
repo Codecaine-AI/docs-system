@@ -1,0 +1,413 @@
+{
+  "schemaVersion": 1,
+  "proposals": [
+    {
+      "lint": {
+        "phase": "draft",
+        "findings": [],
+        "blocking": []
+      },
+      "id": "a7dd54ba-f92a-4797-a2a3-657ec3159821",
+      "ops": [
+        {
+          "type": "updateBlock",
+          "blockId": "b-implov-opening",
+          "props": {},
+          "text": [
+            {
+              "insert": "Implementation connects the Docs System design to the code that realizes it. Follow the matching source area for its responsibilities, key implementation choices, and links into the code."
+            }
+          ]
+        },
+        {
+          "type": "moveBlock",
+          "blockId": "b-implov-opening",
+          "toParentId": "b-impl-ov-root",
+          "toIndex": 0
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-implov-areas-h",
+          "props": {
+            "level": 2
+          },
+          "text": [
+            {
+              "insert": "Source Areas"
+            }
+          ]
+        },
+        {
+          "type": "moveBlock",
+          "blockId": "b-implov-areas-h",
+          "toParentId": "b-impl-ov-root",
+          "toIndex": 1
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-implov-tier-purpose",
+          "props": {},
+          "text": [
+            {
+              "insert": "Packages",
+              "attributes": {
+                "reference": {
+                  "kind": "doc",
+                  "path": "20-implementation/10-packages"
+                }
+              }
+            },
+            {
+              "insert": " maps "
+            },
+            {
+              "insert": "packages/",
+              "attributes": {
+                "reference": {
+                  "kind": "source",
+                  "path": "packages"
+                },
+                "code": true
+              }
+            },
+            {
+              "insert": " to the document model, indexing, storage, editing, command-line tools, agent runtime, and external-client integration."
+            }
+          ]
+        },
+        {
+          "type": "moveBlock",
+          "blockId": "b-implov-tier-purpose",
+          "toParentId": "b-impl-ov-root",
+          "toIndex": 2
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-implov-tier-inclusion",
+          "props": {},
+          "text": [
+            {
+              "insert": "Workbench",
+              "attributes": {
+                "reference": {
+                  "kind": "doc",
+                  "path": "20-implementation/20-workbench"
+                }
+              }
+            },
+            {
+              "insert": " explains how "
+            },
+            {
+              "insert": "packages/docs-workbench",
+              "attributes": {
+                "reference": {
+                  "kind": "source",
+                  "path": "packages/docs-workbench"
+                },
+                "code": true
+              }
+            },
+            {
+              "insert": " composes the server and browser editor."
+            }
+          ]
+        },
+        {
+          "type": "moveBlock",
+          "blockId": "b-implov-tier-inclusion",
+          "toParentId": "b-impl-ov-root",
+          "toIndex": 3
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-implov-tier-conform",
+          "props": {},
+          "text": [
+            {
+              "insert": "External Canvas and Sequence",
+              "attributes": {
+                "reference": {
+                  "kind": "doc",
+                  "path": "20-implementation/10-packages/80-external-canvas"
+                }
+              }
+            },
+            {
+              "insert": " explains the integration boundaries for the independently owned engines in "
+            },
+            {
+              "insert": "external/",
+              "attributes": {
+                "reference": {
+                  "kind": "source",
+                  "path": "external"
+                },
+                "code": true
+              }
+            },
+            {
+              "insert": "."
+            }
+          ]
+        },
+        {
+          "type": "moveBlock",
+          "blockId": "b-implov-tier-conform",
+          "toParentId": "b-impl-ov-root",
+          "toIndex": 4
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-implov-tier-standard",
+          "props": {},
+          "text": [
+            {
+              "insert": "Theming",
+              "attributes": {
+                "reference": {
+                  "kind": "doc",
+                  "path": "20-implementation/40-theming"
+                }
+              }
+            },
+            {
+              "insert": " maps the theme configuration in "
+            },
+            {
+              "insert": "themes/",
+              "attributes": {
+                "reference": {
+                  "kind": "source",
+                  "path": "themes"
+                },
+                "code": true
+              }
+            },
+            {
+              "insert": " to the visual system."
+            }
+          ]
+        },
+        {
+          "type": "moveBlock",
+          "blockId": "b-implov-tier-standard",
+          "toParentId": "b-impl-ov-root",
+          "toIndex": 5
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-implov-tier-h",
+          "props": {
+            "level": 2
+          },
+          "text": [
+            {
+              "insert": "Reading the Implementation"
+            }
+          ]
+        },
+        {
+          "type": "moveBlock",
+          "blockId": "b-implov-tier-h",
+          "toParentId": "b-impl-ov-root",
+          "toIndex": 6
+        },
+        {
+          "type": "insertBlock",
+          "blockId": "layout-review-7-20-implementation",
+          "blockType": "paragraph",
+          "parentId": "b-impl-ov-root",
+          "index": 7,
+          "props": {},
+          "text": [
+            {
+              "insert": "System Design",
+              "attributes": {
+                "reference": {
+                  "kind": "doc",
+                  "path": "10-system-design"
+                }
+              }
+            },
+            {
+              "insert": " owns system behavior and contracts. Agent definitions belong in Agents. This section explains how the code fulfills those contracts and why it takes its current form. Follow source links for file and function detail."
+            }
+          ]
+        },
+        {
+          "type": "insertBlock",
+          "blockId": "layout-review-8-20-implementation",
+          "blockType": "paragraph",
+          "parentId": "b-impl-ov-root",
+          "index": 8,
+          "props": {},
+          "text": [
+            {
+              "insert": "Implementation Layer",
+              "attributes": {
+                "reference": {
+                  "kind": "doc",
+                  "path": "10-system-design/10-doc-standards/60-implementation-layer"
+                }
+              }
+            },
+            {
+              "insert": " defines the concise format used here."
+            }
+          ]
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "b-implov-area-packages",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "b-implov-area-workbench",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "b-implov-area-external",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "b-implov-area-themes",
+          "mode": "subtree"
+        }
+      ],
+      "changedBlockIds": [
+        "b-implov-opening",
+        "b-impl-ov-root",
+        "b-implov-areas-h",
+        "b-implov-tier-purpose",
+        "b-implov-tier-inclusion",
+        "b-implov-tier-conform",
+        "b-implov-tier-standard",
+        "b-implov-tier-h",
+        "layout-review-7-20-implementation",
+        "layout-review-8-20-implementation",
+        "b-implov-area-packages",
+        "b-implov-area-workbench",
+        "b-implov-area-external",
+        "b-implov-area-themes"
+      ],
+      "summary": "Replace the policy-heavy Implementation opening with a concise map into the current source areas.",
+      "baseHash": "7e21d83015a0ebee915f8139cbcd1248cc8bf90f066fb237571744fd72be8b22",
+      "status": "rejected",
+      "createdAt": "2026-09-14T14:42:24.302Z",
+      "resolvedAt": "2026-09-14T14:50:04.843Z"
+    },
+    {
+      "lint": {
+        "phase": "draft",
+        "findings": [
+          {
+            "blockId": "b-implov-area-packages",
+            "field": "text",
+            "evidence": "\u0000 — the workspace packages: the pure document model, the derived backlinks index, the mutation authority, the browser viewer/editor, the runnable workbench, the command-line dialect, and the methodology package; decisions live under \u0000 and its per-package children.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": false
+          },
+          {
+            "blockId": "b-implov-area-workbench",
+            "field": "text",
+            "evidence": "\u0000 — the composition host where the server and viewer meet; host-wiring decisions live under \u0000.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": false
+          },
+          {
+            "blockId": "b-implov-area-external",
+            "field": "text",
+            "evidence": "\u0000 — the independently owned Canvas and Sequence projects, mounted as submodules; boundary decisions live under \u0000.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": false
+          },
+          {
+            "blockId": "b-implov-area-themes",
+            "field": "text",
+            "evidence": "\u0000 — theme folders and component style knobs; decisions live under \u0000.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": false
+          },
+          {
+            "blockId": "b-implov-tier-conform",
+            "field": "text",
+            "evidence": "Agents adding code either conform to the decisions recorded here or file a proposal to change them — never silently deviate.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": false
+          }
+        ],
+        "blocking": []
+      },
+      "id": "c8cd35d8-dc9c-4f33-b7e7-7b34d2985514",
+      "ops": [
+        {
+          "type": "updateBlock",
+          "blockId": "b-implov-opening",
+          "text": [
+            {
+              "insert": "How the current docs-system code realizes the system design: how the source is organized and why key implementation choices were made. This section is a concise transition from the design into the code."
+            }
+          ]
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-implov-tier-purpose",
+          "text": [
+            {
+              "insert": "This tier maps the design to current code and records key implementation choices. Design owns behavior, state models, and load-bearing schemas; Agents owns agent definitions; the code owns file-local detail; reports do not belong in the docs tree at all."
+            }
+          ]
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-implov-tier-inclusion",
+          "text": [
+            {
+              "insert": "Inclusion test",
+              "attributes": {
+                "bold": true
+              }
+            },
+            {
+              "insert": ": an entry helps the reader locate how the design is implemented or understand why the code is built this way."
+            }
+          ]
+        }
+      ],
+      "changedBlockIds": [
+        "b-implov-opening",
+        "b-implov-tier-purpose",
+        "b-implov-tier-inclusion"
+      ],
+      "summary": "Adjust the opening, tier purpose, and inclusion test only; preserve the source map, links, and decision guidance.",
+      "baseHash": "7e21d83015a0ebee915f8139cbcd1248cc8bf90f066fb237571744fd72be8b22",
+      "status": "accepted",
+      "createdAt": "2026-09-14T14:52:59.202Z",
+      "resolvedAt": "2026-09-14T15:20:15.759Z"
+    }
+  ]
+}

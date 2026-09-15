@@ -1,3 +1,4 @@
+import { lintDocument, type LintReport } from "@codecaine-ai/docs-model/lint";
 import { randomUUID } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
@@ -30,6 +31,7 @@ export type DocProposal = {
   status: "staged" | "accepted" | "rejected";
   createdAt: string;
   resolvedAt?: string;
+  lint?: LintReport;
 };
 
 export type ProposalsDocument = { schemaVersion: 1; proposals: DocProposal[] };
@@ -42,6 +44,7 @@ type ProposalFailure = {
   current_hash?: string;
   expected_hash?: string;
   issues?: unknown;
+  lint?: LintReport;
   held_by?: DraftLockInfo;
 };
 
@@ -174,7 +177,7 @@ export type StageBundleProposalInput = {
 };
 
 export type StageBundleProposalResult =
-  | { ok: true; proposal: DocProposal; proposals: ProposalsDocument; hash: string }
+  | { ok: true; proposal: DocProposal; proposals: ProposalsDocument; hash: string; lint: LintReport }
   | ProposalFailure;
 
 export async function stageBundleProposal(
@@ -198,13 +201,15 @@ export async function stageBundleProposal(
     if (input.expectedHash && input.expectedHash !== loaded.docHash) {
       return { ok: false as const, status: 409, detail: "Doc bundle is stale; reload before staging proposal.", current_hash: loaded.docHash, expected_hash: input.expectedHash };
     }
-    const lock = draftLockStore.checkForMutation({ kind: "doc", path: loaded.bundlePath }, sessionId ?? input.sessionId);
+    const lock = draftLockStore.forRoot(docsRoot).checkForMutation({ kind: "doc", path: loaded.bundlePath }, sessionId ?? input.sessionId);
     if (lock.blocked) return { ok: false as const, status: 423, detail: "Draft in progress — another session is editing this file.", held_by: lock.heldBy };
     const dryRun = applyOps(loaded.document, input.ops, () => randomUUID());
     if (!dryRun.ok) return { ok: false as const, status: 400, detail: "Doc ops failed to apply", issues: dryRun.issues };
+    const lint = lintDocument(dryRun.doc, { phase: "draft", baseline: loaded.document });
     const existing = await readProposalsSidecar(sidecarAbs);
     if (!existing.ok) return existing;
     const proposal: DocProposal = {
+      lint,
       id: randomUUID(), ops: input.ops, changedBlockIds: changedBlockIds(input.ops),
       summary: input.summary, baseHash: loaded.docHash,
       ...(input.annotationId !== undefined ? { annotationId: input.annotationId } : {}),
@@ -214,7 +219,7 @@ export async function stageBundleProposal(
     };
     const proposals = { schemaVersion: 1 as const, proposals: [...existing.proposals.proposals, proposal] };
     const written = await writeProposalsSidecar(sidecarAbs, proposals);
-    return { ok: true as const, proposal, proposals, hash: written.hash };
+    return { ok: true as const, proposal, proposals, hash: written.hash, lint };
   });
 }
 
@@ -243,9 +248,10 @@ export async function stageBundleProposalAgainstDocument(
   const dryRun = applyOps(baseDocument, input.ops, () => randomUUID());
   if (!dryRun.ok) return { ok: false, status: 400, detail: "Doc ops failed to apply", issues: dryRun.issues };
 
+  const lint = lintDocument(dryRun.doc, { phase: "draft", baseline: baseDocument });
   const sidecarAbs = proposalSidecarAbs(jsonAbs);
   return withPathLock(sidecarAbs, async () => {
-    const lock = draftLockStore.checkForMutation(
+    const lock = draftLockStore.forRoot(docsRoot).checkForMutation(
       { kind: "doc", path: normalizeBundlePath(path) },
       sessionId ?? input.sessionId,
     );
@@ -253,6 +259,7 @@ export async function stageBundleProposalAgainstDocument(
     const existing = await readProposalsSidecar(sidecarAbs);
     if (!existing.ok) return existing;
     const proposal: DocProposal = {
+      lint,
       id: randomUUID(),
       ops: input.ops,
       changedBlockIds: changedBlockIds(input.ops),
@@ -266,13 +273,13 @@ export async function stageBundleProposalAgainstDocument(
     };
     const proposals = { schemaVersion: 1 as const, proposals: [...existing.proposals.proposals, proposal] };
     const written = await writeProposalsSidecar(sidecarAbs, proposals);
-    return { ok: true as const, proposal, proposals, hash: written.hash };
+    return { ok: true as const, proposal, proposals, hash: written.hash, lint };
   });
 }
 
 export type AcceptBundleProposalInput = { expectedHash?: string; sessionId?: string };
 export type AcceptBundleProposalResult =
-  | { ok: true; proposal: DocProposal; proposals: ProposalsDocument; proposalsHash: string; doc: DocDocument; hash: string; patchId: string }
+  | { ok: true; proposal: DocProposal; proposals: ProposalsDocument; proposalsHash: string; doc: DocDocument; hash: string; patchId: string; lint: LintReport; normalization?: { ops: DocOp[]; message: string } }
   | ProposalFailure;
 
 export async function acceptBundleProposal(
@@ -280,6 +287,7 @@ export async function acceptBundleProposal(
   path: string,
   proposalId: string,
   input: AcceptBundleProposalInput = {},
+  options?: { lintPhase?: "draft" | "complete" },
 ): Promise<AcceptBundleProposalResult> {
   const jsonAbs = resolveDocBundleJsonPath(docsRoot, path);
   if (!jsonAbs) return { ok: false, status: 400, detail: `Invalid docs path: ${path}` };
@@ -295,7 +303,7 @@ export async function acceptBundleProposal(
     const loaded = await loadDocBundle(docsRoot, path);
     if ("error" in loaded) return { ok: false as const, ...loaded.error };
     if (loaded.docHash !== proposal.baseHash) return { ok: false as const, status: 409, detail: "stale-proposal", current_hash: loaded.docHash, expected_hash: proposal.baseHash };
-    const applied = await applyDocOpsToBundle(docsRoot, path, proposal.ops, proposal.baseHash, input.sessionId ?? proposal.sessionId);
+    const applied = await applyDocOpsToBundle(docsRoot, path, proposal.ops, proposal.baseHash, input.sessionId ?? proposal.sessionId, { lintPhase: options?.lintPhase ?? "complete" });
     if (!applied.ok) {
       if (applied.status === 409) return { ...applied, detail: "stale-proposal" };
       return applied;
@@ -313,7 +321,7 @@ export async function acceptBundleProposal(
       });
       if (!attached.ok) return attached;
     }
-    return { ok: true as const, proposal: accepted, proposals, proposalsHash: written.hash, doc: applied.doc, hash: applied.hash, patchId: applied.patchId };
+    return { ok: true as const, proposal: accepted, proposals, proposalsHash: written.hash, doc: applied.doc, hash: applied.hash, patchId: applied.patchId, lint: applied.lint, normalization: applied.normalization };
   });
 }
 
@@ -339,7 +347,7 @@ export async function rejectBundleProposal(
     if (index < 0) return { ok: false as const, status: 404, detail: `Proposal not found: ${proposalId}` };
     const proposal = existing.proposals.proposals[index];
     if (proposal.status !== "staged") return { ok: false as const, status: 409, detail: `Proposal is already ${proposal.status}.` };
-    const lock = draftLockStore.checkForMutation({ kind: "doc", path: normalizeBundlePath(path) }, input.sessionId ?? proposal.sessionId);
+    const lock = draftLockStore.forRoot(docsRoot).checkForMutation({ kind: "doc", path: normalizeBundlePath(path) }, input.sessionId ?? proposal.sessionId);
     if (lock.blocked) return { ok: false as const, status: 423, detail: "Draft in progress — another session is editing this file.", held_by: lock.heldBy };
     const rejected: DocProposal = { ...proposal, status: "rejected", resolvedAt: new Date().toISOString() };
     const proposals: ProposalsDocument = { schemaVersion: 1, proposals: existing.proposals.proposals.map((item, itemIndex) => itemIndex === index ? rejected : item) };

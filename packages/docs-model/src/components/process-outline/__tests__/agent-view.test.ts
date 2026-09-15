@@ -57,4 +57,16 @@ describe("process-outline component agent view", () => {
     const block: DocBlock = { id: "b1", type: "paragraph", props: {}, children: [] };
     expect(processOutlineAgentView(block, CTX)).toBeNull();
   });
+
+  it("shows the trace mark so an agent sees which steps are events", () => {
+    const view = processOutlineAgentView(
+      processOutlineBlock({
+        steps: [
+          { text: "Run", trace: true, steps: [{ text: "Drain", trace: true }, { text: "Sweep" }] },
+        ],
+      }),
+      CTX,
+    );
+    expect(view).toBe("```process-outline\n=> Run\n     => Drain\n     -> Sweep\n```");
+  });
 });

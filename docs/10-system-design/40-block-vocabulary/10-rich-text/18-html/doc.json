@@ -1,0 +1,309 @@
+{
+  "schemaVersion": 1,
+  "id": "doc-8fabdfa516ba79702ac0b1d4dfb1f53c",
+  "title": "HTML",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "html-contract-0",
+        "html-contract-1",
+        "html-contract-2",
+        "html-contract-3",
+        "html-contract-4",
+        "html-contract-5",
+        "html-contract-6",
+        "html-contract-7",
+        "html-contract-8",
+        "html-contract-9",
+        "html-contract-10",
+        "html-contract-11",
+        "html-contract-12",
+        "html-contract-13",
+        "html-contract-14",
+        "html-contract-15",
+        "html-contract-16",
+        "html-contract-17",
+        "html-contract-18",
+        "html-contract-19",
+        "html-contract-20"
+      ]
+    },
+    "html-contract-0": {
+      "id": "html-contract-0",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The HTML block renders a self-contained HTML/CSS artifact inside an isolated iframe. Use it for a freeform diagram or an interactive explanation that does not fit a typed diagram component."
+        }
+      ],
+      "children": []
+    },
+    "html-contract-1": {
+      "id": "html-contract-1",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "State Schema"
+        }
+      ],
+      "children": []
+    },
+    "html-contract-2": {
+      "id": "html-contract-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "HTML source lives in props rather than delta text. The block carries no sidecar and travels with its document."
+        }
+      ],
+      "children": []
+    },
+    "html-contract-3": {
+      "id": "html-contract-3",
+      "type": "state-shape",
+      "props": {
+        "description": "Props for one portable HTML embed.",
+        "example": "{\n  \"html\": \"<p>Local HTML diagram</p>\",\n  \"title\": \"Local HTML diagram\",\n  \"height\": 200\n}",
+        "fields": [
+          {
+            "name": "html",
+            "type": "string",
+            "description": "HTML fragment or document; up to 1,048,576 characters."
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "description": "Accessible frame label. Blank inserts use a fallback label until authored."
+          },
+          {
+            "name": "caption",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "height",
+            "type": "integer",
+            "required": false,
+            "description": "120 to 2000 pixels; defaults to 400."
+          },
+          {
+            "name": "allowScripts",
+            "type": "boolean",
+            "required": false,
+            "description": "Defaults to false. Explicit true permits inline scripts in the isolated frame."
+          }
+        ],
+        "name": "HtmlState"
+      },
+      "children": []
+    },
+    "html-contract-4": {
+      "id": "html-contract-4",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Typed Actions"
+        }
+      ],
+      "children": []
+    },
+    "html-contract-5": {
+      "id": "html-contract-5",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Insert and update the block through the generic typed block operations. The editor slash menu includes HTML. Edit HTML reveals the title, source textarea, height, and explicit script toggle. Preview and source share the same stored props."
+        }
+      ],
+      "children": []
+    },
+    "html-contract-6": {
+      "id": "html-contract-6",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Doc Renderer"
+        }
+      ],
+      "children": []
+    },
+    "html-contract-7": {
+      "id": "html-contract-7",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The read view, editor preview, static Docs export, and article publisher use the shared HTML renderer. It emits srcdoc at render time, so markup and inline styles appear without the host JavaScript bundle. Inline script interactions require browser JavaScript."
+        }
+      ],
+      "children": []
+    },
+    "html-contract-8": {
+      "id": "html-contract-8",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The sandbox never grants same-origin access. Scripts are disabled unless allowScripts is true, which grants only allow-scripts. The frame cannot read the parent page or its cookies."
+        }
+      ],
+      "children": []
+    },
+    "html-contract-9": {
+      "id": "html-contract-9",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A Content Security Policy precedes author markup. It blocks fetch, external scripts, external stylesheets, remote images, nested frames, objects, forms, and base URL changes. Inline CSS and data images, fonts, and media are permitted."
+        }
+      ],
+      "children": []
+    },
+    "html-contract-10": {
+      "id": "html-contract-10",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Embed CSS, JavaScript, and data assets directly. Relative files, CDN libraries, and external API calls do not work. The sandbox is not a complete network isolation boundary because frame self-navigation can still request another URL. Do not include secrets in HTML."
+        }
+      ],
+      "children": []
+    },
+    "html-contract-11": {
+      "id": "html-contract-11",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Give diagrams semantic labels and keyboard controls. Choose a height that fits the artifact; larger content scrolls within the frame. The HTML block adds no source or image download controls."
+        }
+      ],
+      "children": []
+    },
+    "html-contract-12": {
+      "id": "html-contract-12",
+      "type": "html",
+      "props": {
+        "allowScripts": true,
+        "height": 180,
+        "html": "<style>button{font:inherit;padding:12px;border-radius:8px;border:1px solid #777}p{font-size:14px}</style><button onclick=\"this.textContent=Number(this.textContent)+1\" aria-label=\"Increase counter\">0</button><p>This button runs entirely inside the HTML frame.</p>",
+        "title": "Interactive HTML example"
+      },
+      "children": []
+    },
+    "html-contract-13": {
+      "id": "html-contract-13",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent Renderer"
+        }
+      ],
+      "children": []
+    },
+    "html-contract-14": {
+      "id": "html-contract-14",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The agent projection labels the artifact with its title and includes the raw source in an html-embed fenced listing. Projection is for inspection; it is not a lossless interchange format for every prop. Canonical doc.json retains all props."
+        }
+      ],
+      "children": []
+    },
+    "html-contract-15": {
+      "id": "html-contract-15",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The migration importer recognizes an explicit Html component with title, optional height, optional caption, and allowScripts=\"true\" attributes. Ordinary fenced html listings remain code examples and are never executed implicitly."
+        }
+      ],
+      "children": []
+    },
+    "html-contract-16": {
+      "id": "html-contract-16",
+      "type": "code",
+      "props": {
+        "language": "mdx"
+      },
+      "text": [
+        {
+          "insert": "<Html title=\"Diagram\" height=\"240\">\n<style>p { color: teal; }</style>\n<p>Self-contained diagram</p>\n</Html>"
+        }
+      ],
+      "children": []
+    },
+    "html-contract-17": {
+      "id": "html-contract-17",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Theme"
+        }
+      ],
+      "children": []
+    },
+    "html-contract-18": {
+      "id": "html-contract-18",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The outer frame uses the host border and caption colors. Its body advertises light and dark color schemes; author CSS owns the artifact palette. The iframe isolates its CSS from the host page."
+        }
+      ],
+      "children": []
+    },
+    "html-contract-19": {
+      "id": "html-contract-19",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent Adapter"
+        }
+      ],
+      "children": []
+    },
+    "html-contract-20": {
+      "id": "html-contract-20",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The rich-text family owns this block. Its closed state schema drives discovery, blank insertion, and scalar prop edits. Existing connections must refresh their tool schema after installing a version that adds the html type."
+        }
+      ],
+      "children": []
+    }
+  }
+}

@@ -1,6 +1,6 @@
 ---
 name: docs-framework
-description: Agent skill for authoring, navigating, and maintaining structured three-layer documentation (Foundation, System Design, Implementation). Use when reading docs/ to understand the codebase, or when writing or maintaining documentation.
+description: Agent skill for authoring, navigating, and maintaining structured documentation (Foundation, System Design, Agents, Implementation). Use when reading docs/ to understand the codebase, or when writing or maintaining documentation.
 ---
 
 # Purpose
@@ -58,7 +58,8 @@ Author, navigate, and maintain the `docs/` corpus. Determine your intent, load t
 docs/
 ├── 00-foundation/       # Intent — what this is and why
 ├── 10-system-design/    # System behavior and structural decisions, by concept
-└── 20-implementation/   # Current codebase — mirrors source structure
+├── 20-agents/           # Agents involved in the system and their definitions
+└── 30-implementation/   # Current codebase — maps design to code and explains key choices
     └── 99-appendix/     # Operational (setup, tooling, infra)
 ```
 

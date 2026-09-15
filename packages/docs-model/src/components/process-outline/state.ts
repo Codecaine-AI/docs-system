@@ -14,6 +14,12 @@ export const ProcessOutlineStepSchema = Type.Recursive(
         kind: Type.Optional(
           Type.Union([Type.Literal("step"), Type.Literal("note")]),
         ),
+        trace: Type.Optional(
+          Type.Boolean({
+            description:
+              "Marks a step that a real trace event corresponds to; `=>` in notation. Notes cannot be trace-marked.",
+          }),
+        ),
         steps: Type.Optional(Type.Array(This)),
       },
       { additionalProperties: false },
@@ -29,8 +35,14 @@ export const ProcessOutlineState = Type.Object(
   { additionalProperties: false },
 );
 
-/** Notes are leaves — a `kind: "note"` step must not carry child steps. */
-function checkNoteLeaves(
+/**
+ * The two step invariants the schema itself cannot express:
+ *
+ * - Notes are leaves — a `kind: "note"` step must not carry child steps.
+ * - Notes are not events — a note is prose ABOUT a step, so it can never be
+ *   trace-marked. `=>` and `>` are mutually exclusive in notation too.
+ */
+function checkStepInvariants(
   steps: readonly ProcessOutlineStep[],
   basePath: string,
   issues: DocValidationIssue[],
@@ -42,7 +54,13 @@ function checkNoteLeaves(
         message: `Note step "${step.text}" has child steps — notes are leaves.`,
       });
     }
-    if (step.steps) checkNoteLeaves(step.steps, `${basePath}[${index}].steps`, issues);
+    if (step.kind === "note" && step.trace) {
+      issues.push({
+        path: `${basePath}[${index}].trace`,
+        message: `Note step "${step.text}" is trace-marked — notes are prose about a step, not trace events.`,
+      });
+    }
+    if (step.steps) checkStepInvariants(step.steps, `${basePath}[${index}].steps`, issues);
   });
 }
 
@@ -51,7 +69,7 @@ export const processOutlineState: BlockStateDefinition = {
   carriesText: false,
   check(props, basePath) {
     const issues: DocValidationIssue[] = [];
-    checkNoteLeaves((props.steps ?? []) as ProcessOutlineStep[], `${basePath}.steps`, issues);
+    checkStepInvariants((props.steps ?? []) as ProcessOutlineStep[], `${basePath}.steps`, issues);
     return issues;
   },
 };

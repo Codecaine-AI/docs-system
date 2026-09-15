@@ -1,0 +1,20 @@
+bun test v1.3.10 (30e609e0)
+
+packages/tui/src/docs-writer-tools.test.ts:
+(pass) docs-writer typed tools > registers the four-tool surface [0.09ms]
+(pass) docs-writer typed tools > write → read → check roundtrip through validated doc.json [4.02ms]
+(pass) docs-writer typed tools > update preserves the document id [1.57ms]
+(pass) docs-writer typed tools > path escapes are rejected without writing [0.09ms]
+(pass) docs-writer typed tools > reading a missing doc errors cleanly
+(pass) docs-writer typed tools > check rejects dangling doc references and internal links [1.69ms]
+(pass) docs-writer lint diagnostics > new required prose errors reject before creating folders [0.50ms]
+(pass) docs-writer lint diagnostics > warnings write successfully, check reports them, and fixes clear them [0.96ms]
+(pass) docs-writer lint diagnostics > baseline survives regenerated block IDs; new errors preserve existing bytes [2.02ms]
+(pass) docs-writer lint diagnostics > new documents retain an empty baseline across writes and checks [0.79ms]
+(pass) docs-writer lint diagnostics > conversion warnings remain visible and code examples are exempt [0.58ms]
+(pass) docs-writer lint diagnostics > check keeps schema failures separate from lint diagnostics [0.28ms]
+
+ 12 pass
+ 0 fail
+ 57 expect() calls
+Ran 12 tests across 1 file. [78.00ms]

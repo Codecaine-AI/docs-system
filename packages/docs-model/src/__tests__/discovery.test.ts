@@ -17,7 +17,9 @@ const CARRIES_TEXT = {
   callout: true,
   divider: false,
   image: false,
+  "image-grid": false,
   video: false,
+  html: false,
   code: true,
   "structured-table": false,
   "file-tree": false,
@@ -162,13 +164,13 @@ describe("buildBlocksDiscovery", () => {
     ]);
   });
 
-  it("reports the rich-text bundle's eight types and no actions", () => {
+  it("reports the rich-text bundle's ten types and no actions", () => {
     const richText = buildBlocksDiscovery().components.find(
       (component) => component.name === "rich-text",
     );
 
     expect(richText).toBeDefined();
-    expect(richText!.types).toHaveLength(8);
+    expect(richText!.types).toHaveLength(10);
     expect(richText!.actions).toHaveLength(0);
   });
 });

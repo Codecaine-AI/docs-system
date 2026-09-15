@@ -1,8 +1,25 @@
+import { realpathSync } from "node:fs";
+import { basename, dirname, join, resolve } from "node:path";
+
+// Existing files and newly created files must share their parent's real path
+// identity. In particular macOS /var and /private/var name the same tree.
+function canonicalMutationPath(absPath: string): string {
+  let ancestor = resolve(absPath);
+  const missing: string[] = [];
+  while (true) {
+    try { return join(realpathSync(ancestor), ...missing); } catch {
+      const parent = dirname(ancestor);
+      if (parent === ancestor) return resolve(absPath);
+      missing.unshift(basename(ancestor));
+      ancestor = parent;
+    }
+  }
+}
+
 /**
  * In-process async mutex keyed by absolute file path. Bun runs as a single
- * process, so this is sufficient to serialize the read-check-write critical
- * section of every mutating docs/canvas/annotations route — no cross-process
- * coordination needed.
+ * process per shared authority, so its clients serialize read-check-write
+ * operations here. Independent server processes do not share these locks.
  */
 
 // Tail of the queue for each path: the promise representing "everything
@@ -11,6 +28,7 @@
 const tails = new Map<string, Promise<unknown>>();
 
 export function withPathLock<T>(absPath: string, fn: () => Promise<T>): Promise<T> {
+  absPath = canonicalMutationPath(absPath);
   const priorTail = tails.get(absPath) ?? Promise.resolve();
 
   // `run` waits for everything ahead of it in line, then executes `fn`.

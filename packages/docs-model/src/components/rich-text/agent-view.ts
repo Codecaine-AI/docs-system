@@ -70,8 +70,19 @@ export const richTextAgentView: ComponentBundle["agentView"] = (block, ctx) => {
       return "---";
     case "callout":
       return projectCallout(block);
+    case "image-grid":
+      return (block.props.images as Array<{ src: string; heading?: string; alt?: string; caption?: string }> ?? []).map(image => [
+        image.heading ? `**${image.heading}**` : null,
+        `![${image.alt ?? image.heading ?? image.caption ?? ""}](${image.src})`,
+        image.caption ? `*${image.caption}*` : null,
+      ].filter(Boolean).join("\n")).join("\n\n");
     case "image":
       return projectImage(block);
+    case "html": {
+      const html = stringProp(block, "html") ?? "";
+      const fence = "`".repeat(Math.max(3, ...Array.from(html.matchAll(/`+/g), (m) => m[0].length + 1)));
+      return `> **HTML: ${stringProp(block, "title") ?? "HTML content"}**\n\n${fence}html-embed\n${html}\n${fence}`;
+    }
     case "video":
       return projectVideo(block);
     case "list-item":

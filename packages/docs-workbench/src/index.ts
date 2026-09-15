@@ -19,3 +19,5 @@ export {
   type DocsTreeNode,
 } from "@codecaine-ai/docs-server";
 export { runServe, type RunServeOptions } from "./run-serve";
+
+export { type SharedDocsApiOptions } from "./shared-api";

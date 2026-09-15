@@ -1,0 +1,311 @@
+{
+  "schemaVersion": 1,
+  "kind": "local-development",
+  "packages": [
+    {
+      "name": "@codecaine-ai/docs-mcp",
+      "version": "0.1.0",
+      "path": "docs-system/packages/docs-mcp",
+      "sourceHash": "a6f39404a5e748a4b19cff3841baa7324b720fe6662036a6453491a03febf48e",
+      "dependencies": {
+        "@modelcontextprotocol/sdk": "1.30.0",
+        "@codecaine-ai/docs-server": "workspace:*",
+        "@codecaine-ai/docs-model": "workspace:*",
+        "@sinclair/typebox": "^0.34",
+        "@codecaine-ai/docs-index": "workspace:*",
+        "@codecaine-ai/docs-workbench": "workspace:*"
+      }
+    },
+    {
+      "name": "@codecaine-ai/docs-model",
+      "version": "0.1.0",
+      "path": "docs-system/packages/docs-model",
+      "sourceHash": "39fd5951d70fb673f7501ec3af7db7d3960a16f88fd748f9499ee30a8d263a01",
+      "dependencies": {
+        "@codecaine-ai/annotations": "workspace:*",
+        "@codecaine-ai/canvas": "workspace:*",
+        "@codecaine-ai/sequence": "workspace:*",
+        "@sinclair/typebox": "^0.34"
+      }
+    },
+    {
+      "name": "@codecaine-ai/docs-server",
+      "version": "0.1.0",
+      "path": "docs-system/packages/docs-server",
+      "sourceHash": "d82eb2b7bc113525b59e609deb745c85fc70bd1b801d6978e9cb6d697a64e0eb",
+      "dependencies": {
+        "@codecaine-ai/canvas": "workspace:*",
+        "@codecaine-ai/docs-index": "workspace:*",
+        "@codecaine-ai/docs-model": "workspace:*",
+        "@codecaine-ai/sequence": "workspace:*",
+        "elysia": "^1.2.0"
+      }
+    },
+    {
+      "name": "@codecaine-ai/docs-index",
+      "version": "0.1.0",
+      "path": "docs-system/packages/docs-index",
+      "sourceHash": "094d0877a5067454a7c5f3c18b087496a5857618b9624a6e5e9789d0e568eeed",
+      "dependencies": {
+        "@codecaine-ai/canvas": "workspace:*",
+        "@codecaine-ai/docs-model": "workspace:*"
+      }
+    },
+    {
+      "name": "@codecaine-ai/docs-workbench",
+      "version": "0.1.0",
+      "path": "docs-system/packages/docs-workbench",
+      "sourceHash": "5baed5502a9c09359f46a54506dc7b5af6eb652589567b49b9f6c577387ab64d",
+      "dependencies": {
+        "@codecaine-ai/annotations": "workspace:*",
+        "@codecaine-ai/canvas": "workspace:*",
+        "@codecaine-ai/docs-index": "workspace:*",
+        "@codecaine-ai/docs-model": "workspace:*",
+        "@codecaine-ai/docs-server": "workspace:*",
+        "@codecaine-ai/docs-viewer": "workspace:*",
+        "@codecaine-ai/sequence": "workspace:*",
+        "elysia": "^1.2.0",
+        "lucide-react": "^0.563.0",
+        "react": "^19",
+        "react-dom": "^19"
+      }
+    },
+    {
+      "name": "@codecaine-ai/canvas",
+      "version": "0.1.0",
+      "path": "canvas/packages/canvas",
+      "sourceHash": "379f268786c7ebf385d5463c918d10d6156efc95e808562b6169e4b936d5c40b",
+      "dependencies": {
+        "@sinclair/typebox": "^0.34",
+        "class-variance-authority": "^0.7.1",
+        "clsx": "^2.1.1",
+        "radix-ui": "^1.4.3",
+        "tailwind-merge": "^3.4.0"
+      }
+    },
+    {
+      "name": "@codecaine-ai/sequence",
+      "version": "0.1.0",
+      "path": "sequence/packages/sequence",
+      "sourceHash": "c20e5a039e1ffc4d2b66c6a97625c7b6f8721edf512c53d21c48f81441ddbbcc",
+      "dependencies": {
+        "@sinclair/typebox": "0.34.49"
+      }
+    },
+    {
+      "name": "@codecaine-ai/annotations",
+      "version": "0.1.0",
+      "path": "annotations",
+      "sourceHash": "aa54fcdc8ed7d291ba96204669254ed1a30660ab698916b27e98172fd542ef9b",
+      "dependencies": {
+        "class-variance-authority": "^0.7.1",
+        "clsx": "^2.1.1",
+        "lucide-react": "^0.563.0",
+        "tailwind-merge": "^3.4.0"
+      }
+    }
+  ],
+  "repositories": [
+    {
+      "name": "docs-system",
+      "commit": "1c3a627d3e2d3a445207469223f05b6a10f8979b",
+      "dirty": true
+    },
+    {
+      "name": "canvas",
+      "commit": "f3e3fa00382636537769c8030a76f719e480a94f",
+      "dirty": true
+    },
+    {
+      "name": "sequence",
+      "commit": "35f033b5fb057d53258fc8c772f4f9fb01f7696a",
+      "dirty": true
+    },
+    {
+      "name": "annotations",
+      "commit": "5458cc0b13d493fca3ed058653f6c94ceb70f3fc",
+      "dirty": true
+    },
+    {
+      "name": "agent-kernel",
+      "commit": "1287f4d934eca00dd5fae6d661713f53a6863a4c",
+      "dirty": true
+    },
+    {
+      "name": "prompt-kit",
+      "commit": "8f8a66c3cb0606b9709def2fc6df3045b9229627",
+      "dirty": false
+    }
+  ],
+  "guidanceSnapshot": "sha256:876c0587d3d6257a2e8619f5e6102e8d1d4aed0f02c276a26bdf9951cf6d4b3d",
+  "guidanceSources": [
+    {
+      "path": "docs/10-system-design/10-doc-standards/10-structure/doc.json",
+      "sha256": "4cc1649116c5e3dbe6dbac189db0387ebf70645bc9dde161722bdd868193c353",
+      "kind": "standard"
+    },
+    {
+      "path": "docs/10-system-design/10-doc-standards/20-numbering/doc.json",
+      "sha256": "7598a2ea88f55945d9817d99e871ca4d665db1d61a14ee049925beefade8b5b5",
+      "kind": "standard"
+    },
+    {
+      "path": "docs/10-system-design/10-doc-standards/30-cross-doc-linking/doc.json",
+      "sha256": "1f358b5d2b1fb6a914971d4bb555f7a8c88fb1b6c837ceff13072cf945170325",
+      "kind": "standard"
+    },
+    {
+      "path": "docs/10-system-design/10-doc-standards/40-code-linking/doc.json",
+      "sha256": "6eede1e8074ff0d9540c9003c62cd98b0ae584b01f41a39da3c8e001a2acf128",
+      "kind": "standard"
+    },
+    {
+      "path": "docs/10-system-design/10-doc-standards/50-in-code-docs/doc.json",
+      "sha256": "5ce490a31e03c24927749d0c5ba77f3baea4fd744a403cd6e9e7020eda361106",
+      "kind": "standard"
+    },
+    {
+      "path": "docs/10-system-design/10-doc-standards/60-implementation-layer/doc.json",
+      "sha256": "6713900269395f96bc2ba9e2a652055e82241e26267b1d66c0bebdda7090e7ed",
+      "kind": "standard"
+    },
+    {
+      "path": "docs/10-system-design/10-doc-standards/70-document-purpose/doc.json",
+      "sha256": "7db429cd3d3f2b12dcab6facac20ac83f3dbbc2ba05901d7adfa0e30899fda4e",
+      "kind": "standard"
+    },
+    {
+      "path": "docs/10-system-design/10-doc-standards/80-authoring-lints/doc.json",
+      "sha256": "aaf9557e29d7f5f8cd9ed38a233367b6267d5199189cfdd6d036cda9f66cef7f",
+      "kind": "standard"
+    },
+    {
+      "path": "docs/99-appendix/10-style-guide/10-writing-style/doc.json",
+      "sha256": "89e25543d68a675a88a4dd7c85dbc61e1e317289971e6b5c0ae5caa866412f77",
+      "kind": "style"
+    },
+    {
+      "path": "docs/99-appendix/10-style-guide/20-structure/doc.json",
+      "sha256": "efd90a302ebfba1a0ac4c56b99266282914a81dc1938568ed4653ba166f41511",
+      "kind": "style"
+    },
+    {
+      "path": "docs/10-system-design/40-block-vocabulary/10-rich-text/doc.json",
+      "sha256": "bd8c8276ba379f8befdecb033890f9d1f845e88a2464c97e606a9342ffa7d796",
+      "kind": "component-doc"
+    },
+    {
+      "path": "docs/10-system-design/40-block-vocabulary/20-code-block/doc.json",
+      "sha256": "3b20d5cca5f965396869a57d7d69bb69d76a9050c6d4ee6077c7d68b7c177959",
+      "kind": "component-doc"
+    },
+    {
+      "path": "docs/10-system-design/40-block-vocabulary/40-file-tree/doc.json",
+      "sha256": "7234c3a8f4676ff9b498fadc3215ec09144643d14752c137c0e9025fb6b140c8",
+      "kind": "component-doc"
+    },
+    {
+      "path": "docs/10-system-design/40-block-vocabulary/30-structured-table/doc.json",
+      "sha256": "34e67751e9a35173058ed8f37696886cdcc716f14979ce54b3cbce2c7c6c8596",
+      "kind": "component-doc"
+    },
+    {
+      "path": "docs/10-system-design/40-block-vocabulary/60-interaction-surface/doc.json",
+      "sha256": "e32dd8f7cefd0bf3c87d53107c0b1f0c18ceeba9d2ed43237be880871eaa7a17",
+      "kind": "component-doc"
+    },
+    {
+      "path": "docs/10-system-design/40-block-vocabulary/50-state-shape/doc.json",
+      "sha256": "cae56622ab1ca0106f5220fcf6b36f44652d1579ee105de71747863d80be8625",
+      "kind": "component-doc"
+    },
+    {
+      "path": "docs/10-system-design/40-block-vocabulary/80-canvas/doc.json",
+      "sha256": "25d64bbabf0bb4c676716ea430d040e4abe99244d5a679d34d4e34d06d1ce0a1",
+      "kind": "component-doc"
+    },
+    {
+      "path": "docs/10-system-design/40-block-vocabulary/70-sequence/doc.json",
+      "sha256": "6dd2cfbcc251ff479081091495116d6543b2ca3f75c2b1c8daa40346e54ef942",
+      "kind": "component-doc"
+    },
+    {
+      "path": "docs/10-system-design/40-block-vocabulary/90-process-outline/doc.json",
+      "sha256": "c21d37eb79e0c7ea030c7a09b2475aa821fac895b31e3a27bba672947b4c0dec",
+      "kind": "component-doc"
+    },
+    {
+      "path": "packages/docs-model/src/authoring-guidance.ts",
+      "sha256": "d316b0db7682b2adb7aebe265b3be2d15780c2d5b0dc2bcae5e490d572114e23",
+      "kind": "renderer"
+    },
+    {
+      "path": "packages/docs-model/src/visual-component-guidance.ts",
+      "sha256": "919922a08c193fb1c9a4a2d9695791cc0516f062f6e9717f0b13ebcba916e4cd",
+      "kind": "renderer"
+    },
+    {
+      "path": "packages/docs-model/src/project-markdown.ts",
+      "sha256": "c5f8e700b24458a6ecd6a6448a4a77d795d01bebc9508f7daaaeb6a2a7eec873",
+      "kind": "renderer"
+    },
+    {
+      "path": "packages/docs-model/src/components/rich-text/manifest.ts",
+      "sha256": "7d9825e4dbb38e3c7c748ec5552d849386d5b27370d517c277c2ea9fb25f1192",
+      "kind": "component-manifest"
+    },
+    {
+      "path": "packages/docs-model/src/components/code/manifest.ts",
+      "sha256": "2115a9ea3ae71f24e78ae914c7c85d27a0c57ab934d145d46ee37e37cf0918eb",
+      "kind": "component-manifest"
+    },
+    {
+      "path": "packages/docs-model/src/components/file-tree/manifest.ts",
+      "sha256": "28796be91670ee3b38189cd978731d5c54af6faf2aefe5bb37a72b7c92de9f07",
+      "kind": "component-manifest"
+    },
+    {
+      "path": "packages/docs-model/src/components/structured-table/manifest.ts",
+      "sha256": "3d8c4b6f668be3cad8ecd1efb706f6ddbca83140a5c6e98b6536daecbfa0d5b6",
+      "kind": "component-manifest"
+    },
+    {
+      "path": "packages/docs-model/src/components/interaction-surface/manifest.ts",
+      "sha256": "9d63b1e5129e26b4ba6ab97162d89af0f8ca8c3ad685d3ccb58b9a9301d94413",
+      "kind": "component-manifest"
+    },
+    {
+      "path": "packages/docs-model/src/components/state-shape/manifest.ts",
+      "sha256": "77b53a4ac65c44b77d62b953d60bfd7223ca78eb3692bcfba4c91b5110216de6",
+      "kind": "component-manifest"
+    },
+    {
+      "path": "packages/docs-model/src/components/canvas/manifest.ts",
+      "sha256": "6938a026f6d83f7038b065dd3ee053f96e9a133cfaecd00f1a0cc057459339f5",
+      "kind": "component-manifest"
+    },
+    {
+      "path": "packages/docs-model/src/components/sequence/manifest.ts",
+      "sha256": "1c1c9b9e3592c7c8b8ae78c6215d6278f9fda7c7053ae537b8c46d7875da4e17",
+      "kind": "component-manifest"
+    },
+    {
+      "path": "packages/docs-model/src/components/process-outline/manifest.ts",
+      "sha256": "abc012501c07a22ca697ac8c7a19e9fbe5506eb9d39773261d07ad77c556ac78",
+      "kind": "component-manifest"
+    },
+    {
+      "path": "packages/docs-mcp/skills/codecaine-docs/SKILL.md",
+      "sha256": "42e22dba870438fa71bd18e4823678443ad24b7629936fccc126ef3ca4934cb2",
+      "kind": "skill"
+    }
+  ],
+  "toolContractHash": "90bc9726055fcee6096fe21ce9e73bf815c600191ccc70fd02a05970b14ff4ad",
+  "clients": [
+    "codex",
+    "claude",
+    "pi"
+  ],
+  "snapshotId": "7c0ea0969c0ad6b7a41e5cece12d7c0fd58ab5ef947191d3b4de664bab67d54e",
+  "createdAt": "2026-09-11T15:14:06.694Z"
+}

@@ -1,0 +1,95 @@
+/*
+ * Per-surface font tokens: every code surface (blocks, inline chips, kbd)
+ * follows --docs-font-code, and ordered-list CSS counters follow
+ * --docs-font-numeric — both style-rail knobs. These
+ * override docs-viewer's Tailwind `font-mono` fallbacks, which exist only
+ * for hosts without this stylesheet.
+ */
+.docs-markdown code,
+.docs-markdown pre,
+.docs-markdown kbd,
+.docs-editor-prosemirror code,
+.docs-editor-prosemirror pre {
+  font-family: var(--docs-font-code, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace);
+}
+
+/*
+ * Syntax highlighting — theme-token colors over hljs classes, emitted by BOTH
+ * rehype-highlight (markdown-projected fenced code) and docs-viewer's
+ * components/code/highlight.ts (the read surface's `code` block + annotated
+ * code). The --syntax-* vars are defined per theme (light/dark) in
+ * theme/semantic.css, so dark mode needs no extra rules here.
+ */
+.hljs {
+  background: transparent;
+  color: var(--docs-text-secondary, var(--color-text-default, inherit));
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-built_in,
+.hljs-name,
+.hljs-tag,
+.hljs-attr,
+.hljs-property,
+.hljs-doctag,
+.hljs-selector-class,
+.hljs-selector-id,
+.hljs-selector-pseudo,
+.hljs-selector-attr {
+  color: var(--syntax-key, var(--color-text-purple, #9065b0));
+}
+
+.hljs-string,
+.hljs-title,
+.hljs-section,
+.hljs-attribute,
+.hljs-type,
+.hljs-regexp,
+.hljs-template-tag,
+.hljs-template-variable {
+  color: var(--syntax-string, var(--color-text-green, #448361));
+}
+
+.hljs-number,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-variable {
+  color: var(--syntax-number, var(--color-text-blue, #337ea9));
+}
+
+/* true/false/null (JSON, ts, python's True/None) read as booleans. The
+   descendant selector matters: the json grammar nests hljs-keyword INSIDE
+   hljs-literal, and the inner span would otherwise win with --syntax-key. */
+.hljs-literal,
+.hljs-literal .hljs-keyword,
+.hljs-boolean,
+.hljs-meta {
+  color: var(--syntax-boolean, var(--color-text-orange, #d9730d));
+}
+
+/* Interpolated code inside template strings is code again, not string. */
+.hljs-subst {
+  color: var(--docs-text-secondary, var(--color-text-default, inherit));
+}
+
+.hljs-comment,
+.hljs-quote {
+  color: var(--docs-text-tertiary, var(--color-text-gray, gray));
+}
+
+.hljs-deletion {
+  color: var(--status-danger, var(--color-text-red, #d44c47));
+}
+
+.hljs-addition {
+  color: var(--status-success, var(--color-text-green, #448361));
+}
+
+/* The header only has a bottom rule. Hosts without Tailwind preflight must
+   not inherit the browser's medium border on the other three sides. */
+[data-code-header] {
+  border-top-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+}

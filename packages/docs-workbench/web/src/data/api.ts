@@ -343,6 +343,7 @@ export function undoChangeset(id: string): Promise<DocChangeSetView> {
 // ---------------------------------------------------------------------------
 
 export type ApplyDocOpsResponse = {
+  normalization?: { ops: DocOp[]; message: string };
   doc: DocDocument;
   hash: string;
   patch_id: string;

@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "proposals": [
+    {
+      "lint": {
+        "phase": "draft",
+        "findings": [],
+        "blocking": []
+      },
+      "id": "937b9673-f870-4f82-8496-429e67ff78e3",
+      "ops": [
+        {
+          "type": "updateBlock",
+          "blockId": "b-70-document-purpose-preserve-the-three-layer-14",
+          "text": [
+            {
+              "insert": "Use the section ownership defined in Structure."
+            }
+          ]
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-70-document-purpose-foundation-owns-intent-15",
+          "text": [
+            {
+              "insert": "Foundation owns intent and scope. System Design owns behavior and contracts. Agents owns agent definitions. Implementation connects the current code to those designs and explains key implementation choices."
+            }
+          ]
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-70-document-purpose-keep-implementation-area-21",
+          "text": [
+            {
+              "insert": "Implementation pages follow meaningful code areas and stay concise. Include the design connection, relevant rationale, and source links without mandatory decision-entry headings."
+            }
+          ]
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-70-document-purpose-templates-define-the-pag-22",
+          "text": [
+            {
+              "insert": "Use a page shape that serves its reader task. Do not add sections or prose solely to fill a template."
+            }
+          ]
+        }
+      ],
+      "changedBlockIds": [
+        "b-70-document-purpose-preserve-the-three-layer-14",
+        "b-70-document-purpose-foundation-owns-intent-15",
+        "b-70-document-purpose-keep-implementation-area-21",
+        "b-70-document-purpose-templates-define-the-pag-22"
+      ],
+      "summary": "Make concise implementation pages compatible with the document-purpose standard.",
+      "baseHash": "7db429cd3d3f2b12dcab6facac20ac83f3dbbc2ba05901d7adfa0e30899fda4e",
+      "status": "rejected",
+      "createdAt": "2026-09-14T14:42:24.282Z",
+      "resolvedAt": "2026-09-14T14:50:04.843Z"
+    },
+    {
+      "lint": {
+        "phase": "draft",
+        "findings": [],
+        "blocking": []
+      },
+      "id": "45d730b3-0723-4ef1-9be9-5901d3d229b3",
+      "ops": [
+        {
+          "type": "updateBlock",
+          "blockId": "b-70-document-purpose-preserve-the-three-layer-14",
+          "text": [
+            {
+              "insert": "Preserve the four layers and the templates defined in "
+            },
+            {
+              "insert": "Structure",
+              "attributes": {
+                "reference": {
+                  "kind": "doc",
+                  "path": "docs/10-system-design/10-doc-standards/10-structure"
+                }
+              }
+            },
+            {
+              "insert": "."
+            }
+          ]
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-70-document-purpose-foundation-owns-intent-15",
+          "text": [
+            {
+              "insert": "Foundation owns intent. Design owns behavior. Agents owns agent definitions. Implementation maps the design to current code and explains key implementation choices."
+            }
+          ]
+        }
+      ],
+      "changedBlockIds": [
+        "b-70-document-purpose-preserve-the-three-layer-14",
+        "b-70-document-purpose-foundation-owns-intent-15"
+      ],
+      "summary": "Change the layer count and ownership sentence. Keep all purpose definitions and formatting guidance.",
+      "baseHash": "7db429cd3d3f2b12dcab6facac20ac83f3dbbc2ba05901d7adfa0e30899fda4e",
+      "status": "accepted",
+      "createdAt": "2026-09-14T14:52:59.164Z",
+      "resolvedAt": "2026-09-14T15:20:15.755Z"
+    }
+  ]
+}

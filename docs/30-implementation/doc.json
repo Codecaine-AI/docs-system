@@ -1,0 +1,270 @@
+{
+  "schemaVersion": 1,
+  "id": "20-implementation",
+  "title": "Implementation Overview",
+  "root": "b-impl-ov-root",
+  "blocks": {
+    "b-impl-ov-root": {
+      "id": "b-impl-ov-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-implov-opening",
+        "b-implov-areas-h",
+        "b-implov-area-packages",
+        "b-implov-area-workbench",
+        "b-implov-area-external",
+        "b-implov-area-themes",
+        "b-implov-tier-h",
+        "b-implov-tier-purpose",
+        "b-implov-tier-inclusion",
+        "b-implov-tier-conform",
+        "b-implov-tier-standard"
+      ]
+    },
+    "b-implov-opening": {
+      "id": "b-implov-opening",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "How the current docs-system code realizes the system design: how the source is organized and why key implementation choices were made. This section is a concise transition from the design into the code."
+        }
+      ],
+      "children": []
+    },
+    "b-implov-areas-h": {
+      "id": "b-implov-areas-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Source Areas"
+        }
+      ],
+      "children": []
+    },
+    "b-implov-area-packages": {
+      "id": "b-implov-area-packages",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "packages",
+              "label": "packages/"
+            }
+          }
+        },
+        {
+          "insert": " — the workspace packages: the pure document model, the derived backlinks index, the mutation authority, the browser viewer/editor, the runnable workbench, the command-line dialect, and the methodology package; decisions live under "
+        },
+        {
+          "insert": "Packages",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "30-implementation/10-packages",
+              "label": "Packages"
+            }
+          }
+        },
+        {
+          "insert": " and its per-package children."
+        }
+      ],
+      "children": []
+    },
+    "b-implov-area-workbench": {
+      "id": "b-implov-area-workbench",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "packages/docs-workbench",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench",
+              "label": "packages/docs-workbench"
+            }
+          }
+        },
+        {
+          "insert": " — the composition host where the server and viewer meet; host-wiring decisions live under "
+        },
+        {
+          "insert": "Workbench",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "30-implementation/20-workbench",
+              "label": "Workbench"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-implov-area-external": {
+      "id": "b-implov-area-external",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "external/",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "external",
+              "label": "external/"
+            }
+          }
+        },
+        {
+          "insert": " — the independently owned Canvas and Sequence projects, mounted as submodules; boundary decisions live under "
+        },
+        {
+          "insert": "External Canvas and Sequence",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "30-implementation/10-packages/80-external-canvas",
+              "label": "External Canvas and Sequence"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-implov-area-themes": {
+      "id": "b-implov-area-themes",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "themes/",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "themes",
+              "label": "themes/"
+            }
+          }
+        },
+        {
+          "insert": " — theme folders and component style knobs; decisions live under "
+        },
+        {
+          "insert": "Theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "30-implementation/40-theming",
+              "label": "Theming"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-implov-tier-h": {
+      "id": "b-implov-tier-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Tier Contract"
+        }
+      ],
+      "children": []
+    },
+    "b-implov-tier-purpose": {
+      "id": "b-implov-tier-purpose",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This tier maps the design to current code and records key implementation choices. Design owns behavior, state models, and load-bearing schemas; Agents owns agent definitions; the code owns file-local detail; reports do not belong in the docs tree at all."
+        }
+      ],
+      "children": []
+    },
+    "b-implov-tier-inclusion": {
+      "id": "b-implov-tier-inclusion",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Inclusion test",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": ": an entry helps the reader locate how the design is implemented or understand why the code is built this way."
+        }
+      ],
+      "children": []
+    },
+    "b-implov-tier-conform": {
+      "id": "b-implov-tier-conform",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Agents adding code either conform to the decisions recorded here or file a proposal to change them — never silently deviate."
+        }
+      ],
+      "children": []
+    },
+    "b-implov-tier-standard": {
+      "id": "b-implov-tier-standard",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The layer's shape, entry format, and rationale are defined by the "
+        },
+        {
+          "insert": "Implementation layer",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/10-doc-standards/60-implementation-layer",
+              "label": "Implementation layer"
+            }
+          }
+        },
+        {
+          "insert": " standard."
+        }
+      ],
+      "children": []
+    }
+  }
+}

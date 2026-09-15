@@ -359,7 +359,8 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
     },
   },
   // The --docs-shape-* tokens tone the state-shape structure tree (heading,
-  // field name/type, muted notes, hairlines, card frame); the example pane's
+  // field names, type chips, optional pills, muted notes, hairlines, card
+  // frame); the example pane's
   // furniture (zebra, link wash, pin rail) rides the shared linked-panels
   // tokens in the "linking" folder instead.
   "state-shape": {
@@ -367,7 +368,10 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
     bg: color("--docs-shape-bg"),
     name: color("--docs-shape-name"),
     type: color("--docs-shape-type"),
+    typeBg: color("--docs-shape-type-bg"),
     muted: color("--docs-shape-muted"),
+    optionalFg: color("--docs-shape-optional-fg"),
+    optionalBg: color("--docs-shape-optional-bg"),
     rule: color("--docs-shape-rule"),
     headerBg: color("--docs-shape-header-bg"),
     descFg: color("--docs-shape-desc-fg"),
@@ -388,16 +392,32 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
   },
   // The Process Outline connector rail is drawn as overlapping elbow + stem
   // strokes, so the rail color must stay opaque — alpha doubles up at the
-  // joins. Deep ink (depth >= 3) derives from ink in semantic.css. Note
-  // text size defaults to the step text size in semantic.css (a var()
-  // reference), so its registry defaultValue is the same literal number.
+  // joins. Rail is now the FALLBACK for the five-hue depth cycle (Cycle 1..5,
+  // re-declared per nesting level in the component): a level's rail, elbow,
+  // arrowhead, chip and note rule all resolve from its cycle color. Deep ink
+  // (depth >= 3) derives from ink in semantic.css.
+  // The three strength knobs (Note accent, Chip tint, Chip ink mix) are
+  // UNITLESS PERCENTAGES, not lengths: the component multiplies them by 1%
+  // inside color-mix() at the use site, because a var() in a custom property
+  // resolves at :root where the depth color does not exist. Their light and
+  // dark semantic.css values differ (dark runs hotter); the registry default
+  // is the light one, and a rail override — like every color override —
+  // writes one value for both modes.
   "process-outline": {
     ink: color("--docs-process-outline-ink"),
     rail: color("--docs-process-outline-rail"),
+    cycle1: color("--docs-process-outline-cycle-1"),
+    cycle2: color("--docs-process-outline-cycle-2"),
+    cycle3: color("--docs-process-outline-cycle-3"),
+    cycle4: color("--docs-process-outline-cycle-4"),
+    cycle5: color("--docs-process-outline-cycle-5"),
+    keywordFg: color("--docs-process-outline-keyword-fg"),
     noteFg: color("--docs-process-outline-note-fg"),
     noteBg: color("--docs-process-outline-note-bg"),
     noteBorder: color("--docs-process-outline-note-border"),
     codeBg: color("--docs-process-outline-code-bg"),
+    traceBg: color("--docs-process-outline-trace-bg"),
+    selectBg: color("--docs-process-outline-select-bg"),
     indent: {
       vars: ["--docs-process-outline-indent"],
       kind: "length",
@@ -405,7 +425,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 72,
       step: 1,
       unit: "px",
-      defaultValue: 36,
+      defaultValue: 46,
     },
     rowGap: {
       vars: ["--docs-process-outline-row-gap"],
@@ -414,7 +434,25 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 24,
       step: 1,
       unit: "px",
-      defaultValue: 7,
+      defaultValue: 12,
+    },
+    branchGap: {
+      vars: ["--docs-process-outline-branch-gap"],
+      kind: "length",
+      min: 0,
+      max: 48,
+      step: 1,
+      unit: "px",
+      defaultValue: 20,
+    },
+    rootGap: {
+      vars: ["--docs-process-outline-root-gap"],
+      kind: "length",
+      min: 0,
+      max: 64,
+      step: 1,
+      unit: "px",
+      defaultValue: 30,
     },
     arrowGap: {
       vars: ["--docs-process-outline-arrow-gap"],
@@ -443,6 +481,48 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       unit: "px",
       defaultValue: 12.5,
     },
+    rootTextSize: {
+      vars: ["--docs-process-outline-root-text-size"],
+      kind: "length",
+      min: 10,
+      max: 22,
+      step: 0.5,
+      unit: "px",
+      defaultValue: 13.5,
+    },
+    rootWeight: {
+      vars: ["--docs-process-outline-root-weight"],
+      kind: "number",
+      min: 300,
+      max: 900,
+      step: 50,
+      defaultValue: 650,
+    },
+    branchWeight: {
+      vars: ["--docs-process-outline-branch-weight"],
+      kind: "number",
+      min: 300,
+      max: 900,
+      step: 50,
+      defaultValue: 400,
+    },
+    stepWeight: {
+      vars: ["--docs-process-outline-step-weight"],
+      kind: "number",
+      min: 300,
+      max: 900,
+      step: 50,
+      defaultValue: 400,
+    },
+    emptyTextSize: {
+      vars: ["--docs-process-outline-empty-text-size"],
+      kind: "length",
+      min: 9,
+      max: 18,
+      step: 0.5,
+      unit: "px",
+      defaultValue: 12,
+    },
     noteTextSize: {
       vars: ["--docs-process-outline-note-text-size"],
       kind: "length",
@@ -450,7 +530,88 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 18,
       step: 0.5,
       unit: "px",
-      defaultValue: 12.5,
+      defaultValue: 11.5,
+    },
+    noteLineHeight: {
+      vars: ["--docs-process-outline-note-line-height"],
+      kind: "length",
+      min: 12,
+      max: 32,
+      step: 1,
+      unit: "px",
+      defaultValue: 17,
+    },
+    noteInset: {
+      vars: ["--docs-process-outline-note-inset"],
+      kind: "length",
+      min: 0,
+      max: 40,
+      step: 1,
+      unit: "px",
+      defaultValue: 10,
+    },
+    // The note "card" is boxless by default — border, rule and padding all sit
+    // at zero, and a theme that wants the bordered card back (classic) sets
+    // them. Zero defaults are what make "no box" expressible in tokens instead
+    // of in a second DOM shape.
+    noteBorderWidth: {
+      vars: ["--docs-process-outline-note-border-width"],
+      kind: "length",
+      min: 0,
+      max: 4,
+      step: 0.5,
+      unit: "px",
+      defaultValue: 0,
+    },
+    noteRuleWidth: {
+      vars: ["--docs-process-outline-note-rule-width"],
+      kind: "length",
+      min: 0,
+      max: 6,
+      step: 0.5,
+      unit: "px",
+      defaultValue: 0,
+    },
+    notePadY: {
+      vars: ["--docs-process-outline-note-pad-y"],
+      kind: "length",
+      min: 0,
+      max: 16,
+      step: 1,
+      unit: "px",
+      defaultValue: 0,
+    },
+    notePadX: {
+      vars: ["--docs-process-outline-note-pad-x"],
+      kind: "length",
+      min: 0,
+      max: 24,
+      step: 1,
+      unit: "px",
+      defaultValue: 0,
+    },
+    // The trace mark is a mini pill reading "trace" at the end of the step
+    // line. Its two strength knobs are the CHIP formula reused, so a theme
+    // tunes both families the same way; size 0 hides it outright.
+    traceTextSize: {
+      vars: ["--docs-process-outline-trace-text-size"],
+      kind: "length",
+      min: 0,
+      max: 14,
+      step: 0.5,
+      unit: "px",
+      defaultValue: 9.5,
+    },
+    // Zero width by default: while a step line is being hand-edited the caret
+    // IS the affordance, and the block-wide selection wash is suppressed.
+    focusRing: {
+      vars: ["--docs-process-outline-focus-ring"],
+      kind: "length",
+      min: 0,
+      max: 3,
+      step: 0.5,
+      unit: "px",
+      defaultValue: 0,
     },
     arrowSize: {
       vars: ["--docs-process-outline-arrow-size"],
@@ -469,6 +630,67 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       step: 0.25,
       unit: "px",
       defaultValue: 1.5,
+    },
+    noteAccent: {
+      vars: ["--docs-process-outline-note-accent"],
+      kind: "number",
+      min: 0,
+      max: 100,
+      step: 5,
+      defaultValue: 55,
+    },
+    chipTint: {
+      vars: ["--docs-process-outline-chip-tint"],
+      kind: "number",
+      min: 0,
+      max: 100,
+      step: 1,
+      defaultValue: 13,
+    },
+    chipInkMix: {
+      vars: ["--docs-process-outline-chip-ink-mix"],
+      kind: "number",
+      min: 0,
+      max: 100,
+      step: 5,
+      defaultValue: 60,
+    },
+    traceTint: {
+      vars: ["--docs-process-outline-trace-tint"],
+      kind: "number",
+      min: 0,
+      max: 100,
+      step: 1,
+      defaultValue: 16,
+    },
+    traceInkMix: {
+      vars: ["--docs-process-outline-trace-ink-mix"],
+      kind: "number",
+      min: 0,
+      max: 100,
+      step: 5,
+      defaultValue: 70,
+    },
+    // Dragging across step lines highlights each line in its own depth colour
+    // (the chip formula again) instead of washing the block. Tint 0 turns the
+    // range invisible; a theme that wants a flat selection colour sets
+    // select-bg opaque and drops the tint.
+    selectTint: {
+      vars: ["--docs-process-outline-select-tint"],
+      kind: "number",
+      min: 0,
+      max: 100,
+      step: 1,
+      defaultValue: 22,
+    },
+    selectPad: {
+      vars: ["--docs-process-outline-select-pad"],
+      kind: "length",
+      min: 0,
+      max: 8,
+      step: 0.5,
+      unit: "px",
+      defaultValue: 2,
     },
   },
   sequence: {

@@ -1,0 +1,745 @@
+bun test v1.3.10 (30e609e0)
+
+packages/docs-model/src/lint/engine.test.ts:
+(pass) authoring lint engine > draft findings are advisory; complete new errors block [1.40ms]
+(pass) authoring lint engine > unchanged errors survive regenerated IDs and duplicate additions still block [0.18ms]
+(pass) authoring lint engine > changed content does not inherit old errors [0.07ms]
+(pass) authoring lint engine > warning-only prose never blocks and retains baseline classification [0.13ms]
+(pass) authoring lint engine > catalog rejects duplicate IDs and missing corpus references [0.18ms]
+(pass) hidden root metadata is not rendered body prose or an opening paragraph [0.03ms]
+
+packages/docs-model/src/__tests__/component-actions.test.ts:
+(pass) component-actions registry > keys every definition by its action string, shaped '<blockType>.<verb>' [0.07ms]
+(pass) component-actions registry > exposes the full expected catalog [0.03ms]
+(pass) component-actions registry > getComponentAction resolves known actions and returns undefined for unknown ones [0.01ms]
+(pass) component-actions registry > listComponentActions filters by block type and returns everything unfiltered [0.05ms]
+(pass) file-tree.addEntry > appends a new entry (stable ordering) with note and change [0.39ms]
+(pass) file-tree.addEntry > accepts a trailing-/ explicit directory entry [0.04ms]
+(pass) file-tree.addEntry > rejects a duplicate path [0.04ms]
+(pass) file-tree.addEntry > rejects a missing path param [1.41ms]
+(pass) file-tree.addEntry > rejects a leading "./" path and an absolute path [0.04ms]
+(pass) file-tree.addEntry > rejects an unknown change marker [0.14ms]
+(pass) file-tree.removeEntry > removes the entry with the given path [0.07ms]
+(pass) file-tree.removeEntry > rejects a missing path [0.02ms]
+(pass) file-tree.updateEntry > patches note/change/from on the entry, in place [0.09ms]
+(pass) file-tree.updateEntry > renames in place via newPath [0.04ms]
+(pass) file-tree.updateEntry > clears note/change/from when null is passed [0.04ms]
+(pass) file-tree.updateEntry > rejects a newPath that collides with another entry [0.03ms]
+(pass) file-tree.updateEntry > rejects a missing path [0.01ms]
+(pass) structured-table.addRow > appends at the end by default, padding cells to the column count [0.44ms]
+(pass) structured-table.addRow > truncates extra cells and honors an explicit index [0.14ms]
+(pass) structured-table.addRow > rejects a non-array cells param and non-string cells [0.32ms]
+(pass) structured-table.addRow > rejects an out-of-range index [0.03ms]
+(pass) structured-table.removeRow > removes the row at the index [0.05ms]
+(pass) structured-table.removeRow > rejects an out-of-range or missing index [0.13ms]
+(pass) structured-table.updateCell > sets a cell addressed by column name [0.12ms]
+(pass) structured-table.updateCell > sets a cell addressed by columnIndex [0.02ms]
+(pass) structured-table.updateCell > rejects when both or neither of column/columnIndex are given [0.03ms]
+(pass) structured-table.updateCell > rejects an unknown column name and an out-of-range columnIndex
+(pass) structured-table.updateCell > stores a markdown value as normalized spans and a plain value as a plain string [0.22ms]
+(pass) structured-table.updateCell > rejects an out-of-range rowIndex and a missing value [0.08ms]
+(pass) structured-table.addColumn > appends a column at the end, extending every row with the default fill "" [0.08ms]
+(pass) structured-table.addColumn > inserts at an explicit index with a custom fill [0.05ms]
+(pass) structured-table.addColumn > rejects a duplicate column name and an out-of-range index [0.03ms]
+(pass) structured-table.removeColumn > removes a column by name, shrinking every row [0.09ms]
+(pass) structured-table.removeColumn > removes a column by index [0.04ms]
+(pass) structured-table.removeColumn > rejects when both or neither of column/columnIndex are given, or the column is unknown
+(pass) interaction-surface.addOperation > appends an operation with only the provided keys [0.26ms]
+(pass) interaction-surface.addOperation > appends a minimal operation (name only)
+(pass) interaction-surface.addOperation > rejects a duplicate name and a missing name [0.09ms]
+(pass) interaction-surface.addOperation > rejects an unknown kind [0.06ms]
+(pass) interaction-surface.addOperation > rejects a malformed params array with precise element paths [0.20ms]
+(pass) interaction-surface.updateOperation > patches operation attributes in place [0.12ms]
+(pass) interaction-surface.updateOperation > renames via patch.name, keeping position [0.03ms]
+(pass) interaction-surface.updateOperation > replaces the params array wholesale when patched
+(pass) interaction-surface.updateOperation > clears description/params/returns/kind when null is passed [0.06ms]
+(pass) interaction-surface.updateOperation > rejects a rename collision [0.04ms]
+(pass) interaction-surface.updateOperation > rejects an unknown operation, a missing patch, and malformed patch fields [0.23ms]
+(pass) interaction-surface.removeOperation > removes the named operation [0.05ms]
+(pass) interaction-surface.removeOperation > rejects an unknown operation and a missing name [0.05ms]
+(pass) code.setAnnotation > inserts a new annotation (appended) [0.05ms]
+(pass) code.setAnnotation > upserts in place when the exact lines key already exists (replacing the whole annotation) [0.02ms]
+(pass) code.setAnnotation > rejects a missing lines or note [0.04ms]
+(pass) code.removeAnnotation > removes the annotation keyed by exact lines [0.09ms]
+(pass) code.removeAnnotation > rejects an unknown lines key [0.01ms]
+
+packages/docs-model/src/__tests__/annotations-schema.test.ts:
+(pass) annotations schema > accepts valid block and canvas annotations [0.42ms]
+(pass) annotations schema > accepts reply threads and rejects malformed replies with engine-compatible issues [0.11ms]
+(pass) annotations schema > preserves optional target fingerprints and reports changed block text [0.34ms]
+(pass) annotations schema > rejects a retired comments-keyed sidecar with a typed issue (no throw) [0.05ms]
+(pass) annotations schema > rejects bad schemaVersion [0.02ms]
+(pass) annotations schema > rejects duplicate annotation ids [0.07ms]
+(pass) annotations schema > rejects unknown intent and status [0.07ms]
+(pass) annotations schema > rejects canvas object targets with both selectors or no selectors [0.04ms]
+(pass) annotations schema > rejects region with non-positive width [0.06ms]
+(pass) annotations schema > detects dangling targets [0.17ms]
+(pass) annotations schema > accepts a valid text-range annotation [0.10ms]
+(pass) annotations schema > rejects text-range targets with bad offsets or an empty quote [0.07ms]
+(pass) annotations schema > reports the three-kind message for an unknown target kind [0.02ms]
+(pass) annotations schema > detects dangling text-range targets: missing block, quote drift; existence-only for text-less blocks [0.08ms]
+(pass) annotations schema > skips canvas-target checks while the canvas index is not loaded (undefined/null), but still runs block checks [0.07ms]
+
+packages/docs-model/src/__tests__/doc-schema.test.ts:
+(pass) validateDocDocument > accepts a valid normalized tree [0.57ms]
+(pass) validateDocDocument > rejects a non-object document [0.03ms]
+(pass) validateDocDocument > rejects a non-string block type [0.05ms]
+(pass) validateDocDocument > rejects a missing block type [0.12ms]
+(pass) validateDocDocument > rejects a block that carries the retired "flavour" key instead of "type" [0.11ms]
+(pass) validateDocDocument > rejects the retired "flavour" key even alongside a valid "type" [0.05ms]
+(pass) validateDocDocument > rejects a missing root id
+(pass) validateDocDocument > rejects a root that is not present in blocks [0.09ms]
+(pass) validateDocDocument > rejects orphan child references [0.01ms]
+(pass) validateDocDocument > rejects a block shared by two parents [0.05ms]
+(pass) validateDocDocument > rejects cycles (detached cyclic subtree is unreachable) [0.04ms]
+(pass) validateDocDocument > rejects the root appearing as a child (cycle through root) [0.12ms]
+(pass) validateDocDocument > rejects blocks not reachable from root [0.05ms]
+(pass) validateDocDocument > rejects a block whose id does not match its map key [0.03ms]
+(pass) validateDocDocument > rejects malformed delta spans and bad references [0.09ms]
+(pass) validateDocDocument > tolerates wrong-typed canvas props on read and preserves them [0.09ms]
+(pass) validateDocDocument > tolerates stray canvas props on read and preserves them [0.07ms]
+(pass) validateDocDocument — legacy type coercion > coerces a retired semantic type to a callout carrying the type as kind [0.05ms]
+(pass) validateDocDocument — legacy type coercion > coerces never-in-schema legacy types (e.g. "overview") the same way [0.04ms]
+(pass) validateDocDocument — legacy type coercion > coerces the retired "data-model" type to a callout carrying kind "data-model" [0.04ms]
+(pass) validateDocDocument — legacy type coercion > coerces the retired "api-surface" type to a callout carrying kind "api-surface" [0.03ms]
+(pass) validateDocDocument — legacy type coercion > keeps an existing non-empty props.kind instead of overwriting it [0.06ms]
+(pass) validateDocDocument — legacy type coercion > coerces the retired "mermaid" type to a callout carrying kind "mermaid" [0.03ms]
+(pass) validateDocDocument — legacy type coercion > serialization emits the coerced canonical form [0.18ms]
+(pass) validateSpectreRef > accepts doc and source refs [0.01ms]
+(pass) validateSpectreRef > rejects unknown kinds and empty paths [0.06ms]
+(pass) serializeDocDocument > is deterministic regardless of in-memory key order [0.13ms]
+(pass) serializeDocDocument > emits blocks in depth-first document order with stable key order
+(pass) serializeDocDocument > round-trips through validateDocDocument [0.15ms]
+(pass) docBlockOrder > walks depth-first from root following child order
+
+packages/docs-model/src/__tests__/doc-ops.contract.test.ts:
+(pass) contract 1 — updateBlock preserves the block id > keeps the id across props and text updates so annotation targets stay valid [0.54ms]
+(pass) contract 2 — split/merge mint fresh, never-reused ids > splitBlock keeps the original id and mints a fresh id for the tail [0.20ms]
+(pass) contract 2 — split/merge mint fresh, never-reused ids > splitBlock refuses to use a colliding id from a careless factory [0.07ms]
+(pass) contract 2 — split/merge mint fresh, never-reused ids > mergeBlocks mints a fresh id and never reuses the merged ids [0.15ms]
+(pass) contract 2 — split/merge mint fresh, never-reused ids > split then merge across a history never resurrects a previously-seen id [0.26ms]
+(pass) contract 3 — deleteBlock leaves annotation targets detectable as removed > subtree delete: targets on the block AND its descendants become dangling, not crashes [0.11ms]
+(pass) contract 3 — deleteBlock leaves annotation targets detectable as removed > reparent delete: the deleted block dangles, its surviving children do not [0.06ms]
+(pass) contract 4 — applyOp then inverse restores the exact original doc > insertBlock [0.16ms]
+(pass) contract 4 — applyOp then inverse restores the exact original doc > updateBlock (props merge, prop removal, and text replacement) [0.24ms]
+(pass) contract 4 — applyOp then inverse restores the exact original doc > deleteBlock subtree (multi-level subtree fully restored, ids intact) [0.01ms]
+(pass) contract 4 — applyOp then inverse restores the exact original doc > deleteBlock reparent [0.36ms]
+(pass) contract 4 — applyOp then inverse restores the exact original doc > moveBlock (across parents and within a parent) [0.32ms]
+(pass) contract 4 — applyOp then inverse restores the exact original doc > splitBlock (mid-span, span boundary, and edge offsets) [0.41ms]
+(pass) contract 4 — applyOp then inverse restores the exact original doc > mergeBlocks (two blocks, three blocks, and blocks with children) [0.53ms]
+(pass) contract 4 — applyOp then inverse restores the exact original doc > applyOps composes inverses in reverse order for multi-op undo units [0.17ms]
+(pass) pre-apply validation — ops that would break invariants are rejected > rejects inserting with an existing id [0.05ms]
+(pass) pre-apply validation — ops that would break invariants are rejected > rejects inserting under a missing parent (dangle) [0.03ms]
+(pass) pre-apply validation — ops that would break invariants are rejected > rejects moving a block into its own subtree (cycle) [0.05ms]
+(pass) pre-apply validation — ops that would break invariants are rejected > rejects deleting or moving the root (orphan everything) [0.04ms]
+(pass) pre-apply validation — ops that would break invariants are rejected > rejects out-of-range indexes and offsets [0.01ms]
+(pass) pre-apply validation — ops that would break invariants are rejected > rejects merging non-contiguous or non-sibling blocks [0.05ms]
+(pass) pre-apply validation — ops that would break invariants are rejected > never mutates the input document, even on success [0.12ms]
+(pass) componentAction op — typed actions through the kernel > applies the action's props patch and returns an updateBlock inverse [0.18ms]
+(pass) componentAction op — typed actions through the kernel > applyOps then inverse restores the exact original doc [0.27ms]
+(pass) componentAction op — typed actions through the kernel > rejects the retired "blockAction" op type as unknown (clean break, no aliasing) [0.07ms]
+(pass) componentAction op — typed actions through the kernel > fails on an unknown action [0.03ms]
+(pass) componentAction op — typed actions through the kernel > fails when the target block is missing [0.02ms]
+(pass) componentAction op — typed actions through the kernel > fails when the block's type does not match the action's blockType [0.02ms]
+(pass) componentAction op — typed actions through the kernel > propagates the action's own param validation issues [0.04ms]
+(pass) componentAction op — typed actions through the kernel > never mutates the input document [0.11ms]
+
+packages/docs-model/src/__tests__/project-markdown.test.ts:
+(pass) projectToMarkdown — the sample fixture > is a pure function: repeated calls return identical output [0.17ms]
+(pass) projectToMarkdown — the sample fixture > projects headings at the right level [0.02ms]
+(pass) projectToMarkdown — the sample fixture > projects the mixed-marks paragraph with a plain reference (D35) [0.01ms]
+(pass) projectToMarkdown — the sample fixture > projects a divider
+(pass) projectToMarkdown — the sample fixture > projects nested list items with 2-space indentation per depth [0.02ms]
+(pass) projectToMarkdown — the sample fixture > projects a fenced code block with language, followed by its annotation lines [0.03ms]
+(pass) projectToMarkdown — the sample fixture > projects a quote as a blockquote
+(pass) projectToMarkdown — the sample fixture > projects a callout with kind winning over tone, greppable on '> **Decision' [0.17ms]
+(pass) projectToMarkdown — the sample fixture > projects a canvas block as an HTML-comment reference line [0.01ms]
+(pass) projectToMarkdown — the sample fixture > projects an image as a markdown image with caption
+(pass) projectToMarkdown — the sample fixture > projects a video as a labeled blockquote, greppable on '> **Video' [0.03ms]
+(pass) projectToMarkdown — the sample fixture > projects a structured-table as a bold title line plus a markdown pipe table
+(pass) projectToMarkdown — the sample fixture > projects an interaction-surface as bold title plus a fenced block of signature lines
+(pass) projectToMarkdown — the sample fixture > projects a file-tree as a fenced tree rendering with guides, markers, and notes [0.01ms]
+(pass) projectToMarkdown — the sample fixture > keeps the fixture's established canonical block-type coverage [0.05ms]
+(pass) projectToMarkdown — the sample fixture > contains every block's identifying content — full block type coverage [0.07ms]
+(pass) projectToMarkdown — callout labels > falls back to the uppercased tone when kind is absent [0.07ms]
+(pass) projectToMarkdown — callout labels > defaults to INFO when neither kind nor tone is present [0.03ms]
+(pass) projectToMarkdown — callout labels > uses kind verbatim as the label when present [0.02ms]
+(pass) projectToMarkdown — interaction-surface signatures > prefixes [kind] only for query/event operations; actions render bare
+(pass) projectToMarkdown — interaction-surface signatures > renders params as name[?][: type] and skips malformed operations [0.03ms]
+(pass) projectToMarkdown — interaction-surface signatures > projects only the bold title when no operations survive [0.02ms]
+(pass) projectToMarkdown — video targets > url wins over src when both are present [0.04ms]
+(pass) projectToMarkdown — video targets > falls back to the bundle-relative src when url is absent
+(pass) projectToMarkdown — video targets > projects the bare label when neither url nor src is present
+(pass) projectToMarkdown — ordered lists > numbers list-items when props.ordered is true [0.08ms]
+(pass) projectToMarkdown — ordered lists > defaults to '-' bullets when ordered is absent
+(pass) projectToMarkdown — ordered lists > numbers from 1 even when non-list siblings precede the run (heading + ordered items) [0.05ms]
+(pass) projectToMarkdown — ordered lists > restarts numbering at 1 for each ordered run split by a non-list block [0.04ms]
+(pass) projectToMarkdown — structural edge cases > returns an empty string for a document whose root is missing
+(pass) projectToMarkdown — structural edge cases > skips the root's own wrapper, projecting only its children [0.05ms]
+(pass) projectToMarkdown — structural edge cases > is a pure function that performs no I/O (no disk writes) [0.01ms]
+(pass) projectToMarkdown — file-tree tree rendering > derives directories from path prefixes and nests with guides (dirs first, then alphabetical) [0.06ms]
+(pass) projectToMarkdown — file-tree tree rendering > does not pad lines when no entry carries a change marker [0.03ms]
+(pass) projectToMarkdown — file-tree tree rendering > respects an explicit trailing-/ entry as a (possibly empty) directory
+(pass) projectToMarkdown — file-tree tree rendering > prefixes change markers, pads unmarked lines, and appends notes as '  # note' [0.01ms]
+(pass) projectToMarkdown — file-tree tree rendering > renders a renamed entry as '{from} -> {name}' behind the '>' marker [0.06ms]
+
+packages/docs-model/src/__tests__/discovery.test.ts:
+(pass) buildBlocksDiscovery > folds components in registry order [0.11ms]
+(pass) buildBlocksDiscovery > serves registered state schemas verbatim [0.10ms]
+(pass) buildBlocksDiscovery > serves registered action parameter schemas verbatim [0.08ms]
+(pass) buildBlocksDiscovery > serves the six canvas actions in lifted descriptor order [0.05ms]
+(pass) buildBlocksDiscovery > serves the three sequence actions in lifted descriptor order [0.14ms]
+(pass) buildBlocksDiscovery > publishes all seven documented kernel operations [0.07ms]
+(pass) buildBlocksDiscovery > reports the rich-text bundle's eight types and no actions [0.03ms]
+
+packages/docs-model/src/__tests__/delta-markdown.test.ts:
+(pass) deltaToMarkdownInline > projects marks to markdown syntax [0.08ms]
+(pass) deltaToMarkdownInline > renders reference marks as PLAIN text (D35) — label wins, no link syntax [0.04ms]
+(pass) deltaToMarkdownInline > renders a label-less reference as its span text, falling back to the path [0.02ms]
+(pass) deltaToMarkdownInline > keeps inline marks on reference spans (a typed code path keeps its backticks) [0.01ms]
+(pass) deltaToMarkdownInline > handles empty/undefined input [0.02ms]
+(pass) deltaToMarkdownInline > nests multiple marks on one span (code innermost, then bold/italic/strike, link outermost) [0.02ms]
+(pass) deltaToPlainTextInline > strips all marks
+(pass) deltaToPlainTextInline > handles undefined
+
+packages/docs-model/src/__tests__/goldens.test.ts:
+114 | 
+115 | describe("captured integration goldens", () => {
+116 |   it("re-serializes the fixture and corpus to their on-disk bytes", async () => {
+117 |     for (const relativePath of DOCUMENT_PATHS) {
+118 |       const { bytes, document } = await readValidatedDocument(relativePath);
+119 |       expect(serializeDocDocument(document), relativePath).toBe(bytes);
+                                                                 ^
+error: docs/20-implementation/40-theming/doc.json
+
+@@ -706,23 +706,11 @@
+            "insert": " — future font features extend these modules."
+          }
+        ],
+        "children": []
+      },
+-     "b-thm-impl-d-default-heading": {
+-       "id": "b-thm-impl-d-default-heading",
+-       "type": "heading",
+-       "props": {
+-         "level": 3
+-       },
+-       "text": [
+-         {
+-           "insert": "Living Default file layout"
+-         }
+-       ],
+-       "children": []
+-     },
+      "b-thm-impl-d-global-heading": {
+        "id": "b-thm-impl-d-global-heading",
+        "type": "heading",
+        "props": {
+          "level": 3
+@@ -866,11 +854,23 @@
+              "code": true
+            }
+          },
+          {
+            "insert": "."
++         }
++       ],
++       "children": []
++     },
++     "b-thm-impl-d-default-heading": {
++       "id": "b-thm-impl-d-default-heading",
++       "type": "heading",
++       "props": {
++         "level": 3
++       },
++       "text": [
++         {
++           "insert": "Living Default file layout"
+          }
+        ],
+        "children": []
+      },
+      "b-thm-impl-d-default-decision": {
+
+- Expected  - 13
++ Received  + 13
+
+      at <anonymous> (/Users/Ford/Github Repos/Codecaine/Core/docs-system/packages/docs-model/src/__tests__/goldens.test.ts:119:60)
+(fail) captured integration goldens > re-serializes the fixture and corpus to their on-disk bytes [23.79ms]
+122 | 
+123 |   it("projects the fixture and corpus byte-for-byte", async () => {
+124 |     for (const relativePath of DOCUMENT_PATHS) {
+125 |       const { document } = await readValidatedDocument(relativePath);
+126 |       const expected = await readFile(join(REPO_ROOT, projectionGoldenPath(relativePath)), "utf8");
+127 |       expect(projectToMarkdown(document), relativePath).toBe(expected);
+                                                              ^
+error: docs/20-implementation/40-theming/doc.json
+
+@@ -1,6 +1,6 @@
+- "Implementation of theming: compiling repository theme folders and normalized style-rail state into CSS custom properties on the document root. Source: `packages/docs-workbench/web/src/theme` (`notion-palette.css`, `semantic.css`, `theme-folders.ts`), `packages/docs-workbench/web/src/shell` (`StyleRail.tsx`, `App.tsx`), `packages/docs-server/src/themes.ts` (repository folder reads and writes), and `themes/` (theme folders).
++ "Implementation of theming: compiling global theme folders and normalized style-rail state into CSS custom properties on the document root. Source: `packages/docs-workbench/web/src/theme` (`notion-palette.css`, `semantic.css`, `theme-folders.ts`), `packages/docs-workbench/web/src/shell` (`StyleRail.tsx`, `App.tsx`), `packages/docs-server/src/themes.ts` (theme-root reads and writes), and `themes/` (the global theme catalogue).
+  
+  ## Governed By
+  
+  Themes — theme reach, layer precedence, resolution and selection behavior, and the Living Default.
+  
+@@ -50,14 +50,21 @@
+  
+  - Why: A separate font subsystem was rejected — fonts are theme values, and a dedicated loader would add a second application path beside the layer mechanisms above.
+  
+  - Applies to: `packages/docs-workbench/web/src/theme/theme-folders.ts`, `packages/docs-workbench/web/src/shell/StyleRail.tsx` — future font features extend these modules.
+  
++ ### One global theme root
++ 
++ - Decision: Every `docs-cli serve` uses this repository's `themes/` directory by default, resolved from the CLI package location. An explicit `--themes-root <path>` flag or `themesRoot` option overrides that root. If neither root is available, resolution falls back to the `themes/` directory beside the docs root. The catalogue contains `default`, the shared look, and `docs-system-classic`, the selectable classic look with its component token files.
++ 
++ - Why: One package-owned root gives every served docs tree the same live theme catalogue without requiring a copied theme folder in each consumer repository.
++ 
++ - Applies to: `docs-cli serve`, `createDocsRoutes`, `runServe`, and `runExport`.
++ 
+  ### Living Default file layout
+  
+- - Decision: The Living Default persists as the repository folder `themes/default/` beside the docs root — `theme.json` carries the complete normalized scalar settings under `railDefaults` with an empty `components` member, and `components/*.json` carry the sparse per-surface overrides — and the workbench autosave, gated off for theme-locked and static serves, is its only writer.
++ - Decision: The Living Default persists in the global folder `themes/default/` — `theme.json` carries the complete normalized scalar settings under `railDefaults` with an empty `components` member, and `components/*.json` carry the sparse per-surface overrides. Workbench autosave from any unlocked serve is its only writer.
+  
+  - Why: A browser-local or exported-file home was rejected — a repository folder makes the core look versionable and shareable, and a single writer keeps the manifest and component files from diverging.
+  
+  - Applies to: `themes/default/`, `packages/docs-workbench/web/src/shell/App.tsx`, `packages/docs-server/src/themes.ts` — future settings groups join `railDefaults`, never a new store.
+  
+
+- Expected  - 2
++ Received  + 10
+
+      at <anonymous> (/Users/Ford/Github Repos/Codecaine/Core/docs-system/packages/docs-model/src/__tests__/goldens.test.ts:127:57)
+(fail) captured integration goldens > projects the fixture and corpus byte-for-byte [22.40ms]
+
+packages/docs-model/src/__tests__/markdown-to-delta.test.ts:
+(pass) inlineToDelta > returns empty spans and no warnings for empty input [0.04ms]
+(pass) inlineToDelta > returns one unattributed span for plain text [0.03ms]
+(pass) inlineToDelta > parses bold in isolation [0.04ms]
+(pass) inlineToDelta > parses asterisk italic in isolation [0.07ms]
+(pass) inlineToDelta > parses underscore italic in isolation [0.09ms]
+(pass) inlineToDelta > parses strike in isolation [0.08ms]
+(pass) inlineToDelta > parses inline code in isolation [0.04ms]
+(pass) inlineToDelta > keeps external links as plain link attributes [0.16ms]
+(pass) inlineToDelta > classifies doc links as doc references [0.28ms]
+(pass) inlineToDelta > classifies source links as source references [0.09ms]
+(pass) inlineToDelta > merges attrs for bold containing italic [0.14ms]
+(pass) inlineToDelta > merges attrs for italic containing bold [0.06ms]
+(pass) inlineToDelta > merges attrs for bold and strike combined [0.04ms]
+(pass) inlineToDelta > keeps code spans verbatim and atomic inside surrounding emphasis [0.07ms]
+(pass) inlineToDelta > keeps stray single asterisk literal without corrupting surrounding text [0.06ms]
+(pass) inlineToDelta > keeps stray double asterisk literal without corrupting surrounding text [0.03ms]
+(pass) inlineToDelta > preserves whitespace inside marked spans exactly [0.03ms]
+(pass) inlineToDelta > adds doc anchor as section [0.05ms]
+(pass) inlineToDelta > adds numeric source anchor as line number [0.07ms]
+(pass) inlineToDelta > adds non-numeric source anchor as symbol [0.03ms]
+(pass) inlineToDelta > keeps mailto links plain
+(pass) inlineToDelta > keeps image-like links plain [0.03ms]
+(pass) inlineToDelta > warns for ambiguous extensionless relative paths and keeps them plain [0.02ms]
+(pass) inlineToDelta > parses a mixed real-world sentence with marks and link [0.06ms]
+
+packages/docs-model/src/__tests__/strict-writes.test.ts:
+(pass) strict component-state writes > heading > accepts a conforming updateBlock props patch [0.08ms]
+(pass) strict component-state writes > heading > rejects an unknown prop at $.op.props.<key> [0.14ms]
+(pass) strict component-state writes > heading > rejects a wrong-typed known prop [0.04ms]
+(pass) strict component-state writes > file-tree > accepts a conforming updateBlock props patch [0.01ms]
+(pass) strict component-state writes > file-tree > rejects an unknown prop at $.op.props.<key> [0.06ms]
+(pass) strict component-state writes > file-tree > rejects a wrong-typed known prop [0.01ms]
+(pass) strict component-state writes > structured-table > accepts a conforming updateBlock props patch
+(pass) strict component-state writes > structured-table > rejects an unknown prop at $.op.props.<key> [0.05ms]
+(pass) strict component-state writes > structured-table > rejects a wrong-typed known prop [0.09ms]
+(pass) strict component-state writes > canvas > accepts a conforming updateBlock props patch [0.02ms]
+(pass) strict component-state writes > canvas > rejects an unknown prop at $.op.props.<key> [0.04ms]
+(pass) strict component-state writes > canvas > rejects a wrong-typed known prop [0.05ms]
+(pass) strict component-state writes > process-outline > accepts a conforming updateBlock props patch [0.08ms]
+(pass) strict component-state writes > process-outline > rejects an unknown prop at $.op.props.<key> [0.05ms]
+(pass) strict component-state writes > process-outline > rejects a wrong-typed known prop
+(pass) strict component-state writes > accepts a conforming insertBlock [0.03ms]
+(pass) strict component-state writes > rejects a stray insertBlock prop without half-applying [0.10ms]
+(pass) strict component-state writes > runs a valid componentAction through strict updateBlock validation [0.05ms]
+(pass) strict component-state writes > forwards the validation option through componentAction's updateBlock [0.05ms]
+(pass) strict component-state writes > keeps componentAction parameter failures at $.params.*
+(pass) strict component-state writes > refuses to apply a forwarded canvas action as a doc op [0.13ms]
+(pass) strict component-state writes > rejects a text-only update when the existing props are nonconforming [0.04ms]
+(pass) strict component-state writes > does not validate splitBlock or mergeBlocks copies of legacy props [0.10ms]
+(pass) strict component-state writes > restores the exact original document with a valid updateBlock inverse [0.03ms]
+(pass) strict component-state writes > legacy props during inverse replay > restores a deleted legacy-prop subtree only during exempt inverse replay [0.09ms]
+(pass) strict component-state writes > legacy props during inverse replay > restores a split legacy-prop block only during exempt inverse replay [0.05ms]
+(pass) strict component-state writes > legacy props during inverse replay > restores merged legacy-prop blocks only during exempt inverse replay [0.14ms]
+(pass) strict component-state writes > legacy props during inverse replay > restores a cleaned-up legacy prop only during exempt inverse replay [0.04ms]
+
+packages/docs-model/src/page-structure/rules.test.ts:
+(pass) empty drafts are allowed; complete body reports missing opener [0.25ms]
+(pass) multiple H1 and heading jumps produce independent warnings [0.09ms]
+(pass) image alt is semantic and stable across regenerated IDs [0.14ms]
+(pass) deep list is warning only [0.12ms]
+(pass) an existing missing opener stays existing when its title level changes [0.06ms]
+
+packages/docs-model/src/writing/rules.test.ts:
+(pass) inline code and references separate prose, formatting does not [0.22ms]
+(pass) code, quoted examples and embedded payloads are excluded [0.15ms]
+(pass) doc-authored descriptions are included, source paths and example literals excluded [0.17ms]
+(pass) authored component fields cover table, files, operations, steps, media and callouts [0.24ms]
+(pass) plain-string code markup is excluded; document title is authored prose [0.10ms]
+(pass) dense paragraph is advisory [0.10ms]
+(pass) malformed optional component items are left for schema validation [0.08ms]
+(pass) Canvas and Sequence wrapper titles are doc-authored prose [0.06ms]
+
+packages/docs-model/src/components/__tests__/define.test.ts:
+(pass) schemaIssues > maps JSON-pointer paths to repository issue paths [0.18ms]
+(pass) schemaIssues > keeps an empty pointer at the base path [0.03ms]
+(pass) schemaIssues > maps missing required properties beneath the base path [0.04ms]
+(pass) schemaIssues > deduplicates overlapping missing-property issues [0.06ms]
+(pass) checkParams > accepts conforming objects and ignores extra properties [0.18ms]
+(pass) collectRegistryIssues > reports every canonical type missing from an empty registry [0.10ms]
+(pass) collectRegistryIssues > accepts a synthetic minimal registry covering all canonical types [0.07ms]
+
+packages/docs-model/src/components/__tests__/schema-over-corpus.test.ts:
+(pass) component state schemas over the document corpus > accepts every block in the fixture and all repository docs [29.84ms]
+
+packages/docs-model/src/components/__tests__/registry.test.ts:
+(pass) component registry > imports ../index with a healthy registry [0.37ms]
+(pass) component registry > partitions every canonical block type exactly once [0.16ms]
+(pass) component registry > registers every component action key [0.03ms]
+(pass) component registry > reports block types left unowned by a missing bundle [0.17ms]
+(pass) component registry > reports extra unknown owned types [0.06ms]
+(pass) component registry > reports double ownership [0.03ms]
+(pass) component registry > reports malformed action keys [0.10ms]
+(pass) component registry > reports unknown forward authorities [0.05ms]
+(pass) component registry > reports open schemas [0.08ms]
+
+packages/docs-model/src/page-structure/heading-order/index.test.ts:
+(pass) heading-order detects its condition and accepts the corrected form [0.17ms]
+
+packages/docs-model/src/page-structure/opening-paragraph/index.test.ts:
+(pass) opening-paragraph detects its condition and accepts the corrected form [0.06ms]
+
+packages/docs-model/src/page-structure/deep-list/index.test.ts:
+(pass) four list levels warn and three do not [0.80ms]
+
+packages/docs-model/src/page-structure/image-alt/index.test.ts:
+(pass) image-alt detects its condition and accepts the corrected form [0.09ms]
+
+packages/docs-model/src/page-structure/single-h1/index.test.ts:
+(pass) single-h1 detects its condition and accepts the corrected form [0.70ms]
+
+packages/docs-model/src/writing/no-em-dash/index.test.ts:
+(pass) no-em-dash detects its condition and accepts the corrected form [0.03ms]
+
+packages/docs-model/src/writing/dense-paragraph/index.test.ts:
+(pass) dense-paragraph detects its condition and accepts the corrected form [0.72ms]
+
+packages/docs-model/src/writing/filler/index.test.ts:
+(pass) filler detects its condition and accepts the corrected form [0.07ms]
+
+packages/docs-model/src/components/interaction-surface/__tests__/agent-view.test.ts:
+(pass) interaction-surface component agent view > projects the fixture byte-for-byte [0.11ms]
+(pass) interaction-surface component agent view > emits no detail lines for params without descriptions or nested fields [0.06ms]
+(pass) interaction-surface component agent view > indents nested param fields two spaces per depth beneath the signature [0.08ms]
+
+packages/docs-model/src/components/interaction-surface/__tests__/actions.test.ts:
+(pass) interaction-surface.addOperation component action > appends an operation with only the provided keys [0.17ms]
+(pass) interaction-surface.addOperation component action > appends an operation with nested param fields verbatim [0.11ms]
+(pass) interaction-surface.addOperation component action > rejects a duplicate name [0.07ms]
+(pass) interaction-surface.addOperation component action > rejects a malformed param element at the precise path [0.10ms]
+(pass) interaction-surface.addOperation component action > rejects an unknown kind [0.04ms]
+(pass) interaction-surface.updateOperation component action > patches an operation description in place [0.05ms]
+(pass) interaction-surface.updateOperation component action > clears description, params, returns, and kind with null [0.04ms]
+(pass) interaction-surface.updateOperation component action > renames in place [0.03ms]
+(pass) interaction-surface.updateOperation component action > rejects a rename collision [0.01ms]
+(pass) interaction-surface.updateOperation component action > replaces params with a nested field tree [0.04ms]
+(pass) interaction-surface.updateOperation component action > rejects a malformed patch params element at the precise path [0.06ms]
+(pass) interaction-surface.updateOperation component action > rejects a missing operation [0.01ms]
+(pass) interaction-surface.removeOperation component action > removes an existing operation [0.03ms]
+(pass) interaction-surface.removeOperation component action > rejects a missing operation [0.02ms]
+
+packages/docs-model/src/components/interaction-surface/__tests__/state.test.ts:
+(pass) interaction-surface component state > accepts the fixture props, including operation params [0.05ms]
+(pass) interaction-surface component state > rejects a stray operation property [0.06ms]
+(pass) interaction-surface component state > rejects a missing operations property [0.04ms]
+(pass) interaction-surface component state > rejects a stray top-level property [0.03ms]
+(pass) interaction-surface component state > accepts nested param fields (shared recursive Field node) [0.06ms]
+(pass) interaction-surface component state > rejects a stray property on a nested param field [0.04ms]
+
+packages/docs-model/src/components/structured-table/__tests__/agent-view.test.ts:
+(pass) structured-table agent view > projects the fixture byte-for-byte
+(pass) structured-table agent view > renders marked cells (rows and columns) as inline markdown [0.04ms]
+(pass) structured-table agent view > is byte-identical to the plain projection for all-plain tables with junk tolerated [0.08ms]
+
+packages/docs-model/src/components/structured-table/__tests__/actions.test.ts:
+(pass) structured-table.addRow > appends at the end by default, padding cells to the column count [0.21ms]
+(pass) structured-table.addRow > truncates extra cells and honors an explicit index [0.05ms]
+(pass) structured-table.addRow > parses markdown cells to spans and keeps plain cells plain [0.03ms]
+(pass) structured-table.addRow > rejects a non-array cells param and non-string cells through the schema [0.12ms]
+(pass) structured-table.addRow > rejects an out-of-range index with the legacy domain message
+(pass) structured-table.removeRow > removes the row at the index [0.07ms]
+(pass) structured-table.removeRow > rejects an out-of-range or missing index [0.08ms]
+(pass) structured-table.updateCell > sets a cell addressed by column name [0.06ms]
+(pass) structured-table.updateCell > sets a cell addressed by columnIndex [0.02ms]
+(pass) structured-table.updateCell > accepts an empty cell value [0.02ms]
+(pass) structured-table.updateCell > rejects when both or neither of column/columnIndex are given [0.02ms]
+(pass) structured-table.updateCell > rejects an empty or unknown column name [0.02ms]
+(pass) structured-table.updateCell > rejects an out-of-range columnIndex [0.02ms]
+(pass) structured-table.updateCell > stores a markdown value as normalized spans [0.04ms]
+(pass) structured-table.updateCell > stores a plain value as a plain string (existing plain tables stay plain) [0.02ms]
+(pass) structured-table.updateCell > downgrades link-reference markdown to a plain link mark [0.09ms]
+(pass) structured-table.updateCell > addresses a marked column header by its plain-text name [0.05ms]
+(pass) structured-table.updateCell > rejects an out-of-range rowIndex and a missing value [0.08ms]
+(pass) structured-table.addColumn > appends a column at the end, extending every row with the default fill "" [0.05ms]
+(pass) structured-table.addColumn > inserts at an explicit index with a custom fill [0.04ms]
+(pass) structured-table.addColumn > parses a markdown name and fill to spans [0.05ms]
+(pass) structured-table.addColumn > rejects a duplicate column name [0.03ms]
+(pass) structured-table.addColumn > rejects a markdown name whose plain text duplicates an existing column [0.02ms]
+(pass) structured-table.addColumn > rejects an out-of-range index
+(pass) structured-table.removeColumn > removes a column by name, shrinking every row
+(pass) structured-table.removeColumn > removes a column by index
+(pass) structured-table.removeColumn > rejects when both or neither of column/columnIndex are given [0.03ms]
+(pass) structured-table.removeColumn > rejects an empty or unknown column name [0.04ms]
+(pass) structured-table.removeColumn > rejects an out-of-range columnIndex
+
+packages/docs-model/src/components/structured-table/__tests__/state.test.ts:
+(pass) structured-table state > accepts the table fixture props
+(pass) structured-table state > accepts marked span cells in rows and columns alongside plain strings [0.21ms]
+(pass) structured-table state > rejects a reference attribute in a cell span
+(pass) structured-table state > rejects unknown span attributes and malformed mark values [0.04ms]
+(pass) structured-table state > rejects non-canonical unmarked span-array cells through checkStateProps
+(pass) structured-table state > rejects an unknown density
+(pass) structured-table state > requires columns [0.08ms]
+(pass) structured-table state > rejects stray properties [0.02ms]
+
+packages/docs-model/src/components/structured-table/__tests__/lib.test.ts:
+(pass) normalizeTableCell > passes plain strings through verbatim (including empty) [0.02ms]
+(pass) normalizeTableCell > merges adjacent same-attribute spans [0.81ms]
+(pass) normalizeTableCell > drops empty inserts
+(pass) normalizeTableCell > returns the plain string when no attributes remain, "" for empty
+(pass) normalizeTableCell > keeps mixed marked/unmarked cells as spans, in order
+(pass) tableCellToPlainText / tableCellToMarkdown > passes plain strings through verbatim in both projections
+(pass) tableCellToPlainText / tableCellToMarkdown > projects spans to plain text and inline markdown
+(pass) tableCellToPlainText / tableCellToMarkdown > renders link marks as markdown links
+(pass) parseTableCellInput > stores plain input as the plain string [0.21ms]
+(pass) parseTableCellInput > parses inline markdown to normalized spans [0.07ms]
+(pass) parseTableCellInput > keeps external links as plain link marks [0.05ms]
+(pass) parseTableCellInput > downgrades doc references to a link with a #section anchor [0.04ms]
+(pass) parseTableCellInput > downgrades source references to a link with #L<line> / #<symbol> anchors [0.05ms]
+(pass) parseTableCellInput > round-trips through the markdown projection [0.08ms]
+(pass) readTableColumns / readTableRows / normalizeRow > reads both plain and span cells, tolerating junk [0.05ms]
+(pass) readTableColumns / readTableRows / normalizeRow > returns empty for missing/non-array props [0.01ms]
+(pass) readTableColumns / readTableRows / normalizeRow > normalizeRow pads/truncates with a TableCell fill [0.02ms]
+
+packages/docs-model/src/components/state-shape/__tests__/agent-view.test.ts:
+(pass) state-shape component agent view > projects name, source, and the recursive field tree byte-for-byte [0.12ms]
+(pass) state-shape component agent view > projects a name without a source [0.03ms]
+(pass) state-shape component agent view > projects a source without a symbol
+(pass) state-shape component agent view > projects a source alone when the name is absent [0.06ms]
+(pass) state-shape component agent view > projects a bare field tree without any header line [0.03ms]
+(pass) state-shape component agent view > projects only the header when fields are empty [0.01ms]
+(pass) state-shape component agent view > appends the example as a pretty-printed json fence after the shape fence [0.05ms]
+(pass) state-shape component agent view > projects the example fence alone when header and fields are absent [0.02ms]
+(pass) state-shape component agent view > drops a malformed example instead of crashing [0.03ms]
+(pass) state-shape component agent view > returns null for other block types
+
+packages/docs-model/src/components/state-shape/__tests__/actions.test.ts:
+(pass) state-shape.addField component action > appends to the root fields array when path is omitted [0.30ms]
+(pass) state-shape.addField component action > treats path "" as the root fields array [0.04ms]
+(pass) state-shape.addField component action > inserts at index under a nested parent path [0.06ms]
+(pass) state-shape.addField component action > rejects a parent path that does not resolve [0.05ms]
+(pass) state-shape.addField component action > rejects a duplicate sibling name [0.03ms]
+(pass) state-shape.addField component action > rejects duplicate names inside the provided subtree [0.03ms]
+(pass) state-shape.addField component action > rejects an out-of-range index [0.03ms]
+(pass) state-shape.addField component action > rejects a malformed field at the precise path [0.08ms]
+(pass) state-shape.addField component action > rejects a malformed nested field at the precise path [0.17ms]
+(pass) state-shape.updateField component action > patches a nested field in place [0.17ms]
+(pass) state-shape.updateField component action > renames in place [0.04ms]
+(pass) state-shape.updateField component action > rejects a rename collision among siblings [0.02ms]
+(pass) state-shape.updateField component action > clears type, required, and description with null [0.05ms]
+(pass) state-shape.updateField component action > replaces the subtree via patch.fields [0.02ms]
+(pass) state-shape.updateField component action > removes the subtree via patch.fields null [0.02ms]
+(pass) state-shape.updateField component action > rejects duplicate names inside a replacement subtree [0.03ms]
+(pass) state-shape.updateField component action > rejects a path that does not resolve [0.04ms]
+(pass) state-shape.removeField component action > removes a nested field and its subtree [0.05ms]
+(pass) state-shape.removeField component action > removes a root field [0.02ms]
+(pass) state-shape.removeField component action > rejects a path that does not resolve [0.04ms]
+(pass) state-shape.setExample component action > sets the example verbatim when it parses as JSON [0.07ms]
+(pass) state-shape.setExample component action > accepts a non-object JSON example [0.04ms]
+(pass) state-shape.setExample component action > clears the example with null [0.06ms]
+(pass) state-shape.setExample component action > rejects a string that does not parse as JSON [0.04ms]
+(pass) state-shape.setExample component action > rejects an empty string at the params schema [0.07ms]
+(pass) state-shape.setExample component action > rejects a missing example param [0.07ms]
+
+packages/docs-model/src/components/state-shape/__tests__/state.test.ts:
+(pass) state-shape component state > accepts a full recursive props object [0.05ms]
+(pass) state-shape component state > accepts the minimal props object [0.11ms]
+(pass) state-shape component state > rejects a missing fields property [0.04ms]
+(pass) state-shape component state > rejects a stray top-level property [0.04ms]
+(pass) state-shape component state > rejects a stray source property [0.02ms]
+(pass) state-shape component state > rejects a stray property on a nested field [0.05ms]
+(pass) state-shape component state > rejects a field missing its name at any depth
+(pass) state-shape component state > reports duplicate sibling field names via the custom check [0.05ms]
+(pass) state-shape component state > passes the custom check when names repeat only across levels [0.01ms]
+(pass) state-shape component state > accepts a JSON example string [0.05ms]
+(pass) state-shape component state > rejects an empty example string at the schema [0.01ms]
+(pass) state-shape component state > rejects a non-string example at the schema [0.12ms]
+(pass) state-shape component state > reports an example that does not parse as JSON via the custom check [0.05ms]
+
+packages/docs-model/src/components/code/__tests__/actions.test.ts:
+(pass) code.setAnnotation > inserts a new annotation (appended) [0.98ms]
+(pass) code.setAnnotation > upserts in place when the exact lines key exists [0.02ms]
+(pass) code.setAnnotation > rejects missing and empty required params [0.15ms]
+(pass) code.removeAnnotation > removes the annotation keyed by exact lines [0.02ms]
+(pass) code.removeAnnotation > rejects an unknown or empty lines key [0.04ms]
+
+packages/docs-model/src/components/code/__tests__/state.test.ts:
+(pass) code state > accepts the fixture props [0.08ms]
+(pass) code state > rejects stray state and annotation properties [0.07ms]
+(pass) code state > projects the fixture byte-for-byte [0.06ms]
+
+packages/docs-model/src/components/shared/__tests__/json-lines.test.ts:
+(pass) printJsonLines > prints a flat object one entry per line with single-line ranges [0.62ms]
+(pass) printJsonLines > records spanning ranges for nested objects, key line through closing token [0.06ms]
+(pass) printJsonLines > addresses arrays of objects with [i] indices and dot keys [0.07ms]
+(pass) printJsonLines > prints array elements of every primitive kind with escaped strings
+(pass) printJsonLines > prints root primitives as a single line with no ranges [0.03ms]
+(pass) printJsonLines > keeps empty objects and arrays inline [0.05ms]
+(pass) printJsonLines > matches JSON.stringify(value, null, 2) byte-for-byte on JSON values [0.09ms]
+(pass) printJsonLines > is deterministic: repeated calls produce identical bytes and ranges [0.06ms]
+(pass) printJsonLines > lists ranges in document order, parents before their children [0.06ms]
+
+packages/docs-model/src/components/canvas/__tests__/actions.test.ts:
+(pass) canvas actions > lifts all operations in descriptor order as canvas forwards [0.25ms]
+(pass) canvas actions > validates the lifted addObject payload with params paths [0.18ms]
+
+packages/docs-model/src/components/canvas/__tests__/state.test.ts:
+(pass) canvas state > accepts the fixture canvas props [0.02ms]
+(pass) canvas state > accepts a placeholder with neither canvasId nor src [0.02ms]
+(pass) canvas state > rejects an empty canvasId [0.02ms]
+(pass) canvas state > rejects stray properties [0.02ms]
+(pass) canvas agent view > projects the fixture byte-for-byte [0.02ms]
+(pass) canvas agent view > projects a missing-src placeholder [0.02ms]
+(pass) canvas agent view > projects a central canvasId when no sidecar src is present
+
+packages/docs-model/src/components/process-outline/__tests__/agent-view.test.ts:
+(pass) process-outline component agent view > projects the step tree as process-outline text in a plain process-outline fence
+(pass) process-outline component agent view > projects a single-step tree [0.02ms]
+(pass) process-outline component agent view > projects empty or malformed props as an empty fence [0.03ms]
+(pass) process-outline component agent view > returns null for other block types
+(pass) process-outline component agent view > shows the trace mark so an agent sees which steps are events [0.02ms]
+
+packages/docs-model/src/components/process-outline/__tests__/actions.test.ts:
+(pass) process-outline.setSteps component action > replaces the entire step tree [0.16ms]
+(pass) process-outline.setSteps component action > replaces with an empty tree [0.06ms]
+(pass) process-outline.setSteps component action > returns fresh objects, not the params tree [0.03ms]
+(pass) process-outline.setSteps component action > rejects missing, non-array, or malformed steps [0.15ms]
+(pass) process-outline.insertStep component action > inserts at a root position [0.17ms]
+(pass) process-outline.insertStep component action > inserts a nested note
+(pass) process-outline.insertStep component action > does not store kind for plain steps [0.07ms]
+(pass) process-outline.insertStep component action > creates the child list when inserting under a leaf step [0.03ms]
+(pass) process-outline.insertStep component action > rejects an unresolvable path prefix and an out-of-range insert position
+(pass) process-outline.insertStep component action > rejects inserting under a note step [0.06ms]
+(pass) process-outline.insertStep component action > rejects malformed params [0.13ms]
+(pass) process-outline.setStepText component action > replaces the text of a nested step [0.08ms]
+(pass) process-outline.setStepText component action > keeps a note's kind when retexted [0.03ms]
+(pass) process-outline.setStepText component action > rejects an unresolvable path [0.02ms]
+(pass) process-outline.setStepText component action > rejects malformed params
+(pass) process-outline.removeStep component action > removes a step with its subtree
+(pass) process-outline.removeStep component action > removes a root [0.02ms]
+(pass) process-outline.removeStep component action > rejects an unresolvable path and malformed params [0.04ms]
+(pass) process-outline.moveStep component action > moves a subtree under another step
+(pass) process-outline.moveStep component action > interprets `to` against the tree after removal [0.12ms]
+(pass) process-outline.moveStep component action > reorders siblings
+(pass) process-outline.moveStep component action > rejects an unresolvable from path, a destination inside the removed subtree, and a note destination [0.06ms]
+(pass) process-outline.moveStep component action > rejects an out-of-range insert position and malformed params
+(pass) process-outline trace mark across the actions > insertStep stores the mark only when asked [0.17ms]
+(pass) process-outline trace mark across the actions > insertStep refuses to trace-mark a note
+(pass) process-outline trace mark across the actions > setStepText leaves the mark alone unless the param is given [0.07ms]
+(pass) process-outline trace mark across the actions > setStepText refuses to trace-mark a note [0.02ms]
+(pass) process-outline trace mark across the actions > moveStep and removeStep carry the mark with the step and its subtree
+(pass) process-outline trace mark across the actions > setSteps accepts a trace-marked tree through the shared schema [0.07ms]
+
+packages/docs-model/src/components/process-outline/__tests__/state.test.ts:
+(pass) process-outline component state schema > accepts a structured step tree, including the empty one [0.05ms]
+(pass) process-outline component state schema > accepts explicit step kinds [0.03ms]
+(pass) process-outline component state schema > requires steps — the state is literally the list of steps
+(pass) process-outline component state schema > rejects malformed steps [0.11ms]
+(pass) process-outline component state schema > rejects stray root properties — there is no title and no stored text form [0.03ms]
+(pass) process-outline component state check > does not carry text
+(pass) process-outline component state check > flags a note step that has children — notes are leaves [0.04ms]
+(pass) process-outline component state check > flags a trace-marked note — notes are prose, not events [0.03ms]
+(pass) process-outline component state check > accepts a trace-marked step, with or without children [0.05ms]
+(pass) process-outline component state check > accepts note leaves and step parents [0.02ms]
+(pass) process-outline state readers > reads steps into depth-annotated nodes [0.08ms]
+(pass) process-outline state readers > skips malformed entries tolerantly [0.08ms]
+(pass) process-outline state readers > returns an empty forest when steps are missing or malformed [0.02ms]
+(pass) process-outline state readers > returns fresh objects from the step-tree read [0.03ms]
+
+packages/docs-model/src/components/process-outline/__tests__/lib.test.ts:
+(pass) parseProcessOutline > ranks irregular indentation widths and builds nested steps [0.18ms]
+(pass) parseProcessOutline > marks clarification notes without keeping the marker [0.05ms]
+(pass) parseProcessOutline > supports multiple roots [0.14ms]
+(pass) parseProcessOutline > skips blank lines [0.26ms]
+(pass) parseProcessOutline > preserves backticks in node text [0.03ms]
+(pass) parseProcessOutline > ranks indent widths in order seen, so the first line is depth 0 even when indented [0.01ms]
+(pass) parseProcessOutline > keeps an assigned depth when a smaller nonzero indent appears later [0.03ms]
+(pass) parseProcessOutline > re-ranks later lines once a new smaller indent width is known [0.03ms]
+(pass) serializeProcessOutline > emits bare roots, arrowed children at 5 spaces per level, and > notes [0.04ms]
+(pass) serializeProcessOutline > serializes ProcessOutlineNode input identically to its ProcessOutlineStep twin [0.06ms]
+(pass) serializeProcessOutline > serializes a root-level note with the bare > marker
+(pass) serializeProcessOutline > serializes an empty forest to empty text
+(pass) serialize/parse round-trip > parse(serialize(x)) reproduces the structure for generated trees [1.16ms]
+(pass) serialize/parse round-trip > parses `=>` as a trace-marked step and keeps the marker out of the text [0.02ms]
+(pass) serialize/parse round-trip > serializes a trace-marked step as `=>` at every depth, roots included [0.05ms]
+(pass) serialize/parse round-trip > round-trips trace marks through notation [0.04ms]
+(pass) serialize/parse round-trip > carries the trace flag through the tolerant read and the clone [0.02ms]
+(pass) serialize/parse round-trip > round-trips parse output through nodesToSteps and back [0.18ms]
+
+packages/docs-model/src/components/rich-text/__tests__/state.test.ts:
+(pass) rich-text component state > accepts every owned fixture block
+(pass) rich-text component state > rejects a stray property for every owned fixture block [0.10ms]
+(pass) rich-text component state > rejects an out-of-range heading level [0.02ms]
+(pass) rich-text component state > accepts a heading without a level [0.01ms]
+(pass) rich-text component state > rejects an image without src [0.01ms]
+(pass) rich-text component state > rejects an unknown callout tone
+(pass) rich-text component agent view > projects the fixture blocks byte-for-byte [0.12ms]
+(pass) rich-text component agent view > defaults a heading without level to level two [0.02ms]
+(pass) rich-text component agent view > numbers and indents an ordered nested list item [0.01ms]
+
+packages/docs-model/src/components/sequence/__tests__/state.test.ts:
+(pass) sequence state > accepts the fixture sequence props [0.09ms]
+(pass) sequence state > accepts a placeholder with neither sequenceId nor src [0.02ms]
+(pass) sequence state > rejects an empty sequenceId [0.02ms]
+(pass) sequence state > rejects stray properties
+(pass) sequence agent view > projects the fixture byte-for-byte [0.02ms]
+(pass) sequence agent view > projects a missing-src placeholder
+(pass) sequence agent view > projects a central sequenceId when no sidecar src is present
+
+packages/docs-model/src/components/file-tree/__tests__/actions.test.ts:
+(pass) file-tree.addEntry > appends a new entry with stable ordering, note, and change [0.27ms]
+(pass) file-tree.addEntry > accepts a trailing-slash explicit directory entry [0.03ms]
+(pass) file-tree.addEntry > rejects a duplicate path [0.04ms]
+(pass) file-tree.addEntry > rejects all three invalid path grammar forms with legacy messages
+(pass) file-tree.addEntry > rejects a missing path and an unknown change marker through checkParams [0.09ms]
+(pass) file-tree.removeEntry > removes the entry with the given path [0.02ms]
+(pass) file-tree.removeEntry > rejects a missing entry [0.01ms]
+(pass) file-tree.updateEntry > patches note, change, and from in place [0.04ms]
+(pass) file-tree.updateEntry > clears note, change, and from when null is passed [0.03ms]
+(pass) file-tree.updateEntry > renames in place via newPath [0.01ms]
+(pass) file-tree.updateEntry > rejects a newPath collision
+(pass) file-tree.updateEntry > rejects an empty newPath in the domain validator [0.03ms]
+(pass) file-tree.updateEntry > rejects a missing entry
+
+packages/docs-model/src/components/file-tree/__tests__/state.test.ts:
+(pass) file-tree state > accepts the fixture block props [0.04ms]
+(pass) file-tree state > rejects a stray entry property [0.07ms]
+(pass) file-tree state > requires entries [0.03ms]
+(pass) file-tree state > rejects the removed title property [0.02ms]
+(pass) file-tree state > rejects a stray top-level property [0.01ms]
+(pass) file-tree agent view > renders the fixture byte-for-byte [0.11ms]
+
+2 tests failed:
+(fail) captured integration goldens > re-serializes the fixture and corpus to their on-disk bytes [23.79ms]
+(fail) captured integration goldens > projects the fixture and corpus byte-for-byte [22.40ms]
+
+ 532 pass
+ 2 fail
+ 4491 expect() calls
+Ran 534 tests across 47 files. [330.00ms]

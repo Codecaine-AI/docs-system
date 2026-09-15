@@ -2,6 +2,11 @@
   "name": "Default",
   "dark": false,
   "railDefaults": {
+    "transition": {
+      "type": "fade",
+      "fadeOutMs": 80,
+      "fadeInMs": 120
+    },
     "accent": "blue",
     "colors": {
       "background": null,
@@ -13,40 +18,41 @@
       "headingFont": "sans",
       "codeFont": "mono",
       "numberFont": "body",
-      "fontSize": 16,
-      "lineHeight": 1.5,
-      "letterSpacing": 0.005
+      "fontSize": 15,
+      "lineHeight": 1.7,
+      "letterSpacing": 0
     },
     "layout": {
-      "contentWidth": 88,
-      "contentMargin": 0,
-      "topPadding": 88,
-      "titlePadding": 50,
-      "bottomPadding": 300,
-      "radius": 4,
+      "contentWidth": 70,
+      "wideWidth": 1040,
+      "contentMargin": 88,
+      "topPadding": 24,
+      "titlePadding": 20,
+      "bottomPadding": 24,
+      "radius": 8,
       "borderStrength": 1,
       "backgroundTint": 0,
-      "sidebarTint": 10
+      "sidebarTint": 0
     },
     "sidebar": {
       "textColor": null,
       "font": "sans",
-      "fontSize": 15,
+      "fontSize": 14,
       "padding": 4,
       "guides": true,
       "guideColor": null,
-      "guideWidth": 1.5,
+      "guideWidth": 1,
       "guideOpacity": 0.6
     },
     "highlight": {
       "color": null,
-      "radius": 1,
+      "radius": 6,
       "padding": 4,
-      "dragOpacity": 0.2,
-      "dropColor": "#bcdae7",
-      "dropWidth": 6,
-      "dropOpacity": 0.7,
-      "dropRadius": 1
+      "dragOpacity": 0.3,
+      "dropColor": null,
+      "dropWidth": 3,
+      "dropOpacity": 0.9,
+      "dropRadius": 2
     },
     "dragSelect": {
       "color": null,
@@ -56,43 +62,56 @@
       "discSize": 6,
       "circleSize": 6,
       "circleThickness": 1.5,
-      "squareSize": 6,
+      "squareSize": 5,
       "indent": 24
     },
     "grip": {
       "gap": 12,
-      "offsetY": 2,
-      "size": 20,
+      "offsetY": 6,
+      "size": 18,
       "color": null,
       "fadeMs": 100
     },
     "scrollbar": {
-      "width": 7,
+      "width": 10,
       "color": null,
-      "opacity": 0.7,
-      "padding": 6
+      "opacity": 1,
+      "padding": 0
     },
     "peek": {
-      "width": 50,
+      "width": 48,
       "durationMs": 300,
-      "padding": 3,
+      "padding": 1.5,
       "dividerColor": null,
-      "dividerWidth": 2.5,
+      "dividerWidth": 1,
       "dividerStyle": "solid"
     },
     "reference": {
-      "color": "#262626",
+      "color": null,
       "underlineColor": null,
-      "iconSize": 18,
-      "iconColor": "#9c9c9c",
-      "iconGap": 4,
+      "iconSize": 12,
+      "iconColor": null,
+      "iconGap": 2,
       "iconPosition": "before"
+    },
+    "annotate": {
+      "accent": null,
+      "add": null,
+      "del": null,
+      "washOpacity": 0.08,
+      "actionPaneWidth": 520
+    },
+    "blockLayout": {
+      "state-shape": {
+        "width": "1120px",
+        "columnSplit": 48
+      }
     },
     "grain": {
       "enabled": true,
       "opacity": 0.15,
-      "frequency": 1.1,
-      "contrast": 1.2,
+      "frequency": 0.8,
+      "contrast": 1.3,
       "blendMode": "auto",
       "softening": {
         "background": 1,

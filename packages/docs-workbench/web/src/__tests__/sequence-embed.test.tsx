@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "bun:test";
-import { cleanup, render, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, waitFor } from "@testing-library/react";
 
 import { StandaloneSequenceEmbed } from "../pages/SequenceEmbed";
 
@@ -62,7 +62,7 @@ describe("StandaloneSequenceEmbed sidecar src loading", () => {
     }) as typeof fetch;
 
     try {
-      const { container, findByText } = render(
+      const { container, findByText, getByRole, queryByRole } = render(
         <StandaloneSequenceEmbed
           id="sequence-block"
           src="guide/assets/sequences/flow.sequence.json"
@@ -76,6 +76,22 @@ describe("StandaloneSequenceEmbed sidecar src loading", () => {
       const section = container.querySelector('[data-docs-block-type="sequence"]');
       expect(section?.getAttribute("data-source-id")).toBe("sequence-block");
       expect(container.querySelector("svg")).toBeTruthy();
+      const preview = getByRole("button", { name: "Open Login flow in full-screen viewer" });
+      preview.focus();
+      fireEvent.click(preview);
+      expect(getByRole("dialog", { name: "Login flow sequence viewer" })).toBeTruthy();
+      expect(window.document.body.style.overflow).toBe("hidden");
+      fireEvent.click(getByRole("button", { name: "Zoom in" }));
+      expect(getByRole("status", { name: "Zoom level" }).textContent).toBe("150%");
+      fireEvent.click(getByRole("button", { name: "Fit" }));
+      expect(getByRole("status", { name: "Zoom level" }).textContent).toBe("100%");
+      fireEvent.click(getByRole("button", { name: "Close sequence viewer" }));
+      expect(queryByRole("dialog")).toBeNull();
+      expect(window.document.body.style.overflow).not.toBe("hidden");
+      expect(window.document.activeElement).toBe(preview);
+      fireEvent.click(preview);
+      fireEvent(getByRole("dialog"), new Event("cancel"));
+      expect(queryByRole("dialog")).toBeNull();
     } finally {
       globalThis.fetch = originalFetch;
     }

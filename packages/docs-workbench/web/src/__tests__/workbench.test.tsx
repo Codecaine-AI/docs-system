@@ -209,7 +209,7 @@ afterEach(() => {
 });
 
 describe("workbench shell", () => {
-  it("renders the tree, doc header, and glass-panel mode tabs", async () => {
+  it("renders the tree, doc header, and AI toolbar toggle", async () => {
     window.location.hash = "#/10-guide";
     render(<App />);
 
@@ -217,9 +217,9 @@ describe("workbench shell", () => {
       expect(screen.getByText("Hello from Guide")).toBeTruthy();
     });
     expect(screen.getByText("docs/10-guide")).toBeTruthy();
-    expect(screen.getByRole("complementary", { name: "Lab panel" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Edit" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "AI" })).toBeTruthy();
+    expect(screen.queryByRole("complementary", { name: "AI workspace" })).toBeNull();
+    expect(document.querySelector("[data-lab-panel-tab]")).toBeNull();
+    expect(screen.getByRole("button", { name: "Show AI panel" })).toBeTruthy();
     // Two modes only — read mode collapsed into the always-editable default.
     expect(!!screen.queryByRole("button", { name: "Read mode" })).toBe(false);
     // Edit IS the default: the editor mounts with no mode click, and the
@@ -327,6 +327,7 @@ describe("workbench shell", () => {
         railDefaults: {
           layout: { wideWidth: 1040, contentMargin: 88 },
           annotate: { washOpacity: 0.19, actionPaneWidth: 633 },
+          transition: { type: "fade", fadeOutMs: 60, fadeInMs: 180 },
         },
       },
       null,
@@ -347,6 +348,8 @@ describe("workbench shell", () => {
           "633px",
         );
         expect(document.documentElement.getAttribute("data-theme")).toBe("light");
+        expect(document.documentElement.style.getPropertyValue("--docs-page-fade-out")).toBe("60ms");
+        expect(document.documentElement.style.getPropertyValue("--docs-page-fade-in")).toBe("180ms");
       });
       expect(screen.queryByRole("button", { name: "Collapse style controls" })).toBeNull();
 
@@ -587,7 +590,7 @@ describe("edit mode save loop", () => {
     });
     await makeEditorDirty(() => editor, "FLUSHMARK ");
 
-    fireEvent.click(screen.getByRole("button", { name: "AI" }));
+    fireEvent.click(screen.getByRole("button", { name: "Show AI panel" }));
 
     // The editor unmounted with the debounce still pending — the unmount
     // flush persists the draft anyway…
@@ -605,6 +608,14 @@ describe("edit mode save loop", () => {
   });
 
   it("navigating away while dirty flushes the old doc without clobbering the new one", async () => {
+    const originalAnimate = HTMLElement.prototype.animate;
+    // Keep the outgoing editor alive after the next bundle resolves.
+    HTMLElement.prototype.animate = () => {
+      let timer: ReturnType<typeof setTimeout>;
+      const finished = new Promise<void>(resolve => { timer = setTimeout(resolve, 200); });
+      return { finished, cancel: () => clearTimeout(timer) } as unknown as Animation;
+    };
+    try {
     let editor: Editor | null = null;
     const view = renderDocPage("76-nav", {
       onEditorReady: (e) => (editor = e),
@@ -633,6 +644,10 @@ describe("edit mode save loop", () => {
     // …and its late response did not swap the newly-opened doc's content.
     expect(screen.getByText("Hello from NavTarget")).toBeTruthy();
     expect(!!screen.queryByText(/NAVMARK/)).toBe(false);
+    } finally {
+      cleanup();
+      HTMLElement.prototype.animate = originalAnimate;
+    }
   });
 });
 
@@ -710,7 +725,7 @@ describe("annotate mode", () => {
     await waitFor(() => {
       expect(screen.getByText("Hello from Annotations")).toBeTruthy();
     });
-    fireEvent.click(screen.getByRole("button", { name: "AI" }));
+    fireEvent.click(screen.getByRole("button", { name: "Show AI panel" }));
     // Click the paragraph block -> the anchored composer popover opens.
     const block = document.querySelector('[data-block-id="para-1"]');
     expect(block).toBeTruthy();
@@ -748,7 +763,7 @@ describe("annotate mode", () => {
     await waitFor(() => {
       expect(screen.getByText("Hello from Hover")).toBeTruthy();
     });
-    fireEvent.click(screen.getByRole("button", { name: "AI" }));
+    fireEvent.click(screen.getByRole("button", { name: "Show AI panel" }));
 
     const block = document.querySelector('[data-block-id="para-1"]');
     expect(block).toBeTruthy();
@@ -805,7 +820,7 @@ describe("annotate mode", () => {
     await waitFor(() => {
       expect(screen.getByText("Hello from Range")).toBeTruthy();
     });
-    fireEvent.click(screen.getByRole("button", { name: "AI" }));
+    fireEvent.click(screen.getByRole("button", { name: "Show AI panel" }));
 
     const block = document.querySelector('[data-block-id="para-1"]') as HTMLElement;
     expect(block).toBeTruthy();
@@ -853,7 +868,7 @@ describe("annotate mode", () => {
     await waitFor(() => {
       expect(screen.getByText("Hello from Hover")).toBeTruthy();
     });
-    fireEvent.click(screen.getByRole("button", { name: "AI" }));
+    fireEvent.click(screen.getByRole("button", { name: "Show AI panel" }));
 
     const block = document.querySelector('[data-block-id="para-1"]') as HTMLElement;
     const walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT);
@@ -876,7 +891,7 @@ describe("docs lab integration", () => {
     renderDocPage("92-mode");
     await waitFor(() => expect(screen.getByText("Hello from Mode")).toBeTruthy());
 
-    fireEvent.click(screen.getByRole("button", { name: "AI" }));
+    fireEvent.click(screen.getByRole("button", { name: "Show AI panel" }));
     expect(document.querySelector('[data-docs-mode="annotate"]')).toBeTruthy();
     expect(document.querySelector("[data-docs-annotation-wash]")).toBeTruthy();
     const apply = document.querySelector<HTMLButtonElement>("[data-docs-lab-queue-apply]");
@@ -919,7 +934,7 @@ describe("docs lab integration", () => {
 
     renderDocPage("90-lab");
     await waitFor(() => expect(screen.getByText("Hello from Lab")).toBeTruthy());
-    fireEvent.click(screen.getByRole("button", { name: "AI" }));
+    fireEvent.click(screen.getByRole("button", { name: "Show AI panel" }));
 
     await waitFor(() => {
       expect(document.querySelector('[data-docs-lab-proposal-bar="A1"]')).toBeTruthy();
@@ -971,7 +986,7 @@ describe("docs lab integration", () => {
 
     renderDocPage("91-stale-proposal");
     await waitFor(() => expect(screen.getByText("Newer document text")).toBeTruthy());
-    fireEvent.click(screen.getByRole("button", { name: "AI" }));
+    fireEvent.click(screen.getByRole("button", { name: "Show AI panel" }));
 
     await waitFor(() => {
       expect(document.querySelector('[data-docs-stale-proposal="A2"]')).toBeTruthy();

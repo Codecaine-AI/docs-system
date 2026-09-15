@@ -1,561 +1,136 @@
 "use client";
 
-import { useMemo, type ReactNode } from "react";
+import { useMemo, type CSSProperties, type ReactNode } from "react";
 import { printJsonLines, type Field } from "@codecaine-ai/docs-model";
 import { cn } from "../../ui/cn";
-import {
-  CodeLines,
-  LinkGroup,
-  LinkTarget,
-  ProseRows,
-  type LinkedCodeLine,
-} from "../linked-panels";
+import { CodeLines, LinkGroup, LinkTarget, type LinkedCodeLine } from "../linked-panels";
 
 export const STATE_SHAPE_LABEL = "State Shape";
+export const STATE_SHAPE_AGENT_DESCRIPTION = "A bounded, two-column field inspector with a separately textured object header and linked JSON companion. Descriptions sit beneath field names, persistent branch rules clarify nesting, and hover, focus, click, Enter, Space, and Escape coordinate field paths with every matching JSON occurrence.";
+export type StateShapeSourceProps = { path: string; symbol?: string };
 
-export const STATE_SHAPE_AGENT_DESCRIPTION =
-  "Object shape definition: a recursive field tree (name, type, optionality, meaning) describing what a structure's state looks like, with an optional link to the defining source symbol and an optional JSON example instance — pair it with an interaction-surface block holding the operations that act on the shape. Rendered from typed props: { name?: string; description?: string; source?: { path: string; symbol?: string }; fields: Array<{ name: string; type?: string; required?: boolean; description?: string; fields?: Field[] }>; example?: string } (fields recurse; example is JSON text of an example INSTANCE of the shape). Renders in the wide lane as an API-reference two-pane layout with no header bar: the field list on the left takes the majority of the width — top-level fields as full-width-hairline-divided groups (bold mono name with the mono type and a muted `?` for required: false inline beside it, muted description on the line below at a ~70ch measure), nested fields contained behind a light left rule with no dividers of their own — and, when example parses as JSON, a line-numbered pretty-printed example panel on the right that sticks to the top of the viewport (height-capped, internally scrolling) while the field list scrolls past. Below xl the panes stack, example under the fields; with no example (or one that does not parse) the field list takes the full lane alone. Tree rows and example lines cross-link by field path: hover/pin paints the field's full extent in both panes (no visible line-number chips). State is always JSON, so the block never shows a language tag.";
-
-export type StateShapeSourceProps = {
-  /** Path of the defining source file, e.g. "packages/docs-model/src/doc-schema.ts". */
-  path: string;
-  /** Symbol within that file, e.g. "DocBlock". */
-  symbol?: string;
-};
-
-/**
- * Field-row token tints, all routed through the `--docs-shape-*` theme
- * tokens (theme-folders.ts "state-shape" entry; defaults in
- * theme/semantic.css). The literal fallbacks keep host-neutral renders
- * sensible without that stylesheet: the type hue is the same amber the
- * interaction-surface signature uses (amber-700 light / amber-300 dark),
- * muted falls back to the shared muted foreground.
- */
 export const FIELD_TOKEN_CLASS = {
   name: "text-foreground",
-  type: "text-[color:var(--docs-shape-type,#b45309)] dark:text-[color:var(--docs-shape-type,#fcd34d)]",
+  type: "text-[color:var(--docs-shape-type,#0a5779)] dark:text-[color:var(--docs-shape-type,#a5d3f0)]",
+  typeBg: "bg-[color:var(--docs-shape-type-bg,color-mix(in_srgb,#0a5779_9%,transparent))] dark:bg-[color:var(--docs-shape-type-bg,color-mix(in_srgb,#a5d3f0_14%,transparent))]",
+  optionalFg: "text-[color:var(--docs-shape-optional-fg,#6b4708)] dark:text-[color:var(--docs-shape-optional-fg,#e8c27a)]",
   muted: "text-[color:var(--docs-shape-muted,var(--muted-foreground))]",
-  description:
-    "text-[color:var(--docs-shape-desc-fg,color-mix(in_srgb,var(--foreground)_72%,transparent))]",
+  description: "text-[color:var(--docs-shape-desc-fg,color-mix(in_srgb,var(--foreground)_72%,transparent))]",
 } as const;
 
-/** Block-name hue: plain ink by default (mockup S1's h3) — the --docs-shape-name knob can still recolor it. */
-const SHAPE_NAME_CLASS = "text-[color:var(--docs-shape-name,var(--foreground))]";
+export type TypeTextClassification = { kind: "union"; parts: string[] } | { kind: "token" } | { kind: "prose" };
+const UNION_TYPE_MEMBER_PATTERN = /^[\w.$<>\[\]"'`-]+$/;
+const SINGLE_TYPE_TOKEN_PATTERN = /^[\w.$<>\[\],]+(\[\])*$/;
+export function classifyTypeText(type: string): TypeTextClassification {
+  const parts = type.split(/(\s*\|\s*)/);
+  const members = parts.filter((_, index) => index % 2 === 0);
+  if (members.length > 1 && members.every((member) => UNION_TYPE_MEMBER_PATTERN.test(member))) return { kind: "union", parts };
+  if (!type.includes("|") && SINGLE_TYPE_TOKEN_PATTERN.test(type)) return { kind: "token" };
+  return { kind: "prose" };
+}
 
-/** Thin hairline for the pane split and row dividers. */
-const SHAPE_RULE_BORDER = "border-[color:var(--docs-shape-rule,var(--border))]";
-
-/**
- * Example-pane JSON token tints (data-json-token spans). Deterministic —
- * the pretty print is canonical, so a tiny line tokenizer covers the whole
- * grammar; no highlight.js. Hues route through the workbench `--syntax-*`
- * vars (the same buckets the hljs theme maps JSON onto), with fixed
- * fallbacks for host-neutral renders: keys take the cyan identity hue the
- * interaction-surface signature name uses, booleans the amber type hue —
- * the family's amber-cyan convention.
- */
 const JSON_TOKEN_CLASS = {
   key: "text-[color:var(--syntax-key,#0e7490)] dark:text-[color:var(--syntax-key,#67e8f9)]",
-  string:
-    "text-[color:var(--syntax-string,#15803d)] dark:text-[color:var(--syntax-string,#86efac)]",
-  number:
-    "text-[color:var(--syntax-number,#1d4ed8)] dark:text-[color:var(--syntax-number,#93c5fd)]",
-  boolean:
-    "text-[color:var(--syntax-boolean,#b45309)] dark:text-[color:var(--syntax-boolean,#fcd34d)]",
+  string: "text-[color:var(--syntax-string,#15803d)] dark:text-[color:var(--syntax-string,#86efac)]",
+  number: "text-[color:var(--syntax-number,#1d4ed8)] dark:text-[color:var(--syntax-number,#93c5fd)]",
+  boolean: "text-[color:var(--syntax-boolean,#b45309)] dark:text-[color:var(--syntax-boolean,#fcd34d)]",
   null: "text-[color:var(--syntax-null,#b91c1c)] dark:text-[color:var(--syntax-null,#fca5a5)]",
   punct: "text-muted-foreground",
 } as const;
-
 type JsonTokenKind = keyof typeof JSON_TOKEN_CLASS;
-
-/** JSON lexeme scanner over one canonical pretty-printed line: strings (with escapes), numbers, literals, structural punctuation. */
-const JSON_LEXEME_PATTERN =
-  /"(?:[^"\\]|\\.)*"|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?|true|false|null|[{}[\],:]/g;
-
-function jsonTokenKind(lexeme: string, rest: string): JsonTokenKind {
-  if (lexeme.startsWith('"')) return /^\s*:/.test(rest) ? "key" : "string";
-  if (lexeme === "true" || lexeme === "false") return "boolean";
-  if (lexeme === "null") return "null";
-  if (lexeme.length === 1 && "{}[],:".includes(lexeme)) return "punct";
+const JSON_LEXEME_PATTERN = /"(?:[^"\\]|\\.)*"|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?|true|false|null|[{}[\],:]/g;
+function jsonTokenKind(token: string, rest: string): JsonTokenKind {
+  if (token.startsWith('"')) return /^\s*:/.test(rest) ? "key" : "string";
+  if (token === "true" || token === "false") return "boolean";
+  if (token === "null") return "null";
+  if (token.length === 1 && "{}[],:".includes(token)) return "punct";
   return "number";
 }
-
-/**
- * One pretty-printed JSON line as toned spans: a string followed by a colon
- * is a key, other strings are values; number/boolean/null literals and
- * structural punctuation each take their bucket. Whitespace passes through
- * as plain text. Deterministic — same line, same spans.
- */
 export function jsonLineTokens(line: string): ReactNode[] {
-  const tokens: ReactNode[] = [];
+  const output: ReactNode[] = [];
   let cursor = 0;
   for (const match of line.matchAll(JSON_LEXEME_PATTERN)) {
     const index = match.index ?? 0;
-    const lexeme = match[0];
-    if (index > cursor) tokens.push(line.slice(cursor, index));
-    const kind = jsonTokenKind(lexeme, line.slice(index + lexeme.length));
-    tokens.push(
-      <span key={index} data-json-token={kind} className={JSON_TOKEN_CLASS[kind]}>
-        {lexeme}
-      </span>,
-    );
-    cursor = index + lexeme.length;
+    if (index > cursor) output.push(line.slice(cursor, index));
+    const token = match[0];
+    const kind = jsonTokenKind(token, line.slice(index + token.length));
+    output.push(<span key={index} data-json-token={kind} className={JSON_TOKEN_CLASS[kind]}>{token}</span>);
+    cursor = index + token.length;
   }
-  if (cursor < line.length) tokens.push(line.slice(cursor));
-  return tokens;
+  if (cursor < line.length) output.push(line.slice(cursor));
+  return output;
 }
 
-type FlatField = {
-  field: Field;
-  depth: number;
-  /** Dot-path of field names, e.g. "fields.name" — also the row's linkKey. */
-  path: string;
-};
-
-/** Depth-first flatten of the recursive field tree into hairline-divided rows. */
-function flattenFields(
-  fields: readonly Field[],
-  depth = 0,
-  parentPath = "",
-): FlatField[] {
-  const rows: FlatField[] = [];
-  for (const field of fields) {
-    const path = parentPath ? `${parentPath}.${field.name}` : field.name;
-    rows.push({ field, depth, path });
-    if (field.fields && field.fields.length > 0) {
-      rows.push(...flattenFields(field.fields, depth + 1, path));
-    }
-  }
-  return rows;
+type FlatField = { field: Field; depth: number; path: string; last: boolean; rails: number[] };
+function flattenFields(fields: readonly Field[], depth = 0, parent = "", rails: number[] = []): FlatField[] {
+  return fields.flatMap((field, index) => {
+    const path = parent ? `${parent}.${field.name}` : field.name;
+    const last = index === fields.length - 1; return [{ field, depth, path, last, rails }, ...flattenFields(field.fields ?? [], depth + 1, path, depth > 0 && !last ? [...rails, depth] : rails)];
+  });
 }
-
-/**
- * "fields[0].name" -> "fields.name": every [i] array-index segment strips,
- * so a shape field matches its path at EVERY array position of the example.
- * A leading index ("[0].name" on an array-rooted example) leaves no leading
- * dot behind.
- */
-function normalizeRangePath(path: string): string {
-  return path.replace(/\[\d+\]/g, "").replace(/^\.+/, "");
-}
-
-type LineSpan = { start: number; end: number };
-
-type ExampleModel = {
-  /** Pretty-printed example lines (printJsonLines canon). */
-  lines: readonly string[];
-  /** Field dot-path -> chip span of its FIRST occurrence (a min–max across disjoint array elements would lie). */
-  chipByPath: ReadonlyMap<string, LineSpan>;
-  /** Per line (index 0 = line 1): every matched field covering it, DEEPEST first. */
-  keysByLine: readonly (readonly string[] | undefined)[];
-};
-
-/**
- * Parse the example (tolerant — undefined when it does not parse) and map
- * shape fields onto its lines. Every line carries the whole chain of
- * matched fields covering it, deepest first: pointing at the line
- * activates the deepest field, while activating an ancestor (from its
- * tree row) still lights the line — so a parent extent always paints
- * contiguously, brace to brace. Chips name the field's FIRST occurrence;
- * hover still lights every occurrence across array elements.
- */
-function mapExample(
-  example: string | undefined,
-  fieldPaths: readonly string[],
-): ExampleModel | undefined {
+function normalizeRangePath(path: string) { return path.replace(/\[\d+\]/g, "").replace(/^\.+/, ""); }
+type ExampleModel = { lines: readonly string[]; matched: ReadonlySet<string>; keysByLine: readonly (readonly string[] | undefined)[] };
+function mapExample(example: string | undefined, fieldPaths: readonly string[]): ExampleModel | undefined {
   if (!example) return undefined;
   let value: unknown;
-  try {
-    value = JSON.parse(example);
-  } catch {
-    return undefined;
-  }
+  try { value = JSON.parse(example); } catch { return undefined; }
   const { lines, ranges } = printJsonLines(value);
   const paths = new Set(fieldPaths);
-  const chipByPath = new Map<string, LineSpan>();
-  const chains = new Array<string[] | undefined>(lines.length);
+  const matched = new Set<string>();
+  const keysByLine = new Array<string[] | undefined>(lines.length);
   for (const range of ranges) {
     const path = normalizeRangePath(range.path);
     if (!paths.has(path)) continue;
-    if (!chipByPath.has(path)) {
-      chipByPath.set(path, { start: range.start, end: range.end });
-    }
+    matched.add(path);
     for (let line = range.start; line <= range.end; line += 1) {
-      // Pre-order arrival: ancestors first — unshift leaves deepest first.
-      const chain = (chains[line - 1] ??= []);
+      const chain = (keysByLine[line - 1] ??= []);
       if (chain[0] !== path) chain.unshift(path);
     }
   }
-  return { lines, chipByPath, keysByLine: chains };
+  return { lines, matched, keysByLine };
 }
 
-/** "packages/docs-model/src/doc-schema.ts" -> "doc-schema.ts". */
-function sourceBasename(path: string): string {
-  const segments = path.split("/").filter(Boolean);
-  return segments[segments.length - 1] ?? path;
+function TypeValue({ value }: { value?: string }) {
+  if (!value) return <span className={cn("text-xs", FIELD_TOKEN_CLASS.muted)}>—</span>;
+  const type = classifyTypeText(value);
+  if (type.kind === "union") return <span data-field-token="type" className={cn("flex flex-wrap items-center gap-1 font-mono text-xs", FIELD_TOKEN_CLASS.type)}>{type.parts.map((part, i) => i % 2 === 0 ? <span key={i} data-type-chip className={cn("rounded px-1.5 py-0.5", FIELD_TOKEN_CLASS.typeBg)}>{part}</span> : <span key={i} data-type-sep className="opacity-40">|</span>)}</span>;
+  return <span data-field-token="type" className={cn("break-words font-mono text-xs", FIELD_TOKEN_CLASS.type)}>{type.kind === "token" ? <span data-type-chip className={cn("rounded px-1.5 py-0.5", FIELD_TOKEN_CLASS.typeBg)}>{value}</span> : value}</span>;
 }
 
-/** The children container's rule: a very light gray line (half-strength shape rule). */
-const CHILD_RULE_BORDER =
-  "border-[color:var(--docs-shape-child-rule,color-mix(in_srgb,var(--docs-shape-rule,var(--border))_50%,transparent))]";
-
-/**
- * Reading measure for the description lines (row descriptions and the
- * block description). ~70ch is the API-reference measure: wide enough that
- * a one-sentence field note does not wrap three times in the wide lane,
- * narrow enough to stay comfortable. MUST stay a literal token — the
- * Tailwind scanner cannot see a runtime-built `max-w-[${n}ch]`.
- */
-const DESCRIPTION_MEASURE = "max-w-[70ch]";
-
-/**
- * One structure-tree row: bold mono name with the type and the optional
- * marker INLINE beside it, then the muted description on its own line
- * below at the reading measure. Rows whose field maps into the example are
- * LinkTargets (the row lights its example lines); unmatched rows are
- * inert.
- *
- * Rows carry a small left pad rather than sitting flush: the lit/pinned
- * state paints a 3px inset rail at the row's left edge
- * (LINK_TARGET_LIT_CLASSES), and the pad keeps that rail off the first
- * glyph. The row's own box still spans the pane, so the hairline the
- * ProseRows stack draws between rows runs the FULL pane width instead of
- * reading as an inset rule.
- */
-function ShapeFieldRow({
-  field,
-  depth,
-  path,
-  linked,
-}: {
-  field: Field;
-  depth: number;
-  path: string;
-  linked: boolean;
-}) {
-  const body = (
-    <>
-      <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
-        <span
-          data-field-token="name"
-          className={cn("break-all font-mono text-[13px] font-semibold", FIELD_TOKEN_CLASS.name)}
-        >
-          {field.name}
-        </span>
-        {/* The type sits a step DOWN from the name: smaller and quiet-colored
-            (see --docs-shape-type). Same-size saturated type text read louder
-            than the bold name it annotates, which is backwards — the name is
-            what a reader scans for. */}
-        {/* `break-words`, not `break-all`: a long union type wraps at its
-            spaces and `|` separators instead of being guillotined mid-token
-            ("save_poin / t"), which is exactly the kind of break that costs a
-            low-vision reader the word. */}
-        {field.type && (
-          <span
-            data-field-token="type"
-            className={cn("break-words font-mono text-[11px]", FIELD_TOKEN_CLASS.type)}
-          >
-            {field.type}
-          </span>
-        )}
-        {/* Spelled out rather than a bare "?", which reads as uncertainty
-            about the field rather than a statement about it. */}
-        {field.required === false && (
-          <span
-            data-field-token="optional"
-            className={cn(
-              "text-[10px] uppercase tracking-wider",
-              FIELD_TOKEN_CLASS.muted,
-            )}
-          >
-            optional
-          </span>
-        )}
+function FieldRow({ row, linked }: { row: FlatField; linked: boolean }) {
+  const { field, depth, path } = row;
+  const style = { "--ledger-depth": depth } as CSSProperties;
+  const content = <>
+    <div data-shape-name-cell data-child={depth > 0 ? "true" : "false"} style={style}>
+      {depth > 0 && <><span aria-hidden data-tree-line data-tree-vertical data-last={row.last ? "true" : "false"} style={{"--tree-level":depth} as CSSProperties}/><span aria-hidden data-tree-line data-tree-tick/>{row.rails.map(level => <span key={level} aria-hidden data-tree-line data-tree-vertical style={{"--tree-level":level} as CSSProperties}/>)}</>}
+      <div className="flex min-w-0 items-baseline gap-1.5">
+        <span data-field-token="name" className={cn("break-all font-mono text-[13px] font-semibold", FIELD_TOKEN_CLASS.name)}>{field.name}</span>
+        {field.required === false && <span data-field-token="optional" title="Optional field" aria-label="optional" className={cn("font-mono text-[11px] font-medium", FIELD_TOKEN_CLASS.optionalFg)}>?</span>}
       </div>
-      {field.description && (
-        <div
-          data-field-token="description"
-          className={cn(
-            "mt-1 text-xs leading-[1.5]",
-            DESCRIPTION_MEASURE,
-            FIELD_TOKEN_CLASS.description,
-          )}
-        >
-          {field.description}
-        </div>
-      )}
-    </>
-  );
-  const shared = {
-    "data-shape-field": field.name,
-    "data-shape-path": path,
-    "data-shape-depth": depth,
-    className: cn(
-      "text-xs",
-      // Nested rows are a single line (name + type, rarely a description), so
-      // they take a tighter rhythm than a top-level row — that difference in
-      // density is itself the signal that they belong to the row above.
-      depth === 0 ? "px-3 py-[var(--docs-shape-row-pad,10px)]" : "py-1.5 pl-3 pr-4",
-    ),
-  } as const;
-  if (!linked) return <div {...shared}>{body}</div>;
-  return (
-    <LinkTarget linkKey={path} {...shared}>
-      {body}
-    </LinkTarget>
-  );
-}
-
-/**
- * A field and its nested fields as one visual group — the pattern the
- * interaction-surface notes use: the field's own row, children contained
- * behind a very light left rule (one step per depth) with NO dividers of
- * their own; full-strength hairlines separate only the top-level fields.
- *
- * The indent lives on the CONTAINER (ml) and the row pad on the ROW (pl),
- * so a nested row's lit rail lands exactly on its depth's left rule rather
- * than floating inside the padding.
- */
-function ShapeFieldGroup({
-  field,
-  depth,
-  path,
-  model,
-}: {
-  field: Field;
-  depth: number;
-  path: string;
-  model: ExampleModel | undefined;
-}) {
-  const children = field.fields ?? [];
-  return (
-    <div data-shape-field-group={path}>
-      <ShapeFieldRow
-        depth={depth}
-        field={field}
-        linked={model?.chipByPath.has(path) ?? false}
-        path={path}
-      />
-      {/* Indent guide. Pulled in from ml-4 to ml-3 and darkened (see
-          --docs-shape-child-rule) so the group reads as hanging off its
-          parent rather than floating in the gap beside it; the tighter
-          bottom margin keeps the parent and its children in one block
-          instead of two loosely-related clusters. */}
-      {children.length > 0 && (
-        <div
-          data-shape-children="true"
-          className={cn("mb-1.5 ml-3 border-l border-solid", CHILD_RULE_BORDER)}
-        >
-          {children.map((child) => (
-            <ShapeFieldGroup
-              key={child.name}
-              depth={depth + 1}
-              field={child}
-              model={model}
-              path={`${path}.${child.name}`}
-            />
-          ))}
-        </div>
-      )}
+      {field.description ? <div data-field-token="description" className={cn("mt-1 min-w-0 text-xs leading-5", FIELD_TOKEN_CLASS.description)}>{field.description}</div> : null}
     </div>
-  );
+    <div className="min-w-0 pt-0.5"><TypeValue value={field.type} /></div>
+  </>;
+  const props = { "data-shape-field": field.name, "data-shape-path": path, "data-shape-depth": depth, className: cn("grid min-w-0 gap-2 border-b border-solid border-[color:var(--docs-shape-rule,var(--border))] px-4 py-3 motion-reduce:transition-none sm:grid-cols-[minmax(10rem,1.25fr)_minmax(8rem,0.75fr)] sm:gap-5", depth > 0 && "bg-[color:color-mix(in_srgb,var(--muted)_7%,transparent)]") } as const;
+  return linked ? <LinkTarget linkKey={path} {...props}>{content}</LinkTarget> : <div {...props}>{content}</div>;
 }
 
-/**
- * State shape block — the API-reference two-pane layout: a wide field list
- * on the left, the example JSON parked on the right.
- *
- * The block fills whatever lane the renderer puts it in (`w-full`, no cap
- * and no centering of its own): state-shape declares the WIDE lane in its
- * descriptor, and both surfaces wrap it in that lane element. The pane
- * split therefore happens at `xl:` — below it the two panes stack, example
- * under the field list, which is the only readable arrangement once the
- * lane narrows.
- *
- * Left pane (majority width): bold ink shape name, muted `basename#symbol`
- * source ref with the full path in the title attribute, then the field
- * rows (plain spans — bare `code`/`p` elements would inherit the global
- * inline-code pill and paragraph sizing rules). Rows separate with a
- * hairline that spans the FULL pane width, name/type/optional read on one
- * line, and the description sits below at a ~70ch measure.
- *
- * Right pane: when the example prop parses as JSON, the line-numbered,
- * zebra-striped, token-toned example renders in its own bordered panel.
- * That panel is STICKY — a long field list scrolls past a fixed example
- * instead of dragging the reader back up to it — and caps its height with
- * internal scrolling so it can never outgrow the viewport. Stickiness is
- * why the block is no longer wrapped in one `overflow-hidden` card:
- * clipping ancestors kill `position: sticky`. The panel's own
- * overflow keeps its content clipped to its radius.
- *
- * Field rows link to the example lines their dot-path matches (array
- * indices normalized away): hover/pin paints the field's full extent in
- * both panes. Without an example (or with one that does not parse) the
- * field list takes the full lane on its own — no empty second column — and
- * nothing is linkable.
- *
- * There is deliberately NO header bar and never a language tag: state is
- * always JSON.
- */
-export function StateShapeBlock({
-  id,
-  name,
-  description,
-  source,
-  fields,
-  example,
-}: {
-  id: string;
-  name?: string;
-  description?: string;
-  source?: StateShapeSourceProps;
-  fields: Field[];
-  example?: string;
-}) {
+export function StateShapeBlock({ id, name, description, source, fields, example }: { id: string; name?: string; description?: string; source?: StateShapeSourceProps; fields: Field[]; example?: string }) {
   const flat = useMemo(() => flattenFields(fields), [fields]);
-  const model = useMemo(
-    () =>
-      mapExample(
-        example,
-        flat.map((row) => row.path),
-      ),
-    [example, flat],
-  );
-
-  const sourceRef = source
-    ? source.symbol
-      ? `${source.path}#${source.symbol}`
-      : source.path
-    : undefined;
-  const sourceLabel = source
-    ? source.symbol
-      ? `${sourceBasename(source.path)}#${source.symbol}`
-      : sourceBasename(source.path)
-    : undefined;
-
-  const exampleLines: LinkedCodeLine[] | undefined = model?.lines.map((line, index) => ({
-    content: jsonLineTokens(line),
-    linkKey: model.keysByLine[index],
-  }));
-
-  const hasHeader = Boolean(name || sourceRef || description);
-
-  return (
-    <section
-      className="not-prose my-4 w-full"
-      data-docs-block-type="state-shape"
-      data-source-id={id}
-    >
-      <LinkGroup>
-        {/* `items-start` is load-bearing for the sticky example pane: a
-            stretched grid item is exactly as tall as its row and so has
-            nowhere to travel. Started at the top, the pane is content-tall
-            inside a row sized by the field list, which is the room sticky
-            needs. */}
-        <div
-          data-shape-grid="true"
-          className={cn(
-            "grid w-full grid-cols-1 gap-y-6",
-            // The split is the LEFT pane's share of the block, supplied by the
-            // style rail as `--docs-pane-split` (Layout > Column split). The
-            // 46% fallback MUST match BLOCK_COLUMN_SPLIT_DEFAULTS in the
-            // workbench's StyleRail — an unset knob emits nothing, so this
-            // literal is what actually renders. A fixed `fr` ratio used to
-            // starve the example pane, clipping long JSON values.
-            model
-              && "xl:grid-cols-[minmax(0,var(--docs-pane-split,46%))_minmax(0,1fr)] xl:items-start xl:gap-x-10",
-          )}
-        >
-          <div data-shape-tree="true" className="min-w-0">
-            {hasHeader && (
-              <div
-                data-shape-header="true"
-                className={cn(
-                  "mb-1 grid gap-1 border-b-2 border-solid px-3 py-3",
-                  SHAPE_RULE_BORDER,
-                  "bg-[color:var(--docs-shape-header-bg,color-mix(in_srgb,var(--muted)_35%,transparent))]",
-                )}
-              >
-                {name && (
-                  <div
-                    data-shape-name="true"
-                    className={cn("break-all font-mono text-sm font-bold", SHAPE_NAME_CLASS)}
-                  >
-                    {name}
-                  </div>
-                )}
-                {sourceRef && (
-                  <span
-                    data-shape-source={sourceRef}
-                    title={sourceRef}
-                    className={cn("break-all font-mono text-[11px]", FIELD_TOKEN_CLASS.muted)}
-                  >
-                    {sourceLabel}
-                  </span>
-                )}
-                {description && (
-                  <div
-                    data-shape-description="true"
-                    className={cn(
-                      "mt-0.5 text-xs leading-[1.5]",
-                      DESCRIPTION_MEASURE,
-                      FIELD_TOKEN_CLASS.description,
-                    )}
-                  >
-                    {description}
-                  </div>
-                )}
-              </div>
-            )}
-            {fields.length > 0 ? (
-              // The stack spans the pane, so its dividers are full-width
-              // rules between fields — not rules inset to the text column.
-              // It closes with a bottom rule (and opens with a top one when
-              // no header supplies it) so the list reads as a bounded
-              // table rather than trailing off.
-              <ProseRows
-                className={cn(
-                  "border-b border-solid divide-[color:var(--docs-shape-rule,var(--border))]",
-                  !hasHeader && "border-t",
-                  SHAPE_RULE_BORDER,
-                )}
-              >
-                {fields.map((field) => (
-                  <ShapeFieldGroup
-                    key={field.name}
-                    depth={0}
-                    field={field}
-                    model={model}
-                    path={field.name}
-                  />
-                ))}
-              </ProseRows>
-            ) : (
-              <div className={cn("px-3 py-2 text-xs", FIELD_TOKEN_CLASS.muted)}>(no fields)</div>
-            )}
-          </div>
-          {exampleLines && (
-            <div
-              data-shape-example-pane="true"
-              className="min-w-0 xl:sticky xl:top-4 xl:self-start"
-            >
-              <CodeLines
-                data-shape-example="true"
-                lines={exampleLines}
-                // overflow-Y only: the panel's own horizontal scroll
-                // (CODE_LINES_PANEL_CLASSES) still handles long lines, and
-                // the height cap keeps a 200-line example inside the
-                // viewport while it is stuck.
-                className={cn(
-                  "max-h-[calc(100vh-8rem)] overflow-y-auto rounded-md border pb-3",
-                  "border-[color:var(--docs-shape-border,var(--border))]",
-                  "bg-[color:var(--docs-shape-bg,var(--background))]",
-                )}
-              />
-            </div>
-          )}
+  const model = useMemo(() => mapExample(example, flat.map((row) => row.path)), [example, flat]);
+  const sourceRef = source ? source.symbol ? `${source.path}#${source.symbol}` : source.path : undefined;
+  const exampleLines: LinkedCodeLine[] | undefined = model?.lines.map((line, index) => ({ content: jsonLineTokens(line), linkKey: model.keysByLine[index] }));
+  return <section className="not-prose my-4 w-full min-w-0 overflow-hidden rounded-lg border-2 border-solid border-[color:var(--docs-shape-header-rule,color-mix(in_srgb,var(--foreground)_65%,var(--border)))] bg-[color:var(--docs-shape-bg,var(--background))]" data-shape-column-rules="true" data-shape-tree-geometry="true" data-docs-block-type="state-shape" data-source-id={id} data-shape-source={sourceRef}>
+    <style data-variator-tokens>{"[data-docs-block-type=\"state-shape\"]:not(.dark [data-docs-block-type=\"state-shape\"]){border-width:1px !important;}\n[data-docs-block-type=\"state-shape\"]:not(.dark [data-docs-block-type=\"state-shape\"]){border-radius:4px !important;}\n[data-docs-block-type=\"state-shape\"]:not(.dark [data-docs-block-type=\"state-shape\"]) [data-shape-header],[data-docs-block-type=\"state-shape\"]:not(.dark [data-docs-block-type=\"state-shape\"]) [data-shape-header] + div:not([data-shape-grid]){border-bottom-width:1px !important;}\n[data-docs-block-type=\"state-shape\"]:not(.dark [data-docs-block-type=\"state-shape\"]) [data-shape-header]::before{opacity:0.1 !important;}\n[data-docs-block-type=\"state-shape\"]:not(.dark [data-docs-block-type=\"state-shape\"]) [data-shape-example-pane]{border-left-width:1px !important;}\n[data-docs-block-type=\"state-shape\"]:not(.dark [data-docs-block-type=\"state-shape\"]){--tree-length:8px !important;}\n[data-docs-block-type=\"state-shape\"]:not(.dark [data-docs-block-type=\"state-shape\"]){--tree-start:6px !important;}\n[data-docs-block-type=\"state-shape\"]:not(.dark [data-docs-block-type=\"state-shape\"]){--tree-width:1px !important;}[data-docs-block-type=\"state-shape\"]:not(.dark [data-docs-block-type=\"state-shape\"]) [data-shape-field] [aria-hidden]{border-width:1px !important;}"}</style><LinkGroup><style>{"\n [data-shape-tree-geometry]{--tree-width:1px;--tree-start:8px;--tree-indent:22px;--tree-length:10px;--tree-gap:6px;--tree-y:0px;--tree-row-y:12px;--tree-row-border:1px}\n [data-shape-tree-geometry] [data-shape-name-cell]{position:relative;min-width:0;font-size:13px}\n [data-shape-tree-geometry] [data-shape-name-cell][data-child=\"true\"]{padding-left:calc(var(--tree-start) + (var(--ledger-depth) - 1)*var(--tree-indent) + var(--tree-length) + var(--tree-gap))}\n [data-shape-tree-geometry] [data-tree-line]{position:absolute;pointer-events:none;border-color:var(--docs-shape-child-rule,color-mix(in srgb,var(--foreground) 35%,var(--border)));border-width:var(--tree-width)}\n [data-shape-tree-geometry] [data-tree-vertical]{left:calc(var(--tree-start) + (var(--tree-level) - 1)*var(--tree-indent));top:calc(-1*var(--tree-row-y));bottom:calc(-1*(var(--tree-row-y) + var(--tree-row-border)));border-left-style:solid}\n [data-shape-tree-geometry] [data-tree-vertical][data-last=\"true\"]{bottom:auto;height:calc(var(--tree-row-y) + .65em + var(--tree-y) + var(--tree-width))}\n [data-shape-tree-geometry] [data-tree-tick]{left:calc(var(--tree-start) + (var(--ledger-depth) - 1)*var(--tree-indent) + var(--tree-width));top:calc(.65em + var(--tree-y));width:max(0px,calc(var(--tree-length) - var(--tree-width)));border-top-style:solid}\n "}</style><style>{".review-wide [data-shape-column-rules] [data-shape-grid]{column-gap:0;align-items:start}.review-wide [data-shape-column-rules] [data-shape-example-pane]{border-top-width:0;border-left-width:2px;align-self:start}"}</style>
+      <header data-shape-header="true" className="relative overflow-hidden border-b-2 border-solid border-[color:var(--docs-shape-header-rule,color-mix(in_srgb,var(--foreground)_65%,var(--border)))] bg-[color:color-mix(in_srgb,var(--docs-shape-type,#0a5779)_7%,var(--background))] px-4 py-4 before:pointer-events-none before:absolute before:inset-0 before:opacity-40 before:[background-image:radial-gradient(ellipse_at_15%_120%,transparent_55%,color-mix(in_srgb,var(--docs-shape-type,#0a5779)_14%,transparent)_56%,transparent_63%),radial-gradient(ellipse_at_75%_-35%,transparent_58%,color-mix(in_srgb,var(--docs-shape-type,#0a5779)_10%,transparent)_59%,transparent_68%)] dark:bg-[color:color-mix(in_srgb,var(--docs-shape-type,#a5d3f0)_9%,var(--background))]">
+        <div className="relative min-w-0">{name && <h3 data-shape-name="true" className="m-0 break-all font-mono text-sm font-bold text-foreground">{name}</h3>}{description && <div data-shape-description="true" className="mt-1 max-w-[72ch] text-xs leading-5 text-foreground/75">{description}</div>}</div>
+      </header>
+      <div data-shape-grid="true" className={cn("grid min-w-0 grid-cols-1", model && "xl:grid-cols-[minmax(0,var(--docs-pane-split,46%))_minmax(0,1fr)] xl:items-start")}>
+        <div data-shape-tree="true" className="min-w-0 overflow-hidden">
+          {fields.length > 0 ? <><div aria-hidden data-shape-ledger-head="true" className={cn("hidden border-b-2 border-solid border-[color:var(--docs-shape-rule,var(--border))] bg-[color:color-mix(in_srgb,var(--muted)_18%,transparent)] px-4 py-2 font-mono text-[10px] font-semibold uppercase tracking-[0.1em] sm:grid sm:grid-cols-[minmax(10rem,1.25fr)_minmax(8rem,0.75fr)] sm:gap-5", FIELD_TOKEN_CLASS.muted)}><span>Field</span><span>Type</span></div><div data-shape-ledger="true">{flat.map((row) => <FieldRow key={row.path} row={row} linked={model?.matched.has(row.path) ?? false} />)}</div></> : <div className={cn("px-4 py-3 text-xs", FIELD_TOKEN_CLASS.muted)}>(no fields)</div>}
         </div>
-      </LinkGroup>
-    </section>
-  );
+        {exampleLines && <div data-shape-example-pane="true" className="min-w-0 border-t-2 border-solid border-[color:var(--docs-shape-header-rule,color-mix(in_srgb,var(--foreground)_65%,var(--border)))] xl:self-start xl:border-l-2 xl:border-t-0"><div className={cn("border-b-2 border-solid border-[color:var(--docs-shape-rule,var(--border))] bg-[color:color-mix(in_srgb,var(--muted)_18%,transparent)] px-4 py-2 font-mono text-[10px] font-semibold uppercase tracking-[0.1em]", FIELD_TOKEN_CLASS.muted)}>Example</div><CodeLines data-shape-example="true" lines={exampleLines} className="max-h-[calc(100vh-8rem)] overflow-y-auto pb-3" /></div>}
+      </div>
+    </LinkGroup>
+  </section>;
 }

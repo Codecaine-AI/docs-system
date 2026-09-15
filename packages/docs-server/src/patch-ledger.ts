@@ -1,3 +1,4 @@
+import { canonicalDocsRoot } from "./draft-locks";
 import type { DocOp } from "@codecaine-ai/docs-model/doc-ops";
 import type { InteractiveCanvasDocument } from "@codecaine-ai/canvas/schema";
 import type { SequenceDocument } from "@codecaine-ai/sequence/schema";
@@ -13,10 +14,10 @@ import type { TreeOpInverse } from "./changesets/tree-ops";
  *
  * In-memory, process-wide, single-use: undoing a patch consumes it
  * (matching a normal editor undo stack rather than a replayable log).
- * `path` is docs-root-relative; the docs root itself is supplied at undo
- * time by the caller that owns the store for that root.
+ * `path` is docs-root-relative. Every patch records its canonical docs root;
+ * undo must match that root before reading or mutating any files.
  */
-export type StoredPatch =
+type PatchContent =
   | { kind: "doc"; path: string; inverse: DocOp[]; hashAfterApply: string; createdAt: string }
   | {
       kind: "canvas";
@@ -44,6 +45,8 @@ export type StoredPatch =
     }
   | { kind: "compound"; patchIds: string[]; createdAt: string };
 
+export type StoredPatch = PatchContent & { docsRoot: string };
+
 const patchesById = new Map<string, StoredPatch>();
 
 export function recordDocPatch(
@@ -51,8 +54,10 @@ export function recordDocPatch(
   path: string,
   inverse: DocOp[],
   hashAfterApply: string,
+  docsRoot: string,
 ): void {
   patchesById.set(patchId, {
+    docsRoot: canonicalDocsRoot(docsRoot),
     kind: "doc",
     path,
     inverse,
@@ -66,8 +71,10 @@ export function recordCanvasPatch(
   path: string,
   priorSnapshot: InteractiveCanvasDocument,
   hashAfterApply: string,
+  docsRoot: string,
 ): void {
   patchesById.set(patchId, {
+    docsRoot: canonicalDocsRoot(docsRoot),
     kind: "canvas",
     path,
     priorSnapshot,
@@ -81,8 +88,10 @@ export function recordSequencePatch(
   path: string,
   priorSnapshot: SequenceDocument,
   hashAfterApply: string,
+  docsRoot: string,
 ): void {
   patchesById.set(patchId, {
+    docsRoot: canonicalDocsRoot(docsRoot),
     kind: "sequence",
     path,
     priorSnapshot,
@@ -91,16 +100,18 @@ export function recordSequencePatch(
   });
 }
 
-export function recordCompoundPatch(patchId: string, patchIds: string[]): void {
+export function recordCompoundPatch(patchId: string, patchIds: string[], docsRoot: string): void {
   patchesById.set(patchId, {
+    docsRoot: canonicalDocsRoot(docsRoot),
     kind: "compound",
     patchIds: [...patchIds],
     createdAt: new Date().toISOString(),
   });
 }
 
-export function recordTreePatch(patchId: string, inverse: TreeOpInverse): void {
+export function recordTreePatch(patchId: string, inverse: TreeOpInverse, docsRoot: string): void {
   patchesById.set(patchId, {
+    docsRoot: canonicalDocsRoot(docsRoot),
     kind: "tree",
     inverse,
     createdAt: new Date().toISOString(),
@@ -110,18 +121,21 @@ export function recordTreePatch(patchId: string, inverse: TreeOpInverse): void {
 export function recordSidecarPatch(
   patchId: string,
   files: Extract<StoredPatch, { kind: "sidecars" }>["files"],
+  docsRoot: string,
 ): void {
   patchesById.set(patchId, {
+    docsRoot: canonicalDocsRoot(docsRoot),
     kind: "sidecars",
     files: files.map((file) => ({ ...file })),
     createdAt: new Date().toISOString(),
   });
 }
 
-export function getStoredPatch(patchId: string): StoredPatch | undefined {
-  return patchesById.get(patchId);
+export function getStoredPatch(patchId: string, docsRoot?: string): StoredPatch | undefined {
+  const patch = patchesById.get(patchId);
+  return docsRoot === undefined || patch?.docsRoot === canonicalDocsRoot(docsRoot) ? patch : undefined;
 }
 
-export function deleteStoredPatch(patchId: string): void {
-  patchesById.delete(patchId);
+export function deleteStoredPatch(patchId: string, docsRoot: string): void {
+  if (getStoredPatch(patchId, docsRoot)) patchesById.delete(patchId);
 }

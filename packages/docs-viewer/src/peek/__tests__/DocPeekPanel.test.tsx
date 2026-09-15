@@ -64,11 +64,17 @@ async function dispatchNavigateEvent(detail: DocReferenceNavigateDetail) {
 function renderPanel(
   client: DocsClient | null = stubClient(),
   resolveAssetSrc?: (src: string) => string,
+  onOpenChange?: (open: boolean) => void,
 ) {
   const onNavigate = mock((_ref: SpectreRef) => {});
   render(
     <DocsClientProvider client={client}>
-      <DocPeekPanel projectId="proj-1" onNavigate={onNavigate} resolveAssetSrc={resolveAssetSrc} />
+      <DocPeekPanel
+        projectId="proj-1"
+        onNavigate={onNavigate}
+        onOpenChange={onOpenChange}
+        resolveAssetSrc={resolveAssetSrc}
+      />
     </DocsClientProvider>,
   );
   return { onNavigate };
@@ -96,6 +102,20 @@ describe("DocPeekPanel", () => {
     expect(panel().getAttribute("aria-hidden")).toBe("false");
     expect(screen.getByText("Hello from A")).toBeTruthy();
     expect(onNavigate).not.toHaveBeenCalled();
+  });
+
+  it("reports visibility changes to the host", async () => {
+    const onOpenChange = mock((_open: boolean) => {});
+    renderPanel(stubClient(), undefined, onOpenChange);
+    expect(onOpenChange).toHaveBeenLastCalledWith(false);
+
+    await dispatchNavigateEvent({ ref: refA, intent: "peek" });
+    expect(onOpenChange).toHaveBeenLastCalledWith(true);
+
+    await act(async () => {
+      fireEvent.click(screen.getByLabelText("Close preview"));
+    });
+    expect(onOpenChange).toHaveBeenLastCalledWith(false);
   });
 
   it("wraps peeked content in the doc-surface typography + vertical-rhythm wrapper (DocPage parity)", async () => {

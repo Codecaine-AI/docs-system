@@ -1,0 +1,607 @@
+{
+  "name": "Budget / Framework / Canvas",
+  "root": "/Users/Ford/Github Repos/Lascari AI/personal-budget/packages/docs-framework/external/canvas",
+  "status": "Applied",
+  "agent": "migrate_budget_canvas",
+  "oldImplementationDirectoryExists": false,
+  "newImplementationDirectoryExists": true,
+  "recovery": [
+    {
+      "kind": "tree_change_id",
+      "id": "2ce64c87-46fc-4298-9f8f-91aee9e508aa"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "2b53b5bc-a81e-45e8-b359-6b2c9aeb3738"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "1a2039cd-3dea-4132-b9b3-7d36094a34be"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "b8c509c3-9d9e-4bb5-b556-fc726f60728c"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "2ccd9631-d09a-4c28-86f1-6291f4e03da9"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "6fe8406d-d2f7-4079-86e0-9bdbd5b6b72d"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "c1e5721e-5f53-4330-ba33-967b82acf17b"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "eb8d12fe-60ee-44d4-8204-8dc74e2959a9"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "6dfa8382-f615-4a42-8151-c6431032cf6f"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "3eb92732-b4e2-4c77-996c-2addec0fe318"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "b8ceb9b2-a1b6-4fe5-9f44-72a75c53a2f6"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "c2e04dc7-97ce-4e4d-9cda-72a902094c61"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "a2abd296-6e7a-48bb-abce-9678dbc915df"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "ad5acb97-e1a5-4f72-b528-e7ade5350f49"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "1762b772-741c-4700-81fe-72a0a193e785"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "c069f917-0f44-4042-81c5-e9055bf47396"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "ca18a276-6b15-49f2-a0e3-a8b59100caa5"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "3d1f6f16-3219-4081-b1eb-5a0e31bd1997"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "7706c397-605b-4c0c-8614-9cb96e997aba"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "040ce5cd-7d5b-4b93-a7c8-17be020dab0a"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "296cad60-f86d-45d2-b3d2-bd1789b95931"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "a94063ac-3595-48b9-8b9e-795c74043a80"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "9d97739c-b3a8-4ca2-ba59-84d2edccc2ab"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "ead1fe60-2870-45f3-8bf5-d303d3e7b862"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "91583782-81f1-499d-8bab-c578a89deaa9"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "1cbb021e-6e97-4ecb-beed-2420a4c6d75f"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "2eb73526-0138-4191-8239-40648a5bca19"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "fa70cda7-c6ea-49fc-bf49-2fb02e0656be"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "22244530-7257-4016-9130-30acdb4a1d85"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "1bc25e22-58f5-49f9-aa67-91020e5c7f61"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "9b16b755-2af2-43cd-bb69-064c836baf0f"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "54c7d775-9900-44a7-b850-d8f3027208d1"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "c3b8b41d-aefb-4893-a608-61cc46f0e71b"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "2a7fbc4e-7ec8-4ebd-966d-db34df39770b"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "d3b945ba-379d-46d1-b3d9-12a352d5d70a"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "95e969be-0ebd-42a7-a0c4-a66f573ecbf0"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "2c2bae6c-cbd4-4bb0-ae7a-9d6c6e9c225c"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "02074ad7-2a4a-4ff7-9d60-d88c94613091"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "291af350-9e7c-45ea-9ae5-ffcdade04255"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "de32e3bb-ec2b-4551-8cd2-e7c90b0d2356"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "8bf75571-ef9d-4490-9158-96f693e0fb52"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "f21c3878-8cf0-4cc8-8343-6808a28901f3"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "9a2cd2b9-f297-434c-a78b-d502c84aad81"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "47b0cad0-376b-497b-80b0-9a04fab1f0a4"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "4a680c3f-3e44-4384-a85b-e7eb3591fa4c"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "4e0da907-bcff-447c-a51b-051ff353750e"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "66bcf1d2-34ae-4a18-a438-400fbec310d1"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "0dae5c6c-a10c-48ba-9aa0-0c64c449232c"
+    },
+    {
+      "kind": "temporary",
+      "id": "5ae9bcd4-fb5e-4bbf-b8c7-84ddc20e0b9e"
+    },
+    {
+      "kind": "patch",
+      "id": "a122fad8-418a-4689-bc57-537df20d29e6"
+    },
+    {
+      "kind": "restore",
+      "id": "e60f215b-bc95-4b4a-b53d-adf55cad55d7"
+    },
+    {
+      "kind": "temporary",
+      "id": "e688cce2-fab9-453a-b499-c154a9e1bd9c"
+    },
+    {
+      "kind": "patch",
+      "id": "70c0e910-0ca9-4d11-9345-8bae624d9575"
+    },
+    {
+      "kind": "restore",
+      "id": "c25e200c-e5ef-4a1f-b308-8dbbfcf60015"
+    },
+    {
+      "kind": "temporary",
+      "id": "defc2961-884a-4add-862a-78045f5b37e2"
+    },
+    {
+      "kind": "patch",
+      "id": "dad88faf-4537-46dd-8857-80c4b3135966"
+    },
+    {
+      "kind": "restore",
+      "id": "f6c96bad-ec18-4efd-98fd-e8c508833da7"
+    },
+    {
+      "kind": "temporary",
+      "id": "8b782134-9962-46e3-95eb-d55125f5ae85"
+    },
+    {
+      "kind": "patch",
+      "id": "16633851-d303-4ebd-95a0-b8c654821112"
+    },
+    {
+      "kind": "restore",
+      "id": "8ca4949e-79de-4f4e-9832-f935a076e42e"
+    },
+    {
+      "kind": "temporary",
+      "id": "dfb57c87-236a-4024-b166-7e4e26a8d55a"
+    },
+    {
+      "kind": "patch",
+      "id": "441b411e-670c-47d1-87ea-1b4209b46dad"
+    },
+    {
+      "kind": "restore",
+      "id": "9e5b2625-097e-473f-bad6-0d7c02b89722"
+    },
+    {
+      "kind": "temporary",
+      "id": "c4650e68-dc2e-4eaa-af43-f24d7ae96a2e"
+    },
+    {
+      "kind": "patch",
+      "id": "635e123a-3e21-45b4-a17c-e6ddbf43b48a"
+    },
+    {
+      "kind": "restore",
+      "id": "26efac6e-b88e-46c2-9cf6-e7aa0888d95f"
+    },
+    {
+      "kind": "temporary",
+      "id": "59bd0625-8418-4154-b6d3-ad237bef42f1"
+    },
+    {
+      "kind": "patch",
+      "id": "94bc373a-6863-45b9-9a57-094f2668eea1"
+    },
+    {
+      "kind": "restore",
+      "id": "3cfe39b5-2288-4637-a1c9-b5aa46d62efd"
+    },
+    {
+      "kind": "temporary",
+      "id": "7846d543-8d79-4ac5-beac-4710b2649159"
+    },
+    {
+      "kind": "patch",
+      "id": "33cbe6fa-78dc-4ee9-9c10-c206364c5c0b"
+    },
+    {
+      "kind": "restore",
+      "id": "0e306f1a-ba6d-47ac-8948-7e01e4a7e983"
+    },
+    {
+      "kind": "temporary",
+      "id": "9fb32edd-c2f9-4f63-8b15-73f0b454c3e1"
+    },
+    {
+      "kind": "patch",
+      "id": "0c3384f8-8f0b-4cee-b93a-8445f342f405"
+    },
+    {
+      "kind": "restore",
+      "id": "c88ccf1f-bbc7-4c9e-8315-1dcbf022e98f"
+    },
+    {
+      "kind": "temporary",
+      "id": "f5d79d8d-43b8-499b-b397-8aac30799063"
+    },
+    {
+      "kind": "patch",
+      "id": "eda1b54b-f4ee-461a-8ea5-6049759e741e"
+    },
+    {
+      "kind": "restore",
+      "id": "c8ebc835-b2f8-4e24-b66b-b0b603d0131e"
+    },
+    {
+      "kind": "temporary",
+      "id": "476deb8d-92a1-4459-a0bf-5fb4ec8cff75"
+    },
+    {
+      "kind": "patch",
+      "id": "9bf7df73-dec3-4601-a238-82b623a9e43e"
+    },
+    {
+      "kind": "restore",
+      "id": "2fba1b0d-c6ce-4049-83da-f78886bf123b"
+    },
+    {
+      "kind": "temporary",
+      "id": "4c303b52-c8d6-4914-834f-0037c42edd80"
+    },
+    {
+      "kind": "patch",
+      "id": "a693851a-6fd7-4e11-bac0-126eb83c933a"
+    },
+    {
+      "kind": "restore",
+      "id": "c1db0f12-5b76-40a6-8345-90217f80a6cb"
+    },
+    {
+      "kind": "temporary",
+      "id": "328a5fb2-ebe0-47d4-a366-ddd8af8f9e19"
+    },
+    {
+      "kind": "patch",
+      "id": "bac6b762-6aa4-46db-a75b-860e357628d4"
+    },
+    {
+      "kind": "restore",
+      "id": "7b2b3082-c254-4877-b8a7-7bfedb59ed8d"
+    },
+    {
+      "kind": "temporary",
+      "id": "2a0f31ad-dd10-4fd6-a0ef-9732f54aa104"
+    },
+    {
+      "kind": "patch",
+      "id": "b4fdc73d-2221-4724-b188-c271fed1be1f"
+    },
+    {
+      "kind": "restore",
+      "id": "4f48c655-ba8e-4e1c-9c93-a6d6b68fb33e"
+    },
+    {
+      "kind": "temporary",
+      "id": "f94a8486-8f1e-4f00-bbb9-80396063ceab"
+    },
+    {
+      "kind": "patch",
+      "id": "e72a4818-6729-4af7-a338-ffd2e34506d7"
+    },
+    {
+      "kind": "restore",
+      "id": "d7391715-01b6-4174-bbe9-eeeea2cd3018"
+    },
+    {
+      "kind": "temporary",
+      "id": "18506cb2-a1a7-4526-a8b3-f6be3472c6a7"
+    },
+    {
+      "kind": "patch",
+      "id": "8cd7add3-798b-4f96-94ef-1a1a785b0b0d"
+    },
+    {
+      "kind": "restore",
+      "id": "9f2f9c70-e9f5-4f82-92d1-44fc9f3a2580"
+    },
+    {
+      "kind": "temporary",
+      "id": "e17f8600-b6db-44fe-b07e-6ca20c77c873"
+    },
+    {
+      "kind": "patch",
+      "id": "600b3a33-d580-4a3d-b51b-574429656c1c"
+    },
+    {
+      "kind": "restore",
+      "id": "f7711025-51d1-48a6-8724-b5a1a3a5c532"
+    },
+    {
+      "kind": "temporary",
+      "id": "96614d9e-e5c9-4e24-855e-78ac0dc1b174"
+    },
+    {
+      "kind": "patch",
+      "id": "f69e77e9-36a0-443b-bc79-c69cfdb38944"
+    },
+    {
+      "kind": "restore",
+      "id": "0bad07e0-feff-4578-8cc8-3fba207c90ce"
+    },
+    {
+      "kind": "temporary",
+      "id": "d84a4424-26d3-4a0f-8fa7-91b9eb3aa915"
+    },
+    {
+      "kind": "patch",
+      "id": "c3a11c34-2aab-421b-9618-fdefd4efc5ef"
+    },
+    {
+      "kind": "restore",
+      "id": "a45b646a-10b0-4913-a875-11e850f1f045"
+    },
+    {
+      "kind": "temporary",
+      "id": "77db9b8e-a982-4341-9551-0f86a16d6d5d"
+    },
+    {
+      "kind": "patch",
+      "id": "fb2b37a7-e3e2-4faa-93cd-972f387326b6"
+    },
+    {
+      "kind": "restore",
+      "id": "746daa33-e5bc-4f41-87e9-d7397e47d7ba"
+    },
+    {
+      "kind": "temporary",
+      "id": "7161158b-7c3a-41fe-aecb-73c99d6054c3"
+    },
+    {
+      "kind": "patch",
+      "id": "24e99897-3de9-4275-b30f-2afc75159b16"
+    },
+    {
+      "kind": "restore",
+      "id": "5224a191-2443-42a2-b593-9e108be2fcb1"
+    },
+    {
+      "kind": "temporary",
+      "id": "c09ebd59-b34d-4023-b7e6-bb99a2a8d078"
+    },
+    {
+      "kind": "patch",
+      "id": "6aa55592-e42f-436e-9cb6-08d40bac69e2"
+    },
+    {
+      "kind": "restore",
+      "id": "ff08b754-467d-45ad-835d-154d3e3e9a84"
+    },
+    {
+      "kind": "temporary",
+      "id": "30aa5d95-e550-4c34-90df-93849a4f2de5"
+    },
+    {
+      "kind": "patch",
+      "id": "fffb964c-2785-4b4f-ba09-62cb74c178ed"
+    },
+    {
+      "kind": "restore",
+      "id": "152d631e-5be4-47eb-8d0a-419de72fa489"
+    },
+    {
+      "kind": "temporary",
+      "id": "c600937c-8963-4541-82ae-1c74e07301cd"
+    },
+    {
+      "kind": "patch",
+      "id": "47b5de67-b4e9-4a5a-9429-4887188c3498"
+    },
+    {
+      "kind": "restore",
+      "id": "f8538f1f-4d62-49b7-8c2f-be71fbfa5e6e"
+    },
+    {
+      "kind": "temporary",
+      "id": "e2fb2d38-c749-4f8d-8d6f-1d80b5790f9e"
+    },
+    {
+      "kind": "patch",
+      "id": "f117515b-8bc7-4238-944e-f4701e6a245f"
+    },
+    {
+      "kind": "restore",
+      "id": "5319f2d3-16ef-4540-a366-0e982a21e5d6"
+    },
+    {
+      "kind": "temporary",
+      "id": "f6d7ccb0-0283-4a53-8706-7a3016d45c8a"
+    },
+    {
+      "kind": "patch",
+      "id": "aa3dcd51-5aad-4286-8ff4-935f9a7330b5"
+    },
+    {
+      "kind": "restore",
+      "id": "c909a817-e145-48be-a76c-5dc99095a86c"
+    },
+    {
+      "kind": "temporary",
+      "id": "a69d01f2-c729-40b5-9a6a-9055bd50270c"
+    },
+    {
+      "kind": "patch",
+      "id": "4ecdf80a-0619-4bc2-a6c3-31bec80815f4"
+    },
+    {
+      "kind": "restore",
+      "id": "d9a31482-4bb3-44b3-8c02-7b3aaea212d4"
+    },
+    {
+      "kind": "temporary",
+      "id": "06ff6b8e-3205-41ee-861c-bbc94fc68e87"
+    },
+    {
+      "kind": "patch",
+      "id": "a03030d5-310d-424f-b414-a6b5846ce7e2"
+    },
+    {
+      "kind": "restore",
+      "id": "74ff2cc2-9aed-4f27-9cb4-759368431b55"
+    },
+    {
+      "kind": "temporary",
+      "id": "57e514b6-32ea-4163-9989-c088dc510cb7"
+    },
+    {
+      "kind": "patch",
+      "id": "9c18eb74-390a-4e9f-a42e-d793f569a48b"
+    },
+    {
+      "kind": "restore",
+      "id": "85b9ae6f-e6bf-417d-90d6-ae96818acafd"
+    },
+    {
+      "kind": "temporary",
+      "id": "aae3441f-0b3b-49cb-baa3-d2d67e19a459"
+    },
+    {
+      "kind": "patch",
+      "id": "7f1faaab-c2c4-4240-ad4c-95651d5f2f45"
+    },
+    {
+      "kind": "restore",
+      "id": "a53db35c-c171-49ef-9a2e-c8f9add390e6"
+    },
+    {
+      "kind": "temporary",
+      "id": "3d0cb5de-80e0-447a-aafd-267a7bfde681"
+    },
+    {
+      "kind": "patch",
+      "id": "01a6e5ce-6c73-4c7d-bb74-8eb7b9350311"
+    },
+    {
+      "kind": "restore",
+      "id": "48c7fde0-7bdd-4f81-a9a9-827ad866c6cd"
+    }
+  ],
+  "validation": {
+    "status": "completed",
+    "links": {
+      "before": 40,
+      "after": 40,
+      "introduced": 0,
+      "findingsEqualAfterPathMapping": true,
+      "report": "/tmp/docs-layout-review/budget-canvas-links-final.txt"
+    },
+    "verification": {
+      "blocks": 1369,
+      "changedBlocks": 78,
+      "bad": [],
+      "unexpected": [],
+      "oldRefs": 0,
+      "findings": 826,
+      "introduced": [],
+      "allStructurallyValid": true,
+      "oldPrefixTargetsAndLabels": 0,
+      "bundleRelativeCanvasFiles": 20,
+      "missingCanvasFiles": 0
+    },
+    "notes": [
+      "48 native bundle moves because root sections have no parent bundle.",
+      "Native00-overview reference normalization missed legacy targets;25blocks on13pages repaired through typed ops.",
+      "Native moves removed leading ./ from20Canvas src values; restored through typed ops.",
+      "Native title/ops/title sequence retained every legacy opening H1 and restored all original titles.",
+      "Only paths and path labels changed;90-findings-log prose and objective history retained.",
+      "All56docs structurally valid;826legacy writing findings unchanged.",
+      "Nested tools/docs-framework belongs to another agent and was untouched."
+    ]
+  },
+  "fullReport": "/tmp/docs-layout-review/migrate_budget_canvas.json"
+}

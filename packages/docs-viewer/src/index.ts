@@ -49,3 +49,5 @@ export {
   type DocPeekState,
   type DocPeekLoadState,
 } from "./peek/peek-state";
+
+export { PageTransition } from "./transitions/PageTransition";

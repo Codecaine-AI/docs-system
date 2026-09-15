@@ -16,7 +16,7 @@
  * a full-navigation callback, and optional asset resolution.
  */
 
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { ExternalLinkIcon, XIcon } from "lucide-react";
 import type { SpectreRef } from "@codecaine-ai/docs-model/spectre-ref";
 import DocBlockRenderer, { type DocBlockRendererProps } from "../render/DocBlockRenderer";
@@ -24,12 +24,15 @@ import { DOC_SURFACE_TYPOGRAPHY_CLASSES } from "../render/block-classes";
 import { resolveBundleAssetSrc } from "../render/bundle-src";
 import { docTitleFromPath } from "../render/doc-title";
 import { cn } from "../ui/cn";
+import { PageTransition } from "../transitions/PageTransition";
 import { useDocPeek } from "./use-doc-peek";
 
 export type DocPeekPanelProps = {
   projectId: string;
   /** Full navigation to a ref: Cmd/Ctrl-click, source refs, "Open in full", downgraded peeks. */
   onNavigate: (ref: SpectreRef) => void;
+  /** Reports visibility so a host can hide competing docked UI. */
+  onOpenChange?: (open: boolean) => void;
   /**
    * Host asset resolver for `image`/`video` block srcs — a plain
    * `(src) => string` with no bundle awareness required: the panel
@@ -41,8 +44,17 @@ export type DocPeekPanelProps = {
 
 const OPEN_WIDTH_CLASS = "w-[var(--docs-peek-width,min(48rem,45vw))]";
 
-export function DocPeekPanel({ projectId, onNavigate, resolveAssetSrc }: DocPeekPanelProps) {
+export function DocPeekPanel({
+  projectId,
+  onNavigate,
+  onOpenChange,
+  resolveAssetSrc,
+}: DocPeekPanelProps) {
   const { state, close } = useDocPeek({ projectId, onNavigate });
+
+  useEffect(() => {
+    onOpenChange?.(state.open);
+  }, [onOpenChange, state.open]);
 
   // Hosts pass a PLAIN resolver with no bundle context (the block registry
   // calls it with the raw block src), so a peeked doc's bundle-relative
@@ -122,6 +134,7 @@ export function DocPeekPanel({ projectId, onNavigate, resolveAssetSrc }: DocPeek
                 peek-specific spacing: `--docs-peek-padding` replaces
                 DocPage's `--style-content-margin`. Keep the rest in sync
                 with DocPage. */}
+            <PageTransition pageKey={state.ref.path} ready={state.load.status !== "loading"}>
             <div className="w-full px-[var(--docs-peek-padding,1.5rem)] pt-[var(--style-content-top,1.5rem)] pb-[var(--style-content-bottom,1.5rem)]">
               {/* Fixed page title, same furniture as the main doc surface
                   (DocPage's h1: class + margin come from the host-global
@@ -154,6 +167,7 @@ export function DocPeekPanel({ projectId, onNavigate, resolveAssetSrc }: DocPeek
                 </div>
               )}
             </div>
+            </PageTransition>
           </div>
         </div>
       )}

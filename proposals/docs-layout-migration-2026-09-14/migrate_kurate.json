@@ -1,0 +1,33 @@
+{
+  "name": "Kurate Catalog",
+  "root": "/Users/Ford/Github Repos/Clients/linkt/master/mplrisk-ai/clients/kurate/catalog",
+  "status": "Applied",
+  "agent": "migrate_kurate",
+  "oldImplementationDirectoryExists": false,
+  "newImplementationDirectoryExists": true,
+  "recovery": [
+    {
+      "kind": "tree_change_id",
+      "id": "ed19bf45-835f-4cd9-b5f3-6d7664f87f46"
+    }
+  ],
+  "validation": {
+    "status": "complete",
+    "links": {
+      "beforeStale": 0,
+      "afterStale": 0
+    },
+    "preservation": {
+      "docs": 60,
+      "blocks": 1437,
+      "mismatches": []
+    },
+    "notes": [
+      "No top-level Agents section exists; existing nested 10-system-design/40-agent-model preserved.",
+      "Native move also relocated 4 legacy Markdown files.",
+      "No other content changes. All 60 corpus document objects match baseline except typed document path rewrites.",
+      "Scoped git diff --check passed; dirty work preserved."
+    ]
+  },
+  "fullReport": "/tmp/docs-layout-review/migrate_kurate.json"
+}

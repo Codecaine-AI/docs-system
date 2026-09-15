@@ -38,7 +38,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Every block type defines two forms of itself: a rich component in the workbench and a deterministic, greppable markdown form on the agent surface. The vocabulary is the set of sixteen types both renders speak, grouped into nine component families. These pages are the per-family reference."
+          "insert": "Every block type defines two forms of itself: a rich component in the workbench and a deterministic, greppable markdown form on the agent surface. The vocabulary is the set of eighteen types both renders speak, grouped into nine component families. These pages are the per-family reference."
         }
       ],
       "children": []
@@ -48,7 +48,7 @@
       "type": "callout",
       "props": {
         "kind": "Decision",
-        "title": "Sixteen types and no more",
+        "title": "Eighteen Registered Types",
         "tone": "decision"
       },
       "text": [
@@ -75,7 +75,7 @@
           }
         },
         {
-          "insert": ": exactly sixteen type strings. A small vocabulary keeps the render stable, the editor learnable, and the agent edit surface enumerable."
+          "insert": ": exactly eighteen type strings. A small vocabulary keeps the render stable, the editor learnable, and the agent edit surface enumerable."
         }
       ],
       "children": []
@@ -110,7 +110,7 @@
       },
       "text": [
         {
-          "insert": "The Sixteen Types"
+          "insert": "The Eighteen Types"
         }
       ],
       "children": []
@@ -161,9 +161,19 @@
             "Image from the bundle's assets/images/; props: src, alt, caption."
           ],
           [
+            "image-grid",
+            "rich-text",
+            "Ordered images with individual headings, alt text, captions, and responsive columns."
+          ],
+          [
             "video",
             "rich-text",
             "Bundle video (src) or external URL (url); YouTube/Vimeo/Loom embed privacy-friendly players."
+          ],
+          [
+            "html",
+            "rich-text",
+            "Self-contained HTML/CSS artifact in an opaque-origin sandbox; optional inline scripts."
           ],
           [
             "code",
@@ -247,7 +257,7 @@
       "props": {},
       "text": [
         {
-          "insert": "paragraph · heading · list-item · quote · callout · divider · image · video"
+          "insert": "paragraph · heading · list-item · quote · callout · divider · image · image-grid · video · html"
         }
       ],
       "children": []

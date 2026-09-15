@@ -1,0 +1,1039 @@
+{
+  "schemaVersion": 1,
+  "id": "20-implementation-40-theming",
+  "title": "Theming: Overview",
+  "root": "b-thm-impl-root",
+  "blocks": {
+    "b-thm-impl-root": {
+      "id": "b-thm-impl-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-thm-impl-role",
+        "b-thm-impl-governed-heading",
+        "b-thm-impl-governed-themes",
+        "b-thm-impl-governed-tokens",
+        "b-thm-impl-governed-typography",
+        "b-thm-impl-governed-block",
+        "b-thm-impl-decisions-heading",
+        "b-thm-impl-d-layers-heading",
+        "b-thm-impl-d-layers-decision",
+        "b-thm-impl-d-layers-why",
+        "b-thm-impl-d-layers-applies",
+        "b-thm-impl-d-reset-heading",
+        "b-thm-impl-d-reset-decision",
+        "b-thm-impl-d-reset-why",
+        "b-thm-impl-d-reset-applies",
+        "b-thm-impl-d-registry-heading",
+        "b-thm-impl-d-registry-decision",
+        "b-thm-impl-d-registry-why",
+        "b-thm-impl-d-registry-applies",
+        "b-thm-impl-d-sparse-heading",
+        "b-thm-impl-d-sparse-decision",
+        "b-thm-impl-d-sparse-why",
+        "b-thm-impl-d-sparse-applies",
+        "b-thm-impl-d-fonts-heading",
+        "b-thm-impl-d-fonts-decision",
+        "b-thm-impl-d-fonts-why",
+        "b-thm-impl-d-fonts-applies",
+        "b-thm-impl-d-global-heading",
+        "b-thm-impl-d-global-decision",
+        "b-thm-impl-d-global-why",
+        "b-thm-impl-d-global-applies",
+        "b-thm-impl-d-default-heading",
+        "b-thm-impl-d-default-decision",
+        "b-thm-impl-d-default-why",
+        "b-thm-impl-d-default-applies",
+        "b-thm-impl-section-heading",
+        "b-thm-impl-section-system-ui"
+      ]
+    },
+    "b-thm-impl-role": {
+      "id": "b-thm-impl-role",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Implementation of theming: compiling global theme folders and normalized style-rail state into CSS custom properties on the document root. Source: "
+        },
+        {
+          "insert": "packages/docs-workbench/web/src/theme",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " ("
+        },
+        {
+          "insert": "notion-palette.css",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "semantic.css",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "theme-folders.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "), "
+        },
+        {
+          "insert": "packages/docs-workbench/web/src/shell",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " ("
+        },
+        {
+          "insert": "StyleRail.tsx",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "App.tsx",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "), "
+        },
+        {
+          "insert": "packages/docs-server/src/themes.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " (theme-root reads and writes), and "
+        },
+        {
+          "insert": "themes/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " (the global theme catalogue)."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-governed-heading": {
+      "id": "b-thm-impl-governed-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Governed By"
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-governed-themes": {
+      "id": "b-thm-impl-governed-themes",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Themes",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/30-themes",
+              "label": "Themes"
+            }
+          }
+        },
+        {
+          "insert": " — theme reach, layer precedence, resolution and selection behavior, and the Living Default."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-governed-tokens": {
+      "id": "b-thm-impl-governed-tokens",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Tokens",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/10-tokens",
+              "label": "Tokens"
+            }
+          }
+        },
+        {
+          "insert": " — the semantic-variable contract every compiled theme value targets."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-governed-typography": {
+      "id": "b-thm-impl-governed-typography",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Typography and Fonts",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/20-typography-and-fonts",
+              "label": "Typography and Fonts"
+            }
+          }
+        },
+        {
+          "insert": " — reading roles and the font stacks a theme may set."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-governed-block": {
+      "id": "b-thm-impl-governed-block",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Theming (block design)",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/50-theming",
+              "label": "Theming (block design)"
+            }
+          }
+        },
+        {
+          "insert": " — the typed component-knob contract and sparse override semantics."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-decisions-heading": {
+      "id": "b-thm-impl-decisions-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Decisions"
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-d-layers-heading": {
+      "id": "b-thm-impl-d-layers-heading",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "One CSS mechanism per precedence layer"
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-d-layers-decision": {
+      "id": "b-thm-impl-d-layers-decision",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Decision: Each design precedence layer is realized as a distinct CSS mechanism — base values as static stylesheets ("
+        },
+        {
+          "insert": "notion-palette.css",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " raw variables mapped by "
+        },
+        {
+          "insert": "semantic.css",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "), the selected theme as one injected style element compiled from the theme folder with a light and a dark block, and style-rail state as inline custom properties on the root element."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-d-layers-why": {
+      "id": "b-thm-impl-d-layers-why",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Why: Merging the layers into one computed set at runtime was rejected — letting CSS arbitration (inline over injected over stylesheet) carry the design's precedence order means no application code re-implements it."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-d-layers-applies": {
+      "id": "b-thm-impl-d-layers-applies",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Applies to: "
+        },
+        {
+          "insert": "packages/docs-workbench/web/src/theme",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "packages/docs-workbench/web/src/shell/StyleRail.tsx",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — including future variable groups and layers."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-d-reset-heading": {
+      "id": "b-thm-impl-d-reset-heading",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Reset by property removal"
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-d-reset-decision": {
+      "id": "b-thm-impl-d-reset-decision",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Decision: A default or unset rail value translates to "
+        },
+        {
+          "insert": "null",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in the variable map, and applying "
+        },
+        {
+          "insert": "null",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " removes the inline property; nothing writes a copied default into inline style."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-d-reset-why": {
+      "id": "b-thm-impl-d-reset-why",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Why: A second reset path was rejected — removing the property makes the theme layer or base stylesheet below authoritative automatically, so a default value never forks between layers."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-d-reset-applies": {
+      "id": "b-thm-impl-d-reset-applies",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Applies to: "
+        },
+        {
+          "insert": "styleRailVars",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "applyStyleRailVars",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "packages/docs-workbench/web/src/shell/StyleRail.tsx",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — including future rail settings."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-d-registry-heading": {
+      "id": "b-thm-impl-d-registry-heading",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Closed registry is the single theme vocabulary"
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-d-registry-decision": {
+      "id": "b-thm-impl-d-registry-decision",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Decision: Theme folders validate through "
+        },
+        {
+          "insert": "THEME_TOKEN_REGISTRY",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", a closed registry mapping each accepted component file and key to its CSS variables and a typed kind; folder and rail readers drop anything unregistered, and a new theme knob is one registry entry plus its semantic variable and consumer — the generic component pane renders controls from registry metadata."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-d-registry-why": {
+      "id": "b-thm-impl-d-registry-why",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Why: Open-ended folder acceptance was rejected — an unregistered key must not reach an arbitrary application property, and typed registry entries give the style rail a correct control for every knob without component-specific code."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-d-registry-applies": {
+      "id": "b-thm-impl-d-registry-applies",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Applies to: "
+        },
+        {
+          "insert": "packages/docs-workbench/web/src/theme/theme-folders.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "packages/docs-workbench/web/src/theme/semantic.css",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "packages/docs-workbench/web/src/shell/StyleRail.tsx",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — every future theme knob registers here, never through a bypass path."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-d-sparse-heading": {
+      "id": "b-thm-impl-d-sparse-heading",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Sparse per-surface component files"
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-d-sparse-decision": {
+      "id": "b-thm-impl-d-sparse-decision",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Decision: A component theme is one "
+        },
+        {
+          "insert": "components/<surface>.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " file per registered surface holding only the keys it overrides; the server replaces a theme's manifest whole but writes component files individually, leaving files omitted from a write on disk."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-d-sparse-why": {
+      "id": "b-thm-impl-d-sparse-why",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Why: One merged theme document was rejected — sparse per-surface files keep a theme readable as its divergences and let a write touch one surface without re-serializing the rest."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-d-sparse-applies": {
+      "id": "b-thm-impl-d-sparse-applies",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Applies to: "
+        },
+        {
+          "insert": "themes/*/components",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "packages/docs-server/src/themes.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — including future registered surfaces."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-d-fonts-heading": {
+      "id": "b-thm-impl-d-fonts-heading",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Font wiring stays in the theming modules"
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-d-fonts-decision": {
+      "id": "b-thm-impl-d-fonts-decision",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Decision: Font stacks flow through the same two theming paths as every other value — manifest font strings compile through "
+        },
+        {
+          "insert": "FONT_VARS",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "theme-folders.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " into both mode blocks, and rail font choices map to built-in stack strings in "
+        },
+        {
+          "insert": "styleRailVars",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "; no font-binary or "
+        },
+        {
+          "insert": "@font-face",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " loading path exists, so a stack resolves only against families the browser or host already provides."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-d-fonts-why": {
+      "id": "b-thm-impl-d-fonts-why",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Why: A separate font subsystem was rejected — fonts are theme values, and a dedicated loader would add a second application path beside the layer mechanisms above."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-d-fonts-applies": {
+      "id": "b-thm-impl-d-fonts-applies",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Applies to: "
+        },
+        {
+          "insert": "packages/docs-workbench/web/src/theme/theme-folders.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "packages/docs-workbench/web/src/shell/StyleRail.tsx",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — future font features extend these modules."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-d-global-heading": {
+      "id": "b-thm-impl-d-global-heading",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "One global theme root"
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-d-global-decision": {
+      "id": "b-thm-impl-d-global-decision",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Decision: Every "
+        },
+        {
+          "insert": "docs-cli serve",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " uses this repository's "
+        },
+        {
+          "insert": "themes/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " directory by default, resolved from the CLI package location. An explicit "
+        },
+        {
+          "insert": "--themes-root <path>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " flag or "
+        },
+        {
+          "insert": "themesRoot",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " option overrides that root. If neither root is available, resolution falls back to the "
+        },
+        {
+          "insert": "themes/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " directory beside the docs root. The catalogue contains "
+        },
+        {
+          "insert": "default",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", the shared look, and "
+        },
+        {
+          "insert": "docs-system-classic",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", the selectable classic look with its component token files."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-d-global-why": {
+      "id": "b-thm-impl-d-global-why",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Why: One package-owned root gives every served docs tree the same live theme catalogue without requiring a copied theme folder in each consumer repository."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-d-global-applies": {
+      "id": "b-thm-impl-d-global-applies",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Applies to: "
+        },
+        {
+          "insert": "docs-cli serve",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "createDocsRoutes",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "runServe",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "runExport",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-d-default-heading": {
+      "id": "b-thm-impl-d-default-heading",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Living Default file layout"
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-d-default-decision": {
+      "id": "b-thm-impl-d-default-decision",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Decision: The Living Default persists in the global folder "
+        },
+        {
+          "insert": "themes/default/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — "
+        },
+        {
+          "insert": "theme.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " carries the complete normalized scalar settings under "
+        },
+        {
+          "insert": "railDefaults",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with an empty "
+        },
+        {
+          "insert": "components",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " member, and "
+        },
+        {
+          "insert": "components/*.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " carry the sparse per-surface overrides. Workbench autosave from any unlocked serve is its only writer."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-d-default-why": {
+      "id": "b-thm-impl-d-default-why",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Why: A browser-local or exported-file home was rejected — a repository folder makes the core look versionable and shareable, and a single writer keeps the manifest and component files from diverging."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-d-default-applies": {
+      "id": "b-thm-impl-d-default-applies",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Applies to: "
+        },
+        {
+          "insert": "themes/default/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "packages/docs-workbench/web/src/shell/App.tsx",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "packages/docs-server/src/themes.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — future settings groups join "
+        },
+        {
+          "insert": "railDefaults",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", never a new store."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-section-heading": {
+      "id": "b-thm-impl-section-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "In This Section"
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-section-system-ui": {
+      "id": "b-thm-impl-section-system-ui",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Style rail runtime",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "30-implementation/40-theming/10-system-ui"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-thm-impl-section-system-ui-gloss"
+      ]
+    },
+    "b-thm-impl-section-system-ui-gloss": {
+      "id": "b-thm-impl-section-system-ui-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The normalized settings pipeline, root-property application, and persistence authority."
+        }
+      ],
+      "children": []
+    }
+  }
+}

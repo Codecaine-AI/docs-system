@@ -259,7 +259,7 @@ function usage(): string {
     "  docs-cli links check [docsRoot]",
     "  docs-cli audit [docsRoot]",
     "  docs-cli migrate [repoRoot] [--drafts] [--dry-run]",
-    "  docs-cli serve [--root <path>] [--port <port>] [--ui-port <port>] [--host <addr>] [--kernel-url <url>] [--corpus <name>] [--dev] [--rebuild] [--theme-locked]",
+    "  docs-cli serve [--root <path>] [--themes-root <path>] [--port <port>] [--ui-port <port>] [--host <addr>] [--kernel-url <url>] [--corpus <name>] [--dev] [--rebuild] [--theme-locked]",
     "  docs-cli export [--root <path>] --out <dir> [--rebuild]",
     "",
     "migrate is NON-DESTRUCTIVE by default: it writes doc.json bundles",
@@ -394,6 +394,9 @@ async function main() {
         console.log(
           `${finding.severity === "error" ? "ERROR" : "WARN"} ${finding.checkId} ${finding.path} — ${finding.message}`,
         );
+        if (finding.blockId) console.log(`  block: ${finding.blockId} (${finding.field})`);
+        if (finding.suggestion) console.log(`  fix: ${finding.suggestion}`);
+        if (finding.docsPath) console.log(`  rule: ${finding.docsPath}`);
       }
       if (report.findings.length > 0) console.log("");
       console.log(`${report.errorCount} error(s), ${report.warningCount} warning(s)`);
@@ -408,15 +411,16 @@ async function main() {
 
     if (command === "serve") {
       // Standalone read-only docs server + viewer SPA (packages/docs-workbench).
-      //   docs-cli serve [--root <path>] [--port <port>] [--ui-port <port>] [--host <addr>] [--kernel-url <url>] [--corpus <name>] [--dev] [--rebuild] [--theme-locked]
+      //   docs-cli serve [--root <path>] [--themes-root <path>] [--port <port>] [--ui-port <port>] [--host <addr>] [--kernel-url <url>] [--corpus <name>] [--dev] [--rebuild] [--theme-locked]
       // Default mode vite-builds the SPA once (cached) and serves API + SPA
       // from one port; --dev spawns `vite dev` with an /api proxy instead.
       // Binds loopback unless --host is given (the docs tree may be private).
-      // --theme-locked marks this serve a theme CONSUMER: the viewer always
-      // applies the repo default theme, the style rail is hidden, and theme
-      // writes are refused — secondary apps serving their docs with this
-      // framework inherit the primary docs-system theme instead of drifting.
+      // Themes default to docs-system/themes: locked serves inherit the
+      // primary theme live; edits from any unlocked serve update that theme.
       const root = path.resolve(flagValue(args, "--root") ?? "docs");
+      const themesRoot = path.resolve(
+        flagValue(args, "--themes-root") ?? path.resolve(import.meta.dir, "../../../themes"),
+      );
       const port = Number(flagValue(args, "--port") ?? "4800");
       if (!Number.isInteger(port) || port <= 0 || port > 65535) {
         console.error(`Invalid --port: ${flagValue(args, "--port")}`);
@@ -433,6 +437,7 @@ async function main() {
       const { runServe } = await import("@codecaine-ai/docs-workbench");
       await runServe({
         docsRoot: root,
+        themesRoot,
         port,
         uiPort,
         hostname: flagValue(args, "--host"),

@@ -28,7 +28,9 @@
         "b-ds-std-xlink-3",
         "b-ds-std-clink-4",
         "b-ds-std-icd-5",
-        "b-ds-std-impl-6"
+        "b-ds-std-impl-6",
+        "standards-b-standards-document-purpose-docs-1",
+        "standards-b-standards-authoring-lints-docs-1-3"
       ]
     },
     "b-da3-title-1": {
@@ -72,7 +74,7 @@
       },
       "text": [
         {
-          "insert": "The Three Layers"
+          "insert": "The Four Layers"
         }
       ],
       "children": []
@@ -114,13 +116,25 @@
           [
             [
               {
-                "insert": "20-implementation",
+                "insert": "20-agents",
                 "attributes": {
                   "code": true
                 }
               }
             ],
-            "Structural decisions about the current code — how it's organized and why, so additions conform",
+            "Participating agents, their definitions, context, tools, outputs, and responsibilities",
+            "When agent contracts change"
+          ],
+          [
+            [
+              {
+                "insert": "30-implementation",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "How the current code realizes the system design, including its organization and the reasons for key implementation choices",
             "With the code"
           ]
         ]
@@ -133,7 +147,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A repo may declare additional numbered root tiers (30 and above, below 99) for procedural guide content the three layers cannot hold — "
+          "insert": "A repo may declare additional numbered root tiers (40 and above, below 99) for procedural guide content the four layers cannot hold. "
         },
         {
           "insert": "structure",
@@ -241,19 +255,23 @@
         "entries": [
           {
             "path": "00-foundation/",
-            "note": "intent — what this is and why; every change is compared against it"
+            "note": "intent: what this is and why; every change is compared against it"
           },
           {
             "path": "10-system-design/",
-            "note": "behavior — implementation-agnostic; what the system does and why"
+            "note": "behavior: implementation-agnostic; what the system does and why"
           },
           {
             "path": "10-system-design/10-doc-standards/",
-            "note": "this section — the structure itself, plus six standards docs"
+            "note": "this section: the structure itself, plus its standards docs"
           },
           {
-            "path": "20-implementation/",
-            "note": "the current code — mirrors the source tree, churns with it"
+            "path": "20-agents/",
+            "note": "the agents involved: definitions, context, tools, outputs, and responsibilities"
+          },
+          {
+            "path": "30-implementation/",
+            "note": "the current code: mirrors the source tree, churns with it"
           }
         ]
       },
@@ -278,7 +296,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Six standards, one concern each. Every one shows how things are laid out, states the rule, and defends it."
+          "insert": "Each standard owns one concern. Every one shows how things are laid out, states the rule, and defends it."
         }
       ],
       "children": []
@@ -308,7 +326,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The three layers, the depth ladder, folders and parent docs, and when a topic earns a folder."
+          "insert": "The four layers, the depth ladder, folders and parent docs, and when a topic earns a folder."
         }
       ],
       "children": []
@@ -458,7 +476,75 @@
       "props": {},
       "text": [
         {
-          "insert": "Area pages, decision entries, the unwritten-code test, and lazy accretion."
+          "insert": "Area pages, decision entries, the design-to-code mapping, and lazy accretion."
+        }
+      ],
+      "children": []
+    },
+    "standards-b-standards-document-purpose-docs-1": {
+      "id": "standards-b-standards-document-purpose-docs-1",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Document Purpose",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "docs/10-system-design/10-doc-standards/70-document-purpose"
+            }
+          }
+        }
+      ],
+      "children": [
+        "standards-b-standards-one-primary-reader-purpo-2"
+      ]
+    },
+    "standards-b-standards-one-primary-reader-purpo-2": {
+      "id": "standards-b-standards-one-primary-reader-purpo-2",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "One primary reader purpose within the existing layers, with supporting reasons and reference details."
+        }
+      ],
+      "children": []
+    },
+    "standards-b-standards-authoring-lints-docs-1-3": {
+      "id": "standards-b-standards-authoring-lints-docs-1-3",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Authoring Lints",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "docs/10-system-design/10-doc-standards/80-authoring-lints"
+            }
+          }
+        }
+      ],
+      "children": [
+        "standards-b-standards-rule-ownership-draft-an-4"
+      ]
+    },
+    "standards-b-standards-rule-ownership-draft-an-4": {
+      "id": "standards-b-standards-rule-ownership-draft-an-4",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Rule ownership, draft and completion checks, and the distinction between required findings and editorial warnings."
         }
       ],
       "children": []

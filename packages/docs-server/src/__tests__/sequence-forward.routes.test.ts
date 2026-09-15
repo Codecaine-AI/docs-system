@@ -84,8 +84,8 @@ describe("sequence sidecar routes + forwarded sequence actions", () => {
   });
 
   afterEach(async () => {
-    draftLockStore.release({ kind: "sequence", path: SEQUENCE_REL_PATH }, "editor-session");
-    draftLockStore.release({ kind: "sequence", path: SEQUENCE_REL_PATH }, "agent-session");
+    draftLockStore.forRoot(docsRoot).release({ kind: "sequence", path: SEQUENCE_REL_PATH }, "editor-session");
+    draftLockStore.forRoot(docsRoot).release({ kind: "sequence", path: SEQUENCE_REL_PATH }, "agent-session");
     await rm(docsRoot, { recursive: true, force: true });
   });
 

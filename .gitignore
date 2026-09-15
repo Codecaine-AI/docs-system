@@ -12,3 +12,7 @@ dist-static/
 # Derived docs state — always rebuildable (backlinks index, migrate report)
 .index/
 docs-migrate-report.json
+.changesets/
+.agent-kernel/pi-sessions/
+.agent-kernel/state/
+.tmp/

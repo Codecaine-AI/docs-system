@@ -1,0 +1,49 @@
+{
+  "name": "GameCube Harness",
+  "root": "/Users/Ford/Github Repos/Codecaine/gamecube-decomp-harness",
+  "status": "Applied",
+  "agent": "migrate_gamecube",
+  "oldImplementationDirectoryExists": false,
+  "newImplementationDirectoryExists": true,
+  "recovery": [
+    {
+      "kind": "tree_change_id",
+      "id": "90084fee-873c-4d54-a2d0-5380d4321033"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "6fda6624-7193-4bb6-a1c3-a53f18a792b3"
+    },
+    {
+      "kind": "rootPatchId",
+      "id": "f78695f9-5ba8-414a-a5cf-5b8a8d3fac65"
+    },
+    {
+      "kind": "patchId",
+      "id": "78d4f7cd-c1da-42ca-ba19-6a962d6888ef"
+    }
+  ],
+  "validation": {
+    "status": "complete",
+    "preservation": {
+      "affectedDocuments": 55,
+      "originalBlocksRetained": 751,
+      "idsTypesChildrenPreserved": true,
+      "onlyChanges": "Typed document reference paths and one root introduction sentence naming the four-layer order. Original Canvas src preserved.",
+      "rootPatchId": "f78695f9-5ba8-414a-a5cf-5b8a8d3fac65",
+      "rootOpener": [
+        {
+          "insert": "These docs describe the GameCube decomp harness: its shared knowledge base, worker loop, source integration, and operator controls. Game-specific source knowledge lives with each game. The four documentation layers read Foundation, System Design, Agents, then Implementation, separating intent, system behavior, agent definitions, and implementation decisions."
+        }
+      ]
+    },
+    "limitations": [
+      "Historical docs-structure.md reorg proposal left unchanged.",
+      "Pre-existing .codex/skills/pi-agent-tool-analysis-report/references/report-contract.md points to missing old Markdown doc; no corresponding target moved, left unchanged.",
+      "Two pre-existing stale root links: old sandbox-execution location and 40-new-features.",
+      "Concurrent unrelated edit in 40-game-registration-and-setup/20-configure-upstream added a defaultGame paragraph; preserved and excluded from migration changes.",
+      "docs_move omitted root doc.json inbound link; repaired separately using typed docs_apply_ops with path doc.json."
+    ]
+  },
+  "fullReport": "/tmp/docs-layout-review/migrate_gamecube.json"
+}

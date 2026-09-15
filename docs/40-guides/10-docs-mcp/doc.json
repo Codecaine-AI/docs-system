@@ -1,0 +1,153 @@
+{
+  "schemaVersion": 1,
+  "id": "doc-e5f52115085c741b610f589eaac44241",
+  "title": "Docs MCP Maintenance",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "maintenance-0",
+        "maintenance-1",
+        "maintenance-2",
+        "maintenance-3",
+        "maintenance-4",
+        "maintenance-5",
+        "full-management-0"
+      ]
+    },
+    "maintenance-0": {
+      "id": "maintenance-0",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Start with the procedure that matches the change. These guides cover the local development checkout and its external coding-agent connections."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-1": {
+      "id": "maintenance-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Docs MCP",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "30-implementation/10-packages/85-docs-mcp"
+            }
+          }
+        },
+        {
+          "insert": " owns the architecture, source ownership, and runtime boundaries."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-2": {
+      "id": "maintenance-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Client Setup and Project Discovery",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "40-guides/10-docs-mcp/10-setup"
+            }
+          }
+        },
+        {
+          "insert": " connects Codex, Claude Code, and pi to documentation corpora."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-3": {
+      "id": "maintenance-3",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Skills and Component Knowledge",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "40-guides/10-docs-mcp/20-skills"
+            }
+          }
+        },
+        {
+          "insert": " identifies the maintained sources and explains how to change them."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-4": {
+      "id": "maintenance-4",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Synchronization and Updates",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "40-guides/10-docs-mcp/30-sync"
+            }
+          }
+        },
+        {
+          "insert": " maps each change to regeneration, installation, restart, and verification."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-5": {
+      "id": "maintenance-5",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Validation and Recovery",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "40-guides/10-docs-mcp/40-recovery"
+            }
+          }
+        },
+        {
+          "insert": " provides repeatable acceptance checks and failure recovery."
+        }
+      ],
+      "children": []
+    },
+    "full-management-0": {
+      "id": "full-management-0",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Document and Asset Management",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "40-guides/10-docs-mcp/50-document-management"
+            }
+          }
+        },
+        {
+          "insert": " covers section renumbering, shared assets, titles, review tools, and restoration."
+        }
+      ],
+      "children": []
+    }
+  }
+}

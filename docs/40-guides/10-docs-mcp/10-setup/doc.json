@@ -1,0 +1,341 @@
+{
+  "schemaVersion": 1,
+  "id": "doc-5cf9b9fcbcf0acf6e19d27cc0b3be248",
+  "title": "Client Setup and Project Discovery",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "maintenance-0",
+        "maintenance-1",
+        "maintenance-2",
+        "maintenance-3",
+        "maintenance-4",
+        "maintenance-5",
+        "maintenance-6",
+        "maintenance-7",
+        "maintenance-8",
+        "maintenance-9",
+        "maintenance-10",
+        "maintenance-11",
+        "maintenance-12",
+        "maintenance-13",
+        "maintenance-14",
+        "maintenance-15",
+        "maintenance-16",
+        "maintenance-17",
+        "maintenance-18",
+        "maintenance-19",
+        "maintenance-20",
+        "maintenance-21",
+        "maintenance-22",
+        "maintenance-23"
+      ]
+    },
+    "maintenance-0": {
+      "id": "maintenance-0",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Run commands from the docs-system repository unless a step names another directory. This installation references the development checkout through absolute paths. Keep Bun and the checkout available to each client."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-1": {
+      "id": "maintenance-1",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Install the Connection"
+        }
+      ],
+      "children": []
+    },
+    "maintenance-2": {
+      "id": "maintenance-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "1. Install workspace dependencies from the parent Core directory. Its workspace lockfile owns the linked package dependencies."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-3": {
+      "id": "maintenance-3",
+      "type": "code",
+      "props": {
+        "language": "sh"
+      },
+      "text": [
+        {
+          "insert": "cd ..\nbun install\ncd docs-system"
+        }
+      ],
+      "children": []
+    },
+    "maintenance-4": {
+      "id": "maintenance-4",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "2. Preview the installation. Use --clients codex,claude,pi to select clients, or omit the flag for all three. Preview does not change client files."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-5": {
+      "id": "maintenance-5",
+      "type": "code",
+      "props": {
+        "language": "sh"
+      },
+      "text": [
+        {
+          "insert": "bun packages/docs-mcp/src/cli.ts install"
+        }
+      ],
+      "children": []
+    },
+    "maintenance-6": {
+      "id": "maintenance-6",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "3. Write the installation and save its report. Changed files receive backups. The saved report is the input to the guarded restore command."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-7": {
+      "id": "maintenance-7",
+      "type": "code",
+      "props": {
+        "language": "sh"
+      },
+      "text": [
+        {
+          "insert": "bun packages/docs-mcp/src/cli.ts install --write > /tmp/codecaine-docs-install.json\nbun packages/docs-mcp/src/cli.ts doctor"
+        }
+      ],
+      "children": []
+    },
+    "maintenance-8": {
+      "id": "maintenance-8",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "4. Restart Codex and Claude Code. In pi, run /reload. Open a new task in the target workspace so the client can load the installed skill and tools."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-9": {
+      "id": "maintenance-9",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Client Files"
+        }
+      ],
+      "children": []
+    },
+    "maintenance-10": {
+      "id": "maintenance-10",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Client",
+          "Connection",
+          "Skill location"
+        ],
+        "rows": [
+          [
+            "Codex",
+            "MCP stdio entry mcp_servers.codecaine-docs in ~/.codex/config.toml; CODEX_HOME changes the config directory.",
+            "~/.agents/skills/codecaine-docs"
+          ],
+          [
+            "Claude Code",
+            "MCP stdio entry mcpServers.codecaine-docs in ~/.claude.json.",
+            "~/.claude/skills/codecaine-docs"
+          ],
+          [
+            "pi Agent",
+            "~/.pi/agent/extensions/codecaine-docs.ts imports the bridge from the checkout; PI_CODING_AGENT_DIR changes the pi directory.",
+            "~/.agents/skills/codecaine-docs"
+          ]
+        ]
+      },
+      "children": []
+    },
+    "maintenance-11": {
+      "id": "maintenance-11",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The installer preserves unrelated settings and refuses an unmanaged entry with the same name. Its --home option supports alternate home directories. Custom Claude paths require installer API options; the CLI does not expose every custom path setting. Inspect the preview before writing a customized installation."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-12": {
+      "id": "maintenance-12",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Discover the Workspace"
+        }
+      ],
+      "children": []
+    },
+    "maintenance-13": {
+      "id": "maintenance-13",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A single connection routes operations to explicit project IDs. Start in a project to work on its docs, or in Core to discover multiple declared projects. Discovery uses the workspace itself, members.json directory entries, supported package workspace patterns, and explicit projects in codecaine.docs.json. It does not scan the whole machine."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-14": {
+      "id": "maintenance-14",
+      "type": "code",
+      "props": {
+        "language": "sh"
+      },
+      "text": [
+        {
+          "insert": "bun packages/docs-mcp/src/cli.ts discover --workspace .."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-15": {
+      "id": "maintenance-15",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The workspace defaults to --workspace, then CLAUDE_PROJECT_DIR, then the process working directory. MCP roots can update the client workspace. pi passes its session directory. If discovery is wrong, explicitly supply the intended absolute workspace to docs_discover and begin a new task there."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-16": {
+      "id": "maintenance-16",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Use this optional configuration in a project or umbrella workspace. Omit projects for a single repository. The docsRoot directory must contain at least one valid normalized doc.json bundle."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-17": {
+      "id": "maintenance-17",
+      "type": "code",
+      "props": {
+        "language": "json"
+      },
+      "text": [
+        {
+          "insert": "{\n  \"name\": \"my-workspace\",\n  \"docsRoot\": \"docs\",\n  \"products\": [\"docs\"],\n  \"projects\": [\"child-project-a\", \"child-project-b\"]\n}"
+        }
+      ],
+      "children": []
+    },
+    "maintenance-18": {
+      "id": "maintenance-18",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Member paths must remain inside the workspace. docsRoot must remain inside its project, including after resolving symlinks. Absolute member paths and recursive ** globs are unsupported. Declare explicit relative members instead. Markdown-only repositories are not migrated; malformed candidate bundles produce discovery warnings."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-19": {
+      "id": "maintenance-19",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Project IDs depend on the project name and canonical docs-root path. Rediscover after moving or renaming a checkout. For a prompt that edits two projects, use the two returned IDs on separate tool calls and check each changed page. There is no cross-project transaction or rollback."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-20": {
+      "id": "maintenance-20",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Inspect Changes in the Shared UI"
+        }
+      ],
+      "children": []
+    },
+    "maintenance-21": {
+      "id": "maintenance-21",
+      "type": "code",
+      "props": {
+        "language": "sh"
+      },
+      "text": [
+        {
+          "insert": "bun packages/docs-mcp/src/cli.ts ui --workspace .. --project docs-system --port 4808"
+        }
+      ],
+      "children": []
+    },
+    "maintenance-22": {
+      "id": "maintenance-22",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This workbench uses the same editing service as the external clients. Valid tool edits become visible immediately. Existing standalone or kernel workbenches have separate process-local coordination; finish their edits before editing the same documents through MCP."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-23": {
+      "id": "maintenance-23",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Website publication remains a separate build, export, or embedding integration over the corpus. Editing a document does not deploy it. The local MCP service is not the public website server."
+        }
+      ],
+      "children": []
+    }
+  }
+}

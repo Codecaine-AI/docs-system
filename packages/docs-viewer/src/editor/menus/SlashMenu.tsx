@@ -211,6 +211,8 @@ function buildV1Commands(): SlashCommandItem[] {
     action("0_Basic@9", "Divider", Minus, "Visually divide blocks.", "divider", undefined, ["hr", "separator", "---"]),
     action("1_Blocks@0", "Callout", Megaphone, "Emphasize a block of text.", "callout", undefined, ["note", "info", "tip"]),
     action("1_Blocks@1", "Canvas", Frame, "Embed an editable canvas.", "canvas", undefined, ["diagram", "drawing"]),
+    action("1_Blocks@3", "Image Grid", Code, "Compare labeled images in responsive columns.", "image-grid", { blockProps: { images: [], columns: "auto" } }, ["gallery", "images", "comparison"]),
+    action("1_Blocks@3", "HTML", Code, "Embed self-contained HTML in a sandbox.", "html", { blockProps: { title: "HTML diagram", html: "<p>Your HTML diagram</p>", height: 400 } }, ["embed", "interactive"]),
     action("1_Blocks@2", "Image", ImageIcon, "Insert an image.", "image", undefined, ["picture", "photo"]),
   ];
 }

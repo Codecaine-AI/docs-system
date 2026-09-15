@@ -1,0 +1,42 @@
+{
+  "name": "Variator",
+  "root": "/Users/Ford/Github Repos/Codecaine/tools/variator",
+  "status": "Applied",
+  "agent": "migrate_variator",
+  "oldImplementationDirectoryExists": false,
+  "newImplementationDirectoryExists": true,
+  "recovery": [
+    {
+      "kind": "tree_change_id",
+      "id": "add91ac0-8471-4f7f-9762-55f0e892d779"
+    }
+  ],
+  "validation": {
+    "status": "complete",
+    "links": {
+      "beforeStale": 0,
+      "afterStale": 0
+    },
+    "verification": [
+      {
+        "old": "20-implementation/20-project-integration",
+        "path": "30-implementation/20-project-integration",
+        "blockCount": 16,
+        "contentAndStructurePreserved": true
+      },
+      {
+        "old": "20-implementation",
+        "path": "30-implementation",
+        "blockCount": 5,
+        "contentAndStructurePreserved": true
+      },
+      {
+        "old": "20-implementation/10-local-storage",
+        "path": "30-implementation/10-local-storage",
+        "blockCount": 11,
+        "contentAndStructurePreserved": true
+      }
+    ]
+  },
+  "fullReport": "/tmp/docs-layout-review/migrate_variator.json"
+}

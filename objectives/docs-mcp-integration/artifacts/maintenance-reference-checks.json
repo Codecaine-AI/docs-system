@@ -1,0 +1,37 @@
+{
+  "pages": [
+    {
+      "path": "40-guides",
+      "hash": "63b09348934c52a546a14f82ed0ec4e05d077b60a473182a8826e8856f3d19db"
+    },
+    {
+      "path": "40-guides/10-docs-mcp",
+      "hash": "1ea2800480f0451e84e6326e3d846f5a88d8d23f762edb0396b6abb86ad9df6b"
+    },
+    {
+      "path": "40-guides/10-docs-mcp/10-setup",
+      "hash": "201d5bea463045919ad5f0b498ad2fb483f81786174b8f225960ff67349b0f93"
+    },
+    {
+      "path": "40-guides/10-docs-mcp/20-skills",
+      "hash": "7aa1f1b7059957418deefdca9bc7a4a70c1423066a6baecf9dea947aeb4f386f"
+    },
+    {
+      "path": "40-guides/10-docs-mcp/30-sync",
+      "hash": "ef6a1821fde8957e495393968b292ddc3f79c9f9dcfc161d6e20fb2e30d04575"
+    },
+    {
+      "path": "40-guides/10-docs-mcp/40-recovery",
+      "hash": "236f76a6567bd6a8bfea723d62d6c9192518096b54ca20036126ba953a3e38f3"
+    },
+    {
+      "path": "40-guides/10-docs-mcp/50-document-management",
+      "hash": "d63ed33d4d6339fceb06f4ac1c2d0d944833a1c0c8816fa0a86fa11dc469476a"
+    },
+    {
+      "path": "30-implementation/10-packages/85-docs-mcp",
+      "hash": "bcb983ae40f3eecf6159f23ec6ddf6bfa99b91138d1e661f99e7172b2d9a66ee"
+    }
+  ],
+  "validatedReferences": 22
+}

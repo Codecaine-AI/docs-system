@@ -1,0 +1,3367 @@
+{
+  "date": "2026-09-14",
+  "scope": "Local repository corpora discovered under /Users/Ford/Github Repos; additional scans of Github, Desktop, Documents and local-services found none. Archives, backups, fixture corpora and public writing excluded.",
+  "assigned": 15,
+  "applied": 12,
+  "blocked": 3,
+  "alreadyCurrent": [
+    "/Users/Ford/Github Repos/Codecaine/Core/docs-system"
+  ],
+  "corpora": [
+    {
+      "name": "GameCube Harness",
+      "root": "/Users/Ford/Github Repos/Codecaine/gamecube-decomp-harness",
+      "status": "Applied",
+      "agent": "migrate_gamecube",
+      "oldImplementationDirectoryExists": false,
+      "newImplementationDirectoryExists": true,
+      "recovery": [
+        {
+          "kind": "tree_change_id",
+          "id": "90084fee-873c-4d54-a2d0-5380d4321033"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "6fda6624-7193-4bb6-a1c3-a53f18a792b3"
+        },
+        {
+          "kind": "rootPatchId",
+          "id": "f78695f9-5ba8-414a-a5cf-5b8a8d3fac65"
+        },
+        {
+          "kind": "patchId",
+          "id": "78d4f7cd-c1da-42ca-ba19-6a962d6888ef"
+        }
+      ],
+      "validation": {
+        "status": "complete",
+        "preservation": {
+          "affectedDocuments": 55,
+          "originalBlocksRetained": 751,
+          "idsTypesChildrenPreserved": true,
+          "onlyChanges": "Typed document reference paths and one root introduction sentence naming the four-layer order. Original Canvas src preserved.",
+          "rootPatchId": "f78695f9-5ba8-414a-a5cf-5b8a8d3fac65",
+          "rootOpener": [
+            {
+              "insert": "These docs describe the GameCube decomp harness: its shared knowledge base, worker loop, source integration, and operator controls. Game-specific source knowledge lives with each game. The four documentation layers read Foundation, System Design, Agents, then Implementation, separating intent, system behavior, agent definitions, and implementation decisions."
+            }
+          ]
+        },
+        "limitations": [
+          "Historical docs-structure.md reorg proposal left unchanged.",
+          "Pre-existing .codex/skills/pi-agent-tool-analysis-report/references/report-contract.md points to missing old Markdown doc; no corresponding target moved, left unchanged.",
+          "Two pre-existing stale root links: old sandbox-execution location and 40-new-features.",
+          "Concurrent unrelated edit in 40-game-registration-and-setup/20-configure-upstream added a defaultGame paragraph; preserved and excluded from migration changes.",
+          "docs_move omitted root doc.json inbound link; repaired separately using typed docs_apply_ops with path doc.json."
+        ]
+      },
+      "fullReport": "/tmp/docs-layout-review/migrate_gamecube.json"
+    },
+    {
+      "name": "Token Burner",
+      "root": "/Users/Ford/Github Repos/Codecaine/Apps/token-burner",
+      "status": "Applied",
+      "agent": "migrate_token_burner",
+      "oldImplementationDirectoryExists": false,
+      "newImplementationDirectoryExists": true,
+      "recovery": [
+        {
+          "kind": "tree_change_id",
+          "id": "4441feb0-e4de-49ea-892f-a0557bb7b177"
+        },
+        {
+          "kind": "patchId",
+          "id": "d39b35cf-6331-4d3b-ba3e-8c3471f3928a"
+        }
+      ],
+      "validation": {
+        "status": "complete",
+        "links": {
+          "beforeStale": 0,
+          "afterStale": 0
+        },
+        "preservation": [
+          {
+            "path": "20-implementation",
+            "equalsAfterMechanicalPaths": true,
+            "blocks": 16
+          },
+          {
+            "path": "00-foundation",
+            "equalsAfterMechanicalPaths": true,
+            "blocks": 12
+          }
+        ],
+        "limitations": [
+          "bun test executed as required by AGENTS.md; repository has no tests.",
+          "Original docs directory is untracked; existing dirty work preserved.",
+          "No Agents section exists; 20 reserved without new pages."
+        ]
+      },
+      "fullReport": "/tmp/docs-layout-review/migrate_token_burner.json"
+    },
+    {
+      "name": "Variator",
+      "root": "/Users/Ford/Github Repos/Codecaine/tools/variator",
+      "status": "Applied",
+      "agent": "migrate_variator",
+      "oldImplementationDirectoryExists": false,
+      "newImplementationDirectoryExists": true,
+      "recovery": [
+        {
+          "kind": "tree_change_id",
+          "id": "add91ac0-8471-4f7f-9762-55f0e892d779"
+        }
+      ],
+      "validation": {
+        "status": "complete",
+        "links": {
+          "beforeStale": 0,
+          "afterStale": 0
+        },
+        "verification": [
+          {
+            "old": "20-implementation/20-project-integration",
+            "path": "30-implementation/20-project-integration",
+            "blockCount": 16,
+            "contentAndStructurePreserved": true
+          },
+          {
+            "old": "20-implementation",
+            "path": "30-implementation",
+            "blockCount": 5,
+            "contentAndStructurePreserved": true
+          },
+          {
+            "old": "20-implementation/10-local-storage",
+            "path": "30-implementation/10-local-storage",
+            "blockCount": 11,
+            "contentAndStructurePreserved": true
+          }
+        ]
+      },
+      "fullReport": "/tmp/docs-layout-review/migrate_variator.json"
+    },
+    {
+      "name": "Personal Budget",
+      "root": "/Users/Ford/Github Repos/Lascari AI/personal-budget",
+      "status": "Applied",
+      "agent": "migrate_budget",
+      "oldImplementationDirectoryExists": false,
+      "newImplementationDirectoryExists": true,
+      "recovery": [
+        {
+          "kind": "tree_change_id",
+          "id": "12972a08-dc1e-471d-8d31-65b19e4dffba"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "53e61cb6-7669-4b9a-8f7b-e9e47aceb820"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "a67b6289-312d-4124-a9c1-b4e29216675d"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "9bf6320f-bac4-4069-8717-080fad18484a"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "91ceb2ab-15d7-4b31-8851-27710fefa263"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "351e11fd-cc82-428a-a0cd-b8b657e45c23"
+        },
+        {
+          "kind": "contentPatchId",
+          "id": "a41e081b-d73a-4290-bae1-2b3da4c67ae9"
+        },
+        {
+          "kind": "patchId",
+          "id": "8ae35999-ccfd-423b-aba0-f1c3875e6297"
+        },
+        {
+          "kind": "patchId",
+          "id": "054dd910-00a5-490e-ac09-7d3a0bbb63e6"
+        }
+      ],
+      "validation": {
+        "status": "applied",
+        "links": {
+          "beforeStale": 0,
+          "afterStale": 0
+        },
+        "assetFixes": [
+          {
+            "path": "30-implementation/00-overview",
+            "after": {
+              "ok": true,
+              "doc": {
+                "schemaVersion": 1,
+                "id": "20-implementation-00-overview",
+                "title": "Personal Budget: Implementation Overview",
+                "root": "b-00-overview-root-26",
+                "blocks": {
+                  "b-00-overview-root-26": {
+                    "id": "b-00-overview-root-26",
+                    "type": "paragraph",
+                    "props": {
+                      "concepts": [
+                        "implementation",
+                        "monorepo",
+                        "architecture"
+                      ],
+                      "covers": "Planned monorepo implementation architecture and navigation for future source-level documentation.",
+                      "design_refs": [
+                        "10-system-design/15-data-models/00-overview.md",
+                        "10-system-design/20-data-ingestion.md",
+                        "10-system-design/30-account-ownership-views.md",
+                        "10-system-design/40-budget-guidelines.md"
+                      ],
+                      "type": "overview"
+                    },
+                    "children": [
+                      "b-00-overview-the-implementation-is-a-2",
+                      "b-00-overview-divider-3",
+                      "b-00-overview-system-mental-model-4",
+                      "b-00-overview-the-app-is-built-around-5",
+                      "b-00-overview-mermaid-6",
+                      "b-00-overview-key-architectural-decisi-7",
+                      "b-00-overview-monorepo-keep-front-8",
+                      "b-00-overview-provider-adapters-i-9",
+                      "b-00-overview-shared-domain-package-10",
+                      "b-00-overview-preview-before-persist-11",
+                      "b-00-overview-background-sync-later-12",
+                      "b-00-overview-server-side-secrets-13",
+                      "b-00-overview-file-tree-14",
+                      "b-00-overview-text-15",
+                      "b-00-overview-section-index-16",
+                      "b-00-overview-10-monorepo-10-monore-17",
+                      "b-00-overview-planned-monorepo-package-18",
+                      "b-00-overview-99-appendix-99-append-19",
+                      "b-00-overview-operational-and-referenc-20",
+                      "b-00-overview-cross-cutting-concerns-21",
+                      "b-00-overview-provider-sync-behavior-22",
+                      "b-00-overview-canonical-models-th-23",
+                      "b-00-overview-budget-views-the-a-24",
+                      "b-00-overview-budget-calculations-25"
+                    ]
+                  },
+                  "b-00-overview-the-implementation-is-a-2": {
+                    "id": "b-00-overview-the-implementation-is-a-2",
+                    "type": "paragraph",
+                    "props": {},
+                    "text": [
+                      {
+                        "insert": "The implementation is a TypeScript npm workspace with a frontend app, backend API, shared configuration package, and provider adapter package. The first slice previews live Mercury and SimpleFIN data without storing it yet."
+                      }
+                    ],
+                    "children": []
+                  },
+                  "b-00-overview-divider-3": {
+                    "id": "b-00-overview-divider-3",
+                    "type": "divider",
+                    "props": {},
+                    "children": []
+                  },
+                  "b-00-overview-system-mental-model-4": {
+                    "id": "b-00-overview-system-mental-model-4",
+                    "type": "heading",
+                    "props": {
+                      "level": 2
+                    },
+                    "text": [
+                      {
+                        "insert": "System Mental Model"
+                      }
+                    ],
+                    "children": []
+                  },
+                  "b-00-overview-the-app-is-built-around-5": {
+                    "id": "b-00-overview-the-app-is-built-around-5",
+                    "type": "paragraph",
+                    "props": {},
+                    "text": [
+                      {
+                        "insert": "The app is built around a provider-neutral budget core. External providers feed normalized records into the backend, the backend returns a read-only preview, and the frontend presents provider status, account groups, transaction previews, and SimpleFIN setup helpers."
+                      }
+                    ],
+                    "children": []
+                  },
+                  "b-00-overview-mermaid-6": {
+                    "id": "b-00-overview-mermaid-6",
+                    "type": "canvas",
+                    "props": {
+                      "src": "./assets/canvases/00-overview.canvas.json",
+                      "title": "Budget System Architecture"
+                    },
+                    "children": []
+                  },
+                  "b-00-overview-key-architectural-decisi-7": {
+                    "id": "b-00-overview-key-architectural-decisi-7",
+                    "type": "heading",
+                    "props": {
+                      "level": 2
+                    },
+                    "text": [
+                      {
+                        "insert": "Key Architectural Decisions"
+                      }
+                    ],
+                    "children": []
+                  },
+                  "b-00-overview-monorepo-keep-front-8": {
+                    "id": "b-00-overview-monorepo-keep-front-8",
+                    "type": "list-item",
+                    "props": {
+                      "ordered": false
+                    },
+                    "text": [
+                      {
+                        "insert": "Monorepo",
+                        "attributes": {
+                          "bold": true
+                        }
+                      },
+                      {
+                        "insert": ": Keep frontend, backend, shared domain logic, provider adapters, and operational scripts in one repository."
+                      }
+                    ],
+                    "children": []
+                  },
+                  "b-00-overview-provider-adapters-i-9": {
+                    "id": "b-00-overview-provider-adapters-i-9",
+                    "type": "list-item",
+                    "props": {
+                      "ordered": false
+                    },
+                    "text": [
+                      {
+                        "insert": "Provider adapters",
+                        "attributes": {
+                          "bold": true
+                        }
+                      },
+                      {
+                        "insert": ": Isolate Mercury, SimpleFIN, Plaid, and future importers behind a normalized ingestion boundary."
+                      }
+                    ],
+                    "children": []
+                  },
+                  "b-00-overview-shared-domain-package-10": {
+                    "id": "b-00-overview-shared-domain-package-10",
+                    "type": "list-item",
+                    "props": {
+                      "ordered": false
+                    },
+                    "text": [
+                      {
+                        "insert": "Shared domain package",
+                        "attributes": {
+                          "bold": true
+                        }
+                      },
+                      {
+                        "insert": ": Keep account types, budget scopes, classification, ownership, and reporting rules reusable across backend and frontend."
+                      }
+                    ],
+                    "children": []
+                  },
+                  "b-00-overview-preview-before-persist-11": {
+                    "id": "b-00-overview-preview-before-persist-11",
+                    "type": "list-item",
+                    "props": {
+                      "ordered": false
+                    },
+                    "text": [
+                      {
+                        "insert": "Preview before persistence",
+                        "attributes": {
+                          "bold": true
+                        }
+                      },
+                      {
+                        "insert": ": The first implementation fetches live provider data on demand and does not store accounts or transactions."
+                      }
+                    ],
+                    "children": []
+                  },
+                  "b-00-overview-background-sync-later-12": {
+                    "id": "b-00-overview-background-sync-later-12",
+                    "type": "list-item",
+                    "props": {
+                      "ordered": false
+                    },
+                    "text": [
+                      {
+                        "insert": "Background sync later",
+                        "attributes": {
+                          "bold": true
+                        }
+                      },
+                      {
+                        "insert": ": Scheduled imports belong outside request-response UI flows once persistence exists."
+                      }
+                    ],
+                    "children": []
+                  },
+                  "b-00-overview-server-side-secrets-13": {
+                    "id": "b-00-overview-server-side-secrets-13",
+                    "type": "list-item",
+                    "props": {
+                      "ordered": false
+                    },
+                    "text": [
+                      {
+                        "insert": "Server-side secrets",
+                        "attributes": {
+                          "bold": true
+                        }
+                      },
+                      {
+                        "insert": ": Store provider credentials only behind the backend boundary."
+                      }
+                    ],
+                    "children": []
+                  },
+                  "b-00-overview-file-tree-14": {
+                    "id": "b-00-overview-file-tree-14",
+                    "type": "heading",
+                    "props": {
+                      "level": 2
+                    },
+                    "text": [
+                      {
+                        "insert": "File Tree"
+                      }
+                    ],
+                    "children": []
+                  },
+                  "b-00-overview-text-15": {
+                    "id": "b-00-overview-text-15",
+                    "type": "file-tree",
+                    "props": {
+                      "entries": [
+                        {
+                          "path": "30-implementation/"
+                        },
+                        {
+                          "path": "30-implementation/00-overview/doc.json",
+                          "note": "(this file)"
+                        },
+                        {
+                          "path": "30-implementation/10-monorepo/",
+                          "note": "Planned source layout and package boundaries"
+                        },
+                        {
+                          "path": "30-implementation/10-monorepo/00-monorepo-index/doc.json"
+                        },
+                        {
+                          "path": "30-implementation/10-monorepo/10-proposed-source-layout/doc.json"
+                        },
+                        {
+                          "path": "30-implementation/99-appendix/",
+                          "note": "Operational notes and external references"
+                        },
+                        {
+                          "path": "30-implementation/99-appendix/00-reference-index/doc.json"
+                        },
+                        {
+                          "path": "30-implementation/99-appendix/10-external-references/doc.json"
+                        }
+                      ]
+                    },
+                    "children": []
+                  },
+                  "b-00-overview-section-index-16": {
+                    "id": "b-00-overview-section-index-16",
+                    "type": "heading",
+                    "props": {
+                      "level": 2
+                    },
+                    "text": [
+                      {
+                        "insert": "Section Index"
+                      }
+                    ],
+                    "children": []
+                  },
+                  "b-00-overview-10-monorepo-10-monore-17": {
+                    "id": "b-00-overview-10-monorepo-10-monore-17",
+                    "type": "heading",
+                    "props": {
+                      "level": 3
+                    },
+                    "text": [
+                      {
+                        "insert": "10-monorepo/",
+                        "attributes": {
+                          "reference": {
+                            "kind": "doc",
+                            "path": "30-implementation/10-monorepo/00-monorepo-index"
+                          }
+                        }
+                      }
+                    ],
+                    "children": []
+                  },
+                  "b-00-overview-planned-monorepo-package-18": {
+                    "id": "b-00-overview-planned-monorepo-package-18",
+                    "type": "paragraph",
+                    "props": {},
+                    "text": [
+                      {
+                        "insert": "Planned monorepo package boundaries for the web app, backend API, sync worker, shared domain logic, provider adapters, database layer, and configuration."
+                      }
+                    ],
+                    "children": []
+                  },
+                  "b-00-overview-99-appendix-99-append-19": {
+                    "id": "b-00-overview-99-appendix-99-append-19",
+                    "type": "heading",
+                    "props": {
+                      "level": 3
+                    },
+                    "text": [
+                      {
+                        "insert": "99-appendix/",
+                        "attributes": {
+                          "reference": {
+                            "kind": "doc",
+                            "path": "30-implementation/99-appendix/00-reference-index"
+                          }
+                        }
+                      }
+                    ],
+                    "children": []
+                  },
+                  "b-00-overview-operational-and-referenc-20": {
+                    "id": "b-00-overview-operational-and-referenc-20",
+                    "type": "paragraph",
+                    "props": {},
+                    "text": [
+                      {
+                        "insert": "Operational and reference material, including external API notes and provider documentation links."
+                      }
+                    ],
+                    "children": []
+                  },
+                  "b-00-overview-cross-cutting-concerns-21": {
+                    "id": "b-00-overview-cross-cutting-concerns-21",
+                    "type": "heading",
+                    "props": {
+                      "level": 2
+                    },
+                    "text": [
+                      {
+                        "insert": "Cross-Cutting Concerns"
+                      }
+                    ],
+                    "children": []
+                  },
+                  "b-00-overview-provider-sync-behavior-22": {
+                    "id": "b-00-overview-provider-sync-behavior-22",
+                    "type": "list-item",
+                    "props": {
+                      "ordered": false
+                    },
+                    "text": [
+                      {
+                        "insert": "Provider sync behavior",
+                        "attributes": {
+                          "bold": true
+                        }
+                      },
+                      {
+                        "insert": ": The "
+                      },
+                      {
+                        "insert": "data ingestion design",
+                        "attributes": {
+                          "reference": {
+                            "kind": "doc",
+                            "path": "docs/10-system-design/20-data-ingestion.md",
+                            "label": "data ingestion design"
+                          }
+                        }
+                      },
+                      {
+                        "insert": " defines the provider-neutral contracts."
+                      }
+                    ],
+                    "children": []
+                  },
+                  "b-00-overview-canonical-models-th-23": {
+                    "id": "b-00-overview-canonical-models-th-23",
+                    "type": "list-item",
+                    "props": {
+                      "ordered": false
+                    },
+                    "text": [
+                      {
+                        "insert": "Canonical models",
+                        "attributes": {
+                          "bold": true
+                        }
+                      },
+                      {
+                        "insert": ": The "
+                      },
+                      {
+                        "insert": "data model design",
+                        "attributes": {
+                          "reference": {
+                            "kind": "doc",
+                            "path": "10-system-design/15-data-models/00-model-index"
+                          }
+                        }
+                      },
+                      {
+                        "insert": " defines accounts, balances, transactions, holdings, scopes, and classification records."
+                      }
+                    ],
+                    "children": []
+                  },
+                  "b-00-overview-budget-views-the-a-24": {
+                    "id": "b-00-overview-budget-views-the-a-24",
+                    "type": "list-item",
+                    "props": {
+                      "ordered": false
+                    },
+                    "text": [
+                      {
+                        "insert": "Budget views",
+                        "attributes": {
+                          "bold": true
+                        }
+                      },
+                      {
+                        "insert": ": The "
+                      },
+                      {
+                        "insert": "account ownership view design",
+                        "attributes": {
+                          "reference": {
+                            "kind": "doc",
+                            "path": "docs/10-system-design/30-account-ownership-views.md",
+                            "label": "account ownership view design"
+                          }
+                        }
+                      },
+                      {
+                        "insert": " defines the account grouping and scope model."
+                      }
+                    ],
+                    "children": []
+                  },
+                  "b-00-overview-budget-calculations-25": {
+                    "id": "b-00-overview-budget-calculations-25",
+                    "type": "list-item",
+                    "props": {
+                      "ordered": false
+                    },
+                    "text": [
+                      {
+                        "insert": "Budget calculations",
+                        "attributes": {
+                          "bold": true
+                        }
+                      },
+                      {
+                        "insert": ": The "
+                      },
+                      {
+                        "insert": "budget guideline design",
+                        "attributes": {
+                          "reference": {
+                            "kind": "doc",
+                            "path": "docs/10-system-design/40-budget-guidelines.md",
+                            "label": "budget guideline design"
+                          }
+                        }
+                      },
+                      {
+                        "insert": " defines categories, axes, targets, and diagnostics."
+                      }
+                    ],
+                    "children": []
+                  }
+                }
+              },
+              "hash": "a91a03098024b7d60fa77a345545791901847483424b0c3c76ba237853b99ca2",
+              "markdown": "The implementation is a TypeScript npm workspace with a frontend app, backend API, shared configuration package, and provider adapter package. The first slice previews live Mercury and SimpleFIN data without storing it yet.\n\n---\n\n## System Mental Model\n\nThe app is built around a provider-neutral budget core. External providers feed normalized records into the backend, the backend returns a read-only preview, and the frontend presents provider status, account groups, transaction previews, and SimpleFIN setup helpers.\n\n<!-- canvas: ./assets/canvases/00-overview.canvas.json title=\"Budget System Architecture\" -->\n\n## Key Architectural Decisions\n\n- **Monorepo**: Keep frontend, backend, shared domain logic, provider adapters, and operational scripts in one repository.\n\n- **Provider adapters**: Isolate Mercury, SimpleFIN, Plaid, and future importers behind a normalized ingestion boundary.\n\n- **Shared domain package**: Keep account types, budget scopes, classification, ownership, and reporting rules reusable across backend and frontend.\n\n- **Preview before persistence**: The first implementation fetches live provider data on demand and does not store accounts or transactions.\n\n- **Background sync later**: Scheduled imports belong outside request-response UI flows once persistence exists.\n\n- **Server-side secrets**: Store provider credentials only behind the backend boundary.\n\n## File Tree\n\n```\n30-implementation/\n├── 00-overview/\n│   └── doc.json  # (this file)\n├── 10-monorepo/  # Planned source layout and package boundaries\n│   ├── 00-monorepo-index/\n│   │   └── doc.json\n│   └── 10-proposed-source-layout/\n│       └── doc.json\n└── 99-appendix/  # Operational notes and external references\n    ├── 00-reference-index/\n    │   └── doc.json\n    └── 10-external-references/\n        └── doc.json\n```\n\n## Section Index\n\n### 10-monorepo/\n\nPlanned monorepo package boundaries for the web app, backend API, sync worker, shared domain logic, provider adapters, database layer, and configuration.\n\n### 99-appendix/\n\nOperational and reference material, including external API notes and provider documentation links.\n\n## Cross-Cutting Concerns\n\n- **Provider sync behavior**: The data ingestion design defines the provider-neutral contracts.\n\n- **Canonical models**: The data model design defines accounts, balances, transactions, holdings, scopes, and classification records.\n\n- **Budget views**: The account ownership view design defines the account grouping and scope model.\n\n- **Budget calculations**: The budget guideline design defines categories, axes, targets, and diagnostics.\n",
+              "bundlePath": "30-implementation/00-overview",
+              "expected_hash": "a91a03098024b7d60fa77a345545791901847483424b0c3c76ba237853b99ca2",
+              "lint": {
+                "phase": "complete",
+                "findings": [],
+                "blocking": []
+              }
+            },
+            "check": {
+              "ok": true,
+              "structurally_valid": true,
+              "hash": "a91a03098024b7d60fa77a345545791901847483424b0c3c76ba237853b99ca2",
+              "lint": {
+                "phase": "complete",
+                "findings": [],
+                "blocking": []
+              },
+              "components": [
+                {
+                  "blockId": "b-00-overview-mermaid-6",
+                  "type": "canvas",
+                  "ok": true
+                }
+              ]
+            },
+            "patchId": "8ae35999-ccfd-423b-aba0-f1c3875e6297"
+          },
+          {
+            "path": "30-implementation/10-monorepo/20-provider-preview",
+            "after": {
+              "ok": true,
+              "doc": {
+                "schemaVersion": 1,
+                "id": "20-implementation-10-monorepo-20-provider-preview",
+                "title": "Provider Preview",
+                "root": "b-20-provider-preview-root-19",
+                "blocks": {
+                  "b-20-provider-preview-root-19": {
+                    "id": "b-20-provider-preview-root-19",
+                    "type": "paragraph",
+                    "props": {
+                      "concepts": [
+                        "provider-preview",
+                        "mercury",
+                        "simplefin",
+                        "frontend",
+                        "backend"
+                      ],
+                      "covers": "The first backend and frontend slice for previewing Mercury and SimpleFIN account and transaction data.",
+                      "design_refs": [
+                        "10-system-design/15-data-models/00-overview.md",
+                        "10-system-design/20-data-ingestion.md"
+                      ]
+                    },
+                    "children": [
+                      "b-20-provider-preview-the-provider-preview-is-2",
+                      "b-20-provider-preview-divider-3",
+                      "b-20-provider-preview-current-flow-4",
+                      "b-20-provider-preview-mermaid-5",
+                      "b-20-provider-preview-environment-variables-6",
+                      "b-20-provider-preview-variable-purpose-7",
+                      "b-20-provider-preview-api-endpoints-8",
+                      "b-20-provider-preview-endpoint-purpose-9",
+                      "b-20-provider-preview-code-references-10",
+                      "b-20-provider-preview-file-purpose-11",
+                      "b-20-provider-preview-boundaries-12",
+                      "b-20-provider-preview-the-preview-does-not-per-13",
+                      "b-20-provider-preview-provider-credentials-rem-14",
+                      "b-20-provider-preview-the-frontend-receives-no-15",
+                      "b-20-provider-preview-simplefin-setup-token-cl-16",
+                      "b-20-provider-preview-simplefin-requests-use-a-17",
+                      "b-20-provider-preview-mercury-personal-and-bus-18",
+                      "mercury-credit-heading",
+                      "mercury-credit-contract",
+                      "mercury-credit-errors",
+                      "mercury-credit-source",
+                      "spending-heading",
+                      "spending-overview",
+                      "spending-treatments",
+                      "spending-boundary",
+                      "spending-future",
+                      "spending-source"
+                    ]
+                  },
+                  "b-20-provider-preview-the-provider-preview-is-2": {
+                    "id": "b-20-provider-preview-the-provider-preview-is-2",
+                    "type": "paragraph",
+                    "props": {},
+                    "text": [
+                      {
+                        "insert": "The provider preview is the first runnable version of the app. It loads credentials from the server environment, fetches live Mercury and SimpleFIN data on demand, normalizes the response shape enough for inspection, and renders accounts and transactions in the frontend."
+                      }
+                    ],
+                    "children": []
+                  },
+                  "b-20-provider-preview-divider-3": {
+                    "id": "b-20-provider-preview-divider-3",
+                    "type": "divider",
+                    "props": {},
+                    "children": []
+                  },
+                  "b-20-provider-preview-current-flow-4": {
+                    "id": "b-20-provider-preview-current-flow-4",
+                    "type": "heading",
+                    "props": {
+                      "level": 2
+                    },
+                    "text": [
+                      {
+                        "insert": "Current Flow"
+                      }
+                    ],
+                    "children": []
+                  },
+                  "b-20-provider-preview-mermaid-5": {
+                    "id": "b-20-provider-preview-mermaid-5",
+                    "type": "sequence",
+                    "props": {
+                      "src": "./assets/sequences/20-provider-preview.sequence.json",
+                      "title": "Provider Preview Request Path"
+                    },
+                    "children": []
+                  },
+                  "b-20-provider-preview-environment-variables-6": {
+                    "id": "b-20-provider-preview-environment-variables-6",
+                    "type": "heading",
+                    "props": {
+                      "level": 2
+                    },
+                    "text": [
+                      {
+                        "insert": "Environment Variables"
+                      }
+                    ],
+                    "children": []
+                  },
+                  "b-20-provider-preview-variable-purpose-7": {
+                    "id": "b-20-provider-preview-variable-purpose-7",
+                    "type": "structured-table",
+                    "props": {
+                      "columns": [
+                        "Variable",
+                        "Purpose"
+                      ],
+                      "rows": [
+                        [
+                          [
+                            {
+                              "insert": "PORT",
+                              "attributes": {
+                                "code": true
+                              }
+                            }
+                          ],
+                          [
+                            {
+                              "insert": "API port, defaulting to "
+                            },
+                            {
+                              "insert": "8787",
+                              "attributes": {
+                                "code": true
+                              }
+                            },
+                            {
+                              "insert": "."
+                            }
+                          ]
+                        ],
+                        [
+                          [
+                            {
+                              "insert": "CORS_ORIGIN",
+                              "attributes": {
+                                "code": true
+                              }
+                            }
+                          ],
+                          "Frontend origin allowed to call the API."
+                        ],
+                        [
+                          [
+                            {
+                              "insert": "MERCURY_AUTH_MODE",
+                              "attributes": {
+                                "code": true
+                              }
+                            }
+                          ],
+                          [
+                            {
+                              "insert": "bearer",
+                              "attributes": {
+                                "code": true
+                              }
+                            },
+                            {
+                              "insert": " by default, or "
+                            },
+                            {
+                              "insert": "basic",
+                              "attributes": {
+                                "code": true
+                              }
+                            },
+                            {
+                              "insert": " for username-only token auth."
+                            }
+                          ]
+                        ],
+                        [
+                          [
+                            {
+                              "insert": "MERCURY_PERSONAL_API_TOKEN",
+                              "attributes": {
+                                "code": true
+                              }
+                            }
+                          ],
+                          "Mercury token for personal accounts."
+                        ],
+                        [
+                          [
+                            {
+                              "insert": "MERCURY_BUSINESS_API_TOKEN",
+                              "attributes": {
+                                "code": true
+                              }
+                            }
+                          ],
+                          "Mercury token for business accounts."
+                        ],
+                        [
+                          [
+                            {
+                              "insert": "SIMPLEFIN_ACCESS_URL",
+                              "attributes": {
+                                "code": true
+                              }
+                            }
+                          ],
+                          "Claimed SimpleFIN access URL."
+                        ],
+                        [
+                          [
+                            {
+                              "insert": "SIMPLEFIN_LOOKBACK_DAYS",
+                              "attributes": {
+                                "code": true
+                              }
+                            }
+                          ],
+                          "SimpleFIN transaction lookback window, clamped to 1-90 days and defaulting to 30."
+                        ],
+                        [
+                          [
+                            {
+                              "insert": "VITE_API_BASE_URL",
+                              "attributes": {
+                                "code": true
+                              }
+                            }
+                          ],
+                          "Frontend API base URL."
+                        ]
+                      ]
+                    },
+                    "children": []
+                  },
+                  "b-20-provider-preview-api-endpoints-8": {
+                    "id": "b-20-provider-preview-api-endpoints-8",
+                    "type": "heading",
+                    "props": {
+                      "level": 2
+                    },
+                    "text": [
+                      {
+                        "insert": "API Endpoints"
+                      }
+                    ],
+                    "children": []
+                  },
+                  "b-20-provider-preview-endpoint-purpose-9": {
+                    "id": "b-20-provider-preview-endpoint-purpose-9",
+                    "type": "structured-table",
+                    "props": {
+                      "columns": [
+                        "Endpoint",
+                        "Purpose"
+                      ],
+                      "rows": [
+                        [
+                          [
+                            {
+                              "insert": "GET /api/health",
+                              "attributes": {
+                                "code": true
+                              }
+                            }
+                          ],
+                          "Shows API health and provider configuration status."
+                        ],
+                        [
+                          [
+                            {
+                              "insert": "GET /api/snapshot",
+                              "attributes": {
+                                "code": true
+                              }
+                            }
+                          ],
+                          "Loads all configured account and transaction previews."
+                        ],
+                        [
+                          [
+                            {
+                              "insert": "GET /api/mercury/accounts",
+                              "attributes": {
+                                "code": true
+                              }
+                            }
+                          ],
+                          "Loads Mercury accounts for configured Mercury tokens."
+                        ],
+                        [
+                          [
+                            {
+                              "insert": "GET /api/mercury/transactions",
+                              "attributes": {
+                                "code": true
+                              }
+                            }
+                          ],
+                          "Loads Mercury transactions for configured Mercury tokens."
+                        ],
+                        [
+                          [
+                            {
+                              "insert": "GET /api/simplefin/accounts",
+                              "attributes": {
+                                "code": true
+                              }
+                            }
+                          ],
+                          [
+                            {
+                              "insert": "Loads SimpleFIN accounts from "
+                            },
+                            {
+                              "insert": "SIMPLEFIN_ACCESS_URL",
+                              "attributes": {
+                                "code": true
+                              }
+                            },
+                            {
+                              "insert": ", with an optional "
+                            },
+                            {
+                              "insert": "days",
+                              "attributes": {
+                                "code": true
+                              }
+                            },
+                            {
+                              "insert": " query parameter."
+                            }
+                          ]
+                        ],
+                        [
+                          [
+                            {
+                              "insert": "GET /api/simplefin/transactions",
+                              "attributes": {
+                                "code": true
+                              }
+                            }
+                          ],
+                          [
+                            {
+                              "insert": "Flattens SimpleFIN account transactions for preview, with an optional "
+                            },
+                            {
+                              "insert": "days",
+                              "attributes": {
+                                "code": true
+                              }
+                            },
+                            {
+                              "insert": " query parameter."
+                            }
+                          ]
+                        ],
+                        [
+                          [
+                            {
+                              "insert": "POST /api/simplefin/claim",
+                              "attributes": {
+                                "code": true
+                              }
+                            }
+                          ],
+                          "Exchanges a one-time setup token for a SimpleFIN access URL."
+                        ]
+                      ]
+                    },
+                    "children": []
+                  },
+                  "b-20-provider-preview-code-references-10": {
+                    "id": "b-20-provider-preview-code-references-10",
+                    "type": "heading",
+                    "props": {
+                      "level": 2
+                    },
+                    "text": [
+                      {
+                        "insert": "Code References"
+                      }
+                    ],
+                    "children": []
+                  },
+                  "b-20-provider-preview-file-purpose-11": {
+                    "id": "b-20-provider-preview-file-purpose-11",
+                    "type": "structured-table",
+                    "props": {
+                      "columns": [
+                        "File",
+                        "Purpose"
+                      ],
+                      "rows": [
+                        [
+                          [
+                            {
+                              "insert": "apps/api/src/index.ts",
+                              "attributes": {
+                                "code": true
+                              }
+                            }
+                          ],
+                          "Express server and preview endpoints."
+                        ],
+                        [
+                          [
+                            {
+                              "insert": "apps/web/src/main.tsx",
+                              "attributes": {
+                                "code": true
+                              }
+                            }
+                          ],
+                          "React UI for provider status, SimpleFIN setup, accounts, and transactions."
+                        ],
+                        [
+                          [
+                            {
+                              "insert": "packages/config/src/index.ts",
+                              "attributes": {
+                                "code": true
+                              }
+                            }
+                          ],
+                          [
+                            {
+                              "insert": "Loads "
+                            },
+                            {
+                              "insert": ".env",
+                              "attributes": {
+                                "code": true
+                              }
+                            },
+                            {
+                              "insert": " and parses server configuration."
+                            }
+                          ]
+                        ],
+                        [
+                          [
+                            {
+                              "insert": "packages/providers/src/mercury.ts",
+                              "attributes": {
+                                "code": true
+                              }
+                            }
+                          ],
+                          "Mercury API client and lightweight normalization."
+                        ],
+                        [
+                          [
+                            {
+                              "insert": "packages/providers/src/simplefin.ts",
+                              "attributes": {
+                                "code": true
+                              }
+                            }
+                          ],
+                          "SimpleFIN setup-token claim, account fetch, and lightweight normalization."
+                        ],
+                        [
+                          [
+                            {
+                              "insert": ".env.example",
+                              "attributes": {
+                                "code": true
+                              }
+                            }
+                          ],
+                          "Local environment variable template."
+                        ]
+                      ]
+                    },
+                    "children": []
+                  },
+                  "b-20-provider-preview-boundaries-12": {
+                    "id": "b-20-provider-preview-boundaries-12",
+                    "type": "heading",
+                    "props": {
+                      "level": 2
+                    },
+                    "text": [
+                      {
+                        "insert": "Boundaries"
+                      }
+                    ],
+                    "children": []
+                  },
+                  "b-20-provider-preview-the-preview-does-not-per-13": {
+                    "id": "b-20-provider-preview-the-preview-does-not-per-13",
+                    "type": "list-item",
+                    "props": {
+                      "ordered": false
+                    },
+                    "text": [
+                      {
+                        "insert": "The preview does not persist data."
+                      }
+                    ],
+                    "children": []
+                  },
+                  "b-20-provider-preview-provider-credentials-rem-14": {
+                    "id": "b-20-provider-preview-provider-credentials-rem-14",
+                    "type": "list-item",
+                    "props": {
+                      "ordered": false
+                    },
+                    "text": [
+                      {
+                        "insert": "Provider credentials remain server-side."
+                      }
+                    ],
+                    "children": []
+                  },
+                  "b-20-provider-preview-the-frontend-receives-no-15": {
+                    "id": "b-20-provider-preview-the-frontend-receives-no-15",
+                    "type": "list-item",
+                    "props": {
+                      "ordered": false
+                    },
+                    "text": [
+                      {
+                        "insert": "The frontend receives normalized preview records and raw provider payloads are only carried in API responses for inspection."
+                      }
+                    ],
+                    "children": []
+                  },
+                  "b-20-provider-preview-simplefin-setup-token-cl-16": {
+                    "id": "b-20-provider-preview-simplefin-setup-token-cl-16",
+                    "type": "list-item",
+                    "props": {
+                      "ordered": false
+                    },
+                    "text": [
+                      {
+                        "insert": "SimpleFIN setup-token claim returns the access URL, but the app does not write it into "
+                      },
+                      {
+                        "insert": ".env",
+                        "attributes": {
+                          "code": true
+                        }
+                      },
+                      {
+                        "insert": "."
+                      }
+                    ],
+                    "children": []
+                  },
+                  "b-20-provider-preview-simplefin-requests-use-a-17": {
+                    "id": "b-20-provider-preview-simplefin-requests-use-a-17",
+                    "type": "list-item",
+                    "props": {
+                      "ordered": false
+                    },
+                    "text": [
+                      {
+                        "insert": "SimpleFIN requests use an explicit date window because the provider default can return very few transactions."
+                      }
+                    ],
+                    "children": []
+                  },
+                  "b-20-provider-preview-mercury-personal-and-bus-18": {
+                    "id": "b-20-provider-preview-mercury-personal-and-bus-18",
+                    "type": "list-item",
+                    "props": {
+                      "ordered": false
+                    },
+                    "text": [
+                      {
+                        "insert": "Mercury personal and business tokens are treated as separate connections."
+                      }
+                    ],
+                    "children": []
+                  },
+                  "mercury-credit-heading": {
+                    "id": "mercury-credit-heading",
+                    "type": "heading",
+                    "props": {
+                      "level": 2
+                    },
+                    "text": [
+                      {
+                        "insert": "Mercury Business Credit Balances"
+                      }
+                    ],
+                    "children": []
+                  },
+                  "mercury-credit-contract": {
+                    "id": "mercury-credit-contract",
+                    "type": "paragraph",
+                    "props": {},
+                    "text": [
+                      {
+                        "insert": "The snapshot fetches Mercury business credit accounts from GET /credit, separately from GET /accounts. MercuryClient.listCreditAccounts skips personal connections and preserves the signed currentBalance. availableBalance never substitutes for the debt balance. Each credit account is included once by its provider ID, with kind card and the Mercury Business connection's Lascari AI ownership."
+                      }
+                    ],
+                    "children": []
+                  },
+                  "mercury-credit-errors": {
+                    "id": "mercury-credit-errors",
+                    "type": "paragraph",
+                    "props": {},
+                    "text": [
+                      {
+                        "insert": "A negative current balance contributes to liabilities; a positive credit balance remains an asset. Missing current balances stay unknown. Failed credit requests preserve successful bank results and mark account coverage partial with a connection warning. Individual issued cards do not create duplicate liabilities."
+                      }
+                    ],
+                    "children": []
+                  },
+                  "mercury-credit-source": {
+                    "id": "mercury-credit-source",
+                    "type": "paragraph",
+                    "props": {},
+                    "text": [
+                      {
+                        "insert": "The provider contract lives in "
+                      },
+                      {
+                        "insert": "MercuryClient",
+                        "attributes": {
+                          "reference": {
+                            "kind": "source",
+                            "path": "packages/providers/src/mercury.ts"
+                          }
+                        }
+                      },
+                      {
+                        "insert": "; the snapshot joins credit and bank results in "
+                      },
+                      {
+                        "insert": "dashboard.ts",
+                        "attributes": {
+                          "reference": {
+                            "kind": "source",
+                            "path": "apps/api/src/dashboard.ts"
+                          }
+                        }
+                      },
+                      {
+                        "insert": ". "
+                      },
+                      {
+                        "insert": "Mercury's credit account reference",
+                        "attributes": {
+                          "link": "https://docs.mercury.com/reference/listcredit"
+                        }
+                      },
+                      {
+                        "insert": " documents the business-only endpoint."
+                      }
+                    ],
+                    "children": []
+                  },
+                  "spending-heading": {
+                    "id": "spending-heading",
+                    "type": "heading",
+                    "props": {
+                      "level": 2
+                    },
+                    "text": [
+                      {
+                        "insert": "Monthly Spending Preview"
+                      }
+                    ],
+                    "children": []
+                  },
+                  "spending-overview": {
+                    "id": "spending-overview",
+                    "type": "paragraph",
+                    "props": {},
+                    "text": [
+                      {
+                        "insert": "The Spending route opens August 2026 with Ford, Caroline, and Shared Household selected. Businesses are excluded by default. Month and owner selections are URL parameters. The page reuses the Net Worth layout for income, spending, and transfer Sankey views, with owner summaries and account-filtered transaction details."
+                      }
+                    ],
+                    "children": []
+                  },
+                  "spending-treatments": {
+                    "id": "spending-treatments",
+                    "type": "structured-table",
+                    "props": {
+                      "columns": [
+                        "Activity",
+                        "Current Treatment"
+                      ],
+                      "rows": [
+                        [
+                          "Income and other inflows",
+                          "Positive non-investment activity without refund or unresolved-transfer evidence. Includes funding from outside the selected owners; not necessarily earned income."
+                        ],
+                        [
+                          "Net spending",
+                          "Provisional negative purchases less explicitly labeled refunds or reversals. Unlabeled positive card credits remain in review."
+                        ],
+                        [
+                          "Matched transfers",
+                          "Unique reciprocal opposite-cent records within four days, with transfer wording and transfer or owner-name evidence on the other record. Matching uses the full fetched window; monthly views use each record's provider date portion. Matches are suggestions, not confirmed classifications."
+                        ],
+                        [
+                          "Needs review",
+                          "Unmatched or ambiguous transfers, payment-like labels, unlabeled card credits, unknown account types, and transfers out to excluded owners. Excluded from income and spending."
+                        ],
+                        [
+                          "Investment activity",
+                          "Unmatched investment account activity stays separate from spendable income and spending. Gross matched transfers into savings or investments are shown separately and do not establish net saving."
+                        ]
+                      ]
+                    },
+                    "children": []
+                  },
+                  "spending-boundary": {
+                    "id": "spending-boundary",
+                    "type": "paragraph",
+                    "props": {},
+                    "text": [
+                      {
+                        "insert": "Amounts aggregate in integer cents. Only posted USD records with finite amounts, valid dates, and known accounts enter totals. Duplicate account/transaction IDs count once. Closed accounts retain historical activity. The page reports excluded records and warns that returned history may be incomplete; an empty month does not establish zero spending. The monthly difference is inflows less net spending, not a cash balance or budget remaining."
+                      }
+                    ],
+                    "children": []
+                  },
+                  "spending-future": {
+                    "id": "spending-future",
+                    "type": "paragraph",
+                    "props": {},
+                    "text": [
+                      {
+                        "insert": "Bucket targets, confirmed classifications, current-month budget remaining, and past-month over/under reviews remain proposed. They require persisted budget periods and targets; the preview does not fabricate those values."
+                      }
+                    ],
+                    "children": []
+                  },
+                  "spending-source": {
+                    "id": "spending-source",
+                    "type": "paragraph",
+                    "props": {},
+                    "text": [
+                      {
+                        "insert": "The "
+                      },
+                      {
+                        "insert": "monthly model",
+                        "attributes": {
+                          "reference": {
+                            "kind": "source",
+                            "path": "apps/web/src/pages/spending/model.ts"
+                          }
+                        }
+                      },
+                      {
+                        "insert": " owns filtering, suggested transfer matches, and graph aggregation. The "
+                      },
+                      {
+                        "insert": "Spending page",
+                        "attributes": {
+                          "reference": {
+                            "kind": "source",
+                            "path": "apps/web/src/pages/spending/page.tsx"
+                          }
+                        }
+                      },
+                      {
+                        "insert": " owns controls and drill-down. "
+                      },
+                      {
+                        "insert": "Spending tests",
+                        "attributes": {
+                          "reference": {
+                            "kind": "source",
+                            "path": "apps/web/tests/spending.test.ts"
+                          }
+                        }
+                      },
+                      {
+                        "insert": " cover month boundaries, payment handling, refunds, ownership, ambiguous matches, investment activity, and record exclusions."
+                      }
+                    ],
+                    "children": []
+                  }
+                }
+              },
+              "hash": "548b203be9dfd1319c4a7c7972ebe59c4e0942ac8a3e48052f6b743a0cccc044",
+              "markdown": "The provider preview is the first runnable version of the app. It loads credentials from the server environment, fetches live Mercury and SimpleFIN data on demand, normalizes the response shape enough for inspection, and renders accounts and transactions in the frontend.\n\n---\n\n## Current Flow\n\n<!-- sequence: ./assets/sequences/20-provider-preview.sequence.json title=\"Provider Preview Request Path\" -->\n\n## Environment Variables\n\n| Variable | Purpose |\n| --- | --- |\n| `PORT` | API port, defaulting to `8787`. |\n| `CORS_ORIGIN` | Frontend origin allowed to call the API. |\n| `MERCURY_AUTH_MODE` | `bearer` by default, or `basic` for username-only token auth. |\n| `MERCURY_PERSONAL_API_TOKEN` | Mercury token for personal accounts. |\n| `MERCURY_BUSINESS_API_TOKEN` | Mercury token for business accounts. |\n| `SIMPLEFIN_ACCESS_URL` | Claimed SimpleFIN access URL. |\n| `SIMPLEFIN_LOOKBACK_DAYS` | SimpleFIN transaction lookback window, clamped to 1-90 days and defaulting to 30. |\n| `VITE_API_BASE_URL` | Frontend API base URL. |\n\n## API Endpoints\n\n| Endpoint | Purpose |\n| --- | --- |\n| `GET /api/health` | Shows API health and provider configuration status. |\n| `GET /api/snapshot` | Loads all configured account and transaction previews. |\n| `GET /api/mercury/accounts` | Loads Mercury accounts for configured Mercury tokens. |\n| `GET /api/mercury/transactions` | Loads Mercury transactions for configured Mercury tokens. |\n| `GET /api/simplefin/accounts` | Loads SimpleFIN accounts from `SIMPLEFIN_ACCESS_URL`, with an optional `days` query parameter. |\n| `GET /api/simplefin/transactions` | Flattens SimpleFIN account transactions for preview, with an optional `days` query parameter. |\n| `POST /api/simplefin/claim` | Exchanges a one-time setup token for a SimpleFIN access URL. |\n\n## Code References\n\n| File | Purpose |\n| --- | --- |\n| `apps/api/src/index.ts` | Express server and preview endpoints. |\n| `apps/web/src/main.tsx` | React UI for provider status, SimpleFIN setup, accounts, and transactions. |\n| `packages/config/src/index.ts` | Loads `.env` and parses server configuration. |\n| `packages/providers/src/mercury.ts` | Mercury API client and lightweight normalization. |\n| `packages/providers/src/simplefin.ts` | SimpleFIN setup-token claim, account fetch, and lightweight normalization. |\n| `.env.example` | Local environment variable template. |\n\n## Boundaries\n\n- The preview does not persist data.\n\n- Provider credentials remain server-side.\n\n- The frontend receives normalized preview records and raw provider payloads are only carried in API responses for inspection.\n\n- SimpleFIN setup-token claim returns the access URL, but the app does not write it into `.env`.\n\n- SimpleFIN requests use an explicit date window because the provider default can return very few transactions.\n\n- Mercury personal and business tokens are treated as separate connections.\n\n## Mercury Business Credit Balances\n\nThe snapshot fetches Mercury business credit accounts from GET /credit, separately from GET /accounts. MercuryClient.listCreditAccounts skips personal connections and preserves the signed currentBalance. availableBalance never substitutes for the debt balance. Each credit account is included once by its provider ID, with kind card and the Mercury Business connection's Lascari AI ownership.\n\nA negative current balance contributes to liabilities; a positive credit balance remains an asset. Missing current balances stay unknown. Failed credit requests preserve successful bank results and mark account coverage partial with a connection warning. Individual issued cards do not create duplicate liabilities.\n\nThe provider contract lives in MercuryClient; the snapshot joins credit and bank results in dashboard.ts. [Mercury's credit account reference](https://docs.mercury.com/reference/listcredit) documents the business-only endpoint.\n\n## Monthly Spending Preview\n\nThe Spending route opens August 2026 with Ford, Caroline, and Shared Household selected. Businesses are excluded by default. Month and owner selections are URL parameters. The page reuses the Net Worth layout for income, spending, and transfer Sankey views, with owner summaries and account-filtered transaction details.\n\n| Activity | Current Treatment |\n| --- | --- |\n| Income and other inflows | Positive non-investment activity without refund or unresolved-transfer evidence. Includes funding from outside the selected owners; not necessarily earned income. |\n| Net spending | Provisional negative purchases less explicitly labeled refunds or reversals. Unlabeled positive card credits remain in review. |\n| Matched transfers | Unique reciprocal opposite-cent records within four days, with transfer wording and transfer or owner-name evidence on the other record. Matching uses the full fetched window; monthly views use each record's provider date portion. Matches are suggestions, not confirmed classifications. |\n| Needs review | Unmatched or ambiguous transfers, payment-like labels, unlabeled card credits, unknown account types, and transfers out to excluded owners. Excluded from income and spending. |\n| Investment activity | Unmatched investment account activity stays separate from spendable income and spending. Gross matched transfers into savings or investments are shown separately and do not establish net saving. |\n\nAmounts aggregate in integer cents. Only posted USD records with finite amounts, valid dates, and known accounts enter totals. Duplicate account/transaction IDs count once. Closed accounts retain historical activity. The page reports excluded records and warns that returned history may be incomplete; an empty month does not establish zero spending. The monthly difference is inflows less net spending, not a cash balance or budget remaining.\n\nBucket targets, confirmed classifications, current-month budget remaining, and past-month over/under reviews remain proposed. They require persisted budget periods and targets; the preview does not fabricate those values.\n\nThe monthly model owns filtering, suggested transfer matches, and graph aggregation. The Spending page owns controls and drill-down. Spending tests cover month boundaries, payment handling, refunds, ownership, ambiguous matches, investment activity, and record exclusions.\n",
+              "bundlePath": "30-implementation/10-monorepo/20-provider-preview",
+              "expected_hash": "548b203be9dfd1319c4a7c7972ebe59c4e0942ac8a3e48052f6b743a0cccc044",
+              "lint": {
+                "phase": "complete",
+                "findings": [],
+                "blocking": []
+              }
+            },
+            "check": {
+              "ok": true,
+              "structurally_valid": true,
+              "hash": "548b203be9dfd1319c4a7c7972ebe59c4e0942ac8a3e48052f6b743a0cccc044",
+              "lint": {
+                "phase": "complete",
+                "findings": [],
+                "blocking": []
+              },
+              "components": [
+                {
+                  "blockId": "b-20-provider-preview-mermaid-5",
+                  "type": "sequence",
+                  "ok": true
+                }
+              ]
+            },
+            "patchId": "054dd910-00a5-490e-ac09-7d3a0bbb63e6"
+          }
+        ],
+        "viewerAssetResolution": "Both moved Canvas and Sequence restored original ./ prefix through typed ops and verified actual viewer resolvers resolve existing files."
+      },
+      "fullReport": "/tmp/docs-layout-review/migrate_budget.json"
+    },
+    {
+      "name": "Personal Site",
+      "root": "/Users/Ford/Github Repos/Lascari AI/personal-site",
+      "status": "Applied",
+      "agent": "migrate_personal_site",
+      "oldImplementationDirectoryExists": false,
+      "newImplementationDirectoryExists": true,
+      "recovery": [
+        {
+          "kind": "tree_change_id",
+          "id": "86f62a58-e5d6-4cc9-b250-9e65db6caef4"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "82a0576f-786c-49a8-913a-8e8f5d61ca5f"
+        }
+      ],
+      "validation": {
+        "status": "complete",
+        "validation": {
+          "linksBefore": 0,
+          "linksAfter": 0,
+          "blockingFindings": 0,
+          "readmeDiffCheck": "passed"
+        },
+        "preserved": {
+          "movedDocumentBlocks": 60,
+          "allCorpusBlocks": 91,
+          "allDocumentHashesUnchanged": true
+        },
+        "notes": [
+          "20-agents reserved without filler pages",
+          "No commit or push"
+        ]
+      },
+      "fullReport": "/tmp/docs-layout-review/migrate_personal_site.json"
+    },
+    {
+      "name": "Core Canvas",
+      "root": "/Users/Ford/Github Repos/Codecaine/Core/canvas",
+      "status": "Applied",
+      "agent": "migrate_core_canvas",
+      "oldImplementationDirectoryExists": false,
+      "newImplementationDirectoryExists": true,
+      "recovery": [
+        {
+          "kind": "tree_change_id",
+          "id": "ce6341de-731e-4164-b784-df8b2da31c84"
+        }
+      ],
+      "validation": {
+        "verification": [
+          {
+            "path": "30-implementation/30-interaction",
+            "contentOnlyPaths": true,
+            "blocks": 12,
+            "lintIdentical": true,
+            "legacyFindings": 6,
+            "structurallyValid": true
+          },
+          {
+            "path": "30-implementation/80-canvas-agent",
+            "contentOnlyPaths": true,
+            "blocks": 35,
+            "lintIdentical": true,
+            "legacyFindings": 24,
+            "structurallyValid": true
+          },
+          {
+            "path": "30-implementation/95-docs-mcp-access",
+            "contentOnlyPaths": true,
+            "blocks": 10,
+            "lintIdentical": true,
+            "legacyFindings": 0,
+            "structurallyValid": true
+          },
+          {
+            "path": "30-implementation/70-studio",
+            "contentOnlyPaths": true,
+            "blocks": 15,
+            "lintIdentical": true,
+            "legacyFindings": 5,
+            "structurallyValid": true
+          },
+          {
+            "path": "30-implementation/50-stage",
+            "contentOnlyPaths": true,
+            "blocks": 19,
+            "lintIdentical": true,
+            "legacyFindings": 11,
+            "structurallyValid": true
+          },
+          {
+            "path": "30-implementation/60-ui",
+            "contentOnlyPaths": true,
+            "blocks": 18,
+            "lintIdentical": true,
+            "legacyFindings": 9,
+            "structurallyValid": true
+          },
+          {
+            "path": "30-implementation",
+            "contentOnlyPaths": true,
+            "blocks": 37,
+            "lintIdentical": true,
+            "legacyFindings": 23,
+            "structurallyValid": true
+          },
+          {
+            "path": "30-implementation/20-objects",
+            "contentOnlyPaths": true,
+            "blocks": 17,
+            "lintIdentical": true,
+            "legacyFindings": 10,
+            "structurallyValid": true
+          },
+          {
+            "path": "30-implementation/90-canvases",
+            "contentOnlyPaths": true,
+            "blocks": 13,
+            "lintIdentical": true,
+            "legacyFindings": 6,
+            "structurallyValid": true
+          },
+          {
+            "path": "30-implementation/05-theme",
+            "contentOnlyPaths": true,
+            "blocks": 15,
+            "lintIdentical": true,
+            "legacyFindings": 8,
+            "structurallyValid": true
+          },
+          {
+            "path": "30-implementation/10-state",
+            "contentOnlyPaths": true,
+            "blocks": 16,
+            "lintIdentical": true,
+            "legacyFindings": 8,
+            "structurallyValid": true
+          },
+          {
+            "path": "30-implementation/40-connectors",
+            "contentOnlyPaths": true,
+            "blocks": 12,
+            "lintIdentical": true,
+            "legacyFindings": 6,
+            "structurallyValid": true
+          },
+          {
+            "path": "00-foundation",
+            "contentOnlyPaths": true,
+            "blocks": 41,
+            "lintIdentical": true,
+            "legacyFindings": 32,
+            "structurallyValid": true
+          },
+          {
+            "path": "10-system-design",
+            "contentOnlyPaths": true,
+            "blocks": 20,
+            "lintIdentical": true,
+            "legacyFindings": 19,
+            "structurallyValid": true
+          }
+        ],
+        "stats": {
+          "movedDocs": 12,
+          "checkedDocs": 14,
+          "preservedBlocks": 280,
+          "legacyFindings": 167,
+          "newFindings": 0,
+          "staleLinksBefore": 0,
+          "staleLinksAfter": 0
+        },
+        "notes": [
+          "Only typed doc reference paths changed; all document IDs, block IDs, content, types, nesting, props preserved.",
+          "Native management source hash uses raw bytes; docs_read normalized hash differed; used fresh current_hash returned by native preview conflict."
+        ]
+      },
+      "fullReport": "/tmp/docs-layout-review/migrate_core_canvas.json"
+    },
+    {
+      "name": "Core Canvas / Docs Framework",
+      "root": "/Users/Ford/Github Repos/Codecaine/Core/canvas/tools/docs-framework",
+      "status": "Applied",
+      "agent": "migrate_core_canvas_framework",
+      "oldImplementationDirectoryExists": false,
+      "newImplementationDirectoryExists": true,
+      "recovery": [
+        {
+          "kind": "tree_change_id",
+          "id": "c90ebf2b-82a6-4631-bf01-2af4062cfc4d"
+        },
+        {
+          "kind": "patchId",
+          "id": "db52bed1-baaa-477a-a94a-f5d760bd7f0a"
+        },
+        {
+          "kind": "patchId",
+          "id": "a2acda96-492e-4f85-a749-84874958dcea"
+        },
+        {
+          "kind": "patchId",
+          "id": "df85d6b4-c684-4c11-a462-9d6bb6d206d1"
+        }
+      ],
+      "validation": {
+        "status": "complete",
+        "verification": {
+          "pages": 76,
+          "blocks": 2538,
+          "structureMismatches": [],
+          "checkedPages": 44,
+          "introduced": [],
+          "beforeErrors": 235,
+          "afterErrors": 235,
+          "pathRewrites": 59,
+          "normalizedLegacyLinks": [
+            {
+              "doc": "10-system-design/30-data-model/40-serialization",
+              "path": ".blocks.b-50-canonical-bytes-hashing-why-13.text.1.attributes.reference.path",
+              "before": "docs/20-implementation/30-save-pipeline.md",
+              "after": "30-implementation/30-save-pipeline"
+            },
+            {
+              "doc": "10-system-design/30-data-model/50-mutation-model",
+              "path": ".blocks.b-20-mutation-model-opening-neighbors-3.text.3.attributes.reference.path",
+              "before": "docs/20-implementation/30-save-pipeline.md",
+              "after": "30-implementation/30-save-pipeline"
+            }
+          ],
+          "preExistingStaleLinks": 10,
+          "postMigrationStaleLinks": 10,
+          "newBrokenLinks": 0,
+          "goldensRegenerated": 44,
+          "tests": {
+            "passed": 10,
+            "failed": 0
+          },
+          "diffCheck": "passed"
+        },
+        "notes": [
+          "No Agents page created; 20 reserved.",
+          "All 2538 blocks and their types/nesting/root IDs preserved.",
+          "Three standards pages received nine minimal block updates for ordering examples.",
+          "Ten stale external/source links and 235 writing errors predate migration; no introduced findings.",
+          "Historical objective reports and unrelated nested repositories untouched.",
+          "Local framework markdown and maintained source path references updated mechanically; 18 projection golden files renamed."
+        ]
+      },
+      "fullReport": "/tmp/docs-layout-review/migrate_core_canvas_framework.json"
+    },
+    {
+      "name": "Docs System / External Canvas",
+      "root": "/Users/Ford/Github Repos/Codecaine/Core/docs-system/external/canvas",
+      "status": "Applied",
+      "agent": "migrate_docs_external_canvas",
+      "oldImplementationDirectoryExists": false,
+      "newImplementationDirectoryExists": true,
+      "recovery": [
+        {
+          "kind": "tree_change_id",
+          "id": "e8362af1-9cf2-4cd6-8dc8-fc22d153cdc9"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "191dbe76-16d7-4b90-9d4a-6ac0d52164e7"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "48c20f14-3e8b-486b-97e9-f47f198cbe69"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "b85e1685-3e5a-4595-af2a-da19c2eac738"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "c601f8c9-dd0b-41fd-adb6-1a258304df17"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "e6796291-7789-45fd-9fe2-ff948fdc74fe"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "f942acc0-e08f-4a9a-b138-8755b46bb5a4"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "f471bc0a-671d-40f3-b344-710a9dbf08d0"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "9df00e2c-be1c-4d24-a4cf-91095f7b6625"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "d4920d7e-59ab-4b38-bf4e-24e8cfd0c33f"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "120bf039-565a-4c32-81f6-c94b8b0e7a0a"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "06ff96c7-4a53-40ce-9f25-7ada849a36fd"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "9364ae52-2e00-480a-8aad-d881c81eb758"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "b70a06f0-14ad-4d3b-81fe-1c172e58662c"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "4df82cd3-f3f4-4161-93ba-d95ca8a8f7ae"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "ccd641ab-8f4a-4fac-b776-737372f33c2d"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "9cb6496f-125b-4144-a0c4-9f3551a484bb"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "7ee3f0f1-37e6-4e7d-bc9a-bb6173d51edc"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "6b9ff0c7-2a8e-4052-88a3-d13dbf81e8e2"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "b51f4f18-496d-44c0-9442-8040e57e780d"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "2dcc8b92-1658-4f47-bb11-6a76a99823fe"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "246dfe37-be13-49f7-ab0f-1288afa9e3cd"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "3c004f97-6505-465c-883a-ddc1fda647f5"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "ba055bac-81a0-4d14-bb91-6354b84d8559"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "84110295-5ad2-4a7c-8178-370ad893c972"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "6201c6c8-a2ca-4576-bbdc-30b8b62f7f43"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "ef3c82d6-fa5f-4aa4-a059-4d5186866a0e"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "1268570a-6ae9-4982-9dbd-092083f9ff89"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "25fcce1a-5837-4182-9dd3-a64614db202f"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "1485d90d-b671-4446-8e9a-2d9fad4ccd4b"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "b67e3130-d87e-44d1-bae2-8fb56edb101b"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "88fc704c-3f6c-4b1d-825c-ab636a5b96e7"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "1e5fffea-c4fc-4e3f-8bd3-d3cb6592dc00"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "8e5d2211-8aa9-4821-bf4e-d9109e40cd4a"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "dde9c483-5700-4b60-b0f1-bc35516ec00c"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "7980c34b-7a2a-4132-918c-6f87cc934e9e"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "f4835aca-8add-47e0-976d-258ee794ff04"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "1b193438-12fd-41a1-9cde-bf3e5103c601"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "271f901c-35b4-4ea9-927a-5b99e49981cf"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "87581039-724d-41d1-b906-c02dfd1d2cbb"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "3cd6c725-3847-4703-a158-4db04d00cacf"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "ad0aace0-8798-43ed-88d8-cb51d87baa6f"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "40e9d042-7c98-4b92-b02c-8fb124b135f9"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "2caba745-7b46-46e9-86a2-aad20cd64821"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "08f47426-87ee-4fb8-842d-e5739d7e62a7"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "a52c1936-610b-4684-8bb1-44390f456f34"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "bdbcc838-eff5-4ea3-8d88-562ea13efb07"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "9bd695d3-1721-4e3f-9f5b-507b4bb367f8"
+        },
+        {
+          "kind": "temporaryTitleTreeChangeId",
+          "id": "a301747d-5c3f-405d-91a1-195cae9a46fa"
+        },
+        {
+          "kind": "patchId",
+          "id": "5b3f5635-ffee-4958-ab88-b5d0397bdd22"
+        },
+        {
+          "kind": "restoredTitleTreeChangeId",
+          "id": "f92b8a20-f343-4348-86b9-50db3cffd20a"
+        },
+        {
+          "kind": "temporaryTitleTreeChangeId",
+          "id": "bde4c6f1-e162-493d-96c4-34a1960be852"
+        },
+        {
+          "kind": "patchId",
+          "id": "5afb15fa-7d3e-4018-adb0-d40cf6204e38"
+        },
+        {
+          "kind": "restoredTitleTreeChangeId",
+          "id": "e7bb01d6-242e-4a93-ae95-780d343d7c8e"
+        },
+        {
+          "kind": "temporaryTitleTreeChangeId",
+          "id": "0e033e61-5363-497f-b235-2b7e842a0f50"
+        },
+        {
+          "kind": "patchId",
+          "id": "066a6b18-9fc3-437b-9dd5-acf2072ecefa"
+        },
+        {
+          "kind": "restoredTitleTreeChangeId",
+          "id": "7e84651a-ca95-41e6-b9ab-10a8e035bb05"
+        },
+        {
+          "kind": "temporaryTitleTreeChangeId",
+          "id": "94da9d45-7f17-4aa8-b314-1b1d68a5875a"
+        },
+        {
+          "kind": "patchId",
+          "id": "ed67a9ce-ac95-4343-ae7e-fbdd2dd47b08"
+        },
+        {
+          "kind": "restoredTitleTreeChangeId",
+          "id": "9ded9ad2-8c52-45c4-8db3-0ccaf77f13de"
+        },
+        {
+          "kind": "temporaryTitleTreeChangeId",
+          "id": "4574c547-7f5b-4ee4-96eb-0d30df5e417e"
+        },
+        {
+          "kind": "patchId",
+          "id": "237e2ccc-0d1c-4706-bd04-2841c222a01f"
+        },
+        {
+          "kind": "restoredTitleTreeChangeId",
+          "id": "81e6bcf0-c643-4885-b1e2-093eed0936ec"
+        },
+        {
+          "kind": "temporaryTitleTreeChangeId",
+          "id": "650b99ea-dc69-4988-907f-5e2819709275"
+        },
+        {
+          "kind": "patchId",
+          "id": "4c06525d-32dc-4a30-a1a8-aba8385225fe"
+        },
+        {
+          "kind": "restoredTitleTreeChangeId",
+          "id": "cc60098f-c77c-421b-bcb3-9b0b9e1f0b78"
+        },
+        {
+          "kind": "temporaryTitleTreeChangeId",
+          "id": "6ed74ea7-c58a-4c94-a437-8288fbbea1c2"
+        },
+        {
+          "kind": "patchId",
+          "id": "9b45b7e8-d122-4289-b8a8-89cdbe05d774"
+        },
+        {
+          "kind": "restoredTitleTreeChangeId",
+          "id": "a69dafe8-f3da-4971-ac15-6f5e5f50d268"
+        },
+        {
+          "kind": "temporaryTitleTreeChangeId",
+          "id": "397050b6-45be-47db-bff9-8394740e9ab4"
+        },
+        {
+          "kind": "patchId",
+          "id": "1bc61453-041a-4583-bfa0-5942ba5604c0"
+        },
+        {
+          "kind": "restoredTitleTreeChangeId",
+          "id": "d240de34-de5e-49f7-b63d-a42084dc57b0"
+        },
+        {
+          "kind": "temporaryTitleTreeChangeId",
+          "id": "bd03f2a2-0b1d-42a4-bf80-0074bbbac833"
+        },
+        {
+          "kind": "patchId",
+          "id": "aea9b9c9-0f78-4441-9da0-ab1562838b37"
+        },
+        {
+          "kind": "restoredTitleTreeChangeId",
+          "id": "e4c81d4d-f638-4ad0-9174-aaffcda04107"
+        },
+        {
+          "kind": "temporaryTitleTreeChangeId",
+          "id": "2c2baf41-a6b8-4446-8157-7267807b512a"
+        },
+        {
+          "kind": "patchId",
+          "id": "4f6822f5-de12-43dd-93b4-d801cade3c16"
+        },
+        {
+          "kind": "restoredTitleTreeChangeId",
+          "id": "705bfd44-cf00-4622-8822-162aaf017570"
+        },
+        {
+          "kind": "temporaryTitleTreeChangeId",
+          "id": "4af4e816-42ba-4b77-b5ef-7dffc1c1f955"
+        },
+        {
+          "kind": "patchId",
+          "id": "0a9290ae-fbaa-49e6-aadc-5415e5ffa943"
+        },
+        {
+          "kind": "restoredTitleTreeChangeId",
+          "id": "5a6611be-ad13-4fd9-9220-482f25fb2818"
+        },
+        {
+          "kind": "temporaryTitleTreeChangeId",
+          "id": "2c505196-73b0-4cd7-8d47-5f269611fc9f"
+        },
+        {
+          "kind": "patchId",
+          "id": "ecfc8eb7-b4fc-41f2-9672-995bce99330c"
+        },
+        {
+          "kind": "restoredTitleTreeChangeId",
+          "id": "e197a44d-c63b-45b7-b92c-62dfdb1b2dfd"
+        },
+        {
+          "kind": "temporaryTitleTreeChangeId",
+          "id": "2d469ce3-0a3f-4703-b092-c6f467378d42"
+        },
+        {
+          "kind": "patchId",
+          "id": "a34e6f77-2f04-48dc-b616-d46bf2da531a"
+        },
+        {
+          "kind": "restoredTitleTreeChangeId",
+          "id": "4eaf6d24-64a6-4b08-885b-b164f1deb54d"
+        },
+        {
+          "kind": "temporaryTitleTreeChangeId",
+          "id": "2a29750b-d826-44ca-b846-7677f0837346"
+        },
+        {
+          "kind": "patchId",
+          "id": "a2443848-aef1-484d-b596-8280f6766bb5"
+        },
+        {
+          "kind": "restoredTitleTreeChangeId",
+          "id": "41ddd666-769a-42ae-a5d6-9571cebbf0cb"
+        },
+        {
+          "kind": "temporaryTitleTreeChangeId",
+          "id": "4d3da34a-d6b7-4c84-bd3c-2e7b5cf59d83"
+        },
+        {
+          "kind": "patchId",
+          "id": "92e3c809-db8e-4395-bb37-8eea972adb85"
+        },
+        {
+          "kind": "restoredTitleTreeChangeId",
+          "id": "1b84f1c4-fd16-4dff-800b-ab1581eb37d1"
+        },
+        {
+          "kind": "temporaryTitleTreeChangeId",
+          "id": "1af7a0e6-ab42-4a3e-8b0a-89fc962d96e3"
+        },
+        {
+          "kind": "patchId",
+          "id": "0f5fdaae-0965-451d-a003-31e3fe690a7c"
+        },
+        {
+          "kind": "restoredTitleTreeChangeId",
+          "id": "451c61d7-a7fe-483a-83c0-8c0d50c66486"
+        },
+        {
+          "kind": "temporaryTitleTreeChangeId",
+          "id": "77678734-931b-4ae9-af79-9e08d3bdec5a"
+        },
+        {
+          "kind": "patchId",
+          "id": "a4899bf4-3e0a-4611-951b-5ea3663841d7"
+        },
+        {
+          "kind": "restoredTitleTreeChangeId",
+          "id": "1d981e34-a78c-4596-b549-63a8ac43f232"
+        },
+        {
+          "kind": "temporaryTitleTreeChangeId",
+          "id": "211dbf8a-afe5-487a-8560-088310d35105"
+        },
+        {
+          "kind": "patchId",
+          "id": "0ff300c0-7f4c-471f-b78d-d4966a4a7c8d"
+        },
+        {
+          "kind": "restoredTitleTreeChangeId",
+          "id": "72324622-ac0f-4a0e-9de6-c4b2b11329e1"
+        },
+        {
+          "kind": "temporaryTitleTreeChangeId",
+          "id": "80b5f8f1-e9fd-4a74-8b69-defe19ac5848"
+        },
+        {
+          "kind": "patchId",
+          "id": "2c28144c-a9e1-4d9d-9604-c50cc0ab0608"
+        },
+        {
+          "kind": "restoredTitleTreeChangeId",
+          "id": "65828d6f-e36a-4ea8-8d5f-e1d938b792a4"
+        },
+        {
+          "kind": "temporaryTitleTreeChangeId",
+          "id": "431a0b3b-b6b7-4b4d-9600-571f60b7f5d3"
+        },
+        {
+          "kind": "patchId",
+          "id": "8046aa45-74c2-44fa-bcb7-5b331f82b0a2"
+        },
+        {
+          "kind": "restoredTitleTreeChangeId",
+          "id": "ecb2cc6e-0580-4f3d-b2a2-ee0f79de62cb"
+        },
+        {
+          "kind": "temporaryTitleTreeChangeId",
+          "id": "06674db4-705c-4233-860c-4661d128b47b"
+        },
+        {
+          "kind": "patchId",
+          "id": "2957964e-febb-45d2-a6f1-92a10ea0d2b3"
+        },
+        {
+          "kind": "restoredTitleTreeChangeId",
+          "id": "6aaec941-92c8-4bbe-8f11-06c04bda6f45"
+        },
+        {
+          "kind": "temporaryTitleTreeChangeId",
+          "id": "56e80745-8ddd-470f-be3f-3cc3a400c250"
+        },
+        {
+          "kind": "patchId",
+          "id": "f20e442c-c375-4dd3-9626-f1b0e4579fce"
+        },
+        {
+          "kind": "restoredTitleTreeChangeId",
+          "id": "346c06b1-94c1-430b-9802-d3fd4df9167a"
+        },
+        {
+          "kind": "temporaryTitleTreeChangeId",
+          "id": "b47fdc60-ca07-4150-89fb-9553cafdfee0"
+        },
+        {
+          "kind": "patchId",
+          "id": "fb5b2bd7-4390-426e-8a2c-2139fb93defd"
+        },
+        {
+          "kind": "restoredTitleTreeChangeId",
+          "id": "3985ee25-2d6f-46df-9aa8-c4b99179398b"
+        },
+        {
+          "kind": "temporaryTitleTreeChangeId",
+          "id": "41453300-3c4e-4589-a267-48c8d1979a4c"
+        },
+        {
+          "kind": "patchId",
+          "id": "44d63a77-5374-44ba-a994-fc3376283d3b"
+        },
+        {
+          "kind": "restoredTitleTreeChangeId",
+          "id": "7b7784ce-5a0a-41ae-ab0b-d8a46b0f02fb"
+        },
+        {
+          "kind": "temporaryTitleTreeChangeId",
+          "id": "3a70a9e5-f3d0-41de-b2d0-85287bf34374"
+        },
+        {
+          "kind": "patchId",
+          "id": "3541a23e-8231-4404-a8fb-013e8aa68216"
+        },
+        {
+          "kind": "restoredTitleTreeChangeId",
+          "id": "b7f16d8c-afcf-42d9-ae1a-c5c91e8ddf83"
+        },
+        {
+          "kind": "temporaryTitleTreeChangeId",
+          "id": "c799f28c-5838-4907-9f97-730a412ec69f"
+        },
+        {
+          "kind": "patchId",
+          "id": "1df27ad5-3f65-44f7-8e4c-b4a3bc6059e2"
+        },
+        {
+          "kind": "restoredTitleTreeChangeId",
+          "id": "68884b53-b656-44e1-ac91-b94f1d7f96b9"
+        },
+        {
+          "kind": "temporaryTitleTreeChangeId",
+          "id": "bd3457ad-0462-4b81-ac20-eeea8475f779"
+        },
+        {
+          "kind": "patchId",
+          "id": "3d9009b0-1f5c-44e7-bb2b-205ea39c311b"
+        },
+        {
+          "kind": "restoredTitleTreeChangeId",
+          "id": "680235f6-ef08-4a37-83f4-ca3ab86157f9"
+        },
+        {
+          "kind": "temporaryTitleTreeChangeId",
+          "id": "6195db83-9e0f-45ff-83a1-b66730fc621a"
+        },
+        {
+          "kind": "patchId",
+          "id": "dadd7f5d-96ea-4d9e-a196-e6717dd609ee"
+        },
+        {
+          "kind": "restoredTitleTreeChangeId",
+          "id": "116383a6-3811-4c88-ac5d-5eeacce8f545"
+        },
+        {
+          "kind": "temporaryTitleTreeChangeId",
+          "id": "81fd5bda-6585-4e5b-ba66-f2f6352ebcf0"
+        },
+        {
+          "kind": "patchId",
+          "id": "d1f7ef62-57fe-44da-a2f2-7cc9d368ac46"
+        },
+        {
+          "kind": "restoredTitleTreeChangeId",
+          "id": "e93b93e5-1002-46a7-b485-c0955acd1145"
+        },
+        {
+          "kind": "temporaryTitleTreeChangeId",
+          "id": "eae1051b-bef2-4223-aaa7-8905627cfa76"
+        },
+        {
+          "kind": "patchId",
+          "id": "66312ed7-e841-48fc-84d7-98e27428acf9"
+        },
+        {
+          "kind": "restoredTitleTreeChangeId",
+          "id": "b8616804-d00d-4acd-9176-d42d63614ca4"
+        }
+      ],
+      "validation": {
+        "status": "applied",
+        "links": {
+          "before": 40,
+          "after": 40,
+          "new": 0,
+          "legacyOverviewReferencesUpdated": 8,
+          "note": "Legacy /00-overview references now have new layer paths. Checker retains pre-existing parent-page normalization errors. Immutable doc IDs and historical findings-log quotation deliberately retain original identifiers."
+        },
+        "verification": {
+          "docs": 56,
+          "blocks": 1369,
+          "pathOnlyFieldChanges": 153,
+          "assetSrcChanges": 0,
+          "unexpected": []
+        },
+        "lint": {
+          "checked": 56,
+          "baselineFindings": 826,
+          "afterFindings": 826,
+          "introduced": 0
+        },
+        "sidecarsAndAssetsByteIdentical": 40,
+        "cleanup": {
+          "pages": 12,
+          "blocksUpdated": 24,
+          "overviewReferencesUpdated": 8,
+          "allOriginalTitlesRestored": true,
+          "patches": [
+            {
+              "path": "00-foundation/00-overview",
+              "temporaryTitleTreeChangeId": "a301747d-5c3f-405d-91a1-195cae9a46fa",
+              "patchId": "5b3f5635-ffee-4958-ab88-b5d0397bdd22",
+              "restoredTitleTreeChangeId": "f92b8a20-f343-4348-86b9-50db3cffd20a"
+            },
+            {
+              "path": "30-implementation/05-theme",
+              "temporaryTitleTreeChangeId": "bde4c6f1-e162-493d-96c4-34a1960be852",
+              "patchId": "5afb15fa-7d3e-4018-adb0-d40cf6204e38",
+              "restoredTitleTreeChangeId": "e7bb01d6-242e-4a93-ae95-780d343d7c8e"
+            },
+            {
+              "path": "30-implementation/20-interaction",
+              "temporaryTitleTreeChangeId": "0e033e61-5363-497f-b235-2b7e842a0f50",
+              "patchId": "066a6b18-9fc3-437b-9dd5-acf2072ecefa",
+              "restoredTitleTreeChangeId": "7e84651a-ca95-41e6-b9ab-10a8e035bb05"
+            },
+            {
+              "path": "30-implementation/30-connectors",
+              "temporaryTitleTreeChangeId": "94da9d45-7f17-4aa8-b314-1b1d68a5875a",
+              "patchId": "ed67a9ce-ac95-4343-ae7e-fbdd2dd47b08",
+              "restoredTitleTreeChangeId": "9ded9ad2-8c52-45c4-8db3-0ccaf77f13de"
+            },
+            {
+              "path": "30-implementation/40-stage",
+              "temporaryTitleTreeChangeId": "4574c547-7f5b-4ee4-96eb-0d30df5e417e",
+              "patchId": "237e2ccc-0d1c-4706-bd04-2841c222a01f",
+              "restoredTitleTreeChangeId": "81e6bcf0-c643-4885-b1e2-093eed0936ec"
+            },
+            {
+              "path": "30-implementation/50-editor",
+              "temporaryTitleTreeChangeId": "650b99ea-dc69-4988-907f-5e2819709275",
+              "patchId": "4c06525d-32dc-4a30-a1a8-aba8385225fe",
+              "restoredTitleTreeChangeId": "cc60098f-c77c-421b-bcb3-9b0b9e1f0b78"
+            },
+            {
+              "path": "20-agent-layout/00-overview",
+              "temporaryTitleTreeChangeId": "6ed74ea7-c58a-4c94-a437-8288fbbea1c2",
+              "patchId": "9b45b7e8-d122-4289-b8a8-89cdbe05d774",
+              "restoredTitleTreeChangeId": "a69dafe8-f3da-4971-ac15-6f5e5f50d268"
+            },
+            {
+              "path": "20-agent-layout/05-direction",
+              "temporaryTitleTreeChangeId": "397050b6-45be-47db-bff9-8394740e9ab4",
+              "patchId": "1bc61453-041a-4583-bfa0-5942ba5604c0",
+              "restoredTitleTreeChangeId": "d240de34-de5e-49f7-b63d-a42084dc57b0"
+            },
+            {
+              "path": "20-agent-layout/20-rulebook/00-overview",
+              "temporaryTitleTreeChangeId": "bd03f2a2-0b1d-42a4-bf80-0074bbbac833",
+              "patchId": "aea9b9c9-0f78-4441-9da0-ab1562838b37",
+              "restoredTitleTreeChangeId": "e4c81d4d-f638-4ad0-9174-aaffcda04107"
+            },
+            {
+              "path": "20-agent-layout/30-worked-example/00-overview",
+              "temporaryTitleTreeChangeId": "2c2baf41-a6b8-4446-8157-7267807b512a",
+              "patchId": "4f6822f5-de12-43dd-93b4-d801cade3c16",
+              "restoredTitleTreeChangeId": "705bfd44-cf00-4622-8822-162aaf017570"
+            },
+            {
+              "path": "20-agent-layout/40-kernel",
+              "temporaryTitleTreeChangeId": "4af4e816-42ba-4b77-b5ef-7dffc1c1f955",
+              "patchId": "0a9290ae-fbaa-49e6-aadc-5415e5ffa943",
+              "restoredTitleTreeChangeId": "5a6611be-ad13-4fd9-9220-482f25fb2818"
+            },
+            {
+              "path": "20-agent-layout/60-running",
+              "temporaryTitleTreeChangeId": "2c505196-73b0-4cd7-8d47-5f269611fc9f",
+              "patchId": "ecfc8eb7-b4fc-41f2-9672-995bce99330c",
+              "restoredTitleTreeChangeId": "e197a44d-c63b-45b7-b92c-62dfdb1b2dfd"
+            }
+          ]
+        },
+        "assetRestoration": {
+          "pages": 18,
+          "srcRestored": 20,
+          "evidence": "resolveBundleCanvasSrc at packages/docs-viewer/src/render/bundle-src.ts:17 only prefixes bundlePath for ./ src. API /api/canvas resolves output relative to docs root. All20 original ./ prefixes restored; original src bytes now exact.",
+          "resolutionReport": "/tmp/docs-layout-review/external-canvas-asset-resolution.json",
+          "all20ResolvedThroughViewerAndServer": true,
+          "patches": [
+            {
+              "path": "20-agent-layout/10-language/00-overview",
+              "temporaryTitleTreeChangeId": "2d469ce3-0a3f-4703-b092-c6f467378d42",
+              "patchId": "a34e6f77-2f04-48dc-b616-d46bf2da531a",
+              "restoredTitleTreeChangeId": "4eaf6d24-64a6-4b08-885b-b164f1deb54d"
+            },
+            {
+              "path": "20-agent-layout/10-language/10-row-and-col",
+              "temporaryTitleTreeChangeId": "2a29750b-d826-44ca-b846-7677f0837346",
+              "patchId": "a2443848-aef1-484d-b596-8280f6766bb5",
+              "restoredTitleTreeChangeId": "41ddd666-769a-42ae-a5d6-9571cebbf0cb"
+            },
+            {
+              "path": "20-agent-layout/10-language/20-section",
+              "temporaryTitleTreeChangeId": "4d3da34a-d6b7-4c84-bd3c-2e7b5cf59d83",
+              "patchId": "92e3c809-db8e-4395-bb37-8eea972adb85",
+              "restoredTitleTreeChangeId": "1b84f1c4-fd16-4dff-800b-ab1581eb37d1"
+            },
+            {
+              "path": "20-agent-layout/10-language/30-item",
+              "temporaryTitleTreeChangeId": "1af7a0e6-ab42-4a3e-8b0a-89fc962d96e3",
+              "patchId": "0f5fdaae-0965-451d-a003-31e3fe690a7c",
+              "restoredTitleTreeChangeId": "451c61d7-a7fe-483a-83c0-8c0d50c66486"
+            },
+            {
+              "path": "20-agent-layout/10-language/40-group",
+              "temporaryTitleTreeChangeId": "77678734-931b-4ae9-af79-9e08d3bdec5a",
+              "patchId": "a4899bf4-3e0a-4611-951b-5ea3663841d7",
+              "restoredTitleTreeChangeId": "1d981e34-a78c-4596-b549-63a8ac43f232"
+            },
+            {
+              "path": "20-agent-layout/10-language/50-grid",
+              "temporaryTitleTreeChangeId": "211dbf8a-afe5-487a-8560-088310d35105",
+              "patchId": "0ff300c0-7f4c-471f-b78d-d4966a4a7c8d",
+              "restoredTitleTreeChangeId": "72324622-ac0f-4a0e-9de6-c4b2b11329e1"
+            },
+            {
+              "path": "20-agent-layout/10-language/60-hug",
+              "temporaryTitleTreeChangeId": "80b5f8f1-e9fd-4a74-8b69-defe19ac5848",
+              "patchId": "2c28144c-a9e1-4d9d-9604-c50cc0ab0608",
+              "restoredTitleTreeChangeId": "65828d6f-e36a-4ea8-8d5f-e1d938b792a4"
+            },
+            {
+              "path": "20-agent-layout/10-language/70-align",
+              "temporaryTitleTreeChangeId": "431a0b3b-b6b7-4b4d-9600-571f60b7f5d3",
+              "patchId": "8046aa45-74c2-44fa-bcb7-5b331f82b0a2",
+              "restoredTitleTreeChangeId": "ecb2cc6e-0580-4f3d-b2a2-ee0f79de62cb"
+            },
+            {
+              "path": "20-agent-layout/10-language/80-fan",
+              "temporaryTitleTreeChangeId": "06674db4-705c-4233-860c-4661d128b47b",
+              "patchId": "2957964e-febb-45d2-a6f1-92a10ea0d2b3",
+              "restoredTitleTreeChangeId": "6aaec941-92c8-4bbe-8f11-06c04bda6f45"
+            },
+            {
+              "path": "20-agent-layout/10-language/90-arrows",
+              "temporaryTitleTreeChangeId": "56e80745-8ddd-470f-be3f-3cc3a400c250",
+              "patchId": "f20e442c-c375-4dd3-9626-f1b0e4579fce",
+              "restoredTitleTreeChangeId": "346c06b1-94c1-430b-9802-d3fd4df9167a"
+            },
+            {
+              "path": "20-agent-layout/10-language/95-full-example",
+              "temporaryTitleTreeChangeId": "b47fdc60-ca07-4150-89fb-9553cafdfee0",
+              "patchId": "fb5b2bd7-4390-426e-8a2c-2139fb93defd",
+              "restoredTitleTreeChangeId": "3985ee25-2d6f-46df-9aa8-c4b99179398b"
+            },
+            {
+              "path": "20-agent-layout/30-worked-example/01-step-lane-and-stage",
+              "temporaryTitleTreeChangeId": "41453300-3c4e-4589-a267-48c8d1979a4c",
+              "patchId": "44d63a77-5374-44ba-a994-fc3376283d3b",
+              "restoredTitleTreeChangeId": "7b7784ce-5a0a-41ae-ab0b-d8a46b0f02fb"
+            },
+            {
+              "path": "20-agent-layout/30-worked-example/02-step-runner-pipeline",
+              "temporaryTitleTreeChangeId": "3a70a9e5-f3d0-41de-b2d0-85287bf34374",
+              "patchId": "3541a23e-8231-4404-a8fb-013e8aa68216",
+              "restoredTitleTreeChangeId": "b7f16d8c-afcf-42d9-ae1a-c5c91e8ddf83"
+            },
+            {
+              "path": "20-agent-layout/30-worked-example/03-step-board-hub",
+              "temporaryTitleTreeChangeId": "c799f28c-5838-4907-9f97-730a412ec69f",
+              "patchId": "1df27ad5-3f65-44f7-8e4c-b4a3bc6059e2",
+              "restoredTitleTreeChangeId": "68884b53-b656-44e1-ac91-b94f1d7f96b9"
+            },
+            {
+              "path": "20-agent-layout/30-worked-example/04-step-score-column",
+              "temporaryTitleTreeChangeId": "bd3457ad-0462-4b81-ac20-eeea8475f779",
+              "patchId": "3d9009b0-1f5c-44e7-bb2b-205ea39c311b",
+              "restoredTitleTreeChangeId": "680235f6-ef08-4a37-83f4-ca3ab86157f9"
+            },
+            {
+              "path": "20-agent-layout/30-worked-example/05-step-hero-row",
+              "temporaryTitleTreeChangeId": "6195db83-9e0f-45ff-83a1-b66730fc621a",
+              "patchId": "dadd7f5d-96ea-4d9e-a196-e6717dd609ee",
+              "restoredTitleTreeChangeId": "116383a6-3811-4c88-ac5d-5eeacce8f545"
+            },
+            {
+              "path": "20-agent-layout/30-worked-example/06-step-fan-and-arrows",
+              "temporaryTitleTreeChangeId": "81fd5bda-6585-4e5b-ba66-f2f6352ebcf0",
+              "patchId": "d1f7ef62-57fe-44da-a2f2-7cc9d368ac46",
+              "restoredTitleTreeChangeId": "e93b93e5-1002-46a7-b485-c0955acd1145"
+            },
+            {
+              "path": "20-agent-layout/30-worked-example/07-step-one-more-store",
+              "temporaryTitleTreeChangeId": "eae1051b-bef2-4223-aaa7-8905627cfa76",
+              "patchId": "66312ed7-e841-48fc-84d7-98e27428acf9",
+              "restoredTitleTreeChangeId": "b8616804-d00d-4acd-9176-d42d63614ca4"
+            }
+          ]
+        }
+      },
+      "fullReport": "/tmp/docs-layout-review/migrate_docs_external_canvas.json"
+    },
+    {
+      "name": "Budget / Docs Framework",
+      "root": "/Users/Ford/Github Repos/Lascari AI/personal-budget/packages/docs-framework",
+      "status": "Applied",
+      "agent": "migrate_budget_framework",
+      "oldImplementationDirectoryExists": false,
+      "newImplementationDirectoryExists": true,
+      "recovery": [
+        {
+          "kind": "tree_change_id",
+          "id": "0d39d751-e91e-4e8b-81fd-f60cada446c5"
+        },
+        {
+          "kind": "patchId",
+          "id": "28528b33-b5b0-4b53-aaca-f0c9ab8108ce"
+        },
+        {
+          "kind": "patchId",
+          "id": "9c66e6c0-fc45-4bad-b196-554fc9103b1c"
+        },
+        {
+          "kind": "patchId",
+          "id": "f548b32d-45fc-4c0a-87cc-62ff5bb2f7f7"
+        },
+        {
+          "kind": "patchId",
+          "id": "6a57c5af-cf54-4557-954e-1438b7d420ad"
+        }
+      ],
+      "validation": {
+        "status": "complete",
+        "validation": {
+          "docsCheck": 38,
+          "staleReferences": 0,
+          "focusedTests": {
+            "pass": 10,
+            "fail": 0,
+            "expectCalls": 175
+          },
+          "gitDiffCheck": "pass",
+          "note": "Initial unqualified bun test paths also matched excluded nested corpus and failed missing dependencies there. Rerun with ./ paths passed both owned test files."
+        },
+        "preserved": {
+          "docs": 77,
+          "blocks": 2294,
+          "failures": []
+        },
+        "lint": {
+          "legacyFindings": 378,
+          "introduced": []
+        }
+      },
+      "fullReport": "/tmp/docs-layout-review/migrate_budget_framework.json"
+    },
+    {
+      "name": "Budget / Framework / Canvas",
+      "root": "/Users/Ford/Github Repos/Lascari AI/personal-budget/packages/docs-framework/external/canvas",
+      "status": "Applied",
+      "agent": "migrate_budget_canvas",
+      "oldImplementationDirectoryExists": false,
+      "newImplementationDirectoryExists": true,
+      "recovery": [
+        {
+          "kind": "tree_change_id",
+          "id": "2ce64c87-46fc-4298-9f8f-91aee9e508aa"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "2b53b5bc-a81e-45e8-b359-6b2c9aeb3738"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "1a2039cd-3dea-4132-b9b3-7d36094a34be"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "b8c509c3-9d9e-4bb5-b556-fc726f60728c"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "2ccd9631-d09a-4c28-86f1-6291f4e03da9"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "6fe8406d-d2f7-4079-86e0-9bdbd5b6b72d"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "c1e5721e-5f53-4330-ba33-967b82acf17b"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "eb8d12fe-60ee-44d4-8204-8dc74e2959a9"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "6dfa8382-f615-4a42-8151-c6431032cf6f"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "3eb92732-b4e2-4c77-996c-2addec0fe318"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "b8ceb9b2-a1b6-4fe5-9f44-72a75c53a2f6"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "c2e04dc7-97ce-4e4d-9cda-72a902094c61"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "a2abd296-6e7a-48bb-abce-9678dbc915df"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "ad5acb97-e1a5-4f72-b528-e7ade5350f49"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "1762b772-741c-4700-81fe-72a0a193e785"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "c069f917-0f44-4042-81c5-e9055bf47396"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "ca18a276-6b15-49f2-a0e3-a8b59100caa5"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "3d1f6f16-3219-4081-b1eb-5a0e31bd1997"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "7706c397-605b-4c0c-8614-9cb96e997aba"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "040ce5cd-7d5b-4b93-a7c8-17be020dab0a"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "296cad60-f86d-45d2-b3d2-bd1789b95931"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "a94063ac-3595-48b9-8b9e-795c74043a80"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "9d97739c-b3a8-4ca2-ba59-84d2edccc2ab"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "ead1fe60-2870-45f3-8bf5-d303d3e7b862"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "91583782-81f1-499d-8bab-c578a89deaa9"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "1cbb021e-6e97-4ecb-beed-2420a4c6d75f"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "2eb73526-0138-4191-8239-40648a5bca19"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "fa70cda7-c6ea-49fc-bf49-2fb02e0656be"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "22244530-7257-4016-9130-30acdb4a1d85"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "1bc25e22-58f5-49f9-aa67-91020e5c7f61"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "9b16b755-2af2-43cd-bb69-064c836baf0f"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "54c7d775-9900-44a7-b850-d8f3027208d1"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "c3b8b41d-aefb-4893-a608-61cc46f0e71b"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "2a7fbc4e-7ec8-4ebd-966d-db34df39770b"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "d3b945ba-379d-46d1-b3d9-12a352d5d70a"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "95e969be-0ebd-42a7-a0c4-a66f573ecbf0"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "2c2bae6c-cbd4-4bb0-ae7a-9d6c6e9c225c"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "02074ad7-2a4a-4ff7-9d60-d88c94613091"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "291af350-9e7c-45ea-9ae5-ffcdade04255"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "de32e3bb-ec2b-4551-8cd2-e7c90b0d2356"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "8bf75571-ef9d-4490-9158-96f693e0fb52"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "f21c3878-8cf0-4cc8-8343-6808a28901f3"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "9a2cd2b9-f297-434c-a78b-d502c84aad81"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "47b0cad0-376b-497b-80b0-9a04fab1f0a4"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "4a680c3f-3e44-4384-a85b-e7eb3591fa4c"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "4e0da907-bcff-447c-a51b-051ff353750e"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "66bcf1d2-34ae-4a18-a438-400fbec310d1"
+        },
+        {
+          "kind": "tree_change_id",
+          "id": "0dae5c6c-a10c-48ba-9aa0-0c64c449232c"
+        },
+        {
+          "kind": "temporary",
+          "id": "5ae9bcd4-fb5e-4bbf-b8c7-84ddc20e0b9e"
+        },
+        {
+          "kind": "patch",
+          "id": "a122fad8-418a-4689-bc57-537df20d29e6"
+        },
+        {
+          "kind": "restore",
+          "id": "e60f215b-bc95-4b4a-b53d-adf55cad55d7"
+        },
+        {
+          "kind": "temporary",
+          "id": "e688cce2-fab9-453a-b499-c154a9e1bd9c"
+        },
+        {
+          "kind": "patch",
+          "id": "70c0e910-0ca9-4d11-9345-8bae624d9575"
+        },
+        {
+          "kind": "restore",
+          "id": "c25e200c-e5ef-4a1f-b308-8dbbfcf60015"
+        },
+        {
+          "kind": "temporary",
+          "id": "defc2961-884a-4add-862a-78045f5b37e2"
+        },
+        {
+          "kind": "patch",
+          "id": "dad88faf-4537-46dd-8857-80c4b3135966"
+        },
+        {
+          "kind": "restore",
+          "id": "f6c96bad-ec18-4efd-98fd-e8c508833da7"
+        },
+        {
+          "kind": "temporary",
+          "id": "8b782134-9962-46e3-95eb-d55125f5ae85"
+        },
+        {
+          "kind": "patch",
+          "id": "16633851-d303-4ebd-95a0-b8c654821112"
+        },
+        {
+          "kind": "restore",
+          "id": "8ca4949e-79de-4f4e-9832-f935a076e42e"
+        },
+        {
+          "kind": "temporary",
+          "id": "dfb57c87-236a-4024-b166-7e4e26a8d55a"
+        },
+        {
+          "kind": "patch",
+          "id": "441b411e-670c-47d1-87ea-1b4209b46dad"
+        },
+        {
+          "kind": "restore",
+          "id": "9e5b2625-097e-473f-bad6-0d7c02b89722"
+        },
+        {
+          "kind": "temporary",
+          "id": "c4650e68-dc2e-4eaa-af43-f24d7ae96a2e"
+        },
+        {
+          "kind": "patch",
+          "id": "635e123a-3e21-45b4-a17c-e6ddbf43b48a"
+        },
+        {
+          "kind": "restore",
+          "id": "26efac6e-b88e-46c2-9cf6-e7aa0888d95f"
+        },
+        {
+          "kind": "temporary",
+          "id": "59bd0625-8418-4154-b6d3-ad237bef42f1"
+        },
+        {
+          "kind": "patch",
+          "id": "94bc373a-6863-45b9-9a57-094f2668eea1"
+        },
+        {
+          "kind": "restore",
+          "id": "3cfe39b5-2288-4637-a1c9-b5aa46d62efd"
+        },
+        {
+          "kind": "temporary",
+          "id": "7846d543-8d79-4ac5-beac-4710b2649159"
+        },
+        {
+          "kind": "patch",
+          "id": "33cbe6fa-78dc-4ee9-9c10-c206364c5c0b"
+        },
+        {
+          "kind": "restore",
+          "id": "0e306f1a-ba6d-47ac-8948-7e01e4a7e983"
+        },
+        {
+          "kind": "temporary",
+          "id": "9fb32edd-c2f9-4f63-8b15-73f0b454c3e1"
+        },
+        {
+          "kind": "patch",
+          "id": "0c3384f8-8f0b-4cee-b93a-8445f342f405"
+        },
+        {
+          "kind": "restore",
+          "id": "c88ccf1f-bbc7-4c9e-8315-1dcbf022e98f"
+        },
+        {
+          "kind": "temporary",
+          "id": "f5d79d8d-43b8-499b-b397-8aac30799063"
+        },
+        {
+          "kind": "patch",
+          "id": "eda1b54b-f4ee-461a-8ea5-6049759e741e"
+        },
+        {
+          "kind": "restore",
+          "id": "c8ebc835-b2f8-4e24-b66b-b0b603d0131e"
+        },
+        {
+          "kind": "temporary",
+          "id": "476deb8d-92a1-4459-a0bf-5fb4ec8cff75"
+        },
+        {
+          "kind": "patch",
+          "id": "9bf7df73-dec3-4601-a238-82b623a9e43e"
+        },
+        {
+          "kind": "restore",
+          "id": "2fba1b0d-c6ce-4049-83da-f78886bf123b"
+        },
+        {
+          "kind": "temporary",
+          "id": "4c303b52-c8d6-4914-834f-0037c42edd80"
+        },
+        {
+          "kind": "patch",
+          "id": "a693851a-6fd7-4e11-bac0-126eb83c933a"
+        },
+        {
+          "kind": "restore",
+          "id": "c1db0f12-5b76-40a6-8345-90217f80a6cb"
+        },
+        {
+          "kind": "temporary",
+          "id": "328a5fb2-ebe0-47d4-a366-ddd8af8f9e19"
+        },
+        {
+          "kind": "patch",
+          "id": "bac6b762-6aa4-46db-a75b-860e357628d4"
+        },
+        {
+          "kind": "restore",
+          "id": "7b2b3082-c254-4877-b8a7-7bfedb59ed8d"
+        },
+        {
+          "kind": "temporary",
+          "id": "2a0f31ad-dd10-4fd6-a0ef-9732f54aa104"
+        },
+        {
+          "kind": "patch",
+          "id": "b4fdc73d-2221-4724-b188-c271fed1be1f"
+        },
+        {
+          "kind": "restore",
+          "id": "4f48c655-ba8e-4e1c-9c93-a6d6b68fb33e"
+        },
+        {
+          "kind": "temporary",
+          "id": "f94a8486-8f1e-4f00-bbb9-80396063ceab"
+        },
+        {
+          "kind": "patch",
+          "id": "e72a4818-6729-4af7-a338-ffd2e34506d7"
+        },
+        {
+          "kind": "restore",
+          "id": "d7391715-01b6-4174-bbe9-eeeea2cd3018"
+        },
+        {
+          "kind": "temporary",
+          "id": "18506cb2-a1a7-4526-a8b3-f6be3472c6a7"
+        },
+        {
+          "kind": "patch",
+          "id": "8cd7add3-798b-4f96-94ef-1a1a785b0b0d"
+        },
+        {
+          "kind": "restore",
+          "id": "9f2f9c70-e9f5-4f82-92d1-44fc9f3a2580"
+        },
+        {
+          "kind": "temporary",
+          "id": "e17f8600-b6db-44fe-b07e-6ca20c77c873"
+        },
+        {
+          "kind": "patch",
+          "id": "600b3a33-d580-4a3d-b51b-574429656c1c"
+        },
+        {
+          "kind": "restore",
+          "id": "f7711025-51d1-48a6-8724-b5a1a3a5c532"
+        },
+        {
+          "kind": "temporary",
+          "id": "96614d9e-e5c9-4e24-855e-78ac0dc1b174"
+        },
+        {
+          "kind": "patch",
+          "id": "f69e77e9-36a0-443b-bc79-c69cfdb38944"
+        },
+        {
+          "kind": "restore",
+          "id": "0bad07e0-feff-4578-8cc8-3fba207c90ce"
+        },
+        {
+          "kind": "temporary",
+          "id": "d84a4424-26d3-4a0f-8fa7-91b9eb3aa915"
+        },
+        {
+          "kind": "patch",
+          "id": "c3a11c34-2aab-421b-9618-fdefd4efc5ef"
+        },
+        {
+          "kind": "restore",
+          "id": "a45b646a-10b0-4913-a875-11e850f1f045"
+        },
+        {
+          "kind": "temporary",
+          "id": "77db9b8e-a982-4341-9551-0f86a16d6d5d"
+        },
+        {
+          "kind": "patch",
+          "id": "fb2b37a7-e3e2-4faa-93cd-972f387326b6"
+        },
+        {
+          "kind": "restore",
+          "id": "746daa33-e5bc-4f41-87e9-d7397e47d7ba"
+        },
+        {
+          "kind": "temporary",
+          "id": "7161158b-7c3a-41fe-aecb-73c99d6054c3"
+        },
+        {
+          "kind": "patch",
+          "id": "24e99897-3de9-4275-b30f-2afc75159b16"
+        },
+        {
+          "kind": "restore",
+          "id": "5224a191-2443-42a2-b593-9e108be2fcb1"
+        },
+        {
+          "kind": "temporary",
+          "id": "c09ebd59-b34d-4023-b7e6-bb99a2a8d078"
+        },
+        {
+          "kind": "patch",
+          "id": "6aa55592-e42f-436e-9cb6-08d40bac69e2"
+        },
+        {
+          "kind": "restore",
+          "id": "ff08b754-467d-45ad-835d-154d3e3e9a84"
+        },
+        {
+          "kind": "temporary",
+          "id": "30aa5d95-e550-4c34-90df-93849a4f2de5"
+        },
+        {
+          "kind": "patch",
+          "id": "fffb964c-2785-4b4f-ba09-62cb74c178ed"
+        },
+        {
+          "kind": "restore",
+          "id": "152d631e-5be4-47eb-8d0a-419de72fa489"
+        },
+        {
+          "kind": "temporary",
+          "id": "c600937c-8963-4541-82ae-1c74e07301cd"
+        },
+        {
+          "kind": "patch",
+          "id": "47b5de67-b4e9-4a5a-9429-4887188c3498"
+        },
+        {
+          "kind": "restore",
+          "id": "f8538f1f-4d62-49b7-8c2f-be71fbfa5e6e"
+        },
+        {
+          "kind": "temporary",
+          "id": "e2fb2d38-c749-4f8d-8d6f-1d80b5790f9e"
+        },
+        {
+          "kind": "patch",
+          "id": "f117515b-8bc7-4238-944e-f4701e6a245f"
+        },
+        {
+          "kind": "restore",
+          "id": "5319f2d3-16ef-4540-a366-0e982a21e5d6"
+        },
+        {
+          "kind": "temporary",
+          "id": "f6d7ccb0-0283-4a53-8706-7a3016d45c8a"
+        },
+        {
+          "kind": "patch",
+          "id": "aa3dcd51-5aad-4286-8ff4-935f9a7330b5"
+        },
+        {
+          "kind": "restore",
+          "id": "c909a817-e145-48be-a76c-5dc99095a86c"
+        },
+        {
+          "kind": "temporary",
+          "id": "a69d01f2-c729-40b5-9a6a-9055bd50270c"
+        },
+        {
+          "kind": "patch",
+          "id": "4ecdf80a-0619-4bc2-a6c3-31bec80815f4"
+        },
+        {
+          "kind": "restore",
+          "id": "d9a31482-4bb3-44b3-8c02-7b3aaea212d4"
+        },
+        {
+          "kind": "temporary",
+          "id": "06ff6b8e-3205-41ee-861c-bbc94fc68e87"
+        },
+        {
+          "kind": "patch",
+          "id": "a03030d5-310d-424f-b414-a6b5846ce7e2"
+        },
+        {
+          "kind": "restore",
+          "id": "74ff2cc2-9aed-4f27-9cb4-759368431b55"
+        },
+        {
+          "kind": "temporary",
+          "id": "57e514b6-32ea-4163-9989-c088dc510cb7"
+        },
+        {
+          "kind": "patch",
+          "id": "9c18eb74-390a-4e9f-a42e-d793f569a48b"
+        },
+        {
+          "kind": "restore",
+          "id": "85b9ae6f-e6bf-417d-90d6-ae96818acafd"
+        },
+        {
+          "kind": "temporary",
+          "id": "aae3441f-0b3b-49cb-baa3-d2d67e19a459"
+        },
+        {
+          "kind": "patch",
+          "id": "7f1faaab-c2c4-4240-ad4c-95651d5f2f45"
+        },
+        {
+          "kind": "restore",
+          "id": "a53db35c-c171-49ef-9a2e-c8f9add390e6"
+        },
+        {
+          "kind": "temporary",
+          "id": "3d0cb5de-80e0-447a-aafd-267a7bfde681"
+        },
+        {
+          "kind": "patch",
+          "id": "01a6e5ce-6c73-4c7d-bb74-8eb7b9350311"
+        },
+        {
+          "kind": "restore",
+          "id": "48c7fde0-7bdd-4f81-a9a9-827ad866c6cd"
+        }
+      ],
+      "validation": {
+        "status": "completed",
+        "links": {
+          "before": 40,
+          "after": 40,
+          "introduced": 0,
+          "findingsEqualAfterPathMapping": true,
+          "report": "/tmp/docs-layout-review/budget-canvas-links-final.txt"
+        },
+        "verification": {
+          "blocks": 1369,
+          "changedBlocks": 78,
+          "bad": [],
+          "unexpected": [],
+          "oldRefs": 0,
+          "findings": 826,
+          "introduced": [],
+          "allStructurallyValid": true,
+          "oldPrefixTargetsAndLabels": 0,
+          "bundleRelativeCanvasFiles": 20,
+          "missingCanvasFiles": 0
+        },
+        "notes": [
+          "48 native bundle moves because root sections have no parent bundle.",
+          "Native00-overview reference normalization missed legacy targets;25blocks on13pages repaired through typed ops.",
+          "Native moves removed leading ./ from20Canvas src values; restored through typed ops.",
+          "Native title/ops/title sequence retained every legacy opening H1 and restored all original titles.",
+          "Only paths and path labels changed;90-findings-log prose and objective history retained.",
+          "All56docs structurally valid;826legacy writing findings unchanged.",
+          "Nested tools/docs-framework belongs to another agent and was untouched."
+        ]
+      },
+      "fullReport": "/tmp/docs-layout-review/migrate_budget_canvas.json"
+    },
+    {
+      "name": "Budget / Framework / Canvas / Framework",
+      "root": "/Users/Ford/Github Repos/Lascari AI/personal-budget/packages/docs-framework/external/canvas/tools/docs-framework",
+      "status": "Applied",
+      "agent": "migrate_budget_nested_framework",
+      "oldImplementationDirectoryExists": false,
+      "newImplementationDirectoryExists": true,
+      "recovery": [
+        {
+          "kind": "tree_change_id",
+          "id": "158c5948-2ed4-4a44-bb55-30458eb8d7ce"
+        }
+      ],
+      "validation": {
+        "status": "applied",
+        "validation": {
+          "linksBefore": [
+            "20-implementation/99-appendix/00-local-dev-loop -> ../canvas/docs: source not found"
+          ],
+          "linksAfter": [
+            "30-implementation/99-appendix/00-local-dev-loop -> ../canvas/docs: source not found"
+          ],
+          "newBrokenLinks": 0,
+          "gitDiffCheck": "pass",
+          "targetedTests": "blocked before execution: missing @sinclair/typebox and workspace dependencies; no install performed",
+          "projectionsRegenerated": 44,
+          "minimalExampleBlocksUpdated": 7,
+          "tasksEnded": true
+        },
+        "verification": {
+          "pages": 44,
+          "blocks": 1528,
+          "structureErrors": [],
+          "lintAdded": []
+        }
+      },
+      "fullReport": "/tmp/docs-layout-review/migrate_budget_nested_framework.json"
+    },
+    {
+      "name": "Kurate Catalog",
+      "root": "/Users/Ford/Github Repos/Clients/linkt/master/mplrisk-ai/clients/kurate/catalog",
+      "status": "Applied",
+      "agent": "migrate_kurate",
+      "oldImplementationDirectoryExists": false,
+      "newImplementationDirectoryExists": true,
+      "recovery": [
+        {
+          "kind": "tree_change_id",
+          "id": "ed19bf45-835f-4cd9-b5f3-6d7664f87f46"
+        }
+      ],
+      "validation": {
+        "status": "complete",
+        "links": {
+          "beforeStale": 0,
+          "afterStale": 0
+        },
+        "preservation": {
+          "docs": 60,
+          "blocks": 1437,
+          "mismatches": []
+        },
+        "notes": [
+          "No top-level Agents section exists; existing nested 10-system-design/40-agent-model preserved.",
+          "Native move also relocated 4 legacy Markdown files.",
+          "No other content changes. All 60 corpus document objects match baseline except typed document path rewrites.",
+          "Scoped git diff --check passed; dirty work preserved."
+        ]
+      },
+      "fullReport": "/tmp/docs-layout-review/migrate_kurate.json"
+    },
+    {
+      "name": "Spectre",
+      "root": "/Users/Ford/Github Repos/Codecaine/Apps/spectre",
+      "status": "Blocked: legacy format",
+      "agent": "migrate_spectre",
+      "oldImplementationDirectoryExists": true,
+      "newImplementationDirectoryExists": false,
+      "recovery": [],
+      "validation": {
+        "status": "blocked",
+        "reason": "Current Docs discovery rejects every document because the corpus uses retired block flavour keys. No project ID was returned, so typed move cannot run. Schema migration is outside minor layer reorder."
+      },
+      "fullReport": "/tmp/docs-layout-review/migrate_spectre.json"
+    },
+    {
+      "name": "Spectre / Canvas",
+      "root": "/Users/Ford/Github Repos/Codecaine/Apps/spectre/packages/canvas",
+      "status": "Blocked: legacy format",
+      "agent": "migrate_spectre_canvas",
+      "oldImplementationDirectoryExists": true,
+      "newImplementationDirectoryExists": false,
+      "recovery": [],
+      "validation": {
+        "status": "blocked",
+        "reason": "All corpus pages use retired block.flavour format. Current docs_discover rejects corpus because validation requires block.type, returning no project IDs. Native docs_move and docs_check cannot target this corpus. No supported schema migration tool is exposed; CLI migrate converts MDX, not existing legacy bundles.",
+        "nextRequirement": "Provide supported legacy bundle compatibility or schema migration before applying native section moves."
+      },
+      "fullReport": "/tmp/docs-layout-review/migrate_spectre_canvas.json"
+    },
+    {
+      "name": "Spectre / Pi Agent Kernel",
+      "root": "/Users/Ford/Github Repos/Codecaine/Apps/spectre/packages/pi-agent-kernel",
+      "status": "Blocked: legacy format",
+      "agent": "migrate_spectre_kernel",
+      "oldImplementationDirectoryExists": true,
+      "newImplementationDirectoryExists": false,
+      "recovery": [],
+      "validation": {
+        "status": "blocked_legacy_schema",
+        "notes": [
+          "Reserve 20 for Agents; no Agents section exists.",
+          "28 Markdown files also exist as legacy parallel sources.",
+          "No documents or surrounding files changed.",
+          "Existing dirty .gitignore, README.md, and untracked SPECTRE_SOURCE.md preserved."
+        ],
+        "blocker": "Bundles use retired block.flavour instead of block.type. Current Docs discovery rejects all bundles, so docs_move cannot address this corpus.",
+        "nextRequirement": "A supported legacy-schema normalization or compatible section-move operation is required before this minor reorder can run through Docs tools."
+      },
+      "fullReport": "/tmp/docs-layout-review/migrate_spectre_kernel.json"
+    }
+  ]
+}

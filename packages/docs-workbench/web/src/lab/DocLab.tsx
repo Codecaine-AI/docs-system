@@ -1,19 +1,15 @@
 "use client";
 
 import { useCallback, useMemo } from "react";
+import { Sparkles } from "lucide-react";
 import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import {
 	GlassPanel,
 	ChangeSetCard,
-	OutlineList,
 	PanelQueue,
-	PanelZone,
 	buildRequestQueue,
-	deriveDocOutline,
 	requestRunId,
-	useOutlineSpy,
 	type DocEditTarget,
-	type LabPanelTab,
 } from "@codecaine-ai/docs-viewer/lab";
 
 import type { DocLabSessionResult } from "./doc-lab-controller";
@@ -21,12 +17,10 @@ import { navigateToDoc } from "./doc-lab-changesets";
 import { labelForTarget } from "./target-label";
 
 export interface DocLabProps {
-	tab: LabPanelTab;
-	onTabSelect: (tab: LabPanelTab) => void;
+	hidden?: boolean;
 	doc: DocDocument;
 	/** Normalized bundle path for the document currently open in the workbench. */
 	openDocPath?: string;
-	outlineScrollerSelector: string;
 	lab: DocLabSessionResult;
 	annotationsError?: string | null;
 	/** Focuses a queue target in the document surface. */
@@ -40,21 +34,14 @@ export interface DocLabProps {
  * refresh behavior remains owned by DocPage/useDocLabSession.
  */
 export function DocLab({
-	tab,
-	onTabSelect,
+	hidden = false,
 	doc,
 	openDocPath,
-	outlineScrollerSelector,
 	lab,
 	annotationsError,
 	onFocusTarget,
 	onPanelWidthChange,
 }: DocLabProps) {
-	const sections = useMemo(() => deriveDocOutline(doc), [doc]);
-	const outline = useOutlineSpy({
-		sections,
-		scrollerSelector: outlineScrollerSelector,
-	});
 	const conflictedAliases = useMemo(
 		() =>
 			new Set(
@@ -88,74 +75,66 @@ export function DocLab({
 	const requestErrors = Object.entries(lab.requestErrors);
 
 	return (
-		<GlassPanel tab={tab} onTabSelect={onTabSelect} onWidthChange={onPanelWidthChange}>
-			{tab === "edit" ? (
-				<PanelZone id="outline" label="Outline">
-					<OutlineList
-						sections={sections}
-						activeBlockId={outline.activeBlockId}
-						scrollToSection={outline.scrollToSection}
-					/>
-				</PanelZone>
-			) : (
-				<div className="flex h-full min-h-0 flex-col">
-					{/* Chat shape (mirrors prompt-kit's AI tab): PanelQueue owns the
-					    whole tab — threads and errors ride INSIDE its scrolling
-					    transcript so the composer dock stays bottommost. */}
-					<PanelQueue
-						session={lab.session}
-						queue={queue}
-						applying={lab.applying}
-						sessionError={lab.sessionError}
-						agentStatus={lab.agentStatus}
-						onApply={applyQueue}
-						applyDisabledReason={
-							lab.agentConnected ? null : "docs agent not connected"
-						}
-						onFocusTarget={onFocusTarget}
-						labelForTarget={targetLabel}
-					>
-						{lab.changesets.map((changeset) => (
-							<ChangeSetCard
-								key={changeset.id}
-								changeset={changeset}
-								openDocPath={openDocPath}
-								busy={lab.changesetBusy[changeset.id] ?? null}
-								error={lab.changesetErrors[changeset.id] ?? null}
-								onAccept={() => lab.acceptChangeset(changeset.id)}
-								onReject={() => lab.rejectChangeset(changeset.id)}
-								onUndo={() => lab.undoChangeset(changeset.id)}
-								onOpenDoc={navigateToDoc}
-							/>
-						))}
-						{lab.proposalsError ? (
-							<p
-								data-docs-lab-proposals-error=""
-								className="px-1.5 py-1 text-xs text-destructive"
-							>
-								{lab.proposalsError}
-							</p>
-						) : null}
-						{annotationsError ? (
-							<p
-								data-docs-lab-annotations-error=""
-								className="px-1.5 py-1 text-xs text-destructive"
-							>
-								{annotationsError}
-							</p>
-						) : null}
-						{requestErrors.map(([alias, message]) => (
-							<p
-								key={alias}
-								data-docs-lab-request-error={alias}
-								className="px-1.5 py-1 text-xs text-destructive"
-							>
-								{alias}: {message}
-							</p>
-						))}
-					</PanelQueue>
-				</div>
-			)}
+		<GlassPanel hidden={hidden} tab="ai" onTabSelect={() => {}} onWidthChange={onPanelWidthChange}
+			header={<div className="flex items-center gap-2 px-3 py-2 text-xs font-medium"><Sparkles size={14} aria-hidden />AI</div>}
+		>
+			<div className="flex h-full min-h-0 flex-col">
+				{/* Chat shape (mirrors prompt-kit's AI tab): PanelQueue owns the
+				    whole tab — threads and errors ride INSIDE its scrolling
+				    transcript so the composer dock stays bottommost. */}
+				<PanelQueue
+					session={lab.session}
+					queue={queue}
+					applying={lab.applying}
+					sessionError={lab.sessionError}
+					agentStatus={lab.agentStatus}
+					onApply={applyQueue}
+					applyDisabledReason={
+						lab.agentConnected ? null : "docs agent not connected"
+					}
+					onFocusTarget={onFocusTarget}
+					labelForTarget={targetLabel}
+				>
+					{lab.changesets.map((changeset) => (
+						<ChangeSetCard
+							key={changeset.id}
+							changeset={changeset}
+							openDocPath={openDocPath}
+							busy={lab.changesetBusy[changeset.id] ?? null}
+							error={lab.changesetErrors[changeset.id] ?? null}
+							onAccept={() => lab.acceptChangeset(changeset.id)}
+							onReject={() => lab.rejectChangeset(changeset.id)}
+							onUndo={() => lab.undoChangeset(changeset.id)}
+							onOpenDoc={navigateToDoc}
+						/>
+					))}
+					{lab.proposalsError ? (
+						<p
+							data-docs-lab-proposals-error=""
+							className="px-1.5 py-1 text-xs text-destructive"
+						>
+							{lab.proposalsError}
+						</p>
+					) : null}
+					{annotationsError ? (
+						<p
+							data-docs-lab-annotations-error=""
+							className="px-1.5 py-1 text-xs text-destructive"
+						>
+							{annotationsError}
+						</p>
+					) : null}
+					{requestErrors.map(([alias, message]) => (
+						<p
+							key={alias}
+							data-docs-lab-request-error={alias}
+							className="px-1.5 py-1 text-xs text-destructive"
+						>
+							{alias}: {message}
+						</p>
+					))}
+				</PanelQueue>
+			</div>
 		</GlassPanel>
 	);
 }

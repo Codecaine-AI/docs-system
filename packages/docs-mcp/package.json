@@ -1,0 +1,29 @@
+{
+  "name": "@codecaine-ai/docs-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "codecaine-docs": "./src/cli.ts"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "bun test src",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "dev": "bun src/cli.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.30.0",
+    "@codecaine-ai/docs-server": "workspace:*",
+    "@codecaine-ai/docs-model": "workspace:*",
+    "@sinclair/typebox": "^0.34",
+    "@codecaine-ai/docs-index": "workspace:*",
+    "@codecaine-ai/docs-workbench": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5"
+  }
+}

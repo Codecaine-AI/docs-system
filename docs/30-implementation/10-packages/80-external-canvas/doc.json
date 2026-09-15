@@ -1,0 +1,589 @@
+{
+  "schemaVersion": 1,
+  "id": "20-implementation-10-packages-80-external-canvas",
+  "title": "External Canvas and Sequence",
+  "root": "b-80-external-canvas-root",
+  "blocks": {
+    "b-80-external-canvas-root": {
+      "id": "b-80-external-canvas-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-ec-role",
+        "b-ec-gov-h",
+        "b-ec-gov-canvas",
+        "b-ec-gov-media",
+        "b-ec-decisions-h",
+        "b-ec-mount-h",
+        "b-ec-mount-d",
+        "b-ec-mount-w",
+        "b-ec-mount-a",
+        "b-ec-schema-h",
+        "b-ec-schema-d",
+        "b-ec-schema-w",
+        "b-ec-schema-a",
+        "b-ec-slots-h",
+        "b-ec-slots-d",
+        "b-ec-slots-w",
+        "b-ec-slots-a",
+        "b-ec-studio-origin",
+        "b-ec-sidecar-h",
+        "b-ec-sidecar-d",
+        "b-ec-sidecar-w",
+        "b-ec-sidecar-a"
+      ]
+    },
+    "b-ec-role": {
+      "id": "b-ec-role",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Boundary decisions for the independently owned Canvas and Sequence projects the docs system consumes without owning. Source: "
+        },
+        {
+          "insert": "external/canvas",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "external/canvas"
+            }
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "external/sequence",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "external/sequence"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-ec-gov-h": {
+      "id": "b-ec-gov-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Governed By"
+        }
+      ],
+      "children": []
+    },
+    "b-ec-gov-canvas": {
+      "id": "b-ec-gov-canvas",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Canvas family",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/80-canvas",
+              "label": "Canvas family"
+            }
+          }
+        },
+        {
+          "insert": " — the reference-block contract and forwarded-authority pattern the boundary implements."
+        }
+      ],
+      "children": []
+    },
+    "b-ec-gov-media": {
+      "id": "b-ec-gov-media",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Canvas and Media",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/50-canvas-and-media",
+              "label": "Canvas and Media"
+            }
+          }
+        },
+        {
+          "insert": " — the presentation and interaction contract for embedded surfaces."
+        }
+      ],
+      "children": []
+    },
+    "b-ec-decisions-h": {
+      "id": "b-ec-decisions-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Decisions"
+        }
+      ],
+      "children": []
+    },
+    "b-ec-mount-h": {
+      "id": "b-ec-mount-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "external/ records ownership"
+        }
+      ],
+      "children": []
+    },
+    "b-ec-mount-d": {
+      "id": "b-ec-mount-d",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Decision: Canvas and Sequence mount as git submodules under "
+        },
+        {
+          "insert": "external/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", keeping their own repositories, workspace roots, and tooling; the root "
+        },
+        {
+          "insert": "package.json",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "package.json"
+            }
+          }
+        },
+        {
+          "insert": " admits only "
+        },
+        {
+          "insert": "external/canvas/packages/*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "external/sequence/packages/*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " into the Bun workspace so their inner packages resolve for consumers."
+        }
+      ],
+      "children": []
+    },
+    "b-ec-mount-w": {
+      "id": "b-ec-mount-w",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Why: The layout makes ownership literal — the docs system supports these projects but does not own them; moving either into "
+        },
+        {
+          "insert": "packages/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " would falsely assign its engine and editor to the docs-system package graph. Rejected: vendoring the engines as first-party packages."
+        }
+      ],
+      "children": []
+    },
+    "b-ec-mount-a": {
+      "id": "b-ec-mount-a",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Applies to: "
+        },
+        {
+          "insert": "external/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": ".gitmodules",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "package.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — every future externally owned project mounts the same way."
+        }
+      ],
+      "children": []
+    },
+    "b-ec-schema-h": {
+      "id": "b-ec-schema-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Only agent-schema crosses the pure-model wall"
+        }
+      ],
+      "children": []
+    },
+    "b-ec-schema-d": {
+      "id": "b-ec-schema-d",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Decision: docs-model imports nothing from either project except its "
+        },
+        {
+          "insert": "agent-schema",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " leaf; lifted descriptors become forwarded actions handled by the owning authority, and the model never imports an engine. "
+        },
+        {
+          "insert": "import-boundaries.test.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "import-boundaries.test.ts"
+            }
+          }
+        },
+        {
+          "insert": " enforces the restriction."
+        }
+      ],
+      "children": []
+    },
+    "b-ec-schema-w": {
+      "id": "b-ec-schema-w",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Why: Schema truth stays in the owning package without dragging its engine into the pure model. Rejected: redefining external operation schemas inside docs-model, which drifts from the authority."
+        }
+      ],
+      "children": []
+    },
+    "b-ec-schema-a": {
+      "id": "b-ec-schema-a",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Applies to: "
+        },
+        {
+          "insert": "packages/docs-model",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "external/*/packages/*/src/agent-schema.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — every future external authority exposes an agent-schema leaf and nothing more to the model."
+        }
+      ],
+      "children": []
+    },
+    "b-ec-slots-h": {
+      "id": "b-ec-slots-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Engines enter only through host slots, and injection grants no authority"
+        }
+      ],
+      "children": []
+    },
+    "b-ec-slots-d": {
+      "id": "b-ec-slots-d",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Decision: docs-viewer never imports either engine; hosts inject renderers through the "
+        },
+        {
+          "insert": "canvasEmbed",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "sequenceEmbed",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " provider slots, and injected surfaces are read-only — mutation routes through docs-server's typed patches or the standalone Studio's own hash-guarded save."
+        }
+      ],
+      "children": []
+    },
+    "b-ec-slots-w": {
+      "id": "b-ec-slots-w",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Why: The slot keeps the viewer liftable — another host may supply different loaders or renderers — and keeps mutation authority honest instead of leaking it into embeds. Rejected: a viewer engine dependency and embed-side writes."
+        }
+      ],
+      "children": []
+    },
+    "b-ec-slots-a": {
+      "id": "b-ec-slots-a",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Applies to: "
+        },
+        {
+          "insert": "packages/docs-viewer",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "packages/docs-workbench/web/src/pages",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — every future engine embed uses a provider slot and stays mutation-free."
+        }
+      ],
+      "children": []
+    },
+    "b-ec-studio-origin": {
+      "id": "b-ec-studio-origin",
+      "type": "callout",
+      "props": {
+        "kind": "Integration constraint",
+        "title": "The workbench deep link sends src and server",
+        "tone": "warning"
+      },
+      "text": [
+        {
+          "insert": "The workbench sends both "
+        },
+        {
+          "insert": "src",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "server",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", using the docs page origin for "
+        },
+        {
+          "insert": "server",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Canvas Studio honors that origin and falls back to its stored or default docs-server origin only when "
+        },
+        {
+          "insert": "server",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is absent."
+        }
+      ],
+      "children": []
+    },
+    "b-ec-sidecar-h": {
+      "id": "b-ec-sidecar-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Sidecars stay canonical files in the docs repository"
+        }
+      ],
+      "children": []
+    },
+    "b-ec-sidecar-d": {
+      "id": "b-ec-sidecar-d",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Decision: Canvas and sequence documents are sidecar files in the docs tree — "
+        },
+        {
+          "insert": ".canvas.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " under an "
+        },
+        {
+          "insert": "assets/canvases/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " segment — confined and served by docs-server; Studio drafts stay separate, and opening a project board never creates a second authoritative copy in an engine-local store."
+        }
+      ],
+      "children": []
+    },
+    "b-ec-sidecar-w": {
+      "id": "b-ec-sidecar-w",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Why: One canonical home keeps hash preconditions, undo, and reference indexing meaningful. Rejected: storing project content in engine-local draft stores, which would fork authority."
+        }
+      ],
+      "children": []
+    },
+    "b-ec-sidecar-a": {
+      "id": "b-ec-sidecar-a",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Applies to: "
+        },
+        {
+          "insert": "packages/docs-server/src/canvas-sidecar.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "packages/docs-server/src/sequence-sidecar.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", docs trees — every future sidecar kind keeps its canonical file in the repository."
+        }
+      ],
+      "children": []
+    }
+  }
+}

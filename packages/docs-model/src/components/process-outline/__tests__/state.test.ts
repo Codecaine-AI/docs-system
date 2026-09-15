@@ -84,6 +84,31 @@ describe("process-outline component state check", () => {
     ]);
   });
 
+  it("flags a trace-marked note — notes are prose, not events", () => {
+    const issues = processOutlineState.check!(
+      { steps: [{ text: "why", kind: "note", trace: true }] },
+      "$.blocks.b1.props",
+    );
+    expect(issues).toEqual([
+      {
+        path: "$.blocks.b1.props.steps[0].trace",
+        message:
+          'Note step "why" is trace-marked — notes are prose about a step, not trace events.',
+      },
+    ]);
+  });
+
+  it("accepts a trace-marked step, with or without children", () => {
+    expect(
+      processOutlineState.check!(
+        { steps: [{ text: "Run", trace: true, steps: [{ text: "Drain", trace: true }] }] },
+        "$",
+      ),
+    ).toEqual([]);
+    expect(Value.Check(ProcessOutlineState, { steps: [{ text: "Run", trace: true }] })).toBe(true);
+    expect(Value.Check(ProcessOutlineState, { steps: [{ text: "Run", trace: "yes" }] })).toBe(false);
+  });
+
   it("accepts note leaves and step parents", () => {
     expect(processOutlineState.check!({ steps: STEPS }, "$")).toEqual([]);
     expect(processOutlineState.check!({ steps: [{ text: "why", kind: "note", steps: [] }] }, "$")).toEqual([]);
@@ -97,17 +122,19 @@ describe("process-outline state readers", () => {
       {
         text: "Run mode",
         note: false,
+        trace: false,
         depth: 0,
         children: [
           {
             text: "Get candidates",
             note: false,
+            trace: false,
             depth: 1,
             children: [
-              { text: "Exclude locked work", note: false, depth: 2, children: [] },
+              { text: "Exclude locked work", note: false, trace: false, depth: 2, children: [] },
             ],
           },
-          { text: "workers produce tentative evidence", note: true, depth: 1, children: [] },
+          { text: "workers produce tentative evidence", note: true, trace: false, depth: 1, children: [] },
         ],
       },
     ]);

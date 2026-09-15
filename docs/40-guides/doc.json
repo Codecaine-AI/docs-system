@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "id": "doc-753dfb331b51f7aeb256f0383b4ff6db",
+  "title": "Guides",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "maintenance-0",
+        "maintenance-1"
+      ]
+    },
+    "maintenance-0": {
+      "id": "maintenance-0",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This guides tier contains non-normative operating and maintenance procedures. The foundation, system design, and implementation documents own the contracts. These guides explain how to use and maintain those contracts; they do not introduce project-specific standards."
+        }
+      ],
+      "children": []
+    },
+    "maintenance-1": {
+      "id": "maintenance-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Docs MCP Maintenance",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "40-guides/10-docs-mcp"
+            }
+          }
+        },
+        {
+          "insert": " explains installation, multi-project discovery, skills, updates, and recovery."
+        }
+      ],
+      "children": []
+    }
+  }
+}

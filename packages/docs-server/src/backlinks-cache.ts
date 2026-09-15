@@ -1,4 +1,4 @@
-import { resolve } from "node:path";
+import { canonicalDocsRoot } from "./draft-locks";
 import type { Database } from "bun:sqlite";
 
 import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
@@ -25,7 +25,7 @@ import {
 const backlinksDbByDocsRoot = new Map<string, Promise<Database>>();
 
 export function getBacklinksDb(docsRoot: string): Promise<Database> {
-  const key = resolve(docsRoot);
+  const key = canonicalDocsRoot(docsRoot);
   let pending = backlinksDbByDocsRoot.get(key);
   if (!pending) {
     pending = openBacklinksDb(docsRoot);
@@ -36,7 +36,7 @@ export function getBacklinksDb(docsRoot: string): Promise<Database> {
 
 /** Registers an externally-opened backlinks db for `docsRoot` (see module doc). */
 export function primeBacklinksDb(docsRoot: string, db: Promise<Database>): void {
-  backlinksDbByDocsRoot.set(resolve(docsRoot), db);
+  backlinksDbByDocsRoot.set(canonicalDocsRoot(docsRoot), db);
 }
 
 /**

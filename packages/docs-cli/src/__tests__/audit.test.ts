@@ -29,7 +29,7 @@ function doc(id: string, options: DocOptions = {}): Record<string, unknown> {
       id: "title",
       type: "heading",
       props: { level: 1 },
-      text: [{ insert: id }],
+      text: [{ insert: `${id} Section` }],
       children: [],
     },
     opener: {
@@ -312,8 +312,8 @@ describe("bundle-reserved entries", () => {
   });
 });
 
-describe("W1 — single level-1 heading", () => {
-  test("warns when a doc has two level-1 headings", async () => {
+describe("H1 sections", () => {
+  test("allows multiple distinct level-1 headings", async () => {
     await writeBundle(
       "10-doc",
       doc("two-titles", {
@@ -331,10 +331,9 @@ describe("W1 — single level-1 heading", () => {
 
     const report = await auditCommand(tempDir);
     const w1 = findingsFor(report.findings, "W1");
-    expect(w1).toHaveLength(1);
-    expect(w1[0]).toMatchObject({ severity: "warn", path: "10-doc" });
+    expect(w1).toEqual([]);
     expect(report.errorCount).toBe(0);
-    expect(report.warningCount).toBe(1);
+    expect(report.warningCount).toBe(0);
   });
 
   test("level-2 headings do not trigger it", async () => {
@@ -373,7 +372,7 @@ describe("W2 — image alt text", () => {
     const w2 = findingsFor(report.findings, "W2");
     expect(w2).toHaveLength(1);
     expect(w2[0]).toMatchObject({ severity: "warn", path: "10-doc" });
-    expect(w2[0]!.message).toContain('"img"');
+    expect(w2[0]!.blockId).toBe("img");
   });
 
   test("does not warn when alt is present", async () => {
@@ -418,7 +417,7 @@ describe("W4 — opening paragraph", () => {
     const w4 = findingsFor(report.findings, "W4");
     expect(w4).toHaveLength(1);
     expect(w4[0]).toMatchObject({ severity: "warn", path: "10-doc" });
-    expect(w4[0]!.message).toContain('"code"');
+    expect(w4[0]!.blockId).toBe("code");
   });
 
   test("title followed by a paragraph does not warn", async () => {
@@ -477,5 +476,29 @@ describe("docs cli audit — subprocess smoke test", () => {
     expect(warning.exitCode).toBe(0);
     expect(warning.stdout).toContain("WARN W2 10-image");
     expect(warning.stdout).toContain("0 error(s), 1 warning(s)");
+  });
+});
+
+describe("shared authoring lints", () => {
+  test("reports required prose findings with block and rule locations", async () => {
+    const document = doc("Writing");
+    const blocks = document.blocks as Record<string, any>;
+    blocks.opener.text = [{ insert: "The service runs — the worker waits." }];
+    await writeBundle("10-writing", document);
+    const report = await auditCommand(tempDir);
+    const finding = report.findings.find((item) => item.checkId === "writing.no-em-dash");
+    expect(finding).toMatchObject({ severity: "error", blockId: "opener", path: "10-writing" });
+    expect(finding?.docsPath).toContain("10-writing-style");
+    expect(finding?.suggestion).toBeTruthy();
+    expect(report.errorCount).toBe(1);
+  });
+
+  test("does not flag literal code as authored prose", async () => {
+    const document = doc("Writing");
+    const blocks = document.blocks as Record<string, any>;
+    blocks.opener.text = [{ insert: "Use " }, { insert: "a — b", attributes: { code: true } }, { insert: " literally." }];
+    await writeBundle("10-writing", document);
+    const report = await auditCommand(tempDir);
+    expect(report.findings.filter((item) => item.checkId.startsWith("writing."))).toEqual([]);
   });
 });

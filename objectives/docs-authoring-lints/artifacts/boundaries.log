@@ -1,0 +1,59 @@
+bun test v1.3.10 (30e609e0)
+
+import-boundaries.test.ts:
+(pass) import boundaries > framework code never imports host-app code [61.47ms]
+(pass) import boundaries > docs-model stays pure (no React, no DOM libs) [5.28ms]
+(pass) import boundaries > docs-model imports sequence only through the agent-schema leaf [5.16ms]
+(pass) import boundaries > docs-model imports canvas only through the agent-schema leaf [6.14ms]
+
+external/canvas/packages/canvas/src/__tests__/import-boundaries.test.ts:
+(pass) import boundaries > ui/ is orthogonal: first-party imports stay inside ui/ [55.27ms]
+(pass) import boundaries > theme/ imports no first-party code outside state/schema vocabulary [28.60ms]
+(pass) import boundaries > theme/ has only the current runtime palette vocabulary exception [29.88ms]
+(pass) import boundaries > state/ is first-party self-contained [29.42ms]
+(pass) import boundaries > objects/ imports only objects/, state/, and theme/ except current connector-def exceptions [29.12ms]
+(pass) import boundaries > interaction/ kernel imports only interaction/, state/, and objects/ [29.76ms]
+(pass) import boundaries > interaction/ kernel has no React imports [29.15ms]
+(pass) import boundaries > connectors/ imports only connectors/, state/, objects/, interaction/, and theme/ except current stage-core exceptions [28.85ms]
+(pass) import boundaries > connectors/pathfinding/ imports no first-party code outside its MPL island [29.25ms]
+(pass) import boundaries > connectors/pathfinding/ is consumed only by connectors/ plus the snapping gfx exception [29.07ms]
+(pass) import boundaries > features/snapping/snap-distribution.ts reaches only pathfinding gfx types [28.03ms]
+(pass) import boundaries > stage core never imports nested viewer/editor domains [28.62ms]
+(pass) import boundaries > stage core imports only lower first-party layers [28.56ms]
+(pass) import boundaries > stage core imports interaction only through type-only interaction/types.ts [27.23ms]
+(pass) import boundaries > navigation/ imports only viewport and lower interaction/state layers [28.65ms]
+(pass) import boundaries > stage/viewer/ imports only stage core plus lower layers [29.10ms]
+(pass) import boundaries > stage/viewer/ has only the current editor feedback exception [29.07ms]
+(pass) import boundaries > stage/editor/ is imported only by composition entries plus the current viewer TODO [28.52ms]
+(pass) import boundaries > the only non-composition stage/editor/ importer is the current viewer TODO [29.33ms]
+445 |     // the fit orchestration behind each consuming feature.
+446 |     expect(
+447 |       formatEdges(
+448 |         sidewaysFeatureEdges.filter((edge) => featureSlice(edge.target ?? "") !== "snapping"),
+449 |       ),
+450 |     ).toEqual([
+            ^
+error: expect(received).toEqual(expected)
+
+  [
++   "stage/editor/features/annotate/AnnotateFeedback.tsx -> ../selection/HoverHighlight",
++   "stage/editor/features/annotate/AnnotateFeedback.tsx -> ../selection/SelectionBox",
+    "stage/editor/features/context-menu/use-canvas-context-menu.ts -> ../section-fit/animate-section-fit",
+    "stage/editor/features/inspector/Inspector.tsx -> ../section-fit/animate-section-fit",
+    "stage/editor/features/selection-toolbar/use-selection-toolbar.ts -> ../section-fit/animate-section-fit",
+  ]
+
+- Expected  - 0
++ Received  + 2
+
+      at <anonymous> (/Users/Ford/Github Repos/Codecaine/Core/docs-system/external/canvas/packages/canvas/src/__tests__/import-boundaries.test.ts:450:7)
+(fail) import boundaries > stage/editor/features/ slices do not import sideways except snapping service imports and current section-fit exceptions [29.94ms]
+(pass) import boundaries > no source imports legacy vendor/blocksuite paths [28.82ms]
+
+1 tests failed:
+(fail) import boundaries > stage/editor/features/ slices do not import sideways except snapping service imports and current section-fit exceptions [29.94ms]
+
+ 24 pass
+ 1 fail
+ 25 expect() calls
+Ran 25 tests across 2 files. [919.00ms]

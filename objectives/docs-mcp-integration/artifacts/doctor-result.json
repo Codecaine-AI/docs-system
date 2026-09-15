@@ -1,0 +1,157 @@
+{
+  "ok": true,
+  "checks": [
+    {
+      "path": "/Users/Ford/.codex/config.toml",
+      "kind": "config",
+      "status": "ok"
+    },
+    {
+      "path": "/Users/Ford/.claude.json",
+      "kind": "config",
+      "status": "ok"
+    },
+    {
+      "path": "/Users/Ford/.pi/agent/extensions/codecaine-docs.ts",
+      "kind": "extension",
+      "status": "ok"
+    },
+    {
+      "path": "/Users/Ford/.agents/skills/codecaine-docs/SKILL.md",
+      "kind": "skill",
+      "status": "ok"
+    },
+    {
+      "path": "/Users/Ford/.agents/skills/codecaine-docs/references/components.md",
+      "kind": "skill",
+      "status": "ok"
+    },
+    {
+      "path": "/Users/Ford/.agents/skills/codecaine-docs/references/components/rich-text.md",
+      "kind": "skill",
+      "status": "ok"
+    },
+    {
+      "path": "/Users/Ford/.agents/skills/codecaine-docs/references/components/canvas.md",
+      "kind": "skill",
+      "status": "ok"
+    },
+    {
+      "path": "/Users/Ford/.agents/skills/codecaine-docs/references/components/process-outline.md",
+      "kind": "skill",
+      "status": "ok"
+    },
+    {
+      "path": "/Users/Ford/.agents/skills/codecaine-docs/references/components/structured-table.md",
+      "kind": "skill",
+      "status": "ok"
+    },
+    {
+      "path": "/Users/Ford/.agents/skills/codecaine-docs/references/components/state-shape.md",
+      "kind": "skill",
+      "status": "ok"
+    },
+    {
+      "path": "/Users/Ford/.agents/skills/codecaine-docs/references/components/code.md",
+      "kind": "skill",
+      "status": "ok"
+    },
+    {
+      "path": "/Users/Ford/.agents/skills/codecaine-docs/references/components/sequence.md",
+      "kind": "skill",
+      "status": "ok"
+    },
+    {
+      "path": "/Users/Ford/.agents/skills/codecaine-docs/references/components/file-tree.md",
+      "kind": "skill",
+      "status": "ok"
+    },
+    {
+      "path": "/Users/Ford/.agents/skills/codecaine-docs/references/components/interaction-surface.md",
+      "kind": "skill",
+      "status": "ok"
+    },
+    {
+      "path": "/Users/Ford/.agents/skills/codecaine-docs/references/standards.md",
+      "kind": "skill",
+      "status": "ok"
+    },
+    {
+      "path": "/Users/Ford/.agents/skills/codecaine-docs/snapshot.json",
+      "kind": "skill",
+      "status": "ok"
+    },
+    {
+      "path": "/Users/Ford/.claude/skills/codecaine-docs/SKILL.md",
+      "kind": "skill",
+      "status": "ok"
+    },
+    {
+      "path": "/Users/Ford/.claude/skills/codecaine-docs/references/components.md",
+      "kind": "skill",
+      "status": "ok"
+    },
+    {
+      "path": "/Users/Ford/.claude/skills/codecaine-docs/references/components/rich-text.md",
+      "kind": "skill",
+      "status": "ok"
+    },
+    {
+      "path": "/Users/Ford/.claude/skills/codecaine-docs/references/components/canvas.md",
+      "kind": "skill",
+      "status": "ok"
+    },
+    {
+      "path": "/Users/Ford/.claude/skills/codecaine-docs/references/components/process-outline.md",
+      "kind": "skill",
+      "status": "ok"
+    },
+    {
+      "path": "/Users/Ford/.claude/skills/codecaine-docs/references/components/structured-table.md",
+      "kind": "skill",
+      "status": "ok"
+    },
+    {
+      "path": "/Users/Ford/.claude/skills/codecaine-docs/references/components/state-shape.md",
+      "kind": "skill",
+      "status": "ok"
+    },
+    {
+      "path": "/Users/Ford/.claude/skills/codecaine-docs/references/components/code.md",
+      "kind": "skill",
+      "status": "ok"
+    },
+    {
+      "path": "/Users/Ford/.claude/skills/codecaine-docs/references/components/sequence.md",
+      "kind": "skill",
+      "status": "ok"
+    },
+    {
+      "path": "/Users/Ford/.claude/skills/codecaine-docs/references/components/file-tree.md",
+      "kind": "skill",
+      "status": "ok"
+    },
+    {
+      "path": "/Users/Ford/.claude/skills/codecaine-docs/references/components/interaction-surface.md",
+      "kind": "skill",
+      "status": "ok"
+    },
+    {
+      "path": "/Users/Ford/.claude/skills/codecaine-docs/references/standards.md",
+      "kind": "skill",
+      "status": "ok"
+    },
+    {
+      "path": "/Users/Ford/.claude/skills/codecaine-docs/snapshot.json",
+      "kind": "skill",
+      "status": "ok"
+    }
+  ],
+  "notes": [
+    "Restart Codex and Claude Code after installation. In pi, use /reload or start a new session.",
+    "Each connection discovers its active workspace; no fixed project is written into user configuration.",
+    "pi uses a native extension that forwards the same MCP tools. It has no built-in MCP client.",
+    "Skills are selected by the host model. Verify automatic guidance and editing in each client before considering setup accepted.",
+    "Doctor checks installed files against current sources. Client connection and model-driven editing require the acceptance exercises."
+  ]
+}

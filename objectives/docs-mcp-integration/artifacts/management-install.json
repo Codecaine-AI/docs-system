@@ -1,0 +1,278 @@
+{
+  "mode": "write",
+  "clients": [
+    "codex",
+    "claude",
+    "pi"
+  ],
+  "command": {
+    "command": "/Users/Ford/.bun/bin/bun",
+    "args": [
+      "/Users/Ford/Github Repos/Codecaine/Core/docs-system/packages/docs-mcp/src/cli.ts",
+      "mcp"
+    ]
+  },
+  "changes": [
+    {
+      "path": "/Users/Ford/.codex/config.toml",
+      "kind": "config",
+      "action": "unchanged",
+      "sha256": "0a8d5cb63ea8648fb458c3c77992ad8fe0f7e5de7133f97a0fddc88c371188f6",
+      "written": false
+    },
+    {
+      "path": "/Users/Ford/.claude.json",
+      "kind": "config",
+      "action": "unchanged",
+      "sha256": "6a2f72bdba03d28a151fc7d2ea180be7ddb6b749bd56137581afe56b5b698d16",
+      "written": false
+    },
+    {
+      "path": "/Users/Ford/.pi/agent/extensions/codecaine-docs.ts",
+      "kind": "extension",
+      "action": "unchanged",
+      "sha256": "34c727a5df44c090cab4089d434e2f08212f03cf4966f8a383da82c94b3d1121",
+      "written": false
+    },
+    {
+      "path": "/Users/Ford/.agents/skills/codecaine-docs/SKILL.md",
+      "kind": "skill",
+      "action": "update",
+      "sha256": "42e22dba870438fa71bd18e4823678443ad24b7629936fccc126ef3ca4934cb2",
+      "written": true,
+      "backup": "/Users/Ford/.agents/skills/codecaine-docs/SKILL.md.codecaine-backup-1789139553243-76be2c09-0ce3-4767-bb4a-2049617093c5",
+      "backupSha256": "b8b4780305adc302bd2952ebed5ba9659f668a8ddae1cbf9abaa15d1cefe723e"
+    },
+    {
+      "path": "/Users/Ford/.agents/skills/codecaine-docs/references/components.md",
+      "kind": "skill",
+      "action": "update",
+      "sha256": "4898742bdd3d67dbf99955dcb88c8db84bb7826b13a6fd0a3da0eb356a6eef5a",
+      "written": true,
+      "backup": "/Users/Ford/.agents/skills/codecaine-docs/references/components.md.codecaine-backup-1789139553244-8ba82a40-93a1-48cc-a6a1-9dd92b913a77",
+      "backupSha256": "775ba2e64fdac72f9a9bad11a6812a00c6972c10e3a4c8ee96baf3550681cd3c"
+    },
+    {
+      "path": "/Users/Ford/.agents/skills/codecaine-docs/references/components/rich-text.md",
+      "kind": "skill",
+      "action": "update",
+      "sha256": "98f0e11d811d45f01c202f22e6734c476bfabd7df448cbbd279e62fd7c05500f",
+      "written": true,
+      "backup": "/Users/Ford/.agents/skills/codecaine-docs/references/components/rich-text.md.codecaine-backup-1789139553244-37176cc9-2bae-41dd-9024-c0a0b458dfeb",
+      "backupSha256": "3c529b6abc306c90061b34a773d4bfb50648f04cdbe66ad229c2312d97254e1b"
+    },
+    {
+      "path": "/Users/Ford/.agents/skills/codecaine-docs/references/components/canvas.md",
+      "kind": "skill",
+      "action": "update",
+      "sha256": "06098e76f04437e7143058ff60cb19b6ea6cb0a15f1bba83e30193c754424c7c",
+      "written": true,
+      "backup": "/Users/Ford/.agents/skills/codecaine-docs/references/components/canvas.md.codecaine-backup-1789139553245-c073a844-58c6-4aec-add3-3ab949f20d73",
+      "backupSha256": "c1c25a75153de81fc06cb5caff8f09c3a7b2d14c37850dd4415c69ea95127940"
+    },
+    {
+      "path": "/Users/Ford/.agents/skills/codecaine-docs/references/components/process-outline.md",
+      "kind": "skill",
+      "action": "update",
+      "sha256": "c17c40dd1f9b28e812665c620024e811a03fbb65e3f526d398c7946c80a67666",
+      "written": true,
+      "backup": "/Users/Ford/.agents/skills/codecaine-docs/references/components/process-outline.md.codecaine-backup-1789139553247-e18717e7-7acd-48af-b590-538bc85dc070",
+      "backupSha256": "a4db7c67d117e70bdd8b4f5ce1100e9f45d2890eff150faa26f5c115b54e805b"
+    },
+    {
+      "path": "/Users/Ford/.agents/skills/codecaine-docs/references/components/structured-table.md",
+      "kind": "skill",
+      "action": "update",
+      "sha256": "ffee2c26f6af1731a4f0da2aacc99ee559d9aa9a54c61b848a929c4ce064a279",
+      "written": true,
+      "backup": "/Users/Ford/.agents/skills/codecaine-docs/references/components/structured-table.md.codecaine-backup-1789139553250-2dd3d6d8-ef57-4f59-9ad4-6ace7d74b9f6",
+      "backupSha256": "761c9fc9b7ea034102d2452aff21a91b9ec1beed9ce6bd971ac5dd2f6df4ae6e"
+    },
+    {
+      "path": "/Users/Ford/.agents/skills/codecaine-docs/references/components/state-shape.md",
+      "kind": "skill",
+      "action": "update",
+      "sha256": "41aaacee3b050bab9a97c36c6cb54cdd4f88dbf37497543617db5ac3bce81c31",
+      "written": true,
+      "backup": "/Users/Ford/.agents/skills/codecaine-docs/references/components/state-shape.md.codecaine-backup-1789139553251-ecb4a722-0af8-4c2d-bec3-192f621e3a34",
+      "backupSha256": "fe339dbd043f10ecbc224499adf7cc36bdf14f56f83c9705017f24ef9b84df02"
+    },
+    {
+      "path": "/Users/Ford/.agents/skills/codecaine-docs/references/components/code.md",
+      "kind": "skill",
+      "action": "update",
+      "sha256": "f719ed2cba3bb764ffe7c2f56c1154695e4cafe8d1c7ccae15966d0f441bcff4",
+      "written": true,
+      "backup": "/Users/Ford/.agents/skills/codecaine-docs/references/components/code.md.codecaine-backup-1789139553255-1085ca77-8242-4e8d-942f-f6163212538b",
+      "backupSha256": "1e3fddf9160d955fedb02c9750ab6db0123616b3c94dc608f07fcf9ebf0734ac"
+    },
+    {
+      "path": "/Users/Ford/.agents/skills/codecaine-docs/references/components/sequence.md",
+      "kind": "skill",
+      "action": "update",
+      "sha256": "94d972caddf1dba2b21fa75556a02c698156793089ae30064272513797c81c33",
+      "written": true,
+      "backup": "/Users/Ford/.agents/skills/codecaine-docs/references/components/sequence.md.codecaine-backup-1789139553257-c5a53c39-4981-4b42-97a2-34ed7d50335f",
+      "backupSha256": "517de846c75be8c91299b29f4a78ddeccddc6d36d62fa3d91f1044d1b6a1f370"
+    },
+    {
+      "path": "/Users/Ford/.agents/skills/codecaine-docs/references/components/file-tree.md",
+      "kind": "skill",
+      "action": "update",
+      "sha256": "9f5382da1b27e9240beadfce485c64e34c33dc67fbc357c210fe318654183b8e",
+      "written": true,
+      "backup": "/Users/Ford/.agents/skills/codecaine-docs/references/components/file-tree.md.codecaine-backup-1789139553261-106640ef-5b60-4b7e-8188-218c5c52739e",
+      "backupSha256": "a987f2763673949a7bb24d2bfd8ba14a20d43d855a391d1c622b74597bc1583d"
+    },
+    {
+      "path": "/Users/Ford/.agents/skills/codecaine-docs/references/components/interaction-surface.md",
+      "kind": "skill",
+      "action": "update",
+      "sha256": "d9d3b590ce6bc953ee88967df86ee1c21349d4a4b198e62515dcc2526f73a4b5",
+      "written": true,
+      "backup": "/Users/Ford/.agents/skills/codecaine-docs/references/components/interaction-surface.md.codecaine-backup-1789139553268-3ce1e677-d139-4c67-ad16-86e43a7f25f6",
+      "backupSha256": "1219269c9c36c6ef35df5369dbdd02f681e0019cbaa7ab6bea9ad4ee605fdf35"
+    },
+    {
+      "path": "/Users/Ford/.agents/skills/codecaine-docs/references/standards.md",
+      "kind": "skill",
+      "action": "update",
+      "sha256": "548397cad9776e0c9db30f84cdae98a00fb863f24bb9b84b50d2ff1938efb860",
+      "written": true,
+      "backup": "/Users/Ford/.agents/skills/codecaine-docs/references/standards.md.codecaine-backup-1789139553272-6c4238a7-4a79-4f10-aa1e-d04ca82ee94e",
+      "backupSha256": "88cb54756926c57df366ea1733d6becb952a83853e70d0a8bb314b8ff04aec57"
+    },
+    {
+      "path": "/Users/Ford/.agents/skills/codecaine-docs/snapshot.json",
+      "kind": "skill",
+      "action": "update",
+      "sha256": "3abb571a3f5667b5c0f66c0258f3299e6604f9bef962377e46e3e3ff0c42b67f",
+      "written": true,
+      "backup": "/Users/Ford/.agents/skills/codecaine-docs/snapshot.json.codecaine-backup-1789139553276-5f08b7db-615b-4bec-a0e8-980211c21124",
+      "backupSha256": "4bb9f4c94dc6da8c1f70e2666e97b8a0c593b26365ea29c6a4b076a77f28c3ee"
+    },
+    {
+      "path": "/Users/Ford/.claude/skills/codecaine-docs/SKILL.md",
+      "kind": "skill",
+      "action": "update",
+      "sha256": "42e22dba870438fa71bd18e4823678443ad24b7629936fccc126ef3ca4934cb2",
+      "written": true,
+      "backup": "/Users/Ford/.claude/skills/codecaine-docs/SKILL.md.codecaine-backup-1789139553279-85de00b2-dada-47dd-a699-3106d6b55448",
+      "backupSha256": "b8b4780305adc302bd2952ebed5ba9659f668a8ddae1cbf9abaa15d1cefe723e"
+    },
+    {
+      "path": "/Users/Ford/.claude/skills/codecaine-docs/references/components.md",
+      "kind": "skill",
+      "action": "update",
+      "sha256": "4898742bdd3d67dbf99955dcb88c8db84bb7826b13a6fd0a3da0eb356a6eef5a",
+      "written": true,
+      "backup": "/Users/Ford/.claude/skills/codecaine-docs/references/components.md.codecaine-backup-1789139553282-2f0786f6-dae6-4a2b-92c4-bc23d66e1dae",
+      "backupSha256": "775ba2e64fdac72f9a9bad11a6812a00c6972c10e3a4c8ee96baf3550681cd3c"
+    },
+    {
+      "path": "/Users/Ford/.claude/skills/codecaine-docs/references/components/rich-text.md",
+      "kind": "skill",
+      "action": "update",
+      "sha256": "98f0e11d811d45f01c202f22e6734c476bfabd7df448cbbd279e62fd7c05500f",
+      "written": true,
+      "backup": "/Users/Ford/.claude/skills/codecaine-docs/references/components/rich-text.md.codecaine-backup-1789139553286-6eac53a3-cf9d-43de-ae0f-665505738132",
+      "backupSha256": "3c529b6abc306c90061b34a773d4bfb50648f04cdbe66ad229c2312d97254e1b"
+    },
+    {
+      "path": "/Users/Ford/.claude/skills/codecaine-docs/references/components/canvas.md",
+      "kind": "skill",
+      "action": "update",
+      "sha256": "06098e76f04437e7143058ff60cb19b6ea6cb0a15f1bba83e30193c754424c7c",
+      "written": true,
+      "backup": "/Users/Ford/.claude/skills/codecaine-docs/references/components/canvas.md.codecaine-backup-1789139553291-7c9d58d4-c8c5-4bc2-ab6d-e426904c9c6e",
+      "backupSha256": "c1c25a75153de81fc06cb5caff8f09c3a7b2d14c37850dd4415c69ea95127940"
+    },
+    {
+      "path": "/Users/Ford/.claude/skills/codecaine-docs/references/components/process-outline.md",
+      "kind": "skill",
+      "action": "update",
+      "sha256": "c17c40dd1f9b28e812665c620024e811a03fbb65e3f526d398c7946c80a67666",
+      "written": true,
+      "backup": "/Users/Ford/.claude/skills/codecaine-docs/references/components/process-outline.md.codecaine-backup-1789139553299-93d9ff4d-37d1-43fc-a015-f2b2e4f9f140",
+      "backupSha256": "a4db7c67d117e70bdd8b4f5ce1100e9f45d2890eff150faa26f5c115b54e805b"
+    },
+    {
+      "path": "/Users/Ford/.claude/skills/codecaine-docs/references/components/structured-table.md",
+      "kind": "skill",
+      "action": "update",
+      "sha256": "ffee2c26f6af1731a4f0da2aacc99ee559d9aa9a54c61b848a929c4ce064a279",
+      "written": true,
+      "backup": "/Users/Ford/.claude/skills/codecaine-docs/references/components/structured-table.md.codecaine-backup-1789139553301-07ce401b-52db-44b4-9a03-1a26629806c0",
+      "backupSha256": "761c9fc9b7ea034102d2452aff21a91b9ec1beed9ce6bd971ac5dd2f6df4ae6e"
+    },
+    {
+      "path": "/Users/Ford/.claude/skills/codecaine-docs/references/components/state-shape.md",
+      "kind": "skill",
+      "action": "update",
+      "sha256": "41aaacee3b050bab9a97c36c6cb54cdd4f88dbf37497543617db5ac3bce81c31",
+      "written": true,
+      "backup": "/Users/Ford/.claude/skills/codecaine-docs/references/components/state-shape.md.codecaine-backup-1789139553307-21e9f657-47e5-4c4c-8d65-f1ff3a172804",
+      "backupSha256": "fe339dbd043f10ecbc224499adf7cc36bdf14f56f83c9705017f24ef9b84df02"
+    },
+    {
+      "path": "/Users/Ford/.claude/skills/codecaine-docs/references/components/code.md",
+      "kind": "skill",
+      "action": "update",
+      "sha256": "f719ed2cba3bb764ffe7c2f56c1154695e4cafe8d1c7ccae15966d0f441bcff4",
+      "written": true,
+      "backup": "/Users/Ford/.claude/skills/codecaine-docs/references/components/code.md.codecaine-backup-1789139553310-cbcdb36f-ca4e-43e4-ac2d-4276449a2337",
+      "backupSha256": "1e3fddf9160d955fedb02c9750ab6db0123616b3c94dc608f07fcf9ebf0734ac"
+    },
+    {
+      "path": "/Users/Ford/.claude/skills/codecaine-docs/references/components/sequence.md",
+      "kind": "skill",
+      "action": "update",
+      "sha256": "94d972caddf1dba2b21fa75556a02c698156793089ae30064272513797c81c33",
+      "written": true,
+      "backup": "/Users/Ford/.claude/skills/codecaine-docs/references/components/sequence.md.codecaine-backup-1789139553318-f3ce7e72-6140-4d71-9d1e-281d38aaa99e",
+      "backupSha256": "517de846c75be8c91299b29f4a78ddeccddc6d36d62fa3d91f1044d1b6a1f370"
+    },
+    {
+      "path": "/Users/Ford/.claude/skills/codecaine-docs/references/components/file-tree.md",
+      "kind": "skill",
+      "action": "update",
+      "sha256": "9f5382da1b27e9240beadfce485c64e34c33dc67fbc357c210fe318654183b8e",
+      "written": true,
+      "backup": "/Users/Ford/.claude/skills/codecaine-docs/references/components/file-tree.md.codecaine-backup-1789139553325-429d8d25-44ed-4eb4-ab10-1f1a6eeb2d57",
+      "backupSha256": "a987f2763673949a7bb24d2bfd8ba14a20d43d855a391d1c622b74597bc1583d"
+    },
+    {
+      "path": "/Users/Ford/.claude/skills/codecaine-docs/references/components/interaction-surface.md",
+      "kind": "skill",
+      "action": "update",
+      "sha256": "d9d3b590ce6bc953ee88967df86ee1c21349d4a4b198e62515dcc2526f73a4b5",
+      "written": true,
+      "backup": "/Users/Ford/.claude/skills/codecaine-docs/references/components/interaction-surface.md.codecaine-backup-1789139553333-908f880c-6e18-4999-8994-85a524a557e2",
+      "backupSha256": "1219269c9c36c6ef35df5369dbdd02f681e0019cbaa7ab6bea9ad4ee605fdf35"
+    },
+    {
+      "path": "/Users/Ford/.claude/skills/codecaine-docs/references/standards.md",
+      "kind": "skill",
+      "action": "update",
+      "sha256": "548397cad9776e0c9db30f84cdae98a00fb863f24bb9b84b50d2ff1938efb860",
+      "written": true,
+      "backup": "/Users/Ford/.claude/skills/codecaine-docs/references/standards.md.codecaine-backup-1789139553337-4adc1c07-fdd8-4545-87ff-ccc6d161bc1e",
+      "backupSha256": "88cb54756926c57df366ea1733d6becb952a83853e70d0a8bb314b8ff04aec57"
+    },
+    {
+      "path": "/Users/Ford/.claude/skills/codecaine-docs/snapshot.json",
+      "kind": "skill",
+      "action": "update",
+      "sha256": "3abb571a3f5667b5c0f66c0258f3299e6604f9bef962377e46e3e3ff0c42b67f",
+      "written": true,
+      "backup": "/Users/Ford/.claude/skills/codecaine-docs/snapshot.json.codecaine-backup-1789139553339-f4d92581-2108-4c28-a5ab-a5e24c39ba9b",
+      "backupSha256": "4bb9f4c94dc6da8c1f70e2666e97b8a0c593b26365ea29c6a4b076a77f28c3ee"
+    }
+  ],
+  "notes": [
+    "Restart Codex and Claude Code after installation. In pi, use /reload or start a new session.",
+    "Each connection discovers its active workspace; no fixed project is written into user configuration.",
+    "pi uses a native extension that forwards the same MCP tools. It has no built-in MCP client.",
+    "Skills are selected by the host model. Verify automatic guidance and editing in each client before considering setup accepted."
+  ]
+}

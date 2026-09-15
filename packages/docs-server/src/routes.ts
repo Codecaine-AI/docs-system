@@ -59,7 +59,7 @@ function toSnakeCaseWire(value: unknown): unknown {
 }
 
 /**
- * `createDocsRoutes(store)` — the full docs read+write HTTP surface as an
+ * `createDocsRoutes(store, options)` — the full docs read+write HTTP surface as an
  * Elysia plugin, mounted under `/api/*`. Read routes keep the exact
  * paths/response shapes the standalone read-only serve app exposed; write
  * routes mirror the reference host's `/projects/:id/docs/*` contracts
@@ -78,7 +78,7 @@ function toSnakeCaseWire(value: unknown): unknown {
  *   GET  /api/asset?path=                   -> raw asset bytes
  *   GET  /api/backlinks?target=             -> { target, backlinks }
  *   GET  /api/blocks                        -> { schemaVersion, ops, components } (static edit-surface discovery)
- *   GET  /api/themes                        -> { themes: [{ id, name }] } (repo themes/ folders)
+ *   GET  /api/themes                        -> { themes: [{ id, name }] } (options.themesRoot or sibling themes/)
  *   GET  /api/themes/:themeId               -> { theme: { id, manifest, components } } | 404
  *   POST /api/themes                        -> 201 { theme } | 400 (writes themes/<id>/ folder) | 403 themeLocked
  *   POST /api/ops                           -> doc ops or one forwarded canvas/sequence action | 400/409/423
@@ -119,6 +119,8 @@ function toSnakeCaseWire(value: unknown): unknown {
  * --theme-locked`): POST /api/themes is refused with 403 before any
  * validation or write — the primary docs-system app owns the themes/ folder.
  * Theme READS stay open; locked viewers still inherit the repo theme.
+ * `options.themesRoot` redirects all theme reads and writes; absent it, the
+ * themes/ folder remains the sibling of `store.docsRoot`.
  *
  * NOTE (SSE): Elysia treats an async generator handler as a stream natively;
  * yields wrapped with the `sse()` helper flip the response into SSE mode
@@ -126,7 +128,11 @@ function toSnakeCaseWire(value: unknown): unknown {
  * it manually via `set.headers`, Bun merges the two into
  * "text/event-stream, text/plain" which browsers' EventSource rejects.
  */
-export function createDocsRoutes(store: DocsStore, options?: { themeLocked?: boolean }) {
+export function createDocsRoutes(
+  store: DocsStore,
+  options?: { themeLocked?: boolean; themesRoot?: string },
+) {
+  const themesRoot = options?.themesRoot ?? themesRootFor(store.docsRoot);
   return new Elysia({ name: "docs-server-routes" })
     // -- dev CORS (see CORS_HEADERS above) -------------------------------------
     // onRequest runs before routing, so success, validation-error, and 404
@@ -367,10 +373,10 @@ export function createDocsRoutes(store: DocsStore, options?: { themeLocked?: boo
 
     // -- theme folders (docs/20-implementation/40-theming) ---------------------
     .get("/api/themes", async () => {
-      return { themes: await listRepoThemes(themesRootFor(store.docsRoot)) };
+      return { themes: await listRepoThemes(themesRoot) };
     })
     .get("/api/themes/:themeId", async ({ params, set }) => {
-      const theme = await readRepoTheme(themesRootFor(store.docsRoot), params.themeId);
+      const theme = await readRepoTheme(themesRoot, params.themeId);
       if (!theme) {
         set.status = 404;
         return { detail: `No theme named ${JSON.stringify(params.themeId)}.` };
@@ -395,7 +401,6 @@ export function createDocsRoutes(store: DocsStore, options?: { themeLocked?: boo
         set.status = 400;
         return { detail: "Theme manifest must be an object." };
       }
-      const themesRoot = themesRootFor(store.docsRoot);
       await writeRepoTheme(themesRoot, {
         id: payload.id,
         manifest: payload.manifest as Record<string, unknown>,
@@ -511,13 +516,13 @@ export function createDocsRoutes(store: DocsStore, options?: { themeLocked?: boo
         }
         store.publishChange({
           path: body.path,
-          changedIds: ops
+          changedIds: [...ops, ...(result.normalization?.ops ?? [])]
             .map((op) => ("blockId" in op ? op.blockId : undefined))
             .filter((id): id is string => !!id),
           patchId: result.patchId,
           actor: body.session_id ?? "anonymous",
         });
-        return { doc: result.doc, hash: result.hash, patch_id: result.patchId };
+        return { doc: result.doc, hash: result.hash, patch_id: result.patchId, lint: result.lint, normalization: result.normalization };
       },
       {
         body: t.Object({
@@ -688,7 +693,7 @@ export function createDocsRoutes(store: DocsStore, options?: { themeLocked?: boo
           };
         }
         set.status = 201;
-        return { proposal: result.proposal, proposals: result.proposals, hash: result.hash };
+        return { proposal: result.proposal, proposals: result.proposals, hash: result.hash, lint: result.lint };
       },
       {
         body: t.Object({
@@ -716,6 +721,7 @@ export function createDocsRoutes(store: DocsStore, options?: { themeLocked?: boo
             current_hash: result.current_hash,
             expected_hash: result.expected_hash,
             issues: result.issues,
+            lint: result.lint,
             held_by: result.held_by,
           };
         }
@@ -737,6 +743,8 @@ export function createDocsRoutes(store: DocsStore, options?: { themeLocked?: boo
           proposal: result.proposal,
           proposals: result.proposals,
           hash: result.proposalsHash,
+          lint: result.lint,
+          normalization: result.normalization,
           doc: result.doc,
           doc_hash: result.hash,
           patch_id: result.patchId,

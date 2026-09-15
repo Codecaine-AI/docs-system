@@ -20,9 +20,12 @@ export {
   DividerState,
   HeadingState,
   ImageState,
+  ImageGridState,
+  ImageGridItemState,
   ListItemState,
   ParagraphState,
   QuoteState,
   RICH_TEXT_STATES,
   VideoState,
+  HtmlState,
 } from "./state";

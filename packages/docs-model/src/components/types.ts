@@ -10,6 +10,8 @@ export type ComponentManifest = {
   ownedTypes: readonly DocBlockType[];
   /** Agent-facing, one paragraph: what this editing world is. */
   description: string;
+  /** Selection guidance owned by the component; required by the authoring catalog. */
+  authoring?: { whenToUse: string; example: string; docsPath: string };
 };
 
 export type BlockStateDefinition = {

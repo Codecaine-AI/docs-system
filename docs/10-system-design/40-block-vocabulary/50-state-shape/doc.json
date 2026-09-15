@@ -71,7 +71,7 @@
           }
         },
         {
-          "insert": " — the object-shape block of the "
+          "insert": ", the object-shape block of the "
         },
         {
           "insert": "block vocabulary",
@@ -83,7 +83,7 @@
           }
         },
         {
-          "insert": ". A block carries a recursive field tree — name, type, optionality, meaning — an optional link to the defining source symbol, and an optional JSON example instance rendered beside the tree."
+          "insert": ". A block carries a recursive field tree, name, type, optionality, meaning, an optional link to the defining source symbol, and an optional JSON example instance rendered beside the tree."
         }
       ],
       "children": []
@@ -118,7 +118,7 @@
           }
         },
         {
-          "insert": " blocks hold the source evidence. State first, then operations; a code block is for material that is not an instance of the shape — a real source listing."
+          "insert": " blocks hold the source evidence. State first, then operations; a code block is for material that is not an instance of the shape, a real source listing."
         }
       ],
       "children": []
@@ -298,19 +298,19 @@
               {
                 "name": "name",
                 "type": "string",
-                "description": "Field name; unique among siblings — dot-path addressing depends on it."
+                "description": "Field name; unique among siblings, dot-path addressing depends on it."
               },
               {
                 "name": "type",
                 "type": "string",
                 "required": false,
-                "description": "Type text, rendered after a colon."
+                "description": "Type text. Union members render as separate blue monospace chips; free-text types render as plain blue text."
               },
               {
                 "name": "required",
                 "type": "boolean",
                 "required": false,
-                "description": "false = optional and renders a ? suffix; omitted or true reads as required."
+                "description": "false = optional and renders an ochre optional pill; omitted or true reads as required."
               },
               {
                 "name": "description",
@@ -428,7 +428,7 @@
           }
         },
         {
-          "insert": " — the same node "
+          "insert": ", the same node "
         },
         {
           "insert": "interaction-surface",
@@ -469,7 +469,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A custom check past the schema enforces sibling-unique field names at every level — dot-path addressing depends on it — and that a present "
+          "insert": "A custom check past the schema enforces sibling-unique field names at every level, dot-path addressing depends on it, and that a present "
         },
         {
           "insert": "example",
@@ -561,7 +561,7 @@
           }
         },
         {
-          "insert": " runs; every action returns a shallow props patch — "
+          "insert": " runs; every action returns a shallow props patch, "
         },
         {
           "insert": "{ fields }",
@@ -679,7 +679,7 @@
           }
         },
         {
-          "insert": " defaults to the end, so document order is curated order and survives edits. Duplicate names — among the target siblings or inside the inserted subtree — are rejected."
+          "insert": " defaults to the end, so document order is curated order and survives edits. Duplicate names, among the target siblings or inside the inserted subtree, are rejected."
         }
       ],
       "children": []
@@ -759,7 +759,7 @@
           }
         },
         {
-          "insert": " replaces the whole subtree — "
+          "insert": " replaces the whole subtree, "
         },
         {
           "insert": "null",
@@ -864,7 +864,7 @@
                     "name": "fields",
                     "type": "Field[]",
                     "required": false,
-                    "description": "Nested children — the node recurses"
+                    "description": "Nested children, the node recurses"
                   }
                 ]
               },
@@ -958,7 +958,7 @@
             "returns": "props patch: { example }"
           }
         ],
-        "title": "state-shape — actions"
+        "title": "state-shape, actions"
       },
       "children": []
     },
@@ -981,37 +981,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The "
-        },
-        {
-          "insert": "Doc renderer",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "10-system-design/30-data-model/20-block-design/30-doc-renderer"
-            }
-          }
-        },
-        {
-          "insert": " contract element: "
-        },
-        {
-          "insert": "StateShapeBlock",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ". The render is a quiet bordered two-pane card — no title bar, never a language tag, state is always JSON: the structure tree left and, when "
-        },
-        {
-          "insert": "example",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " parses as JSON, a line-numbered example pane right."
+          "insert": "StateShapeBlock renders the approved bounded card with a textured title and description header, a field/type ledger, and an Example pane. The header separates both columns with one rule. The example separator ends at the content height. On desktop the field column defaults to 46% of the lane; narrow layouts stack the panes."
         }
       ],
       "children": []
@@ -1037,25 +1007,7 @@
       "props": {},
       "text": [
         {
-          "insert": "An optional header row: bold mono shape name, muted "
-        },
-        {
-          "insert": "basename#symbol",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " source ref (full path in its "
-        },
-        {
-          "insert": "title",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " attribute), description beneath."
+          "insert": "The header shows a bold monospace shape name and the description below it. The full defining source path and symbol remain in data-shape-source for inspection."
         }
       ],
       "children": []
@@ -1066,25 +1018,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Top-level fields render as hairline-divided groups: bold mono name, mono type, a muted "
-        },
-        {
-          "insert": "?",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " marking "
-        },
-        {
-          "insert": "required: false",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", description as a smaller second line."
+          "insert": "Every field row has a separator, a bold monospace name, a blue type chip, an accessible question-mark optional marker, and its description beneath the name. Union types render one chip per member; prose types remain unchipped."
         }
       ],
       "children": []
@@ -1095,7 +1029,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Nested fields sit behind a light left rule — one step per depth — with no dividers of their own."
+          "insert": "Child branches use thin connected strokes aligned with field names. The last sibling terminates the branch at its tick; ancestor rails continue through deeper children when later siblings remain. Branch start, depth indentation, tick length, text gap, vertical offset, thickness, and color are retained in the tuned renderer."
         }
       ],
       "children": []
@@ -1140,7 +1074,7 @@
       "props": {},
       "text": [
         {
-          "insert": "JSON token toning is deterministic — a tiny line tokenizer over the canonical print, no highlight.js."
+          "insert": "JSON token toning is deterministic, a tiny line tokenizer over the canonical print, no highlight.js."
         }
       ],
       "children": []
@@ -1188,7 +1122,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Without an example the card is the single-pane tree — nothing linkable."
+          "insert": "Without an example the card is the single-pane tree, nothing linkable."
         }
       ],
       "children": []
@@ -1277,7 +1211,7 @@
           }
         },
         {
-          "insert": " — the same "
+          "insert": ", the same "
         },
         {
           "insert": "StateShapeBlock",
@@ -1409,7 +1343,7 @@
           }
         },
         {
-          "insert": " fence follow — pretty-printed through "
+          "insert": " fence follow, pretty-printed through "
         },
         {
           "insert": "printJsonLines",
@@ -1543,7 +1477,7 @@
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "20-implementation/40-theming"
+              "path": "30-implementation/40-theming"
             }
           }
         },
@@ -1588,7 +1522,7 @@
           }
         },
         {
-          "insert": ". Ten tokens — nine colors and one length:"
+          "insert": ". Thirteen tokens, twelve colors and one length:"
         }
       ],
       "children": []
@@ -1624,9 +1558,24 @@
             "Field type text"
           ],
           [
+            "typeBg",
+            "--docs-shape-type-bg",
+            "Type chip background"
+          ],
+          [
             "muted",
             "--docs-shape-muted",
-            "Muted detail text — optionality markers and the source ref"
+            "Muted detail text, the source ref and empty-state note"
+          ],
+          [
+            "optionalFg",
+            "--docs-shape-optional-fg",
+            "Optional marker text"
+          ],
+          [
+            "optionalBg",
+            "--docs-shape-optional-bg",
+            "Optional marker background"
           ],
           [
             "rule",
@@ -1641,7 +1590,7 @@
           [
             "descFg",
             "--docs-shape-desc-fg",
-            "Description text — header and field rows"
+            "Description text, header and field rows"
           ],
           [
             "childRule",
@@ -1750,7 +1699,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The type uses the default adapter — no agent of its own; the contract is "
+          "insert": "The type uses the default adapter, no agent of its own; the contract is "
         },
         {
           "insert": "Agent adapter",
@@ -1842,7 +1791,7 @@
           }
         },
         {
-          "insert": " path — merge semantics are single-sourced, the block id is preserved, and the inverse is the usual "
+          "insert": " path, merge semantics are single-sourced, the block id is preserved, and the inverse is the usual "
         },
         {
           "insert": "updateBlock",
@@ -1862,7 +1811,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Structural edits ride the generic ops — "
+          "insert": "Structural edits ride the generic ops, "
         },
         {
           "insert": "insertBlock",

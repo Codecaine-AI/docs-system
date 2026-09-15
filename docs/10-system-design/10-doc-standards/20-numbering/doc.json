@@ -92,8 +92,12 @@
             "note": "the named deviation: type pages run 10–17 dense, one family as a unit"
           },
           {
-            "path": "20-implementation/",
-            "note": "99 — appendix and meta only"
+            "path": "20-agents/",
+            "note": "participating agents and their definitions"
+          },
+          {
+            "path": "30-implementation/",
+            "note": "the current code: design mapping and implementation choices"
           }
         ]
       },

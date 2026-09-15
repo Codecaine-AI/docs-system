@@ -140,9 +140,9 @@ describe("projectToMarkdown — the sample fixture", () => {
     const typesInFixture = new Set(
       Object.values(validated.document.blocks).map((b) => b.type),
     );
-    // process-outline stays out of the fixture until the corpus/goldens phase adds it; remove this filter then.
+    // The legacy fixture predates process-outline and HTML; dedicated tests cover those types.
     expect([...typesInFixture].sort()).toEqual(
-      DOC_BLOCK_TYPES.filter((type) => type !== "process-outline").sort(),
+      DOC_BLOCK_TYPES.filter((type) => type !== "process-outline" && type !== "html").sort(),
     );
   });
 

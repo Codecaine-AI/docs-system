@@ -1,3 +1,4 @@
+import { manageFiles, restoreManagedFiles, listManagedAssets, type ManageFilesInput } from "./manage-files";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 
@@ -106,7 +107,7 @@ import {
   type SequenceGetResult,
   type UndoPatchResult,
 } from "./agent-tools";
-import { draftLockStore, type DraftLockInfo, type DraftLockStore } from "./draft-locks";
+import { canonicalDocsRoot, draftLockStore, type DraftLockInfo, type DraftLockStore } from "./draft-locks";
 import {
   resolveCanvasSidecarRelativePath,
   resolveSequenceSidecarRelativePath,
@@ -256,6 +257,9 @@ export interface DocsStore {
     actor?: string,
   ): Promise<SequenceApplyPatchResult>;
   undoPatch(patchId: string): Promise<UndoPatchResult>;
+  assets(path?: string): Promise<Record<string, any>>;
+  restoreManagedFiles(id: string, preview?: boolean, expectedTreeHash?: string): Promise<Record<string, any>>;
+  manageFiles(input: ManageFilesInput): Promise<Record<string, any>>;
   moveDoc(fromPath: string, toPath: string): Promise<MoveDocResult>;
 
   // -- change events ---------------------------------------------------------
@@ -552,14 +556,14 @@ async function forwardSequenceAction(
 }
 
 export function createDocsStore(docsRoot: string): DocsStore {
-  const root = resolve(docsRoot);
+  const root = canonicalDocsRoot(docsRoot);
   // Change events are channeled per resolved docs root, so every store (and
   // every host) bound to the same tree shares one event stream.
   const channel = root;
 
-  return {
+  const store: DocsStore = {
     docsRoot: root,
-    locks: draftLockStore,
+    locks: draftLockStore.forRoot(root),
 
     tree: () => walkDocsDir(root),
     bundle: (path) => loadDocBundle(root, path),
@@ -652,6 +656,17 @@ export function createDocsStore(docsRoot: string): DocsStore {
       sequence_apply_patch(root, src, operations, expectedHash, actor),
     undoPatch: (patchId) => undo_patch(root, patchId),
 
+    assets: (path) => listManagedAssets(root, path),
+    restoreManagedFiles: async (id, preview, expectedTreeHash) => {
+      const result = await restoreManagedFiles(root, id, preview, expectedTreeHash);
+      if (result.ok && result.restored) publishDocsChangeEvent(channel, { path: "", changedIds: [], patchId: id, actor: "undo" });
+      return result;
+    },
+    manageFiles: async (input) => {
+      const result = await manageFiles(root, input);
+      if (result.ok && result.applied) publishDocsChangeEvent(channel, { path: "", changedIds: [], patchId: result.tree_change_id, actor: "external-agent" });
+      return result;
+    },
     moveDoc: async (fromPath, toPath) => {
       const backlinksDb = await getBacklinksDb(root);
       const deps: MoveDocDeps = {
@@ -687,4 +702,12 @@ export function createDocsStore(docsRoot: string): DocsStore {
     publishChange: (event) => publishDocsChangeEvent(channel, event),
     subscribeChanges: (listener) => subscribeToDocsChangeEvents(channel, listener),
   };
+  // Store callers share one corpus authority during multi-file reorganizations.
+  // Per-file locks still coordinate with lower-level internal editing primitives.
+  for (const key of Object.keys(store) as Array<keyof DocsStore>) {
+    if (key === "publishChange" || key === "subscribeChanges" || typeof store[key] !== "function") continue;
+    const operation = store[key] as (...args: any[]) => Promise<any>;
+    (store as any)[key] = (...args: any[]) => withPathLock(join(root, ".changesets", ".store-operation-lock"), () => operation(...args));
+  }
+  return store;
 }

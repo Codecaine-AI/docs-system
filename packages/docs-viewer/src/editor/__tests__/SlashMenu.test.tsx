@@ -227,7 +227,7 @@ describe("keyboard model", () => {
     // Up from the first row wraps to the last…
     expect(await sendKey(editor, "ArrowUp")).toBe(true);
     expect(menuState(editor).selectedIndex).toBe(rowCount - 1);
-    expect(selectedRow(root()!)?.dataset.docSlashMenuRow).toBe("Image");
+    expect(selectedRow(root()!)?.dataset.docSlashMenuRow).toBe("HTML");
 
     // …and down from the last wraps back to the first.
     expect(await sendKey(editor, "ArrowDown")).toBe(true);

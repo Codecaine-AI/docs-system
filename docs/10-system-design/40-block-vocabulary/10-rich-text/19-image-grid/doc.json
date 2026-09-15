@@ -1,0 +1,259 @@
+{
+  "schemaVersion": 1,
+  "id": "doc-db931711e23370bf75d1c55783454d07",
+  "title": "Image Grid",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "grid-doc-1789403403163-0",
+        "grid-doc-1789403403163-1",
+        "grid-doc-1789403403163-2",
+        "grid-doc-1789403403163-3",
+        "grid-doc-1789403403163-4",
+        "grid-doc-1789403403163-5",
+        "grid-doc-1789403403163-6",
+        "grid-doc-1789403403163-7",
+        "grid-doc-1789403403163-8",
+        "grid-doc-1789403403163-9",
+        "grid-doc-1789403403163-10",
+        "grid-doc-1789403403163-11",
+        "grid-doc-1789403403163-12",
+        "grid-doc-1789403403163-13",
+        "grid-doc-1789403403163-14",
+        "grid-doc-1789403403163-15"
+      ]
+    },
+    "grid-doc-1789403403163-0": {
+      "id": "grid-doc-1789403403163-0",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The image-grid block groups related images so readers can compare processing stages or results. Each image has its own heading above it and an optional caption below it. The grid accepts images only."
+        }
+      ],
+      "children": []
+    },
+    "grid-doc-1789403403163-1": {
+      "id": "grid-doc-1789403403163-1",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "State Schema"
+        }
+      ],
+      "children": []
+    },
+    "grid-doc-1789403403163-2": {
+      "id": "grid-doc-1789403403163-2",
+      "type": "state-shape",
+      "props": {
+        "example": "{\n  \"columns\": 3,\n  \"images\": [\n    {\n      \"src\": \"./assets/images/cropped.jpg\",\n      \"heading\": \"Cropped Wall\",\n      \"alt\": \"Wall texture isolated from its surroundings.\"\n    },\n    {\n      \"src\": \"./assets/images/masked.png\",\n      \"heading\": \"Cropped and Masked\",\n      \"alt\": \"The cropped wall with the background masked.\"\n    }\n  ]\n}",
+        "fields": [
+          {
+            "name": "images",
+            "type": "ImageGridItem[]",
+            "description": "Ordered image entries. No fixed image count. An empty array is allowed while authoring.",
+            "fields": [
+              {
+                "name": "src",
+                "type": "string",
+                "description": "Nonempty asset path. Use a bundle-relative path under assets/images."
+              },
+              {
+                "name": "heading",
+                "type": "string",
+                "required": false,
+                "description": "Short label above the image, such as Cropped Wall."
+              },
+              {
+                "name": "alt",
+                "type": "string",
+                "required": false,
+                "description": "Describe the information the image contributes. Missing or empty alt text produces an advisory finding."
+              },
+              {
+                "name": "caption",
+                "type": "string",
+                "required": false,
+                "description": "Additional explanation below the image."
+              }
+            ]
+          },
+          {
+            "name": "columns",
+            "type": "\"auto\" | 1 | 2 | 3 | 4",
+            "required": false,
+            "description": "Maximum column count. Default auto allows up to four columns as space permits."
+          }
+        ],
+        "name": "ImageGridState",
+        "source": {
+          "path": "packages/docs-model/src/components/rich-text/state.ts",
+          "symbol": "ImageGridState"
+        }
+      },
+      "children": []
+    },
+    "grid-doc-1789403403163-3": {
+      "id": "grid-doc-1789403403163-3",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Doc Renderer"
+        }
+      ],
+      "children": []
+    },
+    "grid-doc-1789403403163-4": {
+      "id": "grid-doc-1789403403163-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Rows grow automatically with the image count. Six images with columns set to 3 produce two rows when space permits. Setting 2 produces three rows."
+        }
+      ],
+      "children": []
+    },
+    "grid-doc-1789403403163-5": {
+      "id": "grid-doc-1789403403163-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Columns wrap according to available container width, including narrow side peeks. Each column targets at least 220 pixels, and a smaller container uses one column without horizontal overflow."
+        }
+      ],
+      "children": []
+    },
+    "grid-doc-1789403403163-6": {
+      "id": "grid-doc-1789403403163-6",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Images preserve their original proportions. Headings and captions wrap with the image. Cropping, arbitrary text columns, and download controls are not part of this block."
+        }
+      ],
+      "children": []
+    },
+    "grid-doc-1789403403163-7": {
+      "id": "grid-doc-1789403403163-7",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The Docs reader and editor preview share one renderer. Published articles contain the grid markup at build time and need no JavaScript to display the layout. Static Docs exports use the same component in their viewer."
+        }
+      ],
+      "children": []
+    },
+    "grid-doc-1789403403163-8": {
+      "id": "grid-doc-1789403403163-8",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Authoring Controls"
+        }
+      ],
+      "children": []
+    },
+    "grid-doc-1789403403163-9": {
+      "id": "grid-doc-1789403403163-9",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The Image Grid slash-menu entry creates an empty grid. Edit image grid exposes the column selector, per-image heading, image path, alt text, and caption. Add image accepts an uploaded asset path. Move earlier, Move later, and Remove update the ordered entries through normal editor operations."
+        }
+      ],
+      "children": []
+    },
+    "grid-doc-1789403403163-10": {
+      "id": "grid-doc-1789403403163-10",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent Renderer"
+        }
+      ],
+      "children": []
+    },
+    "grid-doc-1789403403163-11": {
+      "id": "grid-doc-1789403403163-11",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The Markdown projection emits each heading in bold, followed by its image and optional italic caption, in source order. The text projection preserves all labels for search but does not represent columns."
+        }
+      ],
+      "children": []
+    },
+    "grid-doc-1789403403163-12": {
+      "id": "grid-doc-1789403403163-12",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent Notes"
+        }
+      ],
+      "children": []
+    },
+    "grid-doc-1789403403163-13": {
+      "id": "grid-doc-1789403403163-13",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Use docs_insert with type image-grid and typed props, or update the images array through docs_apply_ops with the current revision hash. Existing image assets remain in their bundles. Asset relocation rewrites each image entry. Raw Markdown image sequences remain standalone images unless explicitly grouped."
+        }
+      ],
+      "children": []
+    },
+    "grid-doc-1789403403163-14": {
+      "id": "grid-doc-1789403403163-14",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Theme"
+        }
+      ],
+      "children": []
+    },
+    "grid-doc-1789403403163-15": {
+      "id": "grid-doc-1789403403163-15",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The shared image-grid.css stylesheet supplies spacing, responsive columns, and proportional sizing. Caption color uses the existing image caption token and follows the host light or dark palette. The column preference is stored on the block and travels with the document."
+        }
+      ],
+      "children": []
+    }
+  }
+}

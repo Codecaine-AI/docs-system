@@ -511,6 +511,16 @@ const COMPONENT_TAG_TO_BLOCK_TYPE: Record<string, ComponentMapper> = {
     },
     text: textInsert(body.trim(), ctx),
   }),
+  Html: (attrs, body) => ({
+    type: "html",
+    props: {
+      html: body,
+      title: strAttr(attrs, "title") ?? "HTML content",
+      ...(strAttr(attrs, "caption") ? { caption: strAttr(attrs, "caption") } : {}),
+      ...(strAttr(attrs, "height") ? { height: Math.max(120, Math.min(2000, Number(attrs.height) || 400)) } : {}),
+      allowScripts: attrs.allowScripts === "true",
+    },
+  }),
   Canvas: (attrs) => ({
     type: "canvas",
     props: {

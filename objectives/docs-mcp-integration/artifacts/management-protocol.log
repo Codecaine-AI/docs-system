@@ -1,0 +1,9 @@
+bun test v1.3.10 (30e609e0)
+
+packages/docs-mcp/src/mcp.test.ts:
+(pass) two MCP clients share one authority; typed edits, UI visibility, stale rejection and undo cross protocol [805.04ms]
+
+ 1 pass
+ 0 fail
+ 24 expect() calls
+Ran 1 test across 1 file. [1043.00ms]

@@ -1,0 +1,740 @@
+{
+  "schemaVersion": 1,
+  "proposals": [
+    {
+      "lint": {
+        "phase": "draft",
+        "findings": [],
+        "blocking": []
+      },
+      "id": "bb575a43-274d-42ac-ba35-535a3921bba7",
+      "ops": [
+        {
+          "type": "updateBlock",
+          "blockId": "b-sub-intro-1",
+          "props": {},
+          "text": [
+            {
+              "insert": "The docs lead from the project's intent through its design and agents into the code that implements them. Section names express ownership; Implementation follows the names and organization of the actual codebase."
+            }
+          ]
+        },
+        {
+          "type": "moveBlock",
+          "blockId": "b-sub-intro-1",
+          "toParentId": "b-struct-root",
+          "toIndex": 0
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-sub-laidout-heading-2",
+          "props": {
+            "level": 2
+          },
+          "text": [
+            {
+              "insert": "Structure"
+            }
+          ]
+        },
+        {
+          "type": "moveBlock",
+          "blockId": "b-sub-laidout-heading-2",
+          "toParentId": "b-struct-root",
+          "toIndex": 1
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-sub-laidout-tree-3",
+          "props": {
+            "entries": [
+              {
+                "path": "00-foundation/",
+                "note": "Purpose, scope, and intended outcomes"
+              },
+              {
+                "path": "10-system-design/",
+                "note": "System behavior, states, contracts, and interactions"
+              },
+              {
+                "path": "20-agents/",
+                "note": "Agent definitions, context, tools, outputs, and responsibilities"
+              },
+              {
+                "path": "30-implementation/",
+                "note": "Codebase map, design connections, and implementation rationale"
+              },
+              {
+                "path": "40-guides/",
+                "note": "Project-specific setup and operating procedures"
+              },
+              {
+                "path": "99-appendix/",
+                "note": "Supplementary reference"
+              }
+            ]
+          }
+        },
+        {
+          "type": "moveBlock",
+          "blockId": "b-sub-laidout-tree-3",
+          "toParentId": "b-struct-root",
+          "toIndex": 2
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-sub-ladder-heading-4",
+          "props": {
+            "level": 2
+          },
+          "text": [
+            {
+              "insert": "The Rule"
+            }
+          ]
+        },
+        {
+          "type": "moveBlock",
+          "blockId": "b-sub-ladder-heading-4",
+          "toParentId": "b-struct-root",
+          "toIndex": 3
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-struct-ladder-table-10",
+          "props": {
+            "columns": [
+              "Section",
+              "Reader Question"
+            ],
+            "rows": [
+              [
+                "Foundation",
+                "What is this project for, what should it achieve, and what is its scope?"
+              ],
+              [
+                "System Design",
+                "How does the system work, including behavior, state, contracts, and interactions?"
+              ],
+              [
+                "Agents",
+                "Which agents participate, what context and tools do they receive, and what may they produce or change?"
+              ],
+              [
+                "Implementation",
+                "Where does the code realize the design, how is it organized, and why is it built this way?"
+              ]
+            ]
+          }
+        },
+        {
+          "type": "moveBlock",
+          "blockId": "b-struct-ladder-table-10",
+          "toParentId": "b-struct-root",
+          "toIndex": 4
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "pm-mruqiaw2-66-x15rfx",
+          "props": {},
+          "text": [
+            {
+              "insert": "Guides own procedures such as setup and operation. They link to the relevant contracts. Omit an Agents section when the project has no agents to document."
+            }
+          ]
+        },
+        {
+          "type": "moveBlock",
+          "blockId": "pm-mruqiaw2-66-x15rfx",
+          "toParentId": "b-struct-root",
+          "toIndex": 5
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-struct-folders-heading-12",
+          "props": {
+            "level": 2
+          },
+          "text": [
+            {
+              "insert": "Folders and Codebase Mapping"
+            }
+          ]
+        },
+        {
+          "type": "moveBlock",
+          "blockId": "b-struct-folders-heading-12",
+          "toParentId": "b-struct-root",
+          "toIndex": 6
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "pm-mruqiaw3-69-afcp2a",
+          "props": {},
+          "text": [
+            {
+              "insert": "Each document is a folder containing a typed doc.json bundle. A parent document introduces its responsibility and immediate children. Read and edit bundles through the Docs tools."
+            }
+          ]
+        },
+        {
+          "type": "moveBlock",
+          "blockId": "pm-mruqiaw3-69-afcp2a",
+          "toParentId": "b-struct-root",
+          "toIndex": 7
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-sub-ladder-lead-5",
+          "props": {},
+          "text": [
+            {
+              "insert": "Implementation mirrors meaningful source areas using their actual package and module names. Add nested pages where they make code lookup easier. Describe small subdivisions briefly on their owning page instead of creating a page for every file."
+            }
+          ]
+        },
+        {
+          "type": "moveBlock",
+          "blockId": "b-sub-ladder-lead-5",
+          "toParentId": "b-struct-root",
+          "toIndex": 8
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-struct-ext-lead-41",
+          "props": {},
+          "text": [
+            {
+              "insert": "A code area links to the design or agent contract it realizes and to its relevant source. Shared concerns have one primary home with links from the areas that use them."
+            }
+          ]
+        },
+        {
+          "type": "moveBlock",
+          "blockId": "b-struct-ext-lead-41",
+          "toParentId": "b-struct-root",
+          "toIndex": 9
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-struct-ext-heading-40",
+          "props": {
+            "level": 2
+          },
+          "text": [
+            {
+              "insert": "The Transition Into Code"
+            }
+          ]
+        },
+        {
+          "type": "moveBlock",
+          "blockId": "b-struct-ext-heading-40",
+          "toParentId": "b-struct-root",
+          "toIndex": 10
+        },
+        {
+          "type": "insertBlock",
+          "blockId": "layout-review-11-10-structure",
+          "blockType": "paragraph",
+          "parentId": "b-struct-root",
+          "index": 11,
+          "props": {},
+          "text": [
+            {
+              "insert": "Start with the section overview, descend into the relevant package or module, and follow its source links. File headers explain responsibilities and invariants; function comments explain contracts; inline comments explain local decisions. Documentation depth follows the explanation rather than a fixed three-level ceiling."
+            }
+          ]
+        },
+        {
+          "type": "insertBlock",
+          "blockId": "layout-review-12-10-structure",
+          "blockType": "paragraph",
+          "parentId": "b-struct-root",
+          "index": 12,
+          "props": {},
+          "text": [
+            {
+              "insert": "Keep Implementation concise. A short explanation with links can be complete. Use headings or a small map only when they improve orientation."
+            }
+          ]
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-struct-why-heading-22",
+          "props": {
+            "level": 2
+          },
+          "text": [
+            {
+              "insert": "Why"
+            }
+          ]
+        },
+        {
+          "type": "moveBlock",
+          "blockId": "b-struct-why-heading-22",
+          "toParentId": "b-struct-root",
+          "toIndex": 13
+        },
+        {
+          "type": "insertBlock",
+          "blockId": "layout-review-14-10-structure",
+          "blockType": "paragraph",
+          "parentId": "b-struct-root",
+          "index": 14,
+          "props": {},
+          "text": [
+            {
+              "insert": "Matching the codebase makes implementation details easy to find. Separate ownership keeps system behavior and agent definitions coherent, while source comments carry details that change with individual functions."
+            }
+          ]
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "pm-mruqiaw2-67-z3y9lb",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "pm-mruqiaw3-68-aoxz5o",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "b-sub-ladder-same-6",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "b-sub-ladder-three-7",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "b-sub-ladder-source-8",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "b-struct-bundle-13",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "b-struct-mirror-14",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "b-struct-parent-15",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "b-struct-threshold-16",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "b-struct-ext-announce-42",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "b-struct-ext-nonnorm-44",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "b-struct-ext-reports-46",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "b-struct-ext-example-48",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "b-swhy-disk-1",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "b-swhy-progressive-4",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "b-swhy-place-7",
+          "mode": "subtree"
+        }
+      ],
+      "changedBlockIds": [
+        "b-sub-intro-1",
+        "b-struct-root",
+        "b-sub-laidout-heading-2",
+        "b-sub-laidout-tree-3",
+        "b-sub-ladder-heading-4",
+        "b-struct-ladder-table-10",
+        "pm-mruqiaw2-66-x15rfx",
+        "b-struct-folders-heading-12",
+        "pm-mruqiaw3-69-afcp2a",
+        "b-sub-ladder-lead-5",
+        "b-struct-ext-lead-41",
+        "b-struct-ext-heading-40",
+        "layout-review-11-10-structure",
+        "layout-review-12-10-structure",
+        "b-struct-why-heading-22",
+        "layout-review-14-10-structure",
+        "pm-mruqiaw2-67-z3y9lb",
+        "pm-mruqiaw3-68-aoxz5o",
+        "b-sub-ladder-same-6",
+        "b-sub-ladder-three-7",
+        "b-sub-ladder-source-8",
+        "b-struct-bundle-13",
+        "b-struct-mirror-14",
+        "b-struct-parent-15",
+        "b-struct-threshold-16",
+        "b-struct-ext-announce-42",
+        "b-struct-ext-nonnorm-44",
+        "b-struct-ext-reports-46",
+        "b-struct-ext-example-48",
+        "b-swhy-disk-1",
+        "b-swhy-progressive-4",
+        "b-swhy-place-7"
+      ],
+      "summary": "Align section ownership and source mirroring; remove the fixed depth ceiling that conflicts with meaningful module navigation.",
+      "baseHash": "4cc1649116c5e3dbe6dbac189db0387ebf70645bc9dde161722bdd868193c353",
+      "status": "rejected",
+      "createdAt": "2026-09-14T14:42:24.194Z",
+      "resolvedAt": "2026-09-14T14:50:04.841Z"
+    },
+    {
+      "lint": {
+        "phase": "draft",
+        "findings": [
+          {
+            "blockId": "pm-mruqiaw3-74-v2osif-gloss",
+            "field": "children",
+            "evidence": "4:No scattered hunting.",
+            "message": "List exceeds three nesting levels.",
+            "ruleId": "structure.deep-list",
+            "severity": "warning",
+            "suggestion": "Flatten the list or move a branch into its own section.",
+            "docsPath": "99-appendix/10-style-guide/20-structure",
+            "introduced": false
+          },
+          {
+            "blockId": "b-sub-laidout-tree-3",
+            "field": "props.entries[0].note",
+            "evidence": "L1 — the layer's parent doc: summary plus an index of every section",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": false
+          },
+          {
+            "blockId": "b-sub-laidout-tree-3",
+            "field": "props.entries[1].note",
+            "evidence": "L2 — a section: the folder is itself a doc introducing its children",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": false
+          },
+          {
+            "blockId": "b-sub-laidout-tree-3",
+            "field": "props.entries[2].note",
+            "evidence": "L3 — a concept doc: one coherent idea (this one)",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": false
+          },
+          {
+            "blockId": "b-sub-laidout-tree-3",
+            "field": "props.entries[3].note",
+            "evidence": "a single doc — one concept covers it",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": false
+          },
+          {
+            "blockId": "b-sub-laidout-tree-3",
+            "field": "props.entries[4].note",
+            "evidence": "a folder — themes split four ways",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": false
+          },
+          {
+            "blockId": "b-sub-ladder-lead-5",
+            "field": "text",
+            "evidence": "Six levels — three in the doc tree, three in the source:",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": false
+          },
+          {
+            "blockId": "b-struct-ladder-table-10",
+            "field": "props.rows[2][2]",
+            "evidence": "One coherent idea — atomic, link-rich, code-connected",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": false
+          },
+          {
+            "blockId": "b-struct-ladder-table-10",
+            "field": "props.rows[3][2]",
+            "evidence": "The file's contract: responsibilities, dependencies, invariants — kept under 50 lines",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": false
+          },
+          {
+            "blockId": "b-struct-ladder-table-10",
+            "field": "props.rows[5][2]",
+            "evidence": "The implementation itself — read only after L4/L5 confirm you are in the right place",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": false
+          },
+          {
+            "blockId": "b-sub-ladder-source-8",
+            "field": "text",
+            "evidence": "Below L3 the rungs live in the source — \u0000 owns them.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": false
+          },
+          {
+            "blockId": "b-struct-bundle-13",
+            "field": "text",
+            "evidence": "A doc is a folder containing \u0000 — \u0000 holding a bundle, not \u0000. The folder name is the doc's address; the bundle inside is its state.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": false
+          },
+          {
+            "blockId": "b-struct-mirror-14",
+            "field": "text",
+            "evidence": "Implementation mirrors the source: \u0000 documents at \u0000. Cross-cutting concerns — logging, caching, error handling — get one primary home, never a scatter.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": false
+          },
+          {
+            "blockId": "b-struct-mirror-depth-17",
+            "field": "text",
+            "evidence": "The mirror goes one level per genuine subdivision — deeper structure becomes entries on the area page, not sub-pages; the \u0000 standard owns the rule.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": false
+          },
+          {
+            "blockId": "b-struct-parent-15",
+            "field": "text",
+            "evidence": "A section folder is itself a document: it carries its own \u0000 — the parent doc — introducing its immediate children, one level deep, one line each.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": false
+          },
+          {
+            "blockId": "b-swhy-disk-sub1-2",
+            "field": "text",
+            "evidence": "An agent reads and edits it with plain file access — no special tooling.",
+            "message": "Authored prose contains an em dash.",
+            "ruleId": "writing.no-em-dash",
+            "severity": "error",
+            "suggestion": "Replace the em dash with a period or comma, or rewrite the sentence.",
+            "docsPath": "99-appendix/10-style-guide/10-writing-style",
+            "introduced": false
+          }
+        ],
+        "blocking": []
+      },
+      "id": "683fd2a8-9de7-4c84-b88f-40420d2de20e",
+      "ops": [
+        {
+          "type": "updateBlock",
+          "blockId": "b-sub-laidout-tree-3",
+          "props": {
+            "entries": [
+              {
+                "path": "10-system-design/",
+                "note": "L1 — the layer's parent doc: summary plus an index of every section"
+              },
+              {
+                "path": "10-system-design/10-doc-standards/",
+                "note": "L2 — a section: the folder is itself a doc introducing its children"
+              },
+              {
+                "path": "10-system-design/10-doc-standards/10-structure/",
+                "note": "L3 — a concept doc: one coherent idea (this one)"
+              },
+              {
+                "path": "30-implementation/20-workbench/",
+                "note": "a single doc — one concept covers it"
+              },
+              {
+                "path": "30-implementation/40-theming/",
+                "note": "a folder — themes split four ways"
+              }
+            ]
+          }
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-struct-ladder-table-10",
+          "props": {
+            "columns": [
+              "Level",
+              "Lives at",
+              "Carries"
+            ],
+            "rows": [
+              [
+                "L1",
+                "A layer's parent doc (00-foundation, 10-system-design, 20-agents, 30-implementation)",
+                "Layer summary plus a section index linking every L2"
+              ],
+              [
+                "L2",
+                "XX-section (the section's parent doc)",
+                "Section scope and its children, one line each"
+              ],
+              [
+                "L3",
+                "A concept doc",
+                "One coherent idea — atomic, link-rich, code-connected"
+              ],
+              [
+                "L4",
+                "Top of a source file",
+                "The file's contract: responsibilities, dependencies, invariants — kept under 50 lines"
+              ],
+              [
+                "L5",
+                "Function docstrings",
+                "The function's contract: purpose, inputs, outputs, side effects, errors"
+              ],
+              [
+                "L6",
+                "The code",
+                "The implementation itself — read only after L4/L5 confirm you are in the right place"
+              ]
+            ]
+          }
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-sub-ladder-same-6-gloss",
+          "text": [
+            {
+              "insert": "L1–L3 structure foundation, system design, and agents exactly as they structure implementation."
+            }
+          ]
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-struct-mirror-14",
+          "text": [
+            {
+              "insert": "Implementation mirrors the source: "
+            },
+            {
+              "insert": "src/core/workflow/",
+              "attributes": {
+                "code": true
+              }
+            },
+            {
+              "insert": " documents at "
+            },
+            {
+              "insert": "docs/30-implementation/10-core/10-workflow/",
+              "attributes": {
+                "code": true
+              }
+            },
+            {
+              "insert": ". Cross-cutting concerns — logging, caching, error handling — get one primary home, never a scatter."
+            }
+          ]
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-struct-ext-lead-41",
+          "text": [
+            {
+              "insert": "Foundation owns intent, design owns behavior, agents owns agent definitions, and implementation maps the design to the current code and explains key choices. None owns procedure. A repo may declare additional numbered root tiers (40 and above, below 99) for procedural how-to content the four layers cannot hold: authoring recipes, operator guides."
+            }
+          ]
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-struct-ext-nonnorm-45",
+          "text": [
+            {
+              "insert": "The tier defers authority to the four layers via links and never restates their contracts. A rule found there is a pointer, not a source."
+            }
+          ]
+        }
+      ],
+      "changedBlockIds": [
+        "b-sub-laidout-tree-3",
+        "b-struct-ladder-table-10",
+        "b-sub-ladder-same-6-gloss",
+        "b-struct-mirror-14",
+        "b-struct-ext-lead-41",
+        "b-struct-ext-nonnorm-45"
+      ],
+      "summary": "Update layer names and numbered paths only. Preserve the full depth ladder, folder rules, examples, and rationale.",
+      "baseHash": "4cc1649116c5e3dbe6dbac189db0387ebf70645bc9dde161722bdd868193c353",
+      "status": "accepted",
+      "createdAt": "2026-09-14T14:52:59.097Z",
+      "resolvedAt": "2026-09-14T15:20:15.746Z"
+    }
+  ]
+}

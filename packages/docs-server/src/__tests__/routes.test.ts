@@ -47,8 +47,8 @@ describe("createDocsRoutes (write contracts)", () => {
   });
 
   afterEach(async () => {
-    draftLockStore.release({ kind: "doc", path: "guide" }, "session-a");
-    draftLockStore.release({ kind: "doc", path: "guide" }, "session-b");
+    draftLockStore.forRoot(docsRoot).release({ kind: "doc", path: "guide" }, "session-a");
+    draftLockStore.forRoot(docsRoot).release({ kind: "doc", path: "guide" }, "session-b");
     await rm(docsRoot, { recursive: true, force: true });
   });
 

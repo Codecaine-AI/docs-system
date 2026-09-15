@@ -30,6 +30,8 @@ import { ensureSpaBuilt } from "./spa";
 export interface ExportOptions {
   docsRoot: string;
   outDir: string;
+  /** Theme folder to snapshot; defaults to the docs-root sibling. */
+  themesRoot?: string;
   /** Rebuild the SPA even when a static build already exists. */
   forceBuild?: boolean;
   /** Active theme folder to snapshot as the exported site's style baseline. */
@@ -128,7 +130,7 @@ export async function runExport(options: ExportOptions): Promise<ExportReport> {
   //    tuned --style-* value. A repo with no themes/ folder just skips it
   //    and the SPA falls back to its compiled-in defaults.
   const themeId = options.themeId ?? "default";
-  const theme = await readRepoTheme(themesRootFor(docsRoot), themeId);
+  const theme = await readRepoTheme(options.themesRoot ?? themesRootFor(docsRoot), themeId);
   if (theme) {
     await writeFile(join(dataDir, "theme.json"), JSON.stringify({ theme }, null, 2));
   }

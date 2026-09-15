@@ -1,3 +1,4 @@
+import { sharedDocsApiFromEnvironment, type SharedDocsApiOptions } from "./shared-api";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 
@@ -11,7 +12,10 @@ import { ensureSpaBuilt, webDir } from "./spa";
  * proxy pointed at it (SPA hot reload; two ports).
  */
 export interface RunServeOptions {
+  sharedApi?: SharedDocsApiOptions;
   docsRoot: string;
+  /** Theme folder used by the theme API; defaults to the docs-root sibling. */
+  themesRoot?: string;
   port: number;
   /** Bind address. Defaults to loopback — the served docs tree may be private. */
   hostname?: string;
@@ -36,6 +40,15 @@ export interface RunServeOptions {
 export async function runServe(options: RunServeOptions): Promise<void> {
   const log = options.log ?? ((message: string) => console.error(message));
   const { docsRoot, port } = options;
+  const configuredSharedApi = options.sharedApi ?? sharedDocsApiFromEnvironment();
+  const sharedApi = configuredSharedApi && options.dev ? {
+    ...configuredSharedApi,
+    allowedBrowserOrigins: [
+      ...(configuredSharedApi.allowedBrowserOrigins ?? []),
+      `http://localhost:${options.uiPort ?? 4801}`,
+      `http://127.0.0.1:${options.uiPort ?? 4801}`,
+    ],
+  } : configuredSharedApi;
   const hostname = options.hostname ?? "127.0.0.1";
   const displayHost = hostname === "0.0.0.0" ? "localhost" : hostname;
 
@@ -45,7 +58,9 @@ export async function runServe(options: RunServeOptions): Promise<void> {
 
   if (options.dev) {
     startDocsServe({
+      sharedApi,
       docsRoot,
+      themesRoot: options.themesRoot,
       port,
       hostname,
       staticDir: null,
@@ -82,7 +97,9 @@ export async function runServe(options: RunServeOptions): Promise<void> {
 
   const staticDir = await ensureSpaBuilt({ mode: "serve", force: options.forceBuild, log });
   startDocsServe({
+    sharedApi,
     docsRoot,
+    themesRoot: options.themesRoot,
     port,
     hostname,
     staticDir,

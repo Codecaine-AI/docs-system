@@ -49,8 +49,8 @@ describe("DocBlockRenderer", () => {
   it("fixture is schema-valid and covers its established v1 block types", () => {
     const doc = loadFixture();
     const blockTypes = new Set(Object.values(doc.blocks).map((block) => block.type));
-    // process-outline stays out of the fixture until the corpus/goldens phase adds it; remove this filter then.
-    for (const blockType of DOC_BLOCK_TYPES.filter((type) => type !== "process-outline")) {
+    // The legacy fixture predates process-outline and HTML; dedicated tests cover those types.
+    for (const blockType of DOC_BLOCK_TYPES.filter((type) => type !== "process-outline" && type !== "html" && type !== "image-grid")) {
       expect(blockTypes.has(blockType)).toBe(true);
     }
   });

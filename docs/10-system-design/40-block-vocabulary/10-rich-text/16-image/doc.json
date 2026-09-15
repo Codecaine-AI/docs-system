@@ -25,7 +25,8 @@
         "b-30-image-agent-2-12",
         "b-30-image-theming-heading",
         "b-30-image-theming-para",
-        "b-30-image-theming-table"
+        "b-30-image-theming-table",
+        "grid-doc-1789403404494-0"
       ]
     },
     "b-30-image-lead-2": {
@@ -70,7 +71,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A live block over a real bundle asset — the SVG lives at "
+          "insert": "A live block over a real bundle asset. the SVG lives at "
         },
         {
           "insert": "assets/images/two-renders.svg",
@@ -117,7 +118,7 @@
           {
             "name": "src",
             "type": "string",
-            "description": "Image source — conventionally a bundle-relative path under assets/images/."
+            "description": "Image source. conventionally a bundle-relative path under assets/images/."
           },
           {
             "name": "alt",
@@ -188,7 +189,7 @@
           }
         },
         {
-          "insert": " (aliases: picture, photo) — inserts an empty block that renders a missing-"
+          "insert": " (aliases: picture, photo). inserts an empty block that renders a missing-"
         },
         {
           "insert": "src",
@@ -326,7 +327,7 @@
       "props": {},
       "text": [
         {
-          "insert": "No typed actions — set "
+          "insert": "No typed actions. set "
         },
         {
           "insert": "src",
@@ -440,7 +441,7 @@
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "20-implementation/40-theming"
+              "path": "30-implementation/40-theming"
             }
           }
         },
@@ -509,6 +510,29 @@
           ]
         ]
       },
+      "children": []
+    },
+    "grid-doc-1789403404494-0": {
+      "id": "grid-doc-1789403404494-0",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "For related processing stages or result sets, use "
+        },
+        {
+          "insert": "Image Grid",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/10-rich-text/19-image-grid"
+            }
+          }
+        },
+        {
+          "insert": " to keep the images together with individual headings. Keep standalone illustrations as image blocks."
+        }
+      ],
       "children": []
     }
   }

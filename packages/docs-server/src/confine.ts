@@ -23,16 +23,16 @@ export const ALLOWED_VIDEO_ASSET_EXT = new Set([".mp4", ".webm", ".mov", ".m4v"]
 
 export const ALLOWED_DOC_EXT = new Set([".md", ".markdown", ".mdx"]);
 
-export type DocsFormat = "md" | "mdx";
+export type DocsFormat = "md" | "mdx" | "json";
 
-/** True when `path` names a markdown/MDX docs source file. */
+/** True when `path` names a markdown/MDX source or normalized doc.json bundle file. */
 export function isAllowedDocsFilePath(path: string): boolean {
-  return ALLOWED_DOC_EXT.has(extname(path).toLowerCase());
+  return ALLOWED_DOC_EXT.has(extname(path).toLowerCase()) || /(?:^|\/)doc\.json$/.test(path);
 }
 
 /** Infers the docs source format from a file extension. */
 export function inferDocsFormat(path: string): DocsFormat {
-  return extname(path).toLowerCase() === ".mdx" ? "mdx" : "md";
+  return /(?:^|\/)doc\.json$/.test(path) ? "json" : extname(path).toLowerCase() === ".mdx" ? "mdx" : "md";
 }
 
 /** Canvas sidecar path predicate: `.canvas.json` under an `assets/canvases/` segment. */

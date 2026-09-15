@@ -1,0 +1,14 @@
+{
+  "name": "Spectre",
+  "root": "/Users/Ford/Github Repos/Codecaine/Apps/spectre",
+  "status": "Blocked: legacy format",
+  "agent": "migrate_spectre",
+  "oldImplementationDirectoryExists": true,
+  "newImplementationDirectoryExists": false,
+  "recovery": [],
+  "validation": {
+    "status": "blocked",
+    "reason": "Current Docs discovery rejects every document because the corpus uses retired block flavour keys. No project ID was returned, so typed move cannot run. Schema migration is outside minor layer reorder."
+  },
+  "fullReport": "/tmp/docs-layout-review/migrate_spectre.json"
+}

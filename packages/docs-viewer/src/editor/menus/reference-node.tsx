@@ -204,7 +204,7 @@ function ReferenceChipView({ node }: ReactNodeViewProps) {
         onFocus={() => setTooltipOpen(true)}
         onMouseEnter={showTooltipSoon}
         onMouseLeave={hideTooltip}
-        className="group inline-flex cursor-pointer items-baseline gap-[var(--docs-ref-icon-gap,2px)] [flex-direction:var(--docs-ref-icon-direction,row)] text-[color:var(--docs-ref-color,var(--muted-foreground))]"
+        className="group inline-flex cursor-pointer items-baseline gap-[var(--docs-ref-icon-gap,2px)] [flex-direction:var(--docs-ref-icon-direction,row)] text-[color:var(--docs-ref-color,var(--foreground))]"
       >
         <FileTextIcon
           aria-hidden

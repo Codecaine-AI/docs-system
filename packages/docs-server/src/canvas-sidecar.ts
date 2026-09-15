@@ -532,7 +532,7 @@ export async function saveCanvasSidecar(
         original_hash: input.originalHash,
       };
     }
-    const lockCheck = draftLockStore.checkForMutation(
+    const lockCheck = draftLockStore.forRoot(docsRoot).checkForMutation(
       { kind: "canvas", path: loaded.canvasRelPath },
       input.sessionId,
     );
@@ -631,7 +631,7 @@ export async function saveCanvasSidecarBySrc(
         original_hash: input.originalHash,
       };
     }
-    const lockCheck = draftLockStore.checkForMutation(
+    const lockCheck = draftLockStore.forRoot(docsRoot).checkForMutation(
       { kind: "canvas", path: loaded.canvasRelPath },
       input.sessionId,
     );
@@ -708,6 +708,9 @@ export async function createCanvasSidecar(
       original_hash: input.originalHash,
     };
   }
+  if (input.insertMdx && loadedDoc.format === "json") {
+    return { ok: false, status: 400, detail: "Normalized documents use typed Canvas blocks, not MDX insertion." };
+  }
   const canvasRelPath = resolveCanvasSidecarRelativePath(input.docPath, input.src);
   if (!canvasRelPath) {
     return {
@@ -733,7 +736,7 @@ export async function createCanvasSidecar(
     if (exists) {
       return { ok: false, status: 409, detail: `Canvas sidecar already exists: ${canvasRelPath}` };
     }
-    const lockCheck = draftLockStore.checkForMutation(
+    const lockCheck = draftLockStore.forRoot(docsRoot).checkForMutation(
       { kind: "canvas", path: canvasRelPath },
       input.sessionId,
     );

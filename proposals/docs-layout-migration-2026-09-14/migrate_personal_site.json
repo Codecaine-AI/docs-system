@@ -1,0 +1,37 @@
+{
+  "name": "Personal Site",
+  "root": "/Users/Ford/Github Repos/Lascari AI/personal-site",
+  "status": "Applied",
+  "agent": "migrate_personal_site",
+  "oldImplementationDirectoryExists": false,
+  "newImplementationDirectoryExists": true,
+  "recovery": [
+    {
+      "kind": "tree_change_id",
+      "id": "86f62a58-e5d6-4cc9-b250-9e65db6caef4"
+    },
+    {
+      "kind": "tree_change_id",
+      "id": "82a0576f-786c-49a8-913a-8e8f5d61ca5f"
+    }
+  ],
+  "validation": {
+    "status": "complete",
+    "validation": {
+      "linksBefore": 0,
+      "linksAfter": 0,
+      "blockingFindings": 0,
+      "readmeDiffCheck": "passed"
+    },
+    "preserved": {
+      "movedDocumentBlocks": 60,
+      "allCorpusBlocks": 91,
+      "allDocumentHashesUnchanged": true
+    },
+    "notes": [
+      "20-agents reserved without filler pages",
+      "No commit or push"
+    ]
+  },
+  "fullReport": "/tmp/docs-layout-review/migrate_personal_site.json"
+}

@@ -1,0 +1,38 @@
+{
+  "name": "Budget / Framework / Canvas / Framework",
+  "root": "/Users/Ford/Github Repos/Lascari AI/personal-budget/packages/docs-framework/external/canvas/tools/docs-framework",
+  "status": "Applied",
+  "agent": "migrate_budget_nested_framework",
+  "oldImplementationDirectoryExists": false,
+  "newImplementationDirectoryExists": true,
+  "recovery": [
+    {
+      "kind": "tree_change_id",
+      "id": "158c5948-2ed4-4a44-bb55-30458eb8d7ce"
+    }
+  ],
+  "validation": {
+    "status": "applied",
+    "validation": {
+      "linksBefore": [
+        "20-implementation/99-appendix/00-local-dev-loop -> ../canvas/docs: source not found"
+      ],
+      "linksAfter": [
+        "30-implementation/99-appendix/00-local-dev-loop -> ../canvas/docs: source not found"
+      ],
+      "newBrokenLinks": 0,
+      "gitDiffCheck": "pass",
+      "targetedTests": "blocked before execution: missing @sinclair/typebox and workspace dependencies; no install performed",
+      "projectionsRegenerated": 44,
+      "minimalExampleBlocksUpdated": 7,
+      "tasksEnded": true
+    },
+    "verification": {
+      "pages": 44,
+      "blocks": 1528,
+      "structureErrors": [],
+      "lintAdded": []
+    }
+  },
+  "fullReport": "/tmp/docs-layout-review/migrate_budget_nested_framework.json"
+}

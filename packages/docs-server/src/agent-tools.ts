@@ -453,7 +453,7 @@ export async function canvas_apply_patch(
       };
     }
 
-    const lockCheck = draftLockStore.checkForMutation({ kind: "canvas", path: canvasRelPath }, actor);
+    const lockCheck = draftLockStore.forRoot(docsRoot).checkForMutation({ kind: "canvas", path: canvasRelPath }, actor);
     if (lockCheck.blocked) {
       return {
         ok: false,
@@ -486,7 +486,7 @@ export async function canvas_apply_patch(
     await atomicWriteFile(canvasAbs, content);
     const hash = createContentHash(content);
     const patchId = randomUUID();
-    recordCanvasPatch(patchId, canvasRelPath, priorSnapshot, hash);
+    recordCanvasPatch(patchId, canvasRelPath, priorSnapshot, hash, docsRoot);
 
     return {
       ok: true,
@@ -638,7 +638,7 @@ export async function sequence_apply_patch(
       };
     }
 
-    const lockCheck = draftLockStore.checkForMutation(
+    const lockCheck = draftLockStore.forRoot(docsRoot).checkForMutation(
       { kind: "sequence", path: sequenceRelPath },
       actor,
     );
@@ -676,7 +676,7 @@ export async function sequence_apply_patch(
     await atomicWriteFile(sequenceAbs, content);
     const hash = createContentHash(content);
     const patchId = randomUUID();
-    recordSequencePatch(patchId, sequenceRelPath, priorSnapshot, hash);
+    recordSequencePatch(patchId, sequenceRelPath, priorSnapshot, hash, docsRoot);
 
     return {
       ok: true,
@@ -730,7 +730,7 @@ export type UndoPatchResult =
  * undone once — undoing consumes it).
  */
 export async function undo_patch(docsRoot: string, patchId: string): Promise<UndoPatchResult> {
-  const stored = getStoredPatch(patchId);
+  const stored = getStoredPatch(patchId, docsRoot);
   if (!stored) {
     return { ok: false, status: 404, detail: `No undoable patch found for id: ${patchId}` };
   }
@@ -751,7 +751,7 @@ export async function undo_patch(docsRoot: string, patchId: string): Promise<Und
       }
       undonePatchIds.push(memberPatchId);
     }
-    deleteStoredPatch(patchId);
+    deleteStoredPatch(patchId, docsRoot);
     return { ok: true, kind: "compound", undonePatchIds };
   }
 
@@ -762,7 +762,7 @@ export async function undo_patch(docsRoot: string, patchId: string): Promise<Und
       stored.inverse,
       stored.hashAfterApply,
       undefined,
-      { validateProps: false },
+      { validateProps: false, normalize: false },
     );
     if (!result.ok) {
       return {
@@ -775,7 +775,7 @@ export async function undo_patch(docsRoot: string, patchId: string): Promise<Und
         current_hash: result.current_hash,
       };
     }
-    deleteStoredPatch(patchId);
+    deleteStoredPatch(patchId, docsRoot);
     return { ok: true, kind: "doc", doc: result.doc, hash: result.hash };
   }
 
@@ -791,7 +791,7 @@ export async function undo_patch(docsRoot: string, patchId: string): Promise<Und
           : replayed.detail,
       };
     }
-    deleteStoredPatch(patchId);
+    deleteStoredPatch(patchId, docsRoot);
     return { ok: true, kind: "tree" };
   }
 
@@ -843,7 +843,7 @@ export async function undo_patch(docsRoot: string, patchId: string): Promise<Und
           await atomicWriteFile(file.abs, file.beforeContent);
         }
       }
-      deleteStoredPatch(patchId);
+      deleteStoredPatch(patchId, docsRoot);
       return { ok: true, kind: "sidecars" };
     };
     return acquire(0);
@@ -870,7 +870,7 @@ export async function undo_patch(docsRoot: string, patchId: string): Promise<Und
       const content = `${JSON.stringify(stored.priorSnapshot, null, 2)}\n`;
       await atomicWriteFile(sequenceAbs, content);
       const hash = createContentHash(content);
-      deleteStoredPatch(patchId);
+      deleteStoredPatch(patchId, docsRoot);
       return { ok: true, kind: "sequence", sequence: stored.priorSnapshot, hash };
     });
   }
@@ -895,7 +895,7 @@ export async function undo_patch(docsRoot: string, patchId: string): Promise<Und
     const content = `${JSON.stringify(stored.priorSnapshot, null, 2)}\n`;
     await atomicWriteFile(canvasAbs, content);
     const hash = createContentHash(content);
-    deleteStoredPatch(patchId);
+    deleteStoredPatch(patchId, docsRoot);
     return { ok: true, kind: "canvas", canvas: stored.priorSnapshot, hash };
   });
 }

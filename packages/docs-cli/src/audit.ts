@@ -15,8 +15,8 @@
  *
  * Findings come at two severities:
  * - ERRORS (E1–E6) are structural/write invariants; any error makes the CLI exit 1.
- * - WARNINGS (W1, W2, W4) are content conventions, printed but never failing —
- *   read-through fodder, to be promoted to errors after Ford's corpus pass.
+ * - Shared authoring findings use each rule's audit policy. W1, W2, W4
+ *   remain advisory. Required writing errors fail the audit.
  *
  * Checks:
  * - E1 duplicate two-digit prefix among sibling directories.
@@ -38,6 +38,7 @@
  * - W4 first content block after the title is not a paragraph (missing
  *   opener).
  */
+import { lintDocument, type LintFinding } from "@codecaine-ai/docs-model/lint";
 import { readdir, readFile, stat } from "node:fs/promises";
 import path from "node:path";
 
@@ -48,7 +49,7 @@ import {
   type DocDocument,
 } from "@codecaine-ai/docs-model";
 
-export type AuditCheckId = "E1" | "E2" | "E3" | "E4" | "E5" | "E6" | "W1" | "W2" | "W4";
+export type AuditCheckId = "E1" | "E2" | "E3" | "E4" | "E5" | "E6" | "W1" | "W2" | "W4" | LintFinding["ruleId"];
 
 export type AuditFinding = {
   severity: "error" | "warn";
@@ -56,6 +57,10 @@ export type AuditFinding = {
   /** Posix path relative to docsRoot; "." for the root itself. */
   path: string;
   message: string;
+  blockId?: string;
+  field?: string;
+  docsPath?: string;
+  suggestion?: string;
 };
 
 export type AuditReport = {
@@ -92,46 +97,18 @@ function auditDocContent(doc: DocDocument, relPath: string, findings: AuditFindi
     });
   }
 
-  const levelOneHeadings = blocks.filter(
-    (block) => block.type === "heading" && block.props.level === 1,
-  );
-  if (levelOneHeadings.length > 1) {
+  // Rule-owned audit metadata preserves legacy check IDs and warning policy.
+  const report = lintDocument(doc, { phase: "complete" });
+  for (const finding of report.findings) {
     findings.push({
-      severity: "warn",
-      checkId: "W1",
+      severity: (finding.audit?.severity ?? finding.severity) === "error" ? "error" : "warn",
+      checkId: finding.audit?.id ?? finding.ruleId,
       path: relPath,
-      message: `found ${levelOneHeadings.length} level-1 headings; expected exactly one`,
-    });
-  }
-
-  for (const block of blocks) {
-    if (block.type !== "image") continue;
-    const alt = block.props.alt;
-    if (typeof alt !== "string" || alt.trim() === "") {
-      findings.push({
-        severity: "warn",
-        checkId: "W2",
-        path: relPath,
-        message: `image block "${block.id}" is missing alt text`,
-      });
-    }
-  }
-
-  // W4: the first content block — after optionally skipping one leading
-  // level-1 title heading — should be an opening paragraph.
-  const rootBlock = doc.blocks[doc.root];
-  const sequence = (rootBlock?.children ?? [])
-    .map((childId) => doc.blocks[childId])
-    .filter((block): block is DocBlock => block !== undefined);
-  let index = 0;
-  if (sequence[index]?.type === "heading" && sequence[index]?.props.level === 1) index += 1;
-  const opener = sequence[index];
-  if (opener?.type !== "paragraph") {
-    findings.push({
-      severity: "warn",
-      checkId: "W4",
-      path: relPath,
-      message: `first content block after the title is ${opener ? `"${opener.type}"` : "absent"}; expected an opening paragraph`,
+      message: finding.message,
+      blockId: finding.blockId,
+      field: finding.field,
+      docsPath: finding.docsPath,
+      suggestion: finding.suggestion,
     });
   }
 }
@@ -279,8 +256,8 @@ async function auditDirectory(
  * section has at least two children but no parent doc.json, and E5 when a
  * parent-doc bundle also has a retired 00-overview child. E6 rejects strict
  * component-state drift before an editor save discovers it. Content warnings
- * are W1, W2, and W4. Callers should exit non-zero when `errorCount > 0`;
- * warnings never fail the run.
+ * include W1, W2, and W4 plus shared writing and page rules. Callers should
+ * exit non-zero when `errorCount > 0`; warnings never fail the run.
  */
 export async function auditCommand(docsRootArg?: string): Promise<AuditReport> {
   const docsRoot = path.resolve(docsRootArg ?? "docs");

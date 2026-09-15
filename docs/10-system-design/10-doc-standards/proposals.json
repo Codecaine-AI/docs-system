@@ -1,0 +1,654 @@
+{
+  "schemaVersion": 1,
+  "proposals": [
+    {
+      "lint": {
+        "phase": "draft",
+        "findings": [],
+        "blocking": []
+      },
+      "id": "5664d13a-a85d-4ba6-833f-c6cc20f2fb6b",
+      "ops": [
+        {
+          "type": "updateBlock",
+          "blockId": "b-da3-title-1",
+          "props": {},
+          "text": [
+            {
+              "insert": "The documentation explains a project's intent, system design, agents, and implementation. Each section owns a different part of that explanation and links to the others where the reader needs the connection."
+            }
+          ]
+        },
+        {
+          "type": "moveBlock",
+          "blockId": "b-da3-title-1",
+          "toParentId": "b-10-doc-architecture-root",
+          "toIndex": 0
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-da3-layers-heading-7",
+          "props": {
+            "level": 2
+          },
+          "text": [
+            {
+              "insert": "The Four Sections"
+            }
+          ]
+        },
+        {
+          "type": "moveBlock",
+          "blockId": "b-da3-layers-heading-7",
+          "toParentId": "b-10-doc-architecture-root",
+          "toIndex": 1
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-da3-layers-table-8",
+          "props": {
+            "columns": [
+              "Section",
+              "Owns"
+            ],
+            "rows": [
+              [
+                "00-foundation/",
+                "Purpose, scope, and intended outcomes"
+              ],
+              [
+                "10-system-design/",
+                "System behavior, states, contracts, and interactions"
+              ],
+              [
+                "20-agents/",
+                "Agent definitions, context, tools, outputs, and responsibilities"
+              ],
+              [
+                "30-implementation/",
+                "Codebase map, design connections, and implementation rationale"
+              ]
+            ]
+          }
+        },
+        {
+          "type": "moveBlock",
+          "blockId": "b-da3-layers-table-8",
+          "toParentId": "b-10-doc-architecture-root",
+          "toIndex": 2
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-da3-scale-lead-3",
+          "props": {},
+          "text": [
+            {
+              "insert": "System Design includes precise schemas, JSON examples, and interactions when they explain system behavior. Agents owns agent definitions. Implementation explains how the current code realizes those designs and why it uses its particular technologies and patterns."
+            }
+          ]
+        },
+        {
+          "type": "moveBlock",
+          "blockId": "b-da3-scale-lead-3",
+          "toParentId": "b-10-doc-architecture-root",
+          "toIndex": 3
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-da3-shape-heading-12",
+          "props": {
+            "level": 2
+          },
+          "text": [
+            {
+              "insert": "The Shape on Disk"
+            }
+          ]
+        },
+        {
+          "type": "moveBlock",
+          "blockId": "b-da3-shape-heading-12",
+          "toParentId": "b-10-doc-architecture-root",
+          "toIndex": 4
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-da3-shape-tree-13",
+          "props": {
+            "entries": [
+              {
+                "path": "00-foundation/",
+                "note": "Purpose, scope, and intended outcomes"
+              },
+              {
+                "path": "10-system-design/",
+                "note": "System behavior, states, contracts, and interactions"
+              },
+              {
+                "path": "20-agents/",
+                "note": "Agent definitions, context, tools, outputs, and responsibilities"
+              },
+              {
+                "path": "30-implementation/",
+                "note": "Codebase map, design connections, and implementation rationale"
+              },
+              {
+                "path": "40-guides/",
+                "note": "Project-specific setup and operating procedures"
+              },
+              {
+                "path": "99-appendix/",
+                "note": "Supplementary reference"
+              }
+            ]
+          }
+        },
+        {
+          "type": "moveBlock",
+          "blockId": "b-da3-shape-tree-13",
+          "toParentId": "b-10-doc-architecture-root",
+          "toIndex": 5
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-da3-ext-tiers-9",
+          "props": {},
+          "text": [
+            {
+              "insert": "Projects without agents omit Agents. Project-specific guides follow Implementation. A migration preserves document identity and rewrites references before the new reading order is adopted."
+            }
+          ]
+        },
+        {
+          "type": "moveBlock",
+          "blockId": "b-da3-ext-tiers-9",
+          "toParentId": "b-10-doc-architecture-root",
+          "toIndex": 6
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-da3-why-heading-10",
+          "props": {
+            "level": 2
+          },
+          "text": [
+            {
+              "insert": "The Why Travels With Each Decision"
+            }
+          ]
+        },
+        {
+          "type": "moveBlock",
+          "blockId": "b-da3-why-heading-10",
+          "toParentId": "b-10-doc-architecture-root",
+          "toIndex": 7
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-da3-why-para-11",
+          "props": {},
+          "text": [
+            {
+              "insert": "Record the reason beside the decision it explains. Preserve known tradeoffs and constraints. When a reason is not established by a maintained source or project decision, describe what the code does without inventing its rationale."
+            }
+          ]
+        },
+        {
+          "type": "moveBlock",
+          "blockId": "b-da3-why-para-11",
+          "toParentId": "b-10-doc-architecture-root",
+          "toIndex": 8
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-darch-standards-heading-27",
+          "props": {
+            "level": 2
+          },
+          "text": [
+            {
+              "insert": "The Standards"
+            }
+          ]
+        },
+        {
+          "type": "moveBlock",
+          "blockId": "b-darch-standards-heading-27",
+          "toParentId": "b-10-doc-architecture-root",
+          "toIndex": 9
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-darch-standards-intro-28",
+          "props": {},
+          "text": [
+            {
+              "insert": "Structure",
+              "attributes": {
+                "reference": {
+                  "kind": "doc",
+                  "path": "10-system-design/10-doc-standards/10-structure"
+                }
+              }
+            },
+            {
+              "insert": ". Section ownership, codebase mirroring, and the transition into source-level detail."
+            }
+          ]
+        },
+        {
+          "type": "moveBlock",
+          "blockId": "b-darch-standards-intro-28",
+          "toParentId": "b-10-doc-architecture-root",
+          "toIndex": 10
+        },
+        {
+          "type": "insertBlock",
+          "blockId": "layout-review-11-10-doc-standards",
+          "blockType": "paragraph",
+          "parentId": "b-10-doc-architecture-root",
+          "index": 11,
+          "props": {},
+          "text": [
+            {
+              "insert": "Numbering",
+              "attributes": {
+                "reference": {
+                  "kind": "doc",
+                  "path": "10-system-design/10-doc-standards/20-numbering"
+                }
+              }
+            },
+            {
+              "insert": ". Readable order and stable, numbered addresses."
+            }
+          ]
+        },
+        {
+          "type": "insertBlock",
+          "blockId": "layout-review-12-10-doc-standards",
+          "blockType": "paragraph",
+          "parentId": "b-10-doc-architecture-root",
+          "index": 12,
+          "props": {},
+          "text": [
+            {
+              "insert": "Cross-Doc Linking",
+              "attributes": {
+                "reference": {
+                  "kind": "doc",
+                  "path": "10-system-design/10-doc-standards/30-cross-doc-linking"
+                }
+              }
+            },
+            {
+              "insert": ". Typed links between the design, agents, and implementation."
+            }
+          ]
+        },
+        {
+          "type": "insertBlock",
+          "blockId": "layout-review-13-10-doc-standards",
+          "blockType": "paragraph",
+          "parentId": "b-10-doc-architecture-root",
+          "index": 13,
+          "props": {},
+          "text": [
+            {
+              "insert": "Code Linking",
+              "attributes": {
+                "reference": {
+                  "kind": "doc",
+                  "path": "10-system-design/10-doc-standards/40-code-linking"
+                }
+              }
+            },
+            {
+              "insert": ". Checkable source references to the relevant code."
+            }
+          ]
+        },
+        {
+          "type": "insertBlock",
+          "blockId": "layout-review-14-10-doc-standards",
+          "blockType": "paragraph",
+          "parentId": "b-10-doc-architecture-root",
+          "index": 14,
+          "props": {},
+          "text": [
+            {
+              "insert": "In-Code Docs",
+              "attributes": {
+                "reference": {
+                  "kind": "doc",
+                  "path": "10-system-design/10-doc-standards/50-in-code-docs"
+                }
+              }
+            },
+            {
+              "insert": ". File headers, function contracts, and local explanations."
+            }
+          ]
+        },
+        {
+          "type": "insertBlock",
+          "blockId": "layout-review-15-10-doc-standards",
+          "blockType": "paragraph",
+          "parentId": "b-10-doc-architecture-root",
+          "index": 15,
+          "props": {},
+          "text": [
+            {
+              "insert": "Implementation Layer",
+              "attributes": {
+                "reference": {
+                  "kind": "doc",
+                  "path": "10-system-design/10-doc-standards/60-implementation-layer"
+                }
+              }
+            },
+            {
+              "insert": ". Concise design-to-code mapping and implementation rationale."
+            }
+          ]
+        },
+        {
+          "type": "insertBlock",
+          "blockId": "layout-review-16-10-doc-standards",
+          "blockType": "paragraph",
+          "parentId": "b-10-doc-architecture-root",
+          "index": 16,
+          "props": {},
+          "text": [
+            {
+              "insert": "Document Purpose",
+              "attributes": {
+                "reference": {
+                  "kind": "doc",
+                  "path": "10-system-design/10-doc-standards/70-document-purpose"
+                }
+              }
+            },
+            {
+              "insert": ". One primary reader task per page."
+            }
+          ]
+        },
+        {
+          "type": "insertBlock",
+          "blockId": "layout-review-17-10-doc-standards",
+          "blockType": "paragraph",
+          "parentId": "b-10-doc-architecture-root",
+          "index": 17,
+          "props": {},
+          "text": [
+            {
+              "insert": "Authoring Lints",
+              "attributes": {
+                "reference": {
+                  "kind": "doc",
+                  "path": "10-system-design/10-doc-standards/80-authoring-lints"
+                }
+              }
+            },
+            {
+              "insert": ". Validation and writing checks."
+            }
+          ]
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "pm-mruq0c12-107-u8o42s",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "pm-mruq0c12-108-dfykqf",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "pm-mruq0c12-109-0j73yx",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "b-ds-std-structure-1",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "b-ds-std-numbering-2",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "b-ds-std-xlink-3",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "b-ds-std-clink-4",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "b-ds-std-icd-5",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "b-ds-std-impl-6",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "standards-b-standards-document-purpose-docs-1",
+          "mode": "subtree"
+        },
+        {
+          "type": "deleteBlock",
+          "blockId": "standards-b-standards-authoring-lints-docs-1-3",
+          "mode": "subtree"
+        }
+      ],
+      "changedBlockIds": [
+        "b-da3-title-1",
+        "b-10-doc-architecture-root",
+        "b-da3-layers-heading-7",
+        "b-da3-layers-table-8",
+        "b-da3-scale-lead-3",
+        "b-da3-shape-heading-12",
+        "b-da3-shape-tree-13",
+        "b-da3-ext-tiers-9",
+        "b-da3-why-heading-10",
+        "b-da3-why-para-11",
+        "b-darch-standards-heading-27",
+        "b-darch-standards-intro-28",
+        "layout-review-11-10-doc-standards",
+        "layout-review-12-10-doc-standards",
+        "layout-review-13-10-doc-standards",
+        "layout-review-14-10-doc-standards",
+        "layout-review-15-10-doc-standards",
+        "layout-review-16-10-doc-standards",
+        "layout-review-17-10-doc-standards",
+        "pm-mruq0c12-107-u8o42s",
+        "pm-mruq0c12-108-dfykqf",
+        "pm-mruq0c12-109-0j73yx",
+        "b-ds-std-structure-1",
+        "b-ds-std-numbering-2",
+        "b-ds-std-xlink-3",
+        "b-ds-std-clink-4",
+        "b-ds-std-icd-5",
+        "b-ds-std-impl-6",
+        "standards-b-standards-document-purpose-docs-1",
+        "standards-b-standards-authoring-lints-docs-1-3"
+      ],
+      "summary": "Define Foundation, System Design, Agents, and concise Implementation as the shared reading path.",
+      "baseHash": "23d29a47a011dfa15c7a9370d68e2218b30aeb24d51dcc43a71963b84162f31e",
+      "status": "rejected",
+      "createdAt": "2026-09-14T14:42:24.165Z",
+      "resolvedAt": "2026-09-14T14:50:04.840Z"
+    },
+    {
+      "lint": {
+        "phase": "draft",
+        "findings": [],
+        "blocking": []
+      },
+      "id": "c720af22-1ef8-4499-95c3-c5c8e9bfc951",
+      "ops": [
+        {
+          "type": "updateBlock",
+          "blockId": "b-da3-layers-heading-7",
+          "text": [
+            {
+              "insert": "The Four Layers"
+            }
+          ]
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-da3-layers-table-8",
+          "props": {
+            "columns": [
+              "Layer",
+              "Holds",
+              "Changes"
+            ],
+            "rows": [
+              [
+                [
+                  {
+                    "insert": "00-foundation",
+                    "attributes": {
+                      "code": true
+                    }
+                  }
+                ],
+                "Core idea behind the system and why it exists",
+                "Rarely"
+              ],
+              [
+                [
+                  {
+                    "insert": "10-system-design",
+                    "attributes": {
+                      "code": true
+                    }
+                  }
+                ],
+                "Behavior, implementation-agnostic",
+                "When behavior changes"
+              ],
+              [
+                [
+                  {
+                    "insert": "20-agents",
+                    "attributes": {
+                      "code": true
+                    }
+                  }
+                ],
+                "Participating agents, their definitions, context, tools, outputs, and responsibilities",
+                "When agent contracts change"
+              ],
+              [
+                [
+                  {
+                    "insert": "30-implementation",
+                    "attributes": {
+                      "code": true
+                    }
+                  }
+                ],
+                "How the current code realizes the system design, including its organization and the reasons for key implementation choices",
+                "With the code"
+              ]
+            ]
+          }
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-da3-ext-tiers-9",
+          "text": [
+            {
+              "insert": "A repo may declare additional numbered root tiers (40 and above, below 99) for procedural guide content the four layers cannot hold. "
+            },
+            {
+              "insert": "structure",
+              "attributes": {
+                "reference": {
+                  "kind": "doc",
+                  "path": "10-system-design/10-doc-standards/10-structure"
+                }
+              }
+            },
+            {
+              "insert": " owns the rule."
+            }
+          ]
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-da3-shape-tree-13",
+          "props": {
+            "entries": [
+              {
+                "path": "00-foundation/",
+                "note": "intent: what this is and why; every change is compared against it"
+              },
+              {
+                "path": "10-system-design/",
+                "note": "behavior: implementation-agnostic; what the system does and why"
+              },
+              {
+                "path": "10-system-design/10-doc-standards/",
+                "note": "this section: the structure itself, plus its standards docs"
+              },
+              {
+                "path": "20-agents/",
+                "note": "the agents involved: definitions, context, tools, outputs, and responsibilities"
+              },
+              {
+                "path": "30-implementation/",
+                "note": "the current code: mirrors the source tree, churns with it"
+              }
+            ]
+          }
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-ds-std-structure-1-gloss",
+          "text": [
+            {
+              "insert": "The four layers, the depth ladder, folders and parent docs, and when a topic earns a folder."
+            }
+          ]
+        },
+        {
+          "type": "updateBlock",
+          "blockId": "b-ds-std-impl-6-gloss",
+          "text": [
+            {
+              "insert": "Area pages, decision entries, the design-to-code mapping, and lazy accretion."
+            }
+          ]
+        }
+      ],
+      "changedBlockIds": [
+        "b-da3-layers-heading-7",
+        "b-da3-layers-table-8",
+        "b-da3-ext-tiers-9",
+        "b-da3-shape-tree-13",
+        "b-ds-std-structure-1-gloss",
+        "b-ds-std-impl-6-gloss"
+      ],
+      "summary": "Add Agents to the existing layer table and tree; retain the surrounding explanation and standards index.",
+      "baseHash": "23d29a47a011dfa15c7a9370d68e2218b30aeb24d51dcc43a71963b84162f31e",
+      "status": "accepted",
+      "createdAt": "2026-09-14T14:52:59.070Z",
+      "resolvedAt": "2026-09-14T15:20:15.742Z"
+    }
+  ]
+}

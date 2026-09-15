@@ -221,3 +221,69 @@ describe("process-outline.moveStep component action", () => {
     expect(run(moveStep, processOutlineBlock(), { from: [0] }).ok).toBe(false);
   });
 });
+
+/**
+ * The trace mark is a step field, so it has to survive every action that
+ * rewrites the tree — all five funnel through `cloneStep`, and a field that
+ * silently vanished on a move or a rename would be worse than not having it.
+ */
+describe("process-outline trace mark across the actions", () => {
+  const traced = (): DocBlock =>
+    processOutlineBlock({
+      steps: [
+        { text: "Run", trace: true, steps: [{ text: "Drain" }, { text: "why", kind: "note" }] },
+        { text: "Finish" },
+      ],
+    });
+
+  it("insertStep stores the mark only when asked", () => {
+    const props = mustOk(run(insertStep, traced(), { path: [2], text: "Tail", trace: true }));
+    expect((props.steps as unknown[])[2]).toEqual({ text: "Tail", trace: true });
+    const plain = mustOk(run(insertStep, traced(), { path: [2], text: "Tail" }));
+    expect((plain.steps as unknown[])[2]).toEqual({ text: "Tail" });
+  });
+
+  it("insertStep refuses to trace-mark a note", () => {
+    const result = run(insertStep, traced(), {
+      path: [2],
+      text: "why",
+      kind: "note",
+      trace: true,
+    });
+    expect(result.ok).toBe(false);
+  });
+
+  it("setStepText leaves the mark alone unless the param is given", () => {
+    const kept = mustOk(run(setStepText, traced(), { path: [0], text: "Run again" }));
+    expect((kept.steps as { trace?: boolean }[])[0].trace).toBe(true);
+
+    const cleared = mustOk(run(setStepText, traced(), { path: [0], text: "Run", trace: false }));
+    expect((cleared.steps as { trace?: boolean }[])[0].trace).toBeUndefined();
+
+    const set = mustOk(run(setStepText, traced(), { path: [1], text: "Finish", trace: true }));
+    expect((set.steps as { trace?: boolean }[])[1].trace).toBe(true);
+  });
+
+  it("setStepText refuses to trace-mark a note", () => {
+    expect(
+      run(setStepText, traced(), { path: [0, 1], text: "why", trace: true }).ok,
+    ).toBe(false);
+  });
+
+  it("moveStep and removeStep carry the mark with the step and its subtree", () => {
+    const moved = mustOk(run(moveStep, traced(), { from: [0], to: [1] }));
+    expect((moved.steps as { text: string; trace?: boolean }[])[1]).toMatchObject({
+      text: "Run",
+      trace: true,
+    });
+    const removed = mustOk(run(removeStep, traced(), { path: [1] }));
+    expect((removed.steps as { trace?: boolean }[])[0].trace).toBe(true);
+  });
+
+  it("setSteps accepts a trace-marked tree through the shared schema", () => {
+    const props = mustOk(
+      run(setSteps, processOutlineBlock(), { steps: [{ text: "Run", trace: true }] }),
+    );
+    expect(props.steps).toEqual([{ text: "Run", trace: true }]);
+  });
+});

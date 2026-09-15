@@ -39,7 +39,9 @@ export const DOC_BLOCK_TYPES = [
   "canvas",
   "sequence",
   "image",
+  "image-grid",
   "video",
+  "html",
   "process-outline",
 ] as const;
 

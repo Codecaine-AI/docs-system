@@ -1,0 +1,43 @@
+{
+  "name": "Token Burner",
+  "root": "/Users/Ford/Github Repos/Codecaine/Apps/token-burner",
+  "status": "Applied",
+  "agent": "migrate_token_burner",
+  "oldImplementationDirectoryExists": false,
+  "newImplementationDirectoryExists": true,
+  "recovery": [
+    {
+      "kind": "tree_change_id",
+      "id": "4441feb0-e4de-49ea-892f-a0557bb7b177"
+    },
+    {
+      "kind": "patchId",
+      "id": "d39b35cf-6331-4d3b-ba3e-8c3471f3928a"
+    }
+  ],
+  "validation": {
+    "status": "complete",
+    "links": {
+      "beforeStale": 0,
+      "afterStale": 0
+    },
+    "preservation": [
+      {
+        "path": "20-implementation",
+        "equalsAfterMechanicalPaths": true,
+        "blocks": 16
+      },
+      {
+        "path": "00-foundation",
+        "equalsAfterMechanicalPaths": true,
+        "blocks": 12
+      }
+    ],
+    "limitations": [
+      "bun test executed as required by AGENTS.md; repository has no tests.",
+      "Original docs directory is untracked; existing dirty work preserved.",
+      "No Agents section exists; 20 reserved without new pages."
+    ]
+  },
+  "fullReport": "/tmp/docs-layout-review/migrate_token_burner.json"
+}

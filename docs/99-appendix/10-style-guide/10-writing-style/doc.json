@@ -15,7 +15,66 @@
         "b-sg-ws-concrete-4",
         "b-sg-ws-no-preamble-5",
         "b-sg-ws-no-memory-6",
-        "b-sg-ws-present-state-7"
+        "b-sg-ws-present-state-7",
+        "writing-b-writing-write-sentences-to-the-r-1",
+        "writing-b-writing-use-plain-words-and-the-2",
+        "writing-b-writing-address-the-reader-as-y-3",
+        "writing-b-writing-name-the-actor-and-actio-5",
+        "writing-b-writing-write-instructions-as-di-7",
+        "writing-b-writing-use-the-short-everyday-10",
+        "writing-b-writing-write-like-a-knowledgeab-13",
+        "writing-b-writing-remove-ambiguity-16",
+        "writing-b-writing-each-sentence-has-one-cl-17",
+        "writing-b-writing-keep-modifiers-next-to-t-18",
+        "writing-b-writing-give-every-pronoun-one-o-20",
+        "writing-b-writing-keep-the-small-words-tha-23",
+        "writing-b-writing-make-logical-grouping-ex-27",
+        "writing-b-writing-give-each-term-one-meani-30",
+        "writing-b-writing-use-punctuation-and-form-33",
+        "writing-b-writing-formatting-identifies-st-34",
+        "writing-b-writing-use-periods-or-commas-to-35",
+        "writing-b-writing-use-straight-quotes-and-39",
+        "writing-b-writing-put-code-in-code-font-an-41",
+        "writing-b-writing-name-link-destinations-43",
+        "writing-b-writing-preserve-the-corpus-page-45",
+        "writing-b-writing-remove-inflated-content-48",
+        "writing-b-writing-unslop-is-part-of-this-w-49",
+        "writing-b-writing-cut-puffery-and-promotio-50",
+        "writing-b-writing-give-attribution-a-sourc-53",
+        "writing-b-writing-remove-unsupported-trail-55",
+        "writing-b-writing-replace-formulaic-challe-57",
+        "writing-b-writing-say-what-the-system-does-59",
+        "writing-b-writing-replace-formulaic-langua-62",
+        "writing-b-writing-words-earn-their-place-b-63",
+        "writing-b-writing-review-stock-vocabulary-64",
+        "writing-b-writing-use-is-and-has-when-66",
+        "writing-b-writing-use-the-natural-number-o-68",
+        "writing-b-writing-replace-abstract-metapho-71",
+        "writing-b-writing-cut-filler-and-unsupport-74",
+        "writing-b-writing-remove-conversation-arti-77",
+        "writing-b-writing-documentation-states-the-78",
+        "writing-b-writing-remove-chatbot-greetings-79",
+        "writing-b-writing-replace-cutoff-disclaime-81",
+        "writing-b-writing-replace-generic-conclusi-83",
+        "writing-b-writing-keep-the-voice-human-wit-85",
+        "writing-b-writing-sources-87",
+        "writing-b-writing-this-page-incorporates-t-88",
+        "writing-b-writing-google-developer-style-89",
+        "writing-b-writing-asd-ste100-https-asd-90",
+        "writing-b-writing-john-r-kohl-s-the-globa-91",
+        "writing-b-writing-technical-writing-record-92",
+        "review-b-review-worked-example-1",
+        "review-b-review-the-revision-names-the-a-2",
+        "review-b-review-before-configuration-of-3",
+        "review-b-review-after-budget-mjs-reads-4",
+        "review-b-review-the-filenames-in-this-ex-5",
+        "review-b-review-review-checklist-6",
+        "review-b-review-read-the-rendered-docume-7",
+        "review-b-review-confirm-one-primary-purp-8",
+        "review-b-review-check-that-the-opening-e-9",
+        "review-b-review-put-conditions-before-co-10",
+        "review-b-review-resolve-ambiguous-pronou-11",
+        "review-b-review-replace-inflated-languag-12"
       ]
     },
     "b-sg-ws-intro-1": {
@@ -24,7 +83,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Write matter-of-fact: short declarative sentences that state what is, in the order the reader needs it."
+          "insert": "Write matter-of-fact prose that states what is, in the order the reader needs it. This page defines sentence clarity, punctuation, and the Unslop pattern catalog for the corpus."
         }
       ],
       "children": []
@@ -35,7 +94,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Lead with the fact. The first sentence of a doc or section states the thing itself — no setup, no “the idea here is”."
+          "insert": "Lead with the fact. The first sentence of a doc or section states the thing itself. No setup, no \"the idea here is\"."
         }
       ],
       "children": []
@@ -57,7 +116,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Concrete over vague: real numbers, real paths, real names. “Sixteen types”, never “several”."
+          "insert": "Concrete over vague: real numbers, real paths, real names. \"Sixteen types\", never \"several\"."
         }
       ],
       "children": []
@@ -79,7 +138,16 @@
       "props": {},
       "text": [
         {
-          "insert": "Assume no memory: a section stands alone or links to what it needs. Never “as mentioned above”."
+          "insert": "Assume no memory: a section stands alone or links to what it needs. Never "
+        },
+        {
+          "insert": "as mentioned above",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []
@@ -90,7 +158,1460 @@
       "props": {},
       "text": [
         {
-          "insert": "Present-state prose: a finished doc describes what exists now. No change-log voice (“now”, “previously”, “no longer”) unless the doc is explicitly about migration history."
+          "insert": "Present-state prose: a finished doc describes what exists now. No change-log voice (\"now\", \"previously\", \"no longer\") unless the doc is explicitly about migration history."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-write-sentences-to-the-r-1": {
+      "id": "writing-b-writing-write-sentences-to-the-r-1",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Write Sentences to the Reader"
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-use-plain-words-and-the-2": {
+      "id": "writing-b-writing-use-plain-words-and-the-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Use plain words and the real names from the codebase. Keep a longer sentence when it carries one thought clearly."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-address-the-reader-as-y-3": {
+      "id": "writing-b-writing-address-the-reader-as-y-3",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Address the reader as \"you\" and use the present tense."
+        }
+      ],
+      "children": [
+        "writing-b-writing-reserve-will-for-a-lat-4"
+      ]
+    },
+    "writing-b-writing-reserve-will-for-a-lat-4": {
+      "id": "writing-b-writing-reserve-will-for-a-lat-4",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Reserve \"will\" for a later event. Do not announce uncommitted features."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-name-the-actor-and-actio-5": {
+      "id": "writing-b-writing-name-the-actor-and-actio-5",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Name the actor and action."
+        }
+      ],
+      "children": [
+        "writing-b-writing-write-the-compiler-chec-6"
+      ]
+    },
+    "writing-b-writing-write-the-compiler-chec-6": {
+      "id": "writing-b-writing-write-the-compiler-chec-6",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Write \"the compiler checks the schema\" instead of \"the schema is checked\". Passive voice fits when the actor is unknown or irrelevant."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-write-instructions-as-di-7": {
+      "id": "writing-b-writing-write-instructions-as-di-7",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Write instructions as direct commands."
+        }
+      ],
+      "children": [
+        "writing-b-writing-put-the-condition-or-war-8",
+        "writing-b-writing-give-each-sentence-one-i-9"
+      ]
+    },
+    "writing-b-writing-put-the-condition-or-war-8": {
+      "id": "writing-b-writing-put-the-condition-or-war-8",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Put the condition or warning before the action it guards. Put the common case before exceptions."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-give-each-sentence-one-i-9": {
+      "id": "writing-b-writing-give-each-sentence-one-i-9",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Give each sentence one instruction. Review instructions over about 20 words and other sentences over about 25 words. Split at a second thought, not at an arbitrary count."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-use-the-short-everyday-10": {
+      "id": "writing-b-writing-use-the-short-everyday-10",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Use the short, everyday word."
+        }
+      ],
+      "children": [
+        "writing-b-writing-replace-utilize-and-l-11",
+        "writing-b-writing-cut-words-that-add-nothi-12"
+      ]
+    },
+    "writing-b-writing-replace-utilize-and-l-11": {
+      "id": "writing-b-writing-replace-utilize-and-l-11",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Replace \"utilize\" and \"leverage\" with \"use\", \"facilitate\" with \"help\", \"numerous\" with \"many\", and \"in the event that\" with \"if\"."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-cut-words-that-add-nothi-12": {
+      "id": "writing-b-writing-cut-words-that-add-nothi-12",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Cut words that add nothing. Keep words that prevent a second reading."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-write-like-a-knowledgeab-13": {
+      "id": "writing-b-writing-write-like-a-knowledgeab-13",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Write like a knowledgeable colleague."
+        }
+      ],
+      "children": [
+        "writing-b-writing-omit-please-simply-14",
+        "writing-b-writing-vary-sentence-lengths-a-15"
+      ]
+    },
+    "writing-b-writing-omit-please-simply-14": {
+      "id": "writing-b-writing-omit-please-simply-14",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Omit \"please\", \"simply\", \"easy\", and \"quickly\" from procedures. Read an awkward sentence aloud and rewrite it if it stays awkward."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-vary-sentence-lengths-a-15": {
+      "id": "writing-b-writing-vary-sentence-lengths-a-15",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Vary sentence lengths. Avoid consecutive sentences with the same opening. Give a view when the document's purpose calls for judgment."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-remove-ambiguity-16": {
+      "id": "writing-b-writing-remove-ambiguity-16",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Remove Ambiguity"
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-each-sentence-has-one-cl-17": {
+      "id": "writing-b-writing-each-sentence-has-one-cl-17",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each sentence has one clear reading. Use the real symbol, file, flag, or command name instead of rotating synonyms."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-keep-modifiers-next-to-t-18": {
+      "id": "writing-b-writing-keep-modifiers-next-to-t-18",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Keep modifiers next to the words they change."
+        }
+      ],
+      "children": [
+        "writing-b-writing-fails-only-on-growth-l-19"
+      ]
+    },
+    "writing-b-writing-fails-only-on-growth-l-19": {
+      "id": "writing-b-writing-fails-only-on-growth-l-19",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "\"Fails only on growth\" limits when failure happens. \"Only fails on growth\" can limit what happens."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-give-every-pronoun-one-o-20": {
+      "id": "writing-b-writing-give-every-pronoun-one-o-20",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Give every pronoun one obvious referent."
+        }
+      ],
+      "children": [
+        "writing-b-writing-repeat-the-noun-when-it-21",
+        "writing-b-writing-break-noun-strings-into-22"
+      ]
+    },
+    "writing-b-writing-repeat-the-noun-when-it-21": {
+      "id": "writing-b-writing-repeat-the-noun-when-it-21",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Repeat the noun when \"it\", \"they\", \"this\", or \"which\" could name several things or a whole clause."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-break-noun-strings-into-22": {
+      "id": "writing-b-writing-break-noun-strings-into-22",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Break noun strings into relationships. Write \"the script that checks the import budget\" instead of \"the import budget check script\"."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-keep-the-small-words-tha-23": {
+      "id": "writing-b-writing-keep-the-small-words-tha-23",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Keep the small words that show sentence structure."
+        }
+      ],
+      "children": [
+        "writing-b-writing-keep-articles-and-needed-24",
+        "writing-b-writing-give-every-clause-its-ve-25",
+        "writing-b-writing-repeat-the-article-when-26"
+      ]
+    },
+    "writing-b-writing-keep-articles-and-needed-24": {
+      "id": "writing-b-writing-keep-articles-and-needed-24",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Keep articles and needed instances of \"that\". Write \"Remove the backup file\"."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-give-every-clause-its-ve-25": {
+      "id": "writing-b-writing-give-every-clause-its-ve-25",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Give every clause its verb. Write \"Phase 1 moves the converters and Phase 2 moves the runtime\"."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-repeat-the-article-when-26": {
+      "id": "writing-b-writing-repeat-the-article-when-26",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Repeat the article when two objects are separate, as in \"the client and the host\"."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-make-logical-grouping-ex-27": {
+      "id": "writing-b-writing-make-logical-grouping-ex-27",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Make logical grouping explicit."
+        }
+      ],
+      "children": [
+        "writing-b-writing-use-both-and-eit-28",
+        "writing-b-writing-write-a-b-or-both-in-29"
+      ]
+    },
+    "writing-b-writing-use-both-and-eit-28": {
+      "id": "writing-b-writing-use-both-and-eit-28",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Use \"both ... and\", \"either ... or\", or \"if ... then\" when conjunctions could group two ways."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-write-a-b-or-both-in-29": {
+      "id": "writing-b-writing-write-a-b-or-both-in-29",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Write \"a, b, or both\" instead of a slash construction. Write singular or plural directly instead of appending a parenthesized s."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-give-each-term-one-meani-30": {
+      "id": "writing-b-writing-give-each-term-one-meani-30",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Give each term one meaning and each action one name."
+        }
+      ],
+      "children": [
+        "writing-b-writing-use-start-consistently-31",
+        "writing-b-writing-avoid-idioms-latin-abbr-32"
+      ]
+    },
+    "writing-b-writing-use-start-consistently-31": {
+      "id": "writing-b-writing-use-start-consistently-31",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Use \"start\" consistently instead of alternating with \"initiate\". Avoid ambiguous words ending in \"-ing\" when a direct verb is clearer."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-avoid-idioms-latin-abbr-32": {
+      "id": "writing-b-writing-avoid-idioms-latin-abbr-32",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Avoid idioms, Latin abbreviations, and figurative language. Preserve precise technical terms and literal code syntax."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-use-punctuation-and-form-33": {
+      "id": "writing-b-writing-use-punctuation-and-form-33",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Use Punctuation and Formatting Deliberately"
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-formatting-identifies-st-34": {
+      "id": "writing-b-writing-formatting-identifies-st-34",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Formatting identifies structure and exact syntax. It does not supply emphasis that the facts lack."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-use-periods-or-commas-to-35": {
+      "id": "writing-b-writing-use-periods-or-commas-to-35",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Use periods or commas to separate thoughts."
+        }
+      ],
+      "children": [
+        "writing-b-writing-do-not-author-em-dashes-36",
+        "writing-b-writing-use-periods-instead-of-s-37",
+        "writing-b-writing-literal-code-and-quoted-38"
+      ]
+    },
+    "writing-b-writing-do-not-author-em-dashes-36": {
+      "id": "writing-b-writing-do-not-author-em-dashes-36",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Do not author em dashes. Do not substitute parentheses, en dashes, or hyphens as sentence separators."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-use-periods-instead-of-s-37": {
+      "id": "writing-b-writing-use-periods-instead-of-s-37",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Use periods instead of semicolons. Use colons before a list or example, not as a connector between thoughts."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-literal-code-and-quoted-38": {
+      "id": "writing-b-writing-literal-code-and-quoted-38",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Literal code and quoted source material keep their original punctuation."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-use-straight-quotes-and-39": {
+      "id": "writing-b-writing-use-straight-quotes-and-39",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Use straight quotes and serial commas."
+        }
+      ],
+      "children": [
+        "writing-b-writing-drop-etc-and-introduc-40"
+      ]
+    },
+    "writing-b-writing-drop-etc-and-introduc-40": {
+      "id": "writing-b-writing-drop-etc-and-introduc-40",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Drop \"etc.\" and introduce a partial list as examples."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-put-code-in-code-font-an-41": {
+      "id": "writing-b-writing-put-code-in-code-font-an-41",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Put code in code font and UI controls in bold."
+        }
+      ],
+      "children": [
+        "writing-b-writing-do-not-bold-every-proper-42"
+      ]
+    },
+    "writing-b-writing-do-not-bold-every-proper-42": {
+      "id": "writing-b-writing-do-not-bold-every-proper-42",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Do not bold every proper noun or acronym. Remove decorative emojis from headings and bullets."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-name-link-destinations-43": {
+      "id": "writing-b-writing-name-link-destinations-43",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Name link destinations."
+        }
+      ],
+      "children": [
+        "writing-b-writing-use-the-page-title-or-a-44"
+      ]
+    },
+    "writing-b-writing-use-the-page-title-or-a-44": {
+      "id": "writing-b-writing-use-the-page-title-or-a-44",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Use the page title or a short description instead of \"click here\". Give enough local context for the reader to decide whether to follow the link."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-preserve-the-corpus-page-45": {
+      "id": "writing-b-writing-preserve-the-corpus-page-45",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Preserve the corpus page shape."
+        }
+      ],
+      "children": [
+        "writing-b-writing-use-title-case-headings-46",
+        "writing-b-writing-a-parent-label-and-its-s-47"
+      ]
+    },
+    "writing-b-writing-use-title-case-headings-46": {
+      "id": "writing-b-writing-use-title-case-headings-46",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Use Title Case headings, bullets, and nested supporting detail as defined in "
+        },
+        {
+          "insert": "Structure",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "docs/99-appendix/10-style-guide/20-structure"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-a-parent-label-and-its-s-47": {
+      "id": "writing-b-writing-a-parent-label-and-its-s-47",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "A parent label and its supporting detail belong on separate list levels. Do not repeat the label in a bold label-colon opening."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-remove-inflated-content-48": {
+      "id": "writing-b-writing-remove-inflated-content-48",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Remove Inflated Content"
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-unslop-is-part-of-this-w-49": {
+      "id": "writing-b-writing-unslop-is-part-of-this-w-49",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Unslop is part of this writing style. These patterns require an editorial check, not automatic deletion of every matching word."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-cut-puffery-and-promotio-50": {
+      "id": "writing-b-writing-cut-puffery-and-promotio-50",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Cut puffery and promotional descriptions."
+        }
+      ],
+      "children": [
+        "writing-b-writing-replace-pivotal-moment-51",
+        "writing-b-writing-replace-nestled-vibr-52"
+      ]
+    },
+    "writing-b-writing-replace-pivotal-moment-51": {
+      "id": "writing-b-writing-replace-pivotal-moment-51",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Replace \"pivotal moment\", \"testament to\", \"evolving landscape\", \"setting the stage for\", \"indelible mark\", and \"deeply rooted\" with the event or fact."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-replace-nestled-vibr-52": {
+      "id": "writing-b-writing-replace-nestled-vibr-52",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Replace \"nestled\", \"vibrant\", \"breathtaking\", \"groundbreaking\", \"renowned\", \"stunning\", and \"must-visit\" with concrete descriptions."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-give-attribution-a-sourc-53": {
+      "id": "writing-b-writing-give-attribution-a-sourc-53",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Give attribution a source and a claim."
+        }
+      ],
+      "children": [
+        "writing-b-writing-do-not-list-media-outlet-54"
+      ]
+    },
+    "writing-b-writing-do-not-list-media-outlet-54": {
+      "id": "writing-b-writing-do-not-list-media-outlet-54",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Do not list media outlets without saying what one reported. Replace \"Experts believe\", \"Industry reports suggest\", and \"Some critics argue\" with a named source or remove the claim."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-remove-unsupported-trail-55": {
+      "id": "writing-b-writing-remove-unsupported-trail-55",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Remove unsupported trailing commentary."
+        }
+      ],
+      "children": [
+        "writing-b-writing-highlighting-ensurin-56"
+      ]
+    },
+    "writing-b-writing-highlighting-ensurin-56": {
+      "id": "writing-b-writing-highlighting-ensurin-56",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "\"Highlighting\", \"ensuring\", \"reflecting\", \"showcasing\", and \"fostering\" clauses need a specific mechanism or source. Supply it or cut the clause."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-replace-formulaic-challe-57": {
+      "id": "writing-b-writing-replace-formulaic-challe-57",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Replace formulaic challenges with facts."
+        }
+      ],
+      "children": [
+        "writing-b-writing-despite-challenges-the-58"
+      ]
+    },
+    "writing-b-writing-despite-challenges-the-58": {
+      "id": "writing-b-writing-despite-challenges-the-58",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "\"Despite challenges, the project continues to thrive\" needs the actual constraint, result, and evidence."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-say-what-the-system-does-59": {
+      "id": "writing-b-writing-say-what-the-system-does-59",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Say what the system does."
+        }
+      ],
+      "children": [
+        "writing-b-writing-write-a-column-rename-f-60",
+        "writing-b-writing-if-a-claim-could-appear-61"
+      ]
+    },
+    "writing-b-writing-write-a-column-rename-f-60": {
+      "id": "writing-b-writing-write-a-column-rename-f-60",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Write \"a column rename fails the build\", not \"types follow your schema\"."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-if-a-claim-could-appear-61": {
+      "id": "writing-b-writing-if-a-claim-could-appear-61",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "If a claim could appear unchanged in another project's docs, supply the mechanism, instruction, or number that makes it useful here."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-replace-formulaic-langua-62": {
+      "id": "writing-b-writing-replace-formulaic-langua-62",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Replace Formulaic Language"
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-words-earn-their-place-b-63": {
+      "id": "writing-b-writing-words-earn-their-place-b-63",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Words earn their place by naming something precisely. Familiar technical meanings are valid even when the same word is filler elsewhere."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-review-stock-vocabulary-64": {
+      "id": "writing-b-writing-review-stock-vocabulary-64",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Review stock vocabulary."
+        }
+      ],
+      "children": [
+        "writing-b-writing-check-additionally-c-65"
+      ]
+    },
+    "writing-b-writing-check-additionally-c-65": {
+      "id": "writing-b-writing-check-additionally-c-65",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Check \"additionally\", \"crucial\", \"delve\", \"enduring\", \"enhance\", \"fostering\", \"garner\", \"interplay\", \"intricate\", \"landscape\", \"pivotal\", \"showcase\", \"tapestry\", \"testament\", \"underscore\", and \"vibrant\" for a plainer word."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-use-is-and-has-when-66": {
+      "id": "writing-b-writing-use-is-and-has-when-66",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Use \"is\" and \"has\" when they say enough."
+        }
+      ],
+      "children": [
+        "writing-b-writing-replace-ornamental-serv-67"
+      ]
+    },
+    "writing-b-writing-replace-ornamental-serv-67": {
+      "id": "writing-b-writing-replace-ornamental-serv-67",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Replace ornamental \"serves as\", \"stands as\", \"boasts\", and \"features\". State the point directly instead of \"not just X, but Y\"."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-use-the-natural-number-o-68": {
+      "id": "writing-b-writing-use-the-natural-number-o-68",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Use the natural number of ideas and one name per thing."
+        }
+      ],
+      "children": [
+        "writing-b-writing-do-not-force-groups-of-t-69",
+        "writing-b-writing-use-from-x-to-y-only-f-70"
+      ]
+    },
+    "writing-b-writing-do-not-force-groups-of-t-69": {
+      "id": "writing-b-writing-do-not-force-groups-of-t-69",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Do not force groups of three or cycle through synonyms to avoid repetition."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-use-from-x-to-y-only-f-70": {
+      "id": "writing-b-writing-use-from-x-to-y-only-f-70",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Use \"from X to Y\" only for a meaningful scale or range. Otherwise list the topics directly."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-replace-abstract-metapho-71": {
+      "id": "writing-b-writing-replace-abstract-metapho-71",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Replace abstract metaphors with the mechanism's name."
+        }
+      ],
+      "children": [
+        "writing-b-writing-review-substrate-wed-72",
+        "writing-b-writing-write-base-add-me-73"
+      ]
+    },
+    "writing-b-writing-review-substrate-wed-72": {
+      "id": "writing-b-writing-review-substrate-wed-72",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Review \"substrate\", \"wedge\", \"vector\", \"locus\", \"vantage\", \"nexus\", \"primitive\", \"harness\", \"surface\", \"bedrock\", \"scaffolding\", \"modality\", \"paradigm\", \"gold-plating\", \"ratchet\", \"evacuate\", \"endgame\", \"north star\", and \"flywheel\" when used as metaphors."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-write-base-add-me-73": {
+      "id": "writing-b-writing-write-base-add-me-73",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Write \"base\", \"add\", \"method\", \"move out\", or \"last phase\" when that is the meaning. Name a limit that only tightens instead of calling it a ratchet."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-cut-filler-and-unsupport-74": {
+      "id": "writing-b-writing-cut-filler-and-unsupport-74",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Cut filler and unsupported intensity."
+        }
+      ],
+      "children": [
+        "writing-b-writing-replace-in-order-to-wi-75",
+        "writing-b-writing-replace-an-adverb-with-a-76"
+      ]
+    },
+    "writing-b-writing-replace-in-order-to-wi-75": {
+      "id": "writing-b-writing-replace-in-order-to-wi-75",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Replace "
+        },
+        {
+          "insert": "in order to",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with \"to\" and "
+        },
+        {
+          "insert": "due to the fact that",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with \"because\". Delete "
+        },
+        {
+          "insert": "it is important to note that",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-replace-an-adverb-with-a-76": {
+      "id": "writing-b-writing-replace-an-adverb-with-a-76",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Replace an adverb with a stronger verb or measured result. Keep uncertainty that the evidence requires, but reduce stacked hedges such as \"could potentially possibly\" to one."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-remove-conversation-arti-77": {
+      "id": "writing-b-writing-remove-conversation-arti-77",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Remove Conversation Artifacts"
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-documentation-states-the-78": {
+      "id": "writing-b-writing-documentation-states-the-78",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Documentation states the answer. Personality comes from specific facts, useful judgment, and varied rhythm."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-remove-chatbot-greetings-79": {
+      "id": "writing-b-writing-remove-chatbot-greetings-79",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Remove chatbot greetings, praise, and closers."
+        }
+      ],
+      "children": [
+        "writing-b-writing-cut-of-course-certai-80"
+      ]
+    },
+    "writing-b-writing-cut-of-course-certai-80": {
+      "id": "writing-b-writing-cut-of-course-certai-80",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Cut \"Of course\", \"Certainly\", \"Great question\", \"You're absolutely right\", \"I hope this helps\", \"Let me know if\", and \"Found the smoking gun\"."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-replace-cutoff-disclaime-81": {
+      "id": "writing-b-writing-replace-cutoff-disclaime-81",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Replace cutoff disclaimers with evidence."
+        }
+      ],
+      "children": [
+        "writing-b-writing-while-specific-details-82"
+      ]
+    },
+    "writing-b-writing-while-specific-details-82": {
+      "id": "writing-b-writing-while-specific-details-82",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "\"While specific details are limited\" does not support a claim. Find the source or remove the claim."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-replace-generic-conclusi-83": {
+      "id": "writing-b-writing-replace-generic-conclusi-83",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Replace generic conclusions with specific plans or facts."
+        }
+      ],
+      "children": [
+        "writing-b-writing-the-future-looks-bright-84"
+      ]
+    },
+    "writing-b-writing-the-future-looks-bright-84": {
+      "id": "writing-b-writing-the-future-looks-bright-84",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "\"The future looks bright\" says nothing a reader can act on."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-keep-the-voice-human-wit-85": {
+      "id": "writing-b-writing-keep-the-voice-human-wit-85",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Keep the voice human without making facts imprecise."
+        }
+      ],
+      "children": [
+        "writing-b-writing-acknowledge-real-complex-86"
+      ]
+    },
+    "writing-b-writing-acknowledge-real-complex-86": {
+      "id": "writing-b-writing-acknowledge-real-complex-86",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Acknowledge real complexity. Use first person where ownership matters. Allow natural variation instead of forcing every sentence into the same length or template."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-sources-87": {
+      "id": "writing-b-writing-sources-87",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Sources"
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-this-page-incorporates-t-88": {
+      "id": "writing-b-writing-this-page-incorporates-t-88",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This page incorporates the existing Technical Writing and Unslop guidance. Source dates below record the prior Technical Writing attribution, not a new fetch."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-google-developer-style-89": {
+      "id": "writing-b-writing-google-developer-style-89",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Google Developer Style",
+          "attributes": {
+            "link": "https://developers.google.com/style"
+          }
+        },
+        {
+          "insert": " supplies the sentence and reader guidance. The source skill records a fetch on 2026-07-18. This corpus keeps Title Case headings."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-asd-ste100-https-asd-90": {
+      "id": "writing-b-writing-asd-ste100-https-asd-90",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "ASD-STE100",
+          "attributes": {
+            "link": "https://asd-ste100.org"
+          }
+        },
+        {
+          "insert": ", Issue 9, 2025, supplies transferable instruction principles. The source skill records a fetch on 2026-07-18. The full numbered rules and dictionary remain in the specification."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-john-r-kohl-s-the-globa-91": {
+      "id": "writing-b-writing-john-r-kohl-s-the-globa-91",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "John R. Kohl's The Global English Style Guide, SAS Press, supplies ambiguity guidance. The source skill records the Internet Archive and SAS sample chapter as sources fetched on 2026-07-18."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-technical-writing-record-92": {
+      "id": "writing-b-writing-technical-writing-record-92",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Technical Writing records its corpus structure guidance as merged from this style guide on 2026-08-19. Unslop supplies the pattern catalog integrated into this page."
+        }
+      ],
+      "children": []
+    },
+    "review-b-review-worked-example-1": {
+      "id": "review-b-review-worked-example-1",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Worked Example"
+        }
+      ],
+      "children": []
+    },
+    "review-b-review-the-revision-names-the-a-2": {
+      "id": "review-b-review-the-revision-names-the-a-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The revision names the actor, preserves the condition, and states the result."
+        }
+      ],
+      "children": []
+    },
+    "review-b-review-before-configuration-of-3": {
+      "id": "review-b-review-before-configuration-of-3",
+      "type": "quote",
+      "props": {},
+      "text": [
+        {
+          "insert": "Before: Configuration of the import budget script parameters is performed via budget.json. Note that it is important to remember that running with --write should only be done when lowering the budget. If exceeded, CI fails."
+        }
+      ],
+      "children": []
+    },
+    "review-b-review-after-budget-mjs-reads-4": {
+      "id": "review-b-review-after-budget-mjs-reads-4",
+      "type": "quote",
+      "props": {},
+      "text": [
+        {
+          "insert": "After: budget.mjs reads budget.json and counts the imports. If the count exceeds the budget, CI fails. Run budget.mjs --write only to lower the budget."
+        }
+      ],
+      "children": []
+    },
+    "review-b-review-the-filenames-in-this-ex-5": {
+      "id": "review-b-review-the-filenames-in-this-ex-5",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The filenames in this example are illustrative. In a real document, use the project's actual paths and symbols."
+        }
+      ],
+      "children": []
+    },
+    "review-b-review-review-checklist-6": {
+      "id": "review-b-review-review-checklist-6",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Review Checklist"
+        }
+      ],
+      "children": []
+    },
+    "review-b-review-read-the-rendered-docume-7": {
+      "id": "review-b-review-read-the-rendered-docume-7",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Read the rendered document before finishing."
+        }
+      ],
+      "children": []
+    },
+    "review-b-review-confirm-one-primary-purp-8": {
+      "id": "review-b-review-confirm-one-primary-purp-8",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Confirm one primary purpose inside the existing layer and template."
+        }
+      ],
+      "children": []
+    },
+    "review-b-review-check-that-the-opening-e-9": {
+      "id": "review-b-review-check-that-the-opening-e-9",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Check that the opening establishes relevance and bullet groups pass the join test."
+        }
+      ],
+      "children": []
+    },
+    "review-b-review-put-conditions-before-co-10": {
+      "id": "review-b-review-put-conditions-before-co-10",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Put conditions before commands and give each sentence one instruction or thought."
+        }
+      ],
+      "children": []
+    },
+    "review-b-review-resolve-ambiguous-pronou-11": {
+      "id": "review-b-review-resolve-ambiguous-pronou-11",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Resolve ambiguous pronouns, modifier placement, missing verbs, and inconsistent names."
+        }
+      ],
+      "children": []
+    },
+    "review-b-review-replace-inflated-languag-12": {
+      "id": "review-b-review-replace-inflated-languag-12",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Replace inflated language with facts, verify paths and claims, and repair required lint findings."
         }
       ],
       "children": []
