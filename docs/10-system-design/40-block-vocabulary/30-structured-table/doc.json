@@ -10,6 +10,7 @@
       "props": {},
       "children": [
         "b-20-structured-table-lead-2",
+        "component-worked-example-rule",
         "b-20-structured-table-example-h",
         "b-20-structured-table-example-intro",
         "b-20-structured-table-example-block",
@@ -60,6 +61,17 @@
         },
         {
           "insert": ": a columns × rows grid of rich-text cells kept in typed props, not prose — each cell is a plain string or a span array carrying inline marks. Use it for index tables, comparison matrices, and anything an agent should edit cell-by-cell instead of re-flowing text. Each section below instantiates one element of the block-design contract for this family."
+        }
+      ],
+      "children": []
+    },
+    "component-worked-example-rule": {
+      "id": "component-worked-example-rule",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source; identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information."
         }
       ],
       "children": []
@@ -598,7 +610,17 @@
                 "required": false
               }
             ],
-            "returns": "props patch: { rows }"
+            "returns": "StructuredTablePatch",
+            "kind": "action",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "rows",
+                  "type": "TableCell[][]",
+                  "description": "One cell array per row; actions normalize each row to the column count. An unmarked cell stores as the plain string (canonical)."
+                }
+              ]
+            }
           },
           {
             "name": "structured-table.removeRow",
@@ -610,7 +632,17 @@
                 "required": true
               }
             ],
-            "returns": "props patch: { rows }"
+            "returns": "StructuredTablePatch",
+            "kind": "action",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "rows",
+                  "type": "TableCell[][]",
+                  "description": "One cell array per row; actions normalize each row to the column count. An unmarked cell stores as the plain string (canonical)."
+                }
+              ]
+            }
           },
           {
             "name": "structured-table.updateCell",
@@ -637,7 +669,17 @@
                 "required": true
               }
             ],
-            "returns": "props patch: { rows }"
+            "returns": "StructuredTablePatch",
+            "kind": "action",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "rows",
+                  "type": "TableCell[][]",
+                  "description": "One cell array per row; actions normalize each row to the column count. An unmarked cell stores as the plain string (canonical)."
+                }
+              ]
+            }
           },
           {
             "name": "structured-table.addColumn",
@@ -659,7 +701,22 @@
                 "required": false
               }
             ],
-            "returns": "props patch: { columns, rows }"
+            "returns": "StructuredTablePatch",
+            "kind": "action",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "columns",
+                  "type": "TableCell[]",
+                  "description": "Header cells in order. A TableCell is a plain string or a span array whose closed mark set is bold/italic/strike/code/link."
+                },
+                {
+                  "name": "rows",
+                  "type": "TableCell[][]",
+                  "description": "One cell array per row; actions normalize each row to the column count. An unmarked cell stores as the plain string (canonical)."
+                }
+              ]
+            }
           },
           {
             "name": "structured-table.removeColumn",
@@ -676,7 +733,22 @@
                 "required": false
               }
             ],
-            "returns": "props patch: { columns, rows }"
+            "returns": "StructuredTablePatch",
+            "kind": "action",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "columns",
+                  "type": "TableCell[]",
+                  "description": "Header cells in order. A TableCell is a plain string or a span array whose closed mark set is bold/italic/strike/code/link."
+                },
+                {
+                  "name": "rows",
+                  "type": "TableCell[][]",
+                  "description": "One cell array per row; actions normalize each row to the column count. An unmarked cell stores as the plain string (canonical)."
+                }
+              ]
+            }
           }
         ],
         "title": "structured-table — row and column actions"

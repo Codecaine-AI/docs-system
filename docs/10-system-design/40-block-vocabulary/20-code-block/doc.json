@@ -10,6 +10,7 @@
       "props": {},
       "children": [
         "b-14-code-lead-2",
+        "component-worked-example-rule",
         "b-codefam-doctrine",
         "b-14-code-example-h",
         "b-14-code-example-intro",
@@ -116,6 +117,17 @@
         },
         {
           "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "component-worked-example-rule": {
+      "id": "component-worked-example-rule",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source; identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information."
         }
       ],
       "children": []
@@ -735,7 +747,36 @@
                 "required": false
               }
             ],
-            "returns": "props patch: { annotations }"
+            "returns": "CodePatch",
+            "kind": "action",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "annotations",
+                  "type": "CodeAnnotation[]",
+                  "required": false,
+                  "description": "Line annotations, each keyed by its exact lines string.",
+                  "fields": [
+                    {
+                      "name": "lines",
+                      "type": "string",
+                      "description": "1-indexed range string — \"4\", \"4-9\", \"1,4-6\" — and the entry's identity key."
+                    },
+                    {
+                      "name": "label",
+                      "type": "string",
+                      "required": false,
+                      "description": "Short heading on the note."
+                    },
+                    {
+                      "name": "note",
+                      "type": "string",
+                      "description": "The annotation body."
+                    }
+                  ]
+                }
+              ]
+            }
           },
           {
             "name": "code.removeAnnotation",
@@ -747,7 +788,36 @@
                 "required": true
               }
             ],
-            "returns": "props patch: { annotations }"
+            "returns": "CodePatch",
+            "kind": "action",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "annotations",
+                  "type": "CodeAnnotation[]",
+                  "required": false,
+                  "description": "Line annotations, each keyed by its exact lines string.",
+                  "fields": [
+                    {
+                      "name": "lines",
+                      "type": "string",
+                      "description": "1-indexed range string — \"4\", \"4-9\", \"1,4-6\" — and the entry's identity key."
+                    },
+                    {
+                      "name": "label",
+                      "type": "string",
+                      "required": false,
+                      "description": "Short heading on the note."
+                    },
+                    {
+                      "name": "note",
+                      "type": "string",
+                      "description": "The annotation body."
+                    }
+                  ]
+                }
+              ]
+            }
           }
         ],
         "title": "code — annotation actions"

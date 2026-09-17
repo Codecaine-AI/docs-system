@@ -637,7 +637,8 @@
                 "description": "Optional initial rich text."
               }
             ],
-            "returns": "{ doc, inverse: DocOp[] }"
+            "returns": "{ doc, inverse: DocOp[] }",
+            "kind": "action"
           },
           {
             "name": "updateBlock",
@@ -662,7 +663,8 @@
                 "description": "Replacement text; null clears text."
               }
             ],
-            "returns": "{ doc, inverse: DocOp[] }"
+            "returns": "{ doc, inverse: DocOp[] }",
+            "kind": "action"
           },
           {
             "name": "deleteBlock",
@@ -681,7 +683,8 @@
                 "description": "subtree is the default; reparent splices children into the former slot."
               }
             ],
-            "returns": "{ doc, inverse: DocOp[] }"
+            "returns": "{ doc, inverse: DocOp[] }",
+            "kind": "action"
           },
           {
             "name": "moveBlock",
@@ -706,7 +709,8 @@
                 "description": "Destination child index after detach."
               }
             ],
-            "returns": "{ doc, inverse: DocOp[] }"
+            "returns": "{ doc, inverse: DocOp[] }",
+            "kind": "action"
           },
           {
             "name": "splitBlock",
@@ -725,7 +729,8 @@
                 "description": "Character offset in [0, textLength]."
               }
             ],
-            "returns": "{ doc, inverse: DocOp[] }"
+            "returns": "{ doc, inverse: DocOp[] }",
+            "kind": "action"
           },
           {
             "name": "mergeBlocks",
@@ -738,7 +743,8 @@
                 "description": "The contiguous sibling ids to merge."
               }
             ],
-            "returns": "{ doc, inverse: DocOp[] }"
+            "returns": "{ doc, inverse: DocOp[] }",
+            "kind": "action"
           },
           {
             "name": "componentAction",
@@ -763,7 +769,8 @@
                 "description": "Action-specific params validated by the action."
               }
             ],
-            "returns": "{ doc, inverse: DocOp[] }"
+            "returns": "{ doc, inverse: DocOp[] }",
+            "kind": "action"
           }
         ],
         "title": "DocOp kernel"

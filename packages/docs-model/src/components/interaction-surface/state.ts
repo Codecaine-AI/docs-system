@@ -19,10 +19,16 @@ export type InteractionSurfaceOperation = {
   description?: string;
   params?: InteractionSurfaceParam[];
   returns?: string;
+  returnShape?: { fields: Field[]; example?: string };
   kind?: InteractionSurfaceKind;
 };
 
 export const InteractionSurfaceParamSchema = FieldSchema;
+
+export const InteractionSurfaceReturnShapeSchema = Type.Object({
+  fields: Type.Array(FieldSchema),
+  example: Type.Optional(Type.String()),
+}, { additionalProperties: false });
 
 export const InteractionSurfaceOperationSchema = Type.Object(
   {
@@ -30,6 +36,7 @@ export const InteractionSurfaceOperationSchema = Type.Object(
     description: Type.Optional(Type.String()),
     params: Type.Optional(Type.Array(InteractionSurfaceParamSchema)),
     returns: Type.Optional(Type.String()),
+    returnShape: Type.Optional(InteractionSurfaceReturnShapeSchema),
     kind: Type.Optional(
       Type.Union([
         Type.Literal("action"),
@@ -80,6 +87,10 @@ export function readInteractionSurfaceOperations(block: DocBlock): InteractionSu
       operation.params = readFields(item.params);
     }
     if (typeof item.returns === "string" && item.returns.length > 0) operation.returns = item.returns;
+    if (isRecord(item.returnShape) && Array.isArray(item.returnShape.fields)) {
+      operation.returnShape = { fields: readFields(item.returnShape.fields) };
+      if (typeof item.returnShape.example === "string") operation.returnShape.example = item.returnShape.example;
+    }
     if (isInteractionSurfaceKind(item.kind)) operation.kind = item.kind;
     operations.push(operation);
   }

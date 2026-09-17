@@ -41,6 +41,7 @@ export {
 } from "./structured-table";
 export type { TableCell } from "./structured-table";
 export { interactionSurfaceComponent } from "./interaction-surface";
+export type { InteractionSurfaceOperation, InteractionSurfaceParam, InteractionSurfaceKind } from "./interaction-surface";
 export { stateShapeComponent } from "./state-shape";
 export {
   readStateShapeExample,

@@ -327,6 +327,12 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
     },
   },
   "interaction-surface": {
+    actionHeaderBg: color("--docs-operation-action-header-bg"),
+    actionHeaderInk: color("--docs-operation-action-header-ink"),
+    queryHeaderBg: color("--docs-operation-query-header-bg"),
+    queryHeaderInk: color("--docs-operation-query-header-ink"),
+    eventHeaderBg: color("--docs-operation-event-header-bg"),
+    eventHeaderInk: color("--docs-operation-event-header-ink"),
     border: color("--docs-interaction-border"),
     bg: color("--docs-interaction-bg"),
     rule: color("--docs-interaction-rule"),

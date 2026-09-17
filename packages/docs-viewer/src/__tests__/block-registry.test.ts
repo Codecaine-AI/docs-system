@@ -313,7 +313,7 @@ describe("structured-table / interaction-surface — props-driven descriptors", 
     expect(html).toContain('data-docs-block-type="interaction-surface"');
     expect(html).toContain('data-interaction-operation="file-tree.addEntry"');
     expect(html).toContain("Append a path entry");
-    expect(html).toContain("File-tree block surface");
+    expect(html).toContain("File-Tree Block Surface");
     // The signature is colorized token-by-token (data-sig-token spans) and
     // rendered code-block-like: `name(` opening line, one indented param per
     // line (trailing commas, `?` for required: false), `) -> returns` close.
@@ -331,7 +331,7 @@ describe("structured-table / interaction-surface — props-driven descriptors", 
     // (no header bar); the description sits in the notes pane.
     expect(html).toContain("data-code-line");
     expect(html).not.toContain("data-card-shell");
-    expect(html).toContain('data-op-note="description"');
+    expect(html).toContain('data-operation-purpose="true"');
     expect(html).toContain(">query<");
     expect(html).not.toContain("Invalid Interaction Surface block");
   });

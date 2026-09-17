@@ -1,12 +1,12 @@
 # Component Selection
 
-Generated from Codecaine Docs sources. Snapshot: `sha256:f4b9cba0f82bcd296f0e2ea67a49c4f3fc3932efc70b8bccc6cfff99c0156e38`. Refresh the installation to regenerate these files.
+Generated from Codecaine Docs sources. Snapshot: `sha256:acd72632b05751ccd41e5ab29e829ff35ee6b28293ad4f81ce94207cd98207f2`. Refresh the installation to regenerate these files.
 
 ### rich-text
 
-Block types: paragraph, heading, list-item, quote, callout, divider, image, video
+Block types: paragraph, heading, list-item, quote, callout, divider, image, image-grid, video, html
 
-Use paragraphs for explanation, headings for hierarchy, lists for steps or parallel facts, quotes for attributed text, and callouts for a distinct note. Use images and video when the visual evidence matters. Use typed components for state, operations, tables, and diagrams.
+Use paragraphs for explanation, headings for hierarchy, lists for steps or parallel facts, quotes for attributed text, and callouts for a distinct note. Use images and video when the visual evidence matters. Use image-grid for ordered image comparisons: images contain src, heading?, alt?, caption?; columns is auto or 1 to 4. Rows grow with the image count. This component accepts images only, not text columns. Use html for a self-contained HTML/CSS diagram or interactive artifact; supply title and html props, inline styles and data assets. Scripts require allowScripts=true and stay in an opaque-origin sandbox with fetch and external subresources blocked. Use code for examples readers should read instead of execute. Use typed components for state, operations, tables, and diagrams.
 
 Example: Introduce the retry policy in prose, list the recovery steps, and link to the operation definition.
 
@@ -46,7 +46,7 @@ Details: [structured-table](components/structured-table.md). Canonical document:
 
 Block types: interaction-surface
 
-Use Interaction Surface to describe the actions, queries, and events available on a state or system, including parameters and return values. Pair it with State Shape. Use Sequence when the question concerns ordering between participants.
+Use Interaction Surface to describe the actions, queries, and events available on a state or system, including parameters and return values. Action changes state, Query reads state, and Event describes observation or notification. Each operation has its own kind-labeled card. Use returnShape with recursive fields and a JSON example for known object returns; keep returns for its name or a primitive type. Document callback payloads separately from subscription return values. Describe only non-obvious constraints or behavior. Pair it with State Shape. Use Sequence when the question concerns ordering between participants.
 
 Example: Document openDocument, applyOperations, and checkDocument with their parameters and results.
 

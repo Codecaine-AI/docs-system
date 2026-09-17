@@ -38,17 +38,10 @@ describe("InteractionSurfaceBlock", () => {
       />,
     );
 
-    // The card-shell header bar is gone; the title is a plain bold caption.
     expect(document.querySelector("[data-card-shell]")).toBeNull();
-    expect(document.querySelector("[data-card-shell-bar]")).toBeNull();
-    expect(screen.queryByText("signature ↔ notes")).toBeNull();
-    const title = screen.getByText("File-tree block surface");
-    expect(title.className).toBe("mb-1.5 text-sm font-medium text-foreground");
-    // The card keeps the interaction theme tokens.
-    const section = document.querySelector('[data-docs-block-type="interaction-surface"]');
-    const card = section?.querySelector("div.overflow-hidden");
-    expect(card?.className).toContain("--docs-interaction-border");
-    expect(card?.className).toContain("--docs-interaction-bg");
+    expect(document.querySelector("[data-operations-title]")?.textContent).toBe("File-Tree Block Surface");
+    expect(document.querySelectorAll("[data-operation-card-header]")).toHaveLength(1);
+    expect(document.querySelector("[data-operations-count]")).toBeNull();
   });
 
   it("renders no caption at all when the block has no title", () => {
@@ -132,7 +125,7 @@ describe("InteractionSurfaceBlock", () => {
     expect(second.map((line) => line.getAttribute("data-code-line"))).toEqual(["1", "2", "3"]);
 
     // The description lands in the notes pane, never in the signature.
-    expect(opRow("file-tree.addEntry")?.querySelector('[data-op-note="description"]')?.textContent).toBe(
+    expect(opRow("file-tree.addEntry")?.querySelector('[data-operation-purpose]')?.textContent).toBe(
       "Append a path entry to the tree",
     );
     expect(opRow("file-tree.addEntry")?.querySelector("[data-code-lines]")?.textContent).not.toContain(
@@ -210,7 +203,7 @@ describe("InteractionSurfaceBlock", () => {
 
     const op = opRow("table.walk");
     // Headline first.
-    expect(op?.querySelector('[data-op-note="description"]')?.textContent).toBe("Walk the table");
+    expect(op?.querySelector('[data-operation-purpose]')?.textContent).toBe("Walk the table");
     // opts spans its braces (L2–5); children indent one step.
     const opts = op?.querySelector('[data-param-note="table.walk.opts"]');
     expect(opts?.querySelector("[data-range-chip]")).toBeNull();
@@ -234,7 +227,7 @@ describe("InteractionSurfaceBlock", () => {
     expect(document.querySelector("[data-range-chip]")).toBeNull();
   });
 
-  it("opens each operation row with a humanized header pair: name left, Description right", () => {
+  it("opens each operation card with its name and aligned Field, Type, and Signature headers", () => {
     render(
       <InteractionSurfaceBlock
         id="surface-headers"
@@ -248,13 +241,13 @@ describe("InteractionSurfaceBlock", () => {
       />,
     );
     const op = opRow("state-shape.addField");
-    expect(op?.querySelector("[data-op-header]")?.textContent).toBe("Add Field");
-    expect(op?.querySelector("[data-op-notes-header]")?.textContent).toBe("Description");
-    // A "Params" section header separates the description from the rows.
-    expect(op?.querySelector("[data-op-params-header]")?.textContent).toBe("Params");
+    expect(op?.querySelector("[data-operation-card-header] h4")?.textContent).toBe("Add Field");
+    expect(op?.querySelector("[data-note-ledger-head]")?.textContent).toBe("FieldType");
+    expect(op?.querySelector("[data-signature-head]")?.textContent).toBe("Signature");
+    expect(op?.querySelector("[data-operation-purpose]")?.textContent).toBe("Insert a field.");
   });
 
-  it("labels the top notes band Params when the operation has no description", () => {
+  it("uses the same field headers without a redundant description heading", () => {
     render(
       <InteractionSurfaceBlock
         id="surface-no-desc"
@@ -262,7 +255,7 @@ describe("InteractionSurfaceBlock", () => {
       />,
     );
     const op = opRow("table.clear");
-    expect(op?.querySelector("[data-op-notes-header]")?.textContent).toBe("Params");
+    expect(op?.querySelector("[data-note-ledger-head]")?.textContent).toBe("FieldType");
     expect(op?.querySelector("[data-op-params-header]")).toBeNull();
   });
 
@@ -329,7 +322,7 @@ describe("InteractionSurfaceBlock", () => {
     expect(document.querySelector("[data-op-notes]")).toBeNull();
   });
 
-  it("badges only query/event in the operation header (action is the unbadged default)", () => {
+  it("labels every kind explicitly, with action as the default", () => {
     render(
       <InteractionSurfaceBlock
         id="surface-kinds"
@@ -341,12 +334,11 @@ describe("InteractionSurfaceBlock", () => {
         ]}
       />,
     );
-    const query = screen.getByText("query");
-    expect(query.className).toContain("sky");
-    expect(query.closest("[data-op-header]")).not.toBeNull();
-    expect(screen.getByText("event").className).toContain("violet");
-    expect(screen.queryByText("action")).toBeNull();
-    expect(opRow("state.unbadged")?.querySelector("[data-op-header]")?.textContent).toBe("Unbadged");
+    for (const [name, kind] of [["reset","action"],["snapshot","query"],["changed","event"],["unbadged","action"]]) {
+      const card = opRow("state." + name);
+      expect(card?.getAttribute("data-operation-kind")).toBe(kind);
+      expect(card?.querySelector("[data-operation-card-header]")?.textContent).toContain(kind);
+    }
   });
 
   it("colorizes signature tokens: cyan name, amber types and returns, muted punctuation", () => {
@@ -375,14 +367,14 @@ describe("InteractionSurfaceBlock", () => {
     ]);
     const name = op?.querySelector('[data-sig-token="name"]');
     expect(name?.textContent).toBe("update");
-    expect(name?.className).toContain("--docs-interaction-sig-name");
+    expect(name?.className).toContain("--docs-operations-accent");
     const type = op?.querySelector('[data-sig-token="type"]');
     expect(type?.className).toContain("--docs-interaction-sig-type");
     const returns = op?.querySelector('[data-sig-token="returns"]');
     expect(returns?.textContent).toBe(" -> State");
     const optional = op?.querySelector('[data-sig-token="optional"]');
     expect(optional?.textContent).toBe("?");
-    expect(optional?.className).toContain("--docs-interaction-sig-punct");
+    expect(optional?.className).toContain("--docs-operations-optional");
   });
 
   it("preserves targeting attributes without outer framing or count banners", () => {
@@ -391,7 +383,7 @@ describe("InteractionSurfaceBlock", () => {
     expect(section?.getAttribute("data-source-id")).toBe("surface-one");
     // The block fills whatever layout lane the renderer puts it in: no own
     // max-width and no centering, so the wide lane is what bounds it.
-    expect(section?.className).toBe("not-prose my-4 w-full");
+    expect(section?.hasAttribute("data-operations-card-layout")).toBe(true);
     expect(section?.className).not.toContain("max-w-");
     expect(section?.className).not.toContain("mx-auto");
     expect(screen.queryByText("1 operation")).toBeNull();
@@ -402,9 +394,29 @@ describe("InteractionSurfaceBlock", () => {
     expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("operations");
     expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("required?: boolean");
     expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain('"action" | "query" | "event"');
-    expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("NOT HTTP");
+    expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("returnShape");
     // The header + bare-verb display rules are stated for agents reading the doc view.
-    expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("Add Operation");
-    expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("bare-verb");
+    expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("State Shape");
+    expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("Query");
+  });
+});
+
+describe('native return-shape descriptor',()=>{
+  it('retains output fields and example with independent linking',async()=>{
+    const {descriptors}=await import('../components/interaction-surface/descriptor');
+    const node=descriptors[0]!.render({id:'native-return',type:'interaction-surface',props:{operations:[{name:'prepare',params:[{name:'path',type:'string'}],returns:'Prepared',returnShape:{fields:[{name:'path',type:'string'}],example:'{"path":"src/a.ts"}'}}]},children:[]},{renderText:()=>null,renderChildren:()=>null,renderMarkdown:()=>null});
+    render(<>{node}</>);const output=document.querySelector('[data-operation-output]')!;
+    expect(output.querySelector('[data-shape-name]')?.textContent).toBe('Prepared');
+    expect(output.querySelector('[data-shape-example]')?.textContent).toContain('src/a.ts');
+    fireEvent.mouseEnter(output.querySelector('[data-shape-path="path"]')!);
+    expect(output.querySelectorAll('[data-code-line][data-lit]').length).toBeGreaterThan(0);
+    expect(document.querySelectorAll('[data-op-sig] [data-lit]')).toHaveLength(0);
+  });
+  it('rejects malformed returned fields instead of silently dropping them',async()=>{
+    const {descriptors}=await import('../components/interaction-surface/descriptor');
+    for(const returnShape of [{fields:[{type:'string'}]},{fields:[],example:42}]){
+      const node=descriptors[0]!.render({id:'invalid-output',type:'interaction-surface',props:{operations:[{name:'prepare',returnShape}]},children:[]},{renderText:()=>null,renderChildren:()=>null,renderMarkdown:()=>null});
+      const {container,unmount}=render(<>{node}</>);expect(container.textContent).toContain('Invalid Interaction Surface block');unmount();
+    }
   });
 });

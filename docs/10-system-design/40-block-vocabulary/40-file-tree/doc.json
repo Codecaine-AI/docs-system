@@ -10,6 +10,7 @@
       "props": {},
       "children": [
         "b-21-file-tree-lead-2",
+        "component-worked-example-rule",
         "b-21-file-tree-when-to-use",
         "b-21-file-tree-example-heading",
         "b-21-file-tree-example-intro",
@@ -73,6 +74,17 @@
         },
         {
           "insert": "-command drawing, with per-entry notes and change markers for describing repo slices and refactors."
+        }
+      ],
+      "children": []
+    },
+    "component-worked-example-rule": {
+      "id": "component-worked-example-rule",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source; identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information."
         }
       ],
       "children": []
@@ -704,7 +716,42 @@
                 "required": false
               }
             ],
-            "returns": "props patch: { entries }"
+            "returns": "FileTreePatch",
+            "kind": "action",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "entries",
+                  "type": "FileTreeEntry[]",
+                  "description": "Flat list of path entries; the rendered tree derives from path prefixes.",
+                  "fields": [
+                    {
+                      "name": "path",
+                      "type": "string",
+                      "description": "/-separated, no leading \"./\"; a trailing \"/\" marks an explicit directory."
+                    },
+                    {
+                      "name": "note",
+                      "type": "string",
+                      "required": false,
+                      "description": "Short annotation rendered after the path."
+                    },
+                    {
+                      "name": "change",
+                      "type": "\"added\" | \"removed\" | \"modified\" | \"renamed\"",
+                      "required": false,
+                      "description": "Diff marker for the entry."
+                    },
+                    {
+                      "name": "from",
+                      "type": "string",
+                      "required": false,
+                      "description": "Previous path, used with change: \"renamed\"."
+                    }
+                  ]
+                }
+              ]
+            }
           },
           {
             "name": "file-tree.removeEntry",
@@ -716,7 +763,42 @@
                 "required": true
               }
             ],
-            "returns": "props patch: { entries }"
+            "returns": "FileTreePatch",
+            "kind": "action",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "entries",
+                  "type": "FileTreeEntry[]",
+                  "description": "Flat list of path entries; the rendered tree derives from path prefixes.",
+                  "fields": [
+                    {
+                      "name": "path",
+                      "type": "string",
+                      "description": "/-separated, no leading \"./\"; a trailing \"/\" marks an explicit directory."
+                    },
+                    {
+                      "name": "note",
+                      "type": "string",
+                      "required": false,
+                      "description": "Short annotation rendered after the path."
+                    },
+                    {
+                      "name": "change",
+                      "type": "\"added\" | \"removed\" | \"modified\" | \"renamed\"",
+                      "required": false,
+                      "description": "Diff marker for the entry."
+                    },
+                    {
+                      "name": "from",
+                      "type": "string",
+                      "required": false,
+                      "description": "Previous path, used with change: \"renamed\"."
+                    }
+                  ]
+                }
+              ]
+            }
           },
           {
             "name": "file-tree.updateEntry",
@@ -748,7 +830,42 @@
                 "required": false
               }
             ],
-            "returns": "props patch: { entries }"
+            "returns": "FileTreePatch",
+            "kind": "action",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "entries",
+                  "type": "FileTreeEntry[]",
+                  "description": "Flat list of path entries; the rendered tree derives from path prefixes.",
+                  "fields": [
+                    {
+                      "name": "path",
+                      "type": "string",
+                      "description": "/-separated, no leading \"./\"; a trailing \"/\" marks an explicit directory."
+                    },
+                    {
+                      "name": "note",
+                      "type": "string",
+                      "required": false,
+                      "description": "Short annotation rendered after the path."
+                    },
+                    {
+                      "name": "change",
+                      "type": "\"added\" | \"removed\" | \"modified\" | \"renamed\"",
+                      "required": false,
+                      "description": "Diff marker for the entry."
+                    },
+                    {
+                      "name": "from",
+                      "type": "string",
+                      "required": false,
+                      "description": "Previous path, used with change: \"renamed\"."
+                    }
+                  ]
+                }
+              ]
+            }
           }
         ],
         "title": "file-tree — entry actions"

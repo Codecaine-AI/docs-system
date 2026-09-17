@@ -272,3 +272,17 @@ test("title lint fix requires a current revision, removes duplicates, and suppor
   expect((await call("docs_undo", { patch_id: fixed.patchId })).ok).toBe(true);
   expect((await read()).doc.blocks.title.text).toEqual([{ insert: "Fixture" }]);
 });
+
+test('Process Outline remains draft-editable but completion rejects disconnected roots until repaired', async () => {
+  const before=await read();
+  const steps=[{text:'Capture source'},{text:'Review the result'}];
+  const draft=await call('docs_apply_ops',{path:'page',expected_hash:before.hash,ops:[{type:'insertBlock',blockId:'process',parentId:'root',index:2,blockType:'process-outline',props:{steps}}]});
+  expect(draft.ok).toBe(true);
+  expect(draft.lint.blocking).toEqual([]);
+  const failed=await call('docs_check',{path:'page'});
+  expect(failed.ok).toBe(false);
+  expect(failed.lint.blocking.some((f:any)=>f.ruleId==='process-outline.single-parent')).toBe(true);
+  const repaired=await call('docs_apply_ops',{path:'page',expected_hash:draft.hash,ops:[{type:'componentAction',blockId:'process',action:'process-outline.setSteps',params:{steps:[{text:'Explore a component',steps}]}}]});
+  expect(repaired.ok).toBe(true);
+  expect((await call('docs_check',{path:'page'})).ok).toBe(true);
+});

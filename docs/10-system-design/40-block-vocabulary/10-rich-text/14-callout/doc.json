@@ -13,6 +13,8 @@
         "b-15-callout-example-h-20",
         "b-15-callout-example-intro-21",
         "b-15-callout-example-info-22",
+        "callout-example-decision",
+        "callout-example-risk",
         "b-15-callout-example-success-23",
         "b-15-callout-example-kind-24",
         "b-15-callout-state-h-3",
@@ -22,6 +24,8 @@
         "b-15-callout-coercion-9",
         "b-15-callout-editor-h-10",
         "b-15-callout-editor-11",
+        "callout-read-edit-scope",
+        "callout-styling-scope",
         "b-15-callout-proj-h-6",
         "b-15-callout-proj-7",
         "b-15-callout-agent-h-12",
@@ -40,19 +44,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The labeled admonition of the "
-        },
-        {
-          "insert": "block vocabulary",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "10-system-design/40-block-vocabulary"
-            }
-          }
-        },
-        {
-          "insert": " — decisions, risks, warnings, mental models — and the vocabulary's designated safety net: every retired or unknown block type coerces into a callout rather than failing validation."
+          "insert": "Callout highlights short contextual information, including decisions, risks, warnings, and outcomes. It also provides the vocabulary's safety net: retired or unknown block types become callouts rather than failing validation."
         }
       ],
       "children": []
@@ -65,7 +57,7 @@
       },
       "text": [
         {
-          "insert": "Example"
+          "insert": "Examples"
         }
       ],
       "children": []
@@ -76,25 +68,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Three live variants: tone only, tone plus "
-        },
-        {
-          "insert": "title",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", and a free-form "
-        },
-        {
-          "insert": "kind",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " over the tone label."
+          "insert": "The five supported tones are info, decision, risk, warning, and success. Each example shows the read view's tone icon and colored header above a plain body. An optional title replaces the header's tone label. Free-form kind metadata labels the agent projection without adding a chip to the read view."
         }
       ],
       "children": []
@@ -107,7 +81,7 @@
       },
       "text": [
         {
-          "insert": "Tone only — the agent render labels this "
+          "insert": "Tone only, the agent render labels this "
         },
         {
           "insert": "INFO",
@@ -117,6 +91,34 @@
         },
         {
           "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "callout-example-decision": {
+      "id": "callout-example-decision",
+      "type": "callout",
+      "props": {
+        "title": "Keep the original available",
+        "tone": "decision"
+      },
+      "text": [
+        {
+          "insert": "Retain the captured source and review history so the selected design can be compared with its starting point."
+        }
+      ],
+      "children": []
+    },
+    "callout-example-risk": {
+      "id": "callout-example-risk",
+      "type": "callout",
+      "props": {
+        "title": "Source may have changed",
+        "tone": "risk"
+      },
+      "text": [
+        {
+          "insert": "A source edit made after capture can conflict with the selected revision. Compare the current file before integrating the design."
         }
       ],
       "children": []
@@ -139,7 +141,7 @@
           }
         },
         {
-          "insert": " — the title joins the label line in the agent render."
+          "insert": ", the title joins the label line in the agent render."
         }
       ],
       "children": []
@@ -327,7 +329,7 @@
           }
         },
         {
-          "insert": " (aliases: note, info, tip). No input rule — type "
+          "insert": " (aliases: note, info, tip). No input rule, type "
         },
         {
           "insert": "/callout",
@@ -337,6 +339,28 @@
         },
         {
           "insert": " or convert an existing line."
+        }
+      ],
+      "children": []
+    },
+    "callout-read-edit-scope": {
+      "id": "callout-read-edit-scope",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The normal editable view and the read/annotation view share CalloutDocsBlock, including its icon, title, colored textured header, faint edge, and plain body. In the editor, ProseMirror owns the body content while the decorative header stays outside the editable text. Typing, formatting, undo, nested content, and clipboard metadata retain the existing document schema. Both views support info, decision, risk, warning, and success; unknown tones fall back to info."
+        }
+      ],
+      "children": []
+    },
+    "callout-styling-scope": {
+      "id": "callout-styling-scope",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The approved design uses a tone-colored header with an icon and title above a plain body in every viewing mode. Subtle curved texture fades toward the title, and a faint one-pixel line marks the header's bottom edge when body content follows. A thin matching outer border and rounded corners keep Callout compact. State Shape and Interaction Surface supply the visual references; Callout keeps its short contextual purpose and does not adopt their field layouts. The user's integration approval covers the normal editable view as well as the read/annotation view. Variator retains the original, superseded directions, saved refinements, and integration evidence."
         }
       ],
       "children": []
@@ -393,7 +417,7 @@
           }
         },
         {
-          "insert": "). Always greppable on the leading token — "
+          "insert": "). Always greppable on the leading token, "
         },
         {
           "insert": "grep '> \\*\\*Decision'",
@@ -426,7 +450,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Keep the body to one or two sentences — the labeled fact itself. Mechanics, rationale, history, and examples go in a heading-led section ("
+          "insert": "Keep the body to one or two sentences, the labeled fact itself. Mechanics, rationale, history, and examples go in a heading-led section ("
         },
         {
           "insert": "heading",
@@ -486,7 +510,7 @@
       "props": {},
       "text": [
         {
-          "insert": "No typed actions — patch "
+          "insert": "No typed actions, patch "
         },
         {
           "insert": "tone",

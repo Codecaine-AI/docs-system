@@ -10,8 +10,11 @@
       "props": {},
       "children": [
         "b-22-interaction-surface-lead-2",
+        "component-worked-example-rule",
+        "operation-description-authoring",
         "b-22-interaction-surface-example-h",
         "b-22-interaction-surface-example-intro",
+        "worked-state-before",
         "b-22-interaction-surface-example-block",
         "b-22-interaction-surface-state-h-3",
         "b-22-interaction-surface-shape-4",
@@ -40,13 +43,24 @@
         "b-22-is-fam-agentr-detail-li",
         "b-22-is-fam-agentr-names-li",
         "b-22-interaction-surface-proj-example-9",
+        "pm-mu32h87j-1-qk3ilt",
         "b-22-interaction-surface-theming-heading",
         "b-22-interaction-surface-theming-para",
         "b-22-interaction-surface-theming-table",
         "b-22-is-fam-theme-linking-p",
         "b-22-is-fam-adapter-h",
         "b-22-is-fam-adapter-p1",
-        "b-22-is-fam-adapter-p2"
+        "b-22-is-fam-adapter-p2",
+        "operation-kinds",
+        "operation-kinds-rule",
+        "query-example-context",
+        "query-example-state",
+        "query-event-examples",
+        "event-example-payload",
+        "event-example-note",
+        "approved-design",
+        "approved-design-record",
+        "approved-design-scope"
       ]
     },
     "b-22-interaction-surface-lead-2": {
@@ -76,7 +90,7 @@
           }
         },
         {
-          "insert": ". A surface lists the named operations by which a state or system is changed, queried, or observed — operation signatures on a state, not HTTP endpoints. When documenting agentic systems it is one of the three types that carry the whole model: a "
+          "insert": ". A surface lists the named operations by which a state or system is changed, queried, or observed, operation signatures on a state, not HTTP endpoints. When documenting agentic systems it is one of the three types that carry the whole model: a "
         },
         {
           "insert": "state-shape",
@@ -88,7 +102,7 @@
           }
         },
         {
-          "insert": " block holds the state — shape and example instance side by side — the interaction-surface lists the operations on it, and "
+          "insert": " block holds the state, shape and example instance side by side, the interaction-surface lists the operations on it, and "
         },
         {
           "insert": "code",
@@ -101,6 +115,40 @@
         },
         {
           "insert": " blocks hold the source evidence. State first, then operations."
+        }
+      ],
+      "children": []
+    },
+    "component-worked-example-rule": {
+      "id": "component-worked-example-rule",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source; identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information."
+        }
+      ],
+      "children": []
+    },
+    "operation-description-authoring": {
+      "id": "operation-description-authoring",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Descriptions should add non-obvious information about operations, parameters, and returned fields. Omit text that only expands a name, repeats a type, or says an ID is an identifier. Keep constraints, defaults, side effects, failure behavior, lifecycle rules, and other facts the signature does not express. Follow the "
+        },
+        {
+          "insert": "State Shape description rule",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/50-state-shape"
+            }
+          }
+        },
+        {
+          "insert": ". Do not invent details to fill missing descriptions."
         }
       ],
       "children": []
@@ -124,21 +172,48 @@
       "props": {},
       "text": [
         {
-          "insert": "A live surface — two of the "
-        },
-        {
-          "insert": "file-tree",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "10-system-design/40-block-vocabulary/40-file-tree"
-            }
-          }
-        },
-        {
-          "insert": " block's entry operations. Each operation renders as its own card: signature left, description and param notes right; hovering a note lights the param's signature lines."
+          "insert": "This example starts with one file-tree entry. Adding src/config.ts returns the complete entries props patch inside its operation card. Removing src/index.ts from the same starting state returns an empty entries list. Each example starts independently from FileTreeState."
         }
       ],
+      "children": []
+    },
+    "worked-state-before": {
+      "id": "worked-state-before",
+      "type": "state-shape",
+      "props": {
+        "example": "{\n  \"entries\": [\n    {\n      \"path\": \"src/index.ts\"\n    }\n  ]\n}",
+        "fields": [
+          {
+            "name": "entries",
+            "type": "FileTreeEntry[]",
+            "description": "Paths are unique; array order controls document order.",
+            "fields": [
+              {
+                "name": "path",
+                "type": "string",
+                "description": "No leading \"./\"; a trailing \"/\" marks a directory."
+              },
+              {
+                "name": "note",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "change",
+                "type": "\"added\" | \"removed\" | \"modified\" | \"renamed\"",
+                "required": false
+              },
+              {
+                "name": "from",
+                "type": "string",
+                "required": false,
+                "description": "Previous path when renamed."
+              }
+            ]
+          }
+        ],
+        "name": "FileTreeState"
+      },
       "children": []
     },
     "b-22-interaction-surface-example-block": {
@@ -148,7 +223,7 @@
         "operations": [
           {
             "name": "file-tree.addEntry",
-            "description": "Append a path entry (optional note and change marker) to the file tree.",
+            "description": "Duplicate paths are rejected. Returns the props patch, not the action success envelope.",
             "params": [
               {
                 "name": "path",
@@ -169,11 +244,45 @@
                 "description": "Change marker rendered as a badge."
               }
             ],
-            "returns": "props patch: { entries }"
+            "returns": "FileTreeEntriesPatch",
+            "kind": "action",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "entries",
+                  "type": "FileTreeEntry[]",
+                  "description": "The complete replacement list after the operation.",
+                  "fields": [
+                    {
+                      "name": "path",
+                      "type": "string",
+                      "description": "No leading \"./\"; a trailing \"/\" marks a directory."
+                    },
+                    {
+                      "name": "note",
+                      "type": "string",
+                      "required": false
+                    },
+                    {
+                      "name": "change",
+                      "type": "\"added\" | \"removed\" | \"modified\" | \"renamed\"",
+                      "required": false
+                    },
+                    {
+                      "name": "from",
+                      "type": "string",
+                      "required": false,
+                      "description": "Previous path when renamed."
+                    }
+                  ]
+                }
+              ],
+              "example": "{\n  \"entries\": [\n    {\n      \"path\": \"src/index.ts\"\n    },\n    {\n      \"path\": \"src/config.ts\",\n      \"change\": \"added\"\n    }\n  ]\n}"
+            }
           },
           {
             "name": "file-tree.removeEntry",
-            "description": "Remove the entry with the given path from the file tree.",
+            "description": "Removes only the exact matching path. Returns the props patch.",
             "params": [
               {
                 "name": "path",
@@ -182,10 +291,44 @@
                 "description": "Exact path of the entry to remove."
               }
             ],
-            "returns": "props patch: { entries }"
+            "returns": "FileTreeEntriesPatch",
+            "kind": "action",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "entries",
+                  "type": "FileTreeEntry[]",
+                  "description": "The complete replacement list after the operation.",
+                  "fields": [
+                    {
+                      "name": "path",
+                      "type": "string",
+                      "description": "No leading \"./\"; a trailing \"/\" marks a directory."
+                    },
+                    {
+                      "name": "note",
+                      "type": "string",
+                      "required": false
+                    },
+                    {
+                      "name": "change",
+                      "type": "\"added\" | \"removed\" | \"modified\" | \"renamed\"",
+                      "required": false
+                    },
+                    {
+                      "name": "from",
+                      "type": "string",
+                      "required": false,
+                      "description": "Previous path when renamed."
+                    }
+                  ]
+                }
+              ],
+              "example": "{\n  \"entries\": []\n}"
+            }
           }
         ],
-        "title": "file-tree — entry operations"
+        "title": "file-tree entry operations"
       },
       "children": []
     },
@@ -206,7 +349,7 @@
       "id": "b-22-interaction-surface-shape-4",
       "type": "state-shape",
       "props": {
-        "example": "{\n  \"title\": \"file-tree — entry operations\",\n  \"operations\": [\n    {\n      \"name\": \"file-tree.removeEntry\",\n      \"description\": \"Remove the entry with the given path from the file tree.\",\n      \"params\": [\n        {\n          \"name\": \"path\",\n          \"type\": \"string\",\n          \"required\": true,\n          \"description\": \"Exact path of the entry to remove.\"\n        }\n      ],\n      \"returns\": \"props patch: { entries }\"\n    }\n  ]\n}",
+        "example": "{\n  \"title\": \"file-tree, entry operations\",\n  \"operations\": [\n    {\n      \"name\": \"file-tree.removeEntry\",\n      \"description\": \"Remove the entry with the given path from the file tree.\",\n      \"params\": [\n        {\n          \"name\": \"path\",\n          \"type\": \"string\",\n          \"required\": true,\n          \"description\": \"Exact path of the entry to remove.\"\n        }\n      ],\n      \"returns\": \"props patch: { entries }\"\n    }\n  ]\n}",
         "fields": [
           {
             "name": "title",
@@ -228,7 +371,7 @@
                 "name": "description",
                 "type": "string",
                 "required": false,
-                "description": "One-line description of what the operation does."
+                "description": "Only constraints or behavior not already clear from the signature."
               },
               {
                 "name": "params",
@@ -260,7 +403,7 @@
                     "name": "fields",
                     "type": "Field[]",
                     "required": false,
-                    "description": "Nested params — the node recurses"
+                    "description": "Nested params, the node recurses"
                   }
                 ]
               },
@@ -274,7 +417,26 @@
                 "name": "kind",
                 "type": "\"action\" | \"query\" | \"event\"",
                 "required": false,
-                "description": "Defaults to action; renders mark only query and event."
+                "description": "Omitted means action. All three kinds have an explicit badge."
+              },
+              {
+                "name": "returnShape",
+                "type": "ReturnShape",
+                "required": false,
+                "description": "Known object result; omit for void, primitive values, or an unsubscribe function.",
+                "fields": [
+                  {
+                    "name": "fields",
+                    "type": "Field[]",
+                    "description": "Uses the same recursive field nodes as State Shape."
+                  },
+                  {
+                    "name": "example",
+                    "type": "string",
+                    "required": false,
+                    "description": "JSON instance of the returned object."
+                  }
+                ]
               }
             ]
           }
@@ -302,7 +464,7 @@
           }
         },
         {
-          "insert": ") — every fact lives in the two props above. The schema is closed ("
+          "insert": "), every fact lives in the two props above. The schema is closed ("
         },
         {
           "insert": "additionalProperties: false",
@@ -316,7 +478,6 @@
         {
           "insert": "packages/docs-model/src/components/interaction-surface/state.ts",
           "attributes": {
-            "code": true,
             "reference": {
               "kind": "source",
               "path": "packages/docs-model/src/components/interaction-surface/state.ts"
@@ -350,12 +511,11 @@
           }
         },
         {
-          "insert": " node — the same node state-shape fields use ("
+          "insert": " node, the same node state-shape fields use ("
         },
         {
           "insert": "packages/docs-model/src/components/shared/field.ts",
           "attributes": {
-            "code": true,
             "reference": {
               "kind": "source",
               "path": "packages/docs-model/src/components/shared/field.ts"
@@ -434,7 +594,7 @@
           }
         },
         {
-          "insert": " is a closed vocabulary — "
+          "insert": " is a closed vocabulary, "
         },
         {
           "insert": "\"action\" | \"query\" | \"event\"",
@@ -443,7 +603,7 @@
           }
         },
         {
-          "insert": " — and omitted reads as action."
+          "insert": ", and omitted reads as action."
         }
       ],
       "children": []
@@ -508,7 +668,7 @@
         "operations": [
           {
             "name": "interaction-surface.addOperation",
-            "description": "Append an operation signature ({ name, description?, params?, returns?, kind? }) to the surface.",
+            "description": "Rejects duplicate operation names.",
             "params": [
               {
                 "name": "name",
@@ -534,13 +694,117 @@
                 "name": "kind",
                 "type": "string",
                 "required": false
+              },
+              {
+                "name": "returnShape",
+                "type": "ReturnShape",
+                "required": false,
+                "fields": [
+                  {
+                    "name": "fields",
+                    "type": "Field[]"
+                  },
+                  {
+                    "name": "example",
+                    "type": "string",
+                    "required": false
+                  }
+                ]
               }
             ],
-            "returns": "props patch: { operations }"
+            "returns": "InteractionSurfacePatch",
+            "kind": "action",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "operations",
+                  "type": "Operation[]",
+                  "description": "Operation signatures, in document order.",
+                  "fields": [
+                    {
+                      "name": "name",
+                      "type": "string",
+                      "description": "Operation signature name, e.g. \"file-tree.addEntry\"."
+                    },
+                    {
+                      "name": "description",
+                      "type": "string",
+                      "required": false,
+                      "description": "Only constraints or behavior not already clear from the signature."
+                    },
+                    {
+                      "name": "params",
+                      "type": "Field[]",
+                      "required": false,
+                      "description": "Shared recursive Field nodes; required: false means optional.",
+                      "fields": [
+                        {
+                          "name": "name",
+                          "type": "string"
+                        },
+                        {
+                          "name": "type",
+                          "type": "string",
+                          "required": false
+                        },
+                        {
+                          "name": "required",
+                          "type": "boolean",
+                          "required": false,
+                          "description": "false = optional"
+                        },
+                        {
+                          "name": "description",
+                          "type": "string",
+                          "required": false
+                        },
+                        {
+                          "name": "fields",
+                          "type": "Field[]",
+                          "required": false,
+                          "description": "Nested params, the node recurses"
+                        }
+                      ]
+                    },
+                    {
+                      "name": "returns",
+                      "type": "string",
+                      "required": false,
+                      "description": "What the operation returns/yields."
+                    },
+                    {
+                      "name": "kind",
+                      "type": "\"action\" | \"query\" | \"event\"",
+                      "required": false,
+                      "description": "Omitted means action. All three kinds have an explicit badge."
+                    },
+                    {
+                      "name": "returnShape",
+                      "type": "ReturnShape",
+                      "required": false,
+                      "description": "Known object result; omit for void, primitive values, or an unsubscribe function.",
+                      "fields": [
+                        {
+                          "name": "fields",
+                          "type": "Field[]",
+                          "description": "Uses the same recursive field nodes as State Shape."
+                        },
+                        {
+                          "name": "example",
+                          "type": "string",
+                          "required": false,
+                          "description": "JSON instance of the returned object."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
           },
           {
             "name": "interaction-surface.updateOperation",
-            "description": "Patch an operation (rename via patch.name; null clears description/params/returns/kind).",
+            "description": "Renames in place; null clears description, params, returns, returnShape, or kind.",
             "params": [
               {
                 "name": "name",
@@ -553,7 +817,95 @@
                 "required": true
               }
             ],
-            "returns": "props patch: { operations }"
+            "returns": "InteractionSurfacePatch",
+            "kind": "action",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "operations",
+                  "type": "Operation[]",
+                  "description": "Operation signatures, in document order.",
+                  "fields": [
+                    {
+                      "name": "name",
+                      "type": "string",
+                      "description": "Operation signature name, e.g. \"file-tree.addEntry\"."
+                    },
+                    {
+                      "name": "description",
+                      "type": "string",
+                      "required": false,
+                      "description": "Only constraints or behavior not already clear from the signature."
+                    },
+                    {
+                      "name": "params",
+                      "type": "Field[]",
+                      "required": false,
+                      "description": "Shared recursive Field nodes; required: false means optional.",
+                      "fields": [
+                        {
+                          "name": "name",
+                          "type": "string"
+                        },
+                        {
+                          "name": "type",
+                          "type": "string",
+                          "required": false
+                        },
+                        {
+                          "name": "required",
+                          "type": "boolean",
+                          "required": false,
+                          "description": "false = optional"
+                        },
+                        {
+                          "name": "description",
+                          "type": "string",
+                          "required": false
+                        },
+                        {
+                          "name": "fields",
+                          "type": "Field[]",
+                          "required": false,
+                          "description": "Nested params, the node recurses"
+                        }
+                      ]
+                    },
+                    {
+                      "name": "returns",
+                      "type": "string",
+                      "required": false,
+                      "description": "What the operation returns/yields."
+                    },
+                    {
+                      "name": "kind",
+                      "type": "\"action\" | \"query\" | \"event\"",
+                      "required": false,
+                      "description": "Omitted means action. All three kinds have an explicit badge."
+                    },
+                    {
+                      "name": "returnShape",
+                      "type": "ReturnShape",
+                      "required": false,
+                      "description": "Known object result; omit for void, primitive values, or an unsubscribe function.",
+                      "fields": [
+                        {
+                          "name": "fields",
+                          "type": "Field[]",
+                          "description": "Uses the same recursive field nodes as State Shape."
+                        },
+                        {
+                          "name": "example",
+                          "type": "string",
+                          "required": false,
+                          "description": "JSON instance of the returned object."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
           },
           {
             "name": "interaction-surface.removeOperation",
@@ -565,10 +917,98 @@
                 "required": true
               }
             ],
-            "returns": "props patch: { operations }"
+            "returns": "InteractionSurfacePatch",
+            "kind": "action",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "operations",
+                  "type": "Operation[]",
+                  "description": "Operation signatures, in document order.",
+                  "fields": [
+                    {
+                      "name": "name",
+                      "type": "string",
+                      "description": "Operation signature name, e.g. \"file-tree.addEntry\"."
+                    },
+                    {
+                      "name": "description",
+                      "type": "string",
+                      "required": false,
+                      "description": "Only constraints or behavior not already clear from the signature."
+                    },
+                    {
+                      "name": "params",
+                      "type": "Field[]",
+                      "required": false,
+                      "description": "Shared recursive Field nodes; required: false means optional.",
+                      "fields": [
+                        {
+                          "name": "name",
+                          "type": "string"
+                        },
+                        {
+                          "name": "type",
+                          "type": "string",
+                          "required": false
+                        },
+                        {
+                          "name": "required",
+                          "type": "boolean",
+                          "required": false,
+                          "description": "false = optional"
+                        },
+                        {
+                          "name": "description",
+                          "type": "string",
+                          "required": false
+                        },
+                        {
+                          "name": "fields",
+                          "type": "Field[]",
+                          "required": false,
+                          "description": "Nested params, the node recurses"
+                        }
+                      ]
+                    },
+                    {
+                      "name": "returns",
+                      "type": "string",
+                      "required": false,
+                      "description": "What the operation returns/yields."
+                    },
+                    {
+                      "name": "kind",
+                      "type": "\"action\" | \"query\" | \"event\"",
+                      "required": false,
+                      "description": "Omitted means action. All three kinds have an explicit badge."
+                    },
+                    {
+                      "name": "returnShape",
+                      "type": "ReturnShape",
+                      "required": false,
+                      "description": "Known object result; omit for void, primitive values, or an unsubscribe function.",
+                      "fields": [
+                        {
+                          "name": "fields",
+                          "type": "Field[]",
+                          "description": "Uses the same recursive field nodes as State Shape."
+                        },
+                        {
+                          "name": "example",
+                          "type": "string",
+                          "required": false,
+                          "description": "JSON instance of the returned object."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
           }
         ],
-        "title": "interaction-surface — operation actions"
+        "title": "interaction-surface operation actions"
       },
       "children": []
     },
@@ -627,7 +1067,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Operation order is document order — "
+          "insert": "Operation order is document order, "
         },
         {
           "insert": "addOperation",
@@ -689,7 +1129,7 @@
       "props": {},
       "text": [
         {
-          "insert": "On the doc surface — reader and editor alike — the block renders through "
+          "insert": "On the doc surface, reader and editor alike, the block renders through "
         },
         {
           "insert": "InteractionSurfaceBlock",
@@ -709,32 +1149,7 @@
       "props": {},
       "text": [
         {
-          "insert": "One card per operation."
-        }
-      ],
-      "children": [
-        "b-22-is-fam-docr-cards-1",
-        "b-22-is-fam-docr-cards-2"
-      ]
-    },
-    "b-22-is-fam-docr-cards-1": {
-      "id": "b-22-is-fam-docr-cards-1",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "An optional bold title caption sits above the stack; the block itself has no header bar."
-        }
-      ],
-      "children": []
-    },
-    "b-22-is-fam-docr-cards-2": {
-      "id": "b-22-is-fam-docr-cards-2",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Each card splits into a signature pane and a notes pane; when no operation carries a description or params, the block collapses to single-column signature cards."
+          "insert": "Each operation has a separate rounded card. The overall title uses title case above the stack. Card order follows authored operation order."
         }
       ],
       "children": []
@@ -745,77 +1160,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Operation header band."
-        }
-      ],
-      "children": [
-        "b-22-is-fam-docr-header-1",
-        "b-22-is-fam-docr-header-2",
-        "b-22-is-fam-docr-header-3"
-      ]
-    },
-    "b-22-is-fam-docr-header-1": {
-      "id": "b-22-is-fam-docr-header-1",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "The humanized name: "
-        },
-        {
-          "insert": "addOperation",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " reads \"Add Operation\"."
-        }
-      ],
-      "children": []
-    },
-    "b-22-is-fam-docr-header-2": {
-      "id": "b-22-is-fam-docr-header-2",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "The component namespace is stripped when the bare verbs stay unique within the block; a collision falls back to full dotted names. The agent render keeps full names either way."
-        }
-      ],
-      "children": []
-    },
-    "b-22-is-fam-docr-header-3": {
-      "id": "b-22-is-fam-docr-header-3",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "query",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " and "
-        },
-        {
-          "insert": "event",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " carry a kind badge beside the name; "
-        },
-        {
-          "insert": "action",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " is the unbadged default."
+          "insert": "Each card header shows the operation name and an explicit Action, Query, or Event badge. Action is amber, Query is green-teal, and Event is violet. A restrained curved texture stays in the header."
         }
       ],
       "children": []
@@ -826,107 +1171,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Signature pane."
-        }
-      ],
-      "children": [
-        "b-22-is-fam-docr-sig-1",
-        "b-22-is-fam-docr-sig-2",
-        "b-22-is-fam-docr-sig-3"
-      ]
-    },
-    "b-22-is-fam-docr-sig-1": {
-      "id": "b-22-is-fam-docr-sig-1",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Line-numbered, zebra-striped code lines; numbering restarts at 1 per operation."
-        }
-      ],
-      "children": []
-    },
-    "b-22-is-fam-docr-sig-2": {
-      "id": "b-22-is-fam-docr-sig-2",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "The grammar: a "
-        },
-        {
-          "insert": "name(",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " opening line, one "
-        },
-        {
-          "insert": "param?: type,",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " line per param at two spaces per depth ("
-        },
-        {
-          "insert": "?",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " marks "
-        },
-        {
-          "insert": "required: false",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "; an object param opens "
-        },
-        {
-          "insert": "name: {",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " and closes "
-        },
-        {
-          "insert": "},",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "), then a closing "
-        },
-        {
-          "insert": ") -> returns",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " line. Zero-param operations stay on one line."
-        }
-      ],
-      "children": []
-    },
-    "b-22-is-fam-docr-sig-3": {
-      "id": "b-22-is-fam-docr-sig-3",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Token tints are deterministic spans over this grammar — the operation name, param types, and the returns tail each carry their own token color; no highlight.js."
+          "insert": "Inputs use Field and Type columns on the left and the linked signature on the right. Aligned mini headers and a thin divider preserve the State Shape reading pattern."
         }
       ],
       "children": []
@@ -937,41 +1182,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Notes pane."
-        }
-      ],
-      "children": [
-        "b-22-is-fam-docr-notes-1",
-        "b-22-is-fam-docr-notes-2"
-      ]
-    },
-    "b-22-is-fam-docr-notes-1": {
-      "id": "b-22-is-fam-docr-notes-1",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "The operation description under a \"Description\" band, then one note row per param: bold mono name, muted "
-        },
-        {
-          "insert": "· type",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " sub-label, the description beneath where one exists."
-        }
-      ],
-      "children": []
-    },
-    "b-22-is-fam-docr-notes-2": {
-      "id": "b-22-is-fam-docr-notes-2",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "An object param's nested notes group behind a light left rule, one step per depth."
+          "insert": "Descriptions appear only when they add information. Nested fields retain their tree branches. A separate output section shows the actual returned object name, recursive fields on the left, and JSON example on the right. Its header has a softer matching tint and a return cue."
         }
       ],
       "children": []
@@ -996,7 +1207,7 @@
       "props": {},
       "text": [
         {
-          "insert": "One link group per operation — line numbering is per-operation, so keys would collide across operations."
+          "insert": "One link group per operation, line numbering is per-operation, so keys would collide across operations."
         }
       ],
       "children": []
@@ -1027,7 +1238,7 @@
           }
         },
         {
-          "insert": "); the node view calls the same descriptor render, so a surface looks identical in view and edit mode. No slash-menu entry — surfaces enter through agent ops or existing content."
+          "insert": "); the node view calls the same descriptor render, so a surface looks identical in view and edit mode. No slash-menu entry, surfaces enter through agent ops or existing content."
         }
       ],
       "children": []
@@ -1080,7 +1291,7 @@
           }
         },
         {
-          "insert": " — the "
+          "insert": ", the "
         },
         {
           "insert": "[kind]",
@@ -1118,16 +1329,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A param carrying a description or nested fields adds indented detail lines beneath its signature, in the shared field-line grammar: two-space indent per depth, "
-        },
-        {
-          "insert": "<name><?>: <type>  # <description>",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "."
+          "insert": "Described or nested parameters add indented field lines beneath the signature. A returnShape adds a named Returns section, recursive fields, and the supplied example. Full operation names remain searchable."
         }
       ],
       "children": []
@@ -1138,7 +1340,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Operation names stay fully dotted — the greppable identity; only the doc renderer strips namespaces."
+          "insert": "Operation names remain fully dotted in the agent projection. Human-readable card headings do not change stored operation identities."
         }
       ],
       "children": []
@@ -1147,11 +1349,27 @@
       "id": "b-22-interaction-surface-proj-example-9",
       "type": "code",
       "props": {},
+      "text": [],
+      "children": []
+    },
+    "pm-mu32h87j-1-qk3ilt": {
+      "id": "pm-mu32h87j-1-qk3ilt",
+      "type": "paragraph",
+      "props": {},
       "text": [
         {
-          "insert": "[query] table.rowCount() -> number  # How many rows the table has\ntable.addRow(cells: string[], index?: number) -> props patch  # Insert a row\n  cells: string[]  # One markdown cell per column"
+          "insert": "[query] table.rowCount() -> number  # How many rows the table hastable.addRow(cells: string[], index?: number) -> props patch  # Insert a row  cells: string[]  # One markdown cell per column"
         }
       ],
+      "children": [
+        "pm-mu32h87j-2-u44rel"
+      ]
+    },
+    "pm-mu32h87j-2-u44rel": {
+      "id": "pm-mu32h87j-2-u44rel",
+      "type": "code",
+      "props": {},
+      "text": [],
       "children": []
     },
     "b-22-interaction-surface-theming-heading": {
@@ -1238,7 +1456,6 @@
         {
           "insert": "packages/docs-workbench/web/src/theme/theme-folders.ts",
           "attributes": {
-            "code": true,
             "reference": {
               "kind": "source",
               "path": "packages/docs-workbench/web/src/theme/theme-folders.ts"
@@ -1258,78 +1475,48 @@
         "columns": [
           "Key",
           "CSS variable",
-          "Styles"
+          "Use"
         ],
         "rows": [
           [
-            "border",
-            "--docs-interaction-border",
-            "Card border"
+            "actionHeaderBg",
+            "--docs-operation-action-header-bg",
+            "Card header background; light and dark values"
           ],
           [
-            "bg",
-            "--docs-interaction-bg",
-            "Card background"
+            "actionHeaderInk",
+            "--docs-operation-action-header-ink",
+            "Curved texture and return cue"
           ],
           [
-            "rule",
-            "--docs-interaction-rule",
-            "Internal hairlines: row dividers and the column rule"
+            "queryHeaderBg",
+            "--docs-operation-query-header-bg",
+            "Card header background; light and dark values"
           ],
           [
-            "headerBg",
-            "--docs-interaction-header-bg",
-            "Section header band background"
+            "queryHeaderInk",
+            "--docs-operation-query-header-ink",
+            "Curved texture and return cue"
           ],
           [
-            "headerFg",
-            "--docs-interaction-header-fg",
-            "Section header band text"
+            "eventHeaderBg",
+            "--docs-operation-event-header-bg",
+            "Card header background; light and dark values"
           ],
           [
-            "sigName",
-            "--docs-interaction-sig-name",
-            "Operation name in the signature"
+            "eventHeaderInk",
+            "--docs-operation-event-header-ink",
+            "Curved texture and return cue"
           ],
           [
-            "sigType",
-            "--docs-interaction-sig-type",
-            "Param types and the -> returns tail"
+            "State Shape tokens",
+            "--docs-shape-*",
+            "Shared content colors, hierarchy, and separators"
           ],
           [
-            "sigPunct",
-            "--docs-interaction-sig-punct",
-            "Signature punctuation and the ? marker"
-          ],
-          [
-            "noteName",
-            "--docs-interaction-note-name",
-            "Param note name"
-          ],
-          [
-            "noteType",
-            "--docs-interaction-note-type",
-            "Param note · type sub-label"
-          ],
-          [
-            "noteFg",
-            "--docs-interaction-note-fg",
-            "Note text"
-          ],
-          [
-            "childRule",
-            "--docs-interaction-child-rule",
-            "Left rule grouping an object param's nested notes"
-          ],
-          [
-            "rowPad",
-            "--docs-interaction-row-pad",
-            "Note row padding (length slider, 4–16px, default 8)"
-          ],
-          [
-            "opGap",
-            "--docs-interaction-op-gap",
-            "Gap between operation cards (length slider, 6–28px, default 14)"
+            "Legacy interaction tokens",
+            "--docs-interaction-*",
+            "Retained for compatibility; shared content follows State Shape"
           ]
         ]
       },
@@ -1341,16 +1528,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The zebra stripe, link wash, and pin accent come from the shared linking file ("
-        },
-        {
-          "insert": "components/linking.json",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ") — registered once for the linked-panels layer, not per component."
+          "insert": "Content uses the approved State Shape palette, typography, chips, mini headers, and separators. Only operation and return headers vary by kind. Linking still uses the shared linked-panels behavior."
         }
       ],
       "children": []
@@ -1406,7 +1584,7 @@
           }
         },
         {
-          "insert": " — the doc op beside "
+          "insert": ", the doc op beside "
         },
         {
           "insert": "insertBlock",
@@ -1499,7 +1677,7 @@
           }
         },
         {
-          "insert": " code path — the block id is preserved and the inverse is the usual "
+          "insert": " code path, the block id is preserved and the inverse is the usual "
         },
         {
           "insert": "updateBlock",
@@ -1513,7 +1691,6 @@
         {
           "insert": "packages/docs-model/src/doc-ops.ts",
           "attributes": {
-            "code": true,
             "reference": {
               "kind": "source",
               "path": "packages/docs-model/src/doc-ops.ts"
@@ -1522,6 +1699,230 @@
         },
         {
           "insert": ")."
+        }
+      ],
+      "children": []
+    },
+    "operation-kinds": {
+      "id": "operation-kinds",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Operation Kinds"
+        }
+      ],
+      "children": []
+    },
+    "operation-kinds-rule": {
+      "id": "operation-kinds-rule",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Action changes state or requests work. Query reads state without changing it. Event describes notifications or observation. These are presentation categories, not new execution mechanisms. A subscription can return an unsubscribe function; that return value is different from the event payload delivered to its callback."
+        }
+      ],
+      "children": []
+    },
+    "query-example-context": {
+      "id": "query-example-context",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The query example uses the real DocsStore.docGet operation from packages/docs-server/src/store.ts and agent-tools.ts. Its success result includes the document, revision hash, Markdown projection, and bundle path. Failure returns ok: false, status, and detail. The example below is a successful read of a minimal document."
+        }
+      ],
+      "children": []
+    },
+    "query-example-state": {
+      "id": "query-example-state",
+      "type": "state-shape",
+      "props": {
+        "example": "{\n  \"schemaVersion\": 1,\n  \"id\": \"example\",\n  \"title\": \"Example\",\n  \"root\": \"root\",\n  \"blocks\": {\n    \"root\": {\n      \"id\": \"root\",\n      \"type\": \"paragraph\",\n      \"props\": {},\n      \"text\": [\n        {\n          \"insert\": \"Example state.\"\n        }\n      ],\n      \"children\": []\n    }\n  }\n}",
+        "fields": [
+          {
+            "name": "schemaVersion",
+            "type": "1"
+          },
+          {
+            "name": "id",
+            "type": "string"
+          },
+          {
+            "name": "title",
+            "type": "string"
+          },
+          {
+            "name": "root",
+            "type": "string",
+            "description": "ID of the root block."
+          },
+          {
+            "name": "blocks",
+            "type": "Record<string, DocBlock>"
+          }
+        ],
+        "name": "DocDocument"
+      },
+      "children": []
+    },
+    "query-event-examples": {
+      "id": "query-event-examples",
+      "type": "interaction-surface",
+      "props": {
+        "operations": [
+          {
+            "name": "DocsStore.docGet",
+            "kind": "query",
+            "params": [
+              {
+                "name": "path",
+                "type": "string",
+                "description": "Bundle path relative to this store's docs root."
+              }
+            ],
+            "returns": "DocGetResult",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "ok",
+                  "type": "true"
+                },
+                {
+                  "name": "doc",
+                  "type": "DocDocument"
+                },
+                {
+                  "name": "hash",
+                  "type": "string",
+                  "description": "Use as the expected revision for a subsequent edit."
+                },
+                {
+                  "name": "markdown",
+                  "type": "string"
+                },
+                {
+                  "name": "bundlePath",
+                  "type": "string"
+                }
+              ],
+              "example": "{\n  \"ok\": true,\n  \"doc\": {\n    \"schemaVersion\": 1,\n    \"id\": \"example\",\n    \"title\": \"Example\",\n    \"root\": \"root\",\n    \"blocks\": {\n      \"root\": {\n        \"id\": \"root\",\n        \"type\": \"paragraph\",\n        \"props\": {},\n        \"text\": [\n          {\n            \"insert\": \"Example state.\"\n          }\n        ],\n        \"children\": []\n      }\n    }\n  },\n  \"hash\": \"7e01e3ded8ac40dea291baff1a553f41e968a5eb5d804557aedadb4c5446b9dd\",\n  \"markdown\": \"\",\n  \"bundlePath\": \"example\"\n}"
+            }
+          },
+          {
+            "name": "DocsStore.subscribeChanges",
+            "kind": "event",
+            "description": "Receives notifications in this process. Call the returned function to unsubscribe.",
+            "params": [
+              {
+                "name": "listener",
+                "type": "(event: DocsChangeEvent) => void",
+                "fields": [
+                  {
+                    "name": "event",
+                    "type": "DocsChangeEvent",
+                    "fields": [
+                      {
+                        "name": "path",
+                        "type": "string"
+                      },
+                      {
+                        "name": "changedIds",
+                        "type": "string[]"
+                      },
+                      {
+                        "name": "patchId",
+                        "type": "string"
+                      },
+                      {
+                        "name": "actor",
+                        "type": "string"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "returns": "() => void"
+          }
+        ],
+        "title": "Document Observation"
+      },
+      "children": []
+    },
+    "event-example-payload": {
+      "id": "event-example-payload",
+      "type": "state-shape",
+      "props": {
+        "example": "{\n  \"path\": \"example\",\n  \"changedIds\": [\n    \"root\"\n  ],\n  \"patchId\": \"example-edit\",\n  \"actor\": \"external-agent\"\n}",
+        "fields": [
+          {
+            "name": "path",
+            "type": "string"
+          },
+          {
+            "name": "changedIds",
+            "type": "string[]"
+          },
+          {
+            "name": "patchId",
+            "type": "string"
+          },
+          {
+            "name": "actor",
+            "type": "string"
+          }
+        ],
+        "name": "DocsChangeEvent"
+      },
+      "children": []
+    },
+    "event-example-note": {
+      "id": "event-example-note",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "DocsChangeEvent is the callback payload, not the subscription return object. The example uses the in-process publishChange and subscribeChanges contract in packages/docs-server/src/docs-events.ts."
+        }
+      ],
+      "children": []
+    },
+    "approved-design": {
+      "id": "approved-design",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Approved Design and Reuse"
+        }
+      ],
+      "children": []
+    },
+    "approved-design-record": {
+      "id": "approved-design-record",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Approved in Variator on 2026-09-15 from Tapered Tree List, revision 13c3f549-e558-4eec-b1bc-144d8a3d86ee. Apply d72f0fe6-cbdd-48a4-9b63-4dba3fb2c19a used a real Kernel agent and passed 40 exact visual comparisons. The component design/approval.json package retains the original feedback, scoped decisions, revisions, and events. Earlier all-amber headers and blue Query styling are historical, superseded choices."
+        }
+      ],
+      "children": []
+    },
+    "approved-design-scope": {
+      "id": "approved-design-scope",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Reuse the State Shape content palette, typography, spacing, restrained texture, and thin separators. Do not turn its blue identity or field-only layout into a rule for every component. Operation cards, kind colors, inputs before outputs, and softly tinted return headers are Interaction Surface decisions. Exact green-teal and violet tones and the 48 percent return tint were implementer choices accepted with the final design."
         }
       ],
       "children": []

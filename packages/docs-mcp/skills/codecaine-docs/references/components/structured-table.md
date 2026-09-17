@@ -1,6 +1,6 @@
 # structured-table
 
-Generated from Codecaine Docs sources. Snapshot: `sha256:f4b9cba0f82bcd296f0e2ea67a49c4f3fc3932efc70b8bccc6cfff99c0156e38`. Refresh the installation to regenerate these files.
+Generated from Codecaine Docs sources. Snapshot: `sha256:acd72632b05751ccd41e5ab29e829ff35ee6b28293ad4f81ce94207cd98207f2`. Refresh the installation to regenerate these files.
 
 Use a Structured Table for a comparison, index, or mapping with the same properties across rows. Use State Shape for nested typed fields.
 
@@ -9,6 +9,8 @@ Example: Compare supported clients by installation path and connection method.
 Canonical document: `10-system-design/40-block-vocabulary/30-structured-table`.
 
 The structured-table family owns one block type, `structured-table`: a columns × rows grid of rich-text cells kept in typed props, not prose — each cell is a plain string or a span array carrying inline marks. Use it for index tables, comparison matrices, and anything an agent should edit cell-by-cell instead of re-flowing text. Each section below instantiates one element of the block-design contract for this family.
+
+When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source; identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information.
 
 ## Example
 
@@ -104,11 +106,23 @@ Five verbs cover the grid — the family's whole agent write surface for cells. 
 **structured-table — row and column actions**
 
 ```
-structured-table.addRow(cells: string[], index?: number) -> props patch: { rows }  # Insert a row (cells are inline markdown, padded/truncated to the column count); index defaults to the end.
-structured-table.removeRow(index: number) -> props patch: { rows }  # Remove the row at the given index.
-structured-table.updateCell(rowIndex: number, column?: string, columnIndex?: number, value: string) -> props patch: { rows }  # Set one cell to inline markdown, addressing the column by name (column) or position (columnIndex).
-structured-table.addColumn(name: string, index?: number, fill?: string) -> props patch: { columns, rows }  # Insert a column (default at the end), extending every row with the fill value; name and fill are inline markdown.
-structured-table.removeColumn(column?: string, columnIndex?: number) -> props patch: { columns, rows }  # Remove a column by name (column) or position (columnIndex), shrinking every row.
+structured-table.addRow(cells: string[], index?: number) -> StructuredTablePatch  # Insert a row (cells are inline markdown, padded/truncated to the column count); index defaults to the end.
+  Returns StructuredTablePatch:
+    rows: TableCell[][]  # One cell array per row; actions normalize each row to the column count. An unmarked cell stores as the plain string (canonical).
+structured-table.removeRow(index: number) -> StructuredTablePatch  # Remove the row at the given index.
+  Returns StructuredTablePatch:
+    rows: TableCell[][]  # One cell array per row; actions normalize each row to the column count. An unmarked cell stores as the plain string (canonical).
+structured-table.updateCell(rowIndex: number, column?: string, columnIndex?: number, value: string) -> StructuredTablePatch  # Set one cell to inline markdown, addressing the column by name (column) or position (columnIndex).
+  Returns StructuredTablePatch:
+    rows: TableCell[][]  # One cell array per row; actions normalize each row to the column count. An unmarked cell stores as the plain string (canonical).
+structured-table.addColumn(name: string, index?: number, fill?: string) -> StructuredTablePatch  # Insert a column (default at the end), extending every row with the fill value; name and fill are inline markdown.
+  Returns StructuredTablePatch:
+    columns: TableCell[]  # Header cells in order. A TableCell is a plain string or a span array whose closed mark set is bold/italic/strike/code/link.
+    rows: TableCell[][]  # One cell array per row; actions normalize each row to the column count. An unmarked cell stores as the plain string (canonical).
+structured-table.removeColumn(column?: string, columnIndex?: number) -> StructuredTablePatch  # Remove a column by name (column) or position (columnIndex), shrinking every row.
+  Returns StructuredTablePatch:
+    columns: TableCell[]  # Header cells in order. A TableCell is a plain string or a span array whose closed mark set is bold/italic/strike/code/link.
+    rows: TableCell[][]  # One cell array per row; actions normalize each row to the column count. An unmarked cell stores as the plain string (canonical).
 ```
 
 ## Doc Renderer

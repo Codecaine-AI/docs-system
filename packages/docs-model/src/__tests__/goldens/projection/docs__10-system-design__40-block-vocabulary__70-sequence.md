@@ -1,5 +1,7 @@
 The sequence component owns one type of the Block vocabulary: `sequence`, the UML-style sequence-diagram block. The block is only a reference — `src` (or `sequenceId`) points at a `SequenceDocument` owned by the external sequence engine (`external/sequence`); participants, messages, and style never enter the doc. Sequence diagrams are this block's whole territory — every other diagram type belongs to the canvas block.
 
+When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source; identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information.
+
 The family is the vocabulary's flagship non-default agent-adapter case: its three typed actions carry `forward: { authority: "sequence" }` instead of a local `apply`, so diagram edits route to the sequence engine and come back validated. The JSON document is the source of truth; a compact text program is the agent-facing projection — agents rewrite the whole program, and the language carries no styling, no coordinates, and no ids.
 
 ## Example
