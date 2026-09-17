@@ -10,7 +10,7 @@ Write or update documentation for a source path or system concept. Layer-aware:
 | Layer | Target | Tone | Output |
 |-------|--------|------|--------|
 | **Design** | System concepts, behaviors, flow | Code-agnostic — no language, framework, or file references | `docs/10-system-design/` |
-| **Implementation** | Source code sections | Code-specific — files, patterns, language details | `docs/20-implementation/` |
+| **Implementation** | Source code sections | Code-specific — files, patterns, language details | `docs/30-implementation/` |
 
 Layer detection: if the target is `design` or `docs/10-system-design/`, use Section A; otherwise Section B.
 
@@ -57,8 +57,8 @@ Inputs: `source_path` (required) and a notes file (interview notes, implementati
 |--------|-----|
 | Notes file | Read directly (plain markdown in `docs/.drafts/`) |
 | Source code | Read `[source_path]/` |
-| Existing docs | `docs render docs/20-implementation/[section]/<doc>` or `docs grep <term> docs/20-implementation/[section]` |
-| L1 overview | `docs render docs/20-implementation/00-overview` |
+| Existing docs | `docs render docs/30-implementation/[section]/<doc>` or `docs grep <term> docs/30-implementation/[section]` |
+| L1 overview | `docs render docs/30-implementation/00-overview` |
 
 ### B.2 Normalize Notes Into Present-State Facts
 
@@ -84,7 +84,7 @@ One concept per doc — don't create a doc per source file; group functionality 
 
 ### B.6 Update the L1 Overview
 
-Link new sections from `docs/20-implementation/00-overview`; update descriptions if scope changed.
+Link new sections from `docs/30-implementation/00-overview`; update descriptions if scope changed.
 
 ### B.7 Validate
 

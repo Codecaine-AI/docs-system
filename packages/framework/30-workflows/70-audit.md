@@ -59,7 +59,7 @@ Run quick first, then sample 2-3 concept docs for semantic drift:
 
 Example findings: "doc says Redis, code uses Memcached"; "doc references `UserSession`, renamed to `AuthSession`"; "doc says tokens expire after 1 hour, code shows 24".
 
-Also check coverage: which source directories lack a corresponding `20-implementation/` section?
+Also check coverage: which source directories lack a corresponding `30-implementation/` section?
 
 ## Severity
 

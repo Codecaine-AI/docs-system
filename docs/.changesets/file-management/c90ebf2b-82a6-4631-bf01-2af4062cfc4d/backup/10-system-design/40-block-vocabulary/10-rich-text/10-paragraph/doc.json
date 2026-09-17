@@ -1,0 +1,519 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-10-block-vocabulary-10-paragraph",
+  "title": "paragraph",
+  "root": "b-10-paragraph-root",
+  "blocks": {
+    "b-10-paragraph-root": {
+      "id": "b-10-paragraph-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-10-paragraph-lead-2",
+        "b-10-paragraph-example-h-20",
+        "b-10-paragraph-example-para-21",
+        "b-10-paragraph-state-h-3",
+        "b-10-paragraph-state-shape-22",
+        "b-10-paragraph-state-4",
+        "b-10-paragraph-editor-h-7",
+        "b-10-paragraph-editor-8",
+        "b-10-paragraph-proj-h-5",
+        "b-10-paragraph-proj-6",
+        "b-10-paragraph-agent-h-9",
+        "b-10-paragraph-agent-1-10",
+        "b-10-paragraph-agent-2-11",
+        "b-10-paragraph-theming-heading",
+        "b-10-paragraph-theming-para",
+        "b-10-paragraph-theming-table"
+      ]
+    },
+    "b-10-paragraph-lead-2": {
+      "id": "b-10-paragraph-lead-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The default block of the "
+        },
+        {
+          "insert": "block vocabulary",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary"
+            }
+          }
+        },
+        {
+          "insert": ": rich text prose. Anything that is not structurally something else is a paragraph — leads, explanations, connective tissue between headings and object blocks."
+        }
+      ],
+      "children": []
+    },
+    "b-10-paragraph-example-h-20": {
+      "id": "b-10-paragraph-example-h-20",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Example"
+        }
+      ],
+      "children": []
+    },
+    "b-10-paragraph-example-para-21": {
+      "id": "b-10-paragraph-example-para-21",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This paragraph is a live example: it carries "
+        },
+        {
+          "insert": "bold",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "italic",
+          "attributes": {
+            "italic": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "strike",
+          "attributes": {
+            "strike": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "code",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " marks, "
+        },
+        {
+          "insert": "an outbound link",
+          "attributes": {
+            "link": "https://example.com"
+          }
+        },
+        {
+          "insert": ", and a reference chip to "
+        },
+        {
+          "insert": "Cross-doc linking",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/10-doc-standards/30-cross-doc-linking"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-10-paragraph-state-h-3": {
+      "id": "b-10-paragraph-state-h-3",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "State Schema"
+        }
+      ],
+      "children": []
+    },
+    "b-10-paragraph-state-shape-22": {
+      "id": "b-10-paragraph-state-shape-22",
+      "type": "state-shape",
+      "props": {
+        "description": "Closed empty object — any prop is a validation error.",
+        "fields": [],
+        "name": "ParagraphState",
+        "source": {
+          "path": "packages/docs-model/src/components/rich-text/state.ts",
+          "symbol": "ParagraphState"
+        }
+      },
+      "children": []
+    },
+    "b-10-paragraph-state-4": {
+      "id": "b-10-paragraph-state-4",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Carries delta text ("
+        },
+        {
+          "insert": "carriesText: true",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "): an array of spans with optional "
+        },
+        {
+          "insert": "bold",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " / "
+        },
+        {
+          "insert": "italic",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " / "
+        },
+        {
+          "insert": "strike",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " / "
+        },
+        {
+          "insert": "code",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " marks, a "
+        },
+        {
+          "insert": "link",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " URL, or a reference chip (a shared SpectreRef pointing at a doc or code location)."
+        }
+      ],
+      "children": []
+    },
+    "b-10-paragraph-editor-h-7": {
+      "id": "b-10-paragraph-editor-h-7",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Doc Renderer"
+        }
+      ],
+      "children": []
+    },
+    "b-10-paragraph-editor-8": {
+      "id": "b-10-paragraph-editor-8",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Typing lands in a paragraph by default; the slash menu lists it as "
+        },
+        {
+          "insert": "Text",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": ". Markdown-shortcut input rules auto-convert only "
+        },
+        {
+          "insert": "**bold**",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "`code`",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " as you type — italic and strike deliberately have no typing shortcut, though their "
+        },
+        {
+          "insert": "Cmd+I",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " / "
+        },
+        {
+          "insert": "Cmd+Shift+S",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " keybindings and paste conversion still apply the marks. "
+        },
+        {
+          "insert": "Cmd+K",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " on a non-empty selection opens the link popover; pasting a URL over a selection applies the link mark directly."
+        }
+      ],
+      "children": []
+    },
+    "b-10-paragraph-proj-h-5": {
+      "id": "b-10-paragraph-proj-h-5",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent Renderer"
+        }
+      ],
+      "children": []
+    },
+    "b-10-paragraph-proj-6": {
+      "id": "b-10-paragraph-proj-6",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A plain text line. Marks render as standard markdown syntax (code innermost, then bold/italic/strike, link outermost); "
+        },
+        {
+          "insert": "reference",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " spans render as plain text — the span's own insert (by the linking standard, the target's name), falling back to the reference path — because the agent surface is a greppable terminal artifact, not a rendered document. Two quirks worth knowing: a paragraph with empty text renders nothing at all, and the document root is itself a paragraph shell whose own line is always skipped — only its children render."
+        }
+      ],
+      "children": []
+    },
+    "b-10-paragraph-agent-h-9": {
+      "id": "b-10-paragraph-agent-h-9",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent Notes"
+        }
+      ],
+      "children": []
+    },
+    "b-10-paragraph-agent-1-10": {
+      "id": "b-10-paragraph-agent-1-10",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Edit through the generic text ops ("
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "splitBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "mergeBlocks",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ") — a paragraph has no typed actions and no props to patch."
+        }
+      ],
+      "children": []
+    },
+    "b-10-paragraph-agent-2-11": {
+      "id": "b-10-paragraph-agent-2-11",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An empty paragraph is invisible in "
+        },
+        {
+          "insert": "docs render",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " output; don't rely on it as a spacer."
+        }
+      ],
+      "children": []
+    },
+    "b-10-paragraph-theming-heading": {
+      "id": "b-10-paragraph-theming-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Theme"
+        }
+      ],
+      "children": []
+    },
+    "b-10-paragraph-theming-para": {
+      "id": "b-10-paragraph-theming-para",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This block's theme file is "
+        },
+        {
+          "insert": "components/paragraph.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in a theme folder ("
+        },
+        {
+          "insert": "themes/<id>/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "; see "
+        },
+        {
+          "insert": "Theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/40-theming"
+            }
+          }
+        },
+        {
+          "insert": "). Every value is one string for both modes or a "
+        },
+        {
+          "insert": "{ light, dark }",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " pair, validated against "
+        },
+        {
+          "insert": "THEME_TOKEN_REGISTRY",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/theme/theme-folders.ts"
+            }
+          }
+        },
+        {
+          "insert": "."
+        },
+        {
+          "insert": " The contract is "
+        },
+        {
+          "insert": "Theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/50-theming"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-10-paragraph-theming-table": {
+      "id": "b-10-paragraph-theming-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Key",
+          "CSS variable",
+          "Styles"
+        ],
+        "rows": [
+          [
+            "fg",
+            "--docs-paragraph-fg",
+            "Paragraph text color"
+          ]
+        ]
+      },
+      "children": []
+    }
+  }
+}

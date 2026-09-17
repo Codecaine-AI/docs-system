@@ -4,13 +4,14 @@ The structure defined in these standards is built for many agents at once.
 
 - With 10, 20, or 100+ agents working a codebase, every change needs one canonical place to land
 
-## The Three Layers
+## The Four Layers
 
 | Layer | Holds | Changes |
 | --- | --- | --- |
 | `00-foundation` | Core idea behind the system and why it exists | Rarely |
 | `10-system-design` | Behavior, implementation-agnostic | When behavior changes |
-| `20-implementation` | Functionality, decisions, etc. of the current code | With the code |
+| `20-agents` | Participating agents and their definitions | When agent contracts change |
+| `30-implementation` | Functionality, decisions, etc. of the current code | With the code |
 
 ## The "Why" Travels With Every Decision
 
@@ -30,7 +31,8 @@ Every decision in these docs carries its why
 00-foundation/  # intent — what this is and why; every change is compared against it
 10-system-design/  # behavior — implementation-agnostic; what the system does and why
 └── 10-doc-standards/  # this section — the structure itself, plus five standards docs
-20-implementation/  # the current code — mirrors the source tree, churns with it
+20-agents/  # agent definitions; reserved when the system has no agents
+30-implementation/  # the current code — mirrors the source tree, churns with it
 ```
 
 ## The Standards
@@ -39,7 +41,7 @@ Five standards, one concern each. Every one shows how things are laid out, state
 
 - Structure
 
-  - The three layers, the depth ladder, folders and parent docs, and when a topic earns a folder.
+  - The four layers, the depth ladder, folders and parent docs, and when a topic earns a folder.
 
 - Numbering
 

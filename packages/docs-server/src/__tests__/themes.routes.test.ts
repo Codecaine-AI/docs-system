@@ -9,7 +9,7 @@ import { createDocsRoutes } from "../routes";
 import { themesRootFor } from "../themes";
 
 /**
- * Theme-folder routes (docs/20-implementation/40-theming): the repo's
+ * Theme-folder routes (docs/30-implementation/40-theming): the repo's
  * themes/ directory lives SIBLING to the docs root; ids are strict slugs;
  * content is opaque JSON (the workbench loader owns shape validation).
  */

@@ -1,0 +1,515 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-10-block-vocabulary-30-image",
+  "title": "image",
+  "root": "b-30-image-root",
+  "blocks": {
+    "b-30-image-root": {
+      "id": "b-30-image-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-30-image-lead-2",
+        "b-30-image-example-h-20",
+        "b-30-image-example-intro-21",
+        "b-30-image-example-img-22",
+        "b-30-image-state-h-3",
+        "b-30-image-state-shape-23",
+        "b-30-image-state-note-5",
+        "b-30-image-editor-h-8",
+        "b-30-image-editor-9",
+        "b-30-image-proj-h-6",
+        "b-30-image-proj-7",
+        "b-30-image-agent-h-10",
+        "b-30-image-agent-1-11",
+        "b-30-image-agent-2-12",
+        "b-30-image-theming-heading",
+        "b-30-image-theming-para",
+        "b-30-image-theming-table"
+      ]
+    },
+    "b-30-image-lead-2": {
+      "id": "b-30-image-lead-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The image block of the "
+        },
+        {
+          "insert": "block vocabulary",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary"
+            }
+          }
+        },
+        {
+          "insert": ": a picture from the bundle's assets, with alt text and an optional caption. Owned by the rich-text component (it lives in the text flow), but carries no text of its own."
+        }
+      ],
+      "children": []
+    },
+    "b-30-image-example-h-20": {
+      "id": "b-30-image-example-h-20",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Example"
+        }
+      ],
+      "children": []
+    },
+    "b-30-image-example-intro-21": {
+      "id": "b-30-image-example-intro-21",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A live block over a real bundle asset — the SVG lives at "
+        },
+        {
+          "insert": "assets/images/two-renders.svg",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in this doc's bundle."
+        }
+      ],
+      "children": []
+    },
+    "b-30-image-example-img-22": {
+      "id": "b-30-image-example-img-22",
+      "type": "image",
+      "props": {
+        "alt": "A doc.json box with arrows to a doc render and an agent render.",
+        "caption": "One doc.json, two renders.",
+        "src": "./assets/images/two-renders.svg"
+      },
+      "children": []
+    },
+    "b-30-image-state-h-3": {
+      "id": "b-30-image-state-h-3",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "State Schema"
+        }
+      ],
+      "children": []
+    },
+    "b-30-image-state-shape-23": {
+      "id": "b-30-image-state-shape-23",
+      "type": "state-shape",
+      "props": {
+        "description": "Closed schema; src is the only required prop.",
+        "example": "{\n  \"src\": \"./assets/images/two-renders.svg\",\n  \"alt\": \"A doc.json box with arrows to a doc render and an agent render.\",\n  \"caption\": \"One doc.json, two renders.\"\n}",
+        "fields": [
+          {
+            "name": "src",
+            "type": "string",
+            "description": "Image source — conventionally a bundle-relative path under assets/images/."
+          },
+          {
+            "name": "alt",
+            "type": "string",
+            "required": false,
+            "description": "Alt text; the agent render falls back to caption, then empty."
+          },
+          {
+            "name": "caption",
+            "type": "string",
+            "required": false,
+            "description": "Caption under the image; an italic line in the agent render."
+          }
+        ],
+        "name": "ImageState",
+        "source": {
+          "path": "packages/docs-model/src/components/rich-text/state.ts",
+          "symbol": "ImageState"
+        }
+      },
+      "children": []
+    },
+    "b-30-image-state-note-5": {
+      "id": "b-30-image-state-note-5",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "No text ("
+        },
+        {
+          "insert": "carriesText: false",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ")."
+        }
+      ],
+      "children": []
+    },
+    "b-30-image-editor-h-8": {
+      "id": "b-30-image-editor-h-8",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Doc Renderer"
+        }
+      ],
+      "children": []
+    },
+    "b-30-image-editor-9": {
+      "id": "b-30-image-editor-9",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Slash menu: "
+        },
+        {
+          "insert": "Image",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " (aliases: picture, photo) — inserts an empty block that renders a missing-"
+        },
+        {
+          "insert": "src",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " placeholder card. A non-editable atom leaf node with no props UI in the editor: set "
+        },
+        {
+          "insert": "src",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": "alt",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": "caption",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " through agent ops. Asset uploads go through the server's generic "
+        },
+        {
+          "insert": "POST /api/assets",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " route, which stores "
+        },
+        {
+          "insert": "image/*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " files under the bundle's "
+        },
+        {
+          "insert": "assets/images/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-30-image-proj-h-6": {
+      "id": "b-30-image-proj-h-6",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent Renderer"
+        }
+      ],
+      "children": []
+    },
+    "b-30-image-proj-7": {
+      "id": "b-30-image-proj-7",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A standard markdown image, "
+        },
+        {
+          "insert": "![alt](src)",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", with an "
+        },
+        {
+          "insert": "*caption*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " italic line beneath when "
+        },
+        {
+          "insert": "props.caption",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is present."
+        }
+      ],
+      "children": []
+    },
+    "b-30-image-agent-h-10": {
+      "id": "b-30-image-agent-h-10",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent Notes"
+        }
+      ],
+      "children": []
+    },
+    "b-30-image-agent-1-11": {
+      "id": "b-30-image-agent-1-11",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "No typed actions — set "
+        },
+        {
+          "insert": "src",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": "alt",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": "caption",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " via "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-30-image-agent-2-12": {
+      "id": "b-30-image-agent-2-12",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Always provide "
+        },
+        {
+          "insert": "alt",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ": the agent surface is text-first, and "
+        },
+        {
+          "insert": "![](path)",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " tells a reading agent nothing."
+        }
+      ],
+      "children": []
+    },
+    "b-30-image-theming-heading": {
+      "id": "b-30-image-theming-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Theme"
+        }
+      ],
+      "children": []
+    },
+    "b-30-image-theming-para": {
+      "id": "b-30-image-theming-para",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This block's theme file is "
+        },
+        {
+          "insert": "components/image.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in a theme folder ("
+        },
+        {
+          "insert": "themes/<id>/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "; see "
+        },
+        {
+          "insert": "Theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/40-theming"
+            }
+          }
+        },
+        {
+          "insert": "). Every value is one string for both modes or a "
+        },
+        {
+          "insert": "{ light, dark }",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " pair, validated against "
+        },
+        {
+          "insert": "THEME_TOKEN_REGISTRY",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/theme/theme-folders.ts"
+            }
+          }
+        },
+        {
+          "insert": "."
+        },
+        {
+          "insert": " The contract is "
+        },
+        {
+          "insert": "Theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/50-theming"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-30-image-theming-table": {
+      "id": "b-30-image-theming-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Key",
+          "CSS variable",
+          "Styles"
+        ],
+        "rows": [
+          [
+            "border",
+            "--docs-image-border",
+            "Image border"
+          ],
+          [
+            "caption",
+            "--docs-image-caption-fg",
+            "Caption text color"
+          ]
+        ]
+      },
+      "children": []
+    }
+  }
+}

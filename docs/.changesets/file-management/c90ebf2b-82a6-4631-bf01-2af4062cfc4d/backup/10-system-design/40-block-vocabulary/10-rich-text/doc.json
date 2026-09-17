@@ -1,0 +1,1162 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-10-block-vocabulary-10-rich-text",
+  "title": "Rich text",
+  "root": "b-rich-text-overview-root",
+  "blocks": {
+    "b-rich-text-overview-root": {
+      "id": "b-rich-text-overview-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-rich-text-overview-intro-2",
+        "b-rich-text-overview-type-paragraph-4",
+        "b-rich-text-overview-type-heading-5",
+        "b-rich-text-overview-type-list-item-6",
+        "b-rich-text-overview-type-quote-7",
+        "b-rich-text-overview-type-callout-8",
+        "b-rich-text-overview-type-divider-9",
+        "b-rich-text-overview-type-image-10",
+        "b-rich-text-overview-type-video-11",
+        "b-rtfam-example-h-23",
+        "b-rtfam-example-intro-24",
+        "b-rtfam-ex-heading-25",
+        "b-rtfam-ex-paragraph-26",
+        "b-rtfam-ex-list-27",
+        "b-rtfam-ex-quote-29",
+        "b-rtfam-ex-callout-30",
+        "b-rtfam-ex-divider-31",
+        "b-rtfam-state-h-20",
+        "b-rtfam-state-lead-21",
+        "b-rtfam-span-shape-43",
+        "b-20-rich-text-delta-example-3",
+        "b-20-rich-text-marks-4",
+        "b-rt-mark-bools-19",
+        "b-rt-mark-strict-20",
+        "b-rt-mark-canonical-21",
+        "b-20-rich-text-links-6",
+        "b-20-rich-text-link-mark-7",
+        "b-20-rich-text-spectre-ref-8",
+        "b-20-rich-text-ref-example-9",
+        "b-20-rich-text-ref-neutral-home-10",
+        "b-rt-ref-display-22",
+        "b-20-rich-text-carriers-11",
+        "b-20-rich-text-carriers-intro-12",
+        "b-20-rich-text-carriers-table-13",
+        "b-rtfam-actions-h-32",
+        "b-rtfam-actions-note-33",
+        "b-rtfam-renderers-h-34",
+        "b-rtfam-renderers-doc-35",
+        "b-rtfam-agentrender-h-40",
+        "b-20-rich-text-bridges-out-15",
+        "b-20-rich-text-bridges-in-16",
+        "b-rtfam-agent-note-37",
+        "b-rtfam-theming-h-38",
+        "b-rich-text-overview-theming-note-12",
+        "b-rtfam-adapter-h-41",
+        "b-rtfam-adapter-p-42"
+      ]
+    },
+    "b-rich-text-overview-intro-2": {
+      "id": "b-rich-text-overview-intro-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The rich-text component owns the text-and-media block types that make up ordinary document flow. They share one implementation home ("
+        },
+        {
+          "insert": "packages/docs-viewer/src/components/rich-text/",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/components/rich-text"
+            }
+          }
+        },
+        {
+          "insert": ", one file per type), the delta-span text model, and the markdown-shortcut input rules — which is why they live grouped here, one doc per type."
+        }
+      ],
+      "children": []
+    },
+    "b-rich-text-overview-type-paragraph-4": {
+      "id": "b-rich-text-overview-type-paragraph-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "paragraph",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/10-rich-text/10-paragraph"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-rich-text-overview-type-paragraph-4-gloss"
+      ]
+    },
+    "b-rich-text-overview-type-paragraph-4-gloss": {
+      "id": "b-rich-text-overview-type-paragraph-4-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The default flow block."
+        }
+      ],
+      "children": []
+    },
+    "b-rich-text-overview-type-heading-5": {
+      "id": "b-rich-text-overview-type-heading-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "heading",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/10-rich-text/11-heading"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-rich-text-overview-type-heading-5-gloss"
+      ]
+    },
+    "b-rich-text-overview-type-heading-5-gloss": {
+      "id": "b-rich-text-overview-type-heading-5-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Section structure, levels 1-6."
+        }
+      ],
+      "children": []
+    },
+    "b-rich-text-overview-type-list-item-6": {
+      "id": "b-rich-text-overview-type-list-item-6",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "list-item",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/10-rich-text/12-list-item"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-rich-text-overview-type-list-item-6-gloss"
+      ]
+    },
+    "b-rich-text-overview-type-list-item-6-gloss": {
+      "id": "b-rich-text-overview-type-list-item-6-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Bullets and numbered lists, nesting via children."
+        }
+      ],
+      "children": []
+    },
+    "b-rich-text-overview-type-quote-7": {
+      "id": "b-rich-text-overview-type-quote-7",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "quote",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/10-rich-text/13-quote"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-rich-text-overview-type-quote-7-gloss"
+      ]
+    },
+    "b-rich-text-overview-type-quote-7-gloss": {
+      "id": "b-rich-text-overview-type-quote-7-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Plain unlabeled block quote."
+        }
+      ],
+      "children": []
+    },
+    "b-rich-text-overview-type-callout-8": {
+      "id": "b-rich-text-overview-type-callout-8",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "callout",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/10-rich-text/14-callout"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-rich-text-overview-type-callout-8-gloss"
+      ]
+    },
+    "b-rich-text-overview-type-callout-8-gloss": {
+      "id": "b-rich-text-overview-type-callout-8-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Toned, labeled admonition card."
+        }
+      ],
+      "children": []
+    },
+    "b-rich-text-overview-type-divider-9": {
+      "id": "b-rich-text-overview-type-divider-9",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "divider",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/10-rich-text/15-divider"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-rich-text-overview-type-divider-9-gloss"
+      ]
+    },
+    "b-rich-text-overview-type-divider-9-gloss": {
+      "id": "b-rich-text-overview-type-divider-9-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Horizontal rule."
+        }
+      ],
+      "children": []
+    },
+    "b-rich-text-overview-type-image-10": {
+      "id": "b-rich-text-overview-type-image-10",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "image",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/10-rich-text/16-image"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-rich-text-overview-type-image-10-gloss"
+      ]
+    },
+    "b-rich-text-overview-type-image-10-gloss": {
+      "id": "b-rich-text-overview-type-image-10-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Bundle-asset image with caption."
+        }
+      ],
+      "children": []
+    },
+    "b-rich-text-overview-type-video-11": {
+      "id": "b-rich-text-overview-type-video-11",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "video",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/10-rich-text/17-video"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-rich-text-overview-type-video-11-gloss"
+      ]
+    },
+    "b-rich-text-overview-type-video-11-gloss": {
+      "id": "b-rich-text-overview-type-video-11-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "File or provider-URL embed with caption."
+        }
+      ],
+      "children": []
+    },
+    "b-rtfam-example-h-23": {
+      "id": "b-rtfam-example-h-23",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Example"
+        }
+      ],
+      "children": []
+    },
+    "b-rtfam-example-intro-24": {
+      "id": "b-rtfam-example-intro-24",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The blocks below are live instances of the family's core types, rendered the same way as any corpus content."
+        }
+      ],
+      "children": []
+    },
+    "b-rtfam-ex-heading-25": {
+      "id": "b-rtfam-ex-heading-25",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "A level-3 Heading"
+        }
+      ],
+      "children": []
+    },
+    "b-rtfam-ex-paragraph-26": {
+      "id": "b-rtfam-ex-paragraph-26",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A paragraph carries "
+        },
+        {
+          "insert": "bold",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "italic",
+          "attributes": {
+            "italic": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "strike",
+          "attributes": {
+            "strike": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "code",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " marks, "
+        },
+        {
+          "insert": "an outbound link",
+          "attributes": {
+            "link": "https://example.com"
+          }
+        },
+        {
+          "insert": ", and a reference chip to "
+        },
+        {
+          "insert": "the block vocabulary",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-rtfam-ex-list-27": {
+      "id": "b-rtfam-ex-list-27",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A list item; nesting runs through child list-item blocks."
+        }
+      ],
+      "children": [
+        "b-rtfam-ex-list-nested-28"
+      ]
+    },
+    "b-rtfam-ex-list-nested-28": {
+      "id": "b-rtfam-ex-list-nested-28",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A nested list item."
+        }
+      ],
+      "children": []
+    },
+    "b-rtfam-ex-quote-29": {
+      "id": "b-rtfam-ex-quote-29",
+      "type": "quote",
+      "props": {},
+      "text": [
+        {
+          "insert": "A quote sets prose off from the surrounding flow in plain delta text."
+        }
+      ],
+      "children": []
+    },
+    "b-rtfam-ex-callout-30": {
+      "id": "b-rtfam-ex-callout-30",
+      "type": "callout",
+      "props": {
+        "kind": "Example",
+        "tone": "info"
+      },
+      "text": [
+        {
+          "insert": "A callout carries a kind chip, a tone, and rich text."
+        }
+      ],
+      "children": []
+    },
+    "b-rtfam-ex-divider-31": {
+      "id": "b-rtfam-ex-divider-31",
+      "type": "divider",
+      "props": {},
+      "children": []
+    },
+    "b-rtfam-state-h-20": {
+      "id": "b-rtfam-state-h-20",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "State Schema"
+        }
+      ],
+      "children": []
+    },
+    "b-rtfam-state-lead-21": {
+      "id": "b-rtfam-state-lead-21",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The family's internal state is rich text itself: an array of Delta JSON spans in the block's text field — each span a string insert plus an optional attributes object. There is no other inline model — no HTML, no nested marks tree. A span either has an attribute or it does not."
+        }
+      ],
+      "children": []
+    },
+    "b-rtfam-span-shape-43": {
+      "id": "b-rtfam-span-shape-43",
+      "type": "state-shape",
+      "props": {
+        "description": "One rich-text span: a string insert plus optional marks.",
+        "example": "[\n  {\n    \"insert\": \"Validated by \"\n  },\n  {\n    \"insert\": \"validateDocDocument\",\n    \"attributes\": {\n      \"code\": true,\n      \"reference\": {\n        \"kind\": \"source\",\n        \"path\": \"packages/docs-model/src/doc-schema.ts\"\n      }\n    }\n  },\n  {\n    \"insert\": \".\"\n  }\n]",
+        "fields": [
+          {
+            "name": "insert",
+            "type": "string",
+            "description": "The span's text; for a reference span, the display text."
+          },
+          {
+            "name": "attributes",
+            "type": "object",
+            "required": false,
+            "description": "Marks on this span; an empty object is dropped on canonicalization.",
+            "fields": [
+              {
+                "name": "bold",
+                "type": "true",
+                "required": false
+              },
+              {
+                "name": "italic",
+                "type": "true",
+                "required": false
+              },
+              {
+                "name": "strike",
+                "type": "true",
+                "required": false
+              },
+              {
+                "name": "code",
+                "type": "true",
+                "required": false
+              },
+              {
+                "name": "link",
+                "type": "string",
+                "required": false,
+                "description": "Outbound URL mark."
+              },
+              {
+                "name": "reference",
+                "type": "SpectreRef",
+                "required": false,
+                "description": "Doc or code mention chip; kind plus repo-relative path."
+              }
+            ]
+          }
+        ],
+        "name": "DeltaSpan",
+        "source": {
+          "path": "packages/docs-model/src/doc-schema.ts",
+          "symbol": "DeltaSpan"
+        }
+      },
+      "children": []
+    },
+    "b-20-rich-text-delta-example-3": {
+      "id": "b-20-rich-text-delta-example-3",
+      "type": "code",
+      "props": {
+        "annotations": [
+          {
+            "lines": "3,5",
+            "label": "Marks",
+            "note": "Rich text is delta spans. Marks are literal true flags when present; absent marks are simply absent."
+          },
+          {
+            "lines": "6",
+            "label": "Outbound link",
+            "note": "link is the external URL mark on the span that carries it."
+          },
+          {
+            "lines": "11-14",
+            "label": "Reference chip",
+            "note": "reference carries the shared SpectreRef identity for doc mentions and canvas links alike: kind is doc or source, path is corpus-relative. The span's insert is the display text."
+          }
+        ],
+        "language": "json"
+      },
+      "text": [
+        {
+          "insert": "[\n  { \"insert\": \"Read \" },\n  { \"insert\": \"doc.json\", \"attributes\": { \"code\": true } },\n  { \"insert\": \" with \" },\n  { \"insert\": \"stable anchors\", \"attributes\": { \"bold\": true, \"italic\": true } },\n  { \"insert\": \" and a link\", \"attributes\": { \"link\": \"https://example.com/docs\" } },\n  { \"insert\": \" to \" },\n  {\n    \"insert\": \"the block vocabulary\",\n    \"attributes\": {\n      \"reference\": {\n        \"kind\": \"doc\",\n        \"path\": \"10-system-design/40-block-vocabulary\"\n      }\n    }\n  },\n  { \"insert\": \".\" }\n]"
+        }
+      ],
+      "children": []
+    },
+    "b-20-rich-text-marks-4": {
+      "id": "b-20-rich-text-marks-4",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "The Four Marks"
+        }
+      ],
+      "children": []
+    },
+    "b-rt-mark-bools-19": {
+      "id": "b-rt-mark-bools-19",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The boolean marks are "
+        },
+        {
+          "insert": "bold",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "italic",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "strike",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "code",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-rt-mark-strict-20": {
+      "id": "b-rt-mark-strict-20",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A mark is the literal "
+        },
+        {
+          "insert": "true",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " when present; "
+        },
+        {
+          "insert": "false",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is a validation error, not a no-op."
+        }
+      ],
+      "children": []
+    },
+    "b-rt-mark-canonical-21": {
+      "id": "b-rt-mark-canonical-21",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An attributes object left empty after validation is dropped — unmarked text has exactly one encoding."
+        }
+      ],
+      "children": []
+    },
+    "b-20-rich-text-links-6": {
+      "id": "b-20-rich-text-links-6",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Links and Reference Chips"
+        }
+      ],
+      "children": []
+    },
+    "b-20-rich-text-link-mark-7": {
+      "id": "b-20-rich-text-link-mark-7",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "link",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is a non-empty string URL for outbound destinations — external sites, mailto, anything the repo does not own. Internal identity is different: pointing at a doc or a source file uses the "
+        },
+        {
+          "insert": "reference",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " attribute, which renders as a chip in the viewer and feeds the backlink index."
+        }
+      ],
+      "children": []
+    },
+    "b-20-rich-text-spectre-ref-8": {
+      "id": "b-20-rich-text-spectre-ref-8",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "SpectreRef — the Shared Reference Identity"
+        }
+      ],
+      "children": []
+    },
+    "b-20-rich-text-ref-example-9": {
+      "id": "b-20-rich-text-ref-example-9",
+      "type": "code",
+      "props": {
+        "annotations": [
+          {
+            "lines": "2",
+            "label": "Two kinds",
+            "note": "kind is \"doc\" for pages in the docs tree and \"source\" for code files."
+          },
+          {
+            "lines": "3",
+            "label": "Repo-relative",
+            "note": "path is always repo-relative — no registry ids, no absolute paths in v1."
+          },
+          {
+            "lines": "4-6",
+            "label": "Optional precision",
+            "note": "symbol, line, and section narrow the target."
+          }
+        ],
+        "language": "json"
+      },
+      "text": [
+        {
+          "insert": "{\n  \"kind\": \"source\",\n  \"path\": \"packages/docs-model/src/doc-schema.ts\",\n  \"symbol\": \"validateDocDocument\",\n  \"line\": 194\n}"
+        }
+      ],
+      "children": []
+    },
+    "b-20-rich-text-ref-neutral-home-10": {
+      "id": "b-20-rich-text-ref-neutral-home-10",
+      "type": "callout",
+      "props": {
+        "kind": "One link model",
+        "tone": "decision"
+      },
+      "text": [
+        {
+          "insert": "SpectreRef is the single reference identity shared by doc.json delta "
+        },
+        {
+          "insert": "reference",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " spans and canvas "
+        },
+        {
+          "insert": "links[].target",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". It lives in docs-model as the neutral home; the canvas project imports the type and aliases its on-disk link target to it. docs-model itself never imports from the canvas — the dependency points one way."
+        }
+      ],
+      "children": []
+    },
+    "b-rt-ref-display-22": {
+      "id": "b-rt-ref-display-22",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The object carries no display text. A reference span's insert is the display — for a doc reference, the target's name. When and how to link is "
+        },
+        {
+          "insert": "cross-doc linking",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/10-doc-standards/30-cross-doc-linking"
+            }
+          }
+        },
+        {
+          "insert": "'s subject."
+        }
+      ],
+      "children": []
+    },
+    "b-20-rich-text-carriers-11": {
+      "id": "b-20-rich-text-carriers-11",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Which Types Carry Text"
+        }
+      ],
+      "children": []
+    },
+    "b-20-rich-text-carriers-intro-12": {
+      "id": "b-20-rich-text-carriers-intro-12",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Whether a type carries delta text is a per-type fact, declared as "
+        },
+        {
+          "insert": "carriesText",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in the component state definitions. Text means prose only for the rich-text flow types; for "
+        },
+        {
+          "insert": "code",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " the delta text is the source payload, and marks are not meaningful there."
+        }
+      ],
+      "children": []
+    },
+    "b-20-rich-text-carriers-table-13": {
+      "id": "b-20-rich-text-carriers-table-13",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "carriesText",
+          "types",
+          "what text means"
+        ],
+        "density": "compact",
+        "rows": [
+          [
+            "true",
+            "paragraph, heading, list-item, quote, callout",
+            "Prose: marks, links, and reference chips all apply."
+          ],
+          [
+            "true",
+            "code",
+            "Source payload: the fenced code body; spans are plain inserts."
+          ],
+          [
+            "false",
+            "divider, image, video, structured-table, file-tree, state-shape, interaction-surface, sequence, canvas, process-outline",
+            "No text key; all state lives in typed props."
+          ]
+        ],
+        "title": "Text carriers"
+      },
+      "children": []
+    },
+    "b-rtfam-actions-h-32": {
+      "id": "b-rtfam-actions-h-32",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Typed Actions"
+        }
+      ],
+      "children": []
+    },
+    "b-rtfam-actions-note-33": {
+      "id": "b-rtfam-actions-note-33",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The rich-text types expose no typed actions — they edit through the generic op kernel (block ops plus delta text edits), not "
+        },
+        {
+          "insert": "componentAction",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " verbs."
+        }
+      ],
+      "children": []
+    },
+    "b-rtfam-renderers-h-34": {
+      "id": "b-rtfam-renderers-h-34",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Doc Renderer"
+        }
+      ],
+      "children": []
+    },
+    "b-rtfam-renderers-doc-35": {
+      "id": "b-rtfam-renderers-doc-35",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "On the doc surface — reader and editor alike — each type renders through its own file in "
+        },
+        {
+          "insert": "packages/docs-viewer/src/components/rich-text/",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/components/rich-text"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-rtfam-agentrender-h-40": {
+      "id": "b-rtfam-agentrender-h-40",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent Renderer"
+        }
+      ],
+      "children": []
+    },
+    "b-20-rich-text-bridges-out-15": {
+      "id": "b-20-rich-text-bridges-out-15",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Outbound, spans render to inline markdown for the agent surface. A reference renders as its span text — the target's name — falling back to the reference path; no link syntax, because the render is a greppable terminal artifact."
+        }
+      ],
+      "children": []
+    },
+    "b-20-rich-text-bridges-in-16": {
+      "id": "b-20-rich-text-bridges-in-16",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Inbound, "
+        },
+        {
+          "insert": "markdown-to-delta.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " tokenizes a line of inline markdown back into spans, covering exactly the inline vocabulary above. Link classification is deliberate: an href resolving under "
+        },
+        {
+          "insert": "docs/",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "docs"
+            }
+          }
+        },
+        {
+          "insert": " becomes a "
+        },
+        {
+          "insert": "kind: \"doc\"",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " reference, a source-code-looking path becomes "
+        },
+        {
+          "insert": "kind: \"source\"",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and everything else stays a plain "
+        },
+        {
+          "insert": "link",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " mark."
+        }
+      ],
+      "children": []
+    },
+    "b-rtfam-agent-note-37": {
+      "id": "b-rtfam-agent-note-37",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Per-type agent guidance lives on each type page."
+        }
+      ],
+      "children": []
+    },
+    "b-rtfam-theming-h-38": {
+      "id": "b-rtfam-theming-h-38",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Theme"
+        }
+      ],
+      "children": []
+    },
+    "b-rich-text-overview-theming-note-12": {
+      "id": "b-rich-text-overview-theming-note-12",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each type has its own theme file — see the Theme section on every type page, and "
+        },
+        {
+          "insert": "Theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/40-theming"
+            }
+          }
+        },
+        {
+          "insert": " for the system."
+        },
+        {
+          "insert": " The contract is "
+        },
+        {
+          "insert": "Theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/50-theming"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-rtfam-adapter-h-41": {
+      "id": "b-rtfam-adapter-h-41",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent Adapter"
+        }
+      ],
+      "children": []
+    },
+    "b-rtfam-adapter-p-42": {
+      "id": "b-rtfam-adapter-p-42",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The family uses the default adapter: no agent of its own. Edits arrive as generic ops over blocks and delta text; nothing forwards to an external authority. The contract is "
+        },
+        {
+          "insert": "Agent adapter",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/60-agent-adapter"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    }
+  }
+}

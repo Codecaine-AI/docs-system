@@ -126,7 +126,7 @@ Template for documenting persistence concerns — database models, repositories,
     ## File Tree
 
     ```
-    docs/20-implementation/XX-data/
+    docs/30-implementation/XX-data/
     ├── 00-overview.md          (this file)
     ├── 10-[entities].md        Entity documentation
     ├── 20-[queries].md         Query patterns

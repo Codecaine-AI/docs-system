@@ -2,7 +2,7 @@ import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 
 /**
- * Repo theme folders (docs/20-implementation/40-theming): custom themes
+ * Repo theme folders (docs/30-implementation/40-theming): custom themes
  * live as `themes/<id>/` directories SIBLING to the docs root —
  * `theme.json` (manifest) plus optional `components/<file>.json` token
  * files. The server treats theme content as opaque JSON: shape validation

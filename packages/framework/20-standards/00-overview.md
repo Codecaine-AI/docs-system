@@ -13,7 +13,7 @@ Imperative structure rules for `docs/`. Follow them when creating or reorganizin
 ## Contents
 
 ### [10-hierarchy-layers.md](10-hierarchy-layers.md)
-The three layers, the L1-L3 doc tree, and the L4-L6 in-code continuation.
+The four layers, the L1-L3 doc tree, and the L4-L6 in-code continuation.
 
 ### [20-directory-rules.md](20-directory-rules.md)
 Bundle folders, source mirroring, the overview requirement, folders vs docs.

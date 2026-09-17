@@ -530,7 +530,7 @@ export async function getServeConfig(): Promise<{ themeLocked: boolean }> {
 }
 
 // ---------------------------------------------------------------------------
-// Theme folders (docs/20-implementation/40-theming)
+// Theme folders (docs/30-implementation/40-theming)
 // ---------------------------------------------------------------------------
 
 export type ThemeListEntry = { id: string; name: string };

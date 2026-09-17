@@ -74,7 +74,7 @@ L2 Section Overviews get multiple archetypes because sections vary widely (servi
 **Optional patterns** for the Foundation layer. Foundation structure is organic per project — these are starting points to borrow from, not a prescribed structure. Only the entry point is required.
 
 ### [20-L1-implementation-overview/](20-L1-implementation-overview/00-overview.md)
-**System architecture template** for the L1 implementation overview (`docs/20-implementation/00-overview.md`). Includes mental model, architecture diagram, and section index. Also contains the README template.
+**System architecture template** for the L1 implementation overview (`docs/30-implementation/00-overview.md`). Includes mental model, architecture diagram, and section index. Also contains the README template.
 
 ### [30-L2-section-overview/](30-L2-section-overview/00-overview.md)
 **Multiple archetypes** for L2 section overviews. Different sections need different structures:

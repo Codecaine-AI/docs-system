@@ -70,7 +70,7 @@
       },
       "text": [
         {
-          "insert": "The Three Layers"
+          "insert": "The Four Layers"
         }
       ],
       "children": []
@@ -112,7 +112,19 @@
           [
             [
               {
-                "insert": "20-implementation",
+                "insert": "20-agents",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Participating agents and their definitions",
+            "When agent contracts change"
+          ],
+          [
+            [
+              {
+                "insert": "30-implementation",
                 "attributes": {
                   "code": true
                 }
@@ -227,7 +239,11 @@
             "note": "this section — the structure itself, plus five standards docs"
           },
           {
-            "path": "20-implementation/",
+            "path": "20-agents/",
+            "note": "agent definitions; reserved when the system has no agents"
+          },
+          {
+            "path": "30-implementation/",
             "note": "the current code — mirrors the source tree, churns with it"
           }
         ]
@@ -283,7 +299,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The three layers, the depth ladder, folders and parent docs, and when a topic earns a folder."
+          "insert": "The four layers, the depth ladder, folders and parent docs, and when a topic earns a folder."
         }
       ],
       "children": []

@@ -101,7 +101,7 @@ Template for documenting bounded contexts — cohesive areas of business logic l
     ## File Tree
 
     ```
-    docs/20-implementation/XX-domain/
+    docs/30-implementation/XX-domain/
     ├── 00-overview.md          (this file)
     ├── 10-[concept].md         [Description]
     ├── 20-[workflow].md        [Description]

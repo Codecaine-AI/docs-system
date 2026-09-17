@@ -1,0 +1,389 @@
+{
+  "schemaVersion": 1,
+  "id": "20-implementation-40-theming-10-global-themes",
+  "title": "Global themes",
+  "root": "b-global-themes-root-1",
+  "blocks": {
+    "b-global-themes-root-1": {
+      "id": "b-global-themes-root-1",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-global-themes-intro-2",
+        "b-global-themes-folder-heading-3",
+        "b-global-themes-folder-para-4",
+        "b-global-themes-manifest-table-5",
+        "b-global-themes-example-6",
+        "b-global-themes-selection-heading-7",
+        "b-global-themes-selection-para-8",
+        "b-global-themes-saveas-heading-9",
+        "b-global-themes-saveas-rail-10",
+        "b-global-themes-saveas-hand-11",
+        "b-global-themes-saveas-export-12",
+        "b-global-themes-transfer-13"
+      ]
+    },
+    "b-global-themes-intro-2": {
+      "id": "b-global-themes-intro-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A global theme is loaded from "
+        },
+        {
+          "insert": "themes/<id>/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", resolved against a built-in base, and compiled into a CSS layer. The workbench persists the active Default settings back to "
+        },
+        {
+          "insert": "themes/default/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". What themes are allowed to change is specified by "
+        },
+        {
+          "insert": "Themes",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/30-themes"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-global-themes-folder-heading-3": {
+      "id": "b-global-themes-folder-heading-3",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Structure"
+        }
+      ],
+      "children": []
+    },
+    "b-global-themes-folder-para-4": {
+      "id": "b-global-themes-folder-para-4",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each folder contains a "
+        },
+        {
+          "insert": "theme.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " manifest and optional "
+        },
+        {
+          "insert": "components/<surface>.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " files. The component payload and closed-key filtering are documented in "
+        },
+        {
+          "insert": "Component themes",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "30-implementation/40-theming/20-component-themes"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-global-themes-manifest-table-5": {
+      "id": "b-global-themes-manifest-table-5",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Field",
+          "Runtime use"
+        ],
+        "rows": [
+          [
+            "name",
+            "Theme label returned by the repository catalogue."
+          ],
+          [
+            "base",
+            "Built-in theme id resolved before this folder; missing bases stop the chain."
+          ],
+          [
+            "dark",
+            "Mode applied on explicit selection and fresh-profile hydration."
+          ],
+          [
+            "fonts",
+            "Optional body, heading, code, and number stacks compiled into font variables."
+          ],
+          [
+            "railDefaults",
+            "Style-rail settings applied on explicit selection and used to seed a profile with no stored settings."
+          ]
+        ]
+      },
+      "children": []
+    },
+    "b-global-themes-example-6": {
+      "id": "b-global-themes-example-6",
+      "type": "code",
+      "props": {
+        "annotations": [
+          {
+            "lines": "1",
+            "label": "themes/example/theme.json",
+            "note": "The directory name is the theme id; the manifest does not repeat it."
+          }
+        ],
+        "language": "json"
+      },
+      "text": [
+        {
+          "insert": "{\n  \"name\": \"Example\",\n  \"base\": \"default\",\n  \"dark\": false,\n  \"fonts\": {\n    \"code\": \"'Berkeley Mono', ui-monospace, monospace\"\n  }\n}"
+        }
+      ],
+      "children": []
+    },
+    "b-global-themes-selection-heading-7": {
+      "id": "b-global-themes-selection-heading-7",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Resolution and Selection"
+        }
+      ],
+      "children": []
+    },
+    "b-global-themes-selection-para-8": {
+      "id": "b-global-themes-selection-para-8",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "resolveThemeById",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " loads a repository folder before the built-in definition with the same id. "
+        },
+        {
+          "insert": "resolveThemeChain",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " flattens built-in bases, then "
+        },
+        {
+          "insert": "compileThemeCss",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " emits light and dark variable blocks. Explicit selection injects that layer, normalizes "
+        },
+        {
+          "insert": "railDefaults",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", applies the manifest mode, and stores the id under "
+        },
+        {
+          "insert": "docs-theme-folder-id",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-global-themes-saveas-heading-9": {
+      "id": "b-global-themes-saveas-heading-9",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Persistence"
+        }
+      ],
+      "children": []
+    },
+    "b-global-themes-saveas-rail-10": {
+      "id": "b-global-themes-saveas-rail-10",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Default autosave"
+        }
+      ],
+      "children": [
+        "b-global-themes-saveas-rail-10-gloss"
+      ]
+    },
+    "b-global-themes-saveas-rail-10-gloss": {
+      "id": "b-global-themes-saveas-rail-10-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An unlocked, non-static workbench writes after 1.5 seconds without another settings change. The manifest receives the complete normalized non-component settings as "
+        },
+        {
+          "insert": "railDefaults",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "; registered component overrides are sent as sparse files."
+        }
+      ],
+      "children": []
+    },
+    "b-global-themes-saveas-hand-11": {
+      "id": "b-global-themes-saveas-hand-11",
+      "type": "callout",
+      "props": {
+        "kind": "Implementation guard",
+        "title": "Fresh profiles hydrate before writing",
+        "tone": "info"
+      },
+      "text": [
+        {
+          "insert": "hasStoredStyleRailSettings",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " distinguishes a fresh profile from a stored one. A fresh profile loads and normalizes the repository Default's "
+        },
+        {
+          "insert": "railDefaults",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " before "
+        },
+        {
+          "insert": "settingsSeededRef",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " enables the autosave effect. Stock settings cannot overwrite the saved folder during boot."
+        }
+      ],
+      "children": []
+    },
+    "b-global-themes-saveas-export-12": {
+      "id": "b-global-themes-saveas-export-12",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Repository authority"
+        }
+      ],
+      "children": [
+        "b-global-themes-saveas-export-12-gloss"
+      ]
+    },
+    "b-global-themes-saveas-export-12-gloss": {
+      "id": "b-global-themes-saveas-export-12-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "POST /api/themes",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " accepts lowercase slug ids and writes folders beside the docs root. Folders created directly use the same tolerant reader, which drops unknown fields and registry keys. Theme-locked serves reject the route with 403; static and locked workbenches never start the writer."
+        }
+      ],
+      "children": []
+    },
+    "b-global-themes-transfer-13": {
+      "id": "b-global-themes-transfer-13",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Local file transfer"
+        }
+      ],
+      "children": [
+        "b-global-themes-transfer-13-gloss"
+      ]
+    },
+    "b-global-themes-transfer-13-gloss": {
+      "id": "b-global-themes-transfer-13-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Export serializes version, dark mode, and the complete settings object to "
+        },
+        {
+          "insert": "docs-theme.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Import normalizes the settings payload before application and ignores invalid JSON without changing active state; it does not read or write a repository theme folder directly."
+        }
+      ],
+      "children": []
+    }
+  }
+}

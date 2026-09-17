@@ -342,7 +342,7 @@ export function createDocsRoutes(store: DocsStore, options?: { themeLocked?: boo
     // Static edit-surface discovery — see BLOCKS_DISCOVERY above.
     .get("/api/blocks", () => BLOCKS_DISCOVERY)
 
-    // -- theme folders (docs/20-implementation/40-theming) ---------------------
+    // -- theme folders (docs/30-implementation/40-theming) ---------------------
     .get("/api/themes", async () => {
       return { themes: await listRepoThemes(themesRootFor(store.docsRoot)) };
     })

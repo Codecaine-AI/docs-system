@@ -2,7 +2,7 @@ import type { StyleRailSettings } from "../shell/StyleRail";
 
 /**
  * Theme folders — the canonical theme-file format (see
- * docs/20-implementation/40-theming).
+ * docs/30-implementation/40-theming).
  *
  * A theme is a folder: `theme.json` (manifest: name, `base` inheritance,
  * font stacks, optional style-rail defaults) plus `components/<file>.json`

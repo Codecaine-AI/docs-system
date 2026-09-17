@@ -23,7 +23,7 @@ describe("docTitleFromPath", () => {
   });
 
   it("handles numberless and trailing-slash segments", () => {
-    expect(docTitleFromPath("docs/20-implementation/")).toBe("Implementation");
+    expect(docTitleFromPath("docs/30-implementation/")).toBe("Implementation");
     expect(docTitleFromPath("overview")).toBe("Overview");
   });
 });

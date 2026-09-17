@@ -1,0 +1,181 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-50-editor-design-20-editing-interactions",
+  "title": "Editing Interactions",
+  "root": "b-edint-root",
+  "blocks": {
+    "b-edint-root": {
+      "id": "b-edint-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-edint-intro",
+        "b-edint-contract-heading",
+        "b-edint-typing",
+        "b-edint-slash",
+        "b-edint-selection",
+        "b-edint-in-place"
+      ]
+    },
+    "b-edint-intro": {
+      "id": "b-edint-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Editing is the default human surface: every document is always editable, with no separate read mode and no save button. Changes autosave through "
+        },
+        {
+          "insert": "The save pipeline: keystroke to disk",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/30-save-pipeline"
+            }
+          }
+        },
+        {
+          "insert": " after they become typed operations. This section defines the interaction contract for typing, insertion, structural selection, movement, and object editing."
+        }
+      ],
+      "children": []
+    },
+    "b-edint-contract-heading": {
+      "id": "b-edint-contract-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The Editing Contract"
+        }
+      ],
+      "children": []
+    },
+    "b-edint-typing": {
+      "id": "b-edint-typing",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Typing Model",
+          "attributes": {
+            "bold": true,
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/20-editing-interactions/10-typing-model"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-edint-typing-gloss"
+      ]
+    },
+    "b-edint-typing-gloss": {
+      "id": "b-edint-typing-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Enter, Backspace, list escape, and Markdown shortcuts preserve the block tree while matching learned Notion behavior."
+        }
+      ],
+      "children": []
+    },
+    "b-edint-slash": {
+      "id": "b-edint-slash",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Slash Menu",
+          "attributes": {
+            "bold": true,
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/20-editing-interactions/20-slash-menu"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-edint-slash-gloss"
+      ]
+    },
+    "b-edint-slash-gloss": {
+      "id": "b-edint-slash-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A curated command surface converts the current block or inserts a true sibling without exposing every registered type."
+        }
+      ],
+      "children": []
+    },
+    "b-edint-selection": {
+      "id": "b-edint-selection",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Selection and Movement",
+          "attributes": {
+            "bold": true,
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/20-editing-interactions/30-selection-and-movement"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-edint-selection-gloss"
+      ]
+    },
+    "b-edint-selection-gloss": {
+      "id": "b-edint-selection-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A contiguous block band is a real editor selection that copies, cuts, pastes, moves, and deletes as structure."
+        }
+      ],
+      "children": []
+    },
+    "b-edint-in-place": {
+      "id": "b-edint-in-place",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "In-Place Editing",
+          "attributes": {
+            "bold": true,
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/20-editing-interactions/40-in-place-editing"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-edint-in-place-gloss"
+      ]
+    },
+    "b-edint-in-place-gloss": {
+      "id": "b-edint-in-place-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Custom node views edit an object inside its rendered surface; types without one remain read-only atoms edited through typed actions."
+        }
+      ],
+      "children": []
+    }
+  }
+}

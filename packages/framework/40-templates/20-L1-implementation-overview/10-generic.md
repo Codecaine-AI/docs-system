@@ -5,7 +5,7 @@ concepts: [L1, implementation, architecture, overview, navigation]
 
 # L1 Implementation Overview Template
 
-Template for `docs/20-implementation/00-overview.md`. This is the navigation hub for understanding how the system is built — the "shape" of the implementation.
+Template for `docs/30-implementation/00-overview.md`. This is the navigation hub for understanding how the system is built — the "shape" of the implementation.
 
 ---
 
@@ -54,7 +54,7 @@ Template for `docs/20-implementation/00-overview.md`. This is the navigation hub
     ## File Tree
 
     ```
-    docs/20-implementation/
+    docs/30-implementation/
     ├── 00-overview.md                 (this file)
     ├── {10-section-a}/                {Brief description}
     ├── {20-section-b}/                {Brief description}

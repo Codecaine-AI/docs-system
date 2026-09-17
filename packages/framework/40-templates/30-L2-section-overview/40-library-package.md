@@ -118,7 +118,7 @@ Template for documenting reusable code — shared utilities, SDKs, or any code d
     ## File Tree
 
     ```
-    docs/20-implementation/XX-library/
+    docs/30-implementation/XX-library/
     ├── 00-overview.md          (this file)
     ├── 10-[api-reference].md   Detailed API docs
     ├── 20-[patterns].md        Usage patterns

@@ -6,7 +6,7 @@ concepts: [templates, L1, implementation, architecture, overview]
 
 # L1 Implementation Overview Templates
 
-Templates for the L1 Implementation Overview — the single document at `docs/20-implementation/00-overview.md` that describes the system's architecture and serves as the navigation hub for all implementation documentation.
+Templates for the L1 Implementation Overview — the single document at `docs/30-implementation/00-overview.md` that describes the system's architecture and serves as the navigation hub for all implementation documentation.
 
 ---
 

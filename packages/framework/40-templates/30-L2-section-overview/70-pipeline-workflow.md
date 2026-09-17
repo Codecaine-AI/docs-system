@@ -147,7 +147,7 @@ Template for documenting multi-stage processing flows — ETL pipelines, event p
     ## File Tree
 
     ```
-    docs/20-implementation/XX-pipeline/
+    docs/30-implementation/XX-pipeline/
     ├── 00-overview.md          (this file)
     ├── 10-[stages].md          Stage documentation
     ├── 20-[schemas].md         Data schemas

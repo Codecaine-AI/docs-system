@@ -140,7 +140,7 @@ Template for documenting infrastructure concerns — deployment pipelines, envir
     ## File Tree
 
     ```
-    docs/20-implementation/XX-infra/
+    docs/30-implementation/XX-infra/
     ├── 00-overview.md          (this file)
     ├── 10-[environments].md    Environment details
     ├── 20-[pipeline].md        CI/CD documentation

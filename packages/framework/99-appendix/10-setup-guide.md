@@ -92,7 +92,7 @@ In Claude Code, run:
 /docs:init
 ```
 
-This creates your `docs/` directory with the three-layer structure:
+This creates your `docs/` directory with the four-layer structure:
 
 ```
 docs/
@@ -100,7 +100,8 @@ docs/
 │   └── 00-overview.md       # Placeholder until interview
 ├── 10-system-design/        # Product structure and behavior
 │   └── 00-overview.md       # System design overview
-├── 20-implementation/       # Code-specific mechanics
+├── 20-agents/           # Agent definitions; reserved when absent
+├── 30-implementation/       # Code-specific mechanics
 │   └── 00-overview.md       # Implementation overview
 └── .drafts/                 # Working directory for interviews
 ```
@@ -131,7 +132,7 @@ After the interview, run `/docs:write foundation` to generate the docs.
 
 ### Step 7: Write Your Implementation Overview
 
-Edit `docs/20-implementation/00-overview.md` to describe your codebase:
+Edit `docs/30-implementation/00-overview.md` to describe your codebase:
 - System metaphor / mental model
 - High-level architecture
 - Section index (as you add sections)
@@ -143,7 +144,8 @@ your-project/
 ├── docs/                            # YOUR project documentation
 │   ├── 00-foundation/                   # Why/purpose (structure varies)
 │   ├── 10-system-design/                # Product structure and behavior
-│   ├── 20-implementation/                # Code-specific mechanics
+│   ├── 20-agents/           # Agent definitions; reserved when absent
+│   ├── 30-implementation/                # Code-specific mechanics
 │   └── .index/                          # Derived backlinks index (gitignore this)
 ├── .claude/
 │   └── skills/docs-framework -> ../../.codex/skills/docs-framework
@@ -158,7 +160,7 @@ your-project/
             └── canvas/                      # nested submodule — see the cycle caveat
 ```
 
-Each folder inside `docs/` holds `doc.json` bundles once you've run `docs migrate` (or once you author fresh content through `docs serve`'s Edit mode) — not raw markdown files. The three-layer directory shape still applies; only the on-disk representation of each node changed. For the bundle anatomy and the rendered surfaces, see the docs-system corpus: `docs/10-system-design/20-interaction-surfaces`.
+Each folder inside `docs/` holds `doc.json` bundles once you've run `docs migrate` (or once you author fresh content through `docs serve`'s Edit mode) — not raw markdown files. The four-layer directory shape still applies; only the on-disk representation of each node changed. For the bundle anatomy and the rendered surfaces, see the docs-system corpus: `docs/10-system-design/20-interaction-surfaces`.
 
 ## One Repo, One Output
 
@@ -173,7 +175,7 @@ Each folder inside `docs/` holds `doc.json` bundles once you've run `docs migrat
 
 ## Adding Sections to Implementation
 
-For each major domain in your codebase, create a section inside `20-implementation/`:
+For each major domain in your codebase, create a section inside `30-implementation/`:
 
 ```
 docs/
@@ -181,7 +183,8 @@ docs/
 │   └── ...
 ├── 10-system-design/
 │   └── 00-overview.md
-├── 20-implementation/
+├── 20-agents/           # Agent definitions; reserved when absent
+├── 30-implementation/
 │   ├── 00-overview.md
 │   ├── 10-authentication/
 │   │   ├── 00-overview.md
@@ -210,7 +213,7 @@ A host that also embeds this skill's content into its own backend skill library 
 ## Available Commands
 
 ### Setup & Structure
-- **`/docs:init`** - Initialize `docs/` with three-layer structure
+- **`/docs:init`** - Initialize `docs/` with four-layer structure
 - **`/docs:scaffold`** - Generate section structure from source code
 
 ### Knowledge Extraction

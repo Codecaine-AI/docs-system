@@ -92,7 +92,11 @@
             "note": "the named deviation: type pages run 10–17 dense, one family as a unit"
           },
           {
-            "path": "20-implementation/99-appendix/",
+            "path": "20-agents/",
+            "note": "participating agents and their definitions"
+          },
+          {
+            "path": "30-implementation/99-appendix/",
             "note": "99 — appendix and meta only"
           }
         ]
@@ -242,7 +246,7 @@
           ],
           [
             "99",
-            "Appendix and meta (20-implementation/99-appendix/)"
+            "Appendix and meta (30-implementation/99-appendix/)"
           ]
         ]
       },

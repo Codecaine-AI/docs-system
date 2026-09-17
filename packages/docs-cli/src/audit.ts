@@ -23,7 +23,7 @@
  * - E2 directory name not matching the `NN-` prefix convention.
  * - E3 a non-bundle section with >= 2 child doc directories lacking its own
  *   parent doc.json. The docs ROOT ITSELF IS EXEMPT: the top level is the
- *   layer folders (00-foundation / 10-system-design / 20-implementation),
+ *   layer folders (00-foundation / 10-system-design / 30-implementation),
  *   which deliberately have no root parent doc — the index/sidebar plays
  *   that role.
  * - E4 a leaf directory missing doc.json, or a bundle whose doc.json is

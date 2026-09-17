@@ -97,7 +97,7 @@
 
   --docs-viewer-callout-border: var(--color-pill-orange);
   /* Per-block-type component tokens (one file per vocabulary type in a
-     theme folder — see docs/20-implementation/40-theming/20-component-themes).
+     theme folder — see docs/30-implementation/40-theming/20-component-themes).
      Defaults map to each component's previous effective values. */
   --docs-paragraph-fg: var(--docs-viewer-text-body);
   --docs-heading-fg: var(--docs-viewer-text-heading);
@@ -301,7 +301,7 @@
 
   --docs-viewer-callout-border: var(--color-pill-orange);
   /* Per-block-type component tokens (one file per vocabulary type in a
-     theme folder — see docs/20-implementation/40-theming/20-component-themes).
+     theme folder — see docs/30-implementation/40-theming/20-component-themes).
      Defaults map to each component's previous effective values. */
   --docs-paragraph-fg: var(--docs-viewer-text-body);
   --docs-heading-fg: var(--docs-viewer-text-heading);

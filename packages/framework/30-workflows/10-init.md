@@ -1,11 +1,11 @@
 ---
-covers: One-time initialization of docs/ with the three-layer structure.
-concepts: [init, initialization, setup, three-layers]
+covers: One-time initialization of docs/ with the four-layer structure.
+concepts: [init, initialization, setup, four-layers]
 ---
 
 # Docs Init Workflow
 
-One-time initialization of `docs/` in a project. Sets up the three-layer structure with minimal starting docs.
+One-time initialization of `docs/` in a project. Sets up the four-layer structure with minimal starting docs.
 
 ---
 
@@ -24,11 +24,11 @@ Run `eza --tree --level=2` (or `tree -L 2`), excluding node_modules, .git, build
 
 ### 2. Check for Existing Documentation
 
-- `docs/` exists with the three layers (`00-foundation/`, `10-system-design/`, `20-implementation/`) → report what exists, suggest `/docs:audit`.
+- `docs/` exists with the four layers (`00-foundation/`, `10-system-design/`, `20-agents/` when needed, `30-implementation/`) → report what exists, suggest `/docs:audit`.
 - `docs/` exists without the structure → run this init to set it up.
 - No `docs/` → proceed.
 
-### 3. Create the Three-Layer Structure
+### 3. Create the Four-Layer Structure
 
 Create the minimal starting docs — through the workbench editor (`docs serve`) or the docs-server API; if seeding from markdown files, convert them with `docs migrate`:
 
@@ -36,8 +36,10 @@ Create the minimal starting docs — through the workbench editor (`docs serve`)
 |-----|---------|
 | `docs/00-foundation/00-overview` | Placeholder noting that structure emerges from `/docs:interview-foundation` |
 | `docs/10-system-design/00-overview` | Design layer index (empty to start) |
-| `docs/20-implementation/00-overview` | Implementation overview seeded from `40-templates/20-L1-implementation-overview/10-generic.md` |
+| `docs/30-implementation/00-overview` | Implementation overview seeded from `40-templates/20-L1-implementation-overview/10-generic.md` |
 | `docs/.drafts/.gitkeep` | Working directory for interview notes (plain markdown) |
+
+Reserve `20-agents/` for participating agent definitions. Create it only when there are agents to document.
 
 ### 4. Ask Source Directory
 
@@ -51,7 +53,7 @@ Documentation initialized.
 Next steps:
 1. Run /docs:interview-foundation — explore what you're building and why
 2. Run /docs:write foundation — generate Foundation docs from the interview
-3. Fill in docs/20-implementation/00-overview to describe your codebase
+3. Fill in docs/30-implementation/00-overview to describe your codebase
 4. Run /docs:scaffold to map your source structure to documentation sections
 ```
 
