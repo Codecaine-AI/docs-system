@@ -1,0 +1,48 @@
+{
+  "applyId": "d72f0fe6-cbdd-48a4-9b63-4dba3fb2c19a",
+  "containerId": "3574e2d1-4ebe-506f-ac21-c6fdd2269a6a",
+  "approvedRevision": "13c3f549-e558-4eec-b1bc-144d8a3d86ee",
+  "originalComparisons": 40,
+  "nativeBehaviorChecks": 181,
+  "nativeComparisons": 40,
+  "actualDocs": {
+    "checkedAt": "2026-09-15T19:38:54.008Z",
+    "checks": [
+      "Native descriptor preserves returned fields and example",
+      "Return hover, pin, Escape",
+      "Native action cards",
+      "Native query cards",
+      "Native event cards",
+      "Three distinct kind colors",
+      "Native split control changes input and return columns together",
+      "Native header color token works",
+      "Return field text selection",
+      "Docs renders dark and narrow"
+    ],
+    "errors": [],
+    "url": "http://127.0.0.1:4905/#/10-system-design/40-block-vocabulary/60-interaction-surface"
+  },
+  "rendererAdaptations": [
+    {
+      "path": "packages/docs-viewer/src/components/interaction-surface/InteractionSurfaceDocsBlock.tsx",
+      "approved": "c1a295c7bd63b38ea20824270533fa1b4d74e031f4f0e1165efef84f2af31895",
+      "current": "03f57335f9b620d7c590fbebdec90064a6a50a6969ad5cab402749ea4b7c203b"
+    }
+  ],
+  "checkedAt": "2026-09-15T19:39:07.093Z",
+  "tests": {
+    "componentAndCorpus": 88,
+    "styleRail": 101,
+    "docsTools": 44,
+    "variator": 25,
+    "typechecks": [
+      "Docs",
+      "Variator"
+    ],
+    "limitations": [
+      "Combined Docs suite has shared DOM interference; affected UI files pass independently.",
+      "Two unchanged fixture tests fail independently: sample block-type coverage omits image-grid; changeset audit fixture repeats its display title as H1.",
+      "Existing writing lints remain in eight touched reference pages; no new findings."
+    ]
+  }
+}

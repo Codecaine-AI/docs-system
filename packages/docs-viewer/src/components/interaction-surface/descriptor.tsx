@@ -1,3 +1,4 @@
+import type { InteractionSurfaceOperation } from "@codecaine-ai/docs-model";
 import { createElement } from "react";
 import type { DocBlock } from "@codecaine-ai/docs-model/doc-schema";
 import type { DocBlockDescriptor } from "../../render/block-registry";
@@ -13,7 +14,6 @@ import {
   INTERACTION_SURFACE_AGENT_DESCRIPTION,
   INTERACTION_SURFACE_LABEL,
   InteractionSurfaceBlock,
-  type InteractionSurfaceOperation,
 } from "./InteractionSurfaceDocsBlock";
 
 function isPlainRecord(value: unknown): value is Record<string, unknown> {
@@ -55,7 +55,7 @@ function interactionSurfaceOperations(block: DocBlock): InteractionSurfaceOperat
   const operations: InteractionSurfaceOperation[] = [];
   for (const entry of raw) {
     if (!isPlainRecord(entry)) return null;
-    const { name, description, params, returns, kind } = entry;
+    const { name, description, params, returns, returnShape, kind } = entry;
     if (typeof name !== "string" || !name.trim()) return null;
     if (description !== undefined && typeof description !== "string") return null;
     if (returns !== undefined && typeof returns !== "string") return null;
@@ -71,11 +71,19 @@ function interactionSurfaceOperations(block: DocBlock): InteractionSurfaceOperat
       if (!parsed) return null;
       operationParams = parsed;
     }
+    let operationReturn: InteractionSurfaceOperation["returnShape"];
+    if (returnShape !== undefined) {
+      if (!isPlainRecord(returnShape)) return null;
+      const fields = interactionSurfaceParams(returnShape.fields);
+      if (!fields || (returnShape.example !== undefined && typeof returnShape.example !== "string")) return null;
+      operationReturn = { fields, ...(returnShape.example !== undefined ? { example: returnShape.example } : {}) };
+    }
     operations.push({
       name,
       ...(description !== undefined ? { description } : {}),
       ...(operationParams !== undefined ? { params: operationParams } : {}),
       ...(returns !== undefined ? { returns } : {}),
+      ...(operationReturn !== undefined ? { returnShape: operationReturn } : {}),
       ...(kind !== undefined ? { kind: kind as InteractionSurfaceOperation["kind"] } : {}),
     });
   }

@@ -1,4 +1,6 @@
-The spatial-canvas family of the Block vocabulary. It owns one type, `canvas`. The block itself is only a reference — the canvas document, its objects, and its schema live in the external canvas system (`external/canvas`, the vendored sibling project); the doc block points at one canvas and optionally crops it to a named view.
+The spatial-canvas family of the Block vocabulary. It owns one type, `canvas`. The block itself is only a reference — the canvas document, its objects, and its schema live in the external canvas system (external/canvas, the vendored sibling project); the doc block points at one canvas and optionally crops it to a named view.
+
+When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source; identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information.
 
 Reach for canvas when the question is how things relate — spatial boards, architecture maps, annotated relationships. Exact exchanges belong to the sequence block, and an end-to-end process flow belongs to process-outline.
 
@@ -12,7 +14,7 @@ A live embed. The sidecar (`./assets/canvases/interaction-surfaces.canvas.json`)
 
 ## State Schema
 
-The props (`state.ts`) are a closed schema — `additionalProperties: false`, every prop optional:
+The props (state.ts) are a closed schema — `additionalProperties: false`, every prop optional:
 
 **CanvasState** — packages/docs-model/src/components/canvas/state.ts#CanvasState
 
@@ -35,7 +37,7 @@ No text (`carriesText: false`); all state lives in the four props. A block with 
 
 ## Typed Actions
 
-The family's five actions are lifted at module load from `CANVAS_AGENT_PATCH_OPERATIONS` in `@codecaine-ai/canvas/agent-schema` — docs-model reuses the canvas package's schemas and descriptions, and never redefines them.
+The family's five actions are lifted at module load from `CANVAS_AGENT_PATCH_OPERATIONS` in @codecaine-ai/canvas/agent-schema — docs-model reuses the canvas package's schemas and descriptions, and never redefines them.
 
 - The lift
 
@@ -47,7 +49,7 @@ The family's five actions are lifted at module load from `CANVAS_AGENT_PATCH_OPE
 
 - No local apply
 
-  - The dispatcher validates params against the lifted TypeBox schema, then refuses to run the action as a doc op — it is handled by the canvas authority (`doc-ops.ts`). Doc props never change.
+  - The dispatcher validates params against the lifted TypeBox schema, then refuses to run the action as a doc op — it is handled by the canvas authority (doc-ops.ts). Doc props never change.
 
 **canvas — forwarded patch operations**
 
@@ -105,13 +107,13 @@ The agent view is one HTML-comment reference line — `<!-- canvas: <src-or-canv
 
 ## Theme
 
-The Theming contract element at its smallest — one registered token: `components/canvas.json` in a theme folder (`themes/<id>/`; system docs at Theming) may set `border`, as one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY`.
+The Theming contract element at its smallest — one registered token: `components/canvas.json` in a theme folder (`themes/<id>/`; system docs at Theming) may set `border`, as one string for both modes or a `{ light, dark }` pair, validated against THEME_TOKEN_REGISTRY.
 
 | Key | CSS variable | Styles |
 | --- | --- | --- |
 | border | --docs-canvas-border | Missing-embed placeholder border |
 
-The token's CSS default is `var(--border)` (`semantic.css`), and its one consumer is the doc renderer's missing-embed placeholder. The embedded canvas surface styles itself — the canvas package owns its own theme — and no built-in theme ships a `components/canvas.json` (`themes/default` carries code, structured-table, and surfaces files only).
+The token's CSS default is `var(--border)` (semantic.css), and its one consumer is the doc renderer's missing-embed placeholder. The embedded canvas surface styles itself — the canvas package owns its own theme — and no built-in theme ships a `components/canvas.json` (themes/default carries code, structured-table, and surfaces files only).
 
 ## Agent Adapter
 
@@ -119,9 +121,9 @@ How agents edit canvas content — the vocabulary's flagship non-default instanc
 
 - One action per request
 
-  - `POST /api/ops` accepts a forwarded action only as a single-op batch; mixing one with doc ops is a 400 (`routes.ts`).
+  - `POST /api/ops` accepts a forwarded action only as a single-op batch; mixing one with doc ops is a 400 (routes.ts).
 
-- `forwardCanvasAction`
+- forwardCanvasAction
 
   - Loads the doc bundle, checks the doc hash, confirms the target block is a `canvas`, and validates params against the lifted schema.
 
@@ -129,7 +131,7 @@ How agents edit canvas content — the vocabulary's flagship non-default instanc
 
   - A `canvasId`-only block fails: “Central canvas references are not routable by this server yet; only sidecar canvases are supported.”
 
-- `canvas_apply_patch`
+- canvas_apply_patch
 
   - The canvas-side counterpart of doc ops with the same mutation contract: hash precondition, draft-lock check, apply, revalidate with `validateInteractiveCanvasDocument`, atomic persist, inverse snapshot for undo.
 
@@ -139,7 +141,7 @@ How agents edit canvas content — the vocabulary's flagship non-default instanc
 
   - Reference props (`canvasId`, `src`, `view`, `title`) patch through the generic `updateBlock`; canvas content only moves through the forwarded `canvas.*` actions.
 
-  - `"canvas"` is a registered entry in the model's `KNOWN_AUTHORITIES` list, beside `"sequence"`.
+  - `"canvas"` is a registered entry in the model's KNOWN_AUTHORITIES list, beside `"sequence"`.
 
 - The processing agent
 

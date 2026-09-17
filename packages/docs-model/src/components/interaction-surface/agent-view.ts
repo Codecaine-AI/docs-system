@@ -3,60 +3,9 @@
 import type { DocBlock } from "../../doc-schema";
 import { stringProp } from "../projection-utils";
 import { fieldLines } from "../shared/field";
-import type { Field } from "../shared/field";
 import type { ComponentBundle } from "../types";
 
-type InteractionSurfaceOperation = {
-  name: string;
-  description?: string;
-  params?: Field[];
-  returns?: string;
-  kind?: "action" | "query" | "event";
-};
-
-const INTERACTION_SURFACE_KINDS = ["action", "query", "event"] as const;
-
-function isInteractionSurfaceKind(value: unknown): value is "action" | "query" | "event" {
-  return typeof value === "string" && (INTERACTION_SURFACE_KINDS as readonly string[]).includes(value);
-}
-
-function readParams(raw: unknown): Field[] {
-  return (Array.isArray(raw) ? raw : [])
-    .filter(
-      (param): param is Record<string, unknown> =>
-        !!param && typeof param === "object" && typeof (param as { name?: unknown }).name === "string",
-    )
-    .map((param) => {
-      const field: Field = { name: param.name as string };
-      if (typeof param.type === "string" && param.type.trim()) field.type = param.type.trim();
-      if (typeof param.required === "boolean") field.required = param.required;
-      if (typeof param.description === "string" && param.description.trim()) {
-        field.description = param.description.trim();
-      }
-      if (Array.isArray(param.fields)) field.fields = readParams(param.fields);
-      return field;
-    });
-}
-
-function interactionSurfaceOperations(block: DocBlock): InteractionSurfaceOperation[] {
-  const raw = block.props.operations;
-  if (!Array.isArray(raw)) return [];
-  return raw
-    .filter(
-      (entry): entry is Record<string, unknown> =>
-        !!entry && typeof entry === "object" && typeof (entry as { name?: unknown }).name === "string",
-    )
-    .map((entry) => ({
-      name: entry.name as string,
-      description:
-        typeof entry.description === "string" && entry.description.trim()
-          ? entry.description.trim()
-          : undefined,
-      params: readParams(entry.params),
-      returns: typeof entry.returns === "string" && entry.returns.trim() ? entry.returns.trim() : undefined,
-      kind: isInteractionSurfaceKind(entry.kind) ? entry.kind : undefined,
-    }));
-}
+import { readInteractionSurfaceOperations as interactionSurfaceOperations } from "./state";
 
 /**
  * Signature-line rendering (see the module header for the format):
@@ -84,7 +33,13 @@ function projectInteractionSurface(block: DocBlock): string {
     const detailLines = (operation.params ?? [])
       .filter((param) => param.description || (param.fields && param.fields.length > 0))
       .flatMap((param) => fieldLines([param], 1));
-    return [`${kindPrefix}${operation.name}(${params})${returns}${description}`, ...detailLines];
+    return [`${kindPrefix}${operation.name}(${params})${returns}${description}`, ...detailLines,
+      ...(operation.returnShape ? [
+        `  Returns ${operation.returns || "Result"}:`,
+        ...fieldLines(operation.returnShape.fields, 2),
+        ...(operation.returnShape.example !== undefined ? ["  Example:", ...operation.returnShape.example.split("\n").map(line => "    " + line)] : []),
+      ] : []),
+    ];
   });
   const fence = lines.length > 0 ? "```\n" + lines.join("\n") + "\n```" : "";
   if (title && fence) return `**${title}**\n\n${fence}`;

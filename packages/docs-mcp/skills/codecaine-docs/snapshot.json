@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "snapshotId": "sha256:f4b9cba0f82bcd296f0e2ea67a49c4f3fc3932efc70b8bccc6cfff99c0156e38",
+  "snapshotId": "sha256:acd72632b05751ccd41e5ab29e829ff35ee6b28293ad4f81ce94207cd98207f2",
   "sources": [
     {
       "path": "docs/10-system-design/10-doc-standards/10-structure/doc.json",
@@ -39,7 +39,7 @@
     },
     {
       "path": "docs/10-system-design/10-doc-standards/80-authoring-lints/doc.json",
-      "sha256": "bf63ff18dd0cfa3dd5fe1c7ca9ee374937ac43b1896b1c75a141b3479130e651",
+      "sha256": "598eebb3fdcd898ec853a7f2aad07c0ca89682ac23fd83153e7fbab4cfcb3482",
       "kind": "standard"
     },
     {
@@ -54,47 +54,47 @@
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/10-rich-text/doc.json",
-      "sha256": "02779cef8ff140c29b24cb3a4671de00e1fd690f13493f79b5eac998a497cb8a",
+      "sha256": "eb9c636b5a270dea9c2864f766dfe43c553d455244610819462b4b828600906a",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/20-code-block/doc.json",
-      "sha256": "49f3eea5ffe84f93da9f82fce4108a72333f140d0be06ec11df29bd2f885a645",
+      "sha256": "7921b48a8b5c5808aa6852ca1fa258777320782d8421c5237585a47774b84423",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/40-file-tree/doc.json",
-      "sha256": "f4591036901a382372d5f34fca9d2c6059dae5258605860cf8249ce9fb6b98e5",
+      "sha256": "479302e94e0ace084685294dec372146f54dd03e7452790d395f3f421cff366b",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/30-structured-table/doc.json",
-      "sha256": "1961ad36accafdd569820ad1c2edee98e3217b3eab1b65cfe2033155eaae7d7a",
+      "sha256": "f6753ca2d896e869f3056a07b992c235288e9abcaf440f940c6230e2fc2a94d8",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/60-interaction-surface/doc.json",
-      "sha256": "9e30efafac4bebf438a8ab55c6ad15db3f7eccd5070f55ff3d08e390c3d86b74",
+      "sha256": "298f1a001257aa453b40d57991f88a2c345f7928f534a457e35af3a8a49943be",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/50-state-shape/doc.json",
-      "sha256": "11632be50f5f05d5eacdf41394a55546585ea2015c562395f2d0cd0fe5ec383e",
+      "sha256": "d0ed2d93e34836e68013f3beda2fc3237ddfc520ba5e845c8dd6c582853b18db",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/80-canvas/doc.json",
-      "sha256": "2b20e6041e965bc8c9420363d66f60e41487bb14a6b2acdb40022bcabd78152d",
+      "sha256": "9164a81e9a3ac8d77bc4390727690ce84d07070fbb8518b6a232182189994350",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/70-sequence/doc.json",
-      "sha256": "da96ddbc438068863d510d1e49f90e88dac53b9ded10e104aa96933d10a8f9e5",
+      "sha256": "082dc3ea8e3cf77913cdb85879cceb2a215cb1224f04f5e316d9c893ac41a1da",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/90-process-outline/doc.json",
-      "sha256": "c21d37eb79e0c7ea030c7a09b2475aa821fac895b31e3a27bba672947b4c0dec",
+      "sha256": "4e0b8419f0907158ad6b74fa7001891a26ec1fb6d2d7a6f4299db41dfb948726",
       "kind": "component-doc"
     },
     {
@@ -114,7 +114,7 @@
     },
     {
       "path": "packages/docs-model/src/components/rich-text/manifest.ts",
-      "sha256": "7d9825e4dbb38e3c7c748ec5552d849386d5b27370d517c277c2ea9fb25f1192",
+      "sha256": "b22fde31d59f6be847d3d95b782251c11b566af72574063d8950c7de689b89ac",
       "kind": "component-manifest"
     },
     {
@@ -134,7 +134,7 @@
     },
     {
       "path": "packages/docs-model/src/components/interaction-surface/manifest.ts",
-      "sha256": "9d63b1e5129e26b4ba6ab97162d89af0f8ca8c3ad685d3ccb58b9a9301d94413",
+      "sha256": "86326b88cf19d665e6a8d2fe1ee759c852619b3dfd99c3bc91fca7bbf316a3f9",
       "kind": "component-manifest"
     },
     {
@@ -159,7 +159,7 @@
     },
     {
       "path": "packages/docs-mcp/skills/codecaine-docs/SKILL.md",
-      "sha256": "7fee95265a0f700f8c1d3fc29b0b69344f0dbbf986ad80a30a6effb66089458c",
+      "sha256": "d2d8607573cd6ce84e0f9be87ffbf186485dcf5333d4dbcef43e7249ef91204b",
       "kind": "skill"
     }
   ]

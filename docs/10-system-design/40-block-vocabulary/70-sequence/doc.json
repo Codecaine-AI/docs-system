@@ -10,6 +10,7 @@
       "props": {},
       "children": [
         "b-23-sequence-lead-2",
+        "component-worked-example-rule",
         "b-seqfam-lead-3",
         "b-23-sequence-example-h",
         "b-23-sequence-example-intro",
@@ -137,6 +138,17 @@
         },
         {
           "insert": " block."
+        }
+      ],
+      "children": []
+    },
+    "component-worked-example-rule": {
+      "id": "component-worked-example-rule",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source; identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information."
         }
       ],
       "children": []
@@ -497,7 +509,8 @@
                 "required": true
               }
             ],
-            "returns": "forwarded to the sequence authority"
+            "returns": "forwarded to the sequence authority",
+            "kind": "action"
           },
           {
             "name": "sequence.setStyle",
@@ -509,7 +522,8 @@
                 "required": true
               }
             ],
-            "returns": "forwarded to the sequence authority"
+            "returns": "forwarded to the sequence authority",
+            "kind": "action"
           },
           {
             "name": "sequence.setTitle",
@@ -521,7 +535,8 @@
                 "required": true
               }
             ],
-            "returns": "forwarded to the sequence authority"
+            "returns": "forwarded to the sequence authority",
+            "kind": "action"
           }
         ],
         "title": "sequence — forwarded patch operations"

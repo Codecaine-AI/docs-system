@@ -10,10 +10,15 @@
       "props": {},
       "children": [
         "b-25-state-shape-lead-2",
+        "component-worked-example-rule",
         "b-25-state-shape-lead-doctrine",
+        "field-description-authoring",
         "b-25-state-shape-example-heading",
         "b-25-state-shape-example-intro",
         "b-25-state-shape-example-block",
+        "worked-operation-context",
+        "worked-operation-signature",
+        "worked-operation-return",
         "b-25-state-shape-state-h-3",
         "b-25-state-shape-schema-intro",
         "b-25-state-shape-state-4",
@@ -88,6 +93,17 @@
       ],
       "children": []
     },
+    "component-worked-example-rule": {
+      "id": "component-worked-example-rule",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source; identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information."
+        }
+      ],
+      "children": []
+    },
     "b-25-state-shape-lead-doctrine": {
       "id": "b-25-state-shape-lead-doctrine",
       "type": "paragraph",
@@ -119,6 +135,17 @@
         },
         {
           "insert": " blocks hold the source evidence. State first, then operations; a code block is for material that is not an instance of the shape, a real source listing."
+        }
+      ],
+      "children": []
+    },
+    "field-description-authoring": {
+      "id": "field-description-authoring",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Write field and type descriptions only when they add information beyond the name, type, nesting, and optionality. Omit restatements such as \"Record identifier\" for recordId or \"Source to capture\" for source. Keep non-obvious constraints, units, defaults, ownership, null meaning, side effects, or lifecycle rules. For a path, \"Path to the source\" adds nothing; \"Relative to the repository root\" adds a useful constraint. Do not invent semantics to fill an empty description. This rule also applies to Interaction Surface parameters and returned fields."
         }
       ],
       "children": []
@@ -183,6 +210,164 @@
           }
         ],
         "name": "TableTheme"
+      },
+      "children": []
+    },
+    "worked-operation-context": {
+      "id": "worked-operation-context",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Starting with the TableTheme field definition above, call state-shape.addField with field { name: \"enabled\", type: \"boolean\" }. Omit path and index to append at the root. StateShapeFieldsPatch below names the returned props object; it is not the action success envelope."
+        }
+      ],
+      "children": []
+    },
+    "worked-operation-signature": {
+      "id": "worked-operation-signature",
+      "type": "interaction-surface",
+      "props": {
+        "operations": [
+          {
+            "name": "state-shape.addField",
+            "description": "Rejects duplicate sibling names; omitted path and index append at the root.",
+            "params": [
+              {
+                "name": "field",
+                "type": "Field",
+                "fields": [
+                  {
+                    "name": "name",
+                    "type": "string",
+                    "description": "Unique among siblings."
+                  },
+                  {
+                    "name": "type",
+                    "type": "string",
+                    "required": false
+                  },
+                  {
+                    "name": "required",
+                    "type": "boolean",
+                    "required": false,
+                    "description": "Omitted means required."
+                  },
+                  {
+                    "name": "description",
+                    "type": "string",
+                    "required": false
+                  },
+                  {
+                    "name": "fields",
+                    "type": "Field[]",
+                    "required": false,
+                    "description": "Recurses with the same field contract."
+                  }
+                ]
+              },
+              {
+                "name": "path",
+                "type": "string",
+                "required": false,
+                "description": "Dot-path of the parent; empty or omitted selects the root."
+              },
+              {
+                "name": "index",
+                "type": "integer",
+                "required": false,
+                "description": "Position among siblings; omitted appends."
+              }
+            ],
+            "returns": "StateShapeFieldsPatch",
+            "kind": "action",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "fields",
+                  "type": "Field[]",
+                  "description": "The complete replacement field list, not only the added field.",
+                  "fields": [
+                    {
+                      "name": "name",
+                      "type": "string",
+                      "description": "Unique among siblings."
+                    },
+                    {
+                      "name": "type",
+                      "type": "string",
+                      "required": false
+                    },
+                    {
+                      "name": "required",
+                      "type": "boolean",
+                      "required": false,
+                      "description": "Omitted means required."
+                    },
+                    {
+                      "name": "description",
+                      "type": "string",
+                      "required": false
+                    },
+                    {
+                      "name": "fields",
+                      "type": "Field[]",
+                      "required": false,
+                      "description": "Recurses with the same field contract."
+                    }
+                  ]
+                }
+              ],
+              "example": "{\n  \"fields\": [\n    {\n      \"name\": \"accent\",\n      \"type\": \"string\",\n      \"description\": \"Accent rule color.\"\n    },\n    {\n      \"name\": \"headerBg\",\n      \"type\": \"string | { light, dark }\",\n      \"required\": false,\n      \"description\": \"Header row background; one value or a per-mode pair.\"\n    },\n    {\n      \"name\": \"slider\",\n      \"type\": \"object\",\n      \"required\": false,\n      \"description\": \"Numeric control metadata.\",\n      \"fields\": [\n        {\n          \"name\": \"kind\",\n          \"type\": \"\\\"color\\\" | \\\"length\\\" | \\\"number\\\"\"\n        },\n        {\n          \"name\": \"max\",\n          \"type\": \"number\",\n          \"required\": false\n        }\n      ]\n    },\n    {\n      \"name\": \"enabled\",\n      \"type\": \"boolean\"\n    }\n  ]\n}"
+            }
+          }
+        ],
+        "title": "Edit the Field Definition"
+      },
+      "children": []
+    },
+    "worked-operation-return": {
+      "id": "worked-operation-return",
+      "type": "state-shape",
+      "props": {
+        "example": "{\n  \"fields\": [\n    {\n      \"name\": \"accent\",\n      \"type\": \"string\",\n      \"description\": \"Accent rule color.\"\n    },\n    {\n      \"name\": \"headerBg\",\n      \"type\": \"string | { light, dark }\",\n      \"required\": false,\n      \"description\": \"Header row background; one value or a per-mode pair.\"\n    },\n    {\n      \"name\": \"slider\",\n      \"type\": \"object\",\n      \"required\": false,\n      \"description\": \"Numeric control metadata.\",\n      \"fields\": [\n        {\n          \"name\": \"kind\",\n          \"type\": \"\\\"color\\\" | \\\"length\\\" | \\\"number\\\"\"\n        },\n        {\n          \"name\": \"max\",\n          \"type\": \"number\",\n          \"required\": false\n        }\n      ]\n    },\n    {\n      \"name\": \"enabled\",\n      \"type\": \"boolean\"\n    }\n  ]\n}",
+        "fields": [
+          {
+            "name": "fields",
+            "type": "Field[]",
+            "description": "The complete replacement field list, not only the added field.",
+            "fields": [
+              {
+                "name": "name",
+                "type": "string",
+                "description": "Unique among siblings."
+              },
+              {
+                "name": "type",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "required",
+                "type": "boolean",
+                "required": false,
+                "description": "Omitted means required."
+              },
+              {
+                "name": "description",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "fields",
+                "type": "Field[]",
+                "required": false,
+                "description": "Recurses with the same field contract."
+              }
+            ]
+          }
+        ],
+        "name": "StateShapeFieldsPatch"
       },
       "children": []
     },
@@ -881,7 +1066,46 @@
                 "description": "Insert position among the parent's fields; default end."
               }
             ],
-            "returns": "props patch: { fields }"
+            "returns": "StateShapeFieldsPatchPatch",
+            "kind": "action",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "fields",
+                  "type": "Field[]",
+                  "description": "The complete replacement field list, not only the added field.",
+                  "fields": [
+                    {
+                      "name": "name",
+                      "type": "string",
+                      "description": "Unique among siblings."
+                    },
+                    {
+                      "name": "type",
+                      "type": "string",
+                      "required": false
+                    },
+                    {
+                      "name": "required",
+                      "type": "boolean",
+                      "required": false,
+                      "description": "Omitted means required."
+                    },
+                    {
+                      "name": "description",
+                      "type": "string",
+                      "required": false
+                    },
+                    {
+                      "name": "fields",
+                      "type": "Field[]",
+                      "required": false,
+                      "description": "Recurses with the same field contract."
+                    }
+                  ]
+                }
+              ]
+            }
           },
           {
             "name": "state-shape.updateField",
@@ -929,7 +1153,46 @@
                 ]
               }
             ],
-            "returns": "props patch: { fields }"
+            "returns": "StateShapeFieldsPatchPatch",
+            "kind": "action",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "fields",
+                  "type": "Field[]",
+                  "description": "The complete replacement field list, not only the added field.",
+                  "fields": [
+                    {
+                      "name": "name",
+                      "type": "string",
+                      "description": "Unique among siblings."
+                    },
+                    {
+                      "name": "type",
+                      "type": "string",
+                      "required": false
+                    },
+                    {
+                      "name": "required",
+                      "type": "boolean",
+                      "required": false,
+                      "description": "Omitted means required."
+                    },
+                    {
+                      "name": "description",
+                      "type": "string",
+                      "required": false
+                    },
+                    {
+                      "name": "fields",
+                      "type": "Field[]",
+                      "required": false,
+                      "description": "Recurses with the same field contract."
+                    }
+                  ]
+                }
+              ]
+            }
           },
           {
             "name": "state-shape.removeField",
@@ -942,7 +1205,46 @@
                 "description": "Dot-path of the field to remove, e.g. \"operations.params\"."
               }
             ],
-            "returns": "props patch: { fields }"
+            "returns": "StateShapeFieldsPatchPatch",
+            "kind": "action",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "fields",
+                  "type": "Field[]",
+                  "description": "The complete replacement field list, not only the added field.",
+                  "fields": [
+                    {
+                      "name": "name",
+                      "type": "string",
+                      "description": "Unique among siblings."
+                    },
+                    {
+                      "name": "type",
+                      "type": "string",
+                      "required": false
+                    },
+                    {
+                      "name": "required",
+                      "type": "boolean",
+                      "required": false,
+                      "description": "Omitted means required."
+                    },
+                    {
+                      "name": "description",
+                      "type": "string",
+                      "required": false
+                    },
+                    {
+                      "name": "fields",
+                      "type": "Field[]",
+                      "required": false,
+                      "description": "Recurses with the same field contract."
+                    }
+                  ]
+                }
+              ]
+            }
           },
           {
             "name": "state-shape.setExample",
@@ -955,7 +1257,18 @@
                 "description": "JSON text of an example instance of this shape; null clears the example."
               }
             ],
-            "returns": "props patch: { example }"
+            "returns": "StateShapePatch",
+            "kind": "action",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "example",
+                  "type": "string",
+                  "required": false,
+                  "description": "JSON text of an example instance of this shape; renders as the linked example pane."
+                }
+              ]
+            }
           }
         ],
         "title": "state-shape, actions"

@@ -10,6 +10,7 @@
       "props": {},
       "children": [
         "b-90-process-outline-lead",
+        "component-worked-example-rule",
         "b-90-process-outline-split-intro",
         "b-90-process-outline-split-canvas",
         "b-90-process-outline-split-sequence",
@@ -29,6 +30,7 @@
         "b-90-process-outline-not-blank",
         "b-90-process-outline-writing-h",
         "b-90-process-outline-wr-intro",
+        "po-single-parent-lint-contract",
         "b-90-process-outline-wr-trace",
         "b-90-process-outline-wr-steps",
         "b-90-process-outline-wr-notes",
@@ -38,6 +40,7 @@
         "b-90-process-outline-wr-split",
         "b-90-process-outline-wr-example-intro",
         "b-90-process-outline-wr-example-block",
+        "po-writing-after-separate",
         "b-90-process-outline-state-h",
         "b-90-process-outline-state-intro",
         "b-90-process-outline-state-shape",
@@ -89,55 +92,18 @@
       "props": {},
       "text": [
         {
-          "insert": "The Process Outline component owns one type of the "
-        },
+          "insert": "Process Outline explains an ordered process through nested steps and short supporting notes. The stored steps form a typed recursive tree; notation supplies the import and agent projection forms."
+        }
+      ],
+      "children": []
+    },
+    "component-worked-example-rule": {
+      "id": "component-worked-example-rule",
+      "type": "paragraph",
+      "props": {},
+      "text": [
         {
-          "insert": "Block vocabulary",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "10-system-design/40-block-vocabulary"
-            }
-          }
-        },
-        {
-          "insert": ": "
-        },
-        {
-          "insert": "process-outline",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", the ordered process-outline block — the virtual form of a nested procedural outline drawn on a connected rail. A block stores a typed recursive step tree in "
-        },
-        {
-          "insert": "steps",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "; process-outline notation is the text form of that tree — "
-        },
-        {
-          "insert": "serializeProcessOutline",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " writes it for the agent surface, "
-        },
-        {
-          "insert": "parseProcessOutline",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " turns it back into steps on bulk import."
+          "insert": "For examples of this component's API, show the relevant state, real operation signature, and actual result when they clarify the contract. Ordinary process explanations need only the outline and useful context. Verify behavior against source and keep descriptions non-redundant."
         }
       ],
       "children": []
@@ -178,7 +144,7 @@
       "props": {},
       "text": [
         {
-          "insert": "How things relate — spatial boards of shapes, links, and embeds."
+          "insert": "Spatial relationships between shapes, links, and embeds."
         }
       ],
       "children": []
@@ -208,7 +174,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Exact exchanges — who sends what to whom, in what order."
+          "insert": "Exact exchanges: who sends what to whom, and in what order."
         }
       ],
       "children": []
@@ -235,7 +201,7 @@
       "props": {},
       "text": [
         {
-          "insert": "How a process flows end to end — arrow steps, nested sublayers, and clarification notes on one rail."
+          "insert": "End-to-end phases, nested actions, and short clarification notes."
         }
       ],
       "children": []
@@ -289,7 +255,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A live block — the run-mode loop of the Melee decomp harness: one root, four arrow steps, nested sublayers, and two clarification notes that render as one bulleted card."
+          "insert": "This example describes the Melee harness run loop. It contains four phases, nested actions, and two supporting notes."
         }
       ],
       "children": []
@@ -430,7 +396,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A line with no arrow prefix starts a flow; the parser returns a forest, so one block can carry multiple roots."
+          "insert": "A line with no arrow prefix starts a flow. The parser accepts multiple roots for compatibility, but author one named process per block and nest its phases beneath that root. Put independent processes in separate blocks."
         }
       ],
       "children": []
@@ -485,16 +451,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A "
-        },
-        {
-          "insert": "=>",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " line is a step that a real trace event corresponds to. It is a step in every other respect — it nests, it takes chips, it can own substeps."
+          "insert": "A trace-marked line names a step corresponding to a real trace event. It can contain code chips and nested steps."
         }
       ],
       "children": []
@@ -675,7 +632,18 @@
       "props": {},
       "text": [
         {
-          "insert": "A process outline is the matter-of-fact flow of how a process operates, written in enough detail that reading it prepares you for what the system's traces show. Step text carries the actions; notes carry the prose. Seven rules follow from that:"
+          "insert": "Write one named process per outline. Nest its phases beneath that shared parent so readers can follow one connected tree. Give independent processes separate diagrams. Steps and supporting notes each carry one bite-sized action or idea."
+        }
+      ],
+      "children": []
+    },
+    "po-single-parent-lint-contract": {
+      "id": "po-single-parent-lint-contract",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The process-outline.single-parent lint enforces this authoring structure at completion: exactly one named, non-note root with at least one action child. Empty or unfinished outlines remain editable in drafts but fail completion checks. The parser retains support for older multi-root data so it can be opened and repaired. Wrap related phases in a meaningful parent; split independent processes into separate blocks."
         }
       ],
       "children": []
@@ -745,7 +713,7 @@
       "props": {},
       "text": [
         {
-          "insert": "An arrow step is one action in present tense, verb first, and roughly ten words or fewer."
+          "insert": "Write one short action or idea per arrow line, usually ten words or fewer. Use present tense and a concrete verb. Split multiple sentences or independent actions into separate steps."
         }
       ],
       "children": []
@@ -756,34 +724,7 @@
       "props": {},
       "text": [
         {
-          "insert": "No "
-        },
-        {
-          "insert": "so",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "because",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", or "
-        },
-        {
-          "insert": "which means",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " clauses — the moment a step explains itself, the explanation belongs in a note."
+          "insert": "Move explanations into notes. Keep conditions that change whether an action happens explicit in the step or its parent."
         }
       ],
       "children": []
@@ -808,16 +749,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Rationale, invariants, and mechanism detail go in a note step — "
-        },
-        {
-          "insert": ">",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " in notation — under the step they clarify."
+          "insert": "Keep each supporting note bite-sized: one useful fact about the step. Explain a constraint, reason, or expected result without repeating the step label. Split separate facts into separate note bullets."
         }
       ],
       "children": []
@@ -937,25 +869,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Backtick code identifiers and the key nouns of a step — including actors like "
-        },
-        {
-          "insert": "Worker",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " or "
-        },
-        {
-          "insert": "Operator",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ". Each span renders as a chip in its line's depth color, and multi-word spans work."
+          "insert": "Use backticks for code identifiers and actors such as Worker or Operator. Chips use the line's depth color and can contain multiple words."
         }
       ],
       "children": []
@@ -990,7 +904,7 @@
       "props": {},
       "text": [
         {
-          "insert": "If a step wants a second clause, it is two steps, or a step plus a note. Depth is cheap; long lines are not."
+          "insert": "Split compound actions into steps and keep explanations in short notes. Use nesting to clarify the process, not to manufacture depth. Every step and note is visible by default; presentation must not depend on truncating prose."
         }
       ],
       "children": []
@@ -1001,7 +915,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The same content written both ways — one overloaded sentence-step, then three short steps and the note that carries what the sentence was explaining:"
+          "insert": "Compare one overloaded step with short actions and a separate explanation:"
         }
       ],
       "children": []
@@ -1018,7 +932,16 @@
                 "text": "Spawn a worker in an isolated worktree so tentative evidence never reaches the map, and retry the item if the build fails"
               }
             ]
-          },
+          }
+        ]
+      },
+      "children": []
+    },
+    "po-writing-after-separate": {
+      "id": "po-writing-after-separate",
+      "type": "process-outline",
+      "props": {
+        "steps": [
           {
             "text": "After",
             "steps": [
@@ -1060,19 +983,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The "
-        },
-        {
-          "insert": "State schema",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "10-system-design/30-data-model/20-block-design/10-state-schema"
-            }
-          }
-        },
-        {
-          "insert": " contract element — all state lives in typed props:"
+          "insert": "The state schema stores the complete outline in typed props:"
         }
       ],
       "children": []
@@ -1081,12 +992,12 @@
       "id": "b-90-process-outline-state-shape",
       "type": "state-shape",
       "props": {
-        "example": "{\n  \"steps\": [\n    {\n      \"text\": \"Drain the epoch with workers\",\n      \"steps\": [\n        {\n          \"text\": \"Each worker gets its own isolated worktree\"\n        },\n        {\n          \"text\": \"workers produce tentative evidence\",\n          \"kind\": \"note\"\n        }\n      ]\n    }\n  ]\n}",
+        "example": "{\n  \"steps\": [\n    {\n      \"text\": \"Run the builder\",\n      \"trace\": true,\n      \"steps\": [\n        {\n          \"text\": \"Read the approved brief\"\n        },\n        {\n          \"text\": \"Edit the allowed source\"\n        },\n        {\n          \"text\": \"Only the captured renderer can change.\",\n          \"kind\": \"note\"\n        }\n      ]\n    }\n  ]\n}",
         "fields": [
           {
             "name": "steps",
             "type": "ProcessOutlineStep[]",
-            "description": "Recursive step tree — the block's entire state.",
+            "description": "Recursive step tree, the block's entire state.",
             "fields": [
               {
                 "name": "text",
@@ -1098,6 +1009,12 @@
                 "type": "\"step\" | \"note\"",
                 "required": false,
                 "description": "\"note\" marks a clarification leaf; omitted reads as \"step\"."
+              },
+              {
+                "name": "trace",
+                "type": "boolean",
+                "required": false,
+                "description": "Marks a step corresponding to a real trace event. Notes cannot carry this flag."
               },
               {
                 "name": "steps",
@@ -1160,67 +1077,7 @@
       "props": {},
       "text": [
         {
-          "insert": "steps",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " is the whole state: a recursive "
-        },
-        {
-          "insert": "ProcessOutlineStep",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " tree — "
-        },
-        {
-          "insert": "{ text, kind?, steps? }",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", where "
-        },
-        {
-          "insert": "kind",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " is "
-        },
-        {
-          "insert": "\"step\"",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " or "
-        },
-        {
-          "insert": "\"note\"",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " and omitted reads as "
-        },
-        {
-          "insert": "\"step\"",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "."
+          "insert": "Each recursive step contains text, an optional kind, an optional trace flag, and optional child steps. An omitted kind means step."
         }
       ],
       "children": []
@@ -1231,7 +1088,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Two omissions are deliberate: no title — a heading block above the process outline carries one — and no stored text form — process-outline notation exists only for import and the agent projection."
+          "insert": "A heading above the outline supplies its title. Notation is generated for import and projection rather than stored alongside the tree."
         }
       ],
       "children": []
@@ -1242,22 +1099,7 @@
       "props": {},
       "text": [
         {
-          "insert": "check()",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " rejects a "
-        },
-        {
-          "insert": "kind: \"note\"",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " step that carries child steps — notes are leaves."
+          "insert": "Validation rejects children or trace marks on notes. Notes are explanatory leaves."
         }
       ],
       "children": []
@@ -1268,7 +1110,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The block stores structure, not layout: no depths, no geometry enters the doc — depth derives from nesting at read time."
+          "insert": "Depth derives from nesting. The document stores no layout geometry."
         }
       ],
       "children": []
@@ -1299,22 +1141,7 @@
       "props": {},
       "text": [
         {
-          "insert": "readProcessOutlineStepTree",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " reads "
-        },
-        {
-          "insert": "steps",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " tolerantly — malformed entries are skipped, never thrown on."
+          "insert": "The tolerant reader skips malformed entries and returns fresh objects."
         }
       ],
       "children": []
@@ -1362,7 +1189,7 @@
         "operations": [
           {
             "name": "process-outline.setSteps",
-            "description": "Bulk replace: swap the entire ordered step tree for the given steps — parse process-outline notation with parseProcessOutline to build the tree from text.",
+            "description": "Bulk replace: swap the entire ordered step tree for the given steps, parse process-outline notation with parseProcessOutline to build the tree from text.",
             "params": [
               {
                 "name": "steps",
@@ -1371,7 +1198,42 @@
                 "description": "Complete replacement step tree; an empty array empties the process outline."
               }
             ],
-            "returns": "props patch: { steps }"
+            "returns": "ProcessOutlinePatch",
+            "kind": "action",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "steps",
+                  "type": "ProcessOutlineStep[]",
+                  "description": "Recursive step tree, the block's entire state.",
+                  "fields": [
+                    {
+                      "name": "text",
+                      "type": "string",
+                      "description": "Step text; backticks mark code values."
+                    },
+                    {
+                      "name": "kind",
+                      "type": "\"step\" | \"note\"",
+                      "required": false,
+                      "description": "\"note\" marks a clarification leaf; omitted reads as \"step\"."
+                    },
+                    {
+                      "name": "trace",
+                      "type": "boolean",
+                      "required": false,
+                      "description": "Marks a step corresponding to a real trace event. Notes cannot carry this flag."
+                    },
+                    {
+                      "name": "steps",
+                      "type": "ProcessOutlineStep[]",
+                      "required": false,
+                      "description": "Nested substeps; notes never carry them."
+                    }
+                  ]
+                }
+              ]
+            }
           },
           {
             "name": "process-outline.insertStep",
@@ -1394,9 +1256,50 @@
                 "type": "\"step\" | \"note\"",
                 "required": false,
                 "description": "Step kind; \"note\" is a clarification leaf. Default \"step\"."
+              },
+              {
+                "name": "trace",
+                "type": "boolean",
+                "required": false,
+                "description": "Marks a step corresponding to a real trace event. Notes cannot carry this flag."
               }
             ],
-            "returns": "props patch: { steps }"
+            "returns": "ProcessOutlinePatch",
+            "kind": "action",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "steps",
+                  "type": "ProcessOutlineStep[]",
+                  "description": "Recursive step tree, the block's entire state.",
+                  "fields": [
+                    {
+                      "name": "text",
+                      "type": "string",
+                      "description": "Step text; backticks mark code values."
+                    },
+                    {
+                      "name": "kind",
+                      "type": "\"step\" | \"note\"",
+                      "required": false,
+                      "description": "\"note\" marks a clarification leaf; omitted reads as \"step\"."
+                    },
+                    {
+                      "name": "trace",
+                      "type": "boolean",
+                      "required": false,
+                      "description": "Marks a step corresponding to a real trace event. Notes cannot carry this flag."
+                    },
+                    {
+                      "name": "steps",
+                      "type": "ProcessOutlineStep[]",
+                      "required": false,
+                      "description": "Nested substeps; notes never carry them."
+                    }
+                  ]
+                }
+              ]
+            }
           },
           {
             "name": "process-outline.setStepText",
@@ -1413,9 +1316,50 @@
                 "type": "string",
                 "required": true,
                 "description": "Replacement step text; backticks mark code values."
+              },
+              {
+                "name": "trace",
+                "type": "boolean",
+                "required": false,
+                "description": "Set or clear the trace mark. Omit to preserve it. Notes cannot be trace-marked."
               }
             ],
-            "returns": "props patch: { steps }"
+            "returns": "ProcessOutlinePatch",
+            "kind": "action",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "steps",
+                  "type": "ProcessOutlineStep[]",
+                  "description": "Recursive step tree, the block's entire state.",
+                  "fields": [
+                    {
+                      "name": "text",
+                      "type": "string",
+                      "description": "Step text; backticks mark code values."
+                    },
+                    {
+                      "name": "kind",
+                      "type": "\"step\" | \"note\"",
+                      "required": false,
+                      "description": "\"note\" marks a clarification leaf; omitted reads as \"step\"."
+                    },
+                    {
+                      "name": "trace",
+                      "type": "boolean",
+                      "required": false,
+                      "description": "Marks a step corresponding to a real trace event. Notes cannot carry this flag."
+                    },
+                    {
+                      "name": "steps",
+                      "type": "ProcessOutlineStep[]",
+                      "required": false,
+                      "description": "Nested substeps; notes never carry them."
+                    }
+                  ]
+                }
+              ]
+            }
           },
           {
             "name": "process-outline.removeStep",
@@ -1428,11 +1372,46 @@
                 "description": "Index path of the step to remove, e.g. [0, 2]."
               }
             ],
-            "returns": "props patch: { steps }"
+            "returns": "ProcessOutlinePatch",
+            "kind": "action",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "steps",
+                  "type": "ProcessOutlineStep[]",
+                  "description": "Recursive step tree, the block's entire state.",
+                  "fields": [
+                    {
+                      "name": "text",
+                      "type": "string",
+                      "description": "Step text; backticks mark code values."
+                    },
+                    {
+                      "name": "kind",
+                      "type": "\"step\" | \"note\"",
+                      "required": false,
+                      "description": "\"note\" marks a clarification leaf; omitted reads as \"step\"."
+                    },
+                    {
+                      "name": "trace",
+                      "type": "boolean",
+                      "required": false,
+                      "description": "Marks a step corresponding to a real trace event. Notes cannot carry this flag."
+                    },
+                    {
+                      "name": "steps",
+                      "type": "ProcessOutlineStep[]",
+                      "required": false,
+                      "description": "Nested substeps; notes never carry them."
+                    }
+                  ]
+                }
+              ]
+            }
           },
           {
             "name": "process-outline.moveStep",
-            "description": "Move the step at from (with its subtree) to the insert position to — to is interpreted against the tree after the step is removed.",
+            "description": "Move the step at from (with its subtree) to the insert position to, to is interpreted against the tree after the step is removed.",
             "params": [
               {
                 "name": "from",
@@ -1447,10 +1426,45 @@
                 "description": "Insertion index path (last element = insert position), resolved after the step is detached."
               }
             ],
-            "returns": "props patch: { steps }"
+            "returns": "ProcessOutlinePatch",
+            "kind": "action",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "steps",
+                  "type": "ProcessOutlineStep[]",
+                  "description": "Recursive step tree, the block's entire state.",
+                  "fields": [
+                    {
+                      "name": "text",
+                      "type": "string",
+                      "description": "Step text; backticks mark code values."
+                    },
+                    {
+                      "name": "kind",
+                      "type": "\"step\" | \"note\"",
+                      "required": false,
+                      "description": "\"note\" marks a clarification leaf; omitted reads as \"step\"."
+                    },
+                    {
+                      "name": "trace",
+                      "type": "boolean",
+                      "required": false,
+                      "description": "Marks a step corresponding to a real trace event. Notes cannot carry this flag."
+                    },
+                    {
+                      "name": "steps",
+                      "type": "ProcessOutlineStep[]",
+                      "required": false,
+                      "description": "Nested substeps; notes never carry them."
+                    }
+                  ]
+                }
+              ]
+            }
           }
         ],
-        "title": "process-outline — actions"
+        "title": "process-outline, actions"
       },
       "children": []
     },
@@ -1480,13 +1494,7 @@
       "props": {},
       "text": [
         {
-          "insert": "process-outline.setSteps",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " is the bulk edit: it replaces the entire step tree in one validated call — an agent still edits by rewriting what it reads."
+          "insert": "setSteps replaces the entire tree with validated steps. Agents can also use the individual step actions."
         }
       ],
       "children": []
@@ -1497,25 +1505,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The four step actions address by index path: elements walk "
-        },
-        {
-          "insert": "steps",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " from the root — "
-        },
-        {
-          "insert": "[0, 2]",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " is the third child of the first root — and insert paths end with the insert position."
+          "insert": "An index path walks child arrays from the root. For example, [0, 2] names the third child of the first root. An insertion path ends with the insertion position."
         }
       ],
       "children": []
@@ -1552,16 +1542,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Unresolvable paths, out-of-range insert positions, and inserts or moves under a note reject in the house pattern — "
-        },
-        {
-          "insert": "{ ok: false, issues }",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " — because notes are leaves."
+          "insert": "Invalid paths and insertions beneath notes return validation issues."
         }
       ],
       "children": []
@@ -1649,7 +1630,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The stylesheet injects once per document; the block scrolls in its own overflow container at a 640 px minimum width."
+          "insert": "The stylesheet is shared within the document. The approved Continuous Outline fills its lane, uses a faint background and rounded top and bottom boundaries, and wraps text within narrow containers."
         }
       ],
       "children": []
@@ -1698,7 +1679,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Every flow is free text on one connected rail: a trunk drops from each parent, turns a rounded elbow into each child, and runs into an open-V arrowhead whose tip lands just before the text. Each nesting level draws that rail in its own hue, cycling through five muted colors and repeating."
+          "insert": "One trunk connects the process parent to its ordered phases. Rounded elbows and open arrowheads connect each child. The approved Continuous Outline uses 1.5px strokes and distinct branch colors by depth."
         }
       ],
       "children": []
@@ -1709,70 +1690,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Rail geometry is var-driven — private "
-        },
-        {
-          "insert": "--po-indent",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "--po-arrow-gap",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "--po-gap",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "--po-line",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "--po-stroke",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "--po-arrow",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " — indent sets the per-level inset and the elbow's left edge, arrow-gap is the distance from the arrowhead tip to the first letter, and the elbow lands on the first-line center while the trunk overlaps into both sibling gaps, so segments always meet. "
-        },
-        {
-          "insert": "--po-gap",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " is re-declared at every level, so the wider gap that depth-one phase groups use never leaks into their own substeps and the elbow math always matches the gap it sits in."
+          "insert": "Indentation and line height set the branch geometry. The approved tuning revision explicitly overrides trunk, elbow, and arrowhead widths together so the line-thickness control changes the entire connection."
         }
       ],
       "children": []
@@ -1783,34 +1701,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Depth color is one cascading variable, "
-        },
-        {
-          "insert": "--po-c",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", re-declared once per nesting level through the five-hue cycle. The level's rail, elbow, arrowhead, chip tint and note rule all resolve from it, so there are no per-node classes and the renderer never has to know a node's depth. Mixes against it happen at the use site: a "
-        },
-        {
-          "insert": "var()",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " inside a custom property resolves where that property is computed — at "
-        },
-        {
-          "insert": ":root",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", where the depth color does not exist — so only the mix strength travels as a token, as a unitless percentage."
+          "insert": "The approved tuning values assign six depth colors. A deeper node without an explicit override inherits its ancestor’s color. Colors identify nesting, not actors or runtime conditions."
         }
       ],
       "children": []
@@ -1821,16 +1712,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The elbow's flat run is derived — "
-        },
-        {
-          "insert": "indent − arrow-gap − arrow/2",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", clamped at zero — so it ends in the arrowhead's open back and the two stay connected at any knob values."
+          "insert": "Elbows and arrowheads share the same indentation variables. Their overlap keeps the visible connections joined."
         }
       ],
       "children": []
@@ -1951,7 +1833,7 @@
       "props": {},
       "text": [
         {
-          "insert": "No kind colors, no icons, no collapse — the simplicity is deliberate, carried over from the pen-and-paper prototype. Color encodes depth and nothing else: it never marks what a step is, only how deep it sits."
+          "insert": "The current renderer shows all content. Colors identify depth, not actors, conditions, or step kinds."
         }
       ],
       "children": []
@@ -2032,7 +1914,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Backticks are the only inline syntax, and a backtick span renders as a chip in its line's depth color: the fill is that color at chip-tint strength, the label is that color mixed into the inherited ink. Multi-word spans work — the chip is a span, not a word match."
+          "insert": "Backticks render code chips in the line's depth color. Multi-word spans remain one chip."
         }
       ],
       "children": []
@@ -2058,7 +1940,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A note step renders as a filled, bordered card — the component's only box — pulled in under its step and deliberately off the rail: no elbow, no arrowhead. Its left edge is the one part that takes the level's color, at note-accent strength over the card border."
+          "insert": "Supporting notes appear as short bullet lines with a vertical guide. Note text, dots, and that guide have separate color controls in Variator. Every authored note remains visible."
         }
       ],
       "children": []
@@ -2080,43 +1962,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Note text keeps the step ink — "
-        },
-        {
-          "insert": "--docs-process-outline-note-fg",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " defaults to it — but is subordinate in size and rhythm: "
-        },
-        {
-          "insert": "--docs-process-outline-note-text-size",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " and "
-        },
-        {
-          "insert": "--docs-process-outline-note-line-height",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " set their own smaller pair, and the card re-declares "
-        },
-        {
-          "insert": "--po-line",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " from the note line height so its bullet dots center on it."
+          "insert": "Notes have their own text size and line height. They remain visually subordinate to action lines and visible by default."
         }
       ],
       "children": []
@@ -2140,16 +1986,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The block is a non-editable atom leaf ("
-        },
-        {
-          "insert": "docProcessOutline",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "); the shared atom node view reuses the same descriptor, so edit mode shows the same render as reading."
+          "insert": "The ProcessOutlineNodeView edits the same renderer through renderLine and renderEmpty hooks. Enter splits a line, Tab indents, Shift+Tab outdents, and line ranges support selection, copy, cut, and deletion. Edits use typed component actions and the outer editor history."
         }
       ],
       "children": []
@@ -2225,16 +2062,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The info string is bare "
-        },
-        {
-          "insert": "process-outline",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " — the block has no title; a heading above carries one."
+          "insert": "A bare process-outline fence identifies the notation. A heading outside the block supplies its title."
         }
       ],
       "children": []
@@ -2245,43 +2073,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The fence body is serialized process-outline notation — root lines bare, "
-        },
-        {
-          "insert": "-> ",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " steps at 5-space indents, "
-        },
-        {
-          "insert": "> ",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " notes — parse a rewrite with "
-        },
-        {
-          "insert": "parseProcessOutline",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " and write it back through "
-        },
-        {
-          "insert": "process-outline.setSteps",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " to round-trip the structure."
+          "insert": "Serialization emits bare roots, arrow steps, note markers, and trace markers with five spaces per depth. Parse notation into steps before using setSteps."
         }
       ],
       "children": []
@@ -2316,49 +2108,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The "
-        },
-        {
-          "insert": "Theming",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "10-system-design/30-data-model/20-block-design/50-theming"
-            }
-          }
-        },
-        {
-          "insert": " contract element: the renderer paints from thirty-one "
-        },
-        {
-          "insert": "--docs-process-outline-*",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " tokens, defined in both theme blocks of "
-        },
-        {
-          "insert": "packages/docs-workbench/web/src/theme/semantic.css",
-          "attributes": {
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-workbench/web/src/theme/semantic.css"
-            }
-          }
-        },
-        {
-          "insert": "; corner radii derive from "
-        },
-        {
-          "insert": "--radius",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "."
+          "insert": "The theme registry retains the original Process Outline variables listed below. The approved Continuous Outline also embeds its saved Variator overrides for six branch colors, 1.5px strokes, and note colors. Those overrides take precedence over inherited theme values. The component’s design approval package records the exact values and their scope."
         }
       ],
       "children": []
@@ -2384,7 +2134,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Thirty knobs under Theme → Components → Process Outline: twelve color — Ink, Rail, Depth 1–5 color, Loop keyword, Note text, Note background, Note border, Code background — plus fifteen length sliders and three unitless strength sliders."
+          "insert": "Theme controls expose text, rail, depth, loop, note, and chip colors together with spacing and size settings."
         }
       ],
       "children": []
@@ -2395,7 +2145,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Length sliders and ranges: Indent 16–72 px, Row gap 0–24 px, Branch gap 0–48 px, Root gap 0–64 px, Arrow gap 0–16 px, Line height 16–40 px, Text size 10–18 px, Root text size 10–22 px, Empty text size 9–18 px, Note text size 10–18 px, Note line height 12–32 px, Note inset 0–40 px, Note rule width 0–6 px, Arrow size 3–12 px, Stroke 0.5–4 px. The three strength sliders — Note accent, Chip tint, Chip label mix — run 0–100 with no unit; the renderer multiplies each by 1% inside a color-mix against the depth color."
+          "insert": "Length controls set indentation, gaps, line heights, text sizes, note spacing, and arrow geometry. Strength controls set note accents and chip mixes."
         }
       ],
       "children": []
@@ -2469,13 +2219,7 @@
       "props": {},
       "text": [
         {
-          "insert": "--docs-process-outline-deep-ink",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " is a 78% color-mix of the ink — deliberately not a knob, so depth dimming tracks any ink change."
+          "insert": "Deep-step ink mixes the main ink at 78 percent by default."
         }
       ],
       "children": []
@@ -2500,13 +2244,7 @@
       "props": {},
       "text": [
         {
-          "insert": "--docs-process-outline-rail",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " is the depth cycle's fallback, and it — like every cycle color — is opaque by contract: overlapping elbow and trunk strokes double alpha at the joins. A theme that drops a cycle slot degrades to this flat rail rather than to an invalid color."
+          "insert": "The fallback rail color is opaque. Transparent overlapping strokes can create darker joins."
         }
       ],
       "children": []
@@ -2553,7 +2291,7 @@
           [
             "--docs-process-outline-ink",
             "--docs-viewer-text-body",
-            "Text ink — title and step lines"
+            "Text ink, title and step lines"
           ],
           [
             "--docs-process-outline-deep-ink",
@@ -2563,17 +2301,17 @@
           [
             "--docs-process-outline-rail",
             "#b3b1ad light · #5d6266 dark",
-            "Fallback for the depth cycle — used wherever a cycle slot is missing"
+            "Fallback for the depth cycle, used wherever a cycle slot is missing"
           ],
           [
             "--docs-process-outline-cycle-1..5",
             "steel blue, sage, plum, slate teal, ochre",
-            "The depth cycle — one hue per nesting level, then it repeats"
+            "The depth cycle, one hue per nesting level, then it repeats"
           ],
           [
             "--docs-process-outline-keyword-fg",
             "#a4552c light · #e2a07e dark",
-            "Loop keywords — outside the depth cycle on purpose"
+            "Loop keywords, outside the depth cycle on purpose"
           ],
           [
             "--docs-process-outline-note-fg",
@@ -2583,7 +2321,7 @@
           [
             "--docs-process-outline-note-bg",
             "#f2f1ed light · rgba(255,255,255,.045) dark",
-            "Note card fill — flat and muted, never depth-tinted"
+            "Note card fill, flat and muted, never depth-tinted"
           ],
           [
             "--docs-process-outline-note-border",
@@ -2593,12 +2331,12 @@
           [
             "--docs-process-outline-code-bg",
             "transparent",
-            "What the chip tint mixes over — set it opaque for a flat chip"
+            "What the chip tint mixes over, set it opaque for a flat chip"
           ],
           [
             "--docs-process-outline-indent",
             "46px",
-            "Horizontal inset per nesting level — also the elbow's left edge"
+            "Horizontal inset per nesting level, also the elbow's left edge"
           ],
           [
             "--docs-process-outline-row-gap",
@@ -2608,7 +2346,7 @@
           [
             "--docs-process-outline-branch-gap",
             "20px",
-            "Row gap inside a depth-one phase group — does not cascade deeper"
+            "Row gap inside a depth-one phase group, does not cascade deeper"
           ],
           [
             "--docs-process-outline-root-gap",
@@ -2623,7 +2361,7 @@
           [
             "--docs-process-outline-line-height",
             "22px",
-            "Step first-line height — the elbow centers on half of it"
+            "Step first-line height, the elbow centers on half of it"
           ],
           [
             "--docs-process-outline-text-size",
@@ -2648,7 +2386,7 @@
           [
             "--docs-process-outline-note-line-height",
             "17px",
-            "Note card line height — bullet dots center on half of it"
+            "Note card line height, bullet dots center on half of it"
           ],
           [
             "--docs-process-outline-note-inset",
@@ -2683,7 +2421,7 @@
           [
             "--docs-process-outline-stroke",
             "1.5px",
-            "Rail stroke width — trunks, elbows, arrowheads"
+            "Rail stroke width, trunks, elbows, arrowheads"
           ]
         ]
       },
@@ -2708,19 +2446,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The type uses the default adapter — no agent of its own; the contract is "
-        },
-        {
-          "insert": "Agent adapter",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "10-system-design/30-data-model/20-block-design/60-agent-adapter"
-            }
-          }
-        },
-        {
-          "insert": "."
+          "insert": "Process Outline uses the default agent adapter and has no component-specific agent."
         }
       ],
       "children": []
@@ -2801,25 +2527,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The returned props patch executes through the existing "
-        },
-        {
-          "insert": "updateBlock",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " path — merge semantics are single-sourced, the block id is preserved, and the inverse is the usual "
-        },
-        {
-          "insert": "updateBlock",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " inverse."
+          "insert": "Typed actions return props patches through updateBlock. This preserves the block ID and the normal inverse operation."
         }
       ],
       "children": []
@@ -2830,61 +2538,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Structural edits ride the generic ops — "
-        },
-        {
-          "insert": "insertBlock",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "updateBlock",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "deleteBlock",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "moveBlock",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ". "
-        },
-        {
-          "insert": "splitBlock",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " and "
-        },
-        {
-          "insert": "mergeBlocks",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " never apply: the type carries no text."
+          "insert": "Structural operations insert, update, delete, or move the block. splitBlock and mergeBlocks do not apply because this block carries no delta text."
         }
       ],
       "children": []

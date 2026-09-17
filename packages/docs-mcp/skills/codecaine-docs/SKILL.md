@@ -31,6 +31,10 @@ Use State Shape for data fields and a JSON instance, Interaction Surface for ope
 
 A snapshot mismatch requires starting a new task and reloading guidance. If the connection is missing or a required operation is unavailable, report that setup gap; do not bypass the tools by rewriting storage files. Review-only requests remain read-only.
 
+## Component Authoring
+
+Read the relevant [component reference](references/components.md) before creating or revising a component example. Component-specific guidance owns the state/signature/result example pattern and the rule for descriptions that add non-obvious information.
+
 ## Page Titles and Headings
 
 The display title and body headings are separate. H1 headings are allowed in the body. Do not begin the body with an H1 that repeats the display title.

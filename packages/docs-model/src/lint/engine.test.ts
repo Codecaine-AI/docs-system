@@ -59,7 +59,7 @@ describe("authoring lint engine", () => {
     ).toThrow("Missing corpus");
     expect(new Set(lintRules.map((r) => r.id)).size).toBe(lintRules.length);
     for (const rule of lintRules) {
-      expect(rule.docsPath).toMatch(/^99-appendix\//);
+      expect(rule.docsPath).toMatch(/^(99-appendix|10-system-design)\//);
       expect(rule.suggestion.length).toBeGreaterThan(0);
       expect(rule.applicability.length).toBeGreaterThan(0);
     }

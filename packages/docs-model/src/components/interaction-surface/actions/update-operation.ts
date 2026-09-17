@@ -6,6 +6,7 @@ import { cloneField } from "../../shared/field";
 import type { Field } from "../../shared/field";
 import { operationsPatch } from "../lib";
 import {
+  InteractionSurfaceReturnShapeSchema,
   readInteractionSurfaceOperations,
   type InteractionSurfaceParam,
   type InteractionSurfaceOperation,
@@ -16,7 +17,7 @@ export const updateOperation = defineComponentAction({
   action: "interaction-surface.updateOperation",
   blockType: "interaction-surface",
   description:
-    "Patch an operation (rename via patch.name; null clears description/params/returns/kind).",
+    "Patch an operation (rename via patch.name; null clears description/params/returns/returnShape/kind).",
   params: Type.Object(
     {
       name: Type.String({ minLength: 1, description: "Current operation name." }),
@@ -28,6 +29,7 @@ export const updateOperation = defineComponentAction({
             Type.Union([Type.Array(ActionOperationParamSchema), Type.Null()]),
           ),
           returns: Type.Optional(Type.Union([Type.String(), Type.Null()])),
+          returnShape: Type.Optional(Type.Union([InteractionSurfaceReturnShapeSchema, Type.Null()])),
           kind: Type.Optional(
             Type.Union([
               Type.Literal("action"),
@@ -96,6 +98,10 @@ export const updateOperation = defineComponentAction({
     if (returns !== undefined) {
       if (returns === null) delete updated.returns;
       else updated.returns = returns;
+    }
+    if (patch.returnShape !== undefined) {
+      if (patch.returnShape === null) delete updated.returnShape;
+      else updated.returnShape = patch.returnShape;
     }
     if (kind !== undefined) {
       if (kind === null) delete updated.kind;

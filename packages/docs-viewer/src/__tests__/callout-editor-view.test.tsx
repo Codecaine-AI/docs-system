@@ -1,0 +1,26 @@
+import {afterEach,expect,test} from 'bun:test';
+import {act,cleanup,render,waitFor} from '@testing-library/react';
+import {Editor,EditorContent} from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import {TEXT_BLOCK_NODES} from '../editor/core/schema';
+let editor:Editor;
+afterEach(()=>{cleanup();editor?.destroy();});
+test('Callout editor shares the styled header while body edits and undo preserve metadata',async()=>{
+ editor=new Editor({extensions:[StarterKit.configure({blockquote:false,bulletList:false,codeBlock:false,heading:false,horizontalRule:false,listItem:false,listKeymap:false,orderedList:false,paragraph:false,trailingNode:false}),...TEXT_BLOCK_NODES],content:{type:'doc',content:[{type:'docCallout',attrs:{blockId:'callout-1',blockProps:{tone:'warning',title:'Check before saving',kind:'Requirement'}},content:[{type:'docBlockText',content:[{type:'text',text:'Keep this body.',marks:[{type:'bold'}]}]}]}]},injectCSS:false});
+ const {container}=render(<EditorContent editor={editor}/>);
+ await waitFor(()=>expect(container.querySelector('[data-callout-header]')?.textContent).toBe('Check before saving'));
+ expect(container.querySelector('[data-callout-tone="warning"]')).not.toBeNull();
+ expect(container.querySelector('[data-callout-header] svg')).not.toBeNull();
+ expect(container.querySelector('[data-node-view-content]')?.getAttribute('contenteditable')).toBe('true');
+ expect(container.querySelector('[data-callout-body] strong')?.textContent).toBe('Keep this body.');
+ act(()=>{editor.commands.insertContentAt(2,'New ');});
+ expect(editor.getText()).toContain('New Keep this body.');
+ act(()=>{editor.commands.undo();});
+ expect(editor.getText()).toContain('Keep this body.');expect(editor.getText()).not.toContain('New ');
+ expect(editor.getJSON().content![0]!.attrs!.blockProps).toEqual({tone:'warning',title:'Check before saving',kind:'Requirement'});
+ expect(editor.getHTML()).toContain('data-block-props');
+ expect(editor.getHTML()).not.toContain('Check before saving</');
+ act(()=>{editor.commands.updateAttributes('docCallout',{blockProps:{tone:'success',title:'Saved',kind:'Requirement'}});});
+ await waitFor(()=>expect(container.querySelector('[data-callout-header]')?.textContent).toBe('Saved'));
+ expect(container.querySelector('[data-callout-tone="success"]')).not.toBeNull();
+});

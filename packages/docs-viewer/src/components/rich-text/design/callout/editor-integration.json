@@ -1,0 +1,41 @@
+{
+  "request": "Why are these only showing in the AI view? This should be for all viewing. This is what it renders as.",
+  "scope": "Same approved Callout presentation in normal editable and read/annotation views",
+  "supersedes": "Initial integration interpretation limited styling to the read renderer",
+  "implementation": "CalloutEditorNodeView delegates to CalloutDocsBlock and supplies an editable NodeViewContent body; no copied palette or header styling",
+  "files": [
+    {
+      "path": "packages/docs-viewer/src/components/rich-text/callout.tsx",
+      "sha256": "9e240d047f20e3ac598825b477478c379587233ee0cb73b54d18fa9d9a46b044"
+    },
+    {
+      "path": "packages/docs-viewer/src/components/rich-text/callout-editor-node-view.tsx",
+      "sha256": "af3481bdb582b439c161b14943ca4500a706ce0c2b9266f96e0295dfc94b9043"
+    }
+  ],
+  "tests": {
+    "passed": 50,
+    "assertions": 266,
+    "coverage": "Shared editor renderer, typing, formatting, undo, metadata updates, clipboard roundtrip, and keymap behavior"
+  },
+  "browser": {
+    "url": "http://127.0.0.1:4905/#/10-system-design/40-block-vocabulary/10-rich-text/14-callout",
+    "checks": [
+      "info light: icon, title, textured header, faint edge, plain body, no overflow",
+      "decision light: icon, title, textured header, faint edge, plain body, no overflow",
+      "risk light: icon, title, textured header, faint edge, plain body, no overflow",
+      "warning light: icon, title, textured header, faint edge, plain body, no overflow",
+      "success light: icon, title, textured header, faint edge, plain body, no overflow",
+      "info dark: icon, title, textured header, faint edge, plain body, no overflow",
+      "decision dark: icon, title, textured header, faint edge, plain body, no overflow",
+      "risk dark: icon, title, textured header, faint edge, plain body, no overflow",
+      "warning dark: icon, title, textured header, faint edge, plain body, no overflow",
+      "success dark: icon, title, textured header, faint edge, plain body, no overflow",
+      "All five normal-view Callout bodies retain editable contentDOMs"
+    ],
+    "errors": [],
+    "limitations": [],
+    "checkedAt": "2026-09-15T21:35:25.502Z"
+  },
+  "at": "2026-09-15T21:36:05.060Z"
+}
