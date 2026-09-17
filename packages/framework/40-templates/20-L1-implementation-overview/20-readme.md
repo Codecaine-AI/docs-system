@@ -11,19 +11,21 @@ Template for the root README.md that provides a human-friendly entry point to an
 
 ## Setup & Configuration
 
-For detailed setup instructions, see the setup guide under `docs/20-implementation/99-appendix/`.
+For detailed setup instructions, see the setup guide under `docs/30-implementation/99-appendix/`.
 
 ## Documentation
 
-Documentation lives in `docs/` as three layers of `doc.json` doc bundles — browse them with `bun run docs serve`, or render one with `bun run docs render <path>`:
+Documentation lives in `docs/` as four layers of `doc.json` doc bundles — browse them with `bun run docs serve`, or render one with `bun run docs render <path>`:
 
 **Foundation** (why we build): `docs/00-foundation/` — intent and boundaries; structure varies per project.
 
 **System Design** (how it's designed): `docs/10-system-design/` — architecture and behavior, by concept.
 
-**Implementation** (how it works): `docs/20-implementation/` — system structure and navigation, mirroring source.
+**Agents** (participating agents): `docs/20-agents/` when the system defines agents.
 
-**Appendix** (operations): `docs/20-implementation/99-appendix/` — setup, deployment, tooling.
+**Implementation** (how it works): `docs/30-implementation/` — system structure and navigation, mirroring source.
+
+**Appendix** (operations): `docs/30-implementation/99-appendix/` — setup, deployment, tooling.
 
 ## Key Features
 
@@ -52,7 +54,7 @@ The README serves as the landing page for developers who:
 Always point to:
 - `docs/00-foundation/` - Why the system exists
 - `docs/10-system-design/` - Design rationale
-- `docs/20-implementation/` - How the system works
-- `docs/20-implementation/99-appendix/` - Setup and operations
+- `docs/30-implementation/` - How the system works
+- `docs/30-implementation/99-appendix/` - Setup and operations
 
 Docs are `doc.json` bundles, so a README links to folders (or tells readers to use `docs serve`/`docs render`) rather than to `.md` files.

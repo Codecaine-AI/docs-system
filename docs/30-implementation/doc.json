@@ -1,0 +1,238 @@
+{
+  "schemaVersion": 1,
+  "id": "20-implementation",
+  "title": "Implementation",
+  "root": "b-impl-ov-root",
+  "blocks": {
+    "b-impl-ov-root": {
+      "id": "b-impl-ov-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-impl-ov-opener",
+        "b-impl-ov-index-h",
+        "b-impl-ov-ix-packages",
+        "b-impl-ov-ix-workbench",
+        "b-impl-ov-ix-save",
+        "b-impl-ov-ix-theming",
+        "b-impl-ov-ix-devloop",
+        "b-impl-ov-quickstart"
+      ]
+    },
+    "b-impl-ov-opener": {
+      "id": "b-impl-ov-opener",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This section documents how the current build is cut and operated: package boundaries, the workbench host, the save pipeline, theme application, and the local development loop. It owns code-shaped mechanics and the reasons for code boundaries; designed interaction and appearance live in system design."
+        }
+      ],
+      "children": []
+    },
+    "b-impl-ov-index-h": {
+      "id": "b-impl-ov-index-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "In This Section"
+        }
+      ],
+      "children": []
+    },
+    "b-impl-ov-ix-packages": {
+      "id": "b-impl-ov-ix-packages",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Packages",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "30-implementation/10-packages"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-impl-ov-ix-packages-gloss"
+      ]
+    },
+    "b-impl-ov-ix-packages-gloss": {
+      "id": "b-impl-ov-ix-packages-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Where the code is allowed to be cut — the boundaries, and the as-built map of every package."
+        }
+      ],
+      "children": []
+    },
+    "b-impl-ov-ix-workbench": {
+      "id": "b-impl-ov-ix-workbench",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Using the workbench",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "30-implementation/20-workbench"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-impl-ov-ix-workbench-gloss"
+      ]
+    },
+    "b-impl-ov-ix-workbench-gloss": {
+      "id": "b-impl-ov-ix-workbench-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The host runtime: edit persistence, conflict handling, annotations, media handoffs, and static degradation."
+        }
+      ],
+      "children": []
+    },
+    "b-impl-ov-ix-save": {
+      "id": "b-impl-ov-ix-save",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The save pipeline: keystroke to disk",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "30-implementation/30-save-pipeline"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-impl-ov-ix-save-gloss"
+      ]
+    },
+    "b-impl-ov-ix-save-gloss": {
+      "id": "b-impl-ov-ix-save-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "How an edit becomes validated canonical bytes."
+        }
+      ],
+      "children": []
+    },
+    "b-impl-ov-ix-theming": {
+      "id": "b-impl-ov-ix-theming",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Theming: Overview",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "30-implementation/40-theming"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-impl-ov-ix-theming-gloss"
+      ]
+    },
+    "b-impl-ov-ix-theming-gloss": {
+      "id": "b-impl-ov-ix-theming-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Theme-folder resolution, registry validation, style-state application, font stacks, and Default persistence."
+        }
+      ],
+      "children": []
+    },
+    "b-impl-ov-ix-devloop": {
+      "id": "b-impl-ov-ix-devloop",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Local development loop",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "30-implementation/99-appendix/00-local-dev-loop"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-impl-ov-ix-devloop-gloss"
+      ]
+    },
+    "b-impl-ov-ix-devloop-gloss": {
+      "id": "b-impl-ov-ix-devloop-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Running, testing, and iterating on the tooling itself."
+        }
+      ],
+      "children": []
+    },
+    "b-impl-ov-quickstart": {
+      "id": "b-impl-ov-quickstart",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "To read these docs live, run "
+        },
+        {
+          "insert": "bun run docs serve",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " from the repo root — the workbench opens at "
+        },
+        {
+          "insert": "http://localhost:4800",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". The full loop is "
+        },
+        {
+          "insert": "Local development loop",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "30-implementation/99-appendix/00-local-dev-loop"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    }
+  }
+}

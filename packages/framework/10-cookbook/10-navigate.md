@@ -18,7 +18,7 @@ Never Read `doc.json` (or any leftover markdown twin) directly.
 
 | What You Need | Start Here |
 |---------------|------------|
-| Architecture, code structure, how things work | `bun run docs render docs/20-implementation/00-overview` |
+| Architecture, code structure, how things work | `bun run docs render docs/30-implementation/00-overview` |
 | Purpose, boundaries, "why" | `bun run docs render docs/00-foundation/00-overview` |
 | Intended behavior before changing it | `docs/10-system-design/` — follow references from Implementation docs |
 
@@ -33,7 +33,7 @@ Each phase is a slice of one `docs render` output. Take only what the phase need
 ## Traversal
 
 1. Prime with Foundation: SCAN+SKIM its docs; READ rarely.
-2. Render L1 (`docs/20-implementation/00-overview`); pick relevant sections from its index.
+2. Render L1 (`docs/30-implementation/00-overview`); pick relevant sections from its index.
 3. For each relevant section: SCAN/SKIM its L2 overview; skip the section if irrelevant.
 4. For each relevant child: SCAN/SKIM the L3 doc; READ only if needed. Extract code references.
 5. Before changing anything, follow references to the relevant System Design docs.

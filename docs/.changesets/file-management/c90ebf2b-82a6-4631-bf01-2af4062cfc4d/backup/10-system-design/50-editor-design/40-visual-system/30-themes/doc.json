@@ -1,0 +1,374 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-50-editor-design-40-visual-system-30-themes",
+  "title": "Themes",
+  "root": "b-them-root",
+  "blocks": {
+    "b-them-root": {
+      "id": "b-them-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-them-intro",
+        "b-them-structure-heading",
+        "b-them-tree",
+        "b-them-rule-heading",
+        "b-them-reach-heading",
+        "b-them-registry",
+        "b-them-sparse",
+        "b-them-values",
+        "b-them-authority-table",
+        "b-them-default-heading",
+        "b-them-default-living",
+        "b-them-default-storage",
+        "b-them-default-overlay",
+        "b-them-boundary-heading",
+        "b-them-boundary-contract",
+        "b-them-why-heading",
+        "b-them-why-safe",
+        "b-them-why-visual",
+        "b-them-why-identity"
+      ]
+    },
+    "b-them-intro": {
+      "id": "b-them-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A theme may change registered document-surface roles while fixed system UI structure preserves the tool's identity. Theme folders are sparse, closed inputs; the style rail is a higher-precedence user layer over them. Loading, validation, compilation, and persistence mechanics live in "
+        },
+        {
+          "insert": "Theming: Overview",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/40-theming"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-them-structure-heading": {
+      "id": "b-them-structure-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Structure"
+        }
+      ],
+      "children": []
+    },
+    "b-them-tree": {
+      "id": "b-them-tree",
+      "type": "file-tree",
+      "props": {
+        "entries": [
+          {
+            "path": "themes/<id>/",
+            "note": "one theme folder"
+          },
+          {
+            "path": "themes/<id>/theme.json",
+            "note": "manifest: name, optional base and dark mode, font stacks, and rail defaults"
+          },
+          {
+            "path": "themes/<id>/components/",
+            "note": "sparse registered component values"
+          },
+          {
+            "path": "themes/<id>/components/code.json",
+            "note": "only code values that differ from the base"
+          },
+          {
+            "path": "themes/default/",
+            "note": "the living Default written by the workbench"
+          }
+        ]
+      },
+      "children": []
+    },
+    "b-them-rule-heading": {
+      "id": "b-them-rule-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The Rule"
+        }
+      ],
+      "children": []
+    },
+    "b-them-reach-heading": {
+      "id": "b-them-reach-heading",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Closed Reach"
+        }
+      ],
+      "children": []
+    },
+    "b-them-registry": {
+      "id": "b-them-registry",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "THEME_TOKEN_REGISTRY",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " allow-list bounds every component file and key a theme may reach."
+        }
+      ],
+      "children": []
+    },
+    "b-them-sparse": {
+      "id": "b-them-sparse",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Component files are sparse; an absent value falls through to the base theme and semantic contract."
+        }
+      ],
+      "children": []
+    },
+    "b-them-values": {
+      "id": "b-them-values",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Unknown files, unknown keys, and malformed mode values are ignored rather than applied."
+        }
+      ],
+      "children": []
+    },
+    "b-them-authority-table": {
+      "id": "b-them-authority-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Layer",
+          "May decide",
+          "Precedence"
+        ],
+        "rows": [
+          [
+            "Semantic contract",
+            "Fallback palette, roles, and geometry",
+            "Base"
+          ],
+          [
+            "Theme folder",
+            "Registered role values, font stacks, and rail defaults",
+            "Over the semantic contract"
+          ],
+          [
+            "Style rail",
+            "User values for exposed controls",
+            "Over the selected theme"
+          ],
+          [
+            "System UI structure",
+            "Unregistered widths, row metrics, and framing",
+            "Fixed outside theme reach"
+          ]
+        ]
+      },
+      "children": []
+    },
+    "b-them-default-heading": {
+      "id": "b-them-default-heading",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "The Living Default"
+        }
+      ],
+      "children": []
+    },
+    "b-them-default-living": {
+      "id": "b-them-default-living",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Default is the workbench's living repo theme. Every rail setting, dark toggle, and component override auto-saves into "
+        },
+        {
+          "insert": "themes/default/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Selecting Default restores the saved look."
+        }
+      ],
+      "children": []
+    },
+    "b-them-default-storage": {
+      "id": "b-them-default-storage",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The manifest carries complete scalar rail defaults."
+        }
+      ],
+      "children": []
+    },
+    "b-them-default-overlay": {
+      "id": "b-them-default-overlay",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Component files carry only token divergences; active rail overrides still win over those files."
+        }
+      ],
+      "children": []
+    },
+    "b-them-boundary-heading": {
+      "id": "b-them-boundary-heading",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "The Customization Boundary"
+        }
+      ],
+      "children": []
+    },
+    "b-them-boundary-contract": {
+      "id": "b-them-boundary-contract",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Registered colors, typography, global radius, document layout values, and component tokens may follow a theme. System UI structure stays fixed: unregistered widths, row geometry, visibility breakpoints, and interaction framing do not become theme values. The fixed structure keeps every theme recognizable as the same tool."
+        }
+      ],
+      "children": []
+    },
+    "b-them-why-heading": {
+      "id": "b-them-why-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why"
+        }
+      ],
+      "children": []
+    },
+    "b-them-why-safe": {
+      "id": "b-them-why-safe",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Hand editing fails safely",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-them-why-safe-gloss"
+      ]
+    },
+    "b-them-why-safe-gloss": {
+      "id": "b-them-why-safe-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A typo or unsupported key cannot escape the closed vocabulary and alter an arbitrary application property."
+        }
+      ],
+      "children": []
+    },
+    "b-them-why-visual": {
+      "id": "b-them-why-visual",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Default is adjustable by eye",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-them-why-visual-gloss"
+      ]
+    },
+    "b-them-why-visual-gloss": {
+      "id": "b-them-why-visual-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Visual feedback and automatic persistence make the repo's core look quick to tune without a manual export step."
+        }
+      ],
+      "children": []
+    },
+    "b-them-why-identity": {
+      "id": "b-them-why-identity",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Customization is bounded",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-them-why-identity-gloss"
+      ]
+    },
+    "b-them-why-identity-gloss": {
+      "id": "b-them-why-identity-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A theme can make the document its own without turning the surrounding workbench into a different product."
+        }
+      ],
+      "children": []
+    }
+  }
+}

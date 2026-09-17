@@ -49,7 +49,7 @@ export {
 } from "./confine";
 export { collectBundlePaths, walkDocsDir, type DocsTreeNode } from "./docs-tree";
 
-// Theme folders (docs/20-implementation/40-theming)
+// Theme folders (docs/30-implementation/40-theming)
 export {
   isValidThemeId,
   listRepoThemes,

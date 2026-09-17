@@ -119,11 +119,11 @@
             "note": "L3 — a concept doc: one coherent idea (this one)"
           },
           {
-            "path": "20-implementation/30-save-pipeline/",
+            "path": "30-implementation/30-save-pipeline/",
             "note": "a single doc — one concept covers it"
           },
           {
-            "path": "20-implementation/40-theming/",
+            "path": "30-implementation/40-theming/",
             "note": "a folder — themes split four ways"
           }
         ]
@@ -166,7 +166,7 @@
         "rows": [
           [
             "L1",
-            "A layer's parent doc (00-foundation, 10-system-design, 20-implementation)",
+            "A layer's parent doc (00-foundation, 10-system-design, 20-agents, 30-implementation)",
             "Layer summary plus a section index linking every L2"
           ],
           [
@@ -325,7 +325,7 @@
           "insert": " documents at "
         },
         {
-          "insert": "docs/20-implementation/10-core/10-workflow/",
+          "insert": "docs/30-implementation/10-core/10-workflow/",
           "attributes": {
             "code": true
           }

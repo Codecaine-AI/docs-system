@@ -13,7 +13,8 @@ This page states the scheme, the reserved ranges, and what running out of gap sp
 │   └── 25-new-standard/  # ← a mid-gap insertion lands here; nothing renumbers (hypothetical)
 └── 40-block-vocabulary/
     └── 10-rich-text/  # the named deviation: type pages run 10–17 dense, one family as a unit
-20-implementation/
+20-agents/  # participating agents and their definitions
+30-implementation/
 └── 99-appendix/  # 99 — appendix and meta only
 ```
 
@@ -32,7 +33,7 @@ This page states the scheme, the reserved ranges, and what running out of gap sp
 | 00–09 | Early or foundational content, used sparingly — 00 is a plain sort prefix, not a reserved slot; new sections start children at 10 |
 | 10–89 | Main content |
 | 90–98 | Late or supplementary content |
-| 99 | Appendix and meta (20-implementation/99-appendix/) |
+| 99 | Appendix and meta (30-implementation/99-appendix/) |
 
 Violations look like: consecutive numbers with no gaps, mixed formats (`1-intro`, `02-setup`, `section-3`), `99-` on anything but appendix material.
 

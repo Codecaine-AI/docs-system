@@ -10,7 +10,7 @@ concepts: [directory, bundles, mirroring, overview, structure]
 ## Docs Are Bundle Folders
 
 - A doc is a folder containing `doc.json` — e.g. `10-authentication/` holding `doc.json`, not `10-authentication.md`.
-- Read docs with `docs render <path>` (path without extension, e.g. `docs render docs/20-implementation/10-auth/00-overview`). Never read `doc.json` directly.
+- Read docs with `docs render <path>` (path without extension, e.g. `docs render docs/30-implementation/10-auth/00-overview`). Never read `doc.json` directly.
 - Create and edit docs through the workbench editor (`docs serve`) or the docs-server API. Never hand-edit `doc.json`.
 
 ## Top-Level Shape
@@ -19,13 +19,14 @@ concepts: [directory, bundles, mirroring, overview, structure]
 docs/
 ├── 00-foundation/           # organic structure; only 00-overview required
 ├── 10-system-design/        # by concept; flat or shallow nesting
-└── 20-implementation/       # mirrors source; sections use the 10-80 range
+├── 20-agents/           # Agent definitions; reserved when absent
+└── 30-implementation/       # mirrors source; sections use the 10-80 range
     └── 99-appendix/         # operational (setup, tooling, infra)
 ```
 
 ## Mirror the Source (Implementation Only)
 
-- Mirror your source tree inside `20-implementation/`: `src/core/workflow/` → `docs/20-implementation/10-core/10-workflow/`.
+- Mirror your source tree inside `30-implementation/`: `src/core/workflow/` → `docs/30-implementation/10-core/10-workflow/`.
 - Put cross-cutting concerns (logging, caching, error handling) in one primary location; do not scatter them.
 
 ## Every Folder Has an Overview

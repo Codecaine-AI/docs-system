@@ -1,0 +1,418 @@
+{
+  "schemaVersion": 1,
+  "id": "20-implementation-40-theming",
+  "title": "Theming: Overview",
+  "root": "b-theming-overview-root",
+  "blocks": {
+    "b-theming-overview-root": {
+      "id": "b-theming-overview-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-theming-overview-intent-2",
+        "b-theming-overview-tiers-heading-6",
+        "b-theming-overview-tier-palette-7",
+        "b-theming-overview-tier-semantic-8",
+        "b-theming-overview-tier-consumption-9",
+        "b-theming-overview-layers-order-5",
+        "b-theming-overview-files-heading-11",
+        "b-theming-overview-files-tree-12",
+        "b-theming-overview-section-heading-13",
+        "b-theming-overview-section-global-14",
+        "b-theming-overview-section-component-15",
+        "b-theming-overview-section-fonts-16",
+        "b-theming-overview-section-system-17"
+      ]
+    },
+    "b-theming-overview-intent-2": {
+      "id": "b-theming-overview-intent-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The theming implementation compiles repository theme folders and normalized style-rail state into CSS custom properties on "
+        },
+        {
+          "insert": "<html>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". It owns loading, validation, precedence, persistence, and font-stack application. The designed token roles and customization boundary live in "
+        },
+        {
+          "insert": "Visual System",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-theming-overview-tiers-heading-6": {
+      "id": "b-theming-overview-tiers-heading-6",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Runtime Pipeline"
+        }
+      ],
+      "children": []
+    },
+    "b-theming-overview-tier-palette-7": {
+      "id": "b-theming-overview-tier-palette-7",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Base styles"
+        }
+      ],
+      "children": [
+        "b-theming-overview-tier-palette-7-gloss"
+      ]
+    },
+    "b-theming-overview-tier-palette-7-gloss": {
+      "id": "b-theming-overview-tier-palette-7-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "notion-palette.css",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " defines mode-specific raw variables. "
+        },
+        {
+          "insert": "semantic.css",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " maps them to the semantic variables specified by "
+        },
+        {
+          "insert": "Tokens",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/10-tokens"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-theming-overview-tier-semantic-8": {
+      "id": "b-theming-overview-tier-semantic-8",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Theme-folder layer"
+        }
+      ],
+      "children": [
+        "b-theming-overview-tier-semantic-8-gloss"
+      ]
+    },
+    "b-theming-overview-tier-semantic-8-gloss": {
+      "id": "b-theming-overview-tier-semantic-8-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "theme-folders.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " filters a folder through the closed registry, resolves its base chain, and compiles light and dark declarations into one injected style element."
+        }
+      ],
+      "children": []
+    },
+    "b-theming-overview-tier-consumption-9": {
+      "id": "b-theming-overview-tier-consumption-9",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Runtime overlay"
+        }
+      ],
+      "children": [
+        "b-theming-overview-tier-consumption-9-gloss"
+      ]
+    },
+    "b-theming-overview-tier-consumption-9-gloss": {
+      "id": "b-theming-overview-tier-consumption-9-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "normalizeSettings",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " produces a complete settings object. "
+        },
+        {
+          "insert": "styleRailVars",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " converts it to a CSS-variable map, and "
+        },
+        {
+          "insert": "applyStyleRailVars",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " writes non-null values as inline properties on the root element."
+        }
+      ],
+      "children": []
+    },
+    "b-theming-overview-layers-order-5": {
+      "id": "b-theming-overview-layers-order-5",
+      "type": "callout",
+      "props": {
+        "kind": "Implementation invariant",
+        "title": "Null removes the overlay",
+        "tone": "info"
+      },
+      "text": [
+        {
+          "insert": "A "
+        },
+        {
+          "insert": "null",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " entry from "
+        },
+        {
+          "insert": "styleRailVars",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " removes that inline property. The selected theme layer or base stylesheet becomes authoritative without a second reset path."
+        }
+      ],
+      "children": []
+    },
+    "b-theming-overview-files-heading-11": {
+      "id": "b-theming-overview-files-heading-11",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Structure"
+        }
+      ],
+      "children": []
+    },
+    "b-theming-overview-files-tree-12": {
+      "id": "b-theming-overview-files-tree-12",
+      "type": "file-tree",
+      "props": {
+        "entries": [
+          {
+            "path": "packages/docs-workbench/web/src/theme/notion-palette.css",
+            "note": "raw light and dark variables"
+          },
+          {
+            "path": "packages/docs-workbench/web/src/theme/semantic.css",
+            "note": "base semantic-variable layer"
+          },
+          {
+            "path": "packages/docs-workbench/web/src/theme/theme-folders.ts",
+            "note": "registry, tolerant reader, base resolution, and CSS compiler"
+          },
+          {
+            "path": "packages/docs-workbench/web/src/shell/StyleRail.tsx",
+            "note": "settings normalization and settings-to-variable conversion"
+          },
+          {
+            "path": "packages/docs-workbench/web/src/shell/App.tsx",
+            "note": "theme selection, boot hydration, DOM application, and Default autosave"
+          },
+          {
+            "path": "packages/docs-server/src/themes.ts",
+            "note": "repository-folder reads and writes"
+          },
+          {
+            "path": "themes/default/",
+            "note": "durable Default manifest and sparse component overrides"
+          }
+        ]
+      },
+      "children": []
+    },
+    "b-theming-overview-section-heading-13": {
+      "id": "b-theming-overview-section-heading-13",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "In This Section"
+        }
+      ],
+      "children": []
+    },
+    "b-theming-overview-section-global-14": {
+      "id": "b-theming-overview-section-global-14",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Global themes",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "30-implementation/40-theming/10-global-themes"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-theming-overview-section-global-14-gloss"
+      ]
+    },
+    "b-theming-overview-section-global-14-gloss": {
+      "id": "b-theming-overview-section-global-14-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Folder resolution, selection state, Default autosave, and fresh-profile hydration."
+        }
+      ],
+      "children": []
+    },
+    "b-theming-overview-section-component-15": {
+      "id": "b-theming-overview-section-component-15",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Component themes",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "30-implementation/40-theming/20-component-themes"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-theming-overview-section-component-15-gloss"
+      ]
+    },
+    "b-theming-overview-section-component-15-gloss": {
+      "id": "b-theming-overview-section-component-15-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The closed registry, tolerant folder validation, CSS compilation, and sparse override files."
+        }
+      ],
+      "children": []
+    },
+    "b-theming-overview-section-fonts-16": {
+      "id": "b-theming-overview-section-fonts-16",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Fonts",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "30-implementation/40-theming/30-fonts"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-theming-overview-section-fonts-16-gloss"
+      ]
+    },
+    "b-theming-overview-section-fonts-16-gloss": {
+      "id": "b-theming-overview-section-fonts-16-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "How manifest and rail font settings reach CSS, plus the current font-file loading boundary."
+        }
+      ],
+      "children": []
+    },
+    "b-theming-overview-section-system-17": {
+      "id": "b-theming-overview-section-system-17",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Style rail runtime",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "30-implementation/40-theming/40-system-ui"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-theming-overview-section-system-17-gloss"
+      ]
+    },
+    "b-theming-overview-section-system-17-gloss": {
+      "id": "b-theming-overview-section-system-17-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The normalized settings pipeline, root-property application, and persistence authority."
+        }
+      ],
+      "children": []
+    }
+  }
+}

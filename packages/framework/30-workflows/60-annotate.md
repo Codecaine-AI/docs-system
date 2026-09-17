@@ -11,14 +11,14 @@ Add L4 file headers and L5 function docstrings to source code. These live IN the
 
 ## Prerequisites
 
-- The corresponding `docs/20-implementation/` section exists with L2/L3 docs
+- The corresponding `docs/30-implementation/` section exists with L2/L3 docs
 - Ideally, interview and write have been run for this section
 
 ## Process
 
 ### 1. Load Context
 
-- Section docs: `bun run docs render docs/20-implementation/[section]/00-overview` (and relevant L3 docs)
+- Section docs: `bun run docs render docs/30-implementation/[section]/00-overview` (and relevant L3 docs)
 - Interview notes if available: `docs/.drafts/[section].interview.md`
 - Templates (resolve via your skill mount, e.g. `.claude/skills/docs-framework/`): `40-templates/50-L4-file-header/10-generic.md`, `40-templates/60-L5-docstring/10-generic.md`
 

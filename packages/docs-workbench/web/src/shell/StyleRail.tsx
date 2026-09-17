@@ -889,7 +889,7 @@ export function StyleRail({
   // Theme files: the exported JSON is exactly the persisted settings blob
   // plus the dark flag — importing runs it through normalizeSettings, so a
   // hand-edited or stale-schema file degrades to clamped defaults instead
-  // of breaking the rail. See docs/20-implementation/40-theming.
+  // of breaking the rail. See docs/30-implementation/40-theming.
   const exportTheme = () => {
     const blob = new Blob([JSON.stringify({ version: 1, dark, settings }, null, 2)], {
       type: "application/json",

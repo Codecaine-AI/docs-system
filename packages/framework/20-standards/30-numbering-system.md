@@ -21,7 +21,7 @@ concepts: [numbering, prefix, ordering, insertion]
 | `01-09` | Early/foundational content (use sparingly) |
 | `10-89` | Main content |
 | `90-98` | Late/supplementary content |
-| `99` | Appendix/meta (e.g. `20-implementation/99-appendix/`) |
+| `99` | Appendix/meta (e.g. `30-implementation/99-appendix/`) |
 
 ## Anti-Patterns
 

@@ -1,0 +1,364 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-00-data-model",
+  "title": "The data model",
+  "root": "b-00-overview-root",
+  "blocks": {
+    "b-00-overview-root": {
+      "id": "b-00-overview-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-dm2-opener-1",
+        "pm-mrutq8v1-31-puyomo",
+        "pm-mrutq8v1-33-sqikfr",
+        "pm-mrutq8v1-35-n5hqjq",
+        "b-dm2-pure-2",
+        "pm-mrutq8v1-36-en5ri1",
+        "b-dm2-shapes-h-3",
+        "b-dm2-idx-tree-4",
+        "b-dm2-idx-state-6",
+        "b-dm2-idx-comments-7",
+        "b-dm2-idx-bytes-8",
+        "b-dm2-behavior-h-9",
+        "b-dm2-idx-mutation-10",
+        "b-dm2-neighbors-h-12",
+        "b-dm2-neighbors-13"
+      ]
+    },
+    "b-dm2-opener-1": {
+      "id": "b-dm2-opener-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The docs system has one on-disk content format"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrutq8v1-31-puyomo": {
+      "id": "pm-mrutq8v1-31-puyomo",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "doc.json",
+          "attributes": {
+            "code": true
+          }
+        }
+      ],
+      "children": [
+        "pm-mrutq8v1-32-7an6u6"
+      ]
+    },
+    "pm-mrutq8v1-32-7an6u6": {
+      "id": "pm-mrutq8v1-32-7an6u6",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "a normalized block tree"
+        }
+      ],
+      "children": []
+    },
+    "pm-mrutq8v1-33-sqikfr": {
+      "id": "pm-mrutq8v1-33-sqikfr",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "annotations.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " "
+        }
+      ],
+      "children": [
+        "pm-mrutq8v1-34-ds5ajz"
+      ]
+    },
+    "pm-mrutq8v1-34-ds5ajz": {
+      "id": "pm-mrutq8v1-34-ds5ajz",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "sidecar per bundle "
+        }
+      ],
+      "children": []
+    },
+    "pm-mrutq8v1-35-n5hqjq": {
+      "id": "pm-mrutq8v1-35-n5hqjq",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Four shapes describe the state; one behavior model describes every change. "
+        }
+      ],
+      "children": []
+    },
+    "b-dm2-pure-2": {
+      "id": "b-dm2-pure-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This section describes shapes and invariants, not transport wiring. "
+        }
+      ],
+      "children": []
+    },
+    "pm-mrutq8v1-36-en5ri1": {
+      "id": "pm-mrutq8v1-36-en5ri1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Everything here is defined in "
+        },
+        {
+          "insert": "packages/docs-model",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model"
+            }
+          }
+        }
+      ],
+      "children": []
+    },
+    "b-dm2-shapes-h-3": {
+      "id": "b-dm2-shapes-h-3",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The Four Shapes"
+        }
+      ],
+      "children": []
+    },
+    "b-dm2-idx-tree-4": {
+      "id": "b-dm2-idx-tree-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The document & block tree",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/10-document-tree"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-dm2-idx-tree-4-gloss"
+      ]
+    },
+    "b-dm2-idx-tree-4-gloss": {
+      "id": "b-dm2-idx-tree-4-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The envelope, the flat id-keyed blocks map, ordered children arrays, stable anchor ids, and the graph invariants."
+        }
+      ],
+      "children": []
+    },
+    "b-dm2-idx-state-6": {
+      "id": "b-dm2-idx-state-6",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Block design",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-dm2-idx-state-6-gloss"
+      ]
+    },
+    "b-dm2-idx-state-6-gloss": {
+      "id": "b-dm2-idx-state-6-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The block contract: every type owns its state schema, typed actions, doc renderer, agent renderer, and theme — and the path for adding a custom component."
+        }
+      ],
+      "children": []
+    },
+    "b-dm2-idx-comments-7": {
+      "id": "b-dm2-idx-comments-7",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Annotations",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/30-annotations"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-dm2-idx-comments-7-gloss"
+      ]
+    },
+    "b-dm2-idx-comments-7-gloss": {
+      "id": "b-dm2-idx-comments-7-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The annotations.json sidecar: the human-to-agent request channel — anchors, intents, agent-run receipts, dangling-target detection."
+        }
+      ],
+      "children": []
+    },
+    "b-dm2-idx-bytes-8": {
+      "id": "b-dm2-idx-bytes-8",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Serialization",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/40-serialization"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-dm2-idx-bytes-8-gloss"
+      ]
+    },
+    "b-dm2-idx-bytes-8-gloss": {
+      "id": "b-dm2-idx-bytes-8-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "How a document is said: the deterministic serializer, the markdown render map, and the content hashes that make write preconditions possible."
+        }
+      ],
+      "children": []
+    },
+    "b-dm2-behavior-h-9": {
+      "id": "b-dm2-behavior-h-9",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The Behavior Model"
+        }
+      ],
+      "children": []
+    },
+    "b-dm2-idx-mutation-10": {
+      "id": "b-dm2-idx-mutation-10",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The mutation model",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/50-mutation-model"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-dm2-idx-mutation-10-gloss"
+      ]
+    },
+    "b-dm2-idx-mutation-10-gloss": {
+      "id": "b-dm2-idx-mutation-10-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "How the shapes change: the seven-op algebra, inverses, undo and redo, copy and paste, and what a refused write looks like."
+        }
+      ],
+      "children": []
+    },
+    "b-dm2-neighbors-h-12": {
+      "id": "b-dm2-neighbors-h-12",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Neighbors"
+        }
+      ],
+      "children": []
+    },
+    "b-dm2-neighbors-13": {
+      "id": "b-dm2-neighbors-13",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The roster of block types — what each is for, with an example — is the "
+        },
+        {
+          "insert": "block vocabulary",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary"
+            }
+          }
+        },
+        {
+          "insert": "'s subject; type counts live there. How bytes reach disk is the "
+        },
+        {
+          "insert": "save pipeline",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/30-save-pipeline"
+            }
+          }
+        },
+        {
+          "insert": "'s."
+        }
+      ],
+      "children": []
+    }
+  }
+}

@@ -234,7 +234,7 @@
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "docs/20-implementation/30-save-pipeline.md"
+              "path": "30-implementation/30-save-pipeline"
             }
           }
         },

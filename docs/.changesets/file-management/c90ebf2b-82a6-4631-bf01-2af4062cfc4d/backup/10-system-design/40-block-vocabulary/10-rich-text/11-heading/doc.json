@@ -1,0 +1,469 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-10-block-vocabulary-11-heading",
+  "title": "heading",
+  "root": "b-11-heading-root",
+  "blocks": {
+    "b-11-heading-root": {
+      "id": "b-11-heading-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-11-heading-lead-2",
+        "b-11-heading-example-h-20",
+        "b-11-heading-example-h3-21",
+        "b-11-heading-state-h-3",
+        "b-11-heading-state-shape-22",
+        "b-11-heading-state-note-5",
+        "b-11-heading-editor-h-8",
+        "b-11-heading-editor-9",
+        "b-11-heading-proj-h-6",
+        "b-11-heading-proj-7",
+        "b-11-heading-agent-h-10",
+        "b-11-heading-agent-1-11",
+        "b-11-heading-agent-2-12",
+        "b-11-heading-theming-heading",
+        "b-11-heading-theming-para",
+        "b-11-heading-theming-table"
+      ]
+    },
+    "b-11-heading-lead-2": {
+      "id": "b-11-heading-lead-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The section heading of the "
+        },
+        {
+          "insert": "block vocabulary",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary"
+            }
+          }
+        },
+        {
+          "insert": ". Use it to give documents a greppable outline — "
+        },
+        {
+          "insert": "docs grep '^## '",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " finds every second-level section in a corpus."
+        }
+      ],
+      "children": []
+    },
+    "b-11-heading-example-h-20": {
+      "id": "b-11-heading-example-h-20",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Example"
+        }
+      ],
+      "children": []
+    },
+    "b-11-heading-example-h3-21": {
+      "id": "b-11-heading-example-h3-21",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "A Live Level-3 Heading"
+        }
+      ],
+      "children": []
+    },
+    "b-11-heading-state-h-3": {
+      "id": "b-11-heading-state-h-3",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "State Schema"
+        }
+      ],
+      "children": []
+    },
+    "b-11-heading-state-shape-22": {
+      "id": "b-11-heading-state-shape-22",
+      "type": "state-shape",
+      "props": {
+        "description": "Closed schema — level is the only prop.",
+        "example": "{\n  \"level\": 3\n}",
+        "fields": [
+          {
+            "name": "level",
+            "type": "integer 1-6",
+            "required": false,
+            "description": "Heading depth; absent reads as level 2 in the renderer, editor, and agent surface alike."
+          }
+        ],
+        "name": "HeadingState",
+        "source": {
+          "path": "packages/docs-model/src/components/rich-text/state.ts",
+          "symbol": "HeadingState"
+        }
+      },
+      "children": []
+    },
+    "b-11-heading-state-note-5": {
+      "id": "b-11-heading-state-note-5",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Carries delta text ("
+        },
+        {
+          "insert": "carriesText: true",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ") with the full mark set."
+        }
+      ],
+      "children": []
+    },
+    "b-11-heading-editor-h-8": {
+      "id": "b-11-heading-editor-h-8",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Doc Renderer"
+        }
+      ],
+      "children": []
+    },
+    "b-11-heading-editor-9": {
+      "id": "b-11-heading-editor-9",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Slash menu: "
+        },
+        {
+          "insert": "Heading 1",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": "-"
+        },
+        {
+          "insert": "3",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " as top-level entries, with levels 4-6 under an "
+        },
+        {
+          "insert": "Other Headings",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " submenu. Input rules convert "
+        },
+        {
+          "insert": "#",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "##",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", or "
+        },
+        {
+          "insert": "###",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " plus a space at the start of a line (levels 4-6 have no input rule). One round-trip subtlety: the editor keeps a "
+        },
+        {
+          "insert": "null",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " level sentinel for headings whose source props never set "
+        },
+        {
+          "insert": "level",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", so editing one doesn't grow a spurious "
+        },
+        {
+          "insert": "props.level",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " on save."
+        }
+      ],
+      "children": []
+    },
+    "b-11-heading-proj-h-6": {
+      "id": "b-11-heading-proj-h-6",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent Renderer"
+        }
+      ],
+      "children": []
+    },
+    "b-11-heading-proj-7": {
+      "id": "b-11-heading-proj-7",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "#",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " through "
+        },
+        {
+          "insert": "######",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " per "
+        },
+        {
+          "insert": "props.level",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", followed by the inline text. Out-of-range or non-integer levels fall back to 2 rather than failing."
+        }
+      ],
+      "children": []
+    },
+    "b-11-heading-agent-h-10": {
+      "id": "b-11-heading-agent-h-10",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent Notes"
+        }
+      ],
+      "children": []
+    },
+    "b-11-heading-agent-1-11": {
+      "id": "b-11-heading-agent-1-11",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Set the level with a plain "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " props patch; there are no typed actions."
+        }
+      ],
+      "children": []
+    },
+    "b-11-heading-agent-2-12": {
+      "id": "b-11-heading-agent-2-12",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Corpus convention: at most one "
+        },
+        {
+          "insert": "level: 1",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " heading per doc. The page title is furniture rendered above the body, so most docs have none; sections use "
+        },
+        {
+          "insert": "level: 2",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-11-heading-theming-heading": {
+      "id": "b-11-heading-theming-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Theme"
+        }
+      ],
+      "children": []
+    },
+    "b-11-heading-theming-para": {
+      "id": "b-11-heading-theming-para",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This block's theme file is "
+        },
+        {
+          "insert": "components/heading.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in a theme folder ("
+        },
+        {
+          "insert": "themes/<id>/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "; see "
+        },
+        {
+          "insert": "Theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/40-theming"
+            }
+          }
+        },
+        {
+          "insert": "). Every value is one string for both modes or a "
+        },
+        {
+          "insert": "{ light, dark }",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " pair, validated against "
+        },
+        {
+          "insert": "THEME_TOKEN_REGISTRY",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/theme/theme-folders.ts"
+            }
+          }
+        },
+        {
+          "insert": "."
+        },
+        {
+          "insert": " The contract is "
+        },
+        {
+          "insert": "Theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/50-theming"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-11-heading-theming-table": {
+      "id": "b-11-heading-theming-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Key",
+          "CSS variable",
+          "Styles"
+        ],
+        "rows": [
+          [
+            "fg",
+            "--docs-heading-fg",
+            "Heading text color (all levels)"
+          ]
+        ]
+      },
+      "children": []
+    }
+  }
+}

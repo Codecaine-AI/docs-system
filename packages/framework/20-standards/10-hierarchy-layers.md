@@ -1,5 +1,5 @@
 ---
-covers: Placement rules for the three layers (Foundation/System Design/Implementation) and the L1-L6 depth levels.
+covers: Placement rules for the four layers (Foundation/System Design/Agents/Implementation) and the L1-L6 depth levels.
 concepts: [layers, L1, L2, L3, L4, L5, L6, foundation, system-design, implementation]
 ---
 
@@ -9,13 +9,14 @@ Two organizing schemes: layers (kind of knowledge) and depth levels (detail with
 
 ---
 
-## The Three Layers
+## The Four Layers
 
 ```
 docs/
 ├── 00-foundation/       # Intent. Organic structure.
 ├── 10-system-design/    # System behavior and structure, by concept. Code-agnostic.
-└── 20-implementation/   # Current codebase. Mirrors source. L1-L3 doc tree.
+├── 20-agents/           # Agent definitions; reserved when absent
+└── 30-implementation/   # Current codebase. Mirrors source. L1-L3 doc tree.
     └── 99-appendix/     # Operational (setup, tooling, infra)
 ```
 
@@ -23,8 +24,9 @@ Placement rules:
 
 - North star, identity, fundamental approach → `00-foundation/`. Structure is organic per project; only `00-overview` is required.
 - System behavior, data shapes, contracts, flows — anything a builder in any language would need → `10-system-design/`. Organize by concept, never by code structure. No class names, frameworks, or language features.
-- How the current code does it — patterns, edge cases, language specifics → `20-implementation/`. Mirror the source tree. Write in present tense about the current system.
-- Setup, tooling, infra → `20-implementation/99-appendix/`.
+- Agent definitions, tools, and interactions → `20-agents/`. Reserve the slot when there are no agents.
+- How the current code does it — patterns, edge cases, language specifics → `30-implementation/`. Mirror the source tree. Write in present tense about the current system.
+- Setup, tooling, infra → `30-implementation/99-appendix/`.
 
 Litmus test: product behavior or architecture changed → Design. How the code handles it changed → Implementation. The north star shifted → Foundation.
 
@@ -32,7 +34,7 @@ Litmus test: product behavior or architecture changed → Design. How the code h
 
 | Level | Location | Contains |
 |-------|----------|----------|
-| L1 | `20-implementation/00-overview` | Architecture summary + section index linking every L2 |
+| L1 | `30-implementation/00-overview` | Architecture summary + section index linking every L2 |
 | L2 | `XX-section/00-overview` | Section scope, file tree of children, child descriptions |
 | L3 | Individual concept docs | One coherent idea per doc, with code references |
 

@@ -121,7 +121,7 @@ Template for documenting backend services, microservices, or any system with cle
     ## File Tree
 
     ```
-    docs/20-implementation/XX-section/
+    docs/30-implementation/XX-section/
     ├── 00-overview.md          (this file)
     ├── 10-[topic].md           [Description]
     └── 20-[topic].md           [Description]

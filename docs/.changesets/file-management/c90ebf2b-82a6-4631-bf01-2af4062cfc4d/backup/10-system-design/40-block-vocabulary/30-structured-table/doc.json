@@ -1,0 +1,1398 @@
+{
+  "schemaVersion": 1,
+  "id": "10-system-design-10-block-vocabulary-20-structured-table",
+  "title": "structured-table",
+  "root": "b-20-structured-table-root",
+  "blocks": {
+    "b-20-structured-table-root": {
+      "id": "b-20-structured-table-root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-20-structured-table-lead-2",
+        "b-20-structured-table-example-h",
+        "b-20-structured-table-example-intro",
+        "b-20-structured-table-example-block",
+        "b-20-structured-table-state-h-3",
+        "b-stfam-state-shape",
+        "b-stfam-state-intro",
+        "b-stfam-state-code",
+        "b-20-structured-table-state-note-5",
+        "b-20-structured-table-actions-h-8",
+        "b-20-structured-table-actions-note-9",
+        "b-stfam-action-li-1",
+        "b-stfam-action-li-2",
+        "b-stfam-action-li-3",
+        "b-stfam-action-li-4",
+        "b-stfam-action-li-5",
+        "b-20-structured-table-actions-10",
+        "b-20-structured-table-proj-h-6",
+        "b-stfam-docrender-read",
+        "b-20-structured-table-editor-12",
+        "b-20-structured-table-editing-heading",
+        "b-20-structured-table-editing-para-1",
+        "b-20-structured-table-editing-para-2",
+        "b-20-structured-table-editing-para-3",
+        "b-stfam-agentrender-h",
+        "b-20-structured-table-proj-7",
+        "b-stfam-agentrender-sample",
+        "b-20-structured-table-theming-heading",
+        "b-20-structured-table-theming-para",
+        "b-20-structured-table-theming-table",
+        "b-20-structured-table-agent-h-13",
+        "b-stfam-adapter-p",
+        "b-20-structured-table-agent-1-14"
+      ]
+    },
+    "b-20-structured-table-lead-2": {
+      "id": "b-20-structured-table-lead-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The structured-table family owns one block type, "
+        },
+        {
+          "insert": "structured-table",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ": a columns × rows grid of rich-text cells kept in typed props, not prose — each cell is a plain string or a span array carrying inline marks. Use it for index tables, comparison matrices, and anything an agent should edit cell-by-cell instead of re-flowing text. Each section below instantiates one element of the block-design contract for this family."
+        }
+      ],
+      "children": []
+    },
+    "b-20-structured-table-example-h": {
+      "id": "b-20-structured-table-example-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Example"
+        }
+      ],
+      "children": []
+    },
+    "b-20-structured-table-example-intro": {
+      "id": "b-20-structured-table-example-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A live instance of the type — the default theme's five structured-table overrides ("
+        },
+        {
+          "insert": "themes/default/components/structured-table.json",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "themes/default/components/structured-table.json"
+            }
+          }
+        },
+        {
+          "insert": "), with code-marked CSS-variable cells:"
+        }
+      ],
+      "children": []
+    },
+    "b-20-structured-table-example-block": {
+      "id": "b-20-structured-table-example-block",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Key",
+          "CSS variable",
+          "Value"
+        ],
+        "density": "compact",
+        "rows": [
+          [
+            "headerRuleWidth",
+            [
+              {
+                "insert": "--docs-table-header-rule-width",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "1.5px"
+          ],
+          [
+            "cellPaddingY",
+            [
+              {
+                "insert": "--docs-table-cell-pad-y",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "12px"
+          ],
+          [
+            "rowRuleOpacity",
+            [
+              {
+                "insert": "--docs-table-row-rule-opacity",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "0.8"
+          ],
+          [
+            "handleOffset",
+            [
+              {
+                "insert": "--docs-table-handle-offset",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "16px"
+          ],
+          [
+            "selectionPadding",
+            [
+              {
+                "insert": "--docs-table-selection-pad",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "4px"
+          ]
+        ],
+        "title": "Default theme — structured-table overrides"
+      },
+      "children": []
+    },
+    "b-20-structured-table-state-h-3": {
+      "id": "b-20-structured-table-state-h-3",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "State Schema"
+        }
+      ],
+      "children": []
+    },
+    "b-stfam-state-shape": {
+      "id": "b-stfam-state-shape",
+      "type": "state-shape",
+      "props": {
+        "example": "{\n  \"title\": \"Registry kinds\",\n  \"columns\": [\n    \"Key\",\n    \"Kind\"\n  ],\n  \"rows\": [\n    [\n      \"headerRuleWidth\",\n      \"length\"\n    ],\n    [\n      [\n        {\n          \"insert\": \"rowRuleOpacity\",\n          \"attributes\": {\n            \"code\": true\n          }\n        }\n      ],\n      \"number\"\n    ]\n  ]\n}",
+        "fields": [
+          {
+            "name": "title",
+            "type": "string",
+            "required": false,
+            "description": "Optional caption above the table; always a plain string — cell marks never apply."
+          },
+          {
+            "name": "columns",
+            "type": "TableCell[]",
+            "description": "Header cells in order. A TableCell is a plain string or a span array whose closed mark set is bold/italic/strike/code/link."
+          },
+          {
+            "name": "rows",
+            "type": "TableCell[][]",
+            "description": "One cell array per row; actions normalize each row to the column count. An unmarked cell stores as the plain string (canonical)."
+          },
+          {
+            "name": "density",
+            "type": "\"compact\" | \"normal\" | \"relaxed\"",
+            "required": false,
+            "description": "Accepted by the schema; the renderer ignores it — spacing comes from the theme tokens."
+          }
+        ],
+        "name": "StructuredTableState",
+        "source": {
+          "path": "packages/docs-model/src/components/structured-table/state.ts",
+          "symbol": "StructuredTableState"
+        }
+      },
+      "children": []
+    },
+    "b-stfam-state-intro": {
+      "id": "b-stfam-state-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "All state is four typed props — "
+        },
+        {
+          "insert": "carriesText: false",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", no "
+        },
+        {
+          "insert": "text",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " key; the schema is a closed TypeBox object. The contract is "
+        },
+        {
+          "insert": "State schema",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/10-state-schema"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-stfam-state-code": {
+      "id": "b-stfam-state-code",
+      "type": "code",
+      "props": {
+        "annotations": [
+          {
+            "lines": "3",
+            "label": "Plain title",
+            "note": "The optional caption is always a plain string — cell marks never apply to it."
+          },
+          {
+            "lines": "4-5",
+            "label": "Cell union",
+            "note": "TableCellSchema is a plain string (the canonical unmarked form) or an array of spans whose closed attribute set is bold/italic/strike/code/link — reference is invalid in cells."
+          },
+          {
+            "lines": "14",
+            "label": "Closed schema",
+            "note": "additionalProperties: false — unknown props fail validation."
+          }
+        ],
+        "language": "ts"
+      },
+      "text": [
+        {
+          "insert": "export const StructuredTableState = Type.Object(\n  {\n    title: Type.Optional(Type.String()),\n    columns: Type.Array(TableCellSchema),\n    rows: Type.Array(Type.Array(TableCellSchema)),\n    density: Type.Optional(\n      Type.Union([\n        Type.Literal(\"compact\"),\n        Type.Literal(\"normal\"),\n        Type.Literal(\"relaxed\"),\n      ]),\n    ),\n  },\n  { additionalProperties: false },\n);"
+        }
+      ],
+      "children": []
+    },
+    "b-20-structured-table-state-note-5": {
+      "id": "b-20-structured-table-state-note-5",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Cells — body and header alike — carry the inline mark set: bold, italic, strike, code, and link; the cell attribute schema is closed, so "
+        },
+        {
+          "insert": "reference",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " chips are rejected. An unmarked cell is stored as the plain string: a span-array cell with zero attributed spans fails validation ("
+        },
+        {
+          "insert": "checkStructuredTableProps",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", the beyond-schema check that runs after the TypeBox schema passes), so an all-plain table has exactly one encoding."
+        }
+      ],
+      "children": []
+    },
+    "b-20-structured-table-actions-h-8": {
+      "id": "b-20-structured-table-actions-h-8",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Typed Actions"
+        }
+      ],
+      "children": []
+    },
+    "b-20-structured-table-actions-note-9": {
+      "id": "b-20-structured-table-actions-note-9",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Five verbs cover the grid — the family's whole agent write surface for cells. Each action validates, applies against the block's current props, and returns a shallow props patch; rejections come back at "
+        },
+        {
+          "insert": "$.params.<name>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " (an out-of-range index, a duplicate or unknown column name) without touching the document. The contract is "
+        },
+        {
+          "insert": "Typed actions",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/20-typed-actions"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-stfam-action-li-1": {
+      "id": "b-stfam-action-li-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Column addressing takes exactly one of "
+        },
+        {
+          "insert": "column",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " (by name) or "
+        },
+        {
+          "insert": "columnIndex",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " (by position); name matching and the duplicate-name check compare the header's plain text."
+        }
+      ],
+      "children": []
+    },
+    "b-stfam-action-li-2": {
+      "id": "b-stfam-action-li-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "addColumn",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " rejects a duplicate name and back-fills existing rows with "
+        },
+        {
+          "insert": "fill",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " (default the empty string); row and column inserts default to the end."
+        }
+      ],
+      "children": []
+    },
+    "b-stfam-action-li-3": {
+      "id": "b-stfam-action-li-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "addRow",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " pads or truncates "
+        },
+        {
+          "insert": "cells",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " to the column count; the column actions re-normalize every row on the way through."
+        }
+      ],
+      "children": []
+    },
+    "b-stfam-action-li-4": {
+      "id": "b-stfam-action-li-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Cell-content params ("
+        },
+        {
+          "insert": "value",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "cells",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "name",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "fill",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ") are inline markdown, parsed to spans by the shared inline tokenizer ("
+        },
+        {
+          "insert": "parseTableCellInput",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/components/structured-table/lib.ts"
+            }
+          }
+        },
+        {
+          "insert": "); unmarked input stays the plain string."
+        }
+      ],
+      "children": []
+    },
+    "b-stfam-action-li-5": {
+      "id": "b-stfam-action-li-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Links the parser classifies as doc or source references downgrade to plain "
+        },
+        {
+          "insert": "link",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " marks — "
+        },
+        {
+          "insert": "href",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is the path plus a "
+        },
+        {
+          "insert": "#section",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "#L<line>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", or "
+        },
+        {
+          "insert": "#<symbol>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " suffix — because cells forbid "
+        },
+        {
+          "insert": "reference",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-20-structured-table-actions-10": {
+      "id": "b-20-structured-table-actions-10",
+      "type": "interaction-surface",
+      "props": {
+        "operations": [
+          {
+            "name": "structured-table.addRow",
+            "description": "Insert a row (cells are inline markdown, padded/truncated to the column count); index defaults to the end.",
+            "params": [
+              {
+                "name": "cells",
+                "type": "string[]",
+                "required": true
+              },
+              {
+                "name": "index",
+                "type": "number",
+                "required": false
+              }
+            ],
+            "returns": "props patch: { rows }"
+          },
+          {
+            "name": "structured-table.removeRow",
+            "description": "Remove the row at the given index.",
+            "params": [
+              {
+                "name": "index",
+                "type": "number",
+                "required": true
+              }
+            ],
+            "returns": "props patch: { rows }"
+          },
+          {
+            "name": "structured-table.updateCell",
+            "description": "Set one cell to inline markdown, addressing the column by name (column) or position (columnIndex).",
+            "params": [
+              {
+                "name": "rowIndex",
+                "type": "number",
+                "required": true
+              },
+              {
+                "name": "column",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "columnIndex",
+                "type": "number",
+                "required": false
+              },
+              {
+                "name": "value",
+                "type": "string",
+                "required": true
+              }
+            ],
+            "returns": "props patch: { rows }"
+          },
+          {
+            "name": "structured-table.addColumn",
+            "description": "Insert a column (default at the end), extending every row with the fill value; name and fill are inline markdown.",
+            "params": [
+              {
+                "name": "name",
+                "type": "string",
+                "required": true
+              },
+              {
+                "name": "index",
+                "type": "number",
+                "required": false
+              },
+              {
+                "name": "fill",
+                "type": "string",
+                "required": false
+              }
+            ],
+            "returns": "props patch: { columns, rows }"
+          },
+          {
+            "name": "structured-table.removeColumn",
+            "description": "Remove a column by name (column) or position (columnIndex), shrinking every row.",
+            "params": [
+              {
+                "name": "column",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "columnIndex",
+                "type": "number",
+                "required": false
+              }
+            ],
+            "returns": "props patch: { columns, rows }"
+          }
+        ],
+        "title": "structured-table — row and column actions"
+      },
+      "children": []
+    },
+    "b-20-structured-table-proj-h-6": {
+      "id": "b-20-structured-table-proj-h-6",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Doc Renderer"
+        }
+      ],
+      "children": []
+    },
+    "b-stfam-docrender-read": {
+      "id": "b-stfam-docrender-read",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "One accent-rule look, shared by the read surface and the editor at rest: an optional title line, a rule under the header tinted by the header-rule tokens, light rules between body rows (none after the last), a row hover wash, and no vertical rules or cell boxes. The class strings live in "
+        },
+        {
+          "insert": "table-classes.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/components/structured-table/table-classes.ts"
+            }
+          }
+        },
+        {
+          "insert": " and are imported verbatim by both the read renderer ("
+        },
+        {
+          "insert": "StructuredTableDocsBlock.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/components/structured-table/StructuredTableDocsBlock.tsx"
+            }
+          }
+        },
+        {
+          "insert": ") and the editor grid, so the two surfaces cannot drift. Header cells keep a 60px minimum width so a freshly added empty column stays visible, and every spacing and rule value routes through the "
+        },
+        {
+          "insert": "--docs-table-*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " theme tokens. A block whose columns are missing or malformed renders the invalid-block placeholder. The contract is "
+        },
+        {
+          "insert": "Doc renderer",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/30-doc-renderer"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-20-structured-table-editor-12": {
+      "id": "b-20-structured-table-editor-12",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "In the editor the block is a ProseMirror atom leaf that swaps in its own editable node view ("
+        },
+        {
+          "insert": "editor-node-view.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/components/structured-table/editor-node-view.tsx"
+            }
+          }
+        },
+        {
+          "insert": ") — cells edit in place, Notion-style, instead of through the generic static atom views. There is no slash-menu entry; structured tables enter a document through agent ops or existing content."
+        }
+      ],
+      "children": []
+    },
+    "b-20-structured-table-editing-heading": {
+      "id": "b-20-structured-table-editing-heading",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Editing"
+        }
+      ],
+      "children": []
+    },
+    "b-20-structured-table-editing-para-1": {
+      "id": "b-20-structured-table-editing-para-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Notion-style grid controls, revealed on hover. Add bars sit just outside the right edge (column) and bottom edge (row), with a corner square that adds both: click adds one, dragging adds several live (ghost preview plus a count) or removes trailing empty columns/rows. Hovering a column shows a six-dot grab handle above it; body rows get one on the left. Clicking a handle selects the whole column or row (a single accent outline) and opens its menu — insert left/right or above/below, move, duplicate, clear contents, delete — while dragging past a small dead zone reorders it: a semi-transparent preview follows the cursor, the source dims, and an accent drop-indicator line marks the target gap. After a single add, focus lands in the new column's header cell or the new row's first cell, the added region flashes accent briefly, and empty header cells show a muted \"Column N\" placeholder (edit mode only, renumbered with position)."
+        }
+      ],
+      "children": []
+    },
+    "b-20-structured-table-editing-para-2": {
+      "id": "b-20-structured-table-editing-para-2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each cell hosts its own mini rich-text editor: a single paragraph carrying the five cell marks, with hard breaks as in-cell newlines. Marks apply through the main editor's keyboard shortcuts ("
+        },
+        {
+          "insert": "Cmd+B",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "Cmd+I",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", strike, "
+        },
+        {
+          "insert": "Cmd+E",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " for code); input rules auto-convert "
+        },
+        {
+          "insert": "**bold**",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and backtick code while typing — the italic and strike input rules are off, matching the main editor. Pasting a URL over a selection creates a link; there is no other link UI and no floating toolbar. "
+        },
+        {
+          "insert": "Tab",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": "Shift-Tab",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " move between cells (header first, wrapping across rows), "
+        },
+        {
+          "insert": "Enter",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " moves down the column, "
+        },
+        {
+          "insert": "Shift-Enter",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " inserts a newline, "
+        },
+        {
+          "insert": "Escape",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " exits. "
+        },
+        {
+          "insert": "Cmd+A",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " selects only the cell's contents, never the document; "
+        },
+        {
+          "insert": "Cmd+Z",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " / "
+        },
+        {
+          "insert": "Cmd+Shift+Z",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " commit pending text and forward to the editor's history, so table edits undo and redo like any other. The focused cell draws a 2px accent outline plus small gray notches on its column's top edge and row's left edge."
+        }
+      ],
+      "children": []
+    },
+    "b-20-structured-table-editing-para-3": {
+      "id": "b-20-structured-table-editing-para-3",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The header row is the "
+        },
+        {
+          "insert": "columns",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " array: it has a column handle but no row handle (it cannot be moved or deleted), and the last remaining column cannot be deleted. Structural actions first commit any focused cell's pending text and apply to the freshest data, so cell edits are never lost or duplicated by a move. Every edit lands as a single "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " replacing "
+        },
+        {
+          "insert": "columns",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "/"
+        },
+        {
+          "insert": "rows",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " through the standard op pipeline — validation, undo ledger, auto-save — and agent-facing mutations stay on the typed actions above."
+        }
+      ],
+      "children": []
+    },
+    "b-stfam-agentrender-h": {
+      "id": "b-stfam-agentrender-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent Renderer"
+        }
+      ],
+      "children": []
+    },
+    "b-20-structured-table-proj-7": {
+      "id": "b-20-structured-table-proj-7",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The agent-facing markdown projection ("
+        },
+        {
+          "insert": "agent-view.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/components/structured-table/agent-view.ts"
+            }
+          }
+        },
+        {
+          "insert": "): an optional "
+        },
+        {
+          "insert": "**<title>**",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " bold line, then a markdown pipe table: header row, "
+        },
+        {
+          "insert": "---",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " separator row, one line per row. A title-only or table-only block renders just the part it has. Cell marks render as inline markdown — "
+        },
+        {
+          "insert": "**bold**",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "*italic*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "~~strike~~",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "`code`",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "[text](href)",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " — so table reads round-trip with table writes. The contract is "
+        },
+        {
+          "insert": "Agent renderer",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/40-agent-renderer"
+            }
+          }
+        },
+        {
+          "insert": ". The Example table above projects as:"
+        }
+      ],
+      "children": []
+    },
+    "b-stfam-agentrender-sample": {
+      "id": "b-stfam-agentrender-sample",
+      "type": "code",
+      "props": {
+        "annotations": [
+          {
+            "lines": "1",
+            "label": "Title line",
+            "note": "The optional title projects as one bold line above the table."
+          },
+          {
+            "lines": "5-9",
+            "label": "Cells",
+            "note": "Plain-string cells pass through verbatim; span cells render their marks as inline markdown — here the code mark's backticks."
+          }
+        ],
+        "language": "markdown"
+      },
+      "text": [
+        {
+          "insert": "**Default theme — structured-table overrides**\n\n| Key | CSS variable | Value |\n| --- | --- | --- |\n| headerRuleWidth | `--docs-table-header-rule-width` | 1.5px |\n| cellPaddingY | `--docs-table-cell-pad-y` | 12px |\n| rowRuleOpacity | `--docs-table-row-rule-opacity` | 0.8 |\n| handleOffset | `--docs-table-handle-offset` | 16px |\n| selectionPadding | `--docs-table-selection-pad` | 4px |"
+        }
+      ],
+      "children": []
+    },
+    "b-20-structured-table-theming-heading": {
+      "id": "b-20-structured-table-theming-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Theme"
+        }
+      ],
+      "children": []
+    },
+    "b-20-structured-table-theming-para": {
+      "id": "b-20-structured-table-theming-para",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This block's theme file is "
+        },
+        {
+          "insert": "components/structured-table.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in a theme folder ("
+        },
+        {
+          "insert": "themes/<id>/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "; the system is "
+        },
+        {
+          "insert": "Theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "20-implementation/40-theming"
+            }
+          }
+        },
+        {
+          "insert": "). Every value is one string for both modes or a "
+        },
+        {
+          "insert": "{ light, dark }",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " pair, validated against "
+        },
+        {
+          "insert": "THEME_TOKEN_REGISTRY",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/theme/theme-folders.ts"
+            }
+          }
+        },
+        {
+          "insert": ". The registry is kind-aware: each key declares color, length, or number, so the workbench theme rail renders a color picker or a bounded slider (min/max/step from the registry) per key — lengths carry a px unit, opacities are bare numbers. The contract is "
+        },
+        {
+          "insert": "Theming",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/50-theming"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-20-structured-table-theming-table": {
+      "id": "b-20-structured-table-theming-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Key",
+          "CSS variable",
+          "Kind",
+          "Notes"
+        ],
+        "rows": [
+          [
+            "border",
+            "--docs-table-border",
+            "color",
+            "Outer wrapper border (default transparent)"
+          ],
+          [
+            "headerBg",
+            "--docs-table-header-bg",
+            "color",
+            "Header row background (default transparent)"
+          ],
+          [
+            "headerFg",
+            "--docs-table-header-fg",
+            "color",
+            "Header text color"
+          ],
+          [
+            "headerRule",
+            "--docs-table-header-rule",
+            "color",
+            "Header rule color (falls back to headerFg)"
+          ],
+          [
+            "headerRuleWidth",
+            "--docs-table-header-rule-width",
+            "length",
+            "Header rule thickness (default 1.5px)"
+          ],
+          [
+            "headerRuleOpacity",
+            "--docs-table-header-rule-opacity",
+            "number",
+            "Header rule opacity (default 0.5)"
+          ],
+          [
+            "rowRule",
+            "--docs-table-row-rule",
+            "color",
+            "Row rule color (falls back to the UI border color)"
+          ],
+          [
+            "rowRuleWidth",
+            "--docs-table-row-rule-width",
+            "length",
+            "Row rule thickness (default 1px)"
+          ],
+          [
+            "rowRuleOpacity",
+            "--docs-table-row-rule-opacity",
+            "number",
+            "Row rule opacity (default 1)"
+          ],
+          [
+            "cellPaddingY",
+            "--docs-table-cell-pad-y",
+            "length",
+            "Vertical cell padding (default 10px)"
+          ],
+          [
+            "cellPaddingX",
+            "--docs-table-cell-pad-x",
+            "length",
+            "Column gap (default 16px)"
+          ],
+          [
+            "fontSize",
+            "--docs-table-font-size",
+            "length",
+            "Cell text size (default 14px; headers render 1px smaller)"
+          ],
+          [
+            "handleRadius",
+            "--docs-table-handle-radius",
+            "length",
+            "Corner radius of the column/row grab handles (default 3px)"
+          ],
+          [
+            "handleOffset",
+            "--docs-table-handle-offset",
+            "length",
+            "How far outside the table edge the grab handles sit (default 12px)"
+          ],
+          [
+            "selectionPadding",
+            "--docs-table-selection-pad",
+            "length",
+            "Outward padding of the column/row selection outline (default 3px)"
+          ]
+        ]
+      },
+      "children": []
+    },
+    "b-20-structured-table-agent-h-13": {
+      "id": "b-20-structured-table-agent-h-13",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent Adapter"
+        }
+      ],
+      "children": []
+    },
+    "b-stfam-adapter-p": {
+      "id": "b-stfam-adapter-p",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The family uses the default adapter: no agent of its own, no forwarding authority — all five actions carry a local apply. On the wire an edit is a "
+        },
+        {
+          "insert": "componentAction",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " op (one of the generic doc ops) naming the block, the action key, and params; the kernel ("
+        },
+        {
+          "insert": "doc-ops.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/doc-ops.ts"
+            }
+          }
+        },
+        {
+          "insert": ") resolves the action from the registry, validates params against the action's schema, runs apply, and executes the returned patch through the standard "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " path — the undo inverse is an ordinary "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Structural work on the table as a block — insert, move, delete — stays on the generic ops. The contract is "
+        },
+        {
+          "insert": "Agent adapter",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/20-block-design/60-agent-adapter"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-20-structured-table-agent-1-14": {
+      "id": "b-20-structured-table-agent-1-14",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Edit cells through the actions, never by hand-patching the "
+        },
+        {
+          "insert": "rows",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " array — actions validate, normalize row widths, and return undo inverses."
+        }
+      ],
+      "children": []
+    }
+  }
+}
