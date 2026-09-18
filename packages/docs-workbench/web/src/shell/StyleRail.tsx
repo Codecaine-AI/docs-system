@@ -1,3 +1,4 @@
+import { projectStorage } from "../data/project-storage";
 import { PanelRightClose, PanelRightOpen, SlidersHorizontal } from "lucide-react";
 import { DOC_BLOCK_TYPES } from "@codecaine-ai/docs-model/doc-schema";
 import { THEME_TOKEN_REGISTRY } from "../theme/theme-folders";
@@ -817,7 +818,7 @@ export function normalizeSettings(
  */
 export function loadStyleRailSettings(): StyleRailSettings {
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const raw = projectStorage.getItem(STORAGE_KEY);
     if (!raw) return getStyleRailBaseline();
     return normalizeSettings(JSON.parse(raw));
   } catch {
@@ -828,7 +829,7 @@ export function loadStyleRailSettings(): StyleRailSettings {
 /** True when a browser cache exists; retained for cache-aware hosts/tests. */
 export function hasStoredStyleRailSettings(): boolean {
   try {
-    return window.localStorage.getItem(STORAGE_KEY) !== null;
+    return projectStorage.getItem(STORAGE_KEY) !== null;
   } catch {
     return false;
   }
@@ -836,7 +837,7 @@ export function hasStoredStyleRailSettings(): boolean {
 
 export function saveStyleRailSettings(settings: StyleRailSettings) {
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+    projectStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
   } catch {
     // Settings still apply for this session if storage is unavailable.
   }
@@ -1277,7 +1278,7 @@ export function StyleRail({
   const [selectedPaneId, setSelectedPaneId] = useState<StyleRailPaneId>(() => {
     // docs-style-rail-section:* keys are retired; selection is the persisted pane UI state.
     try {
-      const stored = window.localStorage.getItem(SELECTED_PANE_STORAGE_KEY);
+      const stored = projectStorage.getItem(SELECTED_PANE_STORAGE_KEY);
       return isStyleRailPaneId(stored) ? stored : "theme.presets";
     } catch {
       return "theme.presets";
@@ -1287,7 +1288,7 @@ export function StyleRail({
   const selectPane = (paneId: StyleRailPaneId) => {
     setSelectedPaneId(paneId);
     try {
-      window.localStorage.setItem(SELECTED_PANE_STORAGE_KEY, paneId);
+      projectStorage.setItem(SELECTED_PANE_STORAGE_KEY, paneId);
     } catch {
       // Session-only state when storage is unavailable.
     }

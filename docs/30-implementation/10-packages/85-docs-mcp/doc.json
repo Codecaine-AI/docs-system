@@ -38,7 +38,11 @@
         "page-tree-tools-0",
         "page-tree-tools-1",
         "page-tree-tools-2",
-        "full-management-0"
+        "full-management-0",
+        "background-owner-heading",
+        "background-governed",
+        "background-supervisor-source",
+        "background-install-source"
       ]
     },
     "mcp-guide-0": {
@@ -130,7 +134,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The CLI automatically starts one local editing service. The client connections share that process, and explicit project IDs route operations to a discovered corpus. The shared workbench mode proxies its API to the same authority. Standalone workbench and kernel modes remain available with their existing process-local state."
+          "insert": "With the signed background app installed, the CLI connects to the central host on port 4820. Browser and MCP operations use the same active runtime. Project IDs select registered corpora. Without the background installation, the standalone daemon remains available."
         }
       ],
       "children": []
@@ -231,7 +235,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The snapshot command records package source hashes, repository revisions, tool contracts, and guidance sources. Standards reload between documentation tasks. Imported implementation changes require restarting the service. The built-in Docs Lab editor and generic docs-writer retain their existing staged review behavior."
+          "insert": "The snapshot command records package source hashes, repository revisions, tool contracts, and guidance sources. Standards reload between tasks. The managed host rebuilds runtime source automatically and waits for active tasks and editor leases before replacement. Standalone daemons require a manual restart after imported implementation changes. Docs Lab and docs-writer retain their staged review behavior."
         }
       ],
       "children": []
@@ -435,7 +439,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Canonical corpus standards, style documents, component references, manifests, and the source skill feed generated knowledge. Installed skill references are copies. Internal context loaders share the renderer while retaining their own prompts and staged editing lifecycle. Runtime source fingerprints guard against using changed implementation files in an existing service. Published release compatibility and automatic package-version resolution remain unimplemented."
+          "insert": "Canonical standards, style documents, component references, manifests, and the source skill feed generated knowledge. Installed skill references are copies. Internal contexts share the renderer while retaining their own prompts and staged editing lifecycle. Managed authoring reports the active artifact hash and build-time manifest fingerprints. Standalone runtime fingerprints reject changed implementation sources. Automated release compatibility resolution remains unimplemented."
         }
       ],
       "children": []
@@ -527,6 +531,110 @@
         },
         {
           "insert": " documents the supported management tools and their shared service ownership."
+        }
+      ],
+      "children": []
+    },
+    "background-owner-heading": {
+      "id": "background-owner-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Managed Background Host"
+        }
+      ],
+      "children": []
+    },
+    "background-governed": {
+      "id": "background-governed",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The managed installation implements "
+        },
+        {
+          "insert": "Central Docs Service",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/70-central-docs-service"
+            }
+          }
+        },
+        {
+          "insert": ". The stable app and editable runtime have separate update lifecycles."
+        }
+      ],
+      "children": []
+    },
+    "background-supervisor-source": {
+      "id": "background-supervisor-source",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "supervisor.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-mcp/src/background/supervisor.ts"
+            }
+          }
+        },
+        {
+          "insert": " owns the public listener, persisted registry, update coordination, and private runtime routing. "
+        },
+        {
+          "insert": "managed-runtime.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-mcp/src/managed-runtime.ts"
+            }
+          }
+        },
+        {
+          "insert": " owns the replaceable typed write authority. "
+        },
+        {
+          "insert": "viewer.mjs",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-mcp/src/background/viewer.mjs"
+            }
+          }
+        },
+        {
+          "insert": " runs Vite in a separate Node process so viewer compilation cannot block API routing."
+        }
+      ],
+      "children": []
+    },
+    "background-install-source": {
+      "id": "background-install-source",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "install-background.py",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-mcp/scripts/install-background.py"
+            }
+          }
+        },
+        {
+          "insert": " builds the app before replacement, signs the native runtimes with the pinned certificate, and registers launchd. JavaScript artifacts live outside the signed bundle so source changes preserve the executable identity. The LaunchAgent uses interactive scheduling for responsive local requests while remaining a background application."
         }
       ],
       "children": []

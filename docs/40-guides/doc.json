@@ -10,7 +10,9 @@
       "props": {},
       "children": [
         "maintenance-0",
-        "maintenance-1"
+        "maintenance-1",
+        "core-releases-guide",
+        "central-service-guide"
       ]
     },
     "maintenance-0": {
@@ -40,6 +42,46 @@
         },
         {
           "insert": " explains installation, multi-project discovery, skills, updates, and recovery."
+        }
+      ],
+      "children": []
+    },
+    "core-releases-guide": {
+      "id": "core-releases-guide",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Release Core Products",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "40-guides/20-release-core-products"
+            }
+          }
+        },
+        {
+          "insert": " describes preparing, publishing, and verifying a product's GitHub source release."
+        }
+      ],
+      "children": []
+    },
+    "central-service-guide": {
+      "id": "central-service-guide",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Run the Central Docs Service",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "40-guides/30-run-central-docs"
+            }
+          }
+        },
+        {
+          "insert": " explains opening projects, hot reload, service commands, and local recovery."
         }
       ],
       "children": []

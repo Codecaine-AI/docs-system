@@ -4,10 +4,11 @@ import { CallToolRequestSchema, ListToolsRequestSchema, ListResourcesRequestSche
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { ensureDaemon, daemonFetch } from './lifecycle';
+import manifest from '../package.json';
 
 export async function startMcp(initialWorkspace:string){
  const state=await ensureDaemon();let workspace=resolve(initialWorkspace);let rootsReady:Promise<void>=Promise.resolve();
- const server=new Server({name:'codecaine-docs',version:'0.1.0'},{capabilities:{tools:{},resources:{}},instructions:'Use docs_discover for the active workspace. For documentation edits call docs_begin, read its standards and complete component catalog, then use typed Docs tools with task_id and revision hashes. Edits apply immediately. Run docs_check before completion. Never rewrite doc.json or component sidecars directly.'});
+ const server=new Server({name:'codecaine-docs',version:manifest.version},{capabilities:{tools:{},resources:{}},instructions:'Use docs_discover for the active workspace. For documentation edits call docs_begin, read its standards and complete component catalog, then use typed Docs tools with task_id and revision hashes. Edits apply immediately. Run docs_check before completion. Never rewrite doc.json or component sidecars directly.'});
  const call=async(name:string,args:Record<string,unknown>={})=>{
   await rootsReady;
   const response=await daemonFetch(state,'/rpc',{workspace,name,arguments:args});if(!response.ok)throw new Error(`Docs service error: ${response.status}`);

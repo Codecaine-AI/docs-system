@@ -1,0 +1,378 @@
+{
+  "schemaVersion": 1,
+  "id": "doc-73df91d584f6ccda610708725ffb89fc",
+  "title": "Run the Central Docs Service",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "central-0",
+        "central-1",
+        "central-2",
+        "central-3",
+        "central-4",
+        "central-5",
+        "central-6",
+        "central-7",
+        "central-8",
+        "central-9",
+        "central-10",
+        "central-11",
+        "central-12",
+        "central-13",
+        "central-14",
+        "central-15",
+        "central-16"
+      ]
+    },
+    "central-0": {
+      "id": "central-0",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Open "
+        },
+        {
+          "insert": "http://localhost:4820/",
+          "attributes": {
+            "link": "http://localhost:4820/"
+          }
+        },
+        {
+          "insert": " to select a registered project. This operating guide follows the "
+        },
+        {
+          "insert": "Central Docs Service",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/70-central-docs-service"
+            }
+          }
+        },
+        {
+          "insert": " contract and uses the installed development checkout."
+        }
+      ],
+      "children": []
+    },
+    "central-1": {
+      "id": "central-1",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Open a Project"
+        }
+      ],
+      "children": []
+    },
+    "central-2": {
+      "id": "central-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Run "
+        },
+        {
+          "insert": "bun packages/docs-mcp/src/cli.ts ui --workspace /absolute/project/path",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " from the Docs System checkout. The command registers normalized documentation and opens its central URL."
+        }
+      ],
+      "children": []
+    },
+    "central-3": {
+      "id": "central-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "If discovery returns multiple projects, add "
+        },
+        {
+          "insert": "--project <project-id>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " using an ID from "
+        },
+        {
+          "insert": "bun packages/docs-mcp/src/cli.ts discover --workspace /absolute/workspace/path",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "central-4": {
+      "id": "central-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Ordinary "
+        },
+        {
+          "insert": "docs-cli serve",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " calls connect to the installed central service. Custom theme locks, theme locations, or kernel settings require "
+        },
+        {
+          "insert": "--standalone",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " so those options retain their original behavior."
+        }
+      ],
+      "children": []
+    },
+    "central-5": {
+      "id": "central-5",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Manage the Service"
+        }
+      ],
+      "children": []
+    },
+    "central-6": {
+      "id": "central-6",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Action",
+          "Command from the Docs System Checkout"
+        ],
+        "rows": [
+          [
+            "Inspect readiness and active build",
+            "bun packages/docs-mcp/src/cli.ts background status"
+          ],
+          [
+            "Start the installed service",
+            "bun packages/docs-mcp/src/cli.ts background start"
+          ],
+          [
+            "Stop the installed service",
+            "bun packages/docs-mcp/src/cli.ts background stop"
+          ],
+          [
+            "Install or replace the signed app",
+            "bun packages/docs-mcp/src/cli.ts background install --workspace /Users/Ford/workspace/codecaine/core --port 4820"
+          ]
+        ]
+      },
+      "children": []
+    },
+    "central-7": {
+      "id": "central-7",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The installation uses "
+        },
+        {
+          "insert": "/Applications/Codecaine Docs.app",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and the user LaunchAgent "
+        },
+        {
+          "insert": "ai.codecaine.docs",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". It starts at login while the user session is running. It does not keep serving while the Mac is asleep or the user is logged out."
+        }
+      ],
+      "children": []
+    },
+    "central-8": {
+      "id": "central-8",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Work With Hot Reload"
+        }
+      ],
+      "children": []
+    },
+    "central-9": {
+      "id": "central-9",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Save documentation through typed Docs operations or the workbench editor. Saved changes appear through the shared event stream."
+        }
+      ],
+      "children": []
+    },
+    "central-10": {
+      "id": "central-10",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Save viewer source changes to receive Vite hot updates. Save runtime source changes to trigger an automatic build."
+        }
+      ],
+      "children": []
+    },
+    "central-11": {
+      "id": "central-11",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "If status says "
+        },
+        {
+          "insert": "waiting-for-authoring-tasks",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", finish authoring with "
+        },
+        {
+          "insert": "docs_end",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " or close the active editor draft. The pending build activates when the authority is idle."
+        }
+      ],
+      "children": []
+    },
+    "central-12": {
+      "id": "central-12",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "If a build fails, repair the reported source error and save again. The running API keeps using its successful artifact."
+        }
+      ],
+      "children": []
+    },
+    "central-13": {
+      "id": "central-13",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Locate Installation State"
+        }
+      ],
+      "children": []
+    },
+    "central-14": {
+      "id": "central-14",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Location",
+          "Contents"
+        ],
+        "rows": [
+          [
+            "~/.local/state/codecaine-docs/background.log",
+            "Startup, build, and viewer diagnostics."
+          ],
+          [
+            "~/.local/state/codecaine-docs/projects.json",
+            "Persisted project registrations and workspace paths."
+          ],
+          [
+            "~/.local/state/codecaine-docs/builds/",
+            "Generated runtime artifacts used for activation and recovery."
+          ],
+          [
+            "~/.local/state/codecaine-docs/install-backups/",
+            "Previous installation files retained during replacement."
+          ],
+          [
+            "~/.config/codecaine-docs/signing.json",
+            "Pinned certificate and keychain references."
+          ]
+        ]
+      },
+      "children": []
+    },
+    "central-15": {
+      "id": "central-15",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Keep service-token and daemon.json private because they contain the local API credential. Inspect "
+        },
+        {
+          "insert": "/api/status",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " for shareable build and readiness information. Reinstall when changing the native launcher, bundled runtimes, bootstrap, or signing entitlements."
+        }
+      ],
+      "children": []
+    },
+    "central-16": {
+      "id": "central-16",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "If the service stops, run the start command and inspect background.log. If a known process already owns port 4820, stop that process through its own service command before starting Docs. The installer refuses an unrelated port owner."
+        }
+      ],
+      "children": []
+    }
+  }
+}

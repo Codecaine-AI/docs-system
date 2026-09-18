@@ -20,6 +20,17 @@ try{
   case 'start':{const state=await ensureDaemon();out({url:state.url,pid:state.pid,stateDirectory:stateDirectory()});break;}
   case 'stop':out(await stopDaemon());break;
   case 'status':{const state=await readDaemonState();out({running:await daemonHealthy(state),url:state?.url,pid:state?.pid,packageRoot:state?.packageRoot,stateDirectory:stateDirectory()});break;}
+  case 'background':{
+   const action=args[0]??'status';
+   if(action==='install'){
+    const proc=Bun.spawn(['python3',join(PACKAGE_ROOT,'scripts/install-background.py'),'--port',option('--port','4820')!,'--workspace',workspace],{stdout:'inherit',stderr:'inherit'});process.exitCode=await proc.exited;
+   }else if(action==='stop'){
+    const proc=Bun.spawn(['launchctl','bootout',`gui/${process.getuid!()}/ai.codecaine.docs`],{stdout:'inherit',stderr:'inherit'});process.exitCode=await proc.exited;
+   }else if(action==='start'){const state=await ensureDaemon();out({url:state.url,pid:state.pid});}
+   else if(action==='status'){const state=await readDaemonState();out(state&&await daemonHealthy(state)?await(await daemonFetch(state,'/health')).json():{running:false});}
+   else throw new Error('Use background install, start, stop, or status');
+   break;
+  }
   case 'discover':case 'call':case 'tools':{
    const state=await ensureDaemon();
    const name=command==='discover'?'docs_discover':args[0];
@@ -45,10 +56,17 @@ try{
    const projects=found.structuredContent.projects;
    const id=option('--project')??(projects.length===1?projects[0].id:undefined);
    const project=projects.find((p:any)=>p.id===id||p.name===id);if(!project)throw new Error(`Choose --project from: ${projects.map((p:any)=>p.id).join(', ')}`);
+   const health=await(await daemonFetch(state,'/health')).json() as any;
+   if(health.central){
+    const url=`${state.url}/projects/${encodeURIComponent(project.id)}/docs/`;
+    out({url,project:project.id,central:true});
+    if(!args.includes('--no-open')&&process.platform==='darwin')Bun.spawn(['open',url],{stdout:'ignore',stderr:'ignore'});
+    break;
+   }
    const {runServe}=await import('../../docs-workbench/src/run-serve');
    await runServe({docsRoot:project.docsRoot,port:Number(option('--port','4808')),hostname:'127.0.0.1',sharedApi:{url:state.url,projectId:project.id,token:state.token}});break;
   }
-  default:console.log(`Codecaine Docs\n\n  install [--write] [--clients codex,claude,pi]  Install connection and skills (preview by default)\n  restore REPORT [--write]                  Restore a saved installation report
+  default:console.log(`Codecaine Docs\n\n  background install|start|stop|status      Manage the signed central service (default port 4820)\n  install [--write] [--clients codex,claude,pi]  Install connection and skills (preview by default)\n  restore REPORT [--write]                  Restore a saved installation report
   doctor                                    Check installed bindings\n  mcp [--workspace PATH]                    Start stdio MCP bridge\n  discover [--workspace PATH]               List project documentation\n  tools                                    List typed tools\n  call TOOL --args JSON [--workspace PATH]  Invoke tools for testing\n  ui [--workspace PATH] [--project ID] [--port 4808]  Open shared-authority workbench\n  guidance [--write]                        Inspect/regenerate skill references\n  snapshot [--out FILE]                     Record development snapshot\n  start | status | stop                     Control the shared local service`);
  }
 }catch(error){console.error(error instanceof Error?error.message:String(error));process.exitCode=1;}

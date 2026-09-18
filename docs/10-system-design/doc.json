@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "10-system-design",
-  "title": "System design — overview",
+  "title": "System Design Overview",
   "root": "b-sd-overview-root",
   "blocks": {
     "b-sd-overview-root": {
@@ -37,7 +37,9 @@
         "b-sdov-editor-h-116",
         "b-sdov-editor-p-117",
         "b-sdov-editor-li-contracts-118",
-        "b-sdov-editor-li-scope-119"
+        "b-sdov-editor-li-scope-119",
+        "central-service-index",
+        "core-version-index"
       ]
     },
     "b-sdov-opener": {
@@ -46,7 +48,7 @@
       "props": {},
       "text": [
         {
-          "insert": "System design defines the contracts for organizing documentation, rendering canonical document state, mutating block trees, and presenting the workbench. Its five sections separate corpus rules, reader surfaces, state structure, canonical content types, and editor behavior."
+          "insert": "System design defines the contracts for organizing documentation, rendering and editing canonical state, hosting project corpora, and identifying product releases. Its sections give each contract one primary home."
         }
       ],
       "children": []
@@ -512,6 +514,46 @@
       "text": [
         {
           "insert": "Per-block appearance and editing behavior remain in the block vocabulary."
+        }
+      ],
+      "children": []
+    },
+    "central-service-index": {
+      "id": "central-service-index",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Central Docs Service",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/70-central-docs-service"
+            }
+          }
+        },
+        {
+          "insert": " defines one local host, project routing, signing, and automatic runtime updates."
+        }
+      ],
+      "children": []
+    },
+    "core-version-index": {
+      "id": "core-version-index",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Core Product Versioning",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/60-product-versioning"
+            }
+          }
+        },
+        {
+          "insert": " defines independent product releases and separates release versions from build, schema, and signing identities."
         }
       ],
       "children": []

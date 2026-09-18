@@ -68,6 +68,16 @@ export class DraftLockStore {
     return new DraftLockStore(this.ttlMs, this.locks, canonicalDocsRoot(docsRoot));
   }
 
+  /** Active editor leases must finish before the managed write authority is replaced. */
+  activeCount(now = new Date()): number {
+    let count = 0;
+    for (const [key, lock] of this.locks) {
+      if (this.isExpired(lock, now)) this.locks.delete(key);
+      else if (JSON.parse(key)[0] === this.root) count++;
+    }
+    return count;
+  }
+
   acquire(key: DraftLockKey, sessionId: string, now = new Date()): AcquireDraftLockResult {
     const lockKey = this.toLockKey(key);
     const existing = this.locks.get(lockKey);

@@ -90,7 +90,7 @@
     },
     "packages/docs-cli": {
       "name": "@codecaine-ai/docs-cli",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "bin": {
         "docs-cli": "./src/index.ts",
       },
@@ -106,7 +106,7 @@
     },
     "packages/docs-index": {
       "name": "@codecaine-ai/docs-index",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@codecaine-ai/canvas": "workspace:*",
         "@codecaine-ai/docs-model": "workspace:*",
@@ -118,7 +118,7 @@
     },
     "packages/docs-model": {
       "name": "@codecaine-ai/docs-model",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@codecaine-ai/annotations": "workspace:*",
         "@codecaine-ai/canvas": "workspace:*",
@@ -132,7 +132,7 @@
     },
     "packages/docs-server": {
       "name": "@codecaine-ai/docs-server",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@codecaine-ai/canvas": "workspace:*",
         "@codecaine-ai/docs-index": "workspace:*",
@@ -147,7 +147,7 @@
     },
     "packages/docs-viewer": {
       "name": "@codecaine-ai/docs-viewer",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@codecaine-ai/annotations": "workspace:*",
         "@codecaine-ai/docs-model": "workspace:*",
@@ -185,7 +185,7 @@
     },
     "packages/docs-workbench": {
       "name": "@codecaine-ai/docs-workbench",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@codecaine-ai/annotations": "workspace:*",
         "@codecaine-ai/canvas": "workspace:*",
@@ -217,7 +217,7 @@
     },
     "packages/framework": {
       "name": "@codecaine-ai/docs-framework-skill",
-      "version": "0.0.1",
+      "version": "0.0.2",
     },
   },
   "packages": {

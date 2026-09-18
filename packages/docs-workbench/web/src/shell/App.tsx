@@ -1,3 +1,4 @@
+import { centralProjectId, projectStorage } from "../data/project-storage";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { DocsClientProvider, type DocsTreeNode } from "@codecaine-ai/docs-viewer/client";
 import { DocPeekPanel } from "@codecaine-ai/docs-viewer/doc-peek-panel";
@@ -185,16 +186,16 @@ export function App() {
   const [path, setPath] = useState<string | null>(readHashPath());
   const [sidePeekOpen, setSidePeekOpen] = useState(false);
   const [dark, setDark] = useState<boolean>(
-    () => localStorage.getItem(THEME_STORAGE_KEY) === "dark",
+    () => projectStorage.getItem(THEME_STORAGE_KEY) === "dark",
   );
   const [styleSettings, setStyleSettings] = useState<StyleRailSettings>(() =>
     loadStyleRailSettings(),
   );
   const [styleRailCollapsed, setStyleRailCollapsed] = useState<boolean>(
-    () => localStorage.getItem(STYLE_RAIL_COLLAPSE_KEY) === "true",
+    () => projectStorage.getItem(STYLE_RAIL_COLLAPSE_KEY) === "true",
   );
   const [themeId, setThemeId] = useState<string>(
-    () => localStorage.getItem(THEME_FOLDER_KEY) ?? "default",
+    () => projectStorage.getItem(THEME_FOLDER_KEY) ?? "default",
   );
   // Serve-level theme lock (`docs-cli serve --theme-locked`): null until
   // GET /api/serve-config answers. Secondary apps serving their docs with
@@ -305,7 +306,7 @@ export function App() {
       setStyleSettings(nextSettings);
       setDark(nextDark);
       setThemeId(id);
-      localStorage.setItem(THEME_FOLDER_KEY, id);
+      projectStorage.setItem(THEME_FOLDER_KEY, id);
     });
   };
 
@@ -396,7 +397,7 @@ export function App() {
   useEffect(() => {
     applyTheme(dark);
     if (!themeReady || themeLocked !== false) return;
-    localStorage.setItem(THEME_STORAGE_KEY, dark ? "dark" : "light");
+    projectStorage.setItem(THEME_STORAGE_KEY, dark ? "dark" : "light");
   }, [dark, themeLocked, themeReady]);
 
   useEffect(() => {
@@ -416,7 +417,7 @@ export function App() {
 
   useEffect(() => {
     if (!themeReady || themeLocked !== false) return;
-    localStorage.setItem(STYLE_RAIL_COLLAPSE_KEY, String(styleRailCollapsed));
+    projectStorage.setItem(STYLE_RAIL_COLLAPSE_KEY, String(styleRailCollapsed));
   }, [styleRailCollapsed, themeLocked, themeReady]);
 
   useEffect(() => {
@@ -460,7 +461,7 @@ export function App() {
         <aside className="flex w-72 shrink-0 flex-col border-r bg-sidebar">
           <div className="flex h-11 shrink-0 items-center justify-between gap-2 border-b px-3">
             <div className="truncate font-display text-sm font-medium uppercase tracking-wider">
-              Docs
+              {centralProjectId() ? <a href="/" title="All documentation projects">Docs · Projects</a> : "Docs"}
               {IS_STATIC && (
                 <span className="ml-2 rounded-sm bg-muted px-1.5 py-0.5 text-[10px] font-normal normal-case tracking-normal text-muted-foreground">
                   static export

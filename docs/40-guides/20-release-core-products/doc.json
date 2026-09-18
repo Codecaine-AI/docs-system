@@ -1,0 +1,249 @@
+{
+  "schemaVersion": 1,
+  "id": "doc-c53062623b0767d73a7b89c69a2f8457",
+  "title": "Release Core Products",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "central-0",
+        "central-1",
+        "central-2",
+        "central-3",
+        "central-4",
+        "central-5",
+        "central-6",
+        "central-7",
+        "central-8",
+        "central-9"
+      ]
+    },
+    "central-0": {
+      "id": "central-0",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Release one product at a time using "
+        },
+        {
+          "insert": "Core Product Versioning",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/60-product-versioning"
+            }
+          }
+        },
+        {
+          "insert": ". This guide describes the manual source-release procedure and the evidence to retain."
+        }
+      ],
+      "children": []
+    },
+    "central-1": {
+      "id": "central-1",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Prepare the Release"
+        }
+      ],
+      "children": []
+    },
+    "central-2": {
+      "id": "central-2",
+      "type": "process-outline",
+      "props": {
+        "steps": [
+          {
+            "text": "Prepare one Core product release",
+            "steps": [
+              {
+                "text": "Select the product and next version",
+                "steps": [
+                  {
+                    "text": "Confirm compatibility changes before choosing the increment.",
+                    "kind": "note"
+                  }
+                ]
+              },
+              {
+                "text": "Create an isolated checkout from the intended release base",
+                "steps": [
+                  {
+                    "text": "Preserve unrelated local commits and working changes.",
+                    "kind": "note"
+                  }
+                ]
+              },
+              {
+                "text": "Update the product's owned package versions",
+                "steps": [
+                  {
+                    "text": "Synchronize existing lockfile workspace version entries"
+                  }
+                ]
+              },
+              {
+                "text": "Run the product's relevant build and tests",
+                "steps": [
+                  {
+                    "text": "Record failures or skipped checks explicitly.",
+                    "kind": "note"
+                  }
+                ]
+              },
+              {
+                "text": "Review and commit the release tree"
+              }
+            ]
+          }
+        ]
+      },
+      "children": []
+    },
+    "central-3": {
+      "id": "central-3",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Publish and Verify"
+        }
+      ],
+      "children": []
+    },
+    "central-4": {
+      "id": "central-4",
+      "type": "process-outline",
+      "props": {
+        "steps": [
+          {
+            "text": "Publish the reviewed source release",
+            "steps": [
+              {
+                "text": "Confirm the tag does not already exist"
+              },
+              {
+                "text": "Push the reviewed release commit",
+                "steps": [
+                  {
+                    "text": "Do not force-push unrelated branch history.",
+                    "kind": "note"
+                  }
+                ]
+              },
+              {
+                "text": "Create the product's version tag at that commit"
+              },
+              {
+                "text": "Create the GitHub release",
+                "steps": [
+                  {
+                    "text": "Attach the package manifest with its exact commit"
+                  },
+                  {
+                    "text": "Describe behavior, compatibility, and validation in the release notes"
+                  }
+                ]
+              },
+              {
+                "text": "Verify the remote tag and downloaded asset",
+                "steps": [
+                  {
+                    "text": "Compare the tag commit and asset SHA-256 with local evidence"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "children": []
+    },
+    "central-5": {
+      "id": "central-5",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "For the "
+        },
+        {
+          "insert": "0.0.1",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " baseline, each product's GitHub release contains "
+        },
+        {
+          "insert": "<product>-0.0.1-manifest.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Use that asset to identify the packages in the released source tree. A package added later in a working checkout is not part of that tagged release."
+        }
+      ],
+      "children": []
+    },
+    "central-6": {
+      "id": "central-6",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Keep Development Separate"
+        }
+      ],
+      "children": []
+    },
+    "central-7": {
+      "id": "central-7",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Merge or otherwise integrate the released metadata into development through the product's normal Git workflow. Do not reset a dirty checkout to make it match the release."
+        }
+      ],
+      "children": []
+    },
+    "central-8": {
+      "id": "central-8",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Keep source releases distinct from npm publication, native application installation, and deployment. Perform those actions only when they are part of the release scope."
+        }
+      ],
+      "children": []
+    },
+    "central-9": {
+      "id": "central-9",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Document product behavior and release policy changes in the native Docs system. GitHub release notes describe the specific release."
+        }
+      ],
+      "children": []
+    }
+  }
+}

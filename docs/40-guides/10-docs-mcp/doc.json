@@ -10,6 +10,7 @@
       "props": {},
       "children": [
         "maintenance-0",
+        "central-host-guide-link",
         "maintenance-1",
         "maintenance-2",
         "maintenance-3",
@@ -25,6 +26,26 @@
       "text": [
         {
           "insert": "Start with the procedure that matches the change. These guides cover the local development checkout and its external coding-agent connections."
+        }
+      ],
+      "children": []
+    },
+    "central-host-guide-link": {
+      "id": "central-host-guide-link",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Run the Central Docs Service",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "40-guides/30-run-central-docs"
+            }
+          }
+        },
+        {
+          "insert": " covers the signed installation on port 4820. Its managed runtime updates automatically. Manual daemon restart instructions apply to standalone installations."
         }
       ],
       "children": []

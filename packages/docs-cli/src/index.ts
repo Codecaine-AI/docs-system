@@ -436,6 +436,7 @@ async function main() {
       }
       const { runServe } = await import("@codecaine-ai/docs-workbench");
       await runServe({
+        standalone: args.includes("--standalone"),
         docsRoot: root,
         themesRoot,
         port,
@@ -444,8 +445,8 @@ async function main() {
         dev: args.includes("--dev"),
         forceBuild: args.includes("--rebuild"),
         themeLocked: args.includes("--theme-locked"),
-        kernelUrl: flagValue(args, "--kernel-url") ?? "http://127.0.0.1:4840",
-        corpus: flagValue(args, "--corpus") ?? "docs-system",
+        kernelUrl: flagValue(args, "--kernel-url"),
+        corpus: flagValue(args, "--corpus"),
       });
       return;
     }

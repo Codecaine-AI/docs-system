@@ -4,7 +4,7 @@ import { homedir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { spawn } from 'node:child_process';
 
-export const PACKAGE_ROOT = resolve(import.meta.dir, '..');
+export const PACKAGE_ROOT = process.env.CODECAINE_DOCS_PACKAGE_ROOT ?? resolve(import.meta.dir, '..');
 export const CLI_PATH = join(PACKAGE_ROOT, 'src/cli.ts');
 export const stateDirectory = () => process.env.CODECAINE_DOCS_STATE_DIR || join(homedir(), '.local', 'state', 'codecaine-docs');
 export interface DaemonState { url: string; token: string; pid: number; packageRoot: string; startedAt: string }
@@ -17,6 +17,8 @@ export async function writeDaemonState(state: DaemonState) {
  await chmod(join(stateDirectory(),'daemon.json'),0o600);
 }
 export async function daemonFetch(state: DaemonState, pathname: string, body?: unknown) {
+ const current = await readDaemonState();
+ if (current && current.packageRoot === state.packageRoot) state = current;
  const url = new URL(state.url);
  if (url.hostname !== '127.0.0.1' || url.protocol !== 'http:') throw new Error('Invalid local service address');
  return Bun.fetch(new URL(pathname,state.url), {method:body===undefined?'GET':'POST',headers:{Authorization:`Bearer ${state.token}`,'Content-Type':'application/json'},body:body===undefined?undefined:JSON.stringify(body)});
@@ -29,6 +31,16 @@ export async function ensureDaemon(): Promise<DaemonState> {
  let state=await readDaemonState(); if(await daemonHealthy(state)) {
   if(state!.packageRoot!==PACKAGE_ROOT) throw new Error('Another Codecaine Docs checkout owns the service. Run its stop command before switching installations.');
   return state!;
+ }
+ if(process.platform === 'darwin' && await Bun.file(join(stateDirectory(), 'background.json')).exists()) {
+  const job = `gui/${process.getuid!()}/ai.codecaine.docs`;
+  const kick = Bun.spawn(['launchctl', 'kickstart', job], {stdout:'ignore',stderr:'ignore'});
+  if(await kick.exited !== 0) {
+   const start = Bun.spawn(['launchctl','bootstrap',`gui/${process.getuid!()}`,join(homedir(),'Library/LaunchAgents/ai.codecaine.docs.plist')],{stdout:'ignore',stderr:'ignore'});
+   if(await start.exited !== 0) throw new Error('The installed Docs background service could not start. Inspect its background.log.');
+  }
+  for(let i=0;i<100;i++){await Bun.sleep(100);state=await readDaemonState();if(await daemonHealthy(state))return state!;}
+  throw new Error('Docs background service is starting. Inspect its background.log if it does not become ready.');
  }
  await mkdir(stateDirectory(),{recursive:true,mode:0o700});
  const lock=join(stateDirectory(),'startup.lock');

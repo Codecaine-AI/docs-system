@@ -12,16 +12,17 @@
  *    so locks and ops MUST share this id (see client.ts).
  */
 
+import { projectStorageKey } from "./project-storage";
 const STORAGE_KEY = "docs-workbench-session-id";
 
 let fallbackId: string | null = null;
 
 export function getSessionId(): string {
   try {
-    const existing = window.sessionStorage.getItem(STORAGE_KEY);
+    const existing = window.sessionStorage.getItem(projectStorageKey(STORAGE_KEY));
     if (existing) return existing;
     const fresh = crypto.randomUUID();
-    window.sessionStorage.setItem(STORAGE_KEY, fresh);
+    window.sessionStorage.setItem(projectStorageKey(STORAGE_KEY), fresh);
     return fresh;
   } catch {
     // sessionStorage unavailable (sandboxed iframe, some test setups) —

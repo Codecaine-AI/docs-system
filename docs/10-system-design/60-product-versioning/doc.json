@@ -1,0 +1,344 @@
+{
+  "schemaVersion": 1,
+  "id": "doc-7994d4aae4c0fea36de5f95f7ebab52b",
+  "title": "Core Product Versioning",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "central-0",
+        "central-1",
+        "central-2",
+        "central-3",
+        "central-4",
+        "central-5",
+        "central-6",
+        "central-7",
+        "central-8",
+        "central-9",
+        "central-10",
+        "central-11",
+        "central-12",
+        "central-13"
+      ]
+    },
+    "central-0": {
+      "id": "central-0",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each Core product has its own release version, beginning at "
+        },
+        {
+          "insert": "0.0.1",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Packages owned by that product share its version, so consumers can identify one coherent product release."
+        }
+      ],
+      "children": []
+    },
+    "central-1": {
+      "id": "central-1",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Structure"
+        }
+      ],
+      "children": []
+    },
+    "central-2": {
+      "id": "central-2",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Product Repository",
+          "Initial Release"
+        ],
+        "rows": [
+          [
+            "annotations",
+            [
+              {
+                "insert": "v0.0.1",
+                "attributes": {
+                  "link": "https://github.com/Codecaine-AI/annotations/releases/tag/v0.0.1"
+                }
+              }
+            ]
+          ],
+          [
+            "prompt-kit",
+            [
+              {
+                "insert": "v0.0.1",
+                "attributes": {
+                  "link": "https://github.com/Codecaine-AI/prompt-kit/releases/tag/v0.0.1"
+                }
+              }
+            ]
+          ],
+          [
+            "canvas",
+            [
+              {
+                "insert": "v0.0.1",
+                "attributes": {
+                  "link": "https://github.com/Codecaine-AI/canvas/releases/tag/v0.0.1"
+                }
+              }
+            ]
+          ],
+          [
+            "sequence",
+            [
+              {
+                "insert": "v0.0.1",
+                "attributes": {
+                  "link": "https://github.com/Codecaine-AI/sequence/releases/tag/v0.0.1"
+                }
+              }
+            ]
+          ],
+          [
+            "agent-kernel",
+            [
+              {
+                "insert": "v0.0.1",
+                "attributes": {
+                  "link": "https://github.com/Codecaine-AI/agent-kernel/releases/tag/v0.0.1"
+                }
+              }
+            ]
+          ],
+          [
+            "docs-system",
+            [
+              {
+                "insert": "v0.0.1",
+                "attributes": {
+                  "link": "https://github.com/Codecaine-AI/docs-system/releases/tag/v0.0.1"
+                }
+              }
+            ]
+          ],
+          [
+            "observatory",
+            [
+              {
+                "insert": "v0.0.1",
+                "attributes": {
+                  "link": "https://github.com/Codecaine-AI/observatory/releases/tag/v0.0.1"
+                }
+              }
+            ]
+          ]
+        ]
+      },
+      "children": []
+    },
+    "central-3": {
+      "id": "central-3",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A tag belongs to one repository. Docs System can release "
+        },
+        {
+          "insert": "v0.0.2",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " while Canvas remains at "
+        },
+        {
+          "insert": "v0.0.1",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Nested external repositories retain the version owned by their own product."
+        }
+      ],
+      "children": []
+    },
+    "central-4": {
+      "id": "central-4",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Identifier",
+          "Meaning"
+        ],
+        "rows": [
+          [
+            "Product version",
+            "The release version in the product's package manifests."
+          ],
+          [
+            "Git tag and commit",
+            "The immutable source snapshot selected for that product release."
+          ],
+          [
+            "Development build hash",
+            "The exact generated runtime artifact used by the local service, including uncommitted source changes."
+          ],
+          [
+            "Document schema version",
+            "The storage format and migration contract. It changes only when the format requires it."
+          ],
+          [
+            "Signing identity",
+            "The persistent certificate and application identifier used by macOS to recognize the executable."
+          ]
+        ]
+      },
+      "children": []
+    },
+    "central-5": {
+      "id": "central-5",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The Rule"
+        }
+      ],
+      "children": []
+    },
+    "central-6": {
+      "id": "central-6",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Change versions only for products included in a release. Update the product's owned package manifests together, including private tools and examples."
+        }
+      ],
+      "children": []
+    },
+    "central-7": {
+      "id": "central-7",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Keep released tags fixed. Publish corrections under a new version, with the changed behavior and compatibility requirements in the release notes."
+        }
+      ],
+      "children": []
+    },
+    "central-8": {
+      "id": "central-8",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Record the release commit and package inventory in the GitHub asset named "
+        },
+        {
+          "insert": "<product>-<version>-manifest.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". The asset describes the release tree, which can differ from a development checkout."
+        }
+      ],
+      "children": []
+    },
+    "central-9": {
+      "id": "central-9",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Keep "
+        },
+        {
+          "insert": "workspace:*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and existing local dependency references for development. A GitHub source release does not publish npm packages or prove compatibility with every linked checkout."
+        }
+      ],
+      "children": []
+    },
+    "central-10": {
+      "id": "central-10",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Choose subsequent version increments when planning each release. The "
+        },
+        {
+          "insert": "0.0.1",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " baseline establishes independent ownership but does not define an approved pre-1.0 breaking-change policy."
+        }
+      ],
+      "children": []
+    },
+    "central-11": {
+      "id": "central-11",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why"
+        }
+      ],
+      "children": []
+    },
+    "central-12": {
+      "id": "central-12",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Independent product versions allow each product to ship on its own schedule. Keeping the release version, development artifact, schema format, and signing identity distinct makes failures reproducible without treating every source edit as a release."
+        }
+      ],
+      "children": []
+    },
+    "central-13": {
+      "id": "central-13",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The initial GitHub releases provide source archives and package manifests. npm publication and automated release CI are separate work."
+        }
+      ],
+      "children": []
+    }
+  }
+}

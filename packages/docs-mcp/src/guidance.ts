@@ -14,7 +14,7 @@ import {
 import { validateDocDocument } from "../../docs-model/src/doc-schema";
 import { projectToMarkdown } from "../../docs-model/src/project-markdown";
 
-const PACKAGE_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const PACKAGE_ROOT = process.env.CODECAINE_DOCS_PACKAGE_ROOT ?? resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const REPO_ROOT = resolve(PACKAGE_ROOT, "../..");
 export const GUIDANCE_SCHEMA_VERSION = 1;
 export type GuidanceSource = {
@@ -38,7 +38,8 @@ const runtimeFiles = [
   ...componentGuidance().map(component => `packages/docs-model/src/components/${component.name}/manifest.ts`),
 ];
 // JavaScript metadata is imported once. A service restart is necessary after its sources change.
-const initialRuntimeSources = Promise.all(runtimeFiles.map(async path => ({ path, hash: hashGuidanceContent(await readFile(join(REPO_ROOT, path), "utf8")) })));
+declare const __DOCS_RUNTIME_SOURCES__: Record<string, string> | undefined;
+const initialRuntimeSources = Promise.all(runtimeFiles.map(async path => ({ path, hash: typeof __DOCS_RUNTIME_SOURCES__ !== 'undefined' && __DOCS_RUNTIME_SOURCES__[path] || hashGuidanceContent(await readFile(join(REPO_ROOT, path), "utf8")) })));
 
 function renderChecked(file: string, content: string): string {
   let parsed: unknown;
@@ -74,8 +75,8 @@ export async function loadGuidance(options: { docsRoot?: string } = {}): Promise
   }
   for (const initial of await initialRuntimeSources) {
     const current = hashGuidanceContent(await readFile(join(REPO_ROOT, initial.path), "utf8"));
-    if (current !== initial.hash) throw new Error(`Authoring runtime changed: ${initial.path}. Restart the Codecaine Docs service before beginning a new task.`);
-    sources.push({ path: initial.path, sha256: current, kind: initial.path.endsWith("manifest.ts") ? "component-manifest" : "renderer" });
+    if (current !== initial.hash && process.env.CODECAINE_DOCS_MANAGED !== "1") throw new Error(`Authoring runtime changed: ${initial.path}. Restart the Codecaine Docs service before beginning a new task.`);
+    sources.push({ path: initial.path, sha256: initial.hash, kind: initial.path.endsWith("manifest.ts") ? "component-manifest" : "renderer" });
   }
   const skillPath = join(PACKAGE_ROOT, "skills/codecaine-docs/SKILL.md");
   sources.push({ path: relative(REPO_ROOT, skillPath), sha256: hashGuidanceContent(await readFile(skillPath, "utf8")), kind: "skill" });

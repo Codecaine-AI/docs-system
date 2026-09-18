@@ -1,0 +1,330 @@
+{
+  "schemaVersion": 1,
+  "id": "doc-b3a8d4d6309f5ba369744b0266fb5572",
+  "title": "Central Docs Service",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "central-0",
+        "central-1",
+        "central-2",
+        "central-3",
+        "central-4",
+        "central-5",
+        "central-6",
+        "central-7",
+        "central-8",
+        "central-9",
+        "central-10",
+        "central-11",
+        "central-12",
+        "central-13",
+        "central-14",
+        "central-15",
+        "central-16",
+        "central-17"
+      ]
+    },
+    "central-0": {
+      "id": "central-0",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The local Docs service provides one public address at "
+        },
+        {
+          "insert": "http://localhost:4820/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Each registered corpus opens at "
+        },
+        {
+          "insert": "/projects/<project-id>/docs/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and every project uses the shared viewer and active write authority."
+        }
+      ],
+      "children": []
+    },
+    "central-1": {
+      "id": "central-1",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Structure"
+        }
+      ],
+      "children": []
+    },
+    "central-2": {
+      "id": "central-2",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Part",
+          "Responsibility"
+        ],
+        "rows": [
+          [
+            "Signed application",
+            "Starts the supervisor through a stable launcher and bundled runtimes."
+          ],
+          [
+            "macOS LaunchAgent",
+            "Starts the application at login and keeps it running in the user's session."
+          ],
+          [
+            "Supervisor on port 4820",
+            "Routes project pages, browser API requests, authenticated MCP requests, and hot-reload connections."
+          ],
+          [
+            "Managed Bun runtime",
+            "Owns typed edits, revisions, tasks, draft locks, project stores, and change events."
+          ],
+          [
+            "Shared Vite viewer",
+            "Runs in a separate signed Node process on an OS-assigned loopback port."
+          ],
+          [
+            "Project registry",
+            "Persists workspace paths, corpus paths, and project IDs across service restarts."
+          ]
+        ]
+      },
+      "children": []
+    },
+    "central-3": {
+      "id": "central-3",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Documents remain in their project's native Docs corpus. Registration changes how a project is reached, without copying its documents into a central data directory. Only normalized corpora are registered. Markdown-only folders require the supported migration workflow."
+        }
+      ],
+      "children": []
+    },
+    "central-4": {
+      "id": "central-4",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The Rule"
+        }
+      ],
+      "children": []
+    },
+    "central-5": {
+      "id": "central-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Bind the service to loopback. Browser requests must come from the same origin, and MCP requests must carry the local service token."
+        }
+      ],
+      "children": []
+    },
+    "central-6": {
+      "id": "central-6",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Route every document request through its project ID. Browser preferences and session IDs are scoped to the project, and draft locks remain scoped to the corpus."
+        }
+      ],
+      "children": []
+    },
+    "central-7": {
+      "id": "central-7",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Keep one active runtime for browser and MCP writes. A replacement waits for requests, authoring tasks, and active editor leases to finish."
+        }
+      ],
+      "children": []
+    },
+    "central-8": {
+      "id": "central-8",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Keep the public port fixed. Internal ports are private implementation details selected by the operating system, so projects do not reserve public ports."
+        }
+      ],
+      "children": []
+    },
+    "central-9": {
+      "id": "central-9",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Update Behavior"
+        }
+      ],
+      "children": []
+    },
+    "central-10": {
+      "id": "central-10",
+      "type": "process-outline",
+      "props": {
+        "steps": [
+          {
+            "text": "Apply a local runtime update",
+            "steps": [
+              {
+                "text": "Watch the runtime source and linked Core packages"
+              },
+              {
+                "text": "Bundle the changed source",
+                "steps": [
+                  {
+                    "text": "If the build fails, keep the active runtime"
+                  }
+                ]
+              },
+              {
+                "text": "Start a replacement runtime",
+                "steps": [
+                  {
+                    "text": "Check readiness and registered workspaces"
+                  },
+                  {
+                    "text": "If startup fails, keep the active runtime"
+                  }
+                ]
+              },
+              {
+                "text": "Wait for the write authority to become idle",
+                "steps": [
+                  {
+                    "text": "Open authoring tasks and editor leases delay replacement.",
+                    "kind": "note"
+                  }
+                ]
+              },
+              {
+                "text": "Activate the replacement",
+                "steps": [
+                  {
+                    "text": "Reconnect document event streams through the same address"
+                  },
+                  {
+                    "text": "Retain the successful artifact for startup recovery"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "children": []
+    },
+    "central-11": {
+      "id": "central-11",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Saved document changes publish change events without a source build. Frontend source changes use Vite HMR. Runtime source changes trigger a debounced build and health-checked replacement. Supervisor or package configuration changes restart the service after active authoring work finishes."
+        }
+      ],
+      "children": []
+    },
+    "central-12": {
+      "id": "central-12",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A failed runtime build leaves the active API available. A crashed runtime is restarted using the prior successful artifact when available. A supervisor startup failure can restore the prior supervisor. Source updates do not guarantee preservation of unsaved browser state across a full page reload."
+        }
+      ],
+      "children": []
+    },
+    "central-13": {
+      "id": "central-13",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Signing Boundary"
+        }
+      ],
+      "children": []
+    },
+    "central-14": {
+      "id": "central-14",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The signed application bundles the launcher, Bun, Node, and bootstrap. Editable JavaScript runs from the local service state directory and the checkout. Ordinary source updates leave the signed application untouched."
+        }
+      ],
+      "children": []
+    },
+    "central-15": {
+      "id": "central-15",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Reinstalling native executables uses the pinned local signing certificate and fixed application identifiers. This follows the local Sotto signing setup. New macOS capabilities can still require permission, and the local certificate is not a public notarized distribution identity."
+        }
+      ],
+      "children": []
+    },
+    "central-16": {
+      "id": "central-16",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why"
+        }
+      ],
+      "children": []
+    },
+    "central-17": {
+      "id": "central-17",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "One project directory removes the need to remember a port for each corpus. Separating the stable signed launcher, the replaceable write runtime, and the shared viewer allows code updates while retaining one local address."
+        }
+      ],
+      "children": []
+    }
+  }
+}

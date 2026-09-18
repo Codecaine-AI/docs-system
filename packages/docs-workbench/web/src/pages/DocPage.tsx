@@ -1,3 +1,4 @@
+import { projectStorage } from "../data/project-storage";
 import { PageTransition } from "@codecaine-ai/docs-viewer/page-transition";
 import {
   useCallback,
@@ -282,7 +283,7 @@ export function DocPage({
   // reports its real width on tab changes via onPanelWidthChange.
   const [labPanelHidden, setLabPanelHidden] = useState(() => {
     try {
-      return localStorage.getItem("docs-lab-panel-hidden") !== "false";
+      return projectStorage.getItem("docs-lab-panel-hidden") !== "false";
     } catch {
       return true;
     }
@@ -400,7 +401,7 @@ export function DocPage({
     setBacklinks([]);
     if (consumeAiModeHandoff()) {
       setLabPanelHidden(false);
-      try { localStorage.setItem("docs-lab-panel-hidden", "false"); } catch {}
+      try { projectStorage.setItem("docs-lab-panel-hidden", "false"); } catch {}
     }
     setSaveState("saved");
     setSelection(null);
@@ -763,7 +764,7 @@ export function DocPage({
     const hidden = next !== "annotate";
     setLabPanelHidden(hidden);
     try {
-      localStorage.setItem("docs-lab-panel-hidden", String(hidden));
+      projectStorage.setItem("docs-lab-panel-hidden", String(hidden));
     } catch {
       // Keep the toggle usable when browser storage is unavailable.
     }

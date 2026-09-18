@@ -1,17 +1,21 @@
 import { sharedDocsApiFromEnvironment, type SharedDocsApiOptions } from "./shared-api";
 import { existsSync } from "node:fs";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 
 import { startDocsServe } from "./server";
 import { ensureSpaBuilt, webDir } from "./spa";
+import { centralProjectUrl } from "./central-service";
 
 /**
- * `docs-cli serve` entrypoint. Default mode builds the SPA once (vite build,
+ * `docs-cli serve` connects to the installed central host by default.
+ * Explicit standalone mode builds the SPA once (vite build,
  * cached in packages/docs-workbench/web/dist) and serves API + static SPA from ONE port.
  * `--dev` instead starts the API alone and spawns `vite dev` with an /api
  * proxy pointed at it (SPA hot reload; two ports).
  */
 export interface RunServeOptions {
+  /** Explicit opt-out for isolated renderer development and standalone embedding. */
+  standalone?: boolean;
   sharedApi?: SharedDocsApiOptions;
   docsRoot: string;
   /** Theme folder used by the theme API; defaults to the docs-root sibling. */
@@ -41,6 +45,16 @@ export async function runServe(options: RunServeOptions): Promise<void> {
   const log = options.log ?? ((message: string) => console.error(message));
   const { docsRoot, port } = options;
   const configuredSharedApi = options.sharedApi ?? sharedDocsApiFromEnvironment();
+  if (!options.standalone && !configuredSharedApi) {
+    const centralUrl = await centralProjectUrl(docsRoot);
+    if (centralUrl) {
+      const customThemes = options.themesRoot && resolve(options.themesRoot) !== resolve(webDir(), '../../../themes');
+      if (options.themeLocked || customThemes || options.kernelUrl || options.corpus) {
+        throw new Error('Custom theme or kernel serve options require --standalone. The central host uses each registered project\'s configuration.');
+      }
+      log(`[docs-workbench] ${centralUrl}`); return;
+    }
+  }
   const sharedApi = configuredSharedApi && options.dev ? {
     ...configuredSharedApi,
     allowedBrowserOrigins: [
