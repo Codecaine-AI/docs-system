@@ -12,7 +12,8 @@
         "maintenance-0",
         "maintenance-1",
         "core-releases-guide",
-        "central-service-guide"
+        "central-service-guide",
+        "pdf-export-guide"
       ]
     },
     "maintenance-0": {
@@ -82,6 +83,26 @@
         },
         {
           "insert": " explains opening projects, hot reload, service commands, and local recovery."
+        }
+      ],
+      "children": []
+    },
+    "pdf-export-guide": {
+      "id": "pdf-export-guide",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Export Pages as PDF",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "40-guides/40-export-pdf"
+            }
+          }
+        },
+        {
+          "insert": " explains selecting pages, choosing combined PDFs or individual PDFs, preserving folder paths in a ZIP, and recovering from export errors."
         }
       ],
       "children": []

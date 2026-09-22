@@ -1,6 +1,7 @@
 import { createInteractionService } from './service';
 import { loadGuidance } from './guidance';
 import type { DocsProject } from './discovery';
+import { handlePdfExport } from '@codecaine-ai/docs-workbench/pdf-export';
 
 const token = process.env.CODECAINE_DOCS_RUNTIME_TOKEN!;
 const supervisorPid = process.ppid;
@@ -26,6 +27,7 @@ const server = Bun.serve({ hostname: '127.0.0.1', port: 0, idleTimeout: 120, asy
     if (match) {
       const project = service.project(match[1]!);
       if (!project) return Response.json({ detail: 'Unknown project; register its workspace first.' }, { status: 404 });
+      if (url.pathname.endsWith('/api/export-pdf')) return handlePdfExport(request);
       if (url.pathname.endsWith('/api/serve-config')) return Response.json({ themeLocked: false });
       if (url.pathname.endsWith('/api/lab-config')) return Response.json({ kernelUrl: 'http://127.0.0.1:4840', corpus: project.name });
       return service.uiRequest(match[1]!, request);

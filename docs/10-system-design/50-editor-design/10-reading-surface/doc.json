@@ -19,6 +19,14 @@
         "b-rsurf-navigation",
         "b-rsurf-peek",
         "b-rsurf-backlinks",
+        "pdf-reading-0",
+        "pdf-reading-1",
+        "pdf-reading-2",
+        "pdf-reading-3",
+        "pdf-reading-4",
+        "pdf-reading-5",
+        "pdf-reading-6",
+        "pdf-reading-7",
         "b-rsurf-why-heading",
         "b-rsurf-why-rhythm",
         "b-rsurf-why-context",
@@ -437,6 +445,96 @@
       "text": [
         {
           "insert": "A plain “Referenced by” footer after the document lists the unique source paths that reference it."
+        }
+      ],
+      "children": []
+    },
+    "pdf-reading-0": {
+      "id": "pdf-reading-0",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "PDF Export"
+        }
+      ],
+      "children": []
+    },
+    "pdf-reading-1": {
+      "id": "pdf-reading-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The live workbench exposes Export beside the sidebar title. The dialog starts with the current page selected and ZIP of PDFs as the format. Page checkboxes select individual docs. Folder checkboxes select descendants, and Select section includes a parent page with all its descendants."
+        }
+      ],
+      "children": []
+    },
+    "pdf-reading-2": {
+      "id": "pdf-reading-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Export reads saved pages in sidebar order. A docs page may produce several A4 PDF sheets. The dialog allows 1 to 100 selected docs pages."
+        }
+      ],
+      "children": []
+    },
+    "pdf-reading-3": {
+      "id": "pdf-reading-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "One combined PDF starts each docs page on a new sheet and numbers the whole file continuously. Separate files use a sequence number and the page's final path segment to avoid duplicate download names."
+        }
+      ],
+      "children": []
+    },
+    "pdf-reading-4": {
+      "id": "pdf-reading-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "ZIP entries use the docs-root-relative page path with a .pdf extension. A parent page exports beside the directory containing its children, preserving numbered folder names."
+        }
+      ],
+      "children": []
+    },
+    "pdf-reading-5": {
+      "id": "pdf-reading-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Print output omits editor controls and uses light colors. Canvas and Sequence sidecars render as static diagrams. Code annotations become text notes. Native disclosures open, and videos become a note referring to the live page."
+        }
+      ],
+      "children": []
+    },
+    "pdf-reading-6": {
+      "id": "pdf-reading-6",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Embedded HTML prints without scripts. Images must be available as data or same-origin Docs assets. Missing sidecars, failed resources, oversized requests, and HTML taller than one printable sheet report errors instead of a completed batch."
+        }
+      ],
+      "children": []
+    },
+    "pdf-reading-7": {
+      "id": "pdf-reading-7",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The dialog shows progress and offers download links after completion. Cancel stops the client batch. A render already accepted by the server can finish before the printer becomes available again. Static website exports do not expose PDF export."
         }
       ],
       "children": []

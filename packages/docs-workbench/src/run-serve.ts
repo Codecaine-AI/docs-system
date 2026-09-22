@@ -78,6 +78,7 @@ export async function runServe(options: RunServeOptions): Promise<void> {
       port,
       hostname,
       staticDir: null,
+      pdfOrigins: [`http://localhost:${options.uiPort ?? 4801}`, `http://127.0.0.1:${options.uiPort ?? 4801}`],
       watchFs: true,
       themeLocked: options.themeLocked,
       kernelUrl: options.kernelUrl,

@@ -10,6 +10,7 @@ import { StandaloneCanvasEmbed } from "../pages/CanvasEmbed";
 import { StandaloneSequenceEmbed } from "../pages/SequenceEmbed";
 import { DocPage } from "../pages/DocPage";
 import { Sidebar } from "./Sidebar";
+import { ExportDialog } from "./ExportDialog";
 import {
   StyleRail,
   StyleRailOverlay,
@@ -181,6 +182,7 @@ function firstBundlePath(nodes: DocsTreeNode[]): string | null {
 }
 
 export function App() {
+  const [exportOpen, setExportOpen] = useState(false);
   const [tree, setTree] = useState<DocsTreeNode[] | null>(null);
   const [treeError, setTreeError] = useState<string | null>(null);
   const [path, setPath] = useState<string | null>(readHashPath());
@@ -468,6 +470,7 @@ export function App() {
                 </span>
               )}
             </div>
+            {!IS_STATIC && <button type="button" className="rounded border px-2 py-1 text-xs hover:bg-muted" disabled={!tree} onClick={() => setExportOpen(true)}>Export</button>}
           </div>
           <div className="min-h-0 flex-1">
             {treeError ? (
@@ -539,6 +542,7 @@ export function App() {
         )}
       </div>
       <StyleRailOverlay settings={styleSettings} dark={dark} />
+      {exportOpen && tree && <ExportDialog tree={tree} currentPath={path} onClose={() => setExportOpen(false)} />}
     </DocsClientProvider>
   );
 }

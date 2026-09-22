@@ -14,6 +14,7 @@
         "b-wb-gov-editor",
         "b-wb-gov-interactions",
         "b-wb-gov-mut",
+        "pdf-workbench-governed",
         "b-wb-decisions-h",
         "b-wb-thin-h",
         "b-wb-thin-d",
@@ -30,6 +31,14 @@
         "b-wb-static-h",
         "b-wb-static-d",
         "b-wb-static-w",
+        "pdf-workbench-0",
+        "pdf-workbench-1",
+        "pdf-workbench-2",
+        "pdf-workbench-3",
+        "pdf-workbench-4",
+        "pdf-workbench-5",
+        "pdf-workbench-6",
+        "pdf-workbench-7",
         "b-wb-static-a"
       ]
     },
@@ -39,7 +48,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Structural decisions for the workbench composition host — the shell that binds the viewer and server into a running app. Source: "
+          "insert": "Structural decisions for the workbench composition host, the shell that binds the viewer and server into a running app. Source: "
         },
         {
           "insert": "packages/docs-workbench",
@@ -86,7 +95,7 @@
           }
         },
         {
-          "insert": " — the surfaces the host composes."
+          "insert": " defines the surfaces the host composes."
         }
       ],
       "children": []
@@ -107,7 +116,7 @@
           }
         },
         {
-          "insert": " — the human interaction semantics, including save, conflict, and reload behavior."
+          "insert": " defines save, conflict, and reload behavior."
         }
       ],
       "children": []
@@ -128,7 +137,27 @@
           }
         },
         {
-          "insert": " — the write contract behind every host callback."
+          "insert": " defines the write contract behind every host callback."
+        }
+      ],
+      "children": []
+    },
+    "pdf-workbench-governed": {
+      "id": "pdf-workbench-governed",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Reading Surface",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/10-reading-surface"
+            }
+          }
+        },
+        {
+          "insert": " defines PDF selection, format, and printed-content behavior."
         }
       ],
       "children": []
@@ -167,7 +196,7 @@
       },
       "text": [
         {
-          "insert": "Decision: Capabilities live in docs-viewer and docs-server; the workbench composes them and supplies the callbacks — data, persistence, locks, uploads, navigation, embeds — without defining block rendering, editor semantics, or write rules of its own."
+          "insert": "Decision: Capabilities live in docs-viewer and docs-server; the workbench composes them and supplies the callbacks, data, persistence, locks, uploads, navigation, embeds, without defining block rendering, editor semantics, or write rules of its own."
         }
       ],
       "children": []
@@ -180,7 +209,7 @@
       },
       "text": [
         {
-          "insert": "Why: Reimplementing interactions in the host was rejected — a second implementation drifts from the packages and breaks every other host that embeds them."
+          "insert": "Why: Reimplementing interactions in the host was rejected. A second implementation drifts from the packages and breaks every other host that embeds them."
         }
       ],
       "children": []
@@ -202,7 +231,7 @@
           }
         },
         {
-          "insert": " — every future host page and shell feature stays composition glue."
+          "insert": ". Every future host page and shell feature stays composition glue."
         }
       ],
       "children": []
@@ -272,7 +301,7 @@
           }
         },
         {
-          "insert": " — future input features land as viewer extensions."
+          "insert": ". Future input features land as viewer extensions."
         }
       ],
       "children": []
@@ -324,7 +353,7 @@
       },
       "text": [
         {
-          "insert": "Why: A host-local catalog was rejected — it drifts from the model registry and the design vocabulary the moment a block changes."
+          "insert": "Why: A host-local catalog was rejected. It drifts from the model registry and the design vocabulary the moment a block changes."
         }
       ],
       "children": []
@@ -346,7 +375,7 @@
           }
         },
         {
-          "insert": " — future block UI reads the model registries and design docs, never a host copy."
+          "insert": ". Future block UI reads the model registries and design docs, never a host copy."
         }
       ],
       "children": []
@@ -372,7 +401,7 @@
       },
       "text": [
         {
-          "insert": "Decision: The static export ships no write endpoints — the exported artifact contains no mutation surface — and the build-time data adapter in "
+          "insert": "Decision: The static export ships no write endpoints, the exported artifact contains no mutation surface, and the build-time data adapter in "
         },
         {
           "insert": "packages/docs-workbench/web/src/data/api.ts",
@@ -433,7 +462,177 @@
       },
       "text": [
         {
-          "insert": "Why: Runtime capability flags alone were rejected — an export that merely hides write UI but still ships write paths can drift; omitting the endpoints makes the read-only guarantee structural."
+          "insert": "Why: Runtime capability flags alone were rejected. An export that merely hides write UI but still ships write paths can drift; omitting the endpoints makes the read-only guarantee structural."
+        }
+      ],
+      "children": []
+    },
+    "pdf-workbench-0": {
+      "id": "pdf-workbench-0",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "PDF Export Reuses the Viewer and an Offline Printer"
+        }
+      ],
+      "children": []
+    },
+    "pdf-workbench-1": {
+      "id": "pdf-workbench-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Decision: "
+        },
+        {
+          "insert": "ExportDialog.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/shell/ExportDialog.tsx"
+            }
+          }
+        },
+        {
+          "insert": " selects saved pages, requests one PDF per page, and assembles the final download. "
+        },
+        {
+          "insert": "pdf-document.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/lib/pdf-document.tsx"
+            }
+          }
+        },
+        {
+          "insert": " reuses DocBlockRenderer with print-specific code and HTML output, static diagram embeds, and inline image assets."
+        }
+      ],
+      "children": []
+    },
+    "pdf-workbench-2": {
+      "id": "pdf-workbench-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Why: Reusing the viewer retains typed block rendering while print-specific transformations handle pagination and content that cannot remain interactive. pdf-lib joins PDFs and adds combined page numbers. fflate packages per-page PDFs under the paths computed by "
+        },
+        {
+          "insert": "pdf-selection.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/lib/pdf-selection.ts"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "pdf-workbench-3": {
+      "id": "pdf-workbench-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Applies to: Future export formats under "
+        },
+        {
+          "insert": "packages/docs-workbench/web/src/lib",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/lib"
+            }
+          }
+        },
+        {
+          "insert": " and the export dialog must use saved bundles without mutating source documents."
+        }
+      ],
+      "children": []
+    },
+    "pdf-workbench-4": {
+      "id": "pdf-workbench-4",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "PDF Rendering Belongs to the Live Host"
+        }
+      ],
+      "children": []
+    },
+    "pdf-workbench-5": {
+      "id": "pdf-workbench-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Decision: "
+        },
+        {
+          "insert": "pdf-export.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/src/pdf-export.ts"
+            }
+          }
+        },
+        {
+          "insert": " handles POST /api/export-pdf in the standalone host and in "
+        },
+        {
+          "insert": "managed-runtime.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-mcp/src/managed-runtime.ts"
+            }
+          }
+        },
+        {
+          "insert": " for central project routes. It launches an isolated Chromium context with author JavaScript, service workers, and network requests disabled."
+        }
+      ],
+      "children": []
+    },
+    "pdf-workbench-6": {
+      "id": "pdf-workbench-6",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Why: Browser printing retains selectable text and browser layout while keeping credentials and project filesystem reads out of the printer. The client supplies self-contained HTML. Playwright resolves at runtime because its browser resources cannot be included in the central service's single-file bundle."
+        }
+      ],
+      "children": []
+    },
+    "pdf-workbench-7": {
+      "id": "pdf-workbench-7",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Applies to: Both route mounts use the same handler. It bounds each request to 20 MiB, allows one active render per runtime, closes the browser after completion, and enforces a 60-second post-launch deadline. Embedded HTML frames above 970 CSS pixels fail before printing."
         }
       ],
       "children": []
@@ -464,7 +663,7 @@
           }
         },
         {
-          "insert": " — future capability additions must be wired through the same adapter and capability agreement."
+          "insert": ". Future capability additions must be wired through the same adapter and capability agreement."
         }
       ],
       "children": []

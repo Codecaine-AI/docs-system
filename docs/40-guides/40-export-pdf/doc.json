@@ -1,0 +1,385 @@
+{
+  "schemaVersion": 1,
+  "id": "doc-bc458a1e43d6ee3b4fe6d2864236d278",
+  "title": "Export Pages as PDF",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "pdf-guide-0",
+        "pdf-guide-1",
+        "pdf-guide-2",
+        "pdf-guide-3",
+        "pdf-guide-4",
+        "pdf-guide-5",
+        "pdf-guide-6",
+        "pdf-guide-7",
+        "pdf-guide-8",
+        "pdf-guide-9",
+        "pdf-guide-10",
+        "pdf-guide-11",
+        "pdf-guide-12",
+        "pdf-guide-13",
+        "pdf-guide-14",
+        "pdf-guide-15",
+        "pdf-guide-16",
+        "pdf-guide-17",
+        "pdf-guide-18",
+        "pdf-guide-19",
+        "pdf-guide-20",
+        "pdf-guide-21",
+        "pdf-guide-22",
+        "pdf-guide-23"
+      ]
+    },
+    "pdf-guide-0": {
+      "id": "pdf-guide-0",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Use Export to download saved Docs pages as PDFs. This guide covers choosing pages, selecting a download format, and recovering from export errors."
+        }
+      ],
+      "children": []
+    },
+    "pdf-guide-1": {
+      "id": "pdf-guide-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "Reading Surface",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/10-reading-surface"
+            }
+          }
+        },
+        {
+          "insert": " defines export behavior. "
+        },
+        {
+          "insert": "Workbench",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "30-implementation/20-workbench"
+            }
+          }
+        },
+        {
+          "insert": " maps that behavior to the renderer and server."
+        }
+      ],
+      "children": []
+    },
+    "pdf-guide-2": {
+      "id": "pdf-guide-2",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Export Selected Pages"
+        }
+      ],
+      "children": []
+    },
+    "pdf-guide-3": {
+      "id": "pdf-guide-3",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Wait for the document's save indicator to show Saved."
+        }
+      ],
+      "children": []
+    },
+    "pdf-guide-4": {
+      "id": "pdf-guide-4",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Click Export beside Docs at the top of the sidebar."
+        }
+      ],
+      "children": []
+    },
+    "pdf-guide-5": {
+      "id": "pdf-guide-5",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Choose pages in the tree. Use a folder checkbox for its descendants or Select section for a parent page and its descendants."
+        }
+      ],
+      "children": []
+    },
+    "pdf-guide-6": {
+      "id": "pdf-guide-6",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Choose the download format below."
+        }
+      ],
+      "children": []
+    },
+    "pdf-guide-7": {
+      "id": "pdf-guide-7",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Click Export. Keep the dialog open until the downloads are ready."
+        }
+      ],
+      "children": []
+    },
+    "pdf-guide-8": {
+      "id": "pdf-guide-8",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Choose a Download Format"
+        }
+      ],
+      "children": []
+    },
+    "pdf-guide-9": {
+      "id": "pdf-guide-9",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Format",
+          "Download",
+          "Use It When"
+        ],
+        "rows": [
+          [
+            "ZIP of PDFs",
+            "docs-pdfs.zip, with one PDF per selected docs page and numbered folder paths preserved.",
+            "You want a portable collection with its hierarchy. This is the default."
+          ],
+          [
+            "One combined PDF",
+            "docs.pdf, with each docs page starting on a new sheet and continuous page numbering.",
+            "You want one file to read or share."
+          ],
+          [
+            "Separate PDF files",
+            "One PDF per docs page, with a sequence number before each filename.",
+            "You want individual files without extracting a ZIP."
+          ]
+        ]
+      },
+      "children": []
+    },
+    "pdf-guide-10": {
+      "id": "pdf-guide-10",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A docs page can span multiple PDF sheets. Export order follows the sidebar. A ZIP can contain both 10-guide.pdf and 10-guide/20-setup.pdf when a selected parent page also has selected children."
+        }
+      ],
+      "children": []
+    },
+    "pdf-guide-11": {
+      "id": "pdf-guide-11",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Retrieve the Downloads"
+        }
+      ],
+      "children": []
+    },
+    "pdf-guide-12": {
+      "id": "pdf-guide-12",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "If the browser blocks automatic downloads, use the download links in the completed dialog. For separate PDFs, allow multiple downloads when prompted. Download links remain available while the dialog stays open."
+        }
+      ],
+      "children": []
+    },
+    "pdf-guide-13": {
+      "id": "pdf-guide-13",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Prepare Content for Printing"
+        }
+      ],
+      "children": []
+    },
+    "pdf-guide-14": {
+      "id": "pdf-guide-14",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Select at most 100 docs pages per export. Wait for saves to finish because export reads saved content without flushing the editor."
+        }
+      ],
+      "children": []
+    },
+    "pdf-guide-15": {
+      "id": "pdf-guide-15",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Save Canvas and Sequence diagrams as document sidecars. Studio-only references without saved sidecars cannot export."
+        }
+      ],
+      "children": []
+    },
+    "pdf-guide-16": {
+      "id": "pdf-guide-16",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Store images in Docs. The printer cannot fetch external resources. Videos become a note directing readers to the live page."
+        }
+      ],
+      "children": []
+    },
+    "pdf-guide-17": {
+      "id": "pdf-guide-17",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Keep embedded HTML self-contained. Scripts do not run during printing. Split an HTML block if export reports that it exceeds one PDF sheet."
+        }
+      ],
+      "children": []
+    },
+    "pdf-guide-18": {
+      "id": "pdf-guide-18",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Recover From an Export Error"
+        }
+      ],
+      "children": []
+    },
+    "pdf-guide-19": {
+      "id": "pdf-guide-19",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A 404 from the PDF export request means the server handling that window has no export route. Refreshing a window connected to an older backend does not install the missing route."
+        }
+      ],
+      "children": []
+    },
+    "pdf-guide-20": {
+      "id": "pdf-guide-20",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "For central Docs, use "
+        },
+        {
+          "insert": "Run the Central Docs Service",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "40-guides/30-run-central-docs"
+            }
+          }
+        },
+        {
+          "insert": " to check update status. A backend waiting for authoring tasks cannot activate until those tasks and active draft locks are released. Finish the owning tasks normally. Coordinate any restart with their owners rather than interrupting active work. For a standalone server, rebuild and restart that server with the updated source."
+        }
+      ],
+      "children": []
+    },
+    "pdf-guide-21": {
+      "id": "pdf-guide-21",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "If Chromium is missing, run bunx playwright install chromium from packages/docs-workbench, then retry. The printer also attempts an installed Google Chrome browser when bundled Chromium cannot start."
+        }
+      ],
+      "children": []
+    },
+    "pdf-guide-22": {
+      "id": "pdf-guide-22",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "For a 429 response, wait for the other PDF render to finish. For a 413 response, reduce the page's embedded image or HTML payload. The request limit is 20 MiB per docs page. A failed batch does not offer a partial archive; correct the reported issue and export again."
+        }
+      ],
+      "children": []
+    },
+    "pdf-guide-23": {
+      "id": "pdf-guide-23",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The sidebar export button requires a live Docs server. The docs-cli export command creates a static website with Markdown copies; that website does not provide PDF generation."
+        }
+      ],
+      "children": []
+    }
+  }
+}

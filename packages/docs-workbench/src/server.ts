@@ -1,4 +1,5 @@
 import { createSharedDocsApiProxy, type SharedDocsApiOptions } from "./shared-api";
+import { handlePdfExport } from "./pdf-export";
 import { existsSync } from "node:fs";
 import { readFile, stat } from "node:fs/promises";
 import { join } from "node:path";
@@ -70,6 +71,8 @@ export interface DocsServeAppOptions {
   kernelUrl?: string;
   /** Kernel corpus this served docs tree belongs to. */
   corpus?: string;
+  /** Explicit development UI origins allowed to request offline PDF printing. */
+  pdfOrigins?: string[];
 }
 
 /**
@@ -107,7 +110,7 @@ export function createDocsServeApp(options: DocsServeAppOptions) {
       if (themeLocked && /^\/api\/themes(?:\/|$)/.test(pathname) && !["GET", "HEAD", "OPTIONS"].includes(request.method)) {
         return Response.json({ detail: "Theme is locked on this serve: edit the theme in the primary docs-system app." }, { status: 403 });
       }
-      if (pathname.startsWith("/api/") && pathname !== "/api/serve-config" && pathname !== "/api/lab-config") {
+      if (pathname.startsWith("/api/") && pathname !== "/api/serve-config" && pathname !== "/api/lab-config" && pathname !== "/api/export-pdf") {
         return proxy(request);
       }
     });
@@ -125,6 +128,7 @@ export function createDocsServeApp(options: DocsServeAppOptions) {
     }
   }
   app
+    .post("/api/export-pdf", ({ request }) => handlePdfExport(request, options.pdfOrigins), { parse: "none" })
     // Serve config lives at the WORKBENCH level, not in the docs-server
     // route table: themeLocked is a property of this serve invocation, not
     // of the docs tree, so hosts embedding createDocsRoutes directly are

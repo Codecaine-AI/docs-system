@@ -46,6 +46,22 @@ The living Default theme defines the document frame below.
 
   - A plain “Referenced by” footer after the document lists the unique source paths that reference it.
 
+## PDF Export
+
+The live workbench exposes Export beside the sidebar title. The dialog starts with the current page selected and ZIP of PDFs as the format. Page checkboxes select individual docs. Folder checkboxes select descendants, and Select section includes a parent page with all its descendants.
+
+- Export reads saved pages in sidebar order. A docs page may produce several A4 PDF sheets. The dialog allows 1 to 100 selected docs pages.
+
+- One combined PDF starts each docs page on a new sheet and numbers the whole file continuously. Separate files use a sequence number and the page's final path segment to avoid duplicate download names.
+
+- ZIP entries use the docs-root-relative page path with a .pdf extension. A parent page exports beside the directory containing its children, preserving numbered folder names.
+
+- Print output omits editor controls and uses light colors. Canvas and Sequence sidecars render as static diagrams. Code annotations become text notes. Native disclosures open, and videos become a note referring to the live page.
+
+- Embedded HTML prints without scripts. Images must be available as data or same-origin Docs assets. Missing sidecars, failed resources, oversized requests, and HTML taller than one printable sheet report errors instead of a completed batch.
+
+The dialog shows progress and offers download links after completion. Cancel stops the client batch. A render already accepted by the server can finish before the printer becomes available again. Static website exports do not expose PDF export.
+
 ## Why
 
 - **One reading rhythm**
