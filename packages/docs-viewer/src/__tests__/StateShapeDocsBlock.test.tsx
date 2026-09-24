@@ -160,9 +160,14 @@ describe("StateShapeBlock — bounded header", () => {
     expect(source.getAttribute("data-shape-source")).toBe(
       "packages/docs-model/src/components/state-shape/state.ts#StateShapeState",
     );
-    expect(document.querySelector("[data-shape-description]")?.textContent).toBe(
-      "The state-shape block's own props.",
-    );
+    const description = document.querySelector("[data-shape-description]");
+    expect(description?.textContent).toContain("The state-shape block's own props.");
+    expect(description?.getAttribute("role")).toBe("tooltip");
+    expect(description?.className).toContain("--docs-shape-desc-fg");
+    const describedName = heading?.matches('[data-has-description="true"]') ? heading : null;
+    expect(describedName?.getAttribute("tabindex")).toBe("0");
+    expect(describedName?.getAttribute("aria-describedby")).toBe(description?.id);
+    expect(heading?.closest('[data-described="true"]')).not.toBeNull();
   });
 
   it("separates field rows and ends branches at the last child", () => {
@@ -203,15 +208,40 @@ describe("StateShapeBlock — bounded header", () => {
     expect(optional?.textContent).toBe("?");
     expect(optional?.getAttribute("aria-label")).toBe("optional");
     expect(optional?.className).toContain("--docs-shape-optional-fg");
-    // Description renders as a muted second line inside the row.
+    // Description is a tooltip attached to the field name.
     const described = treeRow("name") as HTMLElement;
     const description = described.querySelector('[data-field-token="description"]');
-    expect(description?.textContent).toBe("Shape display name");
+    expect(description?.textContent).toContain("Shape display name");
+    expect(description?.getAttribute("role")).toBe("tooltip");
     expect(description?.className).toContain("--docs-shape-desc-fg");
-    // Descriptions retain the approved compact line height.
-    expect(description?.className).toContain("leading-5");
+    const describedFieldName = described.querySelector('[data-field-token="name"]');
+    expect(describedFieldName?.getAttribute("data-has-description")).toBe("true");
+    expect(describedFieldName?.getAttribute("tabindex")).toBe("0");
+    expect(describedFieldName?.getAttribute("aria-describedby")).toBe(description?.id);
+    expect(described.querySelector('[data-described="true"]')).not.toBeNull();
+    expect(describedFieldName?.closest('[data-name-row="true"]')).not.toBeNull();
+    // A field without a description remains plain and unfocusable.
+    const plainFieldName = row.querySelector('[data-field-token="name"]');
+    expect(plainFieldName?.getAttribute("data-has-description")).toBeNull();
+    expect(plainFieldName?.getAttribute("tabindex")).toBeNull();
+    expect(plainFieldName?.getAttribute("aria-describedby")).toBeNull();
+    expect(row.querySelector('[data-described="true"]')).toBeNull();
     // A required field renders no `?`.
     expect(treeRow("fields.name")?.querySelector('[data-field-token="optional"]')).toBeNull();
+  });
+
+  it("injects hover, keyboard-focus, and print tooltip styles", () => {
+    renderTwoPane();
+    const styles = Array.from(document.querySelectorAll("style"))
+      .map((style) => style.textContent ?? "")
+      .join("\n");
+    expect(styles).toContain(":has(:focus-visible)");
+    expect(styles).toContain("@media print");
+    expect(styles).toContain("[data-described]{display:contents}");
+    expect(styles).toContain("flex-basis:100%");
+    expect(styles).toContain("[data-shape-field] [data-tree-line]");
+    expect(styles).not.toContain("[data-shape-field] [aria-hidden]");
+    expect(styles).toMatch(/\[data-shape-field\]:has\(\[data-described\]:hover\)[^{]*\{position:relative;z-index:31\}/);
   });
 
   it("chips union members in their original order", () => {

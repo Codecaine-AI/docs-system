@@ -10,10 +10,15 @@
       "props": {},
       "children": [
         "b-25-state-shape-lead-2",
+        "component-worked-example-rule",
         "b-25-state-shape-lead-doctrine",
+        "field-description-authoring",
         "b-25-state-shape-example-heading",
         "b-25-state-shape-example-intro",
         "b-25-state-shape-example-block",
+        "worked-operation-context",
+        "worked-operation-signature",
+        "worked-operation-return",
         "b-25-state-shape-state-h-3",
         "b-25-state-shape-schema-intro",
         "b-25-state-shape-state-4",
@@ -35,6 +40,7 @@
         "b-25-state-shape-dr-example",
         "b-25-state-shape-dr-link",
         "b-25-state-shape-dr-strict",
+        "b-25-state-shape-dr-desc",
         "b-25-state-shape-editor-13",
         "b-25-state-shape-agent-h-14",
         "b-25-state-shape-proj-7",
@@ -88,6 +94,17 @@
       ],
       "children": []
     },
+    "component-worked-example-rule": {
+      "id": "component-worked-example-rule",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source; identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information."
+        }
+      ],
+      "children": []
+    },
     "b-25-state-shape-lead-doctrine": {
       "id": "b-25-state-shape-lead-doctrine",
       "type": "paragraph",
@@ -119,6 +136,17 @@
         },
         {
           "insert": " blocks hold the source evidence. State first, then operations; a code block is for material that is not an instance of the shape, a real source listing."
+        }
+      ],
+      "children": []
+    },
+    "field-description-authoring": {
+      "id": "field-description-authoring",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Write field and type descriptions only when they add information beyond the name, type, nesting, and optionality. Omit restatements such as \"Record identifier\" for recordId or \"Source to capture\" for source. Keep non-obvious constraints, units, defaults, ownership, null meaning, side effects, or lifecycle rules. For a path, \"Path to the source\" adds nothing; \"Relative to the repository root\" adds a useful constraint. Do not invent semantics to fill an empty description. This rule also applies to Interaction Surface parameters and returned fields."
         }
       ],
       "children": []
@@ -183,6 +211,164 @@
           }
         ],
         "name": "TableTheme"
+      },
+      "children": []
+    },
+    "worked-operation-context": {
+      "id": "worked-operation-context",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Starting with the TableTheme field definition above, call state-shape.addField with field { name: \"enabled\", type: \"boolean\" }. Omit path and index to append at the root. StateShapeFieldsPatch below names the returned props object; it is not the action success envelope."
+        }
+      ],
+      "children": []
+    },
+    "worked-operation-signature": {
+      "id": "worked-operation-signature",
+      "type": "interaction-surface",
+      "props": {
+        "operations": [
+          {
+            "name": "state-shape.addField",
+            "description": "Rejects duplicate sibling names; omitted path and index append at the root.",
+            "params": [
+              {
+                "name": "field",
+                "type": "Field",
+                "fields": [
+                  {
+                    "name": "name",
+                    "type": "string",
+                    "description": "Unique among siblings."
+                  },
+                  {
+                    "name": "type",
+                    "type": "string",
+                    "required": false
+                  },
+                  {
+                    "name": "required",
+                    "type": "boolean",
+                    "required": false,
+                    "description": "Omitted means required."
+                  },
+                  {
+                    "name": "description",
+                    "type": "string",
+                    "required": false
+                  },
+                  {
+                    "name": "fields",
+                    "type": "Field[]",
+                    "required": false,
+                    "description": "Recurses with the same field contract."
+                  }
+                ]
+              },
+              {
+                "name": "path",
+                "type": "string",
+                "required": false,
+                "description": "Dot-path of the parent; empty or omitted selects the root."
+              },
+              {
+                "name": "index",
+                "type": "integer",
+                "required": false,
+                "description": "Position among siblings; omitted appends."
+              }
+            ],
+            "returns": "StateShapeFieldsPatch",
+            "kind": "action",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "fields",
+                  "type": "Field[]",
+                  "description": "The complete replacement field list, not only the added field.",
+                  "fields": [
+                    {
+                      "name": "name",
+                      "type": "string",
+                      "description": "Unique among siblings."
+                    },
+                    {
+                      "name": "type",
+                      "type": "string",
+                      "required": false
+                    },
+                    {
+                      "name": "required",
+                      "type": "boolean",
+                      "required": false,
+                      "description": "Omitted means required."
+                    },
+                    {
+                      "name": "description",
+                      "type": "string",
+                      "required": false
+                    },
+                    {
+                      "name": "fields",
+                      "type": "Field[]",
+                      "required": false,
+                      "description": "Recurses with the same field contract."
+                    }
+                  ]
+                }
+              ],
+              "example": "{\n  \"fields\": [\n    {\n      \"name\": \"accent\",\n      \"type\": \"string\",\n      \"description\": \"Accent rule color.\"\n    },\n    {\n      \"name\": \"headerBg\",\n      \"type\": \"string | { light, dark }\",\n      \"required\": false,\n      \"description\": \"Header row background; one value or a per-mode pair.\"\n    },\n    {\n      \"name\": \"slider\",\n      \"type\": \"object\",\n      \"required\": false,\n      \"description\": \"Numeric control metadata.\",\n      \"fields\": [\n        {\n          \"name\": \"kind\",\n          \"type\": \"\\\"color\\\" | \\\"length\\\" | \\\"number\\\"\"\n        },\n        {\n          \"name\": \"max\",\n          \"type\": \"number\",\n          \"required\": false\n        }\n      ]\n    },\n    {\n      \"name\": \"enabled\",\n      \"type\": \"boolean\"\n    }\n  ]\n}"
+            }
+          }
+        ],
+        "title": "Edit the Field Definition"
+      },
+      "children": []
+    },
+    "worked-operation-return": {
+      "id": "worked-operation-return",
+      "type": "state-shape",
+      "props": {
+        "example": "{\n  \"fields\": [\n    {\n      \"name\": \"accent\",\n      \"type\": \"string\",\n      \"description\": \"Accent rule color.\"\n    },\n    {\n      \"name\": \"headerBg\",\n      \"type\": \"string | { light, dark }\",\n      \"required\": false,\n      \"description\": \"Header row background; one value or a per-mode pair.\"\n    },\n    {\n      \"name\": \"slider\",\n      \"type\": \"object\",\n      \"required\": false,\n      \"description\": \"Numeric control metadata.\",\n      \"fields\": [\n        {\n          \"name\": \"kind\",\n          \"type\": \"\\\"color\\\" | \\\"length\\\" | \\\"number\\\"\"\n        },\n        {\n          \"name\": \"max\",\n          \"type\": \"number\",\n          \"required\": false\n        }\n      ]\n    },\n    {\n      \"name\": \"enabled\",\n      \"type\": \"boolean\"\n    }\n  ]\n}",
+        "fields": [
+          {
+            "name": "fields",
+            "type": "Field[]",
+            "description": "The complete replacement field list, not only the added field.",
+            "fields": [
+              {
+                "name": "name",
+                "type": "string",
+                "description": "Unique among siblings."
+              },
+              {
+                "name": "type",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "required",
+                "type": "boolean",
+                "required": false,
+                "description": "Omitted means required."
+              },
+              {
+                "name": "description",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "fields",
+                "type": "Field[]",
+                "required": false,
+                "description": "Recurses with the same field contract."
+              }
+            ]
+          }
+        ],
+        "name": "StateShapeFieldsPatch"
       },
       "children": []
     },
@@ -881,7 +1067,46 @@
                 "description": "Insert position among the parent's fields; default end."
               }
             ],
-            "returns": "props patch: { fields }"
+            "returns": "StateShapeFieldsPatchPatch",
+            "kind": "action",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "fields",
+                  "type": "Field[]",
+                  "description": "The complete replacement field list, not only the added field.",
+                  "fields": [
+                    {
+                      "name": "name",
+                      "type": "string",
+                      "description": "Unique among siblings."
+                    },
+                    {
+                      "name": "type",
+                      "type": "string",
+                      "required": false
+                    },
+                    {
+                      "name": "required",
+                      "type": "boolean",
+                      "required": false,
+                      "description": "Omitted means required."
+                    },
+                    {
+                      "name": "description",
+                      "type": "string",
+                      "required": false
+                    },
+                    {
+                      "name": "fields",
+                      "type": "Field[]",
+                      "required": false,
+                      "description": "Recurses with the same field contract."
+                    }
+                  ]
+                }
+              ]
+            }
           },
           {
             "name": "state-shape.updateField",
@@ -929,7 +1154,46 @@
                 ]
               }
             ],
-            "returns": "props patch: { fields }"
+            "returns": "StateShapeFieldsPatchPatch",
+            "kind": "action",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "fields",
+                  "type": "Field[]",
+                  "description": "The complete replacement field list, not only the added field.",
+                  "fields": [
+                    {
+                      "name": "name",
+                      "type": "string",
+                      "description": "Unique among siblings."
+                    },
+                    {
+                      "name": "type",
+                      "type": "string",
+                      "required": false
+                    },
+                    {
+                      "name": "required",
+                      "type": "boolean",
+                      "required": false,
+                      "description": "Omitted means required."
+                    },
+                    {
+                      "name": "description",
+                      "type": "string",
+                      "required": false
+                    },
+                    {
+                      "name": "fields",
+                      "type": "Field[]",
+                      "required": false,
+                      "description": "Recurses with the same field contract."
+                    }
+                  ]
+                }
+              ]
+            }
           },
           {
             "name": "state-shape.removeField",
@@ -942,7 +1206,46 @@
                 "description": "Dot-path of the field to remove, e.g. \"operations.params\"."
               }
             ],
-            "returns": "props patch: { fields }"
+            "returns": "StateShapeFieldsPatchPatch",
+            "kind": "action",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "fields",
+                  "type": "Field[]",
+                  "description": "The complete replacement field list, not only the added field.",
+                  "fields": [
+                    {
+                      "name": "name",
+                      "type": "string",
+                      "description": "Unique among siblings."
+                    },
+                    {
+                      "name": "type",
+                      "type": "string",
+                      "required": false
+                    },
+                    {
+                      "name": "required",
+                      "type": "boolean",
+                      "required": false,
+                      "description": "Omitted means required."
+                    },
+                    {
+                      "name": "description",
+                      "type": "string",
+                      "required": false
+                    },
+                    {
+                      "name": "fields",
+                      "type": "Field[]",
+                      "required": false,
+                      "description": "Recurses with the same field contract."
+                    }
+                  ]
+                }
+              ]
+            }
           },
           {
             "name": "state-shape.setExample",
@@ -955,7 +1258,18 @@
                 "description": "JSON text of an example instance of this shape; null clears the example."
               }
             ],
-            "returns": "props patch: { example }"
+            "returns": "StateShapePatch",
+            "kind": "action",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "example",
+                  "type": "string",
+                  "required": false,
+                  "description": "JSON text of an example instance of this shape; renders as the linked example pane."
+                }
+              ]
+            }
           }
         ],
         "title": "state-shape, actions"
@@ -1007,7 +1321,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The header shows a bold monospace shape name and the description below it. The full defining source path and symbol remain in data-shape-source for inspection."
+          "insert": "The header shows a bold monospace shape name; a described name carries a dotted underline and opens its description as the same tooltip. The full defining source path and symbol remain in data-shape-source for inspection."
         }
       ],
       "children": []
@@ -1018,7 +1332,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Every field row has a separator, a bold monospace name, a blue type chip, an accessible question-mark optional marker, and its description beneath the name. Union types render one chip per member; prose types remain unchipped."
+          "insert": "Every field row has a separator, a bold monospace name, a blue type chip, and an accessible question-mark optional marker. A described name carries a dotted underline; its description opens as a tooltip after a short hover dwell or on keyboard focus, and prints inline beneath the name. The object name in the header works the same way. Union types render one chip per member; prose types remain unchipped."
         }
       ],
       "children": []
@@ -1183,6 +1497,123 @@
         },
         {
           "insert": " is read tolerantly: present-but-invalid JSON falls back to the single-pane tree; schema validation reports it at authoring time."
+        }
+      ],
+      "children": []
+    },
+    "b-25-state-shape-dr-desc": {
+      "id": "b-25-state-shape-dr-desc",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Descriptions"
+        }
+      ],
+      "children": [
+        "b-25-state-shape-dr-desc-1",
+        "b-25-state-shape-dr-desc-2",
+        "b-25-state-shape-dr-desc-3",
+        "b-25-state-shape-dr-desc-4",
+        "b-25-state-shape-dr-desc-5"
+      ]
+    },
+    "b-25-state-shape-dr-desc-1": {
+      "id": "b-25-state-shape-dr-desc-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A field name or object name with a description carries a dotted underline and a help cursor; a name without one renders plain. The ledger shows only names and types, so a shape scans as a table."
+        }
+      ],
+      "children": []
+    },
+    "b-25-state-shape-dr-desc-2": {
+      "id": "b-25-state-shape-dr-desc-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The description opens as a tooltip beneath the name after a 450 ms hover dwell, or at once on keyboard focus. The name is focusable and points at the bubble through "
+        },
+        {
+          "insert": "aria-describedby",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "; the bubble has "
+        },
+        {
+          "insert": "role=\"tooltip\"",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", shows the name as a monospace label above the description, and stays under 36ch wide. The bottom two rows open upward so the card's rounded clip never cuts a bubble."
+        }
+      ],
+      "children": []
+    },
+    "b-25-state-shape-dr-desc-3": {
+      "id": "b-25-state-shape-dr-desc-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The tooltip is CSS only: "
+        },
+        {
+          "insert": ":hover",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": ":has(:focus-visible)",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " on the name wrapper, no script. The reader, the editor's atom view, and published static HTML behave the same. The bubble takes no pointer events, so row hover keeps lighting the linked JSON lines."
+        }
+      ],
+      "children": []
+    },
+    "b-25-state-shape-dr-desc-4": {
+      "id": "b-25-state-shape-dr-desc-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "In print media, which PDF export uses, the description renders inline beneath the name and the underline and bubble chrome drop, so an exported page carries every description."
+        }
+      ],
+      "children": []
+    },
+    "b-25-state-shape-dr-desc-5": {
+      "id": "b-25-state-shape-dr-desc-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Why: a shape often lists many fields and a reader consults a description rarely. The dwell keeps casual pointer travel from flashing bubbles, and the underline keeps descriptions discoverable. "
+        },
+        {
+          "insert": "descFg",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " colours the description text in the bubble and in print alike. Interaction Surface parameter and returned-field names use the same tooltip."
         }
       ],
       "children": []
@@ -1590,7 +2021,7 @@
           [
             "descFg",
             "--docs-shape-desc-fg",
-            "Description text, header and field rows"
+            "Description text in the tooltip bubble and in print, header and field rows"
           ],
           [
             "childRule",
