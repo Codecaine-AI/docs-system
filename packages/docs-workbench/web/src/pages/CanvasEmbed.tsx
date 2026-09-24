@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useViewerMotion } from "@codecaine-ai/docs-viewer/viewer-motion";
 import { createPortal } from "react-dom";
 import { ExternalLinkIcon, Maximize2Icon, PencilIcon, XIcon } from "lucide-react";
 import type { CanvasEmbedProps } from "@codecaine-ai/docs-viewer/client";
@@ -34,6 +35,8 @@ type StandaloneCanvasEmbedProps = CanvasEmbedProps & {
   /** Static hosts may supply validated data and open the same Docs viewer. */
   initialDocument?: InteractiveCanvasDocument;
   initiallyOpen?: boolean;
+  /** Published pages keep their existing preview outside this React root. */
+  expansionSource?: HTMLElement;
   onViewerClose?: () => void;
 };
 
@@ -47,6 +50,7 @@ export function StandaloneCanvasEmbed({
   showEditAction = false,
   initialDocument,
   initiallyOpen = false,
+  expansionSource,
   onViewerClose,
 }: StandaloneCanvasEmbedProps) {
   const [document, setDocument] = useState<InteractiveCanvasDocument | null>(
@@ -55,6 +59,18 @@ export function StandaloneCanvasEmbed({
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [viewerOpen, setViewerOpen] = useState(initiallyOpen);
+  const previewRef = useRef<HTMLDivElement>(null);
+  const viewerRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const { captureOrigin, animateOpen, animateClose, cancel } = useViewerMotion();
+  const closeViewer = useCallback(() => {
+    animateClose(viewerRef.current, expansionSource ?? previewRef.current, () => setViewerOpen(false));
+  }, [animateClose, expansionSource]);
+  const openViewer = (trigger: HTMLButtonElement) => {
+    triggerRef.current = trigger;
+    captureOrigin(previewRef.current);
+    setViewerOpen(true);
+  };
   useEffect(() => { if (!viewerOpen) onViewerClose?.(); }, [viewerOpen, onViewerClose]);
   const loadSeqRef = useRef(0);
   const studioOrigin =
@@ -101,15 +117,19 @@ export function StandaloneCanvasEmbed({
     if (!viewerOpen) return;
     const previousOverflow = window.document.body.style.overflow;
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setViewerOpen(false);
+      if (event.key === "Escape") { event.preventDefault(); closeViewer(); }
     };
     window.document.body.style.overflow = "hidden";
+    if (expansionSource) captureOrigin(expansionSource);
+    animateOpen(viewerRef.current);
     window.addEventListener("keydown", closeOnEscape);
     return () => {
+      cancel();
       window.document.body.style.overflow = previousOverflow;
+      (expansionSource ?? triggerRef.current)?.focus();
       window.removeEventListener("keydown", closeOnEscape);
     };
-  }, [viewerOpen]);
+  }, [viewerOpen, animateOpen, closeViewer, cancel, captureOrigin, expansionSource]);
 
   if (canvasId && canvasId !== "synthetic" && !src) {
     return (
@@ -196,6 +216,8 @@ export function StandaloneCanvasEmbed({
     viewerOpen && typeof window.document !== "undefined"
       ? createPortal(
           <div
+            ref={viewerRef}
+            style={{ transformOrigin: "top left" }}
             role="dialog"
             aria-modal="true"
             aria-label={`${viewerTitle} canvas viewer`}
@@ -226,7 +248,7 @@ export function StandaloneCanvasEmbed({
                   type="button"
                   aria-label="Close canvas viewer"
                   title="Close"
-                  onClick={() => setViewerOpen(false)}
+                  onClick={closeViewer}
                   className="inline-flex h-9 w-9 items-center justify-center rounded-md border text-foreground hover:bg-muted"
                 >
                   <XIcon className="h-4 w-4" />
@@ -250,6 +272,7 @@ export function StandaloneCanvasEmbed({
   return (
     <>
       <div
+        ref={previewRef}
         className="group relative"
         data-docs-block-type="canvas"
         data-source-id={id}
@@ -266,7 +289,7 @@ export function StandaloneCanvasEmbed({
               type="button"
               aria-label={`Open ${viewerTitle} in full-screen viewer`}
               title="Open full-screen viewer"
-              onClick={() => setViewerOpen(true)}
+              onClick={event => openViewer(event.currentTarget)}
               className="absolute inset-0 z-10 cursor-zoom-in rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             />
           </>
@@ -289,7 +312,7 @@ export function StandaloneCanvasEmbed({
             type="button"
             aria-label="Open canvas viewer"
             title="Open full-screen viewer"
-            onClick={() => setViewerOpen(true)}
+            onClick={event => openViewer(event.currentTarget)}
             className="inline-flex h-8 w-8 items-center justify-center rounded-md border bg-background/90 text-foreground shadow-sm backdrop-blur hover:bg-muted"
           >
             <Maximize2Icon className="h-4 w-4" />

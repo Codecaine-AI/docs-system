@@ -1,6 +1,6 @@
 # Docs Authoring Guidance
 
-Generated from Codecaine Docs sources. Snapshot: `sha256:f4b9cba0f82bcd296f0e2ea67a49c4f3fc3932efc70b8bccc6cfff99c0156e38`. Refresh the installation to regenerate these files.
+Generated from Codecaine Docs sources. Snapshot: `sha256:bdf029c4c9e6c8f0ae4c1490c10f0446719bcd2a331b4623e486469d36733107`. Refresh the installation to regenerate these files.
 
 <docs_visual_components source="docs-model component manifests">
   Choose the visual that answers the reader's question. For a layered explanation, use Canvas for system connections, Process Outline for the expected execution trace, and Sequence for a detailed interaction. Link the views with consistent participant and phase names. Include only the views the explanation needs; do not repeat the same detail in all three.
@@ -16,9 +16,9 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:f4b9cba0f82bcd296f0e2ea
 <docs_component_catalog source="docs-model component manifests">
   ### rich-text
 
-  Block types: paragraph, heading, list-item, quote, callout, divider, image, video
+  Block types: paragraph, heading, list-item, quote, callout, divider, image, image-grid, video, html
 
-  Use paragraphs for explanation, headings for hierarchy, lists for steps or parallel facts, quotes for attributed text, and callouts for a distinct note. Use images and video when the visual evidence matters. Use typed components for state, operations, tables, and diagrams.
+  Use paragraphs for explanation, headings for hierarchy, lists for steps or parallel facts, quotes for attributed text, and callouts for a distinct note. Use images and video when the visual evidence matters. Use image-grid for ordered image comparisons: images contain src, heading?, alt?, caption?; columns is auto or 1 to 4. Rows grow with the image count. This component accepts images only, not text columns. Use html for a self-contained HTML/CSS diagram or interactive artifact; supply title and html props, inline styles and data assets. Scripts require allowScripts=true and stay in an opaque-origin sandbox with fetch and external subresources blocked. Use code for examples readers should read instead of execute. Use typed components for state, operations, tables, and diagrams.
 
   Example: Introduce the retry policy in prose, list the recovery steps, and link to the operation definition.
 
@@ -58,7 +58,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:f4b9cba0f82bcd296f0e2ea
 
   Block types: interaction-surface
 
-  Use Interaction Surface to describe the actions, queries, and events available on a state or system, including parameters and return values. Pair it with State Shape. Use Sequence when the question concerns ordering between participants.
+  Use Interaction Surface to describe the actions, queries, and events available on a state or system, including parameters and return values. Action changes state, Query reads state, and Event describes observation or notification. Each operation has its own kind-labeled card. Use returnShape with recursive fields and a JSON example for known object returns; keep returns for its name or a primitive type. Document callback payloads separately from subscription return values. Describe only non-obvious constraints or behavior. Pair it with State Shape. Use Sequence when the question concerns ordering between participants.
 
   Example: Document openDocument, applyOperations, and checkDocument with their parameters and results.
 
@@ -105,7 +105,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:f4b9cba0f82bcd296f0e2ea
   Details: 10-system-design/40-block-vocabulary/90-process-outline
 </docs_component_catalog>
 <docs_structure_standards source="docs-system corpus · 10-system-design/10-doc-standards">
-  <doc path="10-system-design/10-doc-standards/10-structure" file="/Users/Ford/Github Repos/Codecaine/Core/docs-system/docs/10-system-design/10-doc-standards/10-structure/doc.json" title="Structure">
+  <doc path="10-system-design/10-doc-standards/10-structure" file="/Users/Ford/workspace/codecaine/core/docs-system/docs/10-system-design/10-doc-standards/10-structure/doc.json" title="Structure">
     Within every layer, the docs keep the same substructure.
 
     A tree of bundle folders descending L1–L6
@@ -209,7 +209,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:f4b9cba0f82bcd296f0e2ea
         - An agent searches along the same explicit structure instead of guessing.
 
   </doc>
-  <doc path="10-system-design/10-doc-standards/20-numbering" file="/Users/Ford/Github Repos/Codecaine/Core/docs-system/docs/10-system-design/10-doc-standards/20-numbering/doc.json" title="Numbering">
+  <doc path="10-system-design/10-doc-standards/20-numbering" file="/Users/Ford/workspace/codecaine/core/docs-system/docs/10-system-design/10-doc-standards/20-numbering/doc.json" title="Numbering">
     Every doc and folder carries a two-digit prefix, and every listing — sidebar, terminal, render — sorts by it identically. 
 
     This page states the scheme, the reserved ranges, and what running out of gap space actually means.
@@ -271,7 +271,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:f4b9cba0f82bcd296f0e2ea
       - The moment you cannot number a doc, the section needs a subfolder. Packing consecutive numbers silences that signal.
 
   </doc>
-  <doc path="10-system-design/10-doc-standards/30-cross-doc-linking" file="/Users/Ford/Github Repos/Codecaine/Core/docs-system/docs/10-system-design/10-doc-standards/30-cross-doc-linking/doc.json" title="Cross-doc linking">
+  <doc path="10-system-design/10-doc-standards/30-cross-doc-linking" file="/Users/Ford/workspace/codecaine/core/docs-system/docs/10-system-design/10-doc-standards/30-cross-doc-linking/doc.json" title="Cross-doc linking">
     Docs link to docs with typed reference spans — tracked by the backlinks index, held at zero stale, rewritten when targets move — never with raw paths in prose. 
 
     This page states the reference object, which directions links run, and the restraint rules against overlinking.
@@ -363,7 +363,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:f4b9cba0f82bcd296f0e2ea
       - Every link points at the concept's one home.
 
   </doc>
-  <doc path="10-system-design/10-doc-standards/40-code-linking" file="/Users/Ford/Github Repos/Codecaine/Core/docs-system/docs/10-system-design/10-doc-standards/40-code-linking/doc.json" title="Code linking">
+  <doc path="10-system-design/10-doc-standards/40-code-linking" file="/Users/Ford/workspace/codecaine/core/docs-system/docs/10-system-design/10-doc-standards/40-code-linking/doc.json" title="Code linking">
     Docs point at code with typed source references; code never points back. 
 
     This page states the source-link object, how paths are written, and why the docs side pays all of the maintenance.
@@ -438,7 +438,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:f4b9cba0f82bcd296f0e2ea
       - The reader arrives at the path with the question already framed.
 
   </doc>
-  <doc path="10-system-design/10-doc-standards/50-in-code-docs" file="/Users/Ford/Github Repos/Codecaine/Core/docs-system/docs/10-system-design/10-doc-standards/50-in-code-docs/doc.json" title="In-code docs">
+  <doc path="10-system-design/10-doc-standards/50-in-code-docs" file="/Users/Ford/workspace/codecaine/core/docs-system/docs/10-system-design/10-doc-standards/50-in-code-docs/doc.json" title="In-code docs">
     Documentation does not stop at the doc tree. 
 
     Below the doc tree it continues into the source in three units
@@ -510,7 +510,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:f4b9cba0f82bcd296f0e2ea
       - Code is read last, and only where the task lives.
 
   </doc>
-  <doc path="10-system-design/10-doc-standards/60-implementation-layer" file="/Users/Ford/Github Repos/Codecaine/Core/docs-system/docs/10-system-design/10-doc-standards/60-implementation-layer/doc.json" title="Implementation layer">
+  <doc path="10-system-design/10-doc-standards/60-implementation-layer" file="/Users/Ford/workspace/codecaine/core/docs-system/docs/10-system-design/10-doc-standards/60-implementation-layer/doc.json" title="Implementation layer">
     The implementation layer concisely maps the system design to the current codebase: how the code realizes the design, how it is organized, and why key implementation choices were made. An agent whose change conflicts with a recorded structural decision files a proposal; it never silently deviates.
 
     This page states the shape of an area page, the test an entry must pass, and why the layer accretes lazily.
@@ -621,7 +621,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:f4b9cba0f82bcd296f0e2ea
       - Sub-pages tracking the source tree file by file go stale with every move; entries on an area page move with the page.
 
   </doc>
-  <doc path="10-system-design/10-doc-standards/70-document-purpose" file="/Users/Ford/Github Repos/Codecaine/Core/docs-system/docs/10-system-design/10-doc-standards/70-document-purpose/doc.json" title="Document Purpose">
+  <doc path="10-system-design/10-doc-standards/70-document-purpose" file="/Users/Ford/workspace/codecaine/core/docs-system/docs/10-system-design/10-doc-standards/70-document-purpose/doc.json" title="Document Purpose">
     Every document has one primary reader purpose within the corpus's existing layers. Supporting reasons and reference details belong when they help the reader finish that purpose.
 
     ## Structure
@@ -679,7 +679,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:f4b9cba0f82bcd296f0e2ea
     The Diataxis distinction comes from [Diataxis](https://diataxis.fr). The Technical Writing source skill records a fetch on 2026-07-18. This attribution does not claim a new fetch.
 
   </doc>
-  <doc path="10-system-design/10-doc-standards/80-authoring-lints" file="/Users/Ford/Github Repos/Codecaine/Core/docs-system/docs/10-system-design/10-doc-standards/80-authoring-lints/doc.json" title="Authoring Lints">
+  <doc path="10-system-design/10-doc-standards/80-authoring-lints" file="/Users/Ford/workspace/codecaine/core/docs-system/docs/10-system-design/10-doc-standards/80-authoring-lints/doc.json" title="Authoring Lints">
     Authoring lints report writing and page structure problems through one docs-model engine. The corpus defines the rules; tools display findings and enforce only the checks assigned to their stage.
 
     ## Structure
@@ -762,11 +762,15 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:f4b9cba0f82bcd296f0e2ea
 
       - H1 headings are permitted in the document body, including multiple H1 sections. The former structure.single-h1 warning is no longer active. structure.heading-order still flags skipped heading levels.
 
-      - structure.image-alt requires nonempty alt text on image blocks. These rules remain advisory, matching the existing audit policy. Promote a rule by changing its own severity and enforcement metadata after reviewing corpus impact.
+      - structure.image-alt requires nonempty alt text on standalone images and every image-grid entry. Grid headings and captions also pass through the shared prose checks. These rules remain advisory, matching the existing audit policy. Promote a rule by changing its own severity and enforcement metadata after reviewing corpus impact.
 
     - **Page Structure Warning**
 
       - structure.deep-list flags list nesting deeper than three list items. Nested supporting details remain valid; review whether a branch needs its own section.
+
+    - process-outline.single-parent requires one named, non-note root with at least one action child in every completed Process Outline. Empty outlines, childless roots, and multiple roots produce errors. Draft edits remain writable; new violations block completion. Nest related phases under one parent, or split independent processes into separate blocks.
+
+    - bundle-relative-src rejects bare assets/... src values on completed canvas, sequence, image, and video blocks. Prefix bundle assets with ./, or use a docs-root-relative path or URL.
 
     ## Why
 
@@ -777,7 +781,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:f4b9cba0f82bcd296f0e2ea
   </doc>
 </docs_structure_standards>
 <docs_style_guide source="docs-system corpus · 99-appendix/10-style-guide">
-  <doc path="99-appendix/10-style-guide/10-writing-style" file="/Users/Ford/Github Repos/Codecaine/Core/docs-system/docs/99-appendix/10-style-guide/10-writing-style/doc.json" title="Writing style">
+  <doc path="99-appendix/10-style-guide/10-writing-style" file="/Users/Ford/workspace/codecaine/core/docs-system/docs/99-appendix/10-style-guide/10-writing-style/doc.json" title="Writing style">
     Write matter-of-fact prose that states what is, in the order the reader needs it. This page defines sentence clarity, punctuation, and the Unslop pattern catalog for the corpus.
 
     - Lead with the fact. The first sentence of a doc or section states the thing itself. No setup, no "the idea here is".
@@ -1001,7 +1005,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:f4b9cba0f82bcd296f0e2ea
     5. Replace inflated language with facts, verify paths and claims, and repair required lint findings.
 
   </doc>
-  <doc path="99-appendix/10-style-guide/20-structure" file="/Users/Ford/Github Repos/Codecaine/Core/docs-system/docs/99-appendix/10-style-guide/20-structure/doc.json" title="Structure">
+  <doc path="99-appendix/10-style-guide/20-structure" file="/Users/Ford/workspace/codecaine/core/docs-system/docs/99-appendix/10-style-guide/20-structure/doc.json" title="Structure">
     Page structure carries meaning through bullets, lists, headings, titles, and openings. The join test keeps bullet groups complete enough to read as prose.
 
     - **Bullets Carry Prose Meaning**

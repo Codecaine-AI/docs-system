@@ -16,3 +16,4 @@ export * from "./delta-markdown";
 export * from "./project-markdown";
 export * from "./markdown-to-delta";
 export * from "./spectre-ref";
+export * from "./bundle-src";

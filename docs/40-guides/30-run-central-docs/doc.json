@@ -10,6 +10,10 @@
       "props": {},
       "children": [
         "central-0",
+        "e5c5c2f9-d7c2-4c27-841a-f451895b784d",
+        "4ded6f8e-87db-4ffe-b9f4-5507ebf03f75",
+        "f7a664e0-f005-4888-8895-e35e843c8055",
+        "4de1be4c-e2f3-4952-83e3-ec32ac466b2d",
         "central-1",
         "central-2",
         "central-3",
@@ -56,6 +60,70 @@
         },
         {
           "insert": " contract and uses the installed development checkout."
+        }
+      ],
+      "children": []
+    },
+    "e5c5c2f9-d7c2-4c27-841a-f451895b784d": {
+      "id": "e5c5c2f9-d7c2-4c27-841a-f451895b784d",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Find Docs on This Device"
+        }
+      ],
+      "children": []
+    },
+    "4ded6f8e-87db-4ffe-b9f4-5507ebf03f75": {
+      "id": "4ded6f8e-87db-4ffe-b9f4-5507ebf03f75",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Open the home page. Its first visit starts device discovery and adds supported corpora as it finds them. Existing registrations remain available during the scan."
+        }
+      ],
+      "children": []
+    },
+    "f7a664e0-f005-4888-8895-e35e843c8055": {
+      "id": "f7a664e0-f005-4888-8895-e35e843c8055",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Type a project name or part of its folder path into "
+        },
+        {
+          "insert": "Search docs",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": ". Select a result to open its documents on port 4820."
+        }
+      ],
+      "children": []
+    },
+    "4de1be4c-e2f3-4952-83e3-ec32ac466b2d": {
+      "id": "4de1be4c-e2f3-4952-83e3-ec32ac466b2d",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "After adding a checkout or mounting a drive, select "
+        },
+        {
+          "insert": "Register docs on this device",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": ". Expand discovery notices to inspect inaccessible folders or corpora that require migration, then retry after resolving the reported cause."
         }
       ],
       "children": []

@@ -87,13 +87,14 @@
           {
             "name": "caption",
             "type": "string",
-            "required": false
+            "required": false,
+            "description": "Legacy metadata retained for compatibility. The renderer ignores it. Put visible captions inside html."
           },
           {
             "name": "height",
             "type": "integer",
             "required": false,
-            "description": "120 to 2000 pixels; defaults to 400."
+            "description": "Initial layout height and no-JavaScript fallback, 120 to 2000 pixels; defaults to 400. Measured content determines the fitted preview height."
           },
           {
             "name": "allowScripts",
@@ -125,7 +126,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Insert and update the block through the generic typed block operations. The editor slash menu includes HTML. Edit HTML reveals the title, source textarea, height, and explicit script toggle. Preview and source share the same stored props."
+          "insert": "Insert and update the block through the generic typed block operations. The editor slash menu includes HTML. Both the editor and read view fit the artifact within the document and provide a separate Expand button. Put visible labels and captions inside the HTML source. Edit the title, HTML source, initial height, and script setting through the block props."
         }
       ],
       "children": []
@@ -149,7 +150,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The read view, editor preview, static Docs export, and article publisher use the shared HTML renderer. It emits srcdoc at render time, so markup and inline styles appear without the host JavaScript bundle. Inline script interactions require browser JavaScript."
+          "insert": "The read view, editor preview, static Docs export, and article publisher use the shared HTML renderer. It emits srcdoc at render time, so markup and inline styles appear without the host JavaScript bundle. Automatic fitting and viewer controls require the host JavaScript bundle. Without it, the frame uses the authored height and native scrolling."
         }
       ],
       "children": []
@@ -160,7 +161,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The sandbox never grants same-origin access. Scripts are disabled unless allowScripts is true, which grants only allow-scripts. The frame cannot read the parent page or its cookies."
+          "insert": "The sandbox grants allow-scripts but never same-origin access. With allowScripts false, Content Security Policy permits only the exact measurement script by its SHA-256 hash. Author scripts and event handlers remain blocked. Setting allowScripts true permits author inline scripts. The frame cannot read the parent page or its cookies."
         }
       ],
       "children": []
@@ -193,7 +194,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Give diagrams semantic labels and keyboard controls. Choose a height that fits the artifact; larger content scrolls within the frame. The HTML block adds no source or image download controls."
+          "insert": "The interactive inline preview scales proportionally to fit the document width and the smaller of 600 pixels or 70% of the window height. Small artifacts stay at their natural size. Content changes and window resizing update the fit. Expand opens the same iframe in a full-screen viewer with Fit, 100%, and zoom controls, preserving its interaction state. Close or Escape returns focus to Expand. Scrolling belongs to the expanded viewer when zoomed content exceeds its available space. Expansion animates from the inline block over 260 milliseconds; closing returns over 220 milliseconds. Reduced-motion preferences disable both animations."
         }
       ],
       "children": []
@@ -276,7 +277,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The outer frame uses the host border and caption colors. Its body advertises light and dark color schemes; author CSS owns the artifact palette. The iframe isolates its CSS from the host page."
+          "insert": "The iframe adds no visible border, caption, or body padding. A separate control row keeps Expand outside the artifact's interactive content. The iframe body advertises light and dark color schemes. Author CSS owns the artifact palette and spacing, isolated from the host page."
         }
       ],
       "children": []

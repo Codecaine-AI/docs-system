@@ -1,5 +1,7 @@
 The rich-text component owns the text-and-media block types that make up ordinary document flow. They share the delta-span text model and the markdown-shortcut input rules, which is why they live grouped here, one doc per type.
 
+When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source; identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information.
+
 - paragraph
 
   - The default flow block.

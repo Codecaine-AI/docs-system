@@ -1,6 +1,6 @@
 # code
 
-Generated from Codecaine Docs sources. Snapshot: `sha256:f4b9cba0f82bcd296f0e2ea67a49c4f3fc3932efc70b8bccc6cfff99c0156e38`. Refresh the installation to regenerate these files.
+Generated from Codecaine Docs sources. Snapshot: `sha256:bdf029c4c9e6c8f0ae4c1490c10f0446719bcd2a331b4623e486469d36733107`. Refresh the installation to regenerate these files.
 
 Use annotated source listings as evidence of the actual implementation. Put a state instance in State Shape alongside its field definition.
 
@@ -9,6 +9,8 @@ Example: Show the real validation function and annotate the branch that rejects 
 Canonical document: `10-system-design/40-block-vocabulary/20-code-block`.
 
 The code component owns a single block type, `code` — the language-tagged block for real, annotated source listings in the Block vocabulary. The source lives in the block's delta text; the language tag and structured line annotations live in `props`.
+
+When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source; identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information.
 
 In the documentation doctrine the type is the source-evidence surface: state-shape blocks carry state examples, code blocks carry the evidence — annotated listings of the defining source.
 
@@ -113,8 +115,18 @@ The component registers exactly two typed actions, both built with `defineCompon
 **code — annotation actions**
 
 ```
-code.setAnnotation(lines: string, note: string, label?: string) -> props patch: { annotations }  # Upsert a line annotation keyed by its exact "lines" string (e.g. "4-9").
-code.removeAnnotation(lines: string) -> props patch: { annotations }  # Remove the annotation whose "lines" key matches exactly.
+code.setAnnotation(lines: string, note: string, label?: string) -> CodePatch  # Upsert a line annotation keyed by its exact "lines" string (e.g. "4-9").
+  Returns CodePatch:
+    annotations?: CodeAnnotation[]  # Line annotations, each keyed by its exact lines string.
+      lines: string  # 1-indexed range string — "4", "4-9", "1,4-6" — and the entry's identity key.
+      label?: string  # Short heading on the note.
+      note: string  # The annotation body.
+code.removeAnnotation(lines: string) -> CodePatch  # Remove the annotation whose "lines" key matches exactly.
+  Returns CodePatch:
+    annotations?: CodeAnnotation[]  # Line annotations, each keyed by its exact lines string.
+      lines: string  # 1-indexed range string — "4", "4-9", "1,4-6" — and the entry's identity key.
+      label?: string  # Short heading on the note.
+      note: string  # The annotation body.
 ```
 
 The upsert body in full:

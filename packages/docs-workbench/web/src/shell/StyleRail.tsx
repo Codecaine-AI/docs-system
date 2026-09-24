@@ -92,7 +92,7 @@ export const BLOCK_COLUMN_SPLIT_MAX = 80;
  */
 export const BLOCK_COLUMN_SPLIT_DEFAULTS: Record<string, number> = {
   "state-shape": 46,
-  "interaction-surface": 52,
+  "interaction-surface": 46,
 };
 
 export type StyleRailSettings = {

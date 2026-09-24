@@ -76,7 +76,7 @@ export const VideoState = Type.Object(
 export const HtmlState = Type.Object({
   html: Type.String({ maxLength: 1048576 }),
   title: Type.String(),
-  caption: Type.Optional(Type.String()),
+  caption: Type.Optional(Type.String({ description: "Legacy metadata, retained for compatibility and not rendered. Put captions inside html." })),
   height: Type.Optional(Type.Integer({ minimum: 120, maximum: 2000 })),
   allowScripts: Type.Optional(Type.Boolean()),
 }, { additionalProperties: false });

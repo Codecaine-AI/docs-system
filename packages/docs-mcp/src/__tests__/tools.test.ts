@@ -166,7 +166,7 @@ describe('complete corpus management',()=>{
   const asset=await call('docs_asset_read',{path:'page/assets/canvases/map.canvas.json'});expect(asset.ok).toBe(true);
   const moved=await manage('docs_asset_move',{path:'page/assets/canvases/map.canvas.json',to:'overview/assets/canvases/map.canvas.json',expected_hash:asset.hash});expect(moved.ok).toBe(true);
   expect(await readFile(join(roots.a,'overview/assets/canvases/map.canvas.json'),'utf8')).toBe(bytes);
-  expect((await read('a','overview')).doc.blocks.canvas.props.src).toBe('assets/canvases/map.canvas.json');
+  expect((await read('a','overview')).doc.blocks.canvas.props.src).toBe('./assets/canvases/map.canvas.json');
   expect((await manage('docs_delete',{path:'page',expected_hash:(await read()).hash})).ok).toBe(true);
   expect((await read()).ok).toBe(false);
   expect((await call('docs_check',{path:'overview'})).ok).toBe(true);
@@ -221,6 +221,36 @@ test('creates a Sequence through the service and preserves annotation targets wh
  const reply=await call('docs_annotation_reply',{path:'page',annotation_id:note.annotation.id,body:'Reviewed.',author:'test',expected_annotations_hash:note.hash});expect(reply.ok).toBe(true);
  expect((await call('docs_annotation_resolve',{path:'page',annotation_id:note.annotation.id,expected_annotations_hash:reply.hash})).ok).toBe(true);
 });
+
+const canvasDocument = {schemaVersion:1,id:'x',mode:'diagram',objects:[],connections:[],links:[],annotations:[]};
+
+test('normalizes a bare component-create src in both its result and written path',async()=>{
+ const created=await call('docs_component_create',{path:'page',component:'canvas',src:'assets/canvases/x.canvas.json',document:canvasDocument,expected_hash:(await read()).hash});
+ expect(created.ok).toBe(true);expect(created.src).toBe('./assets/canvases/x.canvas.json');
+ expect(created.response.canvas_path).toBe('page/assets/canvases/x.canvas.json');
+ expect(JSON.parse(await readFile(join(roots.a,'page/assets/canvases/x.canvas.json'),'utf8')).id).toBe('x');
+});
+
+test('normalizes a bare component src when inserting a block',async()=>{
+ const inserted=await call('docs_insert',{path:'page',type:'canvas',props:{src:'assets/canvases/x.canvas.json'},parentId:'root',index:2,expected_hash:(await read()).hash});
+ expect(inserted.ok).toBe(true);
+ expect((await read()).doc.blocks[inserted.blockId].props.src).toBe('./assets/canvases/x.canvas.json');
+});
+
+test('docs_check reports the blocking lint for a bare bundle-relative component src',async()=>{
+ const doc=structuredClone(fixture);doc.blocks.canvas={id:'canvas',type:'canvas',props:{src:'assets/canvases/x.canvas.json'},children:[]};doc.blocks.root.children.push('canvas');
+ await writeFile(join(roots.a,'page/doc.json'),serializeDocDocument(doc));await mkdir(join(roots.a,'page/assets/canvases'),{recursive:true});await writeFile(join(roots.a,'page/assets/canvases/x.canvas.json'),JSON.stringify(canvasDocument));
+ const checked=await call('docs_check',{path:'page'});
+ expect(checked.ok).toBe(false);expect(checked.components).toEqual([{blockId:'canvas',type:'canvas',ok:true}]);
+ expect(checked.lint.blocking.some((finding:any)=>finding.ruleId==='bundle-relative-src')).toBe(true);
+});
+
+test('docs_check loads a docs-root-relative component without rejoining the bundle path',async()=>{
+ const doc=structuredClone(fixture);doc.blocks.canvas={id:'canvas',type:'canvas',props:{src:'page/assets/canvases/x.canvas.json'},children:[]};doc.blocks.root.children.push('canvas');
+ await writeFile(join(roots.a,'page/doc.json'),serializeDocDocument(doc));await mkdir(join(roots.a,'page/assets/canvases'),{recursive:true});await writeFile(join(roots.a,'page/assets/canvases/x.canvas.json'),JSON.stringify(canvasDocument));
+ const checked=await call('docs_check',{path:'page'});
+ expect(checked.components).toEqual([{blockId:'canvas',type:'canvas',ok:true}]);expect(checked.ok).toBe(true);
+});
 test('stages and accepts reviewed edits and can restore deletion without overwriting later edits',async()=>{
  const staged=await call('docs_proposal_stage',{path:'page',expected_hash:(await read()).hash,summary:'Clarify',ops:[{type:'updateBlock',blockId:'p',text:[{insert:'Reviewed text.'}]}]});expect(staged.ok).toBe(true);
  const proposals=await call('docs_proposals',{path:'page'});expect(proposals.proposals).toHaveLength(1);
@@ -271,4 +301,18 @@ test("title lint fix requires a current revision, removes duplicates, and suppor
   expect(repeat.hash).toBe(fixed.hash);
   expect((await call("docs_undo", { patch_id: fixed.patchId })).ok).toBe(true);
   expect((await read()).doc.blocks.title.text).toEqual([{ insert: "Fixture" }]);
+});
+
+test('Process Outline remains draft-editable but completion rejects disconnected roots until repaired', async () => {
+  const before=await read();
+  const steps=[{text:'Capture source'},{text:'Review the result'}];
+  const draft=await call('docs_apply_ops',{path:'page',expected_hash:before.hash,ops:[{type:'insertBlock',blockId:'process',parentId:'root',index:2,blockType:'process-outline',props:{steps}}]});
+  expect(draft.ok).toBe(true);
+  expect(draft.lint.blocking).toEqual([]);
+  const failed=await call('docs_check',{path:'page'});
+  expect(failed.ok).toBe(false);
+  expect(failed.lint.blocking.some((f:any)=>f.ruleId==='process-outline.single-parent')).toBe(true);
+  const repaired=await call('docs_apply_ops',{path:'page',expected_hash:draft.hash,ops:[{type:'componentAction',blockId:'process',action:'process-outline.setSteps',params:{steps:[{text:'Explore a component',steps}]}}]});
+  expect(repaired.ok).toBe(true);
+  expect((await call('docs_check',{path:'page'})).ok).toBe(true);
 });

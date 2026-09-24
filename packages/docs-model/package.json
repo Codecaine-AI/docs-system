@@ -17,7 +17,9 @@
     "./fixtures/sample.doc.json": "./src/__fixtures__/sample.doc.json",
     "./lint": "./src/lint/index.ts",
     "./visual-component-guidance": "./src/visual-component-guidance.ts",
-    "./authoring-guidance": "./src/authoring-guidance.ts"
+    "./authoring-guidance": "./src/authoring-guidance.ts",
+    "./bundle-src": "./src/bundle-src.ts",
+    "./bundle-src-fixtures": "./src/bundle-src.fixtures.ts"
   },
   "dependencies": {
     "@codecaine-ai/annotations": "workspace:*",

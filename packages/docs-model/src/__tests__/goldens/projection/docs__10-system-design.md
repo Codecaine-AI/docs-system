@@ -1,4 +1,4 @@
-System design defines the contracts for organizing documentation, rendering canonical document state, mutating block trees, and presenting the workbench. Its five sections separate corpus rules, reader surfaces, state structure, canonical content types, and editor behavior.
+System design defines the contracts for organizing documentation, rendering and editing canonical state, hosting project corpora, and identifying product releases. Its sections give each contract one primary home.
 
 ## Docs Architecture
 
@@ -67,3 +67,7 @@ Editor design specifies the workbench surface around and between blocks.
 - Its contracts cover reading, editing, styling controls, shared visuals, and canvas and media behavior.
 
 - Per-block appearance and editing behavior remain in the block vocabulary.
+
+Central Docs Service defines one local host, project routing, signing, and automatic runtime updates.
+
+Core Product Versioning defines independent product releases and separates release versions from build, schema, and signing identities.

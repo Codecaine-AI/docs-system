@@ -1,5 +1,7 @@
 The file-tree component owns one block type, `file-tree`: the vocabulary's annotated path tree. A flat list of path entries in props renders — on both surfaces — as a `tree`-command drawing, with per-entry notes and change markers for describing repo slices and refactors.
 
+When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source; identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information.
+
 Reach for it when the nested structure is files, not steps — repo slices, refactor plans, layout conventions. A process that flows end to end belongs to process-outline.
 
 ## Example
@@ -89,9 +91,27 @@ Three actions are the type's whole custom write surface.
 **file-tree — entry actions**
 
 ```
-file-tree.addEntry(path: string, note?: string, change?: string) -> props patch: { entries }  # Append a path entry (optional note and change marker) to the file tree.
-file-tree.removeEntry(path: string) -> props patch: { entries }  # Remove the entry with the given path from the file tree.
-file-tree.updateEntry(path: string, note?: string | null, change?: string | null, from?: string | null, newPath?: string) -> props patch: { entries }  # Patch an entry's note/change/from, or rename it via newPath (in place).
+file-tree.addEntry(path: string, note?: string, change?: string) -> FileTreePatch  # Append a path entry (optional note and change marker) to the file tree.
+  Returns FileTreePatch:
+    entries: FileTreeEntry[]  # Flat list of path entries; the rendered tree derives from path prefixes.
+      path: string  # /-separated, no leading "./"; a trailing "/" marks an explicit directory.
+      note?: string  # Short annotation rendered after the path.
+      change?: "added" | "removed" | "modified" | "renamed"  # Diff marker for the entry.
+      from?: string  # Previous path, used with change: "renamed".
+file-tree.removeEntry(path: string) -> FileTreePatch  # Remove the entry with the given path from the file tree.
+  Returns FileTreePatch:
+    entries: FileTreeEntry[]  # Flat list of path entries; the rendered tree derives from path prefixes.
+      path: string  # /-separated, no leading "./"; a trailing "/" marks an explicit directory.
+      note?: string  # Short annotation rendered after the path.
+      change?: "added" | "removed" | "modified" | "renamed"  # Diff marker for the entry.
+      from?: string  # Previous path, used with change: "renamed".
+file-tree.updateEntry(path: string, note?: string | null, change?: string | null, from?: string | null, newPath?: string) -> FileTreePatch  # Patch an entry's note/change/from, or rename it via newPath (in place).
+  Returns FileTreePatch:
+    entries: FileTreeEntry[]  # Flat list of path entries; the rendered tree derives from path prefixes.
+      path: string  # /-separated, no leading "./"; a trailing "/" marks an explicit directory.
+      note?: string  # Short annotation rendered after the path.
+      change?: "added" | "removed" | "modified" | "renamed"  # Diff marker for the entry.
+      from?: string  # Previous path, used with change: "renamed".
 ```
 
 Every `apply` is pure — entries in, a props patch `{ entries }` out — and the patch revalidates against `FileTreeState` before anything persists.

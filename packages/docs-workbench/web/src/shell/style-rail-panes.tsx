@@ -134,7 +134,7 @@ const TOKEN_KEY_LABELS: Record<string, string> = {
   rowPad: "Row padding",
   opGap: "Card gap",
   cellPaddingY: "Row padding",
-  cellPaddingX: "Column gap",
+  cellPaddingX: "Cell padding",
   fontSize: "Text size",
   radius: "Corner radius",
   handleRadius: "Handle radius",

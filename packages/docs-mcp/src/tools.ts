@@ -10,11 +10,15 @@ import {
 } from "@codecaine-ai/docs-model";
 import { inlineToDelta } from "@codecaine-ai/docs-model/markdown-to-delta";
 import { lintDocument, titleHeadingFixOps } from "@codecaine-ai/docs-model/lint";
+import {
+  canonicalBundleSrc, classifyBlockSrc, resolveBundleRelativeSrc,
+} from "@codecaine-ai/docs-model/bundle-src";
 import { resolveDocBundleJsonPath } from "@codecaine-ai/docs-index/paths";
 import { normalizeBundlePath } from "@codecaine-ai/docs-server/bundle";
 import { createDocsStore, type DocsStore } from "@codecaine-ai/docs-server/store";
 import {
-  resolveCanvasSidecarRelativePath, resolveSequenceSidecarRelativePath,
+  resolveCanvasSidecarRelativePath, resolveCanvasSidecarRootRelativePath,
+  resolveSequenceSidecarRelativePath, resolveSequenceSidecarRootRelativePath,
 } from "@codecaine-ai/docs-server/confine";
 
 export interface DocsToolResult {
@@ -55,6 +59,20 @@ function response(data: Record<string, unknown>): DocsToolResult {
     ...(data.ok === false ? { isError: true } : {}) };
 }
 function failure(detail: string, status = 400): Record<string, unknown> { return { ok: false, status, detail }; }
+
+/** Resolve a component src exactly as the viewer and root-relative server routes do. */
+export function componentSidecarPath(
+  bundlePath: string,
+  type: "canvas" | "sequence",
+  src: string,
+): string | null {
+  const kind = classifyBlockSrc(src);
+  if (kind === "url" || kind === "parent-escape") return null;
+  const rootRel = resolveBundleRelativeSrc(normalizeBundlePath(bundlePath), src);
+  return type === "canvas"
+    ? resolveCanvasSidecarRootRelativePath("/docs-root", rootRel)
+    : resolveSequenceSidecarRootRelativePath("/docs-root", rootRel);
+}
 
 /** Keep provider schemas JSON-only, resolving the registry's recursive local refs through $defs. */
 function jsonSchema(schema: TObject): Record<string, unknown> {
@@ -163,8 +181,7 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
     const block = doc.doc.blocks[args.blockId];
     if (!block || (block.type !== "canvas" && block.type !== "sequence")) return failure("blockId must name a canvas or sequence block.");
     if (typeof block.props.src !== "string") return failure("This component has no sidecar src. Central component references are not supported by the Docs store.");
-    const syntheticPath = `${normalizeBundlePath(args.path) ? `${normalizeBundlePath(args.path)}/` : ""}doc.mdx`;
-    const src = block.type === "canvas" ? resolveCanvasSidecarRelativePath(syntheticPath, block.props.src) : resolveSequenceSidecarRelativePath(syntheticPath, block.props.src);
+    const src = componentSidecarPath(normalizeBundlePath(args.path), block.type, block.props.src);
     if (!src) return failure("Invalid component sidecar path.");
     await confined(store.docsRoot, resolve(store.docsRoot, src));
     return { type: block.type, src, doc_hash: doc.hash,
@@ -253,12 +270,14 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
         const file=new File([Buffer.from(args.base64,"base64")],args.filename,{type:args.content_type});
         return args.content_type.startsWith("video/")?store.uploadVideoAsset({bundlePath:args.path,file}):store.uploadAsset({bundlePath:args.path,file});
       }),
-    tool("docs_component_create", "Create a validated Canvas or Sequence sidecar for a page. src is relative to the page directory, under assets/canvases or assets/sequences. Then insert a typed component block referencing returned src. Refuses overwrite.",
+    tool("docs_component_create", "Create a validated Canvas or Sequence sidecar for a page. src is page-relative, for example ./assets/canvases/<name>.canvas.json or ./assets/sequences/<name>.sequence.json; a bare assets/... src is normalized to ./assets/.... Insert the typed component block with the returned src. Refuses overwrite.",
       obj({...writeTarget,component:Type.Union([Type.Literal("canvas"),Type.Literal("sequence")]),src:str,document:record}),async(args,store)=>{
+        const src=canonicalBundleSrc(args.src);
         const docPath=`${normalizeBundlePath(args.path)}/doc.json`;
-        const rel=args.component==="canvas"?resolveCanvasSidecarRelativePath(docPath,args.src):resolveSequenceSidecarRelativePath(docPath,args.src);
+        const rel=args.component==="canvas"?resolveCanvasSidecarRelativePath(docPath,src):resolveSequenceSidecarRelativePath(docPath,src);
         if(!rel)return failure("Invalid sidecar path.");await confined(store.docsRoot,resolve(store.docsRoot,rel));
-        return args.component==="canvas"?store.createCanvasSidecar({docPath,src:args.src,canvas:args.document,originalHash:args.expected_hash,insertMdx:false}):store.createSequenceSidecar({docPath,src:args.src,sequence:args.document,originalHash:args.expected_hash});
+        const result=args.component==="canvas"?await store.createCanvasSidecar({docPath,src,canvas:args.document,originalHash:args.expected_hash,insertMdx:false}):await store.createSequenceSidecar({docPath,src,sequence:args.document,originalHash:args.expected_hash});
+        return {...result,src};
       }),
     tool("docs_proposals", "List staged proposals and stale status for a page.",obj(target),(args,store)=>store.proposals(args.path)),
     tool("docs_proposal_stage", "Stage typed document operations for review instead of applying them. Uses the current page hash. Sidecar edits use component tools.",
@@ -297,7 +316,9 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
       if (args.markdown !== undefined && !stateFor(args.type).carriesText) return failure("This component carries structured props, not markdown text.");
       const blockId = randomUUID();
       const converted = args.markdown === undefined ? undefined : inlineToDelta(args.markdown);
-      const result = await apply(store, args, [{ type: "insertBlock", blockId, parentId: args.parentId, index: args.index, blockType: args.type, props: { ...emptyStateFor(args.type), ...args.props }, ...(converted ? { text: converted.spans } : {}) }]);
+      const props = { ...emptyStateFor(args.type), ...args.props };
+      if (["canvas", "sequence", "image", "video"].includes(args.type) && typeof props.src === "string") props.src = canonicalBundleSrc(props.src);
+      const result = await apply(store, args, [{ type: "insertBlock", blockId, parentId: args.parentId, index: args.index, blockType: args.type, props, ...(converted ? { text: converted.spans } : {}) }]);
       return { ...result, ...(result.ok ? { blockId, warnings: converted?.warnings ?? [] } : {}) };
     }),
     tool("docs_write_text", "Replace one text block with inline markdown, preserving its ID and props. Use docs_apply_ops for structural changes and component tools for structured content.", obj({ ...writeTarget, blockId: id, markdown: Type.String() }), async (args, store) => {

@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useViewerMotion } from "@codecaine-ai/docs-viewer/viewer-motion";
 import { createPortal } from "react-dom";
 import { ExternalLinkIcon, Maximize2Icon, XIcon } from "lucide-react";
 import type { SequenceEmbedProps } from "@codecaine-ai/docs-viewer/client";
@@ -32,9 +33,11 @@ type StandaloneSequenceEmbedProps = SequenceEmbedProps & {
   /** Static hosts reuse this UI without a workbench transport. */
   initialDocument?: SequenceDocument;
   initiallyOpen?: boolean;
+  /** Published pages keep their existing preview outside this React root. */
+  expansionSource?: HTMLElement;
   onViewerClose?: () => void;
 };
-export function StandaloneSequenceEmbed({ src, sequenceId, id, title, initialDocument, initiallyOpen = false, onViewerClose }: StandaloneSequenceEmbedProps) {
+export function StandaloneSequenceEmbed({ src, sequenceId, id, title, initialDocument, initiallyOpen = false, expansionSource, onViewerClose }: StandaloneSequenceEmbedProps) {
   const [document, setDocument] = useState<SequenceDocument | null>(initialDocument ?? null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -44,19 +47,26 @@ export function StandaloneSequenceEmbed({ src, sequenceId, id, title, initialDoc
   const [zoom, setZoom] = useState(1);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const previewRef = useRef<HTMLButtonElement>(null);
+  const { captureOrigin, animateOpen, animateClose, cancel } = useViewerMotion();
+  const closeViewer = useCallback(() => {
+    animateClose(dialogRef.current, expansionSource ?? previewRef.current, () => setViewerOpen(false));
+  }, [animateClose, expansionSource]);
 
   useEffect(() => {
     if (!viewerOpen) return;
     const dialog = dialogRef.current;
     const previousOverflow = window.document.body.style.overflow;
     dialog?.showModal();
+    if (expansionSource) captureOrigin(expansionSource);
+    animateOpen(dialog);
     window.document.body.style.overflow = "hidden";
     return () => {
+      cancel();
       dialog?.close();
       window.document.body.style.overflow = previousOverflow;
-      previewRef.current?.focus();
+      (expansionSource ?? previewRef.current)?.focus();
     };
-  }, [viewerOpen]);
+  }, [viewerOpen, animateOpen, cancel, captureOrigin, expansionSource]);
 
   useEffect(() => {
     if (initialDocument && !src) return;
@@ -166,7 +176,7 @@ export function StandaloneSequenceEmbed({ src, sequenceId, id, title, initialDoc
           className="docs-sequence-preview-button"
           aria-label={`Open ${viewerTitle} in full-screen viewer`}
           onMouseDown={(event) => event.stopPropagation()}
-          onClick={(event) => { event.stopPropagation(); setZoom(1); setViewerOpen(true); }}
+          onClick={(event) => { event.stopPropagation(); captureOrigin(previewRef.current); setZoom(1); setViewerOpen(true); }}
         >
           <SequenceViewer document={viewerDocument} />
           <span className="docs-sequence-expand"><Maximize2Icon size={14} /> View larger</span>
@@ -175,9 +185,10 @@ export function StandaloneSequenceEmbed({ src, sequenceId, id, title, initialDoc
       {viewerOpen && createPortal(
         <dialog
           ref={dialogRef}
+          style={{ transformOrigin: "top left" }}
           className="docs-sequence-dialog not-prose bg-background text-foreground"
           aria-label={`${viewerTitle} sequence viewer`}
-          onCancel={() => setViewerOpen(false)}
+          onCancel={event => { event.preventDefault(); closeViewer(); }}
           onClose={() => setViewerOpen(false)}
         >
           <header className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b p-3">
@@ -187,7 +198,7 @@ export function StandaloneSequenceEmbed({ src, sequenceId, id, title, initialDoc
               <output className="w-12 text-center text-sm" aria-label="Zoom level">{Math.round(zoom * 100)}%</output>
               <button type="button" className="rounded border px-3 py-1 disabled:opacity-40" aria-label="Zoom in" disabled={zoom >= 4} onClick={() => setZoom(value => Math.min(4, value + 0.5))}>+</button>
               <button type="button" className="rounded border px-3 py-1" onClick={() => setZoom(1)}>Fit</button>
-              <button type="button" className="rounded border p-2" aria-label="Close sequence viewer" onClick={() => setViewerOpen(false)}><XIcon size={18} /></button>
+              <button type="button" className="rounded border p-2" aria-label="Close sequence viewer" onClick={closeViewer}><XIcon size={18} /></button>
             </div>
           </header>
           <div className="docs-sequence-viewport" tabIndex={0} aria-label="Scrollable sequence diagram">

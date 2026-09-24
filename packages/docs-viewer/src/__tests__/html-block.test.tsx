@@ -1,4 +1,6 @@
 import { describe, expect, it } from "bun:test";
+import { createHash } from "node:crypto";
+import { HTML_FRAME_BRIDGE, HTML_FRAME_BRIDGE_HASH, fitHtmlScale } from "../components/rich-text/html-frame";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { HtmlBlock, htmlEmbedDocument } from "../components/rich-text/html";
@@ -9,7 +11,9 @@ import { mdxToDoc } from "../../../docs-cli/src/migrate/mdx-to-doc";
 describe("portable HTML block", () => {
   it("keeps author HTML inside an opaque sandbox with scripts disabled by default", () => {
     const html = renderToStaticMarkup(createElement(HtmlBlock, { title: "Diagram", html: '<script>parent.document.body.remove()</script><svg><text>Hello</text></svg>' }));
-    expect(html).toContain('sandbox=""');
+    expect(html).toContain('sandbox="allow-scripts"');
+    expect(html).toContain('sha256-');
+    expect(htmlEmbedDocument('<script>bad()</script>')).not.toContain("script-src 'unsafe-inline'");
     expect(html).toContain('title="Diagram"');
     expect(html).toContain('&lt;script&gt;');
     expect(html).not.toContain('<script>');
@@ -41,5 +45,19 @@ describe("portable HTML block", () => {
     expect(warnings).toEqual([]);
     const roundTrip = pmToDoc(docToPM(doc), doc, () => "new-id");
     expect(roundTrip.blocks[block.id]).toEqual(block);
+  });
+});
+
+ describe("HTML sizing policy", () => {
+  it("authorizes only the exact measurement bridge when author scripts are disabled", () => {
+    expect(createHash("sha256").update(HTML_FRAME_BRIDGE).digest("base64")).toBe(HTML_FRAME_BRIDGE_HASH);
+    const source = htmlEmbedDocument('<button onclick="bad()">Run</button>');
+    expect(source).toContain(`script-src 'sha256-${HTML_FRAME_BRIDGE_HASH}'`);
+    expect(source.indexOf('Content-Security-Policy')).toBeLessThan(source.indexOf('<script>'));
+  });
+  it("fits both axes without enlarging small content", () => {
+    expect(fitHtmlScale(1600, 1000, 800, 600)).toBe(0.5);
+    expect(fitHtmlScale(800, 2000, 800, 600)).toBe(0.3);
+    expect(fitHtmlScale(200, 100, 800, 600)).toBe(1);
   });
 });

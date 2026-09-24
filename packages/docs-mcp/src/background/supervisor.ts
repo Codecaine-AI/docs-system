@@ -4,6 +4,8 @@ import { mkdir, readFile, writeFile, rename, copyFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { localBrowserRequest, mergeDiscovery, projectRoute, readRegistry, writeRegistry } from './registry';
+import { directoryHtml } from './home';
+import { deviceSearchRoots, emptyDeviceScan, scanDevice, scanWarning, type DeviceScan } from './device-discovery';
 
 type Config = { sourceRoot: string; workspace: string; port: number; stateDirectory: string; legacyPort?: number };
 type Runtime = { process: ReturnType<typeof Bun.spawn>; url: string; hash: string; file: string };
@@ -90,6 +92,7 @@ async function activate() {
   try {
   const revision = registryRevision;
   for (const workspace of registry.workspaces) {
+    if (!existsSync(workspace)) { console.error(`[docs] Registered workspace unavailable: ${workspace}`); continue; }
     const result = await (await runtimeFetch(next, '/rpc', { workspace, name: 'docs_discover', arguments: {} })).json() as any;
     if (result.isError) throw new Error('Replacement could not rediscover registered workspace');
   }
@@ -141,10 +144,43 @@ async function proxyRuntime(request: Request, pathname: string) {
   } catch (e) { return Response.json({ detail: `Docs runtime unavailable: ${e}` }, { status: 502 }); }
   finally { activeRequests--; }
 }
-const escape = (s: string) => s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
-function directoryHtml() {
-  const rows = registry.projects.map(p => `<a class="project" href="/projects/${encodeURIComponent(p.id)}/docs/"><strong>${escape(p.name)}</strong><span>${escape(p.root)}</span><b>Open docs →</b></a>`).join('');
-  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Codecaine Docs</title><style>body{margin:0;background:#101315;color:#edf0ee;font:16px system-ui}main{max-width:850px;margin:72px auto;padding:0 28px}h1{font-size:36px;font-weight:550;margin:8px 0}p{color:#aeb6b2;line-height:1.6}.project{display:grid;grid-template-columns:1fr auto;gap:8px;padding:24px 0;border-bottom:1px solid #303734;color:inherit;text-decoration:none}.project:hover strong{color:#a8d3bd}.project strong{font-size:21px;font-weight:550}.project span{grid-column:1;color:#919d96;font-size:13px;overflow-wrap:anywhere}.project b{grid-column:2;grid-row:1/3;align-self:center;font-size:14px;font-weight:500;color:#a8d3bd}small{color:#919d96}#status{white-space:pre-wrap}</style></head><body><main><small>CODECAINE</small><h1>Documentation</h1><p>One place for your project docs.</p><p id="status"></p>${rows || '<p>No projects registered yet. Open Docs from a project to register it.</p>'}<p><small>Docs ${escape(version)}</small></p></main><script>async function refresh(){try{const s=await(await fetch('/api/status')).json();document.getElementById('status').textContent=s.error?'Update failed. The previous build is still running.\n'+s.error:s.buildState==='ready'?'Live · '+s.projects+' projects':s.buildState.replaceAll('-',' ')}catch{document.getElementById('status').textContent='Reconnecting…'}}refresh();setInterval(refresh,3000)</script></body></html>`;
+const scanFile = join(stateDir, 'device-discovery.json');
+let deviceScan: DeviceScan = emptyDeviceScan();
+try {
+  const saved = JSON.parse(await readFile(scanFile, 'utf8')) as DeviceScan;
+  if (Array.isArray(saved.roots) && Array.isArray(saved.warnings)) deviceScan = saved;
+  if (deviceScan.phase === 'scanning') deviceScan.phase = 'interrupted';
+} catch { /* A missing scan history starts with discovery on the first home visit. */ }
+const scanAbort = new AbortController();
+async function registerDevice() {
+  if (deviceScan.phase === 'scanning' || closing || !active) return;
+  const runtime = active;
+  const initialRoots = new Set(registry.projects.map(p => p.docsRoot));
+  const scan: DeviceScan = { ...emptyDeviceScan(), phase: 'scanning', roots: deviceSearchRoots(registry.workspaces), startedAt: new Date().toISOString() };
+  deviceScan = scan;
+  // Keep the same write authority throughout the scan and its registration requests.
+  activeRequests++;
+  requestRevision++;
+  try {
+    await writeFile(scanFile, JSON.stringify(scan), { mode: 0o600 });
+    await scanDevice(scan, async workspace => {
+      const response = await runtimeFetch(runtime, '/rpc', { workspace, name: 'docs_discover', arguments: {} });
+      const result = await response.json() as any;
+      const discovery = result.structuredContent;
+      if (!response.ok || result.isError || !discovery?.ok) throw new Error(discovery?.detail ?? result.detail ?? 'Discovery failed');
+      for (const warning of discovery.warnings ?? []) scanWarning(scan, warning);
+      // Do not retain every Markdown-only directory as a registered workspace.
+      if (discovery.projects.length) await remember(discovery);
+      scan.added = registry.projects.filter(p => !initialRoots.has(p.docsRoot)).length;
+    }, scanAbort.signal);
+    scan.phase = 'complete';
+  } catch (e) { scan.phase = scanAbort.signal.aborted ? 'interrupted' : 'failed'; scanWarning(scan, String(e)); }
+  finally {
+    scan.finishedAt = new Date().toISOString();
+    try { await writeFile(scanFile, JSON.stringify(scan), { mode: 0o600 }); }
+    catch (e) { scan.phase = 'failed'; scanWarning(scan, `Could not save scan history: ${e}`); }
+    activeRequests--;
+  }
 }
 type SocketData = { url: string; upstream?: WebSocket; pending: (string | Buffer)[] };
 const handler = async (request: Request, host: Bun.Server<SocketData>): Promise<Response | undefined> => {
@@ -161,8 +197,17 @@ const handler = async (request: Request, host: Bun.Server<SocketData>): Promise<
     return proxyRuntime(request, url.pathname);
   }
   if (url.pathname === '/api/status') return Response.json(status(), { headers: { 'cache-control': 'no-store' } });
-  if (url.pathname === '/api/projects') return Response.json({ projects: registry.projects });
-  if (url.pathname === '/') return new Response(directoryHtml(), { headers: { 'content-type': 'text/html', 'cache-control': 'no-store' } });
+  if (url.pathname === '/api/projects') return Response.json({ projects: registry.projects }, { headers: { 'cache-control': 'no-store' } });
+  if (url.pathname === '/api/discovery') {
+    if (request.method === 'GET') return Response.json(deviceScan, { headers: { 'cache-control': 'no-store' } });
+    if (request.method !== 'POST') return new Response('Method not allowed', { status: 405, headers: { allow: 'GET, POST' } });
+    // Browser mutations require an exact Origin; CLI callers use the existing bearer grant.
+    if (!authenticated && request.headers.get('origin') !== url.origin) return new Response('Forbidden origin', { status: 403 });
+    if (!active || closing) return Response.json({ detail: 'Docs is starting. Retry shortly.' }, { status: 503 });
+    void registerDevice();
+    return Response.json(deviceScan, { status: 202, headers: { 'cache-control': 'no-store' } });
+  }
+  if (url.pathname === '/') return new Response(directoryHtml(registry.projects, version), { headers: { 'content-type': 'text/html', 'cache-control': 'no-store' } });
   const project = projectRoute(url.pathname);
   if (project) {
     if (!registry.projects.some(p => p.id === project.id)) return new Response('Project is not registered.', { status: 404 });
@@ -306,6 +351,7 @@ async function shutdown(code = 0) {
   if (closing) return; closing = true;
   clearInterval(maintenance); clearTimeout(debounce);
   for (const watcher of watchers) watcher.close();
+  scanAbort.abort();
   // Let requests that already entered the write authority finish.
   for (let i = 0; activeRequests && i < 100; i++) await Bun.sleep(100);
   viewer?.kill(); active?.process.kill(); candidate?.process.kill();

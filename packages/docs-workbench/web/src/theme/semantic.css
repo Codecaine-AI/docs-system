@@ -138,7 +138,7 @@
   --docs-video-caption-fg: var(--docs-viewer-text-muted);
   --docs-file-tree-border: var(--border);
   --docs-file-tree-note-fg: var(--docs-viewer-text-muted);
-  --docs-table-border: transparent;
+  --docs-table-border: var(--docs-border-default);
   --docs-table-header-bg: transparent;
   --docs-table-header-fg: var(--docs-viewer-text-heading);
   --docs-table-header-rule: var(--docs-viewer-text-heading);
@@ -148,7 +148,7 @@
   --docs-table-row-rule-width: 1px;
   --docs-table-row-rule-opacity: 1;
   --docs-table-cell-pad-y: 10px;
-  --docs-table-cell-pad-x: 16px;
+  --docs-table-cell-pad-x: 12px;
   --docs-table-font-size: 14px;
   /* Component corner radii derive from the global --radius token. */
   --docs-table-handle-radius: max(0px, calc(var(--radius) - 5px));
@@ -422,7 +422,7 @@
   --docs-video-caption-fg: var(--docs-viewer-text-muted);
   --docs-file-tree-border: var(--border);
   --docs-file-tree-note-fg: var(--docs-viewer-text-muted);
-  --docs-table-border: transparent;
+  --docs-table-border: var(--docs-border-default);
   --docs-table-header-bg: transparent;
   --docs-table-header-fg: var(--docs-viewer-text-heading);
   --docs-table-header-rule: var(--docs-viewer-text-heading);
@@ -432,7 +432,7 @@
   --docs-table-row-rule-width: 1px;
   --docs-table-row-rule-opacity: 1;
   --docs-table-cell-pad-y: 10px;
-  --docs-table-cell-pad-x: 16px;
+  --docs-table-cell-pad-x: 12px;
   --docs-table-font-size: 14px;
   /* Component corner radii derive from the global --radius token. */
   --docs-table-handle-radius: max(0px, calc(var(--radius) - 5px));

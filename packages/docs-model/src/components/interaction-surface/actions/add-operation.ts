@@ -6,6 +6,7 @@ import { FieldSchema, cloneField } from "../../shared/field";
 import type { Field } from "../../shared/field";
 import { operationsPatch } from "../lib";
 import {
+  InteractionSurfaceReturnShapeSchema,
   readInteractionSurfaceOperations,
   type InteractionSurfaceOperation,
 } from "../state";
@@ -16,7 +17,7 @@ export const addOperation = defineComponentAction({
   action: "interaction-surface.addOperation",
   blockType: "interaction-surface",
   description:
-    "Append an operation signature ({ name, description?, params?, returns?, kind? }) to the surface.",
+    "Append an operation signature ({ name, description?, params?, returns?, returnShape?, kind? }) to the surface.",
   params: Type.Object({
     name: Type.String({
       minLength: 1,
@@ -34,6 +35,7 @@ export const addOperation = defineComponentAction({
     returns: Type.Optional(
       Type.String({ description: "What the operation returns/yields." }),
     ),
+    returnShape: Type.Optional(InteractionSurfaceReturnShapeSchema),
     kind: Type.Optional(
       Type.Union(
         [Type.Literal("action"), Type.Literal("query"), Type.Literal("event")],
@@ -64,6 +66,7 @@ export const addOperation = defineComponentAction({
       operation.params = (params.params as Field[]).map(cloneField);
     }
     if (params.returns !== undefined) operation.returns = params.returns;
+    if (params.returnShape !== undefined) operation.returnShape = params.returnShape;
     if (params.kind !== undefined) operation.kind = params.kind;
     return { ok: true, props: operationsPatch([...operations, operation]) };
   },

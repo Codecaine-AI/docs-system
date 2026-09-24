@@ -9,6 +9,10 @@ function operationToProps(operation: InteractionSurfaceOperation): Record<string
   // cloneField builds plain-JSON param objects (recursively) with only the defined keys.
   if (operation.params !== undefined) out.params = operation.params.map(cloneField);
   if (operation.returns !== undefined) out.returns = operation.returns;
+  if (operation.returnShape !== undefined) out.returnShape = {
+    fields: operation.returnShape.fields.map(cloneField),
+    ...(operation.returnShape.example !== undefined ? { example: operation.returnShape.example } : {}),
+  };
   if (operation.kind !== undefined) out.kind = operation.kind;
   return out;
 }

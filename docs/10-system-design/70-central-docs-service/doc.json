@@ -13,6 +13,7 @@
         "central-1",
         "central-2",
         "central-3",
+        "66f80205-5552-4a4f-852c-d3e42692adc9",
         "central-4",
         "central-5",
         "central-6",
@@ -115,6 +116,26 @@
       "text": [
         {
           "insert": "Documents remain in their project's native Docs corpus. Registration changes how a project is reached, without copying its documents into a central data directory. Only normalized corpora are registered. Markdown-only folders require the supported migration workflow."
+        }
+      ],
+      "children": []
+    },
+    "66f80205-5552-4a4f-852c-d3e42692adc9": {
+      "id": "66f80205-5552-4a4f-852c-d3e42692adc9",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The home page starts device discovery on its first visit and provides "
+        },
+        {
+          "insert": "Register docs on this device",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " for later scans. It searches the current user's home, shared user storage, mounted drives, and registered workspaces. Hidden folders, system storage, dependencies, backups, archives, and container storage are excluded. Each candidate uses the existing normalized-corpus discovery rules, including declared project members and custom docs roots. Canonical paths prevent symlink duplicates. Unreadable folders, timeouts, and unsupported corpora produce discovery notices while other projects continue registering. Search filters registered projects by name or folder."
         }
       ],
       "children": []

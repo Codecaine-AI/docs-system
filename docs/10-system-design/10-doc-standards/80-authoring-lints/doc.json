@@ -28,6 +28,8 @@
         "b-80-authoring-lints-writing-warnings-35",
         "b-80-authoring-lints-page-structure-errors-38",
         "b-80-authoring-lints-page-structure-warning-42",
+        "process-outline-parent-lint",
+        "bundle-relative-src-lint",
         "b-80-authoring-lints-why-44",
         "title-heading-lint",
         "b-80-authoring-lints-shared-rules-let-cli-che-45"
@@ -782,6 +784,28 @@
       "text": [
         {
           "insert": "structure.deep-list flags list nesting deeper than three list items. Nested supporting details remain valid; review whether a branch needs its own section."
+        }
+      ],
+      "children": []
+    },
+    "process-outline-parent-lint": {
+      "id": "process-outline-parent-lint",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "process-outline.single-parent requires one named, non-note root with at least one action child in every completed Process Outline. Empty outlines, childless roots, and multiple roots produce errors. Draft edits remain writable; new violations block completion. Nest related phases under one parent, or split independent processes into separate blocks."
+        }
+      ],
+      "children": []
+    },
+    "bundle-relative-src-lint": {
+      "id": "bundle-relative-src-lint",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "bundle-relative-src rejects bare assets/... src values on completed canvas, sequence, image, and video blocks. Prefix bundle assets with ./, or use a docs-root-relative path or URL."
         }
       ],
       "children": []

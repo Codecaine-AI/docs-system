@@ -1,0 +1,2450 @@
+{
+  "approvedAt": "2026-09-15T22:26:19.955Z",
+  "applyId": "1fcaca6a-3a21-479e-9821-5d98647da60f",
+  "variationId": "75cf513f-d242-4221-8975-1f008b851c44",
+  "revisionId": "92c6464c-bee2-4052-b0b9-190247849e4d",
+  "sourceHash": "41b7b3521ecc77fb09091259e60f67e4585c97f52e6c0443af064203db353542",
+  "tokens": {
+    "light:outlineDepth1": "#527b9d",
+    "light:outlineDepth2": "#568365",
+    "light:outlineDepth3": "#876797",
+    "light:outlineDepth4": "#99723f",
+    "light:outlineDepth5": "#438285",
+    "light:outlineDepth6": "#94646f",
+    "light:outlineBulletInk": "#737373",
+    "dark:outlineDepth1": "#8ab5d8",
+    "dark:outlineDepth2": "#92bd9c",
+    "dark:outlineDepth3": "#bca0cf",
+    "dark:outlineDepth4": "#d1b180",
+    "dark:outlineDepth5": "#83bdc0",
+    "dark:outlineDepth6": "#d0a0ac",
+    "dark:outlineNoteInk": "#dedbd5",
+    "dark:outlineBulletInk": "#dedbd5",
+    "light:outlineStroke": "1.5",
+    "dark:outlineStroke": "1.5",
+    "light:outlineBulletLine": "#737373",
+    "dark:outlineBulletLine": "#bca0cf",
+    "light:outlineNoteInk": "#302f2c"
+  },
+  "decisions": [
+    {
+      "origin": "user",
+      "scope": "Process Outline authoring",
+      "decision": "Each step and supporting note is bite-sized; all authored content appears by default."
+    },
+    {
+      "origin": "user",
+      "scope": "Process Outline selection",
+      "decision": "Use Round 1 Continuous Outline as the main design. Rounds 2 and 3 are abandoned, with history retained."
+    },
+    {
+      "origin": "user",
+      "scope": "Selected Continuous Outline",
+      "decision": "Different nesting levels use different branch colors. Notes are readable. Branches and arrows use 1.5px strokes. Bullet dots, note text, and note-rule colors are independently tunable."
+    },
+    {
+      "origin": "user",
+      "scope": "Exact saved style",
+      "decision": "Approve revision 92c6464c-bee2-4052-b0b9-190247849e4d, including the user’s final gray dots and note rules and darker note text."
+    },
+    {
+      "origin": "user",
+      "scope": "Process Outline structure",
+      "decision": "One named parent with action children per completed outline. Independent processes belong in separate blocks. Enforce through lint and repair all 61 affected outlines."
+    },
+    {
+      "origin": "implementation",
+      "scope": "Lint enforcement",
+      "decision": "process-outline.single-parent reports errors for multiple roots, empty roots, unnamed roots, note roots, and roots without action children. Drafts remain writable; completion rejects violations."
+    },
+    {
+      "origin": "proposal",
+      "scope": "Not included in this approved revision",
+      "decision": "The earlier top-circle suggestion was never implemented. It is not part of this approval."
+    }
+  ],
+  "verification": {
+    "candidate": {
+      "passed": true,
+      "violations": [],
+      "evidence": {
+        "checkedAt": "2026-09-15T22:04:04.994Z",
+        "checks": [
+          {
+            "message": "Variator · whole process: source identity preserved.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: every step and note is rendered exactly once.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 1 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 2 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 3 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 4 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 5 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 6 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 7 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 8 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 9 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 10 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 11 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 12 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 13 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 14 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 15 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 16 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 17 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 18 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 19 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 20 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 21 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 22 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 23 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: nesting depths preserved.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: trace markers preserved.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: notes remain separate leaves.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: code chips preserved.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: all content visible by default at 1440px in light.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: no horizontal overflow at 1440px in light.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: all content visible by default at 390px in light.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: no horizontal overflow at 390px in light.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: step and note text is at least 12px.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: all content visible by default at 1440px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: no horizontal overflow at 1440px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: all content visible by default at 390px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: no horizontal overflow at 390px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: step and note text is at least 12px.",
+            "passed": true
+          },
+          {
+            "message": "Simple · annotate a viewport: source identity preserved.",
+            "passed": true
+          },
+          {
+            "message": "Simple · annotate a viewport: every step and note is rendered exactly once.",
+            "passed": true
+          },
+          {
+            "message": "Simple · annotate a viewport: line 1 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Simple · annotate a viewport: line 2 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Simple · annotate a viewport: line 3 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Simple · annotate a viewport: line 4 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Simple · annotate a viewport: line 5 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Simple · annotate a viewport: line 6 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Simple · annotate a viewport: nesting depths preserved.",
+            "passed": true
+          },
+          {
+            "message": "Simple · annotate a viewport: trace markers preserved.",
+            "passed": true
+          },
+          {
+            "message": "Simple · annotate a viewport: notes remain separate leaves.",
+            "passed": true
+          },
+          {
+            "message": "Simple · annotate a viewport: code chips preserved.",
+            "passed": true
+          },
+          {
+            "message": "Simple · annotate a viewport: all content visible by default at 1440px in light.",
+            "passed": true
+          },
+          {
+            "message": "Simple · annotate a viewport: no horizontal overflow at 1440px in light.",
+            "passed": true
+          },
+          {
+            "message": "Simple · annotate a viewport: all content visible by default at 390px in light.",
+            "passed": true
+          },
+          {
+            "message": "Simple · annotate a viewport: no horizontal overflow at 390px in light.",
+            "passed": true
+          },
+          {
+            "message": "Simple · annotate a viewport: step and note text is at least 12px.",
+            "passed": true
+          },
+          {
+            "message": "Simple · annotate a viewport: all content visible by default at 1440px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Simple · annotate a viewport: no horizontal overflow at 1440px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Simple · annotate a viewport: all content visible by default at 390px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Simple · annotate a viewport: no horizontal overflow at 390px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Simple · annotate a viewport: step and note text is at least 12px.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: source identity preserved.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: every step and note is rendered exactly once.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 1 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 2 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 3 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 4 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 5 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 6 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 7 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 8 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 9 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 10 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 11 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 12 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 13 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 14 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 15 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 16 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 17 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 18 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 19 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 20 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 21 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 22 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 23 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 24 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 25 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 26 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 27 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: nesting depths preserved.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: trace markers preserved.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: notes remain separate leaves.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: code chips preserved.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: all content visible by default at 1440px in light.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: no horizontal overflow at 1440px in light.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: all content visible by default at 390px in light.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: no horizontal overflow at 390px in light.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: step and note text is at least 12px.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: all content visible by default at 1440px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: no horizontal overflow at 1440px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: all content visible by default at 390px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: no horizontal overflow at 390px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: step and note text is at least 12px.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: source identity preserved.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: every step and note is rendered exactly once.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 1 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 2 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 3 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 4 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 5 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 6 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 7 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 8 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 9 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 10 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 11 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 12 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 13 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 14 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 15 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 16 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 17 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 18 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 19 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 20 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 21 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 22 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 23 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 24 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 25 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 26 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 27 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 28 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 29 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 30 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 31 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 32 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 33 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 34 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 35 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 36 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 37 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 38 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 39 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 40 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 41 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 42 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 43 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 44 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 45 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 46 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 47 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 48 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 49 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 50 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: nesting depths preserved.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: trace markers preserved.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: notes remain separate leaves.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: code chips preserved.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: all content visible by default at 1440px in light.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: no horizontal overflow at 1440px in light.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: all content visible by default at 390px in light.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: no horizontal overflow at 390px in light.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: step and note text is at least 12px.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: all content visible by default at 1440px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: no horizontal overflow at 1440px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: all content visible by default at 390px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: no horizontal overflow at 390px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: step and note text is at least 12px.",
+            "passed": true
+          },
+          {
+            "message": "Notes, chips and trace markers: source identity preserved.",
+            "passed": true
+          },
+          {
+            "message": "Notes, chips and trace markers: every step and note is rendered exactly once.",
+            "passed": true
+          },
+          {
+            "message": "Notes, chips and trace markers: line 1 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Notes, chips and trace markers: line 2 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Notes, chips and trace markers: line 3 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Notes, chips and trace markers: line 4 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Notes, chips and trace markers: line 5 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Notes, chips and trace markers: line 6 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Notes, chips and trace markers: line 7 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Notes, chips and trace markers: line 8 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Notes, chips and trace markers: nesting depths preserved.",
+            "passed": true
+          },
+          {
+            "message": "Notes, chips and trace markers: trace markers preserved.",
+            "passed": true
+          },
+          {
+            "message": "Notes, chips and trace markers: notes remain separate leaves.",
+            "passed": true
+          },
+          {
+            "message": "Notes, chips and trace markers: code chips preserved.",
+            "passed": true
+          },
+          {
+            "message": "Notes, chips and trace markers: all content visible by default at 1440px in light.",
+            "passed": true
+          },
+          {
+            "message": "Notes, chips and trace markers: no horizontal overflow at 1440px in light.",
+            "passed": true
+          },
+          {
+            "message": "Notes, chips and trace markers: all content visible by default at 390px in light.",
+            "passed": true
+          },
+          {
+            "message": "Notes, chips and trace markers: no horizontal overflow at 390px in light.",
+            "passed": true
+          },
+          {
+            "message": "Notes, chips and trace markers: step and note text is at least 12px.",
+            "passed": true
+          },
+          {
+            "message": "Notes, chips and trace markers: all content visible by default at 1440px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Notes, chips and trace markers: no horizontal overflow at 1440px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Notes, chips and trace markers: all content visible by default at 390px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Notes, chips and trace markers: no horizontal overflow at 390px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Notes, chips and trace markers: step and note text is at least 12px.",
+            "passed": true
+          },
+          {
+            "message": "Empty outline: source identity preserved.",
+            "passed": true
+          },
+          {
+            "message": "Empty outline: every step and note is rendered exactly once.",
+            "passed": true
+          },
+          {
+            "message": "Empty outline: nesting depths preserved.",
+            "passed": true
+          },
+          {
+            "message": "Empty outline: trace markers preserved.",
+            "passed": true
+          },
+          {
+            "message": "Empty outline: notes remain separate leaves.",
+            "passed": true
+          },
+          {
+            "message": "Empty outline: code chips preserved.",
+            "passed": true
+          },
+          {
+            "message": "Empty outline: all content visible by default at 1440px in light.",
+            "passed": true
+          },
+          {
+            "message": "Empty outline: no horizontal overflow at 1440px in light.",
+            "passed": true
+          },
+          {
+            "message": "Empty outline: all content visible by default at 390px in light.",
+            "passed": true
+          },
+          {
+            "message": "Empty outline: no horizontal overflow at 390px in light.",
+            "passed": true
+          },
+          {
+            "message": "Empty outline: all content visible by default at 1440px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Empty outline: no horizontal overflow at 1440px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Empty outline: all content visible by default at 390px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Empty outline: no horizontal overflow at 390px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: source identity preserved.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: every step and note is rendered exactly once.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: line 1 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: line 2 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: line 3 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: line 4 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: line 5 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: line 6 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: line 7 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: line 8 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: line 9 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: line 10 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: line 11 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: line 12 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: line 13 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: line 14 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: nesting depths preserved.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: trace markers preserved.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: notes remain separate leaves.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: code chips preserved.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: all content visible by default at 1440px in light.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: no horizontal overflow at 1440px in light.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: all content visible by default at 390px in light.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: no horizontal overflow at 390px in light.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: step and note text is at least 12px.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: all content visible by default at 1440px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: no horizontal overflow at 1440px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: all content visible by default at 390px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: no horizontal overflow at 390px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: step and note text is at least 12px.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-wr-example-block: source identity preserved.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-wr-example-block: every step and note is rendered exactly once.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-wr-example-block: line 1 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-wr-example-block: line 2 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-wr-example-block: line 3 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-wr-example-block: line 4 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-wr-example-block: line 5 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-wr-example-block: line 6 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-wr-example-block: line 7 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-wr-example-block: nesting depths preserved.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-wr-example-block: trace markers preserved.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-wr-example-block: notes remain separate leaves.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-wr-example-block: code chips preserved.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-wr-example-block: all content visible by default at 1440px in light.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-wr-example-block: no horizontal overflow at 1440px in light.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-wr-example-block: all content visible by default at 390px in light.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-wr-example-block: no horizontal overflow at 390px in light.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-wr-example-block: step and note text is at least 12px.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-wr-example-block: all content visible by default at 1440px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-wr-example-block: no horizontal overflow at 1440px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-wr-example-block: all content visible by default at 390px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-wr-example-block: no horizontal overflow at 390px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-wr-example-block: step and note text is at least 12px.",
+            "passed": true
+          },
+          {
+            "message": "Steps and notes remain selectable.",
+            "passed": true
+          },
+          {
+            "message": "Inline edit hook accepts typing.",
+            "passed": true
+          },
+          {
+            "message": "Read view reflects edited state.",
+            "passed": true
+          },
+          {
+            "message": "Empty outline exposes its editor hook.",
+            "passed": true
+          },
+          {
+            "message": "Empty editor hook can insert the first step.",
+            "passed": true
+          },
+          {
+            "message": "Reduced motion suppresses component animations.",
+            "passed": true
+          }
+        ],
+        "screenshots": [
+          "/Users/Ford/Github Repos/Codecaine/tools/variator/.variator/artifacts/apply/1fcaca6a-3a21-479e-9821-5d98647da60f/candidate-gates/overview-light.png",
+          "/Users/Ford/Github Repos/Codecaine/tools/variator/.variator/artifacts/apply/1fcaca6a-3a21-479e-9821-5d98647da60f/candidate-gates/overview-dark.png",
+          "/Users/Ford/Github Repos/Codecaine/tools/variator/.variator/artifacts/apply/1fcaca6a-3a21-479e-9821-5d98647da60f/candidate-gates/nested-light.png",
+          "/Users/Ford/Github Repos/Codecaine/tools/variator/.variator/artifacts/apply/1fcaca6a-3a21-479e-9821-5d98647da60f/candidate-gates/nested-dark.png",
+          "/Users/Ford/Github Repos/Codecaine/tools/variator/.variator/artifacts/apply/1fcaca6a-3a21-479e-9821-5d98647da60f/candidate-gates/lengthy-light.png",
+          "/Users/Ford/Github Repos/Codecaine/tools/variator/.variator/artifacts/apply/1fcaca6a-3a21-479e-9821-5d98647da60f/candidate-gates/lengthy-dark.png"
+        ]
+      }
+    },
+    "integrated": {
+      "passed": true,
+      "violations": [],
+      "evidence": {
+        "checkedAt": "2026-09-15T22:26:00.885Z",
+        "checks": [
+          {
+            "message": "Variator · whole process: source identity preserved.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: every step and note is rendered exactly once.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 1 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 2 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 3 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 4 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 5 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 6 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 7 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 8 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 9 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 10 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 11 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 12 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 13 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 14 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 15 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 16 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 17 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 18 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 19 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 20 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 21 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 22 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: line 23 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: nesting depths preserved.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: trace markers preserved.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: notes remain separate leaves.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: code chips preserved.",
+            "passed": true
+          },
+          {
+            "message": "Variator · whole process: all content visible by default at 1440px in light.",
+            "passed": true
+          },
+          {
+            "message": "Original Variator · whole process: width 1440, dark false",
+            "passed": true,
+            "baselineObservation": true
+          },
+          {
+            "message": "Variator · whole process: all content visible by default at 390px in light.",
+            "passed": true
+          },
+          {
+            "message": "Original Variator · whole process: width 390, dark false",
+            "passed": true,
+            "baselineObservation": true
+          },
+          {
+            "message": "Variator · whole process: all content visible by default at 1440px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Original Variator · whole process: width 1440, dark true",
+            "passed": true,
+            "baselineObservation": true
+          },
+          {
+            "message": "Variator · whole process: all content visible by default at 390px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Original Variator · whole process: width 390, dark true",
+            "passed": true,
+            "baselineObservation": true
+          },
+          {
+            "message": "Simple · annotate a viewport: source identity preserved.",
+            "passed": true
+          },
+          {
+            "message": "Simple · annotate a viewport: every step and note is rendered exactly once.",
+            "passed": true
+          },
+          {
+            "message": "Simple · annotate a viewport: line 1 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Simple · annotate a viewport: line 2 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Simple · annotate a viewport: line 3 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Simple · annotate a viewport: line 4 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Simple · annotate a viewport: line 5 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Simple · annotate a viewport: line 6 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Simple · annotate a viewport: nesting depths preserved.",
+            "passed": true
+          },
+          {
+            "message": "Simple · annotate a viewport: trace markers preserved.",
+            "passed": true
+          },
+          {
+            "message": "Simple · annotate a viewport: notes remain separate leaves.",
+            "passed": true
+          },
+          {
+            "message": "Simple · annotate a viewport: code chips preserved.",
+            "passed": true
+          },
+          {
+            "message": "Simple · annotate a viewport: all content visible by default at 1440px in light.",
+            "passed": true
+          },
+          {
+            "message": "Original Simple · annotate a viewport: width 1440, dark false",
+            "passed": true,
+            "baselineObservation": true
+          },
+          {
+            "message": "Simple · annotate a viewport: all content visible by default at 390px in light.",
+            "passed": true
+          },
+          {
+            "message": "Original Simple · annotate a viewport: width 390, dark false",
+            "passed": true,
+            "baselineObservation": true
+          },
+          {
+            "message": "Simple · annotate a viewport: all content visible by default at 1440px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Original Simple · annotate a viewport: width 1440, dark true",
+            "passed": true,
+            "baselineObservation": true
+          },
+          {
+            "message": "Simple · annotate a viewport: all content visible by default at 390px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Original Simple · annotate a viewport: width 390, dark true",
+            "passed": true,
+            "baselineObservation": true
+          },
+          {
+            "message": "Deep · generation and repair: source identity preserved.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: every step and note is rendered exactly once.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 1 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 2 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 3 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 4 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 5 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 6 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 7 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 8 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 9 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 10 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 11 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 12 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 13 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 14 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 15 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 16 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 17 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 18 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 19 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 20 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 21 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 22 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 23 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 24 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 25 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 26 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: line 27 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: nesting depths preserved.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: trace markers preserved.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: notes remain separate leaves.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: code chips preserved.",
+            "passed": true
+          },
+          {
+            "message": "Deep · generation and repair: all content visible by default at 1440px in light.",
+            "passed": true
+          },
+          {
+            "message": "Original Deep · generation and repair: width 1440, dark false",
+            "passed": true,
+            "baselineObservation": true
+          },
+          {
+            "message": "Deep · generation and repair: all content visible by default at 390px in light.",
+            "passed": true
+          },
+          {
+            "message": "Original Deep · generation and repair: width 390, dark false",
+            "passed": true,
+            "baselineObservation": true
+          },
+          {
+            "message": "Deep · generation and repair: all content visible by default at 1440px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Original Deep · generation and repair: width 1440, dark true",
+            "passed": true,
+            "baselineObservation": true
+          },
+          {
+            "message": "Deep · generation and repair: all content visible by default at 390px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Original Deep · generation and repair: width 390, dark true",
+            "passed": true,
+            "baselineObservation": true
+          },
+          {
+            "message": "Long · complete exploration: source identity preserved.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: every step and note is rendered exactly once.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 1 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 2 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 3 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 4 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 5 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 6 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 7 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 8 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 9 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 10 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 11 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 12 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 13 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 14 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 15 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 16 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 17 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 18 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 19 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 20 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 21 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 22 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 23 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 24 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 25 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 26 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 27 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 28 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 29 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 30 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 31 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 32 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 33 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 34 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 35 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 36 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 37 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 38 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 39 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 40 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 41 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 42 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 43 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 44 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 45 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 46 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 47 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 48 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 49 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: line 50 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: nesting depths preserved.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: trace markers preserved.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: notes remain separate leaves.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: code chips preserved.",
+            "passed": true
+          },
+          {
+            "message": "Long · complete exploration: all content visible by default at 1440px in light.",
+            "passed": true
+          },
+          {
+            "message": "Original Long · complete exploration: width 1440, dark false",
+            "passed": true,
+            "baselineObservation": true
+          },
+          {
+            "message": "Long · complete exploration: all content visible by default at 390px in light.",
+            "passed": true
+          },
+          {
+            "message": "Original Long · complete exploration: width 390, dark false",
+            "passed": true,
+            "baselineObservation": true
+          },
+          {
+            "message": "Long · complete exploration: all content visible by default at 1440px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Original Long · complete exploration: width 1440, dark true",
+            "passed": true,
+            "baselineObservation": true
+          },
+          {
+            "message": "Long · complete exploration: all content visible by default at 390px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Original Long · complete exploration: width 390, dark true",
+            "passed": true,
+            "baselineObservation": true
+          },
+          {
+            "message": "Notes, chips and trace markers: source identity preserved.",
+            "passed": true
+          },
+          {
+            "message": "Notes, chips and trace markers: every step and note is rendered exactly once.",
+            "passed": true
+          },
+          {
+            "message": "Notes, chips and trace markers: line 1 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Notes, chips and trace markers: line 2 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Notes, chips and trace markers: line 3 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Notes, chips and trace markers: line 4 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Notes, chips and trace markers: line 5 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Notes, chips and trace markers: line 6 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Notes, chips and trace markers: line 7 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Notes, chips and trace markers: line 8 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Notes, chips and trace markers: nesting depths preserved.",
+            "passed": true
+          },
+          {
+            "message": "Notes, chips and trace markers: trace markers preserved.",
+            "passed": true
+          },
+          {
+            "message": "Notes, chips and trace markers: notes remain separate leaves.",
+            "passed": true
+          },
+          {
+            "message": "Notes, chips and trace markers: code chips preserved.",
+            "passed": true
+          },
+          {
+            "message": "Notes, chips and trace markers: all content visible by default at 1440px in light.",
+            "passed": true
+          },
+          {
+            "message": "Original Notes, chips and trace markers: width 1440, dark false",
+            "passed": true,
+            "baselineObservation": true
+          },
+          {
+            "message": "Notes, chips and trace markers: all content visible by default at 390px in light.",
+            "passed": true
+          },
+          {
+            "message": "Original Notes, chips and trace markers: width 390, dark false",
+            "passed": true,
+            "baselineObservation": true
+          },
+          {
+            "message": "Notes, chips and trace markers: all content visible by default at 1440px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Original Notes, chips and trace markers: width 1440, dark true",
+            "passed": true,
+            "baselineObservation": true
+          },
+          {
+            "message": "Notes, chips and trace markers: all content visible by default at 390px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Original Notes, chips and trace markers: width 390, dark true",
+            "passed": true,
+            "baselineObservation": true
+          },
+          {
+            "message": "Empty outline: source identity preserved.",
+            "passed": true
+          },
+          {
+            "message": "Empty outline: every step and note is rendered exactly once.",
+            "passed": true
+          },
+          {
+            "message": "Empty outline: nesting depths preserved.",
+            "passed": true
+          },
+          {
+            "message": "Empty outline: trace markers preserved.",
+            "passed": true
+          },
+          {
+            "message": "Empty outline: notes remain separate leaves.",
+            "passed": true
+          },
+          {
+            "message": "Empty outline: code chips preserved.",
+            "passed": true
+          },
+          {
+            "message": "Empty outline: all content visible by default at 1440px in light.",
+            "passed": true
+          },
+          {
+            "message": "Original Empty outline: width 1440, dark false",
+            "passed": true,
+            "baselineObservation": true
+          },
+          {
+            "message": "Empty outline: all content visible by default at 390px in light.",
+            "passed": true
+          },
+          {
+            "message": "Original Empty outline: width 390, dark false",
+            "passed": true,
+            "baselineObservation": true
+          },
+          {
+            "message": "Empty outline: all content visible by default at 1440px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Original Empty outline: width 1440, dark true",
+            "passed": true,
+            "baselineObservation": true
+          },
+          {
+            "message": "Empty outline: all content visible by default at 390px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Original Empty outline: width 390, dark true",
+            "passed": true,
+            "baselineObservation": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: source identity preserved.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: every step and note is rendered exactly once.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: line 1 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: line 2 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: line 3 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: line 4 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: line 5 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: line 6 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: line 7 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: line 8 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: line 9 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: line 10 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: line 11 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: line 12 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: line 13 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: line 14 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: nesting depths preserved.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: trace markers preserved.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: notes remain separate leaves.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: code chips preserved.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: all content visible by default at 1440px in light.",
+            "passed": true
+          },
+          {
+            "message": "Original Native · b-90-process-outline-example-block: width 1440, dark false",
+            "passed": true,
+            "baselineObservation": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: all content visible by default at 390px in light.",
+            "passed": true
+          },
+          {
+            "message": "Original Native · b-90-process-outline-example-block: width 390, dark false",
+            "passed": true,
+            "baselineObservation": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: all content visible by default at 1440px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Original Native · b-90-process-outline-example-block: width 1440, dark true",
+            "passed": true,
+            "baselineObservation": true
+          },
+          {
+            "message": "Native · b-90-process-outline-example-block: all content visible by default at 390px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Original Native · b-90-process-outline-example-block: width 390, dark true",
+            "passed": true,
+            "baselineObservation": true
+          },
+          {
+            "message": "Native · b-90-process-outline-wr-example-block: source identity preserved.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-wr-example-block: every step and note is rendered exactly once.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-wr-example-block: line 1 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-wr-example-block: line 2 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-wr-example-block: line 3 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-wr-example-block: line 4 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-wr-example-block: line 5 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-wr-example-block: line 6 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-wr-example-block: line 7 preserves text and order.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-wr-example-block: nesting depths preserved.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-wr-example-block: trace markers preserved.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-wr-example-block: notes remain separate leaves.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-wr-example-block: code chips preserved.",
+            "passed": true
+          },
+          {
+            "message": "Native · b-90-process-outline-wr-example-block: all content visible by default at 1440px in light.",
+            "passed": true
+          },
+          {
+            "message": "Original Native · b-90-process-outline-wr-example-block: width 1440, dark false",
+            "passed": true,
+            "baselineObservation": true
+          },
+          {
+            "message": "Native · b-90-process-outline-wr-example-block: all content visible by default at 390px in light.",
+            "passed": true
+          },
+          {
+            "message": "Original Native · b-90-process-outline-wr-example-block: width 390, dark false",
+            "passed": true,
+            "baselineObservation": true
+          },
+          {
+            "message": "Native · b-90-process-outline-wr-example-block: all content visible by default at 1440px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Original Native · b-90-process-outline-wr-example-block: width 1440, dark true",
+            "passed": true,
+            "baselineObservation": true
+          },
+          {
+            "message": "Native · b-90-process-outline-wr-example-block: all content visible by default at 390px in dark.",
+            "passed": true
+          },
+          {
+            "message": "Original Native · b-90-process-outline-wr-example-block: width 390, dark true",
+            "passed": true,
+            "baselineObservation": true
+          },
+          {
+            "message": "Steps and notes remain selectable.",
+            "passed": true
+          },
+          {
+            "message": "Inline edit hook accepts typing.",
+            "passed": true
+          },
+          {
+            "message": "Read view reflects edited state.",
+            "passed": true
+          },
+          {
+            "message": "Empty outline exposes its editor hook.",
+            "passed": true
+          },
+          {
+            "message": "Empty editor hook can insert the first step.",
+            "passed": true
+          },
+          {
+            "message": "Reduced motion suppresses component animations.",
+            "passed": true
+          }
+        ],
+        "screenshots": [
+          "/Users/Ford/Github Repos/Codecaine/tools/variator/.variator/artifacts/apply/1fcaca6a-3a21-479e-9821-5d98647da60f/recovered-integrated-gates/overview-light.png",
+          "/Users/Ford/Github Repos/Codecaine/tools/variator/.variator/artifacts/apply/1fcaca6a-3a21-479e-9821-5d98647da60f/recovered-integrated-gates/overview-dark.png",
+          "/Users/Ford/Github Repos/Codecaine/tools/variator/.variator/artifacts/apply/1fcaca6a-3a21-479e-9821-5d98647da60f/recovered-integrated-gates/nested-light.png",
+          "/Users/Ford/Github Repos/Codecaine/tools/variator/.variator/artifacts/apply/1fcaca6a-3a21-479e-9821-5d98647da60f/recovered-integrated-gates/nested-dark.png",
+          "/Users/Ford/Github Repos/Codecaine/tools/variator/.variator/artifacts/apply/1fcaca6a-3a21-479e-9821-5d98647da60f/recovered-integrated-gates/lengthy-light.png",
+          "/Users/Ford/Github Repos/Codecaine/tools/variator/.variator/artifacts/apply/1fcaca6a-3a21-479e-9821-5d98647da60f/recovered-integrated-gates/lengthy-dark.png"
+        ]
+      }
+    },
+    "comparison": {
+      "passed": true,
+      "cases": [
+        {
+          "label": "1440-light-0",
+          "pixelEqual": true,
+          "stylesEqual": true,
+          "approved": "171dbd50d0ca89383d37b96b0857966ab739787a80ac8e923542bde4baa204b0",
+          "integrated": "171dbd50d0ca89383d37b96b0857966ab739787a80ac8e923542bde4baa204b0"
+        },
+        {
+          "label": "1440-light-1",
+          "pixelEqual": true,
+          "stylesEqual": true,
+          "approved": "e42734148d35673ba8adc7825cb9cda4b826f792edbac605414b5a48bbbe55c2",
+          "integrated": "e42734148d35673ba8adc7825cb9cda4b826f792edbac605414b5a48bbbe55c2"
+        },
+        {
+          "label": "1440-light-2",
+          "pixelEqual": true,
+          "stylesEqual": true,
+          "approved": "506d8eeb439db7267b2ae1b68ad6a1d22849937bc874dd89b4ee8bb9d95cea46",
+          "integrated": "506d8eeb439db7267b2ae1b68ad6a1d22849937bc874dd89b4ee8bb9d95cea46"
+        },
+        {
+          "label": "1440-light-3",
+          "pixelEqual": true,
+          "stylesEqual": true,
+          "approved": "314e5190d381cc055738461afa965e4b656e2e49f72ba0e40b22401a808b1e8e",
+          "integrated": "314e5190d381cc055738461afa965e4b656e2e49f72ba0e40b22401a808b1e8e"
+        },
+        {
+          "label": "1440-light-4",
+          "pixelEqual": true,
+          "stylesEqual": true,
+          "approved": "87fdac9683156ea626f27705b3e20a77122ff338564cc52c4f225ecd4eb779bb",
+          "integrated": "87fdac9683156ea626f27705b3e20a77122ff338564cc52c4f225ecd4eb779bb"
+        },
+        {
+          "label": "1440-light-5",
+          "pixelEqual": true,
+          "stylesEqual": true,
+          "approved": "659dca3e62c3b2dabf92ae2221f21b67e057353848c0f4a704750cca9d2dc98a",
+          "integrated": "659dca3e62c3b2dabf92ae2221f21b67e057353848c0f4a704750cca9d2dc98a"
+        },
+        {
+          "label": "1440-light-6",
+          "pixelEqual": true,
+          "stylesEqual": true,
+          "approved": "c8a0baf856cee233aff7a18e25e76a09511b2b4667089febe9a7b69aa8234905",
+          "integrated": "c8a0baf856cee233aff7a18e25e76a09511b2b4667089febe9a7b69aa8234905"
+        },
+        {
+          "label": "1440-light-7",
+          "pixelEqual": true,
+          "stylesEqual": true,
+          "approved": "1942bbecea9140a3241eeb23cbd52cd4222c0b92faff08a69173e7f3b3e221b1",
+          "integrated": "1942bbecea9140a3241eeb23cbd52cd4222c0b92faff08a69173e7f3b3e221b1"
+        },
+        {
+          "label": "1440-dark-0",
+          "pixelEqual": true,
+          "stylesEqual": true,
+          "approved": "264e638287f3645911e28ce5d77bf731c7a14f07f75a249eb6ce80af5d3b6408",
+          "integrated": "264e638287f3645911e28ce5d77bf731c7a14f07f75a249eb6ce80af5d3b6408"
+        },
+        {
+          "label": "1440-dark-1",
+          "pixelEqual": true,
+          "stylesEqual": true,
+          "approved": "a0898adab25634ae656fae99af82e66df7afb7d153611471c4f749aa2ff51509",
+          "integrated": "a0898adab25634ae656fae99af82e66df7afb7d153611471c4f749aa2ff51509"
+        },
+        {
+          "label": "1440-dark-2",
+          "pixelEqual": true,
+          "stylesEqual": true,
+          "approved": "e6d7fb981e5f51b33a2ceafa9e04273649e4c2f161ee2d8a0c6606aa4d9a0c90",
+          "integrated": "e6d7fb981e5f51b33a2ceafa9e04273649e4c2f161ee2d8a0c6606aa4d9a0c90"
+        },
+        {
+          "label": "1440-dark-3",
+          "pixelEqual": true,
+          "stylesEqual": true,
+          "approved": "bafab4a52de209bc327421d89053f4618b686100a6b89801bfa846d4d2e20877",
+          "integrated": "bafab4a52de209bc327421d89053f4618b686100a6b89801bfa846d4d2e20877"
+        },
+        {
+          "label": "1440-dark-4",
+          "pixelEqual": true,
+          "stylesEqual": true,
+          "approved": "b5980c623db121b48cf1cddac622ab72ed44a45ac31177eb51ddd53b082ae0b0",
+          "integrated": "b5980c623db121b48cf1cddac622ab72ed44a45ac31177eb51ddd53b082ae0b0"
+        },
+        {
+          "label": "1440-dark-5",
+          "pixelEqual": true,
+          "stylesEqual": true,
+          "approved": "ff82c96b677f092c2552b528214ea2ec9dd3477f2ee14b4e61dccb102d2d1ce3",
+          "integrated": "ff82c96b677f092c2552b528214ea2ec9dd3477f2ee14b4e61dccb102d2d1ce3"
+        },
+        {
+          "label": "1440-dark-6",
+          "pixelEqual": true,
+          "stylesEqual": true,
+          "approved": "89240c8fd6950c1790ecb56440f3f8221ae5053878e793918208fcb49d307439",
+          "integrated": "89240c8fd6950c1790ecb56440f3f8221ae5053878e793918208fcb49d307439"
+        },
+        {
+          "label": "1440-dark-7",
+          "pixelEqual": true,
+          "stylesEqual": true,
+          "approved": "651c064cd5be9baa57c9f42a96e205bddec61c049b4c04d9dea932afc58eff50",
+          "integrated": "651c064cd5be9baa57c9f42a96e205bddec61c049b4c04d9dea932afc58eff50"
+        },
+        {
+          "label": "390-light-0",
+          "pixelEqual": true,
+          "stylesEqual": true,
+          "approved": "00f3bc2328125061a05bae25ce3dec8066440468e4068551ebbbd4bde4d92543",
+          "integrated": "00f3bc2328125061a05bae25ce3dec8066440468e4068551ebbbd4bde4d92543"
+        },
+        {
+          "label": "390-light-1",
+          "pixelEqual": true,
+          "stylesEqual": true,
+          "approved": "d047edf69fa0c6665bdec5d2fd7da622bab00fc1a579a2ee8d176f8a87b7c768",
+          "integrated": "d047edf69fa0c6665bdec5d2fd7da622bab00fc1a579a2ee8d176f8a87b7c768"
+        },
+        {
+          "label": "390-light-2",
+          "pixelEqual": true,
+          "stylesEqual": true,
+          "approved": "1b3dcae1dcdb04c577a258c669b92133373433e72038d16e1d97fca62e383dea",
+          "integrated": "1b3dcae1dcdb04c577a258c669b92133373433e72038d16e1d97fca62e383dea"
+        },
+        {
+          "label": "390-light-3",
+          "pixelEqual": true,
+          "stylesEqual": true,
+          "approved": "56425f596d4faccab75dd64952e00bb14fdedb91fdca2bce48d1c89df615b620",
+          "integrated": "56425f596d4faccab75dd64952e00bb14fdedb91fdca2bce48d1c89df615b620"
+        },
+        {
+          "label": "390-light-4",
+          "pixelEqual": true,
+          "stylesEqual": true,
+          "approved": "318a0e5cac8f18cb7be9ad58efc821eba1b5b1612064898ce34d15d9418ac7a2",
+          "integrated": "318a0e5cac8f18cb7be9ad58efc821eba1b5b1612064898ce34d15d9418ac7a2"
+        },
+        {
+          "label": "390-light-5",
+          "pixelEqual": true,
+          "stylesEqual": true,
+          "approved": "477a51495a941f80f227d483bc8775a96cc4a803b7bac1a629026e2d84d59096",
+          "integrated": "477a51495a941f80f227d483bc8775a96cc4a803b7bac1a629026e2d84d59096"
+        },
+        {
+          "label": "390-light-6",
+          "pixelEqual": true,
+          "stylesEqual": true,
+          "approved": "f8da90f8e6e1041c720e344fe029c6e569a44ed4563abc33ab25cf66445c5138",
+          "integrated": "f8da90f8e6e1041c720e344fe029c6e569a44ed4563abc33ab25cf66445c5138"
+        },
+        {
+          "label": "390-light-7",
+          "pixelEqual": true,
+          "stylesEqual": true,
+          "approved": "fab8740ed59864eef9daf52d6835fea570be2795c1d002a4fb6ea94416c549e0",
+          "integrated": "fab8740ed59864eef9daf52d6835fea570be2795c1d002a4fb6ea94416c549e0"
+        },
+        {
+          "label": "390-dark-0",
+          "pixelEqual": true,
+          "stylesEqual": true,
+          "approved": "b86349e6b10b886ae866ee2d5dc8063c3e9e15172801a54af8178c8d253c2108",
+          "integrated": "b86349e6b10b886ae866ee2d5dc8063c3e9e15172801a54af8178c8d253c2108"
+        },
+        {
+          "label": "390-dark-1",
+          "pixelEqual": true,
+          "stylesEqual": true,
+          "approved": "cbc117c7d66fdc71a9cbc59c42019dc48da1d8152435b1978d86f153b0389a27",
+          "integrated": "cbc117c7d66fdc71a9cbc59c42019dc48da1d8152435b1978d86f153b0389a27"
+        },
+        {
+          "label": "390-dark-2",
+          "pixelEqual": true,
+          "stylesEqual": true,
+          "approved": "e8b3e86a963937db5128182c1f0ac60bb91ababa93227466b5fa2744e711b0df",
+          "integrated": "e8b3e86a963937db5128182c1f0ac60bb91ababa93227466b5fa2744e711b0df"
+        },
+        {
+          "label": "390-dark-3",
+          "pixelEqual": true,
+          "stylesEqual": true,
+          "approved": "7bce1a8d668c2cff44378ecb29da96ee58aae030ff6dc871f8d1970c21ec25b5",
+          "integrated": "7bce1a8d668c2cff44378ecb29da96ee58aae030ff6dc871f8d1970c21ec25b5"
+        },
+        {
+          "label": "390-dark-4",
+          "pixelEqual": true,
+          "stylesEqual": true,
+          "approved": "6ab6c1bbafc5a787aa26e7b75d443f1ceff1370aff0bb0165c74d0de3fbc662e",
+          "integrated": "6ab6c1bbafc5a787aa26e7b75d443f1ceff1370aff0bb0165c74d0de3fbc662e"
+        },
+        {
+          "label": "390-dark-5",
+          "pixelEqual": true,
+          "stylesEqual": true,
+          "approved": "d0d917ab19b9ab395cb4dfb15d15e098aad99579698deea28eade772009eba8c",
+          "integrated": "d0d917ab19b9ab395cb4dfb15d15e098aad99579698deea28eade772009eba8c"
+        },
+        {
+          "label": "390-dark-6",
+          "pixelEqual": true,
+          "stylesEqual": true,
+          "approved": "af2da449c87513a5b4b1a8b1d694c6f73c13dd4dde10c325ab5376f429a20c97",
+          "integrated": "af2da449c87513a5b4b1a8b1d694c6f73c13dd4dde10c325ab5376f429a20c97"
+        },
+        {
+          "label": "390-dark-7",
+          "pixelEqual": true,
+          "stylesEqual": true,
+          "approved": "6d81db89b6d9c1ec03e79b221872645b1f936f1e0c0e53f61ba1ac040f40e044",
+          "integrated": "6d81db89b6d9c1ec03e79b221872645b1f936f1e0c0e53f61ba1ac040f40e044"
+        }
+      ]
+    }
+  },
+  "repairAudit": {
+    "documents": 329,
+    "processOutlines": 68,
+    "remainingParentFindings": 0,
+    "preservedOriginalTrees": 61,
+    "findings": []
+  }
+}

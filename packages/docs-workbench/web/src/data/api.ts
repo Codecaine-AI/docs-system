@@ -10,6 +10,7 @@ import type {
 } from "@codecaine-ai/docs-model/annotations-schema";
 
 import { getSessionId } from "./session";
+import { createSharedEvents } from "./shared-events";
 
 /**
  * Data layer for the standalone docs workbench, with two build-time variants:
@@ -752,24 +753,7 @@ function subscribeViaFetchStream(
   };
 }
 
-/**
- * Subscribes to the docs change-event stream. Frames published for THIS
- * tab's own mutations (actor === our session id) are filtered out — the
- * mutation response already updated local state.
- *
- * Returns an unsubscribe function. In static mode this is a no-op
- * subscription (no server, no stream).
- */
-export function subscribeDocsEvents(
-  onEvent: (event: DocsChangeEventFrame) => void,
-): () => void {
-  if (IS_STATIC) return () => {};
-  const sessionId = getSessionId();
-  const deliver = (frame: DocsChangeEventFrame) => {
-    if (frame.actor === sessionId) return;
-    onEvent(frame);
-  };
-
+function connectDocsEvents(deliver: (event: DocsChangeEventFrame) => void): () => void {
   if (typeof EventSource !== "undefined") {
     const source = new EventSource(`api/events`);
     source.onmessage = (event) => {
@@ -779,6 +763,27 @@ export function subscribeDocsEvents(
     return () => source.close();
   }
   return subscribeViaFetchStream(`api/events`, deliver);
+}
+
+const subscribeSharedDocsEvents = createSharedEvents<DocsChangeEventFrame>(
+  connectDocsEvents,
+  { path: "", changedIds: [], patchId: "", actor: "" },
+  typeof document === "undefined" ? undefined : document,
+);
+
+/**
+ * Share one change stream in a visible tab; refresh after a hidden interval.
+ * Own mutations are filtered because their responses already updated state.
+ * Static exports have no server and return a no-op unsubscribe function.
+ */
+export function subscribeDocsEvents(
+  onEvent: (event: DocsChangeEventFrame) => void,
+): () => void {
+  if (IS_STATIC) return () => {};
+  const sessionId = getSessionId();
+  return subscribeSharedDocsEvents((frame) => {
+    if (frame.actor !== sessionId) onEvent(frame);
+  });
 }
 
 // ---------------------------------------------------------------------------

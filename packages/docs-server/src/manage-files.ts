@@ -1,6 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { lstat, mkdir, readFile, readdir, rename, rm, writeFile } from 'node:fs/promises';
 import { dirname, extname, join, relative, resolve, sep } from 'node:path';
+import { canonicalBundleSrc } from '@codecaine-ai/docs-model/bundle-src';
 import { validateDocDocument, serializeDocDocument } from '@codecaine-ai/docs-model/doc-schema';
 import { normalizeDocRefPath } from '@codecaine-ai/docs-index/ref-match';
 import { rescanAll } from '@codecaine-ai/docs-index/backlinks';
@@ -103,7 +104,7 @@ export async function manageFiles(root:string,input:ManageFilesInput):Promise<Re
           if(!input.to)return;
           const nextTarget=map(target),nextFile=map(file);
           if(target===nextTarget&&file===nextFile)return;
-          holder[key]=(relativeExists?relative(dirname(nextFile),nextTarget).split(sep).join('/'):nextTarget)+suffix;changed=true;
+          holder[key]=(relativeExists?canonicalBundleSrc(relative(dirname(nextFile),nextTarget).split(sep).join('/')):nextTarget)+suffix;changed=true;
       }
       if(isDoc(file))for(const block of Object.values(data.blocks??{}) as any[]){
         for(const key of ['src','poster'])assetReference(block.props,key);

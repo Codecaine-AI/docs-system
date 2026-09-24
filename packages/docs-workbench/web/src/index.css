@@ -18,7 +18,7 @@
  * approach as Spectre apps/frontend/src/app/globals.css).
  */
 @source "../../../../packages/docs-viewer/src";
-@source "../../../../packages/canvas/packages/canvas/src";
+@source "../../node_modules/@codecaine-ai/canvas/src";
 
 @custom-variant dark (&:is(.dark *));
 

@@ -1,11 +1,18 @@
+import { processOutlineRootRule } from '../components/process-outline/lint';
 import type { DocDocument } from "../doc-schema";
 import { writingRules } from "../writing/rules";
 import { pageStructureRules } from "../page-structure/rules";
 import { runLintRules } from "./engine";
+import { bundleRelativeSrcRule } from "./bundle-relative-src";
 import type { LintOptions, LintReport } from "./types";
 export * from "./types";
 export { formatLintReport, validateLintRules } from "./engine";
-export const lintRules = [...pageStructureRules, ...writingRules];
+export const lintRules = [
+  ...pageStructureRules,
+  ...writingRules,
+  processOutlineRootRule,
+  bundleRelativeSrcRule,
+];
 export function lintDocument(
   document: DocDocument,
   options: LintOptions,

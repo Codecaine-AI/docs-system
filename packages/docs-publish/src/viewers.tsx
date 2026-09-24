@@ -11,7 +11,7 @@ for (const host of document.querySelectorAll<HTMLElement>('[data-docs-diagram]')
     try {
       const [response, {openDiagram}] = await Promise.all([fetch(host.dataset.src!), import('./docs-expansion')]);
       if (!response.ok) throw new Error('Diagram unavailable');
-      openDiagram(await response.json(),host.dataset.docsDiagram!,host.dataset.title,host.dataset.view,()=>preview.focus());
+      openDiagram(await response.json(),host.dataset.docsDiagram!,host.dataset.title,host.dataset.view,()=>preview.focus(),preview);
     } catch {
       // The rendered image remains a useful browser-native fallback.
       window.location.assign(preview.href);

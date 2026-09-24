@@ -6,6 +6,16 @@ import {
   formatLintReport,
 } from "./index";
 import { document, paragraph } from "./fixtures";
+import type { DocBlock, DocBlockType } from "../doc-schema";
+
+function srcBlock(type: DocBlockType, src: string): DocBlock {
+  return {
+    id: `${type}-block`,
+    type,
+    props: { src },
+    children: [],
+  };
+}
 
 describe("authoring lint engine", () => {
   test("draft findings are advisory; complete new errors block", () => {
@@ -59,10 +69,47 @@ describe("authoring lint engine", () => {
     ).toThrow("Missing corpus");
     expect(new Set(lintRules.map((r) => r.id)).size).toBe(lintRules.length);
     for (const rule of lintRules) {
-      expect(rule.docsPath).toMatch(/^99-appendix\//);
+      expect(rule.docsPath).toMatch(/^(99-appendix|10-system-design)\//);
       expect(rule.suggestion.length).toBeGreaterThan(0);
       expect(rule.applicability.length).toBeGreaterThan(0);
     }
+  });
+  test("bare canvas asset src blocks completion and includes the block ID", () => {
+    const report = lintDocument(
+      document(srcBlock("canvas", "assets/canvases/x.canvas.json")),
+      { phase: "complete" },
+    );
+    const finding = report.blocking.find(
+      (item) => item.ruleId === "bundle-relative-src",
+    );
+    expect(finding?.blockId).toBe("canvas-block");
+    expect(finding?.message).toBe(
+      "src must be bundle-relative (`./assets/...`) or root-relative; the viewer will not resolve it.",
+    );
+  });
+  test.each(["sequence", "image", "video"] as const)(
+    "bare %s asset src blocks completion",
+    (type) => {
+      const report = lintDocument(
+        document(srcBlock(type, `assets/${type}/x`)),
+        { phase: "complete" },
+      );
+      expect(
+        report.blocking.filter((item) => item.ruleId === "bundle-relative-src"),
+      ).toHaveLength(1);
+    },
+  );
+  test.each([
+    "./assets/canvases/x.canvas.json",
+    "10-s/page/assets/canvases/x.canvas.json",
+    "https://example.com/x.canvas.json",
+  ])("canvas src %s does not produce a bundle-relative-src finding", (src) => {
+    const report = lintDocument(document(srcBlock("canvas", src)), {
+      phase: "complete",
+    });
+    expect(
+      report.findings.filter((item) => item.ruleId === "bundle-relative-src"),
+    ).toEqual([]);
   });
 });
 test("hidden root metadata is not rendered body prose or an opening paragraph", () => {
