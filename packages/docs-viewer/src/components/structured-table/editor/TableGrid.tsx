@@ -5,11 +5,10 @@ import { cn } from "../../../ui/cn";
 import {
   TABLE_BODY_CELL_TEXT_CLASSES,
   TABLE_CELL_SPACING_CLASS,
-  TABLE_COLUMN_GAP_CLASS,
+  TABLE_COLUMN_RULE_CLASSES,
   TABLE_ELEMENT_CLASSES,
   TABLE_HEAD_CLASSES,
   TABLE_HEADER_CELL_TEXT_CLASSES,
-  TABLE_LAST_COLUMN_CLASS,
   TABLE_ROW_HOVER_CLASSES,
   TABLE_ROW_RULE_CLASSES,
   TABLE_WRAPPER_CLASSES,
@@ -139,9 +138,7 @@ export function TableGrid({
                 className={cn(
                   TABLE_CELL_SPACING_CLASS,
                   TABLE_HEADER_CELL_TEXT_CLASSES,
-                  columnIndex === data.columns.length - 1
-                    ? TABLE_LAST_COLUMN_CLASS
-                    : TABLE_COLUMN_GAP_CLASS,
+                  columnIndex !== data.columns.length - 1 && TABLE_COLUMN_RULE_CLASSES,
                   editable && EDITOR_CELL_FOCUS_CLASS,
                 )}
                 onMouseEnter={() => onHoverCell(HEADER_ROW, columnIndex)}
@@ -177,9 +174,7 @@ export function TableGrid({
                   className={cn(
                     TABLE_CELL_SPACING_CLASS,
                     TABLE_BODY_CELL_TEXT_CLASSES,
-                    columnIndex === data.columns.length - 1
-                      ? TABLE_LAST_COLUMN_CLASS
-                      : TABLE_COLUMN_GAP_CLASS,
+                    columnIndex !== data.columns.length - 1 && TABLE_COLUMN_RULE_CLASSES,
                     editable && EDITOR_CELL_FOCUS_CLASS,
                   )}
                   onMouseEnter={() => onHoverCell(rowIndex, columnIndex)}

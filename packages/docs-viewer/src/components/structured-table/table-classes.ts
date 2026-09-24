@@ -10,7 +10,7 @@ export const TABLE_SECTION_CLASSES = "not-prose my-4";
 export const TABLE_TITLE_CLASSES = "mb-1.5 text-sm font-medium text-foreground";
 
 export const TABLE_WRAPPER_CLASSES =
-  "overflow-auto rounded-md border border-[color:var(--docs-table-border,transparent)] bg-background";
+  "overflow-auto rounded-md border border-[color:var(--docs-table-border,var(--border))] bg-background";
 
 export const TABLE_ELEMENT_CLASSES = "w-full border-collapse text-left leading-[1.55]";
 
@@ -34,9 +34,8 @@ export const TABLE_BODY_CELL_TEXT_CLASSES =
   "align-top text-[length:var(--docs-table-font-size,14px)]";
 
 export const TABLE_CELL_SPACING_CLASS =
-  "py-[length:var(--docs-table-cell-pad-y,10px)] pl-0";
+  "py-[length:var(--docs-table-cell-pad-y,10px)] px-[length:var(--docs-table-cell-pad-x,12px)]";
 
-export const TABLE_COLUMN_GAP_CLASS =
-  "pr-[length:var(--docs-table-cell-pad-x,16px)]";
-
-export const TABLE_LAST_COLUMN_CLASS = "pr-0";
+/** Light vertical divider on every non-last column (Notion-style grid). */
+export const TABLE_COLUMN_RULE_CLASSES =
+  "border-r border-solid border-r-[length:var(--docs-table-row-rule-width,1px)] border-r-[color:color-mix(in_srgb,var(--docs-table-row-rule,var(--border))_calc(var(--docs-table-row-rule-opacity,1)*100%),transparent)]";

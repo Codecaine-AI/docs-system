@@ -10,6 +10,7 @@
       "props": {},
       "children": [
         "b-20-structured-table-lead-2",
+        "component-worked-example-rule",
         "b-20-structured-table-example-h",
         "b-20-structured-table-example-intro",
         "b-20-structured-table-example-block",
@@ -60,6 +61,17 @@
         },
         {
           "insert": ": a columns × rows grid of rich-text cells kept in typed props, not prose — each cell is a plain string or a span array carrying inline marks. Use it for index tables, comparison matrices, and anything an agent should edit cell-by-cell instead of re-flowing text. Each section below instantiates one element of the block-design contract for this family."
+        }
+      ],
+      "children": []
+    },
+    "component-worked-example-rule": {
+      "id": "component-worked-example-rule",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source; identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information."
         }
       ],
       "children": []
@@ -598,7 +610,17 @@
                 "required": false
               }
             ],
-            "returns": "props patch: { rows }"
+            "returns": "StructuredTablePatch",
+            "kind": "action",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "rows",
+                  "type": "TableCell[][]",
+                  "description": "One cell array per row; actions normalize each row to the column count. An unmarked cell stores as the plain string (canonical)."
+                }
+              ]
+            }
           },
           {
             "name": "structured-table.removeRow",
@@ -610,7 +632,17 @@
                 "required": true
               }
             ],
-            "returns": "props patch: { rows }"
+            "returns": "StructuredTablePatch",
+            "kind": "action",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "rows",
+                  "type": "TableCell[][]",
+                  "description": "One cell array per row; actions normalize each row to the column count. An unmarked cell stores as the plain string (canonical)."
+                }
+              ]
+            }
           },
           {
             "name": "structured-table.updateCell",
@@ -637,7 +669,17 @@
                 "required": true
               }
             ],
-            "returns": "props patch: { rows }"
+            "returns": "StructuredTablePatch",
+            "kind": "action",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "rows",
+                  "type": "TableCell[][]",
+                  "description": "One cell array per row; actions normalize each row to the column count. An unmarked cell stores as the plain string (canonical)."
+                }
+              ]
+            }
           },
           {
             "name": "structured-table.addColumn",
@@ -659,7 +701,22 @@
                 "required": false
               }
             ],
-            "returns": "props patch: { columns, rows }"
+            "returns": "StructuredTablePatch",
+            "kind": "action",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "columns",
+                  "type": "TableCell[]",
+                  "description": "Header cells in order. A TableCell is a plain string or a span array whose closed mark set is bold/italic/strike/code/link."
+                },
+                {
+                  "name": "rows",
+                  "type": "TableCell[][]",
+                  "description": "One cell array per row; actions normalize each row to the column count. An unmarked cell stores as the plain string (canonical)."
+                }
+              ]
+            }
           },
           {
             "name": "structured-table.removeColumn",
@@ -676,7 +733,22 @@
                 "required": false
               }
             ],
-            "returns": "props patch: { columns, rows }"
+            "returns": "StructuredTablePatch",
+            "kind": "action",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "columns",
+                  "type": "TableCell[]",
+                  "description": "Header cells in order. A TableCell is a plain string or a span array whose closed mark set is bold/italic/strike/code/link."
+                },
+                {
+                  "name": "rows",
+                  "type": "TableCell[][]",
+                  "description": "One cell array per row; actions normalize each row to the column count. An unmarked cell stores as the plain string (canonical)."
+                }
+              ]
+            }
           }
         ],
         "title": "structured-table — row and column actions"
@@ -702,7 +774,7 @@
       "props": {},
       "text": [
         {
-          "insert": "One accent-rule look, shared by the read surface and the editor at rest: an optional title line, a rule under the header tinted by the header-rule tokens, light rules between body rows (none after the last), a row hover wash, and no vertical rules or cell boxes. The class strings live in "
+          "insert": "One light-grid look, shared by the read surface and the editor at rest: an optional title line, a thin outer border, a header rule tinted by the header-rule tokens, light rules between rows and between columns, and a row hover wash. Row and column rules share the row-rule tokens, and every cell is padded on both sides so text never touches a rule. The class strings live in "
         },
         {
           "insert": "table-classes.ts",
@@ -728,16 +800,7 @@
           }
         },
         {
-          "insert": ") and the editor grid, so the two surfaces cannot drift. Header cells keep a 60px minimum width so a freshly added empty column stays visible, and every spacing and rule value routes through the "
-        },
-        {
-          "insert": "--docs-table-*",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " theme tokens. A block whose columns are missing or malformed renders the invalid-block placeholder. The contract is "
+          "insert": ") and the editor grid, so the two surfaces cannot drift. Header cells keep a 60px minimum width so a new empty column stays visible. A block with missing or malformed columns renders the invalid-block placeholder. The contract is "
         },
         {
           "insert": "Doc renderer",
@@ -1208,7 +1271,7 @@
             "border",
             "--docs-table-border",
             "color",
-            "Outer wrapper border (default transparent)"
+            "Outer wrapper border (default: the row-rule grey)"
           ],
           [
             "headerBg",
@@ -1244,19 +1307,19 @@
             "rowRule",
             "--docs-table-row-rule",
             "color",
-            "Row rule color (falls back to the UI border color)"
+            "Row and column rule color (falls back to the UI border color)"
           ],
           [
             "rowRuleWidth",
             "--docs-table-row-rule-width",
             "length",
-            "Row rule thickness (default 1px)"
+            "Row and column rule thickness (default 1px)"
           ],
           [
             "rowRuleOpacity",
             "--docs-table-row-rule-opacity",
             "number",
-            "Row rule opacity (default 1)"
+            "Row and column rule opacity (default 1)"
           ],
           [
             "cellPaddingY",
@@ -1268,7 +1331,7 @@
             "cellPaddingX",
             "--docs-table-cell-pad-x",
             "length",
-            "Column gap (default 16px)"
+            "Horizontal cell padding on each side (default 12px)"
           ],
           [
             "fontSize",

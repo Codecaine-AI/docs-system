@@ -6,11 +6,10 @@ import { renderTableCell } from "./cell-render";
 import {
   TABLE_BODY_CELL_TEXT_CLASSES,
   TABLE_CELL_SPACING_CLASS,
-  TABLE_COLUMN_GAP_CLASS,
+  TABLE_COLUMN_RULE_CLASSES,
   TABLE_ELEMENT_CLASSES,
   TABLE_HEAD_CLASSES,
   TABLE_HEADER_CELL_TEXT_CLASSES,
-  TABLE_LAST_COLUMN_CLASS,
   TABLE_ROW_HOVER_CLASSES,
   TABLE_ROW_RULE_CLASSES,
   TABLE_SECTION_CLASSES,
@@ -60,9 +59,7 @@ export function StructuredTableBlock({
                   className={cn(
                     TABLE_CELL_SPACING_CLASS,
                     TABLE_HEADER_CELL_TEXT_CLASSES,
-                    columnIndex === columns.length - 1
-                      ? TABLE_LAST_COLUMN_CLASS
-                      : TABLE_COLUMN_GAP_CLASS,
+                    columnIndex !== columns.length - 1 && TABLE_COLUMN_RULE_CLASSES,
                   )}
                 >
                   {renderTableCell(column)}
@@ -85,9 +82,7 @@ export function StructuredTableBlock({
                     className={cn(
                       TABLE_CELL_SPACING_CLASS,
                       TABLE_BODY_CELL_TEXT_CLASSES,
-                      columnIndex === columns.length - 1
-                        ? TABLE_LAST_COLUMN_CLASS
-                        : TABLE_COLUMN_GAP_CLASS,
+                      columnIndex !== columns.length - 1 && TABLE_COLUMN_RULE_CLASSES,
                     )}
                   >
                     {renderTableCell(row[columnIndex] ?? "")}

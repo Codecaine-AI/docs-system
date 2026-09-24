@@ -89,7 +89,7 @@ describe("TableGrid", () => {
 
     const wrapper = container.querySelector("div");
     expect(wrapper?.className).toContain(
-      "border-[color:var(--docs-table-border,transparent)]",
+      "border-[color:var(--docs-table-border,var(--border))]",
     );
     const header = container.querySelector("thead");
     expect(header?.className).toContain(
@@ -106,9 +106,15 @@ describe("TableGrid", () => {
       "py-[length:var(--docs-table-cell-pad-y,10px)]",
     );
     expect(headerCells[0]?.className).toContain(
-      "pr-[length:var(--docs-table-cell-pad-x,16px)]",
+      "px-[length:var(--docs-table-cell-pad-x,12px)]",
     );
-    expect(headerCells[1]?.className).toContain("pr-0");
+    expect(headerCells[1]?.className).toContain(
+      "px-[length:var(--docs-table-cell-pad-x,12px)]",
+    );
+    expect(headerCells[0]?.className).toContain(
+      "border-r-[length:var(--docs-table-row-rule-width,1px)]",
+    );
+    expect(headerCells[1]?.className).not.toContain("border-r");
 
     const bodyRows = container.querySelectorAll("tbody tr");
     expect(bodyRows.length).toBe(2);

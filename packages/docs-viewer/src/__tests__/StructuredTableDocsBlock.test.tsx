@@ -84,7 +84,7 @@ describe("StructuredTableBlock", () => {
     const bodyCells = container.querySelectorAll("tbody td");
 
     expect(wrapper?.className).toContain(
-      "border-[color:var(--docs-table-border,transparent)]",
+      "border-[color:var(--docs-table-border,var(--border))]",
     );
     expect(header?.className).toContain(
       "border-b-[length:var(--docs-table-header-rule-width,1.5px)]",
@@ -102,9 +102,15 @@ describe("StructuredTableBlock", () => {
       "py-[length:var(--docs-table-cell-pad-y,10px)]",
     );
     expect(bodyCells[0]?.className).toContain(
-      "pr-[length:var(--docs-table-cell-pad-x,16px)]",
+      "px-[length:var(--docs-table-cell-pad-x,12px)]",
     );
-    expect(bodyCells[1]?.className).toContain("pr-0");
+    expect(bodyCells[1]?.className).toContain(
+      "px-[length:var(--docs-table-cell-pad-x,12px)]",
+    );
+    expect(bodyCells[0]?.className).toContain(
+      "border-r-[length:var(--docs-table-row-rule-width,1px)]",
+    );
+    expect(bodyCells[1]?.className).not.toContain("border-r");
     expect(bodyRows[0]?.className).toContain(
       "border-b-[length:var(--docs-table-row-rule-width,1px)]",
     );
