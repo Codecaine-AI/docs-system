@@ -101,3 +101,24 @@ test('managed projects isolate writes and publish external file changes to the a
     await service.call(temp, 'docs_end', { task_id: begin.task_id });
   } finally { unsubscribe(); service.close(); await rm(temp, { recursive: true, force: true }); }
 });
+
+test('every project served by one service shares the global theme root', async () => {
+  const temp = await mkdtemp(join(tmpdir(), 'docs-global-theme-'));
+  const globalThemesRoot = join(temp, 'state', 'themes');
+  const service = createInteractionService({ managed: true, globalThemesRoot });
+  try {
+    await writeFile(join(temp, 'codecaine.docs.json'), JSON.stringify({ projects: ['a', 'b'] }));
+    const doc = { schemaVersion: 1, id: 'test', title: 'Test', root: 'root', blocks: { root: { id: 'root', type: 'paragraph', props: {}, children: [] } } };
+    for (const name of ['a', 'b']) { await mkdir(join(temp, name, 'docs/page'), { recursive: true }); await writeFile(join(temp, name, 'docs/page/doc.json'), JSON.stringify(doc)); }
+    const [a, b] = (await service.discover(temp)).projects;
+    const api = (id: string, path: string, init?: RequestInit) => service.uiRequest(id, new Request(`http://localhost/projects/${id}/api${path}`, init));
+    expect(await (await api(a!.id, '/themes')).json()).toEqual({ themes: [{ id: 'global', name: 'Global', global: true }] });
+    expect((await api(a!.id, '/themes/global')).status).toBe(404);
+    const saved = await api(a!.id, '/themes', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: 'global', manifest: { name: 'Global', dark: false } }) });
+    expect(saved.status).toBe(201);
+    const read = await (await api(b!.id, '/themes/global')).json() as any;
+    expect(read.theme).toEqual({ id: 'global', manifest: { name: 'Global', dark: false }, components: {} });
+    expect(await Bun.file(join(globalThemesRoot, 'global', 'theme.json')).exists()).toBe(true);
+    expect(await Bun.file(join(temp, 'a', 'themes', 'global', 'theme.json')).exists()).toBe(false);
+  } finally { service.close(); await rm(temp, { recursive: true, force: true }); }
+});

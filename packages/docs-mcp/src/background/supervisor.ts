@@ -67,7 +67,7 @@ async function buildRuntime(): Promise<{ hash: string; file: string }> {
   return { hash, file };
 }
 async function startRuntime(build: { hash: string; file: string }): Promise<Runtime> {
-  const child = Bun.spawn([process.execPath, build.file], { cwd: config.sourceRoot, env: { ...process.env, CODECAINE_DOCS_PACKAGE_ROOT: packageRoot, CODECAINE_DOCS_MANAGED: '1', CODECAINE_DOCS_RUNTIME_TOKEN: token, CODECAINE_DOCS_REGISTRY: registryFile, CODECAINE_DOCS_BUILD: build.hash }, stdout: 'pipe', stderr: 'inherit' });
+  const child = Bun.spawn([process.execPath, build.file], { cwd: config.sourceRoot, env: { ...process.env, CODECAINE_DOCS_PACKAGE_ROOT: packageRoot, CODECAINE_DOCS_MANAGED: '1', CODECAINE_DOCS_RUNTIME_TOKEN: token, CODECAINE_DOCS_REGISTRY: registryFile, CODECAINE_DOCS_GLOBAL_THEMES: join(stateDir, 'themes'), CODECAINE_DOCS_BUILD: build.hash }, stdout: 'pipe', stderr: 'inherit' });
   const reader = (child.stdout as ReadableStream<Uint8Array>).getReader();
   let buffer = '';
   let timeout: ReturnType<typeof setTimeout>;

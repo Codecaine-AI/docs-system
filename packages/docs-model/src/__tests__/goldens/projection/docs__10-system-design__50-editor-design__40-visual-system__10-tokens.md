@@ -23,7 +23,7 @@ Tokens are the visual contract between palette, theme, and rendered surface. The
 
 ### One Sharpness Scale
 
-The base semantic contract and token registry set `--radius` to 8px and expose a 0–16px range in 1px steps. The living Default theme selects 4px. General UI corners derive from this one sharpness scale.
+The base semantic contract and token registry set `--radius` to 8px and expose a 0–16px range in 1px steps. The stock defaults, which the Global theme starts from, keep 8px. General UI corners derive from this one sharpness scale.
 
 | Role | Derivation |
 | --- | --- |
@@ -39,7 +39,7 @@ The base semantic contract and token registry set `--radius` to 8px and expose a
 
   - Canvas corners remain shape geometry rather than application sharpness.
 
-> **Named deviation: Living Default interaction radii** — The living Default sets the block-highlight and drop-cursor radii to 1px through dedicated rail values. Those two effective radii do not follow their global derivations while the overrides are present; the structured-table handle remains derived and resolves to 0px at the living 4px radius.
+> **Named deviation: Classic theme interaction radii** — The `docs-system-classic` repo theme selects a 4px radius and sets the block-highlight and drop-cursor radii to 1px through dedicated rail values. Those two effective radii do not follow their global derivations while the overrides are present; the structured-table handle remains derived and resolves to 0px at 4px. The stock defaults set no such overrides, so at 8px the block highlight resolves to 6px and the drop cursor to 2px.
 
 ### Editor Accent
 

@@ -44,7 +44,7 @@ describe("per-block-type page layout", () => {
       // Declaring nothing IS the declaration — the resolver supplies the default.
       expect(descriptor.layout).toBeUndefined();
       expect(docBlockLayoutClasses(descriptor.layout)).toBe(
-        "w-full max-w-[var(--style-content-width,100ch)] ml-0 mr-auto",
+        "w-full max-w-[var(--style-content-width,60ch)] ml-0 mr-auto",
       );
     }
   });

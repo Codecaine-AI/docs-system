@@ -28,7 +28,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Every type ships its style capabilities as theme knobs — never hardcoded looks. This page states the component theme contract."
+          "insert": "Every type ships its style capabilities as theme knobs, never hardcoded looks. This page states the component theme contract."
         }
       ],
       "children": []
@@ -52,7 +52,12 @@
       "props": {
         "annotations": [
           {
-            "lines": "1-7",
+            "lines": "1",
+            "label": "Any theme folder",
+            "note": "The folder shape is the same everywhere. Live edits land in the Global theme's components/ folder by default, or in a repo themes/<id>/components/ folder when the host serves no Global theme."
+          },
+          {
+            "lines": "2-7",
             "label": "Knobs, not CSS",
             "note": "Each key is a typed knob (color, length, number) the style rail can edit live; the renderer consumes them as tokens."
           }
@@ -61,7 +66,7 @@
       },
       "text": [
         {
-          "insert": "// themes/default/components/structured-table.json\n{\n  \"headerRuleWidth\": \"1.5px\",\n  \"cellPaddingY\": \"12px\",\n  \"rowRuleOpacity\": \"0.8\",\n  \"handleOffset\": \"16px\",\n  \"selectionPadding\": \"4px\"\n}"
+          "insert": "// <theme folder>/components/structured-table.json\n{\n  \"headerRuleWidth\": \"1.5px\",\n  \"cellPaddingY\": \"12px\",\n  \"rowRuleOpacity\": \"0.8\",\n  \"handleOffset\": \"16px\",\n  \"selectionPadding\": \"4px\"\n}"
         }
       ],
       "children": []
@@ -128,7 +133,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Color, length, and number kinds — so the style rail can render the right control for every knob without knowing the component."
+          "insert": "Knobs have color, length, and number kinds, so the style rail can render the right control for every knob without knowing the component."
         }
       ],
       "children": []
@@ -179,7 +184,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Unknown files, unknown knobs, and malformed values are ignored rather than applied — a value survives only when it parses as its declared kind, and lengths and numbers must fall inside the knob's declared range."
+          "insert": "Unknown files, unknown knobs, and malformed values are ignored rather than applied. A value survives only when it parses as its declared kind, and lengths and numbers must fall inside the knob's declared range."
         }
       ],
       "children": []
@@ -207,7 +212,37 @@
       "props": {},
       "text": [
         {
-          "insert": "A repo theme folder overrides the compiled-in defaults; the live theme auto-saves edits back into it."
+          "insert": "The active theme folder overrides the compiled-in defaults, and the style rail auto-saves edits back into it. By default the active folder is the shared "
+        },
+        {
+          "insert": "Global theme",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/30-themes"
+            }
+          }
+        },
+        {
+          "insert": " at "
+        },
+        {
+          "insert": "~/.local/state/codecaine-docs/themes/global/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". A repo "
+        },
+        {
+          "insert": "themes/<id>/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " folder is active only when the host serves no Global theme."
         }
       ],
       "children": []
@@ -218,7 +253,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The renderer consumes resolved tokens only — it cannot tell where a value came from."
+          "insert": "The renderer consumes resolved tokens only. It cannot tell where a value came from."
         }
       ],
       "children": []

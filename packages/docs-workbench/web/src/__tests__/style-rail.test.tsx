@@ -38,7 +38,8 @@ import {
 
 beforeEach(() => resetStyleRailBaseline());
 
-const STORAGE_KEY = "docs-style-rail-settings.v1";
+const STORAGE_KEY = "docs-style-rail-settings.v2";
+const LEGACY_STORAGE_KEY = "docs-style-rail-settings.v1";
 const SELECTED_PANE_STORAGE_KEY = "docs-style-rail-selected";
 
 const EXPECTED_NAV_GROUPS = [
@@ -756,7 +757,7 @@ describe("per-block-type layout overrides", () => {
 
   it("maps each named width onto the lane token it stands for", () => {
     expect(blockLayoutOverrideCss(withLayout({ code: { width: "text" } }))).toContain(
-      "max-width: var(--style-content-width,100ch);",
+      "max-width: var(--style-content-width,60ch);",
     );
     expect(blockLayoutOverrideCss(withLayout({ code: { width: "wide" } }))).toContain(
       "max-width: var(--style-wide-width,1040px);",
@@ -978,6 +979,11 @@ describe("style rail stock values match the consumers' inline fallbacks", () => 
     new URL("../../../../docs-viewer/src/render/block-layout.ts", import.meta.url),
     "utf8",
   );
+  const blockClassesSource = readFileSync(
+    new URL("../../../../docs-viewer/src/render/block-classes.ts", import.meta.url),
+    "utf8",
+  );
+  const indexCss = readFileSync(new URL("../index.css", import.meta.url), "utf8");
 
   it("DocPage's left-margin fallback equals stock layout.contentMargin", () => {
     expect(DEFAULT_STYLE_RAIL_SETTINGS.layout.contentMargin).toBe(88);
@@ -990,8 +996,25 @@ describe("style rail stock values match the consumers' inline fallbacks", () => 
   });
 
   it("the text lane's fallback equals stock layout.contentWidth", () => {
-    expect(DEFAULT_STYLE_RAIL_SETTINGS.layout.contentWidth).toBe(100);
-    expect(laneSource).toContain("max-w-[var(--style-content-width,100ch)]");
+    expect(DEFAULT_STYLE_RAIL_SETTINGS.layout.contentWidth).toBe(60);
+    expect(laneSource).toContain("max-w-[var(--style-content-width,60ch)]");
+    expect(indexCss).toContain("--style-editor-text-lane: var(--style-content-width, 60ch);");
+  });
+
+  it("body text fallbacks equal stock typography (sans, 18px, 1.45, 0em)", () => {
+    const { typography } = DEFAULT_STYLE_RAIL_SETTINGS;
+    expect(typography.bodyFont).toBe("sans");
+    expect(typography.headingFont).toBe("sans");
+    expect(typography.fontSize).toBe(18);
+    expect(typography.lineHeight).toBe(1.45);
+    expect(typography.letterSpacing).toBe(0);
+    expect(indexCss).not.toContain("--style-font-size, 0.875rem");
+    expect(indexCss.match(/var\(--style-font-size, 18px\)/g)?.length).toBe(2);
+    expect(indexCss.match(/var\(--style-line-height, 1\.45\)/g)?.length).toBe(2);
+    expect(blockClassesSource).not.toContain("leading-[1.7]");
+    expect(blockClassesSource).toContain(
+      "text-[length:var(--style-font-size,18px)] leading-[var(--style-line-height,1.45)]",
+    );
   });
 });
 
@@ -1148,6 +1171,38 @@ describe("style rail list settings", () => {
       accent: "green",
       list: { ...DEFAULT_STYLE_RAIL_SETTINGS.list, indent: 30 },
     });
+  });
+
+  it("migrates a v1 cache, dropping reading metrics left at the old stock values", () => {
+    window.localStorage.setItem(
+      LEGACY_STORAGE_KEY,
+      JSON.stringify({
+        accent: "green",
+        typography: { bodyFont: "serif", fontSize: 14, lineHeight: 1.7, letterSpacing: 0 },
+        layout: { contentWidth: 100, contentMargin: 120 },
+      }),
+    );
+    const migrated = loadStyleRailSettings();
+    expect(migrated.accent).toBe("green");
+    expect(migrated.typography.bodyFont).toBe("serif");
+    expect(migrated.typography.fontSize).toBe(DEFAULT_STYLE_RAIL_SETTINGS.typography.fontSize);
+    expect(migrated.typography.lineHeight).toBe(DEFAULT_STYLE_RAIL_SETTINGS.typography.lineHeight);
+    expect(migrated.layout.contentWidth).toBe(DEFAULT_STYLE_RAIL_SETTINGS.layout.contentWidth);
+    expect(migrated.layout.contentMargin).toBe(120);
+
+    // A metric the user actually moved survives the migration.
+    window.localStorage.setItem(
+      LEGACY_STORAGE_KEY,
+      JSON.stringify({ typography: { fontSize: 16, lineHeight: 1.6 }, layout: { contentWidth: 80 } }),
+    );
+    const tuned = loadStyleRailSettings();
+    expect(tuned.typography.fontSize).toBe(16);
+    expect(tuned.typography.lineHeight).toBe(1.6);
+    expect(tuned.layout.contentWidth).toBe(80);
+
+    // A v2 cache wins over v1 and is read verbatim (no stripping).
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ typography: { fontSize: 14 } }));
+    expect(loadStyleRailSettings().typography.fontSize).toBe(14);
   });
 
   it("renders five list geometry sliders, no shape selects, and patches only the list group", () => {
@@ -2751,7 +2806,7 @@ describe("style rail repo baseline", () => {
     });
 
     expect(baseline.accent).toBe(DEFAULT_STYLE_RAIL_SETTINGS.accent);
-    expect(baseline.typography.fontSize).toBe(20);
+    expect(baseline.typography.fontSize).toBe(28);
     expect(baseline.layout.wideWidth).toBe(2000);
     // Keys the repo file never mentions stay at stock.
     expect(baseline.layout.contentMargin).toBe(DEFAULT_STYLE_RAIL_SETTINGS.layout.contentMargin);

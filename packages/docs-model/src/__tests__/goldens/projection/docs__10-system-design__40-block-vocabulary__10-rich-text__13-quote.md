@@ -1,8 +1,8 @@
-The block quote of the block vocabulary: rich text set apart for emphasis or citation. For labeled, toned admonitions use a callout instead — quote is the plain, unlabeled form.
+The block quote of the block vocabulary: rich text set apart for emphasis or citation. For labeled, toned admonitions use a callout instead. Quote is the plain, unlabeled form.
 
 ## Example
 
-> A live quote: prose set apart from the flow — no label, no tone, plain delta text.
+> A live quote: prose set apart from the flow, with no label, no tone, and plain delta text.
 
 ## State Schema
 
@@ -28,7 +28,7 @@ A `>`-prefixed blockquote line (every line of the text gets the prefix).
 
 ## Theme
 
-This block's theme file is `components/quote.json` in a theme folder (`themes/<id>/`; see Theming). Every value is one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY`. The contract is Theming.
+This block's theme file is `components/quote.json` in the active theme folder. By default that folder is the Global theme at `~/.local/state/codecaine-docs/themes/global/`. A repo `themes/<id>/` folder is active only when the host serves no Global theme. Every value is one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY`. The contract is Theming.
 
 | Key | CSS variable | Styles |
 | --- | --- | --- |

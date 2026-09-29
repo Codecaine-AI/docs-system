@@ -60,7 +60,7 @@
           }
         },
         {
-          "insert": ": a columns × rows grid of rich-text cells kept in typed props, not prose — each cell is a plain string or a span array carrying inline marks. Use it for index tables, comparison matrices, and anything an agent should edit cell-by-cell instead of re-flowing text. Each section below instantiates one element of the block-design contract for this family."
+          "insert": ": a columns × rows grid of rich-text cells kept in typed props, not prose. Each cell is a plain string or a span array carrying inline marks. Use it for index tables, comparison matrices, and anything an agent should edit cell-by-cell instead of re-flowing text. Each section below instantiates one element of the block-design contract for this family."
         }
       ],
       "children": []
@@ -95,15 +95,24 @@
       "props": {},
       "text": [
         {
-          "insert": "A live instance of the type — the default theme's five structured-table overrides ("
+          "insert": "A live instance of the type, the "
         },
         {
-          "insert": "themes/default/components/structured-table.json",
+          "insert": "docs-system-classic",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " repo theme's five structured-table overrides ("
+        },
+        {
+          "insert": "themes/docs-system-classic/components/structured-table.json",
           "attributes": {
             "code": true,
             "reference": {
               "kind": "source",
-              "path": "themes/default/components/structured-table.json"
+              "path": "themes/docs-system-classic/components/structured-table.json"
             }
           }
         },
@@ -185,7 +194,7 @@
             "4px"
           ]
         ],
-        "title": "Default theme — structured-table overrides"
+        "title": "docs-system-classic theme structured-table overrides"
       },
       "children": []
     },
@@ -212,7 +221,7 @@
             "name": "title",
             "type": "string",
             "required": false,
-            "description": "Optional caption above the table; always a plain string — cell marks never apply."
+            "description": "Optional caption above the table. It is always a plain string, and cell marks never apply."
           },
           {
             "name": "columns",
@@ -228,7 +237,7 @@
             "name": "density",
             "type": "\"compact\" | \"normal\" | \"relaxed\"",
             "required": false,
-            "description": "Accepted by the schema; the renderer ignores it — spacing comes from the theme tokens."
+            "description": "Accepted by the schema, but the renderer ignores it. Spacing comes from the theme tokens."
           }
         ],
         "name": "StructuredTableState",
@@ -245,7 +254,7 @@
       "props": {},
       "text": [
         {
-          "insert": "All state is four typed props — "
+          "insert": "All state is four typed props, with "
         },
         {
           "insert": "carriesText: false",
@@ -316,7 +325,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Cells — body and header alike — carry the inline mark set: bold, italic, strike, code, and link; the cell attribute schema is closed, so "
+          "insert": "Cells, body and header alike, carry the inline mark set: bold, italic, strike, code, and link; the cell attribute schema is closed, so "
         },
         {
           "insert": "reference",
@@ -358,7 +367,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Five verbs cover the grid — the family's whole agent write surface for cells. Each action validates, applies against the block's current props, and returns a shallow props patch; rejections come back at "
+          "insert": "Five verbs cover the grid and form the family's whole agent write surface for cells. Each action validates, applies against the block's current props, and returns a shallow props patch; rejections come back at "
         },
         {
           "insert": "$.params.<name>",
@@ -540,7 +549,7 @@
           }
         },
         {
-          "insert": " marks — "
+          "insert": " marks ("
         },
         {
           "insert": "href",
@@ -576,7 +585,7 @@
           }
         },
         {
-          "insert": " suffix — because cells forbid "
+          "insert": " suffix) because cells forbid "
         },
         {
           "insert": "reference",
@@ -751,7 +760,7 @@
             }
           }
         ],
-        "title": "structured-table — row and column actions"
+        "title": "structured-table row and column actions"
       },
       "children": []
     },
@@ -836,7 +845,7 @@
           }
         },
         {
-          "insert": ") — cells edit in place, Notion-style, instead of through the generic static atom views. There is no slash-menu entry; structured tables enter a document through agent ops or existing content."
+          "insert": "). Cells edit in place, Notion-style, instead of through the generic static atom views. There is no slash-menu entry; structured tables enter a document through agent ops or existing content."
         }
       ],
       "children": []
@@ -860,7 +869,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Notion-style grid controls, revealed on hover. Add bars sit just outside the right edge (column) and bottom edge (row), with a corner square that adds both: click adds one, dragging adds several live (ghost preview plus a count) or removes trailing empty columns/rows. Hovering a column shows a six-dot grab handle above it; body rows get one on the left. Clicking a handle selects the whole column or row (a single accent outline) and opens its menu — insert left/right or above/below, move, duplicate, clear contents, delete — while dragging past a small dead zone reorders it: a semi-transparent preview follows the cursor, the source dims, and an accent drop-indicator line marks the target gap. After a single add, focus lands in the new column's header cell or the new row's first cell, the added region flashes accent briefly, and empty header cells show a muted \"Column N\" placeholder (edit mode only, renumbered with position)."
+          "insert": "Notion-style grid controls, revealed on hover. Add bars sit just outside the right edge (column) and bottom edge (row), with a corner square that adds both: click adds one, dragging adds several live (ghost preview plus a count) or removes trailing empty columns/rows. Hovering a column shows a six-dot grab handle above it; body rows get one on the left. Clicking a handle selects the whole column or row (a single accent outline) and opens its menu: insert left/right or above/below, move, duplicate, clear contents, and delete. Dragging a handle past a small dead zone reorders it: a semi-transparent preview follows the cursor, the source dims, and an accent drop-indicator line marks the target gap. After a single add, focus lands in the new column's header cell or the new row's first cell, the added region flashes accent briefly, and empty header cells show a muted \"Column N\" placeholder (edit mode only, renumbered with position)."
         }
       ],
       "children": []
@@ -907,7 +916,7 @@
           }
         },
         {
-          "insert": " and backtick code while typing — the italic and strike input rules are off, matching the main editor. Pasting a URL over a selection creates a link; there is no other link UI and no floating toolbar. "
+          "insert": " and backtick code while typing. The italic and strike input rules are off, matching the main editor. Pasting a URL over a selection creates a link; there is no other link UI and no floating toolbar. "
         },
         {
           "insert": "Tab",
@@ -1026,7 +1035,7 @@
           }
         },
         {
-          "insert": " through the standard op pipeline — validation, undo ledger, auto-save — and agent-facing mutations stay on the typed actions above."
+          "insert": " through the standard op pipeline (validation, undo ledger, and auto-save), and agent-facing mutations stay on the typed actions above."
         }
       ],
       "children": []
@@ -1081,7 +1090,7 @@
           }
         },
         {
-          "insert": " separator row, one line per row. A title-only or table-only block renders just the part it has. Cell marks render as inline markdown — "
+          "insert": " separator row, one line per row. A title-only or table-only block renders just the part it has. Cell marks render as inline markdown ("
         },
         {
           "insert": "**bold**",
@@ -1126,7 +1135,7 @@
           }
         },
         {
-          "insert": " — so table reads round-trip with table writes. The contract is "
+          "insert": ") so table reads round-trip with table writes. The contract is "
         },
         {
           "insert": "Agent renderer",
@@ -1163,7 +1172,7 @@
       },
       "text": [
         {
-          "insert": "**Default theme — structured-table overrides**\n\n| Key | CSS variable | Value |\n| --- | --- | --- |\n| headerRuleWidth | `--docs-table-header-rule-width` | 1.5px |\n| cellPaddingY | `--docs-table-cell-pad-y` | 12px |\n| rowRuleOpacity | `--docs-table-row-rule-opacity` | 0.8 |\n| handleOffset | `--docs-table-handle-offset` | 16px |\n| selectionPadding | `--docs-table-selection-pad` | 4px |"
+          "insert": "**docs-system-classic theme structured-table overrides**\n\n| Key | CSS variable | Value |\n| --- | --- | --- |\n| headerRuleWidth | `--docs-table-header-rule-width` | 1.5px |\n| cellPaddingY | `--docs-table-cell-pad-y` | 12px |\n| rowRuleOpacity | `--docs-table-row-rule-opacity` | 0.8 |\n| handleOffset | `--docs-table-handle-offset` | 16px |\n| selectionPadding | `--docs-table-selection-pad` | 4px |"
         }
       ],
       "children": []
@@ -1196,7 +1205,28 @@
           }
         },
         {
-          "insert": " in a theme folder ("
+          "insert": " in the active theme folder. By default that folder is the "
+        },
+        {
+          "insert": "Global theme",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/30-themes"
+            }
+          }
+        },
+        {
+          "insert": " at "
+        },
+        {
+          "insert": "~/.local/state/codecaine-docs/themes/global/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". A repo "
         },
         {
           "insert": "themes/<id>/",
@@ -1205,19 +1235,10 @@
           }
         },
         {
-          "insert": "; the system is "
+          "insert": " folder is active only when the host serves no Global theme."
         },
         {
-          "insert": "Theming",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "30-implementation/40-theming"
-            }
-          }
-        },
-        {
-          "insert": "). Every value is one string for both modes or a "
+          "insert": " Every value is one string for both modes or a "
         },
         {
           "insert": "{ light, dark }",
@@ -1239,7 +1260,7 @@
           }
         },
         {
-          "insert": ". The registry is kind-aware: each key declares color, length, or number, so the workbench theme rail renders a color picker or a bounded slider (min/max/step from the registry) per key — lengths carry a px unit, opacities are bare numbers. The contract is "
+          "insert": ". The registry is kind-aware: each key declares color, length, or number, so the workbench theme rail renders a color picker or a bounded slider (min/max/step from the registry) per key. Lengths carry a px unit, and opacities are bare numbers. The contract is "
         },
         {
           "insert": "Theming",
@@ -1380,7 +1401,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The family uses the default adapter: no agent of its own, no forwarding authority — all five actions carry a local apply. On the wire an edit is a "
+          "insert": "The family uses the default adapter: no agent of its own and no forwarding authority. All five actions carry a local apply. On the wire an edit is a "
         },
         {
           "insert": "componentAction",
@@ -1411,7 +1432,7 @@
           }
         },
         {
-          "insert": " path — the undo inverse is an ordinary "
+          "insert": " path. The undo inverse is an ordinary "
         },
         {
           "insert": "updateBlock",
@@ -1420,7 +1441,7 @@
           }
         },
         {
-          "insert": ". Structural work on the table as a block — insert, move, delete — stays on the generic ops. The contract is "
+          "insert": ". Structural work on the table as a block, such as insert, move, and delete, stays on the generic ops. The contract is "
         },
         {
           "insert": "Agent adapter",
@@ -1452,7 +1473,7 @@
           }
         },
         {
-          "insert": " array — actions validate, normalize row widths, and return undo inverses."
+          "insert": " array. Actions validate, normalize row widths, and return undo inverses."
         }
       ],
       "children": []

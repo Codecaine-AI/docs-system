@@ -35,7 +35,7 @@
  * The named lanes a block type can occupy.
  *
  * - `text` — the standard reading measure, `--style-content-width` (the style
- *   rail's "Max width" knob, default 100ch). Everything text-like.
+ *   rail's "Max width" knob, default 60ch). Everything text-like.
  * - `wide` — the shared wide lane for data-heavy blocks, `--style-wide-width`
  *   (the style rail's "Wide lane" knob, default 1040px). Tables, state shapes,
  *   interaction surfaces, process outlines and media, which are unreadable
@@ -85,7 +85,7 @@ export const DEFAULT_DOC_BLOCK_LAYOUT: Required<Pick<DocBlockLayout, "width" | "
  * same sane base widths.
  */
 const LANE_WIDTH_CLASSES: Record<DocBlockLaneWidth, string> = {
-  text: "max-w-[var(--style-content-width,100ch)]",
+  text: "max-w-[var(--style-content-width,60ch)]",
   wide: "max-w-[var(--style-wide-width,1040px)]",
   full: "max-w-none",
 };

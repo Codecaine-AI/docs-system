@@ -34,7 +34,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The runnable Bun server, Vite SPA, and Electron wrapper for a docs tree — the only package where docs-server and docs-viewer meet. Source: "
+          "insert": "The runnable Bun server, Vite SPA, and Electron wrapper for a docs tree. It is the only package where docs-server and docs-viewer meet. Source: "
         },
         {
           "insert": "packages/docs-workbench",
@@ -81,7 +81,7 @@
           }
         },
         {
-          "insert": " — the surfaces and system UI the host composes."
+          "insert": ": the surfaces and system UI the host composes."
         }
       ],
       "children": []
@@ -102,7 +102,7 @@
           }
         },
         {
-          "insert": " — the write contract the host's transport policy carries."
+          "insert": ": the write contract the host's transport policy carries."
         }
       ],
       "children": []
@@ -141,7 +141,7 @@
       },
       "text": [
         {
-          "insert": "Decision: docs-workbench owns only deliverable-level concerns — server startup, browser routing, transport and session policy, host-provided embeds, settings persistence, and desktop lifecycle. The Bun host mounts docs-server's route factory rather than copying write rules; the React host composes docs-viewer surfaces rather than defining block rendering or editor semantics. No lower package imports it; docs-cli lazy-loads it for "
+          "insert": "Decision: docs-workbench owns only deliverable-level concerns: server startup, browser routing, transport and session policy, host-provided embeds, settings persistence, and desktop lifecycle. The Bun host mounts docs-server's route factory rather than copying write rules. The React host composes docs-viewer surfaces rather than defining block rendering or editor semantics. No lower package imports docs-workbench. docs-cli lazy-loads it for "
         },
         {
           "insert": "serve",
@@ -172,7 +172,7 @@
       },
       "text": [
         {
-          "insert": "Why: None of these concerns changes the document format, write authority, or viewer contract, so they stay replaceable glue — another host can embed either side without inheriting this shell, and the shell can change without moving the contracts below it. Rejected: a load-bearing app that reimplements either side."
+          "insert": "Why: None of these concerns changes the document format, write authority, or viewer contract, so they stay replaceable glue. Another host can embed either side without inheriting this shell, and the shell can change without moving the contracts below it. Rejected: a load-bearing app that reimplements either side."
         }
       ],
       "children": []
@@ -194,7 +194,7 @@
           }
         },
         {
-          "insert": " — every future host feature stays composition glue."
+          "insert": ". Every future host feature stays composition glue."
         }
       ],
       "children": []
@@ -233,7 +233,7 @@
           }
         },
         {
-          "insert": " — "
+          "insert": ". "
         },
         {
           "insert": "api.ts",
@@ -322,7 +322,7 @@
           }
         },
         {
-          "insert": " — every future data source, mutation helper, and event consumer routes through this layer."
+          "insert": ". Every future data source, mutation helper, and event consumer routes through this layer."
         }
       ],
       "children": []
@@ -348,7 +348,37 @@
       },
       "text": [
         {
-          "insert": "Decision: The living Default theme lives at "
+          "insert": "Decision: The workbench shell applies and persists the active theme. When "
+        },
+        {
+          "insert": "GET /api/serve-config",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " reports "
+        },
+        {
+          "insert": "globalTheme: true",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", the shell loads the shared "
+        },
+        {
+          "insert": "Global theme",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/30-themes"
+            }
+          }
+        },
+        {
+          "insert": " and auto-saves style-rail edits to it, including component token files. A host without a Global theme falls back to the repository's Living Default at "
         },
         {
           "insert": "themes/default/theme.json",
@@ -361,7 +391,20 @@
           }
         },
         {
-          "insert": "; the workbench shell applies and persists it — "
+          "insert": ". "
+        },
+        {
+          "insert": "packages/docs-workbench/web/src/shell/App.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/shell/App.tsx"
+            }
+          }
+        },
+        {
+          "insert": " selects, loads, and saves the theme. "
         },
         {
           "insert": "packages/docs-workbench/web/src/shell/StyleRail.tsx",
@@ -374,7 +417,7 @@
           }
         },
         {
-          "insert": " exposes theme frame values as CSS variables consumed by the document page and anchors the rail's panel widths, "
+          "insert": " exposes theme frame values as CSS variables consumed by the document page and anchors the rail's panel widths, and "
         },
         {
           "insert": "packages/docs-workbench/web/src/theme/style-rail.css",
@@ -387,7 +430,19 @@
           }
         },
         {
-          "insert": " anchors the two-pane grid, and persistence flows through the server theme routes under shell authority."
+          "insert": " anchors the two-pane grid. Persistence flows through the server theme routes under shell authority, and "
+        },
+        {
+          "insert": "Global Theme Wiring",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "30-implementation/40-theming"
+            }
+          }
+        },
+        {
+          "insert": " lists the files involved."
         }
       ],
       "children": []
@@ -400,7 +455,7 @@
       },
       "text": [
         {
-          "insert": "Why: Style state combines invocation flags, browser storage, DOM state, and server persistence — host concerns by definition. Viewer-owned theme persistence was rejected; the viewer stays presentation-only."
+          "insert": "Why: Style state combines invocation flags, browser storage, DOM state, and server persistence, which are host concerns by definition. Viewer-owned theme persistence was rejected, so the viewer stays presentation-only."
         }
       ],
       "children": []
@@ -413,7 +468,7 @@
       },
       "text": [
         {
-          "insert": "Applies to: "
+          "insert": "Applies to: the Global theme folder, "
         },
         {
           "insert": "themes/",
@@ -431,7 +486,7 @@
           }
         },
         {
-          "insert": ", "
+          "insert": ", and "
         },
         {
           "insert": "packages/docs-workbench/web/src/theme",
@@ -440,7 +495,7 @@
           }
         },
         {
-          "insert": " — future style surfaces keep persistence in the shell."
+          "insert": ". Future style surfaces keep persistence in the shell."
         }
       ],
       "children": []

@@ -42,7 +42,7 @@ describe("shared Docs authority workbench connection", () => {
     const sharedApi = authority(() => { calls++; return Response.json({ wrong: true }); });
     const app = createDocsServeApp({ docsRoot: "/unused", sharedApi, themeLocked: true, kernelUrl: "http://127.0.0.1:4840", corpus: "canvas" });
     const serve = await app.handle(new Request("http://localhost/api/serve-config"));
-    expect(await serve.json()).toEqual({ themeLocked: true });
+    expect(await serve.json()).toEqual({ themeLocked: true, globalTheme: false });
     const lab = await app.handle(new Request("http://localhost/api/lab-config"));
     expect(await lab.json()).toEqual({ kernelUrl: "http://127.0.0.1:4840", corpus: "canvas" });
     const themeWrite = await app.handle(new Request("http://localhost/api/themes", { method: "POST", body: "{}", headers: { "content-type": "application/json" } }));

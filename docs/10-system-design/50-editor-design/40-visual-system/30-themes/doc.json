@@ -21,10 +21,20 @@
         "b-them-resolution-heading",
         "b-them-res-chain",
         "b-them-res-shadow",
+        "b-them-res-reserved",
         "b-them-res-modes",
         "b-them-res-select",
         "b-them-res-transfer",
         "b-them-authority-table",
+        "b-them-global-heading",
+        "b-them-global-summary",
+        "b-them-global-edit",
+        "b-them-global-authority",
+        "b-them-global-precedence",
+        "b-them-global-hosts",
+        "b-them-global-scope-lead",
+        "b-them-global-scope-table",
+        "b-them-global-boundary",
         "b-them-default-heading",
         "b-them-default-living",
         "b-them-default-storage",
@@ -37,7 +47,8 @@
         "b-them-why-heading",
         "b-them-why-safe",
         "b-them-why-visual",
-        "b-them-why-identity"
+        "b-them-why-identity",
+        "b-them-why-global"
       ]
     },
     "b-them-intro": {
@@ -46,7 +57,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A theme may change registered document-surface roles while fixed system UI structure preserves the tool's identity. Theme folders are sparse, closed inputs; the style rail is a higher-precedence user layer over them. Structural decisions about the theming code live in "
+          "insert": "A theme may change registered document-surface roles while fixed system UI structure preserves the tool's identity. Theme folders are sparse, closed inputs; the style rail is a higher-precedence user layer over them. When the host serves it, one Global theme stored outside every repository is the look every project renders and edits. Structural decisions about the theming code live in "
         },
         {
           "insert": "Theming: Overview",
@@ -241,6 +252,35 @@
       ],
       "children": []
     },
+    "b-them-res-reserved": {
+      "id": "b-them-res-reserved",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The id "
+        },
+        {
+          "insert": "global",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is reserved. A repository folder named "
+        },
+        {
+          "insert": "global",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is ignored, so it never shadows the Global theme."
+        }
+      ],
+      "children": []
+    },
     "b-them-res-modes": {
       "id": "b-them-res-modes",
       "type": "list-item",
@@ -308,6 +348,340 @@
       },
       "children": []
     },
+    "b-them-global-heading": {
+      "id": "b-them-global-heading",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "The Global Theme"
+        }
+      ],
+      "children": []
+    },
+    "b-them-global-summary": {
+      "id": "b-them-global-summary",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The Global theme is one shared look that every project renders and any project can edit. It has the reserved id "
+        },
+        {
+          "insert": "global",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and lives outside every repository at "
+        },
+        {
+          "insert": "<stateDirectory>/themes/global/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", by default "
+        },
+        {
+          "insert": "~/.local/state/codecaine-docs/themes/global/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". The folder has the same shape as a repository theme: a "
+        },
+        {
+          "insert": "theme.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " manifest and a "
+        },
+        {
+          "insert": "components/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " folder. Its values start from this repository's Default: System Sans at 18px, a 1.45 line height, and a "
+        },
+        {
+          "insert": "60ch",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " measure."
+        }
+      ],
+      "children": []
+    },
+    "b-them-global-edit": {
+      "id": "b-them-global-edit",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "One look, edited from any project",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-them-global-edit-save",
+        "b-them-global-edit-picker"
+      ]
+    },
+    "b-them-global-edit-save": {
+      "id": "b-them-global-edit-save",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A style-rail change in any project saves to the Global theme. Every project shows the change on its next load, and open tabs of other projects on the same origin follow it without a reload."
+        }
+      ],
+      "children": []
+    },
+    "b-them-global-edit-picker": {
+      "id": "b-them-global-edit-picker",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The theme picker lists only "
+        },
+        {
+          "insert": "Global",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": ", and the save button reads "
+        },
+        {
+          "insert": "Save global style",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-them-global-authority": {
+      "id": "b-them-global-authority",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The server copy is the authority",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-them-global-authority-cache",
+        "b-them-global-authority-missing",
+        "b-them-global-authority-error"
+      ]
+    },
+    "b-them-global-authority-cache": {
+      "id": "b-them-global-authority-cache",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every project shares one browser cache under "
+        },
+        {
+          "insert": "docs-global:",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " keys. The cache paints the first frame, and the server copy replaces it on load. A per-project cache is never read while the Global theme is active."
+        }
+      ],
+      "children": []
+    },
+    "b-them-global-authority-missing": {
+      "id": "b-them-global-authority-missing",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Until the Global theme is first saved, projects render the stock defaults. The first control change creates the theme."
+        }
+      ],
+      "children": []
+    },
+    "b-them-global-authority-error": {
+      "id": "b-them-global-authority-error",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Any read error other than a missing theme also renders the stock defaults, but it blocks writes. A transient server error therefore cannot overwrite the theme every project shares."
+        }
+      ],
+      "children": []
+    },
+    "b-them-global-precedence": {
+      "id": "b-them-global-precedence",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Precedence",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-them-global-precedence-chain"
+      ]
+    },
+    "b-them-global-precedence-chain": {
+      "id": "b-them-global-precedence-chain",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "While the Global theme is active, a value resolves from the Global theme, then from the stock defaults. Repository themes do not enter the chain."
+        }
+      ],
+      "children": []
+    },
+    "b-them-global-hosts": {
+      "id": "b-them-global-hosts",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Hosts without a Global theme",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-them-global-hosts-fallback",
+        "b-them-global-hosts-export"
+      ]
+    },
+    "b-them-global-hosts-fallback": {
+      "id": "b-them-global-hosts-fallback",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A standalone serve on a machine without the docs service state directory keeps per-project theme selection, per-project caches, and repository themes."
+        }
+      ],
+      "children": []
+    },
+    "b-them-global-hosts-export": {
+      "id": "b-them-global-hosts-export",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A static export is read-only. It snapshots the Global theme when the exporting machine has one, and the repository Default otherwise."
+        }
+      ],
+      "children": []
+    },
+    "b-them-global-scope-lead": {
+      "id": "b-them-global-scope-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The Global theme shares the document's look. Workbench layout state stays with each project."
+        }
+      ],
+      "children": []
+    },
+    "b-them-global-scope-table": {
+      "id": "b-them-global-scope-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "State",
+          "Scope"
+        ],
+        "rows": [
+          [
+            "Rail settings and component values",
+            "Shared through the Global theme"
+          ],
+          [
+            "Light or dark mode",
+            "Shared through the Global theme"
+          ],
+          [
+            "Rail collapse",
+            "Per project"
+          ],
+          [
+            "Selected rail section",
+            "Per project"
+          ]
+        ]
+      },
+      "children": []
+    },
+    "b-them-global-boundary": {
+      "id": "b-them-global-boundary",
+      "type": "callout",
+      "props": {
+        "kind": "Boundary",
+        "title": "Repository themes are inactive for now",
+        "tone": "info"
+      },
+      "text": [
+        {
+          "insert": "Repository "
+        },
+        {
+          "insert": "themes/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " folders, including "
+        },
+        {
+          "insert": "themes/default/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", stay on disk, but no project loads them while the Global theme is active. The owner chose the Global theme as the default for now."
+        }
+      ],
+      "children": []
+    },
     "b-them-default-heading": {
       "id": "b-them-default-heading",
       "type": "heading",
@@ -327,7 +701,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Default is the workbench's living theme. Every rail setting, dark toggle, and component override auto-saves into it shortly after the last change; selecting Default restores the saved look."
+          "insert": "Default is the repository's living theme on a host that serves no Global theme. Every rail setting, dark toggle, and component override auto-saves into it shortly after the last change; selecting Default restores the saved look."
         }
       ],
       "children": []
@@ -382,7 +756,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A theme-locked serve applies the repository Default unconditionally, hides the rail, and rejects theme writes; a static export is read-only."
+          "insert": "A theme-locked serve applies the Global theme unconditionally, or the repository Default when it serves no Global theme. It hides the rail and rejects theme writes. A static export is read-only."
         }
       ],
       "children": []
@@ -501,6 +875,33 @@
       "text": [
         {
           "insert": "A theme can make the document its own without turning the surrounding workbench into a different product."
+        }
+      ],
+      "children": []
+    },
+    "b-them-why-global": {
+      "id": "b-them-why-global",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "One reading look across projects",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-them-why-global-gloss"
+      ]
+    },
+    "b-them-why-global-gloss": {
+      "id": "b-them-why-global-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The owner wants one reading look across all projects. Per-repository themes drifted apart, and a change tuned in one project stayed hidden from the others."
         }
       ],
       "children": []

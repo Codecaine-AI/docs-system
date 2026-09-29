@@ -1,4 +1,4 @@
-The section heading of the block vocabulary. Use it to give documents a greppable outline — `docs grep '^## '` finds every second-level section in a corpus.
+The section heading of the block vocabulary. Use it to give documents a greppable outline: `docs grep '^## '` finds every second-level section in a corpus.
 
 ## Example
 
@@ -36,7 +36,7 @@ Slash menu: **Heading 1**-**3** as top-level entries, with levels 4-6 under an *
 
 ## Theme
 
-This block's theme file is `components/heading.json` in a theme folder (`themes/<id>/`; see Theming). Every value is one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY`. The contract is Theming.
+This block's theme file is `components/heading.json` in the active theme folder. By default that folder is the Global theme at `~/.local/state/codecaine-docs/themes/global/`. A repo `themes/<id>/` folder is active only when the host serves no Global theme. Every value is one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY`. The contract is Theming.
 
 | Key | CSS variable | Styles |
 | --- | --- | --- |

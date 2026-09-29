@@ -102,7 +102,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A nested item — a child list-item block, not markup."
+          "insert": "A nested item is a child list-item block, not markup."
         }
       ],
       "children": []
@@ -159,7 +159,7 @@
       "id": "b-12-list-item-state-shape-25",
       "type": "state-shape",
       "props": {
-        "description": "Closed schema — ordered is the only prop.",
+        "description": "Closed schema with ordered as the only prop.",
         "example": "{\n  \"ordered\": true\n}",
         "fields": [
           {
@@ -372,7 +372,7 @@
           }
         },
         {
-          "insert": " — never indent with spaces in the text."
+          "insert": ". Never indent with spaces in the text."
         }
       ],
       "children": []
@@ -416,7 +416,28 @@
           }
         },
         {
-          "insert": " in a theme folder ("
+          "insert": " in the active theme folder. By default that folder is the "
+        },
+        {
+          "insert": "Global theme",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/30-themes"
+            }
+          }
+        },
+        {
+          "insert": " at "
+        },
+        {
+          "insert": "~/.local/state/codecaine-docs/themes/global/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". A repo "
         },
         {
           "insert": "themes/<id>/",
@@ -425,19 +446,10 @@
           }
         },
         {
-          "insert": "; see "
+          "insert": " folder is active only when the host serves no Global theme."
         },
         {
-          "insert": "Theming",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "30-implementation/40-theming"
-            }
-          }
-        },
-        {
-          "insert": "). Every value is one string for both modes or a "
+          "insert": " Every value is one string for both modes or a "
         },
         {
           "insert": "{ light, dark }",

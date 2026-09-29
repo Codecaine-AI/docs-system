@@ -4,7 +4,7 @@ The list block of the block vocabulary. There is no wrapping list container type
 
 - A bullet item.
 
-  - A nested item — a child list-item block, not markup.
+  - A nested item is a child list-item block, not markup.
 
 2. An ordered item (`ordered: true`).
 
@@ -36,13 +36,13 @@ A `-` bullet, or `1.` numbering when `props.ordered === true`, indented two spac
 
 ## Agent Notes
 
-- To nest, `moveBlock` an item into another item's `children` — never indent with spaces in the text.
+- To nest, `moveBlock` an item into another item's `children`. Never indent with spaces in the text.
 
 - Ordered numbering is derived at render time from sibling position; there is no stored number to keep in sync.
 
 ## Theme
 
-This block's theme file is `components/list-item.json` in a theme folder (`themes/<id>/`; see Theming). Every value is one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY`. The contract is Theming.
+This block's theme file is `components/list-item.json` in the active theme folder. By default that folder is the Global theme at `~/.local/state/codecaine-docs/themes/global/`. A repo `themes/<id>/` folder is active only when the host serves no Global theme. Every value is one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY`. The contract is Theming.
 
 | Key | CSS variable | Styles |
 | --- | --- | --- |

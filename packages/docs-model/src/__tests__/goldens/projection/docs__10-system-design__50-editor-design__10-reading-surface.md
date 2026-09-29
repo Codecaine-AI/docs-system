@@ -2,15 +2,16 @@ The reading surface is a left-justified full-width page where each top-level blo
 
 ## Structure
 
-The living Default theme defines the document frame below.
+The workbench's stock defaults define the document frame below. Every project renders the shared Global theme described in Themes, which starts from these values. Until that theme is first saved, projects get the stock defaults directly. A host without a Global theme uses the project's own `themes/` folder, or the stock defaults when the project has none.
 
-| Control | Living Default | Effect |
+| Control | Stock Default | Effect |
 | --- | --- | --- |
-| `--style-content-width` | `88ch` | Maximum text-lane measure |
-| `--style-content-margin` | `0px` | Horizontal content padding |
-| `--style-content-top` | `88px` | Top offset before the page title |
-| `--style-title-padding` | `50px` | Gap from the page title to the first block |
-| `--style-content-bottom` | `300px` | Bottom run-out after the document |
+| `--style-content-width` | `60ch` | Maximum text-lane measure |
+| `--style-wide-width` | `1040px` | Maximum wide-lane width |
+| `--style-content-margin` | `88px` | Horizontal content padding |
+| `--style-content-top` | `24px` | Top offset before the page title |
+| `--style-title-padding` | `20px` | Gap from the page title to the first block |
+| `--style-content-bottom` | `24px` | Bottom run-out after the document |
 
 ## The Rule
 
@@ -81,5 +82,9 @@ The dialog shows progress and offers download links after completion. Cancel sto
   - The page title and sidebar derive from the same bundle name, so there is no separate display label to drift.
 
   - The move-based rename keeps the displayed identity, storage path, inbound references, and sidebar entry aligned.
+
+- **The text lane follows a book's measure**
+
+  - The text lane is `60ch`, which holds about 84 characters of the System Sans body. That line runs slightly longer than the reference book's line of about 80 characters in Typography and Fonts, and the owner kept it because the sizing reads well.
 
 The division between tree navigation and substantive reference links is governed by Cross-doc linking.

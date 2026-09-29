@@ -2196,6 +2196,30 @@
         },
         {
           "insert": " picker file in the Components section."
+        },
+        {
+          "insert": " Values save to "
+        },
+        {
+          "insert": "components/process-outline.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in the active theme folder, which is the "
+        },
+        {
+          "insert": "Global theme",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/30-themes"
+            }
+          }
+        },
+        {
+          "insert": " by default."
         }
       ],
       "children": []

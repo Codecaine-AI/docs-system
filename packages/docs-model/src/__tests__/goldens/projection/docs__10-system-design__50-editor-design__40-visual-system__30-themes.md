@@ -1,4 +1,4 @@
-A theme may change registered document-surface roles while fixed system UI structure preserves the tool's identity. Theme folders are sparse, closed inputs; the style rail is a higher-precedence user layer over them. Structural decisions about the theming code live in Theming: Overview.
+A theme may change registered document-surface roles while fixed system UI structure preserves the tool's identity. Theme folders are sparse, closed inputs; the style rail is a higher-precedence user layer over them. When the host serves it, one Global theme stored outside every repository is the look every project renders and edits. Structural decisions about the theming code live in Theming: Overview.
 
 ## Structure
 
@@ -35,6 +35,8 @@ themes/
 
 - A repository theme shadows a built-in theme with the same id.
 
+- The id `global` is reserved. A repository folder named `global` is ignored, so it never shadows the Global theme.
+
 - Every theme resolves to a light and a dark value set; a single scalar value applies to both modes.
 
 - Selecting a theme applies its declared mode, adopts its rail defaults as the working settings, and persists as the active selection across sessions.
@@ -48,9 +50,48 @@ themes/
 | Style rail | User values for exposed controls | Over the selected theme |
 | System UI structure | Unregistered widths, row metrics, and framing | Fixed outside theme reach |
 
+### The Global Theme
+
+The Global theme is one shared look that every project renders and any project can edit. It has the reserved id `global` and lives outside every repository at `<stateDirectory>/themes/global/`, by default `~/.local/state/codecaine-docs/themes/global/`. The folder has the same shape as a repository theme: a `theme.json` manifest and a `components/` folder. Its values start from this repository's Default: System Sans at 18px, a 1.45 line height, and a `60ch` measure.
+
+- **One look, edited from any project**
+
+  - A style-rail change in any project saves to the Global theme. Every project shows the change on its next load, and open tabs of other projects on the same origin follow it without a reload.
+
+  - The theme picker lists only **Global**, and the save button reads **Save global style**.
+
+- **The server copy is the authority**
+
+  - Every project shares one browser cache under `docs-global:` keys. The cache paints the first frame, and the server copy replaces it on load. A per-project cache is never read while the Global theme is active.
+
+  - Until the Global theme is first saved, projects render the stock defaults. The first control change creates the theme.
+
+  - Any read error other than a missing theme also renders the stock defaults, but it blocks writes. A transient server error therefore cannot overwrite the theme every project shares.
+
+- **Precedence**
+
+  - While the Global theme is active, a value resolves from the Global theme, then from the stock defaults. Repository themes do not enter the chain.
+
+- **Hosts without a Global theme**
+
+  - A standalone serve on a machine without the docs service state directory keeps per-project theme selection, per-project caches, and repository themes.
+
+  - A static export is read-only. It snapshots the Global theme when the exporting machine has one, and the repository Default otherwise.
+
+The Global theme shares the document's look. Workbench layout state stays with each project.
+
+| State | Scope |
+| --- | --- |
+| Rail settings and component values | Shared through the Global theme |
+| Light or dark mode | Shared through the Global theme |
+| Rail collapse | Per project |
+| Selected rail section | Per project |
+
+> **Boundary: Repository themes are inactive for now** — Repository `themes/` folders, including `themes/default/`, stay on disk, but no project loads them while the Global theme is active. The owner chose the Global theme as the default for now.
+
 ### The Living Default
 
-Default is the workbench's living theme. Every rail setting, dark toggle, and component override auto-saves into it shortly after the last change; selecting Default restores the saved look.
+Default is the repository's living theme on a host that serves no Global theme. Every rail setting, dark toggle, and component override auto-saves into it shortly after the last change; selecting Default restores the saved look.
 
 - The saved state is complete: every scalar setting carries a saved value, so Default restores the whole look rather than a diff; component values are saved only where they diverge.
 
@@ -60,7 +101,7 @@ Default is the workbench's living theme. Every rail setting, dark toggle, and co
 
 - A fresh browser profile hydrates from the repository Default before autosave engages.
 
-- A theme-locked serve applies the repository Default unconditionally, hides the rail, and rejects theme writes; a static export is read-only.
+- A theme-locked serve applies the Global theme unconditionally, or the repository Default when it serves no Global theme. It hides the rail and rejects theme writes. A static export is read-only.
 
 ### The Customization Boundary
 
@@ -79,3 +120,7 @@ Registered colors, typography, global radius, document layout values, and compon
 - **Customization is bounded**
 
   - A theme can make the document its own without turning the surrounding workbench into a different product.
+
+- **One reading look across projects**
+
+  - The owner wants one reading look across all projects. Per-repository themes drifted apart, and a change tuned in one project stayed hidden from the others.

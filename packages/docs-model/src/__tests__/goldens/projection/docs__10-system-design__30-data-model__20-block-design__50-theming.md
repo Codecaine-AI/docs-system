@@ -1,9 +1,9 @@
-Every type ships its style capabilities as theme knobs — never hardcoded looks. This page states the component theme contract.
+Every type ships its style capabilities as theme knobs, never hardcoded looks. This page states the component theme contract.
 
 ## Structure
 
 ```json
-// themes/default/components/structured-table.json
+// <theme folder>/components/structured-table.json
 {
   "headerRuleWidth": "1.5px",
   "cellPaddingY": "12px",
@@ -12,7 +12,8 @@ Every type ships its style capabilities as theme knobs — never hardcoded looks
   "selectionPadding": "4px"
 }
 ```
-> **L1-7 (Knobs, not CSS):** Each key is a typed knob (color, length, number) the style rail can edit live; the renderer consumes them as tokens.
+> **L1 (Any theme folder):** The folder shape is the same everywhere. Live edits land in the Global theme's components/ folder by default, or in a repo themes/<id>/components/ folder when the host serves no Global theme.
+> **L2-7 (Knobs, not CSS):** Each key is a typed knob (color, length, number) the style rail can edit live; the renderer consumes them as tokens.
 
 ## The Rule
 
@@ -22,7 +23,7 @@ Every type ships its style capabilities as theme knobs — never hardcoded looks
 
 - **Knobs are typed**
 
-  - Color, length, and number kinds — so the style rail can render the right control for every knob without knowing the component.
+  - Knobs have color, length, and number kinds, so the style rail can render the right control for every knob without knowing the component.
 
 - **Overrides are sparse and tolerant**
 
@@ -30,13 +31,13 @@ Every type ships its style capabilities as theme knobs — never hardcoded looks
 
   - A knob value is a single scalar or a light/dark pair; a scalar applies to both modes.
 
-  - Unknown files, unknown knobs, and malformed values are ignored rather than applied — a value survives only when it parses as its declared kind, and lengths and numbers must fall inside the knob's declared range.
+  - Unknown files, unknown knobs, and malformed values are ignored rather than applied. A value survives only when it parses as its declared kind, and lengths and numbers must fall inside the knob's declared range.
 
 - **Resolution is layered**
 
-  - A repo theme folder overrides the compiled-in defaults; the live theme auto-saves edits back into it.
+  - The active theme folder overrides the compiled-in defaults, and the style rail auto-saves edits back into it. By default the active folder is the shared Global theme at `~/.local/state/codecaine-docs/themes/global/`. A repo `themes/<id>/` folder is active only when the host serves no Global theme.
 
-  - The renderer consumes resolved tokens only — it cannot tell where a value came from.
+  - The renderer consumes resolved tokens only. It cannot tell where a value came from.
 
 ## Why
 

@@ -85,7 +85,7 @@
           }
         },
         {
-          "insert": ", the UML-style sequence-diagram block. The block is only a reference — "
+          "insert": ", the UML-style sequence-diagram block. The block is only a reference: "
         },
         {
           "insert": "src",
@@ -125,7 +125,7 @@
           }
         },
         {
-          "insert": "); participants, messages, and style never enter the doc. Sequence diagrams are this block's whole territory — every other diagram type belongs to the "
+          "insert": "); participants, messages, and style never enter the doc. Sequence diagrams are this block's whole territory, and every other diagram type belongs to the "
         },
         {
           "insert": "canvas",
@@ -177,7 +177,7 @@
           }
         },
         {
-          "insert": ", so diagram edits route to the sequence engine and come back validated. The JSON document is the source of truth; a compact text program is the agent-facing projection — agents rewrite the whole program, and the language carries no styling, no coordinates, and no ids."
+          "insert": ", so diagram edits route to the sequence engine and come back validated. The JSON document is the source of truth, and a compact text program is the agent-facing projection. Agents rewrite the whole program, and the language carries no styling, no coordinates, and no ids."
         }
       ],
       "children": []
@@ -201,7 +201,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A live block — the login flow from "
+          "insert": "A live block, the login flow from "
         },
         {
           "insert": "assets/sequences/login-flow.sequence.json",
@@ -210,7 +210,7 @@
           }
         },
         {
-          "insert": " — followed by the program projection of the same document:"
+          "insert": ", followed by the program projection of the same document:"
         }
       ],
       "children": []
@@ -303,7 +303,7 @@
             "name": "src",
             "type": "string (min length 1)",
             "required": false,
-            "description": "Sidecar path — docs-root-relative, or bundle-relative with a ./ prefix."
+            "description": "Sidecar path, either docs-root-relative or bundle-relative with a ./ prefix."
           },
           {
             "name": "title",
@@ -363,7 +363,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The program is a projection of that document, not a stored payload — nothing diagram-shaped is in the doc to drift."
+          "insert": "The program is a projection of that document, not a stored payload, so nothing diagram-shaped is in the doc to drift."
         }
       ],
       "children": []
@@ -432,7 +432,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Three actions, lifted at module load from the engine's "
+          "insert": "Three actions are lifted at module load from the engine's "
         },
         {
           "insert": "SEQUENCE_AGENT_PATCH_OPERATIONS",
@@ -441,7 +441,7 @@
           }
         },
         {
-          "insert": " — schema truth stays in the sequence package; the lift strips only the envelope discriminant and prefixes the family name. Each rides a "
+          "insert": ". Schema truth stays in the sequence package; the lift strips only the envelope discriminant and prefixes the family name. Each rides a "
         },
         {
           "insert": "componentAction",
@@ -477,7 +477,7 @@
           }
         },
         {
-          "insert": " — the forwarded shape of "
+          "insert": ", the forwarded shape of "
         },
         {
           "insert": "Typed actions",
@@ -539,7 +539,7 @@
             "kind": "action"
           }
         ],
-        "title": "sequence — forwarded patch operations"
+        "title": "sequence forwarded patch operations"
       },
       "children": []
     },
@@ -786,7 +786,7 @@
           }
         },
         {
-          "insert": " and nest by indentation alone — there is no "
+          "insert": " and nest by indentation alone. There is no "
         },
         {
           "insert": "end",
@@ -942,7 +942,7 @@
           }
         },
         {
-          "insert": " slot — the sequence counterpart of the canvas embed slot."
+          "insert": " slot, the sequence counterpart of the canvas embed slot."
         }
       ],
       "children": []
@@ -1022,7 +1022,7 @@
           }
         },
         {
-          "insert": " — no editing, no saving."
+          "insert": ", with no editing and no saving."
         }
       ],
       "children": []
@@ -1119,7 +1119,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The markdown projection is one comment line — a greppable reference, not the diagram:"
+          "insert": "The markdown projection is one comment line, a greppable reference, not the diagram:"
         }
       ],
       "children": []
@@ -1289,7 +1289,16 @@
       "props": {},
       "text": [
         {
-          "insert": "The docs theme owns nothing here: "
+          "insert": "The docs theme owns one token here: the "
+        },
+        {
+          "insert": "sequence",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " entry of "
         },
         {
           "insert": "THEME_TOKEN_REGISTRY",
@@ -1311,7 +1320,16 @@
           }
         },
         {
-          "insert": ") has no sequence entry, and the default theme folder ships no "
+          "insert": ") registers "
+        },
+        {
+          "insert": "border",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", set through "
         },
         {
           "insert": "components/sequence.json",
@@ -1320,19 +1338,25 @@
           }
         },
         {
-          "insert": " (theme folders: "
+          "insert": " in the active theme folder. By default that folder is the "
         },
         {
-          "insert": "Theming",
+          "insert": "Global theme",
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "30-implementation/40-theming"
+              "path": "10-system-design/50-editor-design/40-visual-system/30-themes"
             }
           }
         },
         {
-          "insert": ")"
+          "insert": " at "
+        },
+        {
+          "insert": "~/.local/state/codecaine-docs/themes/global/",
+          "attributes": {
+            "code": true
+          }
         },
         {
           "insert": ". Diagram visuals live in the "
@@ -1362,7 +1386,7 @@
           }
         },
         {
-          "insert": " — see "
+          "insert": ". See "
         },
         {
           "insert": "Theming",
@@ -1401,7 +1425,16 @@
       "props": {},
       "text": [
         {
-          "insert": "The one doc-side hook: the placeholder card's border color, unregistered in the token registry, falling back to "
+          "insert": "The one doc-side hook: the border color of the placeholder card and the embed frame, registered as the sequence "
+        },
+        {
+          "insert": "border",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " token and falling back to "
         },
         {
           "insert": "--border",
@@ -1771,7 +1804,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Human, host, or agent — every content write goes through the engine's own operations, so schema validation and the inverse snapshot apply no matter who edits."
+          "insert": "Whether a human, host, or agent edits, every content write goes through the engine's own operations, so schema validation and the inverse snapshot apply no matter who edits."
         }
       ],
       "children": []

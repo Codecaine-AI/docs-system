@@ -25,10 +25,10 @@
  * preview in it, so every surface renders docs identically by construction.
  */
 export const DOC_SURFACE_TYPOGRAPHY_CLASSES =
-  "docs-markdown prose prose-sm dark:prose-invert relative max-w-none font-sans text-sm leading-[1.7]";
+  "docs-markdown prose prose-sm dark:prose-invert relative max-w-none font-sans text-[length:var(--style-font-size,18px)] leading-[var(--style-line-height,1.45)]";
 
 /** `paragraph` — the `<p>` element. */
-export const PARAGRAPH_CLASSES = "my-3 text-sm leading-[1.7]";
+export const PARAGRAPH_CLASSES = "my-3 text-[length:var(--style-font-size,18px)] leading-[var(--style-line-height,1.45)]";
 
 /**
  * `heading` — the `<h1>`-`<h6>` element itself (per-level font sizes still
@@ -38,7 +38,7 @@ export const PARAGRAPH_CLASSES = "my-3 text-sm leading-[1.7]";
 export const HEADING_CLASSES = "mt-6 mb-3 font-display font-semibold text-foreground";
 
 /** `list-item` — the flex row container (registry `div[role=listitem]`, editor `<li>`; `flex` also suppresses the `<li>`'s native marker). */
-export const LIST_ITEM_CLASSES = "my-1 flex text-sm leading-[1.7]";
+export const LIST_ITEM_CLASSES = "my-1 flex text-[length:var(--style-font-size,18px)] leading-[var(--style-line-height,1.45)]";
 
 /**
  * `list-item` — the marker box (Notion metrics: a 24px fallback column whose
@@ -71,7 +71,7 @@ export const CODE_BLOCK_CLASSES =
 
 /** `quote` — the `<blockquote>` element. Border/text colors follow the per-block-type tokens; the fallbacks equal the old `border-primary/40` + `text-muted-foreground` utilities. */
 export const QUOTE_CLASSES =
-  "my-4 border-l-2 border-[color:var(--docs-quote-border,color-mix(in_srgb,var(--primary)_40%,transparent))] pl-3 text-sm italic leading-[1.7] text-[color:var(--docs-quote-fg,var(--muted-foreground))]";
+  "my-4 border-l-2 border-[color:var(--docs-quote-border,color-mix(in_srgb,var(--primary)_40%,transparent))] pl-3 text-[length:var(--style-font-size,18px)] italic leading-[var(--style-line-height,1.45)] text-[color:var(--docs-quote-fg,var(--muted-foreground))]";
 
 /** Card container styling for the callout block type (tone fragment appended separately). */
 export const CARD_BASE_CLASSES = "not-prose my-4 rounded-md border p-3";
@@ -87,4 +87,4 @@ export const SEMANTIC_CARD_CLASSES = `${CARD_BASE_CLASSES} ${CARD_TONE_PRIMARY_C
 
 /** Body text inside a card block (the editor's callout node body). Text color follows the callout token; the currentColor fallback preserves the old behavior (inherit). */
 export const CARD_BODY_TEXT_CLASSES =
-  "font-sans text-sm leading-[1.7] text-[color:var(--docs-callout-fg,currentColor)]";
+  "font-sans text-[length:var(--style-font-size,18px)] leading-[var(--style-line-height,1.45)] text-[color:var(--docs-callout-fg,currentColor)]";

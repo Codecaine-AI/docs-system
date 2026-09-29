@@ -1,8 +1,8 @@
-The file-tree component owns one block type, `file-tree`: the vocabulary's annotated path tree. A flat list of path entries in props renders — on both surfaces — as a `tree`-command drawing, with per-entry notes and change markers for describing repo slices and refactors.
+The file-tree component owns one block type, `file-tree`: the vocabulary's annotated path tree. A flat list of path entries in props renders on both surfaces as a `tree`-command drawing, with per-entry notes and change markers for describing repo slices and refactors.
 
 When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source; identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information.
 
-Reach for it when the nested structure is files, not steps — repo slices, refactor plans, layout conventions. A process that flows end to end belongs to process-outline.
+Reach for it when the nested structure is files, not steps: repo slices, refactor plans, and layout conventions. A process that flows end to end belongs to process-outline.
 
 ## Example
 
@@ -50,23 +50,23 @@ entries: FileTreeEntry[]  # Flat list of path entries; the rendered tree derives
 }
 ```
 
-All state is one props key: `entries`, an array of path entries validated by the closed `FileTreeState` schema. The type carries no delta text (`carriesText: false`) and no title prop — every fact lives in `entries`. The contract is State schema.
+All state is one props key: `entries`, an array of path entries validated by the closed `FileTreeState` schema. The type carries no delta text (`carriesText: false`) and no title prop. Every fact lives in `entries`. The contract is State schema.
 
 - Path rules
 
   - `path` is /-separated; `validateTreePath` in `lib.ts` rejects a leading "./", a leading "/", and empty segments on every action write.
 
-  - Directories need no entries of their own — they are derived from path prefixes, and a derived directory carries no note or change state.
+  - Directories need no entries of their own. They are derived from path prefixes, and a derived directory carries no note or change state.
 
   - An entry authored as a file is promoted to a directory when later entries nest beneath it.
 
-> **Gotcha** — The trailing "/" is the directory marker. An entry without it renders as a file — and files sort after directories — so a bare directory path lands styled and ordered as a file. Author an explicit directory as `path/`.
+> **Gotcha** — The trailing "/" is the directory marker. An entry without it renders as a file, and files sort after directories, so a bare directory path lands styled and ordered as a file. Author an explicit directory as `path/`.
 
 - Tolerant read
 
   - `readFileTreeEntries` skips an entry whose `path` is missing or empty and drops wrong-typed `note`/`change`/`from` values; nothing is repaired.
 
-  - Actions match the `path` string literally — keep paths exact.
+  - Actions match the `path` string literally, so keep paths exact.
 
 ## Typed Actions
 
@@ -76,19 +76,19 @@ Three actions are the type's whole custom write surface.
 
   - Appends to the end of `entries`; a duplicate path is an error.
 
-  - Params are `path` plus optional `note` and `change` — `from` enters only through `updateEntry`.
+  - Params are `path` plus optional `note` and `change`. `from` enters only through `updateEntry`.
 
 - `updateEntry`
 
   - Patches `note`/`change`/`from` in place; `null` clears a field.
 
-  - `newPath` renames without moving — the entry keeps its array position; a `newPath` that collides with another entry is an error.
+  - `newPath` renames without moving, and the entry keeps its array position; a `newPath` that collides with another entry is an error.
 
 - `removeEntry`
 
   - Deletes by exact path; a missing path is an error, not a no-op.
 
-**file-tree — entry actions**
+**file-tree entry actions**
 
 ```
 file-tree.addEntry(path: string, note?: string, change?: string) -> FileTreePatch  # Append a path entry (optional note and change marker) to the file tree.
@@ -114,17 +114,17 @@ file-tree.updateEntry(path: string, note?: string | null, change?: string | null
       from?: string  # Previous path, used with change: "renamed".
 ```
 
-Every `apply` is pure — entries in, a props patch `{ entries }` out — and the patch revalidates against `FileTreeState` before anything persists.
+Every `apply` is pure: entries go in, a props patch `{ entries }` comes out, and the patch revalidates against `FileTreeState` before anything persists.
 
 ## Doc Renderer
 
-`FileTreeDocsBlock` draws the block on the doc surface — reader and editor alike — as a bordered monospace panel: a `.` root line, then one row per node with `tree`-style guides (`├──`, `└──`, `│`). An empty `entries` array renders a `(no entries)` placeholder. The contract is Doc renderer.
+`FileTreeDocsBlock` draws the block on the doc surface, in reader and editor alike, as a bordered monospace panel: a `.` root line, then one row per node with `tree`-style guides (`├──`, `└──`, `│`). An empty `entries` array renders a `(no entries)` placeholder. The contract is Doc renderer.
 
 - Ordering
 
   - Directories sort first at every level, then names in ascending codepoint order; directory names render with a trailing "/".
 
-  - The order matches the agent render exactly — the two surfaces agree by design.
+  - The order matches the agent render exactly, so the two surfaces agree by design.
 
 - Change markers
 
@@ -140,11 +140,11 @@ Every `apply` is pure — entries in, a props patch `{ entries }` out — and th
 
   - `file-tree` is an atom leaf node (`ATOM_BLOCK_TYPES`): read-only, rendered by the same `FileTreeDocsBlock` through the shared atom node view.
 
-  - No slash-menu entry — file trees enter through agent ops or existing content.
+  - There is no slash-menu entry. File trees enter through agent ops or existing content.
 
 ## Agent Renderer
 
-`projectFileTree` renders the same tree as literal text inside a bare fence — the greppable form an agent reads. The Example block above projects to:
+`projectFileTree` renders the same tree as literal text inside a bare fence, the greppable form an agent reads. The Example block above projects to:
 
 ```text
   packages/
@@ -172,7 +172,7 @@ Every `apply` is pure — entries in, a props patch `{ entries }` out — and th
 
 ## Theme
 
-This block's theme file is `components/file-tree.json` in a theme folder (`themes/<id>/`; the system is Theming). Every value is one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY` in `theme-folders.ts`. The contract is Theming.
+This block's theme file is `components/file-tree.json` in the active theme folder. By default that folder is the Global theme at `~/.local/state/codecaine-docs/themes/global/`. A repo `themes/<id>/` folder is active only when the host serves no Global theme. Every value is one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY` in `theme-folders.ts`. The contract is Theming.
 
 | Key | CSS variable | Styles |
 | --- | --- | --- |
@@ -183,4 +183,4 @@ The registry carries exactly these two keys for `file-tree`, both colors. The di
 
 ## Agent Adapter
 
-The family uses the default adapter: no agent of its own, no forwarding to an external authority. All three actions declare `apply`, so agent edits ride the generic op stream as `componentAction` ops — `{ type: "componentAction", blockId, action: "file-tree.addEntry", params }` — which resolve the action from the registry, validate params, and land as an `updateBlock` props patch with the usual inverse. The contract is Agent adapter.
+The family uses the default adapter: no agent of its own, no forwarding to an external authority. All three actions declare `apply`, so agent edits ride the generic op stream as `componentAction` ops (`{ type: "componentAction", blockId, action: "file-tree.addEntry", params }`), which resolve the action from the registry, validate params, and land as an `updateBlock` props patch with the usual inverse. The contract is Agent adapter.

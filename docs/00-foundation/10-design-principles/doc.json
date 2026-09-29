@@ -355,7 +355,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The living repo theme auto-saves adjustments. Hand-edited themes use a closed token vocabulary, and unknown keys are ignored."
+          "insert": "Style adjustments auto-save to one shared Global theme that every project renders. Hand-edited themes use a closed token vocabulary, and unknown keys are ignored."
         }
       ],
       "children": []

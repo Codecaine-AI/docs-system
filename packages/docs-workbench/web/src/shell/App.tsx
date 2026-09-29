@@ -1,10 +1,26 @@
-import { centralProjectId, projectStorage } from "../data/project-storage";
+import {
+  centralProjectId,
+  globalStorageKey,
+  projectStorage,
+  setGlobalThemeActive,
+  isGlobalThemeActive,
+  themeStorage,
+} from "../data/project-storage";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { DocsClientProvider, type DocsTreeNode } from "@codecaine-ai/docs-viewer/client";
 import { DocPeekPanel } from "@codecaine-ai/docs-viewer/doc-peek-panel";
 import type { SpectreRef } from "@codecaine-ai/docs-model/spectre-ref";
 
-import { IS_STATIC, assetUrl, getServeConfig, getTheme, getTree, saveTheme } from "../data/api";
+import {
+  ApiError,
+  GLOBAL_THEME_ID,
+  IS_STATIC,
+  assetUrl,
+  getServeConfig,
+  getTheme,
+  getTree,
+  saveTheme,
+} from "../data/api";
 import { createStandaloneDocsClient } from "../data/client";
 import { StandaloneCanvasEmbed } from "../pages/CanvasEmbed";
 import { StandaloneSequenceEmbed } from "../pages/SequenceEmbed";
@@ -16,7 +32,9 @@ import {
   StyleRailOverlay,
   applyBlockLayoutOverrideCss,
   applyStyleRailVars,
+  STYLE_RAIL_STORAGE_KEY,
   loadStyleRailSettings,
+  normalizeSettings,
   saveStyleRailSettings,
   setStyleRailBaseline,
   type StyleRailSettings,
@@ -65,6 +83,41 @@ async function resolveThemeById(id: string): Promise<ThemeDefinition | null> {
   }
   definition ??= BUILTIN_THEMES.find((theme) => theme.id === id) ?? null;
   if (!definition) return null;
+  return flattenTheme(definition);
+}
+
+/**
+ * The shared GLOBAL theme, as it renders before anyone has saved it: stock
+ * rail settings and no token files. The first rail change writes it.
+ */
+function stockGlobalTheme(): ThemeDefinition {
+  return {
+    id: GLOBAL_THEME_ID,
+    source: "builtin",
+    manifest: { name: "Global", dark: false, railDefaults: {} },
+    components: {},
+  };
+}
+
+/**
+ * Reads the shared global theme. A 404 means "not created yet": render stock
+ * and let the first change create it (`writable`). Any OTHER failure also
+ * renders stock but is NOT writable — a transient error must never let this
+ * tab overwrite the one theme every project shares with stock-plus-one-knob.
+ */
+async function resolveGlobalTheme(): Promise<{ theme: ThemeDefinition; writable: boolean }> {
+  try {
+    const { theme } = await getTheme(GLOBAL_THEME_ID);
+    const definition = readThemeDefinition(GLOBAL_THEME_ID, theme, "repo");
+    if (definition) return { theme: flattenTheme(definition), writable: true };
+    return { theme: stockGlobalTheme(), writable: false };
+  } catch (error) {
+    const missing = error instanceof ApiError && error.status === 404;
+    return { theme: stockGlobalTheme(), writable: missing };
+  }
+}
+
+function flattenTheme(definition: ThemeDefinition): ThemeDefinition {
   const resolved = resolveThemeChain(definition, (baseId) =>
     BUILTIN_THEMES.find((theme) => theme.id === baseId),
   );
@@ -111,7 +164,9 @@ export function themeWritePayload(
 ) {
   const { components, ...railDefaults } = settings;
   const preservedManifest: ThemeManifest = {
-    ...(activeTheme?.manifest ?? { name: themeId === "default" ? "Default" : themeId }),
+    ...(activeTheme?.manifest ?? {
+      name: themeId === "default" ? "Default" : themeId === GLOBAL_THEME_ID ? "Global" : themeId,
+    }),
   };
   delete preservedManifest.railDefaults;
   delete preservedManifest.dark;
@@ -187,8 +242,11 @@ export function App() {
   const [treeError, setTreeError] = useState<string | null>(null);
   const [path, setPath] = useState<string | null>(readHashPath());
   const [sidePeekOpen, setSidePeekOpen] = useState(false);
+  // Light/dark and the rail settings are part of the theme's look, so their
+  // instant cache follows the theme: origin-wide under the shared global
+  // theme (themeStorage), per-project otherwise.
   const [dark, setDark] = useState<boolean>(
-    () => projectStorage.getItem(THEME_STORAGE_KEY) === "dark",
+    () => themeStorage.getItem(THEME_STORAGE_KEY) === "dark",
   );
   const [styleSettings, setStyleSettings] = useState<StyleRailSettings>(() =>
     loadStyleRailSettings(),
@@ -196,9 +254,17 @@ export function App() {
   const [styleRailCollapsed, setStyleRailCollapsed] = useState<boolean>(
     () => projectStorage.getItem(STYLE_RAIL_COLLAPSE_KEY) === "true",
   );
-  const [themeId, setThemeId] = useState<string>(
-    () => projectStorage.getItem(THEME_FOLDER_KEY) ?? "default",
+  const [themeId, setThemeId] = useState<string>(() =>
+    isGlobalThemeActive() ? GLOBAL_THEME_ID : projectStorage.getItem(THEME_FOLDER_KEY) ?? "default",
   );
+  // `globalTheme` from GET /api/serve-config: the host serves one shared
+  // theme (reserved id `global`, stored outside every repo) and EVERY project
+  // renders it. A per-project THEME_FOLDER_KEY is ignored (not rewritten)
+  // while it is on, so a host without it falls back to exactly today's pick.
+  const [globalTheme, setGlobalTheme] = useState(false);
+  // False only when the global theme read failed for a reason other than
+  // "not created yet" — see resolveGlobalTheme.
+  const [themeWritable, setThemeWritable] = useState(true);
   // Serve-level theme lock (`docs-cli serve --theme-locked`): null until
   // GET /api/serve-config answers. Secondary apps serving their docs with
   // this framework are theme CONSUMERS — the repo default theme is law, the
@@ -230,22 +296,43 @@ export function App() {
   // exist, which keeps it useful as an offline/first-frame cache without
   // making it a competing source of truth. Locked hosts always ignore it.
   useEffect(() => {
-    void getServeConfig().then(({ themeLocked: locked }) => {
+    void getServeConfig().then(({ themeLocked: locked, globalTheme: useGlobal }) => {
+      // Decide the cache scope FIRST so every read below (and every later
+      // write) targets the shared keys when the global theme is on. A locked
+      // host persists nothing, including this flag.
+      setGlobalThemeActive(useGlobal, !locked);
+      setGlobalTheme(useGlobal);
       setThemeLocked(locked);
-      void resolveThemeById(locked ? "default" : themeId).then((resolved) => {
+      // Re-read the per-project pick rather than trusting the initial state:
+      // the first frame may have guessed "global" from the last visit.
+      const requestedThemeId = useGlobal
+        ? GLOBAL_THEME_ID
+        : locked
+          ? "default"
+          : projectStorage.getItem(THEME_FOLDER_KEY) ?? "default";
+      const cachedDark = themeStorage.getItem(THEME_STORAGE_KEY) === "dark";
+      const load = useGlobal
+        ? resolveGlobalTheme()
+        : resolveThemeById(requestedThemeId).then((theme) => ({ theme, writable: true }));
+      void load.then(({ theme: resolved, writable }) => {
         applyThemeCss(resolved);
         activeThemeRef.current = resolved;
-        if (resolved && resolved.id !== themeId) setThemeId(resolved.id);
+        setThemeWritable(writable);
+        const persistedThemeId = resolved?.id ?? requestedThemeId;
+        setThemeId(persistedThemeId);
         const baseline = setStyleRailBaseline(resolved?.manifest.railDefaults);
         const repoSettingsAreAuthoritative =
           resolved?.source === "repo" && resolved.manifest.railDefaults !== undefined;
+        // Under the global theme the server copy is the ONLY authority (stock
+        // until it exists): the shared cache just paints the first frame, and
+        // a stale per-project cache is never even read.
         const nextSettings =
-          locked || repoSettingsAreAuthoritative ? baseline : loadStyleRailSettings();
-        const nextDark =
-          (locked || resolved?.source === "repo") && resolved?.manifest.dark !== undefined
+          locked || useGlobal || repoSettingsAreAuthoritative ? baseline : loadStyleRailSettings();
+        const nextDark = useGlobal
+          ? resolved?.manifest.dark ?? false
+          : (locked || resolved?.source === "repo") && resolved?.manifest.dark !== undefined
             ? resolved.manifest.dark
-            : dark;
-        const persistedThemeId = resolved?.id ?? themeId;
+            : cachedDark;
         lastPersistedThemeRef.current = JSON.stringify(
           themeWritePayload(nextSettings, nextDark, persistedThemeId, resolved ?? undefined),
         );
@@ -266,10 +353,14 @@ export function App() {
   const inheritInFlightRef = useRef(false);
   useEffect(() => {
     if (themeLocked !== true) return;
+    const lockedThemeId = globalTheme ? GLOBAL_THEME_ID : "default";
     const reapply = () => {
       if (inheritInFlightRef.current) return;
       inheritInFlightRef.current = true;
-      void resolveThemeById("default")
+      const load = globalTheme
+        ? resolveGlobalTheme().then(({ theme }) => theme)
+        : resolveThemeById("default");
+      void load
         .then((resolved) => {
           applyThemeCss(resolved);
           // Re-install the baseline too, not just the knobs: the repo file
@@ -278,7 +369,7 @@ export function App() {
           const nextSettings = setStyleRailBaseline(resolved?.manifest.railDefaults);
           const nextDark = resolved?.manifest.dark ?? dark;
           lastPersistedThemeRef.current = JSON.stringify(
-            themeWritePayload(nextSettings, nextDark, "default", resolved ?? undefined),
+            themeWritePayload(nextSettings, nextDark, lockedThemeId, resolved ?? undefined),
           );
           setStyleSettings(nextSettings);
           setDark(nextDark);
@@ -289,10 +380,17 @@ export function App() {
     };
     window.addEventListener("focus", reapply);
     return () => window.removeEventListener("focus", reapply);
-  }, [themeLocked, dark]);
+  }, [themeLocked, globalTheme, dark]);
 
   const handleSelectTheme = (id: string) => {
-    void resolveThemeById(id).then((resolved) => {
+    const load =
+      id === GLOBAL_THEME_ID
+        ? resolveGlobalTheme().then(({ theme, writable }) => {
+            setThemeWritable(writable);
+            return theme;
+          })
+        : resolveThemeById(id);
+    void load.then((resolved) => {
       if (!resolved) return;
       applyThemeCss(resolved);
       activeThemeRef.current = resolved;
@@ -308,7 +406,8 @@ export function App() {
       setStyleSettings(nextSettings);
       setDark(nextDark);
       setThemeId(id);
-      projectStorage.setItem(THEME_FOLDER_KEY, id);
+      // The global theme is chosen by the host, not remembered per project.
+      if (id !== GLOBAL_THEME_ID) projectStorage.setItem(THEME_FOLDER_KEY, id);
     });
   };
 
@@ -324,7 +423,7 @@ export function App() {
   // could clobber the primary theme with this origin's stale rail state).
   // The server independently refuses the POST with 403 when locked; this
   // flag just keeps a doomed request (and the Save button) off screen.
-  const canAuthorTheme = !IS_STATIC && themeReady && themeLocked === false;
+  const canAuthorTheme = !IS_STATIC && themeReady && themeLocked === false && themeWritable;
   const themeSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     if (!canAuthorTheme) return;
@@ -390,16 +489,55 @@ export function App() {
       });
   };
 
-  // The picker shows ONLY Default (Ford: still figuring the theme out —
-  // nothing clickable that could wipe the working look).
-  const themePickerEntries: ThemePickerEntry[] = [
-    { id: "default", name: "Default", source: "builtin" },
-  ];
+  // The picker shows ONE theme (Ford: still figuring the theme out —
+  // nothing clickable that could wipe the working look): the shared Global
+  // theme when the host serves it (or when a static export snapshotted it),
+  // otherwise the repo's Default.
+  const themePickerEntries: ThemePickerEntry[] = globalTheme || themeId === GLOBAL_THEME_ID
+    ? [{ id: GLOBAL_THEME_ID, name: "Global", source: "global" }]
+    : [{ id: "default", name: "Default", source: "builtin" }];
+
+  // Other tabs (any project on this origin) changing the global theme write
+  // the shared cache instantly; follow them without a reload. The incoming
+  // value is recorded as already persisted so this tab does not echo the
+  // other tab's debounced POST back to the server.
+  const styleSettingsRef = useRef(styleSettings);
+  styleSettingsRef.current = styleSettings;
+  const darkRef = useRef(dark);
+  darkRef.current = dark;
+  useEffect(() => {
+    if (!globalTheme || !themeReady || themeLocked !== false) return;
+    const settingsKey = globalStorageKey(STYLE_RAIL_STORAGE_KEY);
+    const darkKey = globalStorageKey(THEME_STORAGE_KEY);
+    const onStorage = (event: StorageEvent) => {
+      if (event.newValue === null) return;
+      let nextSettings = styleSettingsRef.current;
+      let nextDark = darkRef.current;
+      if (event.key === settingsKey) {
+        try {
+          nextSettings = normalizeSettings(JSON.parse(event.newValue));
+        } catch {
+          return;
+        }
+      } else if (event.key === darkKey) {
+        nextDark = event.newValue === "dark";
+      } else {
+        return;
+      }
+      lastPersistedThemeRef.current = JSON.stringify(
+        themeWritePayload(nextSettings, nextDark, GLOBAL_THEME_ID, activeThemeRef.current ?? undefined),
+      );
+      setStyleSettings(nextSettings);
+      setDark(nextDark);
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, [globalTheme, themeLocked, themeReady]);
 
   useEffect(() => {
     applyTheme(dark);
     if (!themeReady || themeLocked !== false) return;
-    projectStorage.setItem(THEME_STORAGE_KEY, dark ? "dark" : "light");
+    themeStorage.setItem(THEME_STORAGE_KEY, dark ? "dark" : "light");
   }, [dark, themeLocked, themeReady]);
 
   useEffect(() => {
@@ -538,6 +676,7 @@ export function App() {
             activeThemeId={themeId}
             onSelectTheme={handleSelectTheme}
             onSaveStyleToRepo={canAuthorTheme ? handleSaveStyleToRepo : undefined}
+            saveStyleLabel={globalTheme ? "Save global style" : undefined}
           />
         )}
       </div>

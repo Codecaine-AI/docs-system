@@ -283,7 +283,7 @@ describe("workbench shell", () => {
     localStorage.setItem("docs-theme-folder-id", themeId);
     localStorage.setItem("docs-viewer-theme", "dark");
     localStorage.setItem(
-      "docs-style-rail-settings.v1",
+      "docs-style-rail-settings.v2",
       JSON.stringify({ annotate: { washOpacity: 0.03, actionPaneWidth: 390 } }),
     );
     window.location.hash = "#/10-guide";
@@ -336,7 +336,7 @@ describe("workbench shell", () => {
     await writeFile(join(themeDir, "theme.json"), lockedTheme);
     const staleCache = JSON.stringify({ annotate: { washOpacity: 0.02, actionPaneWidth: 390 } });
     localStorage.setItem("docs-viewer-theme", "dark");
-    localStorage.setItem("docs-style-rail-settings.v1", staleCache);
+    localStorage.setItem("docs-style-rail-settings.v2", staleCache);
     window.location.hash = "#/10-guide";
 
     const unlockedApp = app;
@@ -358,7 +358,7 @@ describe("workbench shell", () => {
       await new Promise((resolve) => setTimeout(resolve, 1700));
       expect(await readFile(join(themeDir, "theme.json"), "utf8")).toBe(lockedTheme);
       expect(localStorage.getItem("docs-viewer-theme")).toBe("dark");
-      expect(localStorage.getItem("docs-style-rail-settings.v1")).toBe(staleCache);
+      expect(localStorage.getItem("docs-style-rail-settings.v2")).toBe(staleCache);
     } finally {
       view.unmount();
       app = unlockedApp;

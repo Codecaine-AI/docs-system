@@ -95,7 +95,7 @@
           }
         },
         {
-          "insert": " — the language-tagged block for real, annotated source listings in the "
+          "insert": ": the language-tagged block for real, annotated source listings in the "
         },
         {
           "insert": "Block vocabulary",
@@ -150,7 +150,7 @@
           }
         },
         {
-          "insert": " blocks carry state examples, code blocks carry the evidence — annotated listings of the defining source."
+          "insert": " blocks carry state examples, and code blocks carry the evidence: annotated listings of the defining source."
         }
       ],
       "children": []
@@ -174,7 +174,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A live instance of the type — a small annotated listing:"
+          "insert": "A live instance of the type, a small annotated listing:"
         }
       ],
       "children": []
@@ -237,7 +237,7 @@
               {
                 "name": "lines",
                 "type": "string",
-                "description": "1-indexed range string — \"4\", \"4-9\", \"1,4-6\" — and the entry's identity key."
+                "description": "1-indexed range string, such as \"4\", \"4-9\", or \"1,4-6\", and the entry's identity key."
               },
               {
                 "name": "label",
@@ -311,7 +311,7 @@
           }
         },
         {
-          "insert": "), so the spans are plain inserts — no bold, link, or reference marks inside code. Everything else is props, defined by two closed TypeBox schemas:"
+          "insert": "), so the spans are plain inserts with no bold, link, or reference marks inside code. Everything else is props, defined by two closed TypeBox schemas:"
         }
       ],
       "children": []
@@ -395,7 +395,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Both typed actions and the pairing engine key on it; two annotations can never share a key — "
+          "insert": "Both typed actions and the pairing engine key on it, and two annotations can never share a key. "
         },
         {
           "insert": "setAnnotation",
@@ -447,7 +447,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Parts clamp to the text's line count; unparseable parts contribute nothing — bad input never crashes a render."
+          "insert": "Parts clamp to the text's line count, and unparseable parts contribute nothing, so bad input never crashes a render."
         }
       ],
       "children": []
@@ -624,7 +624,7 @@
           }
         },
         {
-          "insert": ". Annotations edit only through them; the source text stays on generic text ops — no typed action touches the delta."
+          "insert": ". Annotations edit only through them. The source text stays on generic text ops, and no typed action touches the delta."
         }
       ],
       "children": []
@@ -708,7 +708,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Refuses a key that does not exist — the failure reports issue path "
+          "insert": "Refuses a key that does not exist. The failure reports issue path "
         },
         {
           "insert": "$.params.lines",
@@ -760,7 +760,7 @@
                     {
                       "name": "lines",
                       "type": "string",
-                      "description": "1-indexed range string — \"4\", \"4-9\", \"1,4-6\" — and the entry's identity key."
+                      "description": "1-indexed range string, such as \"4\", \"4-9\", or \"1,4-6\", and the entry's identity key."
                     },
                     {
                       "name": "label",
@@ -801,7 +801,7 @@
                     {
                       "name": "lines",
                       "type": "string",
-                      "description": "1-indexed range string — \"4\", \"4-9\", \"1,4-6\" — and the entry's identity key."
+                      "description": "1-indexed range string, such as \"4\", \"4-9\", or \"1,4-6\", and the entry's identity key."
                     },
                     {
                       "name": "label",
@@ -820,7 +820,7 @@
             }
           }
         ],
-        "title": "code — annotation actions"
+        "title": "code annotation actions"
       },
       "children": []
     },
@@ -884,7 +884,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Three surfaces, one shell: the plain read surface, the annotated read surface, and the edit surface. Shared furniture — header row, sticky gutter, zebra striping, notes aside — comes from the shared shell, so the three surfaces look identical."
+          "insert": "Three surfaces share one shell: the plain read surface, the annotated read surface, and the edit surface. The shared shell supplies the header row, sticky gutter, zebra striping, and notes aside, so the three surfaces look identical."
         }
       ],
       "children": []
@@ -922,7 +922,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Quiet uppercase language label left, ghost copy button right — no pill, no background."
+          "insert": "A quiet uppercase language label sits left and a ghost copy button sits right, with no pill and no background."
         }
       ],
       "children": []
@@ -1029,7 +1029,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Notes are plain prose rows with a hairline rule between items — never zebra; each note's "
+          "insert": "Notes are plain prose rows with a hairline rule between items, never zebra; each note's "
         },
         {
           "insert": "lines",
@@ -1175,7 +1175,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Pairing runs on the shared LinkGroup engine — one group per block, keyed by the annotation's "
+          "insert": "Pairing runs on the shared LinkGroup engine, with one group per block, keyed by the annotation's "
         },
         {
           "insert": "lines",
@@ -1206,7 +1206,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Clicking (or Enter/Space) pins the pair — it survives hover-out — and Escape clears it."
+          "insert": "Clicking (or Enter/Space) pins the pair so it survives hover-out, and Escape clears it."
         }
       ],
       "children": []
@@ -1331,7 +1331,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Input rule: the paragraph converts the moment the third backtick lands — no trailing space, no typed language tag."
+          "insert": "Input rule: the paragraph converts the moment the third backtick lands, with no trailing space and no typed language tag."
         }
       ],
       "children": []
@@ -1409,7 +1409,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Highlighting uses highlight.js core with a curated set of 13 registered grammars — never the all-languages bundle."
+          "insert": "Highlighting uses highlight.js core with a curated set of 13 registered grammars, never the all-languages bundle."
         }
       ],
       "children": [
@@ -1422,7 +1422,7 @@
       "props": {},
       "text": [
         {
-          "insert": "bash, css, diff, go, javascript, json, markdown, python, rust, sql, typescript, xml, yaml — plus each grammar's aliases (ts, tsx, js, sh, yml, md, py…)."
+          "insert": "bash, css, diff, go, javascript, json, markdown, python, rust, sql, typescript, xml, and yaml, plus each grammar's aliases (ts, tsx, js, sh, yml, md, py…)."
         }
       ],
       "children": []
@@ -1446,7 +1446,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The declared language when a grammar or alias matches, else a JSON sniff, else escaped plain text with no label — the label can never disagree with tokenization."
+          "insert": "The label is the declared language when a grammar or alias matches, else a JSON sniff, else escaped plain text with no label. The label can never disagree with tokenization."
         }
       ],
       "children": []
@@ -1526,7 +1526,7 @@
           }
         },
         {
-          "insert": " ranges address the pretty-printed form — author JSON as pretty multi-line text so ranges are stable against the transform."
+          "insert": " ranges address the pretty-printed form. Author JSON as pretty multi-line text so ranges are stable against the transform."
         }
       ],
       "children": []
@@ -1619,7 +1619,7 @@
           }
         },
         {
-          "insert": " string drop from the projection — the same tolerant read as the doc surfaces."
+          "insert": " string drop from the projection, the same tolerant read as the doc surfaces."
         }
       ],
       "children": []
@@ -1674,7 +1674,7 @@
           }
         },
         {
-          "insert": " for the operations. Code blocks enter as source evidence — annotated listings of the defining source, not state examples."
+          "insert": " for the operations. Code blocks enter as source evidence: annotated listings of the defining source, not state examples."
         }
       ],
       "children": []
@@ -1701,17 +1701,34 @@
           "insert": "The theme file is "
         },
         {
-          "insert": "themes/default/components/code.json",
+          "insert": "components/code.json",
           "attributes": {
-            "code": true,
+            "code": true
+          }
+        },
+        {
+          "insert": " in the active theme folder. By default that folder is the "
+        },
+        {
+          "insert": "Global theme",
+          "attributes": {
             "reference": {
-              "kind": "source",
-              "path": "themes/default/components/code.json"
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/30-themes"
             }
           }
         },
         {
-          "insert": " in a theme folder ("
+          "insert": " at "
+        },
+        {
+          "insert": "~/.local/state/codecaine-docs/themes/global/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". A repo "
         },
         {
           "insert": "themes/<id>/",
@@ -1720,19 +1737,10 @@
           }
         },
         {
-          "insert": "; the system is "
+          "insert": " folder is active only when the host serves no Global theme."
         },
         {
-          "insert": "Theming",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "30-implementation/40-theming"
-            }
-          }
-        },
-        {
-          "insert": "). Every value is one string for both modes or a "
+          "insert": " Every value is one string for both modes or a "
         },
         {
           "insert": "{ light, dark }",
@@ -1910,7 +1918,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Every internal hairline — header rule, code/notes column divider, note dividers — runs through the one rule token set."
+          "insert": "Every internal hairline, including the header rule, the code/notes column divider, and note dividers, runs through the one rule token set."
         }
       ],
       "children": []
@@ -1921,7 +1929,16 @@
       "props": {},
       "text": [
         {
-          "insert": "The default theme sets "
+          "insert": "The "
+        },
+        {
+          "insert": "docs-system-classic",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " repo theme sets "
         },
         {
           "insert": "ruleOpacity",
@@ -2044,7 +2061,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The family uses the default adapter: no agent of its own, and nothing forwards to an external authority — both typed actions carry a local "
+          "insert": "The family uses the default adapter: no agent of its own, and nothing forwards to an external authority. Both typed actions carry a local "
         },
         {
           "insert": "apply",
@@ -2085,7 +2102,7 @@
           }
         },
         {
-          "insert": " op — one of the generic doc ops, alongside "
+          "insert": " op, one of the generic doc ops, alongside "
         },
         {
           "insert": "insertBlock",

@@ -26,6 +26,10 @@
         "b-system-ui-dec3-d",
         "b-system-ui-dec3-w",
         "b-system-ui-dec3-a",
+        "b-system-ui-dec4-h",
+        "b-system-ui-dec4-d",
+        "b-system-ui-dec4-w",
+        "b-system-ui-dec4-a",
         "b-system-ui-roster-h",
         "b-system-ui-knobs-layout-10"
       ]
@@ -49,7 +53,7 @@
           }
         },
         {
-          "insert": " and "
+          "insert": ", "
         },
         {
           "insert": "packages/docs-workbench/web/src/shell/App.tsx",
@@ -58,6 +62,19 @@
             "reference": {
               "kind": "source",
               "path": "packages/docs-workbench/web/src/shell/App.tsx"
+            }
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "packages/docs-workbench/web/src/data/project-storage.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/data/project-storage.ts"
             }
           }
         },
@@ -96,7 +113,7 @@
           }
         },
         {
-          "insert": " — selection, precedence, and persistence-authority behavior for rail settings and the Default theme."
+          "insert": ": selection, precedence, and persistence-authority behavior for rail settings, the Global theme, and the Default theme."
         }
       ],
       "children": []
@@ -117,7 +134,7 @@
           }
         },
         {
-          "insert": " — the semantic variable vocabulary the rail may set."
+          "insert": ": the semantic variable vocabulary the rail may set."
         }
       ],
       "children": []
@@ -178,7 +195,7 @@
       },
       "text": [
         {
-          "insert": "Why: Scattering settings parsing across shell components was rejected — a single pipeline keeps normalization and defaults consistent, so every consumer sees one complete settings object."
+          "insert": "Why: Scattering settings parsing across shell components was rejected. A single pipeline keeps normalization and defaults consistent, so every consumer sees one complete settings object."
         }
       ],
       "children": []
@@ -200,7 +217,7 @@
           }
         },
         {
-          "insert": " — future settings groups extend this module rather than adding parallel readers."
+          "insert": ". Future settings groups extend this module rather than adding parallel readers."
         }
       ],
       "children": []
@@ -266,7 +283,7 @@
           }
         },
         {
-          "insert": " calls were rejected — one map keeps reset single-mechanism (property removal, per the layer-precedence decision on "
+          "insert": " calls were rejected. One map keeps reset single-mechanism (property removal, per the layer-precedence decision on "
         },
         {
           "insert": "Theming: Overview",
@@ -301,7 +318,7 @@
           }
         },
         {
-          "insert": " — future rail variables join the map, never bypass it."
+          "insert": ". Future rail variables join the map, never bypass it."
         }
       ],
       "children": []
@@ -336,7 +353,16 @@
           }
         },
         {
-          "insert": " gates local-storage and global Default writes on serve configuration. An unlocked serve writes style-rail edits to the shared global theme. A "
+          "insert": " gates local-storage and theme writes on serve configuration. An unlocked serve that answers "
+        },
+        {
+          "insert": "globalTheme: true",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " writes style-rail edits to the Global theme, and one without it writes to the repository Default. A Global theme read that fails with anything other than 404 blocks writes. A "
         },
         {
           "insert": "--theme-locked",
@@ -354,7 +380,7 @@
           }
         },
         {
-          "insert": " with HTTP 403. Locked viewers reload the shared theme when the window regains focus. No other module persists rail settings. Registered component settings follow the sparse component-file decision on "
+          "insert": " with HTTP 403. Locked viewers reload the active theme when the window regains focus. No other module persists rail settings. Registered component settings follow the sparse component-file decision on "
         },
         {
           "insert": "Theming: Overview",
@@ -380,7 +406,7 @@
       },
       "text": [
         {
-          "insert": "Why: One gate keeps theme-locked serves and static exports write-free by construction. Focus refresh gives locked consumer repositories live theme updates without granting write authority."
+          "insert": "Why: One gate keeps theme-locked serves and static exports write-free by construction. The read-error guard keeps a transient server failure from overwriting the theme every project shares. Focus refresh gives locked consumer repositories live theme updates without granting write authority."
         }
       ],
       "children": []
@@ -402,7 +428,131 @@
           }
         },
         {
-          "insert": " — future persistence targets route through the same gate."
+          "insert": ". Future persistence targets route through the same gate."
+        }
+      ],
+      "children": []
+    },
+    "b-system-ui-dec4-h": {
+      "id": "b-system-ui-dec4-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "The theme cache follows the theme's scope"
+        }
+      ],
+      "children": []
+    },
+    "b-system-ui-dec4-d": {
+      "id": "b-system-ui-dec4-d",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Decision: "
+        },
+        {
+          "insert": "themeStorage",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " stores the rail settings and light or dark mode under origin-wide "
+        },
+        {
+          "insert": "docs-global:",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " keys while the Global theme is active, and under per-project keys otherwise. Rail collapse and the selected rail pane stay in "
+        },
+        {
+          "insert": "projectStorage",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". A "
+        },
+        {
+          "insert": "storage",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " event on the shared keys updates other open tabs without echoing their save back to the server."
+        }
+      ],
+      "children": []
+    },
+    "b-system-ui-dec4-w": {
+      "id": "b-system-ui-dec4-w",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Why: Per-project copies of a shared theme were rejected. A copy goes stale when another project changes the theme, and reading it on load would override the server copy."
+        }
+      ],
+      "children": []
+    },
+    "b-system-ui-dec4-a": {
+      "id": "b-system-ui-dec4-a",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Applies to: "
+        },
+        {
+          "insert": "packages/docs-workbench/web/src/data/project-storage.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "packages/docs-workbench/web/src/shell/StyleRail.tsx",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "packages/docs-workbench/web/src/shell/App.tsx",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Future theme-scoped cache keys go through "
+        },
+        {
+          "insert": "themeStorage",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []

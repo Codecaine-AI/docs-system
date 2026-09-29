@@ -44,6 +44,17 @@
         "b-thm-impl-d-default-decision",
         "b-thm-impl-d-default-why",
         "b-thm-impl-d-default-applies",
+        "b-thm-impl-d-shared-heading",
+        "b-thm-impl-d-shared-decision",
+        "b-thm-impl-d-shared-why",
+        "b-thm-impl-d-shared-applies",
+        "b-thm-impl-global-heading",
+        "b-thm-impl-global-lead",
+        "b-thm-impl-global-files",
+        "b-thm-impl-global-endpoints",
+        "b-thm-impl-global-root-managed",
+        "b-thm-impl-global-root-standalone",
+        "b-thm-impl-global-root-pdf",
         "b-thm-impl-section-heading",
         "b-thm-impl-section-system-ui"
       ]
@@ -54,7 +65,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Implementation of theming: compiling global theme folders and normalized style-rail state into CSS custom properties on the document root. Source: "
+          "insert": "Implementation of theming: compiling theme folders and normalized style-rail state into CSS custom properties on the document root. Source: "
         },
         {
           "insert": "packages/docs-workbench/web/src/theme",
@@ -126,7 +137,7 @@
           }
         },
         {
-          "insert": " (theme-root reads and writes), and "
+          "insert": " (theme-root reads and writes), "
         },
         {
           "insert": "themes/",
@@ -135,7 +146,16 @@
           }
         },
         {
-          "insert": " (the global theme catalogue)."
+          "insert": " (the package-owned theme catalogue), and "
+        },
+        {
+          "insert": "<stateDirectory>/themes/global/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " (the shared Global theme)."
         }
       ],
       "children": []
@@ -169,7 +189,7 @@
           }
         },
         {
-          "insert": " — theme reach, layer precedence, resolution and selection behavior, and the Living Default."
+          "insert": ": theme reach, layer precedence, resolution and selection behavior, the Global theme, and the Living Default."
         }
       ],
       "children": []
@@ -190,7 +210,7 @@
           }
         },
         {
-          "insert": " — the semantic-variable contract every compiled theme value targets."
+          "insert": ": the semantic-variable contract every compiled theme value targets."
         }
       ],
       "children": []
@@ -211,7 +231,7 @@
           }
         },
         {
-          "insert": " — reading roles and the font stacks a theme may set."
+          "insert": ": reading roles and the font stacks a theme may set."
         }
       ],
       "children": []
@@ -232,7 +252,7 @@
           }
         },
         {
-          "insert": " — the typed component-knob contract and sparse override semantics."
+          "insert": ": the typed component-knob contract and sparse override semantics."
         }
       ],
       "children": []
@@ -271,7 +291,7 @@
       },
       "text": [
         {
-          "insert": "Decision: Each design precedence layer is realized as a distinct CSS mechanism — base values as static stylesheets ("
+          "insert": "Decision: Each design precedence layer is realized as a distinct CSS mechanism. Base values are static stylesheets ("
         },
         {
           "insert": "notion-palette.css",
@@ -289,7 +309,7 @@
           }
         },
         {
-          "insert": "), the selected theme as one injected style element compiled from the theme folder with a light and a dark block, and style-rail state as inline custom properties on the root element."
+          "insert": "), the selected theme is one injected style element compiled from the theme folder with a light and a dark block, and style-rail state is inline custom properties on the root element."
         }
       ],
       "children": []
@@ -302,7 +322,7 @@
       },
       "text": [
         {
-          "insert": "Why: Merging the layers into one computed set at runtime was rejected — letting CSS arbitration (inline over injected over stylesheet) carry the design's precedence order means no application code re-implements it."
+          "insert": "Why: Merging the layers into one computed set at runtime was rejected. CSS arbitration (inline over injected over stylesheet) carries the design's precedence order, so no application code re-implements it."
         }
       ],
       "children": []
@@ -324,7 +344,7 @@
           }
         },
         {
-          "insert": ", "
+          "insert": " and "
         },
         {
           "insert": "packages/docs-workbench/web/src/shell/StyleRail.tsx",
@@ -333,7 +353,7 @@
           }
         },
         {
-          "insert": " — including future variable groups and layers."
+          "insert": ", including future variable groups and layers."
         }
       ],
       "children": []
@@ -390,7 +410,7 @@
       },
       "text": [
         {
-          "insert": "Why: A second reset path was rejected — removing the property makes the theme layer or base stylesheet below authoritative automatically, so a default value never forks between layers."
+          "insert": "Why: A second reset path was rejected. Removing the property makes the theme layer or base stylesheet below authoritative automatically, so a default value never forks between layers."
         }
       ],
       "children": []
@@ -430,7 +450,7 @@
           }
         },
         {
-          "insert": " — including future rail settings."
+          "insert": ", including future rail settings."
         }
       ],
       "children": []
@@ -465,7 +485,7 @@
           }
         },
         {
-          "insert": ", a closed registry mapping each accepted component file and key to its CSS variables and a typed kind; folder and rail readers drop anything unregistered, and a new theme knob is one registry entry plus its semantic variable and consumer — the generic component pane renders controls from registry metadata."
+          "insert": ", a closed registry mapping each accepted component file and key to its CSS variables and a typed kind. Folder and rail readers drop anything unregistered, and a new theme knob is one registry entry plus its semantic variable and consumer. The generic component pane renders controls from registry metadata."
         }
       ],
       "children": []
@@ -478,7 +498,7 @@
       },
       "text": [
         {
-          "insert": "Why: Open-ended folder acceptance was rejected — an unregistered key must not reach an arbitrary application property, and typed registry entries give the style rail a correct control for every knob without component-specific code."
+          "insert": "Why: Open-ended folder acceptance was rejected. An unregistered key must not reach an arbitrary application property, and typed registry entries give the style rail a correct control for every knob without component-specific code."
         }
       ],
       "children": []
@@ -509,7 +529,7 @@
           }
         },
         {
-          "insert": ", "
+          "insert": ", and "
         },
         {
           "insert": "packages/docs-workbench/web/src/shell/StyleRail.tsx",
@@ -518,7 +538,7 @@
           }
         },
         {
-          "insert": " — every future theme knob registers here, never through a bypass path."
+          "insert": ". Every future theme knob registers here, never through a bypass path."
         }
       ],
       "children": []
@@ -566,7 +586,7 @@
       },
       "text": [
         {
-          "insert": "Why: One merged theme document was rejected — sparse per-surface files keep a theme readable as its divergences and let a write touch one surface without re-serializing the rest."
+          "insert": "Why: One merged theme document was rejected. Sparse per-surface files keep a theme readable as its divergences and let a write touch one surface without re-serializing the rest."
         }
       ],
       "children": []
@@ -588,7 +608,16 @@
           }
         },
         {
-          "insert": ", "
+          "insert": ", the Global theme's "
+        },
+        {
+          "insert": "components/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " folder, and "
         },
         {
           "insert": "packages/docs-server/src/themes.ts",
@@ -597,7 +626,7 @@
           }
         },
         {
-          "insert": " — including future registered surfaces."
+          "insert": ", including future registered surfaces."
         }
       ],
       "children": []
@@ -623,7 +652,7 @@
       },
       "text": [
         {
-          "insert": "Decision: Font stacks flow through the same two theming paths as every other value — manifest font strings compile through "
+          "insert": "Decision: Font stacks flow through the same two theming paths as every other value. Manifest font strings compile through "
         },
         {
           "insert": "FONT_VARS",
@@ -650,7 +679,7 @@
           }
         },
         {
-          "insert": "; no font-binary or "
+          "insert": ". No font-binary or "
         },
         {
           "insert": "@font-face",
@@ -672,7 +701,7 @@
       },
       "text": [
         {
-          "insert": "Why: A separate font subsystem was rejected — fonts are theme values, and a dedicated loader would add a second application path beside the layer mechanisms above."
+          "insert": "Why: A separate font subsystem was rejected. Fonts are theme values, and a dedicated loader would add a second application path beside the layer mechanisms above."
         }
       ],
       "children": []
@@ -694,7 +723,7 @@
           }
         },
         {
-          "insert": ", "
+          "insert": " and "
         },
         {
           "insert": "packages/docs-workbench/web/src/shell/StyleRail.tsx",
@@ -703,7 +732,7 @@
           }
         },
         {
-          "insert": " — future font features extend these modules."
+          "insert": ". Future font features extend these modules."
         }
       ],
       "children": []
@@ -716,7 +745,7 @@
       },
       "text": [
         {
-          "insert": "One global theme root"
+          "insert": "One package-owned theme root"
         }
       ],
       "children": []
@@ -783,7 +812,7 @@
           }
         },
         {
-          "insert": ", the shared look, and "
+          "insert": ", the Living Default, and "
         },
         {
           "insert": "docs-system-classic",
@@ -792,7 +821,7 @@
           }
         },
         {
-          "insert": ", the selectable classic look with its component token files."
+          "insert": ", the selectable classic look with its component token files. While a host serves the Global theme, the client loads no theme from this root."
         }
       ],
       "children": []
@@ -880,7 +909,7 @@
       },
       "text": [
         {
-          "insert": "Decision: The Living Default persists in the global folder "
+          "insert": "Decision: The Living Default persists in the package-owned folder "
         },
         {
           "insert": "themes/default/",
@@ -889,7 +918,7 @@
           }
         },
         {
-          "insert": " — "
+          "insert": ". "
         },
         {
           "insert": "theme.json",
@@ -925,7 +954,7 @@
           }
         },
         {
-          "insert": " carry the sparse per-surface overrides. Workbench autosave from any unlocked serve is its only writer."
+          "insert": " carry the sparse per-surface overrides. Workbench autosave from an unlocked serve without a Global theme is its only writer."
         }
       ],
       "children": []
@@ -938,7 +967,7 @@
       },
       "text": [
         {
-          "insert": "Why: A browser-local or exported-file home was rejected — a repository folder makes the core look versionable and shareable, and a single writer keeps the manifest and component files from diverging."
+          "insert": "Why: A browser-local or exported-file home was rejected. A repository folder makes the core look versionable and shareable, and a single writer keeps the manifest and component files from diverging."
         }
       ],
       "children": []
@@ -969,7 +998,7 @@
           }
         },
         {
-          "insert": ", "
+          "insert": ", and "
         },
         {
           "insert": "packages/docs-server/src/themes.ts",
@@ -978,7 +1007,7 @@
           }
         },
         {
-          "insert": " — future settings groups join "
+          "insert": ". Future settings groups join "
         },
         {
           "insert": "railDefaults",
@@ -988,6 +1017,463 @@
         },
         {
           "insert": ", never a new store."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-d-shared-heading": {
+      "id": "b-thm-impl-d-shared-heading",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "The Global theme lives in the service state directory"
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-d-shared-decision": {
+      "id": "b-thm-impl-d-shared-decision",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Decision: The reserved theme id "
+        },
+        {
+          "insert": "global",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " resolves to "
+        },
+        {
+          "insert": "<stateDirectory>/themes/global/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", by default "
+        },
+        {
+          "insert": "~/.local/state/codecaine-docs/themes/global/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". "
+        },
+        {
+          "insert": "themesRootForId",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " sends that id to the global root and every other id to the repository root. The route factory never reads the environment. Each host resolves the root and passes it as "
+        },
+        {
+          "insert": "globalThemesRoot",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and a host without one serves repository themes only."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-d-shared-why": {
+      "id": "b-thm-impl-d-shared-why",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Why: A theme copy in each repository was rejected. The owner wants one reading look across all projects, and per-repository themes drifted apart and hid changes made in other projects. A host option instead of an environment read keeps route tests and hosts without the docs service on repository themes."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-d-shared-applies": {
+      "id": "b-thm-impl-d-shared-applies",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Applies to: "
+        },
+        {
+          "insert": "packages/docs-server/src/themes.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "packages/docs-server/src/routes.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and every host that constructs "
+        },
+        {
+          "insert": "createDocsRoutes",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Future hosts pass the same root."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-global-heading": {
+      "id": "b-thm-impl-global-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Global Theme Wiring"
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-global-lead": {
+      "id": "b-thm-impl-global-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each host resolves the global root, and the client switches to the Global theme when "
+        },
+        {
+          "insert": "GET /api/serve-config",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " answers "
+        },
+        {
+          "insert": "globalTheme: true",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". These files carry the wiring."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-global-files": {
+      "id": "b-thm-impl-global-files",
+      "type": "file-tree",
+      "props": {
+        "entries": [
+          {
+            "path": "packages/docs-server/src/themes.ts",
+            "note": "reserved id, root resolution, themesRootForId, and atomic theme writes"
+          },
+          {
+            "path": "packages/docs-server/src/routes.ts",
+            "note": "theme routes that list global first and route the reserved id"
+          },
+          {
+            "path": "packages/docs-mcp/src/background/supervisor.ts",
+            "note": "sets CODECAINE_DOCS_GLOBAL_THEMES for the managed runtime"
+          },
+          {
+            "path": "packages/docs-mcp/src/managed-runtime.ts",
+            "note": "reads the variable, falls back to dirname(registry)/themes, and answers globalTheme: true"
+          },
+          {
+            "path": "packages/docs-mcp/src/service.ts",
+            "note": "passes globalThemesRoot to every project's routes"
+          },
+          {
+            "path": "packages/docs-mcp/src/daemon.ts",
+            "note": "passes the same root from the daemon"
+          },
+          {
+            "path": "packages/docs-workbench/src/run-serve.ts",
+            "note": "standalone serve resolves the root when the state directory exists"
+          },
+          {
+            "path": "packages/docs-workbench/src/server.ts",
+            "note": "reports globalTheme in GET /api/serve-config"
+          },
+          {
+            "path": "packages/docs-workbench/src/export.ts",
+            "note": "static export snapshots global, then repository default, unless themeId is explicit"
+          },
+          {
+            "path": "packages/docs-workbench/web/src/data/project-storage.ts",
+            "note": "themeStorage routes the theme cache to docs-global: keys"
+          },
+          {
+            "path": "packages/docs-workbench/web/src/data/api.ts",
+            "note": "getServeConfig reads globalTheme and defaults it to false"
+          },
+          {
+            "path": "packages/docs-workbench/web/src/shell/App.tsx",
+            "note": "loads and saves global, guards writes on read errors, and follows storage events"
+          }
+        ]
+      },
+      "children": []
+    },
+    "b-thm-impl-global-endpoints": {
+      "id": "b-thm-impl-global-endpoints",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Endpoint",
+          "Global theme behavior"
+        ],
+        "rows": [
+          [
+            [
+              {
+                "insert": "GET /api/themes",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            [
+              {
+                "insert": "Lists "
+              },
+              {
+                "insert": "{ id: \"global\", name: \"Global\", global: true }",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " first, then repository themes. A repository folder named "
+              },
+              {
+                "insert": "global",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " is skipped."
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "insert": "GET /api/themes/global",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            [
+              {
+                "insert": "Returns "
+              },
+              {
+                "insert": "{ theme }",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " from the global root, or 404 until the theme exists."
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "insert": "POST /api/themes",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " with "
+              },
+              {
+                "insert": "id: \"global\"",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Writes the global folder with atomic file writes and returns 201. A theme-locked serve returns 403, and a host without a global root returns 400."
+          ],
+          [
+            [
+              {
+                "insert": "GET /api/serve-config",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            [
+              {
+                "insert": "Returns "
+              },
+              {
+                "insert": "globalTheme: true",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " when the host has a global root. The client then loads and saves only "
+              },
+              {
+                "insert": "global",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": "."
+              }
+            ]
+          ]
+        ]
+      },
+      "children": []
+    },
+    "b-thm-impl-global-root-managed": {
+      "id": "b-thm-impl-global-root-managed",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The supervisor sets "
+        },
+        {
+          "insert": "CODECAINE_DOCS_GLOBAL_THEMES",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " to "
+        },
+        {
+          "insert": "<stateDirectory>/themes",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". The managed runtime falls back to "
+        },
+        {
+          "insert": "dirname(registry)/themes",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " when an older supervisor omits the variable."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-global-root-standalone": {
+      "id": "b-thm-impl-global-root-standalone",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs-cli serve",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "docs-cli export",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " call "
+        },
+        {
+          "insert": "resolveGlobalThemesRoot",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". It uses "
+        },
+        {
+          "insert": "CODECAINE_DOCS_GLOBAL_THEMES",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " first, then "
+        },
+        {
+          "insert": "<stateDirectory>/themes",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " when the state directory exists. "
+        },
+        {
+          "insert": "CODECAINE_DOCS_STATE_DIR",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " overrides the default state directory."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-global-root-pdf": {
+      "id": "b-thm-impl-global-root-pdf",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "PDF and ZIP exports render the client's HTML, so they use whichever theme the client shows."
         }
       ],
       "children": []

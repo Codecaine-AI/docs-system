@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "snapshotId": "sha256:bdf029c4c9e6c8f0ae4c1490c10f0446719bcd2a331b4623e486469d36733107",
+  "snapshotId": "sha256:ec5a2032dd0e9822d89d1619feb39b5aad7fda867bcf6d1392991b580b70d7a3",
   "sources": [
     {
       "path": "docs/10-system-design/10-doc-standards/10-structure/doc.json",
@@ -59,42 +59,42 @@
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/20-code-block/doc.json",
-      "sha256": "7921b48a8b5c5808aa6852ca1fa258777320782d8421c5237585a47774b84423",
+      "sha256": "33550639af10986f39510dcc27df5fe48224c0db10bedd8adae4cdcdeacb0759",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/40-file-tree/doc.json",
-      "sha256": "479302e94e0ace084685294dec372146f54dd03e7452790d395f3f421cff366b",
+      "sha256": "49311cf4865e40913f1382b494f876e2e9fbc09c2a9859811ae0183b06a48671",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/30-structured-table/doc.json",
-      "sha256": "e71c43c225c7dd55507d84b20e3bef29802438d8e3917d3df24790826dd258f6",
+      "sha256": "be99c78094466acc84b86580cb2c6726f6cc3a2d363d0957d8ff916504704322",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/60-interaction-surface/doc.json",
-      "sha256": "2127c6abf1afe66213890fb4630a4c91feff661ffabbd2bd4983d03662123a8a",
+      "sha256": "bff2e778a62fb13941d9736d68cebefa988e117c5a98cb527938bedb7c12e9f4",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/50-state-shape/doc.json",
-      "sha256": "3d5ccd386c0312680fee7eaf5631470fd6c61b25c1581105178126a25f076513",
+      "sha256": "7283613ccf8c1916515da320de6a06b9d6472b5ce307020f9e58abccaec498cb",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/80-canvas/doc.json",
-      "sha256": "4c7f8c67b44f0bd4d7b26e77f71daede5d2d035684dc64c528c828ab1fb96adc",
+      "sha256": "0a8e2b05b405ab0b29fa4a22e7068e684f364e6228034e7d3b0da58175829c62",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/70-sequence/doc.json",
-      "sha256": "9e1a000b930bff5f93e068c88a635d529171eadbb9403bc3cb67050877dc269e",
+      "sha256": "404858cab51d90f9e677be8a111c7b56284894f379aced1334efbbc9878669f9",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/90-process-outline/doc.json",
-      "sha256": "4e0b8419f0907158ad6b74fa7001891a26ec1fb6d2d7a6f4299db41dfb948726",
+      "sha256": "d669b50075ae893d70c9bd3d5f382fc3012c6be67f7bccd6ef8e584c89d4913c",
       "kind": "component-doc"
     },
     {

@@ -10,11 +10,11 @@ The rule below is a live divider block.
 
 **DividerState** — packages/docs-model/src/components/rich-text/state.ts#DividerState
 
-No text (`carriesText: false`) — the simplest block in the vocabulary.
+No text (`carriesText: false`), which makes it the simplest block in the vocabulary.
 
 ## Doc Renderer
 
-Slash menu: **Divider** (aliases: hr, separator, `---`). Input rule: typing `---` converts the moment the third hyphen lands — no trailing space, matching Notion. It is one of the non-editable atom leaf nodes (`ATOM_BLOCK_TYPES` in the viewer's editor schema) — the cursor steps over it, never into it.
+Slash menu: **Divider** (aliases: hr, separator, `---`). Input rule: typing `---` converts the moment the third hyphen lands, with no trailing space, matching Notion. It is one of the non-editable atom leaf nodes (`ATOM_BLOCK_TYPES` in the viewer's editor schema), so the cursor steps over it, never into it.
 
 ## Agent Renderer
 
@@ -26,7 +26,7 @@ A `---` line.
 
 ## Theme
 
-This block's theme file is `components/divider.json` in a theme folder (`themes/<id>/`; see Theming). Every value is one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY`. The contract is Theming.
+This block's theme file is `components/divider.json` in the active theme folder. By default that folder is the Global theme at `~/.local/state/codecaine-docs/themes/global/`. A repo `themes/<id>/` folder is active only when the host serves no Global theme. Every value is one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY`. The contract is Theming.
 
 | Key | CSS variable | Styles |
 | --- | --- | --- |

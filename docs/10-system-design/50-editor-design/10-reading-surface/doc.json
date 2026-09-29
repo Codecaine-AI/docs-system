@@ -31,6 +31,7 @@
         "b-rsurf-why-rhythm",
         "b-rsurf-why-context",
         "b-rsurf-why-identity",
+        "b-rsurf-why-measure",
         "b-rsurf-why-link-home"
       ]
     },
@@ -76,7 +77,28 @@
       "props": {},
       "text": [
         {
-          "insert": "The living Default theme defines the document frame below."
+          "insert": "The workbench's stock defaults define the document frame below. Every project renders the shared Global theme described in "
+        },
+        {
+          "insert": "Themes",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/30-themes"
+            }
+          }
+        },
+        {
+          "insert": ", which starts from these values. Until that theme is first saved, projects get the stock defaults directly. A host without a Global theme uses the project's own "
+        },
+        {
+          "insert": "themes/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " folder, or the stock defaults when the project has none."
         }
       ],
       "children": []
@@ -87,7 +109,7 @@
       "props": {
         "columns": [
           "Control",
-          "Living Default",
+          "Stock Default",
           "Effect"
         ],
         "rows": [
@@ -102,13 +124,32 @@
             ],
             [
               {
-                "insert": "88ch",
+                "insert": "60ch",
                 "attributes": {
                   "code": true
                 }
               }
             ],
             "Maximum text-lane measure"
+          ],
+          [
+            [
+              {
+                "insert": "--style-wide-width",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            [
+              {
+                "insert": "1040px",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Maximum wide-lane width"
           ],
           [
             [
@@ -121,7 +162,7 @@
             ],
             [
               {
-                "insert": "0px",
+                "insert": "88px",
                 "attributes": {
                   "code": true
                 }
@@ -140,7 +181,7 @@
             ],
             [
               {
-                "insert": "88px",
+                "insert": "24px",
                 "attributes": {
                   "code": true
                 }
@@ -159,7 +200,7 @@
             ],
             [
               {
-                "insert": "50px",
+                "insert": "20px",
                 "attributes": {
                   "code": true
                 }
@@ -178,7 +219,7 @@
             ],
             [
               {
-                "insert": "300px",
+                "insert": "24px",
                 "attributes": {
                   "code": true
                 }
@@ -665,6 +706,54 @@
       "text": [
         {
           "insert": "The move-based rename keeps the displayed identity, storage path, inbound references, and sidebar entry aligned."
+        }
+      ],
+      "children": []
+    },
+    "b-rsurf-why-measure": {
+      "id": "b-rsurf-why-measure",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The text lane follows a book's measure",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-rsurf-why-measure-gloss"
+      ]
+    },
+    "b-rsurf-why-measure-gloss": {
+      "id": "b-rsurf-why-measure-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The text lane is "
+        },
+        {
+          "insert": "60ch",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", which holds about 84 characters of the System Sans body. That line runs slightly longer than the reference book's line of about 80 characters in "
+        },
+        {
+          "insert": "Typography and Fonts",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/20-typography-and-fonts"
+            }
+          }
+        },
+        {
+          "insert": ", and the owner kept it because the sizing reads well."
         }
       ],
       "children": []

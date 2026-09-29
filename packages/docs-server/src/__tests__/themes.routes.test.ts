@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 
 import { createDocsStore } from "../store";
 import { createDocsRoutes } from "../routes";
-import { themesRootFor } from "../themes";
+import { GLOBAL_THEME_ID, themesRootFor } from "../themes";
 
 /**
  * Theme-folder routes (docs/20-implementation/40-theming): the repo's
@@ -252,5 +252,119 @@ describe("theme folder routes", () => {
     const list = await locked.handle(new Request("http://localhost/api/themes"));
     expect(list.status).toBe(200);
     expect(await list.json()).toEqual({ themes: [] });
+  });
+});
+
+describe("shared global theme (reserved id `global`)", () => {
+  let tempRoot: string;
+  let docsRoot: string;
+  let globalRoot: string;
+  let app: ReturnType<typeof createDocsRoutes>;
+  const post = (target: ReturnType<typeof createDocsRoutes>, body: unknown) =>
+    target.handle(
+      new Request("http://localhost/api/themes", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(body),
+      }),
+    );
+
+  beforeEach(async () => {
+    tempRoot = await mkdtemp(join(tmpdir(), "docs-server-global-theme-"));
+    docsRoot = join(tempRoot, "repo", "docs");
+    globalRoot = join(tempRoot, "state", "themes");
+    await mkdir(docsRoot, { recursive: true });
+    app = createDocsRoutes(createDocsStore(docsRoot), { globalThemesRoot: globalRoot });
+  });
+
+  afterEach(async () => {
+    await rm(tempRoot, { recursive: true, force: true });
+  });
+
+  test("GET /api/themes lists global FIRST, then repo themes, even before global is seeded", async () => {
+    await mkdir(join(themesRootFor(docsRoot), "alpha"), { recursive: true });
+    await writeFile(join(themesRootFor(docsRoot), "alpha", "theme.json"), JSON.stringify({ name: "Alpha" }));
+    const response = await app.handle(new Request("http://localhost/api/themes"));
+    expect(await response.json()).toEqual({
+      themes: [
+        { id: GLOBAL_THEME_ID, name: "Global", global: true },
+        { id: "alpha", name: "Alpha" },
+      ],
+    });
+  });
+
+  test("GET /api/themes/global is a 404 until the global folder has theme.json", async () => {
+    const missing = await app.handle(new Request("http://localhost/api/themes/global"));
+    expect(missing.status).toBe(404);
+    expect(await missing.json()).toEqual({ detail: 'No theme named "global".' });
+  });
+
+  test("POST id global writes the global root (not the repo) and reads back", async () => {
+    const payload = {
+      id: GLOBAL_THEME_ID,
+      manifest: { name: "Global", dark: false, railDefaults: { typography: { fontSize: 18 } } },
+      components: { paragraph: { fg: "#111111" } },
+    };
+    const created = await post(app, payload);
+    expect(created.status).toBe(201);
+    expect(((await created.json()) as { theme: unknown }).theme).toEqual(payload);
+    expect(
+      JSON.parse(await readFile(join(globalRoot, "global", "theme.json"), "utf8")),
+    ).toEqual(payload.manifest);
+    expect(
+      JSON.parse(await readFile(join(globalRoot, "global", "components", "paragraph.json"), "utf8")),
+    ).toEqual(payload.components.paragraph);
+    expect(existsSync(join(themesRootFor(docsRoot), "global"))).toBe(false);
+
+    const read = await app.handle(new Request("http://localhost/api/themes/global"));
+    expect(read.status).toBe(200);
+    expect(((await read.json()) as { theme: unknown }).theme).toEqual(payload);
+  });
+
+  test("two projects sharing one global root see each other's global writes", async () => {
+    const otherDocs = join(tempRoot, "other", "docs");
+    await mkdir(otherDocs, { recursive: true });
+    const other = createDocsRoutes(createDocsStore(otherDocs), { globalThemesRoot: globalRoot });
+    expect((await post(app, { id: "global", manifest: { name: "Global", dark: true } })).status).toBe(201);
+    const read = await other.handle(new Request("http://localhost/api/themes/global"));
+    expect(((await read.json()) as { theme: { manifest: unknown } }).theme.manifest).toEqual({
+      name: "Global",
+      dark: true,
+    });
+  });
+
+  test("a repo themes/global folder never lists, reads, or shadows the global theme", async () => {
+    const repoGlobal = join(themesRootFor(docsRoot), "global");
+    await mkdir(repoGlobal, { recursive: true });
+    await writeFile(join(repoGlobal, "theme.json"), JSON.stringify({ name: "Impostor" }));
+
+    const list = await app.handle(new Request("http://localhost/api/themes"));
+    expect(await list.json()).toEqual({ themes: [{ id: "global", name: "Global", global: true }] });
+    expect((await app.handle(new Request("http://localhost/api/themes/global"))).status).toBe(404);
+
+    // Without a global root the reserved id is simply unavailable.
+    const repoOnly = createDocsRoutes(createDocsStore(docsRoot));
+    expect(await (await repoOnly.handle(new Request("http://localhost/api/themes"))).json()).toEqual({
+      themes: [],
+    });
+    expect((await repoOnly.handle(new Request("http://localhost/api/themes/global"))).status).toBe(404);
+    const refused = await post(repoOnly, { id: "global", manifest: { name: "Nope" } });
+    expect(refused.status).toBe(400);
+    expect(JSON.parse(await readFile(join(repoGlobal, "theme.json"), "utf8"))).toEqual({ name: "Impostor" });
+  });
+
+  test("global writes validate like repo writes and respect the theme lock", async () => {
+    expect((await post(app, { id: "global", manifest: null })).status).toBe(400);
+
+    const locked = createDocsRoutes(createDocsStore(docsRoot), {
+      themeLocked: true,
+      globalThemesRoot: globalRoot,
+    });
+    const refused = await post(locked, { id: "global", manifest: { name: "Global" } });
+    expect(refused.status).toBe(403);
+    expect(existsSync(join(globalRoot, "global"))).toBe(false);
+    // Reads stay open on a locked serve.
+    const list = await locked.handle(new Request("http://localhost/api/themes"));
+    expect(((await list.json()) as { themes: Array<{ id: string }> }).themes[0]!.id).toBe("global");
   });
 });

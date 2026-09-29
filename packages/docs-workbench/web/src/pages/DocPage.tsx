@@ -1135,14 +1135,15 @@ export function DocPage({
      annotate document flow directly ABOVE its target group (Cursor Cmd+K
      style — Ford's standing standard) and pushes the target and everything
      after it down — never an overlay. The wrapper is the composer's LANE:
-     same `ch`-measured cap as the text lane, and `text-sm` so the cap
-     resolves against the same font-size (see the title lane). */
+     same `ch`-measured cap as the text lane, and the body font-size
+     (`--style-font-size`) so the cap resolves against the same font-size
+     (see the title lane). */
   const renderInlineComposer = (): ReactNode =>
     selection ? (
       <div
         key="inline-composer"
         data-docs-inline-composer-anchor=""
-        className="my-3 w-full max-w-[var(--style-content-width,100ch)] text-sm"
+        className="my-3 w-full max-w-[var(--style-content-width,60ch)] text-[length:var(--style-font-size,18px)]"
       >
         <InlineComposer
           onSubmit={(body) => {
@@ -1353,13 +1354,14 @@ export function DocPage({
 
                 The wrapper is the title's LANE: it gives the h1 the same text
                 measure a paragraph block gets, so the title wraps on the same
-                right edge as the prose beneath it. It carries `text-sm`
-                because the measure is expressed in `ch` and `ch` resolves
-                against the font-size of the element the cap sits on — putting
-                the cap straight on the 2.25rem h1 would make `100ch` ~2360px
-                instead of ~882px. The h1's own size is set in `rem`, so the
+                right edge as the prose beneath it. It carries the body
+                font-size (`--style-font-size`, stock 18px) because the measure
+                is expressed in `ch` and `ch` resolves against the font-size of
+                the element the cap sits on — putting the cap straight on the
+                2.25rem h1 would make `60ch` ~1300px instead of the ~650px an
+                18px paragraph gets. The h1's own size is set in `rem`, so the
                 wrapper's font-size never reaches it. */}
-            <div className="w-full max-w-[var(--style-content-width,100ch)] text-sm">
+            <div className="w-full max-w-[var(--style-content-width,60ch)] text-[length:var(--style-font-size,18px)]">
             <h1
               key={path}
               ref={titleRef}

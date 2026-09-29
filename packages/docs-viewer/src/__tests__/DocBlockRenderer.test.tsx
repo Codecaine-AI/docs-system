@@ -333,7 +333,7 @@ describe("DocBlockRenderer", () => {
     // A text block takes the text measure on the left rail...
     const paragraphLane = docRoot.querySelector(':scope > [data-doc-lane="text-left"]');
     expect(paragraphLane).toBeTruthy();
-    expect(paragraphLane?.className).toContain("max-w-[var(--style-content-width,100ch)]");
+    expect(paragraphLane?.className).toContain("max-w-[var(--style-content-width,60ch)]");
     expect(paragraphLane?.className).toContain("ml-0 mr-auto");
 
     // ...a state-shape takes the shared wide lane, still left-anchored...

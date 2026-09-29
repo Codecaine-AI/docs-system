@@ -67,6 +67,14 @@ The style rail is the right-docked authoring surface for tuning the active value
 
   - Reset to defaults restores the complete rail settings object.
 
+- **The rail edits the shared Global theme**
+
+  - While the Global theme is active, every change saves to it and reaches every project. The save button reads **Save global style**.
+
+  - Rail collapse and the selected pane stay per project.
+
+  - If the Global theme cannot be read for any reason other than being missing, the rail stops saving.
+
 - **Component controls are registry-driven and kind-aware**
 
   - Color tokens render color inputs with a direct return-to-theme action.

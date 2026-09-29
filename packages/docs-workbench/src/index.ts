@@ -7,6 +7,7 @@ export {
   type StartDocsServeOptions,
 } from "./server";
 export { runExport, type ExportOptions, type ExportReport } from "./export";
+export { resolveGlobalThemesRoot } from "@codecaine-ai/docs-server";
 export { ensureSpaBuilt, spaDistDir, webDir } from "./spa";
 export {
   bundleResponse,

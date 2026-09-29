@@ -165,8 +165,8 @@ describe("DocPeekPanel", () => {
     // The cap is on the lane and the lane carries the doc's base font size,
     // because the measure is in `ch` and `ch` resolves against the font-size
     // of whatever element the cap sits on (the h1's own size is 2.25rem).
-    expect(titleLane.className).toContain("max-w-[var(--style-content-width,100ch)]");
-    expect(titleLane.className).toContain("text-sm");
+    expect(titleLane.className).toContain("max-w-[var(--style-content-width,60ch)]");
+    expect(titleLane.className).toContain("text-[length:var(--style-font-size,18px)]");
     expect(
       title.compareDocumentPosition(typography) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();

@@ -1,6 +1,6 @@
 # canvas
 
-Generated from Codecaine Docs sources. Snapshot: `sha256:bdf029c4c9e6c8f0ae4c1490c10f0446719bcd2a331b4623e486469d36733107`. Refresh the installation to regenerate these files.
+Generated from Codecaine Docs sources. Snapshot: `sha256:ec5a2032dd0e9822d89d1619feb39b5aad7fda867bcf6d1392991b580b70d7a3`. Refresh the installation to regenerate these files.
 
 Use Canvas for system connections, ownership boundaries, and dependencies. Use Sequence for individual calls and waits.
 
@@ -8,11 +8,11 @@ Example: Map the external client, shared docs service, and project corpora, labe
 
 Canonical document: `10-system-design/40-block-vocabulary/80-canvas`.
 
-The spatial-canvas family of the Block vocabulary. It owns one type, `canvas`. The block itself is only a reference — the canvas document, its objects, and its schema live in the external canvas system (external/canvas, the vendored sibling project); the doc block points at one canvas and optionally crops it to a named view.
+The spatial-canvas family of the Block vocabulary. It owns one type, `canvas`. The block itself is only a reference. The canvas document, its objects, and its schema live in the external canvas system (external/canvas, the vendored sibling project); the doc block points at one canvas and optionally crops it to a named view.
 
 When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source; identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information.
 
-Reach for canvas when the question is how things relate — spatial boards, architecture maps, annotated relationships. Exact exchanges belong to the sequence block, and an end-to-end process flow belongs to process-outline.
+Reach for canvas when the question is how things relate: spatial boards, architecture maps, and annotated relationships. Exact exchanges belong to the sequence block, and an end-to-end process flow belongs to process-outline.
 
 The family is the vocabulary's flagship non-default Agent adapter case: the canvas project is the authority, schema truth stays in the canvas package, and every content action forwards there instead of patching doc props.
 
@@ -24,7 +24,7 @@ A live embed. The sidecar (`./assets/canvases/interaction-surfaces.canvas.json`)
 
 ## State Schema
 
-The props (state.ts) are a closed schema — `additionalProperties: false`, every prop optional:
+The props (state.ts) are a closed schema with `additionalProperties: false`, every prop optional:
 
 **CanvasState** — packages/docs-model/src/components/canvas/state.ts#CanvasState
 
@@ -43,11 +43,11 @@ title?: string  # Display title; overrides the canvas document's own title in th
 }
 ```
 
-No text (`carriesText: false`); all state lives in the four props. A block with neither source prop is valid — the doc renderer shows a missing-source placeholder.
+No text (`carriesText: false`); all state lives in the four props. A block with neither source prop is valid, and the doc renderer shows a missing-source placeholder.
 
 ## Typed Actions
 
-The family's five actions are lifted at module load from `CANVAS_AGENT_PATCH_OPERATIONS` in @codecaine-ai/canvas/agent-schema — docs-model reuses the canvas package's schemas and descriptions, and never redefines them.
+The family's five actions are lifted at module load from `CANVAS_AGENT_PATCH_OPERATIONS` in @codecaine-ai/canvas/agent-schema. docs-model reuses the canvas package's schemas and descriptions, and never redefines them.
 
 - The lift
 
@@ -59,9 +59,9 @@ The family's five actions are lifted at module load from `CANVAS_AGENT_PATCH_OPE
 
 - No local apply
 
-  - The dispatcher validates params against the lifted TypeBox schema, then refuses to run the action as a doc op — it is handled by the canvas authority (doc-ops.ts). Doc props never change.
+  - The dispatcher validates params against the lifted TypeBox schema, then refuses to run the action as a doc op, because the canvas authority handles it (doc-ops.ts). Doc props never change.
 
-**canvas — forwarded patch operations**
+**canvas forwarded patch operations**
 
 ```
 canvas.addObject(object: CanvasObject) -> forwarded to the canvas authority  # Add a fully specified canvas object at its provided geometry; a section requires a nonblank title and known tint.
@@ -73,9 +73,9 @@ canvas.fitContainerToChildren(containerId: string, padding?: number) -> forwarde
 
 ## Doc Renderer
 
-docs-viewer owns the descriptor but not the pixels: the render calls the host-injected canvas slot — DocsClientProvider's `canvasEmbed` component — with `{ id, canvasId, src, view, title }`. A host with no canvas renderer gets the neutral Canvas embed unavailable card, so the seam ports to any React host.
+docs-viewer owns the descriptor but not the pixels: the render calls the host-injected canvas slot, DocsClientProvider's `canvasEmbed` component, with `{ id, canvasId, src, view, title }`. A host with no canvas renderer gets the neutral Canvas embed unavailable card, so the seam ports to any React host.
 
-The workbench wires `StandaloneCanvasEmbed` into the slot — a read-only embed:
+The workbench wires `StandaloneCanvasEmbed` into the slot as a read-only embed:
 
 - Inline surface
 
@@ -89,7 +89,7 @@ The workbench wires `StandaloneCanvasEmbed` into the slot — a read-only embed:
 
   - Hover or keyboard focus reveals a full-screen button in the top-right corner.
 
-  - Edit in Canvas appears beside it only when the host passes `showEditAction` — doc edit mode does.
+  - Edit in Canvas appears beside it only when the host passes `showEditAction`. Doc edit mode does.
 
 - Full-screen viewer
 
@@ -109,27 +109,27 @@ The workbench wires `StandaloneCanvasEmbed` into the slot — a read-only embed:
 
   - `canvasId: "synthetic"` renders the canvas package's bundled fixture.
 
-  - Any other `canvasId` renders an honest unavailable card with an Open Canvas Studio link — central boards are not stored in the docs repo.
+  - Any other `canvasId` renders an honest unavailable card with an Open Canvas Studio link, because central boards are not stored in the docs repo.
 
-In the editor — slash menu: **Canvas** (aliases: diagram, drawing). The block is a non-editable atom leaf: its node view rebuilds the `DocBlock` and calls the same descriptor render the read surface uses, so the block looks identical in view and edit mode; edit mode's embed adds the Edit in Canvas action.
+In the editor, the slash menu entry is **Canvas** (aliases: diagram, drawing). The block is a non-editable atom leaf: its node view rebuilds the `DocBlock` and calls the same descriptor render the read surface uses, so the block looks identical in view and edit mode; edit mode's embed adds the Edit in Canvas action.
 
 ## Agent Renderer
 
-The agent view is one HTML-comment reference line — `<!-- canvas: <src-or-canvasId> [view=<view>] [title="<title>"] -->`, or `<!-- canvas: (missing src) -->` when neither source prop is set; `src` wins when both are present. Chosen over a markdown image because a canvas is not an image asset; the comment form greps cleanly on `<!-- canvas:` without being misread as a broken image link.
+The agent view is one HTML-comment reference line: `<!-- canvas: <src-or-canvasId> [view=<view>] [title="<title>"] -->`, or `<!-- canvas: (missing src) -->` when neither source prop is set; `src` wins when both are present. Chosen over a markdown image because a canvas is not an image asset; the comment form greps cleanly on `<!-- canvas:` without being misread as a broken image link.
 
 ## Theme
 
-The Theming contract element at its smallest — one registered token: `components/canvas.json` in a theme folder (`themes/<id>/`; system docs at Theming) may set `border`, as one string for both modes or a `{ light, dark }` pair, validated against THEME_TOKEN_REGISTRY.
+The Theming contract element at its smallest is one registered token. `components/canvas.json` in the active theme folder may set `border`, as one string for both modes or a `{ light, dark }` pair, validated against THEME_TOKEN_REGISTRY. By default that folder is the Global theme at `~/.local/state/codecaine-docs/themes/global/`. A repo `themes/<id>/` folder is active only when the host serves no Global theme.
 
 | Key | CSS variable | Styles |
 | --- | --- | --- |
 | border | --docs-canvas-border | Missing-embed placeholder border |
 
-The token's CSS default is `var(--border)` (semantic.css), and its one consumer is the doc renderer's missing-embed placeholder. The embedded canvas surface styles itself — the canvas package owns its own theme — and no built-in theme ships a `components/canvas.json` (themes/default carries code, structured-table, and surfaces files only).
+The token's CSS default is `var(--border)` (semantic.css), and its one consumer is the doc renderer's missing-embed placeholder. The embedded canvas surface styles itself, because the canvas package owns its own theme. No shipped theme sets a canvas value: `themes/docs-system-classic/components/canvas.json` is empty, and `themes/default/` has no component files.
 
 ## Agent Adapter
 
-How agents edit canvas content — the vocabulary's flagship non-default instance of the Agent adapter contract. The external canvas project is the authority: the docs system forwards actions to it and applies nothing locally. The forwarding path exists end to end:
+How agents edit canvas content: the vocabulary's flagship non-default instance of the Agent adapter contract. The external canvas project is the authority: the docs system forwards actions to it and applies nothing locally. The forwarding path exists end to end:
 
 - One action per request
 

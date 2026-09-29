@@ -8,8 +8,8 @@ The visual system is a bounded contract for the document surface: semantic token
 
 - Typography and Fonts
 
-  - Body, heading, code, and numeric roles; the living Default metrics; and the boundary around custom font files.
+  - Body, heading, code, and numeric roles; the stock reading metrics; and the boundary around custom font files.
 
 - Themes
 
-  - The closed customization boundary, sparse theme folders, overlay precedence, and the living Default.
+  - The closed customization boundary, sparse theme folders, overlay precedence, the shared Global theme, and the living Default.

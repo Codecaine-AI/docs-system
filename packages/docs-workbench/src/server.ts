@@ -48,6 +48,14 @@ export interface DocsServeAppOptions {
   docsRoot: string;
   /** Theme folder used by the theme API; defaults to the docs-root sibling. */
   themesRoot?: string;
+  /**
+   * Folder holding the shared GLOBAL theme (`<root>/global/`, reserved id
+   * `global`). Omit to serve repo themes only. In shared-API mode the
+   * authority serves the theme routes; this flag then only drives
+   * `GET /api/serve-config` `globalTheme`. `runServe` resolves the machine
+   * default (docs-server resolveGlobalThemesRoot).
+   */
+  globalThemesRoot?: string;
   /** Built SPA directory to serve at `/`; omit for API-only (tests). */
   staticDir?: string | null;
   /**
@@ -121,7 +129,11 @@ export function createDocsServeApp(options: DocsServeAppOptions) {
     backlinksReady.catch(() => {});
     primeBacklinksDb(docsRoot, backlinksReady.then((result) => result.db));
     const store = createDocsStore(docsRoot);
-    app.use(createDocsRoutes(store, { themeLocked, themesRoot: options.themesRoot }));
+    app.use(createDocsRoutes(store, {
+      themeLocked,
+      themesRoot: options.themesRoot,
+      globalThemesRoot: options.globalThemesRoot,
+    }));
     if (options.watchFs) {
       const watcher = watchDocsRoot(docsRoot, (event) => store.publishChange(event));
       app.onStop(() => watcher.close());
@@ -133,7 +145,7 @@ export function createDocsServeApp(options: DocsServeAppOptions) {
     // route table: themeLocked is a property of this serve invocation, not
     // of the docs tree, so hosts embedding createDocsRoutes directly are
     // untouched. The SPA reads it once at boot to pick its theme path.
-    .get("/api/serve-config", () => ({ themeLocked }))
+    .get("/api/serve-config", () => ({ themeLocked, globalTheme: !!options.globalThemesRoot }))
     .get("/api/lab-config", () => ({ kernelUrl, corpus }));
 
   if (staticDir) {

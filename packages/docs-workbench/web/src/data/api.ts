@@ -791,18 +791,26 @@ export function subscribeDocsEvents(
 // ---------------------------------------------------------------------------
 
 /**
- * Workbench-level serve flags (today just `themeLocked` — see App's locked
- * boot path). Fails OPEN to unlocked: static exports have no server, and an
- * older serve without the route must keep today's behavior — only a serve
- * that positively answers locked gets the locked theme path.
+ * Workbench-level serve flags (see App's theme boot path). Fails OPEN to
+ * unlocked and to NO global theme: static exports have no server, and an
+ * older serve without the route (or without the field) must keep today's
+ * behavior — only a serve that positively answers gets the locked or the
+ * shared-global theme path.
+ *
+ * `globalTheme`: the host serves the reserved `global` theme (stored by the
+ * central service outside any repo) and every project should render it.
  */
-export async function getServeConfig(): Promise<{ themeLocked: boolean }> {
-  if (IS_STATIC) return { themeLocked: false };
+export type ServeConfig = { themeLocked: boolean; globalTheme: boolean };
+
+export async function getServeConfig(): Promise<ServeConfig> {
+  if (IS_STATIC) return { themeLocked: false, globalTheme: false };
   try {
-    const config = await fetchJson<{ themeLocked?: unknown }>(`api/serve-config`);
-    return { themeLocked: config.themeLocked === true };
+    const config = await fetchJson<{ themeLocked?: unknown; globalTheme?: unknown }>(
+      `api/serve-config`,
+    );
+    return { themeLocked: config.themeLocked === true, globalTheme: config.globalTheme === true };
   } catch {
-    return { themeLocked: false };
+    return { themeLocked: false, globalTheme: false };
   }
 }
 
@@ -810,7 +818,10 @@ export async function getServeConfig(): Promise<{ themeLocked: boolean }> {
 // Theme folders (docs/20-implementation/40-theming)
 // ---------------------------------------------------------------------------
 
-export type ThemeListEntry = { id: string; name: string };
+/** The reserved id of the shared theme every project renders when the host supports it. */
+export const GLOBAL_THEME_ID = "global";
+
+export type ThemeListEntry = { id: string; name: string; global?: boolean };
 
 export type ThemeWirePayload = {
   id: string;

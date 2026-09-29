@@ -1,4 +1,4 @@
-import { projectStorage } from "../data/project-storage";
+import { projectStorage, themeStorage } from "../data/project-storage";
 import { PanelRightClose, PanelRightOpen, SlidersHorizontal } from "lucide-react";
 import { DOC_BLOCK_TYPES } from "@codecaine-ai/docs-model/doc-schema";
 import { THEME_TOKEN_REGISTRY } from "../theme/theme-folders";
@@ -305,12 +305,12 @@ export const DEFAULT_STYLE_RAIL_SETTINGS: StyleRailSettings = {
     headingFont: "sans",
     codeFont: "mono",
     numberFont: "body",
-    fontSize: 14,
-    lineHeight: 1.7,
+    fontSize: 18,
+    lineHeight: 1.45,
     letterSpacing: 0,
   },
   layout: {
-    contentWidth: 100,
+    contentWidth: 60,
     wideWidth: 1040,
     // The page is left-anchored and full-width, so this is the global left
     // rail every block hangs off — generous by default rather than the tight
@@ -377,7 +377,51 @@ export const DEFAULT_STYLE_RAIL_SETTINGS: StyleRailSettings = {
   blockLayout: {},
 };
 
-const STORAGE_KEY = "docs-style-rail-settings.v1";
+/**
+ * v2 = the stock reading metrics moved (14px / 1.7 / 100ch → 18px / 1.45 /
+ * 60ch). The cache always stores the FULL normalized settings, so every v1
+ * blob pinned the old stock metrics even when nobody touched those knobs —
+ * and on a project with no repo theme the cache is the authority, so those
+ * stale values kept winning. v1 blobs are read once through
+ * migrateLegacyStyleRailBlob; the next save lands under v2.
+ */
+const STORAGE_KEY = "docs-style-rail-settings.v2";
+/**
+ * Exported so App can recognise a `storage` event for this cache. The cache
+ * lives in `themeStorage`: one origin-wide key while the shared global theme
+ * is active (so a stale per-project v1/v2 blob can never override it), the
+ * per-project key otherwise.
+ */
+export const STYLE_RAIL_STORAGE_KEY = STORAGE_KEY;
+const LEGACY_STORAGE_KEY = "docs-style-rail-settings.v1";
+
+/** The v1 stock reading metrics. A v1 value equal to one of these is untouched stock, not a choice. */
+const LEGACY_STOCK_METRICS = { fontSize: 14, lineHeight: 1.7, contentWidth: 100 } as const;
+
+/**
+ * Drops v1 reading metrics that still sit at the v1 stock values so they fall
+ * through to the current baseline. A metric the user actually moved (any
+ * other value) survives. Exported for tests.
+ */
+export function migrateLegacyStyleRailBlob(raw: unknown): unknown {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return raw;
+  const blob = { ...(raw as Record<string, unknown>) };
+  const dropStock = (section: string, key: keyof typeof LEGACY_STOCK_METRICS) => {
+    const value = blob[section];
+    if (!value || typeof value !== "object" || Array.isArray(value)) return;
+    const next = { ...(value as Record<string, unknown>) };
+    if (next[key] === LEGACY_STOCK_METRICS[key]) delete next[key];
+    blob[section] = next;
+  };
+  dropStock("typography", "fontSize");
+  dropStock("typography", "lineHeight");
+  // contentWidth lived under typography in the oldest blobs, then layout
+  // (or `surfaces`); normalizeSettings reads all three.
+  dropStock("typography", "contentWidth");
+  dropStock("layout", "contentWidth");
+  dropStock("surfaces", "contentWidth");
+  return blob;
+}
 
 /**
  * The repo BASELINE — the rail's second, repo-side reference point.
@@ -678,12 +722,12 @@ export function normalizeSettings(
       headingFont: pickOption(typography.headingFont, FONT_OPTIONS, d.typography.headingFont),
       codeFont: pickOption(typography.codeFont, FONT_OPTIONS, d.typography.codeFont),
       numberFont: pickOption(typography.numberFont, NUMBER_FONT_OPTIONS, d.typography.numberFont),
-      fontSize: clampNumber(typography.fontSize, 12, 20, d.typography.fontSize),
-      lineHeight: clampNumber(typography.lineHeight, 1.3, 2.1, d.typography.lineHeight),
+      fontSize: clampNumber(typography.fontSize, 12, 28, d.typography.fontSize),
+      lineHeight: clampNumber(typography.lineHeight, 1.1, 2.1, d.typography.lineHeight),
       letterSpacing: clampNumber(typography.letterSpacing, -0.02, 0.08, d.typography.letterSpacing),
     },
     layout: {
-      contentWidth: clampNumber(layout.contentWidth ?? typography.contentWidth, 60, 140, d.layout.contentWidth),
+      contentWidth: clampNumber(layout.contentWidth ?? typography.contentWidth, 40, 140, d.layout.contentWidth),
       wideWidth: clampNumber(layout.wideWidth, 900, 2400, d.layout.wideWidth),
       contentMargin: clampNumber(layout.contentMargin, 0, 240, d.layout.contentMargin),
       topPadding: clampNumber(layout.topPadding, 0, 240, d.layout.topPadding),
@@ -818,9 +862,14 @@ export function normalizeSettings(
  */
 export function loadStyleRailSettings(): StyleRailSettings {
   try {
-    const raw = projectStorage.getItem(STORAGE_KEY);
-    if (!raw) return getStyleRailBaseline();
-    return normalizeSettings(JSON.parse(raw));
+    const raw = themeStorage.getItem(STORAGE_KEY);
+    if (raw) return normalizeSettings(JSON.parse(raw));
+    // Read-only migration: a locked host calls this too and must not write
+    // storage, so the v1 blob is left in place and simply superseded by the
+    // first v2 save on an unlocked host.
+    const legacy = themeStorage.getItem(LEGACY_STORAGE_KEY);
+    if (legacy) return normalizeSettings(migrateLegacyStyleRailBlob(JSON.parse(legacy)));
+    return getStyleRailBaseline();
   } catch {
     return getStyleRailBaseline();
   }
@@ -829,7 +878,10 @@ export function loadStyleRailSettings(): StyleRailSettings {
 /** True when a browser cache exists; retained for cache-aware hosts/tests. */
 export function hasStoredStyleRailSettings(): boolean {
   try {
-    return projectStorage.getItem(STORAGE_KEY) !== null;
+    return (
+      themeStorage.getItem(STORAGE_KEY) !== null ||
+      themeStorage.getItem(LEGACY_STORAGE_KEY) !== null
+    );
   } catch {
     return false;
   }
@@ -837,7 +889,7 @@ export function hasStoredStyleRailSettings(): boolean {
 
 export function saveStyleRailSettings(settings: StyleRailSettings) {
   try {
-    projectStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+    themeStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
   } catch {
     // Settings still apply for this session if storage is unavailable.
   }
@@ -1116,7 +1168,7 @@ export const BLOCK_LAYOUT_STYLE_ELEMENT_ID = "docs-style-rail-block-layout";
 
 /** Named lane widths, resolved to the same values docBlockLayoutClasses uses. */
 const BLOCK_LAYOUT_WIDTH_VALUES: Record<BlockLayoutWidth, string> = {
-  text: "var(--style-content-width,100ch)",
+  text: "var(--style-content-width,60ch)",
   wide: "var(--style-wide-width,1040px)",
   full: "none",
 };
@@ -1238,7 +1290,8 @@ export function StyleRailOverlay({ settings, dark }: { settings: StyleRailSettin
   );
 }
 
-export type ThemePickerEntry = { id: string; name: string; source: "builtin" | "repo" };
+/** `global` = the host's shared theme, stored outside every repo. */
+export type ThemePickerEntry = { id: string; name: string; source: "builtin" | "repo" | "global" };
 
 const SELECTED_PANE_STORAGE_KEY = "docs-style-rail-selected";
 
@@ -1254,6 +1307,7 @@ export function StyleRail({
   onSelectTheme,
   onSaveTheme,
   onSaveStyleToRepo,
+  saveStyleLabel = "Save style to repo",
 }: {
   collapsed: boolean;
   onCollapsedChange: (collapsed: boolean) => void;
@@ -1274,6 +1328,8 @@ export function StyleRail({
    * `--theme-locked`; the server refuses such a write with 403 regardless.
    */
   onSaveStyleToRepo?: () => void;
+  /** Button text for onSaveStyleToRepo; the shared global theme is not a repo file. */
+  saveStyleLabel?: string;
 }) {
   const [selectedPaneId, setSelectedPaneId] = useState<StyleRailPaneId>(() => {
     // docs-style-rail-section:* keys are retired; selection is the persisted pane UI state.
@@ -1415,7 +1471,7 @@ export function StyleRail({
                 onClick={onSaveStyleToRepo}
                 type="button"
               >
-                Save style to repo
+                {saveStyleLabel}
               </button>
             )}
             {/* "Defaults" means the REPO baseline, not stock: resetting

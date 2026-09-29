@@ -651,7 +651,13 @@ export function StyleRailPane({
                       : "text-foreground hover:bg-muted hover:text-foreground",
                   )}
                   onClick={() => onSelectTheme(theme.id)}
-                  title={theme.source === "repo" ? "themes/ folder in this repo" : "built-in"}
+                  title={
+                    theme.source === "global"
+                      ? "shared by every project"
+                      : theme.source === "repo"
+                        ? "themes/ folder in this repo"
+                        : "built-in"
+                  }
                   type="button"
                 >
                   {theme.name}
@@ -739,7 +745,7 @@ export function StyleRailPane({
             <SliderRow
               label="Font size"
               leaf={settingLeaf("typography.fontSize")}
-              max={20}
+              max={28}
               min={12}
               onChange={(value) => patchTypography({ fontSize: value })}
               step={0.5}
@@ -750,7 +756,7 @@ export function StyleRailPane({
               label="Line height"
               leaf={settingLeaf("typography.lineHeight")}
               max={2.1}
-              min={1.3}
+              min={1.1}
               onChange={(value) => patchTypography({ lineHeight: value })}
               step={0.05}
               value={typography.lineHeight}
@@ -1244,7 +1250,7 @@ export function StyleRailPane({
                 label="Max width"
                 leaf={settingLeaf("layout.contentWidth")}
                 max={140}
-                min={60}
+                min={40}
                 onChange={(value) => patchLayout({ contentWidth: value })}
                 step={2}
                 value={layout.contentWidth}

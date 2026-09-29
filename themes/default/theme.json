@@ -18,12 +18,12 @@
       "headingFont": "sans",
       "codeFont": "mono",
       "numberFont": "body",
-      "fontSize": 15,
-      "lineHeight": 1.7,
+      "fontSize": 18,
+      "lineHeight": 1.45,
       "letterSpacing": 0
     },
     "layout": {
-      "contentWidth": 70,
+      "contentWidth": 60,
       "wideWidth": 1040,
       "contentMargin": 88,
       "topPadding": 24,

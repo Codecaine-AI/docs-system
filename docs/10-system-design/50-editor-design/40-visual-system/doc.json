@@ -107,7 +107,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Body, heading, code, and numeric roles; the living Default metrics; and the boundary around custom font files."
+          "insert": "Body, heading, code, and numeric roles; the stock reading metrics; and the boundary around custom font files."
         }
       ],
       "children": []
@@ -137,7 +137,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The closed customization boundary, sparse theme folders, overlay precedence, and the living Default."
+          "insert": "The closed customization boundary, sparse theme folders, overlay precedence, the shared Global theme, and the living Default."
         }
       ],
       "children": []

@@ -21,6 +21,7 @@
         "b-srail-rule-attribution",
         "b-srail-rule-default",
         "b-srail-rule-resets",
+        "b-srail-rule-global",
         "b-srail-rule-controls",
         "b-srail-preview-open",
         "b-srail-discovery-open",
@@ -475,6 +476,66 @@
       "text": [
         {
           "insert": "Reset to defaults restores the complete rail settings object."
+        }
+      ],
+      "children": []
+    },
+    "b-srail-rule-global": {
+      "id": "b-srail-rule-global",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The rail edits the shared Global theme",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-srail-rule-global-save",
+        "b-srail-rule-global-local",
+        "b-srail-rule-global-guard"
+      ]
+    },
+    "b-srail-rule-global-save": {
+      "id": "b-srail-rule-global-save",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "While the Global theme is active, every change saves to it and reaches every project. The save button reads "
+        },
+        {
+          "insert": "Save global style",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-srail-rule-global-local": {
+      "id": "b-srail-rule-global-local",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Rail collapse and the selected pane stay per project."
+        }
+      ],
+      "children": []
+    },
+    "b-srail-rule-global-guard": {
+      "id": "b-srail-rule-global-guard",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "If the Global theme cannot be read for any reason other than being missing, the rail stops saving."
         }
       ],
       "children": []

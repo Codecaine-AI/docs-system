@@ -64,7 +64,7 @@
           }
         },
         {
-          "insert": ": the vocabulary's annotated path tree. A flat list of path entries in props renders — on both surfaces — as a "
+          "insert": ": the vocabulary's annotated path tree. A flat list of path entries in props renders on both surfaces as a "
         },
         {
           "insert": "tree",
@@ -95,7 +95,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Reach for it when the nested structure is files, not steps — repo slices, refactor plans, layout conventions. A process that flows end to end belongs to process-outline."
+          "insert": "Reach for it when the nested structure is files, not steps: repo slices, refactor plans, and layout conventions. A process that flows end to end belongs to process-outline."
         }
       ],
       "children": []
@@ -245,7 +245,7 @@
           }
         },
         {
-          "insert": ") and no title prop — every fact lives in "
+          "insert": ") and no title prop. Every fact lives in "
         },
         {
           "insert": "entries",
@@ -331,7 +331,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Directories need no entries of their own — they are derived from path prefixes, and a derived directory carries no note or change state."
+          "insert": "Directories need no entries of their own. They are derived from path prefixes, and a derived directory carries no note or change state."
         }
       ],
       "children": []
@@ -356,7 +356,7 @@
       },
       "text": [
         {
-          "insert": "The trailing \"/\" is the directory marker. An entry without it renders as a file — and files sort after directories — so a bare directory path lands styled and ordered as a file. Author an explicit directory as "
+          "insert": "The trailing \"/\" is the directory marker. An entry without it renders as a file, and files sort after directories, so a bare directory path lands styled and ordered as a file. Author an explicit directory as "
         },
         {
           "insert": "path/",
@@ -452,7 +452,7 @@
           }
         },
         {
-          "insert": " string literally — keep paths exact."
+          "insert": " string literally, so keep paths exact."
         }
       ],
       "children": []
@@ -551,7 +551,7 @@
           }
         },
         {
-          "insert": " — "
+          "insert": ". "
         },
         {
           "insert": "from",
@@ -650,7 +650,7 @@
           }
         },
         {
-          "insert": " renames without moving — the entry keeps its array position; a "
+          "insert": " renames without moving, and the entry keeps its array position; a "
         },
         {
           "insert": "newPath",
@@ -868,7 +868,7 @@
             }
           }
         ],
-        "title": "file-tree — entry actions"
+        "title": "file-tree entry actions"
       },
       "children": []
     },
@@ -887,7 +887,7 @@
           }
         },
         {
-          "insert": " is pure — entries in, a props patch "
+          "insert": " is pure: entries go in, a props patch "
         },
         {
           "insert": "{ entries }",
@@ -896,7 +896,7 @@
           }
         },
         {
-          "insert": " out — and the patch revalidates against "
+          "insert": " comes out, and the patch revalidates against "
         },
         {
           "insert": "FileTreeState",
@@ -935,7 +935,7 @@
           }
         },
         {
-          "insert": " draws the block on the doc surface — reader and editor alike — as a bordered monospace panel: a "
+          "insert": " draws the block on the doc surface, in reader and editor alike, as a bordered monospace panel: a "
         },
         {
           "insert": ".",
@@ -1046,7 +1046,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The order matches the agent render exactly — the two surfaces agree by design."
+          "insert": "The order matches the agent render exactly, so the two surfaces agree by design."
         }
       ],
       "children": []
@@ -1235,7 +1235,7 @@
       "props": {},
       "text": [
         {
-          "insert": "No slash-menu entry — file trees enter through agent ops or existing content."
+          "insert": "There is no slash-menu entry. File trees enter through agent ops or existing content."
         }
       ],
       "children": []
@@ -1265,7 +1265,7 @@
           }
         },
         {
-          "insert": " renders the same tree as literal text inside a bare fence — the greppable form an agent reads. The Example block above projects to:"
+          "insert": " renders the same tree as literal text inside a bare fence, the greppable form an agent reads. The Example block above projects to:"
         }
       ],
       "children": []
@@ -1433,7 +1433,28 @@
           }
         },
         {
-          "insert": " in a theme folder ("
+          "insert": " in the active theme folder. By default that folder is the "
+        },
+        {
+          "insert": "Global theme",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/30-themes"
+            }
+          }
+        },
+        {
+          "insert": " at "
+        },
+        {
+          "insert": "~/.local/state/codecaine-docs/themes/global/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". A repo "
         },
         {
           "insert": "themes/<id>/",
@@ -1442,19 +1463,10 @@
           }
         },
         {
-          "insert": "; the system is "
+          "insert": " folder is active only when the host serves no Global theme."
         },
         {
-          "insert": "Theming",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "30-implementation/40-theming"
-            }
-          }
-        },
-        {
-          "insert": "). Every value is one string for both modes or a "
+          "insert": " Every value is one string for both modes or a "
         },
         {
           "insert": "{ light, dark }",
@@ -1583,7 +1595,7 @@
           }
         },
         {
-          "insert": " ops — "
+          "insert": " ops ("
         },
         {
           "insert": "{ type: \"componentAction\", blockId, action: \"file-tree.addEntry\", params }",
@@ -1592,7 +1604,7 @@
           }
         },
         {
-          "insert": " — which resolve the action from the registry, validate params, and land as an "
+          "insert": "), which resolve the action from the registry, validate params, and land as an "
         },
         {
           "insert": "updateBlock",

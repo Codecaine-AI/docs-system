@@ -174,10 +174,11 @@
   outline: none;
   /* NOTE: the title's text-lane cap deliberately does NOT live here. The
      measure is expressed in `ch`, which resolves against the font-size of the
-     element that USES it — on this 2.25rem title `100ch` would be ~2360px
-     instead of the ~882px a 14px paragraph gets. The hosts wrap the title in a
-     `text-sm` lane div instead, so the cap resolves at the doc's base font
-     size and lines up exactly with the prose beneath it. */
+     element that USES it — on this 2.25rem title `60ch` would be ~1300px
+     instead of the ~650px an 18px paragraph gets. The hosts wrap the title in a
+     lane div at the body font-size (`--style-font-size`) instead, so the cap
+     resolves at the doc's base font size and lines up exactly with the prose
+     beneath it. */
 }
 
 /* The typography plugin's `.prose` carries `max-width: 65ch`. Docs surfaces
@@ -203,7 +204,7 @@
      wrapper, which it inserts BETWEEN this root and an atom's
      NodeViewWrapper. That wrapper carries no lane of its own, so without this
      clause it would be capped at the text measure and a wide state-shape or
-     table would be squeezed back down to ~100ch no matter what its own lane
+     table would be squeezed back down to ~60ch no matter what its own lane
      said — the wide lane would silently do nothing in edit mode. A
      react-renderer around a NON-laned node view (the code block) contains no
      lane, so it still gets the text measure, which is what code wants. */
@@ -212,14 +213,14 @@
 }
 
 /* Why the rule above uses a REGISTERED property instead of
-   `var(--style-content-width, 100ch)` directly.
+   `var(--style-content-width, 60ch)` directly.
 
    The measure is expressed in `ch`, and `ch` resolves against the font-size of
    the element the cap lands on. On the read surface that is harmless: the lane
    is a plain div at the doc's base size, so every block gets the same pixel
    measure. In edit mode the cap lands on the ProseMirror child ITSELF — so an
-   `<h2>` at ~20px resolved `100ch` to ~1320px while a 14px `<p>` resolved it
-   to ~882px, and long headings hung ~440px past the prose right edge.
+   `<h2>` at ~26px would resolve `60ch` to ~930px while an 18px `<p>` resolves
+   it to ~650px, and long headings would hang ~280px past the prose right edge.
 
    Registering the property with `syntax: "<length>"` makes it compute ONCE, at
    the element that declares it (the editor root, at the doc's base font size),
@@ -236,7 +237,7 @@
 }
 
 .docs-editor-prosemirror {
-  --style-editor-text-lane: var(--style-content-width, 100ch);
+  --style-editor-text-lane: var(--style-content-width, 60ch);
 }
 
 /* Docs typography bridge — mirrors Spectre's .docs-markdown block. */
@@ -276,21 +277,22 @@
 }
 
 /* Style-rail typography hooks — the vars are only set on <html> while the
-   corresponding knob is off its default, so these normally resolve to the
-   same values the utility classes (text-sm, leading-[1.7]) already apply. */
+   corresponding knob is off its STOCK default (StyleRail.tsx
+   DEFAULT_STYLE_RAIL_SETTINGS: 18px / 1.45 / 0em), so these fallbacks MUST
+   equal that stock — they are what renders when no var is emitted. */
 .docs-markdown.prose {
-  font-size: var(--style-font-size, 0.875rem);
-  line-height: var(--style-line-height, 1.7);
+  font-size: var(--style-font-size, 18px);
+  line-height: var(--style-line-height, 1.45);
   letter-spacing: var(--style-letter-spacing, 0em);
 }
 
-/* The block renderer/editor pins each text block with its own text-sm /
-   leading-[1.7] utilities, so container-level values never reach the text.
-   Re-assert the knobs at the block level; the fallbacks equal the pinned
-   utility values, so this is a no-op until a knob moves. */
+/* The block renderer/editor pins each text block with its own font-size /
+   line-height utilities (block-classes.ts), so container-level values never
+   reach the text. Re-assert the knobs at the block level; the fallbacks equal
+   the utilities' own fallbacks, so this is a no-op until a knob moves. */
 .docs-markdown :where(p, li, td, th, dd, dt, blockquote) {
-  font-size: var(--style-font-size, 0.875rem);
-  line-height: var(--style-line-height, 1.7);
+  font-size: var(--style-font-size, 18px);
+  line-height: var(--style-line-height, 1.45);
   letter-spacing: var(--style-letter-spacing, 0em);
 }
 

@@ -145,6 +145,20 @@ describe("GET /api/themes", () => {
     expect(await response.json()).toEqual({ themes: [{ id: "shared", name: "Shared" }] });
     await rm(themesRoot, { recursive: true, force: true });
   });
+
+  test("a configured global root lists global first and flags serve-config", async () => {
+    const globalThemesRoot = await mkdtemp(join(tmpdir(), "docs-workbench-global-"));
+    const configured = createDocsServeApp({ docsRoot, globalThemesRoot });
+    const list = (await (await configured.handle(new Request("http://localhost/api/themes"))).json()) as {
+      themes: Array<{ id: string; name: string; global?: boolean }>;
+    };
+    expect(list.themes[0]).toEqual({ id: "global", name: "Global", global: true });
+    const config = await configured.handle(new Request("http://localhost/api/serve-config"));
+    expect(await config.json()).toEqual({ themeLocked: false, globalTheme: true });
+    const plain = await app.handle(new Request("http://localhost/api/serve-config"));
+    expect(await plain.json()).toEqual({ themeLocked: false, globalTheme: false });
+    await rm(globalThemesRoot, { recursive: true, force: true });
+  });
 });
 
 describe("GET /api/blocks", () => {
@@ -424,6 +438,46 @@ describe("export", () => {
     });
     expect(snapshot.theme.components.paragraph).toEqual({ fg: "#111111" });
     expect(snapshot.theme.components.annotate).toEqual({ surface: "#f5f3ff" });
+
+    await rm(repoRoot, { recursive: true, force: true });
+    await rm(outDir, { recursive: true, force: true });
+    if (!hadDist) await rm(distDir, { recursive: true, force: true });
+  });
+});
+
+describe("runExport global theme", () => {
+  test("snapshots the global theme by default and falls back to the repo default", async () => {
+    const outDir = await mkdtemp(join(tmpdir(), "docs-export-global-"));
+    const distDir = join(import.meta.dir, "..", "..", "web", "dist-static");
+    const hadDist = await Bun.file(join(distDir, "index.html")).exists();
+    if (!hadDist) {
+      await mkdir(distDir, { recursive: true });
+      await writeFile(join(distDir, "index.html"), "<html>static-shell</html>");
+    }
+    const repoRoot = await mkdtemp(join(tmpdir(), "docs-export-global-repo-"));
+    const themedDocsRoot = join(repoRoot, "docs");
+    await mkdir(themedDocsRoot, { recursive: true });
+    await mkdir(join(repoRoot, "themes", "default"), { recursive: true });
+    await writeFile(join(repoRoot, "themes", "default", "theme.json"), JSON.stringify({ name: "Repo Default" }));
+    const globalThemesRoot = join(repoRoot, "state-themes");
+
+    // No global theme.json yet: the repo default is the baseline.
+    let report = await runExport({ docsRoot: themedDocsRoot, outDir, globalThemesRoot });
+    expect(report.themeExported).toBe(true);
+    type Snapshot = { theme: { id: string; manifest: unknown; components: Record<string, unknown> } };
+    let snapshot = (await Bun.file(join(outDir, "data", "theme.json")).json()) as Snapshot;
+    expect(snapshot.theme.id).toBe("default");
+
+    await mkdir(join(globalThemesRoot, "global", "components"), { recursive: true });
+    await writeFile(join(globalThemesRoot, "global", "theme.json"), JSON.stringify({ name: "Global" }));
+    await writeFile(join(globalThemesRoot, "global", "components", "paragraph.json"), JSON.stringify({ fg: "#222222" }));
+    report = await runExport({ docsRoot: themedDocsRoot, outDir, globalThemesRoot });
+    snapshot = (await Bun.file(join(outDir, "data", "theme.json")).json()) as Snapshot;
+    expect(snapshot.theme).toEqual({
+      id: "global",
+      manifest: { name: "Global" },
+      components: { paragraph: { fg: "#222222" } },
+    });
 
     await rm(repoRoot, { recursive: true, force: true });
     await rm(outDir, { recursive: true, force: true });

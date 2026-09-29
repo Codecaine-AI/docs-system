@@ -97,7 +97,7 @@
       "id": "b-16-divider-state-shape-23",
       "type": "state-shape",
       "props": {
-        "description": "Closed empty object — no props.",
+        "description": "Closed empty object with no props.",
         "fields": [],
         "name": "DividerState",
         "source": {
@@ -122,7 +122,7 @@
           }
         },
         {
-          "insert": ") — the simplest block in the vocabulary."
+          "insert": "), which makes it the simplest block in the vocabulary."
         }
       ],
       "children": []
@@ -173,7 +173,7 @@
           }
         },
         {
-          "insert": " converts the moment the third hyphen lands — no trailing space, matching Notion. It is one of the non-editable atom leaf nodes ("
+          "insert": " converts the moment the third hyphen lands, with no trailing space, matching Notion. It is one of the non-editable atom leaf nodes ("
         },
         {
           "insert": "ATOM_BLOCK_TYPES",
@@ -186,7 +186,7 @@
           }
         },
         {
-          "insert": " in the viewer's editor schema) — the cursor steps over it, never into it."
+          "insert": " in the viewer's editor schema), so the cursor steps over it, never into it."
         }
       ],
       "children": []
@@ -285,7 +285,28 @@
           }
         },
         {
-          "insert": " in a theme folder ("
+          "insert": " in the active theme folder. By default that folder is the "
+        },
+        {
+          "insert": "Global theme",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/30-themes"
+            }
+          }
+        },
+        {
+          "insert": " at "
+        },
+        {
+          "insert": "~/.local/state/codecaine-docs/themes/global/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". A repo "
         },
         {
           "insert": "themes/<id>/",
@@ -294,19 +315,10 @@
           }
         },
         {
-          "insert": "; see "
+          "insert": " folder is active only when the host serves no Global theme."
         },
         {
-          "insert": "Theming",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "30-implementation/40-theming"
-            }
-          }
-        },
-        {
-          "insert": "). Every value is one string for both modes or a "
+          "insert": " Every value is one string for both modes or a "
         },
         {
           "insert": "{ light, dark }",

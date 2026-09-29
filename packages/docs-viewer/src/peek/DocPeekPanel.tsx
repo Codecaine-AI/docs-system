@@ -142,11 +142,11 @@ export function DocPeekPanel({
                   (docTitleFromPath on the bundle path), so a peeked doc
                   opens with the identical title the full page shows.
                   Read-only here — no rename affordance in a preview.
-                  The `text-sm` lane wrapper mirrors DocPage: it gives the
+                  The body-font-size lane wrapper mirrors DocPage: it gives the
                   title the same text measure the prose gets, resolved at the
                   doc's base font size rather than the h1's own 2.25rem (the
                   measure is in `ch`). */}
-              <div className="w-full max-w-[var(--style-content-width,100ch)] text-sm">
+              <div className="w-full max-w-[var(--style-content-width,60ch)] text-[length:var(--style-font-size,18px)]">
                 <h1 className="docs-page-title">{docTitleFromPath(state.ref.path)}</h1>
               </div>
               {state.load.status === "loading" && (

@@ -44,7 +44,7 @@ There is no arbitrary React escape hatch. Unsupported interaction requires a del
 
 Every block type ships its style capabilities as theme knobs; components do not hardcode looks.
 
-The living repo theme auto-saves adjustments. Hand-edited themes use a closed token vocabulary, and unknown keys are ignored.
+Style adjustments auto-save to one shared Global theme that every project renders. Hand-edited themes use a closed token vocabulary, and unknown keys are ignored.
 
 Customization is bounded: system UI remains fixed so every theme feels like the same tool.
 

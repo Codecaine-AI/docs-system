@@ -1,12 +1,12 @@
-The sequence component owns one type of the Block vocabulary: `sequence`, the UML-style sequence-diagram block. The block is only a reference — `src` (or `sequenceId`) points at a `SequenceDocument` owned by the external sequence engine (`external/sequence`); participants, messages, and style never enter the doc. Sequence diagrams are this block's whole territory — every other diagram type belongs to the canvas block.
+The sequence component owns one type of the Block vocabulary: `sequence`, the UML-style sequence-diagram block. The block is only a reference: `src` (or `sequenceId`) points at a `SequenceDocument` owned by the external sequence engine (`external/sequence`); participants, messages, and style never enter the doc. Sequence diagrams are this block's whole territory, and every other diagram type belongs to the canvas block.
 
 When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source; identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information.
 
-The family is the vocabulary's flagship non-default agent-adapter case: its three typed actions carry `forward: { authority: "sequence" }` instead of a local `apply`, so diagram edits route to the sequence engine and come back validated. The JSON document is the source of truth; a compact text program is the agent-facing projection — agents rewrite the whole program, and the language carries no styling, no coordinates, and no ids.
+The family is the vocabulary's flagship non-default agent-adapter case: its three typed actions carry `forward: { authority: "sequence" }` instead of a local `apply`, so diagram edits route to the sequence engine and come back validated. The JSON document is the source of truth, and a compact text program is the agent-facing projection. Agents rewrite the whole program, and the language carries no styling, no coordinates, and no ids.
 
 ## Example
 
-A live block — the login flow from `assets/sequences/login-flow.sequence.json` — followed by the program projection of the same document:
+A live block, the login flow from `assets/sequences/login-flow.sequence.json`, followed by the program projection of the same document:
 
 <!-- sequence: assets/sequences/login-flow.sequence.json title="Login flow" -->
 
@@ -36,7 +36,7 @@ seq
 
 ```
 sequenceId?: string (min length 1)  # Central reference to a diagram living in Sequence Studio.
-src?: string (min length 1)  # Sidecar path — docs-root-relative, or bundle-relative with a ./ prefix.
+src?: string (min length 1)  # Sidecar path, either docs-root-relative or bundle-relative with a ./ prefix.
 title?: string  # Display title.
 ```
 
@@ -51,7 +51,7 @@ title?: string  # Display title.
 
   - The block carries no delta text: participants, messages, fragments, and style live in the referenced `SequenceDocument`, never in block state.
 
-  - The program is a projection of that document, not a stored payload — nothing diagram-shaped is in the doc to drift.
+  - The program is a projection of that document, not a stored payload, so nothing diagram-shaped is in the doc to drift.
 
 - `src` over `sequenceId`
 
@@ -59,9 +59,9 @@ title?: string  # Display title.
 
 ## Typed Actions
 
-Three actions, lifted at module load from the engine's `SEQUENCE_AGENT_PATCH_OPERATIONS` — schema truth stays in the sequence package; the lift strips only the envelope discriminant and prefixes the family name. Each rides a `componentAction` op as `sequence.<verb>` and carries `forward: { authority: "sequence" }` instead of a local `apply` — the forwarded shape of Typed actions.
+Three actions are lifted at module load from the engine's `SEQUENCE_AGENT_PATCH_OPERATIONS`. Schema truth stays in the sequence package; the lift strips only the envelope discriminant and prefixes the family name. Each rides a `componentAction` op as `sequence.<verb>` and carries `forward: { authority: "sequence" }` instead of a local `apply`, the forwarded shape of Typed actions.
 
-**sequence — forwarded patch operations**
+**sequence forwarded patch operations**
 
 ```
 sequence.setProgram(program: string) -> forwarded to the sequence authority  # Replace diagram structure with a complete whole-program rewrite: every participant and item, never a patch. Styling never appears in the program.
@@ -87,7 +87,7 @@ sequence.setTitle(title: string) -> forwarded to the sequence authority  # Set t
 
 ### The Program Language
 
-Language essentials: numbers are participant identity, `text=` is a display name. Arrows are `>` sync, `->` async, `-->` return. `alt`/`opt`/`loop` fragments take `guard=` and nest by indentation alone — there is no `end` keyword. `note` attaches `over`/`left`/`right` of a participant; activations are derived automatically. Styling lives in the document's separate style section, *never* in the program.
+Language essentials: numbers are participant identity, `text=` is a display name. Arrows are `>` sync, `->` async, `-->` return. `alt`/`opt`/`loop` fragments take `guard=` and nest by indentation alone. There is no `end` keyword. `note` attaches `over`/`left`/`right` of a participant; activations are derived automatically. Styling lives in the document's separate style section, *never* in the program.
 
 ```
 title "Order distribution"
@@ -112,13 +112,13 @@ The viewer descriptor renders the block through the host's `renderSequence` slot
 
 - Slot chain
 
-  - `DocBlockRenderer` builds `renderSequence` from `DocsClientProvider`'s `sequenceEmbed` slot — the sequence counterpart of the canvas embed slot.
+  - `DocBlockRenderer` builds `renderSequence` from `DocsClientProvider`'s `sequenceEmbed` slot, the sequence counterpart of the canvas embed slot.
 
   - `resolveBundleSequenceSrc` canonicalizes the src first: a `./` prefix resolves against the doc bundle's own assets; anything else is docs-root-relative.
 
 - Workbench host
 
-  - `StandaloneSequenceEmbed` loads the sidecar through the serve/export data layer, validates with `validateSequenceDocument`, and renders the read-only `SequenceViewer` — no editing, no saving.
+  - `StandaloneSequenceEmbed` loads the sidecar through the serve/export data layer, validates with `validateSequenceDocument`, and renders the read-only `SequenceViewer`, with no editing and no saving.
 
   - A `sequenceId` without a `src` renders an Open in Sequence Studio affordance instead of an inline diagram.
 
@@ -130,7 +130,7 @@ The viewer descriptor renders the block through the host's `renderSequence` slot
 
 ## Agent Renderer
 
-The markdown projection is one comment line — a greppable reference, not the diagram:
+The markdown projection is one comment line, a greppable reference, not the diagram:
 
 ```
 <!-- sequence: assets/sequences/login-flow.sequence.json title="Login flow" -->
@@ -150,11 +150,11 @@ The markdown projection is one comment line — a greppable reference, not the d
 
 ## Theme
 
-The docs theme owns nothing here: `THEME_TOKEN_REGISTRY` (`theme-folders.ts`) has no sequence entry, and the default theme folder ships no `components/sequence.json` (theme folders: Theming). Diagram visuals live in the `SequenceDocument`'s own `style` section, edited through `sequence.setStyle` — see Theming for the contract this deviates from.
+The docs theme owns one token here: the `sequence` entry of `THEME_TOKEN_REGISTRY` (`theme-folders.ts`) registers `border`, set through `components/sequence.json` in the active theme folder. By default that folder is the Global theme at `~/.local/state/codecaine-docs/themes/global/`. Diagram visuals live in the `SequenceDocument`'s own `style` section, edited through `sequence.setStyle`. See Theming for the contract this deviates from.
 
 - `--docs-sequence-border`
 
-  - The one doc-side hook: the placeholder card's border color, unregistered in the token registry, falling back to `--border`.
+  - The one doc-side hook: the border color of the placeholder card and the embed frame, registered as the sequence `border` token and falling back to `--border`.
 
 - Engine-side painting
 
@@ -182,7 +182,7 @@ A forwarded action travels four steps:
 
 - Validation and undo hold for every editor
 
-  - Human, host, or agent — every content write goes through the engine's own operations, so schema validation and the inverse snapshot apply no matter who edits.
+  - Whether a human, host, or agent edits, every content write goes through the engine's own operations, so schema validation and the inverse snapshot apply no matter who edits.
 
 - A registered authority
 

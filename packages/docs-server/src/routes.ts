@@ -16,7 +16,15 @@ import {
 import { listCanvasSidecars, validateCanvasPayload } from "./canvas-sidecar";
 import { validateSequencePayload } from "./sequence-sidecar";
 import type { DocsChangeEvent } from "./docs-events";
-import { isValidThemeId, listRepoThemes, readRepoTheme, themesRootFor, writeRepoTheme } from "./themes";
+import {
+  GLOBAL_THEME_ID,
+  isValidThemeId,
+  listThemes,
+  readRepoTheme,
+  themesRootFor,
+  themesRootForId,
+  writeRepoTheme,
+} from "./themes";
 
 /**
  * GET /api/blocks payload — the agent edit-surface discovery document, so
@@ -78,9 +86,9 @@ function toSnakeCaseWire(value: unknown): unknown {
  *   GET  /api/asset?path=                   -> raw asset bytes
  *   GET  /api/backlinks?target=             -> { target, backlinks }
  *   GET  /api/blocks                        -> { schemaVersion, ops, components } (static edit-surface discovery)
- *   GET  /api/themes                        -> { themes: [{ id, name }] } (options.themesRoot or sibling themes/)
+ *   GET  /api/themes                        -> { themes: [{ id, name, global? }] } (global first when configured)
  *   GET  /api/themes/:themeId               -> { theme: { id, manifest, components } } | 404
- *   POST /api/themes                        -> 201 { theme } | 400 (writes themes/<id>/ folder) | 403 themeLocked
+ *   POST /api/themes                        -> 201 { theme } | 400 (writes <root>/<id>/ folder) | 403 themeLocked
  *   POST /api/ops                           -> doc ops or one forwarded canvas/sequence action | 400/409/423
  *   GET  /api/annotations?path=             -> { annotations, hash }
  *   POST /api/annotations                   -> 201 { annotation, annotations, hash } | 409/423
@@ -121,6 +129,11 @@ function toSnakeCaseWire(value: unknown): unknown {
  * Theme READS stay open; locked viewers still inherit the repo theme.
  * `options.themesRoot` redirects all theme reads and writes; absent it, the
  * themes/ folder remains the sibling of `store.docsRoot`.
+ * `options.globalThemesRoot` enables the shared GLOBAL theme (reserved id
+ * `global`, stored at `<globalThemesRoot>/global/`): it lists first, and
+ * reads/writes of that id go there — never to the repo. Absent it, the id
+ * is unavailable (404 on read, 400 on write). The factory never reads the
+ * environment; hosts resolve the root (themes.ts resolveGlobalThemesRoot).
  *
  * NOTE (SSE): Elysia treats an async generator handler as a stream natively;
  * yields wrapped with the `sse()` helper flip the response into SSE mode
@@ -130,9 +143,10 @@ function toSnakeCaseWire(value: unknown): unknown {
  */
 export function createDocsRoutes(
   store: DocsStore,
-  options?: { themeLocked?: boolean; themesRoot?: string },
+  options?: { themeLocked?: boolean; themesRoot?: string; globalThemesRoot?: string },
 ) {
   const themesRoot = options?.themesRoot ?? themesRootFor(store.docsRoot);
+  const globalThemesRoot = options?.globalThemesRoot;
   return new Elysia({ name: "docs-server-routes" })
     // -- dev CORS (see CORS_HEADERS above) -------------------------------------
     // onRequest runs before routing, so success, validation-error, and 404
@@ -373,10 +387,11 @@ export function createDocsRoutes(
 
     // -- theme folders (docs/20-implementation/40-theming) ---------------------
     .get("/api/themes", async () => {
-      return { themes: await listRepoThemes(themesRoot) };
+      return { themes: await listThemes(themesRoot, globalThemesRoot) };
     })
     .get("/api/themes/:themeId", async ({ params, set }) => {
-      const theme = await readRepoTheme(themesRoot, params.themeId);
+      const root = themesRootForId(params.themeId, themesRoot, globalThemesRoot);
+      const theme = root ? await readRepoTheme(root, params.themeId) : null;
       if (!theme) {
         set.status = 404;
         return { detail: `No theme named ${JSON.stringify(params.themeId)}.` };
@@ -401,13 +416,20 @@ export function createDocsRoutes(
         set.status = 400;
         return { detail: "Theme manifest must be an object." };
       }
-      await writeRepoTheme(themesRoot, {
+      const root = themesRootForId(payload.id, themesRoot, globalThemesRoot);
+      if (!root) {
+        set.status = 400;
+        return {
+          detail: `Theme id ${JSON.stringify(GLOBAL_THEME_ID)} is reserved for the shared global theme, which this host does not serve.`,
+        };
+      }
+      await writeRepoTheme(root, {
         id: payload.id,
         manifest: payload.manifest as Record<string, unknown>,
         components: (payload.components ?? {}) as Record<string, Record<string, unknown>>,
       });
       set.status = 201;
-      return { theme: await readRepoTheme(themesRoot, payload.id) };
+      return { theme: await readRepoTheme(root, payload.id) };
     })
 
     // -- doc ops ---------------------------------------------------------------

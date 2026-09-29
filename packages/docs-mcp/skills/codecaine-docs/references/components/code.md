@@ -1,6 +1,6 @@
 # code
 
-Generated from Codecaine Docs sources. Snapshot: `sha256:bdf029c4c9e6c8f0ae4c1490c10f0446719bcd2a331b4623e486469d36733107`. Refresh the installation to regenerate these files.
+Generated from Codecaine Docs sources. Snapshot: `sha256:ec5a2032dd0e9822d89d1619feb39b5aad7fda867bcf6d1392991b580b70d7a3`. Refresh the installation to regenerate these files.
 
 Use annotated source listings as evidence of the actual implementation. Put a state instance in State Shape alongside its field definition.
 
@@ -8,15 +8,15 @@ Example: Show the real validation function and annotate the branch that rejects 
 
 Canonical document: `10-system-design/40-block-vocabulary/20-code-block`.
 
-The code component owns a single block type, `code` — the language-tagged block for real, annotated source listings in the Block vocabulary. The source lives in the block's delta text; the language tag and structured line annotations live in `props`.
+The code component owns a single block type, `code`: the language-tagged block for real, annotated source listings in the Block vocabulary. The source lives in the block's delta text; the language tag and structured line annotations live in `props`.
 
 When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source; identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information.
 
-In the documentation doctrine the type is the source-evidence surface: state-shape blocks carry state examples, code blocks carry the evidence — annotated listings of the defining source.
+In the documentation doctrine the type is the source-evidence surface: state-shape blocks carry state examples, and code blocks carry the evidence: annotated listings of the defining source.
 
 ## Example
 
-A live instance of the type — a small annotated listing:
+A live instance of the type, a small annotated listing:
 
 ```typescript
 export function requireRoot(doc: DocDocument): DocBlock {
@@ -37,7 +37,7 @@ export function requireRoot(doc: DocDocument): DocBlock {
 ```
 language?: string  # Fence tag for highlighting and the header label, e.g. "json", "ts".
 annotations?: CodeAnnotation[]  # Line annotations, each keyed by its exact lines string.
-  lines: string  # 1-indexed range string — "4", "4-9", "1,4-6" — and the entry's identity key.
+  lines: string  # 1-indexed range string, such as "4", "4-9", or "1,4-6", and the entry's identity key.
   label?: string  # Short heading on the note.
   note: string  # The annotation body.
 ```
@@ -55,7 +55,7 @@ annotations?: CodeAnnotation[]  # Line annotations, each keyed by its exact line
 }
 ```
 
-The type declares `carriesText: true` in `packages/docs-model/src/components/code/state.ts`: the delta text is the source payload itself, not prose. The editor schema sets `marks: ""` on the node (`packages/docs-viewer/src/components/code/editor-nodes.ts`), so the spans are plain inserts — no bold, link, or reference marks inside code. Everything else is props, defined by two closed TypeBox schemas:
+The type declares `carriesText: true` in `packages/docs-model/src/components/code/state.ts`: the delta text is the source payload itself, not prose. The editor schema sets `marks: ""` on the node (`packages/docs-viewer/src/components/code/editor-nodes.ts`), so the spans are plain inserts with no bold, link, or reference marks inside code. Everything else is props, defined by two closed TypeBox schemas:
 
 ```typescript
 export const CodeAnnotationSchema = Type.Object(
@@ -80,11 +80,11 @@ export const codeState: BlockStateDefinition = { schema: CodeState, carriesText:
 
 - The exact string is the annotation's identity key.
 
-  - Both typed actions and the pairing engine key on it; two annotations can never share a key — `setAnnotation` replaces in place.
+  - Both typed actions and the pairing engine key on it, and two annotations can never share a key. `setAnnotation` replaces in place.
 
 - `expandLineRange` in `packages/docs-viewer/src/components/code/annotations.ts` expands a key into the covered line set.
 
-  - Parts clamp to the text's line count; unparseable parts contribute nothing — bad input never crashes a render.
+  - Parts clamp to the text's line count, and unparseable parts contribute nothing, so bad input never crashes a render.
 
 ### Tolerant Reads
 
@@ -100,7 +100,7 @@ export const codeState: BlockStateDefinition = { schema: CodeState, carriesText:
 
 ## Typed Actions
 
-The component registers exactly two typed actions, both built with `defineComponentAction` against block type `code`. Annotations edit only through them; the source text stays on generic text ops — no typed action touches the delta.
+The component registers exactly two typed actions, both built with `defineComponentAction` against block type `code`. Annotations edit only through them. The source text stays on generic text ops, and no typed action touches the delta.
 
 - `code.setAnnotation`
 
@@ -110,21 +110,21 @@ The component registers exactly two typed actions, both built with `defineCompon
 
 - `code.removeAnnotation`
 
-  - Refuses a key that does not exist — the failure reports issue path `$.params.lines` instead of silently no-opping.
+  - Refuses a key that does not exist. The failure reports issue path `$.params.lines` instead of silently no-opping.
 
-**code — annotation actions**
+**code annotation actions**
 
 ```
 code.setAnnotation(lines: string, note: string, label?: string) -> CodePatch  # Upsert a line annotation keyed by its exact "lines" string (e.g. "4-9").
   Returns CodePatch:
     annotations?: CodeAnnotation[]  # Line annotations, each keyed by its exact lines string.
-      lines: string  # 1-indexed range string — "4", "4-9", "1,4-6" — and the entry's identity key.
+      lines: string  # 1-indexed range string, such as "4", "4-9", or "1,4-6", and the entry's identity key.
       label?: string  # Short heading on the note.
       note: string  # The annotation body.
 code.removeAnnotation(lines: string) -> CodePatch  # Remove the annotation whose "lines" key matches exactly.
   Returns CodePatch:
     annotations?: CodeAnnotation[]  # Line annotations, each keyed by its exact lines string.
-      lines: string  # 1-indexed range string — "4", "4-9", "1,4-6" — and the entry's identity key.
+      lines: string  # 1-indexed range string, such as "4", "4-9", or "1,4-6", and the entry's identity key.
       label?: string  # Short heading on the note.
       note: string  # The annotation body.
 ```
@@ -149,13 +149,13 @@ apply(block, { lines, note, label }) {
 
 ## Doc Renderer
 
-Three surfaces, one shell: the plain read surface, the annotated read surface, and the edit surface. Shared furniture — header row, sticky gutter, zebra striping, notes aside — comes from the shared shell, so the three surfaces look identical.
+Three surfaces share one shell: the plain read surface, the annotated read surface, and the edit surface. The shared shell supplies the header row, sticky gutter, zebra striping, and notes aside, so the three surfaces look identical.
 
 ### Shared Shell
 
 - Header row.
 
-  - Quiet uppercase language label left, ghost copy button right — no pill, no background.
+  - A quiet uppercase language label sits left and a ghost copy button sits right, with no pill and no background.
 
   - The copy button appears on block hover or focus and copies the surface's exact displayed source.
 
@@ -173,7 +173,7 @@ Three surfaces, one shell: the plain read surface, the annotated read surface, a
 
   - A 320px right column at lg widths, stacked below the code when narrow.
 
-  - Notes are plain prose rows with a hairline rule between items — never zebra; each note's `lines` key rides in its title attribute.
+  - Notes are plain prose rows with a hairline rule between items, never zebra; each note's `lines` key rides in its title attribute.
 
 - Design principle: one surface, one accent, interaction reveals the rest.
 
@@ -193,11 +193,11 @@ Three surfaces, one shell: the plain read surface, the annotated read surface, a
 
 - The annotated read surface keeps a per-line grid, so every annotated line is a click and focus target.
 
-  - Pairing runs on the shared LinkGroup engine — one group per block, keyed by the annotation's `lines` string.
+  - Pairing runs on the shared LinkGroup engine, with one group per block, keyed by the annotation's `lines` string.
 
 - Hovering or focusing a note or an annotated line lights the pair's full extent: background wash, a 3px pin rail from first through last covered line, pin-color bold numbers.
 
-- Clicking (or Enter/Space) pins the pair — it survives hover-out — and Escape clears it.
+- Clicking (or Enter/Space) pins the pair so it survives hover-out, and Escape clears it.
 
 - Overlapping annotations resolve each line to the earliest covering note.
 
@@ -211,7 +211,7 @@ Three surfaces, one shell: the plain read surface, the annotated read surface, a
 
 - Slash menu: **Code Block** (aliases `codeblock`, `code`, `````).
 
-- Input rule: the paragraph converts the moment the third backtick lands — no trailing space, no typed language tag.
+- Input rule: the paragraph converts the moment the third backtick lands, with no trailing space and no typed language tag.
 
 - The header label is the language picker.
 
@@ -221,13 +221,13 @@ Three surfaces, one shell: the plain read surface, the annotated read surface, a
 
 ### Highlighting and JSON Display
 
-- Highlighting uses highlight.js core with a curated set of 13 registered grammars — never the all-languages bundle.
+- Highlighting uses highlight.js core with a curated set of 13 registered grammars, never the all-languages bundle.
 
-  - bash, css, diff, go, javascript, json, markdown, python, rust, sql, typescript, xml, yaml — plus each grammar's aliases (ts, tsx, js, sh, yml, md, py…).
+  - bash, css, diff, go, javascript, json, markdown, python, rust, sql, typescript, xml, and yaml, plus each grammar's aliases (ts, tsx, js, sh, yml, md, py…).
 
 - One resolution serves the header label and the tokens.
 
-  - The declared language when a grammar or alias matches, else a JSON sniff, else escaped plain text with no label — the label can never disagree with tokenization.
+  - The label is the declared language when a grammar or alias matches, else a JSON sniff, else escaped plain text with no label. The label can never disagree with tokenization.
 
 - Token colors come from the host's `.hljs-*` rules, mapped to the `--syntax-*` theme vars for light and dark.
 
@@ -235,7 +235,7 @@ Three surfaces, one shell: the plain read surface, the annotated read surface, a
 
   - `prettyPrintIfJson` re-renders one-liner JSON as the nested 2-space form when the language is json/jsonc, or is undeclared and the text sniffs as JSON.
 
-  - On the annotated surface it runs before line-splitting, so `lines` ranges address the pretty-printed form — author JSON as pretty multi-line text so ranges are stable against the transform.
+  - On the annotated surface it runs before line-splitting, so `lines` ranges address the pretty-printed form. Author JSON as pretty multi-line text so ranges are stable against the transform.
 
 ## Agent Renderer
 
@@ -247,15 +247,15 @@ On the agent surface the block renders as a fenced markdown block: the fence tag
 
 - The L-prefixed range is the annotation's `lines` key; the label rides in parentheses and drops cleanly when absent.
 
-- Entries missing a `lines` or `note` string drop from the projection — the same tolerant read as the doc surfaces.
+- Entries missing a `lines` or `note` string drop from the projection, the same tolerant read as the doc surfaces.
 
 - Line numbers in `lines` are 1-indexed against the block text at the time you write them; re-check them after editing the source.
 
-- The house style for documenting a system: a state-shape carrying both the shape and an example instance, then an interaction-surface for the operations. Code blocks enter as source evidence — annotated listings of the defining source, not state examples.
+- The house style for documenting a system: a state-shape carrying both the shape and an example instance, then an interaction-surface for the operations. Code blocks enter as source evidence: annotated listings of the defining source, not state examples.
 
 ## Theme
 
-The theme file is `themes/default/components/code.json` in a theme folder (`themes/<id>/`; the system is Theming). Every value is one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY` in `packages/docs-workbench/web/src/theme/theme-folders.ts`. The contract element is Theming.
+The theme file is `components/code.json` in the active theme folder. By default that folder is the Global theme at `~/.local/state/codecaine-docs/themes/global/`. A repo `themes/<id>/` folder is active only when the host serves no Global theme. Every value is one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY` in `packages/docs-workbench/web/src/theme/theme-folders.ts`. The contract element is Theming.
 
 | Key | CSS variable | Kind | Styles |
 | --- | --- | --- | --- |
@@ -278,9 +278,9 @@ The theme file is `themes/default/components/code.json` in a theme folder (`them
 
 - The three knobs are the registry's only non-color code tokens.
 
-  - Every internal hairline — header rule, code/notes column divider, note dividers — runs through the one rule token set.
+  - Every internal hairline, including the header rule, the code/notes column divider, and note dividers, runs through the one rule token set.
 
-- The default theme sets `ruleOpacity` 0.9 and `zebraOpacity` 1; every other key falls through to the fixed fallbacks in `packages/docs-viewer/src/components/code/classes.ts`.
+- The `docs-system-classic` repo theme sets `ruleOpacity` 0.9 and `zebraOpacity` 1; every other key falls through to the fixed fallbacks in `packages/docs-viewer/src/components/code/classes.ts`.
 
 - The annotated read surface additionally rides the shared linked-panels tokens.
 
@@ -290,9 +290,9 @@ The theme file is `themes/default/components/code.json` in a theme folder (`them
 
 ## Agent Adapter
 
-The family uses the default adapter: no agent of its own, and nothing forwards to an external authority — both typed actions carry a local `apply`. The contract element is Agent adapter.
+The family uses the default adapter: no agent of its own, and nothing forwards to an external authority. Both typed actions carry a local `apply`. The contract element is Agent adapter.
 
-- An agent edit arrives as a `componentAction` op — one of the generic doc ops, alongside `insertBlock`, `updateBlock`, `deleteBlock`, `moveBlock`, `splitBlock`, and `mergeBlocks`.
+- An agent edit arrives as a `componentAction` op, one of the generic doc ops, alongside `insertBlock`, `updateBlock`, `deleteBlock`, `moveBlock`, `splitBlock`, and `mergeBlocks`.
 
 - The op kernel (`packages/docs-model/src/doc-ops.ts`) resolves the action from the registry, validates its params, runs `apply` against the target block, and executes the returned `{ annotations }` patch through the existing `updateBlock` path.
 

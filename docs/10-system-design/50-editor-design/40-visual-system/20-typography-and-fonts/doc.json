@@ -23,8 +23,14 @@
         "b-typo-files-heading",
         "b-typo-stack-rule",
         "b-typo-file-status",
+        "b-typo-book-heading",
+        "b-typo-book-intro",
+        "b-typo-book-table",
+        "b-typo-book-measure",
+        "b-typo-book-limit",
         "b-typo-why-heading",
-        "b-typo-why-seams"
+        "b-typo-why-seams",
+        "b-typo-why-book"
       ]
     },
     "b-typo-intro": {
@@ -33,7 +39,19 @@
       "props": {},
       "text": [
         {
-          "insert": "Typography assigns font families by reading role: body, heading, code, and numeric. Shared reading metrics set the size, line height, and tracking for the document column. The structural decisions behind theme loading and variable injection live in "
+          "insert": "Typography assigns font families by reading role: body, heading, code, and numeric. Shared reading metrics set the size, line height, and tracking for the document column. The stock defaults below are built into the workbench, and the shared Global theme from "
+        },
+        {
+          "insert": "Themes",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/30-themes"
+            }
+          }
+        },
+        {
+          "insert": " starts from them, so every project reads with these values until someone tunes that theme. The structural decisions behind theme loading and variable injection live in "
         },
         {
           "insert": "Theming: Overview",
@@ -70,7 +88,7 @@
         "columns": [
           "Reading role",
           "Token",
-          "Living Default"
+          "Stock Default"
         ],
         "rows": [
           [
@@ -103,20 +121,24 @@
       "props": {
         "columns": [
           "Reading metric",
-          "Living Default"
+          "Stock Default",
+          "Style Rail range"
         ],
         "rows": [
           [
             "Font size",
-            "16px"
+            "18px",
+            "12 to 28px"
           ],
           [
             "Line height",
-            "1.5"
+            "1.45",
+            "1.1 to 2.1"
           ],
           [
             "Letter spacing",
-            "0.005em"
+            "0em",
+            "-0.02 to 0.08em"
           ]
         ]
       },
@@ -284,7 +306,7 @@
       "props": {},
       "text": [
         {
-          "insert": "System Sans resolves to "
+          "insert": "Body and headings default to System Sans, which resolves to "
         },
         {
           "insert": "ui-sans-serif, system-ui, sans-serif",
@@ -293,7 +315,16 @@
           }
         },
         {
-          "insert": ". Mono resolves to "
+          "insert": " and is SF Pro on macOS. The System Serif option resolves to "
+        },
+        {
+          "insert": "ui-serif, Georgia, \"Times New Roman\", serif",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", which is New York on macOS. Mono resolves to "
         },
         {
           "insert": "ui-monospace, \"SF Mono\", SFMono-Regular, Menlo, monospace",
@@ -327,6 +358,223 @@
         },
         {
           "insert": " rules."
+        }
+      ],
+      "children": []
+    },
+    "b-typo-book-heading": {
+      "id": "b-typo-book-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Reference Book"
+        }
+      ],
+      "children": []
+    },
+    "b-typo-book-intro": {
+      "id": "b-typo-book-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The stock reading metrics adapt the layout of "
+        },
+        {
+          "insert": "Building a Second Brain",
+          "attributes": {
+            "italic": true
+          }
+        },
+        {
+          "insert": " by Tiago Forte. The book's face, EB Garamond, was tried as a serif body and replaced with System Sans because the owner preferred the sans body. The owner also chose a slightly smaller size with more open leading, 18px at 1.45 instead of the book's 20px at 1.3. Both give a line pitch of about 26px, so the vertical rhythm matches the book. The book values come from body pages of the calibre-made US Letter PDF, 612 by 792pt. The measure is the line length, and the leading is the distance between baselines."
+        }
+      ],
+      "children": []
+    },
+    "b-typo-book-table": {
+      "id": "b-typo-book-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Metric",
+          "Book",
+          "Workbench"
+        ],
+        "rows": [
+          [
+            "Body face",
+            "EB Garamond",
+            "System Sans, SF Pro on macOS"
+          ],
+          [
+            "Font size",
+            "15pt (20px)",
+            [
+              {
+                "insert": "18px",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ]
+          ],
+          [
+            "Leading",
+            "19.5pt (26px), a 1.3 ratio",
+            [
+              {
+                "insert": "1.45",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " (about 26px)"
+              }
+            ]
+          ],
+          [
+            "Measure",
+            "About 80 characters (79 to 82 on full lines), 468pt (624px) wide inside 1in margins",
+            [
+              {
+                "insert": "60ch",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " (about 650px), about 84 characters"
+              }
+            ]
+          ],
+          [
+            "Headings",
+            "Roboto Medium, about 17pt (23px)",
+            "System Sans"
+          ],
+          [
+            "Paragraph spacing",
+            "None",
+            "Not matched: 0.75rem above and below"
+          ],
+          [
+            "First-line indent",
+            "18pt (1.2em)",
+            "Not matched: none"
+          ],
+          [
+            "Alignment",
+            "Justified",
+            "Not matched: left-aligned"
+          ]
+        ]
+      },
+      "children": []
+    },
+    "b-typo-book-measure": {
+      "id": "b-typo-book-measure",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "CoreText measures SF Pro, the System Sans face on macOS, at 18px with a "
+        },
+        {
+          "insert": "0",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " glyph of about 10.84px and an average of about 7.77px per character of the book's text. A "
+        },
+        {
+          "insert": "60ch",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " lane is therefore about 650px wide and holds about 84 characters. The lane is set in "
+        },
+        {
+          "insert": "ch",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", so its width scales with the font size and the character count stays the same. That line runs slightly longer than the book's line of about 80 characters. The owner kept "
+        },
+        {
+          "insert": "60ch",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " because the sizing reads well. The content width control ranges from "
+        },
+        {
+          "insert": "40ch",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " to "
+        },
+        {
+          "insert": "140ch",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-typo-book-limit": {
+      "id": "b-typo-book-limit",
+      "type": "callout",
+      "props": {
+        "kind": "Limitation",
+        "title": "Paragraph metrics are hard-coded",
+        "tone": "warning"
+      },
+      "text": [
+        {
+          "insert": "Paragraph spacing, first-line indent, and alignment are not theme settings. "
+        },
+        {
+          "insert": "PARAGRAPH_CLASSES",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/render/block-classes.ts",
+              "symbol": "PARAGRAPH_CLASSES"
+            }
+          }
+        },
+        {
+          "insert": " applies "
+        },
+        {
+          "insert": "my-3",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " to every paragraph, so paragraphs keep 0.75rem above and below and stay left-aligned."
         }
       ],
       "children": []
@@ -367,6 +615,42 @@
       "text": [
         {
           "insert": "A theme can separate code or numerals without changing prose, headings, or individual components."
+        }
+      ],
+      "children": []
+    },
+    "b-typo-why-book": {
+      "id": "b-typo-why-book",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Metrics follow a book that reads well",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-typo-why-book-gloss"
+      ]
+    },
+    "b-typo-why-book-gloss": {
+      "id": "b-typo-why-book-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The stock defaults adapt a printed layout the owner reads comfortably for long sessions, and the Global theme every project renders starts from them. The 18px size at a 1.45 line height keeps the book's 26px line pitch. The measure is set in "
+        },
+        {
+          "insert": "ch",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", so the line keeps about 84 characters when the font size changes."
         }
       ],
       "children": []

@@ -2,6 +2,8 @@ import { sharedDocsApiFromEnvironment, type SharedDocsApiOptions } from "./share
 import { existsSync } from "node:fs";
 import { join, resolve } from "node:path";
 
+import { resolveGlobalThemesRoot } from "@codecaine-ai/docs-server";
+
 import { startDocsServe } from "./server";
 import { ensureSpaBuilt, webDir } from "./spa";
 import { centralProjectUrl } from "./central-service";
@@ -20,6 +22,12 @@ export interface RunServeOptions {
   docsRoot: string;
   /** Theme folder used by the theme API; defaults to the docs-root sibling. */
   themesRoot?: string;
+  /**
+   * Shared global theme folder; defaults to `<state dir>/themes` when the
+   * docs service state directory exists (same root the central service uses).
+   * Pass null to serve repo themes only.
+   */
+  globalThemesRoot?: string | null;
   port: number;
   /** Bind address. Defaults to loopback — the served docs tree may be private. */
   hostname?: string;
@@ -64,6 +72,8 @@ export async function runServe(options: RunServeOptions): Promise<void> {
     ],
   } : configuredSharedApi;
   const hostname = options.hostname ?? "127.0.0.1";
+  const globalThemesRoot =
+    options.globalThemesRoot === null ? undefined : (options.globalThemesRoot ?? resolveGlobalThemesRoot());
   const displayHost = hostname === "0.0.0.0" ? "localhost" : hostname;
 
   if (!existsSync(join(docsRoot, "."))) {
@@ -75,6 +85,7 @@ export async function runServe(options: RunServeOptions): Promise<void> {
       sharedApi,
       docsRoot,
       themesRoot: options.themesRoot,
+      globalThemesRoot,
       port,
       hostname,
       staticDir: null,
@@ -115,6 +126,7 @@ export async function runServe(options: RunServeOptions): Promise<void> {
     sharedApi,
     docsRoot,
     themesRoot: options.themesRoot,
+    globalThemesRoot,
     port,
     hostname,
     staticDir,

@@ -335,7 +335,7 @@ The theme registry retains the original Process Outline variables listed below. 
 
   - Length controls set indentation, gaps, line heights, text sizes, note spacing, and arrow geometry. Strength controls set note accents and chip mixes.
 
-  - Backed by the `process-outline` entry in `THEME_TOKEN_REGISTRY` (theme-folders.ts) and the `process-outline` picker file in the Components section.
+  - Backed by the `process-outline` entry in `THEME_TOKEN_REGISTRY` (theme-folders.ts) and the `process-outline` picker file in the Components section. Values save to `components/process-outline.json` in the active theme folder, which is the Global theme by default.
 
 - Derived deep ink
 

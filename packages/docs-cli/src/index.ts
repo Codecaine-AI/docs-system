@@ -461,10 +461,13 @@ async function main() {
         process.exitCode = 1;
         return;
       }
-      const { runExport } = await import("@codecaine-ai/docs-workbench");
+      const { runExport, resolveGlobalThemesRoot } = await import("@codecaine-ai/docs-workbench");
       const report = await runExport({
         docsRoot: root,
         outDir: path.resolve(out),
+        // Snapshot the theme a served workbench shows: the shared global
+        // theme when this machine has one, else the repo default.
+        globalThemesRoot: resolveGlobalThemesRoot(),
         forceBuild: args.includes("--rebuild"),
         log: (message) => console.error(message),
       });

@@ -76,7 +76,7 @@
           }
         },
         {
-          "insert": ". The block itself is only a reference — the canvas document, its objects, and its schema live in the external canvas system ("
+          "insert": ". The block itself is only a reference. The canvas document, its objects, and its schema live in the external canvas system ("
         },
         {
           "insert": "external/canvas",
@@ -110,7 +110,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Reach for canvas when the question is how things relate — spatial boards, architecture maps, annotated relationships. Exact exchanges belong to the sequence block, and an end-to-end process flow belongs to process-outline."
+          "insert": "Reach for canvas when the question is how things relate: spatial boards, architecture maps, and annotated relationships. Exact exchanges belong to the sequence block, and an end-to-end process flow belongs to process-outline."
         }
       ],
       "children": []
@@ -242,7 +242,7 @@
           }
         },
         {
-          "insert": ") are a closed schema — "
+          "insert": ") are a closed schema with "
         },
         {
           "insert": "additionalProperties: false",
@@ -310,7 +310,7 @@
           }
         },
         {
-          "insert": "); all state lives in the four props. A block with neither source prop is valid — the doc renderer shows a missing-source placeholder."
+          "insert": "); all state lives in the four props. A block with neither source prop is valid, and the doc renderer shows a missing-source placeholder."
         }
       ],
       "children": []
@@ -355,7 +355,7 @@
           }
         },
         {
-          "insert": " — docs-model reuses the canvas package's schemas and descriptions, and never redefines them."
+          "insert": ". docs-model reuses the canvas package's schemas and descriptions, and never redefines them."
         }
       ],
       "children": []
@@ -481,7 +481,7 @@
       },
       "text": [
         {
-          "insert": "The dispatcher validates params against the lifted TypeBox schema, then refuses to run the action as a doc op — it is handled by the canvas authority ("
+          "insert": "The dispatcher validates params against the lifted TypeBox schema, then refuses to run the action as a doc op, because the canvas authority handles it ("
         },
         {
           "insert": "doc-ops.ts",
@@ -579,7 +579,7 @@
             "kind": "action"
           }
         ],
-        "title": "canvas — forwarded patch operations"
+        "title": "canvas forwarded patch operations"
       },
       "children": []
     },
@@ -602,7 +602,7 @@
       "props": {},
       "text": [
         {
-          "insert": "docs-viewer owns the descriptor but not the pixels: the render calls the host-injected canvas slot — DocsClientProvider's "
+          "insert": "docs-viewer owns the descriptor but not the pixels: the render calls the host-injected canvas slot, DocsClientProvider's "
         },
         {
           "insert": "canvasEmbed",
@@ -611,7 +611,7 @@
           }
         },
         {
-          "insert": " component — with "
+          "insert": " component, with "
         },
         {
           "insert": "{ id, canvasId, src, view, title }",
@@ -640,7 +640,7 @@
           }
         },
         {
-          "insert": " into the slot — a read-only embed:"
+          "insert": " into the slot as a read-only embed:"
         }
       ],
       "children": []
@@ -771,7 +771,7 @@
           }
         },
         {
-          "insert": " — doc edit mode does."
+          "insert": ". Doc edit mode does."
         }
       ],
       "children": []
@@ -957,7 +957,7 @@
           }
         },
         {
-          "insert": " renders an honest unavailable card with an Open Canvas Studio link — central boards are not stored in the docs repo."
+          "insert": " renders an honest unavailable card with an Open Canvas Studio link, because central boards are not stored in the docs repo."
         }
       ],
       "children": []
@@ -968,7 +968,7 @@
       "props": {},
       "text": [
         {
-          "insert": "In the editor — slash menu: "
+          "insert": "In the editor, the slash menu entry is "
         },
         {
           "insert": "Canvas",
@@ -1010,7 +1010,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The agent view is one HTML-comment reference line — "
+          "insert": "The agent view is one HTML-comment reference line: "
         },
         {
           "insert": "<!-- canvas: <src-or-canvasId> [view=<view>] [title=\"<title>\"] -->",
@@ -1082,7 +1082,7 @@
           }
         },
         {
-          "insert": " contract element at its smallest — one registered token: "
+          "insert": " contract element at its smallest is one registered token. "
         },
         {
           "insert": "components/canvas.json",
@@ -1091,28 +1091,7 @@
           }
         },
         {
-          "insert": " in a theme folder ("
-        },
-        {
-          "insert": "themes/<id>/",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "; system docs at "
-        },
-        {
-          "insert": "Theming",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "30-implementation/40-theming"
-            }
-          }
-        },
-        {
-          "insert": ") may set "
+          "insert": " in the active theme folder may set "
         },
         {
           "insert": "border",
@@ -1142,7 +1121,37 @@
           }
         },
         {
-          "insert": "."
+          "insert": ". By default that folder is the "
+        },
+        {
+          "insert": "Global theme",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/30-themes"
+            }
+          }
+        },
+        {
+          "insert": " at "
+        },
+        {
+          "insert": "~/.local/state/codecaine-docs/themes/global/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". A repo "
+        },
+        {
+          "insert": "themes/<id>/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " folder is active only when the host serves no Global theme."
         }
       ],
       "children": []
@@ -1193,28 +1202,29 @@
           }
         },
         {
-          "insert": "), and its one consumer is the doc renderer's missing-embed placeholder. The embedded canvas surface styles itself — the canvas package owns its own theme — and no built-in theme ships a "
+          "insert": "), and its one consumer is the doc renderer's missing-embed placeholder. The embedded canvas surface styles itself, because the canvas package owns its own theme. No shipped theme sets a canvas value: "
         },
         {
-          "insert": "components/canvas.json",
+          "insert": "themes/docs-system-classic/components/canvas.json",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "themes/docs-system-classic/components/canvas.json"
+            }
+          }
+        },
+        {
+          "insert": " is empty, and "
+        },
+        {
+          "insert": "themes/default/",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " ("
-        },
-        {
-          "insert": "themes/default",
-          "attributes": {
-            "reference": {
-              "kind": "source",
-              "path": "themes/default"
-            }
-          }
-        },
-        {
-          "insert": " carries code, structured-table, and surfaces files only)."
+          "insert": " has no component files."
         }
       ],
       "children": []
@@ -1238,7 +1248,7 @@
       "props": {},
       "text": [
         {
-          "insert": "How agents edit canvas content — the vocabulary's flagship non-default instance of the "
+          "insert": "How agents edit canvas content: the vocabulary's flagship non-default instance of the "
         },
         {
           "insert": "Agent adapter",

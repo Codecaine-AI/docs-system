@@ -51,10 +51,17 @@ export { collectBundlePaths, walkDocsDir, type DocsTreeNode } from "./docs-tree"
 
 // Theme folders (docs/20-implementation/40-theming)
 export {
+  GLOBAL_THEME_ID,
+  GLOBAL_THEME_NAME,
+  docsStateDirectory,
+  globalThemesRootFor,
   isValidThemeId,
   listRepoThemes,
+  listThemes,
   readRepoTheme,
+  resolveGlobalThemesRoot,
   themesRootFor,
+  themesRootForId,
   writeRepoTheme,
   type ThemeFilePayload,
   type ThemeListEntry,

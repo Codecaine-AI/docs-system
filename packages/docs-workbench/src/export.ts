@@ -6,7 +6,7 @@ import { openBacklinksDb, queryInboundTolerant, rescanAll } from "@codecaine-ai/
 
 import { bundleResponse, loadDocBundle } from "@codecaine-ai/docs-server";
 import { collectBundlePaths, walkDocsDir, type DocsTreeNode } from "@codecaine-ai/docs-server";
-import { readRepoTheme, themesRootFor } from "@codecaine-ai/docs-server";
+import { GLOBAL_THEME_ID, readRepoTheme, themesRootFor, themesRootForId } from "@codecaine-ai/docs-server";
 import { ensureSpaBuilt } from "./spa";
 
 /**
@@ -34,8 +34,14 @@ export interface ExportOptions {
   themesRoot?: string;
   /** Rebuild the SPA even when a static build already exists. */
   forceBuild?: boolean;
-  /** Active theme folder to snapshot as the exported site's style baseline. */
+  /**
+   * Active theme folder to snapshot as the exported site's style baseline.
+   * Defaults to the shared global theme when `globalThemesRoot` holds one
+   * (what a served workbench shows by default), else the repo `default`.
+   */
   themeId?: string;
+  /** Folder holding the shared global theme (`<root>/global/`); omit for repo themes only. */
+  globalThemesRoot?: string;
   log?: (message: string) => void;
 }
 
@@ -129,8 +135,17 @@ export async function runExport(options: ExportOptions): Promise<ExportReport> {
   //    without it an export renders stock defaults and quietly loses every
   //    tuned --style-* value. A repo with no themes/ folder just skips it
   //    and the SPA falls back to its compiled-in defaults.
-  const themeId = options.themeId ?? "default";
-  const theme = await readRepoTheme(options.themesRoot ?? themesRootFor(docsRoot), themeId);
+  const repoThemesRoot = options.themesRoot ?? themesRootFor(docsRoot);
+  const readTheme = async (id: string) => {
+    const root = themesRootForId(id, repoThemesRoot, options.globalThemesRoot);
+    return root ? readRepoTheme(root, id) : null;
+  };
+  let themeId = options.themeId ?? GLOBAL_THEME_ID;
+  let theme = await readTheme(themeId);
+  if (!theme && options.themeId === undefined) {
+    themeId = "default";
+    theme = await readTheme(themeId);
+  }
   if (theme) {
     await writeFile(join(dataDir, "theme.json"), JSON.stringify({ theme }, null, 2));
   }

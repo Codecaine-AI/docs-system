@@ -212,7 +212,19 @@
           }
         },
         {
-          "insert": " to 8px and expose a 0–16px range in 1px steps. The living Default theme selects 4px. General UI corners derive from this one sharpness scale."
+          "insert": " to 8px and expose a 0–16px range in 1px steps. The stock defaults, which the "
+        },
+        {
+          "insert": "Global theme",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/30-themes"
+            }
+          }
+        },
+        {
+          "insert": " starts from, keep 8px. General UI corners derive from this one sharpness scale."
         }
       ],
       "children": []
@@ -291,12 +303,21 @@
       "type": "callout",
       "props": {
         "kind": "Named deviation",
-        "title": "Living Default interaction radii",
+        "title": "Classic theme interaction radii",
         "tone": "warning"
       },
       "text": [
         {
-          "insert": "The living Default sets the block-highlight and drop-cursor radii to 1px through dedicated rail values. Those two effective radii do not follow their global derivations while the overrides are present; the structured-table handle remains derived and resolves to 0px at the living 4px radius."
+          "insert": "The "
+        },
+        {
+          "insert": "docs-system-classic",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " repo theme selects a 4px radius and sets the block-highlight and drop-cursor radii to 1px through dedicated rail values. Those two effective radii do not follow their global derivations while the overrides are present; the structured-table handle remains derived and resolves to 0px at 4px. The stock defaults set no such overrides, so at 8px the block highlight resolves to 6px and the drop cursor to 2px."
         }
       ],
       "children": []

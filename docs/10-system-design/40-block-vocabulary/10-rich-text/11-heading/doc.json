@@ -45,7 +45,7 @@
           }
         },
         {
-          "insert": ". Use it to give documents a greppable outline — "
+          "insert": ". Use it to give documents a greppable outline: "
         },
         {
           "insert": "docs grep '^## '",
@@ -102,7 +102,7 @@
       "id": "b-11-heading-state-shape-22",
       "type": "state-shape",
       "props": {
-        "description": "Closed schema — level is the only prop.",
+        "description": "Closed schema with level as the only prop.",
         "example": "{\n  \"level\": 3\n}",
         "fields": [
           {
@@ -383,7 +383,28 @@
           }
         },
         {
-          "insert": " in a theme folder ("
+          "insert": " in the active theme folder. By default that folder is the "
+        },
+        {
+          "insert": "Global theme",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/30-themes"
+            }
+          }
+        },
+        {
+          "insert": " at "
+        },
+        {
+          "insert": "~/.local/state/codecaine-docs/themes/global/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". A repo "
         },
         {
           "insert": "themes/<id>/",
@@ -392,19 +413,10 @@
           }
         },
         {
-          "insert": "; see "
+          "insert": " folder is active only when the host serves no Global theme."
         },
         {
-          "insert": "Theming",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "30-implementation/40-theming"
-            }
-          }
-        },
-        {
-          "insert": "). Every value is one string for both modes or a "
+          "insert": " Every value is one string for both modes or a "
         },
         {
           "insert": "{ light, dark }",
