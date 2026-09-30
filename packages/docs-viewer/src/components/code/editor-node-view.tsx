@@ -95,7 +95,7 @@ export function CodeBlockNodeView({ node, updateAttributes, editor }: ReactNodeV
               any tag at runtime — a <code> keeps the read surface's pre>code
               shape. Its injected contentDOM div inherits white-space, and it
               MUST be `pre` (not the default pre-wrap): soft wrap would break
-              every 20px line-geometry computation. */}
+              the one-row-per-line geometry (gutter, zebra, overlays). */}
           <NodeViewContent
             as={"code" as unknown as "div"}
             className="block"

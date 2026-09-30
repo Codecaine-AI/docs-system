@@ -148,34 +148,67 @@ function flattenFileTree(
   return out;
 }
 
-/** Row tint + gutter marker + name accent per diff state (dark: variants throughout). */
+/**
+ * Every tunable value reads a `--docs-file-tree-*` token (the workbench style
+ * rail's "File tree" pane; defaults in docs-workbench theme/semantic.css) with
+ * a literal fallback equal to that default, so the block renders identically
+ * where semantic.css is absent (static export). Class names stay complete
+ * literals — Tailwind scans this source and cannot see composed strings.
+ */
+const CARD_CLASS =
+  "overflow-x-auto rounded-[var(--docs-file-tree-radius,max(0px,calc(var(--radius,8px)-2px)))] border-[length:var(--docs-file-tree-border-width,1px)] border-[color:var(--docs-file-tree-border,var(--border))] bg-[var(--docs-file-tree-bg,var(--background))] py-[var(--docs-file-tree-pad-y,8px)] font-mono text-[length:var(--docs-file-tree-text-size,12px)] leading-[var(--docs-file-tree-line-height,24px)]";
+/** Horizontal card padding lives on each row so a diff tint spans the card edge to edge. */
+const ROW_PAD_X_CLASS = "px-[var(--docs-file-tree-pad-x,12px)]";
+/** Root dot, empty placeholder, and the struck `from` path of a rename. */
+const MUTED_FG_CLASS = "text-[color:var(--docs-file-tree-muted-fg,var(--muted-foreground))]";
+const GUIDE_FG_CLASS =
+  "text-[color:var(--docs-file-tree-guide-fg,color-mix(in_oklab,var(--muted-foreground)_70%,transparent))]";
+const FOLDER_WEIGHT_CLASS = "[font-weight:var(--docs-file-tree-folder-weight,500)]";
+const FILE_WEIGHT_CLASS = "[font-weight:var(--docs-file-tree-file-weight,400)]";
+const FOLDER_FG_CLASS = "text-[color:var(--docs-file-tree-folder-fg,var(--foreground))]";
+const FILE_FG_CLASS = "text-[color:var(--docs-file-tree-file-fg,var(--foreground))]";
+const NOTE_CLASS =
+  "ml-2 min-w-0 max-w-[48ch] truncate text-[length:var(--docs-file-tree-note-text-size,12px)] text-[color:var(--docs-file-tree-note-fg,var(--muted-foreground))]";
+
+/**
+ * Row tint + gutter marker + name accent per diff state. Each state is ONE
+ * rail knob writing three vars (name `-fg`, gutter `-marker`, row `-tint`);
+ * their defaults are three shades of one hue (and differ light/dark), so the
+ * fallbacks carry `dark:` variants. The row wash is the tint colour at
+ * `--docs-file-tree-change-tint` percent — a unitless number multiplied by 1%
+ * at the use site, since rail colour overrides are opaque hex.
+ */
 const CHANGE_STYLES: Record<
   FileTreeChange,
   { row: string; marker: string; markerChar: string; name: string }
 > = {
   added: {
-    row: "bg-emerald-500/10",
-    marker: "text-emerald-600 dark:text-emerald-400",
+    row: "bg-[color-mix(in_oklab,var(--docs-file-tree-added-tint,var(--color-emerald-500))_calc(var(--docs-file-tree-change-tint,10)*1%),transparent)]",
+    marker:
+      "text-[color:var(--docs-file-tree-added-marker,var(--color-emerald-600))] dark:text-[color:var(--docs-file-tree-added-marker,var(--color-emerald-400))]",
     markerChar: "+",
-    name: "text-emerald-700 dark:text-emerald-300",
+    name: "text-[color:var(--docs-file-tree-added-fg,var(--color-emerald-700))] dark:text-[color:var(--docs-file-tree-added-fg,var(--color-emerald-300))]",
   },
   removed: {
-    row: "bg-rose-500/10",
-    marker: "text-rose-600 dark:text-rose-400",
+    row: "bg-[color-mix(in_oklab,var(--docs-file-tree-removed-tint,var(--color-rose-500))_calc(var(--docs-file-tree-change-tint,10)*1%),transparent)]",
+    marker:
+      "text-[color:var(--docs-file-tree-removed-marker,var(--color-rose-600))] dark:text-[color:var(--docs-file-tree-removed-marker,var(--color-rose-400))]",
     markerChar: "-",
-    name: "text-rose-700 line-through dark:text-rose-300",
+    name: "text-[color:var(--docs-file-tree-removed-fg,var(--color-rose-700))] line-through dark:text-[color:var(--docs-file-tree-removed-fg,var(--color-rose-300))]",
   },
   modified: {
-    row: "bg-amber-500/10",
-    marker: "text-amber-600 dark:text-amber-400",
+    row: "bg-[color-mix(in_oklab,var(--docs-file-tree-modified-tint,var(--color-amber-500))_calc(var(--docs-file-tree-change-tint,10)*1%),transparent)]",
+    marker:
+      "text-[color:var(--docs-file-tree-modified-marker,var(--color-amber-600))] dark:text-[color:var(--docs-file-tree-modified-marker,var(--color-amber-400))]",
     markerChar: "~",
-    name: "text-amber-700 dark:text-amber-300",
+    name: "text-[color:var(--docs-file-tree-modified-fg,var(--color-amber-700))] dark:text-[color:var(--docs-file-tree-modified-fg,var(--color-amber-300))]",
   },
   renamed: {
-    row: "bg-sky-500/10",
-    marker: "text-sky-600 dark:text-sky-400",
+    row: "bg-[color-mix(in_oklab,var(--docs-file-tree-renamed-tint,var(--color-sky-500))_calc(var(--docs-file-tree-change-tint,10)*1%),transparent)]",
+    marker:
+      "text-[color:var(--docs-file-tree-renamed-marker,var(--color-sky-600))] dark:text-[color:var(--docs-file-tree-renamed-marker,var(--color-sky-400))]",
     markerChar: ">",
-    name: "text-sky-700 dark:text-sky-300",
+    name: "text-[color:var(--docs-file-tree-renamed-fg,var(--color-sky-700))] dark:text-[color:var(--docs-file-tree-renamed-fg,var(--color-sky-300))]",
   },
 };
 
@@ -184,7 +217,7 @@ function FileTreeRowView({ row }: { row: FileTreeRow }) {
   const change = node.change ? CHANGE_STYLES[node.change] : null;
   return (
     <div
-      className={cn("flex min-w-0 items-center px-3", change?.row)}
+      className={cn("flex min-w-0 items-center", ROW_PAD_X_CLASS, change?.row)}
       data-docs-file-tree-entry={node.entryPath}
       data-docs-file-tree-change={node.change}
     >
@@ -194,30 +227,28 @@ function FileTreeRowView({ row }: { row: FileTreeRow }) {
       >
         {change ? change.markerChar : " "}
       </span>
-      <span className="whitespace-pre text-muted-foreground/70" aria-hidden="true">
+      <span className={cn("whitespace-pre", GUIDE_FG_CLASS)} aria-hidden="true">
         {guide}
       </span>
       {node.change === "renamed" && node.from && (
         <>
-          <span className="whitespace-pre text-muted-foreground line-through">{node.from}</span>
-          <span className="whitespace-pre text-muted-foreground">{" → "}</span>
+          <span className={cn("whitespace-pre line-through", MUTED_FG_CLASS)}>{node.from}</span>
+          <span className={cn("whitespace-pre", MUTED_FG_CLASS)}>{" → "}</span>
         </>
       )}
       <span
         className={cn(
           "whitespace-pre",
-          node.isDir ? "font-medium text-foreground" : "text-foreground",
-          change?.name,
+          node.isDir ? FOLDER_WEIGHT_CLASS : FILE_WEIGHT_CLASS,
+          // A diff state owns the name colour outright; otherwise folder/file ink.
+          change ? change.name : node.isDir ? FOLDER_FG_CLASS : FILE_FG_CLASS,
         )}
       >
         {node.name}
         {node.isDir && "/"}
       </span>
       {node.note && (
-        <span
-          className="ml-2 min-w-0 max-w-[48ch] truncate text-[color:var(--docs-file-tree-note-fg,var(--muted-foreground))]"
-          title={node.note}
-        >
+        <span className={NOTE_CLASS} title={node.note}>
           {"# "}
           {node.note}
         </span>
@@ -245,12 +276,12 @@ export class FileTreeDocsBlock extends DocsMdxBlock<FileTreeData> {
         data-docs-block-type={this.type}
         data-source-id={data.id}
       >
-        <div className="overflow-x-auto rounded-md border border-[color:var(--docs-file-tree-border,var(--border))] bg-background py-2 font-mono text-xs leading-6">
+        <div className={CARD_CLASS}>
           {rows.length === 0 ? (
-            <div className="px-3 text-muted-foreground">(no entries)</div>
+            <div className={cn(ROW_PAD_X_CLASS, MUTED_FG_CLASS)}>(no entries)</div>
           ) : (
             <>
-              <div className="flex items-center px-3 text-muted-foreground" aria-hidden="true">
+              <div className={cn("flex items-center", ROW_PAD_X_CLASS, MUTED_FG_CLASS)} aria-hidden="true">
                 <span className="w-4 shrink-0 select-none"> </span>
                 <span className="whitespace-pre">.</span>
               </div>

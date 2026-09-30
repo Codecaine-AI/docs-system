@@ -86,7 +86,7 @@ describe("AnnotatedCodeBlock", () => {
     const notesHeader = container.querySelector("[data-code-notes-header]")!;
     expect(notesHeader).toBeTruthy();
     for (const cell of [codeHeader, notesHeader]) {
-      expect(cell.className).toContain("h-7");
+      expect(cell.className).toContain("h-[var(--docs-code-header-height,28px)]");
       expect(cell.className).toContain("items-center");
       // The standardized rule: width + color-mix over the rule tokens, so the
       // line reads continuously across both columns.
@@ -169,8 +169,8 @@ describe("AnnotatedCodeBlock", () => {
       "bg-[color:color-mix(in_srgb,var(--docs-code-annotation-accent",
     );
     // 20px line metrics + 3rem gutter column.
-    expect(row(1).className).toContain("h-5");
-    expect(row(1).className).toContain("grid-cols-[3rem_1fr]");
+    expect(row(1).className).toContain("h-[var(--docs-code-line-height,20px)]");
+    expect(row(1).className).toContain("grid-cols-[var(--docs-code-gutter-width,48px)_1fr]");
     // The sky-* utilities are fully migrated to the accent var.
     expect(container.innerHTML).not.toContain("sky-");
   });
@@ -194,13 +194,13 @@ describe("AnnotatedCodeBlock", () => {
     expect(line(3).getAttribute("data-lit")).toBe("true");
     expect(line(4).getAttribute("data-lit")).toBe("true");
     expect(line(3).className).toContain("--docs-link-bg");
-    expect(line(3).className).toContain("inset_3px_0_0_var(--docs-link-pin");
+    expect(line(3).className).toContain("inset_var(--docs-link-rail-width,3px)_0_0_var(--docs-link-pin");
     const gutter3 = line(3).querySelector("span")!;
     expect(gutter3.className).toContain("font-bold");
     expect(gutter3.className).toContain("--docs-link-pin");
     // The gutter cell re-pins the rail at the gutter edge (its sticky opaque
     // background would otherwise hide the row's rail) and layers the wash.
-    expect(gutter3.className).toContain("inset_3px_0_0_var(--docs-link-pin");
+    expect(gutter3.className).toContain("inset_var(--docs-link-rail-width,3px)_0_0_var(--docs-link-pin");
     expect(gutter3.className).toContain("--docs-link-bg");
     // Lit even line: the wash replaces the zebra stripe (R4 override).
     expect(line(4).className).toContain("--docs-link-bg");
@@ -234,7 +234,7 @@ describe("AnnotatedCodeBlock", () => {
     expect(note(0).getAttribute("data-pinned")).toBe("true");
     expect(line(1).getAttribute("data-pinned")).toBe("true");
     expect(line(1).getAttribute("data-lit")).toBe("true");
-    expect(line(1).className).toContain("0_0_0_1.5px_var(--docs-link-pin");
+    expect(line(1).className).toContain("0_0_0_var(--docs-link-ring-width,1.5px)_var(--docs-link-pin");
 
     // Hovering another pair lights it while the pin stays lit underneath.
     fireEvent.mouseEnter(note(1));
@@ -249,6 +249,74 @@ describe("AnnotatedCodeBlock", () => {
     fireEvent.keyDown(window, { key: "Escape" });
     expect(note(0).hasAttribute("data-pinned")).toBe(false);
     expect(line(1).hasAttribute("data-lit")).toBe(false);
+  });
+
+  it("reads the same code tokens as the plain and edit surfaces", () => {
+    const { container } = renderBlock([{ lines: "1-2", label: "Setup", note: "Declares." }]);
+    const cls = (selector: string) => container.querySelector(selector)!.className;
+
+    // Frame: token border/radius + the notes column width.
+    const frame = container.querySelector("[data-code-annotations] > div")!.className;
+    expect(frame).toContain("border-[length:var(--docs-code-border-width,1px)]");
+    expect(frame).toContain("border-[color:var(--docs-code-block-border,var(--border))]");
+    expect(frame).toContain("rounded-[var(--docs-code-radius,6px)]");
+    expect(frame).toContain("lg:grid-cols-[minmax(0,1fr)_var(--docs-code-notes-width,320px)]");
+
+    // Scroll body: typography + top/bottom padding.
+    const pre = cls("pre");
+    expect(pre).toContain("text-[length:var(--docs-code-text-size,12px)]");
+    expect(pre).toContain("leading-[var(--docs-code-line-height,20px)]");
+    expect(pre).toContain("pt-[var(--docs-code-pad-top,0px)]");
+    expect(pre).toContain("pb-[var(--docs-code-pad-bottom,8px)]");
+
+    // Per-line row, its gutter cell, and its code cell.
+    const row = cls('[data-code-line="3"]');
+    expect(row).toContain("h-[var(--docs-code-line-height,20px)]");
+    expect(row).toContain("grid-cols-[var(--docs-code-gutter-width,48px)_1fr]");
+    const gutterCell = cls('[data-code-line="3"] > span');
+    expect(gutterCell).toContain("h-[var(--docs-code-line-height,20px)]");
+    expect(gutterCell).toContain("text-[length:var(--docs-code-gutter-text-size,12px)]");
+    expect(gutterCell).toContain("pr-[var(--docs-code-gutter-pad-x,8px)]");
+    expect(gutterCell).toContain("var(--docs-code-gutter-fg,var(--muted-foreground))");
+    expect(gutterCell).toContain("--docs-code-gutter-bg");
+    expect(cls('[data-code-line="3"] > code')).toContain("px-[var(--docs-code-pad-x,12px)]");
+
+    // An annotated gutter cell keeps its size token when the accent color
+    // replaces the resting number color.
+    const annotatedCell = cls('[data-code-line="1"] > span');
+    expect(annotatedCell).toContain("text-[length:var(--docs-code-gutter-text-size,12px)]");
+    expect(annotatedCell).toContain("text-[color:var(--docs-code-annotation-accent");
+
+    // Even rows stripe with the CODE zebra token (shared stripe as fallback),
+    // exactly like the zebra layer of the plain/edit surfaces.
+    expect(cls('[data-code-line="4"]')).toContain("var(--docs-code-zebra,var(--docs-zebra,");
+
+    // Header band + note text.
+    expect(cls("[data-code-header]")).toContain("h-[var(--docs-code-header-height,28px)]");
+    expect(cls("[data-code-notes-header]")).toContain("h-[var(--docs-code-header-height,28px)]");
+    expect(cls("[data-code-lang]")).toContain(
+      "text-[length:var(--docs-code-header-text-size,10px)]",
+    );
+    const noteRow = cls('[data-annotation-note="0"]');
+    expect(noteRow).toContain("text-[length:var(--docs-code-note-text-size,12px)]");
+    // The 12px/16px line box the old text-xs utility carried, kept unitless.
+    expect(noteRow).toContain("leading-[calc(4/3)]");
+
+    for (const literal of ["h-5", "h-7", "3rem", "text-xs", "leading-[20px]", "pb-2"]) {
+      expect(container.innerHTML).not.toContain(literal);
+    }
+  });
+
+  it("the lit gutter cell draws its rail at the shared rail-width token", () => {
+    const { container } = renderBlock([{ lines: "1", note: "First." }]);
+    fireEvent.mouseEnter(container.querySelector('[data-annotation-note="0"]')!);
+    const gutterCell = container.querySelector('[data-code-line="1"] > span')!;
+    expect(gutterCell.className).toContain(
+      "shadow-[inset_var(--docs-link-rail-width,3px)_0_0_var(--docs-link-pin,#b48f2e)]",
+    );
+    // Lit: pin-color bold number, size token intact.
+    expect(gutterCell.className).toContain("font-bold");
+    expect(gutterCell.className).toContain("text-[length:var(--docs-code-gutter-text-size,12px)]");
   });
 
   it("pairs pins across code and notes: line click pins, another pin switches, same pin toggles off", () => {

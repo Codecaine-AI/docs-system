@@ -121,11 +121,16 @@ describe("DocBlockRenderer", () => {
     expect(callout?.getAttribute("data-mdx-block")).toBe("Callout");
     expect(callout?.getAttribute("data-source-id")).toBe("callout-1");
     expect(callout?.classList.contains("not-prose")).toBe(true);
-    expect(callout?.classList.contains("my-4")).toBe(true);
+    expect(callout?.classList.contains("my-[var(--docs-callout-margin,16px)]")).toBe(true);
     expect(callout?.textContent).toContain("Heads up");
     expect(callout?.textContent).not.toContain("Decision");
-    expect(screen.getByText("Heads up").className).toBe(
-      "mb-1.5 text-sm font-medium text-foreground",
+    // The title sits in the tone header; its size and weight are style-rail
+    // tokens whose fallbacks are the approved 14px / bold.
+    const title = screen.getByText("Heads up");
+    expect(title.getAttribute("data-callout-title")).toBe("true");
+    expect(title.closest("[data-callout-header]")).toBeTruthy();
+    expect(title.className).toBe(
+      "min-w-0 break-words text-[length:var(--docs-callout-title-text-size,14px)] [font-weight:var(--docs-callout-title-weight,700)] leading-[calc(20/14)]",
     );
     // File-tree renders `tree`-style: rows carry the full entry path as a
     // data attribute while showing only the basename with guide glyphs

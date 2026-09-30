@@ -40,7 +40,7 @@ describe("LinkGroup linking engine", () => {
     expect(getByTestId("b1").hasAttribute("data-lit")).toBe(false);
     // Lit style: background wash + 3px inset rail in the pin color.
     expect(getByTestId("a2").className).toContain("--docs-link-bg");
-    expect(getByTestId("a2").className).toContain("inset_3px_0_0_var(--docs-link-pin");
+    expect(getByTestId("a2").className).toContain("inset_var(--docs-link-rail-width,3px)_0_0_var(--docs-link-pin");
     fireEvent.mouseLeave(getByTestId("a1"));
     expect(getByTestId("a1").hasAttribute("data-lit")).toBe(false);
     expect(getByTestId("a2").hasAttribute("data-lit")).toBe(false);
@@ -66,7 +66,14 @@ describe("LinkGroup linking engine", () => {
       expect(getByTestId(id).getAttribute("data-lit")).toBe("true");
     }
     // Pinned adds the 1.5px ring in the pin color.
-    expect(getByTestId("a1").className).toContain("0_0_0_1.5px_var(--docs-link-pin");
+    expect(getByTestId("a1").className).toContain("0_0_0_var(--docs-link-ring-width,1.5px)_var(--docs-link-pin");
+    // The pinned shadow keeps the rail at its own width token, and cn()
+    // leaves exactly one light + one dark shadow utility (the pinned pair).
+    expect(getByTestId("a1").className).toContain(
+      "shadow-[inset_var(--docs-link-rail-width,3px)_0_0_var(--docs-link-pin,#b48f2e),0_0_0_var(--docs-link-ring-width,1.5px)_var(--docs-link-pin,#b48f2e)]",
+    );
+    expect(getByTestId("a1").className.match(/(^| )shadow-\[/g)?.length).toBe(1);
+    expect(getByTestId("a1").className.match(/ dark:shadow-\[/g)?.length).toBe(1);
     fireEvent.click(getByTestId("a2"));
     fireEvent.mouseLeave(getByTestId("a2"));
     expect(getByTestId("a1").hasAttribute("data-pinned")).toBe(false);

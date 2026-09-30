@@ -100,7 +100,7 @@ describe("TableGrid", () => {
     const headerCells = container.querySelectorAll("thead th");
     expect(headerCells.length).toBe(2);
     expect(headerCells[0]?.className).toContain(
-      "text-[length:calc(var(--docs-table-font-size,14px)-1px)]",
+      "text-[length:var(--docs-table-header-text-size,calc(var(--docs-table-font-size,14px)-1px))]",
     );
     expect(headerCells[0]?.className).toContain(
       "py-[length:var(--docs-table-cell-pad-y,10px)]",
@@ -112,7 +112,7 @@ describe("TableGrid", () => {
       "px-[length:var(--docs-table-cell-pad-x,12px)]",
     );
     expect(headerCells[0]?.className).toContain(
-      "border-r-[length:var(--docs-table-row-rule-width,1px)]",
+      "border-r-[length:var(--docs-table-column-rule-width,var(--docs-table-row-rule-width,1px))]",
     );
     expect(headerCells[1]?.className).not.toContain("border-r");
 
@@ -396,7 +396,9 @@ describe("StructuredTableNodeView", () => {
     const section = container.querySelector('[data-docs-block-type="structured-table"]');
     expect(section?.getAttribute("data-source-id")).toBe("tbl-1");
     expect(section?.className).toBe("not-prose my-4");
-    expect(getByText("Rollout").className).toBe("mb-1.5 text-sm font-medium text-foreground");
+    expect(getByText("Rollout").className).toBe(
+      "mb-[var(--docs-table-title-gap,6px)] text-[length:var(--docs-table-title-text-size,14px)] leading-[calc(1.25/0.875)] [font-weight:var(--docs-table-title-weight,500)] text-[color:var(--docs-table-title-fg,var(--foreground))]",
+    );
     expect(container.querySelector("[data-structured-table-surface]")).toBeTruthy();
     // Ragged row padded to the column count.
     expect(gridCells(container as HTMLElement).map((cell) => cell.textContent)).toEqual([

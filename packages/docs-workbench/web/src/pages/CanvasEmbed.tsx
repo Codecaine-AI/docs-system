@@ -134,7 +134,7 @@ export function StandaloneCanvasEmbed({
   if (canvasId && canvasId !== "synthetic" && !src) {
     return (
       <section
-        className="not-prose my-4 rounded-md border bg-background p-4 text-sm"
+        className="not-prose my-4 rounded-md border border-[color:var(--docs-canvas-border,var(--border))] bg-background p-4 text-sm"
         data-docs-block-type="canvas"
         data-source-id={id}
         data-canvas-id={canvasId}
@@ -160,7 +160,7 @@ export function StandaloneCanvasEmbed({
   if (error) {
     return (
       <section
-        className="not-prose my-4 rounded-md border bg-background p-4 text-sm"
+        className="not-prose my-4 rounded-md border border-[color:var(--docs-canvas-border,var(--border))] bg-background p-4 text-sm"
         data-docs-block-type="canvas"
         data-source-id={id}
       >
@@ -180,7 +180,7 @@ export function StandaloneCanvasEmbed({
         : "Canvas block is missing a src or canvasId.";
     return (
       <section
-        className="not-prose my-4 rounded-md border bg-background p-4 text-sm text-muted-foreground"
+        className="not-prose my-4 rounded-md border border-[color:var(--docs-canvas-border,var(--border))] bg-background p-4 text-sm text-muted-foreground"
         data-docs-block-type="canvas"
         data-source-id={id}
       >
@@ -195,9 +195,14 @@ export function StandaloneCanvasEmbed({
   // single rounded border — the viewer itself carries no framing. Annotation
   // targeting wires onObjectSelect so canvas objects stay selectable; the
   // inert path wraps the same render and adds the full-screen affordance.
+  // Every frame value rides a style-rail token (theme/theme-folders.ts
+  // "canvas") with the stock value as its literal fallback. The board paints
+  // its own opaque background, so the frame background only shows in the
+  // padding mat (0 by default).
   const inlineViewer = (
     <div
-      className="not-prose my-4 overflow-hidden rounded-md border"
+      data-canvas-frame="true"
+      className="not-prose my-4 overflow-hidden rounded-[var(--docs-canvas-radius,max(0px,calc(var(--radius,8px)-2px)))] border-[length:var(--docs-canvas-border-width,1px)] border-[color:var(--docs-canvas-border,var(--border))] bg-[color:var(--docs-canvas-bg,transparent)] p-[var(--docs-canvas-padding,0px)]"
       // The bare viewer fills its parent (height: 100%), so the wrapper must
       // own the height: derive it from the board's aspect ratio.
       style={{
@@ -290,7 +295,7 @@ export function StandaloneCanvasEmbed({
               aria-label={`Open ${viewerTitle} in full-screen viewer`}
               title="Open full-screen viewer"
               onClick={event => openViewer(event.currentTarget)}
-              className="absolute inset-0 z-10 cursor-zoom-in rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="absolute inset-0 z-10 cursor-zoom-in rounded-[var(--docs-canvas-radius,max(0px,calc(var(--radius,8px)-2px)))] outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             />
           </>
         )}

@@ -289,8 +289,17 @@
 /* The block renderer/editor pins each text block with its own font-size /
    line-height utilities (block-classes.ts), so container-level values never
    reach the text. Re-assert the knobs at the block level; the fallbacks equal
-   the utilities' own fallbacks, so this is a no-op until a knob moves. */
-.docs-markdown :where(p, li, td, th, dd, dt, blockquote) {
+   the utilities' own fallbacks, so this is a no-op until a knob moves.
+
+   Structured-table descendants are EXEMPT (here and in the two color rules
+   below). These rules sit outside any cascade layer, so they beat Tailwind's
+   `@layer utilities` no matter the specificity: left in, they pinned every
+   table cell to the prose size/leading/color and the table's own
+   --docs-table-* type tokens (font size, header size, line height, header
+   text color in edit mode, where a cell hosts a <p>) did nothing. Exempt
+   cells inherit letter-spacing from `.docs-markdown.prose`, so that knob
+   still reaches them. */
+.docs-markdown :where(p, li, td, th, dd, dt, blockquote):not(:where([data-docs-block-type="structured-table"] *)) {
   font-size: var(--style-font-size, 18px);
   line-height: var(--style-line-height, 1.45);
   letter-spacing: var(--style-letter-spacing, 0em);
@@ -303,19 +312,40 @@
 /* Paragraph text follows the per-block-type token (--docs-paragraph-fg
    defaults to the body text var in theme/semantic.css); list items and
    table cells stay on the shared body var — they have their own tokens. */
-.docs-markdown :where(p) {
+.docs-markdown :where(p):not(:where([data-docs-block-type="structured-table"] *)) {
   color: var(--docs-paragraph-fg);
 }
 
-.docs-markdown :where(li, td) {
+.docs-markdown :where(li, td):not(:where([data-docs-block-type="structured-table"] *)) {
   color: var(--docs-viewer-text-body);
+}
+
+/* List-item text follows the list-item token on the edit surface, where an
+   item is an <li> and the rule above would otherwise pin it to the shared
+   body var (the read surface renders a div, which the LIST_ITEM_CLASSES
+   color utility reaches directly). --docs-list-item-fg defaults to the body
+   text var in theme/semantic.css, so this is a no-op until the knob moves. */
+.docs-markdown :where(li):not(:where([data-docs-block-type="structured-table"] *)) {
+  color: var(--docs-list-item-fg);
+}
+
+/* Tailwind Typography zeroes the top margin of whatever directly follows an
+   h2-h4 (`.prose :where(h2 + *)`). On the edit surface the text blocks are
+   direct siblings, so a paragraph, quote or list item under a heading has
+   always sat flush against the heading's own bottom margin. Their spacing
+   knobs are margin-top utilities that now out-order that Typography rule, so
+   it is restated here to keep the edit surface rendering as it did. (The
+   read surface wraps every block, so the sibling rule never matched there.) */
+.docs-editor-prosemirror :where(h2, h3, h4) + :where(p, blockquote, li) {
+  margin-top: 0;
 }
 
 /* Callout body text follows its own token on both surfaces (read: the
    aside wraps a nested .docs-markdown body div; edit: the callout node's
    div[data-doc-type]). Re-pins the descendants the paragraph rule above
-   would otherwise color; the default equals the body text var, so this is
-   a no-op until a theme moves --docs-callout-fg. */
+   would otherwise color. The default in theme/semantic.css is the approved
+   callout body ink (the value CalloutDocsBlock falls back to), so this is a
+   no-op until a theme moves --docs-callout-fg. */
 [data-docs-block-type="callout"] .docs-markdown,
 [data-docs-block-type="callout"] .docs-markdown :where(p, li, td),
 .docs-markdown [data-doc-type="callout"],
@@ -323,21 +353,51 @@
   color: var(--docs-callout-fg);
 }
 
-/* Quote text follows the per-block-type token (--docs-quote-fg defaults to
-   the muted text var in theme/semantic.css). Background/border-color stay
-   on the callout vars — swapping them for the quote tokens would change
-   the current rendered look (the quote tokens default to the utility-class
-   values this rule overrides). */
+/* Callout body text size. The body div is itself `.docs-markdown.prose`, so
+   the reading-size rules above (which are unlayered and beat the component's
+   own size utility) set it and its paragraphs to --style-font-size. The
+   callout's text-scale knob multiplies that size; at the default scale of 1
+   this restates the same value, so the body keeps tracking the reading
+   size. Must stay BELOW the `.docs-markdown.prose` rule: equal specificity. */
+[data-docs-block-type="callout"] [data-callout-body],
+[data-docs-block-type="callout"] [data-callout-body] :where(p, li, td, th, dd, dt, blockquote) {
+  font-size: calc(var(--style-font-size, 18px) * var(--docs-callout-body-text-scale, 1));
+}
+
+/* Quote fill, rule color and text color follow the quote tokens.
+   This rule is UNLAYERED, so it beats the Tailwind utilities on
+   QUOTE_CLASSES (docs-viewer render/block-classes.ts) — every property it
+   sets must read the same --docs-quote-* token the utility does, or that
+   style-rail knob goes dead here. The defaults live in theme/semantic.css:
+   --docs-quote-bg and --docs-quote-border default to the shared
+   --docs-viewer-callout-fill / -border palette vars (the warm fill and rule
+   a quote has always had in the workbench), --docs-quote-fg to the muted
+   text var. */
 .docs-markdown :where(blockquote) {
-  background: var(--docs-viewer-callout-fill);
+  background: var(--docs-quote-bg);
   border-color: var(--docs-quote-border);
   color: var(--docs-quote-fg);
 }
 
+/* Quote text size: the reading-size rule above pins every blockquote, so the
+   quote's text scale (1 by default) has to be restated on top of it. Same
+   structured-table exemption as that rule, for the same reason. */
+.docs-markdown :where(blockquote):not(:where([data-docs-block-type="structured-table"] *)) {
+  font-size: calc(var(--style-font-size, 18px) * var(--docs-quote-text-scale, 1));
+}
+
+/* Inline code chip. This rule is UNLAYERED, so it beats the Tailwind
+   utilities on INLINE_CODE_CLASSES (docs-viewer render/block-classes.ts) —
+   every property it sets must therefore read the same --docs-inline-code-*
+   token the utility does, or that style-rail knob goes dead here. Padding is
+   a unitless em multiplier. Font size, weight and border are deliberately
+   NOT set: the utilities own them for delta-span chips (an unlayered border
+   here would also wipe other components' own bordered <code> elements), and
+   markdown-projected code keeps its Typography values. */
 .docs-markdown :where(code:not(pre code)) {
   background: var(--docs-inline-code-bg);
-  border-radius: calc(var(--radius) - 4px);
-  padding: 0.1em 0.35em;
+  border-radius: var(--docs-inline-code-radius);
+  padding: calc(var(--docs-inline-code-pad-y) * 1em) calc(var(--docs-inline-code-pad-x) * 1em);
   color: var(--docs-inline-code-fg);
 }
 

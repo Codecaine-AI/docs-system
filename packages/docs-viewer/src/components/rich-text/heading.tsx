@@ -3,10 +3,19 @@
 import { Node, mergeAttributes } from "@tiptap/core";
 import type { DocBlockDescriptor } from "../../render/block-registry";
 import { TEXT_OPS, blockAttrs, el } from "../../render/descriptor-helpers";
-import { HEADING_CLASSES } from "../../render/block-classes";
+import { HEADING_LEVEL_CLASSES } from "../../render/block-classes";
 import { blockAttrs as nodeBlockAttrs } from "../../editor/core/node-helpers";
 
 /** `heading` — read-surface descriptor + ProseMirror editor node. */
+
+type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
+
+/** The level both surfaces render: an integer 1-6, else 2 (an absent or malformed `level` reads as h2). Shared so the read descriptor and the editor node pick the same tag AND the same per-level class string. */
+function headingLevel(raw: unknown): HeadingLevel {
+  return typeof raw === "number" && Number.isInteger(raw) && raw >= 1 && raw <= 6
+    ? (raw as HeadingLevel)
+    : 2;
+}
 
 export const DocHeading = Node.create({
   name: "docHeading",
@@ -41,8 +50,8 @@ export const DocHeading = Node.create({
     return [1, 2, 3, 4, 5, 6].map((level) => ({ tag: `h${level}`, attrs: { level } }));
   },
   renderHTML({ node, HTMLAttributes }) {
-    const level = (node.attrs.level as number) ?? 2;
-    return [`h${level}`, mergeAttributes(HTMLAttributes, { class: HEADING_CLASSES }), 0];
+    const level = headingLevel(node.attrs.level);
+    return [`h${level}`, mergeAttributes(HTMLAttributes, { class: HEADING_LEVEL_CLASSES[level] }), 0];
   },
 });
 
@@ -53,15 +62,11 @@ export const headingDescriptor: DocBlockDescriptor = {
   agentDescription: "A section heading; props.level selects h1-h6.",
   patchOps: TEXT_OPS,
   render: (block, ctx) => {
-    const rawLevel = block.props.level;
-    const level =
-      typeof rawLevel === "number" && Number.isInteger(rawLevel) && rawLevel >= 1 && rawLevel <= 6
-        ? rawLevel
-        : 2;
+    const level = headingLevel(block.props.level);
     return el(
       "div",
       { key: block.id, ...blockAttrs(block) },
-      el(`h${level}`, { className: HEADING_CLASSES }, ctx.renderText(block.text)),
+      el(`h${level}`, { className: HEADING_LEVEL_CLASSES[level] }, ctx.renderText(block.text)),
       ctx.renderChildren(block),
     );
   },

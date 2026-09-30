@@ -176,7 +176,7 @@ describe("CodeBlockNodeView header band", () => {
     expect(select.className).toContain("uppercase");
     // Quiet look: muted text on a transparent bg, no pill tint; the
     // --docs-code-lang-fg token is the block-hover affordance color.
-    expect(select.className).toContain("text-muted-foreground");
+    expect(select.className).toContain("text-[color:var(--docs-code-header-fg,var(--muted-foreground))]");
     expect(select.className).toContain("bg-transparent");
     expect(select.className).not.toContain("color-mix");
     expect(select.className).toContain(
@@ -251,6 +251,62 @@ describe("CodeBlockNodeView shell geometry", () => {
     expect(container.innerHTML).not.toContain("sky-");
   });
 
+  it("reads the same code tokens as the read surfaces (frame, typography, gutter, padding, header)", () => {
+    const { props } = nodeViewProps(
+      { annotations: [{ lines: "2", note: "Note." }] },
+      { text: "a\nb\nc\nd" },
+    );
+    const { container } = render(<CodeBlockNodeView {...props} />);
+    const cls = (selector: string) => container.querySelector(selector)!.className;
+
+    // The NodeViewWrapper IS the frame; cn() must keep width, color and radius.
+    const frame = container.firstElementChild!.className;
+    expect(frame).toContain("border-[length:var(--docs-code-border-width,1px)]");
+    expect(frame).toContain("border-[color:var(--docs-code-block-border,var(--border))]");
+    expect(frame).toContain("rounded-[var(--docs-code-radius,6px)]");
+    expect(frame).toContain("text-[length:var(--docs-code-text-size,12px)]");
+    expect(frame).toContain("leading-[var(--docs-code-line-height,20px)]");
+
+    const content = cls("[data-code-content]");
+    expect(content).toContain("text-[length:var(--docs-code-text-size,12px)]");
+    expect(content).toContain("leading-[var(--docs-code-line-height,20px)]");
+    expect(content).toContain("grid-cols-[var(--docs-code-gutter-width,48px)_1fr]");
+
+    const gutterLine = cls('[data-code-gutter-line="1"]');
+    expect(gutterLine).toContain("h-[var(--docs-code-line-height,20px)]");
+    expect(gutterLine).toContain("text-[length:var(--docs-code-gutter-text-size,12px)]");
+    expect(gutterLine).toContain("pr-[var(--docs-code-gutter-pad-x,8px)]");
+    // Annotated gutter line: accent color replaces the number color, size stays.
+    const annotated = cls('[data-code-gutter-line="2"]');
+    expect(annotated).toContain("text-[length:var(--docs-code-gutter-text-size,12px)]");
+    expect(annotated).toContain("text-[color:var(--docs-code-annotation-accent");
+
+    expect(cls("[data-code-zebra]")).toContain("left-[var(--docs-code-gutter-width,48px)]");
+    expect(cls("[data-code-zebra]")).toContain("var(--docs-code-zebra,var(--docs-zebra,");
+    expect(cls("[data-code-annotation-row]")).toContain(
+      "left-[var(--docs-code-gutter-width,48px)]",
+    );
+    const scroll = cls("[data-code-scroll]");
+    expect(scroll).toContain("pt-[var(--docs-code-pad-top,0px)]");
+    expect(scroll).toContain("pb-[var(--docs-code-pad-bottom,8px)]");
+    expect(cls("pre")).toContain("px-[var(--docs-code-pad-x,12px)]");
+
+    // Header: the picker carries the label's size / weight / color tokens.
+    expect(cls("[data-code-header]")).toContain("h-[var(--docs-code-header-height,28px)]");
+    const select = cls("select");
+    expect(select).toContain("text-[length:var(--docs-code-header-text-size,10px)]");
+    expect(select).toContain("[font-weight:var(--docs-code-header-weight,500)]");
+    expect(select).toContain("text-[color:var(--docs-code-header-fg,var(--muted-foreground))]");
+
+    expect(cls('[data-annotation-note="0"]')).toContain(
+      "text-[length:var(--docs-code-note-text-size,12px)]",
+    );
+
+    for (const literal of ["h-5", "h-7", "3rem", "text-xs", "leading-[20px]", "pb-2", "rounded-md"]) {
+      expect(container.innerHTML).not.toContain(literal);
+    }
+  });
+
   it("renders annotation overlay rows behind the text with 20px line geometry", () => {
     const { props } = nodeViewProps(
       { annotations: [{ lines: "2-3", note: "The math." }] },
@@ -260,8 +316,17 @@ describe("CodeBlockNodeView shell geometry", () => {
 
     const rows = container.querySelectorAll<HTMLElement>("[data-code-annotation-row]");
     expect(rows.length).toBe(1);
-    expect(rows[0]?.style.top).toBe("20px");
-    expect(rows[0]?.style.height).toBe("40px");
+    // The run rides two unitless vars (0-based start, line count); the row
+    // classes multiply them by the line-height token — 20px by default, so
+    // this run paints at top 20px / height 40px.
+    expect(rows[0]?.style.getPropertyValue("--docs-code-row-start")).toBe("1");
+    expect(rows[0]?.style.getPropertyValue("--docs-code-row-span")).toBe("2");
+    expect(rows[0]?.className).toContain(
+      "top-[calc(var(--docs-code-line-height,20px)*var(--docs-code-row-start,0))]",
+    );
+    expect(rows[0]?.className).toContain(
+      "h-[calc(var(--docs-code-line-height,20px)*var(--docs-code-row-span,1))]",
+    );
     expect(rows[0]?.className).toContain("pointer-events-none");
     // At rest the overlay is geometry only — no tint until the pair is lit.
     expect(rows[0]?.className).not.toContain("bg-");
@@ -291,7 +356,8 @@ describe("CodeBlockNodeView shell geometry", () => {
       expect(container.querySelector("[data-code-notes-header]")).toBeNull();
       expect(container.querySelector("[data-code-annotation-row]")).toBeNull();
       const frame = container.firstElementChild!;
-      expect(frame.className).not.toContain("lg:grid-cols-[minmax(0,1fr)_320px]");
+      expect(frame.className).not.toContain("lg:grid-cols-");
+      expect(frame.className).not.toContain("--docs-code-notes-width");
       // The header keeps its subtle bottom rule even on plain blocks.
       const header = container.querySelector("[data-code-header]")!;
       expect(header.className).toContain("border-b-[length:var(--docs-code-rule-width,1px)]");
@@ -324,13 +390,13 @@ describe("CodeBlockNodeView notes aside", () => {
     expect(second.className).toContain("border-t-[length:var(--docs-code-rule-width,1px)]");
     expect(second.className).not.toContain("bg-");
     expect(second.className).not.toContain("ring");
-    // Aligned header cells: the notes column opens with its own h-7 header
+    // Aligned header cells: the notes column opens with its own header
     // cell carrying the same bottom rule as the code header, with the NOTES
     // label styled exactly like the language label.
     const notesHeader = container.querySelector("[data-code-notes-header]")!;
     const codeHeader = container.querySelector("[data-code-header]")!;
     for (const cell of [codeHeader, notesHeader]) {
-      expect(cell.className).toContain("h-7");
+      expect(cell.className).toContain("h-[var(--docs-code-header-height,28px)]");
       expect(cell.className).toContain("border-b-[length:var(--docs-code-rule-width,1px)]");
       expect(cell.className).toContain("var(--docs-code-rule,var(--border))");
       expect(cell.className).toContain("--docs-code-rule-opacity");
@@ -351,7 +417,7 @@ describe("CodeBlockNodeView notes aside", () => {
     expect(getByText("The sum.")).toBeTruthy();
     // Annotated frame becomes the two-column grid at lg (aside on the right).
     const frame = container.firstElementChild!;
-    expect(frame.className).toContain("lg:grid-cols-[minmax(0,1fr)_320px]");
+    expect(frame.className).toContain("lg:grid-cols-[minmax(0,1fr)_var(--docs-code-notes-width,320px)]");
   });
 
   it("note clicks toggle the active pair, restyle overlays + gutter, and scroll the range into view", async () => {

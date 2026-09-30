@@ -31,6 +31,7 @@ describe("StandaloneCanvasEmbed central Studio canvases", () => {
     expect(studioLink.target).toBe("_blank");
 
     const card = container.querySelector('[data-docs-block-type="canvas"]');
+    expect(card?.classList.contains("border-[color:var(--docs-canvas-border,var(--border))]")).toBe(true);
     expect(card?.getAttribute("data-source-id")).toBe("canvas-block");
     expect(card?.getAttribute("data-canvas-id")).toBe("interaction-surfaces");
     expect(container.querySelector("img")).toBeNull();
@@ -127,10 +128,20 @@ describe("StandaloneCanvasEmbed loaded canvases", () => {
     expect(inlineViewerSection).toBeTruthy();
     expect(inlineViewerSection?.getAttribute("data-canvas-viewer-interactive")).toBeNull();
     expect(inertPreview?.querySelector("[data-canvas-viewer-controls]")).toBeNull();
-    // The embed supplies the single rounded border around the viewer.
+    // The embed supplies the single rounded border around the viewer, and
+    // every frame value rides a style-rail token (theme-folders.ts "canvas")
+    // with the stock value as its fallback.
     const previewFrame = inlineViewerSection?.parentElement;
-    expect(previewFrame?.classList.contains("rounded-md")).toBe(true);
-    expect(previewFrame?.classList.contains("border")).toBe(true);
+    expect(previewFrame?.getAttribute("data-canvas-frame")).toBe("true");
+    for (const frameClass of [
+      "rounded-[var(--docs-canvas-radius,max(0px,calc(var(--radius,8px)-2px)))]",
+      "border-[length:var(--docs-canvas-border-width,1px)]",
+      "border-[color:var(--docs-canvas-border,var(--border))]",
+      "bg-[color:var(--docs-canvas-bg,transparent)]",
+      "p-[var(--docs-canvas-padding,0px)]",
+    ]) {
+      expect([frameClass, previewFrame?.classList.contains(frameClass)]).toEqual([frameClass, true]);
+    }
 
     fireEvent.click(
       getByRole("button", { name: "Open Interview inputs in full-screen viewer" }),

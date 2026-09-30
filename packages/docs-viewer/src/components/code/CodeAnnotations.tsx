@@ -6,6 +6,7 @@ import { cn } from "../../ui/cn";
 import { CODE_LINE_GUTTER_LIT_CLASSES, LinkGroup, useLinkTarget } from "../linked-panels";
 import { expandLineRange } from "./annotations";
 import {
+  CODE_ANNOTATED_PRE_CLASSES,
   CODE_FRAME_GRID_CLASSES,
   CODE_GUTTER_CLASSES,
   CODE_GUTTER_LINE_ANNOTATED_CLASSES,
@@ -13,6 +14,7 @@ import {
   CODE_GUTTER_LINE_LIT_WASH_CLASSES,
   CODE_LINE_ROW_CLASSES,
   CODE_LINE_ROW_ZEBRA_CLASSES,
+  CODE_LINE_TEXT_CELL_CLASSES,
 } from "./classes";
 import { CodeBlockHeader, CodeNotesAside } from "./CodeShell";
 import { highlightCode, prettyPrintIfJson, resolveDisplayLanguage } from "./highlight";
@@ -64,7 +66,7 @@ function AnnotatedCodeLine({
         {lineNumber}
       </span>
       <code
-        className="hljs whitespace-pre px-3"
+        className={CODE_LINE_TEXT_CELL_CLASSES}
         // The single space keeps empty lines at full height.
         dangerouslySetInnerHTML={{ __html: html || " " }}
       />
@@ -76,8 +78,8 @@ function AnnotatedCodeLine({
  * Side-annotated code block (used only when annotations exist — the plain
  * code path stays with the registry, rendering through CodeShell). Shares
  * the code frame's furniture — header row (language label + copy button;
- * this is the one surface whose bar names a language, system rule R5), 20px
- * lines, 3rem gutter, zebra striping — via the constants in classes.ts, but
+ * this is the one surface whose bar names a language, system rule R5), line
+ * height, gutter width, zebra striping — via the constants in classes.ts, but
  * keeps its own per-line grid so every annotated line stays a link target.
  *
  * Pairing runs on the shared LinkGroup engine (ONE group per block; key =
@@ -131,7 +133,7 @@ export function AnnotatedCodeBlock({
               languageLabel={resolveDisplayLanguage(displayCode, language)}
               copyText={() => displayCode}
             />
-            <pre className="m-0 max-h-[440px] overflow-auto p-0 pb-2 font-mono text-xs leading-[20px]">
+            <pre className={CODE_ANNOTATED_PRE_CLASSES}>
               {lines.map((line, index) => {
                 const lineNumber = index + 1;
                 const owner = lineOwner.get(lineNumber);

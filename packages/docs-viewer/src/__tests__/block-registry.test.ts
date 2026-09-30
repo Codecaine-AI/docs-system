@@ -172,14 +172,14 @@ describe("file-tree — mdx adapter + tree rendering", () => {
     });
     expect(html).toContain('data-docs-file-tree-change="added"');
     expect(html).toContain(">+</span>");
-    expect(html).toContain("bg-emerald-500/10");
+    expect(html).toContain("var(--docs-file-tree-added-tint,var(--color-emerald-500))");
     expect(html).toContain('data-docs-file-tree-change="removed"');
     expect(html).toContain(">-</span>");
-    expect(html).toContain("bg-rose-500/10");
+    expect(html).toContain("var(--docs-file-tree-removed-tint,var(--color-rose-500))");
     expect(html).toContain("line-through");
     expect(html).toContain('data-docs-file-tree-change="modified"');
     expect(html).toContain(">~</span>");
-    expect(html).toContain("bg-amber-500/10");
+    expect(html).toContain("var(--docs-file-tree-modified-tint,var(--color-amber-500))");
     // Derived parent dirs never carry change state: the first change attr in
     // the markup appears only after the derived `src/` directory row.
     const srcRow = html.indexOf(">src/</span>");
@@ -194,7 +194,7 @@ describe("file-tree — mdx adapter + tree rendering", () => {
       ],
     });
     expect(html).toContain('data-docs-file-tree-change="renamed"');
-    expect(html).toContain("bg-sky-500/10");
+    expect(html).toContain("var(--docs-file-tree-renamed-tint,var(--color-sky-500))");
     expect(html).toContain(">src/agents/orchestrator.ts</span>");
     expect(html).toContain("line-through");
     expect(html).toContain("→");
@@ -242,6 +242,117 @@ describe("file-tree — mdx adapter + tree rendering", () => {
       expect(html).not.toContain("0 entries");
       expect(html).toContain("(no entries)");
     }
+  });
+
+  describe("style tokens", () => {
+    /** The class attribute of the element whose text content is exactly `text`. */
+    function classOf(html: string, text: string): string {
+      const escaped = text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const match = html.match(new RegExp(`class="([^"]*)"[^>]*>${escaped}<`));
+      expect(match).not.toBeNull();
+      return match?.[1] ?? "";
+    }
+    /** The class attribute of the row carrying `data-docs-file-tree-entry="<path>"`. */
+    function rowClassOf(html: string, path: string): string {
+      const match = html.match(
+        new RegExp(`class="([^"]*)" data-docs-file-tree-entry="${path}"`),
+      );
+      expect(match).not.toBeNull();
+      return match?.[1] ?? "";
+    }
+
+    const html = renderTree({
+      entries: [
+        { path: "src/plain.ts", note: "a note" },
+        { path: "src/a.ts", change: "added" },
+        { path: "src/b.ts", change: "removed" },
+        { path: "src/c.ts", change: "modified" },
+        { path: "src/new.ts", change: "renamed", from: "src/old.ts" },
+      ],
+    });
+
+    it("reads the card frame, padding and type scale from the file-tree vars", () => {
+      const card = html.match(/<section[^>]*><div class="([^"]*)"/)?.[1] ?? "";
+      for (const expected of [
+        "rounded-[var(--docs-file-tree-radius,max(0px,calc(var(--radius,8px)-2px)))]",
+        "border-[length:var(--docs-file-tree-border-width,1px)]",
+        "border-[color:var(--docs-file-tree-border,var(--border))]",
+        "bg-[var(--docs-file-tree-bg,var(--background))]",
+        "py-[var(--docs-file-tree-pad-y,8px)]",
+        "text-[length:var(--docs-file-tree-text-size,12px)]",
+        "leading-[var(--docs-file-tree-line-height,24px)]",
+      ]) {
+        expect(card.split(" ")).toContain(expected);
+      }
+      // The literals the vars replaced must not shadow them.
+      for (const hardcoded of ["rounded-md", "border", "bg-background", "py-2", "text-xs", "leading-6"]) {
+        expect(card.split(" ")).not.toContain(hardcoded);
+      }
+      // Horizontal padding rides every row (so a diff tint runs edge to edge).
+      expect(rowClassOf(html, "src/plain.ts").split(" ")).toContain(
+        "px-[var(--docs-file-tree-pad-x,12px)]",
+      );
+      expect(html).not.toContain("px-3");
+    });
+
+    it("reads folder and file name ink and weight from their own vars", () => {
+      const folder = classOf(html, "src/").split(" ");
+      expect(folder).toContain("[font-weight:var(--docs-file-tree-folder-weight,500)]");
+      expect(folder).toContain("text-[color:var(--docs-file-tree-folder-fg,var(--foreground))]");
+      const file = classOf(html, "plain.ts").split(" ");
+      expect(file).toContain("[font-weight:var(--docs-file-tree-file-weight,400)]");
+      expect(file).toContain("text-[color:var(--docs-file-tree-file-fg,var(--foreground))]");
+      expect(html).not.toContain("font-medium");
+      expect(html).not.toContain("text-foreground");
+    });
+
+    it("reads the note, guide and muted inks from their vars", () => {
+      const note = html.match(/class="([^"]*)" title="a note"/)?.[1].split(" ") ?? [];
+      expect(note).toContain(
+        "text-[color:var(--docs-file-tree-note-fg,var(--muted-foreground))]",
+      );
+      expect(note).toContain("text-[length:var(--docs-file-tree-note-text-size,12px)]");
+      expect(classOf(html, "└── ").split(" ")).toContain(
+        "text-[color:var(--docs-file-tree-guide-fg,color-mix(in_oklab,var(--muted-foreground)_70%,transparent))]",
+      );
+      const muted = "text-[color:var(--docs-file-tree-muted-fg,var(--muted-foreground))]";
+      // Root dot row, the struck rename source, and the empty placeholder.
+      expect(html.match(/<div class="([^"]*)" aria-hidden="true">/)?.[1].split(" ")).toContain(muted);
+      expect(classOf(html, "src/old.ts").split(" ")).toContain(muted);
+      expect(classOf(renderTree({ entries: [] }), "(no entries)").split(" ")).toContain(muted);
+      expect(html).not.toContain("text-muted-foreground");
+    });
+
+    it("reads each diff state's name, marker and row tint from that state's vars", () => {
+      const states = [
+        { state: "added", hue: "emerald", path: "src/a.ts", name: "a.ts", marker: "+" },
+        { state: "removed", hue: "rose", path: "src/b.ts", name: "b.ts", marker: "-" },
+        { state: "modified", hue: "amber", path: "src/c.ts", name: "c.ts", marker: "~" },
+        { state: "renamed", hue: "sky", path: "src/new.ts", name: "new.ts", marker: "&gt;" },
+      ];
+      for (const { state, hue, path, name, marker } of states) {
+        expect(rowClassOf(html, path).split(" ")).toContain(
+          `bg-[color-mix(in_oklab,var(--docs-file-tree-${state}-tint,var(--color-${hue}-500))_calc(var(--docs-file-tree-change-tint,10)*1%),transparent)]`,
+        );
+        const nameClasses = classOf(html, name).split(" ");
+        expect(nameClasses).toContain(
+          `text-[color:var(--docs-file-tree-${state}-fg,var(--color-${hue}-700))]`,
+        );
+        expect(nameClasses).toContain(
+          `dark:text-[color:var(--docs-file-tree-${state}-fg,var(--color-${hue}-300))]`,
+        );
+        // A diff state owns the name colour; the plain file ink steps aside.
+        expect(nameClasses.join(" ")).not.toContain("--docs-file-tree-file-fg");
+        const markerClasses = classOf(html, marker).split(" ");
+        expect(markerClasses).toContain(
+          `text-[color:var(--docs-file-tree-${state}-marker,var(--color-${hue}-600))]`,
+        );
+        expect(markerClasses).toContain(
+          `dark:text-[color:var(--docs-file-tree-${state}-marker,var(--color-${hue}-400))]`,
+        );
+      }
+      expect(classOf(html, "b.ts").split(" ")).toContain("line-through");
+    });
   });
 });
 

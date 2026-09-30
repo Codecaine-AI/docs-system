@@ -150,12 +150,15 @@ describe("StateShapeBlock — bounded header", () => {
 
   it("shows title and description while retaining source provenance", () => {
     renderTwoPane();
-    // The header section is set off from the fields by a thicker (2px) bar.
-    expect(document.querySelector("[data-shape-header]")?.className).toContain("border-b-2");
+    // The header is set off from the fields by its own rule, whose width is
+    // the Header rule width knob (1px light, 2px dark when unset).
+    const header = document.querySelector("[data-shape-header]");
+    expect(header?.className).toContain("border-b-[length:var(--docs-shape-header-rule-width,1px)]");
+    expect(header?.className).toContain("[.dark_&]:border-b-[length:var(--docs-shape-header-rule-width,2px)]");
     const heading = document.querySelector("[data-shape-name]");
     expect(heading?.textContent).toBe("StateShapeState");
     expect(heading?.className).toContain("font-mono");
-    expect(heading?.className).toContain("font-bold");
+    expect(heading?.className).toContain("[font-weight:var(--docs-shape-header-weight,700)]");
     const source = document.querySelector("[data-shape-source]") as HTMLElement;
     expect(source.getAttribute("data-shape-source")).toBe(
       "packages/docs-model/src/components/state-shape/state.ts#StateShapeState",
@@ -199,7 +202,7 @@ describe("StateShapeBlock — bounded header", () => {
     const name = row.querySelector('[data-field-token="name"]');
     expect(name?.textContent).toBe("symbol");
     expect(name?.className).toContain("font-mono");
-    expect(name?.className).toContain("font-semibold");
+    expect(name?.className).toContain("--docs-shape-name-weight");
     const type = row.querySelector('[data-field-token="type"]');
     expect(type?.textContent).toBe("string");
     expect(type?.className).toContain("--docs-shape-type");
@@ -239,9 +242,121 @@ describe("StateShapeBlock — bounded header", () => {
     expect(styles).toContain("@media print");
     expect(styles).toContain("[data-described]{display:contents}");
     expect(styles).toContain("flex-basis:100%");
-    expect(styles).toContain("[data-shape-field] [data-tree-line]");
+    expect(styles).toContain("[data-shape-tree-geometry] [data-tree-line]");
     expect(styles).not.toContain("[data-shape-field] [aria-hidden]");
     expect(styles).toMatch(/\[data-shape-field\]:has\(\[data-described\]:hover\)[^{]*\{position:relative;z-index:31\}/);
+  });
+
+  it("reads every design knob from its --docs-shape-* var, default as the fallback", () => {
+    renderTwoPane();
+    const cls = (selector: string) => document.querySelector(selector)?.className ?? "";
+    const expectAll = (className: string, fragments: string[]) => {
+      for (const fragment of fragments) expect(className).toContain(fragment);
+    };
+
+    // Card frame: width, corner and color are knobs. The heavier dark fallback
+    // keys on a .dark ancestor, not on `dark:` (prefers-color-scheme in the
+    // published site, which has no dark theme).
+    expectAll(cls('[data-docs-block-type="state-shape"]'), [
+      "border-[length:var(--docs-shape-border-width,1px)]",
+      "[.dark_&]:border-[length:var(--docs-shape-border-width,2px)]",
+      "rounded-[var(--docs-shape-radius,4px)]",
+      "[.dark_&]:rounded-[var(--docs-shape-radius,var(--radius-lg,0.5rem))]",
+      "border-[color:var(--docs-shape-border,",
+      "bg-[color:var(--docs-shape-bg,",
+    ]);
+    // Header: fill, rule, padding and the texture strength.
+    expectAll(cls("[data-shape-header]"), [
+      "bg-[color:var(--docs-shape-header-bg,",
+      "border-[color:var(--docs-shape-header-rule,",
+      "px-[var(--docs-shape-pad-x,16px)]",
+      "py-[var(--docs-shape-header-pad-y,16px)]",
+      "before:opacity-[var(--docs-shape-header-texture-opacity,0.1)]",
+      "[.dark_&]:before:opacity-[var(--docs-shape-header-texture-opacity,0.4)]",
+    ]);
+    expectAll(cls("[data-shape-name]"), [
+      "text-[length:var(--docs-shape-header-text-size,14px)]",
+      "[font-weight:var(--docs-shape-header-weight,700)]",
+      "text-[color:var(--docs-shape-header-fg,var(--foreground))]",
+    ]);
+    // Both column heads share one treatment.
+    for (const selector of ["[data-shape-ledger-head]", "[data-shape-example-head]"]) {
+      expectAll(cls(selector), [
+        "text-[length:var(--docs-shape-column-head-text-size,10px)]",
+        "py-[var(--docs-shape-column-head-pad-y,8px)]",
+        "px-[var(--docs-shape-pad-x,16px)]",
+        "border-b-[length:var(--docs-shape-column-head-rule-width,2px)]",
+        "bg-[color:var(--docs-shape-column-head-bg,",
+        "--docs-shape-muted",
+      ]);
+    }
+    // The pane divider follows the layout: top edge stacked, left edge side by side.
+    expectAll(cls("[data-shape-example-pane]"), [
+      "max-xl:border-t-[length:var(--docs-shape-pane-rule-width,1px)]",
+      "xl:border-l-[length:var(--docs-shape-pane-rule-width,1px)]",
+      "[.dark_&]:max-xl:border-t-[length:var(--docs-shape-pane-rule-width,2px)]",
+      "[.dark_&]:xl:border-l-[length:var(--docs-shape-pane-rule-width,2px)]",
+      "border-[color:var(--docs-shape-header-rule,",
+    ]);
+    // Field rows.
+    const child = treeRow("source.symbol") as HTMLElement;
+    expectAll(child.className, [
+      "border-b-[length:var(--docs-shape-rule-width,1px)]",
+      "border-[color:var(--docs-shape-rule,",
+      "px-[var(--docs-shape-pad-x,16px)]",
+      "py-[var(--docs-shape-row-pad,6px)]",
+      "min-h-[var(--docs-shape-row-min-height,0px)]",
+      "bg-[color:var(--docs-shape-child-bg,",
+    ]);
+    expect(treeRow("source")?.className).not.toContain("--docs-shape-child-bg");
+    for (const path of ["name", "source.symbol"]) {
+      // Described and plain names carry the same knobs.
+      expectAll(treeRow(path)?.querySelector('[data-field-token="name"]')?.className ?? "", [
+        "text-[length:var(--docs-shape-text-size,13px)]",
+        "[font-weight:var(--docs-shape-name-weight,400)]",
+        "text-[color:var(--docs-shape-name,var(--foreground))]",
+      ]);
+    }
+    expectAll(child.querySelector('[data-field-token="type"]')?.className ?? "", [
+      "text-[length:var(--docs-shape-type-text-size,12px)]",
+      "leading-[calc(1/0.75)]",
+    ]);
+    expect(child.querySelector('[data-field-token="optional"]')?.className).toContain(
+      "bg-[color:var(--docs-shape-optional-bg,transparent)]",
+    );
+    const geometryTwins = Array.from(document.querySelectorAll('[data-docs-block-type="state-shape"], [data-shape-header], [data-shape-example-pane]'))
+      .flatMap((element) => (element.getAttribute("class") ?? "").split(/\s+/))
+      .filter((name) => /--docs-shape-(border-width|radius|header-rule-width|pane-rule-width|header-texture-opacity)/.test(name));
+    expect(geometryTwins.filter((name) => name.startsWith("dark:"))).toEqual([]);
+    expect(geometryTwins.filter((name) => name.startsWith("[.dark_&]:"))).toHaveLength(6);
+    // No hardcoded utility is left shadowing a knob.
+    const everyClass = Array.from(document.querySelectorAll('[data-docs-block-type="state-shape"], [data-docs-block-type="state-shape"] *'))
+      .flatMap((element) => (element.getAttribute("class") ?? "").split(/\s+/));
+    for (const dead of ["px-4", "py-4", "py-2", "border-2", "border-b-2", "border-t-2", "xl:border-l-2", "rounded-lg", "text-[13px]", "text-[10px]", "text-sm", "font-bold", "text-foreground"]) {
+      expect(everyClass).not.toContain(dead);
+    }
+
+    // Tree geometry lives in the block's own stylesheet.
+    const styles = Array.from(document.querySelectorAll("style"))
+      .map((style) => style.textContent ?? "")
+      .join("\n");
+    expectAll(styles, [
+      "--tree-width:var(--docs-shape-child-rule-width,1px)",
+      "--tree-start:var(--docs-shape-tree-inset,6px)",
+      "--tree-indent:var(--docs-shape-indent,22px)",
+      "--tree-length:var(--docs-shape-tree-tick,8px)",
+      "--tree-row-border:var(--docs-shape-rule-width,1px)",
+      "[data-shape-tree-geometry]:is(.dark *){--tree-start:var(--docs-shape-tree-inset,8px);--tree-length:var(--docs-shape-tree-tick,10px)}",
+      "font-size:var(--docs-shape-text-size,13px)",
+      "border-color:var(--docs-shape-child-rule,",
+    ]);
+    // The baked !important overrides are gone: they pinned values no knob could reach.
+    expect(document.querySelector("style[data-variator-tokens]")).toBeNull();
+    const treeStyle = Array.from(document.querySelectorAll("style"))
+      .map((style) => style.textContent ?? "")
+      .find((text) => text.includes("[data-shape-tree-geometry]"));
+    expect(treeStyle).toBeDefined();
+    expect(treeStyle).not.toContain("!important");
   });
 
   it("chips union members in their original order", () => {

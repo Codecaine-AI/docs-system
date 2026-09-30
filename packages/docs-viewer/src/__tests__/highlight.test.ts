@@ -1,5 +1,10 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "bun:test";
-import { highlightCode, prettyPrintIfJson } from "../components/code/highlight";
+import {
+  highlightCode,
+  highlightCodeTokens,
+  prettyPrintIfJson,
+} from "../components/code/highlight";
 
 /** Strip all tags — recovers the (still HTML-escaped) text of a line. */
 function stripTags(html: string): string {
@@ -77,6 +82,52 @@ describe("highlightCode", () => {
     const lines = highlightCode("const a = 1;\n\nconst b = 2;", "ts");
     expect(lines.length).toBe(3);
     expect(stripTags(lines[1])).toBe("");
+  });
+});
+
+describe("null literals carry hljs-null so --syntax-null reaches code blocks", () => {
+  it("tags JSON null (nested keyword shape) but not true/false", () => {
+    const [line] = highlightCode('{"a": null, "b": true, "c": false}', "json");
+    expect(line).toContain(
+      '<span class="hljs-literal hljs-null"><span class="hljs-keyword">null</span></span>',
+    );
+    expect(countMatches(line, /hljs-null/g)).toBe(1);
+    expect(line).toContain('<span class="hljs-literal"><span class="hljs-keyword">true</span></span>');
+    // The text itself is untouched.
+    expect(stripTags(line)).toBe("{&quot;a&quot;: null, &quot;b&quot;: true, &quot;c&quot;: false}");
+  });
+
+  it("tags the direct-literal shape in ts, python and go", () => {
+    expect(highlightCode("const a = null;", "ts")[0]).toContain(
+      '<span class="hljs-literal hljs-null">null</span>',
+    );
+    expect(highlightCode("a = None", "python")[0]).toContain(
+      '<span class="hljs-literal hljs-null">None</span>',
+    );
+    expect(highlightCode("var a = nil", "go")[0]).toContain(
+      '<span class="hljs-literal hljs-null">nil</span>',
+    );
+    // Booleans and the word inside a string stay untagged.
+    expect(highlightCode("const a = true;", "ts")[0]).not.toContain("hljs-null");
+    expect(highlightCode('const a = "null";', "ts")[0]).not.toContain("hljs-null");
+  });
+
+  it("gives the editor's token ranges the same class, with offsets unchanged", () => {
+    const code = '{"a": null}';
+    const token = highlightCodeTokens(code, "json").find((entry) =>
+      entry.className.includes("hljs-null"),
+    );
+    expect(token).toEqual({ from: 6, to: 10, className: "hljs-literal hljs-null hljs-keyword" });
+    expect(code.slice(token!.from, token!.to)).toBe("null");
+  });
+
+  it("the stylesheet colors hljs-null from --syntax-null, after the literal rule", () => {
+    const css = readFileSync(new URL("../styles/code.css", import.meta.url), "utf8");
+    const nullRule = css.indexOf(".hljs-null,");
+    expect(nullRule).toBeGreaterThan(css.indexOf(".hljs-literal,"));
+    expect(css.slice(nullRule)).toMatch(
+      /^\.hljs-null,\s*\.hljs-null \.hljs-keyword \{\s*color: var\(--syntax-null, /,
+    );
   });
 });
 

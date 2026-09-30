@@ -92,6 +92,23 @@ export function parseVideoEmbed(rawUrl: string): VideoEmbed | null {
   return null;
 }
 
+/*
+ * Class fragments for the figure — shared by both surfaces, since the
+ * editor's atom node view renders this same component. Every value follows a
+ * video token and each fallback equals its semantic.css default (the old
+ * `my-4` / `rounded-md border` / `mt-1 text-xs` utilities), so an unthemed
+ * host renders unchanged. The radius default tracks the global `--radius`
+ * (8px stock, so 6px), as `rounded-md` did. All three media surfaces (embed
+ * frame, link card, native player) share VIDEO_FRAME_CLASSES so one knob
+ * moves them together. `leading-[calc(1/0.75)]` is the line height `text-xs`
+ * paired with its font size; the arbitrary size utility sets the size alone.
+ */
+const VIDEO_FIGURE_CLASSES = "not-prose my-[var(--docs-video-margin,16px)]";
+const VIDEO_FRAME_CLASSES =
+  "rounded-[var(--docs-video-radius,max(0px,calc(var(--radius,8px)-2px)))] border-[length:var(--docs-video-border-width,1px)] border-[color:var(--docs-video-border,var(--border))]";
+const VIDEO_CAPTION_CLASSES =
+  "mt-[var(--docs-video-caption-gap,4px)] text-[length:var(--docs-video-caption-text-size,12px)] leading-[calc(1/0.75)] text-[color:var(--docs-video-caption-fg,var(--muted-foreground))]";
+
 /**
  * Video block. Minimal figure framing like the image block — no header strip,
  * just the media surface plus a muted caption line. `url` (external) wins
@@ -119,7 +136,7 @@ export function VideoBlock({
   let media: ReactNode;
   if (url && embed) {
     media = (
-      <div className="aspect-video w-full overflow-hidden rounded-md border border-[color:var(--docs-video-border,var(--border))] bg-muted/20">
+      <div className={`aspect-video w-full overflow-hidden ${VIDEO_FRAME_CLASSES} bg-muted/20`}>
         <iframe
           src={embed.embedUrl}
           title={title ?? `${VIDEO_LABEL}: ${url}`}
@@ -144,7 +161,7 @@ export function VideoBlock({
         target="_blank"
         rel="noopener noreferrer"
         data-video-link-card="true"
-        className="flex items-center gap-3 rounded-md border border-[color:var(--docs-video-border,var(--border))] bg-muted/20 px-3 py-2 no-underline transition-colors hover:bg-muted/40"
+        className={`flex items-center gap-3 ${VIDEO_FRAME_CLASSES} bg-muted/20 px-3 py-2 no-underline transition-colors hover:bg-muted/40`}
       >
         <FilmIcon className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
         <span className="min-w-0">
@@ -164,7 +181,7 @@ export function VideoBlock({
         controls
         preload="metadata"
         title={title}
-        className="max-w-full rounded-md border border-[color:var(--docs-video-border,var(--border))]"
+        className={`max-w-full ${VIDEO_FRAME_CLASSES}`}
       />
     );
   } else {
@@ -177,13 +194,13 @@ export function VideoBlock({
 
   return (
     <figure
-      className="not-prose my-4"
+      className={VIDEO_FIGURE_CLASSES}
       data-docs-block-type="video"
       data-source-id={id}
     >
       {media}
       {caption && (
-        <figcaption className="mt-1 text-xs text-[color:var(--docs-video-caption-fg,var(--muted-foreground))]">
+        <figcaption className={VIDEO_CAPTION_CLASSES}>
           {caption}
         </figcaption>
       )}

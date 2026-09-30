@@ -11,6 +11,7 @@ import { DocItalic, DocStrike } from "../../rich-text/editor-marks";
 import type { PMNode } from "../../../editor/core/convert";
 import { pmDocToTableCell, tableCellEquals, tableCellToPMDoc } from "../cell-content";
 import { renderTableCell } from "../cell-render";
+import { TABLE_CELL_MIN_HEIGHT_CLASS } from "../table-classes";
 
 export type CellNavigation = "next" | "previous" | "down";
 
@@ -63,8 +64,10 @@ export function getCellEditor(element: HTMLElement): Editor | undefined {
 }
 
 /** The classes the plaintext island carried, now on the mini editor's ProseMirror element (the focus ring lives on the enclosing th/td via :focus-within). */
-const CELL_TEXT_CLASSES =
-  "min-h-[1.55em] whitespace-pre-wrap break-words rounded-sm outline-none cursor-text";
+const CELL_TEXT_CLASSES = cn(
+  TABLE_CELL_MIN_HEIGHT_CLASS,
+  "whitespace-pre-wrap break-words rounded-sm outline-none cursor-text",
+);
 
 /** Single-paragraph document: a cell is one flow of rich text; in-cell newlines are hard breaks, never extra paragraphs. */
 const CellDocument = Node.create({ name: "doc", topNode: true, content: "paragraph" });
@@ -192,7 +195,10 @@ function StaticCell({ value, ariaLabel, registerElement }: EditableCellProps) {
       aria-multiline="true"
       aria-readonly="true"
       aria-label={ariaLabel}
-      className="min-h-[1.55em] whitespace-pre-wrap break-words rounded-sm outline-none"
+      className={cn(
+        TABLE_CELL_MIN_HEIGHT_CLASS,
+        "whitespace-pre-wrap break-words rounded-sm outline-none",
+      )}
     >
       {renderTableCell(value)}
     </div>

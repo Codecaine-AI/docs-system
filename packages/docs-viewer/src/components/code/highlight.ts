@@ -94,6 +94,27 @@ function escapeHtml(text: string): string {
 const HLJS_TAG_RE = /<span[^>]*>|<\/span>/g;
 
 /**
+ * hljs classes null-like literals (`null`, python `None`, go `nil`) as plain
+ * `hljs-literal` — indistinguishable in CSS from `true`/`false`. The theme
+ * contract has a separate --syntax-null token, so tag them with an extra
+ * `hljs-null` class the stylesheet (styles/code.css) colors from that token.
+ * Two shapes: most grammars emit the literal span directly; the JSON grammar
+ * nests an `hljs-keyword` span inside it. Input is hljs output (text already
+ * HTML-escaped), so the match can only ever hit hljs's own spans.
+ */
+const HLJS_NULL_LITERAL_RE =
+  /<span class="hljs-literal">((?:<span class="hljs-keyword">)?(?:null|None|nil)(?:<\/span>)?)<\/span>/g;
+
+function markNullLiterals(html: string): string {
+  return html.replace(HLJS_NULL_LITERAL_RE, '<span class="hljs-literal hljs-null">$1</span>');
+}
+
+/** Runs the grammar and applies the null tagging — the ONE place both surfaces (HTML lines + editor token ranges) get their hljs markup from. */
+function highlightToHtml(code: string, grammar: string): string {
+  return markNullLiterals(hljs.highlight(code, { language: grammar, ignoreIllegals: true }).value);
+}
+
+/**
  * Split highlighted HTML into per-line strings while keeping token spans
  * balanced on every line. hljs token spans can cross newlines (template
  * strings, block comments, multi-line YAML scalars): a naive `split("\n")`
@@ -173,7 +194,7 @@ export function highlightCode(code: string, language?: string): string[] {
   if (!grammar) return code.split("\n").map(escapeHtml);
   let highlighted: string;
   try {
-    highlighted = hljs.highlight(code, { language: grammar, ignoreIllegals: true }).value;
+    highlighted = highlightToHtml(code, grammar);
   } catch {
     // A grammar bug must never take down a doc page — fall back to plain.
     return code.split("\n").map(escapeHtml);
@@ -214,7 +235,7 @@ export function highlightCodeTokens(code: string, language?: string): HighlightT
   if (!grammar) return [];
   let highlighted: string;
   try {
-    highlighted = hljs.highlight(code, { language: grammar, ignoreIllegals: true }).value;
+    highlighted = highlightToHtml(code, grammar);
   } catch {
     return [];
   }

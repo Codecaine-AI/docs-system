@@ -433,6 +433,153 @@ describe("InteractionSurfaceBlock", () => {
   });
 });
 
+describe("InteractionSurfaceBlock style-rail tokens", () => {
+  // The block is styled two ways: utility classes on elements, and an inline
+  // <style> sheet that is unlayered and therefore beats those utilities. Each
+  // knob is asserted where its value is actually decided.
+  function renderSurface() {
+    render(
+      <InteractionSurfaceBlock
+        id="surface-tokens"
+        title="Tokens"
+        operations={[
+          {
+            name: "table.walk",
+            kind: "query",
+            description: "Walk the table",
+            params: [
+              {
+                name: "opts",
+                description: "Traversal options",
+                fields: [{ name: "depth", type: "number" }],
+              },
+            ],
+            returns: "Row[]",
+          },
+          { name: "table.count", returns: "number" },
+        ]}
+      />,
+    );
+    const section = document.querySelector('[data-docs-block-type="interaction-surface"]')!;
+    const sheet = Array.from(section.querySelectorAll("style"))
+      .map((style) => style.textContent ?? "")
+      .join("\n");
+    return { section, sheet };
+  }
+
+  it("reads the card gap, row inset, and text knobs from utility classes", () => {
+    const { section } = renderSurface();
+    const walk = opRow("table.walk")!;
+
+    expect(section.querySelector("[data-operations-list]")?.className).toContain(
+      "gap-[var(--docs-interaction-op-gap,24px)]",
+    );
+
+    // Described and undescribed names share one class.
+    for (const name of Array.from(walk.querySelectorAll("[data-note-name]"))) {
+      expect(name.className).toContain("text-[length:var(--docs-interaction-note-name-text-size,13px)]");
+      expect(name.className).toContain("[font-weight:var(--docs-interaction-note-name-weight,600)]");
+      expect(name.className).toContain(
+        "text-[color:var(--docs-interaction-note-name,var(--docs-shape-name,var(--foreground)))]",
+      );
+    }
+    expect(walk.querySelectorAll("[data-note-name]")).toHaveLength(2);
+
+    const badge = walk.querySelector('[data-operation-card-header] [data-slot="badge"]');
+    expect(badge?.className).toContain("text-[length:var(--docs-interaction-badge-text-size,10px)]");
+    // The badge's own size class must survive the merge with the base text-xs.
+    expect(badge?.className).not.toContain("text-xs");
+
+    const purpose = walk.querySelector("[data-operation-purpose]");
+    expect(purpose?.className).toContain("text-[length:var(--docs-interaction-desc-text-size,12px)]");
+    expect(purpose?.className).toContain("leading-[var(--docs-interaction-desc-line-height,20px)]");
+
+    expect(walk.querySelector('[data-sig-token="name"]')?.className).toContain(
+      "var(--docs-interaction-sig-name,var(--docs-operations-accent))",
+    );
+    expect(walk.querySelector('[data-sig-token="punct"]')?.className).toContain(
+      "var(--docs-interaction-sig-punct,var(--muted-foreground))",
+    );
+
+    // Plain cells (a bare return type, "No parameters") sit on the row inset.
+    const count = opRow("table.count")!;
+    for (const cell of [
+      count.querySelector("[data-return-value]"),
+      screen.getByText("No parameters"),
+    ]) {
+      expect(cell?.className).toContain("px-[var(--docs-interaction-pad-x,16px)]");
+      expect(cell?.className).toContain("py-[var(--docs-interaction-row-pad,12px)]");
+    }
+  });
+
+  it("reads the frame, spacing, and type-scale knobs from the inline sheet", () => {
+    const { sheet } = renderSurface();
+    for (const declaration of [
+      // Row geometry: padding, inset, nested indent, hairline.
+      "--note-y:var(--docs-interaction-row-pad,12px)",
+      "--note-x:var(--docs-interaction-pad-x,16px)",
+      "--note-indent:var(--docs-interaction-indent,22px)",
+      "--note-rule:var(--docs-interaction-rule-width,1px)",
+      "[data-param-note]{padding:var(--note-y) var(--note-x);border-bottom:var(--note-rule) solid var(--docs-operations-rule)}",
+      // Card frame.
+      "--operation-card-radius:var(--docs-interaction-radius,4px)",
+      "--operation-card-border:var(--docs-interaction-border-width,1px)",
+      "--operation-frame:var(--docs-interaction-border,var(--docs-shape-header-rule,",
+      "border:var(--operation-card-border) solid var(--operation-frame);border-radius:var(--operation-card-radius);background:var(--docs-interaction-bg,var(--docs-shape-bg,var(--background)))",
+      // Block title.
+      "font-size:var(--docs-interaction-title-text-size,14px);font-weight:var(--docs-interaction-title-weight,700);color:var(--docs-interaction-title-fg,var(--foreground))",
+      "padding:0 0 var(--docs-interaction-title-gap,12px)",
+      // Operation card header.
+      "padding:var(--docs-interaction-header-pad-y,16px) var(--note-x)",
+      "font-size:var(--docs-interaction-header-text-size,14px);font-weight:var(--docs-interaction-header-weight,700);color:var(--docs-interaction-header-fg,var(--foreground))",
+      // Column heads.
+      "padding:var(--docs-interaction-column-head-pad-y,8px) var(--note-x)",
+      "font-size:var(--docs-interaction-column-head-text-size,10px)",
+      "color:var(--docs-interaction-column-head-fg,var(--docs-shape-muted,var(--muted-foreground)))",
+      "background:var(--docs-interaction-column-head-bg,color-mix(in srgb,var(--muted) 18%,transparent))",
+      "border-bottom:var(--docs-interaction-column-head-rule-width,2px) solid var(--docs-operations-rule)",
+      // Notes and descriptions.
+      "[data-note-name-cell]{font-size:var(--docs-interaction-note-name-text-size,13px)}",
+      "font-size:var(--docs-interaction-note-type-text-size,12px)",
+      "[data-description-tip]{font-size:var(--docs-interaction-desc-text-size,12px)}",
+      "color:var(--docs-interaction-note-fg,var(--docs-shape-desc-fg,",
+      // Shared content colors: this block's token first, State Shape behind it.
+      "--docs-operations-rule:var(--docs-interaction-rule,var(--docs-shape-rule,var(--border)))",
+      "--docs-operations-tree:var(--docs-interaction-child-rule,var(--docs-shape-child-rule,",
+      "--docs-operations-type:var(--docs-interaction-note-type,var(--docs-shape-type,#0a5779))",
+      "--docs-operations-type:var(--docs-interaction-note-type,var(--docs-shape-type,#a5d3f0))",
+      "--docs-operations-type-bg:var(--docs-interaction-note-type-bg,var(--docs-shape-type-bg,",
+      // A nested returned object keeps this card's inset.
+      "--docs-shape-pad-x:var(--note-x)",
+    ]) {
+      expect(sheet).toContain(declaration);
+    }
+    // Dark keeps its larger default radius behind the same knob.
+    expect(sheet).toContain(
+      ".dark [data-operations-card-layout]{--operation-card-radius:var(--docs-interaction-radius,12px)",
+    );
+  });
+
+  it("leaves rail vars for the rail: no block-level re-declaration, no pinned values", () => {
+    const { section, sheet } = renderSurface();
+    // A custom property re-declared on the block shadows the value the rail
+    // writes on <html>; that is how the signature colors went dead before.
+    expect(sheet).not.toMatch(/--docs-(interaction|operation)-[a-z-]+\s*:/);
+    expect(section.querySelector("style[data-variator-tokens]")).toBeNull();
+    expect(sheet).not.toContain("--operation-card-radius:4px");
+    // The section is a bare lane: the cards carry the frame.
+    expect(section.className).not.toContain("rounded");
+    expect(section.className).not.toContain("border");
+    expect(section.className).not.toContain("bg-");
+    // Signature text size belongs to the shared linked-panels knob; a
+    // font-size here would shadow it.
+    expect(sheet).not.toMatch(/\[data-code-line\]\{[^}]*font-size/);
+    // Row padding belongs to the inline sheet, not to dead utilities.
+    const note = opRow("table.walk")?.querySelector("[data-param-note]");
+    expect(note?.className).not.toMatch(/\bp[xy]-\d/);
+  });
+});
+
 describe('native return-shape descriptor',()=>{
   it('retains output fields and example with independent linking',async()=>{
     const {descriptors}=await import('../components/interaction-surface/descriptor');

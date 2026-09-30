@@ -1009,7 +1009,16 @@ describe("style rail stock values match the consumers' inline fallbacks", () => 
     expect(typography.lineHeight).toBe(1.45);
     expect(typography.letterSpacing).toBe(0);
     expect(indexCss).not.toContain("--style-font-size, 0.875rem");
-    expect(indexCss.match(/var\(--style-font-size, 18px\)/g)?.length).toBe(2);
+    // Four readers: the container, the text-block re-assertion, and the quote
+    // and callout-body rules that multiply the reading size by their own
+    // text-scale token (1 by default, so they restate the same size).
+    expect(indexCss.match(/var\(--style-font-size, 18px\)/g)?.length).toBe(4);
+    expect(indexCss).toContain(
+      "font-size: calc(var(--style-font-size, 18px) * var(--docs-quote-text-scale, 1));",
+    );
+    expect(indexCss).toContain(
+      "font-size: calc(var(--style-font-size, 18px) * var(--docs-callout-body-text-scale, 1));",
+    );
     expect(indexCss.match(/var\(--style-line-height, 1\.45\)/g)?.length).toBe(2);
     expect(blockClassesSource).not.toContain("leading-[1.7]");
     expect(blockClassesSource).toContain(
@@ -1868,6 +1877,363 @@ describe("style rail component token kinds", () => {
   });
 });
 
+describe("style rail structured-table tokens", () => {
+  // [min, max, step, defaultValue] per token; `label` is what the rail shows.
+  const TABLE_LENGTHS = {
+    borderWidth: { cssVar: "--docs-table-border-width", label: "Border width", range: [0, 4, 0.5, 1] },
+    radius: { cssVar: "--docs-table-radius", label: "Corner radius", range: [0, 16, 1, 6] },
+    headerTextSize: {
+      cssVar: "--docs-table-header-text-size",
+      label: "Header text size",
+      range: [10, 24, 0.5, 13],
+    },
+    headerRuleWidth: {
+      cssVar: "--docs-table-header-rule-width",
+      label: "Header rule width",
+      range: [0, 4, 0.5, 1.5],
+    },
+    rowRuleWidth: { cssVar: "--docs-table-row-rule-width", label: "Row rule width", range: [0, 3, 0.5, 1] },
+    columnRuleWidth: {
+      cssVar: "--docs-table-column-rule-width",
+      label: "Column rule width",
+      range: [0, 3, 0.5, 1],
+    },
+    cellPaddingY: { cssVar: "--docs-table-cell-pad-y", label: "Row padding", range: [4, 24, 1, 10] },
+    cellPaddingX: { cssVar: "--docs-table-cell-pad-x", label: "Cell padding", range: [8, 32, 1, 12] },
+    rowMinHeight: { cssVar: "--docs-table-row-min-height", label: "Row min height", range: [0, 96, 1, 0] },
+    fontSize: { cssVar: "--docs-table-font-size", label: "Text size", range: [10, 24, 0.5, 14] },
+    titleTextSize: {
+      cssVar: "--docs-table-title-text-size",
+      label: "Title text size",
+      range: [10, 24, 0.5, 14],
+    },
+    titleGap: { cssVar: "--docs-table-title-gap", label: "Title gap", range: [0, 24, 1, 6] },
+    handleRadius: { cssVar: "--docs-table-handle-radius", label: "Handle radius", range: [0, 10, 0.5, 3] },
+    handleOffset: { cssVar: "--docs-table-handle-offset", label: "Handle offset", range: [4, 20, 1, 12] },
+    selectionPadding: {
+      cssVar: "--docs-table-selection-pad",
+      label: "Selection padding",
+      range: [0, 8, 0.5, 3],
+    },
+  } as const;
+  const TABLE_NUMBERS = {
+    headerWeight: { cssVar: "--docs-table-header-weight", label: "Header weight", range: [300, 900, 50, 500] },
+    headerRuleOpacity: {
+      cssVar: "--docs-table-header-rule-opacity",
+      label: "Header rule opacity",
+      range: [0, 1, 0.05, 0.5],
+    },
+    rowRuleOpacity: {
+      cssVar: "--docs-table-row-rule-opacity",
+      label: "Row rule opacity",
+      range: [0, 1, 0.05, 1],
+    },
+    columnRuleOpacity: {
+      cssVar: "--docs-table-column-rule-opacity",
+      label: "Column rule opacity",
+      range: [0, 1, 0.05, 1],
+    },
+    lineHeight: { cssVar: "--docs-table-line-height", label: "Line height", range: [1, 2.2, 0.05, 1.55] },
+    bodyWeight: { cssVar: "--docs-table-body-weight", label: "Body weight", range: [300, 900, 50, 400] },
+    titleWeight: { cssVar: "--docs-table-title-weight", label: "Title weight", range: [300, 900, 50, 500] },
+  } as const;
+  const TABLE_COLORS = {
+    border: { cssVar: "--docs-table-border", label: "Border" },
+    bg: { cssVar: "--docs-table-bg", label: "Background" },
+    headerBg: { cssVar: "--docs-table-header-bg", label: "Header background" },
+    headerFg: { cssVar: "--docs-table-header-fg", label: "Header text" },
+    headerRule: { cssVar: "--docs-table-header-rule", label: "Header rule" },
+    rowRule: { cssVar: "--docs-table-row-rule", label: "Row rule" },
+    columnRule: { cssVar: "--docs-table-column-rule", label: "Column rule" },
+    rowHoverBg: { cssVar: "--docs-table-row-hover-bg", label: "Row hover background" },
+    fg: { cssVar: "--docs-table-fg", label: "Text" },
+    titleFg: { cssVar: "--docs-table-title-fg", label: "Title text" },
+  } as const;
+  // Tokens whose semantic.css default is DERIVED from another token, so the
+  // declaration is an expression rather than the registry's stock number.
+  const DERIVED_DEFAULTS: Record<string, string> = {
+    "--docs-table-radius": "max(0px, calc(var(--radius) - 2px))",
+    "--docs-table-handle-radius": "max(0px, calc(var(--radius) - 5px))",
+    "--docs-table-header-text-size": "calc(var(--docs-table-font-size) - 1px)",
+    "--docs-table-column-rule-width": "var(--docs-table-row-rule-width)",
+    "--docs-table-column-rule-opacity": "var(--docs-table-row-rule-opacity)",
+  };
+  const SLIDERS = [
+    ...Object.entries(TABLE_LENGTHS).map(([key, token]) => ({ key, unit: "px", ...token })),
+    ...Object.entries(TABLE_NUMBERS).map(([key, token]) => ({ key, unit: "", ...token })),
+  ];
+
+  const viewerSource = (path: string) =>
+    readFileSync(
+      new URL(`../../../../docs-viewer/src/components/structured-table/${path}`, import.meta.url),
+      "utf8",
+    );
+  const semanticCss = readFileSync(new URL("../theme/semantic.css", import.meta.url), "utf8");
+  const indexCss = readFileSync(new URL("../index.css", import.meta.url), "utf8");
+  const tableClasses = viewerSource("table-classes.ts");
+  const occurrences = (haystack: string, needle: string) => haystack.split(needle).length - 1;
+
+  it("registers every table var under the structured-table entry", () => {
+    const entry = THEME_TOKEN_REGISTRY["structured-table"];
+    for (const [key, { cssVar }] of Object.entries(TABLE_COLORS)) {
+      expect(entry[key]).toEqual({ vars: [cssVar], kind: "color" });
+    }
+    for (const [key, { cssVar, range }] of Object.entries(TABLE_LENGTHS)) {
+      const [min, max, step, defaultValue] = range;
+      expect(entry[key]).toEqual({
+        vars: [cssVar],
+        kind: "length",
+        min,
+        max,
+        step,
+        unit: "px",
+        defaultValue,
+      });
+    }
+    for (const [key, { cssVar, range }] of Object.entries(TABLE_NUMBERS)) {
+      const [min, max, step, defaultValue] = range;
+      expect(entry[key]).toEqual({ vars: [cssVar], kind: "number", min, max, step, defaultValue });
+    }
+    // Nothing registered beyond the pinned set, so a new knob has to land here.
+    expect(Object.keys(entry).sort()).toEqual(
+      [
+        ...Object.keys(TABLE_COLORS),
+        ...Object.keys(TABLE_LENGTHS),
+        ...Object.keys(TABLE_NUMBERS),
+      ].sort(),
+    );
+  });
+
+  it("declares every table var in both semantic.css blocks at the registry default", () => {
+    for (const { cssVar } of Object.values(TABLE_COLORS)) {
+      expect(occurrences(semanticCss, `  ${cssVar}: `)).toBe(2);
+    }
+    for (const { cssVar, unit, range } of SLIDERS) {
+      const value = DERIVED_DEFAULTS[cssVar] ?? `${range[3]}${unit}`;
+      expect(occurrences(semanticCss, `  ${cssVar}: ${value};`)).toBe(2);
+    }
+    // The three derived defaults resolve to the registry number at stock:
+    // radius 8px - 2px, handle 8px - 5px, header 14px - 1px.
+    expect(occurrences(semanticCss, "  --radius: 0.5rem;")).toBe(2);
+    expect<number>(TABLE_LENGTHS.radius.range[3]).toBe(8 - 2);
+    expect<number>(TABLE_LENGTHS.handleRadius.range[3]).toBe(8 - 5);
+    expect<number>(TABLE_LENGTHS.headerTextSize.range[3]).toBe(
+      TABLE_LENGTHS.fontSize.range[3] - 1,
+    );
+    // Column rules start level with the row rules they follow.
+    expect(TABLE_LENGTHS.columnRuleWidth.range).toEqual(TABLE_LENGTHS.rowRuleWidth.range);
+    expect(TABLE_NUMBERS.columnRuleOpacity.range).toEqual(TABLE_NUMBERS.rowRuleOpacity.range);
+    expect(occurrences(semanticCss, "  --docs-table-column-rule: var(--docs-table-row-rule);")).toBe(2);
+  });
+
+  it("wires every table var into the component with its default as the fallback", () => {
+    // A registered knob the component never reads is a dead slider (the
+    // state-shape rowPad bug). The class strings live in table-classes.ts and
+    // are shared by the read block and the editor grid; the three
+    // editor-furniture vars are read where the furniture is drawn.
+    const furniture = [
+      viewerSource("editor/Handles.tsx"),
+      viewerSource("editor/SelectionOverlay.tsx"),
+      viewerSource("editor-node-view.tsx"),
+    ].join("\n");
+    const FURNITURE_FALLBACKS: Record<string, string> = {
+      "--docs-table-handle-radius": "var(--docs-table-handle-radius,3px)",
+      "--docs-table-handle-offset": "var(--docs-table-handle-offset, 12px)",
+      "--docs-table-selection-pad": "var(--docs-table-selection-pad, 3px)",
+    };
+    const CLASS_FALLBACKS: Record<string, string> = {
+      "--docs-table-radius": "var(--docs-table-radius,var(--radius-md,6px))",
+      "--docs-table-header-text-size":
+        "var(--docs-table-header-text-size,calc(var(--docs-table-font-size,14px)-1px))",
+      "--docs-table-column-rule-width":
+        "var(--docs-table-column-rule-width,var(--docs-table-row-rule-width,1px))",
+      "--docs-table-column-rule-opacity":
+        "var(--docs-table-column-rule-opacity,var(--docs-table-row-rule-opacity,1))",
+    };
+    for (const { cssVar, unit, range } of SLIDERS) {
+      if (FURNITURE_FALLBACKS[cssVar]) {
+        expect(furniture).toContain(FURNITURE_FALLBACKS[cssVar]);
+        continue;
+      }
+      expect(tableClasses).toContain(
+        CLASS_FALLBACKS[cssVar] ?? `var(${cssVar},${range[3]}${unit})`,
+      );
+    }
+    for (const reference of [
+      "var(--docs-table-border,var(--border))",
+      "var(--docs-table-bg,var(--background))",
+      "var(--docs-table-header-bg,transparent)",
+      "var(--docs-table-header-fg,currentColor)",
+      "var(--docs-table-header-rule,var(--docs-table-header-fg,currentColor))",
+      "var(--docs-table-row-rule,var(--border))",
+      "var(--docs-table-column-rule,var(--docs-table-row-rule,var(--border)))",
+      "var(--docs-table-row-hover-bg,color-mix(in_srgb,var(--muted)_20%,transparent))",
+      "var(--docs-table-fg,currentColor)",
+      "var(--docs-table-title-fg,var(--foreground))",
+    ]) {
+      expect(tableClasses).toContain(reference);
+    }
+    // Every color token is covered by the list above.
+    for (const { cssVar } of Object.values(TABLE_COLORS)) {
+      expect(tableClasses).toContain(`var(${cssVar},`);
+    }
+    // The literals the vars replaced are gone, so nothing shadows a knob.
+    for (const hardcoded of [
+      "rounded-md",
+      "bg-background",
+      "bg-muted/20",
+      "text-sm",
+      "font-medium",
+      "text-foreground",
+      "mb-1.5",
+      "leading-[1.55]",
+    ]) {
+      expect(tableClasses).not.toContain(hardcoded);
+    }
+    expect(viewerSource("editor/EditableCell.tsx")).not.toContain("min-h-[1.55em]");
+  });
+
+  it("keeps the unlayered prose rules off table cells so the type tokens win", () => {
+    // index.css re-asserts prose size/leading/color on p/td/th from OUTSIDE a
+    // cascade layer, which beats Tailwind's `@layer utilities` whatever the
+    // specificity. Without this exemption the table's font size, header size,
+    // line height and (in edit mode, where a cell hosts a <p>) text colors
+    // are dead knobs: cells render at the prose size instead.
+    const exempt = ':not(:where([data-docs-block-type="structured-table"] *))';
+    expect(indexCss).toContain(
+      `.docs-markdown :where(p, li, td, th, dd, dt, blockquote)${exempt} {\n  font-size: var(--style-font-size, 18px);`,
+    );
+    expect(indexCss).toContain(
+      `.docs-markdown :where(p)${exempt} {\n  color: var(--docs-paragraph-fg);`,
+    );
+    expect(indexCss).toContain(
+      `.docs-markdown :where(li, td)${exempt} {\n  color: var(--docs-viewer-text-body);`,
+    );
+    // No un-exempted copy of those selectors survives alongside.
+    expect(indexCss).not.toMatch(/\.docs-markdown :where\((p|li, td|p, li, td, th, dd, dt, blockquote)\) \{/);
+    // Both surfaces mark their root with the attribute the exemption keys on.
+    expect(viewerSource("StructuredTableDocsBlock.tsx")).toContain(
+      'data-docs-block-type="structured-table"',
+    );
+    expect(viewerSource("editor-node-view.tsx")).toContain(
+      'data-docs-block-type="structured-table"',
+    );
+  });
+
+  it("renders a labelled control for every table token", () => {
+    render(<RailHarness />);
+    openPane("Structured table");
+
+    for (const { label } of Object.values(TABLE_COLORS)) {
+      const input = screen.getByLabelText(label) as HTMLInputElement;
+      expect(input).toHaveProperty("type", "color");
+    }
+    for (const { label, unit, range } of SLIDERS) {
+      const [min, max, step, defaultValue] = range;
+      // Anchored: "Text size" must not also match "Header text size".
+      const slider = screen.getByLabelText(new RegExp(`^${label}`)) as HTMLInputElement;
+      expect(slider).toHaveProperty("type", "range");
+      expect(slider).toHaveProperty("min", String(min));
+      expect(slider).toHaveProperty("max", String(max));
+      expect(slider).toHaveProperty("step", String(step));
+      expect(slider).toHaveProperty("value", String(defaultValue));
+      expect(slider.closest("label")?.textContent).toBe(`${label}${defaultValue}${unit}`);
+    }
+  });
+
+  it("stores slider values with their units and applies them onto the table vars", () => {
+    render(<RailHarness />);
+    openPane("Structured table");
+
+    fireEvent.change(screen.getByLabelText(/^Text size/), { target: { value: "18" } });
+    fireEvent.change(screen.getByLabelText(/^Line height/), { target: { value: "1.45" } });
+    fireEvent.change(screen.getByLabelText(/^Header weight/), { target: { value: "650" } });
+    fireEvent.change(screen.getByLabelText(/^Corner radius/), { target: { value: "0" } });
+    expect(JSON.parse(screen.getByTestId("component-settings").textContent ?? "null")).toEqual({
+      "structured-table": {
+        fontSize: "18px",
+        lineHeight: "1.45",
+        headerWeight: "650",
+        radius: "0px",
+      },
+    });
+
+    const settings = normalizeSettings({
+      components: {
+        "structured-table": {
+          bg: "#FAFAFA",
+          fg: "#111111",
+          titleFg: "#222222",
+          columnRule: "#333333",
+          rowHoverBg: "#eeeeee",
+          borderWidth: "2px",
+          radius: "12px",
+          headerTextSize: "12px",
+          headerWeight: "700",
+          columnRuleWidth: "0px",
+          columnRuleOpacity: "0.4",
+          rowMinHeight: "48px",
+          fontSize: "18px",
+          lineHeight: "1.45",
+          bodyWeight: "450",
+          titleTextSize: "16px",
+          titleWeight: "600",
+          titleGap: "10px",
+        },
+      },
+    });
+    expect(styleRailVars(settings)).toMatchObject({
+      "--docs-table-bg": "#fafafa",
+      "--docs-table-fg": "#111111",
+      "--docs-table-title-fg": "#222222",
+      "--docs-table-column-rule": "#333333",
+      "--docs-table-row-hover-bg": "#eeeeee",
+      "--docs-table-border-width": "2px",
+      "--docs-table-radius": "12px",
+      "--docs-table-header-text-size": "12px",
+      "--docs-table-header-weight": "700",
+      "--docs-table-column-rule-width": "0px",
+      "--docs-table-column-rule-opacity": "0.4",
+      "--docs-table-row-min-height": "48px",
+      "--docs-table-font-size": "18px",
+      "--docs-table-line-height": "1.45",
+      "--docs-table-body-weight": "450",
+      "--docs-table-title-text-size": "16px",
+      "--docs-table-title-weight": "600",
+      "--docs-table-title-gap": "10px",
+    });
+  });
+
+  it("drops out-of-range values and clears vars parked on their defaults", () => {
+    expect(
+      normalizeSettings({
+        components: {
+          "structured-table": {
+            fontSize: "40px",
+            lineHeight: "3",
+            headerWeight: "1000",
+            radius: "-1px",
+            rowMinHeight: "12rem",
+          },
+        },
+      }).components,
+    ).toEqual({});
+
+    // A slider sitting on its registry default writes nothing, which is what
+    // lets the derived semantic.css defaults (header size follows text size,
+    // column rules follow row rules, radius follows --radius) show through.
+    const atDefault = Object.fromEntries(
+      SLIDERS.map(({ key, unit, range }) => [key, `${range[3]}${unit}`]),
+    );
+    const vars = styleRailVars(
+      normalizeSettings({ components: { "structured-table": atDefault } }),
+    );
+    for (const { cssVar } of SLIDERS) {
+      expect(vars[cssVar]).toBeNull();
+    }
+  });
+});
+
 describe("style rail code block tokens", () => {
   it("registers the five sidebar-facing code color tokens", () => {
     const code = THEME_TOKEN_REGISTRY.code;
@@ -2018,7 +2384,10 @@ describe("style rail code block tokens", () => {
     openPane("Code");
 
     for (const label of [
-      "Language badge",
+      // languageFg only colors the edit picker's hover state, so its label
+      // says so; the label's resting color is "Header text" (headerFg).
+      "Language picker hover",
+      "Header text",
       "Annotation accent",
       "Line numbers",
       "Gutter background",
@@ -2027,6 +2396,119 @@ describe("style rail code block tokens", () => {
     ]) {
       expect(screen.getByText(label)).toBeTruthy();
     }
+    expect(screen.queryByText("Language badge")).toBeNull();
+  });
+
+  it("registers the frame, typography, padding, header, gutter and notes metric tokens", () => {
+    const code = THEME_TOKEN_REGISTRY.code;
+    const length = (cssVar: string, min: number, max: number, step: number, defaultValue: number) => ({
+      vars: [cssVar],
+      kind: "length" as const,
+      min,
+      max,
+      step,
+      unit: "px" as const,
+      defaultValue,
+    });
+    expect(code.borderWidth).toEqual(length("--docs-code-border-width", 0, 4, 0.5, 1));
+    expect(code.radius).toEqual(length("--docs-code-radius", 0, 16, 1, 6));
+    expect(code.textSize).toEqual(length("--docs-code-text-size", 10, 18, 0.5, 12));
+    expect(code.lineHeight).toEqual(length("--docs-code-line-height", 14, 32, 1, 20));
+    expect(code.padX).toEqual(length("--docs-code-pad-x", 0, 32, 1, 12));
+    expect(code.padTop).toEqual(length("--docs-code-pad-top", 0, 24, 1, 0));
+    expect(code.padBottom).toEqual(length("--docs-code-pad-bottom", 0, 24, 1, 8));
+    expect(code.headerHeight).toEqual(length("--docs-code-header-height", 20, 48, 1, 28));
+    expect(code.headerFg).toEqual({ vars: ["--docs-code-header-fg"], kind: "color" });
+    expect(code.headerTextSize).toEqual(length("--docs-code-header-text-size", 8, 16, 0.5, 10));
+    expect(code.headerWeight).toEqual({
+      vars: ["--docs-code-header-weight"],
+      kind: "number",
+      min: 300,
+      max: 800,
+      step: 100,
+      defaultValue: 500,
+    });
+    expect(code.gutterTextSize).toEqual(length("--docs-code-gutter-text-size", 8, 16, 0.5, 12));
+    expect(code.gutterWidth).toEqual(length("--docs-code-gutter-width", 24, 96, 1, 48));
+    expect(code.gutterPadX).toEqual(length("--docs-code-gutter-pad-x", 0, 24, 1, 8));
+    expect(code.noteTextSize).toEqual(length("--docs-code-note-text-size", 10, 18, 0.5, 12));
+    expect(code.notesWidth).toEqual(length("--docs-code-notes-width", 200, 480, 10, 320));
+  });
+
+  it("renders every code metric knob with its label, stock value and range", () => {
+    render(<RailHarness />);
+    openPane("Code");
+
+    const expected: Array<[RegExp, string, string, string]> = [
+      // [label, min, max, stock value]
+      [/^Border width/, "0", "4", "1"],
+      [/^Corner radius/, "0", "16", "6"],
+      [/^Text size/, "10", "18", "12"],
+      [/^Line height/, "14", "32", "20"],
+      [/^Padding X/, "0", "32", "12"],
+      [/^Top padding/, "0", "24", "0"],
+      [/^Bottom padding/, "0", "24", "8"],
+      [/^Header height/, "20", "48", "28"],
+      [/^Header text size/, "8", "16", "10"],
+      [/^Header weight/, "300", "800", "500"],
+      [/^Line number size/, "8", "16", "12"],
+      [/^Gutter width/, "24", "96", "48"],
+      [/^Gutter padding/, "0", "24", "8"],
+      [/^Note text size/, "10", "18", "12"],
+      [/^Notes column width/, "200", "480", "320"],
+    ];
+    for (const [label, min, max, value] of expected) {
+      const input = screen.getByLabelText(label) as HTMLInputElement;
+      expect(input).toHaveProperty("min", min);
+      expect(input).toHaveProperty("max", max);
+      expect(input).toHaveProperty("value", value);
+    }
+
+    fireEvent.change(screen.getByLabelText(/^Text size/), { target: { value: "14" } });
+    fireEvent.change(screen.getByLabelText(/^Line height/), { target: { value: "24" } });
+    fireEvent.change(screen.getByLabelText(/^Header weight/), { target: { value: "700" } });
+    expect(JSON.parse(screen.getByTestId("component-settings").textContent ?? "null")).toEqual({
+      code: { textSize: "14px", lineHeight: "24px", headerWeight: "700" },
+    });
+  });
+
+  it("applies code metric overrides onto their CSS vars and drops stock / out-of-range values", () => {
+    const settings = normalizeSettings({
+      components: {
+        code: {
+          textSize: "14px",
+          lineHeight: "24px",
+          gutterWidth: "56px",
+          headerFg: "#112233",
+          headerWeight: "700",
+          radius: "0px",
+          notesWidth: "400px",
+          padTop: "99px",
+        },
+      },
+    });
+    expect(settings.components.code).toEqual({
+      textSize: "14px",
+      lineHeight: "24px",
+      gutterWidth: "56px",
+      headerFg: "#112233",
+      headerWeight: "700",
+      radius: "0px",
+      notesWidth: "400px",
+    });
+    expect(styleRailVars(settings)).toMatchObject({
+      "--docs-code-text-size": "14px",
+      "--docs-code-line-height": "24px",
+      "--docs-code-gutter-width": "56px",
+      "--docs-code-header-fg": "#112233",
+      "--docs-code-header-weight": "700",
+      "--docs-code-radius": "0px",
+      "--docs-code-notes-width": "400px",
+    });
+    // A knob parked at stock writes nothing, so semantic.css answers.
+    expect(
+      styleRailVars(normalizeSettings({ components: { code: { textSize: "12px", radius: "6px" } } })),
+    ).toMatchObject({ "--docs-code-text-size": null, "--docs-code-radius": null });
   });
 
   it("renders metadata-driven code rule/zebra sliders and stores their units", () => {
@@ -2056,6 +2538,250 @@ describe("style rail code block tokens", () => {
         ruleWidth: "2px",
         zebraOpacity: "0.6",
       },
+    });
+  });
+});
+
+describe("style rail file-tree tokens", () => {
+  const FILE_TREE_LENGTHS = {
+    borderWidth: { cssVar: "--docs-file-tree-border-width", min: 0, max: 4, step: 0.5, defaultValue: 1 },
+    radius: { cssVar: "--docs-file-tree-radius", min: 0, max: 16, step: 1, defaultValue: 6 },
+    padY: { cssVar: "--docs-file-tree-pad-y", min: 0, max: 24, step: 1, defaultValue: 8 },
+    padX: { cssVar: "--docs-file-tree-pad-x", min: 0, max: 32, step: 1, defaultValue: 12 },
+    textSize: { cssVar: "--docs-file-tree-text-size", min: 10, max: 18, step: 0.5, defaultValue: 12 },
+    lineHeight: { cssVar: "--docs-file-tree-line-height", min: 14, max: 40, step: 1, defaultValue: 24 },
+    noteTextSize: {
+      cssVar: "--docs-file-tree-note-text-size",
+      min: 10,
+      max: 18,
+      step: 0.5,
+      defaultValue: 12,
+    },
+  } as const;
+  const FILE_TREE_NUMBERS = {
+    folderWeight: { cssVar: "--docs-file-tree-folder-weight", min: 300, max: 900, step: 50, defaultValue: 500 },
+    fileWeight: { cssVar: "--docs-file-tree-file-weight", min: 300, max: 900, step: 50, defaultValue: 400 },
+    changeTint: { cssVar: "--docs-file-tree-change-tint", min: 0, max: 100, step: 1, defaultValue: 10 },
+  } as const;
+  const FILE_TREE_COLORS = {
+    bg: ["--docs-file-tree-bg"],
+    border: ["--docs-file-tree-border"],
+    folderFg: ["--docs-file-tree-folder-fg"],
+    fileFg: ["--docs-file-tree-file-fg"],
+    note: ["--docs-file-tree-note-fg"],
+    guide: ["--docs-file-tree-guide-fg"],
+    mutedFg: ["--docs-file-tree-muted-fg"],
+    added: [
+      "--docs-file-tree-added-fg",
+      "--docs-file-tree-added-marker",
+      "--docs-file-tree-added-tint",
+    ],
+    removed: [
+      "--docs-file-tree-removed-fg",
+      "--docs-file-tree-removed-marker",
+      "--docs-file-tree-removed-tint",
+    ],
+    modified: [
+      "--docs-file-tree-modified-fg",
+      "--docs-file-tree-modified-marker",
+      "--docs-file-tree-modified-tint",
+    ],
+    renamed: [
+      "--docs-file-tree-renamed-fg",
+      "--docs-file-tree-renamed-marker",
+      "--docs-file-tree-renamed-tint",
+    ],
+  } as const;
+  const semanticCss = readFileSync(new URL("../theme/semantic.css", import.meta.url), "utf8");
+  const componentSource = readFileSync(
+    new URL(
+      "../../../../docs-viewer/src/components/file-tree/FileTreeDocsBlock.tsx",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+  const occurrences = (haystack: string, needle: string) => haystack.split(needle).length - 1;
+
+  it("registers every file-tree var under the file-tree entry", () => {
+    const entry = THEME_TOKEN_REGISTRY["file-tree"];
+    for (const [key, vars] of Object.entries(FILE_TREE_COLORS)) {
+      expect(entry[key]).toEqual({ vars: [...vars], kind: "color" });
+    }
+    for (const [key, { cssVar, ...range }] of Object.entries(FILE_TREE_LENGTHS)) {
+      expect(entry[key]).toEqual({ vars: [cssVar], kind: "length", unit: "px", ...range });
+    }
+    for (const [key, { cssVar, ...range }] of Object.entries(FILE_TREE_NUMBERS)) {
+      expect(entry[key]).toEqual({ vars: [cssVar], kind: "number", ...range });
+    }
+    // Nothing registered beyond the pinned set, so a new knob has to land here.
+    expect(Object.keys(entry).sort()).toEqual(
+      [
+        ...Object.keys(FILE_TREE_COLORS),
+        ...Object.keys(FILE_TREE_LENGTHS),
+        ...Object.keys(FILE_TREE_NUMBERS),
+      ].sort(),
+    );
+  });
+
+  it("declares every file-tree var in both semantic.css blocks at the registry default", () => {
+    for (const vars of Object.values(FILE_TREE_COLORS)) {
+      for (const cssVar of vars) {
+        expect(occurrences(semanticCss, `  ${cssVar}: `)).toBe(2);
+      }
+    }
+    for (const [key, { cssVar, defaultValue }] of Object.entries(FILE_TREE_LENGTHS)) {
+      // The corner radius follows the global --radius (8px stock, so 6px).
+      const declaration = key === "radius"
+        ? `  ${cssVar}: max(0px, calc(var(--radius) - 2px));`
+        : `  ${cssVar}: ${defaultValue}px;`;
+      expect(occurrences(semanticCss, declaration)).toBe(2);
+    }
+    for (const { cssVar, defaultValue } of Object.values(FILE_TREE_NUMBERS)) {
+      expect(occurrences(semanticCss, `  ${cssVar}: ${defaultValue};`)).toBe(2);
+    }
+    expect(occurrences(semanticCss, "  --radius: 0.5rem;")).toBe(2);
+  });
+
+  it("wires every file-tree var into the component with its default as the fallback", () => {
+    // A registered knob the component never reads is a dead slider (the
+    // state-shape rowPad bug): every var must appear as `var(<name>,<fallback>)`.
+    for (const vars of Object.values(FILE_TREE_COLORS)) {
+      for (const cssVar of vars) {
+        expect(componentSource).toContain(`var(${cssVar},`);
+      }
+    }
+    for (const [key, { cssVar, defaultValue }] of Object.entries(FILE_TREE_LENGTHS)) {
+      const fallback = key === "radius"
+        ? "max(0px,calc(var(--radius,8px)-2px))"
+        : `${defaultValue}px`;
+      expect(componentSource).toContain(`var(${cssVar},${fallback})`);
+    }
+    for (const { cssVar, defaultValue } of Object.values(FILE_TREE_NUMBERS)) {
+      expect(componentSource).toContain(`var(${cssVar},${defaultValue})`);
+    }
+    // The literals the vars replaced are gone, so nothing shadows a knob.
+    for (const hardcoded of [
+      "rounded-md",
+      "bg-background",
+      "py-2",
+      "px-3",
+      "text-xs",
+      "leading-6",
+      "font-medium",
+      "text-foreground",
+      "text-muted-foreground",
+      "bg-emerald-500/10",
+      "bg-rose-500/10",
+      "bg-amber-500/10",
+      "bg-sky-500/10",
+    ]) {
+      expect(componentSource).not.toContain(hardcoded);
+    }
+  });
+
+  it("normalizes and applies file-tree overrides onto their CSS vars", () => {
+    const settings = normalizeSettings({
+      components: {
+        "file-tree": {
+          bg: "#AABBCC",
+          added: "#112233",
+          guide: "#445566",
+          changeTint: "25",
+          padY: "12px",
+          folderWeight: 700,
+          lineHeight: "24px",
+          textSize: "99px",
+          rowPad: "4px",
+        },
+      },
+    });
+
+    expect(settings.components).toEqual({
+      "file-tree": {
+        bg: "#aabbcc",
+        added: "#112233",
+        guide: "#445566",
+        changeTint: "25",
+        padY: "12px",
+        folderWeight: "700",
+        lineHeight: "24px",
+      },
+    });
+    const vars = styleRailVars(settings);
+    expect(vars).toMatchObject({
+      "--docs-file-tree-bg": "#aabbcc",
+      // One diff-state knob drives the name, the gutter marker and the row tint.
+      "--docs-file-tree-added-fg": "#112233",
+      "--docs-file-tree-added-marker": "#112233",
+      "--docs-file-tree-added-tint": "#112233",
+      "--docs-file-tree-guide-fg": "#445566",
+      "--docs-file-tree-change-tint": "25",
+      "--docs-file-tree-pad-y": "12px",
+      "--docs-file-tree-folder-weight": "700",
+    });
+    // A knob parked at its default emits nothing; the stylesheet answers.
+    expect(vars["--docs-file-tree-line-height"]).toBeNull();
+    expect(vars["--docs-file-tree-radius"]).toBeNull();
+    expect(vars["--docs-file-tree-removed-fg"]).toBeNull();
+  });
+
+  it("renders the File tree knobs with their sidebar labels", () => {
+    render(<RailHarness />);
+    openPane("File tree");
+
+    for (const label of [
+      "Background",
+      "Border",
+      "Border width",
+      "Corner radius",
+      "Padding Y",
+      "Padding X",
+      "Text size",
+      "Line height",
+      "Folder names",
+      "Folder weight",
+      "File names",
+      "File weight",
+      "Note",
+      "Note text size",
+      "Tree lines",
+      "Muted text",
+      "Added",
+      "Removed",
+      "Modified",
+      "Renamed",
+      "Change tint strength",
+    ]) {
+      expect(screen.getAllByText(label).length).toBeGreaterThan(0);
+    }
+
+    const sliders = {
+      ...FILE_TREE_LENGTHS,
+      ...FILE_TREE_NUMBERS,
+    } as Record<string, { min: number; max: number; step: number; defaultValue: number }>;
+    for (const [key, label] of [
+      ["borderWidth", /^Border width/],
+      ["radius", /^Corner radius/],
+      ["padY", /^Padding Y/],
+      ["padX", /^Padding X/],
+      ["textSize", /^Text size/],
+      ["lineHeight", /^Line height/],
+      ["noteTextSize", /^Note text size/],
+      ["folderWeight", /^Folder weight/],
+      ["fileWeight", /^File weight/],
+      ["changeTint", /^Change tint strength/],
+    ] as const) {
+      const slider = screen.getByLabelText(label) as HTMLInputElement;
+      expect(slider).toHaveProperty("min", String(sliders[key].min));
+      expect(slider).toHaveProperty("max", String(sliders[key].max));
+      expect(slider).toHaveProperty("step", String(sliders[key].step));
+      expect(slider).toHaveProperty("value", String(sliders[key].defaultValue));
+    }
+
+    fireEvent.change(screen.getByLabelText(/^Padding Y/), { target: { value: "14" } });
+    fireEvent.change(screen.getByLabelText(/^Folder weight/), { target: { value: "650" } });
+    expect(JSON.parse(screen.getByTestId("component-settings").textContent ?? "null")).toEqual({
+      "file-tree": { padY: "14px", folderWeight: "650" },
     });
   });
 });
@@ -2102,41 +2828,465 @@ describe("style rail shared linking tokens", () => {
       expect(screen.getByText(label)).toBeTruthy();
     }
   });
+
+  it("registers the wash strength, rail / ring widths and CodeLines panel metrics", () => {
+    const linking = THEME_TOKEN_REGISTRY.linking;
+    const length = (cssVar: string, min: number, max: number, step: number, defaultValue: number) => ({
+      vars: [cssVar],
+      kind: "length" as const,
+      min,
+      max,
+      step,
+      unit: "px" as const,
+      defaultValue,
+    });
+    expect(linking.washStrength).toEqual({
+      vars: ["--docs-link-wash"],
+      kind: "number",
+      min: 0,
+      max: 100,
+      step: 1,
+      defaultValue: 14,
+    });
+    expect(linking.railWidth).toEqual(length("--docs-link-rail-width", 0, 8, 0.5, 3));
+    expect(linking.ringWidth).toEqual(length("--docs-link-ring-width", 0, 4, 0.5, 1.5));
+    expect(linking.textSize).toEqual(length("--docs-link-text-size", 10, 18, 0.5, 12));
+    expect(linking.lineHeight).toEqual(length("--docs-link-line-height", 14, 32, 1, 20));
+    expect(linking.gutterTextSize).toEqual(length("--docs-link-gutter-text-size", 8, 16, 0.5, 11));
+    expect(linking.gutterWidth).toEqual(length("--docs-link-gutter-width", 24, 96, 1, 44));
+  });
+
+  it("renders every linking metric knob with its label, stock value and range, and stores units", () => {
+    render(<RailHarness />);
+    openPane("Linked panels");
+
+    const expected: Array<[RegExp, string, string, string]> = [
+      [/^Highlight strength/, "0", "100", "14"],
+      [/^Rail width/, "0", "8", "3"],
+      [/^Pin ring width/, "0", "4", "1.5"],
+      [/^Text size/, "10", "18", "12"],
+      [/^Line height/, "14", "32", "20"],
+      [/^Line number size/, "8", "16", "11"],
+      [/^Gutter width/, "24", "96", "44"],
+    ];
+    for (const [label, min, max, value] of expected) {
+      const input = screen.getByLabelText(label) as HTMLInputElement;
+      expect(input).toHaveProperty("min", min);
+      expect(input).toHaveProperty("max", max);
+      expect(input).toHaveProperty("value", value);
+    }
+
+    fireEvent.change(screen.getByLabelText(/^Highlight strength/), { target: { value: "30" } });
+    fireEvent.change(screen.getByLabelText(/^Rail width/), { target: { value: "5" } });
+    expect(JSON.parse(screen.getByTestId("component-settings").textContent ?? "null")).toEqual({
+      linking: { washStrength: "30", railWidth: "5px" },
+    });
+    expect(
+      styleRailVars(
+        normalizeSettings({
+          components: { linking: { washStrength: "30", railWidth: "5px", ringWidth: "9px" } },
+        }),
+      ),
+    ).toMatchObject({
+      "--docs-link-wash": "30",
+      "--docs-link-rail-width": "5px",
+      // Out of range (max 4) -> dropped, so the stylesheet default stands.
+      "--docs-link-ring-width": null,
+    });
+  });
+});
+
+describe("style rail inline-code tokens", () => {
+  it("registers color, border, radius and the em-multiplier size / padding tokens", () => {
+    const inline = THEME_TOKEN_REGISTRY["inline-code"];
+    expect(inline.fg).toEqual({ vars: ["--docs-inline-code-fg"], kind: "color" });
+    expect(inline.bg).toEqual({ vars: ["--docs-inline-code-bg"], kind: "color" });
+    expect(inline.border).toEqual({ vars: ["--docs-inline-code-border"], kind: "color" });
+    expect(inline.borderWidth).toEqual({
+      vars: ["--docs-inline-code-border-width"],
+      kind: "length",
+      min: 0,
+      max: 3,
+      step: 0.5,
+      unit: "px",
+      defaultValue: 0,
+    });
+    expect(inline.radius).toEqual({
+      vars: ["--docs-inline-code-radius"],
+      kind: "length",
+      min: 0,
+      max: 12,
+      step: 1,
+      unit: "px",
+      defaultValue: 4,
+    });
+    // Unitless em multipliers: `number` tokens, no unit.
+    expect(inline.textSize).toEqual({
+      vars: ["--docs-inline-code-text-size"],
+      kind: "number",
+      min: 0.6,
+      max: 1.2,
+      step: 0.05,
+      defaultValue: 0.85,
+    });
+    expect(inline.padX).toEqual({
+      vars: ["--docs-inline-code-pad-x"],
+      kind: "number",
+      min: 0,
+      max: 1,
+      step: 0.05,
+      defaultValue: 0.35,
+    });
+    expect(inline.padY).toEqual({
+      vars: ["--docs-inline-code-pad-y"],
+      kind: "number",
+      min: 0,
+      max: 0.5,
+      step: 0.05,
+      defaultValue: 0.1,
+    });
+    expect(inline.weight).toEqual({
+      vars: ["--docs-inline-code-weight"],
+      kind: "number",
+      min: 300,
+      max: 800,
+      step: 100,
+      defaultValue: 400,
+    });
+  });
+
+  it("renders the Inline code knobs with labels and stock values, and stores unitless multipliers", () => {
+    render(<RailHarness />);
+    openPane("Inline code");
+
+    for (const label of ["Text", "Background", "Border"]) {
+      expect(screen.getAllByText(label).length).toBeGreaterThan(0);
+    }
+    const expected: Array<[RegExp, string, string, string]> = [
+      [/^Border width/, "0", "3", "0"],
+      [/^Corner radius/, "0", "12", "4"],
+      [/^Text size/, "0.6", "1.2", "0.85"],
+      [/^Padding X/, "0", "1", "0.35"],
+      [/^Padding Y/, "0", "0.5", "0.1"],
+      [/^Weight/, "300", "800", "400"],
+    ];
+    for (const [label, min, max, value] of expected) {
+      const input = screen.getByLabelText(label) as HTMLInputElement;
+      expect(input).toHaveProperty("min", min);
+      expect(input).toHaveProperty("max", max);
+      expect(input).toHaveProperty("value", value);
+    }
+
+    fireEvent.change(screen.getByLabelText(/^Text size/), { target: { value: "1" } });
+    fireEvent.change(screen.getByLabelText(/^Border width/), { target: { value: "1" } });
+    fireEvent.change(screen.getByLabelText(/^Weight/), { target: { value: "600" } });
+    expect(JSON.parse(screen.getByTestId("component-settings").textContent ?? "null")).toEqual({
+      "inline-code": { textSize: "1", borderWidth: "1px", weight: "600" },
+    });
+    expect(
+      styleRailVars(
+        normalizeSettings({
+          components: {
+            "inline-code": { textSize: "1", padX: "0.5", borderWidth: "1px", weight: "600" },
+          },
+        }),
+      ),
+    ).toMatchObject({
+      "--docs-inline-code-text-size": "1",
+      "--docs-inline-code-pad-x": "0.5",
+      "--docs-inline-code-border-width": "1px",
+      "--docs-inline-code-weight": "600",
+    });
+  });
+});
+
+/**
+ * The dead-knob guard for the code family (code, inline-code, linking).
+ *
+ * A registry entry only proves the rail RENDERS a control. These pin the
+ * other two links of the chain for every token in the three sections: a
+ * consumer actually reads the var, and the three stated defaults — registry
+ * `defaultValue`, the semantic.css declaration (both theme blocks) and the
+ * consumer's var() fallback — are the same number. If any pair drifts, the
+ * slider either does nothing or starts somewhere the block does not render.
+ */
+describe("style rail code-family tokens are wired to their consumers", () => {
+  const read = (path: string) => readFileSync(new URL(path, import.meta.url), "utf8");
+  const semanticCss = read("../theme/semantic.css");
+  const viewer = "../../../../docs-viewer/src/";
+  const consumerSource = [
+    read(`${viewer}components/code/classes.ts`),
+    read(`${viewer}components/code/editor-node-view.tsx`),
+    read(`${viewer}components/linked-panels/classes.ts`),
+    read(`${viewer}render/block-classes.ts`),
+    read(`${viewer}styles/code.css`),
+    read("../index.css"),
+  ].join("\n");
+  const FILES = ["code", "inline-code", "linking"] as const;
+  const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+  /**
+   * Stylesheet defaults that are NOT the registry number, each for a stated
+   * reason. `null` = deliberately undeclared (the consumer fallback answers).
+   */
+  const SEMANTIC_EXCEPTIONS: Record<string, [light: string, dark: string] | null> = {
+    // Radii follow the global --radius (8px stock -> 6px / 4px).
+    "--docs-code-radius": [
+      "max(0px, calc(var(--radius) - 2px))",
+      "max(0px, calc(var(--radius) - 2px))",
+    ],
+    "--docs-inline-code-radius": [
+      "max(0px, calc(var(--radius) - 4px))",
+      "max(0px, calc(var(--radius) - 4px))",
+    ],
+    // Dark runs the wash hotter; the registry default is the light value.
+    "--docs-link-wash": ["14", "18"],
+    // A custom property cannot hold `inherit`; the chip inherits by default.
+    "--docs-inline-code-weight": null,
+  };
+  /** Consumer fallbacks that are not `<default><unit>`, with the literal used. */
+  const FALLBACK_EXCEPTIONS: Record<string, string | null> = {
+    "--docs-inline-code-weight": "inherit",
+    // Read only by semantic.css itself (it builds --docs-link-bg from it).
+    "--docs-link-wash": null,
+  };
+
+  it("every token's CSS var is read by a consumer", () => {
+    for (const file of FILES) {
+      for (const [key, token] of Object.entries(THEME_TOKEN_REGISTRY[file])) {
+        for (const cssVar of token.vars) {
+          const source = cssVar === "--docs-link-wash" ? semanticCss : consumerSource;
+          expect(`${file}.${key}: ${source.includes(`var(${cssVar}`)}`).toBe(`${file}.${key}: true`);
+        }
+      }
+    }
+  });
+
+  it("every metric token's semantic.css default equals the registry default, in both theme blocks", () => {
+    for (const file of FILES) {
+      for (const [key, token] of Object.entries(THEME_TOKEN_REGISTRY[file])) {
+        if (token.kind === "color") continue;
+        const [cssVar] = token.vars;
+        const declared = [...semanticCss.matchAll(new RegExp(`^\\s*${escape(cssVar)}:\\s*(.+);$`, "gm"))]
+          .map((match) => match[1]);
+        const stock = `${token.defaultValue}${token.unit ?? ""}`;
+        const expected = cssVar in SEMANTIC_EXCEPTIONS
+          ? (SEMANTIC_EXCEPTIONS[cssVar] ?? [])
+          : [stock, stock];
+        expect(`${file}.${key}: ${declared.join(" | ")}`).toBe(`${file}.${key}: ${expected.join(" | ")}`);
+      }
+    }
+  });
+
+  it("every metric token's consumer fallback equals the registry default", () => {
+    for (const file of FILES) {
+      for (const [key, token] of Object.entries(THEME_TOKEN_REGISTRY[file])) {
+        if (token.kind === "color") continue;
+        const [cssVar] = token.vars;
+        const expected = cssVar in FALLBACK_EXCEPTIONS
+          ? FALLBACK_EXCEPTIONS[cssVar]
+          : `${token.defaultValue}${token.unit ?? ""}`;
+        if (expected === null) continue;
+        // Every var(--x, <fallback>) occurrence in the viewer must carry the
+        // stock literal — a single stray fallback is a second default.
+        const fallbacks = [
+          ...consumerSource.matchAll(new RegExp(`var\\(${escape(cssVar)},\\s*([^()]+?)\\)`, "g")),
+        ].map((match) => match[1]);
+        expect(`${file}.${key}: ${fallbacks.length > 0}`).toBe(`${file}.${key}: true`);
+        expect(`${file}.${key}: ${[...new Set(fallbacks)].join(" | ")}`).toBe(`${file}.${key}: ${expected}`);
+      }
+    }
+  });
+
+  it("the wash strength feeds the lit highlight in both theme blocks", () => {
+    expect(
+      semanticCss.match(
+        /--docs-link-bg: color-mix\(in srgb, var\(--docs-link-pin\) calc\(var\(--docs-link-wash\) \* 1%\), transparent\);/g,
+      )?.length,
+    ).toBe(2);
+  });
+
+  it("the code block's zebra defaults to the shared linking zebra in both theme blocks", () => {
+    expect(semanticCss.match(/--docs-code-zebra: var\(--docs-zebra\);/g)?.length).toBe(2);
+  });
+
+  it("the workbench's unlayered inline-code rule reads the same tokens as the utilities", () => {
+    const indexCss = read("../index.css");
+    const rule = indexCss.slice(indexCss.indexOf(".docs-markdown :where(code:not(pre code)) {"));
+    const body = rule.slice(0, rule.indexOf("}"));
+    expect(body).toContain("background: var(--docs-inline-code-bg);");
+    expect(body).toContain("color: var(--docs-inline-code-fg);");
+    expect(body).toContain("border-radius: var(--docs-inline-code-radius);");
+    expect(body).toContain(
+      "padding: calc(var(--docs-inline-code-pad-y) * 1em) calc(var(--docs-inline-code-pad-x) * 1em);",
+    );
+    // No literal survives that would pin a knob in place.
+    expect(body).not.toContain("0.35em");
+    expect(body).not.toContain("var(--radius)");
+  });
 });
 
 describe("style rail interaction-surface tokens", () => {
-  it("registers every restyled interaction-surface var under the interaction-surface entry", () => {
-    const entry = THEME_TOKEN_REGISTRY["interaction-surface"];
-    expect(entry.border).toEqual({ vars: ["--docs-interaction-border"], kind: "color" });
-    expect(entry.bg).toEqual({ vars: ["--docs-interaction-bg"], kind: "color" });
-    expect(entry.rule).toEqual({ vars: ["--docs-interaction-rule"], kind: "color" });
-    expect(entry.headerBg).toEqual({ vars: ["--docs-interaction-header-bg"], kind: "color" });
-    expect(entry.headerFg).toEqual({ vars: ["--docs-interaction-header-fg"], kind: "color" });
-    expect(entry.sigName).toEqual({ vars: ["--docs-interaction-sig-name"], kind: "color" });
-    expect(entry.sigType).toEqual({ vars: ["--docs-interaction-sig-type"], kind: "color" });
-    expect(entry.sigPunct).toEqual({ vars: ["--docs-interaction-sig-punct"], kind: "color" });
-    expect(entry.noteName).toEqual({ vars: ["--docs-interaction-note-name"], kind: "color" });
-    expect(entry.noteType).toEqual({ vars: ["--docs-interaction-note-type"], kind: "color" });
-    expect(entry.noteFg).toEqual({ vars: ["--docs-interaction-note-fg"], kind: "color" });
-    expect(entry.childRule).toEqual({ vars: ["--docs-interaction-child-rule"], kind: "color" });
-    expect(entry.rowPad).toEqual({
-      vars: ["--docs-interaction-row-pad"],
-      kind: "length",
-      min: 4,
-      max: 16,
-      step: 1,
-      unit: "px",
-      defaultValue: 8,
-    });
-    expect(entry.opGap).toEqual({
-      vars: ["--docs-interaction-op-gap"],
-      kind: "length",
-      min: 6,
-      max: 28,
-      step: 1,
-      unit: "px",
-      defaultValue: 14,
-    });
+  const entry = THEME_TOKEN_REGISTRY["interaction-surface"];
+
+  // key -> [css var, min, max, step, default]. Lengths are px; weights are
+  // unitless numbers.
+  const LENGTHS: Record<string, [string, number, number, number, number]> = {
+    radius: ["--docs-interaction-radius", 0, 24, 1, 4],
+    borderWidth: ["--docs-interaction-border-width", 0, 4, 0.5, 1],
+    ruleWidth: ["--docs-interaction-rule-width", 0, 4, 0.5, 1],
+    padX: ["--docs-interaction-pad-x", 4, 32, 1, 16],
+    opGap: ["--docs-interaction-op-gap", 0, 48, 1, 24],
+    titleTextSize: ["--docs-interaction-title-text-size", 10, 22, 0.5, 14],
+    titleGap: ["--docs-interaction-title-gap", 0, 32, 1, 12],
+    headerPadY: ["--docs-interaction-header-pad-y", 4, 32, 1, 16],
+    headerTextSize: ["--docs-interaction-header-text-size", 10, 22, 0.5, 14],
+    badgeTextSize: ["--docs-interaction-badge-text-size", 8, 14, 0.5, 10],
+    descTextSize: ["--docs-interaction-desc-text-size", 10, 18, 0.5, 12],
+    descLineHeight: ["--docs-interaction-desc-line-height", 12, 32, 1, 20],
+    columnHeadTextSize: ["--docs-interaction-column-head-text-size", 8, 14, 0.5, 10],
+    columnHeadPadY: ["--docs-interaction-column-head-pad-y", 0, 20, 1, 8],
+    columnHeadRuleWidth: ["--docs-interaction-column-head-rule-width", 0, 4, 0.5, 2],
+    rowPad: ["--docs-interaction-row-pad", 0, 24, 1, 12],
+    indent: ["--docs-interaction-indent", 8, 48, 1, 22],
+    noteNameTextSize: ["--docs-interaction-note-name-text-size", 10, 18, 0.5, 13],
+    noteTypeTextSize: ["--docs-interaction-note-type-text-size", 10, 18, 0.5, 12],
+  };
+  const WEIGHTS: Record<string, [string, number]> = {
+    titleWeight: ["--docs-interaction-title-weight", 700],
+    headerWeight: ["--docs-interaction-header-weight", 700],
+    noteNameWeight: ["--docs-interaction-note-name-weight", 600],
+  };
+  const COLORS: Record<string, string> = {
+    actionHeaderBg: "--docs-operation-action-header-bg",
+    actionHeaderInk: "--docs-operation-action-header-ink",
+    queryHeaderBg: "--docs-operation-query-header-bg",
+    queryHeaderInk: "--docs-operation-query-header-ink",
+    eventHeaderBg: "--docs-operation-event-header-bg",
+    eventHeaderInk: "--docs-operation-event-header-ink",
+    border: "--docs-interaction-border",
+    bg: "--docs-interaction-bg",
+    rule: "--docs-interaction-rule",
+    titleFg: "--docs-interaction-title-fg",
+    headerFg: "--docs-interaction-header-fg",
+    columnHeadBg: "--docs-interaction-column-head-bg",
+    columnHeadFg: "--docs-interaction-column-head-fg",
+    sigName: "--docs-interaction-sig-name",
+    sigType: "--docs-interaction-sig-type",
+    sigPunct: "--docs-interaction-sig-punct",
+    noteName: "--docs-interaction-note-name",
+    noteType: "--docs-interaction-note-type",
+    noteTypeBg: "--docs-interaction-note-type-bg",
+    noteFg: "--docs-interaction-note-fg",
+    childRule: "--docs-interaction-child-rule",
+  };
+
+  const componentSource = readFileSync(
+    new URL(
+      "../../../../docs-viewer/src/components/interaction-surface/InteractionSurfaceDocsBlock.tsx",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+  const semanticCss = readFileSync(new URL("../theme/semantic.css", import.meta.url), "utf8");
+  const themeBlock = (marker: string) => {
+    const start = semanticCss.indexOf(marker);
+    if (start < 0) throw new Error(`missing theme block: ${marker}`);
+    return semanticCss.slice(start, semanticCss.indexOf("\n}", start));
+  };
+  const lightBlock = themeBlock(':root, [data-theme="light"] {');
+  const darkBlock = themeBlock('[data-theme="dark"], .dark {');
+
+  it("registers every interaction-surface knob with its CSS var, range, and default", () => {
+    for (const [key, cssVar] of Object.entries(COLORS)) {
+      expect(entry[key]).toEqual({ vars: [cssVar], kind: "color" });
+    }
+    for (const [key, [cssVar, min, max, step, defaultValue]] of Object.entries(LENGTHS)) {
+      expect(entry[key]).toEqual({
+        vars: [cssVar],
+        kind: "length",
+        min,
+        max,
+        step,
+        unit: "px",
+        defaultValue,
+      });
+    }
+    for (const [key, [cssVar, defaultValue]] of Object.entries(WEIGHTS)) {
+      expect(entry[key]).toEqual({
+        vars: [cssVar],
+        kind: "number",
+        min: 300,
+        max: 900,
+        step: 50,
+        defaultValue,
+      });
+    }
+    // The tables above are the whole vocabulary: a knob added to the registry
+    // without a row here would skip the wiring checks below.
+    expect(Object.keys(entry).sort()).toEqual(
+      [...Object.keys(COLORS), ...Object.keys(LENGTHS), ...Object.keys(WEIGHTS)].sort(),
+    );
+    // The generic header background had no target once headers went per kind.
+    expect(entry.headerBg).toBeUndefined();
+    // Signature text is a shared CodeLines panel: sized by the "linking" folder.
+    expect(entry.sigTextSize).toBeUndefined();
+    expect(componentSource).not.toContain("--docs-interaction-sig-text-size");
+  });
+
+  it("wires every knob into the component with a fallback equal to its default", () => {
+    // An unset knob emits nothing, so the component's literal fallback is what
+    // renders. A registered var the component never reads is a dead slider.
+    for (const [key, token] of Object.entries(entry)) {
+      const cssVar = token.vars[0]!;
+      if (token.kind === "color") {
+        expect([key, componentSource.includes(`var(${cssVar},`)]).toEqual([key, true]);
+        continue;
+      }
+      const fallback = `var(${cssVar},${token.defaultValue}${token.unit ?? ""})`;
+      expect([key, componentSource.includes(fallback)]).toEqual([key, true]);
+    }
+    // The corner radius is the one light/dark split: 4px light, 12px dark.
+    expect(componentSource).toContain("var(--docs-interaction-radius,12px)");
+  });
+
+  it("never shadows a rail var inside the component", () => {
+    // The rail writes its overrides on <html>. A block-level re-declaration of
+    // the same custom property, or an !important pin, would silently win.
+    expect(componentSource).not.toMatch(/--docs-(interaction|operation)-[a-z-]+\s*:/);
+    expect(componentSource).not.toContain("data-variator-tokens");
+    // Values the inline <style> owns must not also sit on the element as dead
+    // utilities (the inline sheet is unlayered and beats them).
+    expect(componentSource).not.toContain("gap-6");
+    expect(componentSource).not.toContain("px-3 py-3");
+  });
+
+  it("declares every default in both semantic.css theme blocks", () => {
+    for (const [key, token] of Object.entries(entry)) {
+      const cssVar = token.vars[0]!;
+      if (token.kind === "color") {
+        expect([key, lightBlock.includes(`  ${cssVar}: `)]).toEqual([key, true]);
+        expect([key, darkBlock.includes(`  ${cssVar}: `)]).toEqual([key, true]);
+        continue;
+      }
+      const declaration = `  ${cssVar}: ${token.defaultValue}${token.unit ?? ""};`;
+      expect([key, lightBlock.includes(declaration)]).toEqual([key, true]);
+      if (key === "radius") {
+        expect(darkBlock).toContain("  --docs-interaction-radius: 12px;");
+      } else {
+        expect([key, darkBlock.includes(declaration)]).toEqual([key, true]);
+      }
+    }
+    // Shared content follows State Shape until this block is overridden.
+    for (const block of [lightBlock, darkBlock]) {
+      expect(block).toContain("--docs-interaction-bg: var(--docs-shape-bg);");
+      expect(block).toContain("--docs-interaction-rule: var(--docs-shape-rule);");
+      expect(block).toContain("--docs-interaction-sig-name: var(--syntax-key);");
+      expect(block).toContain("--docs-interaction-sig-type: var(--docs-shape-type);");
+      expect(block).toContain("--docs-interaction-note-type: var(--docs-shape-type);");
+      expect(block).toContain("--docs-interaction-note-fg: var(--docs-shape-desc-fg);");
+      expect(block).toContain("--docs-interaction-child-rule: var(--docs-shape-child-rule);");
+    }
   });
 
   it("normalizes and applies interaction-surface overrides onto their CSS vars", () => {
@@ -2144,12 +3294,18 @@ describe("style rail interaction-surface tokens", () => {
       components: {
         "interaction-surface": {
           rule: "#112233",
-          headerBg: "#AABBCC",
+          columnHeadBg: "#AABBCC",
           sigName: "#0E7490",
           noteFg: "#445566",
           childRule: "#778899",
           rowPad: "10px",
           opGap: 20,
+          radius: "8px",
+          headerWeight: 650,
+          noteNameTextSize: "13.5px",
+          // Out of range, retired, and unknown keys are dropped.
+          borderWidth: "9px",
+          headerBg: "#000000",
           unknown: "#000000",
         },
       },
@@ -2158,23 +3314,42 @@ describe("style rail interaction-surface tokens", () => {
     expect(settings.components).toEqual({
       "interaction-surface": {
         rule: "#112233",
-        headerBg: "#aabbcc",
+        columnHeadBg: "#aabbcc",
         sigName: "#0e7490",
         noteFg: "#445566",
         childRule: "#778899",
         rowPad: "10px",
         opGap: "20px",
+        radius: "8px",
+        headerWeight: "650",
+        noteNameTextSize: "13.5px",
       },
     });
     expect(styleRailVars(settings)).toMatchObject({
       "--docs-interaction-rule": "#112233",
-      "--docs-interaction-header-bg": "#aabbcc",
+      "--docs-interaction-column-head-bg": "#aabbcc",
       "--docs-interaction-sig-name": "#0e7490",
       "--docs-interaction-note-fg": "#445566",
       "--docs-interaction-child-rule": "#778899",
       "--docs-interaction-row-pad": "10px",
       "--docs-interaction-op-gap": "20px",
+      "--docs-interaction-radius": "8px",
+      "--docs-interaction-header-weight": "650",
+      "--docs-interaction-note-name-text-size": "13.5px",
     });
+  });
+
+  it("emits nothing for a knob parked at its default", () => {
+    const vars = styleRailVars(
+      normalizeSettings({
+        components: {
+          "interaction-surface": { rowPad: "12px", opGap: "24px", noteNameWeight: 600 },
+        },
+      }),
+    );
+    expect(vars["--docs-interaction-row-pad"]).toBeNull();
+    expect(vars["--docs-interaction-op-gap"]).toBeNull();
+    expect(vars["--docs-interaction-note-name-weight"]).toBeNull();
   });
 
   it("renders the Interaction surface knobs with their sidebar labels", () => {
@@ -2182,32 +3357,68 @@ describe("style rail interaction-surface tokens", () => {
     openPane("Interaction surface");
 
     for (const label of [
+      "Action header background",
+      "Action header ink",
+      "Query header background",
+      "Query header ink",
+      "Event header background",
+      "Event header ink",
       "Border",
       "Background",
       "Rules",
-      "Header background",
+      "Title text",
       "Header text",
+      "Column head background",
+      "Column head text",
       "Signature name",
       "Signature type",
       "Signature punctuation",
       "Note name",
       "Note type",
+      "Note type chip",
       "Note text",
       "Child rule",
-      "Row padding",
+      "Corner radius",
+      "Border width",
+      "Rule width",
       "Card gap",
+      "Title text size",
+      "Title weight",
+      "Title gap",
+      "Header padding Y",
+      "Header text size",
+      "Header weight",
+      "Badge text size",
+      "Description text size",
+      "Description line height",
+      "Column head text size",
+      "Column head padding Y",
+      "Column head rule width",
+      "Row padding",
+      "Indent",
+      "Note name size",
+      "Note name weight",
+      "Note type size",
     ]) {
-      expect(screen.getAllByText(label).length).toBeGreaterThan(0);
+      expect([label, screen.queryAllByText(label).length > 0]).toEqual([label, true]);
+    }
+    // No knob falls back to its raw registry key for a label.
+    for (const key of Object.keys(entry)) {
+      expect([key, screen.queryByText(key)]).toEqual([key, null]);
     }
 
-    const rowPad = screen.getByLabelText(/Row padding/) as HTMLInputElement;
-    expect(rowPad).toHaveProperty("min", "4");
-    expect(rowPad).toHaveProperty("max", "16");
-    expect(rowPad).toHaveProperty("value", "8");
-    const opGap = screen.getByLabelText(/Card gap/) as HTMLInputElement;
-    expect(opGap).toHaveProperty("min", "6");
-    expect(opGap).toHaveProperty("max", "28");
-    expect(opGap).toHaveProperty("value", "14");
+    const slider = (name: RegExp) => screen.getByLabelText(name) as HTMLInputElement;
+    const rowPad = slider(/^Row padding/);
+    expect(rowPad).toHaveProperty("min", "0");
+    expect(rowPad).toHaveProperty("max", "24");
+    expect(rowPad).toHaveProperty("value", "12");
+    const opGap = slider(/^Card gap/);
+    expect(opGap).toHaveProperty("min", "0");
+    expect(opGap).toHaveProperty("max", "48");
+    expect(opGap).toHaveProperty("value", "24");
+    expect(slider(/^Corner radius/)).toHaveProperty("value", "4");
+    expect(slider(/^Header weight/)).toHaveProperty("value", "700");
+    expect(slider(/^Note name size/)).toHaveProperty("value", "13");
   });
 });
 
@@ -2229,11 +3440,161 @@ describe("style rail state-shape tokens", () => {
     expect(entry.rowPad).toEqual({
       vars: ["--docs-shape-row-pad"],
       kind: "length",
-      min: 4,
+      min: 0,
       max: 24,
       step: 1,
       unit: "px",
-      defaultValue: 10,
+      defaultValue: 6,
+    });
+    expect(entry.rowMinHeight).toEqual({
+      vars: ["--docs-shape-row-min-height"],
+      kind: "length",
+      min: 0,
+      max: 64,
+      step: 1,
+      unit: "px",
+      defaultValue: 0,
+    });
+    expect(entry.nameWeight).toEqual({
+      vars: ["--docs-shape-name-weight"],
+      kind: "number",
+      min: 300,
+      max: 800,
+      step: 100,
+      defaultValue: 400,
+    });
+    expect(entry.headerFg).toEqual({ vars: ["--docs-shape-header-fg"], kind: "color" });
+    expect(entry.headerRule).toEqual({ vars: ["--docs-shape-header-rule"], kind: "color" });
+    expect(entry.childBg).toEqual({ vars: ["--docs-shape-child-bg"], kind: "color" });
+    expect(entry.columnHeadBg).toEqual({ vars: ["--docs-shape-column-head-bg"], kind: "color" });
+    // key, var, min, max, step, default (px)
+    const lengths: Array<[string, string, number, number, number, number]> = [
+      ["textSize", "--docs-shape-text-size", 10, 18, 0.5, 13],
+      ["typeTextSize", "--docs-shape-type-text-size", 9, 16, 0.5, 12],
+      ["headerTextSize", "--docs-shape-header-text-size", 10, 22, 0.5, 14],
+      ["columnHeadTextSize", "--docs-shape-column-head-text-size", 8, 14, 0.5, 10],
+      ["padX", "--docs-shape-pad-x", 0, 32, 1, 16],
+      ["headerPadY", "--docs-shape-header-pad-y", 0, 32, 1, 16],
+      ["columnHeadPadY", "--docs-shape-column-head-pad-y", 0, 16, 1, 8],
+      ["borderWidth", "--docs-shape-border-width", 0, 4, 0.5, 1],
+      ["radius", "--docs-shape-radius", 0, 16, 1, 4],
+      ["ruleWidth", "--docs-shape-rule-width", 0, 4, 0.5, 1],
+      ["headerRuleWidth", "--docs-shape-header-rule-width", 0, 4, 0.5, 1],
+      ["columnHeadRuleWidth", "--docs-shape-column-head-rule-width", 0, 4, 0.5, 2],
+      ["paneRuleWidth", "--docs-shape-pane-rule-width", 0, 4, 0.5, 1],
+      ["indent", "--docs-shape-indent", 8, 40, 1, 22],
+      ["treeTick", "--docs-shape-tree-tick", 0, 24, 1, 8],
+      ["treeInset", "--docs-shape-tree-inset", 0, 24, 1, 6],
+      ["childRuleWidth", "--docs-shape-child-rule-width", 0, 4, 0.5, 1],
+    ];
+    for (const [key, cssVar, min, max, step, defaultValue] of lengths) {
+      expect(entry[key]).toEqual({
+        vars: [cssVar],
+        kind: "length",
+        min,
+        max,
+        step,
+        unit: "px",
+        defaultValue,
+      });
+    }
+    expect(entry.headerWeight).toEqual({
+      vars: ["--docs-shape-header-weight"],
+      kind: "number",
+      min: 300,
+      max: 900,
+      step: 100,
+      defaultValue: 700,
+    });
+    expect(entry.headerTextureOpacity).toEqual({
+      vars: ["--docs-shape-header-texture-opacity"],
+      kind: "number",
+      min: 0,
+      max: 1,
+      step: 0.05,
+      defaultValue: 0.1,
+    });
+  });
+
+  // The dead-knob guard: a token the component never reads moves a slider
+  // and nothing else (Row padding once shipped that way, behind a hardcoded
+  // py-3). Every registered var must appear in the component with the
+  // registry default as its literal fallback, every --docs-shape-* var the
+  // component reads must be registered, and nothing may pin a value with
+  // !important where a knob cannot reach it.
+  it("wires every state-shape token to the component, fallback equal to the default", () => {
+    const entry = THEME_TOKEN_REGISTRY["state-shape"];
+    const source = readFileSync(
+      new URL(
+        "../../../../docs-viewer/src/components/state-shape/StateShapeDocsBlock.tsx",
+        import.meta.url,
+      ),
+      "utf8",
+    );
+    for (const token of Object.values(entry)) {
+      for (const cssVar of token.vars) {
+        if (token.kind === "color") expect(source).toContain(`var(${cssVar},`);
+        else expect(source).toContain(`var(${cssVar},${token.defaultValue}${token.unit ?? ""})`);
+      }
+    }
+    const registered = new Set(Object.values(entry).flatMap((token) => token.vars));
+    const consumed = [...source.matchAll(/var\((--docs-shape-[a-z-]+)/g)].map((match) => match[1]);
+    expect(consumed.length).toBeGreaterThan(0);
+    for (const cssVar of consumed) expect(registered.has(cssVar)).toBe(true);
+    expect(source).not.toContain("!important");
+    expect(source).not.toContain("data-variator-tokens");
+  });
+
+  it("declares every state-shape var in both semantic.css blocks, light equal to the registry default", () => {
+    const css = readFileSync(new URL("../theme/semantic.css", import.meta.url), "utf8");
+    const darkStart = css.indexOf('[data-theme="dark"], .dark {');
+    expect(darkStart).toBeGreaterThan(0);
+    const light = css.slice(0, darkStart);
+    const dark = css.slice(darkStart);
+    for (const token of Object.values(THEME_TOKEN_REGISTRY["state-shape"])) {
+      for (const cssVar of token.vars) {
+        expect(light).toContain(`  ${cssVar}: `);
+        expect(dark).toContain(`  ${cssVar}: `);
+        if (token.kind === "color") continue;
+        expect(light).toContain(`  ${cssVar}: ${token.defaultValue}${token.unit ?? ""};`);
+      }
+    }
+    // Dark keeps its heavier frame; the registry default is the light value.
+    expect(dark).toContain("  --docs-shape-border-width: 2px;");
+    expect(dark).toContain("  --docs-shape-header-texture-opacity: 0.4;");
+  });
+
+  it("normalizes the state-shape size, weight, width and opacity knobs", () => {
+    const settings = normalizeSettings({
+      components: {
+        "state-shape": {
+          textSize: 15,
+          headerWeight: "600",
+          headerTextureOpacity: 0.25,
+          borderWidth: "1.5px",
+          headerRule: "#ABCDEF",
+          radius: 99,
+        },
+      },
+    });
+
+    // radius 99 is out of range (0-16) and is dropped.
+    expect(settings.components).toEqual({
+      "state-shape": {
+        textSize: "15px",
+        headerWeight: "600",
+        headerTextureOpacity: "0.25",
+        borderWidth: "1.5px",
+        headerRule: "#abcdef",
+      },
+    });
+    expect(styleRailVars(settings)).toMatchObject({
+      "--docs-shape-text-size": "15px",
+      "--docs-shape-header-weight": "600",
+      "--docs-shape-header-texture-opacity": "0.25",
+      "--docs-shape-border-width": "1.5px",
+      "--docs-shape-header-rule": "#abcdef",
+      "--docs-shape-radius": null,
     });
   });
 
@@ -2275,20 +3636,63 @@ describe("style rail state-shape tokens", () => {
       "Background",
       "Names",
       "Types",
+      "Type chip background",
       "Muted fill",
+      "Optional marker",
+      "Optional marker background",
       "Rules",
       "Header background",
+      "Header text",
+      "Header rule",
       "Description text",
       "Child rule",
+      "Child row background",
+      "Column head background",
       "Row padding",
+      "Row min height",
+      "Name weight",
+      "Text size",
+      "Type text size",
+      "Header text size",
+      "Header weight",
+      "Column head text size",
+      "Padding X",
+      "Header padding Y",
+      "Column head padding Y",
+      "Border width",
+      "Corner radius",
+      "Rule width",
+      "Header rule width",
+      "Column head rule width",
+      "Pane divider width",
+      "Header texture opacity",
+      "Indent",
+      "Tree tick length",
+      "Tree inset",
+      "Child rule width",
     ]) {
       expect(screen.getAllByText(label).length).toBeGreaterThan(0);
     }
 
     const rowPad = screen.getByLabelText(/Row padding/) as HTMLInputElement;
-    expect(rowPad).toHaveProperty("min", "4");
+    expect(rowPad).toHaveProperty("min", "0");
     expect(rowPad).toHaveProperty("max", "24");
-    expect(rowPad).toHaveProperty("value", "10");
+    expect(rowPad).toHaveProperty("value", "6");
+    // Every registry key has a human label: no raw camelCase key leaks.
+    const unlabelled = Object.keys(THEME_TOKEN_REGISTRY["state-shape"]).filter(
+      (key) => /[A-Z]/.test(key) && screen.queryByText(key) !== null,
+    );
+    expect(unlabelled).toEqual([]);
+    const textSize = screen.getByLabelText(/^Text size/) as HTMLInputElement;
+    expect(textSize).toHaveProperty("min", "10");
+    expect(textSize).toHaveProperty("max", "18");
+    expect(textSize).toHaveProperty("step", "0.5");
+    expect(textSize).toHaveProperty("value", "13");
+    const headerWeight = screen.getByLabelText(/^Header weight/) as HTMLInputElement;
+    expect(headerWeight).toHaveProperty("value", "700");
+    const texture = screen.getByLabelText(/^Header texture opacity/) as HTMLInputElement;
+    expect(texture).toHaveProperty("max", "1");
+    expect(texture).toHaveProperty("value", "0.1");
   });
 });
 
@@ -2301,10 +3705,13 @@ describe("style rail process-outline tokens", () => {
     expect(entry.noteBg).toEqual({ vars: ["--docs-process-outline-note-bg"], kind: "color" });
     expect(entry.noteBorder).toEqual({ vars: ["--docs-process-outline-note-border"], kind: "color" });
     expect(entry.codeBg).toEqual({ vars: ["--docs-process-outline-code-bg"], kind: "color" });
-    // The depth cycle: five hues plus the loop-keyword accent that sits
-    // outside it. The component re-declares one var per nesting level, so
-    // these are the only colors the rail needs for the whole tree.
-    for (const level of [1, 2, 3, 4, 5]) {
+    expect(entry.deepInk).toEqual({ vars: ["--docs-process-outline-deep-ink"], kind: "color" });
+    // Note text, rule and bullet dots are three independent colors.
+    expect(entry.noteRule).toEqual({ vars: ["--docs-process-outline-note-rule"], kind: "color" });
+    expect(entry.noteBullet).toEqual({ vars: ["--docs-process-outline-note-bullet"], kind: "color" });
+    // One color per nesting level (the approved palette has six; deeper
+    // levels inherit the sixth), plus the loop-keyword accent outside it.
+    for (const level of [1, 2, 3, 4, 5, 6]) {
       expect(entry[`cycle${level}`]).toEqual({
         vars: [`--docs-process-outline-cycle-${level}`],
         kind: "color",
@@ -2313,6 +3720,44 @@ describe("style rail process-outline tokens", () => {
     expect(entry.keywordFg).toEqual({
       vars: ["--docs-process-outline-keyword-fg"],
       kind: "color",
+    });
+    expect(entry.keywordWeight).toEqual({
+      vars: ["--docs-process-outline-keyword-weight"],
+      kind: "number",
+      min: 300,
+      max: 900,
+      step: 50,
+      defaultValue: 700,
+    });
+    // The flow frame (top/bottom rules + padding) was hard-coded; it rides
+    // the shared frame keys now.
+    expect(entry.border).toEqual({ vars: ["--docs-process-outline-border"], kind: "color" });
+    expect(entry.borderWidth).toEqual({
+      vars: ["--docs-process-outline-border-width"],
+      kind: "length",
+      min: 0,
+      max: 4,
+      step: 0.5,
+      unit: "px",
+      defaultValue: 1,
+    });
+    expect(entry.padY).toEqual({
+      vars: ["--docs-process-outline-pad-y"],
+      kind: "length",
+      min: 0,
+      max: 40,
+      step: 1,
+      unit: "px",
+      defaultValue: 14,
+    });
+    expect(entry.padX).toEqual({
+      vars: ["--docs-process-outline-pad-x"],
+      kind: "length",
+      min: 0,
+      max: 40,
+      step: 1,
+      unit: "px",
+      defaultValue: 16,
     });
     expect(entry.indent).toEqual({
       vars: ["--docs-process-outline-indent"],
@@ -2332,8 +3777,8 @@ describe("style rail process-outline tokens", () => {
       unit: "px",
       defaultValue: 12,
     });
-    // Branch and root separation used to be hard-coded in the component
-    // (a 14px margin); both are knobs now.
+    // Branch and root separation are knobs. Branch gap spaces the children
+    // of a root step; it matches the row gap by default.
     expect(entry.branchGap).toEqual({
       vars: ["--docs-process-outline-branch-gap"],
       kind: "length",
@@ -2341,7 +3786,7 @@ describe("style rail process-outline tokens", () => {
       max: 48,
       step: 1,
       unit: "px",
-      defaultValue: 20,
+      defaultValue: 12,
     });
     expect(entry.rootGap).toEqual({
       vars: ["--docs-process-outline-root-gap"],
@@ -2359,7 +3804,7 @@ describe("style rail process-outline tokens", () => {
       max: 16,
       step: 1,
       unit: "px",
-      defaultValue: 4,
+      defaultValue: 2,
     });
     expect(entry.lineHeight).toEqual({
       vars: ["--docs-process-outline-line-height"],
@@ -2373,7 +3818,7 @@ describe("style rail process-outline tokens", () => {
     expect(entry.textSize).toEqual({
       vars: ["--docs-process-outline-text-size"],
       kind: "length",
-      min: 10,
+      min: 12,
       max: 18,
       step: 0.5,
       unit: "px",
@@ -2384,7 +3829,7 @@ describe("style rail process-outline tokens", () => {
     expect(entry.rootTextSize).toEqual({
       vars: ["--docs-process-outline-root-text-size"],
       kind: "length",
-      min: 10,
+      min: 13,
       max: 22,
       step: 0.5,
       unit: "px",
@@ -2393,23 +3838,23 @@ describe("style rail process-outline tokens", () => {
     expect(entry.emptyTextSize).toEqual({
       vars: ["--docs-process-outline-empty-text-size"],
       kind: "length",
-      min: 9,
+      min: 12,
       max: 18,
       step: 0.5,
       unit: "px",
       defaultValue: 12,
     });
-    // Notes are subordinate now: their own smaller size, their own line
-    // rhythm, an inset that pulls the card under its parent step, and a rule
-    // width for the accented left edge.
+    // Notes are subordinate: their own size (at the 12px floor), their own
+    // line rhythm, an inset that pulls the run under its parent step, and a
+    // rule width for the left edge.
     expect(entry.noteTextSize).toEqual({
       vars: ["--docs-process-outline-note-text-size"],
       kind: "length",
-      min: 10,
+      min: 12,
       max: 18,
       step: 0.5,
       unit: "px",
-      defaultValue: 11.5,
+      defaultValue: 12,
     });
     expect(entry.noteLineHeight).toEqual({
       vars: ["--docs-process-outline-note-line-height"],
@@ -2427,11 +3872,11 @@ describe("style rail process-outline tokens", () => {
       max: 40,
       step: 1,
       unit: "px",
-      defaultValue: 10,
+      defaultValue: 8,
     });
-    // Notes render BOXLESS by default — plain bullets under their parent step.
-    // The card is still expressible, purely in tokens: border, rule and padding
-    // all default to zero and the classic theme sets them to get its box back.
+    // Notes render as bullets behind a 1px left rule. The card box is still
+    // expressible, purely in tokens: border width and horizontal padding
+    // default to zero and the classic theme sets them to get its box back.
     expect(entry.noteBorderWidth).toEqual({
       vars: ["--docs-process-outline-note-border-width"],
       kind: "length",
@@ -2448,7 +3893,7 @@ describe("style rail process-outline tokens", () => {
       max: 6,
       step: 0.5,
       unit: "px",
-      defaultValue: 0,
+      defaultValue: 1,
     });
     expect(entry.notePadY).toEqual({
       vars: ["--docs-process-outline-note-pad-y"],
@@ -2457,7 +3902,7 @@ describe("style rail process-outline tokens", () => {
       max: 16,
       step: 1,
       unit: "px",
-      defaultValue: 0,
+      defaultValue: 1,
     });
     expect(entry.notePadX).toEqual({
       vars: ["--docs-process-outline-note-pad-x"],
@@ -2468,15 +3913,25 @@ describe("style rail process-outline tokens", () => {
       unit: "px",
       defaultValue: 0,
     });
+    expect(entry.noteRuleGap).toEqual({
+      vars: ["--docs-process-outline-note-rule-gap"],
+      kind: "length",
+      min: 0,
+      max: 24,
+      step: 1,
+      unit: "px",
+      defaultValue: 8,
+    });
     // Mix strengths are unitless percentages: the component multiplies them
-    // by 1% at the use site, where the depth color actually exists.
+    // by 1% at the use site, where the depth color actually exists. Note
+    // accent is 0 by default — rule and dots render as their flat colors.
     expect(entry.noteAccent).toEqual({
       vars: ["--docs-process-outline-note-accent"],
       kind: "number",
       min: 0,
       max: 100,
       step: 5,
-      defaultValue: 55,
+      defaultValue: 0,
     });
     expect(entry.chipTint).toEqual({
       vars: ["--docs-process-outline-chip-tint"],
@@ -2484,15 +3939,15 @@ describe("style rail process-outline tokens", () => {
       min: 0,
       max: 100,
       step: 1,
-      defaultValue: 13,
+      defaultValue: 10,
     });
     expect(entry.chipInkMix).toEqual({
       vars: ["--docs-process-outline-chip-ink-mix"],
       kind: "number",
       min: 0,
       max: 100,
-      step: 5,
-      defaultValue: 60,
+      step: 1,
+      defaultValue: 64,
     });
     // The trace mark is a mini pill now, built on the chips' own tint/mix
     // formula; the old dot-size and arrowhead-stroke knobs are gone with it.
@@ -2505,11 +3960,11 @@ describe("style rail process-outline tokens", () => {
     expect(entry.traceTextSize).toEqual({
       vars: ["--docs-process-outline-trace-text-size"],
       kind: "length",
-      min: 0,
-      max: 14,
+      min: 12,
+      max: 16,
       step: 0.5,
       unit: "px",
-      defaultValue: 9.5,
+      defaultValue: 12,
     });
     expect(entry.traceTint).toEqual({
       vars: ["--docs-process-outline-trace-tint"],
@@ -2517,7 +3972,7 @@ describe("style rail process-outline tokens", () => {
       min: 0,
       max: 100,
       step: 1,
-      defaultValue: 16,
+      defaultValue: 10,
     });
     expect(entry.traceInkMix).toEqual({
       vars: ["--docs-process-outline-trace-ink-mix"],
@@ -2539,7 +3994,7 @@ describe("style rail process-outline tokens", () => {
       min: 0,
       max: 100,
       step: 1,
-      defaultValue: 22,
+      defaultValue: 15,
     });
     expect(entry.selectPad).toEqual({
       vars: ["--docs-process-outline-select-pad"],
@@ -2550,8 +4005,8 @@ describe("style rail process-outline tokens", () => {
       unit: "px",
       defaultValue: 2,
     });
-    // Hand-editing a line shows the caret and nothing else unless a theme asks
-    // for the ring; there is no block-wide edit tint at any value.
+    // Hand-editing a line shows a hairline outline in the line's depth color;
+    // 0 leaves just the caret. There is no block-wide edit tint at any value.
     expect(entry.focusRing).toEqual({
       vars: ["--docs-process-outline-focus-ring"],
       kind: "length",
@@ -2559,7 +4014,7 @@ describe("style rail process-outline tokens", () => {
       max: 3,
       step: 0.5,
       unit: "px",
-      defaultValue: 0,
+      defaultValue: 1,
     });
     expect(entry.arrowSize).toEqual({
       vars: ["--docs-process-outline-arrow-size"],
@@ -2640,23 +4095,34 @@ describe("style rail process-outline tokens", () => {
         "process-outline": {
           indent: "46px",
           rowGap: "12px",
-          branchGap: "20px",
+          branchGap: "12px",
           rootGap: "30px",
-          arrowGap: "4px",
+          arrowGap: "2px",
           lineHeight: "22px",
           textSize: "12.5px",
           rootTextSize: "13.5px",
           emptyTextSize: "12px",
-          noteTextSize: "11.5px",
+          noteTextSize: "12px",
           noteLineHeight: "17px",
-          noteInset: "10px",
+          noteInset: "8px",
           noteBorderWidth: "0px",
-          noteRuleWidth: "0px",
-          notePadY: "0px",
+          noteRuleWidth: "1px",
+          notePadY: "1px",
           notePadX: "0px",
-          noteAccent: "55",
-          chipTint: "13",
-          chipInkMix: "60",
+          noteRuleGap: "8px",
+          noteAccent: "0",
+          chipTint: "10",
+          chipInkMix: "64",
+          traceTextSize: "12px",
+          traceTint: "10",
+          traceInkMix: "70",
+          selectTint: "15",
+          selectPad: "2px",
+          focusRing: "1px",
+          keywordWeight: "700",
+          borderWidth: "1px",
+          padY: "14px",
+          padX: "16px",
           arrowSize: "6px",
           stroke: "1.5px",
         },
@@ -2685,6 +4151,64 @@ describe("style rail process-outline tokens", () => {
     expect(vars["--docs-process-outline-chip-ink-mix"]).toBeNull();
     expect(vars["--docs-process-outline-arrow-size"]).toBeNull();
     expect(vars["--docs-process-outline-stroke"]).toBeNull();
+    expect(vars["--docs-process-outline-note-rule-gap"]).toBeNull();
+    expect(vars["--docs-process-outline-trace-text-size"]).toBeNull();
+    expect(vars["--docs-process-outline-trace-tint"]).toBeNull();
+    expect(vars["--docs-process-outline-trace-ink-mix"]).toBeNull();
+    expect(vars["--docs-process-outline-select-tint"]).toBeNull();
+    expect(vars["--docs-process-outline-select-pad"]).toBeNull();
+    expect(vars["--docs-process-outline-focus-ring"]).toBeNull();
+    expect(vars["--docs-process-outline-keyword-weight"]).toBeNull();
+    expect(vars["--docs-process-outline-border-width"]).toBeNull();
+    expect(vars["--docs-process-outline-pad-y"]).toBeNull();
+    expect(vars["--docs-process-outline-pad-x"]).toBeNull();
+  });
+
+  // The class of bug this guards: a knob in the rail whose var the component
+  // never reads (or reads behind an !important / a re-declaration), or whose
+  // fallback / semantic.css value disagrees with the registry default.
+  it("wires every process-outline token through the component with its default as the fallback", () => {
+    const semanticCss = readFileSync(new URL("../theme/semantic.css", import.meta.url), "utf8");
+    const componentSource = readFileSync(
+      new URL(
+        "../../../../docs-viewer/src/components/process-outline/ProcessOutlineDocsBlock.tsx",
+        import.meta.url,
+      ),
+      "utf8",
+    );
+    const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const entry = THEME_TOKEN_REGISTRY["process-outline"];
+
+    for (const [key, token] of Object.entries(entry)) {
+      for (const cssVar of token.vars) {
+        // Consumed by the component ...
+        expect([key, componentSource.includes(`var(${cssVar},`)]).toEqual([key, true]);
+        // ... and declared once per mode in semantic.css.
+        const declarations = semanticCss.match(new RegExp(`^\\s*${escape(cssVar)}:\\s*([^;]+);`, "gm")) ?? [];
+        expect([key, declarations.length]).toEqual([key, 2]);
+        if (token.kind === "color") continue;
+        const value = `${token.defaultValue}${token.unit ?? ""}`;
+        // Every read of the var falls back to the registry default ...
+        const reads = componentSource.match(new RegExp(`var\\(${escape(cssVar)},\\s*[^)]*\\)`, "g")) ?? [];
+        expect(reads.length).toBeGreaterThan(0);
+        for (const read of reads) {
+          expect([key, read.replace(/\s+/g, "")]).toEqual([key, `var(${cssVar},${value})`]);
+        }
+        // ... which is also the semantic.css value in light and dark.
+        for (const declaration of declarations) {
+          expect([key, declaration.trim()]).toEqual([key, `${cssVar}: ${value};`]);
+        }
+      }
+    }
+
+    // No orphan: every process-outline var the component reads is a knob.
+    const registered = new Set(Object.values(entry).flatMap((token) => token.vars));
+    const consumed = new Set(componentSource.match(/--docs-process-outline-[a-z0-9-]+/g) ?? []);
+    expect([...consumed].filter((cssVar) => !registered.has(cssVar))).toEqual([]);
+    // Nothing in the component pins a value or re-declares a token, which is
+    // what made stroke, the depth colors and note text dead knobs before.
+    expect(componentSource).not.toContain("data-variator-tokens");
+    expect(componentSource).not.toMatch(/^\s*--docs-process-outline-[a-z0-9-]+\s*:/m);
   });
 
   it("renders the Process Outline knobs with their sidebar labels", () => {
@@ -2693,13 +4217,26 @@ describe("style rail process-outline tokens", () => {
 
     for (const label of [
       "Ink",
+      "Deep ink",
       "Rail",
       "Depth 1 color",
       "Depth 5 color",
+      "Depth 6 color",
       "Loop keyword",
+      "Loop keyword weight",
       "Note text",
+      "Note rule",
+      "Note bullets",
       "Note background",
       "Note border",
+      "Border",
+      "Border width",
+      "Padding Y",
+      "Padding X",
+      "Note rule gap",
+      "Selected line background",
+      "Selected line tint",
+      "Selected line padding",
       "Code background",
       "Indent",
       "Row gap",
@@ -2742,23 +4279,23 @@ describe("style rail process-outline tokens", () => {
     // The strength knobs are unitless percentages, not lengths.
     const chipTint = screen.getByLabelText(/Chip tint strength/) as HTMLInputElement;
     expect(chipTint).toHaveProperty("max", "100");
-    expect(chipTint).toHaveProperty("value", "13");
+    expect(chipTint).toHaveProperty("value", "10");
     const arrowGap = screen.getByLabelText(/Arrow gap/) as HTMLInputElement;
     expect(arrowGap).toHaveProperty("min", "0");
     expect(arrowGap).toHaveProperty("max", "16");
-    expect(arrowGap).toHaveProperty("value", "4");
+    expect(arrowGap).toHaveProperty("value", "2");
     const lineHeight = screen.getByLabelText(/Line height/) as HTMLInputElement;
     expect(lineHeight).toHaveProperty("min", "16");
     expect(lineHeight).toHaveProperty("max", "40");
     expect(lineHeight).toHaveProperty("value", "22");
     const textSize = screen.getByLabelText(/^Text size/) as HTMLInputElement;
-    expect(textSize).toHaveProperty("min", "10");
+    expect(textSize).toHaveProperty("min", "12");
     expect(textSize).toHaveProperty("max", "18");
     expect(textSize).toHaveProperty("value", "12.5");
     const noteTextSize = screen.getByLabelText(/Note text size/) as HTMLInputElement;
-    expect(noteTextSize).toHaveProperty("min", "10");
+    expect(noteTextSize).toHaveProperty("min", "12");
     expect(noteTextSize).toHaveProperty("max", "18");
-    expect(noteTextSize).toHaveProperty("value", "11.5");
+    expect(noteTextSize).toHaveProperty("value", "12");
     const arrowSize = screen.getByLabelText(/Arrow size/) as HTMLInputElement;
     expect(arrowSize).toHaveProperty("min", "3");
     expect(arrowSize).toHaveProperty("max", "12");
@@ -2771,18 +4308,910 @@ describe("style rail process-outline tokens", () => {
 });
 
 describe("style rail sequence tokens", () => {
-  it("registers the sequence frame border var", () => {
-    expect(THEME_TOKEN_REGISTRY.sequence.border).toEqual({
-      vars: ["--docs-sequence-border"],
-      kind: "color",
-    });
+  const SEQUENCE_COLORS = {
+    border: "--docs-sequence-border",
+    bg: "--docs-sequence-bg",
+    expandFg: "--docs-sequence-expand-fg",
+    diagramBg: "--docs-sequence-diagram-bg",
+    diagramText: "--docs-sequence-diagram-text",
+    diagramLine: "--docs-sequence-line",
+    actorFill: "--docs-sequence-actor-fill",
+    actorBorder: "--docs-sequence-actor-border",
+    noteBg: "--docs-sequence-note-bg",
+    fragment: "--docs-sequence-fragment",
+  };
+  const SEQUENCE_LENGTHS = {
+    borderWidth: { cssVar: "--docs-sequence-border-width", min: 0, max: 4, step: 0.5, defaultValue: 1 },
+    radius: { cssVar: "--docs-sequence-radius", min: 0, max: 24, step: 1, defaultValue: 8 },
+    padding: { cssVar: "--docs-sequence-padding", min: 0, max: 40, step: 1, defaultValue: 12 },
+    maxHeight: { cssVar: "--docs-sequence-max-height", min: 160, max: 1200, step: 20, defaultValue: 420 },
+    expandTextSize: {
+      cssVar: "--docs-sequence-expand-text-size",
+      min: 10,
+      max: 18,
+      step: 0.5,
+      defaultValue: 12,
+    },
+  };
+  const semanticCss = readFileSync(new URL("../theme/semantic.css", import.meta.url), "utf8");
+  const embedCss = readFileSync(new URL("../pages/sequence-embed.css", import.meta.url), "utf8");
+
+  it("registers the sequence frame and diagram vars", () => {
+    const entry = THEME_TOKEN_REGISTRY.sequence;
+    expect(Object.keys(entry).sort()).toEqual(
+      [...Object.keys(SEQUENCE_COLORS), ...Object.keys(SEQUENCE_LENGTHS)].sort(),
+    );
+    for (const [key, cssVar] of Object.entries(SEQUENCE_COLORS)) {
+      expect(entry[key]).toEqual({ vars: [cssVar], kind: "color" });
+    }
+    for (const [key, { cssVar, ...range }] of Object.entries(SEQUENCE_LENGTHS)) {
+      expect(entry[key]).toEqual({ vars: [cssVar], kind: "length", unit: "px", ...range });
+    }
   });
 
-  it("renders the Sequence pane Border control", () => {
+  it("reads every sequence token in the embed stylesheet with its default as the fallback", () => {
+    // Frame lengths: the literal the stylesheet used to hardcode is now the
+    // fallback, and the same value sits in semantic.css for both modes.
+    for (const [key, { cssVar, defaultValue }] of Object.entries(SEQUENCE_LENGTHS)) {
+      expect([key, embedCss.includes(`var(${cssVar}, ${defaultValue}px)`)]).toEqual([key, true]);
+      expect([key, semanticCss.split(`${cssVar}: ${defaultValue}px;`).length - 1]).toEqual([key, 2]);
+    }
+    expect(embedCss).toContain(
+      "border: var(--docs-sequence-border-width, 1px) solid var(--docs-sequence-border, var(--border));",
+    );
+    expect(embedCss).toContain("border-radius: var(--docs-sequence-radius, 8px);");
+    expect(embedCss).toContain("background: var(--docs-sequence-bg, transparent);");
+    expect(embedCss).toContain("padding: var(--docs-sequence-padding, 12px);");
+    // The viewport cap survives next to the knob.
+    expect(embedCss).toContain("max-height: min(var(--docs-sequence-max-height, 420px), 55vh);");
+    expect(embedCss).toContain("color: var(--docs-sequence-expand-fg, currentColor);");
+    expect(embedCss).toContain("font-size: var(--docs-sequence-expand-text-size, 12px);");
+
+    // Diagram colors reach the SVG through the sequence package's own
+    // --seq-* vars, on both surfaces that host it; the fallbacks are the
+    // package defaults, so stock rendering is unchanged.
+    expect(embedCss).toMatch(/\.docs-sequence-preview,\s*\.docs-sequence-dialog \{\s*--seq-bg:/);
+    for (const mapping of [
+      "--seq-bg: var(--docs-sequence-diagram-bg, #ffffff);",
+      "--seq-text: var(--docs-sequence-diagram-text, #252525);",
+      "--seq-accent: var(--docs-sequence-line, #c77d2e);",
+      "--seq-participant-fill: var(--docs-sequence-actor-fill, #fff8f0);",
+      "--seq-participant-stroke: var(--docs-sequence-actor-border, var(--docs-sequence-line, #c77d2e));",
+      "--seq-note-fill: var(--docs-sequence-note-bg, var(--docs-sequence-actor-fill, #fff8f0));",
+      "--seq-fragment-accent: var(--docs-sequence-fragment, #5b7fbd);",
+    ]) {
+      expect(embedCss).toContain(mapping);
+    }
+
+    // Every color var is consumed and declared once per mode.
+    for (const [key, cssVar] of Object.entries(SEQUENCE_COLORS)) {
+      expect([key, embedCss.includes(`var(${cssVar},`)]).toEqual([key, true]);
+      expect([key, semanticCss.split(`${cssVar}: `).length - 1]).toEqual([key, 2]);
+    }
+    for (const declaration of [
+      "--docs-sequence-border: var(--border);",
+      "--docs-sequence-bg: transparent;",
+      "--docs-sequence-expand-fg: currentColor;",
+      "--docs-sequence-diagram-bg: #ffffff;",
+      "--docs-sequence-diagram-text: #252525;",
+      "--docs-sequence-line: #c77d2e;",
+      "--docs-sequence-actor-fill: #fff8f0;",
+      // Derived defaults track their source until a theme sets them.
+      "--docs-sequence-actor-border: var(--docs-sequence-line);",
+      "--docs-sequence-note-bg: var(--docs-sequence-actor-fill);",
+      "--docs-sequence-fragment: #5b7fbd;",
+    ]) {
+      expect([declaration, semanticCss.split(declaration).length - 1]).toEqual([declaration, 2]);
+    }
+  });
+
+  it("applies sequence overrides onto their CSS vars and drops knobs parked at default", () => {
+    const settings = normalizeSettings({
+      components: {
+        sequence: {
+          border: "#112233",
+          diagramLine: "#445566",
+          radius: 12,
+          padding: "20px",
+          maxHeight: 600,
+          borderWidth: "1px",
+          expandTextSize: "12px",
+          unknown: "#000000",
+        },
+      },
+    });
+
+    const vars = styleRailVars(settings);
+    expect(vars).toMatchObject({
+      "--docs-sequence-border": "#112233",
+      "--docs-sequence-line": "#445566",
+      "--docs-sequence-radius": "12px",
+      "--docs-sequence-padding": "20px",
+      "--docs-sequence-max-height": "600px",
+    });
+    expect(vars["--docs-sequence-border-width"]).toBeNull();
+    expect(vars["--docs-sequence-expand-text-size"]).toBeNull();
+  });
+
+  it("renders the Sequence knobs with their sidebar labels", () => {
     render(<RailHarness />);
     openPane("Sequence");
 
-    expect(screen.getByText("Border")).toBeTruthy();
+    for (const label of [
+      "Border",
+      "Background",
+      "Expand label",
+      "Diagram background",
+      "Diagram text",
+      "Diagram lines",
+      "Actor fill",
+      "Actor border",
+      "Note background",
+      "Fragment frame",
+      "Border width",
+      "Corner radius",
+      "Padding",
+      "Max preview height",
+      "Expand label size",
+    ]) {
+      // "Background" is also a nav entry, so a label may match more than once.
+      expect(screen.getAllByText(label).length).toBeGreaterThan(0);
+    }
+
+    const radius = screen.getByLabelText(/Corner radius/) as HTMLInputElement;
+    expect(radius).toHaveProperty("min", "0");
+    expect(radius).toHaveProperty("max", "24");
+    expect(radius).toHaveProperty("value", "8");
+    const maxHeight = screen.getByLabelText(/Max preview height/) as HTMLInputElement;
+    expect(maxHeight).toHaveProperty("min", "160");
+    expect(maxHeight).toHaveProperty("max", "1200");
+    expect(maxHeight).toHaveProperty("value", "420");
+  });
+});
+
+describe("style rail canvas tokens", () => {
+  const CANVAS_LENGTHS = {
+    borderWidth: { cssVar: "--docs-canvas-border-width", min: 0, max: 4, step: 0.5, defaultValue: 1 },
+    radius: { cssVar: "--docs-canvas-radius", min: 0, max: 24, step: 1, defaultValue: 6 },
+    padding: { cssVar: "--docs-canvas-padding", min: 0, max: 40, step: 1, defaultValue: 0 },
+  };
+  const semanticCss = readFileSync(new URL("../theme/semantic.css", import.meta.url), "utf8");
+  const embedSource = readFileSync(new URL("../pages/CanvasEmbed.tsx", import.meta.url), "utf8");
+
+  it("registers the canvas frame vars", () => {
+    const entry = THEME_TOKEN_REGISTRY.canvas;
+    expect(Object.keys(entry).sort()).toEqual(["bg", "border", ...Object.keys(CANVAS_LENGTHS)].sort());
+    expect(entry.border).toEqual({ vars: ["--docs-canvas-border"], kind: "color" });
+    expect(entry.bg).toEqual({ vars: ["--docs-canvas-bg"], kind: "color" });
+    for (const [key, { cssVar, ...range }] of Object.entries(CANVAS_LENGTHS)) {
+      expect(entry[key]).toEqual({ vars: [cssVar], kind: "length", unit: "px", ...range });
+    }
+  });
+
+  it("reads every canvas token on the embed frame with its default as the fallback", () => {
+    // The border color knob used to exist in the rail while the real frame
+    // drew a bare `border` — the loaded frame and every state card read it now.
+    expect(embedSource.split("border-[color:var(--docs-canvas-border,var(--border))]").length - 1).toBe(4);
+    expect(embedSource).not.toMatch(/rounded-md border"/);
+    expect(embedSource).toContain("border-[length:var(--docs-canvas-border-width,1px)]");
+    expect(embedSource).toContain("bg-[color:var(--docs-canvas-bg,transparent)]");
+    expect(embedSource).toContain("p-[var(--docs-canvas-padding,0px)]");
+    // Radius follows the global --radius (6px at stock) in the fallback and in
+    // semantic.css alike, on the frame and on its focus-ring overlay.
+    expect(
+      embedSource.split("rounded-[var(--docs-canvas-radius,max(0px,calc(var(--radius,8px)-2px)))]").length - 1,
+    ).toBe(2);
+    for (const declaration of [
+      "--docs-canvas-border: var(--border);",
+      "--docs-canvas-border-width: 1px;",
+      "--docs-canvas-radius: max(0px, calc(var(--radius) - 2px));",
+      "--docs-canvas-bg: transparent;",
+      "--docs-canvas-padding: 0px;",
+    ]) {
+      expect([declaration, semanticCss.split(declaration).length - 1]).toEqual([declaration, 2]);
+    }
+  });
+
+  it("applies canvas overrides onto their CSS vars and drops knobs parked at default", () => {
+    const settings = normalizeSettings({
+      components: {
+        canvas: { border: "#112233", bg: "#445566", radius: 12, padding: "8px", borderWidth: "1px" },
+      },
+    });
+
+    const vars = styleRailVars(settings);
+    expect(vars).toMatchObject({
+      "--docs-canvas-border": "#112233",
+      "--docs-canvas-bg": "#445566",
+      "--docs-canvas-radius": "12px",
+      "--docs-canvas-padding": "8px",
+    });
+    expect(vars["--docs-canvas-border-width"]).toBeNull();
+  });
+
+  it("renders the Canvas knobs with their sidebar labels", () => {
+    render(<RailHarness />);
+    openPane("Canvas");
+
+    for (const label of ["Border", "Background", "Border width", "Corner radius", "Padding"]) {
+      expect(screen.getAllByText(label).length).toBeGreaterThan(0);
+    }
+    const radius = screen.getByLabelText(/Corner radius/) as HTMLInputElement;
+    expect(radius).toHaveProperty("min", "0");
+    expect(radius).toHaveProperty("max", "24");
+    expect(radius).toHaveProperty("value", "6");
+    const padding = screen.getByLabelText(/^Padding/) as HTMLInputElement;
+    expect(padding).toHaveProperty("value", "0");
+  });
+});
+
+describe("style rail rich-text block tokens", () => {
+  /**
+   * The eight rich-text block types: paragraph, heading, list-item, quote,
+   * callout, divider, image, video. One table drives every assertion, so a
+   * new knob has to land here with its var, range and default — and then
+   * prove it is declared, wired and labelled.
+   *
+   * `fallback` is the literal the consumer carries inside `var(name,…)`. It
+   * equals the default unless stated: the em-multiplier knobs that replaced
+   * Tailwind Typography metrics keep the UNTHEMED value as their fallback
+   * (what a host with no theme layer rendered before the knob existed),
+   * while semantic.css carries the workbench value the registry defaults to.
+   */
+  type Range = { cssVar: string; min: number; max: number; step: number; defaultValue: number };
+  type LengthToken = Range & { declared?: string; fallback?: string };
+  type NumberToken = Range & { fallback?: string };
+  type BlockTokens = {
+    pane: string;
+    colors: Record<string, string>;
+    lengths: Record<string, LengthToken>;
+    numbers: Record<string, NumberToken>;
+  };
+  const RADIUS_DECLARED = "max(0px, calc(var(--radius) - 2px))";
+  const RADIUS_FALLBACK = "max(0px,calc(var(--radius,8px)-2px))";
+  const mediaTokens = (pane: string, prefix: string): BlockTokens => ({
+    pane,
+    colors: { border: `${prefix}-border`, caption: `${prefix}-caption-fg` },
+    lengths: {
+      borderWidth: { cssVar: `${prefix}-border-width`, min: 0, max: 4, step: 0.5, defaultValue: 1 },
+      radius: {
+        cssVar: `${prefix}-radius`,
+        min: 0,
+        max: 24,
+        step: 1,
+        defaultValue: 6,
+        declared: RADIUS_DECLARED,
+        fallback: RADIUS_FALLBACK,
+      },
+      captionTextSize: {
+        cssVar: `${prefix}-caption-text-size`,
+        min: 9,
+        max: 20,
+        step: 0.5,
+        defaultValue: 12,
+      },
+      captionGap: { cssVar: `${prefix}-caption-gap`, min: 0, max: 24, step: 1, defaultValue: 4 },
+      margin: { cssVar: `${prefix}-margin`, min: 0, max: 64, step: 1, defaultValue: 16 },
+    },
+    numbers: {},
+  });
+  const BLOCKS: Record<string, BlockTokens> = {
+    paragraph: {
+      pane: "Paragraph",
+      colors: { fg: "--docs-paragraph-fg" },
+      lengths: {},
+      numbers: {
+        spacing: {
+          cssVar: "--docs-paragraph-spacing",
+          min: 0,
+          max: 3,
+          step: 0.05,
+          defaultValue: 1.1428571,
+          fallback: "0.6666667",
+        },
+      },
+    },
+    heading: {
+      pane: "Heading",
+      colors: { fg: "--docs-heading-fg" },
+      lengths: {
+        marginTop: { cssVar: "--docs-heading-margin-top", min: 0, max: 72, step: 1, defaultValue: 24 },
+        marginBottom: {
+          cssVar: "--docs-heading-margin-bottom",
+          min: 0,
+          max: 48,
+          step: 1,
+          defaultValue: 12,
+        },
+      },
+      numbers: {
+        weight: { cssVar: "--docs-heading-weight", min: 300, max: 900, step: 50, defaultValue: 600 },
+        h1Size: {
+          cssVar: "--docs-heading-h1-size",
+          min: 1,
+          max: 4,
+          step: 0.05,
+          defaultValue: 2.1428571,
+          fallback: "2",
+        },
+        h2Size: {
+          cssVar: "--docs-heading-h2-size",
+          min: 1,
+          max: 3,
+          step: 0.05,
+          defaultValue: 1.4285714,
+          fallback: "1.5",
+        },
+        h3Size: {
+          cssVar: "--docs-heading-h3-size",
+          min: 1,
+          max: 3,
+          step: 0.05,
+          defaultValue: 1.2857143,
+          fallback: "1.17",
+        },
+      },
+    },
+    "list-item": {
+      pane: "List item",
+      colors: { marker: "--docs-list-marker-fg", fg: "--docs-list-item-fg" },
+      lengths: {
+        itemGap: { cssVar: "--docs-list-item-gap", min: 0, max: 24, step: 0.5, defaultValue: 4 },
+      },
+      numbers: {},
+    },
+    quote: {
+      pane: "Quote",
+      colors: { fg: "--docs-quote-fg", border: "--docs-quote-border", bg: "--docs-quote-bg" },
+      lengths: {
+        borderWidth: {
+          cssVar: "--docs-quote-border-width",
+          min: 0,
+          max: 8,
+          step: 0.5,
+          defaultValue: 2,
+        },
+        indent: { cssVar: "--docs-quote-indent", min: 0, max: 48, step: 1, defaultValue: 12 },
+        padY: { cssVar: "--docs-quote-pad-y", min: 0, max: 32, step: 1, defaultValue: 0 },
+      },
+      numbers: {
+        spacing: {
+          cssVar: "--docs-quote-spacing",
+          min: 0,
+          max: 4,
+          step: 0.05,
+          defaultValue: 1.3333333,
+          fallback: "0.8888889",
+        },
+        textScale: {
+          cssVar: "--docs-quote-text-scale",
+          min: 0.75,
+          max: 2,
+          step: 0.05,
+          defaultValue: 1,
+        },
+      },
+    },
+    callout: {
+      pane: "Callout",
+      colors: {
+        border: "--docs-callout-border",
+        fill: "--docs-callout-body-bg",
+        fg: "--docs-callout-fg",
+        infoAccent: "--docs-callout-info-accent",
+        infoHeaderBg: "--docs-callout-info-header-bg",
+        infoHeaderFg: "--docs-callout-info-header-fg",
+        decisionAccent: "--docs-callout-decision-accent",
+        decisionHeaderBg: "--docs-callout-decision-header-bg",
+        decisionHeaderFg: "--docs-callout-decision-header-fg",
+        warningAccent: "--docs-callout-warning-accent",
+        warningHeaderBg: "--docs-callout-warning-header-bg",
+        warningHeaderFg: "--docs-callout-warning-header-fg",
+        successAccent: "--docs-callout-success-accent",
+        successHeaderBg: "--docs-callout-success-header-bg",
+        successHeaderFg: "--docs-callout-success-header-fg",
+      },
+      lengths: {
+        borderWidth: {
+          cssVar: "--docs-callout-border-width",
+          min: 0,
+          max: 4,
+          step: 0.5,
+          defaultValue: 1,
+        },
+        // Light default; the dark block keeps the global --radius corner and
+        // the component's own fallback is the unthemed `rounded-lg`.
+        radius: {
+          cssVar: "--docs-callout-radius",
+          min: 0,
+          max: 24,
+          step: 1,
+          defaultValue: 4,
+          fallback: "0.5rem",
+        },
+        padX: { cssVar: "--docs-callout-pad-x", min: 0, max: 40, step: 1, defaultValue: 16 },
+        headerPadY: {
+          cssVar: "--docs-callout-header-pad-y",
+          min: 0,
+          max: 32,
+          step: 1,
+          defaultValue: 12,
+        },
+        bodyPadY: {
+          cssVar: "--docs-callout-body-pad-y",
+          min: 0,
+          max: 32,
+          step: 1,
+          defaultValue: 14,
+        },
+        titleTextSize: {
+          cssVar: "--docs-callout-title-text-size",
+          min: 10,
+          max: 24,
+          step: 0.5,
+          defaultValue: 14,
+        },
+        iconSize: { cssVar: "--docs-callout-icon-size", min: 0, max: 32, step: 1, defaultValue: 16 },
+        margin: { cssVar: "--docs-callout-margin", min: 0, max: 64, step: 1, defaultValue: 16 },
+      },
+      numbers: {
+        titleWeight: {
+          cssVar: "--docs-callout-title-weight",
+          min: 300,
+          max: 900,
+          step: 50,
+          defaultValue: 700,
+        },
+        bodyTextScale: {
+          cssVar: "--docs-callout-body-text-scale",
+          min: 0.6,
+          max: 1.5,
+          step: 0.05,
+          defaultValue: 1,
+        },
+      },
+    },
+    divider: {
+      pane: "Divider",
+      colors: { color: "--docs-divider-color" },
+      lengths: {
+        thickness: { cssVar: "--docs-divider-thickness", min: 0, max: 8, step: 0.5, defaultValue: 1 },
+      },
+      numbers: {
+        spacing: {
+          cssVar: "--docs-divider-spacing",
+          min: 0,
+          max: 6,
+          step: 0.05,
+          defaultValue: 2.8571429,
+          fallback: "1.3333333",
+        },
+      },
+    },
+    image: mediaTokens("Image", "--docs-image"),
+    video: mediaTokens("Video", "--docs-video"),
+  };
+  /** The approved callout palette: [light, dark] per tone token. */
+  const CALLOUT_PALETTE: Record<string, [string, string]> = {
+    "--docs-callout-fg": ["#30343b", "#e4e7eb"],
+    "--docs-callout-info-accent": ["#1683c7", "#69b9e8"],
+    "--docs-callout-info-header-bg": ["#e8f4fb", "#182e3b"],
+    "--docs-callout-info-header-fg": ["#15384d", "#d9f1ff"],
+    "--docs-callout-decision-accent": ["#7657a4", "#bda4df"],
+    "--docs-callout-decision-header-bg": ["#f2eef8", "#2c2538"],
+    "--docs-callout-decision-header-fg": ["#3f3158", "#eee5fa"],
+    "--docs-callout-warning-accent": ["#a86608", "#e6b35e"],
+    "--docs-callout-warning-header-bg": ["#fbf2df", "#352b1b"],
+    "--docs-callout-warning-header-fg": ["#553606", "#fae5bb"],
+    "--docs-callout-success-accent": ["#287c55", "#7bc9a2"],
+    "--docs-callout-success-header-bg": ["#eaf5ef", "#1d3028"],
+    "--docs-callout-success-header-fg": ["#214d39", "#d9f4e5"],
+  };
+  const LABELS: Record<string, string> = {
+    fg: "Text",
+    bg: "Background",
+    border: "Border",
+    fill: "Fill",
+    marker: "Marker",
+    caption: "Caption",
+    color: "Color",
+    spacing: "Spacing (em)",
+    weight: "Weight",
+    marginTop: "Space above",
+    marginBottom: "Space below",
+    h1Size: "H1 size (em)",
+    h2Size: "H2 size (em)",
+    h3Size: "H3 size (em)",
+    itemGap: "Item gap",
+    borderWidth: "Border width",
+    indent: "Indent",
+    padY: "Padding Y",
+    textScale: "Text scale",
+    infoAccent: "Info accent",
+    infoHeaderBg: "Info header background",
+    infoHeaderFg: "Info header text",
+    decisionAccent: "Decision accent",
+    decisionHeaderBg: "Decision header background",
+    decisionHeaderFg: "Decision header text",
+    warningAccent: "Warning / risk accent",
+    warningHeaderBg: "Warning / risk header background",
+    warningHeaderFg: "Warning / risk header text",
+    successAccent: "Success accent",
+    successHeaderBg: "Success header background",
+    successHeaderFg: "Success header text",
+    radius: "Corner radius",
+    padX: "Padding X",
+    headerPadY: "Header padding Y",
+    bodyPadY: "Body padding Y",
+    titleTextSize: "Title text size",
+    titleWeight: "Title weight",
+    iconSize: "Icon size",
+    bodyTextScale: "Body text scale",
+    margin: "Margin",
+    thickness: "Thickness",
+    captionTextSize: "Caption text size",
+    captionGap: "Caption gap",
+  };
+
+  const viewerSource = (path: string) =>
+    readFileSync(new URL(`../../../../docs-viewer/src/${path}`, import.meta.url), "utf8");
+  const semanticCss = readFileSync(new URL("../theme/semantic.css", import.meta.url), "utf8");
+  const indexCss = readFileSync(new URL("../index.css", import.meta.url), "utf8");
+  const blockClasses = viewerSource("render/block-classes.ts");
+  const calloutSource = viewerSource("components/rich-text/CalloutDocsBlock.tsx");
+  /** Where each block's tokens are read. The list marker color is host CSS. */
+  const CONSUMERS: Record<string, string> = {
+    paragraph: blockClasses,
+    heading: blockClasses,
+    "list-item": blockClasses + viewerSource("styles/list-markers.css").replaceAll(", ", ","),
+    quote: blockClasses,
+    callout: calloutSource.replaceAll(", #", ",#"),
+    divider: viewerSource("components/rich-text/divider.tsx"),
+    image: viewerSource("components/rich-text/image.tsx"),
+    video: viewerSource("components/rich-text/VideoDocsBlock.tsx"),
+  };
+  const occurrences = (haystack: string, needle: string) => haystack.split(needle).length - 1;
+
+  it("registers exactly the pinned tokens for every rich-text block", () => {
+    for (const [file, { colors, lengths, numbers }] of Object.entries(BLOCKS)) {
+      const entry = THEME_TOKEN_REGISTRY[file];
+      expect(Object.keys(entry).sort()).toEqual(
+        [...Object.keys(colors), ...Object.keys(lengths), ...Object.keys(numbers)].sort(),
+      );
+      for (const [key, cssVar] of Object.entries(colors)) {
+        expect(entry[key]).toEqual({ vars: [cssVar], kind: "color" });
+      }
+      for (const [key, { cssVar, min, max, step, defaultValue }] of Object.entries(lengths)) {
+        expect(entry[key]).toEqual({
+          vars: [cssVar],
+          kind: "length",
+          unit: "px",
+          min,
+          max,
+          step,
+          defaultValue,
+        });
+      }
+      for (const [key, { cssVar, min, max, step, defaultValue }] of Object.entries(numbers)) {
+        expect(entry[key]).toEqual({ vars: [cssVar], kind: "number", min, max, step, defaultValue });
+      }
+    }
+  });
+
+  it("points the callout's border, fill and text knobs at vars the callout reads", () => {
+    // Regression: `border` and `fill` used to write the shared
+    // --docs-viewer-callout-* palette vars, which the redesigned callout never
+    // read (they tinted the QUOTE instead), and `fg` was re-declared on the
+    // callout element, shadowing the rail's root-level override. All three
+    // were dead sliders.
+    const registered = Object.values(THEME_TOKEN_REGISTRY).flatMap((tokens) =>
+      Object.values(tokens).flatMap((token) => token.vars),
+    );
+    expect(registered).not.toContain("--docs-viewer-callout-border");
+    expect(registered).not.toContain("--docs-viewer-callout-fill");
+    for (const cssVar of Object.values(BLOCKS.callout.colors)) {
+      // Read, with a fallback...
+      expect(CONSUMERS.callout).toContain(`var(${cssVar},`);
+      // ...and never declared by the component, on any selector.
+      expect(calloutSource).not.toMatch(new RegExp(`${cssVar}:\\s`));
+    }
+  });
+
+  it("declares every var in both semantic.css blocks at the registry default", () => {
+    for (const [file, { colors, lengths, numbers }] of Object.entries(BLOCKS)) {
+      for (const cssVar of Object.values(colors)) {
+        // The callout frame color is deliberately undeclared: unset, the
+        // frame follows each tone's accent.
+        const expected = cssVar === "--docs-callout-border" ? 0 : 2;
+        expect(`${cssVar} ×${occurrences(semanticCss, `  ${cssVar}: `)}`).toBe(
+          `${cssVar} ×${expected}`,
+        );
+      }
+      for (const { cssVar, defaultValue, declared } of Object.values(lengths)) {
+        if (file === "callout" && cssVar === "--docs-callout-radius") {
+          // One default, two modes: light is the registry default, dark keeps
+          // the global --radius corner it has always rendered.
+          expect(occurrences(semanticCss, `  ${cssVar}: ${defaultValue}px;`)).toBe(1);
+          expect(occurrences(semanticCss, `  ${cssVar}: var(--radius);`)).toBe(1);
+          continue;
+        }
+        const declaration = `  ${cssVar}: ${declared ?? `${defaultValue}px`};`;
+        expect(`${declaration} ×${occurrences(semanticCss, declaration)}`).toBe(
+          `${declaration} ×2`,
+        );
+      }
+      for (const { cssVar, defaultValue } of Object.values(numbers)) {
+        const declaration = `  ${cssVar}: ${defaultValue};`;
+        expect(`${declaration} ×${occurrences(semanticCss, declaration)}`).toBe(
+          `${declaration} ×2`,
+        );
+      }
+    }
+    // The callout palette is declared per mode, and each literal is the one
+    // the component falls back to when no theme layer is present.
+    for (const [cssVar, [light, dark]] of Object.entries(CALLOUT_PALETTE)) {
+      expect(occurrences(semanticCss, `  ${cssVar}: ${light};`)).toBe(1);
+      expect(occurrences(semanticCss, `  ${cssVar}: ${dark};`)).toBe(1);
+      expect(occurrences(calloutSource, `var(${cssVar}, ${light})`)).toBe(1);
+      expect(occurrences(calloutSource, `var(${cssVar}, ${dark})`)).toBe(1);
+    }
+    expect(occurrences(semanticCss, "  --docs-callout-body-bg: var(--background);")).toBe(2);
+    expect(occurrences(semanticCss, "  --docs-quote-bg: var(--docs-viewer-callout-fill);")).toBe(2);
+    expect(occurrences(semanticCss, "  --docs-list-item-fg: var(--docs-viewer-text-body);")).toBe(2);
+  });
+
+  it("wires every var into its consumer with a literal fallback", () => {
+    // A registered knob the component never reads is a dead slider (the
+    // state-shape rowPad bug): every var must appear as `var(<name>,<fallback>)`.
+    for (const [file, { colors, lengths, numbers }] of Object.entries(BLOCKS)) {
+      const source = CONSUMERS[file];
+      for (const cssVar of Object.values(colors)) {
+        expect(`${file}: ${source.includes(`var(${cssVar},`) ? cssVar : "MISSING"}`).toBe(
+          `${file}: ${cssVar}`,
+        );
+      }
+      for (const { cssVar, defaultValue, fallback } of Object.values(lengths)) {
+        const reader = `var(${cssVar},${fallback ?? `${defaultValue}px`})`;
+        expect(`${file}: ${source.includes(reader) ? reader : "MISSING"}`).toBe(
+          `${file}: ${reader}`,
+        );
+      }
+      for (const { cssVar, defaultValue, fallback } of Object.values(numbers)) {
+        const reader = `var(${cssVar},${fallback ?? defaultValue})`;
+        expect(`${file}: ${source.includes(reader) ? reader : "MISSING"}`).toBe(
+          `${file}: ${reader}`,
+        );
+      }
+    }
+    // The light-mode callout corner rule reads the same token first.
+    expect(calloutSource).toContain("border-radius:var(--docs-callout-radius,4px) !important");
+  });
+
+  it("drops the hardcoded utilities the tokens replaced", () => {
+    // A literal left beside its token would shadow the knob. Comments are
+    // stripped first: they name the old utilities on purpose.
+    const code = (source: string) => source.replace(/\/\*[\s\S]*?\*\//g, "");
+    const absent = (source: string, literals: string[]) =>
+      literals.filter((literal) => code(source).includes(literal));
+
+    expect(
+      absent(blockClasses, [
+        '"my-3 ',
+        "mt-6 mb-3",
+        "font-semibold",
+        "text-foreground",
+        '"my-1 flex',
+        "my-4 border-l-2",
+        "border-l-2",
+        "pl-3",
+      ]),
+    ).toEqual([]);
+    expect(absent(CONSUMERS.divider, ["my-6"])).toEqual([]);
+    for (const source of [CONSUMERS.image, CONSUMERS.video]) {
+      expect(
+        absent(source, ["not-prose my-4", "mt-1 text-xs", "rounded-md border border-["]),
+      ).toEqual([]);
+    }
+    expect(
+      absent(calloutSource, [
+        "not-prose my-4",
+        "rounded-lg",
+        "px-4 py-3",
+        "h-4 w-4",
+        "text-sm font-bold",
+        "border-radius:4px !important",
+      ]),
+    ).toEqual([]);
+  });
+
+  it("keeps the workbench's unlayered prose rules on the same tokens", () => {
+    // index.css rules sit outside every cascade layer, so they beat the
+    // block utilities: a property they set must read the block's token.
+    expect(indexCss).toContain("background: var(--docs-quote-bg);");
+    expect(indexCss).toContain("border-color: var(--docs-quote-border);");
+    expect(indexCss).toContain("color: var(--docs-quote-fg);");
+    expect(indexCss).not.toContain("background: var(--docs-viewer-callout-fill)");
+    expect(indexCss).toContain("color: var(--docs-paragraph-fg);");
+    expect(indexCss).toContain("color: var(--docs-heading-fg);");
+    expect(indexCss).toContain("color: var(--docs-list-item-fg);");
+    expect(indexCss).toContain("color: var(--docs-callout-fg);");
+    // Typography's `h2 + *` margin reset, restated for the edit surface now
+    // that the blocks' margin-top utilities out-order it.
+    expect(indexCss).toContain(
+      ".docs-editor-prosemirror :where(h2, h3, h4) + :where(p, blockquote, li) {\n  margin-top: 0;\n}",
+    );
+  });
+
+  it("writes margins as margin-top/-bottom utilities so they out-order Typography", () => {
+    // Tailwind emits `my-*` (margin-block) BEFORE the Typography plugin's
+    // rules and `mt-*`/`mb-*` AFTER them; only the longhand pair lets a
+    // spacing knob win on a `prose` host. The `not-prose` figures and the
+    // callout are exempt from Typography, so `my-[…]` is fine there.
+    for (const cssVar of [
+      "--docs-paragraph-spacing",
+      "--docs-quote-spacing",
+      "--docs-list-item-gap",
+      "--docs-heading-margin-top",
+      "--docs-heading-margin-bottom",
+    ]) {
+      expect(blockClasses).not.toMatch(new RegExp(`my-\\[[^\\]]*${cssVar}`));
+    }
+    expect(CONSUMERS.divider).not.toMatch(/my-\[[^\]]*--docs-divider-spacing/);
+    expect(blockClasses).toContain("mt-[calc(var(--docs-paragraph-spacing,0.6666667)*1em)]");
+    expect(blockClasses).toContain("mb-[calc(var(--docs-paragraph-spacing,0.6666667)*1em)]");
+    expect(blockClasses).toContain("mt-[calc(var(--docs-quote-spacing,0.8888889)*1em)]");
+    expect(blockClasses).toContain("mb-[calc(var(--docs-quote-spacing,0.8888889)*1em)]");
+    expect(blockClasses).toContain("mt-[var(--docs-list-item-gap,4px)]");
+    expect(blockClasses).toContain("mb-[var(--docs-list-item-gap,4px)]");
+    expect(CONSUMERS.divider).toContain("mt-[calc(var(--docs-divider-spacing,1.3333333)*1em)]");
+    expect(CONSUMERS.divider).toContain("mb-[calc(var(--docs-divider-spacing,1.3333333)*1em)]");
+  });
+
+  it("normalizes and applies rich-text overrides onto their CSS vars", () => {
+    const settings = normalizeSettings({
+      components: {
+        paragraph: { fg: "#AABBCC", spacing: "2", unknown: "1" },
+        heading: { weight: 800, marginTop: "40px", h1Size: "3", h2Size: "99" },
+        "list-item": { fg: "#112233", itemGap: "10px" },
+        quote: { bg: "#445566", borderWidth: "4px", indent: "20px", textScale: "1.5" },
+        callout: {
+          border: "#010203",
+          fill: "#040506",
+          fg: "#070809",
+          warningAccent: "#0A0B0C",
+          radius: "12px",
+          titleWeight: "500",
+          bodyTextScale: "0.8",
+        },
+        divider: { thickness: "3px", spacing: "1.5" },
+        image: { radius: "0px", captionTextSize: "14px" },
+        video: { borderWidth: "2px", margin: "32px" },
+      },
+    });
+
+    expect(settings.components).toEqual({
+      paragraph: { fg: "#aabbcc", spacing: "2" },
+      // h2Size 99 is out of range and dropped.
+      heading: { weight: "800", marginTop: "40px", h1Size: "3" },
+      "list-item": { fg: "#112233", itemGap: "10px" },
+      quote: { bg: "#445566", borderWidth: "4px", indent: "20px", textScale: "1.5" },
+      callout: {
+        border: "#010203",
+        fill: "#040506",
+        fg: "#070809",
+        warningAccent: "#0a0b0c",
+        radius: "12px",
+        titleWeight: "500",
+        bodyTextScale: "0.8",
+      },
+      divider: { thickness: "3px", spacing: "1.5" },
+      image: { radius: "0px", captionTextSize: "14px" },
+      video: { borderWidth: "2px", margin: "32px" },
+    });
+    expect(styleRailVars(settings)).toMatchObject({
+      "--docs-paragraph-fg": "#aabbcc",
+      "--docs-paragraph-spacing": "2",
+      "--docs-heading-weight": "800",
+      "--docs-heading-margin-top": "40px",
+      "--docs-heading-h1-size": "3",
+      "--docs-list-item-fg": "#112233",
+      "--docs-list-item-gap": "10px",
+      "--docs-quote-bg": "#445566",
+      "--docs-quote-border-width": "4px",
+      "--docs-quote-indent": "20px",
+      "--docs-quote-text-scale": "1.5",
+      "--docs-callout-border": "#010203",
+      "--docs-callout-body-bg": "#040506",
+      "--docs-callout-fg": "#070809",
+      "--docs-callout-warning-accent": "#0a0b0c",
+      "--docs-callout-radius": "12px",
+      "--docs-callout-title-weight": "500",
+      "--docs-callout-body-text-scale": "0.8",
+      "--docs-divider-thickness": "3px",
+      "--docs-divider-spacing": "1.5",
+      "--docs-image-radius": "0px",
+      "--docs-image-caption-text-size": "14px",
+      "--docs-video-border-width": "2px",
+      "--docs-video-margin": "32px",
+    });
+  });
+
+  it("removes every geometry override when its knob sits at the registry default", () => {
+    const components: Record<string, Record<string, string>> = {};
+    for (const [file, { lengths, numbers }] of Object.entries(BLOCKS)) {
+      components[file] = {};
+      for (const [key, { defaultValue }] of Object.entries(lengths)) {
+        components[file][key] = `${defaultValue}px`;
+      }
+      for (const [key, { defaultValue }] of Object.entries(numbers)) {
+        components[file][key] = String(defaultValue);
+      }
+    }
+    const settings = normalizeSettings({ components });
+    const vars = styleRailVars(settings);
+    for (const [file, { lengths, numbers }] of Object.entries(BLOCKS)) {
+      for (const [key, { cssVar }] of Object.entries({ ...lengths, ...numbers })) {
+        expect(`${cssVar}: ${vars[cssVar]}`).toBe(`${cssVar}: null`);
+        expect(isLeafOverridden(settings, componentLeaf(file, key))).toBe(false);
+      }
+    }
+  });
+
+  it("renders every rich-text pane's knobs with their sidebar labels", () => {
+    render(<RailHarness />);
+    for (const [file, { pane, lengths, numbers }] of Object.entries(BLOCKS)) {
+      openPane(pane);
+      for (const key of Object.keys(THEME_TOKEN_REGISTRY[file])) {
+        const label = LABELS[key];
+        expect(`${file}.${key}: ${label}`).not.toBe(`${file}.${key}: undefined`);
+        expect(`${file}.${key}: ${screen.queryAllByText(label).length > 0}`).toBe(
+          `${file}.${key}: true`,
+        );
+      }
+      // Every registry key has a human label: no raw camelCase key leaks.
+      const unlabelled = Object.keys(THEME_TOKEN_REGISTRY[file]).filter(
+        (key) => /[A-Z]/.test(key) && screen.queryByText(key) !== null,
+      );
+      expect(unlabelled).toEqual([]);
+      // Each slider starts at the registry default, inside its range.
+      for (const [key, { min, max, step, defaultValue }] of Object.entries({
+        ...lengths,
+        ...numbers,
+      })) {
+        const label = LABELS[key];
+        const slider = screen
+          .getAllByText(label)
+          .map((node) => node.closest("label")?.querySelector('input[type="range"]'))
+          .find((input): input is HTMLInputElement => Boolean(input));
+        expect(`${file}.${key}: ${slider ? "slider" : "MISSING"}`).toBe(`${file}.${key}: slider`);
+        expect(slider).toHaveProperty("min", String(min));
+        expect(slider).toHaveProperty("max", String(max));
+        expect(slider).toHaveProperty("step", String(step));
+        expect(
+          slider?.closest("label")?.textContent?.includes(
+            `${defaultValue}${key in lengths ? "px" : ""}`,
+          ),
+        ).toBe(true);
+      }
+    }
+  });
+
+  it("stores a moved rich-text slider with its unit and counts it on the block's pane", () => {
+    render(<RailHarness />);
+    openPane("Quote");
+    const slider = (label: string) =>
+      screen
+        .getAllByText(label)
+        .map((node) => node.closest("label")?.querySelector('input[type="range"]'))
+        .find((input): input is HTMLInputElement => Boolean(input)) as HTMLInputElement;
+
+    fireEvent.change(slider("Border width"), { target: { value: "4" } });
+    fireEvent.change(slider("Spacing (em)"), { target: { value: "2" } });
+
+    expect(JSON.parse(screen.getByTestId("component-settings").textContent ?? "null")).toEqual({
+      quote: { borderWidth: "4px", spacing: "2" },
+    });
+    expect(screen.getByRole("button", { name: "Quote, 2 overrides" })).toBeTruthy();
   });
 });
 

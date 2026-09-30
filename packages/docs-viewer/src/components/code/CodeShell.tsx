@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { Check, Copy } from "lucide-react";
 import { cn } from "../../ui/cn";
 import { useLinkTarget } from "../linked-panels";
@@ -49,6 +49,21 @@ import {
  * is marked contentEditable={false} when `nonEditableFurniture` is set (the
  * ProseMirror DOM observer treats unknown editable children as drift).
  */
+
+/**
+ * The code line height in px as currently themed: the computed
+ * --docs-code-line-height on the scroll body, else the default. Only JS that
+ * needs a number (scroll-into-view) uses this — all painted geometry stays in
+ * CSS calc() over the var.
+ */
+function resolveLineHeightPx(element: HTMLElement): number {
+  const raw =
+    typeof getComputedStyle === "function"
+      ? getComputedStyle(element).getPropertyValue("--docs-code-line-height")
+      : "";
+  const parsed = Number.parseFloat(raw);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : CODE_LINE_HEIGHT_PX;
+}
 
 /** Ghost copy button: clipboard write with a 1.5s "Copied" confirmation. No-op where the Clipboard API is unavailable (e.g. happy-dom). */
 export function CodeCopyButton({ copyText }: { copyText: () => string }) {
@@ -177,7 +192,7 @@ function CodeNoteRow({
 /**
  * Notes aside: right column at lg, stacked below at narrow widths. Opens
  * with its own header cell — the NOTES label styled exactly like the
- * language label, same h-7 height and bottom rule as the code header so the
+ * language label, same header-height token and bottom rule as the code header so the
  * rule reads as one continuous line across the block (crossed by the column
  * divider). Notes are prose rows (system rule R4): plain text at rest with a
  * hairline rule BETWEEN items, never zebra. Each opens with its L#–# range
@@ -277,7 +292,7 @@ export function CodeShell({
     const body = scrollRef.current;
     const run = runs.find((candidate) => candidate.annotationIndex === activeIndex);
     if (!body || !run) return;
-    body.scrollTop = Math.max(0, (run.start - 1) * CODE_LINE_HEIGHT_PX - 8);
+    body.scrollTop = Math.max(0, (run.start - 1) * resolveLineHeightPx(body) - 8);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- runs is derived per render; activeIndex is the trigger
   }, [activeIndex]);
 
@@ -305,10 +320,15 @@ export function CodeShell({
                   data-code-annotation-row={run.annotationIndex}
                   data-active={isActive || undefined}
                   data-lit={isLit || undefined}
-                  style={{
-                    top: (run.start - 1) * CODE_LINE_HEIGHT_PX,
-                    height: run.length * CODE_LINE_HEIGHT_PX,
-                  }}
+                  // The run as unitless vars; CODE_ANNOTATION_ROW_CLASSES
+                  // multiplies them by the line-height token, so the overlay
+                  // tracks the knob with the rows and the zebra.
+                  style={
+                    {
+                      "--docs-code-row-start": run.start - 1,
+                      "--docs-code-row-span": run.length,
+                    } as CSSProperties
+                  }
                   className={cn(
                     CODE_ANNOTATION_ROW_CLASSES,
                     isLit && CODE_ANNOTATION_ROW_LIT_CLASSES,

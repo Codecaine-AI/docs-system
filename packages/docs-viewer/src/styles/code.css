@@ -68,6 +68,17 @@
   color: var(--syntax-boolean, var(--color-text-orange, #d9730d));
 }
 
+/* null / None / nil carry an extra hljs-null class (components/code/
+   highlight.ts markNullLiterals) so the --syntax-null token reaches code
+   blocks too, not just the state-shape example pane. Must stay AFTER the
+   literal rule above: the read surface nests the JSON keyword span inside
+   the literal, the editor paints one span carrying every class, and both
+   resolve to this rule by source order at equal specificity. */
+.hljs-null,
+.hljs-null .hljs-keyword {
+  color: var(--syntax-null, var(--color-text-red, #d44c47));
+}
+
 /* Interpolated code inside template strings is code again, not string. */
 .hljs-subst {
   color: var(--docs-text-secondary, var(--color-text-default, inherit));

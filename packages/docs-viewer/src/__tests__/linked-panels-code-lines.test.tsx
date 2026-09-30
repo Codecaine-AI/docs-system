@@ -30,15 +30,55 @@ function gutter(container: HTMLElement, n: number): HTMLElement {
 }
 
 describe("CodeLines", () => {
-  it("keeps the load-bearing 20px line metric", () => {
+  it("keeps ONE line metric: rows, leading and the filler all read the line-height token (20px default)", () => {
     expect(CODE_LINE_HEIGHT_PX).toBe(20);
     const { container } = render(<CodeLines lines={LINES} />);
     const row = line(container, 1);
-    expect(row.className).toContain("h-5");
-    expect(row.className).toContain("leading-[20px]");
+    expect(row.className).toContain("h-[var(--docs-link-line-height,20px)]");
+    expect(row.className).toContain("leading-[var(--docs-link-line-height,20px)]");
     const body = row.parentElement as HTMLElement;
     expect(body.className).toContain("font-mono");
-    expect(body.className).toContain("leading-[20px]");
+    expect(body.className).toContain("leading-[var(--docs-link-line-height,20px)]");
+    expect(gutter(container, 1).className).toContain(
+      "leading-[var(--docs-link-line-height,20px)]",
+    );
+    // No hardcoded 20px line box survives next to the token.
+    for (const el of [row, body, gutter(container, 1)]) {
+      expect(el.className).not.toContain("h-5");
+      expect(el.className).not.toContain("leading-[20px]");
+    }
+  });
+
+  it("reads the panel typography and gutter metrics from the linking tokens", () => {
+    const { container } = render(<CodeLines lines={LINES} />);
+    const body = line(container, 1).parentElement as HTMLElement;
+    expect(body.className).toContain("text-[length:var(--docs-link-text-size,12px)]");
+    const cell = gutter(container, 1);
+    expect(cell.className).toContain("w-[var(--docs-link-gutter-width,44px)]");
+    expect(cell.className).toContain("text-[length:var(--docs-link-gutter-text-size,11px)]");
+    // The filler's gutter rule shares the gutter cell's width token, so the
+    // hairline stays unbroken at any width.
+    const filler = container.querySelector("[data-code-lines-filler]") as HTMLElement;
+    const rule = filler.firstElementChild as HTMLElement;
+    expect(rule.className).toContain("w-[var(--docs-link-gutter-width,44px)]");
+  });
+
+  it("continues the zebra rhythm through the filler at the line-height token's period", () => {
+    // 6 lines -> the first filler band is line 7 (odd): it starts clear.
+    const six = render(<CodeLines lines={LINES} />);
+    const odd = six.container.querySelector("[data-code-lines-filler]") as HTMLElement;
+    expect(odd.getAttribute("data-filler-parity")).toBe("odd");
+    expect(odd.className).toContain("repeating-linear-gradient(to_bottom,transparent_0px");
+    expect(odd.className).toContain("--docs-zebra");
+    expect(odd.className).toContain("calc(var(--docs-link-line-height,20px)*2)");
+    six.unmount();
+
+    // 5 lines -> the first filler band is line 6 (even): it starts tinted.
+    const five = render(<CodeLines lines={LINES.slice(0, 5)} />);
+    const even = five.container.querySelector("[data-code-lines-filler]") as HTMLElement;
+    expect(even.getAttribute("data-filler-parity")).toBe("even");
+    expect(even.className).toContain("repeating-linear-gradient(to_bottom,var(--docs-zebra");
+    expect(even.className).toContain("calc(var(--docs-link-line-height,20px)*2)");
   });
 
   it("numbers lines locally from 1 per panel instance (R1)", () => {
@@ -111,7 +151,7 @@ describe("CodeLines", () => {
     expect(line(container, 2).hasAttribute("data-lit")).toBe(false);
     // Lit line: wash + inset rail replace the zebra (hover overrides both).
     expect(line(container, 3).className).toContain("--docs-link-bg");
-    expect(line(container, 3).className).toContain("inset_3px_0_0_var(--docs-link-pin");
+    expect(line(container, 3).className).toContain("inset_var(--docs-link-rail-width,3px)_0_0_var(--docs-link-pin");
     // Line 4 (even) rests on zebra; when lit via its own key the wash wins.
     fireEvent.mouseLeave(getByTestId("note"));
     fireEvent.mouseEnter(line(container, 4));
@@ -147,7 +187,7 @@ describe("CodeLines", () => {
     fireEvent.click(line(container, 3));
     expect(line(container, 5).getAttribute("data-pinned")).toBe("true");
     expect(getByTestId("note").getAttribute("data-pinned")).toBe("true");
-    expect(line(container, 3).className).toContain("0_0_0_1.5px_var(--docs-link-pin");
+    expect(line(container, 3).className).toContain("0_0_0_var(--docs-link-ring-width,1.5px)_var(--docs-link-pin");
     fireEvent.keyDown(window, { key: "Escape" });
     expect(line(container, 5).hasAttribute("data-pinned")).toBe(false);
     expect(getByTestId("note").hasAttribute("data-pinned")).toBe(false);

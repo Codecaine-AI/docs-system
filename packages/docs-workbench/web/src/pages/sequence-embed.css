@@ -1,8 +1,32 @@
+/*
+ * Every tunable value rides a style-rail token (theme/theme-folders.ts
+ * "sequence") with the token's default as its literal fallback, so the embed
+ * renders the same where semantic.css is absent.
+ *
+ * The diagram colours are handed to the sequence package's own --seq-* vars
+ * here, on the two surfaces that host the SVG (inline preview, full-screen
+ * dialog). The fallbacks are the package's built-in defaults, and a colour set
+ * in a diagram's own style section is written on the <svg> itself, so it still
+ * wins. Actor border follows the line colour and note fill follows the actor
+ * fill, mirroring the package's fallback chain.
+ */
+.docs-sequence-preview,
+.docs-sequence-dialog {
+  --seq-bg: var(--docs-sequence-diagram-bg, #ffffff);
+  --seq-text: var(--docs-sequence-diagram-text, #252525);
+  --seq-accent: var(--docs-sequence-line, #c77d2e);
+  --seq-participant-fill: var(--docs-sequence-actor-fill, #fff8f0);
+  --seq-participant-stroke: var(--docs-sequence-actor-border, var(--docs-sequence-line, #c77d2e));
+  --seq-note-fill: var(--docs-sequence-note-bg, var(--docs-sequence-actor-fill, #fff8f0));
+  --seq-fragment-accent: var(--docs-sequence-fragment, #5b7fbd);
+}
+
 .docs-sequence-preview {
   min-width: 0;
   overflow: hidden;
-  border: 1px solid var(--docs-sequence-border, var(--border));
-  border-radius: 0.5rem;
+  border: var(--docs-sequence-border-width, 1px) solid var(--docs-sequence-border, var(--border));
+  border-radius: var(--docs-sequence-radius, 8px);
+  background: var(--docs-sequence-bg, transparent);
 }
 
 .docs-sequence-preview-button {
@@ -11,7 +35,7 @@
   align-items: center;
   gap: 0.5rem;
   width: 100%;
-  padding: 0.75rem;
+  padding: var(--docs-sequence-padding, 12px);
   cursor: zoom-in;
 }
 
@@ -19,7 +43,7 @@
 .docs-sequence-preview-button > svg.sequence-diagram {
   width: 100%;
   height: auto;
-  max-height: min(420px, 55vh);
+  max-height: min(var(--docs-sequence-max-height, 420px), 55vh);
 }
 
 .docs-sequence-expand {
@@ -27,7 +51,8 @@
   align-items: center;
   gap: 0.375rem;
   align-self: flex-end;
-  font-size: 0.75rem;
+  color: var(--docs-sequence-expand-fg, currentColor);
+  font-size: var(--docs-sequence-expand-text-size, 12px);
 }
 
 .docs-sequence-preview-button:focus-visible {

@@ -11,6 +11,7 @@ import {
   TABLE_HEAD_CLASSES,
   TABLE_HEADER_CELL_TEXT_CLASSES,
   TABLE_ROW_HOVER_CLASSES,
+  TABLE_ROW_MIN_HEIGHT_CLASS,
   TABLE_ROW_RULE_CLASSES,
   TABLE_SECTION_CLASSES,
   TABLE_TITLE_CLASSES,
@@ -73,6 +74,7 @@ export function StructuredTableBlock({
                 key={`${id}-row-${rowIndex}`}
                 className={cn(
                   TABLE_ROW_HOVER_CLASSES,
+                  TABLE_ROW_MIN_HEIGHT_CLASS,
                   rowIndex !== rows.length - 1 && TABLE_ROW_RULE_CLASSES,
                 )}
               >

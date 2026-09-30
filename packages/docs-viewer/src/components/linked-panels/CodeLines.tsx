@@ -5,6 +5,10 @@ import { cn } from "../../ui/cn";
 import { useLinkTarget } from "./LinkGroup";
 import {
   CODE_LINES_BODY_CLASSES,
+  CODE_LINES_FILLER_CLASSES,
+  CODE_LINES_FILLER_EVEN_CLASSES,
+  CODE_LINES_FILLER_ODD_CLASSES,
+  CODE_LINES_FILLER_RULE_CLASSES,
   CODE_LINES_PANEL_CLASSES,
   CODE_LINE_GUTTER_CLASSES,
   CODE_LINE_GUTTER_LIT_CLASSES,
@@ -17,8 +21,9 @@ import {
  * Line-numbered code panel (system rule R1: line numbers on EVERY code
  * panel; numbering is local — it starts at 1 per panel instance).
  *
- * Per-line divs at EXACTLY the 20px line metric (CODE_LINE_HEIGHT_PX):
- * mono, right-aligned local numbers in a gutter behind a hairline rule,
+ * Per-line divs at EXACTLY the line-height token (--docs-link-line-height,
+ * 20px by default): mono, right-aligned local numbers in a gutter behind a
+ * hairline rule,
  * zebra tint on even lines (R4), literal whitespace with horizontal
  * scroll — soft wrap is off. Lines with a `linkKey` join the enclosing
  * LinkGroup: lit lines take the wash + gutter rail, their number turns
@@ -33,9 +38,6 @@ export type LinkedCodeLine = {
   linkKey?: string | readonly string[];
 };
 
-/** The zebra stripe color, matching CODE_LINE_ZEBRA_CLASSES exactly. */
-const ZEBRA_COLOR = "var(--docs-zebra, color-mix(in srgb, var(--muted) 20%, transparent))";
-
 export function CodeLines({
   lines,
   className,
@@ -44,11 +46,8 @@ export function CodeLines({
   lines: readonly LinkedCodeLine[];
 }) {
   // Filler bands continue the zebra rhythm past the last line: the first
-  // 20px band is line lines.length+1, so its tint follows that parity.
+  // one-line band is line lines.length+1, so its tint follows that parity.
   const nextLineEven = (lines.length + 1) % 2 === 0;
-  const fillerBands = nextLineEven
-    ? `repeating-linear-gradient(to bottom, ${ZEBRA_COLOR} 0px, ${ZEBRA_COLOR} 20px, transparent 20px, transparent 40px)`
-    : `repeating-linear-gradient(to bottom, transparent 0px, transparent 20px, ${ZEBRA_COLOR} 20px, ${ZEBRA_COLOR} 40px)`;
   return (
     <div {...rest} data-code-lines="true" className={cn(CODE_LINES_PANEL_CLASSES, className)}>
       <div className={CODE_LINES_BODY_CLASSES}>
@@ -63,10 +62,13 @@ export function CodeLines({
       <div
         aria-hidden
         data-code-lines-filler="true"
-        className="relative min-h-3 flex-1"
-        style={{ backgroundImage: fillerBands }}
+        data-filler-parity={nextLineEven ? "even" : "odd"}
+        className={cn(
+          CODE_LINES_FILLER_CLASSES,
+          nextLineEven ? CODE_LINES_FILLER_EVEN_CLASSES : CODE_LINES_FILLER_ODD_CLASSES,
+        )}
       >
-        <span className="absolute inset-y-0 left-0 w-11 border-r border-solid border-[color:var(--docs-code-rule,var(--border))]" />
+        <span className={CODE_LINES_FILLER_RULE_CLASSES} />
       </div>
     </div>
   );
