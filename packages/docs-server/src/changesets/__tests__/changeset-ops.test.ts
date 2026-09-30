@@ -54,14 +54,7 @@ function auditCleanDocument(path: string): DocDocument {
     title: path,
     root: "root",
     blocks: {
-      root: { id: "root", type: "paragraph", props: {}, children: ["h1", "p1"] },
-      h1: {
-        id: "h1",
-        type: "heading",
-        props: { level: 1 },
-        text: [{ insert: path }],
-        children: [],
-      },
+      root: { id: "root", type: "paragraph", props: {}, children: ["p1"] },
       p1: {
         id: "p1",
         type: "paragraph",
