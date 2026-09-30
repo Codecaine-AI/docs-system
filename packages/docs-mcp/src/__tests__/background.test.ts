@@ -60,6 +60,8 @@ test('central routes preserve the project for API requests and normalize the doc
   expect(projectRoute('/projects/b/docs/api/ops')).toEqual({ id: 'b', apiPath: '/projects/b/api/ops' });
   expect(projectRoute('/projects/a/docs')).toEqual({ id: 'a', redirect: '/projects/a/docs/' });
   expect(projectRoute('/projects/a/docs/')).toEqual({ id: 'a' });
+  expect(projectRoute('/projects/a/docs/90-new-features/10-page')).toEqual({ id: 'a', redirect: '/projects/a/docs/#/90-new-features/10-page' });
+  expect(projectRoute('/projects/a/docs/section/')).toEqual({ id: 'a', redirect: '/projects/a/docs/#/section' });
   expect(projectRoute('/projects/%2e%2e/docs/api/tree')).toBeNull();
   expect(projectRoute('/other')).toBeNull();
 });

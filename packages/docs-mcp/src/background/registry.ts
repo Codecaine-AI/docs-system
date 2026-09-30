@@ -28,7 +28,10 @@ export function projectRoute(pathname: string): { id: string; apiPath?: string; 
   const match = pathname.match(/^\/projects\/([a-z0-9-]+)\/docs(\/.*)?$/);
   if (!match) return null;
   if (!match[2]) return { id: match[1]!, redirect: `${pathname}/` };
-  return { id: match[1]!, ...(match[2].startsWith('/api/') ? { apiPath: `/projects/${match[1]}/api/${match[2].slice(5)}` } : {}) };
+  if (match[2].startsWith('/api/')) return { id: match[1]!, apiPath: `/projects/${match[1]}/api/${match[2].slice(5)}` };
+  // The workbench routes pages by hash; a path-style page URL would resolve its relative API calls under the page path.
+  const page = match[2].replace(/^\/+|\/+$/g, '');
+  return page ? { id: match[1]!, redirect: `/projects/${match[1]}/docs/#/${page}` } : { id: match[1]! };
 }
 export function localBrowserRequest(request: Request): boolean {
   const url = new URL(request.url);
