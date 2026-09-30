@@ -268,6 +268,12 @@
    heading text var — bold text is not a heading block. */
 .docs-markdown :where(h1, h2, h3, h4, h5, h6) {
   font-family: var(--font-tx02), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Headings inside a state-shape or interaction-surface card are the card's
+   own header, not a heading block: this unlayered rule would beat their
+   utility classes and leave the card's header-text color token dead. */
+.docs-markdown :where(h1, h2, h3, h4, h5, h6):not(:where([data-docs-block-type="state-shape"] *, [data-docs-block-type="interaction-surface"] *)) {
   color: var(--docs-heading-fg);
 }
 
@@ -291,15 +297,15 @@
    reach the text. Re-assert the knobs at the block level; the fallbacks equal
    the utilities' own fallbacks, so this is a no-op until a knob moves.
 
-   Structured-table descendants are EXEMPT (here and in the two color rules
-   below). These rules sit outside any cascade layer, so they beat Tailwind's
-   `@layer utilities` no matter the specificity: left in, they pinned every
-   table cell to the prose size/leading/color and the table's own
+   Structured-table, state-shape and interaction-surface descendants are
+   EXEMPT (here and in the color rules below). These rules sit outside any
+   cascade layer, so they beat Tailwind's `@layer utilities` no matter the
+   specificity: left in, they pinned every table cell to the prose size/leading/color and the table's own
    --docs-table-* type tokens (font size, header size, line height, header
    text color in edit mode, where a cell hosts a <p>) did nothing. Exempt
    cells inherit letter-spacing from `.docs-markdown.prose`, so that knob
    still reaches them. */
-.docs-markdown :where(p, li, td, th, dd, dt, blockquote):not(:where([data-docs-block-type="structured-table"] *)) {
+.docs-markdown :where(p, li, td, th, dd, dt, blockquote):not(:where([data-docs-block-type="structured-table"] *, [data-docs-block-type="state-shape"] *, [data-docs-block-type="interaction-surface"] *)) {
   font-size: var(--style-font-size, 18px);
   line-height: var(--style-line-height, 1.45);
   letter-spacing: var(--style-letter-spacing, 0em);
@@ -312,11 +318,11 @@
 /* Paragraph text follows the per-block-type token (--docs-paragraph-fg
    defaults to the body text var in theme/semantic.css); list items and
    table cells stay on the shared body var — they have their own tokens. */
-.docs-markdown :where(p):not(:where([data-docs-block-type="structured-table"] *)) {
+.docs-markdown :where(p):not(:where([data-docs-block-type="structured-table"] *, [data-docs-block-type="state-shape"] *, [data-docs-block-type="interaction-surface"] *)) {
   color: var(--docs-paragraph-fg);
 }
 
-.docs-markdown :where(li, td):not(:where([data-docs-block-type="structured-table"] *)) {
+.docs-markdown :where(li, td):not(:where([data-docs-block-type="structured-table"] *, [data-docs-block-type="state-shape"] *, [data-docs-block-type="interaction-surface"] *)) {
   color: var(--docs-viewer-text-body);
 }
 
@@ -325,7 +331,7 @@
    body var (the read surface renders a div, which the LIST_ITEM_CLASSES
    color utility reaches directly). --docs-list-item-fg defaults to the body
    text var in theme/semantic.css, so this is a no-op until the knob moves. */
-.docs-markdown :where(li):not(:where([data-docs-block-type="structured-table"] *)) {
+.docs-markdown :where(li):not(:where([data-docs-block-type="structured-table"] *, [data-docs-block-type="state-shape"] *, [data-docs-block-type="interaction-surface"] *)) {
   color: var(--docs-list-item-fg);
 }
 
@@ -382,7 +388,7 @@
 /* Quote text size: the reading-size rule above pins every blockquote, so the
    quote's text scale (1 by default) has to be restated on top of it. Same
    structured-table exemption as that rule, for the same reason. */
-.docs-markdown :where(blockquote):not(:where([data-docs-block-type="structured-table"] *)) {
+.docs-markdown :where(blockquote):not(:where([data-docs-block-type="structured-table"] *, [data-docs-block-type="state-shape"] *, [data-docs-block-type="interaction-surface"] *)) {
   font-size: calc(var(--style-font-size, 18px) * var(--docs-quote-text-scale, 1));
 }
 

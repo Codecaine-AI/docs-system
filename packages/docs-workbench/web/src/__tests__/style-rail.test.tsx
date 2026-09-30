@@ -2099,7 +2099,10 @@ describe("style rail structured-table tokens", () => {
     // specificity. Without this exemption the table's font size, header size,
     // line height and (in edit mode, where a cell hosts a <p>) text colors
     // are dead knobs: cells render at the prose size instead.
-    const exempt = ':not(:where([data-docs-block-type="structured-table"] *))';
+    // State-shape and interaction-surface share the exemption: their header
+    // <h3> and operation-description <p> hit the same unlayered rules.
+    const exempt =
+      ':not(:where([data-docs-block-type="structured-table"] *, [data-docs-block-type="state-shape"] *, [data-docs-block-type="interaction-surface"] *))';
     expect(indexCss).toContain(
       `.docs-markdown :where(p, li, td, th, dd, dt, blockquote)${exempt} {\n  font-size: var(--style-font-size, 18px);`,
     );
