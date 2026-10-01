@@ -12,7 +12,9 @@ import { cn } from "@codecaine-ai/docs-viewer/ui/cn";
  * inert — the standalone viewer renders doc.json bundles only.
  *
  * Every branch starts collapsed except the ancestors of the open doc, so a
- * fresh load shows just the path to where you are.
+ * fresh load shows just the path to where you are. Double-clicking a row
+ * tidies the tree the same way around that row: everything collapses except
+ * its ancestors and the row itself.
  */
 
 function containsPath(node: DocsTreeNode, path: string | null): boolean {
@@ -21,14 +23,21 @@ function containsPath(node: DocsTreeNode, path: string | null): boolean {
   return node.children?.some((child) => containsPath(child, path)) ?? false;
 }
 
+/** `seq` makes a repeat double-click on the same row re-apply the tidy. */
+type TreeFocus = { path: string; seq: number };
+
 function TreeNode({
   node,
   depth,
   selectedPath,
+  focus,
+  onFocus,
 }: {
   node: DocsTreeNode;
   depth: number;
   selectedPath: string | null;
+  focus: TreeFocus | null;
+  onFocus: (path: string) => void;
 }) {
   const [open, setOpen] = useState(() => containsPath(node, selectedPath));
   // Navigating to a doc inside a collapsed branch reveals it; branches the
@@ -36,6 +45,12 @@ function TreeNode({
   useEffect(() => {
     if (containsPath(node, selectedPath)) setOpen(true);
   }, [node, selectedPath]);
+  // Keyed on focus alone so a refetched tree never re-collapses the reader's
+  // later expansions.
+  useEffect(() => {
+    if (focus) setOpen(containsPath(node, focus.path));
+  }, [focus]); // eslint-disable-line react-hooks/exhaustive-deps
+  const focusHere = () => onFocus(node.path);
   const rowStyle = {
     paddingLeft: `${depth * 12 + 8}px`,
     paddingTop: "var(--docs-sidebar-item-py, 4px)",
@@ -49,9 +64,10 @@ function TreeNode({
           type="button"
           style={rowStyle}
           onClick={() => setOpen((prev) => !prev)}
+          onDoubleClick={focusHere}
           data-docs-tree-kind="dir"
           data-docs-tree-path={node.path}
-          className="flex w-full items-center gap-1 pr-2 text-left hover:bg-muted/50"
+          className="flex w-full select-none items-center gap-1 pr-2 text-left hover:bg-muted/50"
           aria-expanded={open}
         >
           {open ? (
@@ -84,6 +100,8 @@ function TreeNode({
                 node={child}
                 depth={depth + 1}
                 selectedPath={selectedPath}
+                focus={focus}
+                onFocus={onFocus}
               />
             ))}
           </div>
@@ -99,10 +117,11 @@ function TreeNode({
       <div>
         <div
           className={cn(
-            "flex w-full items-center gap-1 pr-2 hover:bg-muted/50",
+            "flex w-full select-none items-center gap-1 pr-2 hover:bg-muted/50",
             isSelected && "bg-muted font-medium",
           )}
           style={rowStyle}
+          onDoubleClick={focusHere}
         >
           {hasChildren ? (
             <button
@@ -153,6 +172,8 @@ function TreeNode({
                 node={child}
                 depth={depth + 1}
                 selectedPath={selectedPath}
+                focus={focus}
+                onFocus={onFocus}
               />
             ))}
           </div>
@@ -166,7 +187,8 @@ function TreeNode({
       style={rowStyle}
       data-docs-tree-kind="file"
       data-docs-tree-path={node.path}
-      className="flex items-center gap-1 truncate pr-2 opacity-60"
+      onDoubleClick={focusHere}
+      className="flex select-none items-center gap-1 truncate pr-2 opacity-60"
       title={`${node.path} (legacy markdown file — not renderable standalone)`}
     >
       <span className="w-3 shrink-0" />
@@ -183,6 +205,8 @@ export function Sidebar({
   tree: DocsTreeNode[];
   selectedPath: string | null;
 }) {
+  const [focus, setFocus] = useState<TreeFocus | null>(null);
+  const onFocus = (path: string) => setFocus((prev) => ({ path, seq: (prev?.seq ?? 0) + 1 }));
   return (
     <nav
       className="flex h-full min-h-0 flex-col overflow-y-auto py-2 pr-1"
@@ -194,7 +218,14 @@ export function Sidebar({
       }}
     >
       {tree.map((node) => (
-        <TreeNode key={node.path} node={node} depth={0} selectedPath={selectedPath} />
+        <TreeNode
+          key={node.path}
+          node={node}
+          depth={0}
+          selectedPath={selectedPath}
+          focus={focus}
+          onFocus={onFocus}
+        />
       ))}
     </nav>
   );

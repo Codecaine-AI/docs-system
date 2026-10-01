@@ -1,13 +1,13 @@
 import { afterEach, describe, expect, it } from "bun:test";
-import { cleanup, render } from "@testing-library/react";
+import { cleanup, fireEvent, render } from "@testing-library/react";
 import type { DocsTreeNode } from "@codecaine-ai/docs-viewer/client";
 
 import { Sidebar } from "../shell/Sidebar";
 
 /**
  * Sidebar expansion: a fresh load collapses every branch except the
- * ancestors of the open doc, and navigating into a collapsed branch
- * reveals it.
+ * ancestors of the open doc, navigating into a collapsed branch reveals it,
+ * and double-clicking a row collapses everything off that row's path.
  */
 
 const tree: DocsTreeNode[] = [
@@ -31,6 +31,10 @@ const tree: DocsTreeNode[] = [
     ],
   },
 ];
+
+function row(container: HTMLElement, path: string): HTMLElement {
+  return container.querySelector(`[data-docs-tree-path="${path}"]`)!;
+}
 
 function expanded(container: HTMLElement, path: string): string | null {
   return container
@@ -61,5 +65,38 @@ describe("Sidebar", () => {
     expect(expanded(container, "reference")).toBe("true");
     expect(expanded(container, "reference/api")).toBe("true");
     expect(expanded(container, "guides")).toBe("true");
+  });
+
+  it("double-clicking a folder collapses everything off its path", () => {
+    const { container } = render(<Sidebar tree={tree} selectedPath="guides/intro" />);
+    fireEvent.click(row(container, "reference"));
+    fireEvent.click(row(container, "reference/api"));
+    expect(expanded(container, "guides")).toBe("true");
+
+    fireEvent.doubleClick(row(container, "reference"));
+    expect(expanded(container, "guides")).toBe("false");
+    expect(expanded(container, "reference")).toBe("true");
+    expect(expanded(container, "reference/api")).toBe("false");
+  });
+
+  it("double-clicking a doc keeps only its ancestors open", () => {
+    const { container } = render(<Sidebar tree={tree} selectedPath="reference/api/auth" />);
+    fireEvent.click(row(container, "guides"));
+
+    fireEvent.doubleClick(row(container, "reference/api/auth"));
+    expect(expanded(container, "guides")).toBe("false");
+    expect(expanded(container, "reference")).toBe("true");
+    expect(expanded(container, "reference/api")).toBe("true");
+  });
+
+  it("re-applies on a repeat double-click of the same row", () => {
+    const { container } = render(<Sidebar tree={tree} selectedPath={null} />);
+    fireEvent.click(row(container, "guides"));
+    fireEvent.doubleClick(row(container, "reference"));
+    fireEvent.click(row(container, "guides"));
+    expect(expanded(container, "guides")).toBe("true");
+
+    fireEvent.doubleClick(row(container, "reference"));
+    expect(expanded(container, "guides")).toBe("false");
   });
 });
