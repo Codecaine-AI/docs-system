@@ -33,6 +33,15 @@ export const CalloutState = Type.Object(
         Type.Literal("success"),
       ]),
     ),
+    /** Visual style; renderers treat a missing variant as "eyebrow". */
+    variant: Type.Optional(
+      Type.Union([
+        Type.Literal("eyebrow"),
+        Type.Literal("hairline"),
+        Type.Literal("rail"),
+        Type.Literal("tab"),
+      ]),
+    ),
     kind: Type.Optional(Type.String()),
     title: Type.Optional(Type.String()),
   },

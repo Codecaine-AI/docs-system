@@ -407,8 +407,17 @@
    this restates the same value, so the body keeps tracking the reading
    size. Must stay BELOW the `.docs-markdown.prose` rule: equal specificity. */
 [data-docs-block-type="callout"] [data-callout-body],
-[data-docs-block-type="callout"] [data-callout-body] :where(p, li, td, th, dd, dt, blockquote) {
+[data-docs-block-type="callout"] [data-callout-body] :where(p, li, td, th, dd, dt, blockquote),
+[data-docs-block-type="callout"] [data-callout-icon] {
   font-size: calc(var(--style-font-size, 18px) * var(--docs-callout-body-text-scale, 1));
+}
+
+/* The callout icon wrapper copies the body's text metrics (size above, the
+   reading line height inherited here) so its `1lh` height is one body line:
+   an untitled callout's icon then centers on the body's first line at any
+   reading size. */
+[data-docs-block-type="callout"] [data-callout-icon] {
+  line-height: inherit;
 }
 
 /* Quote fill, rule color and text color follow the quote tokens.

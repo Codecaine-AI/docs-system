@@ -1,6 +1,6 @@
 # Docs Authoring Guidance
 
-Generated from Codecaine Docs sources. Snapshot: `sha256:ec5a2032dd0e9822d89d1619feb39b5aad7fda867bcf6d1392991b580b70d7a3`. Refresh the installation to regenerate these files.
+Generated from Codecaine Docs sources. Snapshot: `sha256:8861c4126d96a4fe05b112560004f112939f8bd23bcfa3b72fb78f29bf846861`. Refresh the installation to regenerate these files.
 
 <docs_visual_components source="docs-model component manifests">
   Choose the visual that answers the reader's question. For a layered explanation, use Canvas for system connections, Process Outline for the expected execution trace, and Sequence for a detailed interaction. Link the views with consistent participant and phase names. Include only the views the explanation needs; do not repeat the same detail in all three.

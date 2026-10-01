@@ -11,6 +11,7 @@ export function CalloutEditorNodeView({ node }: ReactNodeViewProps) {
   const data = {
     id: node.attrs.blockId ?? undefined,
     tone: typeof props.tone === "string" ? props.tone : "info",
+    variant: typeof props.variant === "string" ? props.variant : undefined,
     title: typeof props.title === "string" ? props.title : undefined,
     kind: typeof props.kind === "string" ? props.kind : undefined,
     // Empty editor nodes still need a contentDOM for typing their first character.

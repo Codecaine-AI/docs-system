@@ -225,7 +225,52 @@
       "props": {},
       "text": [
         {
-          "insert": "Toned, labeled admonition card."
+          "insert": "Toned admonition with a tone icon and optional title. "
+        },
+        {
+          "insert": "props.variant",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " picks "
+        },
+        {
+          "insert": "eyebrow",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " (default), "
+        },
+        {
+          "insert": "hairline",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "rail",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", or "
+        },
+        {
+          "insert": "tab",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []
@@ -489,7 +534,7 @@
       },
       "text": [
         {
-          "insert": "A callout carries a kind chip, a tone, and rich text."
+          "insert": "A callout carries a tone, an optional kind and style, and rich text."
         }
       ],
       "children": []

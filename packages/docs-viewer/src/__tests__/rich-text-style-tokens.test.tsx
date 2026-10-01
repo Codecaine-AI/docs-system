@@ -194,28 +194,19 @@ const ELEMENTS: Array<{ label: string; read: string; edit: string; tokens: strin
       "var(--docs-quote-text-scale,1)",
     ],
   },
+  // The callout's variant geometry (rail/hairline widths, padding, radius,
+  // tint) lives in its inline stylesheet, keyed on data-callout-variant; the
+  // class strings carry only the knobs every variant shares.
   {
     label: "callout frame",
     read: '[data-docs-block-type="callout"]',
     edit: '[data-docs-block-type="callout"]',
-    tokens: [
-      "var(--docs-callout-border,var(--docs-callout-accent))",
-      "var(--docs-callout-body-bg,var(--background))",
-      "var(--docs-callout-border-width,1px)",
-      "var(--docs-callout-radius,var(--radius,2px))",
-      "var(--docs-callout-margin,16px)",
-    ],
-  },
-  {
-    label: "callout header",
-    read: "[data-callout-header]",
-    edit: "[data-callout-header]",
-    tokens: ["var(--docs-callout-pad-x,16px)", "var(--docs-callout-header-pad-y,12px)"],
+    tokens: ["var(--docs-callout-margin,16px)"],
   },
   {
     label: "callout icon",
-    read: "[data-callout-header] svg",
-    edit: "[data-callout-header] svg",
+    read: "[data-callout-icon] svg",
+    edit: "[data-callout-icon] svg",
     tokens: ["var(--docs-callout-icon-size,16px)"],
   },
   {
@@ -228,12 +219,7 @@ const ELEMENTS: Array<{ label: string; read: string; edit: string; tokens: strin
     label: "callout body",
     read: "[data-callout-body]",
     edit: "[data-callout-body]",
-    tokens: [
-      "var(--docs-callout-pad-x,16px)",
-      "var(--docs-callout-body-pad-y,14px)",
-      "var(--docs-callout-body-text-scale,1)",
-      "var(--docs-callout-body-bg,var(--background))",
-    ],
+    tokens: ["var(--docs-callout-body-text-scale,1)"],
   },
   {
     label: "divider",
@@ -359,7 +345,7 @@ describe("rich-text style tokens", () => {
       .map((style) => style.textContent ?? "")
       .join("\n");
     for (const tone of ["info", "decision", "warning", "success"]) {
-      for (const part of ["accent", "header-bg", "header-fg"]) {
+      for (const part of ["accent", "tint", "title-fg"]) {
         expect(css).toContain(`var(--docs-callout-${tone}-${part}, #`);
         expect(css).not.toMatch(new RegExp(`--docs-callout-${tone}-${part}:\\s`));
       }
@@ -367,8 +353,6 @@ describe("rich-text style tokens", () => {
     expect(css).toContain("--docs-callout-text: var(--docs-callout-fg, #30343b);");
     expect(css).toContain("--docs-callout-text: var(--docs-callout-fg, #e4e7eb);");
     expect(css).not.toMatch(/--docs-callout-fg:\s/);
-    expect(css).not.toMatch(/--docs-callout-body-bg:\s/);
-    // The light-mode corner rule reads the radius token before its 4px.
-    expect(css).toContain("border-radius:var(--docs-callout-radius,var(--radius,2px)) !important");
+    expect(css).not.toMatch(/--docs-callout-border:\s/);
   });
 });

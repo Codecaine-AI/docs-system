@@ -628,31 +628,42 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
     },
   },
   // Callout (docs-viewer rich-text/CalloutDocsBlock — one renderer for both
-  // surfaces). `border` recolors the frame for every tone; it is undeclared
-  // in semantic.css, and unset the frame follows each tone's accent. `fill`
-  // is the body background, `fg` the body ink. Each tone carries its accent
-  // (icon, frame, header texture), header fill and header ink; risk renders
-  // with the warning palette. `radius` follows the global --radius in
-  // semantic.css (2px at stock). `bodyTextScale` multiplies the rail's
-  // reading size.
+  // surfaces, four variants: eyebrow, hairline, rail, tab). `border`
+  // recolors every variant's rule for every tone; it is undeclared in
+  // semantic.css, and unset the rule follows each tone's accent. `fg` is the
+  // body ink. Each tone carries its accent (icon, rail, rules), tint (the
+  // eyebrow and tab fill) and title ink; risk renders with the warning
+  // palette. `railWidth` drives the eyebrow and rail variants' rail,
+  // `hairlineWidth` the hairline divider and the tab's top rule. `padY` and
+  // `radius` shape the filled variants (eyebrow, tab); `radius` follows the
+  // global --radius in semantic.css (2px at stock). `bodyTextScale`
+  // multiplies the rail's reading size.
   callout: {
     border: color("--docs-callout-border"),
-    fill: color("--docs-callout-body-bg"),
     fg: color("--docs-callout-fg"),
     infoAccent: color("--docs-callout-info-accent"),
-    infoHeaderBg: color("--docs-callout-info-header-bg"),
-    infoHeaderFg: color("--docs-callout-info-header-fg"),
+    infoTint: color("--docs-callout-info-tint"),
+    infoTitleFg: color("--docs-callout-info-title-fg"),
     decisionAccent: color("--docs-callout-decision-accent"),
-    decisionHeaderBg: color("--docs-callout-decision-header-bg"),
-    decisionHeaderFg: color("--docs-callout-decision-header-fg"),
+    decisionTint: color("--docs-callout-decision-tint"),
+    decisionTitleFg: color("--docs-callout-decision-title-fg"),
     warningAccent: color("--docs-callout-warning-accent"),
-    warningHeaderBg: color("--docs-callout-warning-header-bg"),
-    warningHeaderFg: color("--docs-callout-warning-header-fg"),
+    warningTint: color("--docs-callout-warning-tint"),
+    warningTitleFg: color("--docs-callout-warning-title-fg"),
     successAccent: color("--docs-callout-success-accent"),
-    successHeaderBg: color("--docs-callout-success-header-bg"),
-    successHeaderFg: color("--docs-callout-success-header-fg"),
-    borderWidth: {
-      vars: ["--docs-callout-border-width"],
+    successTint: color("--docs-callout-success-tint"),
+    successTitleFg: color("--docs-callout-success-title-fg"),
+    railWidth: {
+      vars: ["--docs-callout-rail-width"],
+      kind: "length",
+      min: 0,
+      max: 8,
+      step: 0.5,
+      unit: "px",
+      defaultValue: 2,
+    },
+    hairlineWidth: {
+      vars: ["--docs-callout-hairline-width"],
       kind: "length",
       min: 0,
       max: 4,
@@ -678,23 +689,14 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       unit: "px",
       defaultValue: 16,
     },
-    headerPadY: {
-      vars: ["--docs-callout-header-pad-y"],
+    padY: {
+      vars: ["--docs-callout-pad-y"],
       kind: "length",
       min: 0,
       max: 32,
       step: 1,
       unit: "px",
       defaultValue: 12,
-    },
-    bodyPadY: {
-      vars: ["--docs-callout-body-pad-y"],
-      kind: "length",
-      min: 0,
-      max: 32,
-      step: 1,
-      unit: "px",
-      defaultValue: 14,
     },
     titleTextSize: {
       vars: ["--docs-callout-title-text-size"],
@@ -1335,15 +1337,6 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 900,
       step: 50,
       defaultValue: 700,
-    },
-    badgeTextSize: {
-      vars: ["--docs-interaction-badge-text-size"],
-      kind: "length",
-      min: 8,
-      max: 14,
-      step: 0.5,
-      unit: "px",
-      defaultValue: 10,
     },
     // Operation purpose paragraph; the size also drives parameter tooltips.
     descTextSize: {

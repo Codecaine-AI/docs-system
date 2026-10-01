@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "snapshotId": "sha256:ec5a2032dd0e9822d89d1619feb39b5aad7fda867bcf6d1392991b580b70d7a3",
+  "snapshotId": "sha256:8861c4126d96a4fe05b112560004f112939f8bd23bcfa3b72fb78f29bf846861",
   "sources": [
     {
       "path": "docs/10-system-design/10-doc-standards/10-structure/doc.json",
@@ -54,7 +54,7 @@
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/10-rich-text/doc.json",
-      "sha256": "eb9c636b5a270dea9c2864f766dfe43c553d455244610819462b4b828600906a",
+      "sha256": "ef9957bf329f5def42356735a4621a9cbb1dcd016e29cb67e7cd1eb8d7564e64",
       "kind": "component-doc"
     },
     {

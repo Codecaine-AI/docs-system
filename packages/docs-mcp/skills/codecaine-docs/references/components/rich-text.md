@@ -1,6 +1,6 @@
 # rich-text
 
-Generated from Codecaine Docs sources. Snapshot: `sha256:ec5a2032dd0e9822d89d1619feb39b5aad7fda867bcf6d1392991b580b70d7a3`. Refresh the installation to regenerate these files.
+Generated from Codecaine Docs sources. Snapshot: `sha256:8861c4126d96a4fe05b112560004f112939f8bd23bcfa3b72fb78f29bf846861`. Refresh the installation to regenerate these files.
 
 Use paragraphs for explanation, headings for hierarchy, lists for steps or parallel facts, quotes for attributed text, and callouts for a distinct note. Use images and video when the visual evidence matters. Use image-grid for ordered image comparisons: images contain src, heading?, alt?, caption?; columns is auto or 1 to 4. Rows grow with the image count. This component accepts images only, not text columns. Use html for a self-contained HTML/CSS diagram or interactive artifact; supply title and html props, inline styles and data assets. Scripts require allowScripts=true and stay in an opaque-origin sandbox with fetch and external subresources blocked. Use code for examples readers should read instead of execute. Use typed components for state, operations, tables, and diagrams.
 
@@ -30,7 +30,7 @@ When creating or revising a worked component example, show the relevant state sh
 
 - callout
 
-  - Toned, labeled admonition card.
+  - Toned admonition with a tone icon and optional title. `props.variant` picks `eyebrow` (default), `hairline`, `rail`, or `tab`.
 
 - divider
 
@@ -60,7 +60,7 @@ A paragraph carries **bold**, *italic*, ~~strike~~, and `code` marks, [an outbou
 
 > A quote sets prose off from the surrounding flow in plain delta text.
 
-> **Example** — A callout carries a kind chip, a tone, and rich text.
+> **Example** — A callout carries a tone, an optional kind and style, and rich text.
 
 ---
 

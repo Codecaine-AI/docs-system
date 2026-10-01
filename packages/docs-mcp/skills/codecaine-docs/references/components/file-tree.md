@@ -1,6 +1,6 @@
 # file-tree
 
-Generated from Codecaine Docs sources. Snapshot: `sha256:ec5a2032dd0e9822d89d1619feb39b5aad7fda867bcf6d1392991b580b70d7a3`. Refresh the installation to regenerate these files.
+Generated from Codecaine Docs sources. Snapshot: `sha256:8861c4126d96a4fe05b112560004f112939f8bd23bcfa3b72fb78f29bf846861`. Refresh the installation to regenerate these files.
 
 Use a File Tree to explain where files live and what each directory owns. Add notes or change markers when location or a migration is the subject.
 

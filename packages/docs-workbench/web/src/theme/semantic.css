@@ -196,27 +196,29 @@
   /* Callout (docs-viewer rich-text/CalloutDocsBlock). The tone palette and
      body ink are the approved design's literals — the same values the
      component falls back to — declared HERE so a theme or the style rail
-     can move them; the component only reads them. --docs-callout-border
-     (the frame color) is deliberately undeclared: unset, the frame follows
-     each tone's accent. */
+     can move them; the component only reads them. Each tone has an accent
+     (icon, rail, rules), a tint (eyebrow and tab fill: the accent at ~4.5%
+     over the page background) and a title ink. --docs-callout-border (the
+     rule color) is deliberately undeclared: unset, every variant's rule
+     follows the tone accent. rail-width drives the eyebrow and rail
+     variants' rail, hairline-width the hairline divider and tab top rule. */
   --docs-callout-fg: #30343b;
   --docs-callout-info-accent: #1683c7;
-  --docs-callout-info-header-bg: #e8f4fb;
-  --docs-callout-info-header-fg: #15384d;
+  --docs-callout-info-tint: #f1f5f6;
+  --docs-callout-info-title-fg: #15384d;
   --docs-callout-decision-accent: #7657a4;
-  --docs-callout-decision-header-bg: #f2eef8;
-  --docs-callout-decision-header-fg: #3f3158;
+  --docs-callout-decision-tint: #f5f3f4;
+  --docs-callout-decision-title-fg: #3f3158;
   --docs-callout-warning-accent: #a86608;
-  --docs-callout-warning-header-bg: #fbf2df;
-  --docs-callout-warning-header-fg: #553606;
+  --docs-callout-warning-tint: #f7f3ed;
+  --docs-callout-warning-title-fg: #553606;
   --docs-callout-success-accent: #287c55;
-  --docs-callout-success-header-bg: #eaf5ef;
-  --docs-callout-success-header-fg: #214d39;
-  --docs-callout-body-bg: var(--background);
-  --docs-callout-border-width: 1px;
+  --docs-callout-success-tint: #f2f4f1;
+  --docs-callout-success-title-fg: #214d39;
+  --docs-callout-rail-width: 2px;
+  --docs-callout-hairline-width: 1px;
   --docs-callout-pad-x: 16px;
-  --docs-callout-header-pad-y: 12px;
-  --docs-callout-body-pad-y: 14px;
+  --docs-callout-pad-y: 12px;
   --docs-callout-title-text-size: 14px;
   --docs-callout-title-weight: 700;
   --docs-callout-icon-size: 16px;
@@ -357,7 +359,6 @@
   --docs-interaction-header-pad-y: 16px;
   --docs-interaction-header-text-size: 14px;
   --docs-interaction-header-weight: 700;
-  --docs-interaction-badge-text-size: 10px;
   --docs-interaction-desc-text-size: 12px;
   --docs-interaction-desc-line-height: 20px;
   --docs-interaction-column-head-text-size: 10px;
@@ -769,22 +770,21 @@
   /* Callout, dark palette — same contract as the light block. */
   --docs-callout-fg: #e4e7eb;
   --docs-callout-info-accent: #69b9e8;
-  --docs-callout-info-header-bg: #182e3b;
-  --docs-callout-info-header-fg: #d9f1ff;
+  --docs-callout-info-tint: #323c42;
+  --docs-callout-info-title-fg: #d9f1ff;
   --docs-callout-decision-accent: #bda4df;
-  --docs-callout-decision-header-bg: #2c2538;
-  --docs-callout-decision-header-fg: #eee5fa;
+  --docs-callout-decision-tint: #383b41;
+  --docs-callout-decision-title-fg: #eee5fa;
   --docs-callout-warning-accent: #e6b35e;
-  --docs-callout-warning-header-bg: #352b1b;
-  --docs-callout-warning-header-fg: #fae5bb;
+  --docs-callout-warning-tint: #3a3c39;
+  --docs-callout-warning-title-fg: #fae5bb;
   --docs-callout-success-accent: #7bc9a2;
-  --docs-callout-success-header-bg: #1d3028;
-  --docs-callout-success-header-fg: #d9f4e5;
-  --docs-callout-body-bg: var(--background);
-  --docs-callout-border-width: 1px;
+  --docs-callout-success-tint: #343d3d;
+  --docs-callout-success-title-fg: #d9f4e5;
+  --docs-callout-rail-width: 2px;
+  --docs-callout-hairline-width: 1px;
   --docs-callout-pad-x: 16px;
-  --docs-callout-header-pad-y: 12px;
-  --docs-callout-body-pad-y: 14px;
+  --docs-callout-pad-y: 12px;
   --docs-callout-title-text-size: 14px;
   --docs-callout-title-weight: 700;
   --docs-callout-icon-size: 16px;
@@ -920,7 +920,6 @@
   --docs-interaction-header-pad-y: 16px;
   --docs-interaction-header-text-size: 14px;
   --docs-interaction-header-weight: 700;
-  --docs-interaction-badge-text-size: 10px;
   --docs-interaction-desc-text-size: 12px;
   --docs-interaction-desc-line-height: 20px;
   --docs-interaction-column-head-text-size: 10px;

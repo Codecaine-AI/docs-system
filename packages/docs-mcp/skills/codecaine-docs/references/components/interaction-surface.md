@@ -1,6 +1,6 @@
 # interaction-surface
 
-Generated from Codecaine Docs sources. Snapshot: `sha256:ec5a2032dd0e9822d89d1619feb39b5aad7fda867bcf6d1392991b580b70d7a3`. Refresh the installation to regenerate these files.
+Generated from Codecaine Docs sources. Snapshot: `sha256:8861c4126d96a4fe05b112560004f112939f8bd23bcfa3b72fb78f29bf846861`. Refresh the installation to regenerate these files.
 
 Use Interaction Surface to describe the actions, queries, and events available on a state or system, including parameters and return values. Action changes state, Query reads state, and Event describes observation or notification. Each operation has its own kind-labeled card. Use returnShape with recursive fields and a JSON example for known object returns; keep returns for its name or a primitive type. Document callback payloads separately from subscription return values. Describe only non-obvious constraints or behavior. Pair it with State Shape. Use Sequence when the question concerns ordering between participants.
 

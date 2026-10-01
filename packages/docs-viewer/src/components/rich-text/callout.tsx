@@ -32,6 +32,7 @@ export const calloutDescriptor: DocBlockDescriptor = mdxAdapterDescriptor({
   data: (block, body) => ({
     id: block.id,
     tone: stringProp(block, "tone") ?? "info",
+    variant: stringProp(block, "variant"),
     kind: stringProp(block, "kind"),
     title: stringProp(block, "title"),
     body,

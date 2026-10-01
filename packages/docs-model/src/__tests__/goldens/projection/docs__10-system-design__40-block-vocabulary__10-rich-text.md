@@ -20,7 +20,7 @@ When creating or revising a worked component example, show the relevant state sh
 
 - callout
 
-  - Toned, labeled admonition card.
+  - Toned admonition with a tone icon and optional title. `props.variant` picks `eyebrow` (default), `hairline`, `rail`, or `tab`.
 
 - divider
 
@@ -50,7 +50,7 @@ A paragraph carries **bold**, *italic*, ~~strike~~, and `code` marks, [an outbou
 
 > A quote sets prose off from the surrounding flow in plain delta text.
 
-> **Example** — A callout carries a kind chip, a tone, and rich text.
+> **Example** — A callout carries a tone, an optional kind and style, and rich text.
 
 ---
 

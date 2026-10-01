@@ -66,6 +66,13 @@ describe("rich-text component state", () => {
   it("rejects an unknown callout tone", () => {
     expect(Value.Check(CalloutState, { tone: "blue" })).toBe(false);
   });
+
+  it("accepts the four callout variants and rejects any other", () => {
+    for (const variant of ["eyebrow", "hairline", "rail", "tab"]) {
+      expect(Value.Check(CalloutState, { tone: "info", variant })).toBe(true);
+    }
+    expect(Value.Check(CalloutState, { variant: "card" })).toBe(false);
+  });
 });
 
 describe("rich-text component agent view", () => {

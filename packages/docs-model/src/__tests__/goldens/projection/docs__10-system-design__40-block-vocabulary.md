@@ -14,7 +14,7 @@ For documenting agentic systems, three of those types carry the whole model:
 | heading | rich-text | Section heading; props.level picks h1-h6 (default 2). |
 | list-item | rich-text | Bullet (or ordered) item; nesting via child list-item blocks. |
 | quote | rich-text | A block quote of rich text. |
-| callout | rich-text | Highlighted note; props.tone colors it, free-form props.kind labels the chip. |
+| callout | rich-text | Highlighted note. props.tone colors it, props.variant picks the style (eyebrow by default, or hairline, rail, tab), and free-form props.kind names the type. |
 | divider | rich-text | A horizontal rule separating sections. |
 | image | rich-text | Image from the bundle's assets/images/; props: src, alt, caption. |
 | image-grid | rich-text | Ordered images with individual headings, alt text, captions, and responsive columns. |

@@ -2,7 +2,7 @@ Callout highlights short contextual information, including decisions, risks, war
 
 ## Examples
 
-The five supported tones are info, decision, risk, warning, and success. Each example shows the read view's tone icon and colored header above a plain body. An optional title replaces the header's tone label. Free-form kind metadata labels the agent projection without adding a chip to the read view.
+The five supported tones are info, decision, risk, warning, and success. Each example shows the tone icon beside an optional title, with a plain body below. The read view prints no type label. Hovering the icon shows the type name, which is `kind` when set and the tone name otherwise.
 
 > **INFO** — Tone only, the agent render labels this `INFO`.
 
@@ -12,7 +12,19 @@ The five supported tones are info, decision, risk, warning, and success. Each ex
 
 > **SUCCESS: Golden renders match** — Tone plus `title`, the title joins the label line in the agent render.
 
-> **Boundary under review: Vocabulary growth** — A free-form `kind` wins over the tone label in the agent render; `tone` still drives the color.
+> **Boundary under review: Vocabulary growth** — A free-form `kind` wins over the tone name in the agent render and the icon tooltip. `tone` still drives the color.
+
+## Styles
+
+Set `props.variant` to pick one of four styles per block. `eyebrow` is the default, and a missing or unknown value renders as `eyebrow`. Every style keeps the tone color and icon and changes only the frame.
+
+> **INFO: Eyebrow is the default** — A colored left rail and a faint tone tint frame the callout, with the icon beside the title. Pick it for most callouts.
+
+> **DECISION: Hairline separates without a fill** — The icon sits in its own column behind a thin tone-tinted line, with no background. Pick it for dense pages where a quiet divider is enough.
+
+> **WARNING: Rail marks the edge** — The icon sits in its own column left of a thicker, solid tone rail, with no background. Pick it over hairline when the callout needs a stronger edge but should stay unfilled.
+
+> **SUCCESS: Tab opens with a rule** — A thin tone rule runs across the top with the icon notched into it, and a faint tint fills below. Pick it when the callout heads a short run of related content.
 
 ## State Schema
 
@@ -20,15 +32,17 @@ The five supported tones are info, decision, risk, warning, and success. Each ex
 
 ```
 tone?: "info" | "decision" | "risk" | "warning" | "success"  # Color/intent; the agent render's label falls back to the uppercased tone (default INFO).
-kind?: string  # Free-form label chip; wins over tone in the agent render. Coerced legacy types land their old type name here.
+kind?: string  # Free-form type name. Wins over tone in the agent render and the icon tooltip. Coerced legacy types land their old type name here.
 title?: string  # Optional bold title after the label.
+variant?: "eyebrow" | "hairline" | "rail" | "tab"  # Visual style of the frame. A missing or unknown value renders as eyebrow, the default. The agent render ignores it.
 ```
 
 ```json
 {
   "tone": "warning",
   "kind": "Boundary under review",
-  "title": "Vocabulary growth"
+  "title": "Vocabulary growth",
+  "variant": "hairline"
 }
 ```
 
@@ -42,9 +56,9 @@ Carries delta text (`carriesText: true`) as the callout body.
 
 Slash menu: **Callout** (aliases: note, info, tip). No input rule, type `/callout` or convert an existing line.
 
-The normal editable view and the read/annotation view share CalloutDocsBlock, including its icon, title, colored textured header, faint edge, and plain body. In the editor, ProseMirror owns the body content while the decorative header stays outside the editable text. Typing, formatting, undo, nested content, and clipboard metadata retain the existing document schema. Both views support info, decision, risk, warning, and success; unknown tones fall back to info.
+The normal editable view and the read/annotation view share CalloutDocsBlock, including its icon, optional title, style frame, and plain body. In the editor, ProseMirror owns the body content while the icon and title stay outside the editable text. Typing, formatting, undo, nested content, and clipboard metadata retain the existing document schema. Both views support info, decision, risk, warning, and success. Unknown tones fall back to info.
 
-The approved design uses a tone-colored header with an icon and title above a plain body in every viewing mode. Subtle curved texture fades toward the title, and a faint one-pixel line marks the header's bottom edge when body content follows. A thin matching outer border and rounded corners keep Callout compact. State Shape and Interaction Surface supply the visual references; Callout keeps its short contextual purpose and does not adopt their field layouts. The user's integration approval covers the normal editable view as well as the read/annotation view. Variator retains the original, superseded directions, saved refinements, and integration evidence.
+Every style is minimal. No style prints a type label or a colored header band. The tone icon carries the type, and hovering it shows the type name in a tooltip. `props.variant` selects the frame per block, as shown under Styles. Rail and line thickness come from theme tokens, so a theme restyles every callout at once. Variator retains the original, superseded directions, saved refinements, and integration evidence.
 
 ## Agent Renderer
 
@@ -58,14 +72,26 @@ The approved design uses a tone-colored header with an icon and title above a pl
 
 - Prefer `kind` for semantic labels ("Decision", "Boundary under review") and `tone` for the visual register; the pair is how this corpus encodes decision records.
 
-- No typed actions, patch `tone`/`kind`/`title` via `updateBlock`, edit the body via text ops.
+- No typed actions exist. Patch `tone`, `kind`, `title`, and `variant` via `updateBlock`, and edit the body via text ops.
 
 ## Theme
 
-This block's theme file is `components/callout.json` in the active theme folder. By default that folder is the Global theme at `~/.local/state/codecaine-docs/themes/global/`. A repo `themes/<id>/` folder is active only when the host serves no Global theme. Every value is one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY`. The contract is Theming.
+This block's theme file is `components/callout.json` in the active theme folder. By default that folder is the Global theme at `~/.local/state/codecaine-docs/themes/global/`. A repo `themes/<id>/` folder is active only when the host serves no Global theme. Every value is one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY`. The contract is Theming. In the table, `<tone>` is info, decision, warning, or success, and risk uses the warning palette.
 
 | Key | CSS variable | Styles |
 | --- | --- | --- |
-| border | --docs-viewer-callout-border | Card border |
-| fill | --docs-viewer-callout-fill | Card background |
+| border | --docs-callout-border | Optional override color for the rail and divider line. Unset, each tone's accent colors them. |
 | fg | --docs-callout-fg | Body text color |
+| <tone>Accent | --docs-callout-<tone>-accent | Icon, rail, line, and rule color per tone |
+| <tone>Tint | --docs-callout-<tone>-tint | Faint tint behind eyebrow and tab callouts. Replaces <tone>HeaderBg. |
+| <tone>TitleFg | --docs-callout-<tone>-title-fg | Title text color. Replaces <tone>HeaderFg. |
+| railWidth | --docs-callout-rail-width | Eyebrow rail and rail-style thickness, 2px by default |
+| hairlineWidth | --docs-callout-hairline-width | Hairline divider and tab rule thickness, 1px by default |
+| radius | --docs-callout-radius | Corner radius, following the global radius |
+| padX | --docs-callout-pad-x | Horizontal padding |
+| padY | --docs-callout-pad-y | Vertical padding of the whole eyebrow and tab frame, 12px by default |
+| titleTextSize | --docs-callout-title-text-size | Title font size |
+| titleWeight | --docs-callout-title-weight | Title font weight |
+| iconSize | --docs-callout-icon-size | Tone icon size |
+| bodyTextScale | --docs-callout-body-text-scale | Body size multiplier on the reading size |
+| margin | --docs-callout-margin | Space above and below the callout |

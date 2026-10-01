@@ -148,7 +148,7 @@
           [
             "callout",
             "rich-text",
-            "Highlighted note; props.tone colors it, free-form props.kind labels the chip."
+            "Highlighted note. props.tone colors it, props.variant picks the style (eyebrow by default, or hairline, rail, tab), and free-form props.kind names the type."
           ],
           [
             "divider",

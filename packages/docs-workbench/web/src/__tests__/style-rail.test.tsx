@@ -442,7 +442,7 @@ describe("style rail override state", () => {
       typography: { ...DEFAULT_STYLE_RAIL_SETTINGS.typography, fontSize: 16 },
       layout: { ...DEFAULT_STYLE_RAIL_SETTINGS.layout, contentWidth: 112 },
       components: {
-        callout: { border: "#ff0000", fill: "#00ff00" },
+        callout: { border: "#ff0000", fg: "#00ff00" },
       },
     };
     render(<RailHarness initial={initial} />);
@@ -498,7 +498,7 @@ describe("style rail override state", () => {
       layout: { ...DEFAULT_STYLE_RAIL_SETTINGS.layout, contentWidth: 112, wideWidth: 1800 },
       sidebar: { ...DEFAULT_STYLE_RAIL_SETTINGS.sidebar, font: "mono" },
       components: {
-        callout: { border: "#ff0000", fill: "#00ff00" },
+        callout: { border: "#ff0000", fg: "#00ff00" },
         code: { ruleOpacity: "0.9" },
       },
     };
@@ -3209,7 +3209,6 @@ describe("style rail interaction-surface tokens", () => {
     titleGap: ["--docs-interaction-title-gap", 0, 32, 1, 12],
     headerPadY: ["--docs-interaction-header-pad-y", 4, 32, 1, 16],
     headerTextSize: ["--docs-interaction-header-text-size", 10, 22, 0.5, 14],
-    badgeTextSize: ["--docs-interaction-badge-text-size", 8, 14, 0.5, 10],
     descTextSize: ["--docs-interaction-desc-text-size", 10, 18, 0.5, 12],
     descLineHeight: ["--docs-interaction-desc-line-height", 12, 32, 1, 20],
     columnHeadTextSize: ["--docs-interaction-column-head-text-size", 8, 14, 0.5, 10],
@@ -3459,7 +3458,6 @@ describe("style rail interaction-surface tokens", () => {
       "Header padding Y",
       "Header text size",
       "Header weight",
-      "Badge text size",
       "Description text size",
       "Description line height",
       "Column head text size",
@@ -4778,24 +4776,30 @@ describe("style rail rich-text block tokens", () => {
       pane: "Callout",
       colors: {
         border: "--docs-callout-border",
-        fill: "--docs-callout-body-bg",
         fg: "--docs-callout-fg",
         infoAccent: "--docs-callout-info-accent",
-        infoHeaderBg: "--docs-callout-info-header-bg",
-        infoHeaderFg: "--docs-callout-info-header-fg",
+        infoTint: "--docs-callout-info-tint",
+        infoTitleFg: "--docs-callout-info-title-fg",
         decisionAccent: "--docs-callout-decision-accent",
-        decisionHeaderBg: "--docs-callout-decision-header-bg",
-        decisionHeaderFg: "--docs-callout-decision-header-fg",
+        decisionTint: "--docs-callout-decision-tint",
+        decisionTitleFg: "--docs-callout-decision-title-fg",
         warningAccent: "--docs-callout-warning-accent",
-        warningHeaderBg: "--docs-callout-warning-header-bg",
-        warningHeaderFg: "--docs-callout-warning-header-fg",
+        warningTint: "--docs-callout-warning-tint",
+        warningTitleFg: "--docs-callout-warning-title-fg",
         successAccent: "--docs-callout-success-accent",
-        successHeaderBg: "--docs-callout-success-header-bg",
-        successHeaderFg: "--docs-callout-success-header-fg",
+        successTint: "--docs-callout-success-tint",
+        successTitleFg: "--docs-callout-success-title-fg",
       },
       lengths: {
-        borderWidth: {
-          cssVar: "--docs-callout-border-width",
+        railWidth: {
+          cssVar: "--docs-callout-rail-width",
+          min: 0,
+          max: 8,
+          step: 0.5,
+          defaultValue: 2,
+        },
+        hairlineWidth: {
+          cssVar: "--docs-callout-hairline-width",
           min: 0,
           max: 4,
           step: 0.5,
@@ -4812,20 +4816,7 @@ describe("style rail rich-text block tokens", () => {
           fallback: RADIUS_FALLBACK,
         },
         padX: { cssVar: "--docs-callout-pad-x", min: 0, max: 40, step: 1, defaultValue: 16 },
-        headerPadY: {
-          cssVar: "--docs-callout-header-pad-y",
-          min: 0,
-          max: 32,
-          step: 1,
-          defaultValue: 12,
-        },
-        bodyPadY: {
-          cssVar: "--docs-callout-body-pad-y",
-          min: 0,
-          max: 32,
-          step: 1,
-          defaultValue: 14,
-        },
+        padY: { cssVar: "--docs-callout-pad-y", min: 0, max: 32, step: 1, defaultValue: 12 },
         titleTextSize: {
           cssVar: "--docs-callout-title-text-size",
           min: 10,
@@ -4877,17 +4868,17 @@ describe("style rail rich-text block tokens", () => {
   const CALLOUT_PALETTE: Record<string, [string, string]> = {
     "--docs-callout-fg": ["#30343b", "#e4e7eb"],
     "--docs-callout-info-accent": ["#1683c7", "#69b9e8"],
-    "--docs-callout-info-header-bg": ["#e8f4fb", "#182e3b"],
-    "--docs-callout-info-header-fg": ["#15384d", "#d9f1ff"],
+    "--docs-callout-info-tint": ["#f1f5f6", "#323c42"],
+    "--docs-callout-info-title-fg": ["#15384d", "#d9f1ff"],
     "--docs-callout-decision-accent": ["#7657a4", "#bda4df"],
-    "--docs-callout-decision-header-bg": ["#f2eef8", "#2c2538"],
-    "--docs-callout-decision-header-fg": ["#3f3158", "#eee5fa"],
+    "--docs-callout-decision-tint": ["#f5f3f4", "#383b41"],
+    "--docs-callout-decision-title-fg": ["#3f3158", "#eee5fa"],
     "--docs-callout-warning-accent": ["#a86608", "#e6b35e"],
-    "--docs-callout-warning-header-bg": ["#fbf2df", "#352b1b"],
-    "--docs-callout-warning-header-fg": ["#553606", "#fae5bb"],
+    "--docs-callout-warning-tint": ["#f7f3ed", "#3a3c39"],
+    "--docs-callout-warning-title-fg": ["#553606", "#fae5bb"],
     "--docs-callout-success-accent": ["#287c55", "#7bc9a2"],
-    "--docs-callout-success-header-bg": ["#eaf5ef", "#1d3028"],
-    "--docs-callout-success-header-fg": ["#214d39", "#d9f4e5"],
+    "--docs-callout-success-tint": ["#f2f4f1", "#343d3d"],
+    "--docs-callout-success-title-fg": ["#214d39", "#d9f4e5"],
   };
   const LABELS: Record<string, string> = {
     fg: "Text",
@@ -4910,21 +4901,21 @@ describe("style rail rich-text block tokens", () => {
     padY: "Padding Y",
     textScale: "Text scale",
     infoAccent: "Info accent",
-    infoHeaderBg: "Info header background",
-    infoHeaderFg: "Info header text",
+    infoTint: "Info tint",
+    infoTitleFg: "Info title text",
     decisionAccent: "Decision accent",
-    decisionHeaderBg: "Decision header background",
-    decisionHeaderFg: "Decision header text",
+    decisionTint: "Decision tint",
+    decisionTitleFg: "Decision title text",
     warningAccent: "Warning / risk accent",
-    warningHeaderBg: "Warning / risk header background",
-    warningHeaderFg: "Warning / risk header text",
+    warningTint: "Warning / risk tint",
+    warningTitleFg: "Warning / risk title text",
     successAccent: "Success accent",
-    successHeaderBg: "Success header background",
-    successHeaderFg: "Success header text",
+    successTint: "Success tint",
+    successTitleFg: "Success title text",
     radius: "Corner radius",
     padX: "Padding X",
-    headerPadY: "Header padding Y",
-    bodyPadY: "Body padding Y",
+    railWidth: "Rail width",
+    hairlineWidth: "Hairline width",
     titleTextSize: "Title text size",
     titleWeight: "Title weight",
     iconSize: "Icon size",
@@ -5030,7 +5021,6 @@ describe("style rail rich-text block tokens", () => {
       expect(occurrences(calloutSource, `var(${cssVar}, ${light})`)).toBe(1);
       expect(occurrences(calloutSource, `var(${cssVar}, ${dark})`)).toBe(1);
     }
-    expect(occurrences(semanticCss, "  --docs-callout-body-bg: var(--background);")).toBe(2);
     expect(occurrences(semanticCss, "  --docs-quote-bg: var(--docs-viewer-callout-fill);")).toBe(2);
     expect(occurrences(semanticCss, "  --docs-list-item-fg: var(--docs-viewer-text-body);")).toBe(2);
   });
@@ -5058,8 +5048,9 @@ describe("style rail rich-text block tokens", () => {
         );
       }
     }
-    // The light-mode callout corner rule reads the same token first.
-    expect(calloutSource).toContain("border-radius:var(--docs-callout-radius,var(--radius,2px)) !important");
+    // The retired variator corner rule forced the radius onto all four
+    // corners; the variants now round only their filled edge.
+    expect(calloutSource).not.toContain("!important");
   });
 
   it("drops the hardcoded utilities the tokens replaced", () => {
@@ -5151,7 +5142,7 @@ describe("style rail rich-text block tokens", () => {
         quote: { bg: "#445566", borderWidth: "4px", indent: "20px", textScale: "1.5" },
         callout: {
           border: "#010203",
-          fill: "#040506",
+          infoTint: "#040506",
           fg: "#070809",
           warningAccent: "#0A0B0C",
           radius: "12px",
@@ -5172,7 +5163,7 @@ describe("style rail rich-text block tokens", () => {
       quote: { bg: "#445566", borderWidth: "4px", indent: "20px", textScale: "1.5" },
       callout: {
         border: "#010203",
-        fill: "#040506",
+        infoTint: "#040506",
         fg: "#070809",
         warningAccent: "#0a0b0c",
         radius: "12px",
@@ -5196,7 +5187,7 @@ describe("style rail rich-text block tokens", () => {
       "--docs-quote-indent": "20px",
       "--docs-quote-text-scale": "1.5",
       "--docs-callout-border": "#010203",
-      "--docs-callout-body-bg": "#040506",
+      "--docs-callout-info-tint": "#040506",
       "--docs-callout-fg": "#070809",
       "--docs-callout-warning-accent": "#0a0b0c",
       "--docs-callout-radius": "12px",
