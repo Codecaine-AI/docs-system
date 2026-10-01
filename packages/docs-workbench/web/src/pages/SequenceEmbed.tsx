@@ -10,7 +10,7 @@ import {
   type SequenceDocument,
 } from "@codecaine-ai/sequence";
 
-import { getSequenceBySrc } from "../data/api";
+import { getSequenceBySrc, IS_STATIC } from "../data/api";
 import "./sequence-embed.css";
 import { usePanZoom } from "./use-pan-zoom";
 
@@ -132,15 +132,17 @@ export function StandaloneSequenceEmbed({ src, sequenceId, id, title, initialDoc
           </div>
           <div className="truncate font-medium">{title ?? sequenceId}</div>
         </div>
-        <a
-          href={studioUrl.toString()}
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex h-8 shrink-0 items-center gap-2 rounded-md border px-2.5 text-sm font-medium text-foreground hover:bg-muted"
-        >
-          <ExternalLinkIcon className="h-4 w-4" />
-          Open in Sequence Studio
-        </a>
+        {!IS_STATIC && (
+          <a
+            href={studioUrl.toString()}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex h-8 shrink-0 items-center gap-2 rounded-md border px-2.5 text-sm font-medium text-foreground hover:bg-muted"
+          >
+            <ExternalLinkIcon className="h-4 w-4" />
+            Open in Sequence Studio
+          </a>
+        )}
       </section>
     );
   }

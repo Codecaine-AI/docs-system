@@ -7,6 +7,7 @@ import {
   themeStorage,
 } from "../data/project-storage";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { GitBranchIcon } from "lucide-react";
 import { DocsClientProvider, type DocsTreeNode } from "@codecaine-ai/docs-viewer/client";
 import { DocPeekPanel } from "@codecaine-ai/docs-viewer/doc-peek-panel";
 import type { SpectreRef } from "@codecaine-ai/docs-model/spectre-ref";
@@ -17,9 +18,11 @@ import {
   IS_STATIC,
   assetUrl,
   getServeConfig,
+  getSiteConfig,
   getTheme,
   getTree,
   saveTheme,
+  type SiteConfig,
 } from "../data/api";
 import { createStandaloneDocsClient } from "../data/client";
 import { StandaloneCanvasEmbed } from "../pages/CanvasEmbed";
@@ -58,6 +61,13 @@ import { useCodeTheme } from "../theme/use-code-theme";
  * serve` and the static export deep-link from any host/subpath; the
  * light/dark toggle drives the docs theme tokens (.dark class +
  * data-theme attribute).
+ *
+ * Static exports (`isStatic`, the IS_STATIC build) are public reading sites:
+ * the exported theme is applied as a locked consumer (nothing persists to
+ * localStorage, nothing is written back), and every authoring surface is
+ * absent — no style rail or its toggle, no Export button, and DocPage runs
+ * read-only. The header shows the site title and repository link from
+ * `data/site.json` (see getSiteConfig) instead.
  */
 
 const THEME_STORAGE_KEY = "docs-viewer-theme";
@@ -238,7 +248,26 @@ function firstBundlePath(nodes: DocsTreeNode[]): string | null {
   return null;
 }
 
-export function App() {
+/** Header label for a repository link: "GitHub" for github.com, else generic. */
+function repoLinkLabel(repoUrl: string): string {
+  try {
+    const host = new URL(repoUrl).hostname.toLowerCase();
+    return host === "github.com" || host.endsWith(".github.com") ? "GitHub" : "Repository";
+  } catch {
+    return "Repository";
+  }
+}
+
+export interface AppProps {
+  /**
+   * Read-only public-site shell. Defaults to the build-time IS_STATIC flag;
+   * a prop so tests can render the static shell (mirrors DocPage).
+   */
+  isStatic?: boolean;
+}
+
+export function App({ isStatic = IS_STATIC }: AppProps = {}) {
+  const [siteConfig, setSiteConfig] = useState<SiteConfig>({});
   const [exportOpen, setExportOpen] = useState(false);
   const [tree, setTree] = useState<DocsTreeNode[] | null>(null);
   const [treeError, setTreeError] = useState<string | null>(null);
@@ -301,7 +330,10 @@ export function App() {
   // exist, which keeps it useful as an offline/first-frame cache without
   // making it a competing source of truth. Locked hosts always ignore it.
   useEffect(() => {
-    void getServeConfig().then(({ themeLocked: locked, globalTheme: useGlobal }) => {
+    void getServeConfig().then(({ themeLocked: serverLocked, globalTheme: useGlobal }) => {
+      // A static export is a theme CONSUMER exactly like a locked serve:
+      // the exported theme is law, and no reader-side state persists.
+      const locked = isStatic || serverLocked;
       // Decide the cache scope FIRST so every read below (and every later
       // write) targets the shared keys when the global theme is on. A locked
       // host persists nothing, including this flag.
@@ -333,7 +365,9 @@ export function App() {
         // a stale per-project cache is never even read.
         const nextSettings =
           locked || useGlobal || repoSettingsAreAuthoritative ? baseline : loadStyleRailSettings();
-        const nextDark = useGlobal
+        // A static site never reads the origin's cache (GitHub Pages shares
+        // one origin across every project site): the export decides.
+        const nextDark = useGlobal || isStatic
           ? resolved?.manifest.dark ?? false
           : (locked || resolved?.source === "repo") && resolved?.manifest.dark !== undefined
             ? resolved.manifest.dark
@@ -357,7 +391,8 @@ export function App() {
   // stacking fetches whose out-of-order responses could apply stale theme.
   const inheritInFlightRef = useRef(false);
   useEffect(() => {
-    if (themeLocked !== true) return;
+    // Static exports are immutable: nothing upstream can change to inherit.
+    if (isStatic || themeLocked !== true) return;
     const lockedThemeId = globalTheme ? GLOBAL_THEME_ID : "default";
     const reapply = () => {
       if (inheritInFlightRef.current) return;
@@ -385,7 +420,7 @@ export function App() {
     };
     window.addEventListener("focus", reapply);
     return () => window.removeEventListener("focus", reapply);
-  }, [themeLocked, globalTheme, dark]);
+  }, [isStatic, themeLocked, globalTheme, dark]);
 
   const handleSelectTheme = (id: string) => {
     const load =
@@ -428,7 +463,7 @@ export function App() {
   // could clobber the primary theme with this origin's stale rail state).
   // The server independently refuses the POST with 403 when locked; this
   // flag just keeps a doomed request (and the Save button) off screen.
-  const canAuthorTheme = !IS_STATIC && themeReady && themeLocked === false && themeWritable;
+  const canAuthorTheme = !isStatic && themeReady && themeLocked === false && themeWritable;
   const themeSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     if (!canAuthorTheme) return;
@@ -600,6 +635,19 @@ export function App() {
       });
   }, []);
 
+  useEffect(() => {
+    if (!isStatic) return;
+    let active = true;
+    void getSiteConfig(isStatic).then((config) => {
+      if (!active) return;
+      setSiteConfig(config);
+      if (config.title) document.title = config.title;
+    });
+    return () => {
+      active = false;
+    };
+  }, [isStatic]);
+
   const client = useMemo(() => createStandaloneDocsClient(), []);
 
   return (
@@ -612,14 +660,28 @@ export function App() {
         <aside className="flex w-72 shrink-0 flex-col border-r bg-sidebar">
           <div className="flex h-11 shrink-0 items-center justify-between gap-2 border-b px-3">
             <div className="truncate font-display text-sm font-medium uppercase tracking-wider">
-              {centralProjectId() ? <a href="/" title="All documentation projects">Docs · Projects</a> : "Docs"}
-              {IS_STATIC && (
-                <span className="ml-2 rounded-sm bg-muted px-1.5 py-0.5 text-[10px] font-normal normal-case tracking-normal text-muted-foreground">
-                  static export
-                </span>
+              {siteConfig.title ? (
+                <span data-docs-site-title="">{siteConfig.title}</span>
+              ) : centralProjectId() ? (
+                <a href="/" title="All documentation projects">Docs · Projects</a>
+              ) : (
+                "Docs"
               )}
             </div>
-            {!IS_STATIC && <button type="button" className="rounded border px-2 py-1 text-xs hover:bg-muted" disabled={!tree} onClick={() => setExportOpen(true)}>Export</button>}
+            {isStatic && siteConfig.repoUrl && (
+              <a
+                href={siteConfig.repoUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-docs-repo-link=""
+                title={`Source repository: ${siteConfig.repoUrl}`}
+                className="inline-flex shrink-0 items-center gap-1.5 rounded border px-2 py-1 text-xs hover:bg-muted"
+              >
+                <GitBranchIcon className="h-3.5 w-3.5" aria-hidden="true" />
+                {repoLinkLabel(siteConfig.repoUrl)}
+              </a>
+            )}
+            {!isStatic && <button type="button" className="rounded border px-2 py-1 text-xs hover:bg-muted" disabled={!tree} onClick={() => setExportOpen(true)}>Export</button>}
           </div>
           <div className="min-h-0 flex-1">
             {treeError ? (
@@ -635,6 +697,7 @@ export function App() {
           {path ? (
             <DocPage
               path={path}
+              isStatic={isStatic}
               sidePeekOpen={sidePeekOpen}
               onDocMoved={(newPath) => {
                 // A title rename moved the bundle: follow it and let the
@@ -675,7 +738,7 @@ export function App() {
             tab): the rail IS the authoring surface, and locked viewers only
             consume. The grain overlay below is part of the theme's look,
             not a tuning affordance, so it renders regardless. */}
-        {themeReady && themeLocked === false && (
+        {!isStatic && themeReady && themeLocked === false && (
           <StyleRail
             collapsed={styleRailCollapsed}
             onCollapsedChange={setStyleRailCollapsed}
@@ -688,12 +751,12 @@ export function App() {
             onSelectTheme={handleSelectTheme}
             onSaveStyleToRepo={canAuthorTheme ? handleSaveStyleToRepo : undefined}
             saveStyleLabel={globalTheme ? "Save global style" : undefined}
-            codeTheme={IS_STATIC ? undefined : codeThemeControls}
+            codeTheme={isStatic ? undefined : codeThemeControls}
           />
         )}
       </div>
       <StyleRailOverlay settings={styleSettings} dark={dark} />
-      {exportOpen && tree && <ExportDialog tree={tree} currentPath={path} onClose={() => setExportOpen(false)} />}
+      {!isStatic && exportOpen && tree && <ExportDialog tree={tree} currentPath={path} onClose={() => setExportOpen(false)} />}
     </DocsClientProvider>
   );
 }

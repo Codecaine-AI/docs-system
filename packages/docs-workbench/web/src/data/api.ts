@@ -143,13 +143,43 @@ function bundlePathOf(path: string): string {
 // Reads (serve + static)
 // ---------------------------------------------------------------------------
 
-/** Static exports have no config route, so every failure preserves localhost defaults. */
-export async function fetchLabConfig(): Promise<LabConfig> {
+/**
+ * Static exports have no config route (and no lab), so they never probe it;
+ * on a live host every failure preserves localhost defaults.
+ */
+export async function fetchLabConfig(isStatic: boolean = IS_STATIC): Promise<LabConfig> {
+  if (isStatic) return DEFAULT_LAB_CONFIG;
   try {
     return await fetchJson<LabConfig>(`api/lab-config`);
   } catch {
     return DEFAULT_LAB_CONFIG;
   }
+}
+
+/**
+ * Public-site chrome for a static export: `data/site.json`, written by
+ * `docs-cli export` (docs-workbench/src/export.ts) from `--repo-url` /
+ * `--site-title` or the project config. Read at runtime so one SPA build
+ * serves any corpus. A live workbench has no such file and gets `{}`; a
+ * missing or malformed file degrades to `{}` as well, and a non-http(s)
+ * `repoUrl` is dropped rather than rendered as a link.
+ */
+export type SiteConfig = { repoUrl?: string; title?: string };
+
+export async function getSiteConfig(isStatic: boolean = IS_STATIC): Promise<SiteConfig> {
+  if (!isStatic) return {};
+  let raw: unknown;
+  try {
+    raw = await fetchJson<unknown>(`data/site.json`);
+  } catch {
+    return {};
+  }
+  if (!raw || typeof raw !== "object") return {};
+  const { repoUrl, title } = raw as Record<string, unknown>;
+  const config: SiteConfig = {};
+  if (typeof repoUrl === "string" && /^https?:\/\//i.test(repoUrl)) config.repoUrl = repoUrl;
+  if (typeof title === "string" && title.trim()) config.title = title.trim();
+  return config;
 }
 
 export async function getTree(): Promise<{ tree: DocsTreeNode[] }> {

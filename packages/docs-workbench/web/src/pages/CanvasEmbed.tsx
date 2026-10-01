@@ -144,15 +144,17 @@ export function StandaloneCanvasEmbed({
           This block references central board &quot;{canvasId}&quot;, which isn&apos;t stored in
           this docs repo — canvas embeds render from .canvas.json sidecars in the docs tree.
         </div>
-        <a
-          href={studioUrl.toString()}
-          target="_blank"
-          rel="noreferrer"
-          className="mt-3 inline-flex h-8 items-center gap-2 rounded-md border px-2.5 text-sm font-medium text-foreground hover:bg-muted"
-        >
-          <ExternalLinkIcon className="h-4 w-4" />
-          Open Canvas Studio
-        </a>
+        {!IS_STATIC && (
+          <a
+            href={studioUrl.toString()}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-3 inline-flex h-8 items-center gap-2 rounded-md border px-2.5 text-sm font-medium text-foreground hover:bg-muted"
+          >
+            <ExternalLinkIcon className="h-4 w-4" />
+            Open Canvas Studio
+          </a>
+        )}
       </section>
     );
   }

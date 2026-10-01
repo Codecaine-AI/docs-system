@@ -1,5 +1,5 @@
-import { cp, mkdir, readdir, writeFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
+import { cp, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { dirname, join, resolve } from "node:path";
 
 import { projectToMarkdown } from "@codecaine-ai/docs-model/project-markdown";
 import { openBacklinksDb, queryInboundTolerant, rescanAll } from "@codecaine-ai/docs-index/backlinks";
@@ -21,6 +21,9 @@ import { ensureSpaBuilt } from "./spa";
  *                                       GET /api/themes/:id shaped
  *   <out>/data/files/<relpath>          every file under an assets/ dir
  *                                       (canvas sidecars, images, attachments)
+ *   <out>/data/site.json                { repoUrl?, title? } — public-site
+ *                                       chrome (repository link, site title);
+ *                                       always written so the SPA never 404s
  *
  * The static-mode SPA reads these with RELATIVE fetch paths (and the vite
  * build uses `base: "./"`), so the output works from any static file host
@@ -42,6 +45,15 @@ export interface ExportOptions {
   themeId?: string;
   /** Folder holding the shared global theme (`<root>/global/`); omit for repo themes only. */
   globalThemesRoot?: string;
+  /**
+   * Source repository the exported site links back to (http/https only).
+   * Falls back to the `repository` field of the project's
+   * `codecaine.docs.json` (the file beside the docs root that declares it);
+   * no link when neither is set.
+   */
+  repoUrl?: string;
+  /** Site title: the page `<title>` and the sidebar header label. */
+  siteTitle?: string;
   log?: (message: string) => void;
 }
 
@@ -52,6 +64,8 @@ export interface ExportReport {
   backlinkTargets: number;
   /** Whether a repo theme folder was found and snapshotted. */
   themeExported: boolean;
+  /** The repository link written to data/site.json, if any. */
+  repoUrl: string | null;
   failures: Array<{ path: string; detail: string }>;
 }
 
@@ -72,17 +86,105 @@ async function collectAssetFiles(docsRoot: string, relPath = ""): Promise<string
   return out;
 }
 
+/** Shape of `<out>/data/site.json`, read by the static SPA (web/src/data/api.ts). */
+export interface StaticSiteConfig {
+  repoUrl?: string;
+  title?: string;
+}
+
+/**
+ * Validates a repository link: an absolute http(s) URL. Returns the
+ * normalized href; throws with `source` named so the caller knows which
+ * input (flag or project config) to fix.
+ */
+export function normalizeRepoUrl(value: string, source = "--repo-url"): string {
+  let url: URL;
+  try {
+    url = new URL(value.trim());
+  } catch {
+    throw new Error(`Invalid ${source}: ${JSON.stringify(value)} is not an absolute URL.`);
+  }
+  if (url.protocol !== "http:" && url.protocol !== "https:") {
+    throw new Error(`Invalid ${source}: ${JSON.stringify(value)} must use http or https.`);
+  }
+  return url.href;
+}
+
+/**
+ * The `repository` field of the project config (`codecaine.docs.json`)
+ * that declares this docs root — the file in the docs root's parent whose
+ * `docsRoot` (default "docs") resolves back to it. Null when there is no
+ * such config or it sets no repository.
+ */
+export async function readProjectRepoUrl(docsRoot: string): Promise<string | null> {
+  const projectRoot = dirname(resolve(docsRoot));
+  const configPath = join(projectRoot, "codecaine.docs.json");
+  let config: unknown;
+  try {
+    config = JSON.parse(await readFile(configPath, "utf8"));
+  } catch {
+    return null;
+  }
+  if (!config || typeof config !== "object") return null;
+  const { docsRoot: declaredRoot, repository } = config as Record<string, unknown>;
+  const declared = resolve(projectRoot, typeof declaredRoot === "string" ? declaredRoot : "docs");
+  if (declared !== resolve(docsRoot)) return null;
+  if (repository === undefined) return null;
+  if (typeof repository !== "string") {
+    throw new Error(`Invalid repository in ${configPath}: expected a URL string.`);
+  }
+  return normalizeRepoUrl(repository, `repository in ${configPath}`);
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
 export async function runExport(options: ExportOptions): Promise<ExportReport> {
   const { docsRoot, outDir } = options;
   const log = options.log ?? (() => {});
+
+  // 0. Validate public-site inputs BEFORE any build/copy work, so a bad
+  //    flag fails fast and leaves the out dir untouched.
+  const repoUrl =
+    options.repoUrl !== undefined
+      ? normalizeRepoUrl(options.repoUrl)
+      : await readProjectRepoUrl(docsRoot);
+  const siteTitle = options.siteTitle?.trim() || undefined;
 
   // 1. Static-mode SPA build, copied wholesale into the out dir.
   const dist = await ensureSpaBuilt({ mode: "static", force: options.forceBuild, log });
   await mkdir(outDir, { recursive: true });
   await cp(dist, outDir, { recursive: true });
+  {
+    // Per-export index.html tweaks (the shared SPA build stays untouched):
+    // the pre-JS <title> (the SPA also reads it from data/site.json), and an
+    // empty icon so browsers do not probe the HOST root's /favicon.ico — on
+    // a subpath deploy that is outside the export and 404s.
+    const indexPath = join(outDir, "index.html");
+    let html = await readFile(indexPath, "utf8");
+    if (siteTitle) {
+      html = html.replace(/<title>[^<]*<\/title>/, () => `<title>${escapeHtml(siteTitle)}</title>`);
+    }
+    if (!/<link[^>]+rel=["']?(?:shortcut )?icon/i.test(html)) {
+      html = html.replace(/<\/head>/i, '    <link rel="icon" href="data:," />\n  </head>');
+    }
+    await writeFile(indexPath, html);
+  }
 
   const dataDir = join(outDir, "data");
   await mkdir(dataDir, { recursive: true });
+
+  // 1b. Public-site chrome, read at runtime so one SPA build serves any corpus.
+  const site: StaticSiteConfig = {
+    ...(repoUrl ? { repoUrl } : {}),
+    ...(siteTitle ? { title: siteTitle } : {}),
+  };
+  await writeFile(join(dataDir, "site.json"), JSON.stringify(site, null, 2));
 
   // 2. Tree snapshot (same shape as GET /api/tree).
   const tree: DocsTreeNode[] = await walkDocsDir(docsRoot);
@@ -161,6 +263,7 @@ export async function runExport(options: ExportOptions): Promise<ExportReport> {
     filesCopied,
     backlinkTargets: Object.keys(backlinks).length,
     themeExported: theme !== null,
+    repoUrl,
     failures,
   };
 }

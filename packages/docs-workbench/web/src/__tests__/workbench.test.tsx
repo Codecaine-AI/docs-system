@@ -366,6 +366,64 @@ describe("workbench shell", () => {
   });
 });
 
+describe("static public-site shell", () => {
+  it("renders a read-only reading site with the exported site title and repository link", async () => {
+    // Route data/site.json (the exporter's public-site config) and record
+    // every request; everything else still hits the real serve app.
+    const requested: string[] = [];
+    const routed = globalThis.fetch;
+    globalThis.fetch = ((input: RequestInfo | URL, init?: RequestInit) => {
+      const raw =
+        typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+      requested.push(raw);
+      if (new URL(raw, "http://localhost/").pathname === "/data/site.json") {
+        return Promise.resolve(
+          Response.json({ repoUrl: "https://github.com/Lascari-AI/objectives", title: "Objectives Docs" }),
+        );
+      }
+      return routed(input, init);
+    }) as typeof fetch;
+    window.location.hash = "#/10-guide";
+    const view = render(<App isStatic />);
+    try {
+      await waitFor(() => {
+        expect(screen.getByText("Hello from Guide")).toBeTruthy();
+        expect(screen.getByRole("link", { name: /GitHub/ })).toBeTruthy();
+      });
+      const repoLink = screen.getByRole("link", { name: /GitHub/ });
+      expect(repoLink.getAttribute("href")).toBe("https://github.com/Lascari-AI/objectives");
+      expect(repoLink.getAttribute("target")).toBe("_blank");
+      expect(screen.getByText("Objectives Docs")).toBeTruthy();
+      expect(document.title).toBe("Objectives Docs");
+      expect(screen.queryByText("static export")).toBeNull();
+
+      // Let the theme boot settle: the rail must stay absent afterwards too.
+      await new Promise((resolve) => setTimeout(resolve, 200));
+      expect(screen.queryByRole("button", { name: /style controls/ })).toBeNull();
+      expect(screen.queryByRole("button", { name: "Export" })).toBeNull();
+      expect(screen.queryByRole("button", { name: /AI panel/ })).toBeNull();
+      expect(document.querySelector('[data-doc-editor="true"]')).toBeNull();
+      expect(document.querySelector(".docs-page-title")?.getAttribute("contenteditable")).toBe("false");
+      // No live-server-only probes (lab config, docs kernel).
+      expect(requested.some((url) => url.includes("lab-config"))).toBe(false);
+      expect(requested.some((url) => url.includes("/kernel/"))).toBe(false);
+    } finally {
+      view.unmount();
+      globalThis.fetch = routed;
+    }
+  });
+
+  it("keeps the live shell unchanged: no repository link, Export button present", async () => {
+    window.location.hash = "#/10-guide";
+    render(<App />);
+    await waitFor(() => {
+      expect(screen.getByText("Hello from Guide")).toBeTruthy();
+    });
+    expect(screen.getByRole("button", { name: "Export" })).toBeTruthy();
+    expect(document.querySelector("[data-docs-repo-link]")).toBeNull();
+  });
+});
+
 describe("theme write payload", () => {
   it("preserves active manifest fields and sibling component tokens", () => {
     const payload = themeWritePayload(

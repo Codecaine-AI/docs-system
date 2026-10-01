@@ -40,7 +40,9 @@ export function useDocsKernelSession(
 		{ client: DocsKernelClient; corpus: string } | null
 	>(null);
 	useEffect(() => {
-		if (options.client) return;
+		// Disabled (static exports): no lab config read, no kernel client —
+		// the pending client below fails offline without touching the network.
+		if (options.client || !options.enabled) return;
 		let active = true;
 		void loadLabConfig().then((config) => {
 			if (active) setConfigured({
@@ -49,7 +51,7 @@ export function useDocsKernelSession(
 			});
 		});
 		return () => { active = false; };
-	}, [options.client]);
+	}, [options.client, options.enabled]);
 	const client = options.client ?? configured?.client ?? pendingClient;
 	const corpus = options.client ? undefined : configured?.corpus;
 	const callbacksRef = useRef({

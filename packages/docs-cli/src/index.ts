@@ -260,7 +260,7 @@ function usage(): string {
     "  docs-cli audit [docsRoot]",
     "  docs-cli migrate [repoRoot] [--drafts] [--dry-run]",
     "  docs-cli serve [--root <path>] [--themes-root <path>] [--port <port>] [--ui-port <port>] [--host <addr>] [--kernel-url <url>] [--corpus <name>] [--dev] [--rebuild] [--theme-locked]",
-    "  docs-cli export [--root <path>] --out <dir> [--rebuild]",
+    "  docs-cli export [--root <path>] --out <dir> [--rebuild] [--repo-url <url>] [--site-title <text>]",
     "  docs-cli code-theme import [--from auto|cursor|vscode|<theme.json>] [--id <id>] [--name <name>] [--use]",
     "  docs-cli code-theme list",
     "  docs-cli code-theme use <id>",
@@ -552,12 +552,23 @@ async function main() {
     if (command === "export") {
       // Static-site export (packages/docs-workbench/src/export.ts):
       //   docs-cli export [--root <path>] --out <dir> [--rebuild]
+      //                   [--repo-url <url>] [--site-title <text>]
+      // --repo-url (http/https) is the header's repository link; without it
+      // the exporter falls back to `repository` in the project's
+      // codecaine.docs.json. --site-title sets <title> + the header label.
       const root = path.resolve(flagValue(args, "--root") ?? "docs");
       const out = flagValue(args, "--out");
       if (!out) {
         console.error("docs-cli export requires --out <dir>.");
         process.exitCode = 1;
         return;
+      }
+      for (const flag of ["--repo-url", "--site-title"]) {
+        if (args.includes(flag) && flagValue(args, flag) === undefined) {
+          console.error(`docs-cli export: ${flag} requires a value.`);
+          process.exitCode = 1;
+          return;
+        }
       }
       const { runExport, resolveGlobalThemesRoot } = await import("@codecaine-ai/docs-workbench");
       const report = await runExport({
@@ -567,6 +578,8 @@ async function main() {
         // theme when this machine has one, else the repo default.
         globalThemesRoot: resolveGlobalThemesRoot(),
         forceBuild: args.includes("--rebuild"),
+        repoUrl: flagValue(args, "--repo-url"),
+        siteTitle: flagValue(args, "--site-title"),
         log: (message) => console.error(message),
       });
       console.log(JSON.stringify(report, null, 2));

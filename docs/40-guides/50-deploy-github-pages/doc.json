@@ -1,0 +1,1404 @@
+{
+  "schemaVersion": 1,
+  "id": "doc-e147dc5ff835c0acc868b002b7fc6039",
+  "title": "Deploy Docs to GitHub Pages",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "ghp-intro",
+        "ghp-get-h",
+        "ghp-get-lead",
+        "ghp-get-1",
+        "ghp-get-2",
+        "ghp-get-3",
+        "ghp-pre-h",
+        "ghp-pre-lead",
+        "ghp-pre-1",
+        "ghp-pre-2",
+        "ghp-pre-3",
+        "ghp-vals-h",
+        "ghp-vals-lead",
+        "ghp-vals-table",
+        "ghp-steps-h",
+        "ghp-steps-lead",
+        "ghp-s1-h",
+        "ghp-s1-p",
+        "ghp-s1-code",
+        "ghp-s1-img",
+        "ghp-s2-h",
+        "ghp-s2-p",
+        "ghp-s2-code",
+        "ghp-s2-lead",
+        "ghp-s2-b1",
+        "ghp-s2-b2",
+        "ghp-s3-h",
+        "ghp-s3-p",
+        "ghp-s3-b1",
+        "ghp-s3-b2",
+        "ghp-s4-h",
+        "ghp-s4-p",
+        "ghp-s4-code",
+        "ghp-s4-b1",
+        "ghp-s4-b2",
+        "ghp-s4-img",
+        "ghp-s5-h",
+        "ghp-s5-p",
+        "ghp-s5-code1",
+        "ghp-s5-p2",
+        "ghp-s5-code2",
+        "ghp-s5-p3",
+        "ghp-s5-code3",
+        "ghp-s5-p4",
+        "ghp-s5-code4",
+        "ghp-s5-p5",
+        "ghp-s5-img",
+        "ghp-s6-h",
+        "ghp-s6-p",
+        "ghp-s6-code",
+        "ghp-s7-h",
+        "ghp-s7-p",
+        "ghp-s7-b1",
+        "ghp-s7-b2",
+        "ghp-s7-grid",
+        "ghp-redeploy-h",
+        "ghp-redeploy-p",
+        "ghp-redeploy-1",
+        "ghp-redeploy-2",
+        "ghp-redeploy-3",
+        "ghp-gaps-h",
+        "ghp-gaps-p",
+        "ghp-gaps-1",
+        "ghp-gaps-3"
+      ]
+    },
+    "ghp-intro": {
+      "id": "ghp-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "docs-cli",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "30-implementation/10-packages/60-docs-cli"
+            }
+          }
+        },
+        {
+          "insert": " export command turns a Codecaine Docs corpus into a static website that GitHub Pages can host. This guide publishes that export to a "
+        },
+        {
+          "insert": "gh-pages",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " branch, using the Lascari-AI/objectives repository as the worked example. The live result is at "
+        },
+        {
+          "insert": "https://lascari-ai.github.io/objectives/",
+          "attributes": {
+            "link": "https://lascari-ai.github.io/objectives/"
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "ghp-get-h": {
+      "id": "ghp-get-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "What You Get"
+        }
+      ],
+      "children": []
+    },
+    "ghp-get-lead": {
+      "id": "ghp-get-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The export is a plain static site, so Pages serves it without a build step of its own."
+        }
+      ],
+      "children": []
+    },
+    "ghp-get-1": {
+      "id": "ghp-get-1",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "A static site on a ",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": "gh-pages",
+          "attributes": {
+            "bold": true,
+            "code": true
+          }
+        },
+        {
+          "insert": " branch",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ghp-get-1a"
+      ]
+    },
+    "ghp-get-1a": {
+      "id": "ghp-get-1a",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The branch holds "
+        },
+        {
+          "insert": "index.html",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "assets/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "data/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", about 3 MB for the objectives corpus."
+        }
+      ],
+      "children": []
+    },
+    "ghp-get-2": {
+      "id": "ghp-get-2",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Hash routing",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ghp-get-2a"
+      ]
+    },
+    "ghp-get-2a": {
+      "id": "ghp-get-2a",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Pages load at URLs such as "
+        },
+        {
+          "insert": "#/00-foundation",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", so the server only serves "
+        },
+        {
+          "insert": "index.html",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "ghp-get-3": {
+      "id": "ghp-get-3",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Relative asset paths",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ghp-get-3a"
+      ]
+    },
+    "ghp-get-3a": {
+      "id": "ghp-get-3a",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Assets load from "
+        },
+        {
+          "insert": "./assets/...",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", so the site works under a project subpath like "
+        },
+        {
+          "insert": "/objectives/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with no base-path config."
+        }
+      ],
+      "children": []
+    },
+    "ghp-pre-h": {
+      "id": "ghp-pre-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Check the Prerequisites"
+        }
+      ],
+      "children": []
+    },
+    "ghp-pre-lead": {
+      "id": "ghp-pre-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "You need three things before the first deploy."
+        }
+      ],
+      "children": []
+    },
+    "ghp-pre-1": {
+      "id": "ghp-pre-1",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "A local docs-system checkout and Bun",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ghp-pre-1a"
+      ]
+    },
+    "ghp-pre-1a": {
+      "id": "ghp-pre-1a",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The export runs the docs-cli source from that checkout. This is also why GitHub Actions cannot build the site yet."
+        }
+      ],
+      "children": []
+    },
+    "ghp-pre-2": {
+      "id": "ghp-pre-2",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The gh CLI, authenticated",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ghp-pre-2a"
+      ]
+    },
+    "ghp-pre-2a": {
+      "id": "ghp-pre-2a",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Steps 5 and 6 call the GitHub API through "
+        },
+        {
+          "insert": "gh api",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "ghp-pre-3": {
+      "id": "ghp-pre-3",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "A public repository, or a plan that supports Pages",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ghp-pre-3a"
+      ]
+    },
+    "ghp-pre-3a": {
+      "id": "ghp-pre-3a",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The objectives repository is public."
+        }
+      ],
+      "children": []
+    },
+    "ghp-vals-h": {
+      "id": "ghp-vals-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Replace the Example Values"
+        }
+      ],
+      "children": []
+    },
+    "ghp-vals-lead": {
+      "id": "ghp-vals-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every command below is the exact command run for the objectives site on October 1, 2026. Swap in your own values from this table."
+        }
+      ],
+      "children": []
+    },
+    "ghp-vals-table": {
+      "id": "ghp-vals-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Value",
+          "In the Example",
+          "Replace With"
+        ],
+        "rows": [
+          [
+            "Repository",
+            "Lascari-AI/objectives",
+            "Your owner/repo"
+          ],
+          [
+            "Docs branch",
+            "docs/objectives-first-draft",
+            "Your docs source branch"
+          ],
+          [
+            "Docs root",
+            "docs",
+            "The root registered in codecaine.docs.json"
+          ],
+          [
+            "Export directory",
+            "/tmp/objectives-pages",
+            "Any empty directory"
+          ],
+          [
+            "Publish directory",
+            "/tmp/objectives-ghpages",
+            "Any empty directory"
+          ],
+          [
+            "docs-system checkout",
+            "/Users/Ford/workspace/codecaine/core/docs-system",
+            "Your checkout path"
+          ]
+        ]
+      },
+      "children": []
+    },
+    "ghp-steps-h": {
+      "id": "ghp-steps-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Deploy the Site"
+        }
+      ],
+      "children": []
+    },
+    "ghp-steps-lead": {
+      "id": "ghp-steps-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Run the seven steps in order. Steps 5 and 6 run once per repository."
+        }
+      ],
+      "children": []
+    },
+    "ghp-s1-h": {
+      "id": "ghp-s1-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "1. Publish the Docs Source to Main"
+        }
+      ],
+      "children": []
+    },
+    "ghp-s1-p": {
+      "id": "ghp-s1-p",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Commit the corpus changes on your docs branch, push it, then fast-forward "
+        },
+        {
+          "insert": "main",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "ghp-s1-code": {
+      "id": "ghp-s1-code",
+      "type": "code",
+      "props": {
+        "language": "bash"
+      },
+      "text": [
+        {
+          "insert": "git push -u origin docs/objectives-first-draft\ngit checkout main && git merge --ff-only docs/objectives-first-draft && git push origin main"
+        }
+      ],
+      "children": []
+    },
+    "ghp-s1-img": {
+      "id": "ghp-s1-img",
+      "type": "image",
+      "props": {
+        "alt": "GitHub page for Lascari-AI/objectives on the main branch, listing .codex, docs, examples, LICENSE, README.md, and codecaine.docs.json, with the README rendered below.",
+        "caption": "The objectives main branch after step 1, with the docs corpus, README, and MIT license. The About panel is still empty because step 6 has not run.",
+        "src": "./assets/images/repo-home.png"
+      },
+      "children": []
+    },
+    "ghp-s2-h": {
+      "id": "ghp-s2-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "2. Build the Static Export"
+        }
+      ],
+      "children": []
+    },
+    "ghp-s2-p": {
+      "id": "ghp-s2-p",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "From the repository root, run the docs-cli export from your docs-system checkout."
+        }
+      ],
+      "children": []
+    },
+    "ghp-s2-code": {
+      "id": "ghp-s2-code",
+      "type": "code",
+      "props": {
+        "language": "bash"
+      },
+      "text": [
+        {
+          "insert": "bun /Users/Ford/workspace/codecaine/core/docs-system/packages/docs-cli/src/index.ts export --root docs --out /tmp/objectives-pages \\\n  --repo-url https://github.com/Lascari-AI/objectives --site-title \"Objectives Docs\""
+        }
+      ],
+      "children": []
+    },
+    "ghp-s2-lead": {
+      "id": "ghp-s2-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The command prints a JSON report."
+        }
+      ],
+      "children": []
+    },
+    "ghp-s2-b1": {
+      "id": "ghp-s2-b1",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "An empty "
+        },
+        {
+          "insert": "failures",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " array means the export succeeded."
+        }
+      ],
+      "children": [
+        "ghp-s2-b1a",
+        "ghp-s2-b1b"
+      ]
+    },
+    "ghp-s2-b1a": {
+      "id": "ghp-s2-b1a",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The report also lists "
+        },
+        {
+          "insert": "outDir",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "bundlesExported",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "filesCopied",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "backlinkTargets",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "themeExported",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "ghp-s2-b1b": {
+      "id": "ghp-s2-b1b",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The objectives run exported 5 bundles."
+        }
+      ],
+      "children": []
+    },
+    "ghp-s2-b2": {
+      "id": "ghp-s2-b2",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The output directory holds index.html, assets/, and data/. The file data/site.json carries the repository link and the site title."
+        }
+      ],
+      "children": []
+    },
+    "ghp-s3-h": {
+      "id": "ghp-s3-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "3. Confirm the Reader Settings"
+        }
+      ],
+      "children": []
+    },
+    "ghp-s3-p": {
+      "id": "ghp-s3-p",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The export is a read-only reading site. It has no Style rail, theme controls, Export button, or editing tools, and its header links to the repository."
+        }
+      ],
+      "children": []
+    },
+    "ghp-s3-b1": {
+      "id": "ghp-s3-b1",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The --repo-url flag takes an absolute http or https URL."
+        }
+      ],
+      "children": [
+        "ghp-s3-b1x"
+      ]
+    },
+    "ghp-s3-b1x": {
+      "id": "ghp-s3-b1x",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "An invalid value stops the export before it writes any files."
+        }
+      ],
+      "children": []
+    },
+    "ghp-s3-b2": {
+      "id": "ghp-s3-b2",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Without --repo-url, the exporter reads the repository field from the codecaine.docs.json file beside the docs root."
+        }
+      ],
+      "children": []
+    },
+    "ghp-s4-h": {
+      "id": "ghp-s4-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "4. Publish the Export to an Orphan "
+        },
+        {
+          "insert": "gh-pages",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " Branch"
+        }
+      ],
+      "children": []
+    },
+    "ghp-s4-p": {
+      "id": "ghp-s4-p",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Copy the export into a standalone repository and push it as "
+        },
+        {
+          "insert": "gh-pages",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Git 2.41 lacks "
+        },
+        {
+          "insert": "git worktree add --orphan",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", so a separate repository keeps the branch free of source history."
+        }
+      ],
+      "children": []
+    },
+    "ghp-s4-code": {
+      "id": "ghp-s4-code",
+      "type": "code",
+      "props": {
+        "language": "bash"
+      },
+      "text": [
+        {
+          "insert": "mkdir /tmp/objectives-ghpages && cd /tmp/objectives-ghpages\ncp -R /tmp/objectives-pages/. . && touch .nojekyll\ngit init -b gh-pages && git add -A && git commit -m \"Deploy objectives docs (static export of main <sha>)\"\ngit remote add origin https://github.com/Lascari-AI/objectives.git && git push -u origin gh-pages"
+        }
+      ],
+      "children": []
+    },
+    "ghp-s4-b1": {
+      "id": "ghp-s4-b1",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Replace "
+        },
+        {
+          "insert": "<sha>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with the "
+        },
+        {
+          "insert": "main",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " commit you exported."
+        }
+      ],
+      "children": []
+    },
+    "ghp-s4-b2": {
+      "id": "ghp-s4-b2",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": ".nojekyll",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " file stops the GitHub Jekyll step from dropping files or folders it ignores."
+        }
+      ],
+      "children": []
+    },
+    "ghp-s4-img": {
+      "id": "ghp-s4-img",
+      "type": "image",
+      "props": {
+        "alt": "GitHub file list for the gh-pages branch of Lascari-AI/objectives, showing assets, data, .nojekyll, and index.html across 2 commits.",
+        "caption": "The published gh-pages branch from the first objectives deploy.",
+        "src": "./assets/images/branch-gh-pages.png"
+      },
+      "children": []
+    },
+    "ghp-s5-h": {
+      "id": "ghp-s5-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "5. Enable Pages From the Branch"
+        }
+      ],
+      "children": []
+    },
+    "ghp-s5-p": {
+      "id": "ghp-s5-p",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Point Pages at the root of "
+        },
+        {
+          "insert": "gh-pages",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Run this once per repository."
+        }
+      ],
+      "children": []
+    },
+    "ghp-s5-code1": {
+      "id": "ghp-s5-code1",
+      "type": "code",
+      "props": {
+        "language": "bash"
+      },
+      "text": [
+        {
+          "insert": "gh api -X POST repos/Lascari-AI/objectives/pages -f \"source[branch]=gh-pages\" -f \"source[path]=/\""
+        }
+      ],
+      "children": []
+    },
+    "ghp-s5-p2": {
+      "id": "ghp-s5-p2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Poll the latest build until its status moves from "
+        },
+        {
+          "insert": "building",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " to "
+        },
+        {
+          "insert": "built",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". This took about 30 to 50 seconds for the objectives site."
+        }
+      ],
+      "children": []
+    },
+    "ghp-s5-code2": {
+      "id": "ghp-s5-code2",
+      "type": "code",
+      "props": {
+        "language": "bash"
+      },
+      "text": [
+        {
+          "insert": "gh api repos/Lascari-AI/objectives/pages/builds/latest --jq .status"
+        }
+      ],
+      "children": []
+    },
+    "ghp-s5-p3": {
+      "id": "ghp-s5-p3",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Confirm the site URL, source, and HTTPS setting."
+        }
+      ],
+      "children": []
+    },
+    "ghp-s5-code3": {
+      "id": "ghp-s5-code3",
+      "type": "code",
+      "props": {
+        "language": "bash"
+      },
+      "text": [
+        {
+          "insert": "gh api repos/Lascari-AI/objectives/pages --jq '{html_url,status,source,https_enforced}'"
+        }
+      ],
+      "children": []
+    },
+    "ghp-s5-p4": {
+      "id": "ghp-s5-p4",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The objectives site returned this result."
+        }
+      ],
+      "children": []
+    },
+    "ghp-s5-code4": {
+      "id": "ghp-s5-code4",
+      "type": "code",
+      "props": {
+        "language": "json"
+      },
+      "text": [
+        {
+          "insert": "{\"html_url\":\"https://lascari-ai.github.io/objectives/\",\"https_enforced\":true,\"source\":{\"branch\":\"gh-pages\",\"path\":\"/\"},\"status\":\"built\"}"
+        }
+      ],
+      "children": []
+    },
+    "ghp-s5-p5": {
+      "id": "ghp-s5-p5",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "GitHub runs its own pages build and deployment workflow for each push to "
+        },
+        {
+          "insert": "gh-pages",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". The Actions tab shows each run."
+        }
+      ],
+      "children": []
+    },
+    "ghp-s5-img": {
+      "id": "ghp-s5-img",
+      "type": "image",
+      "props": {
+        "alt": "GitHub Actions tab for Lascari-AI/objectives showing two successful pages build and deployment runs on gh-pages, taking 51 seconds and 30 seconds.",
+        "caption": "Two pushes to gh-pages, two green pages build and deployment runs.",
+        "src": "./assets/images/actions-pages-build.png"
+      },
+      "children": []
+    },
+    "ghp-s6-h": {
+      "id": "ghp-s6-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "6. Set the Repository Website"
+        }
+      ],
+      "children": []
+    },
+    "ghp-s6-p": {
+      "id": "ghp-s6-p",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Add the site URL and a one-line description to the repository About panel."
+        }
+      ],
+      "children": []
+    },
+    "ghp-s6-code": {
+      "id": "ghp-s6-code",
+      "type": "code",
+      "props": {
+        "language": "bash"
+      },
+      "text": [
+        {
+          "insert": "gh api -X PATCH repos/Lascari-AI/objectives -f homepage=\"https://lascari-ai.github.io/objectives/\" -f description=\"A lightweight way to keep coding agents on track for long-running tasks.\""
+        }
+      ],
+      "children": []
+    },
+    "ghp-s7-h": {
+      "id": "ghp-s7-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "7. Verify the Live Site"
+        }
+      ],
+      "children": []
+    },
+    "ghp-s7-p": {
+      "id": "ghp-s7-p",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Open the site in a headless browser at two hash routes and check the network log."
+        }
+      ],
+      "children": []
+    },
+    "ghp-s7-b1": {
+      "id": "ghp-s7-b1",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Load "
+        },
+        {
+          "insert": "#/00-foundation",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "#/40-guides",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Each should render its page beside the sidebar."
+        }
+      ],
+      "children": []
+    },
+    "ghp-s7-b2": {
+      "id": "ghp-s7-b2",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Expect no failed requests and a repository link in the header."
+        }
+      ],
+      "children": []
+    },
+    "ghp-s7-grid": {
+      "id": "ghp-s7-grid",
+      "type": "image-grid",
+      "props": {
+        "columns": 2,
+        "images": [
+          {
+            "src": "./assets/images/live-overview.png",
+            "heading": "#/00-foundation",
+            "alt": "Objectives docs site on the Foundation page from the first deploy, with a sidebar listing 00-foundation through 40-guides.",
+            "caption": "The first deploy, before the read-only export removed the badge and added the repository link."
+          },
+          {
+            "src": "./assets/images/live-guide.png",
+            "heading": "#/40-guides",
+            "alt": "Objectives docs site on the Guides page from the first deploy, showing a bash code block that clones the objectives repository.",
+            "caption": "The 40-guides hash route loads with code blocks intact."
+          }
+        ]
+      },
+      "children": []
+    },
+    "ghp-redeploy-h": {
+      "id": "ghp-redeploy-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Redeploy After Docs Edits"
+        }
+      ],
+      "children": []
+    },
+    "ghp-redeploy-p": {
+      "id": "ghp-redeploy-p",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every docs change needs a fresh export. Pages then rebuilds on its own after the push."
+        }
+      ],
+      "children": []
+    },
+    "ghp-redeploy-1": {
+      "id": "ghp-redeploy-1",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Rebuild the export with step 2."
+        }
+      ],
+      "children": []
+    },
+    "ghp-redeploy-2": {
+      "id": "ghp-redeploy-2",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Confirm the repository link and title with step 3."
+        }
+      ],
+      "children": []
+    },
+    "ghp-redeploy-3": {
+      "id": "ghp-redeploy-3",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Publish with step 4."
+        }
+      ],
+      "children": [
+        "ghp-redeploy-3a"
+      ]
+    },
+    "ghp-redeploy-3a": {
+      "id": "ghp-redeploy-3a",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Commit into the existing "
+        },
+        {
+          "insert": "/tmp/objectives-ghpages",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " repository, or re-init it and force-push."
+        }
+      ],
+      "children": []
+    },
+    "ghp-gaps-h": {
+      "id": "ghp-gaps-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Known Gaps"
+        }
+      ],
+      "children": []
+    },
+    "ghp-gaps-p": {
+      "id": "ghp-gaps-p",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The deployed site works, but two gaps remain."
+        }
+      ],
+      "children": []
+    },
+    "ghp-gaps-1": {
+      "id": "ghp-gaps-1",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The sidebar shows folder slugs such as "
+        },
+        {
+          "insert": "00-foundation",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", not page titles."
+        }
+      ],
+      "children": []
+    },
+    "ghp-gaps-3": {
+      "id": "ghp-gaps-3",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "No CI build exists yet."
+        }
+      ],
+      "children": [
+        "ghp-gaps-3a",
+        "ghp-gaps-3b"
+      ]
+    },
+    "ghp-gaps-3a": {
+      "id": "ghp-gaps-3a",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The export depends on a local docs-system checkout, which a GitHub Actions runner does not have."
+        }
+      ],
+      "children": []
+    },
+    "ghp-gaps-3b": {
+      "id": "ghp-gaps-3b",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Until that changes, a person runs steps 2 to 4 for every redeploy."
+        }
+      ],
+      "children": []
+    }
+  }
+}

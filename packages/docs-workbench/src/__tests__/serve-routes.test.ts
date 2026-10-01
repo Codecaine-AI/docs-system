@@ -6,7 +6,7 @@ import { join } from "node:path";
 import { createDocsServeApp } from "../server";
 import { buildBlocksDiscovery } from "@codecaine-ai/docs-model";
 import { collectBundlePaths, walkDocsDir } from "@codecaine-ai/docs-server";
-import { runExport } from "../export";
+import { normalizeRepoUrl, runExport } from "../export";
 
 /**
  * Route-shape + path-confinement tests for the standalone docs server,
@@ -482,6 +482,79 @@ describe("runExport global theme", () => {
     await rm(repoRoot, { recursive: true, force: true });
     await rm(outDir, { recursive: true, force: true });
     if (!hadDist) await rm(distDir, { recursive: true, force: true });
+  });
+});
+
+describe("runExport public-site config", () => {
+  async function withStaticShell<T>(run: () => Promise<T>): Promise<T> {
+    const distDir = join(import.meta.dir, "..", "..", "web", "dist-static");
+    const hadDist = await Bun.file(join(distDir, "index.html")).exists();
+    if (!hadDist) {
+      await mkdir(distDir, { recursive: true });
+      await writeFile(join(distDir, "index.html"), "<html><head><title>Docs</title></head></html>");
+    }
+    try {
+      return await run();
+    } finally {
+      if (!hadDist) await rm(distDir, { recursive: true, force: true });
+    }
+  }
+
+  test("writes --repo-url and --site-title into data/site.json and the page title", async () => {
+    const outDir = await mkdtemp(join(tmpdir(), "docs-export-site-"));
+    await withStaticShell(async () => {
+      const report = await runExport({
+        docsRoot,
+        outDir,
+        repoUrl: "https://github.com/Lascari-AI/objectives",
+        siteTitle: "Objectives <Docs>",
+      });
+      expect(report.repoUrl).toBe("https://github.com/Lascari-AI/objectives");
+      expect(await Bun.file(join(outDir, "data", "site.json")).json()).toEqual({
+        repoUrl: "https://github.com/Lascari-AI/objectives",
+        title: "Objectives <Docs>",
+      });
+      const html = await Bun.file(join(outDir, "index.html")).text();
+      expect(html).toContain("<title>Objectives &lt;Docs&gt;</title>");
+    });
+    await rm(outDir, { recursive: true, force: true });
+  });
+
+  test("falls back to `repository` in the project's codecaine.docs.json, else writes no link", async () => {
+    const outDir = await mkdtemp(join(tmpdir(), "docs-export-site-config-"));
+    const projectRoot = await mkdtemp(join(tmpdir(), "docs-export-site-project-"));
+    const projectDocs = join(projectRoot, "docs");
+    await mkdir(projectDocs, { recursive: true });
+    await withStaticShell(async () => {
+      let report = await runExport({ docsRoot: projectDocs, outDir });
+      expect(report.repoUrl).toBeNull();
+      expect(await Bun.file(join(outDir, "data", "site.json")).json()).toEqual({});
+
+      await writeFile(
+        join(projectRoot, "codecaine.docs.json"),
+        JSON.stringify({ name: "Fixture", docsRoot: "docs", repository: "https://example.com/org/repo" }),
+      );
+      report = await runExport({ docsRoot: projectDocs, outDir });
+      expect(report.repoUrl).toBe("https://example.com/org/repo");
+      expect(await Bun.file(join(outDir, "data", "site.json")).json()).toEqual({
+        repoUrl: "https://example.com/org/repo",
+      });
+
+      // The flag wins over the project config.
+      report = await runExport({ docsRoot: projectDocs, outDir, repoUrl: "https://github.com/a/b" });
+      expect(report.repoUrl).toBe("https://github.com/a/b");
+    });
+    await rm(projectRoot, { recursive: true, force: true });
+    await rm(outDir, { recursive: true, force: true });
+  });
+
+  test("rejects a non-http(s) repo URL before writing anything", async () => {
+    const outDir = join(await mkdtemp(join(tmpdir(), "docs-export-site-bad-")), "out");
+    for (const bad of ["javascript:alert(1)", "github.com/a/b", "ftp://example.com/repo"]) {
+      await expect(runExport({ docsRoot, outDir, repoUrl: bad })).rejects.toThrow(/--repo-url/);
+    }
+    expect(await Bun.file(join(outDir, "index.html")).exists()).toBe(false);
+    expect(normalizeRepoUrl("https://github.com/a/b")).toBe("https://github.com/a/b");
   });
 });
 

@@ -6,7 +6,14 @@ export {
   type DocsServeAppOptions,
   type StartDocsServeOptions,
 } from "./server";
-export { runExport, type ExportOptions, type ExportReport } from "./export";
+export {
+  normalizeRepoUrl,
+  readProjectRepoUrl,
+  runExport,
+  type ExportOptions,
+  type ExportReport,
+  type StaticSiteConfig,
+} from "./export";
 export { resolveGlobalThemesRoot } from "@codecaine-ai/docs-server";
 export {
   importCodeTheme,

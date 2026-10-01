@@ -13,7 +13,8 @@
         "maintenance-1",
         "core-releases-guide",
         "central-service-guide",
-        "pdf-export-guide"
+        "pdf-export-guide",
+        "github-pages-guide"
       ]
     },
     "maintenance-0": {
@@ -103,6 +104,26 @@
         },
         {
           "insert": " explains selecting pages, choosing combined PDFs or individual PDFs, preserving folder paths in a ZIP, and recovering from export errors."
+        }
+      ],
+      "children": []
+    },
+    "github-pages-guide": {
+      "id": "github-pages-guide",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Deploy Docs to GitHub Pages",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "40-guides/50-deploy-github-pages"
+            }
+          }
+        },
+        {
+          "insert": " explains exporting a corpus as a static site and publishing it to a gh-pages branch, with the objectives repository as the worked example."
         }
       ],
       "children": []
