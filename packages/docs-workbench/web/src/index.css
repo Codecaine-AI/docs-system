@@ -206,10 +206,10 @@
 /* Edit-surface text lane. The read surface wraps every top-level block in its
    own lane element (docs-viewer render/block-layout.ts, applied by
    DocBlockRenderer). In edit mode ProseMirror owns the top-level children
-   instead, and only the ATOM blocks get a React NodeView that can carry lane
-   classes — so the text-like nodes (paragraph, heading, quote, list item,
-   code, …) get their lane from this one rule rather than from 8 duplicated
-   class strings. (`docs-editor-prosemirror` is set via DocEditor's
+   instead, and only the ATOM blocks and the code block get a React NodeView
+   that can carry lane classes — so the text-like nodes (paragraph, heading,
+   quote, list item, …) get their lane from this one rule rather than from
+   duplicated class strings. (`docs-editor-prosemirror` is set via DocEditor's
    `editorProps.attributes.class`, so it lands ON the contenteditable root —
    these are its DIRECT children.)
 
@@ -220,9 +220,7 @@
      NodeViewWrapper. That wrapper carries no lane of its own, so without this
      clause it would be capped at the text measure and a wide state-shape or
      table would be squeezed back down to ~60ch no matter what its own lane
-     said — the wide lane would silently do nothing in edit mode. A
-     react-renderer around a NON-laned node view (the code block) contains no
-     lane, so it still gets the text measure, which is what code wants. */
+     said — the wide lane would silently do nothing in edit mode. */
 .docs-editor-prosemirror > *:not([data-doc-lane]):not(:has([data-doc-lane])) {
   max-width: var(--style-editor-text-lane);
 }
