@@ -14,10 +14,17 @@ Use the connected Docs tools for documentation reads and edits. They preserve ty
 ## Read or Edit
 
 1. Discover projects in the active workspace through the discovery tool. Select the requested project explicitly. For a request covering several projects, discover each target through the same connection.
-2. For reading, use the document tree and read tools. For editing, begin a documentation task with `docs_begin` and read the returned standards, component catalog, and snapshot. Keep that task's token for its edits.
-3. Read the target document and its relevant neighbors. Use the component catalog to choose the form that explains the subject. Load a component's detailed reference when needed; use the advertised tool schemas for editing mechanics.
+2. For reading, use the document tree and read tools. For editing, begin a documentation task with `docs_begin`. It returns the style digest, a guidance topic index, and one-line component purposes. Keep its `task_id` for every edit.
+3. Read the target document and its relevant neighbors. Use the component catalog (`docs_guidance` topic `components`) to choose the form that explains the subject. Load a component's detailed reference when needed; use the advertised tool schemas for editing mechanics.
 4. Apply supported typed operations with the current document revision. Edits become visible immediately. On a revision conflict, read the current content and reconcile the requested change before retrying.
 5. Run the completion check, repair required findings, and report which documents changed and any unresolved findings. If one project fails, retain and report the successful project edits separately.
+
+## Style Rules
+
+- `docs_begin` returns the style digest first. Apply it to every block you write.
+- Read `docs_guidance` with `task_id` and topic `style` before the first edit. The service refuses content writes until you do, once per task.
+- Write results include `style_findings` for the blocks you changed. Fix them before moving on.
+- Run `docs_check` with `task_id` on each changed page. It blocks on style violations this task introduced.
 
 For an implementation change, inspect the relevant source as evidence before describing current behavior. Distinguish proposed behavior from verified behavior. Publication is a separate action; documentation edits do not deploy a website.
 
@@ -25,7 +32,7 @@ The reading order is Foundation, System Design, Agents, then Implementation. Imp
 
 ## Guidance and Components
 
-The service loads current guidance from the same corpus and manifests used by the built-in Docs agents. The installed [component catalog](references/components.md) shows each component's purpose, selection criteria, and focused reference. [Standards](references/standards.md) records the installed guidance snapshot. Treat the fresh `docs_begin` response as authoritative when the development checkout has changed.
+The service loads current guidance from the same corpus and manifests used by the built-in Docs agents. The installed [component catalog](references/components.md) shows each component's purpose, selection criteria, and focused reference. [Standards](references/standards.md) records the installed guidance snapshot. Treat the task's `docs_guidance` topics as authoritative when the development checkout has changed.
 
 Use State Shape for data fields and a JSON instance, Interaction Surface for operations on that state, and annotated Code for source evidence. Use Canvas for system connections, Process Outline for expected execution steps, and Sequence for participant interactions and ordering. The catalog covers all registered component families, including ordinary text, File Tree, and Structured Table.
 

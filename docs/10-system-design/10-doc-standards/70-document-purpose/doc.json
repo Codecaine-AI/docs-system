@@ -108,7 +108,8 @@
         }
       ],
       "children": [
-        "b-70-document-purpose-help-a-competent-reader-7"
+        "b-70-document-purpose-help-a-competent-reader-7",
+        "b-70-document-purpose-name-the-guide-by-the-task"
       ]
     },
     "b-70-document-purpose-help-a-competent-reader-7": {
@@ -119,7 +120,20 @@
       },
       "text": [
         {
-          "insert": "Help a competent reader finish a task. Use direct steps, relevant conditions, and decision points. Name the guide by the task."
+          "insert": "Help a competent reader finish a task. Use direct steps, relevant conditions, and decision points."
+        }
+      ],
+      "children": []
+    },
+    "b-70-document-purpose-name-the-guide-by-the-task": {
+      "id": "b-70-document-purpose-name-the-guide-by-the-task",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Name the guide by the task."
         }
       ],
       "children": []
@@ -139,7 +153,8 @@
         }
       ],
       "children": [
-        "b-70-document-purpose-supply-facts-for-lookup-9"
+        "b-70-document-purpose-supply-facts-for-lookup-9",
+        "b-70-document-purpose-generate-facts-from-code"
       ]
     },
     "b-70-document-purpose-supply-facts-for-lookup-9": {
@@ -150,7 +165,20 @@
       },
       "text": [
         {
-          "insert": "Supply facts for lookup. Mirror the thing described and state its options, limits, and errors. Generate facts from code where practical."
+          "insert": "Supply facts for lookup. Mirror the thing described and state its options, limits, and errors."
+        }
+      ],
+      "children": []
+    },
+    "b-70-document-purpose-generate-facts-from-code": {
+      "id": "b-70-document-purpose-generate-facts-from-code",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Generate facts from code where practical."
         }
       ],
       "children": []
@@ -205,7 +233,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Choose the primary purpose before authoring. Purpose guides the reader's task; the corpus layers still determine location and authority."
+          "insert": "Choose the primary purpose before authoring. Purpose guides the reader's task. The corpus layers still determine location and authority."
         }
       ],
       "children": []
@@ -235,6 +263,9 @@
       ],
       "children": [
         "b-70-document-purpose-foundation-owns-intent-15",
+        "b-70-document-purpose-design-owns-behavior",
+        "b-70-document-purpose-agents-owns-agent-defs",
+        "b-70-document-purpose-implementation-maps",
         "b-70-document-purpose-procedure-belongs-in-an-16"
       ]
     },
@@ -246,7 +277,46 @@
       },
       "text": [
         {
-          "insert": "Foundation owns intent. Design owns behavior. Agents owns agent definitions. Implementation maps the design to current code and explains key implementation choices."
+          "insert": "Foundation owns intent."
+        }
+      ],
+      "children": []
+    },
+    "b-70-document-purpose-design-owns-behavior": {
+      "id": "b-70-document-purpose-design-owns-behavior",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Design owns behavior."
+        }
+      ],
+      "children": []
+    },
+    "b-70-document-purpose-agents-owns-agent-defs": {
+      "id": "b-70-document-purpose-agents-owns-agent-defs",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Agents owns agent definitions."
+        }
+      ],
+      "children": []
+    },
+    "b-70-document-purpose-implementation-maps": {
+      "id": "b-70-document-purpose-implementation-maps",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Implementation maps the design to current code and explains key implementation choices."
         }
       ],
       "children": []

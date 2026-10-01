@@ -80,7 +80,70 @@
       "props": {},
       "text": [
         {
-          "insert": "2. Ask for one source-supported documentation correction without naming the tools. Expect docs_begin before mutation, docs_read for the current document hash, and a typed edit with the returned task_id and expected_hash. docs_guidance is useful for a component-specific reference but is not required on every edit."
+          "insert": "2. Ask for one source-supported documentation correction without naming the tools. Expect "
+        },
+        {
+          "insert": "docs_begin",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", then "
+        },
+        {
+          "insert": "docs_guidance",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " topic "
+        },
+        {
+          "insert": "style",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with the returned "
+        },
+        {
+          "insert": "task_id",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", before the first edit. Expect "
+        },
+        {
+          "insert": "docs_read",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " for the current document hash and a typed edit with "
+        },
+        {
+          "insert": "task_id",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "expected_hash",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Other topics and component references are optional."
         }
       ],
       "children": []
@@ -91,7 +154,43 @@
       "props": {},
       "text": [
         {
-          "insert": "3. Expect docs_check on each changed page and docs_end when the task finishes. Read back the page and inspect it in the shared UI. A successful tool response alone does not establish that the prose is correct."
+          "insert": "3. Expect fixes for reported "
+        },
+        {
+          "insert": "style_findings",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " as the agent edits, then "
+        },
+        {
+          "insert": "docs_check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with "
+        },
+        {
+          "insert": "task_id",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " on each changed page and "
+        },
+        {
+          "insert": "docs_end",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " when the task finishes. Read back the page and inspect it in the shared UI. A successful tool response alone does not establish that the prose is correct."
         }
       ],
       "children": []
@@ -150,7 +249,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Use advertised schemas for exact arguments. Common edits include docs_write_text, docs_insert, and docs_apply_ops. Component action names are generated from the registered actions; do not infer a name or bypass an unsupported action with a filesystem write."
+          "insert": "Use advertised schemas for exact arguments. Common edits include docs_write_text, docs_insert, and docs_apply_ops. Component action names are generated from the registered actions. Do not infer a name or bypass an unsupported action with a filesystem write."
         }
       ],
       "children": []
@@ -180,18 +279,18 @@
         "rows": [
           [
             "Tools absent",
-            "Client has not loaded its config or pi extension; configured checkout path moved.",
+            "Client has not loaded its config or pi extension, or the configured checkout path moved.",
             "Run doctor, preview reinstall, restart client or reload pi."
           ],
           [
             "No projects or wrong project",
             "Wrong workspace, undeclared member, invalid docsRoot, or no normalized corpus.",
-            "Inspect discovery warnings; declare relative members; rediscover in the intended workspace."
+            "Inspect discovery warnings, declare relative members, and rediscover in the intended workspace."
           ],
           [
             "Unknown task or project",
             "Task belongs to another workspace, service restarted, or project identity changed.",
-            "Rediscover; begin a new task; reread the target."
+            "Rediscover, begin a new task, and reread the target."
           ],
           [
             "Another checkout owns the service",
@@ -201,7 +300,7 @@
           [
             "Service will not start",
             "Startup or dependency failure.",
-            "Inspect service.log in the configured state directory; correct the reported error before reconnecting."
+            "Inspect service.log in the configured state directory. Correct the reported error before reconnecting."
           ]
         ]
       },
@@ -238,7 +337,7 @@
           [
             "Sidecar revision conflict",
             "Embedded Canvas or Sequence state changed.",
-            "Reread both document and component; reconcile both revisions."
+            "Reread both document and component, then reconcile both revisions."
           ],
           [
             "Implementation changed",
@@ -248,7 +347,78 @@
           [
             "Required lint or invalid structure",
             "The operation or final page violates a checked rule.",
-            "Inspect returned findings and repair through typed tools; do not rewrite doc.json."
+            "Inspect returned findings and repair through typed tools. Do not rewrite doc.json."
+          ],
+          [
+            "Content write refused",
+            [
+              {
+                "insert": "The task has not read "
+              },
+              {
+                "insert": "docs_guidance",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " topic "
+              },
+              {
+                "insert": "style",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": "."
+              }
+            ],
+            [
+              {
+                "insert": "Read that topic with "
+              },
+              {
+                "insert": "task_id",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", then retry the write."
+              }
+            ]
+          ],
+          [
+            "Style gate failure",
+            [
+              {
+                "insert": "The task introduced gated style warnings, listed in "
+              },
+              {
+                "insert": "style_gate",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": "."
+              }
+            ],
+            [
+              {
+                "insert": "Fix each listed block through typed tools and run "
+              },
+              {
+                "insert": "docs_check",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " again."
+              }
+            ]
           ],
           [
             "Undo unavailable or rejected",
@@ -315,7 +485,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Runtime state defaults to ~/.local/state/codecaine-docs or CODECAINE_DOCS_STATE_DIR. daemon.json contains the bearer credential and service address. daemon.lock and startup.lock coordinate startup; service.log records daemon output. Do not share daemon.json as a diagnostic artifact. No model API key is needed for this editing service."
+          "insert": "Runtime state defaults to ~/.local/state/codecaine-docs or CODECAINE_DOCS_STATE_DIR. daemon.json contains the bearer credential and service address. daemon.lock and startup.lock coordinate startup, and service.log records daemon output. Do not share daemon.json as a diagnostic artifact. No model API key is needed for this editing service."
         }
       ],
       "children": []
@@ -326,7 +496,25 @@
       "props": {},
       "text": [
         {
-          "insert": "Task contexts and guarded undo are process-local. docs_end releases guidance and does not revert applied edits. Stopping the service loses that in-memory state, while saved documents remain on disk. Cross-project edits are not atomic."
+          "insert": "Task contexts and guarded undo are process-local. A task context holds the pinned guidance snapshot, whether the task has read the "
+        },
+        {
+          "insert": "style",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " topic, and one edit baseline per page. "
+        },
+        {
+          "insert": "docs_end",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " releases that context and does not revert applied edits. Stopping the service loses that in-memory state, while saved documents remain on disk. Cross-project edits are not atomic."
         }
       ],
       "children": []
@@ -361,34 +549,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Page and section operations now include descendants. docs"
-        },
-        {
-          "insert": "move and docs",
-          "attributes": {
-            "italic": true
-          }
-        },
-        {
-          "insert": "rename preview their complete file and reference changes; apply with preview:false and expected"
-        },
-        {
-          "insert": "tree",
-          "attributes": {
-            "italic": true
-          }
-        },
-        {
-          "insert": "hash. Use docs"
-        },
-        {
-          "insert": "set",
-          "attributes": {
-            "italic": true
-          }
-        },
-        {
-          "insert": "title for display titles."
+          "insert": "Page and section operations include descendants. docs_move and docs_rename preview their complete file and reference changes. Apply them with preview:false and expected_tree_hash. Use docs_set_title for display titles."
         }
       ],
       "children": []
@@ -399,16 +560,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Management operations keep recovery journals and expose docs"
-        },
-        {
-          "insert": "management",
-          "attributes": {
-            "italic": true
-          }
-        },
-        {
-          "insert": "restore. Restore refuses subsequent edits or added descendants. Shared-store operations serialize during a reorganization; independent service processes remain separate authorities."
+          "insert": "Management operations keep recovery journals and expose docs_management_restore. Restore refuses subsequent edits or added descendants. Shared-store operations serialize during a reorganization, while independent service processes remain separate authorities."
         }
       ],
       "children": []

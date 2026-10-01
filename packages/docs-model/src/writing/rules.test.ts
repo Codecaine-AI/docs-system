@@ -125,8 +125,9 @@ test("plain-string code markup is excluded; document title is authored prose", (
   ).toEqual(["title"]);
 });
 test("dense paragraph is advisory", () => {
+  const sentence = "Ten short words make one sentence for this paragraph test.";
   expect(
-    writing(paragraph("p", Array(121).fill("word").join(" "))).map((f) => [
+    writing(paragraph("p", Array(13).fill(sentence).join(" "))).map((f) => [
       f.ruleId,
       f.severity,
     ]),

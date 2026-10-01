@@ -8,6 +8,9 @@ import { installClients, doctorClients, restoreInstallation } from './install';
 import { loadGuidance, generateSkillReferences } from './guidance';
 import { createDevelopmentSnapshot } from './snapshot';
 import { createInteractionService } from './service';
+import { loadCodecaineEnv } from './codecaine-env';
+// Background and client-launched processes do not inherit the shell. See codecaine-env.ts.
+loadCodecaineEnv();
 
 const args=process.argv.slice(2);const command=args.shift()??'help';
 function option(name:string,fallback?:string){const i=args.indexOf(name);return i>=0?args[i+1]:fallback;}

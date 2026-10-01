@@ -29,7 +29,7 @@ function doc(id: string, options: DocOptions = {}): Record<string, unknown> {
       id: "title",
       type: "heading",
       props: { level: 1 },
-      text: [{ insert: `${id} Section` }],
+      text: [{ insert: `${id.charAt(0).toUpperCase()}${id.slice(1)} Section` }],
       children: [],
     },
     opener: {
@@ -322,7 +322,7 @@ describe("H1 sections", () => {
             id: "second",
             type: "heading",
             props: { level: 1 },
-            text: [{ insert: "Second title" }],
+            text: [{ insert: "Second Title" }],
             children: [],
           },
         },

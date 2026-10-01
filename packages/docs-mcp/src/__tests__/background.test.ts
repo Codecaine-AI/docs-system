@@ -88,6 +88,7 @@ test('managed projects isolate writes and publish external file changes to the a
     expect(found.projects).toHaveLength(2);
     const begin = (await service.call(temp, 'docs_begin')).structuredContent as any;
     expect(begin.ok).toBe(true);
+    await service.call(temp, 'docs_guidance', { task_id: begin.task_id, topic: 'style' });
     const read = (await service.call(temp, 'docs_read', { project: a!.id, path: 'page' })).structuredContent as any;
     const saved = (await service.call(temp, 'docs_write_text', { project: a!.id, path: 'page', blockId: 'p', markdown: 'Changed A.', task_id: begin.task_id, expected_hash: read.hash })).structuredContent as any;
     expect(saved.ok).toBe(true);

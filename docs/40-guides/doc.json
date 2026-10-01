@@ -14,7 +14,8 @@
         "core-releases-guide",
         "central-service-guide",
         "pdf-export-guide",
-        "github-pages-guide"
+        "github-pages-guide",
+        "shared-env-guide"
       ]
     },
     "maintenance-0": {
@@ -124,6 +125,26 @@
         },
         {
           "insert": " explains exporting a corpus as a static site and publishing it to a gh-pages branch, with the objectives repository as the worked example."
+        }
+      ],
+      "children": []
+    },
+    "shared-env-guide": {
+      "id": "shared-env-guide",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Shared Codecaine Environment",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "40-guides/60-shared-env"
+            }
+          }
+        },
+        {
+          "insert": " explains where Codecaine services read shared keys such as the TypeSafe API key, and how to add one."
         }
       ],
       "children": []

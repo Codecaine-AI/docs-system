@@ -13,6 +13,15 @@
         "mcp-guide-1",
         "mcp-guide-2",
         "mcp-guide-3",
+        "mcp-guide-check",
+        "mcp-guide-judgment",
+        "mcp-jev-h",
+        "mcp-jev-lead",
+        "mcp-jev-wiring",
+        "mcp-jev-model",
+        "mcp-jev-cache",
+        "mcp-jev-timeout",
+        "mcp-jev-sample",
         "mcp-guide-4",
         "mcp-guide-5",
         "mcp-guide-6",
@@ -75,7 +84,52 @@
       "props": {},
       "text": [
         {
-          "insert": "Discover the active workspace with docs_discover. Before editing, call docs_begin to load shared writing standards and component guidance. Read the target document through docs_read, then supply its revision hash and the task ID to a typed editing tool. Valid changes apply immediately."
+          "insert": "Discover the active workspace with "
+        },
+        {
+          "insert": "docs_discover",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Call "
+        },
+        {
+          "insert": "docs_begin",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " before editing. It returns a task ID, the style digest, a guidance topic index, and one-line component purposes. Read "
+        },
+        {
+          "insert": "docs_guidance",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " topic "
+        },
+        {
+          "insert": "style",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with that task ID next, because the service refuses content writes until the task has read it. Then read the target through "
+        },
+        {
+          "insert": "docs_read",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and pass its revision hash and the task ID to a typed editing tool. Valid changes apply immediately."
         }
       ],
       "children": []
@@ -86,7 +140,431 @@
       "props": {},
       "text": [
         {
-          "insert": "The service rejects invalid structure and stale revisions. Editing calls return draft writing findings. Run docs_check before reporting completion, and repair required findings or state what remains unresolved. A failed update in one project does not roll back successful updates in another project."
+          "insert": "The service rejects invalid structure and stale revisions. Tree, annotation, review-decision, asset, undo, restore, and lint-fix tools skip the style-read requirement. A write result opens with "
+        },
+        {
+          "insert": "style_findings",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " for the blocks the write touched, "
+        },
+        {
+          "insert": "style_gate_open",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " for violations the task left open on the page, and "
+        },
+        {
+          "insert": "next",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", before the document. A failed update in one project does not roll back successful updates in another project."
+        }
+      ],
+      "children": []
+    },
+    "mcp-guide-check": {
+      "id": "mcp-guide-check",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Run "
+        },
+        {
+          "insert": "docs_check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with the task ID on each changed page before reporting completion. It fails on required findings and on gated style warnings the task introduced, which it lists in "
+        },
+        {
+          "insert": "style_gate",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Repair them or state what remains unresolved. "
+        },
+        {
+          "insert": "Authoring Lints",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/10-doc-standards/80-authoring-lints"
+            }
+          }
+        },
+        {
+          "insert": " defines the gated rules and the task baseline."
+        }
+      ],
+      "children": []
+    },
+    "mcp-guide-judgment": {
+      "id": "mcp-guide-judgment",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Write feedback comes from deterministic lint plus three judgment rules. lint-feedback.ts holds "
+        },
+        {
+          "insert": "STYLE_RULE_POLICY",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", which selects the gated warnings, and "
+        },
+        {
+          "insert": "judgmentRules",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", which Authoring Lints describes. jev-engine.ts answers those rules."
+        }
+      ],
+      "children": []
+    },
+    "mcp-jev-h": {
+      "id": "mcp-jev-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Judgment Engine"
+        }
+      ],
+      "children": []
+    },
+    "mcp-jev-lead": {
+      "id": "mcp-jev-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "jev-engine.ts implements "
+        },
+        {
+          "insert": "JudgmentEngine",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " over the TypeSafe System One HTTP API. It asks each rule about each block the rule applies to, one question per request, with up to 6 requests in flight."
+        }
+      ],
+      "children": []
+    },
+    "mcp-jev-wiring": {
+      "id": "mcp-jev-wiring",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Wiring",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "mcp-jev-wiring-1",
+        "mcp-jev-wiring-2"
+      ]
+    },
+    "mcp-jev-wiring-1": {
+      "id": "mcp-jev-wiring-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "createInteractionService",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in service.ts passes "
+        },
+        {
+          "insert": "defaultJudgmentEngine()",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " to "
+        },
+        {
+          "insert": "createDocsTools",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", so write results and "
+        },
+        {
+          "insert": "docs_check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " share one engine."
+        }
+      ],
+      "children": []
+    },
+    "mcp-jev-wiring-2": {
+      "id": "mcp-jev-wiring-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The engine reads "
+        },
+        {
+          "insert": "TYPESAFE_API_KEY",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "CODECAINE_DOCS_JUDGMENT",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " through "
+        },
+        {
+          "insert": "codecaineEnv",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " on every call. Under "
+        },
+        {
+          "insert": "bun test",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", judgment stays off unless the setting is "
+        },
+        {
+          "insert": "on",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "mcp-jev-model": {
+      "id": "mcp-jev-model",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Requests",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "mcp-jev-model-1",
+        "mcp-jev-model-2"
+      ]
+    },
+    "mcp-jev-model-1": {
+      "id": "mcp-jev-model-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Requests use model "
+        },
+        {
+          "insert": "jev-1.13.0",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " unless "
+        },
+        {
+          "insert": "CODECAINE_DOCS_JUDGMENT_MODEL",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " names another."
+        }
+      ],
+      "children": []
+    },
+    "mcp-jev-model-2": {
+      "id": "mcp-jev-model-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A judge call with more than 24 questions batches them, so it stays near 24 requests."
+        }
+      ],
+      "children": []
+    },
+    "mcp-jev-cache": {
+      "id": "mcp-jev-cache",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Cache",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "mcp-jev-cache-1",
+        "mcp-jev-cache-2"
+      ]
+    },
+    "mcp-jev-cache-1": {
+      "id": "mcp-jev-cache-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Answers stay in memory, keyed by model, rule ID, and the question's state. A "
+        },
+        {
+          "insert": "docs_check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " after a write reuses the answers for unchanged blocks."
+        }
+      ],
+      "children": []
+    },
+    "mcp-jev-cache-2": {
+      "id": "mcp-jev-cache-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The cache holds up to 5,000 answers and drops the oldest first."
+        }
+      ],
+      "children": []
+    },
+    "mcp-jev-timeout": {
+      "id": "mcp-jev-timeout",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Timeout",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "mcp-jev-timeout-1",
+        "mcp-jev-timeout-2"
+      ]
+    },
+    "mcp-jev-timeout-1": {
+      "id": "mcp-jev-timeout-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "One 4-second deadline covers the whole judge call. A 429 or 529 response is retried once."
+        }
+      ],
+      "children": []
+    },
+    "mcp-jev-timeout-2": {
+      "id": "mcp-jev-timeout-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Any other failure makes judgment unavailable, and both callers fail open."
+        }
+      ],
+      "children": []
+    },
+    "mcp-jev-sample": {
+      "id": "mcp-jev-sample",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Calibration",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "mcp-jev-sample-1"
+      ]
+    },
+    "mcp-jev-sample-1": {
+      "id": "mcp-jev-sample-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "scripts/jev-lint-sample.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " runs every rule over the blocks of given pages, read-only, and prints each answer's probability."
         }
       ],
       "children": []
@@ -110,7 +588,43 @@
       "props": {},
       "text": [
         {
-          "insert": "Component manifests declare selection guidance and examples. The shared authoring-guidance renderer supplies the catalog to external tools and both built-in Docs agent contexts. Use docs_guidance with a component name to read its canonical reference."
+          "insert": "Component manifests declare selection guidance and examples. The shared authoring-guidance renderer supplies the catalog to external tools and both built-in Docs agent contexts. "
+        },
+        {
+          "insert": "docs_begin",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " lists one-line component purposes. "
+        },
+        {
+          "insert": "docs_guidance",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " topic "
+        },
+        {
+          "insert": "components",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " returns the full catalog, and its "
+        },
+        {
+          "insert": "component",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " argument returns one component's canonical reference."
         }
       ],
       "children": []
@@ -303,7 +817,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Codex and Claude use stdio MCP bridges; pi uses its extension bridge. They connect to one authenticated loopback daemon per state directory. The service resolves an explicit project to its canonical docs root and calls the existing store through typed tools. No model or kernel process is started by an external documentation task."
+          "insert": "Codex and Claude use stdio MCP bridges, and pi uses its extension bridge. They connect to one authenticated loopback daemon per state directory. The service resolves an explicit project to its canonical docs root and calls the existing store through typed tools. No model or kernel process is started by an external documentation task."
         }
       ],
       "children": []
@@ -314,7 +828,16 @@
       "props": {},
       "text": [
         {
-          "insert": "The service owns workspace membership and in-memory task snapshots. Store operations own structural validation, revision checks, and root-scoped mutation coordination. Task IDs are bound to the workspace; they pin authoring knowledge without creating a transaction. Direct valid edits persist immediately. The shared workbench proxies to this same daemon. Standalone workbenches and kernel processes retain independent process-local state."
+          "insert": "The service owns workspace membership and in-memory task state. Store operations own structural validation, revision checks, and root-scoped mutation coordination. Task IDs are bound to the workspace. Each task pins a guidance snapshot, records whether it has read the "
+        },
+        {
+          "insert": "style",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " topic, and keeps one edit baseline per page, without creating a transaction. Direct valid edits persist immediately. The shared workbench proxies to this same daemon. Standalone workbenches and kernel processes retain independent process-local state."
         }
       ],
       "children": []
@@ -351,11 +874,11 @@
           },
           {
             "path": "packages/docs-mcp/src/service.ts",
-            "note": "Project membership, tasks, guidance and mutation gate"
+            "note": "Project membership, tasks, guidance topics, and the style gate"
           },
           {
             "path": "packages/docs-mcp/src/tools.ts",
-            "note": "Typed Docs operations and generated component actions"
+            "note": "Typed Docs operations, generated component actions, and write style feedback"
           },
           {
             "path": "packages/docs-mcp/src/discovery.ts",
@@ -375,7 +898,7 @@
           },
           {
             "path": "packages/docs-mcp/src/guidance.ts",
-            "note": "Canonical guidance loading and generated skill references"
+            "note": "Canonical guidance loading, topic split, and generated skill references"
           },
           {
             "path": "packages/docs-mcp/src/snapshot.ts",
@@ -404,6 +927,26 @@
           {
             "path": "packages/docs-kernel/catalog/docs-lab-editor/context/index.ts",
             "note": "Internal Docs Lab authoring context consumer"
+          },
+          {
+            "path": "packages/docs-mcp/src/lint-feedback.ts",
+            "note": "Gated style rule policy, write findings, judgment rules, and the judged gate"
+          },
+          {
+            "path": "packages/docs-mcp/src/style-digest.ts",
+            "note": "Style digest that docs_begin returns first"
+          },
+          {
+            "path": "packages/docs-mcp/src/jev-engine.ts",
+            "note": "Jev judgment engine: requests, cache, timeout, and the kill switch"
+          },
+          {
+            "path": "packages/docs-mcp/src/doc-context.ts",
+            "note": "Tree views that judgment rules and the engine share"
+          },
+          {
+            "path": "packages/docs-mcp/scripts/jev-lint-sample.ts",
+            "note": "Read-only calibration run against the live API"
           }
         ]
       },

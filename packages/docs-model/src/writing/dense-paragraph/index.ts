@@ -1,5 +1,5 @@
 import type { LintRule } from "../../lint/types";
-import { authoredProse } from "../prose";
+import { authoredProse, wordCount } from "../prose";
 const docsPath = "99-appendix/10-style-guide/10-writing-style";
 const exclusions = [
   "Code and quote blocks and their descendants",
@@ -17,7 +17,7 @@ export const denseParagraphRule: LintRule = {
     "Split the paragraph by topic or move independent facts into a short list.",
   check: (context) =>
     authoredProse(context).flatMap((p) =>
-      p.paragraph && p.text.split(/[\s\u0000]+/).filter(Boolean).length > 120
+      p.paragraph && wordCount(p.text) > 120
         ? [
             {
               blockId: p.blockId,

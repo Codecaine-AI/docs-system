@@ -5,7 +5,7 @@ const audit:any[]=await Bun.file('/tmp/interaction-docs-audit.json').json();
 const results:any[]=[];
 const rpc=async(workspace:string,name:string,args:any={})=>{const r:any=await(await daemonFetch(daemon,'/rpc',{workspace,name,arguments:args})).json();if((r.isError||r.structuredContent?.ok===false)&&name!=='docs_check')throw Error(name+': '+JSON.stringify(r.structuredContent??r));return r.structuredContent;};
 for(const workspace of [...new Set(audit.map(d=>d.workspace))]){
- await rpc(workspace,'docs_discover');let task=await rpc(workspace,'docs_begin');
+ await rpc(workspace,'docs_discover');let task=await rpc(workspace,'docs_begin');await rpc(workspace,'docs_guidance',{task_id:task.task_id,topic:'style'});
  for(const old of audit.filter(d=>d.workspace===workspace)){
   const {project,path}=old;const current=await rpc(workspace,'docs_read',{project,path});const doc=current.doc,ops:any[]=[];
   if(doc.blocks["approved-design-record"]) continue;
@@ -20,16 +20,16 @@ for(const workspace of [...new Set(audit.map(d=>d.workspace))]){
      if(state){op.returnShape={fields:structuredClone(state.props.fields.filter((f:any)=>keys.includes(f.name)))};op.returns=state.props.name.replace(/State$/,'')+'Patch';}
     }
     if(b.id==='worked-operation-signature'&&op.name==='state-shape.addField'){const out=doc.blocks['worked-operation-return'].props;op.returnShape={fields:out.fields,example:out.example};}
-    if(path.endsWith('/60-interaction-surface')&&b.id==='b-22-interaction-surface-example-block'){
+    if(path.endsWith('/40-structured-reference/20-interaction-surface')&&b.id==='b-22-interaction-surface-example-block'){
      const out=doc.blocks['worked-operation-return'].props;op.returns='FileTreeEntriesPatch';op.returnShape={fields:out.fields,example:op.name.endsWith('addEntry')?out.example:JSON.stringify({entries:[]},null,2)};
      op.description=op.name.endsWith('addEntry')?'Duplicate paths are rejected. Returns the props patch, not the action success envelope.':'Removes only the exact matching path. Returns the props patch.';
     }
-    if(op.name==='interaction-surface.addOperation'&&path.endsWith('/60-interaction-surface')){op.params.push({name:'returnShape',type:'ReturnShape',required:false,fields:[{name:'fields',type:'Field[]'},{name:'example',type:'string',required:false}]});op.description='Rejects duplicate operation names.';}
+    if(op.name==='interaction-surface.addOperation'&&path.endsWith('/40-structured-reference/20-interaction-surface')){op.params.push({name:'returnShape',type:'ReturnShape',required:false,fields:[{name:'fields',type:'Field[]'},{name:'example',type:'string',required:false}]});op.description='Rejects duplicate operation names.';}
     if(op.name==='interaction-surface.updateOperation')op.description='Renames in place; null clears description, params, returns, returnShape, or kind.';
    }
    if(JSON.stringify(operations)!==JSON.stringify(b.props.operations))ops.push({type:'updateBlock',blockId:b.id,props:{operations}});
   }
-  if(path.endsWith('/60-interaction-surface')){
+  if(path.endsWith('/40-structured-reference/20-interaction-surface')){
    update('b-22-interaction-surface-example-intro','This example starts with one file-tree entry. Adding src/config.ts returns the complete entries props patch inside its operation card. Removing src/index.ts from the same starting state returns an empty entries list. Each example starts independently from FileTreeState.');
    ops.push({type:'deleteBlock',blockId:'worked-operation-return',mode:'subtree'});
    const state=structuredClone(doc.blocks['b-22-interaction-surface-shape-4'].props);const fields=state.fields.find((f:any)=>f.name==='operations').fields;

@@ -94,7 +94,20 @@
       "props": {},
       "text": [
         {
-          "insert": "Lead with the fact. The first sentence of a doc or section states the thing itself. No setup, no \"the idea here is\"."
+          "insert": "Lead with the fact."
+        }
+      ],
+      "children": [
+        "b-sg-ws-lead-2-detail"
+      ]
+    },
+    "b-sg-ws-lead-2-detail": {
+      "id": "b-sg-ws-lead-2-detail",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The first sentence of a doc or section states the thing itself. No setup, no \"the idea here is\"."
         }
       ],
       "children": []
@@ -105,7 +118,20 @@
       "props": {},
       "text": [
         {
-          "insert": "One idea per sentence, one topic per block. A plain lead sentence plus fact bullets beats a paragraph of prose."
+          "insert": "One idea per sentence, one topic per block."
+        }
+      ],
+      "children": [
+        "b-sg-ws-one-idea-3-detail"
+      ]
+    },
+    "b-sg-ws-one-idea-3-detail": {
+      "id": "b-sg-ws-one-idea-3-detail",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A plain lead sentence plus fact bullets beats a paragraph of prose."
         }
       ],
       "children": []
@@ -116,7 +142,20 @@
       "props": {},
       "text": [
         {
-          "insert": "Concrete over vague: real numbers, real paths, real names. \"Sixteen types\", never \"several\"."
+          "insert": "Concrete over vague."
+        }
+      ],
+      "children": [
+        "b-sg-ws-concrete-4-detail"
+      ]
+    },
+    "b-sg-ws-concrete-4-detail": {
+      "id": "b-sg-ws-concrete-4-detail",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Use real numbers, real paths, and real names. Write \"Sixteen types\", never \"several\"."
         }
       ],
       "children": []
@@ -127,7 +166,32 @@
       "props": {},
       "text": [
         {
-          "insert": "No preamble, no recap, no closing remarks. Start at the answer; stop when it is stated. Tangents move to their own home and get a link, not a sidebar."
+          "insert": "No preamble, no recap, no closing remarks."
+        }
+      ],
+      "children": [
+        "b-sg-ws-no-preamble-5-answer",
+        "b-sg-ws-no-preamble-5-tangents"
+      ]
+    },
+    "b-sg-ws-no-preamble-5-answer": {
+      "id": "b-sg-ws-no-preamble-5-answer",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Start at the answer. Stop when it is stated."
+        }
+      ],
+      "children": []
+    },
+    "b-sg-ws-no-preamble-5-tangents": {
+      "id": "b-sg-ws-no-preamble-5-tangents",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Tangents move to their own home and get a link, not a sidebar."
         }
       ],
       "children": []
@@ -138,7 +202,20 @@
       "props": {},
       "text": [
         {
-          "insert": "Assume no memory: a section stands alone or links to what it needs. Never "
+          "insert": "Assume no memory."
+        }
+      ],
+      "children": [
+        "b-sg-ws-no-memory-6-detail"
+      ]
+    },
+    "b-sg-ws-no-memory-6-detail": {
+      "id": "b-sg-ws-no-memory-6-detail",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A section stands alone or links to what it needs. Never "
         },
         {
           "insert": "as mentioned above",
@@ -158,7 +235,20 @@
       "props": {},
       "text": [
         {
-          "insert": "Present-state prose: a finished doc describes what exists now. No change-log voice (\"now\", \"previously\", \"no longer\") unless the doc is explicitly about migration history."
+          "insert": "Present-state prose."
+        }
+      ],
+      "children": [
+        "b-sg-ws-present-state-7-detail"
+      ]
+    },
+    "b-sg-ws-present-state-7-detail": {
+      "id": "b-sg-ws-present-state-7-detail",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A finished doc describes what exists now. No change-log voice (\"now\", \"previously\", \"no longer\") unless the doc is explicitly about migration history."
         }
       ],
       "children": []
@@ -280,7 +370,22 @@
       },
       "text": [
         {
-          "insert": "Give each sentence one instruction. Review instructions over about 20 words and other sentences over about 25 words. Split at a second thought, not at an arbitrary count."
+          "insert": "Give each sentence one instruction."
+        }
+      ],
+      "children": [
+        "writing-b-writing-review-long-sentences-9a"
+      ]
+    },
+    "writing-b-writing-review-long-sentences-9a": {
+      "id": "writing-b-writing-review-long-sentences-9a",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Review instructions over about 20 words and other sentences over about 25 words. Split at a second thought, not at an arbitrary count."
         }
       ],
       "children": []
@@ -340,7 +445,8 @@
       ],
       "children": [
         "writing-b-writing-omit-please-simply-14",
-        "writing-b-writing-vary-sentence-lengths-a-15"
+        "writing-b-writing-vary-sentence-lengths-a-15",
+        "writing-b-writing-give-a-view-15a"
       ]
     },
     "writing-b-writing-omit-please-simply-14": {
@@ -364,7 +470,20 @@
       },
       "text": [
         {
-          "insert": "Vary sentence lengths. Avoid consecutive sentences with the same opening. Give a view when the document's purpose calls for judgment."
+          "insert": "Vary sentence lengths. Avoid consecutive sentences with the same opening."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-give-a-view-15a": {
+      "id": "writing-b-writing-give-a-view-15a",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Give a view when the document's purpose calls for judgment."
         }
       ],
       "children": []
@@ -1366,7 +1485,9 @@
         }
       ],
       "children": [
-        "writing-b-writing-acknowledge-real-complex-86"
+        "writing-b-writing-acknowledge-real-complex-86",
+        "writing-b-writing-use-first-person-86a",
+        "writing-b-writing-allow-natural-variation-86b"
       ]
     },
     "writing-b-writing-acknowledge-real-complex-86": {
@@ -1377,7 +1498,33 @@
       },
       "text": [
         {
-          "insert": "Acknowledge real complexity. Use first person where ownership matters. Allow natural variation instead of forcing every sentence into the same length or template."
+          "insert": "Acknowledge real complexity."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-use-first-person-86a": {
+      "id": "writing-b-writing-use-first-person-86a",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Use first person where ownership matters."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-allow-natural-variation-86b": {
+      "id": "writing-b-writing-allow-natural-variation-86b",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Allow natural variation instead of forcing every sentence into the same length or template."
         }
       ],
       "children": []
@@ -1420,7 +1567,36 @@
           }
         },
         {
-          "insert": " supplies the sentence and reader guidance. The source skill records a fetch on 2026-07-18. This corpus keeps Title Case headings."
+          "insert": " supplies the sentence and reader guidance."
+        }
+      ],
+      "children": [
+        "writing-b-writing-google-fetch-89a",
+        "writing-b-writing-google-title-case-89b"
+      ]
+    },
+    "writing-b-writing-google-fetch-89a": {
+      "id": "writing-b-writing-google-fetch-89a",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The source skill records a fetch on 2026-07-18."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-google-title-case-89b": {
+      "id": "writing-b-writing-google-title-case-89b",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "This corpus keeps Title Case headings."
         }
       ],
       "children": []
@@ -1439,7 +1615,36 @@
           }
         },
         {
-          "insert": ", Issue 9, 2025, supplies transferable instruction principles. The source skill records a fetch on 2026-07-18. The full numbered rules and dictionary remain in the specification."
+          "insert": ", Issue 9, 2025, supplies transferable instruction principles."
+        }
+      ],
+      "children": [
+        "writing-b-writing-asd-fetch-90a",
+        "writing-b-writing-asd-full-rules-90b"
+      ]
+    },
+    "writing-b-writing-asd-fetch-90a": {
+      "id": "writing-b-writing-asd-fetch-90a",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The source skill records a fetch on 2026-07-18."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-asd-full-rules-90b": {
+      "id": "writing-b-writing-asd-full-rules-90b",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The full numbered rules and dictionary remain in the specification."
         }
       ],
       "children": []
@@ -1452,7 +1657,22 @@
       },
       "text": [
         {
-          "insert": "John R. Kohl's The Global English Style Guide, SAS Press, supplies ambiguity guidance. The source skill records the Internet Archive and SAS sample chapter as sources fetched on 2026-07-18."
+          "insert": "John R. Kohl's The Global English Style Guide, SAS Press, supplies ambiguity guidance."
+        }
+      ],
+      "children": [
+        "writing-b-writing-kohl-fetch-91a"
+      ]
+    },
+    "writing-b-writing-kohl-fetch-91a": {
+      "id": "writing-b-writing-kohl-fetch-91a",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The source skill records the Internet Archive and SAS sample chapter as sources fetched on 2026-07-18."
         }
       ],
       "children": []

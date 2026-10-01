@@ -1,16 +1,30 @@
 Write matter-of-fact prose that states what is, in the order the reader needs it. This page defines sentence clarity, punctuation, and the Unslop pattern catalog for the corpus.
 
-- Lead with the fact. The first sentence of a doc or section states the thing itself. No setup, no "the idea here is".
+- Lead with the fact.
 
-- One idea per sentence, one topic per block. A plain lead sentence plus fact bullets beats a paragraph of prose.
+  - The first sentence of a doc or section states the thing itself. No setup, no "the idea here is".
 
-- Concrete over vague: real numbers, real paths, real names. "Sixteen types", never "several".
+- One idea per sentence, one topic per block.
 
-- No preamble, no recap, no closing remarks. Start at the answer; stop when it is stated. Tangents move to their own home and get a link, not a sidebar.
+  - A plain lead sentence plus fact bullets beats a paragraph of prose.
 
-- Assume no memory: a section stands alone or links to what it needs. Never `as mentioned above`.
+- Concrete over vague.
 
-- Present-state prose: a finished doc describes what exists now. No change-log voice ("now", "previously", "no longer") unless the doc is explicitly about migration history.
+  - Use real numbers, real paths, and real names. Write "Sixteen types", never "several".
+
+- No preamble, no recap, no closing remarks.
+
+  - Start at the answer. Stop when it is stated.
+
+  - Tangents move to their own home and get a link, not a sidebar.
+
+- Assume no memory.
+
+  - A section stands alone or links to what it needs. Never `as mentioned above`.
+
+- Present-state prose.
+
+  - A finished doc describes what exists now. No change-log voice ("now", "previously", "no longer") unless the doc is explicitly about migration history.
 
 ## Write Sentences to the Reader
 
@@ -28,7 +42,9 @@ Use plain words and the real names from the codebase. Keep a longer sentence whe
 
   - Put the condition or warning before the action it guards. Put the common case before exceptions.
 
-  - Give each sentence one instruction. Review instructions over about 20 words and other sentences over about 25 words. Split at a second thought, not at an arbitrary count.
+  - Give each sentence one instruction.
+
+    - Review instructions over about 20 words and other sentences over about 25 words. Split at a second thought, not at an arbitrary count.
 
 - Use the short, everyday word.
 
@@ -40,7 +56,9 @@ Use plain words and the real names from the codebase. Keep a longer sentence whe
 
   - Omit "please", "simply", "easy", and "quickly" from procedures. Read an awkward sentence aloud and rewrite it if it stays awkward.
 
-  - Vary sentence lengths. Avoid consecutive sentences with the same opening. Give a view when the document's purpose calls for judgment.
+  - Vary sentence lengths. Avoid consecutive sentences with the same opening.
+
+  - Give a view when the document's purpose calls for judgment.
 
 ## Remove Ambiguity
 
@@ -182,17 +200,31 @@ Documentation states the answer. Personality comes from specific facts, useful j
 
 - Keep the voice human without making facts imprecise.
 
-  - Acknowledge real complexity. Use first person where ownership matters. Allow natural variation instead of forcing every sentence into the same length or template.
+  - Acknowledge real complexity.
+
+  - Use first person where ownership matters.
+
+  - Allow natural variation instead of forcing every sentence into the same length or template.
 
 ## Sources
 
 This page incorporates the existing Technical Writing and Unslop guidance. Source dates below record the prior Technical Writing attribution, not a new fetch.
 
-- [Google Developer Style](https://developers.google.com/style) supplies the sentence and reader guidance. The source skill records a fetch on 2026-07-18. This corpus keeps Title Case headings.
+- [Google Developer Style](https://developers.google.com/style) supplies the sentence and reader guidance.
 
-- [ASD-STE100](https://asd-ste100.org), Issue 9, 2025, supplies transferable instruction principles. The source skill records a fetch on 2026-07-18. The full numbered rules and dictionary remain in the specification.
+  - The source skill records a fetch on 2026-07-18.
 
-- John R. Kohl's The Global English Style Guide, SAS Press, supplies ambiguity guidance. The source skill records the Internet Archive and SAS sample chapter as sources fetched on 2026-07-18.
+  - This corpus keeps Title Case headings.
+
+- [ASD-STE100](https://asd-ste100.org), Issue 9, 2025, supplies transferable instruction principles.
+
+  - The source skill records a fetch on 2026-07-18.
+
+  - The full numbered rules and dictionary remain in the specification.
+
+- John R. Kohl's The Global English Style Guide, SAS Press, supplies ambiguity guidance.
+
+  - The source skill records the Internet Archive and SAS sample chapter as sources fetched on 2026-07-18.
 
 - Technical Writing records its corpus structure guidance as merged from this style guide on 2026-08-19. Unslop supplies the pattern catalog integrated into this page.
 

@@ -6,6 +6,9 @@ import { dirname, join, resolve } from 'node:path';
 import { localBrowserRequest, mergeDiscovery, projectRoute, readRegistry, writeRegistry } from './registry';
 import { directoryHtml } from './home';
 import { deviceSearchRoots, emptyDeviceScan, scanDevice, scanWarning, type DeviceScan } from './device-discovery';
+import { loadCodecaineEnv } from '../codecaine-env';
+// Background and client-launched processes do not inherit the shell. See codecaine-env.ts.
+loadCodecaineEnv();
 
 type Config = { sourceRoot: string; workspace: string; port: number; stateDirectory: string; legacyPort?: number };
 type Runtime = { process: ReturnType<typeof Bun.spawn>; url: string; hash: string; file: string };

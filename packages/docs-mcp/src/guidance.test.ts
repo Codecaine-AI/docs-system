@@ -2,9 +2,9 @@ import { afterEach, expect, test } from "bun:test";
 import { cp, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { tmpdir } from "node:os";
-import { loadGuidance, generateSkillReferences } from "./guidance";
+import { loadGuidance, generateSkillReferences, guidanceTopics } from "./guidance";
 import { ALL_COMPONENTS } from "../../docs-model/src/components";
-import { AUTHORING_BUNDLES, assembleAuthoringGuidance, componentGuidance } from "../../docs-model/src/authoring-guidance";
+import { AUTHORING_BUNDLES, STANDARDS_BUNDLES, STYLE_GUIDE_BUNDLES, assembleAuthoringGuidance, componentGuidance } from "../../docs-model/src/authoring-guidance";
 
 const temporary: string[] = [];
 const corpus = resolve(import.meta.dir, "../../../docs");
@@ -27,6 +27,23 @@ test("external guidance uses the shared renderer and covers every registered com
     expect(snapshot.componentReferences[component.name].length).toBeGreaterThan(100);
   }
   expect((await loadGuidance()).snapshotId).toBe(snapshot.snapshotId);
+});
+
+test("guidance topics split the snapshot into whole pages without losing text", async () => {
+  const snapshot = await loadGuidance();
+  const topics = guidanceTopics(snapshot);
+  const text = (name: string) => topics.find(topic => topic.topic === name)?.text ?? "";
+  const pages = (body: string) => [...body.matchAll(/^  <doc path="([^"]+)"/gm)].map(match => match[1]);
+  expect(pages(text("style"))).toEqual([...STYLE_GUIDE_BUNDLES]);
+  expect(text("components")).toContain("<docs_visual_components");
+  expect(text("components")).toContain("<docs_component_catalog");
+  expect(topics.filter(topic => topic.topic.startsWith("standards-")).map(topic => pages(topic.text))).toEqual(STANDARDS_BUNDLES.map(bundle => [bundle]));
+  expect(text("all")).toBe(snapshot.text);
+  // Topics reuse the snapshot's own lines, and together they cover every line, so no section can drop out.
+  const lines = new Set(snapshot.text.split("\n"));
+  const split = topics.filter(topic => topic.topic !== "all").flatMap(topic => topic.text.split("\n"));
+  expect(split.filter(line => !lines.has(line))).toEqual([]);
+  expect([...lines].filter(line => !split.includes(line))).toEqual([]);
 });
 
 test("registered components cannot silently omit selection guidance", () => {

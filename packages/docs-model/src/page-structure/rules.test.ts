@@ -2,7 +2,7 @@ import { expect, test } from "bun:test";
 import { lintDocument } from "../lint";
 import { document, paragraph } from "../lint/fixtures";
 const heading = (id: string, level: number) => ({
-  ...paragraph(id, id),
+  ...paragraph(id, id.toUpperCase()),
   type: "heading" as const,
   props: { level },
 });

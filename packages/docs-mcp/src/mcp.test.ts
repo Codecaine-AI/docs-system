@@ -18,7 +18,9 @@ test('two MCP clients share one authority; typed edits, UI visibility, stale rej
   const invoke=async(client:Client,name:string,args:Record<string,unknown>={})=>(await client.callTool({name,arguments:args})).structuredContent as any;
   const tools=await a.listTools();expect(tools.tools.length).toBeGreaterThan(40);
   const found=await invoke(a,'docs_discover');expect(found.projects.length).toBe(2);const project=found.projects.find((p:any)=>p.name==='a').id;
-  const begun=await invoke(a,'docs_begin');expect(begun.guidance).toContain('docs_style_guide');expect(begun.components.length).toBeGreaterThan(5);
+  expect(a.getInstructions()).toContain('topic "style"');
+  const begun=await invoke(a,'docs_begin');expect(begun.style_digest.length).toBeGreaterThan(5);expect(begun.components.length).toBeGreaterThan(5);
+  expect((await invoke(a,'docs_guidance',{task_id:begun.task_id,topic:'style'})).guidance).toContain('docs_style_guide');
   const before=await invoke(a,'docs_read',{project,path:'page'});
   const saved=await invoke(a,'docs_write_text',{task_id:begun.task_id,project,path:'page',expected_hash:before.hash,blockId:'p',markdown:'Updated through MCP.'});expect(saved.ok).toBe(true);
   expect((await invoke(b,'docs_read',{project,path:'page'})).markdown).toContain('Updated through MCP.');
@@ -43,6 +45,7 @@ test('two MCP clients share one authority; typed edits, UI visibility, stale rej
   expect((await invoke(b,'docs_delete',{...treeArgs,path:'renamed',recursive:true,expected_hash:renamedPage.hash,preview:false,expected_tree_hash:preview.tree_hash})).ok).toBe(true);
   expect((await invoke(a,'docs_read',{project,path:'renamed'})).ok).toBe(false);
   const detail=await invoke(a,'docs_guidance',{task_id:begun.task_id,component:'state-shape'});expect(detail.reference.length).toBeGreaterThan(100);
+  const resource=await a.readResource({uri:'codecaine://docs/guidance'});expect((resource.contents[0] as any).text).toContain('docs_structure_standards');
  }finally{
   await Promise.all(clients.map(c=>c.close()));
   try{const daemon=JSON.parse(await readFile(join(state,'daemon.json'),'utf8'));await Bun.fetch(`${daemon.url}/shutdown`,{method:'POST',headers:{Authorization:`Bearer ${daemon.token}`}});await Bun.sleep(200);}catch{}

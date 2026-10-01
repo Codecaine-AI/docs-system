@@ -20,6 +20,7 @@
         "b-80-authoring-lints-every-registered-rule-ha-16",
         "b-80-authoring-lints-draft-checks-17",
         "b-80-authoring-lints-completion-checks-21",
+        "lint-mcp-style-gate",
         "b-80-authoring-lints-required-repairs-25",
         "b-80-authoring-lints-editorial-review-28",
         "b-80-authoring-lints-current-checks-31",
@@ -30,6 +31,12 @@
         "b-80-authoring-lints-page-structure-warning-42",
         "process-outline-parent-lint",
         "bundle-relative-src-lint",
+        "lint-judgment-h",
+        "lint-judgment-lead",
+        "lint-judgment-ids",
+        "lint-judgment-thresholds",
+        "lint-judgment-failure",
+        "lint-judgment-owner",
         "b-80-authoring-lints-why-44",
         "title-heading-lint",
         "b-80-authoring-lints-shared-rules-let-cli-che-45"
@@ -41,7 +48,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Authoring lints report writing and page structure problems through one docs-model engine. The corpus defines the rules; tools display findings and enforce only the checks assigned to their stage."
+          "insert": "Authoring lints report writing and page structure problems through one docs-model engine. The corpus defines the rules. Tools display findings and enforce only the checks assigned to their stage."
         }
       ],
       "children": []
@@ -255,7 +262,7 @@
       },
       "text": [
         {
-          "insert": "The rules inspect the document's block order, heading levels, image alt text, and list nesting."
+          "insert": "The rules inspect the opening paragraph and its length, heading levels and Title Case, and image alt text. They also inspect list nesting, list length, list-item sentences, and label-colon openers."
         }
       ],
       "children": []
@@ -276,7 +283,8 @@
       ],
       "children": [
         "b-80-authoring-lints-existing-schema-validato-13",
-        "b-80-authoring-lints-canvas-and-sequence-own-14"
+        "b-80-authoring-lints-canvas-and-sequence-own-14",
+        "b-80-authoring-lints-block-usage-guidance"
       ]
     },
     "b-80-authoring-lints-existing-schema-validato-13": {
@@ -300,7 +308,20 @@
       },
       "text": [
         {
-          "insert": "Canvas and Sequence own their embedded formats. The docs-model lint engine does not inspect those formats or duplicate their checks. Block usage guidance stays in "
+          "insert": "Canvas and Sequence own their embedded formats. The docs-model lint engine does not inspect those formats or duplicate their checks."
+        }
+      ],
+      "children": []
+    },
+    "b-80-authoring-lints-block-usage-guidance": {
+      "id": "b-80-authoring-lints-block-usage-guidance",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Block usage guidance stays in "
         },
         {
           "insert": "Block Vocabulary",
@@ -418,6 +439,7 @@
       "children": [
         "b-80-authoring-lints-a-finding-blocks-complet-22",
         "b-80-authoring-lints-with-a-baseline-matchin-23",
+        "b-80-authoring-lints-without-a-baseline",
         "b-80-authoring-lints-existing-findings-remain-24",
         "lint-doc-writer-baseline"
       ]
@@ -430,7 +452,7 @@
       },
       "text": [
         {
-          "insert": "A finding blocks completion only when it is introduced, has error severity, and its rule enforces the complete phase."
+          "insert": "In the lint engine, a finding blocks completion only when it is introduced, has error severity, and its rule enforces the complete phase."
         }
       ],
       "children": []
@@ -443,7 +465,20 @@
       },
       "text": [
         {
-          "insert": "With a baseline, matching semantic evidence counts as existing even when block IDs change. Matching respects duplicate counts. Without a baseline, all findings count as introduced."
+          "insert": "With a baseline, matching semantic evidence counts as existing even when block IDs change. Matching respects duplicate counts."
+        }
+      ],
+      "children": []
+    },
+    "b-80-authoring-lints-without-a-baseline": {
+      "id": "b-80-authoring-lints-without-a-baseline",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Without a baseline, all findings count as introduced."
         }
       ],
       "children": []
@@ -467,7 +502,214 @@
       "props": {},
       "text": [
         {
-          "insert": "Docs Writer retains the original valid document for the session after the first successful write. Later writes and docs_check compare against that original. Checking an untouched document runs an absolute audit. The baseline is session-local and does not persist across sessions."
+          "insert": "Docs Writer retains the original valid document for the session after the first successful write."
+        }
+      ],
+      "children": [
+        "lint-doc-writer-baseline-compare",
+        "lint-doc-writer-baseline-scope"
+      ]
+    },
+    "lint-doc-writer-baseline-compare": {
+      "id": "lint-doc-writer-baseline-compare",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Later writes and docs_check compare against that original. Checking an untouched document runs an absolute audit."
+        }
+      ],
+      "children": []
+    },
+    "lint-doc-writer-baseline-scope": {
+      "id": "lint-doc-writer-baseline-scope",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The Docs Writer baseline is session-local and does not persist across sessions."
+        }
+      ],
+      "children": []
+    },
+    "lint-mcp-style-gate": {
+      "id": "lint-mcp-style-gate",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Docs MCP Style Gate",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "lint-mcp-style-gate-check",
+        "lint-mcp-style-gate-policy",
+        "lint-mcp-style-gate-baseline",
+        "lint-mcp-style-gate-feedback",
+        "lint-mcp-style-gate-judged"
+      ]
+    },
+    "lint-mcp-style-gate-check": {
+      "id": "lint-mcp-style-gate-check",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "docs_check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with "
+        },
+        {
+          "insert": "task_id",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " fails when the task introduced a gated warning on the page. Its "
+        },
+        {
+          "insert": "style_gate",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " field lists each one."
+        }
+      ],
+      "children": []
+    },
+    "lint-mcp-style-gate-policy": {
+      "id": "lint-mcp-style-gate-policy",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "STYLE_RULE_POLICY",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "lint-feedback.ts",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-mcp/src/lint-feedback.ts",
+              "label": "lint-feedback.ts"
+            }
+          }
+        },
+        {
+          "insert": " sets which warnings are gated. "
+        },
+        {
+          "insert": "writing.sentence-length",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "writing.filler",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and unlisted rules stay editorial."
+        }
+      ],
+      "children": []
+    },
+    "lint-mcp-style-gate-baseline": {
+      "id": "lint-mcp-style-gate-baseline",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The docs MCP baseline is the page as it stood before the task's first successful write to it. Each task keeps one per page until "
+        },
+        {
+          "insert": "docs_end",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "lint-mcp-style-gate-feedback": {
+      "id": "lint-mcp-style-gate-feedback",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Write results list up to 5 "
+        },
+        {
+          "insert": "style_findings",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " that the write introduced or that sit on blocks it touched. "
+        },
+        {
+          "insert": "style_gate_open",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " counts the gated violations the task still has open on the page."
+        }
+      ],
+      "children": []
+    },
+    "lint-mcp-style-gate-judged": {
+      "id": "lint-mcp-style-gate-judged",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Judgment Rules findings at 0.85 or higher on blocks the task changed also enter "
+        },
+        {
+          "insert": "style_gate",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []
@@ -544,7 +786,7 @@
       },
       "text": [
         {
-          "insert": "Warnings ask the author to inspect a passage. They do not block completion and do not prove the passage is wrong."
+          "insert": "Warnings ask the author to inspect a passage and do not prove the passage is wrong. Only the docs MCP style gate blocks completion on them."
         }
       ],
       "children": []
@@ -633,7 +875,9 @@
       ],
       "children": [
         "b-80-authoring-lints-writing-filler-flags-in-36",
-        "b-80-authoring-lints-writing-dense-paragraph-37"
+        "b-80-authoring-lints-writing-dense-paragraph-37",
+        "writing-semicolon-lint",
+        "writing-sentence-length-lint"
       ]
     },
     "b-80-authoring-lints-writing-filler-flags-in-36": {
@@ -698,6 +942,32 @@
       ],
       "children": []
     },
+    "writing-semicolon-lint": {
+      "id": "writing-semicolon-lint",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "writing.semicolon flags a semicolon in authored prose. Semicolons in code spans, URLs, and HTML entities are literal and do not count."
+        }
+      ],
+      "children": []
+    },
+    "writing-sentence-length-lint": {
+      "id": "writing-sentence-length-lint",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "writing.sentence-length flags a prose sentence over 30 words and reports its word count. Review the sentence and split it only at a second thought."
+        }
+      ],
+      "children": []
+    },
     "b-80-authoring-lints-page-structure-errors-38": {
       "id": "b-80-authoring-lints-page-structure-errors-38",
       "type": "list-item",
@@ -714,8 +984,10 @@
       ],
       "children": [
         "b-80-authoring-lints-structure-opening-paragr-39",
+        "structure-opening-length-lint",
         "b-80-authoring-lints-structure-single-h1-perm-40",
-        "b-80-authoring-lints-structure-image-alt-requ-41"
+        "b-80-authoring-lints-structure-image-alt-requ-41",
+        "b-80-authoring-lints-structure-rules-advisory"
       ]
     },
     "b-80-authoring-lints-structure-opening-paragr-39": {
@@ -726,7 +998,20 @@
       },
       "text": [
         {
-          "insert": "structure.opening-paragraph requires a nonempty opening paragraph after an optional initial H1. It does not count opening sentences."
+          "insert": "structure.opening-paragraph requires a nonempty opening paragraph after an optional initial H1. structure.opening-length checks its length."
+        }
+      ],
+      "children": []
+    },
+    "structure-opening-length-lint": {
+      "id": "structure-opening-length-lint",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "structure.opening-length flags an opening paragraph with more than four sentences. A one-sentence opener is not flagged."
         }
       ],
       "children": []
@@ -752,7 +1037,20 @@
       },
       "text": [
         {
-          "insert": "structure.image-alt requires nonempty alt text on standalone images and every image-grid entry. Grid headings and captions also pass through the shared prose checks. These rules remain advisory, matching the existing audit policy. Promote a rule by changing its own severity and enforcement metadata after reviewing corpus impact."
+          "insert": "structure.image-alt requires nonempty alt text on standalone images and every image-grid entry. Grid headings and captions also pass through the shared prose checks."
+        }
+      ],
+      "children": []
+    },
+    "b-80-authoring-lints-structure-rules-advisory": {
+      "id": "b-80-authoring-lints-structure-rules-advisory",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "These rules are warnings in the lint engine, matching the existing audit policy. Promote a rule by changing its own severity and enforcement metadata after reviewing corpus impact."
         }
       ],
       "children": []
@@ -765,14 +1063,18 @@
       },
       "text": [
         {
-          "insert": "Page Structure Warning",
+          "insert": "List and Heading Warnings",
           "attributes": {
             "bold": true
           }
         }
       ],
       "children": [
-        "b-80-authoring-lints-structure-deep-list-flag-43"
+        "b-80-authoring-lints-structure-deep-list-flag-43",
+        "structure-list-length-lint",
+        "structure-list-item-sentences-lint",
+        "structure-heading-title-case-lint",
+        "structure-label-colon-opener-lint"
       ]
     },
     "b-80-authoring-lints-structure-deep-list-flag-43": {
@@ -783,7 +1085,74 @@
       },
       "text": [
         {
-          "insert": "structure.deep-list flags list nesting deeper than three list items. Nested supporting details remain valid; review whether a branch needs its own section."
+          "insert": "structure.deep-list flags list nesting deeper than three list items."
+        }
+      ],
+      "children": [
+        "b-80-authoring-lints-deep-list-nested-detail"
+      ]
+    },
+    "b-80-authoring-lints-deep-list-nested-detail": {
+      "id": "b-80-authoring-lints-deep-list-nested-detail",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Nested supporting details remain valid. Review whether a branch needs its own section."
+        }
+      ],
+      "children": []
+    },
+    "structure-list-length-lint": {
+      "id": "structure-list-length-lint",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "structure.list-length flags more than six consecutive sibling list items, or more than six sibling Process Outline steps. Notes do not count, and the item count is part of the evidence."
+        }
+      ],
+      "children": []
+    },
+    "structure-list-item-sentences-lint": {
+      "id": "structure-list-item-sentences-lint",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "structure.list-item-sentences flags a list item whose own text has three or more sentences. Nested items are checked separately."
+        }
+      ],
+      "children": []
+    },
+    "structure-heading-title-case-lint": {
+      "id": "structure-heading-title-case-lint",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "structure.heading-title-case flags heading words that break Title Case. Minor words such as \"of\" and \"the\" stay lowercase unless first or last, and code-marked spans are skipped."
+        }
+      ],
+      "children": []
+    },
+    "structure-label-colon-opener-lint": {
+      "id": "structure-label-colon-opener-lint",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "structure.label-colon-opener flags text that opens with a short label and a colon, or a short lead-in that ends in a colon. A plain label has up to three words and a bold label up to five."
         }
       ],
       "children": []
@@ -794,7 +1163,44 @@
       "props": {},
       "text": [
         {
-          "insert": "process-outline.single-parent requires one named, non-note root with at least one action child in every completed Process Outline. Empty outlines, childless roots, and multiple roots produce errors. Draft edits remain writable; new violations block completion. Nest related phases under one parent, or split independent processes into separate blocks."
+          "insert": "process-outline.single-parent requires one named, non-note root with at least one action child in every completed Process Outline."
+        }
+      ],
+      "children": [
+        "process-outline-parent-lint-errors",
+        "process-outline-parent-lint-drafts",
+        "process-outline-parent-lint-repair"
+      ]
+    },
+    "process-outline-parent-lint-errors": {
+      "id": "process-outline-parent-lint-errors",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Empty outlines, childless roots, and multiple roots produce errors."
+        }
+      ],
+      "children": []
+    },
+    "process-outline-parent-lint-drafts": {
+      "id": "process-outline-parent-lint-drafts",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Draft edits remain writable. New violations block completion."
+        }
+      ],
+      "children": []
+    },
+    "process-outline-parent-lint-repair": {
+      "id": "process-outline-parent-lint-repair",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Nest related phases under one parent, or split independent processes into separate blocks."
         }
       ],
       "children": []
@@ -806,6 +1212,309 @@
       "text": [
         {
           "insert": "bundle-relative-src rejects bare assets/... src values on completed canvas, sequence, image, and video blocks. Prefix bundle assets with ./, or use a docs-root-relative path or URL."
+        }
+      ],
+      "children": []
+    },
+    "lint-judgment-h": {
+      "id": "lint-judgment-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Judgment Rules"
+        }
+      ],
+      "children": []
+    },
+    "lint-judgment-lead": {
+      "id": "lint-judgment-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Judgment rules are style checks that a model answers. Jev, the TypeSafe System One model, returns a calibrated probability for each typed question about a block."
+        }
+      ],
+      "children": []
+    },
+    "lint-judgment-ids": {
+      "id": "lint-judgment-ids",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Rule IDs",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "lint-judgment-ids-packed",
+        "lint-judgment-ids-flat",
+        "lint-judgment-ids-join"
+      ]
+    },
+    "lint-judgment-ids-packed": {
+      "id": "lint-judgment-ids-packed",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "judgment.packed-bullet",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " asks whether a bullet without sub-bullets holds one point, unrelated points, a dense paragraph, or a bare label. Each diagnosis carries its own fix."
+        }
+      ],
+      "children": []
+    },
+    "lint-judgment-ids-flat": {
+      "id": "lint-judgment-ids-flat",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "judgment.flat-hierarchy",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " asks whether a run of three or more flat top-level bullets is a wall of text that needs bold-label parents. It judges the run once, on its first item."
+        }
+      ],
+      "children": []
+    },
+    "lint-judgment-ids-join": {
+      "id": "lint-judgment-ids-join",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "judgment.join-test",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " asks whether a paragraph and the list right after it fail to read as prose."
+        }
+      ],
+      "children": []
+    },
+    "lint-judgment-thresholds": {
+      "id": "lint-judgment-thresholds",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Thresholds",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "lint-judgment-thresholds-report",
+        "lint-judgment-thresholds-gate"
+      ]
+    },
+    "lint-judgment-thresholds-report": {
+      "id": "lint-judgment-thresholds-report",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Write results report a judged finding at 0.6 for packed-bullet, 0.7 for flat-hierarchy, and 0.5 for join-test."
+        }
+      ],
+      "children": []
+    },
+    "lint-judgment-thresholds-gate": {
+      "id": "lint-judgment-thresholds-gate",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs_check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with "
+        },
+        {
+          "insert": "task_id",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " blocks only at 0.85 or higher. A finding the task's baseline already had on the same block does not block."
+        }
+      ],
+      "children": []
+    },
+    "lint-judgment-failure": {
+      "id": "lint-judgment-failure",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Failure and the Kill Switch",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "lint-judgment-failure-open",
+        "lint-judgment-failure-check",
+        "lint-judgment-failure-off"
+      ]
+    },
+    "lint-judgment-failure-open": {
+      "id": "lint-judgment-failure-open",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A missing "
+        },
+        {
+          "insert": "TYPESAFE_API_KEY",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", no answer within 4 seconds, or an HTTP error makes judgment unavailable. Writes then report deterministic findings only."
+        }
+      ],
+      "children": []
+    },
+    "lint-judgment-failure-check": {
+      "id": "lint-judgment-failure-check",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs_check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " then adds "
+        },
+        {
+          "insert": "judgment",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with "
+        },
+        {
+          "insert": "available",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " set to false and a "
+        },
+        {
+          "insert": "reason",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". It does not block on judgment."
+        }
+      ],
+      "children": []
+    },
+    "lint-judgment-failure-off": {
+      "id": "lint-judgment-failure-off",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "CODECAINE_DOCS_JUDGMENT=off",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in the environment or the shared env file turns judgment off. The engine reads the setting on every call."
+        }
+      ],
+      "children": []
+    },
+    "lint-judgment-owner": {
+      "id": "lint-judgment-owner",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Ownership",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "lint-judgment-owner-mcp",
+        "lint-judgment-owner-model"
+      ]
+    },
+    "lint-judgment-owner-mcp": {
+      "id": "lint-judgment-owner-mcp",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The rules live in "
+        },
+        {
+          "insert": "packages/docs-mcp/src/lint-feedback.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and the engine lives in "
+        },
+        {
+          "insert": "jev-engine.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " beside it."
+        }
+      ],
+      "children": []
+    },
+    "lint-judgment-owner-model": {
+      "id": "lint-judgment-owner-model",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs-model holds deterministic rules only, so its lint engine never calls a network service."
         }
       ],
       "children": []
@@ -829,7 +1538,7 @@
       "props": {},
       "text": [
         {
-          "insert": "structure.title-heading detects only an opening H1 that repeats the display title. Every document save removes that duplicate before linting and persistence, preserving its children. Distinct opening H1s and later H1s remain unchanged; heading levels are never demoted by cleanup. The edit and correction share one undo patch, and the response returns the final document and revision. Ordinary edits need no repair-tool call."
+          "insert": "structure.title-heading detects only an opening H1 that repeats the display title. Every document save removes that duplicate before linting and persistence, preserving its children. Distinct opening H1s and later H1s remain unchanged. Heading levels are never demoted by cleanup. The edit and correction share one undo patch, and the response returns the final document and revision. Ordinary edits need no repair-tool call."
         }
       ],
       "children": []
@@ -840,7 +1549,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Shared rules let CLI checks and agent tools report the same evidence and repair guidance. Completion checks require new errors to be repaired at the supported completion boundaries. Keeping warnings advisory prevents a phrase match from overruling a correct quotation, precise term, or useful explanation."
+          "insert": "Shared rules let CLI checks and agent tools report the same evidence and repair guidance. Completion checks require new errors to be repaired at the supported completion boundaries. The docs MCP gates only warnings a task introduced, so an agent repairs its own violations without inheriting existing findings. Filler and sentence length stay ungated so a phrase match or word count cannot overrule a correct quotation, precise term, or useful explanation."
         }
       ],
       "children": []

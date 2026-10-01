@@ -19,7 +19,7 @@ A repo may declare additional numbered root tiers (40 and above, below 99) for p
 
 Every decision in these docs carries its why
 
-- The what can be re-derived from the system; the why cannot
+- The what can be re-derived from the system, but the why cannot
 
 - Recorded, it does two jobs
 
@@ -30,8 +30,8 @@ Every decision in these docs carries its why
 ## The Shape on Disk
 
 ```
-00-foundation/  # intent: what this is and why; every change is compared against it
-10-system-design/  # behavior: implementation-agnostic; what the system does and why
+00-foundation/  # intent: what this is and why, the reference every change is compared against
+10-system-design/  # behavior: what the system does and why, implementation-agnostic
 └── 10-doc-standards/  # this section: the structure itself, plus its standards docs
 20-agents/  # the agents involved: definitions, context, tools, outputs, and responsibilities
 30-implementation/  # the current code: mirrors the source tree, churns with it
@@ -41,34 +41,38 @@ Every decision in these docs carries its why
 
 Each standard owns one concern. Every one shows how things are laid out, states the rule, and defends it.
 
-- Structure
+- **Layout and Linking**
 
-  - The four layers, the depth ladder, folders and parent docs, and when a topic earns a folder.
+  - Structure
 
-- Numbering
+    - The four layers, the depth ladder, folders and parent docs, and when a topic earns a folder.
 
-  - Two-digit prefixes, reading order in the filesystem, gaps, and the one named deviation.
+  - Numbering
 
-- Cross-doc linking
+    - Two-digit prefixes, reading order in the filesystem, gaps, and the one named deviation.
 
-  - Reference spans, canonical-home targets, and the restraint rules against overlinking.
+  - Cross-doc linking
 
-- Code linking
+    - Reference spans, canonical-home targets, and the restraint rules against overlinking.
 
-  - One-way doc-to-code references by full path, updated when code moves.
+  - Code linking
 
-- In-code docs
+    - One-way doc-to-code references by full path, updated when code moves.
 
-  - File headers, docstrings, and inline comments: where documentation continues into the source.
+- **Content and Checks**
 
-- Implementation layer
+  - In-code docs
 
-  - Area pages, decision entries, the design-to-code mapping, and lazy accretion.
+    - File headers, docstrings, and inline comments: where documentation continues into the source.
 
-- Document Purpose
+  - Implementation layer
 
-  - One primary reader purpose within the existing layers, with supporting reasons and reference details.
+    - Area pages, decision entries, the design-to-code mapping, and lazy accretion.
 
-- Authoring Lints
+  - Document Purpose
 
-  - Rule ownership, draft and completion checks, and the distinction between required findings and editorial warnings.
+    - One primary reader purpose within the existing layers, with supporting reasons and reference details.
+
+  - Authoring Lints
+
+    - Rule ownership, draft and completion checks, and the distinction between required findings and editorial warnings.

@@ -10,11 +10,15 @@ Diataxis distinguishes four purposes by whether the reader needs action or under
 
 - **How-To**
 
-  - Help a competent reader finish a task. Use direct steps, relevant conditions, and decision points. Name the guide by the task.
+  - Help a competent reader finish a task. Use direct steps, relevant conditions, and decision points.
+
+  - Name the guide by the task.
 
 - **Reference**
 
-  - Supply facts for lookup. Mirror the thing described and state its options, limits, and errors. Generate facts from code where practical.
+  - Supply facts for lookup. Mirror the thing described and state its options, limits, and errors.
+
+  - Generate facts from code where practical.
 
 - **Explanation**
 
@@ -22,11 +26,17 @@ Diataxis distinguishes four purposes by whether the reader needs action or under
 
 ## The Rule
 
-Choose the primary purpose before authoring. Purpose guides the reader's task; the corpus layers still determine location and authority.
+Choose the primary purpose before authoring. Purpose guides the reader's task. The corpus layers still determine location and authority.
 
 - Preserve the four layers and the templates defined in Structure.
 
-  - Foundation owns intent. Design owns behavior. Agents owns agent definitions. Implementation maps the design to current code and explains key implementation choices.
+  - Foundation owns intent.
+
+  - Design owns behavior.
+
+  - Agents owns agent definitions.
+
+  - Implementation maps the design to current code and explains key implementation choices.
 
   - Procedure belongs in an existing, declared guides tier. Do not create new root categories merely to match Diataxis.
 

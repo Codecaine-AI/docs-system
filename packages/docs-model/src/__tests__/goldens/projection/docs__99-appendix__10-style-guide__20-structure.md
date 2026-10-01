@@ -28,7 +28,13 @@ Page structure carries meaning through bullets, lists, headings, titles, and ope
 
   - Keep a section short enough to scan in one screen. Use Title Case headings, leaving minor words lowercase and preserving acronyms and code-marked spans.
 
-  - The display title and body headings are separate. H1 headings are allowed in the body. Do not begin the body with an H1 that repeats the display title. Preserve meaningful heading levels. Standards and design docs share the flow Structure, The Rule, and Why.
+  - The display title and body headings are separate.
+
+    - H1 headings are allowed in the body. Do not begin the body with an H1 that repeats the display title.
+
+  - Preserve meaningful heading levels.
+
+  - Standards and design docs share the flow Structure, The Rule, and Why.
 
 - **Give Each Page a Distinct Title and Opening**
 

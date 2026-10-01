@@ -1,0 +1,631 @@
+{
+  "schemaVersion": 1,
+  "id": "doc-357a2cb392a607fe4f8fd1482e6ec7bc",
+  "title": "Shared Codecaine Environment",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "env-1",
+        "env-2",
+        "env-3",
+        "env-4",
+        "env-6",
+        "env-7",
+        "env-9",
+        "env-11",
+        "env-12",
+        "env-13",
+        "env-14",
+        "env-17",
+        "env-20",
+        "env-24",
+        "env-25",
+        "env-26",
+        "env-27",
+        "env-28",
+        "env-29",
+        "env-31",
+        "env-33"
+      ]
+    },
+    "env-1": {
+      "id": "env-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every Codecaine service reads shared keys from one private file, "
+        },
+        {
+          "insert": "~/.config/codecaine/env",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Background services and MCP servers do not inherit your shell, so a key exported in "
+        },
+        {
+          "insert": ".zshrc",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " never reaches them. Add a key to this file once and every service can use it."
+        }
+      ],
+      "children": []
+    },
+    "env-2": {
+      "id": "env-2",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Add a Key"
+        }
+      ],
+      "children": []
+    },
+    "env-3": {
+      "id": "env-3",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each key is one "
+        },
+        {
+          "insert": "NAME=value",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " line in the file."
+        }
+      ],
+      "children": []
+    },
+    "env-4": {
+      "id": "env-4",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Open the file in an editor."
+        }
+      ],
+      "children": [
+        "env-5"
+      ]
+    },
+    "env-5": {
+      "id": "env-5",
+      "type": "code",
+      "props": {
+        "language": "sh"
+      },
+      "text": [
+        {
+          "insert": "cursor ~/.config/codecaine/env"
+        }
+      ],
+      "children": []
+    },
+    "env-6": {
+      "id": "env-6",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Add the key on its own line, such as "
+        },
+        {
+          "insert": "TYPESAFE_API_KEY=",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " followed by the key."
+        }
+      ],
+      "children": []
+    },
+    "env-7": {
+      "id": "env-7",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Keep the file private."
+        }
+      ],
+      "children": [
+        "env-8"
+      ]
+    },
+    "env-8": {
+      "id": "env-8",
+      "type": "code",
+      "props": {
+        "language": "sh"
+      },
+      "text": [
+        {
+          "insert": "chmod 600 ~/.config/codecaine/env"
+        }
+      ],
+      "children": []
+    },
+    "env-9": {
+      "id": "env-9",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Restart the docs service and start a new client session, so services that load the file at startup pick up the key."
+        }
+      ],
+      "children": [
+        "env-10"
+      ]
+    },
+    "env-10": {
+      "id": "env-10",
+      "type": "code",
+      "props": {
+        "language": "sh"
+      },
+      "text": [
+        {
+          "insert": "launchctl kickstart -k gui/$(id -u)/ai.codecaine.docs"
+        }
+      ],
+      "children": []
+    },
+    "env-11": {
+      "id": "env-11",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Never commit the file or paste a key into an agent chat."
+        }
+      ],
+      "children": []
+    },
+    "env-12": {
+      "id": "env-12",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "How Services Read the File"
+        }
+      ],
+      "children": []
+    },
+    "env-13": {
+      "id": "env-13",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "One small loader reads the file. The loader lives in "
+        },
+        {
+          "insert": "packages/docs-mcp/src/codecaine-env.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", with identical copies in canvas-mcp and prompt-kit-mcp."
+        }
+      ],
+      "children": []
+    },
+    "env-14": {
+      "id": "env-14",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Format",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "env-15",
+        "env-16"
+      ]
+    },
+    "env-15": {
+      "id": "env-15",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Each line holds "
+        },
+        {
+          "insert": "NAME=value",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Lines starting with "
+        },
+        {
+          "insert": "#",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " are comments, and quotes around a value are removed."
+        }
+      ],
+      "children": []
+    },
+    "env-16": {
+      "id": "env-16",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "A line with an empty value is skipped, so a placeholder such as "
+        },
+        {
+          "insert": "TYPESAFE_API_KEY=",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " sets nothing."
+        }
+      ],
+      "children": []
+    },
+    "env-17": {
+      "id": "env-17",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Precedence",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "env-18",
+        "env-19"
+      ]
+    },
+    "env-18": {
+      "id": "env-18",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "A variable already set in the process environment wins over the file."
+        }
+      ],
+      "children": []
+    },
+    "env-19": {
+      "id": "env-19",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "CODECAINE_ENV_FILE",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " points the loader at another file, for tests and isolated services."
+        }
+      ],
+      "children": []
+    },
+    "env-20": {
+      "id": "env-20",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Readers",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "env-21",
+        "env-22",
+        "env-23"
+      ]
+    },
+    "env-21": {
+      "id": "env-21",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The docs-mcp command line and the docs background supervisor load the file at startup. The supervisor passes the values to the runtime it starts."
+        }
+      ],
+      "children": []
+    },
+    "env-22": {
+      "id": "env-22",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The canvas-mcp and prompt-kit-mcp command lines load the file at startup."
+        }
+      ],
+      "children": []
+    },
+    "env-23": {
+      "id": "env-23",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Code that calls "
+        },
+        {
+          "insert": "codecaineEnv(name)",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " reads the file at call time, so a key added later works without a restart."
+        }
+      ],
+      "children": []
+    },
+    "env-24": {
+      "id": "env-24",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Known Keys"
+        }
+      ],
+      "children": []
+    },
+    "env-25": {
+      "id": "env-25",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The file holds these keys today."
+        }
+      ],
+      "children": []
+    },
+    "env-26": {
+      "id": "env-26",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Key",
+          "Used By",
+          "Purpose"
+        ],
+        "rows": [
+          [
+            "`TYPESAFE_API_KEY`",
+            "docs-mcp",
+            [
+              {
+                "insert": "Jev calls for the judgment rules in write results and "
+              },
+              {
+                "insert": "docs_check",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "insert": "CODECAINE_DOCS_JUDGMENT",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "docs-mcp",
+            [
+              {
+                "insert": "off",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " turns the judgment rules off"
+              }
+            ]
+          ]
+        ]
+      },
+      "children": []
+    },
+    "env-27": {
+      "id": "env-27",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why a Shared File"
+        }
+      ],
+      "children": []
+    },
+    "env-28": {
+      "id": "env-28",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Shell variables reach only processes started from the shell."
+        }
+      ],
+      "children": []
+    },
+    "env-29": {
+      "id": "env-29",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Background services",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "env-30"
+      ]
+    },
+    "env-30": {
+      "id": "env-30",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "launchd starts the docs service with a fixed environment, and the background installer rewrites that environment on every install."
+        }
+      ],
+      "children": []
+    },
+    "env-31": {
+      "id": "env-31",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "MCP clients",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "env-32"
+      ]
+    },
+    "env-32": {
+      "id": "env-32",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Claude Code, Codex, and Pi start MCP servers with only the environment in their own configuration."
+        }
+      ],
+      "children": []
+    },
+    "env-33": {
+      "id": "env-33",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Repositories",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "env-34"
+      ]
+    },
+    "env-34": {
+      "id": "env-34",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "A file outside every repository cannot be committed by accident."
+        }
+      ],
+      "children": []
+    }
+  }
+}

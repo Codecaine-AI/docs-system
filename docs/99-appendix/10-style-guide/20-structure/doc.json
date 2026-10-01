@@ -205,7 +205,9 @@
       ],
       "children": [
         "shape-detail-4-0",
-        "shape-detail-4-1"
+        "shape-detail-4-1",
+        "shape-detail-4-2",
+        "shape-detail-4-3"
       ]
     },
     "shape-detail-4-0": {
@@ -225,7 +227,42 @@
       "props": {},
       "text": [
         {
-          "insert": "The display title and body headings are separate. H1 headings are allowed in the body. Do not begin the body with an H1 that repeats the display title. Preserve meaningful heading levels. Standards and design docs share the flow Structure, The Rule, and Why."
+          "insert": "The display title and body headings are separate."
+        }
+      ],
+      "children": [
+        "shape-detail-4-1-0"
+      ]
+    },
+    "shape-detail-4-1-0": {
+      "id": "shape-detail-4-1-0",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "H1 headings are allowed in the body. Do not begin the body with an H1 that repeats the display title."
+        }
+      ],
+      "children": []
+    },
+    "shape-detail-4-2": {
+      "id": "shape-detail-4-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Preserve meaningful heading levels."
+        }
+      ],
+      "children": []
+    },
+    "shape-detail-4-3": {
+      "id": "shape-detail-4-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Standards and design docs share the flow Structure, The Rule, and Why."
         }
       ],
       "children": []

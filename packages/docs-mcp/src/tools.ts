@@ -6,10 +6,11 @@ import { Type, type TObject, type TSchema } from "@sinclair/typebox";
 import { Value } from "@sinclair/typebox/value";
 import {
   ACTION_REGISTRY, ALL_COMPONENTS, DOC_BLOCK_TYPES, emptyStateFor, stateFor,
-  type DocOp, type ComponentAction,
+  type DocDocument, type DocOp, type ComponentAction,
 } from "@codecaine-ai/docs-model";
 import { inlineToDelta } from "@codecaine-ai/docs-model/markdown-to-delta";
 import { lintDocument, titleHeadingFixOps } from "@codecaine-ai/docs-model/lint";
+import { judgedStyleGate, styleGate, writeStyleFeedback, type JudgmentEngine } from "./lint-feedback";
 import {
   canonicalBundleSrc, classifyBlockSrc, resolveBundleRelativeSrc,
 } from "@codecaine-ai/docs-model/bundle-src";
@@ -26,14 +27,25 @@ export interface DocsToolResult {
   structuredContent?: Record<string, unknown>;
   isError?: boolean;
 }
+export interface DocsToolCallContext { taskId?: string }
 export interface DocsTool {
   name: string;
   description: string;
   inputSchema: Record<string, unknown>;
-  execute(args: unknown): Promise<DocsToolResult>;
+  execute(args: unknown, ctx?: DocsToolCallContext): Promise<DocsToolResult>;
+}
+/** Each task's first-touch documents, keyed `${project}:${bundle path}`. */
+export interface TaskBaselines {
+  /** undefined: not captured yet. null: the doc did not exist at first touch. */
+  get(taskId: string, key: string): DocDocument | null | undefined;
+  set(taskId: string, key: string, doc: DocDocument | null): void;
 }
 export interface DocsToolContext {
   resolveProject(project: string): Promise<{ id: string; docsRoot: string }>;
+  /** Enables docs_check's style gate for callers that pass a task ID. */
+  taskBaselines?: TaskBaselines;
+  /** Model-judged style rules: advisory in write results, gated by docs_check with task_id. Fails open. */
+  judgmentEngine?: JudgmentEngine;
 }
 
 const str = Type.String({ minLength: 1 });
@@ -53,6 +65,19 @@ const opSchema = Type.Union([
 ]);
 const target = { project: str, path: Type.String({ description: "Bundle path relative to this project's docs root; use docs_tree to discover it. Empty string selects a root bundle." }) };
 const writeTarget = { ...target, expected_hash: str };
+const SAVED_NEXT = "Changes are saved. Run docs_check with task_id before reporting completion.";
+const FIX_STYLE_NEXT = "Changes are saved. Fix style_findings, then run docs_check with task_id.";
+/** A clean write still reports violations an earlier write in the task left open on the page. */
+const nextHint = (findings: boolean, open: number) => findings ? FIX_STYLE_NEXT
+  : open === 1 ? "Changes are saved. 1 style violation this task introduced on this page is still open. Run docs_check with task_id to list it."
+  : open ? `Changes are saved. ${open} style violations this task introduced on this page are still open. Run docs_check with task_id to list them.`
+  : SAVED_NEXT;
+
+/** A doc.json write: who made it, where, the document it replaced, and the ops it applied. */
+interface DocWrite { ctx: DocsToolCallContext; project: string; before: DocDocument | null | undefined; ops?: readonly DocOp[] }
+const baselineKey = (project: string, path: string) => `${project}:${normalizeBundlePath(path)}`;
+const opBlockIds = (ops: readonly DocOp[] = []): string[] =>
+  ops.flatMap((op) => "blockIds" in op ? op.blockIds : "blockId" in op ? [op.blockId] : []);
 
 function response(data: Record<string, unknown>): DocsToolResult {
   return { content: [{ type: "text", text: JSON.stringify(data) }], structuredContent: data,
@@ -141,8 +166,8 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
     return store;
   }
   function tool(name: string, description: string, schema: TObject,
-    run: (args: Record<string, any>, store: DocsStore) => Promise<Record<string, unknown>>): DocsTool {
-    return { name, description, inputSchema: jsonSchema(schema), execute: async (args) => {
+    run: (args: Record<string, any>, store: DocsStore, ctx: DocsToolCallContext) => Promise<Record<string, unknown>>): DocsTool {
+    return { name, description, inputSchema: jsonSchema(schema), execute: async (args, ctx = {}) => {
       try {
         if (!Value.Check(schema, args)) {
           return response({ ...failure("Tool arguments failed validation."), issues: [...Value.Errors(schema, args)].map(({ path, message }) => ({ path, message })) });
@@ -153,27 +178,54 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
           await confined(store.docsRoot,resolve(store.docsRoot,".changesets"));
           for (const entry of input.entries ?? []) await storeFor({project:input.project,path:entry.docPath});
         }
-        return response(await run(input, store));
+        return response(await run(input, store, ctx));
       } catch (error) { return response(failure(error instanceof Error ? error.message : String(error))); }
     } };
   }
-  async function applied(store: DocsStore, path: string, result: Record<string, any>): Promise<Record<string, unknown>> {
+  /** The document a write replaces: null when the bundle does not exist yet, undefined when unreadable. */
+  async function priorDoc(store: DocsStore, path: string): Promise<DocDocument | null | undefined> {
+    const loaded = await store.bundle(path);
+    return "error" in loaded ? (loaded.error.status === 404 ? null : undefined) : loaded.document;
+  }
+  /** Pin the document a task's first successful write to a page replaced. Failed attempts pin nothing. */
+  function pinBaseline(write: DocWrite, path: string): void {
+    const baselines = context.taskBaselines;
+    if (!write.ctx.taskId || !baselines || write.before === undefined) return;
+    const key = baselineKey(write.project, path);
+    if (baselines.get(write.ctx.taskId, key) === undefined) baselines.set(write.ctx.taskId, key, write.before);
+  }
+  async function applied(store: DocsStore, path: string, result: Record<string, any>, write?: DocWrite): Promise<Record<string, unknown>> {
     if (!result.ok) return result;
+    // Canvas and Sequence actions save only their sidecar and return no doc.
+    const docWrite = write && result.doc ? write : undefined;
+    if (docWrite) pinBaseline(docWrite, path);
     const patchId = result.patchId as string | undefined;
+    const changedIds = [...(result.changedIds ?? []), ...opBlockIds(result.normalization?.ops)];
     if (patchId) {
       const docFile = resolveDocBundleJsonPath(store.docsRoot, path)!;
       const sidecar = result.canvasRelPath ?? result.sequenceRelPath;
       patches.set(patchId, { root: store.docsRoot, path, files: [docFile, ...(sidecar ? [resolve(store.docsRoot, sidecar)] : [])] });
     }
-    if (patchId) store.publishChange({ path, changedIds: [...(result.changedIds ?? []), ...(result.normalization?.ops ?? []).map((op: DocOp) => "blockId" in op ? op.blockId : "").filter(Boolean)], patchId, actor: "external-agent" });
-    return { ...result, path, ...(result.hash ? { expected_hash: result.hash } : {}),
-      next: "Changes are saved. Run docs_check before reporting completion." };
+    if (patchId) store.publishChange({ path, changedIds, patchId, actor: "external-agent" });
+    const style = docWrite && docWrite.before !== undefined
+      ? await writeStyleFeedback({ before: docWrite.before, after: result.doc, named: [...changedIds, ...opBlockIds(docWrite.ops)], engine: context.judgmentEngine })
+      : undefined;
+    const open = docWrite ? openStyleGate(docWrite, path, result.doc) : 0;
+    // Clients may show only the start of a large result, so feedback and the new hash lead and the document follows.
+    return { ok: true, ...(style ? { style_findings: style } : {}), ...(open ? { style_gate_open: open } : {}), next: nextHint(style !== undefined, open),
+      path, ...(result.hash ? { expected_hash: result.hash } : {}), ...result };
   }
-  async function apply(store: DocsStore, args: Record<string, any>, ops: DocOp[]): Promise<Record<string, unknown>> {
+  /** Gated violations the task has introduced on this page so far, counted against its pinned baseline. */
+  function openStyleGate(write: DocWrite, path: string, doc: DocDocument): number {
+    const baseline = write.ctx.taskId ? context.taskBaselines?.get(write.ctx.taskId, baselineKey(write.project, path)) : undefined;
+    return baseline === undefined ? 0 : styleGate(lintDocument(doc, { phase: "complete", baseline: baseline ?? undefined })).length;
+  }
+  async function apply(store: DocsStore, args: Record<string, any>, ops: DocOp[], ctx: DocsToolCallContext, before?: DocDocument): Promise<Record<string, unknown>> {
     if (ops.some((op) => op.type === "componentAction" && ACTION_REGISTRY.get(op.action) && "forward" in ACTION_REGISTRY.get(op.action)!)) {
       return failure("Sidecar actions require their typed component tool and expected_component_hash; they cannot be mixed into a document batch.");
     }
-    return applied(store, args.path, await store.applyDocOps(args.path, ops, args.expected_hash));
+    const prior = before ?? await priorDoc(store, args.path);
+    return applied(store, args.path, await store.applyDocOps(args.path, ops, args.expected_hash), { ctx, project: args.project, before: prior, ops });
   }
   async function component(store: DocsStore, args: Record<string, any>) {
     const doc = await store.docGet(args.path);
@@ -194,16 +246,16 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
       const result = await store.docGet(args.path);
       return result.ok ? { ...result, expected_hash: result.hash, lint: lintDocument(result.doc, { phase: "complete" }) } : result;
     }),
-    tool("docs_fix_lints", "Apply safe, undoable title-heading lint fixes at the expected revision. Removes only a repeated opening H1 title while preserving children; all other heading levels remain unchanged. Run docs_check afterward for remaining findings.", obj(writeTarget), async (args, store) => {
+    tool("docs_fix_lints", "Apply safe, undoable title-heading lint fixes at the expected revision. Removes only a repeated opening H1 title while preserving children; all other heading levels remain unchanged. Run docs_check afterward for remaining findings.", obj(writeTarget), async (args, store, ctx) => {
       const result = await store.docGet(args.path);
       if (!result.ok) return result;
       if (result.hash !== args.expected_hash) return failure("Document changed; read the current revision before fixing lints.", 409);
       const ops = titleHeadingFixOps(result.doc);
       if (ops.length === 0) return { ok: true, path: args.path, hash: result.hash, expected_hash: result.hash, fixed: 0, lint: lintDocument(result.doc, { phase: "complete" }) };
-      const fixed = await apply(store, args, ops);
+      const fixed = await apply(store, args, ops, ctx, result.doc);
       return { ...fixed, ...(fixed.ok ? { fixed: ops.length, ops, lint: lintDocument(fixed.doc as any, { phase: "complete" }) } : {}) };
     }),
-    tool("docs_check", "Run final document validation and writing checks. Inspect blocking findings and resolve them before claiming the task is complete.", obj(target), async (args, store) => {
+    tool("docs_check", "Run final document validation and writing checks. Inspect blocking findings and resolve them before claiming the task is complete. With task_id, style violations the task introduced fail the check and appear in style_gate.", obj(target), async (args, store, ctx) => {
       const result = await store.docGet(args.path);
       if (!result.ok) return result;
       const lint = lintDocument(result.doc, { phase: "complete" });
@@ -214,9 +266,16 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
           components.push({ blockId: block.id, type: block.type, ok: checked.ok, ...(!checked.ok ? { detail: checked.detail } : {}) });
         }
       }
-      return { ok: lint.blocking.length === 0 && components.every((entry) => entry.ok), structurally_valid: true, hash: result.hash, lint, components };
+      // Without a task baseline for this page, the check is exactly the untasked one.
+      const baseline = ctx.taskId ? context.taskBaselines?.get(ctx.taskId, baselineKey(args.project, args.path)) : undefined;
+      const style_gate = baseline === undefined ? undefined : styleGate(lintDocument(result.doc, { phase: "complete", baseline: baseline ?? undefined }));
+      // Judged findings on blocks the task changed join the gate. Unavailable judgment is reported and never blocks.
+      const judged = style_gate && context.judgmentEngine ? await judgedStyleGate({ engine: context.judgmentEngine, baseline: baseline ?? null, doc: result.doc }) : undefined;
+      if (judged?.available) style_gate!.push(...judged.gate);
+      return { ok: lint.blocking.length === 0 && components.every((entry) => entry.ok) && !style_gate?.length, structurally_valid: true, hash: result.hash, lint, components,
+        ...(style_gate ? { style_gate } : {}), ...(judged && !judged.available ? { judgment: { available: false, reason: judged.reason } } : {}) };
     }),
-    tool("docs_create", "Create a new blank documentation bundle through the existing tree service. Refuses an existing destination. Populate it with docs_insert or docs_apply_ops, then run docs_check.", obj({ ...target, title: str, expected_absent: Type.Literal(true) }), async (args, store) => {
+    tool("docs_create", "Create a new blank documentation bundle through the existing tree service. Refuses an existing destination. Populate it with docs_insert or docs_apply_ops, then run docs_check.", obj({ ...target, title: str, expected_absent: Type.Literal(true) }), async (args, store, ctx) => {
       await confined(store.docsRoot, resolve(store.docsRoot, ".changesets"));
       const staged = await store.changesetStage({ summary: `Create ${args.title}`, entries: [], treeOps: [{ kind: "create-doc", docPath: args.path, title: args.title, position: 0 }] });
       if (!staged.ok) return staged;
@@ -225,7 +284,8 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
       const doc = await store.docGet(args.path);
       // Tree inverses can delete later additions and do not carry revision
       // guards. Do not expose those through the guarded content-undo tool.
-      return applied(store, args.path, { ...doc, creation_id: staged.changeset.id, undo_available: false });
+      // A successful create proves the page was absent, so its baseline is null.
+      return applied(store, args.path, { ...doc, creation_id: staged.changeset.id, undo_available: false }, { ctx, project: args.project, before: null });
     }),
     ...["docs_move", "docs_rename"].map((name) => tool(name,
       name === "docs_move" ? "Preview moving a page or entire section with descendants. Rewrites descendant doc links and asset references, including shared Canvas/Sequence assets. Apply with preview:false and expected_tree_hash. Does not change the title." : "Preview renaming a page or entire section within its parent, preserving descendant links and assets. Apply with preview:false and expected_tree_hash. Use docs_set_title for the display title.",
@@ -284,7 +344,12 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
       obj({...writeTarget,summary:str,ops:Type.Array(opSchema,{minItems:1,maxItems:1000})}),
       (args,store)=>store.stageProposal(args.path,{summary:args.summary,ops:args.ops,expectedHash:args.expected_hash})),
     ...["accept","reject"].map(action=>tool(`docs_proposal_${action}`,`${action} a reviewed proposal using the current proposals-file hash returned by staging or docs_proposals.`,
-      obj({...target,proposal_id:str,expected_proposals_hash:str}),(args,store)=>action==="accept"?store.acceptProposal(args.path,args.proposal_id,{expectedHash:args.expected_proposals_hash}).then(result=>applied(store,args.path,result)):store.rejectProposal(args.path,args.proposal_id,{expectedHash:args.expected_proposals_hash}))),
+      obj({...target,proposal_id:str,expected_proposals_hash:str}),async(args,store,ctx)=>{
+        if(action!=="accept")return store.rejectProposal(args.path,args.proposal_id,{expectedHash:args.expected_proposals_hash});
+        const before=await priorDoc(store,args.path);
+        const result=await store.acceptProposal(args.path,args.proposal_id,{expectedHash:args.expected_proposals_hash});
+        return applied(store,args.path,result,{ctx,project:args.project,before,ops:result.ok?result.proposal.ops:undefined});
+      })),
     tool("docs_changesets", "List review changesets, optionally filtered by page path.",obj({project:str,path:Type.Optional(Type.String())}),(args,store)=>store.changesets(args.path)),
     tool("docs_changeset_read", "Read a changeset before reviewing its proposed edits.",obj({project:str,changeset_id:str}),(args,store)=>store.changesetGet(args.changeset_id)),
     tool("docs_changeset_stage", "Group existing staged proposals into a review changeset. Page management uses the preview-based move/delete tools.",
@@ -310,24 +375,32 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
       (args,store) => store.manageFiles({kind:"asset",path:args.path,expected_hash:args.expected_hash,preview:args.preview,expected_tree_hash:args.expected_tree_hash})),
     tool("docs_set_title", "Preview changing a page display title without changing its path, ID or children. Apply with preview:false and expected_tree_hash.",
       obj({ ...writeTarget, title: str, preview: Type.Optional(Type.Boolean()), expected_tree_hash: Type.Optional(str) }),
-      (args,store) => store.manageFiles({kind:"title",path:args.path,title:args.title,expected_hash:args.expected_hash,preview:args.preview,expected_tree_hash:args.expected_tree_hash})),
-    tool("docs_apply_ops", "Apply a batch of typed document operations atomically and immediately. Keeps block IDs stable. Invalid structure or a stale hash leaves the document unchanged. Use component tools for sidecars.", obj({ ...writeTarget, ops: Type.Array(opSchema, { minItems: 1, maxItems: 1000 }) }), (args, store) => apply(store, args, args.ops)),
-    tool("docs_insert", "Insert a component block using registry defaults, returning its generated blockId. Supply initial props or markdown when useful, then edit using its component tools.", obj({ ...writeTarget, parentId: id, index: Type.Integer({ minimum: 0 }), type: blockType, props: Type.Optional(record), markdown: Type.Optional(Type.String()) }), async (args, store) => {
+      async (args, store, ctx) => {
+        const before = args.preview === false ? await priorDoc(store, args.path) : undefined;
+        const result = await store.manageFiles({kind:"title",path:args.path,title:args.title,expected_hash:args.expected_hash,preview:args.preview,expected_tree_hash:args.expected_tree_hash});
+        if (!result.ok || !result.applied || before === undefined) return result;
+        pinBaseline({ ctx, project: args.project, before }, args.path);
+        const after = await store.docGet(args.path);
+        const style = after.ok ? await writeStyleFeedback({ before, after: after.doc, engine: context.judgmentEngine }) : undefined;
+        return style ? { ok: true, style_findings: style, next: FIX_STYLE_NEXT, ...result } : result;
+      }),
+    tool("docs_apply_ops", "Apply a batch of typed document operations atomically and immediately. Keeps block IDs stable. Invalid structure or a stale hash leaves the document unchanged. Use component tools for sidecars.", obj({ ...writeTarget, ops: Type.Array(opSchema, { minItems: 1, maxItems: 1000 }) }), (args, store, ctx) => apply(store, args, args.ops, ctx)),
+    tool("docs_insert", "Insert a component block using registry defaults, returning its generated blockId. Supply initial props or markdown when useful, then edit using its component tools.", obj({ ...writeTarget, parentId: id, index: Type.Integer({ minimum: 0 }), type: blockType, props: Type.Optional(record), markdown: Type.Optional(Type.String()) }), async (args, store, ctx) => {
       if (args.markdown !== undefined && !stateFor(args.type).carriesText) return failure("This component carries structured props, not markdown text.");
       const blockId = randomUUID();
       const converted = args.markdown === undefined ? undefined : inlineToDelta(args.markdown);
       const props = { ...emptyStateFor(args.type), ...args.props };
       if (["canvas", "sequence", "image", "video"].includes(args.type) && typeof props.src === "string") props.src = canonicalBundleSrc(props.src);
-      const result = await apply(store, args, [{ type: "insertBlock", blockId, parentId: args.parentId, index: args.index, blockType: args.type, props, ...(converted ? { text: converted.spans } : {}) }]);
-      return { ...result, ...(result.ok ? { blockId, warnings: converted?.warnings ?? [] } : {}) };
+      const result = await apply(store, args, [{ type: "insertBlock", blockId, parentId: args.parentId, index: args.index, blockType: args.type, props, ...(converted ? { text: converted.spans } : {}) }], ctx);
+      return result.ok ? { ok: true, blockId, ...result, warnings: converted?.warnings ?? [] } : result;
     }),
-    tool("docs_write_text", "Replace one text block with inline markdown, preserving its ID and props. Use docs_apply_ops for structural changes and component tools for structured content.", obj({ ...writeTarget, blockId: id, markdown: Type.String() }), async (args, store) => {
+    tool("docs_write_text", "Replace one text block with inline markdown, preserving its ID and props. Use docs_apply_ops for structural changes and component tools for structured content.", obj({ ...writeTarget, blockId: id, markdown: Type.String() }), async (args, store, ctx) => {
       const loaded = await store.docGet(args.path);
       if (!loaded.ok) return loaded;
       const block = loaded.doc.blocks[args.blockId];
       if (!block || !stateFor(block.type).carriesText) return failure("blockId must name a text-bearing block.");
       const converted = inlineToDelta(args.markdown);
-      return { ...await apply(store, args, [{ type: "updateBlock", blockId: args.blockId, text: converted.spans }]), warnings: converted.warnings };
+      return { ...await apply(store, args, [{ type: "updateBlock", blockId: args.blockId, text: converted.spans }], ctx, loaded.doc), warnings: converted.warnings };
     }),
     tool("docs_component_read", "Read the Canvas or Sequence sidecar referenced by a document block, including its hash. Use that hash as expected_component_hash and doc_hash as expected_hash in component action tools.", obj({ ...target, blockId: id }), (args, store) => component(store, args)),
     tool("docs_annotations", "Read annotation requests and discussion attached to a documentation page.", obj(target), (args, store) => store.annotations(args.path)),
@@ -347,9 +420,9 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
     tools.push(tool(name, `${action.description} Applies immediately to ${action.blockType}. ${forwarded ? "Read docs_component_read first for both revision hashes." : "Use the current docs_read hash."}`,
       // Linked development packages may resolve separate TypeBox declarations;
       // their runtime schemas use the same Symbol.for markers.
-      obj({ ...writeTarget, blockId: id, params: action.params as unknown as TSchema, ...(forwarded ? { expected_component_hash: str } : {}) }), async (args, store) => {
+      obj({ ...writeTarget, blockId: id, params: action.params as unknown as TSchema, ...(forwarded ? { expected_component_hash: str } : {}) }), async (args, store, ctx) => {
         const op: Extract<DocOp, { type: "componentAction" }> = { type: "componentAction", blockId: args.blockId, action: action.action, params: args.params };
-        if (!forwarded) return apply(store, args, [op]);
+        if (!forwarded) return apply(store, args, [op], ctx);
         const read = await component(store, args);
         if (!read.ok) return read;
         const result = action.forward.authority === "canvas"

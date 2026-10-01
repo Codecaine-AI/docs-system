@@ -17,8 +17,12 @@
         "maintenance-5",
         "maintenance-6",
         "maintenance-7",
+        "skill-source-style-digest",
+        "skill-source-instructions",
         "maintenance-8",
         "maintenance-9",
+        "skill-receive-begin",
+        "skill-receive-guidance",
         "maintenance-10",
         "maintenance-11",
         "maintenance-12",
@@ -171,7 +175,65 @@
           }
         },
         {
-          "insert": " loads and validates canonical documents, hashes guidance sources, and generates portable skill references."
+          "insert": " loads and validates canonical documents, hashes guidance sources, splits the guidance into "
+        },
+        {
+          "insert": "docs_guidance",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " topics, and generates portable skill references."
+        }
+      ],
+      "children": []
+    },
+    "skill-source-style-digest": {
+      "id": "skill-source-style-digest",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/docs-mcp/src/style-digest.ts",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-mcp/src/style-digest.ts"
+            }
+          }
+        },
+        {
+          "insert": " holds the 10-rule style digest that "
+        },
+        {
+          "insert": "docs_begin",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " returns first. It summarizes the style guide, which stays the source of truth."
+        }
+      ],
+      "children": []
+    },
+    "skill-source-instructions": {
+      "id": "skill-source-instructions",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/docs-mcp/src/mcp.ts",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-mcp/src/mcp.ts"
+            }
+          }
+        },
+        {
+          "insert": " holds the five startup instruction lines that clients load with every session."
         }
       ],
       "children": []
@@ -195,7 +257,145 @@
       "props": {},
       "text": [
         {
-          "insert": "The server advertises tools and startup instructions. docs_begin returns the writing standards, full component-selection catalog, task ID, and snapshot identity. docs_guidance can retrieve one component reference by component name. The MCP resource codecaine://docs/guidance exposes current rendered guidance. There is no MCP prompts capability in this implementation."
+          "insert": "The server advertises tools and five startup instruction lines. It has no MCP prompts capability. Guidance is split into topics so a result stays small enough for a client to show inline."
+        }
+      ],
+      "children": []
+    },
+    "skill-receive-begin": {
+      "id": "skill-receive-begin",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs_begin",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " opens a task."
+        }
+      ],
+      "children": [
+        "skill-receive-begin-detail"
+      ]
+    },
+    "skill-receive-begin-detail": {
+      "id": "skill-receive-begin-detail",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "It returns the task ID, the style digest, a guidance topic index with sizes, one-line component purposes, and the snapshot identity."
+        }
+      ],
+      "children": []
+    },
+    "skill-receive-guidance": {
+      "id": "skill-receive-guidance",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs_guidance",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " returns one topic at a time."
+        }
+      ],
+      "children": [
+        "skill-receive-guidance-topics",
+        "skill-receive-guidance-all",
+        "skill-receive-guidance-component"
+      ]
+    },
+    "skill-receive-guidance-topics": {
+      "id": "skill-receive-guidance-topics",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Topics include "
+        },
+        {
+          "insert": "style",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "components",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and one "
+        },
+        {
+          "insert": "standards-*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " topic per standards page. The task must read "
+        },
+        {
+          "insert": "style",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " before its first content write."
+        }
+      ],
+      "children": []
+    },
+    "skill-receive-guidance-all": {
+      "id": "skill-receive-guidance-all",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Topic "
+        },
+        {
+          "insert": "all",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and the MCP resource "
+        },
+        {
+          "insert": "codecaine://docs/guidance",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " return the full rendered guidance."
+        }
+      ],
+      "children": []
+    },
+    "skill-receive-guidance-component": {
+      "id": "skill-receive-guidance-component",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A component name returns that component's canonical reference."
         }
       ],
       "children": []
@@ -206,7 +406,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The installed skill tells the coding agent when and how to use those tools. Installation places references/standards.md, references/components.md, references/components/<name>.md, and snapshot.json beside SKILL.md. These files are generated from the canonical corpus and manifests; they are not independent standards."
+          "insert": "The installed skill tells the coding agent when and how to use those tools. Installation places references/standards.md, references/components.md, references/components/<name>.md, and snapshot.json beside SKILL.md. These files are generated from the canonical corpus and manifests. They are not independent standards."
         }
       ],
       "children": []
@@ -217,7 +417,16 @@
       "props": {},
       "text": [
         {
-          "insert": "The catalog covers rich text, annotated Code, File Tree, Structured Table, State Shape, Interaction Surface, Canvas, Sequence, and Process Outline. Component purposes load together; detailed references can be fetched only when needed. Connecting an MCP does not prove a client selected the skill. Test implicit use in each client."
+          "insert": "The catalog covers rich text, annotated Code, File Tree, Structured Table, State Shape, Interaction Surface, Canvas, Sequence, and Process Outline. One-line component purposes load with "
+        },
+        {
+          "insert": "docs_begin",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". The full catalog and detailed references load only when needed. Connecting an MCP does not prove a client selected the skill. Test implicit use in each client."
         }
       ],
       "children": []
@@ -241,7 +450,25 @@
       "props": {},
       "text": [
         {
-          "insert": "1. For wording and standards, read the canonical document through Docs tools, apply a typed edit, and run docs_check. For tool-use workflow, edit the source SKILL.md. Project-specific standards overrides are not implemented."
+          "insert": "1. For wording and standards, read the canonical document through Docs tools, apply a typed edit, and run "
+        },
+        {
+          "insert": "docs_check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with the task ID. When a style guide edit changes a rule the digest summarizes, update "
+        },
+        {
+          "insert": "STYLE_DIGEST",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " to match. For tool-use workflow, edit the source SKILL.md. Project-specific standards overrides are not implemented."
         }
       ],
       "children": []
