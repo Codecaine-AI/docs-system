@@ -30,8 +30,15 @@ export const TABLE_WRAPPER_CLASSES =
 export const TABLE_ELEMENT_CLASSES =
   "w-full border-collapse text-left leading-[var(--docs-table-line-height,1.55)]";
 
+/**
+ * The header rule boxes the whole header row: the thead's bottom border plus
+ * inset shadows on the header cells for the top edge and the two outer
+ * sides. Shadows rather than borders so the collapsed-border grid keeps its
+ * column rules and no cell shifts; an editor cell's focus ring still wins
+ * while focused.
+ */
 export const TABLE_HEAD_CLASSES =
-  "border-b border-solid border-b-[length:var(--docs-table-header-rule-width,2px)] border-b-[color:color-mix(in_srgb,var(--docs-table-header-rule,var(--docs-table-header-fg,currentColor))_calc(var(--docs-table-header-rule-opacity,0.7)*100%),transparent)] bg-[color:var(--docs-table-header-bg,transparent)] text-[color:var(--docs-table-header-fg,currentColor)]";
+  "border-b border-solid border-b-[length:var(--docs-table-header-rule-width,2px)] border-b-[color:color-mix(in_srgb,var(--docs-table-header-rule,var(--docs-table-header-fg,currentColor))_calc(var(--docs-table-header-rule-opacity,0.7)*100%),transparent)] [&>tr>th]:[box-shadow:inset_0_var(--docs-table-header-rule-width,2px)_0_0_color-mix(in_srgb,var(--docs-table-header-rule,var(--docs-table-header-fg,currentColor))_calc(var(--docs-table-header-rule-opacity,0.7)*100%),transparent)] [&>tr>th:first-child]:[box-shadow:inset_0_var(--docs-table-header-rule-width,2px)_0_0_color-mix(in_srgb,var(--docs-table-header-rule,var(--docs-table-header-fg,currentColor))_calc(var(--docs-table-header-rule-opacity,0.7)*100%),transparent),inset_var(--docs-table-header-rule-width,2px)_0_0_0_color-mix(in_srgb,var(--docs-table-header-rule,var(--docs-table-header-fg,currentColor))_calc(var(--docs-table-header-rule-opacity,0.7)*100%),transparent)] [&>tr>th:last-child]:[box-shadow:inset_0_var(--docs-table-header-rule-width,2px)_0_0_color-mix(in_srgb,var(--docs-table-header-rule,var(--docs-table-header-fg,currentColor))_calc(var(--docs-table-header-rule-opacity,0.7)*100%),transparent),inset_calc(var(--docs-table-header-rule-width,2px)*-1)_0_0_0_color-mix(in_srgb,var(--docs-table-header-rule,var(--docs-table-header-fg,currentColor))_calc(var(--docs-table-header-rule-opacity,0.7)*100%),transparent)] [&>tr>th:only-child]:[box-shadow:inset_0_var(--docs-table-header-rule-width,2px)_0_0_color-mix(in_srgb,var(--docs-table-header-rule,var(--docs-table-header-fg,currentColor))_calc(var(--docs-table-header-rule-opacity,0.7)*100%),transparent),inset_var(--docs-table-header-rule-width,2px)_0_0_0_color-mix(in_srgb,var(--docs-table-header-rule,var(--docs-table-header-fg,currentColor))_calc(var(--docs-table-header-rule-opacity,0.7)*100%),transparent),inset_calc(var(--docs-table-header-rule-width,2px)*-1)_0_0_0_color-mix(in_srgb,var(--docs-table-header-rule,var(--docs-table-header-fg,currentColor))_calc(var(--docs-table-header-rule-opacity,0.7)*100%),transparent)] bg-[color:var(--docs-table-header-bg,transparent)] text-[color:var(--docs-table-header-fg,currentColor)]";
 
 /**
  * The 60px floor (AFFiNE's ColumnMinWidth) keeps freshly added — still

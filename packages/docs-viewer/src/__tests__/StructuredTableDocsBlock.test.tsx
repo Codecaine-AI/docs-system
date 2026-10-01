@@ -90,6 +90,13 @@ describe("StructuredTableBlock", () => {
       "border-b-[length:var(--docs-table-header-rule-width,2px)]",
     );
     expect(header?.className).toContain("var(--docs-table-header-rule-opacity,0.7)");
+    // The header rule boxes the whole header row: top edge on every cell,
+    // plus the outer left and right sides.
+    for (const edge of ["[&>tr>th]:", "[&>tr>th:first-child]:", "[&>tr>th:last-child]:"]) {
+      expect(header?.className).toContain(
+        `${edge}[box-shadow:inset_0_var(--docs-table-header-rule-width,2px)_0_0_`,
+      );
+    }
     expect(header?.className).toContain(
       "bg-[color:var(--docs-table-header-bg,transparent)]",
     );
