@@ -52,6 +52,31 @@ describe("convert: docToPM / pmToDoc round-trip", () => {
     expect(back.blocks["code-1"].props.language).toBe("typescript");
   });
 
+  it("emits code blocks as flat text (their `text*` schema), not inside a docBlockText wrapper", () => {
+    const doc = loadFixture();
+    const pm = docToPM(doc);
+    const code = (pm.content ?? []).find((node) => node.attrs?.blockId === "code-1");
+    expect(code?.type).toBe("docCodeBlock");
+    expect(code?.content?.every((child) => child.type === "text")).toBe(true);
+  });
+
+  it("reads code text back from flat content and from a legacy docBlockText wrapper", () => {
+    const doc = loadFixture();
+    const flat = docToPM(doc);
+    const expected = doc.blocks["code-1"].text;
+    expect(pmToDoc(flat, doc, makeIdFactory("fresh")).blocks["code-1"].text).toEqual(expected);
+
+    const legacy: PMNode = {
+      ...flat,
+      content: (flat.content ?? []).map((node) =>
+        node.attrs?.blockId === "code-1"
+          ? { ...node, content: [{ type: "docBlockText", content: node.content ?? [] }] }
+          : node,
+      ),
+    };
+    expect(pmToDoc(legacy, doc, makeIdFactory("fresh")).blocks["code-1"].text).toEqual(expected);
+  });
+
   it("preserves atom block type props verbatim (canvas/image/video/file-tree/structured-table/interaction-surface)", () => {
     const doc = loadFixture();
     const pm = docToPM(doc);

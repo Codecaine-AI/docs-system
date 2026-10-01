@@ -9,6 +9,7 @@ import {
   docCodeBlockHighlightPluginKey,
 } from "../../components/code/editor-highlight";
 import { DocBlockText, DocCodeBlock, DocParagraph } from "../core/schema";
+import { docToPM } from "../core/convert";
 
 describe("highlightCodeTokens", () => {
   it("returns offset ranges into the ORIGINAL code string", () => {
@@ -44,6 +45,19 @@ describe("highlightCodeTokens", () => {
 
 describe("DocCodeBlockHighlight plugin", () => {
   function createEditor(codeText: string, language: string | null) {
+    return createEditorWith({
+      type: "doc",
+      content: [
+        {
+          type: "docCodeBlock",
+          attrs: { language },
+          content: [{ type: "text", text: codeText }],
+        },
+      ],
+    });
+  }
+
+  function createEditorWith(content: Record<string, unknown>) {
     return new Editor({
       extensions: [
         StarterKit.configure({
@@ -66,16 +80,7 @@ describe("DocCodeBlockHighlight plugin", () => {
         DocCodeBlock,
         DocCodeBlockHighlight,
       ],
-      content: {
-        type: "doc",
-        content: [
-          {
-            type: "docCodeBlock",
-            attrs: { language },
-            content: [{ type: "text", text: codeText }],
-          },
-        ],
-      },
+      content,
       injectCSS: false,
     });
   }
@@ -98,6 +103,32 @@ describe("DocCodeBlockHighlight plugin", () => {
     editor.commands.updateAttributes("docCodeBlock", { language: "typescript" });
     const after = docCodeBlockHighlightPluginKey.getState(editor.state)?.find() ?? [];
     expect(after.length).toBeGreaterThan(0);
+    editor.destroy();
+  });
+
+  it("decorates exactly the token text for a code block loaded from a saved doc", () => {
+    const code = "async function run(target: Target) {}";
+    const pm = docToPM({
+      id: "doc-1",
+      title: "Doc",
+      root: "root",
+      blocks: {
+        root: { id: "root", type: "paragraph", props: {}, children: ["code-1"] },
+        "code-1": {
+          id: "code-1",
+          type: "code",
+          props: { language: "typescript" },
+          text: [{ insert: code }],
+          children: [],
+        },
+      },
+    } as unknown as Parameters<typeof docToPM>[0]);
+    const editor = createEditorWith(pm as Record<string, unknown>);
+    const decorated = (docCodeBlockHighlightPluginKey.getState(editor.state)?.find() ?? []).map(
+      (decoration) => editor.state.doc.textBetween(decoration.from, decoration.to),
+    );
+    expect(decorated).toContain("function");
+    expect(decorated).toContain("Target");
     editor.destroy();
   });
 });

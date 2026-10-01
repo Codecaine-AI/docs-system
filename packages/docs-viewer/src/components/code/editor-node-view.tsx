@@ -13,7 +13,7 @@ import {
   CODE_LANG_SELECT_CLASSES,
 } from "./classes";
 import { CodeShell } from "./CodeShell";
-import { HIGHLIGHT_LANGUAGES, resolveDisplayLanguage } from "./highlight";
+import { HIGHLIGHT_LANGUAGES, canonicalLanguage, resolveDisplayLanguage } from "./highlight";
 
 /**
  * Editor node view for `docCodeBlock`: the same frame + header band + gutter
@@ -53,7 +53,7 @@ export function CodeBlockNodeView({ node, updateAttributes, editor }: ReactNodeV
     <span className="relative inline-flex items-center">
       <select
         aria-label="Code block language"
-        value={language}
+        value={canonicalLanguage(language) ?? language}
         disabled={!editor.isEditable}
         onChange={(event) => updateAttributes({ language: event.target.value || null })}
         className={cn(CODE_LANG_LABEL_CLASSES, CODE_LANG_SELECT_CLASSES)}

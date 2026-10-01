@@ -164,12 +164,27 @@ function blockToPMNode(doc: DocDocument, blockId: string): PMNode {
     };
   }
 
+  // Code blocks are the one flat textblock (`text*`, no marks — see
+  // components/code/editor-nodes.ts): their text sits directly in the node.
+  // Wrapping it in `docBlockText` like prose would put a node the schema
+  // forbids inside the code block, shifting every position by one (syntax
+  // highlight decorations land a character early) and hiding the code block
+  // from the keymap, which checks `$from.parent`.
+  if (block.type === "code") {
+    const code = (block.text ?? []).map((span) => span.insert).join("");
+    return {
+      type: nodeType,
+      attrs: { blockId: block.id, blockProps, ...promoted },
+      content: code ? [{ type: "text", text: code }] : [],
+    };
+  }
+
   // Text-bearing nodes are `"docBlockText block*"` (see schema.ts's module
   // doc comment for why a plain "inline* block*" content expression is
   // rejected by ProseMirror): a mandatory `docBlockText` wrapper carrying the
   // block's OWN inline text is always content[0], followed by any nested
   // DocBlock children as sibling block nodes.
-  const wrapper: PMNode = { type: "docBlockText", content: deltaToPMInline(block.text, block.type !== "code") };
+  const wrapper: PMNode = { type: "docBlockText", content: deltaToPMInline(block.text, true) };
   const content: PMNode[] = [wrapper, ...block.children.map((childId) => blockToPMNode(doc, childId))];
   return {
     type: nodeType,
@@ -404,6 +419,13 @@ function pmNodeToBlock(
   // content[0] defensively (e.g. a hand-built PM JSON in a test) by treating
   // it as empty inline content rather than throwing.
   const content = node.content ?? [];
+  if (blockType === "code") {
+    // Flat `text*` content; a legacy `docBlockText` wrapper (PM JSON built
+    // before code blocks loaded flat) is unwrapped the same way.
+    const inline = content[0]?.type === "docBlockText" ? content[0].content ?? [] : content;
+    blocks[id] = { id, type: blockType, props, text: pmInlineToDelta(inline), children: [] };
+    return id;
+  }
   const hasWrapper = content.length > 0 && content[0].type === "docBlockText";
   const wrapperInline = hasWrapper ? content[0].content ?? [] : [];
   const childBlockNodes = hasWrapper ? content.slice(1) : content;

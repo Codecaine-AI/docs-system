@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "bun:test";
 import {
+  canonicalLanguage,
   highlightCode,
   highlightCodeTokens,
   prettyPrintIfJson,
@@ -128,6 +129,20 @@ describe("null literals carry hljs-null so --syntax-null reaches code blocks", (
     expect(css.slice(nullRule)).toMatch(
       /^\.hljs-null,\s*\.hljs-null \.hljs-keyword \{\s*color: var\(--syntax-null, /,
     );
+  });
+});
+
+describe("canonicalLanguage", () => {
+  it("maps grammar aliases to the picker's canonical names", () => {
+    expect(canonicalLanguage("ts")).toBe("typescript");
+    expect(canonicalLanguage(" YML ")).toBe("yaml");
+    expect(canonicalLanguage("shell")).toBe("bash");
+    expect(canonicalLanguage("typescript")).toBe("typescript");
+  });
+
+  it("returns null for unknown or missing languages", () => {
+    expect(canonicalLanguage("cobol")).toBeNull();
+    expect(canonicalLanguage(null)).toBeNull();
   });
 });
 

@@ -78,6 +78,17 @@ export const HIGHLIGHT_LANGUAGES = [
   "yaml",
 ] as const;
 
+/**
+ * The curated grammar name a declared language resolves to (`ts` ->
+ * `typescript`, `yml` -> `yaml`), for pickers that list only canonical
+ * names. Null when no curated grammar matches.
+ */
+export function canonicalLanguage(language: string | null | undefined): string | null {
+  const grammar = language ? hljs.getLanguage(language.trim().toLowerCase()) : undefined;
+  if (!grammar) return null;
+  return HIGHLIGHT_LANGUAGES.find((name) => hljs.getLanguage(name) === grammar) ?? null;
+}
+
 function escapeHtml(text: string): string {
   return text
     .replace(/&/g, "&amp;")
