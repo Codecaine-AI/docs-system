@@ -1,12 +1,12 @@
 # structured-table
 
-Generated from Codecaine Docs sources. Snapshot: `sha256:8861c4126d96a4fe05b112560004f112939f8bd23bcfa3b72fb78f29bf846861`. Refresh the installation to regenerate these files.
+Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872daf2950bc392aeeae845c9eb67ff4956ad352fb08`. Refresh the installation to regenerate these files.
 
 Use a Structured Table for a comparison, index, or mapping with the same properties across rows. Use State Shape for nested typed fields.
 
 Example: Compare supported clients by installation path and connection method.
 
-Canonical document: `10-system-design/40-block-vocabulary/30-structured-table`.
+Canonical document: `10-system-design/40-block-vocabulary/40-structured-reference/30-structured-table`.
 
 The structured-table family owns one block type, `structured-table`: a columns × rows grid of rich-text cells kept in typed props, not prose. Each cell is a plain string or a span array carrying inline marks. Use it for index tables, comparison matrices, and anything an agent should edit cell-by-cell instead of re-flowing text. Each section below instantiates one element of the block-design contract for this family.
 

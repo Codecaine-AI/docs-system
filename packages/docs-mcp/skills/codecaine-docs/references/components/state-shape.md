@@ -1,12 +1,12 @@
 # state-shape
 
-Generated from Codecaine Docs sources. Snapshot: `sha256:8861c4126d96a4fe05b112560004f112939f8bd23bcfa3b72fb78f29bf846861`. Refresh the installation to regenerate these files.
+Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872daf2950bc392aeeae845c9eb67ff4956ad352fb08`. Refresh the installation to regenerate these files.
 
 Use State Shape to define persisted or in-memory state, its nested fields, optionality, and meaning. Include a JSON example instance and a defining source reference. Describe state before the Interaction Surface that changes or queries it.
 
 Example: Define an edit task with its project, revision, and status, then show one valid task instance.
 
-Canonical document: `10-system-design/40-block-vocabulary/50-state-shape`.
+Canonical document: `10-system-design/40-block-vocabulary/40-structured-reference/10-state-shape`.
 
 The state-shape component owns one block type, `state-shape`, the object-shape block of the block vocabulary. A block carries a recursive field tree, name, type, optionality, meaning, an optional link to the defining source symbol, and an optional JSON example instance rendered beside the tree.
 

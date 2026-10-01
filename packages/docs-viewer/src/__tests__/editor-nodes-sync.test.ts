@@ -8,6 +8,12 @@ import * as sequenceEditorNodes from "../components/sequence/editor-nodes";
 import * as stateShapeEditorNodes from "../components/state-shape/editor-nodes";
 import * as structuredTableEditorNodes from "../components/structured-table/editor-nodes";
 import * as processOutlineEditorNodes from "../components/process-outline/editor-nodes";
+import * as stackEditorNodes from "../components/stack/editor-nodes";
+import * as callStackEditorNodes from "../components/call-stack/editor-nodes";
+import * as componentTreeEditorNodes from "../components/component-tree/editor-nodes";
+import * as flowStripEditorNodes from "../components/flow-strip/editor-nodes";
+import * as pseudocodeEditorNodes from "../components/pseudocode/editor-nodes";
+import * as fileExplorerEditorNodes from "../components/file-explorer/editor-nodes";
 import {
   ATOM_BLOCK_NODES,
   BLOCK_TYPE_TO_NODE_TYPE,
@@ -25,6 +31,12 @@ const componentNodeModules = [
   canvasEditorNodes,
   sequenceEditorNodes,
   processOutlineEditorNodes,
+  stackEditorNodes,
+  callStackEditorNodes,
+  componentTreeEditorNodes,
+  flowStripEditorNodes,
+  pseudocodeEditorNodes,
+  fileExplorerEditorNodes,
 ];
 
 describe("component editor nodes", () => {
@@ -35,7 +47,6 @@ describe("component editor nodes", () => {
       "docHeading",
       "docListItem",
       "docCodeBlock",
-      "docQuote",
       "docCallout",
     ]);
     expect(ATOM_BLOCK_NODES.map((node) => node.name)).toEqual([
@@ -51,6 +62,12 @@ describe("component editor nodes", () => {
       "docInteractionSurface",
       "docStateShape",
       "docProcessOutline",
+      "docStack",
+      "docCallStack",
+      "docComponentTree",
+      "docFlowStrip",
+      "docPseudocode",
+      "docFileExplorer",
     ]);
   });
 
@@ -67,7 +84,6 @@ describe("component editor nodes", () => {
       heading: "docHeading",
       "list-item": "docListItem",
       code: "docCodeBlock",
-      quote: "docQuote",
       callout: "docCallout",
       divider: "docDivider",
       image: "docImage",
@@ -81,6 +97,12 @@ describe("component editor nodes", () => {
       "interaction-surface": "docInteractionSurface",
       "state-shape": "docStateShape",
       "process-outline": "docProcessOutline",
+      stack: "docStack",
+      "call-stack": "docCallStack",
+      "component-tree": "docComponentTree",
+      "flow-strip": "docFlowStrip",
+      "pseudocode": "docPseudocode",
+      "file-explorer": "docFileExplorer",
     });
 
     for (const node of componentNodes) {

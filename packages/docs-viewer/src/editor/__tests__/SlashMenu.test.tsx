@@ -414,16 +414,16 @@ describe("mouse selection", () => {
     render(<SlashMenuPopover editor={editor} />);
     await openMenu(editor);
 
-    const quote = rowByName("Quote", root()!)!;
+    const divider = rowByName("Divider", root()!)!;
     await fire(() => {
-      fireEvent.mouseMove(quote);
+      fireEvent.mouseMove(divider);
     });
-    expect(selectedRow(root()!)?.dataset.docSlashMenuRow).toBe("Quote");
+    expect(selectedRow(root()!)?.dataset.docSlashMenuRow).toBe("Divider");
 
     await fire(() => {
-      fireEvent.mouseDown(quote);
+      fireEvent.mouseDown(divider);
     });
-    expect(findNode(editor.getJSON(), "docQuote")).toBeTruthy();
+    expect(findNode(editor.getJSON(), "docDivider")).toBeTruthy();
     expect(menuState(editor).open).toBe(false);
   });
 });

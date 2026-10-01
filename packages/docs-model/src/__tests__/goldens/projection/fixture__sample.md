@@ -20,7 +20,7 @@ export const double = () =>
 > **L1 (Export):** The canonical answer constant.
 > **L2-3:** Helper that doubles the answer.
 
-> Stable ids are a system invariant.
+Stable ids are a system invariant.
 
 > **Decision: Heads up** — Annotations live in annotations.json, never in doc.json.
 

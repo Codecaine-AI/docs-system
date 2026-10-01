@@ -93,7 +93,7 @@
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "10-system-design/40-block-vocabulary/80-canvas",
+              "path": "10-system-design/40-block-vocabulary/50-flow-and-diagrams/50-canvas",
               "label": "Canvas family"
             }
           }

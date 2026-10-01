@@ -9,6 +9,6 @@ export const manifest: ComponentManifest = {
   authoring: {
     "whenToUse": "Use annotated source listings as evidence of the actual implementation. Put a state instance in State Shape alongside its field definition.",
     "example": "Show the real validation function and annotate the branch that rejects an invalid write.",
-    "docsPath": "10-system-design/40-block-vocabulary/20-code-block"
+    "docsPath": "10-system-design/40-block-vocabulary/20-code/10-code-block"
 }
 };

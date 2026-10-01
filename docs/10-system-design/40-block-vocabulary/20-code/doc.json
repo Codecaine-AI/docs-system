@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "id": "doc-47450ba2e41d1e93c523c8bbd5ba5ab2",
+  "title": "Code",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-vocab-code-opener",
+        "b-vocab-code-table"
+      ]
+    },
+    "b-vocab-code-opener": {
+      "id": "b-vocab-code-opener",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Code blocks hold source text, either a real listing as evidence of the implementation or pseudocode that sketches an algorithm without real syntax."
+        }
+      ],
+      "children": []
+    },
+    "b-vocab-code-table": {
+      "id": "b-vocab-code-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Block type",
+          "What it's for",
+          "Page"
+        ],
+        "rows": [
+          [
+            [
+              {
+                "insert": "code",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "An annotated source listing as evidence of the implementation.",
+            [
+              {
+                "insert": "Code block",
+                "attributes": {
+                  "link": "#/10-system-design/40-block-vocabulary/20-code/10-code-block"
+                }
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "insert": "pseudocode",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "An algorithm or logic change sketched without real syntax.",
+            [
+              {
+                "insert": "Pseudocode",
+                "attributes": {
+                  "link": "#/10-system-design/40-block-vocabulary/20-code/20-pseudocode"
+                }
+              }
+            ]
+          ]
+        ]
+      },
+      "children": []
+    }
+  }
+}

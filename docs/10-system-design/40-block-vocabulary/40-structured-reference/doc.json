@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "id": "doc-e21f0f7c673d1574ea461a954e7ce33e",
+  "title": "Structured reference",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-vocab-ref-opener",
+        "b-vocab-ref-table"
+      ]
+    },
+    "b-vocab-ref-opener": {
+      "id": "b-vocab-ref-opener",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Structured reference blocks keep reference facts in typed props that agents edit field by field: state, the operations on it, and tabular mappings."
+        }
+      ],
+      "children": []
+    },
+    "b-vocab-ref-table": {
+      "id": "b-vocab-ref-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Block type",
+          "What it's for",
+          "Page"
+        ],
+        "rows": [
+          [
+            [
+              {
+                "insert": "state-shape",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Persisted or in-memory state with nested fields, optionality, and meaning.",
+            [
+              {
+                "insert": "State shape",
+                "attributes": {
+                  "link": "#/10-system-design/40-block-vocabulary/40-structured-reference/10-state-shape"
+                }
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "insert": "interaction-surface",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "The actions, queries, and events on a state or system, with params and returns.",
+            [
+              {
+                "insert": "Interaction surface",
+                "attributes": {
+                  "link": "#/10-system-design/40-block-vocabulary/40-structured-reference/20-interaction-surface"
+                }
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "insert": "structured-table",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "A comparison, index, or mapping with the same properties across rows.",
+            [
+              {
+                "insert": "Structured table",
+                "attributes": {
+                  "link": "#/10-system-design/40-block-vocabulary/40-structured-reference/30-structured-table"
+                }
+              }
+            ]
+          ]
+        ]
+      },
+      "children": []
+    }
+  }
+}

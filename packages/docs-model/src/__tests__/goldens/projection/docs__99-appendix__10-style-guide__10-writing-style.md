@@ -230,11 +230,11 @@ This page incorporates the existing Technical Writing and Unslop guidance. Sourc
 
 ## Worked Example
 
-The revision names the actor, preserves the condition, and states the result.
+The revision names the actor, preserves the condition, and states the result. The first paragraph below is the original, and the second is the revision.
 
-> Before: Configuration of the import budget script parameters is performed via budget.json. Note that it is important to remember that running with --write should only be done when lowering the budget. If exceeded, CI fails.
+Configuration of the import budget script parameters is performed via budget.json. Note that it is important to remember that running with --write should only be done when lowering the budget. If exceeded, CI fails.
 
-> After: budget.mjs reads budget.json and counts the imports. If the count exceeds the budget, CI fails. Run budget.mjs --write only to lower the budget.
+budget.mjs reads budget.json and counts the imports. If the count exceeds the budget, CI fails. Run budget.mjs --write only to lower the budget.
 
 The filenames in this example are illustrative. In a real document, use the project's actual paths and symbols.
 

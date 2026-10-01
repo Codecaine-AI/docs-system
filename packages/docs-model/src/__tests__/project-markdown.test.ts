@@ -66,8 +66,9 @@ describe("projectToMarkdown — the sample fixture", () => {
     );
   });
 
-  it("projects a quote as a blockquote", () => {
-    expect(markdown).toContain("> Stable ids are a system invariant.");
+  it("projects a plain paragraph without a blockquote marker", () => {
+    expect(markdown).toContain("\nStable ids are a system invariant.\n");
+    expect(markdown).not.toContain("> Stable ids are a system invariant.");
   });
 
   it("projects a callout with kind winning over tone, greppable on '> **Decision'", () => {
@@ -140,8 +141,18 @@ describe("projectToMarkdown — the sample fixture", () => {
     const typesInFixture = new Set(
       Object.values(validated.document.blocks).map((b) => b.type),
     );
-    // The legacy fixture predates process-outline, HTML, and image-grid; those types are covered outside it.
-    const absentFromFixture: readonly string[] = ["process-outline", "html", "image-grid"];
+    // The legacy fixture predates these types; each is covered by its own component tests.
+    const absentFromFixture: readonly string[] = [
+      "process-outline",
+      "html",
+      "image-grid",
+      "stack",
+      "call-stack",
+      "component-tree",
+      "flow-strip",
+      "pseudocode",
+      "file-explorer",
+    ];
     expect([...typesInFixture].sort()).toEqual(
       DOC_BLOCK_TYPES.filter((type) => !absentFromFixture.includes(type)).sort(),
     );

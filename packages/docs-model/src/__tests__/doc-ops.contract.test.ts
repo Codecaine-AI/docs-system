@@ -39,7 +39,7 @@ function block(id: string, overrides: Partial<DocBlock> = {}): DocBlock {
  * ├─ list      (list-item)
  * │   ├─ li1   (list-item)
  * │   └─ li2   (list-item)
- * └─ quote     (quote)
+ * └─ note      (callout)
  */
 function baseDoc(): DocDocument {
   return {
@@ -47,7 +47,7 @@ function baseDoc(): DocDocument {
     id: "doc-contract",
     root: "root",
     blocks: {
-      root: block("root", { children: ["h1", "p1", "p2", "list", "quote"] }),
+      root: block("root", { children: ["h1", "p1", "p2", "list", "note"] }),
       h1: block("h1", { type: "heading", props: { level: 1 }, text: [{ insert: "Title" }] }),
       p1: block("p1", {
         text: [
@@ -60,7 +60,7 @@ function baseDoc(): DocDocument {
       list: block("list", { type: "list-item", text: [{ insert: "List head" }], children: ["li1", "li2"] }),
       li1: block("li1", { type: "list-item", text: [{ insert: "One" }] }),
       li2: block("li2", { type: "list-item", text: [{ insert: "Two" }] }),
-      quote: block("quote", { type: "quote", text: [{ insert: "A quote" }] }),
+      note: block("note", { type: "callout", text: [{ insert: "A note" }] }),
     },
   };
 }
@@ -143,7 +143,7 @@ describe("contract 2 — split/merge mint fresh, never-reused ids", () => {
     ]);
     expect(split.blocks.p1.text).toEqual([{ insert: "Hello " }]);
     // Tail is inserted directly after the original.
-    expect(split.blocks.root.children).toEqual(["h1", "p1", newId, "p2", "list", "quote"]);
+    expect(split.blocks.root.children).toEqual(["h1", "p1", newId, "p2", "list", "note"]);
     // The split document is still schema-valid.
     expect(validateDocDocument(split).ok).toBe(true);
   });
@@ -187,7 +187,7 @@ describe("contract 2 — split/merge mint fresh, never-reused ids", () => {
       { insert: " world" },
       { insert: "Second paragraph" },
     ]);
-    expect(merged.blocks.root.children).toEqual(["h1", mergedId, "list", "quote"]);
+    expect(merged.blocks.root.children).toEqual(["h1", mergedId, "list", "note"]);
     expect(validateDocDocument(merged).ok).toBe(true);
   });
 
@@ -260,7 +260,7 @@ describe("contract 3 — deleteBlock leaves annotation targets detectable as rem
     expect(detectDanglingTargets(annotationsOn("li1"), deleted, {})).toEqual([]);
     expect(detectDanglingTargets(annotationsOn("li2"), deleted, {})).toEqual([]);
     // Children were spliced into the grandparent at the deleted slot.
-    expect(deleted.blocks.root.children).toEqual(["h1", "p1", "p2", "li1", "li2", "quote"]);
+    expect(deleted.blocks.root.children).toEqual(["h1", "p1", "p2", "li1", "li2", "note"]);
     expect(validateDocDocument(deleted).ok).toBe(true);
   });
 });
@@ -338,7 +338,7 @@ describe("contract 4 — applyOp then inverse restores the exact original doc", 
   it("mergeBlocks (two blocks, three blocks, and blocks with children)", () => {
     roundTrip({ type: "mergeBlocks", blockIds: ["p1", "p2"] });
     roundTrip({ type: "mergeBlocks", blockIds: ["p1", "p2", "list"] });
-    roundTrip({ type: "mergeBlocks", blockIds: ["list", "quote"] });
+    roundTrip({ type: "mergeBlocks", blockIds: ["list", "note"] });
   });
 
   it("applyOps composes inverses in reverse order for multi-op undo units", () => {
@@ -347,8 +347,8 @@ describe("contract 4 — applyOp then inverse restores the exact original doc", 
     const result = applyOps(
       doc,
       [
-        { type: "moveBlock", blockId: "quote", toParentId: "list", toIndex: 0 },
-        { type: "updateBlock", blockId: "quote", text: [{ insert: "moved" }] },
+        { type: "moveBlock", blockId: "note", toParentId: "list", toIndex: 0 },
+        { type: "updateBlock", blockId: "note", text: [{ insert: "moved" }] },
         { type: "splitBlock", blockId: "p2", offset: 6 },
         { type: "deleteBlock", blockId: "h1", mode: "subtree" },
       ],
@@ -415,7 +415,7 @@ describe("pre-apply validation — ops that would break invariants are rejected"
   });
 
   it("rejects merging non-contiguous or non-sibling blocks", () => {
-    expect(applyOp(baseDoc(), { type: "mergeBlocks", blockIds: ["p1", "quote"] }, makeIdFactory()).ok).toBe(false);
+    expect(applyOp(baseDoc(), { type: "mergeBlocks", blockIds: ["p1", "note"] }, makeIdFactory()).ok).toBe(false);
     expect(applyOp(baseDoc(), { type: "mergeBlocks", blockIds: ["p1", "li1"] }, makeIdFactory()).ok).toBe(false);
     expect(applyOp(baseDoc(), { type: "mergeBlocks", blockIds: ["p2", "p1"] }, makeIdFactory()).ok).toBe(false);
     expect(applyOp(baseDoc(), { type: "mergeBlocks", blockIds: ["p1"] }, makeIdFactory()).ok).toBe(false);

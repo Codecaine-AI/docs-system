@@ -594,6 +594,12 @@ describe("GET /api/blocks (edit-surface discovery)", () => {
     "canvas",
     "sequence",
     "process-outline",
+    "stack",
+    "call-stack",
+    "component-tree",
+    "flow-strip",
+    "pseudocode",
+    "file-explorer",
   ] as const;
   const ACTION_KEYS = [
     "canvas.addConnection",
@@ -665,7 +671,7 @@ describe("GET /api/blocks (edit-surface discovery)", () => {
     const { body } = await getBlocks();
     const { DOC_BLOCK_TYPES } = await import("@codecaine-ai/docs-model/doc-schema");
 
-    expect(body.components).toHaveLength(9);
+    expect(body.components).toHaveLength(15);
     expect(body.components.map((component) => component.name)).toEqual([...COMPONENT_NAMES]);
 
     const servedTypes = body.components.flatMap((component) =>

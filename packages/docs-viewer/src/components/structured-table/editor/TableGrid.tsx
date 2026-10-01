@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import { cn } from "../../../ui/cn";
 import {
   TABLE_BODY_CELL_TEXT_CLASSES,
@@ -14,6 +14,7 @@ import {
   TABLE_ROW_RULE_CLASSES,
   TABLE_WRAPPER_CLASSES,
 } from "../table-classes";
+import { tableCellKinds } from "../cell-kind";
 import type { TableCell } from "@codecaine-ai/docs-model";
 import { placeCaretAtEnd } from "./caret";
 import { EditableCell, getCellEditor, type CellNavigation } from "./EditableCell";
@@ -53,12 +54,12 @@ function cellKey(row: number, col: number): string {
 }
 
 /**
- * Editor-only whole-cell focus treatment: a 2px inset accent ring on the
+ * Editor-only whole-cell focus treatment: a 2px inset focus ring on the
  * enclosing th/td while its EditableCell island holds focus. Lives here (NOT
  * in table-classes.ts) so the read renderer never carries it.
  */
 export const EDITOR_CELL_FOCUS_CLASS =
-  "focus-within:shadow-[inset_0_0_0_2px_var(--docs-editor-accent,#2383e2)]";
+  "focus-within:shadow-[inset_0_0_0_2px_var(--docs-focus-ring,#0078df)]";
 
 /** Focus a cell island with the caret ready at the end of its text — shared with the node view's post-add focus routing. */
 export function focusCellElement(element: HTMLElement) {
@@ -95,6 +96,7 @@ export function TableGrid({
   onRegisterCell,
   onUndo,
   onRedo,
+  ariaLabelledBy,
 }: {
   data: TableData;
   editable: boolean;
@@ -108,8 +110,14 @@ export function TableGrid({
   /** Editor-history passthroughs for Mod-Z/Mod-Shift-Z/Mod-Y pressed inside a cell (see EditableCell). */
   onUndo?: () => void;
   onRedo?: () => void;
+  /** Id of the panel-head title that names the table, when the block has one. */
+  ariaLabelledBy?: string;
 }) {
   const cellElementsRef = useRef(new Map<string, HTMLElement>());
+  const cellKinds = useMemo(
+    () => tableCellKinds(data.rows, data.columns.length),
+    [data.rows, data.columns.length],
+  );
 
   const reportFocus = (row: number, col: number) => (focused: boolean) => {
     onFocusCell?.(focused ? row : null, focused ? col : null);
@@ -130,7 +138,7 @@ export function TableGrid({
 
   return (
     <div className={TABLE_WRAPPER_CLASSES} onMouseLeave={() => onHoverCell(null, null)}>
-      <table className={TABLE_ELEMENT_CLASSES}>
+      <table className={TABLE_ELEMENT_CLASSES} aria-labelledby={ariaLabelledBy}>
         <thead className={TABLE_HEAD_CLASSES}>
           <tr>
             {data.columns.map((column, columnIndex) => (
@@ -173,6 +181,7 @@ export function TableGrid({
               {data.columns.map((_, columnIndex) => (
                 <td
                   key={columnIndex}
+                  data-cell-kind={cellKinds[rowIndex]?.[columnIndex]}
                   className={cn(
                     TABLE_CELL_SPACING_CLASS,
                     TABLE_BODY_CELL_TEXT_CLASSES,

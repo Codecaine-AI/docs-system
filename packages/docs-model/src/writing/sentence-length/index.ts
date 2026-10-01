@@ -2,7 +2,7 @@ import type { LintRule } from "../../lint/types";
 import { authoredProse, sentences, wordCount } from "../prose";
 const docsPath = "99-appendix/10-style-guide/10-writing-style";
 const exclusions = [
-  "Code and quote blocks and their descendants",
+  "Code blocks and their descendants",
   "Inline code and reference spans, which do not count as words",
   "Paths, signatures, example literals and Canvas/Sequence payloads",
 ];

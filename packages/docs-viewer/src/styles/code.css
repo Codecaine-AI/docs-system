@@ -241,12 +241,13 @@
   font-style: italic;
 }
 
+/* Diff roles: the dark palette's red / green inside a dark code panel. */
 .hljs-deletion {
-  color: var(--status-danger, var(--color-text-red, #d44c47));
+  color: var(--docs-diff-del, var(--status-danger, #c62121));
 }
 
 .hljs-addition {
-  color: var(--status-success, var(--color-text-green, #448361));
+  color: var(--docs-diff-add, var(--status-success, #26744f));
 }
 
 /* The header only has a bottom rule. Hosts without Tailwind preflight must
@@ -255,4 +256,107 @@
   border-top-width: 0;
   border-left-width: 0;
   border-right-width: 0;
+}
+
+/*
+ * Pseudocode block (components/pseudocode/descriptor.tsx). The same dark
+ * panel and header strip as the code block, and the code block's metric
+ * tokens (text size, line height, gutter, padding). One grid row per source
+ * line: line number, an optional diff sign, the code, and the trailing
+ * comment in one aligned column (colored by the code theme's comment role).
+ * The code column shrinks to the panel and wraps, and the comment column
+ * wraps under itself, so nothing overflows the panel horizontally and each
+ * number stays on its own row. A line with no comment lets its code run
+ * across the comment column.
+ */
+.docs-pseudo-grid {
+  display: grid;
+  grid-template-columns: var(--docs-code-gutter-width, 40px) minmax(0, max-content) minmax(16ch, 1fr);
+  padding-top: var(--docs-code-pad-top, 12px);
+  padding-bottom: var(--docs-code-pad-bottom, 12px);
+  font-size: var(--docs-code-text-size, 13px);
+  line-height: var(--docs-code-line-height, 21px);
+}
+
+.docs-pseudo-grid[data-pseudo-diff] {
+  grid-template-columns: var(--docs-code-gutter-width, 40px) 2ch minmax(0, max-content) minmax(16ch, 1fr);
+}
+
+.docs-pseudo-row {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  align-items: baseline;
+}
+
+/* Line numbers: the code block's gutter color and size (>= 3:1, 12px). */
+.docs-pseudo-num {
+  padding-right: var(--docs-code-gutter-pad-x, 12px);
+  text-align: right;
+  font-size: var(--docs-code-gutter-text-size, 12px);
+  font-variant-numeric: tabular-nums;
+  color: var(--docs-code-gutter-fg, #888784);
+  user-select: none;
+}
+
+.docs-pseudo-code {
+  min-width: 0;
+  padding-left: var(--docs-code-pad-x, 12px);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.docs-pseudo-row:not(:has(.docs-pseudo-comment)) .docs-pseudo-code {
+  grid-column: span 2;
+  padding-right: var(--docs-code-pad-x, 12px);
+}
+
+/* The comment column keeps the .hljs-comment color and font style. */
+.docs-pseudo-comment {
+  min-width: 0;
+  padding: 0 var(--docs-code-pad-x, 12px) 0 4ch;
+  white-space: pre-wrap;
+}
+
+/*
+ * Diff (props.diff): the shared +/− sign column between the number and the
+ * code. A change is never color alone: the sign glyph, a soft row tint, and
+ * (for removals) a strike through the code that skips the indent. Sign and
+ * strike read the diff roles, which inside the dark code panel resolve to
+ * the dark palette's green / red (>= 4.5:1 on the tinted row); the tints mix
+ * the same roles over the panel, so they suit any code theme background.
+ */
+.docs-pseudo-grid[data-pseudo-diff] .docs-pseudo-num {
+  padding-right: 6px;
+}
+
+.docs-pseudo-grid[data-pseudo-diff] .docs-pseudo-code {
+  padding-left: 4px;
+}
+
+.docs-pseudo-sign {
+  text-align: center;
+  font-weight: 600;
+  user-select: none;
+}
+
+.docs-pseudo-row[data-code-diff="add"] {
+  background-color: color-mix(in srgb, var(--docs-diff-add, #26744f) 8%, transparent);
+}
+
+.docs-pseudo-row[data-code-diff="del"] {
+  background-color: color-mix(in srgb, var(--docs-diff-del, #c62121) 8%, transparent);
+}
+
+.docs-pseudo-row[data-code-diff="add"] .docs-pseudo-sign {
+  color: var(--docs-diff-add, #26744f);
+}
+
+.docs-pseudo-row[data-code-diff="del"] .docs-pseudo-sign {
+  color: var(--docs-diff-del, #c62121);
+}
+
+.docs-pseudo-row[data-code-diff="del"] .docs-pseudo-body {
+  text-decoration: line-through;
+  text-decoration-color: color-mix(in srgb, var(--docs-diff-del, #c62121) 70%, transparent);
 }

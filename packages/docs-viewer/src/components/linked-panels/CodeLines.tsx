@@ -22,10 +22,11 @@ import {
  * panel; numbering is local — it starts at 1 per panel instance).
  *
  * Per-line divs at EXACTLY the line-height token (--docs-link-line-height,
- * 20px by default): mono, right-aligned local numbers in a gutter behind a
- * hairline rule,
- * zebra tint on even lines (R4), literal whitespace with horizontal
- * scroll — soft wrap is off. Lines with a `linkKey` join the enclosing
+ * 21px by default; 13px mono text): right-aligned local numbers (12px) in a
+ * gutter behind a hairline rule, an even-line zebra that is transparent by
+ * default (R4), literal whitespace with horizontal scroll — soft wrap is
+ * off. Pass tabIndex / role="region" / aria-label to make the pane a
+ * keyboard-scrollable region; it then shows the shared focus ring. Lines with a `linkKey` join the enclosing
  * LinkGroup: lit lines take the wash + gutter rail, their number turns
  * pin-color bold, and the rail spans the gutter edge (the inset shadow
  * sits on the whole row, gutter included).

@@ -1,9 +1,9 @@
 import { afterEach, describe, expect, it } from "bun:test";
 import { Editor, type JSONContent } from "@tiptap/core";
-import { NodeSelection } from "@tiptap/pm/state";
+import { NodeSelection, TextSelection } from "@tiptap/pm/state";
 import StarterKit from "@tiptap/starter-kit";
 import { ATOM_BLOCK_NODES, TEXT_BLOCK_NODES } from "../core/schema";
-import { buildDragGhost, topLevelBlockPos } from "../views/drag-handle";
+import { DocDragHandle, buildDragGhost, topLevelBlockPos } from "../views/drag-handle";
 
 /**
  * Drag-grip position resolution (drag-handle.ts topLevelBlockPos) over the
@@ -43,6 +43,7 @@ function createEditor(content: JSONContent[]): Editor {
       }),
       ...TEXT_BLOCK_NODES,
       ...ATOM_BLOCK_NODES,
+      DocDragHandle,
     ],
     content: { type: "doc", content },
     injectCSS: false,
@@ -159,5 +160,56 @@ describe("topLevelBlockPos", () => {
     expect(pos).not.toBeNull();
     const selection = NodeSelection.create(editor.state.doc, pos!);
     expect(selection.node.type.name).toBe("docVideo");
+  });
+});
+
+/**
+ * A block goes blue only from its grip or a drag-select band (Ford,
+ * 2026-10-01). ProseMirror's default turned a click inside any atom — opening
+ * a state shape or interaction surface — into a NodeSelection over the whole
+ * block. The plugin's click props are the entry points PM's own mouse
+ * handling calls (happy-dom has no layout for posAtCoords), so the tests
+ * drive them directly.
+ */
+describe("clicks inside an atom block", () => {
+  function atomEditor(): { editor: Editor; atomPos: number } {
+    const editor = createEditor([
+      paragraph("intro", "b1"),
+      { type: "docStateShape", attrs: { blockId: "b2", blockProps: { fields: [] } } },
+    ]);
+    const atomPos = topLevelNodes(editor).find((n) => n.name === "docStateShape")!.pos;
+    return { editor, atomPos };
+  }
+
+  function click(editor: Editor, pos: number, name: "handleClickOn" | "handleTripleClickOn" = "handleClickOn") {
+    const { view } = editor;
+    const node = view.state.doc.nodeAt(pos)!;
+    return view.someProp(name, (f) => f(view, pos, node, pos, new MouseEvent("mousedown"), true));
+  }
+
+  it("claims single and triple clicks so the block is not selected", () => {
+    const { editor, atomPos } = atomEditor();
+    const before = editor.state.selection;
+
+    expect(click(editor, atomPos)).toBe(true);
+    expect(click(editor, atomPos, "handleTripleClickOn")).toBe(true);
+    expect(editor.state.selection.eq(before)).toBe(true);
+  });
+
+  it("drops a grip-made block selection to a caret instead of keeping it blue", () => {
+    const { editor, atomPos } = atomEditor();
+    editor.view.dispatch(
+      editor.state.tr.setSelection(NodeSelection.create(editor.state.doc, atomPos)),
+    );
+
+    click(editor, atomPos);
+
+    expect(editor.state.selection).toBeInstanceOf(TextSelection);
+    expect(editor.state.selection.empty).toBe(true);
+  });
+
+  it("leaves clicks in text blocks to ProseMirror", () => {
+    const { editor } = atomEditor();
+    expect(click(editor, 0)).toBeFalsy();
   });
 });

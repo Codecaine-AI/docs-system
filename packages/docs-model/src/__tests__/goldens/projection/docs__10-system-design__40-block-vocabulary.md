@@ -1,55 +1,62 @@
-Every block type defines two forms of itself: a rich component in the workbench and a deterministic, greppable markdown form on the agent surface. The vocabulary is the set of eighteen types both renders speak, grouped into nine component families. These pages are the per-family reference.
+Every block type defines two forms of itself: a rich component in the workbench and a deterministic, greppable markdown form on the agent surface. The vocabulary is the set of twenty-three types both renders speak. Fifteen component families own those types, and their reference pages sit in five groups.
 
-> **Decision: Eighteen Registered Types** — The source of truth is `DOC_BLOCK_TYPES` in docs-model's `doc-schema.ts`: exactly eighteen type strings. A small vocabulary keeps the render stable, the editor learnable, and the agent edit surface enumerable.
+> **Decision: Twenty-Three Registered Types** — The source of truth is `DOC_BLOCK_TYPES` in docs-model's `doc-schema.ts`, which lists exactly twenty-three type strings. A small vocabulary keeps the render stable, the editor learnable, and the agent edit surface enumerable.
 
 For documenting agentic systems, three of those types carry the whole model:
 
-> A state-shape block carries the shape of state and an example instance side by side; an interaction-surface block lists the operations that change or query it; annotated code blocks hold the source evidence.
+A state-shape block carries the shape of state and an example instance side by side. An interaction-surface block lists the operations that change or query it. Annotated code blocks hold the source evidence.
 
-## The Eighteen Types
+## The Twenty-Three Types
 
 | type | family | purpose |
 | --- | --- | --- |
-| paragraph | rich-text | Rich text prose (delta spans); the default block. |
-| heading | rich-text | Section heading; props.level picks h1-h6 (default 2). |
-| list-item | rich-text | Bullet (or ordered) item; nesting via child list-item blocks. |
-| quote | rich-text | A block quote of rich text. |
+| paragraph | rich-text | Rich text prose (delta spans). The default block. |
+| heading | rich-text | Section heading. props.level picks h1-h6 (default 2). |
+| list-item | rich-text | Bullet (or ordered) item. Nesting via child list-item blocks. |
 | callout | rich-text | Highlighted note. props.tone colors it, props.variant picks the style (eyebrow by default, or hairline, rail, tab), and free-form props.kind names the type. |
 | divider | rich-text | A horizontal rule separating sections. |
-| image | rich-text | Image from the bundle's assets/images/; props: src, alt, caption. |
+| image | rich-text | Image from the bundle's assets/images/. Props: src, alt, caption. |
 | image-grid | rich-text | Ordered images with individual headings, alt text, captions, and responsive columns. |
-| video | rich-text | Bundle video (src) or external URL (url); YouTube/Vimeo/Loom embed privacy-friendly players. |
-| html | rich-text | Self-contained HTML/CSS artifact in an opaque-origin sandbox; optional inline scripts. |
-| code | code | Source code in text; props.language plus optional props.annotations side notes. |
+| video | rich-text | Bundle video (src) or external URL (url). YouTube/Vimeo/Loom embed privacy-friendly players. |
+| html | rich-text | Self-contained HTML/CSS artifact in an opaque-origin sandbox. Optional inline scripts. |
+| code | code | Source code in text. props.language plus optional props.annotations side notes. |
+| pseudocode | pseudocode | Algorithm sketch in text. Keywords and calls highlight, and optional props.diff reads leading +/- markers. |
 | structured-table | structured-table | Typed table from props.columns (string[]) and props.rows (string[][]). |
 | file-tree | file-tree | Rendered tree of props.entries: { path, note?, change?, from? }. |
-| state-shape | state-shape | Recursive field tree ({ name, type?, required?, description?, fields? }) describing the shape of a structure's state; optional source link. |
+| file-explorer | file-explorer | Editor-sidebar rows of props.entries with change badges, plus optional props.title and props.maxRows. |
+| state-shape | state-shape | Recursive field tree ({ name, type?, required?, description?, fields? }) describing the shape of a structure's state. Optional source link. |
 | interaction-surface | interaction-surface | Operation signatures ({ name, description?, params?, returns?, kind? }) describing how a system is changed or queried. |
-| sequence | sequence | UML-style sequence diagram; props.src (or sequenceId) points at a SequenceDocument, optional props.title. |
-| canvas | canvas | Embedded interactive canvas; props.canvasId (or legacy src) plus an optional view crop. |
-| process-outline | process-outline | Ordered process outline; props.steps holds the recursive step tree with optional clarification-note leaves. |
+| sequence | sequence | UML-style sequence diagram. props.src (or sequenceId) points at a SequenceDocument, optional props.title. |
+| canvas | canvas | Embedded interactive canvas. props.canvasId (or legacy src) plus an optional view crop. |
+| process-outline | process-outline | Ordered process outline. props.steps holds the recursive step tree with optional clarification-note leaves. |
+| stack | stack | Boundary stack of nested named layers. props.nodes holds the layer tree with uses arrows, and optional props.boundaries name the rule enforced between layers. |
+| call-stack | call-stack | One code path frame by frame. props.frames holds call and branch rows with comment, change, and path:line source. |
+| component-tree | component-tree | Render tree. props.nodes holds component, hook, and branch rows with comment, change, and path:line source. |
+| flow-strip | flow-strip | Short linear loop as a row of cards. props.steps holds { name, detail? }, plus optional props.title and props.caption. |
 
-## The Families
+## The Five Groups
 
-- Rich text
+The family pages sit in five groups. Each group page opens with a table of its block types and links to each family page.
 
-  - paragraph · heading · list-item · quote · callout · divider · image · image-grid · video · html
+- Text and media
 
-- code
+  - The Rich text family owns paragraph, heading, list-item, callout, divider, image, image-grid, video, and html.
 
-- structured-table
+- Code
 
-- file-tree
+  - The code and pseudocode families each own the one type of the same name.
 
-- state-shape
+- Trees and paths
 
-- interaction-surface
+  - The file-tree, file-explorer, call-stack, and component-tree families each own the one type of the same name.
 
-- sequence
+- Structured reference
 
-- canvas
+  - The state-shape, interaction-surface, and structured-table families each own the one type of the same name.
 
-- process-outline
+- Flow and diagrams
+
+  - The process-outline, flow-strip, stack, sequence, and canvas families each own the one type of the same name.
 
 ## Page Structure
 

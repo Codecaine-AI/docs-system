@@ -15,7 +15,6 @@
 export { DocParagraph } from "./paragraph";
 export { DocHeading } from "./heading";
 export { DocListItem } from "./list-item";
-export { DocQuote } from "./quote";
 export { DocCallout } from "./callout";
 export { DocDivider } from "./divider";
 export { DocImageGrid } from "./image-grid";

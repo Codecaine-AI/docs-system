@@ -37,8 +37,10 @@ describe("StructuredTableBlock", () => {
     expect(section?.getAttribute("data-source-id")).toBe("tbl-1");
     expect(section?.className).toBe("not-prose my-4");
     expect(screen.getByText("Rollout matrix").className).toBe(
-      "mb-[var(--docs-table-title-gap,6px)] text-[length:var(--docs-table-title-text-size,14px)] leading-[calc(1.25/0.875)] [font-weight:var(--docs-table-title-weight,500)] text-[color:var(--docs-table-title-fg,var(--foreground))]",
+      "min-w-0 text-[length:var(--docs-table-title-text-size,13.5px)] leading-[1.3] [font-weight:var(--docs-table-title-weight,600)] text-[color:var(--docs-table-title-fg,var(--docs-ink,#1f1f1f))]",
     );
+    // The title lives in the panel head, inside the section, before the grid.
+    expect(section?.firstElementChild?.hasAttribute("data-table-title-bar")).toBe(true);
   });
 
   it("pads ragged rows with empty cells so every row spans all columns", () => {
@@ -84,31 +86,26 @@ describe("StructuredTableBlock", () => {
     const bodyCells = container.querySelectorAll("tbody td");
 
     expect(wrapper?.className).toContain(
-      "border-[color:var(--docs-table-border,var(--border))]",
+      "border-[color:var(--docs-table-border,var(--docs-rule,#e6e5e3))]",
     );
     expect(header?.className).toContain(
-      "border-b-[length:var(--docs-table-header-rule-width,2px)]",
+      "border-b-[length:var(--docs-table-header-rule-width,1px)]",
     );
-    expect(header?.className).toContain("var(--docs-table-header-rule-opacity,0.7)");
-    // The header rule boxes the whole header row: top edge on every cell,
-    // plus the outer left and right sides.
-    for (const edge of ["[&>tr>th]:", "[&>tr>th:first-child]:", "[&>tr>th:last-child]:"]) {
-      expect(header?.className).toContain(
-        `${edge}[box-shadow:inset_0_var(--docs-table-header-rule-width,2px)_0_0_`,
-      );
-    }
+    expect(header?.className).toContain("var(--docs-table-header-rule-opacity,1)");
+    // One rule under the header row: no boxed frame around it.
+    expect(header?.className).not.toContain("box-shadow");
     expect(header?.className).toContain(
       "bg-[color:var(--docs-table-header-bg,transparent)]",
     );
     expect(headerCells[0]?.className).toContain(
-      "text-[length:var(--docs-table-header-text-size,calc(var(--docs-table-font-size,14px)-1px))]",
+      "text-[length:var(--docs-table-header-text-size,var(--docs-table-font-size,13.5px))]",
     );
     expect(headerCells[0]?.className).toContain(
       "[font-weight:var(--docs-table-header-weight,500)]",
     );
     expect(headerCells[0]?.className).not.toContain("uppercase");
     expect(bodyCells[0]?.className).toContain(
-      "py-[length:var(--docs-table-cell-pad-y,10px)]",
+      "py-[length:var(--docs-table-cell-pad-y,4px)]",
     );
     expect(bodyCells[0]?.className).toContain(
       "px-[length:var(--docs-table-cell-pad-x,12px)]",
@@ -117,7 +114,7 @@ describe("StructuredTableBlock", () => {
       "px-[length:var(--docs-table-cell-pad-x,12px)]",
     );
     expect(bodyCells[0]?.className).toContain(
-      "border-r-[length:var(--docs-table-column-rule-width,var(--docs-table-row-rule-width,1px))]",
+      "border-r-[length:var(--docs-table-column-rule-width,0px)]",
     );
     expect(bodyCells[1]?.className).not.toContain("border-r");
     expect(bodyRows[0]?.className).toContain(

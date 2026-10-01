@@ -167,12 +167,12 @@ describe("diffToOps", () => {
     const doc = loadFixture();
     const pm = docToPM(doc);
     const rootContent = pm.content as PMNode[];
-    const idx = rootContent.findIndex((n) => n.attrs?.blockId === "quote-1");
+    const idx = rootContent.findIndex((n) => n.attrs?.blockId === "p-invariant");
     rootContent.splice(idx, 1);
     const edited = pmToDoc(pm, doc, makeIdFactory("fresh"));
 
     const ops = diffToOps(doc, edited);
-    expect(ops).toEqual([{ type: "deleteBlock", blockId: "quote-1", mode: "subtree" }]);
+    expect(ops).toEqual([{ type: "deleteBlock", blockId: "p-invariant", mode: "subtree" }]);
   });
 
   it("reordering siblings produces moveBlock ops for the displaced blocks", () => {
@@ -200,9 +200,9 @@ describe("diffToOps", () => {
     const h1 = rootContent.find((n) => n.attrs?.blockId === "h1")!;
     h1.content = [{ type: "docBlockText", content: [{ type: "text", text: "Edited heading" }] }];
 
-    // Delete quote-1.
-    const quoteIdx = rootContent.findIndex((n) => n.attrs?.blockId === "quote-1");
-    rootContent.splice(quoteIdx, 1);
+    // Delete p-invariant.
+    const invariantIdx = rootContent.findIndex((n) => n.attrs?.blockId === "p-invariant");
+    rootContent.splice(invariantIdx, 1);
 
     // Insert a new paragraph at the end.
     rootContent.push({
@@ -213,7 +213,7 @@ describe("diffToOps", () => {
     const edited = pmToDoc(pm, doc, makeIdFactory("fresh"));
     const ops = diffToOps(doc, edited);
 
-    expect(ops.some((op) => op.type === "deleteBlock" && op.blockId === "quote-1")).toBe(true);
+    expect(ops.some((op) => op.type === "deleteBlock" && op.blockId === "p-invariant")).toBe(true);
     expect(
       ops.some(
         (op) =>
@@ -247,18 +247,18 @@ describe("diffToOps", () => {
     const doc = loadFixture();
     const pm = docToPM(doc);
     const rootContent = pm.content as PMNode[];
-    const idx = rootContent.findIndex((n) => n.attrs?.blockId === "quote-1");
+    const idx = rootContent.findIndex((n) => n.attrs?.blockId === "p-invariant");
     const original = rootContent[idx];
     // PM's Enter-split copies the node's attrs onto the new node, so BOTH
     // halves briefly carry the same blockId attr — pmToDoc must keep the id
     // on the FIRST (head) occurrence and mint fresh for the tail.
     const head: PMNode = {
-      type: "docQuote",
+      type: "docParagraph",
       attrs: { ...original.attrs },
       content: [{ type: "docBlockText", content: [{ type: "text", text: "Stable ids are" }] }],
     };
     const tail: PMNode = {
-      type: "docQuote",
+      type: "docParagraph",
       attrs: { ...original.attrs },
       content: [
         { type: "docBlockText", content: [{ type: "text", text: " a system invariant." }] },
@@ -267,7 +267,7 @@ describe("diffToOps", () => {
     rootContent.splice(idx, 1, head, tail);
     const edited = pmToDoc(pm, doc, makeIdFactory("split"));
 
-    expect(edited.blocks["quote-1"].text).toEqual([{ insert: "Stable ids are" }]);
+    expect(edited.blocks["p-invariant"].text).toEqual([{ insert: "Stable ids are" }]);
     const freshIds = Object.keys(edited.blocks).filter((id) => !(id in doc.blocks));
     expect(freshIds).toEqual(["split-1"]);
     expect(edited.blocks["split-1"].text).toEqual([{ insert: " a system invariant." }]);
@@ -287,20 +287,20 @@ describe("diffToOps", () => {
     const doc = loadFixture();
     const pm = docToPM(doc);
     const rootContent = pm.content as PMNode[];
-    const original = rootContent.find((n) => n.attrs?.blockId === "quote-1")!;
+    const original = rootContent.find((n) => n.attrs?.blockId === "p-invariant")!;
     // Paste inserts an exact structural copy INCLUDING the blockId attr.
     rootContent.push(JSON.parse(JSON.stringify(original)) as PMNode);
     const edited = pmToDoc(pm, doc, makeIdFactory("paste"));
 
     // The original (first in document order) is untouched; the copy is fresh.
-    expect(edited.blocks["quote-1"]).toEqual(doc.blocks["quote-1"]);
+    expect(edited.blocks["p-invariant"]).toEqual(doc.blocks["p-invariant"]);
     const ops = diffToOps(doc, edited);
     expect(ops).toHaveLength(1);
     expect(ops[0].type).toBe("insertBlock");
     if (ops[0].type === "insertBlock") {
       expect(ops[0].blockId).toBe("paste-1");
       expect(ops[0].parentId).toBe(doc.root);
-      expect(ops[0].text).toEqual(doc.blocks["quote-1"].text);
+      expect(ops[0].text).toEqual(doc.blocks["p-invariant"].text);
     }
 
     const applied = applyOps(doc, ops);
@@ -315,17 +315,17 @@ describe("diffToOps", () => {
     // Simulate a (hypothetical) block type-preserving "turn into": same id,
     // different block type. updateBlock has no block type field, so a props-only
     // update would silently drop this.
-    edited.blocks["quote-1"] = { ...edited.blocks["quote-1"], type: "callout" };
+    edited.blocks["p-invariant"] = { ...edited.blocks["p-invariant"], type: "callout" };
 
-    const quoteIndex = doc.blocks[doc.root].children.indexOf("quote-1");
+    const invariantIndex = doc.blocks[doc.root].children.indexOf("p-invariant");
     const ops = diffToOps(doc, edited, makeIdFactory("fl"));
     expect(ops).toEqual([
-      { type: "deleteBlock", blockId: "quote-1", mode: "subtree" },
+      { type: "deleteBlock", blockId: "p-invariant", mode: "subtree" },
       {
         type: "insertBlock",
         blockId: "fl-1",
         parentId: doc.root,
-        index: quoteIndex,
+        index: invariantIndex,
         blockType: "callout",
         props: {},
         text: [{ insert: "Stable ids are a system invariant." }],
@@ -335,9 +335,9 @@ describe("diffToOps", () => {
     const applied = applyOps(doc, ops);
     expect(applied.ok).toBe(true);
     if (applied.ok) {
-      expect(applied.doc.blocks["quote-1"]).toBeUndefined();
+      expect(applied.doc.blocks["p-invariant"]).toBeUndefined();
       expect(applied.doc.blocks["fl-1"].type).toBe("callout");
-      expect(applied.doc.blocks[applied.doc.root].children[quoteIndex]).toBe("fl-1");
+      expect(applied.doc.blocks[applied.doc.root].children[invariantIndex]).toBe("fl-1");
     }
   });
 

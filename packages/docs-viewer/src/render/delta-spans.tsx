@@ -2,7 +2,29 @@
 
 import { Fragment, type ReactNode } from "react";
 import type { DeltaSpan } from "@codecaine-ai/docs-model/doc-schema";
-import { INLINE_CODE_CLASSES } from "./block-classes";
+import {
+  DOC_REFERENCE_CLASSES,
+  DOC_REFERENCE_LABEL_CLASSES,
+  INLINE_CODE_CLASSES,
+  INLINE_CODE_KIND_CLASSES,
+  LINK_CLASSES,
+  SOURCE_REFERENCE_CLASSES,
+} from "./block-classes";
+import { chipKind } from "../components/typed-chip";
+
+/**
+ * The class string and `data-chip-kind` for one inline code chip holding
+ * `text` — shared by every renderer that emits a chip (delta spans here, the
+ * markdown renderer's rehype pass), so a chip reads the same everywhere.
+ */
+export function inlineCodeChipProps(text: string): { className: string; "data-chip-kind": string } {
+  const kind = chipKind(text);
+  const kindClasses = INLINE_CODE_KIND_CLASSES[kind];
+  return {
+    className: kindClasses ? `${INLINE_CODE_CLASSES} ${kindClasses}` : INLINE_CODE_CLASSES,
+    "data-chip-kind": kind,
+  };
+}
 
 /**
  * Delta spans -> inline React. Marks nest deterministically: reference/link
@@ -13,6 +35,11 @@ import { INLINE_CODE_CLASSES } from "./block-classes";
  * registry's `ctx.renderText` path — structured-table cells — can import it
  * without creating a DocBlockRenderer -> block-registry -> descriptor ->
  * component -> DocBlockRenderer import cycle.
+ *
+ * Inline marks are told apart by SHAPE, not color alone: code is a soft
+ * neutral chip (its text colored by what it holds), an external link is
+ * underlined, a doc reference is a sans link on a dotted underline, and a
+ * source reference is a mono link on a hairline rule.
  */
 export function renderDeltaSpans(text: DeltaSpan[] | undefined): ReactNode {
   if (!text || text.length === 0) return null;
@@ -21,27 +48,22 @@ export function renderDeltaSpans(text: DeltaSpan[] | undefined): ReactNode {
     const attrs = span.attributes;
     if (attrs) {
       if (attrs.code) {
-        node = (
-          <code className={INLINE_CODE_CLASSES}>{node}</code>
-        );
+        node = <code {...inlineCodeChipProps(span.insert)}>{node}</code>;
       }
       if (attrs.bold) node = <strong>{node}</strong>;
       if (attrs.italic) node = <em>{node}</em>;
       if (attrs.strike) node = <del>{node}</del>;
       if (attrs.link) {
         node = (
-          <a
-            href={attrs.link}
-            target="_blank"
-            rel="noreferrer"
-            className="text-primary underline underline-offset-2"
-          >
+          <a href={attrs.link} target="_blank" rel="noreferrer" className={LINK_CLASSES}>
             {node}
           </a>
         );
       } else if (attrs.reference) {
-        // Doc/code mention chip (D27) — inert in the tracer; deep-link
+        // Doc/code mention (D27) — inert in the tracer; deep-link
         // navigation arrives with the Plannotator/backlinks work.
+        const isSource = attrs.reference.kind === "source";
+        const label = attrs.reference.label ?? node;
         node = (
           <span
             data-spectre-ref="true"
@@ -50,9 +72,9 @@ export function renderDeltaSpans(text: DeltaSpan[] | undefined): ReactNode {
             data-ref-symbol={attrs.reference.symbol}
             data-ref-section={attrs.reference.section}
             title={attrs.reference.path}
-            className="inline-flex items-baseline gap-1 rounded-sm border border-primary/30 bg-primary/5 px-1 py-0.5 font-mono text-[0.85em] text-foreground"
+            className={isSource ? SOURCE_REFERENCE_CLASSES : DOC_REFERENCE_CLASSES}
           >
-            {attrs.reference.label ?? node}
+            {isSource ? label : <span className={DOC_REFERENCE_LABEL_CLASSES}>{label}</span>}
           </span>
         );
       }

@@ -1,7 +1,9 @@
 "use client";
 
+import { useId, useMemo } from "react";
 import type { TableCell } from "@codecaine-ai/docs-model";
 import { cn } from "../../ui/cn";
+import { tableCellKinds } from "./cell-kind";
 import { renderTableCell } from "./cell-render";
 import {
   TABLE_BODY_CELL_TEXT_CLASSES,
@@ -14,9 +16,9 @@ import {
   TABLE_ROW_MIN_HEIGHT_CLASS,
   TABLE_ROW_RULE_CLASSES,
   TABLE_SECTION_CLASSES,
-  TABLE_TITLE_CLASSES,
   TABLE_WRAPPER_CLASSES,
 } from "./table-classes";
+import { TableTitleBar } from "./table-title";
 
 export const STRUCTURED_TABLE_LABEL = "Structured Table";
 
@@ -26,10 +28,11 @@ export const STRUCTURED_TABLE_AGENT_DESCRIPTION =
 export type StructuredTableDensity = "compact" | "normal" | "relaxed";
 
 /**
- * Structured table block. Data arrives as structured props (no body parsing):
- * an accent rule below the header, light row separators, and theme-controlled
- * cell spacing. Ragged rows are padded with empty cells so every row spans the
- * full column set.
+ * Structured table block. Data arrives as structured props (no body parsing)
+ * and renders as a panel: the title (when there is one) in the panel head,
+ * a muted header row over one rule, soft row rules, and identifier cells
+ * typed mono (cell-kind.ts). Ragged rows are padded with empty cells so
+ * every row spans the full column set.
  */
 export function StructuredTableBlock({
   id,
@@ -43,15 +46,18 @@ export function StructuredTableBlock({
   columns: TableCell[];
   rows: TableCell[][];
 }) {
+  const titleId = useId();
+  const cellKinds = useMemo(() => tableCellKinds(rows, columns.length), [rows, columns.length]);
   return (
     <section
       className={TABLE_SECTION_CLASSES}
       data-docs-block-type="structured-table"
       data-source-id={id}
+      data-table-titled={title ? "" : undefined}
     >
-      {title && <div className={TABLE_TITLE_CLASSES}>{title}</div>}
+      {title && <TableTitleBar id={titleId} title={title} />}
       <div className={TABLE_WRAPPER_CLASSES}>
-        <table className={TABLE_ELEMENT_CLASSES}>
+        <table className={TABLE_ELEMENT_CLASSES} aria-labelledby={title ? titleId : undefined}>
           <thead className={TABLE_HEAD_CLASSES}>
             <tr>
               {columns.map((column, columnIndex) => (
@@ -81,6 +87,7 @@ export function StructuredTableBlock({
                 {columns.map((_, columnIndex) => (
                   <td
                     key={columnIndex}
+                    data-cell-kind={cellKinds[rowIndex]?.[columnIndex]}
                     className={cn(
                       TABLE_CELL_SPACING_CLASS,
                       TABLE_BODY_CELL_TEXT_CLASSES,

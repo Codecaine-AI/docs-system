@@ -1,6 +1,6 @@
 # Component Selection
 
-Generated from Codecaine Docs sources. Snapshot: `sha256:8861c4126d96a4fe05b112560004f112939f8bd23bcfa3b72fb78f29bf846861`. Refresh the installation to regenerate these files.
+Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872daf2950bc392aeeae845c9eb67ff4956ad352fb08`. Refresh the installation to regenerate these files.
 
 ### rich-text
 
@@ -10,7 +10,7 @@ Use paragraphs for explanation, headings for hierarchy, lists for steps or paral
 
 Example: Introduce the retry policy in prose, list the recovery steps, and link to the operation definition.
 
-Details: [rich-text](components/rich-text.md). Canonical document: `10-system-design/40-block-vocabulary/10-rich-text`.
+Details: [rich-text](components/rich-text.md). Canonical document: `10-system-design/40-block-vocabulary/10-text-and-media/10-rich-text`.
 
 ### code
 
@@ -20,7 +20,7 @@ Use annotated source listings as evidence of the actual implementation. Put a st
 
 Example: Show the real validation function and annotate the branch that rejects an invalid write.
 
-Details: [code](components/code.md). Canonical document: `10-system-design/40-block-vocabulary/20-code-block`.
+Details: [code](components/code.md). Canonical document: `10-system-design/40-block-vocabulary/20-code/10-code-block`.
 
 ### file-tree
 
@@ -30,7 +30,7 @@ Use a File Tree to explain where files live and what each directory owns. Add no
 
 Example: Show the service entry point, skills directory, and generated references with a note for each.
 
-Details: [file-tree](components/file-tree.md). Canonical document: `10-system-design/40-block-vocabulary/40-file-tree`.
+Details: [file-tree](components/file-tree.md). Canonical document: `10-system-design/40-block-vocabulary/30-trees-and-paths/10-file-tree`.
 
 ### structured-table
 
@@ -40,7 +40,7 @@ Use a Structured Table for a comparison, index, or mapping with the same propert
 
 Example: Compare supported clients by installation path and connection method.
 
-Details: [structured-table](components/structured-table.md). Canonical document: `10-system-design/40-block-vocabulary/30-structured-table`.
+Details: [structured-table](components/structured-table.md). Canonical document: `10-system-design/40-block-vocabulary/40-structured-reference/30-structured-table`.
 
 ### interaction-surface
 
@@ -50,7 +50,7 @@ Use Interaction Surface to describe the actions, queries, and events available o
 
 Example: Document openDocument, applyOperations, and checkDocument with their parameters and results.
 
-Details: [interaction-surface](components/interaction-surface.md). Canonical document: `10-system-design/40-block-vocabulary/60-interaction-surface`.
+Details: [interaction-surface](components/interaction-surface.md). Canonical document: `10-system-design/40-block-vocabulary/40-structured-reference/20-interaction-surface`.
 
 ### state-shape
 
@@ -60,7 +60,7 @@ Use State Shape to define persisted or in-memory state, its nested fields, optio
 
 Example: Define an edit task with its project, revision, and status, then show one valid task instance.
 
-Details: [state-shape](components/state-shape.md). Canonical document: `10-system-design/40-block-vocabulary/50-state-shape`.
+Details: [state-shape](components/state-shape.md). Canonical document: `10-system-design/40-block-vocabulary/40-structured-reference/10-state-shape`.
 
 ### canvas
 
@@ -70,7 +70,7 @@ Use Canvas for system connections, ownership boundaries, and dependencies. Use S
 
 Example: Map the external client, shared docs service, and project corpora, labeling the read and write connections.
 
-Details: [canvas](components/canvas.md). Canonical document: `10-system-design/40-block-vocabulary/80-canvas`.
+Details: [canvas](components/canvas.md). Canonical document: `10-system-design/40-block-vocabulary/50-flow-and-diagrams/50-canvas`.
 
 ### sequence
 
@@ -80,7 +80,7 @@ Use Sequence for a bounded interaction where participant order, calls, returns, 
 
 Example: Show a client opening a task, reading a document, applying an operation, and receiving validation findings.
 
-Details: [sequence](components/sequence.md). Canonical document: `10-system-design/40-block-vocabulary/70-sequence`.
+Details: [sequence](components/sequence.md). Canonical document: `10-system-design/40-block-vocabulary/50-flow-and-diagrams/40-sequence`.
 
 ### process-outline
 
@@ -90,4 +90,64 @@ Use Process Outline for the expected execution path, with nested phases and acto
 
 Example: Outline discovery, guidance loading, editing, validation, and completion, with failure notes where needed.
 
-Details: [process-outline](components/process-outline.md). Canonical document: `10-system-design/40-block-vocabulary/90-process-outline`.
+Details: [process-outline](components/process-outline.md). Canonical document: `10-system-design/40-block-vocabulary/50-flow-and-diagrams/10-process-outline`.
+
+### stack
+
+Block types: stack
+
+Use Stack to show layering and the rule enforced at each line: which layer uses which, and what may never cross. Write the layers as a tree of nodes, mark a node `uses` to draw an arrow to its next sibling, and add a boundary after a node to draw the rule beneath it. Use Canvas instead when the picture needs free placement or arbitrary edges.
+
+Example: Show the package layering: host apps above the docs framework, docs-model nested as the pure layer, and the import rule between each layer.
+
+Details: [stack](components/stack.md). Canonical document: `10-system-design/40-block-vocabulary/50-flow-and-diagrams/30-stack`.
+
+### call-stack
+
+Block types: call-stack
+
+Use Call Stack to show which function calls which on one code path, with the file and line each frame lives at. Mark a condition with kind "branch" and a changed frame with change. Use Process Outline for prose steps and Component Tree for a render tree.
+
+Example: Trace docs_apply_ops from the tool handler down to the atomic file write, marking the frames this change added.
+
+Details: [call-stack](components/call-stack.md). Canonical document: `10-system-design/40-block-vocabulary/30-trees-and-paths/30-call-stack`.
+
+### component-tree
+
+Block types: component-tree
+
+Use Component Tree to show which component renders which, and the hooks each one calls. Write each node as JSX or a hook call. Use Call Stack for plain function calls.
+
+Example: Show the doc page render tree from DocPage down to the code block, marking the hook this change added.
+
+Details: [component-tree](components/component-tree.md). Canonical document: `10-system-design/40-block-vocabulary/30-trees-and-paths/40-component-tree`.
+
+### flow-strip
+
+Block types: flow-strip
+
+Use Flow Strip to show a short linear loop or pipeline at a glance, three to six steps. Use Process Outline when steps nest or need notes, and Sequence when the exact messages between parties matter.
+
+Example: Show the docs MCP edit loop: begin, read, apply ops, check, end.
+
+Details: [flow-strip](components/flow-strip.md). Canonical document: `10-system-design/40-block-vocabulary/50-flow-and-diagrams/20-flow-strip`.
+
+### pseudocode
+
+Block types: pseudocode
+
+Use Pseudocode to explain an algorithm or a change in logic without the noise of real syntax. Set diff to show which lines a change adds or removes. Use Code when the reader needs the actual source.
+
+Example: Sketch how the renderer builds header rows, marking the line this change removes.
+
+Details: [pseudocode](components/pseudocode.md). Canonical document: `10-system-design/40-block-vocabulary/20-code/20-pseudocode`.
+
+### file-explorer
+
+Block types: file-explorer
+
+Use File Explorer to show the files a change touches the way an editor sidebar shows them, with a badge per changed file. Use File Tree for a plain tree listing of a layout.
+
+Example: Show the files the file-tree refactor added, modified and renamed, with a note on the two that matter.
+
+Details: [file-explorer](components/file-explorer.md). Canonical document: `10-system-design/40-block-vocabulary/30-trees-and-paths/20-file-explorer`.

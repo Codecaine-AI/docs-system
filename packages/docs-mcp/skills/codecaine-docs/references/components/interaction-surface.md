@@ -1,12 +1,12 @@
 # interaction-surface
 
-Generated from Codecaine Docs sources. Snapshot: `sha256:8861c4126d96a4fe05b112560004f112939f8bd23bcfa3b72fb78f29bf846861`. Refresh the installation to regenerate these files.
+Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872daf2950bc392aeeae845c9eb67ff4956ad352fb08`. Refresh the installation to regenerate these files.
 
 Use Interaction Surface to describe the actions, queries, and events available on a state or system, including parameters and return values. Action changes state, Query reads state, and Event describes observation or notification. Each operation has its own kind-labeled card. Use returnShape with recursive fields and a JSON example for known object returns; keep returns for its name or a primitive type. Document callback payloads separately from subscription return values. Describe only non-obvious constraints or behavior. Pair it with State Shape. Use Sequence when the question concerns ordering between participants.
 
 Example: Document openDocument, applyOperations, and checkDocument with their parameters and results.
 
-Canonical document: `10-system-design/40-block-vocabulary/60-interaction-surface`.
+Canonical document: `10-system-design/40-block-vocabulary/40-structured-reference/20-interaction-surface`.
 
 The interaction-surface component owns one block type, `interaction-surface`: the operation list of the block vocabulary. A surface lists the named operations by which a state or system is changed, queried, or observed, operation signatures on a state, not HTTP endpoints. When documenting agentic systems it is one of the three types that carry the whole model: a state-shape block holds the state, shape and example instance side by side, the interaction-surface lists the operations on it, and code blocks hold the source evidence. State first, then operations.
 

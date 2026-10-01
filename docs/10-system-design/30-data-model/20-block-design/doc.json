@@ -132,7 +132,7 @@
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "10-system-design/40-block-vocabulary/10-rich-text"
+              "path": "10-system-design/40-block-vocabulary/10-text-and-media/10-rich-text"
             }
           }
         },

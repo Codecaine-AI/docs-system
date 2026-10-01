@@ -30,6 +30,11 @@ describe("LinkGroup linking engine", () => {
     expect(getByTestId("b1").getAttribute("data-link-key")).toBe("beta");
     expect(getByTestId("a1").getAttribute("tabindex")).toBe("0");
     expect(getByTestId("b1").getAttribute("tabindex")).toBe("0");
+    // Every focusable target shows the shared focus ring (never outline-none).
+    expect(getByTestId("a1").className).toContain(
+      "focus-visible:outline-[color:var(--docs-focus-ring,",
+    );
+    expect(getByTestId("a1").className).not.toContain("outline-none");
   });
 
   it("hover lights EVERY element with the key; hover-out clears", () => {
@@ -67,10 +72,14 @@ describe("LinkGroup linking engine", () => {
     }
     // Pinned adds the 1.5px ring in the pin color.
     expect(getByTestId("a1").className).toContain("0_0_0_var(--docs-link-ring-width,1.5px)_var(--docs-link-pin");
-    // The pinned shadow keeps the rail at its own width token, and cn()
-    // leaves exactly one light + one dark shadow utility (the pinned pair).
+    // The pinned shadow keeps the rail at its own width token with the stock
+    // page-link pin (light / dark), and cn() leaves exactly one light + one
+    // dark shadow utility (the pinned pair).
     expect(getByTestId("a1").className).toContain(
-      "shadow-[inset_var(--docs-link-rail-width,3px)_0_0_var(--docs-link-pin,#b48f2e),0_0_0_var(--docs-link-ring-width,1.5px)_var(--docs-link-pin,#b48f2e)]",
+      "shadow-[inset_var(--docs-link-rail-width,3px)_0_0_var(--docs-link-pin,#245a81),0_0_0_var(--docs-link-ring-width,1.5px)_var(--docs-link-pin,#245a81)]",
+    );
+    expect(getByTestId("a1").className).toContain(
+      "dark:shadow-[inset_var(--docs-link-rail-width,3px)_0_0_var(--docs-link-pin,#4493f8),0_0_0_var(--docs-link-ring-width,1.5px)_var(--docs-link-pin,#4493f8)]",
     );
     expect(getByTestId("a1").className.match(/(^| )shadow-\[/g)?.length).toBe(1);
     expect(getByTestId("a1").className.match(/ dark:shadow-\[/g)?.length).toBe(1);

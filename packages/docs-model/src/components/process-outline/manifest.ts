@@ -10,6 +10,6 @@ export const manifest: ComponentManifest = {
   authoring: {
     "whenToUse": "Use Process Outline for the expected execution path, with nested phases and actor-and-action step names that can be compared with a trace.",
     "example": "Outline discovery, guidance loading, editing, validation, and completion, with failure notes where needed.",
-    "docsPath": "10-system-design/40-block-vocabulary/90-process-outline"
+    "docsPath": "10-system-design/40-block-vocabulary/50-flow-and-diagrams/10-process-outline"
 }
 };

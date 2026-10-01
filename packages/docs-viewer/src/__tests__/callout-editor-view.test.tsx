@@ -10,7 +10,7 @@ test('Callout editor shares the styled title and icon while body edits and undo 
  const {container}=render(<EditorContent editor={editor}/>);
  await waitFor(()=>expect(container.querySelector('[data-callout-title]')?.textContent).toBe('Check before saving'));
  expect(container.querySelector('[data-callout-tone="warning"]')).not.toBeNull();
- expect(container.querySelector('[data-callout-icon]')?.getAttribute('aria-label')).toBe('Requirement');
+ expect(container.querySelector('[data-callout-label]')?.textContent).toBe('Requirement');
  expect(container.querySelector('[data-node-view-content]')?.getAttribute('contenteditable')).toBe('true');
  expect(container.querySelector('[data-callout-body] strong')?.textContent).toBe('Keep this body.');
  act(()=>{editor.commands.insertContentAt(2,'New ');});

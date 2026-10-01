@@ -12,6 +12,8 @@ import {
   DEFAULT_STYLE_RAIL_SETTINGS,
   StyleRail,
   CODE_PANEL_STYLE_ELEMENT_ID,
+  PAGE_COLOR_STYLE_ELEMENT_ID,
+  pageColorOverrideCss,
   applyBlockLayoutOverrideCss,
   applyStyleRailVars,
   blockLayoutOverrideCss,
@@ -75,7 +77,6 @@ const EXPECTED_NAV_GROUPS = [
       { id: "blocks.paragraph", label: "Paragraph" },
       { id: "blocks.heading", label: "Heading" },
       { id: "blocks.list-item", label: "List item" },
-      { id: "blocks.quote", label: "Quote" },
       { id: "blocks.callout", label: "Callout" },
       { id: "blocks.divider", label: "Divider" },
       { id: "blocks.image", label: "Image" },
@@ -228,7 +229,6 @@ describe("style rail override helpers", () => {
       "blocks.paragraph": 0,
       "blocks.heading": 0,
       "blocks.list-item": 1,
-      "blocks.quote": 0,
       "blocks.code": 1,
       "blocks.callout": 1,
       "blocks.divider": 0,
@@ -313,7 +313,7 @@ describe("style rail override helpers", () => {
 });
 
 describe("style rail navigation", () => {
-  it("renders the six regrouped sections with all 30 pane items in order", () => {
+  it("renders the six regrouped sections with all 29 pane items in order", () => {
     expect(
       STYLE_RAIL_GROUPS.map((group) => ({
         id: group.id,
@@ -343,7 +343,7 @@ describe("style rail navigation", () => {
         expect(navigation.getByRole("button", { name: item.label })).toBeTruthy();
       }
     }
-    expect(navigation.getAllByRole("button")).toHaveLength(6 + 5 + 9 + 3 + 4 + 3);
+    expect(navigation.getAllByRole("button")).toHaveLength(6 + 5 + 8 + 3 + 4 + 3);
   });
 
   it("swaps the visible detail pane when a rail item is selected", () => {
@@ -612,77 +612,41 @@ describe("style rail merged panes", () => {
   });
 });
 
-describe("state-shape text meets WCAG AAA in both themes", () => {
+describe("state-shape text rides the AA-checked role tokens in both themes", () => {
   /**
-   * The field list muted itself into unreadability twice (type at 3.4:1,
-   * the optional marker at 2.7:1). Hierarchy in that block is carried by SIZE
-   * and WEIGHT, so there is never a reason for its text to go light — this
-   * pins the floor at AAA (7:1).
-   *
-   * The two backgrounds are the pane backgrounds as actually rendered by the
-   * running app (measured over CDP against the live serve, both themes); the
-   * palette resolves --background through several indirections that are not
-   * worth re-implementing here.
+   * The field list once muted itself into unreadability (type at 3.4:1, the
+   * optional marker at 2.7:1). Since the theme lab (2026-10-01) its text
+   * colors are not literals: each points at a role token whose palette
+   * values (notion-palette.css: app light, primer dark) are audited at
+   * >= 4.5:1 on page and panel. Pin the mapping, identical in both blocks,
+   * so a literal cannot slip back in unaudited.
    */
-  const LIGHT_BG: [number, number, number] = [251, 250, 248];
-  const DARK_BG: [number, number, number] = [47, 52, 55];
-  const LIGHT_FG: [number, number, number] = [55, 53, 47]; // --foreground, used by --docs-shape-name
-  const DARK_FG: [number, number, number] = [234, 235, 235]; // white @ 0.9 over DARK_BG
-
-  const channel = (v: number) => {
-    const s = v / 255;
-    return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
-  };
-  const luminance = ([r, g, b]: [number, number, number]) =>
-    0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b);
-  const contrast = (a: [number, number, number], b: [number, number, number]) => {
-    const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
-    return (hi + 0.05) / (lo + 0.05);
-  };
-  const hexToRgb = (hex: string): [number, number, number] => {
-    const h = hex.replace("#", "").trim();
-    return [
-      Number.parseInt(h.slice(0, 2), 16),
-      Number.parseInt(h.slice(2, 4), 16),
-      Number.parseInt(h.slice(4, 6), 16),
-    ];
-  };
-
   const css = readFileSync(new URL("../theme/semantic.css", import.meta.url), "utf8");
   const blockAfter = (marker: string) => {
     const start = css.indexOf(marker);
     if (start < 0) throw new Error(`missing theme block: ${marker}`);
     return css.slice(start, css.indexOf("\n}", start));
   };
-  const tokenIn = (block: string, name: string) => {
-    const match = new RegExp(`${name}:\\s*(#[0-9a-fA-F]{6})`).exec(block);
-    if (!match) throw new Error(`${name} is not a plain hex in this theme block`);
-    return hexToRgb(match[1]);
+  const TEXT_TOKENS: Record<string, string> = {
+    "--docs-shape-name": "var(--docs-syn-prop)",
+    "--docs-shape-type": "var(--docs-syn-type)",
+    "--docs-shape-muted": "var(--docs-muted)",
+    "--docs-shape-optional-fg": "var(--docs-muted)",
+    "--docs-shape-desc-fg": "var(--docs-muted)",
+    "--docs-shape-header-fg": "var(--docs-ink)",
   };
 
-  const TEXT_TOKENS = [
-    "--docs-shape-type",
-    "--docs-shape-muted",
-    "--docs-shape-optional-fg",
-    "--docs-shape-desc-fg",
-  ];
-
-  it("clears 7:1 for every state-shape text token in the light theme", () => {
-    const block = blockAfter(':root, [data-theme="light"] {');
-    for (const token of TEXT_TOKENS) {
-      expect(contrast(tokenIn(block, token), LIGHT_BG)).toBeGreaterThanOrEqual(7);
-    }
-    // The field name rides --foreground.
-    expect(contrast(LIGHT_FG, LIGHT_BG)).toBeGreaterThanOrEqual(7);
-  });
-
-  it("clears 7:1 for every state-shape text token in the dark theme", () => {
-    const block = blockAfter('[data-theme="dark"], .dark, [data-code-panels="dark"] [data-code-surface] {');
-    for (const token of TEXT_TOKENS) {
-      expect(contrast(tokenIn(block, token), DARK_BG)).toBeGreaterThanOrEqual(7);
-    }
-    expect(contrast(DARK_FG, DARK_BG)).toBeGreaterThanOrEqual(7);
-  });
+  for (const [label, marker] of [
+    ["light", ':root, [data-theme="light"] {'],
+    ["dark", '[data-theme="dark"], .dark, [data-code-panels="dark"] [data-code-surface] {'],
+  ] as const) {
+    it(`maps every state-shape text token onto a role token in the ${label} theme`, () => {
+      const block = blockAfter(marker);
+      for (const [token, value] of Object.entries(TEXT_TOKENS)) {
+        expect([token, block.includes(`  ${token}: ${value};`)]).toEqual([token, true]);
+      }
+    });
+  }
 });
 
 describe("per-block-type layout overrides", () => {
@@ -755,6 +719,14 @@ describe("per-block-type layout overrides", () => {
     expect(css).toContain(
       '[data-doc-lane][data-doc-block-type="canvas"] { margin-inline: auto; }',
     );
+  });
+
+  it("gives pseudocode the code lane unless it has its own override", () => {
+    const css = blockLayoutOverrideCss(withLayout({ code: { width: "920px" } }));
+    expect(css).toContain('[data-doc-lane][data-doc-block-type="pseudocode"] { max-width: 920px; }');
+    expect(
+      blockLayoutOverrideCss(withLayout({ code: { width: "920px" }, pseudocode: { width: "text" } })),
+    ).toContain('[data-doc-lane][data-doc-block-type="pseudocode"] { max-width: var(--style-content-width,60ch); }');
   });
 
   it("maps each named width onto the lane token it stands for", () => {
@@ -1011,13 +983,10 @@ describe("style rail stock values match the consumers' inline fallbacks", () => 
     expect(typography.lineHeight).toBe(1.45);
     expect(typography.letterSpacing).toBe(0);
     expect(indexCss).not.toContain("--style-font-size, 0.875rem");
-    // Four readers: the container, the text-block re-assertion, and the quote
-    // and callout-body rules that multiply the reading size by their own
-    // text-scale token (1 by default, so they restate the same size).
-    expect(indexCss.match(/var\(--style-font-size, 18px\)/g)?.length).toBe(4);
-    expect(indexCss).toContain(
-      "font-size: calc(var(--style-font-size, 18px) * var(--docs-quote-text-scale, 1));",
-    );
+    // Three readers: the container, the text-block re-assertion, and the
+    // callout-body rule that multiplies the reading size by its own
+    // text-scale token (1 by default, so it restates the same size).
+    expect(indexCss.match(/var\(--style-font-size, 18px\)/g)?.length).toBe(3);
     expect(indexCss).toContain(
       "font-size: calc(var(--style-font-size, 18px) * var(--docs-callout-body-text-scale, 1));",
     );
@@ -1076,6 +1045,33 @@ describe("style rail code panels", () => {
     applyStyleRailVars({ ...settings, typography: withPanels("page").typography });
     expect(document.getElementById(CODE_PANEL_STYLE_ELEMENT_ID)?.textContent).toBe("");
     expect(codePanelOverrideCss(withPanels("page"))).toBe("");
+  });
+
+  it("applies page color picks to the light page only, tints in both modes", () => {
+    // A pick is a light color: inline on <html> it pinned the light page in
+    // dark mode too, so it lives in a light-scoped rule instead.
+    const picks: StyleRailSettings = {
+      ...DEFAULT_STYLE_RAIL_SETTINGS,
+      colors: { background: "#fdfdfd", sidebar: "#f9f9f9", text: "#2a2a2a" },
+    };
+    applyStyleRailVars(picks);
+    const root = document.documentElement;
+    expect(root.style.getPropertyValue("--background")).toBe("");
+    expect(root.style.getPropertyValue("--foreground")).toBe("");
+    const css = document.getElementById(PAGE_COLOR_STYLE_ELEMENT_ID)?.textContent ?? "";
+    expect(css).toBe(pageColorOverrideCss(picks));
+    expect(css.startsWith(':root:not(.dark):not([data-theme="dark"]) {')).toBe(true);
+    expect(css).toContain("--background: #fdfdfd;");
+    expect(css).toContain("--docs-viewer-text-body: #2a2a2a;");
+    expect(css).not.toContain(":root.dark");
+
+    // A tint is a mix over the active palette, so dark mode takes it too —
+    // mixed from the dark page, never from the light pick.
+    const tinted: StyleRailSettings = { ...picks, layout: { ...picks.layout, backgroundTint: 4 } };
+    const darkRule = pageColorOverrideCss(tinted).split(':root.dark, :root[data-theme="dark"] {')[1] ?? "";
+    expect(darkRule).toContain("--background: color-mix(in srgb, var(--color-bg-default) 96%");
+    expect(darkRule).not.toContain("#fdfdfd");
+    expect(pageColorOverrideCss(DEFAULT_STYLE_RAIL_SETTINGS)).toBe("");
   });
 
   it("offers Fira Code as the stock code font, matching the stylesheet default", () => {
@@ -1884,7 +1880,7 @@ describe("style rail component token kinds", () => {
     expect(width).toHaveProperty("min", "0");
     expect(width).toHaveProperty("max", "4");
     expect(width).toHaveProperty("step", "0.5");
-    expect(width).toHaveProperty("value", "2");
+    expect(width).toHaveProperty("value", "1");
     expect(opacity).toHaveProperty("min", "0");
     expect(opacity).toHaveProperty("max", "1");
     expect(opacity).toHaveProperty("step", "0.05");
@@ -1953,29 +1949,28 @@ describe("style rail structured-table tokens", () => {
     headerTextSize: {
       cssVar: "--docs-table-header-text-size",
       label: "Header text size",
-      range: [10, 24, 0.5, 13],
+      range: [10, 24, 0.5, 13.5],
     },
     headerRuleWidth: {
       cssVar: "--docs-table-header-rule-width",
       label: "Header rule width",
-      range: [0, 4, 0.5, 2],
+      range: [0, 4, 0.5, 1],
     },
     rowRuleWidth: { cssVar: "--docs-table-row-rule-width", label: "Row rule width", range: [0, 3, 0.5, 1] },
     columnRuleWidth: {
       cssVar: "--docs-table-column-rule-width",
       label: "Column rule width",
-      range: [0, 3, 0.5, 1],
+      range: [0, 3, 0.5, 0],
     },
-    cellPaddingY: { cssVar: "--docs-table-cell-pad-y", label: "Row padding", range: [4, 24, 1, 10] },
+    cellPaddingY: { cssVar: "--docs-table-cell-pad-y", label: "Row padding", range: [4, 24, 1, 4] },
     cellPaddingX: { cssVar: "--docs-table-cell-pad-x", label: "Cell padding", range: [8, 32, 1, 12] },
-    rowMinHeight: { cssVar: "--docs-table-row-min-height", label: "Row min height", range: [0, 96, 1, 0] },
-    fontSize: { cssVar: "--docs-table-font-size", label: "Text size", range: [10, 24, 0.5, 14] },
+    rowMinHeight: { cssVar: "--docs-table-row-min-height", label: "Row min height", range: [0, 96, 1, 28] },
+    fontSize: { cssVar: "--docs-table-font-size", label: "Text size", range: [10, 24, 0.5, 13.5] },
     titleTextSize: {
       cssVar: "--docs-table-title-text-size",
       label: "Title text size",
-      range: [10, 24, 0.5, 14],
+      range: [10, 24, 0.5, 13.5],
     },
-    titleGap: { cssVar: "--docs-table-title-gap", label: "Title gap", range: [0, 24, 1, 6] },
     handleRadius: { cssVar: "--docs-table-handle-radius", label: "Handle radius", range: [0, 10, 0.5, 2] },
     handleOffset: { cssVar: "--docs-table-handle-offset", label: "Handle offset", range: [4, 20, 1, 12] },
     selectionPadding: {
@@ -1989,7 +1984,7 @@ describe("style rail structured-table tokens", () => {
     headerRuleOpacity: {
       cssVar: "--docs-table-header-rule-opacity",
       label: "Header rule opacity",
-      range: [0, 1, 0.05, 0.7],
+      range: [0, 1, 0.05, 1],
     },
     rowRuleOpacity: {
       cssVar: "--docs-table-row-rule-opacity",
@@ -2001,9 +1996,9 @@ describe("style rail structured-table tokens", () => {
       label: "Column rule opacity",
       range: [0, 1, 0.05, 1],
     },
-    lineHeight: { cssVar: "--docs-table-line-height", label: "Line height", range: [1, 2.2, 0.05, 1.55] },
+    lineHeight: { cssVar: "--docs-table-line-height", label: "Line height", range: [1, 2.2, 0.05, 1.45] },
     bodyWeight: { cssVar: "--docs-table-body-weight", label: "Body weight", range: [300, 900, 50, 400] },
-    titleWeight: { cssVar: "--docs-table-title-weight", label: "Title weight", range: [300, 900, 50, 500] },
+    titleWeight: { cssVar: "--docs-table-title-weight", label: "Title weight", range: [300, 900, 50, 600] },
   } as const;
   const TABLE_COLORS = {
     border: { cssVar: "--docs-table-border", label: "Border" },
@@ -2015,6 +2010,7 @@ describe("style rail structured-table tokens", () => {
     columnRule: { cssVar: "--docs-table-column-rule", label: "Column rule" },
     rowHoverBg: { cssVar: "--docs-table-row-hover-bg", label: "Row hover background" },
     fg: { cssVar: "--docs-table-fg", label: "Text" },
+    keyFg: { cssVar: "--docs-table-key-fg", label: "Key column text" },
     titleFg: { cssVar: "--docs-table-title-fg", label: "Title text" },
   } as const;
   // Tokens whose semantic.css default is DERIVED from another token, so the
@@ -2022,8 +2018,7 @@ describe("style rail structured-table tokens", () => {
   const DERIVED_DEFAULTS: Record<string, string> = {
     "--docs-table-radius": "var(--radius)",
     "--docs-table-handle-radius": "var(--radius)",
-    "--docs-table-header-text-size": "calc(var(--docs-table-font-size) - 1px)",
-    "--docs-table-column-rule-width": "var(--docs-table-row-rule-width)",
+    "--docs-table-header-text-size": "var(--docs-table-font-size)",
     "--docs-table-column-rule-opacity": "var(--docs-table-row-rule-opacity)",
   };
   const SLIDERS = [
@@ -2080,16 +2075,17 @@ describe("style rail structured-table tokens", () => {
       const value = DERIVED_DEFAULTS[cssVar] ?? `${range[3]}${unit}`;
       expect(occurrences(semanticCss, `  ${cssVar}: ${value};`)).toBe(2);
     }
-    // The three derived defaults resolve to the registry number at stock:
-    // radius and handle follow the 2px --radius, header 14px - 1px.
+    // The derived defaults resolve to the registry number at stock: radius
+    // and handle follow the 2px --radius, the header follows the body size.
     expect(occurrences(semanticCss, "  --radius: 2px;")).toBe(2);
     expect<number>(TABLE_LENGTHS.radius.range[3]).toBe(2);
     expect<number>(TABLE_LENGTHS.handleRadius.range[3]).toBe(2);
-    expect<number>(TABLE_LENGTHS.headerTextSize.range[3]).toBe(
-      TABLE_LENGTHS.fontSize.range[3] - 1,
+    expect<number>(TABLE_LENGTHS.headerTextSize.range[3]).toBe(TABLE_LENGTHS.fontSize.range[3]);
+    // No column rules at stock; when raised they match the row rules' opacity.
+    expect<number>(TABLE_LENGTHS.columnRuleWidth.range[3]).toBe(0);
+    expect<number[]>(TABLE_LENGTHS.columnRuleWidth.range.slice(0, 3)).toEqual(
+      TABLE_LENGTHS.rowRuleWidth.range.slice(0, 3),
     );
-    // Column rules start level with the row rules they follow.
-    expect(TABLE_LENGTHS.columnRuleWidth.range).toEqual(TABLE_LENGTHS.rowRuleWidth.range);
     expect(TABLE_NUMBERS.columnRuleOpacity.range).toEqual(TABLE_NUMBERS.rowRuleOpacity.range);
     expect(occurrences(semanticCss, "  --docs-table-column-rule: var(--docs-table-row-rule);")).toBe(2);
   });
@@ -2112,9 +2108,7 @@ describe("style rail structured-table tokens", () => {
     const CLASS_FALLBACKS: Record<string, string> = {
       "--docs-table-radius": "var(--docs-table-radius,var(--radius,2px))",
       "--docs-table-header-text-size":
-        "var(--docs-table-header-text-size,calc(var(--docs-table-font-size,14px)-1px))",
-      "--docs-table-column-rule-width":
-        "var(--docs-table-column-rule-width,var(--docs-table-row-rule-width,1px))",
+        "var(--docs-table-header-text-size,var(--docs-table-font-size,13.5px))",
       "--docs-table-column-rule-opacity":
         "var(--docs-table-column-rule-opacity,var(--docs-table-row-rule-opacity,1))",
     };
@@ -2128,16 +2122,18 @@ describe("style rail structured-table tokens", () => {
       );
     }
     for (const reference of [
-      "var(--docs-table-border,var(--border))",
-      "var(--docs-table-bg,var(--background))",
+      // Each color falls back through its role token to the light app value.
+      "var(--docs-table-border,var(--docs-rule,#e6e5e3))",
+      "var(--docs-table-bg,var(--docs-panel,#f8f8f7))",
       "var(--docs-table-header-bg,transparent)",
-      "var(--docs-table-header-fg,currentColor)",
-      "var(--docs-table-header-rule,var(--docs-table-header-fg,currentColor))",
-      "var(--docs-table-row-rule,var(--border))",
-      "var(--docs-table-column-rule,var(--docs-table-row-rule,var(--border)))",
-      "var(--docs-table-row-hover-bg,color-mix(in_srgb,var(--muted)_20%,transparent))",
-      "var(--docs-table-fg,currentColor)",
-      "var(--docs-table-title-fg,var(--foreground))",
+      "var(--docs-table-header-fg,var(--docs-muted,#666562))",
+      "var(--docs-table-header-rule,var(--docs-rule,#e6e5e3))",
+      "var(--docs-table-row-rule,var(--docs-rule-soft,#efeeec))",
+      "var(--docs-table-column-rule,var(--docs-table-row-rule,var(--docs-rule-soft,#efeeec)))",
+      "var(--docs-table-row-hover-bg,var(--docs-hover,#ebebea))",
+      "var(--docs-table-fg,var(--docs-text,#2a2a2a))",
+      "var(--docs-table-key-fg,var(--docs-syn-prop,#0d7164))",
+      "var(--docs-table-title-fg,var(--docs-ink,#1f1f1f))",
     ]) {
       expect(tableClasses).toContain(reference);
     }
@@ -2217,13 +2213,13 @@ describe("style rail structured-table tokens", () => {
     openPane("Structured table");
 
     fireEvent.change(screen.getByLabelText(/^Text size/), { target: { value: "18" } });
-    fireEvent.change(screen.getByLabelText(/^Line height/), { target: { value: "1.45" } });
+    fireEvent.change(screen.getByLabelText(/^Line height/), { target: { value: "1.6" } });
     fireEvent.change(screen.getByLabelText(/^Header weight/), { target: { value: "650" } });
     fireEvent.change(screen.getByLabelText(/^Corner radius/), { target: { value: "0" } });
     expect(JSON.parse(screen.getByTestId("component-settings").textContent ?? "null")).toEqual({
       "structured-table": {
         fontSize: "18px",
-        lineHeight: "1.45",
+        lineHeight: "1.6",
         headerWeight: "650",
         radius: "0px",
       },
@@ -2234,6 +2230,7 @@ describe("style rail structured-table tokens", () => {
         "structured-table": {
           bg: "#FAFAFA",
           fg: "#111111",
+          keyFg: "#123456",
           titleFg: "#222222",
           columnRule: "#333333",
           rowHoverBg: "#eeeeee",
@@ -2241,21 +2238,21 @@ describe("style rail structured-table tokens", () => {
           radius: "12px",
           headerTextSize: "12px",
           headerWeight: "700",
-          columnRuleWidth: "0px",
+          columnRuleWidth: "2px",
           columnRuleOpacity: "0.4",
           rowMinHeight: "48px",
           fontSize: "18px",
-          lineHeight: "1.45",
+          lineHeight: "1.6",
           bodyWeight: "450",
           titleTextSize: "16px",
-          titleWeight: "600",
-          titleGap: "10px",
+          titleWeight: "700",
         },
       },
     });
     expect(styleRailVars(settings)).toMatchObject({
       "--docs-table-bg": "#fafafa",
       "--docs-table-fg": "#111111",
+      "--docs-table-key-fg": "#123456",
       "--docs-table-title-fg": "#222222",
       "--docs-table-column-rule": "#333333",
       "--docs-table-row-hover-bg": "#eeeeee",
@@ -2263,15 +2260,14 @@ describe("style rail structured-table tokens", () => {
       "--docs-table-radius": "12px",
       "--docs-table-header-text-size": "12px",
       "--docs-table-header-weight": "700",
-      "--docs-table-column-rule-width": "0px",
+      "--docs-table-column-rule-width": "2px",
       "--docs-table-column-rule-opacity": "0.4",
       "--docs-table-row-min-height": "48px",
       "--docs-table-font-size": "18px",
-      "--docs-table-line-height": "1.45",
+      "--docs-table-line-height": "1.6",
       "--docs-table-body-weight": "450",
       "--docs-table-title-text-size": "16px",
-      "--docs-table-title-weight": "600",
-      "--docs-table-title-gap": "10px",
+      "--docs-table-title-weight": "700",
     });
   });
 
@@ -2483,27 +2479,28 @@ describe("style rail code block tokens", () => {
     });
     expect(code.borderWidth).toEqual(length("--docs-code-border-width", 0, 4, 0.5, 1));
     expect(code.radius).toEqual(length("--docs-code-radius", 0, 16, 1, 2));
-    expect(code.textSize).toEqual(length("--docs-code-text-size", 10, 18, 0.5, 12));
-    expect(code.lineHeight).toEqual(length("--docs-code-line-height", 14, 32, 1, 20));
+    expect(code.textSize).toEqual(length("--docs-code-text-size", 10, 18, 0.5, 13));
+    expect(code.lineHeight).toEqual(length("--docs-code-line-height", 14, 32, 1, 21));
     expect(code.padX).toEqual(length("--docs-code-pad-x", 0, 32, 1, 12));
-    expect(code.padTop).toEqual(length("--docs-code-pad-top", 0, 24, 1, 0));
-    expect(code.padBottom).toEqual(length("--docs-code-pad-bottom", 0, 24, 1, 8));
-    expect(code.headerHeight).toEqual(length("--docs-code-header-height", 20, 48, 1, 28));
+    expect(code.padTop).toEqual(length("--docs-code-pad-top", 0, 24, 1, 12));
+    expect(code.padBottom).toEqual(length("--docs-code-pad-bottom", 0, 24, 1, 12));
+    expect(code.headerHeight).toEqual(length("--docs-code-header-height", 20, 48, 1, 32));
     expect(code.headerFg).toEqual({ vars: ["--docs-code-header-fg"], kind: "color" });
-    expect(code.headerTextSize).toEqual(length("--docs-code-header-text-size", 8, 16, 0.5, 10));
+    expect(code.headerBg).toEqual({ vars: ["--docs-code-header-bg"], kind: "color" });
+    expect(code.headerTextSize).toEqual(length("--docs-code-header-text-size", 8, 16, 0.5, 12));
     expect(code.headerWeight).toEqual({
       vars: ["--docs-code-header-weight"],
       kind: "number",
       min: 300,
       max: 800,
       step: 100,
-      defaultValue: 500,
+      defaultValue: 400,
     });
     expect(code.gutterTextSize).toEqual(length("--docs-code-gutter-text-size", 8, 16, 0.5, 12));
-    expect(code.gutterWidth).toEqual(length("--docs-code-gutter-width", 24, 96, 1, 48));
-    expect(code.gutterPadX).toEqual(length("--docs-code-gutter-pad-x", 0, 24, 1, 8));
-    expect(code.noteTextSize).toEqual(length("--docs-code-note-text-size", 10, 18, 0.5, 12));
-    expect(code.notesWidth).toEqual(length("--docs-code-notes-width", 200, 480, 10, 320));
+    expect(code.gutterWidth).toEqual(length("--docs-code-gutter-width", 24, 96, 1, 40));
+    expect(code.gutterPadX).toEqual(length("--docs-code-gutter-pad-x", 0, 24, 1, 12));
+    expect(code.noteTextSize).toEqual(length("--docs-code-note-text-size", 10, 18, 0.5, 14));
+    expect(code.notesWidth).toEqual(length("--docs-code-notes-width", 200, 480, 10, 280));
   });
 
   it("renders every code metric knob with its label, stock value and range", () => {
@@ -2514,19 +2511,19 @@ describe("style rail code block tokens", () => {
       // [label, min, max, stock value]
       [/^Border width/, "0", "4", "1"],
       [/^Corner radius/, "0", "16", "2"],
-      [/^Text size/, "10", "18", "12"],
-      [/^Line height/, "14", "32", "20"],
+      [/^Text size/, "10", "18", "13"],
+      [/^Line height/, "14", "32", "21"],
       [/^Padding X/, "0", "32", "12"],
-      [/^Top padding/, "0", "24", "0"],
-      [/^Bottom padding/, "0", "24", "8"],
-      [/^Header height/, "20", "48", "28"],
-      [/^Header text size/, "8", "16", "10"],
-      [/^Header weight/, "300", "800", "500"],
+      [/^Top padding/, "0", "24", "12"],
+      [/^Bottom padding/, "0", "24", "12"],
+      [/^Header height/, "20", "48", "32"],
+      [/^Header text size/, "8", "16", "12"],
+      [/^Header weight/, "300", "800", "400"],
       [/^Line number size/, "8", "16", "12"],
-      [/^Gutter width/, "24", "96", "48"],
-      [/^Gutter padding/, "0", "24", "8"],
-      [/^Note text size/, "10", "18", "12"],
-      [/^Notes column width/, "200", "480", "320"],
+      [/^Gutter width/, "24", "96", "40"],
+      [/^Gutter padding/, "0", "24", "12"],
+      [/^Note text size/, "10", "18", "14"],
+      [/^Notes column width/, "200", "480", "280"],
     ];
     for (const [label, min, max, value] of expected) {
       const input = screen.getByLabelText(label) as HTMLInputElement;
@@ -2578,7 +2575,7 @@ describe("style rail code block tokens", () => {
     });
     // A knob parked at stock writes nothing, so semantic.css answers.
     expect(
-      styleRailVars(normalizeSettings({ components: { code: { textSize: "12px", radius: "2px" } } })),
+      styleRailVars(normalizeSettings({ components: { code: { textSize: "13px", radius: "2px" } } })),
     ).toMatchObject({ "--docs-code-text-size": null, "--docs-code-radius": null });
   });
 
@@ -2619,20 +2616,20 @@ describe("style rail file-tree tokens", () => {
     radius: { cssVar: "--docs-file-tree-radius", min: 0, max: 16, step: 1, defaultValue: 2 },
     padY: { cssVar: "--docs-file-tree-pad-y", min: 0, max: 24, step: 1, defaultValue: 8 },
     padX: { cssVar: "--docs-file-tree-pad-x", min: 0, max: 32, step: 1, defaultValue: 12 },
-    textSize: { cssVar: "--docs-file-tree-text-size", min: 10, max: 18, step: 0.5, defaultValue: 12 },
-    lineHeight: { cssVar: "--docs-file-tree-line-height", min: 14, max: 40, step: 1, defaultValue: 24 },
+    textSize: { cssVar: "--docs-file-tree-text-size", min: 10, max: 18, step: 0.5, defaultValue: 13 },
+    lineHeight: { cssVar: "--docs-file-tree-line-height", min: 14, max: 40, step: 1, defaultValue: 28 },
     noteTextSize: {
       cssVar: "--docs-file-tree-note-text-size",
       min: 10,
       max: 18,
       step: 0.5,
-      defaultValue: 12,
+      defaultValue: 13.5,
     },
   } as const;
   const FILE_TREE_NUMBERS = {
-    folderWeight: { cssVar: "--docs-file-tree-folder-weight", min: 300, max: 900, step: 50, defaultValue: 500 },
+    folderWeight: { cssVar: "--docs-file-tree-folder-weight", min: 300, max: 900, step: 50, defaultValue: 400 },
     fileWeight: { cssVar: "--docs-file-tree-file-weight", min: 300, max: 900, step: 50, defaultValue: 400 },
-    changeTint: { cssVar: "--docs-file-tree-change-tint", min: 0, max: 100, step: 1, defaultValue: 10 },
+    changeTint: { cssVar: "--docs-file-tree-change-tint", min: 0, max: 100, step: 1, defaultValue: 8 },
   } as const;
   const FILE_TREE_COLORS = {
     bg: ["--docs-file-tree-bg"],
@@ -2760,7 +2757,7 @@ describe("style rail file-tree tokens", () => {
           changeTint: "25",
           padY: "12px",
           folderWeight: 700,
-          lineHeight: "24px",
+          lineHeight: "28px",
           textSize: "99px",
           rowPad: "4px",
         },
@@ -2775,7 +2772,7 @@ describe("style rail file-tree tokens", () => {
         changeTint: "25",
         padY: "12px",
         folderWeight: "700",
-        lineHeight: "24px",
+        lineHeight: "28px",
       },
     });
     const vars = styleRailVars(settings);
@@ -2921,10 +2918,10 @@ describe("style rail shared linking tokens", () => {
     });
     expect(linking.railWidth).toEqual(length("--docs-link-rail-width", 0, 8, 0.5, 3));
     expect(linking.ringWidth).toEqual(length("--docs-link-ring-width", 0, 4, 0.5, 1.5));
-    expect(linking.textSize).toEqual(length("--docs-link-text-size", 10, 18, 0.5, 12));
-    expect(linking.lineHeight).toEqual(length("--docs-link-line-height", 14, 32, 1, 20));
-    expect(linking.gutterTextSize).toEqual(length("--docs-link-gutter-text-size", 8, 16, 0.5, 11));
-    expect(linking.gutterWidth).toEqual(length("--docs-link-gutter-width", 24, 96, 1, 44));
+    expect(linking.textSize).toEqual(length("--docs-link-text-size", 10, 18, 0.5, 13));
+    expect(linking.lineHeight).toEqual(length("--docs-link-line-height", 14, 32, 1, 21));
+    expect(linking.gutterTextSize).toEqual(length("--docs-link-gutter-text-size", 8, 16, 0.5, 12));
+    expect(linking.gutterWidth).toEqual(length("--docs-link-gutter-width", 24, 96, 1, 40));
   });
 
   it("renders every linking metric knob with its label, stock value and range, and stores units", () => {
@@ -2935,10 +2932,10 @@ describe("style rail shared linking tokens", () => {
       [/^Highlight strength/, "0", "100", "14"],
       [/^Rail width/, "0", "8", "3"],
       [/^Pin ring width/, "0", "4", "1.5"],
-      [/^Text size/, "10", "18", "12"],
-      [/^Line height/, "14", "32", "20"],
-      [/^Line number size/, "8", "16", "11"],
-      [/^Gutter width/, "24", "96", "44"],
+      [/^Text size/, "10", "18", "13"],
+      [/^Line height/, "14", "32", "21"],
+      [/^Line number size/, "8", "16", "12"],
+      [/^Gutter width/, "24", "96", "40"],
     ];
     for (const [label, min, max, value] of expected) {
       const input = screen.getByLabelText(label) as HTMLInputElement;
@@ -3026,6 +3023,21 @@ describe("style rail inline-code tokens", () => {
     });
   });
 
+  it("registers one text-color knob per typed-chip kind, declared at its syntax role in both theme blocks", () => {
+    const semanticCss = readFileSync(new URL("../theme/semantic.css", import.meta.url), "utf8");
+    const KINDS: Record<string, [string, string]> = {
+      pathFg: ["--docs-inline-code-path-fg", "var(--docs-syn-string)"],
+      typeFg: ["--docs-inline-code-type-fg", "var(--docs-syn-type)"],
+      callFg: ["--docs-inline-code-call-fg", "var(--docs-syn-fn)"],
+      literalFg: ["--docs-inline-code-literal-fg", "var(--docs-syn-number)"],
+      propFg: ["--docs-inline-code-prop-fg", "var(--docs-syn-prop)"],
+    };
+    for (const [key, [cssVar, role]] of Object.entries(KINDS)) {
+      expect(THEME_TOKEN_REGISTRY["inline-code"][key]).toEqual({ vars: [cssVar], kind: "color" });
+      expect(`${cssVar} ×${semanticCss.split(`  ${cssVar}: ${role};`).length - 1}`).toBe(`${cssVar} ×2`);
+    }
+  });
+
   it("renders the Inline code knobs with labels and stock values, and stores unitless multipliers", () => {
     render(<RailHarness />);
     openPane("Inline code");
@@ -3104,8 +3116,8 @@ describe("style rail code-family tokens are wired to their consumers", () => {
     // Radii follow the global --radius (2px at stock).
     "--docs-code-radius": ["var(--radius)", "var(--radius)"],
     "--docs-inline-code-radius": ["var(--radius)", "var(--radius)"],
-    // Dark runs the wash hotter; the registry default is the light value.
-    "--docs-link-wash": ["14", "18"],
+    // Dark runs the wash cooler (12); the registry default is the light value.
+    "--docs-link-wash": ["14", "12"],
     // A custom property cannot hold `inherit`; the chip inherits by default.
     "--docs-inline-code-weight": null,
   };
@@ -3174,8 +3186,8 @@ describe("style rail code-family tokens are wired to their consumers", () => {
     ).toBe(2);
   });
 
-  it("the code block's zebra defaults to the shared linking zebra in both theme blocks", () => {
-    expect(semanticCss.match(/--docs-code-zebra: var\(--docs-zebra\);/g)?.length).toBe(2);
+  it("code blocks never stripe: the code zebra is transparent in both theme blocks", () => {
+    expect(semanticCss.match(/--docs-code-zebra: transparent;/g)?.length).toBe(2);
   });
 
   it("the workbench's unlayered inline-code rule reads the same tokens as the utilities", () => {
@@ -3183,7 +3195,9 @@ describe("style rail code-family tokens are wired to their consumers", () => {
     const rule = indexCss.slice(indexCss.indexOf(".docs-markdown :where(code:not(pre code)) {"));
     const body = rule.slice(0, rule.indexOf("}"));
     expect(body).toContain("background: var(--docs-inline-code-bg);");
-    expect(body).toContain("color: var(--docs-inline-code-fg);");
+    // Typed chips: the kind color (set per kind by INLINE_CODE_KIND_CLASSES)
+    // wins over the plain chip ink.
+    expect(body).toContain("color: var(--docs-chip-kind-fg, var(--docs-inline-code-fg));");
     expect(body).toContain("border-radius: var(--docs-inline-code-radius);");
     expect(body).toContain(
       "padding: calc(var(--docs-inline-code-pad-y) * 1em) calc(var(--docs-inline-code-pad-x) * 1em);",
@@ -3203,47 +3217,36 @@ describe("style rail interaction-surface tokens", () => {
     radius: ["--docs-interaction-radius", 0, 24, 1, 2],
     borderWidth: ["--docs-interaction-border-width", 0, 4, 0.5, 1],
     ruleWidth: ["--docs-interaction-rule-width", 0, 4, 0.5, 1],
-    padX: ["--docs-interaction-pad-x", 4, 32, 1, 16],
-    opGap: ["--docs-interaction-op-gap", 0, 48, 1, 24],
-    titleTextSize: ["--docs-interaction-title-text-size", 10, 22, 0.5, 14],
-    titleGap: ["--docs-interaction-title-gap", 0, 32, 1, 12],
-    headerPadY: ["--docs-interaction-header-pad-y", 4, 32, 1, 16],
-    headerTextSize: ["--docs-interaction-header-text-size", 10, 22, 0.5, 14],
-    descTextSize: ["--docs-interaction-desc-text-size", 10, 18, 0.5, 12],
+    padX: ["--docs-interaction-pad-x", 4, 32, 1, 12],
+    titleTextSize: ["--docs-interaction-title-text-size", 12, 22, 0.5, 13.5],
+    headerPadY: ["--docs-interaction-header-pad-y", 4, 32, 1, 9],
+    headerTextSize: ["--docs-interaction-header-text-size", 12, 22, 0.5, 13],
+    descTextSize: ["--docs-interaction-desc-text-size", 12, 18, 0.5, 13.5],
     descLineHeight: ["--docs-interaction-desc-line-height", 12, 32, 1, 20],
-    columnHeadTextSize: ["--docs-interaction-column-head-text-size", 8, 14, 0.5, 10],
+    columnHeadTextSize: ["--docs-interaction-column-head-text-size", 12, 18, 0.5, 13.5],
     columnHeadPadY: ["--docs-interaction-column-head-pad-y", 0, 20, 1, 8],
-    columnHeadRuleWidth: ["--docs-interaction-column-head-rule-width", 0, 4, 0.5, 2],
-    rowPad: ["--docs-interaction-row-pad", 0, 24, 1, 12],
-    indent: ["--docs-interaction-indent", 8, 48, 1, 22],
+    rowPad: ["--docs-interaction-row-pad", 0, 24, 1, 4],
+    indent: ["--docs-interaction-indent", 8, 48, 1, 16],
     noteNameTextSize: ["--docs-interaction-note-name-text-size", 10, 18, 0.5, 13],
-    noteTypeTextSize: ["--docs-interaction-note-type-text-size", 10, 18, 0.5, 12],
+    noteTypeTextSize: ["--docs-interaction-note-type-text-size", 10, 18, 0.5, 13],
   };
   const WEIGHTS: Record<string, [string, number]> = {
-    titleWeight: ["--docs-interaction-title-weight", 700],
-    headerWeight: ["--docs-interaction-header-weight", 700],
-    noteNameWeight: ["--docs-interaction-note-name-weight", 600],
+    titleWeight: ["--docs-interaction-title-weight", 600],
+    headerWeight: ["--docs-interaction-header-weight", 500],
+    noteNameWeight: ["--docs-interaction-note-name-weight", 500],
   };
   const COLORS: Record<string, string> = {
-    actionHeaderBg: "--docs-operation-action-header-bg",
-    actionHeaderInk: "--docs-operation-action-header-ink",
-    queryHeaderBg: "--docs-operation-query-header-bg",
-    queryHeaderInk: "--docs-operation-query-header-ink",
-    eventHeaderBg: "--docs-operation-event-header-bg",
-    eventHeaderInk: "--docs-operation-event-header-ink",
     border: "--docs-interaction-border",
     bg: "--docs-interaction-bg",
     rule: "--docs-interaction-rule",
     titleFg: "--docs-interaction-title-fg",
     headerFg: "--docs-interaction-header-fg",
-    columnHeadBg: "--docs-interaction-column-head-bg",
     columnHeadFg: "--docs-interaction-column-head-fg",
     sigName: "--docs-interaction-sig-name",
     sigType: "--docs-interaction-sig-type",
     sigPunct: "--docs-interaction-sig-punct",
     noteName: "--docs-interaction-note-name",
     noteType: "--docs-interaction-note-type",
-    noteTypeBg: "--docs-interaction-note-type-bg",
     noteFg: "--docs-interaction-note-fg",
     childRule: "--docs-interaction-child-rule",
   };
@@ -3294,8 +3297,12 @@ describe("style rail interaction-surface tokens", () => {
     expect(Object.keys(entry).sort()).toEqual(
       [...Object.keys(COLORS), ...Object.keys(LENGTHS), ...Object.keys(WEIGHTS)].sort(),
     );
-    // The generic header background had no target once headers went per kind.
-    expect(entry.headerBg).toBeUndefined();
+    // Retired with the theme lab: per-kind card headers (the kind badge reads
+    // the --docs-kind-* role tokens), the card gap, the caption gap, chip and
+    // column-head fills.
+    for (const retired of ["headerBg", "actionHeaderBg", "actionHeaderInk", "opGap", "titleGap", "columnHeadBg", "columnHeadRuleWidth", "noteTypeBg"]) {
+      expect([retired, retired in entry]).toEqual([retired, false]);
+    }
     // Signature text is a shared CodeLines panel: sized by the "linking" folder.
     expect(entry.sigTextSize).toBeUndefined();
     expect(componentSource).not.toContain("--docs-interaction-sig-text-size");
@@ -3348,8 +3355,11 @@ describe("style rail interaction-surface tokens", () => {
     }
     // Shared content follows State Shape until this block is overridden.
     for (const block of [lightBlock, darkBlock]) {
+      expect(block).toContain("--docs-interaction-border: var(--docs-shape-border);");
       expect(block).toContain("--docs-interaction-bg: var(--docs-shape-bg);");
       expect(block).toContain("--docs-interaction-rule: var(--docs-shape-rule);");
+      expect(block).toContain("--docs-interaction-header-fg: var(--docs-syn-fn);");
+      expect(block).not.toContain("--docs-operation-");
       expect(block).toContain("--docs-interaction-sig-name: var(--syntax-function);");
       expect(block).toContain("--docs-interaction-sig-type: var(--syntax-type);");
       expect(block).toContain("--docs-interaction-sig-punct: var(--syntax-punctuation);");
@@ -3364,18 +3374,20 @@ describe("style rail interaction-surface tokens", () => {
       components: {
         "interaction-surface": {
           rule: "#112233",
-          columnHeadBg: "#AABBCC",
+          columnHeadFg: "#AABBCC",
           sigName: "#0E7490",
           noteFg: "#445566",
           childRule: "#778899",
           rowPad: "10px",
-          opGap: 20,
+          indent: 20,
           radius: "8px",
           headerWeight: 650,
           noteNameTextSize: "13.5px",
           // Out of range, retired, and unknown keys are dropped.
           borderWidth: "9px",
           headerBg: "#000000",
+          opGap: 20,
+          actionHeaderBg: "#000000",
           unknown: "#000000",
         },
       },
@@ -3384,12 +3396,12 @@ describe("style rail interaction-surface tokens", () => {
     expect(settings.components).toEqual({
       "interaction-surface": {
         rule: "#112233",
-        columnHeadBg: "#aabbcc",
+        columnHeadFg: "#aabbcc",
         sigName: "#0e7490",
         noteFg: "#445566",
         childRule: "#778899",
         rowPad: "10px",
-        opGap: "20px",
+        indent: "20px",
         radius: "8px",
         headerWeight: "650",
         noteNameTextSize: "13.5px",
@@ -3397,12 +3409,12 @@ describe("style rail interaction-surface tokens", () => {
     });
     expect(styleRailVars(settings)).toMatchObject({
       "--docs-interaction-rule": "#112233",
-      "--docs-interaction-column-head-bg": "#aabbcc",
+      "--docs-interaction-column-head-fg": "#aabbcc",
       "--docs-interaction-sig-name": "#0e7490",
       "--docs-interaction-note-fg": "#445566",
       "--docs-interaction-child-rule": "#778899",
       "--docs-interaction-row-pad": "10px",
-      "--docs-interaction-op-gap": "20px",
+      "--docs-interaction-indent": "20px",
       "--docs-interaction-radius": "8px",
       "--docs-interaction-header-weight": "650",
       "--docs-interaction-note-name-text-size": "13.5px",
@@ -3413,12 +3425,12 @@ describe("style rail interaction-surface tokens", () => {
     const vars = styleRailVars(
       normalizeSettings({
         components: {
-          "interaction-surface": { rowPad: "12px", opGap: "24px", noteNameWeight: 600 },
+          "interaction-surface": { rowPad: "4px", indent: "16px", noteNameWeight: 500 },
         },
       }),
     );
     expect(vars["--docs-interaction-row-pad"]).toBeNull();
-    expect(vars["--docs-interaction-op-gap"]).toBeNull();
+    expect(vars["--docs-interaction-indent"]).toBeNull();
     expect(vars["--docs-interaction-note-name-weight"]).toBeNull();
   });
 
@@ -3427,34 +3439,24 @@ describe("style rail interaction-surface tokens", () => {
     openPane("Interaction surface");
 
     for (const label of [
-      "Action header background",
-      "Action header ink",
-      "Query header background",
-      "Query header ink",
-      "Event header background",
-      "Event header ink",
       "Border",
       "Background",
       "Rules",
       "Title text",
       "Header text",
-      "Column head background",
       "Column head text",
       "Signature name",
       "Signature type",
       "Signature punctuation",
       "Note name",
       "Note type",
-      "Note type chip",
       "Note text",
       "Child rule",
       "Corner radius",
       "Border width",
       "Rule width",
-      "Card gap",
       "Title text size",
       "Title weight",
-      "Title gap",
       "Header padding Y",
       "Header text size",
       "Header weight",
@@ -3462,7 +3464,6 @@ describe("style rail interaction-surface tokens", () => {
       "Description line height",
       "Column head text size",
       "Column head padding Y",
-      "Column head rule width",
       "Row padding",
       "Indent",
       "Note name size",
@@ -3480,13 +3481,13 @@ describe("style rail interaction-surface tokens", () => {
     const rowPad = slider(/^Row padding/);
     expect(rowPad).toHaveProperty("min", "0");
     expect(rowPad).toHaveProperty("max", "24");
-    expect(rowPad).toHaveProperty("value", "12");
-    const opGap = slider(/^Card gap/);
-    expect(opGap).toHaveProperty("min", "0");
-    expect(opGap).toHaveProperty("max", "48");
-    expect(opGap).toHaveProperty("value", "24");
+    expect(rowPad).toHaveProperty("value", "4");
+    const descTextSize = slider(/^Description text size/);
+    // Nothing a reader must read goes below 12px.
+    expect(descTextSize).toHaveProperty("min", "12");
+    expect(descTextSize).toHaveProperty("value", "13.5");
     expect(slider(/^Corner radius/)).toHaveProperty("value", "2");
-    expect(slider(/^Header weight/)).toHaveProperty("value", "700");
+    expect(slider(/^Header weight/)).toHaveProperty("value", "500");
     expect(slider(/^Note name size/)).toHaveProperty("value", "13");
   });
 });
@@ -3494,66 +3495,40 @@ describe("style rail interaction-surface tokens", () => {
 describe("style rail state-shape tokens", () => {
   it("registers every restyled state-shape var under the state-shape entry", () => {
     const entry = THEME_TOKEN_REGISTRY["state-shape"];
-    expect(entry.border).toEqual({ vars: ["--docs-shape-border"], kind: "color" });
-    expect(entry.bg).toEqual({ vars: ["--docs-shape-bg"], kind: "color" });
-    expect(entry.name).toEqual({ vars: ["--docs-shape-name"], kind: "color" });
-    expect(entry.type).toEqual({ vars: ["--docs-shape-type"], kind: "color" });
-    expect(entry.typeBg).toEqual({ vars: ["--docs-shape-type-bg"], kind: "color" });
-    expect(entry.muted).toEqual({ vars: ["--docs-shape-muted"], kind: "color" });
-    expect(entry.optionalFg).toEqual({ vars: ["--docs-shape-optional-fg"], kind: "color" });
-    expect(entry.optionalBg).toEqual({ vars: ["--docs-shape-optional-bg"], kind: "color" });
-    expect(entry.rule).toEqual({ vars: ["--docs-shape-rule"], kind: "color" });
-    expect(entry.headerBg).toEqual({ vars: ["--docs-shape-header-bg"], kind: "color" });
-    expect(entry.descFg).toEqual({ vars: ["--docs-shape-desc-fg"], kind: "color" });
-    expect(entry.childRule).toEqual({ vars: ["--docs-shape-child-rule"], kind: "color" });
-    expect(entry.rowPad).toEqual({
-      vars: ["--docs-shape-row-pad"],
-      kind: "length",
-      min: 0,
-      max: 24,
-      step: 1,
-      unit: "px",
-      defaultValue: 6,
-    });
-    expect(entry.rowMinHeight).toEqual({
-      vars: ["--docs-shape-row-min-height"],
-      kind: "length",
-      min: 0,
-      max: 64,
-      step: 1,
-      unit: "px",
-      defaultValue: 0,
-    });
-    expect(entry.nameWeight).toEqual({
-      vars: ["--docs-shape-name-weight"],
-      kind: "number",
-      min: 300,
-      max: 800,
-      step: 100,
-      defaultValue: 400,
-    });
-    expect(entry.headerFg).toEqual({ vars: ["--docs-shape-header-fg"], kind: "color" });
-    expect(entry.headerRule).toEqual({ vars: ["--docs-shape-header-rule"], kind: "color" });
-    expect(entry.childBg).toEqual({ vars: ["--docs-shape-child-bg"], kind: "color" });
-    expect(entry.columnHeadBg).toEqual({ vars: ["--docs-shape-column-head-bg"], kind: "color" });
+    const colors: Record<string, string> = {
+      border: "--docs-shape-border",
+      bg: "--docs-shape-bg",
+      name: "--docs-shape-name",
+      type: "--docs-shape-type",
+      muted: "--docs-shape-muted",
+      optionalFg: "--docs-shape-optional-fg",
+      rule: "--docs-shape-rule",
+      headerBg: "--docs-shape-header-bg",
+      headerFg: "--docs-shape-header-fg",
+      headerRule: "--docs-shape-header-rule",
+      descFg: "--docs-shape-desc-fg",
+      childRule: "--docs-shape-child-rule",
+    };
+    for (const [key, cssVar] of Object.entries(colors)) {
+      expect(entry[key]).toEqual({ vars: [cssVar], kind: "color" });
+    }
     // key, var, min, max, step, default (px)
     const lengths: Array<[string, string, number, number, number, number]> = [
+      ["rowPad", "--docs-shape-row-pad", 0, 24, 1, 4],
+      ["rowMinHeight", "--docs-shape-row-min-height", 0, 64, 1, 28],
+      ["nameWidth", "--docs-shape-name-width", 96, 320, 4, 176],
       ["textSize", "--docs-shape-text-size", 10, 18, 0.5, 13],
-      ["typeTextSize", "--docs-shape-type-text-size", 9, 16, 0.5, 12],
-      ["headerTextSize", "--docs-shape-header-text-size", 10, 22, 0.5, 14],
-      ["columnHeadTextSize", "--docs-shape-column-head-text-size", 8, 14, 0.5, 10],
-      ["padX", "--docs-shape-pad-x", 0, 32, 1, 16],
-      ["headerPadY", "--docs-shape-header-pad-y", 0, 32, 1, 16],
-      ["columnHeadPadY", "--docs-shape-column-head-pad-y", 0, 16, 1, 8],
+      ["typeTextSize", "--docs-shape-type-text-size", 9, 16, 0.5, 13],
+      ["descTextSize", "--docs-shape-desc-text-size", 12, 18, 0.5, 13.5],
+      ["headerTextSize", "--docs-shape-header-text-size", 10, 22, 0.5, 13],
+      ["padX", "--docs-shape-pad-x", 0, 32, 1, 12],
+      ["headerPadY", "--docs-shape-header-pad-y", 0, 32, 1, 6],
       ["borderWidth", "--docs-shape-border-width", 0, 4, 0.5, 1],
       ["radius", "--docs-shape-radius", 0, 16, 1, 2],
       ["ruleWidth", "--docs-shape-rule-width", 0, 4, 0.5, 1],
       ["headerRuleWidth", "--docs-shape-header-rule-width", 0, 4, 0.5, 1],
-      ["columnHeadRuleWidth", "--docs-shape-column-head-rule-width", 0, 4, 0.5, 2],
       ["paneRuleWidth", "--docs-shape-pane-rule-width", 0, 4, 0.5, 1],
-      ["indent", "--docs-shape-indent", 8, 40, 1, 22],
-      ["treeTick", "--docs-shape-tree-tick", 0, 24, 1, 8],
-      ["treeInset", "--docs-shape-tree-inset", 0, 24, 1, 6],
+      ["indent", "--docs-shape-indent", 8, 40, 1, 16],
       ["childRuleWidth", "--docs-shape-child-rule-width", 0, 4, 0.5, 1],
     ];
     for (const [key, cssVar, min, max, step, defaultValue] of lengths) {
@@ -3567,22 +3542,31 @@ describe("style rail state-shape tokens", () => {
         defaultValue,
       });
     }
+    expect(entry.nameWeight).toEqual({
+      vars: ["--docs-shape-name-weight"],
+      kind: "number",
+      min: 300,
+      max: 800,
+      step: 100,
+      defaultValue: 500,
+    });
     expect(entry.headerWeight).toEqual({
       vars: ["--docs-shape-header-weight"],
       kind: "number",
       min: 300,
       max: 900,
       step: 100,
-      defaultValue: 700,
+      defaultValue: 600,
     });
-    expect(entry.headerTextureOpacity).toEqual({
-      vars: ["--docs-shape-header-texture-opacity"],
-      kind: "number",
-      min: 0,
-      max: 1,
-      step: 0.05,
-      defaultValue: 0.1,
-    });
+    // The tables above are the whole vocabulary.
+    expect(Object.keys(entry).sort()).toEqual(
+      [...Object.keys(colors), ...lengths.map(([key]) => key), "nameWeight", "headerWeight"].sort(),
+    );
+    // Retired with the theme lab: chip / pill / child fills, the column heads,
+    // the header texture and the tree tick / inset geometry.
+    for (const retired of ["typeBg", "optionalBg", "childBg", "columnHeadBg", "columnHeadTextSize", "columnHeadPadY", "columnHeadRuleWidth", "headerTextureOpacity", "treeTick", "treeInset"]) {
+      expect([retired, retired in entry]).toEqual([retired, false]);
+    }
   });
 
   // The dead-knob guard: a token the component never reads moves a slider
@@ -3634,11 +3618,11 @@ describe("style rail state-shape tokens", () => {
           continue;
         }
         expect(light).toContain(`  ${cssVar}: ${token.defaultValue}${token.unit ?? ""};`);
+        // One geometry in both modes since the theme lab: the palette, not
+        // the frame, carries light vs dark.
+        expect(dark).toContain(`  ${cssVar}: ${token.defaultValue}${token.unit ?? ""};`);
       }
     }
-    // Dark keeps its heavier frame; the registry default is the light value.
-    expect(dark).toContain("  --docs-shape-border-width: 2px;");
-    expect(dark).toContain("  --docs-shape-header-texture-opacity: 0.4;");
   });
 
   it("normalizes the state-shape size, weight, width and opacity knobs", () => {
@@ -3646,29 +3630,31 @@ describe("style rail state-shape tokens", () => {
       components: {
         "state-shape": {
           textSize: 15,
-          headerWeight: "600",
-          headerTextureOpacity: 0.25,
+          headerWeight: "700",
+          nameWidth: 200,
           borderWidth: "1.5px",
           headerRule: "#ABCDEF",
           radius: 99,
+          // Retired with the theme lab.
+          headerTextureOpacity: 0.25,
         },
       },
     });
 
-    // radius 99 is out of range (0-16) and is dropped.
+    // radius 99 is out of range (0-16) and is dropped, as is the retired texture.
     expect(settings.components).toEqual({
       "state-shape": {
         textSize: "15px",
-        headerWeight: "600",
-        headerTextureOpacity: "0.25",
+        headerWeight: "700",
+        nameWidth: "200px",
         borderWidth: "1.5px",
         headerRule: "#abcdef",
       },
     });
     expect(styleRailVars(settings)).toMatchObject({
       "--docs-shape-text-size": "15px",
-      "--docs-shape-header-weight": "600",
-      "--docs-shape-header-texture-opacity": "0.25",
+      "--docs-shape-header-weight": "700",
+      "--docs-shape-name-width": "200px",
       "--docs-shape-border-width": "1.5px",
       "--docs-shape-header-rule": "#abcdef",
       "--docs-shape-radius": null,
@@ -3713,39 +3699,31 @@ describe("style rail state-shape tokens", () => {
       "Background",
       "Names",
       "Types",
-      "Type chip background",
       "Muted fill",
       "Optional marker",
-      "Optional marker background",
       "Rules",
       "Header background",
       "Header text",
       "Header rule",
       "Description text",
       "Child rule",
-      "Child row background",
-      "Column head background",
       "Row padding",
       "Row min height",
       "Name weight",
+      "Name column width",
       "Text size",
       "Type text size",
+      "Description text size",
       "Header text size",
       "Header weight",
-      "Column head text size",
       "Padding X",
       "Header padding Y",
-      "Column head padding Y",
       "Border width",
       "Corner radius",
       "Rule width",
       "Header rule width",
-      "Column head rule width",
       "Pane divider width",
-      "Header texture opacity",
       "Indent",
-      "Tree tick length",
-      "Tree inset",
       "Child rule width",
     ]) {
       expect(screen.getAllByText(label).length).toBeGreaterThan(0);
@@ -3754,7 +3732,7 @@ describe("style rail state-shape tokens", () => {
     const rowPad = screen.getByLabelText(/Row padding/) as HTMLInputElement;
     expect(rowPad).toHaveProperty("min", "0");
     expect(rowPad).toHaveProperty("max", "24");
-    expect(rowPad).toHaveProperty("value", "6");
+    expect(rowPad).toHaveProperty("value", "4");
     // Every registry key has a human label: no raw camelCase key leaks.
     const unlabelled = Object.keys(THEME_TOKEN_REGISTRY["state-shape"]).filter(
       (key) => /[A-Z]/.test(key) && screen.queryByText(key) !== null,
@@ -3766,351 +3744,124 @@ describe("style rail state-shape tokens", () => {
     expect(textSize).toHaveProperty("step", "0.5");
     expect(textSize).toHaveProperty("value", "13");
     const headerWeight = screen.getByLabelText(/^Header weight/) as HTMLInputElement;
-    expect(headerWeight).toHaveProperty("value", "700");
-    const texture = screen.getByLabelText(/^Header texture opacity/) as HTMLInputElement;
-    expect(texture).toHaveProperty("max", "1");
-    expect(texture).toHaveProperty("value", "0.1");
+    expect(headerWeight).toHaveProperty("value", "600");
+    const nameWidth = screen.getByLabelText(/^Name column width/) as HTMLInputElement;
+    expect(nameWidth).toHaveProperty("value", "176");
+    expect(screen.queryByLabelText(/^Header texture opacity/)).toBeNull();
   });
 });
 
 describe("style rail process-outline tokens", () => {
-  it("registers every process-outline var under the process-outline entry", () => {
+  // The theme-lab defaults the outline is designed around (registry, semantic.css
+  // and the component fallback must agree with these; the wiring test below
+  // proves the three agree with each other). key -> [var suffix, min, max, step, default].
+  const LENGTHS: Record<string, [string, number, number, number, number]> = {
+    borderWidth: ["border-width", 0, 4, 0.5, 1],
+    padY: ["pad-y", 0, 40, 1, 12],
+    padX: ["pad-x", 0, 40, 1, 12],
+    indent: ["indent", 16, 72, 1, 24],
+    rowGap: ["row-gap", 0, 24, 1, 4],
+    branchGap: ["branch-gap", 0, 48, 1, 12],
+    rootGap: ["root-gap", 0, 64, 1, 12],
+    arrowGap: ["arrow-gap", 0, 16, 1, 4],
+    lineHeight: ["line-height", 16, 40, 1, 24],
+    textSize: ["text-size", 12, 18, 0.5, 13.5],
+    rootTextSize: ["root-text-size", 13, 22, 0.5, 13.5],
+    emptyTextSize: ["empty-text-size", 12, 18, 0.5, 12],
+    noteTextSize: ["note-text-size", 12, 18, 0.5, 13.5],
+    noteLineHeight: ["note-line-height", 12, 32, 1, 21],
+    noteInset: ["note-inset", 0, 40, 1, 0],
+    noteBorderWidth: ["note-border-width", 0, 4, 0.5, 0],
+    noteRuleWidth: ["note-rule-width", 0, 6, 0.5, 0],
+    notePadY: ["note-pad-y", 0, 16, 1, 2],
+    notePadX: ["note-pad-x", 0, 24, 1, 0],
+    noteRuleGap: ["note-rule-gap", 0, 24, 1, 0],
+    traceTextSize: ["trace-text-size", 12, 16, 0.5, 12],
+    focusRing: ["focus-ring", 0, 3, 0.5, 1],
+    arrowSize: ["arrow-size", 3, 12, 0.5, 5],
+    stroke: ["stroke", 0.5, 4, 0.25, 1],
+    selectPad: ["select-pad", 0, 8, 0.5, 2],
+  };
+  /** Weights and unitless percentage strengths: key -> [var suffix, min, max, step, default]. */
+  const NUMBERS: Record<string, [string, number, number, number, number]> = {
+    rootWeight: ["root-weight", 300, 900, 50, 600],
+    branchWeight: ["branch-weight", 300, 900, 50, 500],
+    stepWeight: ["step-weight", 300, 900, 50, 400],
+    keywordWeight: ["keyword-weight", 300, 900, 50, 500],
+    noteAccent: ["note-accent", 0, 100, 5, 0],
+    selectTint: ["select-tint", 0, 100, 1, 15],
+  };
+  const COLORS: Record<string, string> = {
+    ink: "ink",
+    deepInk: "deep-ink",
+    titleFg: "title-fg",
+    bg: "bg",
+    headerBg: "header-bg",
+    rail: "rail",
+    cycle1: "cycle-1",
+    cycle2: "cycle-2",
+    cycle3: "cycle-3",
+    cycle4: "cycle-4",
+    cycle5: "cycle-5",
+    cycle6: "cycle-6",
+    keywordFg: "keyword-fg",
+    noteFg: "note-fg",
+    noteRule: "note-rule",
+    noteBullet: "note-bullet",
+    noteBg: "note-bg",
+    noteBorder: "note-border",
+    codeBg: "code-bg",
+    selectBg: "select-bg",
+    border: "border",
+  };
+
+  it("registers exactly the theme-lab process-outline knobs with their ranges and defaults", () => {
     const entry = THEME_TOKEN_REGISTRY["process-outline"];
-    expect(entry.ink).toEqual({ vars: ["--docs-process-outline-ink"], kind: "color" });
-    expect(entry.rail).toEqual({ vars: ["--docs-process-outline-rail"], kind: "color" });
-    expect(entry.noteFg).toEqual({ vars: ["--docs-process-outline-note-fg"], kind: "color" });
-    expect(entry.noteBg).toEqual({ vars: ["--docs-process-outline-note-bg"], kind: "color" });
-    expect(entry.noteBorder).toEqual({ vars: ["--docs-process-outline-note-border"], kind: "color" });
-    expect(entry.codeBg).toEqual({ vars: ["--docs-process-outline-code-bg"], kind: "color" });
-    expect(entry.deepInk).toEqual({ vars: ["--docs-process-outline-deep-ink"], kind: "color" });
-    // Note text, rule and bullet dots are three independent colors.
-    expect(entry.noteRule).toEqual({ vars: ["--docs-process-outline-note-rule"], kind: "color" });
-    expect(entry.noteBullet).toEqual({ vars: ["--docs-process-outline-note-bullet"], kind: "color" });
-    // One color per nesting level (the approved palette has six; deeper
-    // levels inherit the sixth), plus the loop-keyword accent outside it.
-    for (const level of [1, 2, 3, 4, 5, 6]) {
-      expect(entry[`cycle${level}`]).toEqual({
-        vars: [`--docs-process-outline-cycle-${level}`],
-        kind: "color",
-      });
+    expect(Object.keys(entry).sort()).toEqual(
+      [...Object.keys(LENGTHS), ...Object.keys(NUMBERS), ...Object.keys(COLORS)].sort(),
+    );
+    for (const [key, suffix] of Object.entries(COLORS)) {
+      expect([key, entry[key]]).toEqual([key, { vars: [`--docs-process-outline-${suffix}`], kind: "color" }]);
     }
-    expect(entry.keywordFg).toEqual({
-      vars: ["--docs-process-outline-keyword-fg"],
-      kind: "color",
-    });
-    expect(entry.keywordWeight).toEqual({
-      vars: ["--docs-process-outline-keyword-weight"],
-      kind: "number",
-      min: 300,
-      max: 900,
-      step: 50,
-      defaultValue: 700,
-    });
-    // The flow frame (top/bottom rules + padding) was hard-coded; it rides
-    // the shared frame keys now.
-    expect(entry.border).toEqual({ vars: ["--docs-process-outline-border"], kind: "color" });
-    expect(entry.borderWidth).toEqual({
-      vars: ["--docs-process-outline-border-width"],
-      kind: "length",
-      min: 0,
-      max: 4,
-      step: 0.5,
-      unit: "px",
-      defaultValue: 1,
-    });
-    expect(entry.padY).toEqual({
-      vars: ["--docs-process-outline-pad-y"],
-      kind: "length",
-      min: 0,
-      max: 40,
-      step: 1,
-      unit: "px",
-      defaultValue: 14,
-    });
-    expect(entry.padX).toEqual({
-      vars: ["--docs-process-outline-pad-x"],
-      kind: "length",
-      min: 0,
-      max: 40,
-      step: 1,
-      unit: "px",
-      defaultValue: 16,
-    });
-    expect(entry.indent).toEqual({
-      vars: ["--docs-process-outline-indent"],
-      kind: "length",
-      min: 16,
-      max: 72,
-      step: 1,
-      unit: "px",
-      defaultValue: 46,
-    });
-    expect(entry.rowGap).toEqual({
-      vars: ["--docs-process-outline-row-gap"],
-      kind: "length",
-      min: 0,
-      max: 24,
-      step: 1,
-      unit: "px",
-      defaultValue: 12,
-    });
-    // Branch and root separation are knobs. Branch gap spaces the children
-    // of a root step; it matches the row gap by default.
-    expect(entry.branchGap).toEqual({
-      vars: ["--docs-process-outline-branch-gap"],
-      kind: "length",
-      min: 0,
-      max: 48,
-      step: 1,
-      unit: "px",
-      defaultValue: 12,
-    });
-    expect(entry.rootGap).toEqual({
-      vars: ["--docs-process-outline-root-gap"],
-      kind: "length",
-      min: 0,
-      max: 64,
-      step: 1,
-      unit: "px",
-      defaultValue: 30,
-    });
-    expect(entry.arrowGap).toEqual({
-      vars: ["--docs-process-outline-arrow-gap"],
-      kind: "length",
-      min: 0,
-      max: 16,
-      step: 1,
-      unit: "px",
-      defaultValue: 2,
-    });
-    expect(entry.lineHeight).toEqual({
-      vars: ["--docs-process-outline-line-height"],
-      kind: "length",
-      min: 16,
-      max: 40,
-      step: 1,
-      unit: "px",
-      defaultValue: 22,
-    });
-    expect(entry.textSize).toEqual({
-      vars: ["--docs-process-outline-text-size"],
-      kind: "length",
-      min: 12,
-      max: 18,
-      step: 0.5,
-      unit: "px",
-      defaultValue: 12.5,
-    });
-    // The root line's size and the empty placeholder's size were hard-coded
-    // in the component; both ride tokens now.
-    expect(entry.rootTextSize).toEqual({
-      vars: ["--docs-process-outline-root-text-size"],
-      kind: "length",
-      min: 13,
-      max: 22,
-      step: 0.5,
-      unit: "px",
-      defaultValue: 13.5,
-    });
-    expect(entry.emptyTextSize).toEqual({
-      vars: ["--docs-process-outline-empty-text-size"],
-      kind: "length",
-      min: 12,
-      max: 18,
-      step: 0.5,
-      unit: "px",
-      defaultValue: 12,
-    });
-    // Notes are subordinate: their own size (at the 12px floor), their own
-    // line rhythm, an inset that pulls the run under its parent step, and a
-    // rule width for the left edge.
-    expect(entry.noteTextSize).toEqual({
-      vars: ["--docs-process-outline-note-text-size"],
-      kind: "length",
-      min: 12,
-      max: 18,
-      step: 0.5,
-      unit: "px",
-      defaultValue: 12,
-    });
-    expect(entry.noteLineHeight).toEqual({
-      vars: ["--docs-process-outline-note-line-height"],
-      kind: "length",
-      min: 12,
-      max: 32,
-      step: 1,
-      unit: "px",
-      defaultValue: 17,
-    });
-    expect(entry.noteInset).toEqual({
-      vars: ["--docs-process-outline-note-inset"],
-      kind: "length",
-      min: 0,
-      max: 40,
-      step: 1,
-      unit: "px",
-      defaultValue: 8,
-    });
-    // Notes render as bullets behind a 1px left rule. The card box is still
-    // expressible, purely in tokens: border width and horizontal padding
-    // default to zero and the classic theme sets them to get its box back.
-    expect(entry.noteBorderWidth).toEqual({
-      vars: ["--docs-process-outline-note-border-width"],
-      kind: "length",
-      min: 0,
-      max: 4,
-      step: 0.5,
-      unit: "px",
-      defaultValue: 0,
-    });
-    expect(entry.noteRuleWidth).toEqual({
-      vars: ["--docs-process-outline-note-rule-width"],
-      kind: "length",
-      min: 0,
-      max: 6,
-      step: 0.5,
-      unit: "px",
-      defaultValue: 1,
-    });
-    expect(entry.notePadY).toEqual({
-      vars: ["--docs-process-outline-note-pad-y"],
-      kind: "length",
-      min: 0,
-      max: 16,
-      step: 1,
-      unit: "px",
-      defaultValue: 1,
-    });
-    expect(entry.notePadX).toEqual({
-      vars: ["--docs-process-outline-note-pad-x"],
-      kind: "length",
-      min: 0,
-      max: 24,
-      step: 1,
-      unit: "px",
-      defaultValue: 0,
-    });
-    expect(entry.noteRuleGap).toEqual({
-      vars: ["--docs-process-outline-note-rule-gap"],
-      kind: "length",
-      min: 0,
-      max: 24,
-      step: 1,
-      unit: "px",
-      defaultValue: 8,
-    });
-    // Mix strengths are unitless percentages: the component multiplies them
-    // by 1% at the use site, where the depth color actually exists. Note
-    // accent is 0 by default — rule and dots render as their flat colors.
-    expect(entry.noteAccent).toEqual({
-      vars: ["--docs-process-outline-note-accent"],
-      kind: "number",
-      min: 0,
-      max: 100,
-      step: 5,
-      defaultValue: 0,
-    });
-    expect(entry.chipTint).toEqual({
-      vars: ["--docs-process-outline-chip-tint"],
-      kind: "number",
-      min: 0,
-      max: 100,
-      step: 1,
-      defaultValue: 10,
-    });
-    expect(entry.chipInkMix).toEqual({
-      vars: ["--docs-process-outline-chip-ink-mix"],
-      kind: "number",
-      min: 0,
-      max: 100,
-      step: 1,
-      defaultValue: 64,
-    });
-    // The trace mark is a mini pill now, built on the chips' own tint/mix
-    // formula; the old dot-size and arrowhead-stroke knobs are gone with it.
-    expect(entry.traceDotSize).toBeUndefined();
-    expect(entry.traceStroke).toBeUndefined();
-    expect(entry.traceBg).toEqual({
-      vars: ["--docs-process-outline-trace-bg"],
-      kind: "color",
-    });
-    expect(entry.traceTextSize).toEqual({
-      vars: ["--docs-process-outline-trace-text-size"],
-      kind: "length",
-      min: 12,
-      max: 16,
-      step: 0.5,
-      unit: "px",
-      defaultValue: 12,
-    });
-    expect(entry.traceTint).toEqual({
-      vars: ["--docs-process-outline-trace-tint"],
-      kind: "number",
-      min: 0,
-      max: 100,
-      step: 1,
-      defaultValue: 10,
-    });
-    expect(entry.traceInkMix).toEqual({
-      vars: ["--docs-process-outline-trace-ink-mix"],
-      kind: "number",
-      min: 0,
-      max: 100,
-      step: 5,
-      defaultValue: 70,
-    });
-    // Dragging across step lines highlights each line in its own depth colour
-    // — the chip tint formula again, never the block-wide selection wash.
-    expect(entry.selectBg).toEqual({
-      vars: ["--docs-process-outline-select-bg"],
-      kind: "color",
-    });
-    expect(entry.selectTint).toEqual({
-      vars: ["--docs-process-outline-select-tint"],
-      kind: "number",
-      min: 0,
-      max: 100,
-      step: 1,
-      defaultValue: 15,
-    });
-    expect(entry.selectPad).toEqual({
-      vars: ["--docs-process-outline-select-pad"],
-      kind: "length",
-      min: 0,
-      max: 8,
-      step: 0.5,
-      unit: "px",
-      defaultValue: 2,
-    });
-    // Hand-editing a line shows a hairline outline in the line's depth color;
-    // 0 leaves just the caret. There is no block-wide edit tint at any value.
-    expect(entry.focusRing).toEqual({
-      vars: ["--docs-process-outline-focus-ring"],
-      kind: "length",
-      min: 0,
-      max: 3,
-      step: 0.5,
-      unit: "px",
-      defaultValue: 1,
-    });
-    expect(entry.arrowSize).toEqual({
-      vars: ["--docs-process-outline-arrow-size"],
-      kind: "length",
-      min: 3,
-      max: 12,
-      step: 0.5,
-      unit: "px",
-      defaultValue: 6,
-    });
-    expect(entry.stroke).toEqual({
-      vars: ["--docs-process-outline-stroke"],
-      kind: "length",
-      min: 0.5,
-      max: 4,
-      step: 0.25,
-      unit: "px",
-      defaultValue: 1.5,
-    });
+    for (const [key, [suffix, min, max, step, defaultValue]] of Object.entries(LENGTHS)) {
+      expect([key, entry[key]]).toEqual([
+        key,
+        { vars: [`--docs-process-outline-${suffix}`], kind: "length", min, max, step, unit: "px", defaultValue },
+      ]);
+    }
+    for (const [key, [suffix, min, max, step, defaultValue]] of Object.entries(NUMBERS)) {
+      expect([key, entry[key]]).toEqual([
+        key,
+        { vars: [`--docs-process-outline-${suffix}`], kind: "number", min, max, step, defaultValue },
+      ]);
+    }
+  });
+
+  it("colors the outline through the role tokens, the same declaration in both modes", () => {
+    const css = readFileSync(new URL("../theme/semantic.css", import.meta.url), "utf8");
+    // Depth markers walk the category roster (blue, green, violet, yellow, teal,
+    // pink); text, rails, chips and the frame follow the neutral roles.
+    const ROLE: Record<string, string> = {
+      ink: "var(--docs-text)",
+      "title-fg": "var(--docs-ink)",
+      rail: "var(--docs-guide)",
+      "cycle-1": "var(--docs-cat-1)",
+      "cycle-2": "var(--docs-cat-3)",
+      "cycle-3": "var(--docs-cat-5)",
+      "cycle-4": "var(--docs-cat-4)",
+      "cycle-5": "var(--docs-cat-2)",
+      "cycle-6": "var(--docs-cat-6)",
+      "keyword-fg": "var(--docs-syn-keyword)",
+      "note-fg": "var(--docs-muted)",
+      "code-bg": "var(--docs-chip-bg)",
+      border: "var(--docs-rule)",
+    };
+    for (const [suffix, value] of Object.entries(ROLE)) {
+      const declared = [...css.matchAll(new RegExp(`^\\s*--docs-process-outline-${suffix}:\\s*([^;]+);`, "gm"))].map(
+        (match) => match[1],
+      );
+      expect([suffix, declared]).toEqual([suffix, [value, value]]);
+    }
   });
 
   it("normalizes and applies process-outline color and geometry overrides onto their CSS vars", () => {
@@ -4167,78 +3918,16 @@ describe("style rail process-outline tokens", () => {
   });
 
   it("removes the geometry overrides when the knobs sit at their defaults", () => {
-    const settings = normalizeSettings({
-      components: {
-        "process-outline": {
-          indent: "46px",
-          rowGap: "12px",
-          branchGap: "12px",
-          rootGap: "30px",
-          arrowGap: "2px",
-          lineHeight: "22px",
-          textSize: "12.5px",
-          rootTextSize: "13.5px",
-          emptyTextSize: "12px",
-          noteTextSize: "12px",
-          noteLineHeight: "17px",
-          noteInset: "8px",
-          noteBorderWidth: "0px",
-          noteRuleWidth: "1px",
-          notePadY: "1px",
-          notePadX: "0px",
-          noteRuleGap: "8px",
-          noteAccent: "0",
-          chipTint: "10",
-          chipInkMix: "64",
-          traceTextSize: "12px",
-          traceTint: "10",
-          traceInkMix: "70",
-          selectTint: "15",
-          selectPad: "2px",
-          focusRing: "1px",
-          keywordWeight: "700",
-          borderWidth: "1px",
-          padY: "14px",
-          padX: "16px",
-          arrowSize: "6px",
-          stroke: "1.5px",
-        },
-      },
-    });
-
-    const vars = styleRailVars(settings);
-    expect(vars["--docs-process-outline-indent"]).toBeNull();
-    expect(vars["--docs-process-outline-row-gap"]).toBeNull();
-    expect(vars["--docs-process-outline-branch-gap"]).toBeNull();
-    expect(vars["--docs-process-outline-root-gap"]).toBeNull();
-    expect(vars["--docs-process-outline-arrow-gap"]).toBeNull();
-    expect(vars["--docs-process-outline-line-height"]).toBeNull();
-    expect(vars["--docs-process-outline-text-size"]).toBeNull();
-    expect(vars["--docs-process-outline-root-text-size"]).toBeNull();
-    expect(vars["--docs-process-outline-empty-text-size"]).toBeNull();
-    expect(vars["--docs-process-outline-note-text-size"]).toBeNull();
-    expect(vars["--docs-process-outline-note-line-height"]).toBeNull();
-    expect(vars["--docs-process-outline-note-inset"]).toBeNull();
-    expect(vars["--docs-process-outline-note-border-width"]).toBeNull();
-    expect(vars["--docs-process-outline-note-rule-width"]).toBeNull();
-    expect(vars["--docs-process-outline-note-pad-y"]).toBeNull();
-    expect(vars["--docs-process-outline-note-pad-x"]).toBeNull();
-    expect(vars["--docs-process-outline-note-accent"]).toBeNull();
-    expect(vars["--docs-process-outline-chip-tint"]).toBeNull();
-    expect(vars["--docs-process-outline-chip-ink-mix"]).toBeNull();
-    expect(vars["--docs-process-outline-arrow-size"]).toBeNull();
-    expect(vars["--docs-process-outline-stroke"]).toBeNull();
-    expect(vars["--docs-process-outline-note-rule-gap"]).toBeNull();
-    expect(vars["--docs-process-outline-trace-text-size"]).toBeNull();
-    expect(vars["--docs-process-outline-trace-tint"]).toBeNull();
-    expect(vars["--docs-process-outline-trace-ink-mix"]).toBeNull();
-    expect(vars["--docs-process-outline-select-tint"]).toBeNull();
-    expect(vars["--docs-process-outline-select-pad"]).toBeNull();
-    expect(vars["--docs-process-outline-focus-ring"]).toBeNull();
-    expect(vars["--docs-process-outline-keyword-weight"]).toBeNull();
-    expect(vars["--docs-process-outline-border-width"]).toBeNull();
-    expect(vars["--docs-process-outline-pad-y"]).toBeNull();
-    expect(vars["--docs-process-outline-pad-x"]).toBeNull();
+    const atDefault = Object.fromEntries(
+      [...Object.entries(LENGTHS), ...Object.entries(NUMBERS)].map(([key, [, , , , value]]) => [
+        key,
+        key in LENGTHS ? `${value}px` : `${value}`,
+      ]),
+    );
+    const vars = styleRailVars(normalizeSettings({ components: { "process-outline": atDefault } }));
+    for (const [suffix] of [...Object.values(LENGTHS), ...Object.values(NUMBERS)]) {
+      expect([suffix, vars[`--docs-process-outline-${suffix}`]]).toEqual([suffix, null]);
+    }
   });
 
   // The class of bug this guards: a knob in the rail whose var the component
@@ -4295,92 +3984,49 @@ describe("style rail process-outline tokens", () => {
     for (const label of [
       "Ink",
       "Deep ink",
+      "Title text",
+      "Header background",
       "Rail",
       "Depth 1 color",
-      "Depth 5 color",
       "Depth 6 color",
       "Loop keyword",
       "Loop keyword weight",
       "Note text",
-      "Note rule",
       "Note bullets",
-      "Note background",
-      "Note border",
-      "Border",
-      "Border width",
-      "Padding Y",
-      "Padding X",
-      "Note rule gap",
-      "Selected line background",
-      "Selected line tint",
-      "Selected line padding",
       "Code background",
+      "Border",
       "Indent",
       "Row gap",
-      "Branch gap",
-      "Root gap",
       "Arrow gap",
       "Line height",
       "Text size",
-      "Root text size",
-      "Empty text size",
       "Note text size",
-      "Note line height",
-      "Note inset",
-      "Note border width",
-      "Note rule width",
-      "Note padding Y",
-      "Note padding X",
-      "Note accent strength",
-      "Chip tint strength",
-      "Chip label mix",
-      "Trace pill background",
       "Trace pill size",
-      "Trace pill tint",
-      "Trace pill label mix",
       "Focused line ring",
       "Arrow size",
       "Stroke",
     ]) {
       expect(screen.getByText(label)).toBeTruthy();
     }
+    // Retired with the depth-tinted chips and the trace pill.
+    for (const label of ["Chip tint strength", "Chip label mix", "Trace pill tint", "Trace pill background"]) {
+      expect(screen.queryByText(label)).toBeNull();
+    }
 
-    const indent = screen.getByLabelText(/^Indent/) as HTMLInputElement;
-    expect(indent).toHaveProperty("min", "16");
-    expect(indent).toHaveProperty("max", "72");
-    expect(indent).toHaveProperty("value", "46");
-    const rowGap = screen.getByLabelText(/^Row gap/) as HTMLInputElement;
-    expect(rowGap).toHaveProperty("min", "0");
-    expect(rowGap).toHaveProperty("max", "24");
-    expect(rowGap).toHaveProperty("value", "12");
-    // The strength knobs are unitless percentages, not lengths.
-    const chipTint = screen.getByLabelText(/Chip tint strength/) as HTMLInputElement;
-    expect(chipTint).toHaveProperty("max", "100");
-    expect(chipTint).toHaveProperty("value", "10");
-    const arrowGap = screen.getByLabelText(/Arrow gap/) as HTMLInputElement;
-    expect(arrowGap).toHaveProperty("min", "0");
-    expect(arrowGap).toHaveProperty("max", "16");
-    expect(arrowGap).toHaveProperty("value", "2");
-    const lineHeight = screen.getByLabelText(/Line height/) as HTMLInputElement;
-    expect(lineHeight).toHaveProperty("min", "16");
-    expect(lineHeight).toHaveProperty("max", "40");
-    expect(lineHeight).toHaveProperty("value", "22");
-    const textSize = screen.getByLabelText(/^Text size/) as HTMLInputElement;
-    expect(textSize).toHaveProperty("min", "12");
-    expect(textSize).toHaveProperty("max", "18");
-    expect(textSize).toHaveProperty("value", "12.5");
-    const noteTextSize = screen.getByLabelText(/Note text size/) as HTMLInputElement;
-    expect(noteTextSize).toHaveProperty("min", "12");
-    expect(noteTextSize).toHaveProperty("max", "18");
-    expect(noteTextSize).toHaveProperty("value", "12");
-    const arrowSize = screen.getByLabelText(/Arrow size/) as HTMLInputElement;
-    expect(arrowSize).toHaveProperty("min", "3");
-    expect(arrowSize).toHaveProperty("max", "12");
-    expect(arrowSize).toHaveProperty("value", "6");
-    const stroke = screen.getByLabelText(/Stroke/) as HTMLInputElement;
-    expect(stroke).toHaveProperty("min", "0.5");
-    expect(stroke).toHaveProperty("max", "4");
-    expect(stroke).toHaveProperty("value", "1.5");
+    // Sliders start at the theme-lab defaults.
+    for (const [pattern, min, max, value] of [
+      [/^Indent/, "16", "72", "24"],
+      [/^Row gap/, "0", "24", "4"],
+      [/Arrow gap/, "0", "16", "4"],
+      [/^Line height/, "16", "40", "24"],
+      [/^Text size/, "12", "18", "13.5"],
+      [/Note text size/, "12", "18", "13.5"],
+      [/Arrow size/, "3", "12", "5"],
+      [/Stroke/, "0.5", "4", "1"],
+    ] as const) {
+      const input = screen.getByLabelText(pattern) as HTMLInputElement;
+      expect([String(pattern), input.min, input.max, input.value]).toEqual([String(pattern), min, max, value]);
+    }
   });
 });
 
@@ -4627,7 +4273,7 @@ describe("style rail canvas tokens", () => {
 
 describe("style rail rich-text block tokens", () => {
   /**
-   * The eight rich-text block types: paragraph, heading, list-item, quote,
+   * The seven rich-text block types: paragraph, heading, list-item,
    * callout, divider, image, video. One table drives every assertion, so a
    * new knob has to land here with its var, range and default — and then
    * prove it is declared, wired and labelled.
@@ -4668,10 +4314,10 @@ describe("style rail rich-text block tokens", () => {
         min: 9,
         max: 20,
         step: 0.5,
-        defaultValue: 12,
+        defaultValue: 13.5,
       },
-      captionGap: { cssVar: `${prefix}-caption-gap`, min: 0, max: 24, step: 1, defaultValue: 4 },
-      margin: { cssVar: `${prefix}-margin`, min: 0, max: 64, step: 1, defaultValue: 16 },
+      captionGap: { cssVar: `${prefix}-caption-gap`, min: 0, max: 24, step: 1, defaultValue: 8 },
+      margin: { cssVar: `${prefix}-margin`, min: 0, max: 64, step: 1, defaultValue: 24 },
     },
     numbers: {},
   });
@@ -4686,8 +4332,7 @@ describe("style rail rich-text block tokens", () => {
           min: 0,
           max: 3,
           step: 0.05,
-          defaultValue: 1.1428571,
-          fallback: "0.6666667",
+          defaultValue: 1,
         },
       },
     },
@@ -4695,7 +4340,7 @@ describe("style rail rich-text block tokens", () => {
       pane: "Heading",
       colors: { fg: "--docs-heading-fg" },
       lengths: {
-        marginTop: { cssVar: "--docs-heading-margin-top", min: 0, max: 72, step: 1, defaultValue: 24 },
+        marginTop: { cssVar: "--docs-heading-margin-top", min: 0, max: 72, step: 1, defaultValue: 40 },
         marginBottom: {
           cssVar: "--docs-heading-margin-bottom",
           min: 0,
@@ -4706,30 +4351,9 @@ describe("style rail rich-text block tokens", () => {
       },
       numbers: {
         weight: { cssVar: "--docs-heading-weight", min: 300, max: 900, step: 50, defaultValue: 600 },
-        h1Size: {
-          cssVar: "--docs-heading-h1-size",
-          min: 1,
-          max: 4,
-          step: 0.05,
-          defaultValue: 2.1428571,
-          fallback: "2",
-        },
-        h2Size: {
-          cssVar: "--docs-heading-h2-size",
-          min: 1,
-          max: 3,
-          step: 0.05,
-          defaultValue: 1.4285714,
-          fallback: "1.5",
-        },
-        h3Size: {
-          cssVar: "--docs-heading-h3-size",
-          min: 1,
-          max: 3,
-          step: 0.05,
-          defaultValue: 1.2857143,
-          fallback: "1.17",
-        },
+        h1Size: { cssVar: "--docs-heading-h1-size", min: 1, max: 4, step: 0.05, defaultValue: 1.875 },
+        h2Size: { cssVar: "--docs-heading-h2-size", min: 1, max: 3, step: 0.05, defaultValue: 1.25 },
+        h3Size: { cssVar: "--docs-heading-h3-size", min: 1, max: 3, step: 0.05, defaultValue: 1 },
       },
     },
     "list-item": {
@@ -4739,38 +4363,6 @@ describe("style rail rich-text block tokens", () => {
         itemGap: { cssVar: "--docs-list-item-gap", min: 0, max: 24, step: 0.5, defaultValue: 4 },
       },
       numbers: {},
-    },
-    quote: {
-      pane: "Quote",
-      colors: { fg: "--docs-quote-fg", border: "--docs-quote-border", bg: "--docs-quote-bg" },
-      lengths: {
-        borderWidth: {
-          cssVar: "--docs-quote-border-width",
-          min: 0,
-          max: 8,
-          step: 0.5,
-          defaultValue: 2,
-        },
-        indent: { cssVar: "--docs-quote-indent", min: 0, max: 48, step: 1, defaultValue: 12 },
-        padY: { cssVar: "--docs-quote-pad-y", min: 0, max: 32, step: 1, defaultValue: 0 },
-      },
-      numbers: {
-        spacing: {
-          cssVar: "--docs-quote-spacing",
-          min: 0,
-          max: 4,
-          step: 0.05,
-          defaultValue: 1.3333333,
-          fallback: "0.8888889",
-        },
-        textScale: {
-          cssVar: "--docs-quote-text-scale",
-          min: 0.75,
-          max: 2,
-          step: 0.05,
-          defaultValue: 1,
-        },
-      },
     },
     callout: {
       pane: "Callout",
@@ -4786,6 +4378,9 @@ describe("style rail rich-text block tokens", () => {
         warningAccent: "--docs-callout-warning-accent",
         warningTint: "--docs-callout-warning-tint",
         warningTitleFg: "--docs-callout-warning-title-fg",
+        riskAccent: "--docs-callout-risk-accent",
+        riskTint: "--docs-callout-risk-tint",
+        riskTitleFg: "--docs-callout-risk-title-fg",
         successAccent: "--docs-callout-success-accent",
         successTint: "--docs-callout-success-tint",
         successTitleFg: "--docs-callout-success-title-fg",
@@ -4822,10 +4417,10 @@ describe("style rail rich-text block tokens", () => {
           min: 10,
           max: 24,
           step: 0.5,
-          defaultValue: 14,
+          defaultValue: 13.5,
         },
-        iconSize: { cssVar: "--docs-callout-icon-size", min: 0, max: 32, step: 1, defaultValue: 16 },
-        margin: { cssVar: "--docs-callout-margin", min: 0, max: 64, step: 1, defaultValue: 16 },
+        iconSize: { cssVar: "--docs-callout-icon-size", min: 0, max: 32, step: 1, defaultValue: 14 },
+        margin: { cssVar: "--docs-callout-margin", min: 0, max: 64, step: 1, defaultValue: 20 },
       },
       numbers: {
         titleWeight: {
@@ -4833,7 +4428,7 @@ describe("style rail rich-text block tokens", () => {
           min: 300,
           max: 900,
           step: 50,
-          defaultValue: 700,
+          defaultValue: 500,
         },
         bodyTextScale: {
           cssVar: "--docs-callout-body-text-scale",
@@ -4851,34 +4446,35 @@ describe("style rail rich-text block tokens", () => {
         thickness: { cssVar: "--docs-divider-thickness", min: 0, max: 8, step: 0.5, defaultValue: 1 },
       },
       numbers: {
-        spacing: {
-          cssVar: "--docs-divider-spacing",
-          min: 0,
-          max: 6,
-          step: 0.05,
-          defaultValue: 2.8571429,
-          fallback: "1.3333333",
-        },
+        spacing: { cssVar: "--docs-divider-spacing", min: 0, max: 6, step: 0.05, defaultValue: 2 },
       },
     },
     image: mediaTokens("Image", "--docs-image"),
     video: mediaTokens("Video", "--docs-video"),
   };
-  /** The approved callout palette: [light, dark] per tone token. */
+  /**
+   * The callout palette: [semantic.css declaration (both theme blocks), the
+   * component's LIGHT literal fallback]. Accents follow the shared tone
+   * roles, the card fill is the panel for every tone, titles are ink.
+   */
   const CALLOUT_PALETTE: Record<string, [string, string]> = {
-    "--docs-callout-fg": ["#30343b", "#e4e7eb"],
-    "--docs-callout-info-accent": ["#1683c7", "#69b9e8"],
-    "--docs-callout-info-tint": ["#f1f5f6", "#323c42"],
-    "--docs-callout-info-title-fg": ["#15384d", "#d9f1ff"],
-    "--docs-callout-decision-accent": ["#7657a4", "#bda4df"],
-    "--docs-callout-decision-tint": ["#f5f3f4", "#383b41"],
-    "--docs-callout-decision-title-fg": ["#3f3158", "#eee5fa"],
-    "--docs-callout-warning-accent": ["#a86608", "#e6b35e"],
-    "--docs-callout-warning-tint": ["#f7f3ed", "#3a3c39"],
-    "--docs-callout-warning-title-fg": ["#553606", "#fae5bb"],
-    "--docs-callout-success-accent": ["#287c55", "#7bc9a2"],
-    "--docs-callout-success-tint": ["#f2f4f1", "#343d3d"],
-    "--docs-callout-success-title-fg": ["#214d39", "#d9f4e5"],
+    "--docs-callout-fg": ["var(--docs-text)", "#2a2a2a"],
+    "--docs-callout-border": ["var(--docs-rule)", "#e6e5e3"],
+    "--docs-callout-info-accent": ["var(--docs-tone-info)", "#0b6e99"],
+    "--docs-callout-info-tint": ["var(--docs-panel)", "#f8f8f7"],
+    "--docs-callout-info-title-fg": ["var(--docs-ink)", "#1f1f1f"],
+    "--docs-callout-decision-accent": ["var(--docs-tone-decision)", "#6940a5"],
+    "--docs-callout-decision-tint": ["var(--docs-panel)", "#f8f8f7"],
+    "--docs-callout-decision-title-fg": ["var(--docs-ink)", "#1f1f1f"],
+    "--docs-callout-warning-accent": ["var(--docs-tone-warning)", "#805f01"],
+    "--docs-callout-warning-tint": ["var(--docs-panel)", "#f8f8f7"],
+    "--docs-callout-warning-title-fg": ["var(--docs-ink)", "#1f1f1f"],
+    "--docs-callout-risk-accent": ["var(--docs-tone-risk)", "#c62121"],
+    "--docs-callout-risk-tint": ["var(--docs-panel)", "#f8f8f7"],
+    "--docs-callout-risk-title-fg": ["var(--docs-ink)", "#1f1f1f"],
+    "--docs-callout-success-accent": ["var(--docs-tone-success)", "#26744f"],
+    "--docs-callout-success-tint": ["var(--docs-panel)", "#f8f8f7"],
+    "--docs-callout-success-title-fg": ["var(--docs-ink)", "#1f1f1f"],
   };
   const LABELS: Record<string, string> = {
     fg: "Text",
@@ -4906,9 +4502,12 @@ describe("style rail rich-text block tokens", () => {
     decisionAccent: "Decision accent",
     decisionTint: "Decision tint",
     decisionTitleFg: "Decision title text",
-    warningAccent: "Warning / risk accent",
-    warningTint: "Warning / risk tint",
-    warningTitleFg: "Warning / risk title text",
+    warningAccent: "Warning accent",
+    warningTint: "Warning tint",
+    warningTitleFg: "Warning title text",
+    riskAccent: "Risk accent",
+    riskTint: "Risk tint",
+    riskTitleFg: "Risk title text",
     successAccent: "Success accent",
     successTint: "Success tint",
     successTitleFg: "Success title text",
@@ -4937,7 +4536,6 @@ describe("style rail rich-text block tokens", () => {
     paragraph: blockClasses,
     heading: blockClasses,
     "list-item": blockClasses + viewerSource("styles/list-markers.css").replaceAll(", ", ","),
-    quote: blockClasses,
     callout: calloutSource.replaceAll(", #", ",#"),
     divider: viewerSource("components/rich-text/divider.tsx"),
     image: viewerSource("components/rich-text/image.tsx"),
@@ -4974,7 +4572,7 @@ describe("style rail rich-text block tokens", () => {
   it("points the callout's border, fill and text knobs at vars the callout reads", () => {
     // Regression: `border` and `fill` used to write the shared
     // --docs-viewer-callout-* palette vars, which the redesigned callout never
-    // read (they tinted the QUOTE instead), and `fg` was re-declared on the
+    // read (they tinted the blockquote instead), and `fg` was re-declared on the
     // callout element, shadowing the rail's root-level override. All three
     // were dead sliders.
     const registered = Object.values(THEME_TOKEN_REGISTRY).flatMap((tokens) =>
@@ -4993,12 +4591,7 @@ describe("style rail rich-text block tokens", () => {
   it("declares every var in both semantic.css blocks at the registry default", () => {
     for (const { colors, lengths, numbers } of Object.values(BLOCKS)) {
       for (const cssVar of Object.values(colors)) {
-        // The callout frame color is deliberately undeclared: unset, the
-        // frame follows each tone's accent.
-        const expected = cssVar === "--docs-callout-border" ? 0 : 2;
-        expect(`${cssVar} ×${occurrences(semanticCss, `  ${cssVar}: `)}`).toBe(
-          `${cssVar} ×${expected}`,
-        );
+        expect(`${cssVar} ×${occurrences(semanticCss, `  ${cssVar}: `)}`).toBe(`${cssVar} ×2`);
       }
       for (const { cssVar, defaultValue, declared } of Object.values(lengths)) {
         const declaration = `  ${cssVar}: ${declared ?? `${defaultValue}px`};`;
@@ -5013,16 +4606,14 @@ describe("style rail rich-text block tokens", () => {
         );
       }
     }
-    // The callout palette is declared per mode, and each literal is the one
-    // the component falls back to when no theme layer is present.
-    for (const [cssVar, [light, dark]] of Object.entries(CALLOUT_PALETTE)) {
-      expect(occurrences(semanticCss, `  ${cssVar}: ${light};`)).toBe(1);
-      expect(occurrences(semanticCss, `  ${cssVar}: ${dark};`)).toBe(1);
-      expect(occurrences(calloutSource, `var(${cssVar}, ${light})`)).toBe(1);
-      expect(occurrences(calloutSource, `var(${cssVar}, ${dark})`)).toBe(1);
+    // The callout palette follows the role tokens in both theme blocks (the
+    // roles carry the light / dark values), and the component falls back to
+    // the light literal when no theme layer is present.
+    for (const [cssVar, [declared, light]] of Object.entries(CALLOUT_PALETTE)) {
+      expect(`${cssVar} ×${occurrences(semanticCss, `  ${cssVar}: ${declared};`)}`).toBe(`${cssVar} ×2`);
+      expect(`${cssVar} ×${occurrences(calloutSource, `var(${cssVar}, ${light})`)}`).toBe(`${cssVar} ×1`);
     }
-    expect(occurrences(semanticCss, "  --docs-quote-bg: var(--docs-viewer-callout-fill);")).toBe(2);
-    expect(occurrences(semanticCss, "  --docs-list-item-fg: var(--docs-viewer-text-body);")).toBe(2);
+    expect(occurrences(semanticCss, "  --docs-list-item-fg: var(--docs-text);")).toBe(2);
   });
 
   it("wires every var into its consumer with a literal fallback", () => {
@@ -5075,7 +4666,14 @@ describe("style rail rich-text block tokens", () => {
     expect(absent(CONSUMERS.divider, ["my-6"])).toEqual([]);
     for (const source of [CONSUMERS.image, CONSUMERS.video]) {
       expect(
-        absent(source, ["not-prose my-4", "mt-1 text-xs", "rounded-md border border-["]),
+        absent(source, [
+          "not-prose my-4",
+          "mt-1 text-xs",
+          "rounded-md border border-[",
+          // The panel frame is the one hairline: no knob falls back to the
+          // shadcn border alias any more.
+          ",var(--border))",
+        ]),
       ).toEqual([]);
     }
     expect(
@@ -5093,9 +4691,6 @@ describe("style rail rich-text block tokens", () => {
   it("keeps the workbench's unlayered prose rules on the same tokens", () => {
     // index.css rules sit outside every cascade layer, so they beat the
     // block utilities: a property they set must read the block's token.
-    expect(indexCss).toContain("background: var(--docs-quote-bg);");
-    expect(indexCss).toContain("border-color: var(--docs-quote-border);");
-    expect(indexCss).toContain("color: var(--docs-quote-fg);");
     expect(indexCss).not.toContain("background: var(--docs-viewer-callout-fill)");
     expect(indexCss).toContain("color: var(--docs-paragraph-fg);");
     expect(indexCss).toContain("color: var(--docs-heading-fg);");
@@ -5104,7 +4699,7 @@ describe("style rail rich-text block tokens", () => {
     // Typography's `h2 + *` margin reset, restated for the edit surface now
     // that the blocks' margin-top utilities out-order it.
     expect(indexCss).toContain(
-      ".docs-editor-prosemirror :where(h2, h3, h4) + :where(p, blockquote, li) {\n  margin-top: 0;\n}",
+      ".docs-editor-prosemirror :where(h2, h3, h4) + :where(p, li) {\n  margin-top: 0;\n}",
     );
   });
 
@@ -5115,7 +4710,6 @@ describe("style rail rich-text block tokens", () => {
     // callout are exempt from Typography, so `my-[…]` is fine there.
     for (const cssVar of [
       "--docs-paragraph-spacing",
-      "--docs-quote-spacing",
       "--docs-list-item-gap",
       "--docs-heading-margin-top",
       "--docs-heading-margin-bottom",
@@ -5123,30 +4717,27 @@ describe("style rail rich-text block tokens", () => {
       expect(blockClasses).not.toMatch(new RegExp(`my-\\[[^\\]]*${cssVar}`));
     }
     expect(CONSUMERS.divider).not.toMatch(/my-\[[^\]]*--docs-divider-spacing/);
-    expect(blockClasses).toContain("mt-[calc(var(--docs-paragraph-spacing,0.6666667)*1em)]");
-    expect(blockClasses).toContain("mb-[calc(var(--docs-paragraph-spacing,0.6666667)*1em)]");
-    expect(blockClasses).toContain("mt-[calc(var(--docs-quote-spacing,0.8888889)*1em)]");
-    expect(blockClasses).toContain("mb-[calc(var(--docs-quote-spacing,0.8888889)*1em)]");
+    expect(blockClasses).toContain("mt-[calc(var(--docs-paragraph-spacing,1)*1em)]");
+    expect(blockClasses).toContain("mb-[calc(var(--docs-paragraph-spacing,1)*1em)]");
     expect(blockClasses).toContain("mt-[var(--docs-list-item-gap,4px)]");
     expect(blockClasses).toContain("mb-[var(--docs-list-item-gap,4px)]");
-    expect(CONSUMERS.divider).toContain("mt-[calc(var(--docs-divider-spacing,1.3333333)*1em)]");
-    expect(CONSUMERS.divider).toContain("mb-[calc(var(--docs-divider-spacing,1.3333333)*1em)]");
+    expect(CONSUMERS.divider).toContain("mt-[calc(var(--docs-divider-spacing,2)*1em)]");
+    expect(CONSUMERS.divider).toContain("mb-[calc(var(--docs-divider-spacing,2)*1em)]");
   });
 
   it("normalizes and applies rich-text overrides onto their CSS vars", () => {
     const settings = normalizeSettings({
       components: {
         paragraph: { fg: "#AABBCC", spacing: "2", unknown: "1" },
-        heading: { weight: 800, marginTop: "40px", h1Size: "3", h2Size: "99" },
+        heading: { weight: 800, marginTop: "48px", h1Size: "3", h2Size: "99" },
         "list-item": { fg: "#112233", itemGap: "10px" },
-        quote: { bg: "#445566", borderWidth: "4px", indent: "20px", textScale: "1.5" },
         callout: {
           border: "#010203",
           infoTint: "#040506",
           fg: "#070809",
           warningAccent: "#0A0B0C",
           radius: "12px",
-          titleWeight: "500",
+          titleWeight: "600",
           bodyTextScale: "0.8",
         },
         divider: { thickness: "3px", spacing: "1.5" },
@@ -5158,16 +4749,15 @@ describe("style rail rich-text block tokens", () => {
     expect(settings.components).toEqual({
       paragraph: { fg: "#aabbcc", spacing: "2" },
       // h2Size 99 is out of range and dropped.
-      heading: { weight: "800", marginTop: "40px", h1Size: "3" },
+      heading: { weight: "800", marginTop: "48px", h1Size: "3" },
       "list-item": { fg: "#112233", itemGap: "10px" },
-      quote: { bg: "#445566", borderWidth: "4px", indent: "20px", textScale: "1.5" },
       callout: {
         border: "#010203",
         infoTint: "#040506",
         fg: "#070809",
         warningAccent: "#0a0b0c",
         radius: "12px",
-        titleWeight: "500",
+        titleWeight: "600",
         bodyTextScale: "0.8",
       },
       divider: { thickness: "3px", spacing: "1.5" },
@@ -5178,20 +4768,16 @@ describe("style rail rich-text block tokens", () => {
       "--docs-paragraph-fg": "#aabbcc",
       "--docs-paragraph-spacing": "2",
       "--docs-heading-weight": "800",
-      "--docs-heading-margin-top": "40px",
+      "--docs-heading-margin-top": "48px",
       "--docs-heading-h1-size": "3",
       "--docs-list-item-fg": "#112233",
       "--docs-list-item-gap": "10px",
-      "--docs-quote-bg": "#445566",
-      "--docs-quote-border-width": "4px",
-      "--docs-quote-indent": "20px",
-      "--docs-quote-text-scale": "1.5",
       "--docs-callout-border": "#010203",
       "--docs-callout-info-tint": "#040506",
       "--docs-callout-fg": "#070809",
       "--docs-callout-warning-accent": "#0a0b0c",
       "--docs-callout-radius": "12px",
-      "--docs-callout-title-weight": "500",
+      "--docs-callout-title-weight": "600",
       "--docs-callout-body-text-scale": "0.8",
       "--docs-divider-thickness": "3px",
       "--docs-divider-spacing": "1.5",
@@ -5264,20 +4850,20 @@ describe("style rail rich-text block tokens", () => {
 
   it("stores a moved rich-text slider with its unit and counts it on the block's pane", () => {
     render(<RailHarness />);
-    openPane("Quote");
+    openPane("Divider");
     const slider = (label: string) =>
       screen
         .getAllByText(label)
         .map((node) => node.closest("label")?.querySelector('input[type="range"]'))
         .find((input): input is HTMLInputElement => Boolean(input)) as HTMLInputElement;
 
-    fireEvent.change(slider("Border width"), { target: { value: "4" } });
-    fireEvent.change(slider("Spacing (em)"), { target: { value: "2" } });
+    fireEvent.change(slider("Thickness"), { target: { value: "4" } });
+    fireEvent.change(slider("Spacing (em)"), { target: { value: "3" } });
 
     expect(JSON.parse(screen.getByTestId("component-settings").textContent ?? "null")).toEqual({
-      quote: { borderWidth: "4px", spacing: "2" },
+      divider: { thickness: "4px", spacing: "3" },
     });
-    expect(screen.getByRole("button", { name: "Quote, 2 overrides" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Divider, 2 overrides" })).toBeTruthy();
   });
 });
 

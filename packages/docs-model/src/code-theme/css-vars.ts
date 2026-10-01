@@ -7,8 +7,12 @@
 
 import { CODE_THEME_ROLES, type CodeTheme, type CodeThemeColorKey } from "./code-theme";
 
-/** Panel color -> CSS var. */
-export const CODE_THEME_COLOR_VARS: Record<CodeThemeColorKey, string> = {
+/**
+ * Panel color -> CSS var. `zebra` is deliberately absent: code blocks never
+ * stripe (stripes make code harder to read), so a theme's zebra color is
+ * kept in the file format but never compiled to CSS.
+ */
+export const CODE_THEME_COLOR_VARS: Record<Exclude<CodeThemeColorKey, "zebra">, string> = {
   background: "--docs-code-block-bg",
   foreground: "--docs-code-fg",
   gutterForeground: "--docs-code-gutter-fg",
@@ -17,7 +21,6 @@ export const CODE_THEME_COLOR_VARS: Record<CodeThemeColorKey, string> = {
   selection: "--docs-code-selection",
   headerForeground: "--docs-code-header-fg",
   langForeground: "--docs-code-lang-fg",
-  zebra: "--docs-code-zebra",
   rule: "--docs-code-rule",
 };
 
@@ -33,7 +36,7 @@ export function codeThemeCssVars(theme: CodeTheme): Record<string, string> {
   for (const role of CODE_THEME_ROLES) {
     vars[`--syntax-${role}`] = theme.roles[role];
   }
-  for (const [key, cssVar] of Object.entries(CODE_THEME_COLOR_VARS) as [CodeThemeColorKey, string][]) {
+  for (const [key, cssVar] of Object.entries(CODE_THEME_COLOR_VARS) as [Exclude<CodeThemeColorKey, "zebra">, string][]) {
     vars[cssVar] = theme.colors[key];
   }
   for (const role of CODE_THEME_ROLES) {

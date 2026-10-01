@@ -1,3 +1,4 @@
+@layer theme, base, components, utilities;
 @import "../../docs-workbench/node_modules/tailwindcss/theme.css";
 @import "../../docs-workbench/node_modules/tailwindcss/utilities.css" source(none);
 @import "../../docs-workbench/web/src/pages/sequence-embed.css";
@@ -23,6 +24,11 @@
 }
 :root {--background:var(--color-bg-default,#fff);--foreground:var(--color-text-default,#222);--muted:var(--color-bg-sidebar,#eee);--muted-foreground:var(--site-muted,#666);--border:var(--site-rule,#ccc);--primary:var(--color-text-navigation,#2563eb);}
 .docs-article img {max-width:100%;height:auto;}
+/* Docs blocks are styled for a Tailwind preflight that this sheet does not ship.
+   Reset the one browser default they visibly depend on: figure's 40px side
+   margins, which push image and video blocks off the text's left edge. Kept in
+   the base layer so block utilities (my-*, mx-*) still win. */
+@layer base {.docs-article :where(figure) {margin-inline:0;}}
 .docs-article pre {overflow:auto;}
 
 .docs-article [data-docs-diagram] {position:relative;margin:2rem 0;border:1px solid var(--border);border-radius:8px;overflow:hidden;}

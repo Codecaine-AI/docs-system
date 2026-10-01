@@ -111,6 +111,8 @@
   .docs-draft-editor :where(button:disabled) { cursor: default; }
   .docs-draft-editor :where(svg, img, video, canvas) { vertical-align: middle; }
   .docs-draft-editor :where(img, video) { max-width: 100%; height: auto; }
+  /* Figure side margins (UA 40px) would push image and video blocks off the text edge. */
+  .docs-draft-editor :where(figure) { margin-inline: 0; }
 }
 
 /* ProseMirror basics (the prosemirror-view stylesheet TipTap normally injects). */
@@ -130,7 +132,7 @@
 @property --style-editor-text-lane { syntax: "<length>"; inherits: true; initial-value: 100000px; }
 .docs-draft-editor .docs-editor-prosemirror { --style-editor-text-lane: var(--style-content-width, 60ch); }
 .docs-draft-editor .docs-editor-prosemirror > *:not([data-doc-lane]):not(:has([data-doc-lane])) { max-width: var(--style-editor-text-lane); }
-.docs-draft-editor .docs-editor-prosemirror :where(h2, h3, h4) + :where(p, blockquote, li) { margin-top: 0; }
+.docs-draft-editor .docs-editor-prosemirror :where(h2, h3, h4) + :where(p, li) { margin-top: 0; }
 
 /* Selection, drag and drop affordances. */
 .docs-draft-editor .docs-editor-prosemirror .ProseMirror-selectednode,

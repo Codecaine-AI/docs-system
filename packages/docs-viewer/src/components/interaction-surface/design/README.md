@@ -1,15 +1,16 @@
 # Interaction Surface Approval
 
-The user approved the current design on September 15, 2026. The canonical component reference is `docs/10-system-design/40-block-vocabulary/60-interaction-surface`, mirrored into the codecaine-docs skill references.
+The user approved the current design on September 15, 2026. The canonical component reference is `docs/10-system-design/40-block-vocabulary/40-structured-reference/20-interaction-surface`, mirrored into the codecaine-docs skill references.
 
 ## Reuse
 
 - Share State Shape typography, content colors, chips, mini headers, spacing, and thin separators. State Shape's blue identity remains specific to State Shape.
 - Keep operations as individual cards, with Field and Type left, Signature right, and returned objects below inputs. Known objects show recursive fields and a concrete JSON example.
-- Action headers are amber, Query green-teal, and Event violet. Each card has an explicit kind badge, restrained curved texture, and a softer matching return header.
+- Action headers are amber, Query green-teal, and Event violet. Each card has a kind icon whose tooltip names the kind, restrained curved texture, and a softer matching return header.
 - Describe constraints, defaults, null semantics, side effects, and ownership when they add information. Omit descriptions that restate names or types.
 - Parameter and returned-field descriptions render as the State Shape description tooltip (dotted underline, 450 ms hover dwell or keyboard focus, inline in print). The operation purpose paragraph stays inline in the card header. Approved 2026-09-24.
 - Ground examples in actual source. A callback event payload is separate from a subscription's unsubscribe return value.
+- Operation cards are native disclosures, collapsed by default. The summary row holds a chevron, a kind icon (`Zap` for Action, `Search` for Query, `Radio` for Event), and the name. The kind badge and the param count were dropped from the row; the icon's tooltip names the kind. The purpose shows when the card is open. Requested 2026-09-30.
 
 ## Decision Authority
 

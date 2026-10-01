@@ -1,12 +1,12 @@
 # canvas
 
-Generated from Codecaine Docs sources. Snapshot: `sha256:8861c4126d96a4fe05b112560004f112939f8bd23bcfa3b72fb78f29bf846861`. Refresh the installation to regenerate these files.
+Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872daf2950bc392aeeae845c9eb67ff4956ad352fb08`. Refresh the installation to regenerate these files.
 
 Use Canvas for system connections, ownership boundaries, and dependencies. Use Sequence for individual calls and waits.
 
 Example: Map the external client, shared docs service, and project corpora, labeling the read and write connections.
 
-Canonical document: `10-system-design/40-block-vocabulary/80-canvas`.
+Canonical document: `10-system-design/40-block-vocabulary/50-flow-and-diagrams/50-canvas`.
 
 The spatial-canvas family of the Block vocabulary. It owns one type, `canvas`. The block itself is only a reference. The canvas document, its objects, and its schema live in the external canvas system (external/canvas, the vendored sibling project); the doc block points at one canvas and optionally crops it to a named view.
 

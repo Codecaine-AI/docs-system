@@ -1,4 +1,5 @@
-import { describe, expect, it } from "bun:test";
+import { afterAll, afterEach, beforeAll, describe, expect, it } from "bun:test";
+import { cleanup, fireEvent, render } from "@testing-library/react";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import {
@@ -58,42 +59,63 @@ describe("parseVideoEmbed — provider URL parsing", () => {
   });
 });
 
-describe("VideoBlock — url embeds (provider iframes)", () => {
-  it("renders a youtube-nocookie iframe for a youtube.com/watch url", () => {
+describe("VideoBlock — provider urls (link card, player on request)", () => {
+  // happy-dom would otherwise fetch the provider page into the swapped iframe.
+  const dom = (window as unknown as { happyDOM?: { settings: { disableIframePageLoading: boolean } } }).happyDOM;
+  beforeAll(() => { if (dom) dom.settings.disableIframePageLoading = true; });
+  afterAll(() => { if (dom) dom.settings.disableIframePageLoading = false; });
+  afterEach(cleanup);
+
+  it("renders a provider url as a link card until the reader asks for the player", () => {
     const html = renderVideo({
       url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
       title: "Docs walkthrough",
     });
-    expect(html).toContain("<iframe");
-    expect(html).toContain('src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"');
-    expect(html).toContain('title="Docs walkthrough"');
-    expect(html.toLowerCase()).toContain("allowfullscreen");
+    // Static pages (no hydration) keep a plain link: nothing third-party loads.
+    expect(html).not.toContain("<iframe");
+    expect(html).toContain('data-video-link-card="true"');
+    expect(html).toContain('data-video-provider="youtube"');
+    expect(html).toContain('href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"');
+    expect(html).toContain('rel="noopener noreferrer"');
+    expect(html).toContain("Docs walkthrough");
+    expect(html).toContain(">Watch<");
+    // The head names the provider; the full URL stays readable on the card.
+    expect(html).toContain(">youtube<");
+    expect(html).toContain('title="https://www.youtube.com/watch?v=dQw4w9WgXcQ"');
+  });
+
+  it("swaps the card for the youtube-nocookie player on click", () => {
+    const { container, getByRole } = render(
+      createElement(VideoBlock, {
+        id: "video-1",
+        url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        title: "Docs walkthrough",
+        caption: "An external video.",
+      }),
+    );
+    fireEvent.click(getByRole("link"));
+    const frame = container.querySelector("iframe")!;
+    expect(frame.getAttribute("src")).toBe("https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ");
+    expect(frame.getAttribute("title")).toBe("Docs walkthrough");
+    expect(frame.hasAttribute("allowfullscreen")).toBe(true);
     // "origin" keeps the bare Referer header YouTube requires (a no-referrer
     // embed gets Error 153) while still hiding the doc's path/query.
-    expect(html.toLowerCase()).toContain('referrerpolicy="origin"');
-    expect(html).toContain('loading="lazy"');
-    expect(html).toContain('data-video-provider="youtube"');
-    // 16:9 media surface.
-    expect(html).toContain("aspect-video");
+    expect(frame.getAttribute("referrerpolicy")).toBe("origin");
+    expect(frame.getAttribute("loading")).toBe("lazy");
+    expect(frame.getAttribute("data-video-provider")).toBe("youtube");
+    // 16:9 media surface; the caption moves below the panel.
+    expect(frame.parentElement?.className).toContain("aspect-video");
+    expect(container.querySelector("[data-video-link-card]")).toBeNull();
+    expect(container.querySelector("figcaption")?.textContent).toBe("An external video.");
+    expect(document.activeElement).toBe(frame);
   });
 
-  it("renders the same nocookie embed for youtu.be and shorts forms", () => {
-    for (const url of [
-      "https://youtu.be/dQw4w9WgXcQ",
-      "https://www.youtube.com/shorts/dQw4w9WgXcQ",
-    ]) {
-      const html = renderVideo({ url });
-      expect(html).toContain('src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"');
-    }
-  });
-
-  it("renders vimeo and loom embeds through their player hosts", () => {
-    expect(renderVideo({ url: "https://vimeo.com/76979871" })).toContain(
-      'src="https://player.vimeo.com/video/76979871"',
+  it("keeps a modified click as a plain link", () => {
+    const { container, getByRole } = render(
+      createElement(VideoBlock, { id: "video-1", url: "https://vimeo.com/76979871" }),
     );
-    expect(
-      renderVideo({ url: "https://www.loom.com/share/0281766fa2d04bb788eaf19e65135184" }),
-    ).toContain('src="https://www.loom.com/embed/0281766fa2d04bb788eaf19e65135184"');
+    fireEvent.click(getByRole("link"), { metaKey: true });
+    expect(container.querySelector("iframe")).toBeNull();
   });
 
   it("url wins over src when both are set", () => {
@@ -101,7 +123,7 @@ describe("VideoBlock — url embeds (provider iframes)", () => {
       url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
       src: "./assets/videos/demo.mp4",
     });
-    expect(html).toContain("<iframe");
+    expect(html).toContain('data-video-link-card="true"');
     expect(html).not.toContain("<video");
   });
 });
@@ -122,8 +144,19 @@ describe("VideoBlock — unknown urls (link card, never an iframe)", () => {
     expect(html).toContain("https://example.com/talks/demo.mp4");
   });
 
-  it("falls back to a generic card title when title is absent", () => {
-    expect(renderVideo({ url: "https://example.com/demo" })).toContain("External video");
+  it("falls back to the block label as the title and names the host", () => {
+    const html = renderVideo({ url: "https://www.example.com/demo" });
+    expect(html).toContain(">Video<");
+    expect(html).toContain(">example.com<");
+  });
+
+  it("never swaps an unknown url for a player", () => {
+    const { container, getByRole } = render(
+      createElement(VideoBlock, { id: "video-1", url: "https://example.com/talks/demo.mp4" }),
+    );
+    fireEvent.click(getByRole("link"));
+    expect(container.querySelector("iframe")).toBeNull();
+    cleanup();
   });
 });
 
@@ -156,13 +189,17 @@ describe("VideoBlock — framing", () => {
     expect(html).not.toContain("<video");
   });
 
-  it("renders a muted figcaption line when caption is present", () => {
-    const html = renderVideo({
+  it("puts a url's caption on the card and a src video's caption below the panel", () => {
+    const card = renderVideo({
       url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
       caption: "An external video.",
     });
-    expect(html).toContain("<figcaption");
-    expect(html).toContain("An external video.");
+    expect(card).not.toContain("<figcaption");
+    expect(card).toContain("An external video.");
+    const native = renderVideo({ src: "./assets/videos/demo.mp4", caption: "A recording." });
+    expect(native).toMatch(/<figcaption[^>]*>A recording\.<\/figcaption><\/figure>$/);
+    // The head names the file.
+    expect(native).toContain(">demo.mp4<");
   });
 
   it("carries the docs-block data attributes on the figure", () => {

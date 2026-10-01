@@ -18,6 +18,7 @@ import {
 import { renderDeltaSpans } from "./delta-spans";
 import { resolveBundleCanvasSrc, resolveBundleSequenceSrc } from "./bundle-src";
 import { rehypeHljsRoles } from "../components/code/highlight";
+import { rehypeInlineCodeChips } from "./rehype-inline-code-chips";
 
 // Re-exported beside the renderer so hosts already importing this module
 // (`@codecaine-ai/docs-viewer/doc-block-renderer` — the exports-map keys are
@@ -91,8 +92,10 @@ const MARKDOWN_COMPONENTS: Components = {
  * rehype-highlight tokenizes fenced code; rehypeHljsRoles then adds the
  * same role classes (hljs-control / hljs-type / hljs-null) the `code` block
  * gets from highlight.ts, so fenced code colors identically.
+ * rehypeInlineCodeChips gives inline code the same typed chip delta-span
+ * code wears (callout bodies render through here).
  */
-const MARKDOWN_REHYPE_PLUGINS = [rehypeHighlight, rehypeHljsRoles];
+const MARKDOWN_REHYPE_PLUGINS = [rehypeHighlight, rehypeHljsRoles, rehypeInlineCodeChips];
 
 function MarkdownContent({ content }: { content: string }) {
   return (

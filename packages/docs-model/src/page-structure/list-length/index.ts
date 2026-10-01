@@ -13,7 +13,6 @@ export const listLengthRule: LintRule = {
   applicability:
     "Runs of sibling list items, and sibling Process Outline steps, over six items",
   exclusions: [
-    "Lists inside quote blocks",
     "Process Outline clarification notes, which are not steps",
   ],
   suggestion:

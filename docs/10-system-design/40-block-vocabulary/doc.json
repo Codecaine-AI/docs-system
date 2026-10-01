@@ -16,15 +16,12 @@
         "b-vocab-ov-types-h",
         "b-vocab-ov-types-table",
         "b-vocab-ov-fam-h",
-        "b-vocab-ov-fam-rich",
-        "b-vocab-ov-fam-code",
-        "b-vocab-ov-fam-table",
-        "b-vocab-ov-fam-tree",
-        "b-vocab-ov-fam-state",
-        "b-vocab-ov-fam-surface",
-        "b-vocab-ov-fam-sequence",
-        "b-vocab-ov-fam-canvas",
-        "b-vocab-ov-fam-process-outline",
+        "b-vocab-ov-grp-lead",
+        "b-vocab-ov-grp-text",
+        "b-vocab-ov-grp-code",
+        "b-vocab-ov-grp-trees",
+        "b-vocab-ov-grp-ref",
+        "b-vocab-ov-grp-flow",
         "b-vocab-ov-skel-h",
         "b-vocab-ov-skel-intro",
         "b-vocab-ov-skel-opener",
@@ -38,7 +35,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Every block type defines two forms of itself: a rich component in the workbench and a deterministic, greppable markdown form on the agent surface. The vocabulary is the set of eighteen types both renders speak, grouped into nine component families. These pages are the per-family reference."
+          "insert": "Every block type defines two forms of itself: a rich component in the workbench and a deterministic, greppable markdown form on the agent surface. The vocabulary is the set of twenty-three types both renders speak. Fifteen component families own those types, and their reference pages sit in five groups."
         }
       ],
       "children": []
@@ -48,7 +45,7 @@
       "type": "callout",
       "props": {
         "kind": "Decision",
-        "title": "Eighteen Registered Types",
+        "title": "Twenty-Three Registered Types",
         "tone": "decision"
       },
       "text": [
@@ -75,7 +72,7 @@
           }
         },
         {
-          "insert": ": exactly eighteen type strings. A small vocabulary keeps the render stable, the editor learnable, and the agent edit surface enumerable."
+          "insert": ", which lists exactly twenty-three type strings. A small vocabulary keeps the render stable, the editor learnable, and the agent edit surface enumerable."
         }
       ],
       "children": []
@@ -93,11 +90,11 @@
     },
     "b-vocab-ov-doctrine": {
       "id": "b-vocab-ov-doctrine",
-      "type": "quote",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "A state-shape block carries the shape of state and an example instance side by side; an interaction-surface block lists the operations that change or query it; annotated code blocks hold the source evidence."
+          "insert": "A state-shape block carries the shape of state and an example instance side by side. An interaction-surface block lists the operations that change or query it. Annotated code blocks hold the source evidence."
         }
       ],
       "children": []
@@ -110,7 +107,7 @@
       },
       "text": [
         {
-          "insert": "The Eighteen Types"
+          "insert": "The Twenty-Three Types"
         }
       ],
       "children": []
@@ -128,22 +125,17 @@
           [
             "paragraph",
             "rich-text",
-            "Rich text prose (delta spans); the default block."
+            "Rich text prose (delta spans). The default block."
           ],
           [
             "heading",
             "rich-text",
-            "Section heading; props.level picks h1-h6 (default 2)."
+            "Section heading. props.level picks h1-h6 (default 2)."
           ],
           [
             "list-item",
             "rich-text",
-            "Bullet (or ordered) item; nesting via child list-item blocks."
-          ],
-          [
-            "quote",
-            "rich-text",
-            "A block quote of rich text."
+            "Bullet (or ordered) item. Nesting via child list-item blocks."
           ],
           [
             "callout",
@@ -158,7 +150,7 @@
           [
             "image",
             "rich-text",
-            "Image from the bundle's assets/images/; props: src, alt, caption."
+            "Image from the bundle's assets/images/. Props: src, alt, caption."
           ],
           [
             "image-grid",
@@ -168,17 +160,22 @@
           [
             "video",
             "rich-text",
-            "Bundle video (src) or external URL (url); YouTube/Vimeo/Loom embed privacy-friendly players."
+            "Bundle video (src) or external URL (url). YouTube/Vimeo/Loom embed privacy-friendly players."
           ],
           [
             "html",
             "rich-text",
-            "Self-contained HTML/CSS artifact in an opaque-origin sandbox; optional inline scripts."
+            "Self-contained HTML/CSS artifact in an opaque-origin sandbox. Optional inline scripts."
           ],
           [
             "code",
             "code",
-            "Source code in text; props.language plus optional props.annotations side notes."
+            "Source code in text. props.language plus optional props.annotations side notes."
+          ],
+          [
+            "pseudocode",
+            "pseudocode",
+            "Algorithm sketch in text. Keywords and calls highlight, and optional props.diff reads leading +/- markers."
           ],
           [
             "structured-table",
@@ -191,9 +188,14 @@
             "Rendered tree of props.entries: { path, note?, change?, from? }."
           ],
           [
+            "file-explorer",
+            "file-explorer",
+            "Editor-sidebar rows of props.entries with change badges, plus optional props.title and props.maxRows."
+          ],
+          [
             "state-shape",
             "state-shape",
-            "Recursive field tree ({ name, type?, required?, description?, fields? }) describing the shape of a structure's state; optional source link."
+            "Recursive field tree ({ name, type?, required?, description?, fields? }) describing the shape of a structure's state. Optional source link."
           ],
           [
             "interaction-surface",
@@ -203,17 +205,37 @@
           [
             "sequence",
             "sequence",
-            "UML-style sequence diagram; props.src (or sequenceId) points at a SequenceDocument, optional props.title."
+            "UML-style sequence diagram. props.src (or sequenceId) points at a SequenceDocument, optional props.title."
           ],
           [
             "canvas",
             "canvas",
-            "Embedded interactive canvas; props.canvasId (or legacy src) plus an optional view crop."
+            "Embedded interactive canvas. props.canvasId (or legacy src) plus an optional view crop."
           ],
           [
             "process-outline",
             "process-outline",
-            "Ordered process outline; props.steps holds the recursive step tree with optional clarification-note leaves."
+            "Ordered process outline. props.steps holds the recursive step tree with optional clarification-note leaves."
+          ],
+          [
+            "stack",
+            "stack",
+            "Boundary stack of nested named layers. props.nodes holds the layer tree with uses arrows, and optional props.boundaries name the rule enforced between layers."
+          ],
+          [
+            "call-stack",
+            "call-stack",
+            "One code path frame by frame. props.frames holds call and branch rows with comment, change, and path:line source."
+          ],
+          [
+            "component-tree",
+            "component-tree",
+            "Render tree. props.nodes holds component, hook, and branch rows with comment, change, and path:line source."
+          ],
+          [
+            "flow-strip",
+            "flow-strip",
+            "Short linear loop as a row of cards. props.steps holds { name, detail? }, plus optional props.title and props.caption."
           ]
         ]
       },
@@ -227,173 +249,180 @@
       },
       "text": [
         {
-          "insert": "The Families"
+          "insert": "The Five Groups"
         }
       ],
       "children": []
     },
-    "b-vocab-ov-fam-rich": {
-      "id": "b-vocab-ov-fam-rich",
+    "b-vocab-ov-grp-lead": {
+      "id": "b-vocab-ov-grp-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The family pages sit in five groups. Each group page opens with a table of its block types and links to each family page."
+        }
+      ],
+      "children": []
+    },
+    "b-vocab-ov-grp-text": {
+      "id": "b-vocab-ov-grp-text",
       "type": "list-item",
       "props": {},
       "text": [
         {
-          "insert": "Rich text",
+          "insert": "Text and media",
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "10-system-design/40-block-vocabulary/10-rich-text"
+              "path": "10-system-design/40-block-vocabulary/10-text-and-media"
             }
           }
         }
       ],
       "children": [
-        "b-vocab-ov-fam-rich-types"
+        "b-vocab-ov-grp-text-sub"
       ]
     },
-    "b-vocab-ov-fam-rich-types": {
-      "id": "b-vocab-ov-fam-rich-types",
+    "b-vocab-ov-grp-text-sub": {
+      "id": "b-vocab-ov-grp-text-sub",
       "type": "list-item",
       "props": {},
       "text": [
         {
-          "insert": "paragraph · heading · list-item · quote · callout · divider · image · image-grid · video · html"
+          "insert": "The "
+        },
+        {
+          "insert": "Rich text",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/10-text-and-media/10-rich-text"
+            }
+          }
+        },
+        {
+          "insert": " family owns paragraph, heading, list-item, callout, divider, image, image-grid, video, and html."
         }
       ],
       "children": []
     },
-    "b-vocab-ov-fam-code": {
-      "id": "b-vocab-ov-fam-code",
+    "b-vocab-ov-grp-code": {
+      "id": "b-vocab-ov-grp-code",
       "type": "list-item",
       "props": {},
       "text": [
         {
-          "insert": "code",
+          "insert": "Code",
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "10-system-design/40-block-vocabulary/20-code-block"
+              "path": "10-system-design/40-block-vocabulary/20-code"
             }
           }
         }
       ],
-      "children": []
+      "children": [
+        "b-vocab-ov-grp-code-sub"
+      ]
     },
-    "b-vocab-ov-fam-table": {
-      "id": "b-vocab-ov-fam-table",
+    "b-vocab-ov-grp-code-sub": {
+      "id": "b-vocab-ov-grp-code-sub",
       "type": "list-item",
       "props": {},
       "text": [
         {
-          "insert": "structured-table",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "10-system-design/40-block-vocabulary/30-structured-table"
-            }
-          }
+          "insert": "The code and pseudocode families each own the one type of the same name."
         }
       ],
       "children": []
     },
-    "b-vocab-ov-fam-tree": {
-      "id": "b-vocab-ov-fam-tree",
+    "b-vocab-ov-grp-trees": {
+      "id": "b-vocab-ov-grp-trees",
       "type": "list-item",
       "props": {},
       "text": [
         {
-          "insert": "file-tree",
+          "insert": "Trees and paths",
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "10-system-design/40-block-vocabulary/40-file-tree"
+              "path": "10-system-design/40-block-vocabulary/30-trees-and-paths"
             }
           }
         }
       ],
-      "children": []
+      "children": [
+        "b-vocab-ov-grp-trees-sub"
+      ]
     },
-    "b-vocab-ov-fam-state": {
-      "id": "b-vocab-ov-fam-state",
+    "b-vocab-ov-grp-trees-sub": {
+      "id": "b-vocab-ov-grp-trees-sub",
       "type": "list-item",
       "props": {},
       "text": [
         {
-          "insert": "state-shape",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "10-system-design/40-block-vocabulary/50-state-shape"
-            }
-          }
+          "insert": "The file-tree, file-explorer, call-stack, and component-tree families each own the one type of the same name."
         }
       ],
       "children": []
     },
-    "b-vocab-ov-fam-surface": {
-      "id": "b-vocab-ov-fam-surface",
+    "b-vocab-ov-grp-ref": {
+      "id": "b-vocab-ov-grp-ref",
       "type": "list-item",
       "props": {},
       "text": [
         {
-          "insert": "interaction-surface",
+          "insert": "Structured reference",
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "10-system-design/40-block-vocabulary/60-interaction-surface"
+              "path": "10-system-design/40-block-vocabulary/40-structured-reference"
             }
           }
         }
       ],
-      "children": []
+      "children": [
+        "b-vocab-ov-grp-ref-sub"
+      ]
     },
-    "b-vocab-ov-fam-sequence": {
-      "id": "b-vocab-ov-fam-sequence",
+    "b-vocab-ov-grp-ref-sub": {
+      "id": "b-vocab-ov-grp-ref-sub",
       "type": "list-item",
       "props": {},
       "text": [
         {
-          "insert": "sequence",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "10-system-design/40-block-vocabulary/70-sequence"
-            }
-          }
+          "insert": "The state-shape, interaction-surface, and structured-table families each own the one type of the same name."
         }
       ],
       "children": []
     },
-    "b-vocab-ov-fam-canvas": {
-      "id": "b-vocab-ov-fam-canvas",
+    "b-vocab-ov-grp-flow": {
+      "id": "b-vocab-ov-grp-flow",
       "type": "list-item",
       "props": {},
       "text": [
         {
-          "insert": "canvas",
+          "insert": "Flow and diagrams",
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "10-system-design/40-block-vocabulary/80-canvas"
+              "path": "10-system-design/40-block-vocabulary/50-flow-and-diagrams"
             }
           }
         }
       ],
-      "children": []
+      "children": [
+        "b-vocab-ov-grp-flow-sub"
+      ]
     },
-    "b-vocab-ov-fam-process-outline": {
-      "id": "b-vocab-ov-fam-process-outline",
+    "b-vocab-ov-grp-flow-sub": {
+      "id": "b-vocab-ov-grp-flow-sub",
       "type": "list-item",
       "props": {},
       "text": [
         {
-          "insert": "process-outline",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "10-system-design/40-block-vocabulary/90-process-outline"
-            }
-          }
+          "insert": "The process-outline, flow-strip, stack, sequence, and canvas families each own the one type of the same name."
         }
       ],
       "children": []

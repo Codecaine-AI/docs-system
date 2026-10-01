@@ -15,7 +15,7 @@ import { validateSequenceDocument } from '../../../external/sequence/packages/se
 export { search } from './search';
 export const escapeHtml = (s: unknown) => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]!));
 export type PostInput = { path: string; slug: string; description: string; date: string; tags: string[]; draft?: boolean };
-export type PublishedPost = PostInput & {title: string; url: string; html: string; text: string; diagrams: boolean};
+export type PublishedPost = PostInput & {title: string; url: string; html: string; text: string; diagrams: boolean; viewers: boolean};
 export function confinedFile(root: string, name: string) {
   if (!name || name.includes('\\') || name.startsWith('/') || name.split('/').includes('..') || /[?#:%]/.test(name)) throw new Error(`Unsafe asset/path: ${name}`);
   const base = realpathSync(root), file = realpathSync(resolve(base, name));
@@ -79,7 +79,9 @@ export function publishCollection({root, posts, basePath = '/blog/'}: {root: str
     };
     const html = renderToStaticMarkup(<DocsClientProvider canvasEmbed={diagram('canvas')} sequenceEmbed={diagram('sequence')}><div className="docs-markdown"><Renderer document={document} bundlePath={post.path} resolveAssetSrc={asset}/></div></DocsClientProvider>);
     const text = projectToMarkdown(document).replace(/<!--[^]*?-->/g, ' ').replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/\[([^\]]*)\]\([^)]*\)/g, '$1');
-    result.push({...post, title: document.title, url: `${basePath}${post.slug}/`, html, text, diagrams});
+    // viewers.js opens diagrams and expandable images; hosts load it when either is present.
+    const viewers = diagrams || html.includes('data-docs-image-expand');
+    result.push({...post, title: document.title, url: `${basePath}${post.slug}/`, html, text, diagrams, viewers});
   }
   result.sort((a,b) => b.date.localeCompare(a.date) || a.slug.localeCompare(b.slug));
   return {posts: result, files, searchIndex: result.map(({url,title,description,tags,text}) => ({url,title,description,tags,text}))};

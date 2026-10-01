@@ -27,10 +27,10 @@
   place-items: center;
   width: 28px;
   height: 28px;
-  border: 1px solid var(--border, #d4d4d4);
-  border-radius: 6px;
-  background: var(--background, #ffffff);
-  color: var(--foreground, #222222);
+  border: 1px solid var(--docs-rule, #e6e5e3);
+  border-radius: var(--radius, 2px);
+  background: var(--docs-page, #fdfdfd);
+  color: var(--docs-ink, #1f1f1f);
   opacity: 0;
   transition: opacity 120ms ease-out;
 }
@@ -41,8 +41,14 @@
 }
 
 .docs-image-expand-trigger:focus-visible {
-  outline: 2px solid var(--ring, #3b82f6);
+  outline: 2px solid var(--docs-focus-ring, #0078df);
   outline-offset: 2px;
+}
+
+/* Inside a media panel the image fills the body and the panel clips its
+   overflow, so the ring is drawn just inside the image instead. */
+.docs-media-panel .docs-image-expand-trigger:focus-visible {
+  outline-offset: -2px;
 }
 
 .docs-image-dialog {
@@ -78,7 +84,7 @@
 }
 
 .docs-image-viewport:focus-visible {
-  outline: 2px solid var(--ring, #3b82f6);
+  outline: 2px solid var(--docs-focus-ring, #0078df);
   outline-offset: -2px;
 }
 

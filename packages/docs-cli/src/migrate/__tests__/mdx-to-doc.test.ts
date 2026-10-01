@@ -134,7 +134,7 @@ describe("mdxToDoc — golden sample", () => {
     expect(root.props.format).toBe("mdx");
   });
 
-  it("builds heading, paragraph, list, code, quote, divider blocks in document order", () => {
+  it("builds heading, paragraph, list, code, blockquote-as-paragraph, divider blocks in document order", () => {
     const order = docBlockOrder(doc).filter((id) => id !== doc.root);
     const blockTypes = order.map((id) => doc.blocks[id].type);
     expect(blockTypes).toEqual([
@@ -146,7 +146,7 @@ describe("mdxToDoc — golden sample", () => {
       "list-item", // Nested item (depth-first: nested under Second item)
       "list-item", // Third item
       "code",
-      "quote",
+      "paragraph", // `>` blockquote imports as a plain paragraph
       "divider",
       "callout", // Decision -> callout carrying kind="decision"
       "callout",

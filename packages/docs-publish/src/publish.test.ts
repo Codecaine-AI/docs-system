@@ -55,3 +55,14 @@ test('image grids bundle every image and index headings, captions and alt text',
  fixture({id:'body',type:'image-grid',props:{images:[{src:'../outside.txt'}]},children:[]});
  expect(()=>publishCollection({root,posts:[post]})).toThrow();
 });
+
+test('images publish as expand buttons and mark the post as needing viewers.js',()=>{
+ writeFileSync(join(root,'post/photo.png'),'photo');
+ fixture({id:'body',type:'image',props:{src:'./photo.png',alt:'A photo',caption:'Photo caption'},children:[]});
+ const [published]=publishCollection({root,posts:[post]}).posts;
+ expect(published.html).toContain('data-docs-image-expand');
+ expect(published.diagrams).toBe(false);
+ expect(published.viewers).toBe(true);
+ fixture();
+ expect(publishCollection({root,posts:[post]}).posts[0].viewers).toBe(false);
+});

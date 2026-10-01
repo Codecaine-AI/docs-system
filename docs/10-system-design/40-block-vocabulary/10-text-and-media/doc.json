@@ -1,0 +1,225 @@
+{
+  "schemaVersion": 1,
+  "id": "doc-8dc7d7614b70d163752a56f37a79ff66",
+  "title": "Text and media",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-vocab-tm-opener",
+        "b-vocab-tm-table"
+      ]
+    },
+    "b-vocab-tm-opener": {
+      "id": "b-vocab-tm-opener",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The nine text and media types carry ordinary document flow and share the delta-span text model documented on "
+        },
+        {
+          "insert": "Rich text",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/10-text-and-media/10-rich-text"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-vocab-tm-table": {
+      "id": "b-vocab-tm-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Block type",
+          "What it's for",
+          "Page"
+        ],
+        "rows": [
+          [
+            [
+              {
+                "insert": "paragraph",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Prose, the default flow block.",
+            [
+              {
+                "insert": "Paragraph",
+                "attributes": {
+                  "link": "#/10-system-design/40-block-vocabulary/10-text-and-media/10-rich-text/10-paragraph"
+                }
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "insert": "heading",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Section structure, levels 1 to 6.",
+            [
+              {
+                "insert": "Heading",
+                "attributes": {
+                  "link": "#/10-system-design/40-block-vocabulary/10-text-and-media/10-rich-text/11-heading"
+                }
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "insert": "list-item",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Bullets and numbered lists, nested through children.",
+            [
+              {
+                "insert": "List item",
+                "attributes": {
+                  "link": "#/10-system-design/40-block-vocabulary/10-text-and-media/10-rich-text/12-list-item"
+                }
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "insert": "callout",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "A toned note with an optional kind and title.",
+            [
+              {
+                "insert": "Callout",
+                "attributes": {
+                  "link": "#/10-system-design/40-block-vocabulary/10-text-and-media/10-rich-text/14-callout"
+                }
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "insert": "divider",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "A horizontal rule between sections.",
+            [
+              {
+                "insert": "Divider",
+                "attributes": {
+                  "link": "#/10-system-design/40-block-vocabulary/10-text-and-media/10-rich-text/15-divider"
+                }
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "insert": "image",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "A bundle image with alt text and a caption.",
+            [
+              {
+                "insert": "Image",
+                "attributes": {
+                  "link": "#/10-system-design/40-block-vocabulary/10-text-and-media/10-rich-text/16-image"
+                }
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "insert": "video",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "A bundle video or a provider embed with a caption.",
+            [
+              {
+                "insert": "Video",
+                "attributes": {
+                  "link": "#/10-system-design/40-block-vocabulary/10-text-and-media/10-rich-text/17-video"
+                }
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "insert": "html",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "A self-contained HTML and CSS artifact in a sandbox.",
+            [
+              {
+                "insert": "HTML",
+                "attributes": {
+                  "link": "#/10-system-design/40-block-vocabulary/10-text-and-media/10-rich-text/18-html"
+                }
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "insert": "image-grid",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Labeled images compared in responsive columns.",
+            [
+              {
+                "insert": "Image grid",
+                "attributes": {
+                  "link": "#/10-system-design/40-block-vocabulary/10-text-and-media/10-rich-text/19-image-grid"
+                }
+              }
+            ]
+          ]
+        ]
+      },
+      "children": []
+    }
+  }
+}

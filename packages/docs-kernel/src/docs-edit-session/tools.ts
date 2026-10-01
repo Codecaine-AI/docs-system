@@ -196,13 +196,18 @@ const SET_PROPS_TYPES: ReadonlySet<string> = new Set([
   "paragraph",
   "heading",
   "list-item",
-  "quote",
   "callout",
   "divider",
   "image",
   "video",
   "html",
   "code",
+  "stack",
+  "call-stack",
+  "component-tree",
+  "flow-strip",
+  "pseudocode",
+  "file-explorer",
 ]);
 
 function snakeCase(verb: string): string {
@@ -371,7 +376,6 @@ const EDITABLE_BLOCK_TYPES = (
     "paragraph",
     "heading",
     "list-item",
-    "quote",
     "callout",
     "divider",
     "image",
@@ -385,6 +389,12 @@ const EDITABLE_BLOCK_TYPES = (
     "sequence",
     "canvas",
     "process-outline",
+    "stack",
+    "call-stack",
+    "component-tree",
+    "flow-strip",
+    "pseudocode",
+    "file-explorer",
   ] as const
 ).filter(isDocBlockType);
 

@@ -13,6 +13,12 @@ import { descriptors as sequenceDescriptors } from "../components/sequence/descr
 import { descriptors as stateShapeDescriptors } from "../components/state-shape/descriptor";
 import { descriptors as structuredTableDescriptors } from "../components/structured-table/descriptor";
 import { descriptors as processOutlineDescriptors } from "../components/process-outline/descriptor";
+import { descriptors as stackDescriptors } from "../components/stack/descriptor";
+import { descriptors as callStackDescriptors } from "../components/call-stack/descriptor";
+import { descriptors as componentTreeDescriptors } from "../components/component-tree/descriptor";
+import { descriptors as flowStripDescriptors } from "../components/flow-strip/descriptor";
+import { descriptors as pseudocodeDescriptors } from "../components/pseudocode/descriptor";
+import { descriptors as fileExplorerDescriptors } from "../components/file-explorer/descriptor";
 
 export type DocBlockRenderContext = {
   /** Renders delta spans to inline React (bold/italic/strike/code/link/reference marks). */
@@ -71,6 +77,12 @@ const COMPONENT_DESCRIPTORS: readonly DocBlockDescriptor[][] = [
   canvasDescriptors,
   sequenceDescriptors,
   processOutlineDescriptors,
+  stackDescriptors,
+  callStackDescriptors,
+  componentTreeDescriptors,
+  flowStripDescriptors,
+  pseudocodeDescriptors,
+  fileExplorerDescriptors,
 ];
 
 function buildRegistry(): Map<DocBlockType, DocBlockDescriptor> {

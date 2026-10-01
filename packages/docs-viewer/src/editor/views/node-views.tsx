@@ -19,6 +19,12 @@ import {
   DocVideo,
   DocHtml,
   DocProcessOutline,
+  DocStack,
+  DocCallStack,
+  DocComponentTree,
+  DocFlowStrip,
+  DocPseudocode,
+  DocFileExplorer,
   NODE_TYPE_TO_BLOCK_TYPE,
 } from "../core/schema";
 import { CodeBlockNodeView } from "../../components/code/editor-node-view";
@@ -168,6 +174,42 @@ export const DocProcessOutlineWithView = DocProcessOutline.extend({
   },
 });
 
+export const DocStackWithView = DocStack.extend({
+  addNodeView() {
+    return ReactNodeViewRenderer(AtomBlockView);
+  },
+});
+
+export const DocCallStackWithView = DocCallStack.extend({
+  addNodeView() {
+    return ReactNodeViewRenderer(AtomBlockView);
+  },
+});
+
+export const DocComponentTreeWithView = DocComponentTree.extend({
+  addNodeView() {
+    return ReactNodeViewRenderer(AtomBlockView);
+  },
+});
+
+export const DocFlowStripWithView = DocFlowStrip.extend({
+  addNodeView() {
+    return ReactNodeViewRenderer(AtomBlockView);
+  },
+});
+
+export const DocPseudocodeWithView = DocPseudocode.extend({
+  addNodeView() {
+    return ReactNodeViewRenderer(AtomBlockView);
+  },
+});
+
+export const DocFileExplorerWithView = DocFileExplorer.extend({
+  addNodeView() {
+    return ReactNodeViewRenderer(AtomBlockView);
+  },
+});
+
 /** All atom node definitions WITH their NodeView wiring attached — the extension list DocEditor actually registers. */
 export const ATOM_BLOCK_NODES_WITH_VIEWS = [
   DocDividerWithView,
@@ -182,6 +224,12 @@ export const ATOM_BLOCK_NODES_WITH_VIEWS = [
   DocInteractionSurfaceWithView,
   DocStateShapeWithView,
   DocProcessOutlineWithView,
+  DocStackWithView,
+  DocCallStackWithView,
+  DocComponentTreeWithView,
+  DocFlowStripWithView,
+  DocPseudocodeWithView,
+  DocFileExplorerWithView,
 ];
 
 /**

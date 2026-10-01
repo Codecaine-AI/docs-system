@@ -398,7 +398,7 @@ function liftOutOfParentListItem(tr: Transaction, blockDepth: number): boolean {
 /**
  * Shift-Tab: Notion-style outdent for ANY text block nested inside a
  * `docListItem` — a nested list item moves up a level, and a paragraph/
- * heading/quote trapped as a list item's child escapes the list the same
+ * heading trapped as a list item's child escapes the list the same
  * way (the "get back out" affordance). Swallowed otherwise so focus stays
  * in the editor.
  */

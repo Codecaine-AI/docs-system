@@ -2,7 +2,7 @@
  * MDX document -> DocDocument builder (M2 migration, TG4.2).
  *
  * Converts one MDX source file into a docs-model DocDocument (doc-schema.ts):
- * frontmatter -> doc meta, prose -> paragraph/heading/list-item/code/quote/
+ * frontmatter -> doc meta, prose -> paragraph/heading/list-item/code/
  * divider blocks with inline marks parsed by inline-to-delta.ts, and
  * recognized MDX component tags -> their matching doc-schema block type where
  * one exists.
@@ -232,8 +232,9 @@ type ListItemNode = {
 /**
  * Parses a markdown prose segment into an ordered list of top-level block
  * ids (already registered into ctx.blocks). Handles headings, fenced code,
- * blockquotes, dividers, list items (with indent-based nesting), and plain
- * paragraphs (blank-line separated).
+ * blockquotes (imported as plain paragraphs; there is no quote block type),
+ * dividers, list items (with indent-based nesting), and plain paragraphs
+ * (blank-line separated).
  */
 function buildProseBlocks(markdown: string, ctx: BuildCtx): string[] {
   const lines = markdown.split("\n");
@@ -373,7 +374,7 @@ function buildProseBlocks(markdown: string, ctx: BuildCtx): string[] {
       topLevel.push(
         addBlock(ctx, {
           id,
-          type: "quote",
+          type: "paragraph",
           props: {},
           text: textInsert(text, ctx),
           children: [],

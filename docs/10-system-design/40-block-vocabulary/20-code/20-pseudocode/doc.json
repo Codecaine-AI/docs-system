@@ -1,0 +1,540 @@
+{
+  "schemaVersion": 1,
+  "id": "doc-82fbadc5250c4d96980065d1d29023f1",
+  "title": "Pseudocode",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "pseudo-intro",
+        "pseudo-h-example",
+        "pseudo-example-lead",
+        "pseudo-example",
+        "pseudo-diff-lead",
+        "pseudo-diff-example",
+        "pseudo-h-state",
+        "pseudo-state-lead",
+        "pseudo-state-shape",
+        "pseudo-h-actions",
+        "pseudo-actions",
+        "pseudo-h-doc",
+        "pseudo-doc-lead",
+        "pseudo-doc-1",
+        "pseudo-doc-2",
+        "pseudo-doc-3",
+        "pseudo-doc-4",
+        "pseudo-h-agent",
+        "pseudo-agent"
+      ]
+    },
+    "pseudo-intro": {
+      "id": "pseudo-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The pseudocode component owns one block type, "
+        },
+        {
+          "insert": "pseudocode",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", a plain-language code listing that explains an algorithm or a change in logic without real syntax. The viewer highlights control words, calls, and "
+        },
+        {
+          "insert": "->",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " arrows, and it moves each trailing "
+        },
+        {
+          "insert": "//",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " comment into one aligned column. Use the code block when the reader needs the actual source."
+        }
+      ],
+      "children": []
+    },
+    "pseudo-h-example": {
+      "id": "pseudo-h-example",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Example"
+        }
+      ],
+      "children": []
+    },
+    "pseudo-example-lead": {
+      "id": "pseudo-example-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This listing restates "
+        },
+        {
+          "insert": "annotationLineRuns",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "packages/docs-viewer/src/components/code/annotations.ts:97",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", which groups annotated code lines into overlay runs."
+        }
+      ],
+      "children": []
+    },
+    "pseudo-example": {
+      "id": "pseudo-example",
+      "type": "pseudocode",
+      "props": {},
+      "text": [
+        {
+          "insert": "annotationLineRuns(lineCount, annotations)\n  for each annotation in annotations\n    for each line in expandLineRange(annotation.lines, lineCount)\n      if owner has no line -> owner[line] = index // the earliest note wins\n  for each line in 1..lineCount\n    if owner has no line\n      current = null // a gap ends the run\n    else if current.annotationIndex is owner[line]\n      current.length += 1\n    else\n      current = newRun(line, owner[line]) // a new owner starts a run\n      push current onto runs\n  return runs"
+        }
+      ],
+      "children": []
+    },
+    "pseudo-diff-lead": {
+      "id": "pseudo-diff-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "With "
+        },
+        {
+          "insert": "diff: true",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", each line's leading "
+        },
+        {
+          "insert": "+",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "-",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", or space is a diff marker. This diff shows the split that took pseudocode out of "
+        },
+        {
+          "insert": "highlightCode",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "packages/docs-viewer/src/components/code/highlight.ts:343",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "pseudo-diff-example": {
+      "id": "pseudo-diff-example",
+      "type": "pseudocode",
+      "props": {
+        "diff": true
+      },
+      "text": [
+        {
+          "insert": " highlightCode(code, language)\n   grammar = resolveLanguage(code, language)\n   if grammar is null -> return escaped lines\n-  if grammar is pseudo -> return highlightPseudoLines(code) // moved to the pseudocode block\n   return splitHighlightedHtml(highlightToHtml(code, grammar))"
+        }
+      ],
+      "children": []
+    },
+    "pseudo-h-state": {
+      "id": "pseudo-h-state",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "State Schema"
+        }
+      ],
+      "children": []
+    },
+    "pseudo-state-lead": {
+      "id": "pseudo-state-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The block text is the pseudocode ("
+        },
+        {
+          "insert": "carriesText: true",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "). One optional prop, defined by "
+        },
+        {
+          "insert": "PseudocodeState",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "packages/docs-model/src/components/pseudocode/state.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", turns on the diff gutter."
+        }
+      ],
+      "children": []
+    },
+    "pseudo-state-shape": {
+      "id": "pseudo-state-shape",
+      "type": "state-shape",
+      "props": {
+        "fields": [
+          {
+            "name": "diff",
+            "type": "boolean",
+            "required": false,
+            "description": "Reads each line's leading +, -, or space as a diff marker."
+          }
+        ],
+        "name": "PseudocodeState",
+        "source": {
+          "path": "packages/docs-model/src/components/pseudocode/state.ts",
+          "symbol": "PseudocodeState"
+        }
+      },
+      "children": []
+    },
+    "pseudo-h-actions": {
+      "id": "pseudo-h-actions",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Typed Actions"
+        }
+      ],
+      "children": []
+    },
+    "pseudo-actions": {
+      "id": "pseudo-actions",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The pseudocode block has no named actions. An "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " op replaces the text or sets "
+        },
+        {
+          "insert": "diff",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and the write is validated against "
+        },
+        {
+          "insert": "PseudocodeState",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "pseudo-h-doc": {
+      "id": "pseudo-h-doc",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Doc Renderer"
+        }
+      ],
+      "children": []
+    },
+    "pseudo-doc-lead": {
+      "id": "pseudo-doc-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The descriptor in "
+        },
+        {
+          "insert": "packages/docs-viewer/src/components/pseudocode/descriptor.tsx",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " draws the code block's header, labeled "
+        },
+        {
+          "insert": "pseudo",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", over a grid with one row per source line. Each row holds the line number, the code, and the trailing comment, so no line overflows the panel:"
+        }
+      ],
+      "children": []
+    },
+    "pseudo-doc-1": {
+      "id": "pseudo-doc-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A private highlight.js instance in "
+        },
+        {
+          "insert": "highlight.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " registers only the pseudo grammar, so the code block never resolves "
+        },
+        {
+          "insert": "pseudo",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " as a language."
+        }
+      ],
+      "children": []
+    },
+    "pseudo-doc-2": {
+      "id": "pseudo-doc-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "renderPseudoLines",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "pseudo.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " splits each line into its code and its trailing "
+        },
+        {
+          "insert": "//",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " comment. The comments share one aligned column, and a comment wraps inside the panel instead of scrolling."
+        }
+      ],
+      "children": []
+    },
+    "pseudo-doc-3": {
+      "id": "pseudo-doc-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "With "
+        },
+        {
+          "insert": "diff",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", added rows get a green tint and removed rows get a red tint with struck-through code. Without it, a leading "
+        },
+        {
+          "insert": "-",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " stays literal."
+        }
+      ],
+      "children": []
+    },
+    "pseudo-doc-4": {
+      "id": "pseudo-doc-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The block sits in the code block's lane. A style-rail width set for "
+        },
+        {
+          "insert": "code",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " also applies to "
+        },
+        {
+          "insert": "pseudocode",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " unless "
+        },
+        {
+          "insert": "pseudocode",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " has its own width, so most comments fit on one line."
+        }
+      ],
+      "children": []
+    },
+    "pseudo-h-agent": {
+      "id": "pseudo-h-agent",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent Renderer"
+        }
+      ],
+      "children": []
+    },
+    "pseudo-agent": {
+      "id": "pseudo-agent",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The projection is one fence holding the text verbatim. The info string is "
+        },
+        {
+          "insert": "pseudocode",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", or "
+        },
+        {
+          "insert": "pseudocode diff",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " when "
+        },
+        {
+          "insert": "diff",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is set."
+        }
+      ],
+      "children": []
+    }
+  }
+}

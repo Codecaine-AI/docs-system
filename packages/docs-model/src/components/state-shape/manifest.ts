@@ -10,6 +10,6 @@ export const manifest: ComponentManifest = {
   authoring: {
     "whenToUse": "Use State Shape to define persisted or in-memory state, its nested fields, optionality, and meaning. Include a JSON example instance and a defining source reference. Describe state before the Interaction Surface that changes or queries it.",
     "example": "Define an edit task with its project, revision, and status, then show one valid task instance.",
-    "docsPath": "10-system-design/40-block-vocabulary/50-state-shape"
+    "docsPath": "10-system-design/40-block-vocabulary/40-structured-reference/10-state-shape"
 }
 };

@@ -13,7 +13,6 @@ const CARRIES_TEXT = {
   paragraph: true,
   heading: true,
   "list-item": true,
-  quote: true,
   callout: true,
   divider: false,
   image: false,
@@ -28,6 +27,12 @@ const CARRIES_TEXT = {
   canvas: false,
   sequence: false,
   "process-outline": false,
+  stack: false,
+  "call-stack": false,
+  "component-tree": false,
+  "flow-strip": false,
+  pseudocode: true,
+  "file-explorer": false,
 } as const;
 
 const ACTION_KEYS = [
@@ -164,13 +169,13 @@ describe("buildBlocksDiscovery", () => {
     ]);
   });
 
-  it("reports the rich-text bundle's ten types and no actions", () => {
+  it("reports the rich-text bundle's nine types and no actions", () => {
     const richText = buildBlocksDiscovery().components.find(
       (component) => component.name === "rich-text",
     );
 
     expect(richText).toBeDefined();
-    expect(richText!.types).toHaveLength(10);
+    expect(richText!.types).toHaveLength(9);
     expect(richText!.actions).toHaveLength(0);
   });
 });

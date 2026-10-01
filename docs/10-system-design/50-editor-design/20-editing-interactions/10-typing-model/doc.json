@@ -100,7 +100,7 @@
           ],
           [
             "Backspace",
-            "Start of a heading, quote, callout, or list item",
+            "Start of a heading, callout, or list item",
             "Outdents a nested list item one level; otherwise converts the block to a paragraph."
           ],
           [
@@ -163,10 +163,6 @@
           [
             "Number plus . plus space",
             "Ordered list item."
-          ],
-          [
-            "> plus space",
-            "Quote."
           ],
           [
             "---",

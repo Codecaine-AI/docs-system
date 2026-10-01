@@ -8,7 +8,6 @@ import {
   DocHeading,
   DocListItem,
   DocParagraph,
-  DocQuote,
 } from "../core/schema";
 import { DocItalic, DocStrike } from "../../components/rich-text/editor-marks";
 import { buildDocInputRules } from "../input/input-rules";
@@ -31,7 +30,6 @@ const TEST_NODES = [
   DocHeading,
   DocListItem,
   DocCodeBlock,
-  DocQuote,
   DocDivider,
 ];
 
@@ -241,13 +239,11 @@ describe("buildDocInputRules", () => {
     });
   });
 
-  it("converts quote trigger to docQuote", () => {
+  it("leaves a typed `> ` as paragraph text (there is no quote block)", () => {
     const { json } = trigger(">", " ");
 
-    expect(firstBlock(json)).toMatchObject({
-      type: "docQuote",
-      attrs: { blockId: null, blockProps: {} },
-    });
+    expect(firstBlock(json)).toMatchObject({ type: "docParagraph" });
+    expect(firstText(json)).toMatchObject({ type: "text", text: "> " });
   });
 
   it("does not convert mid-paragraph hashes", () => {

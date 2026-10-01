@@ -49,8 +49,19 @@ describe("DocBlockRenderer", () => {
   it("fixture is schema-valid and covers its established v1 block types", () => {
     const doc = loadFixture();
     const blockTypes = new Set(Object.values(doc.blocks).map((block) => block.type));
-    // The legacy fixture predates process-outline and HTML; dedicated tests cover those types.
-    for (const blockType of DOC_BLOCK_TYPES.filter((type) => type !== "process-outline" && type !== "html" && type !== "image-grid")) {
+    // The legacy fixture predates these types; dedicated tests cover each of them.
+    const absentFromFixture = new Set<string>([
+      "process-outline",
+      "html",
+      "image-grid",
+      "stack",
+      "call-stack",
+      "component-tree",
+      "flow-strip",
+      "pseudocode",
+      "file-explorer",
+    ]);
+    for (const blockType of DOC_BLOCK_TYPES.filter((type) => !absentFromFixture.has(type))) {
       expect(blockTypes.has(blockType)).toBe(true);
     }
   });
@@ -82,8 +93,11 @@ describe("DocBlockRenderer", () => {
       "apps/frontend/src/lib/docs-model/doc-schema.ts",
     );
     expect(chip?.textContent).toBe("doc-schema.ts");
-    expect(chip?.classList.contains("items-baseline")).toBe(true);
-    expect(chip?.classList.contains("items-center")).toBe(false);
+    // A source reference is a mono link on a hairline rule — inline text on
+    // the baseline, told apart from a doc reference by its face, not color.
+    expect(chip?.classList.contains("font-mono")).toBe(true);
+    expect(chip?.classList.contains("border-b")).toBe(true);
+    expect(chip?.classList.contains("inline-flex")).toBe(false);
 
     // Nested list items.
     expect(screen.getByText("First item")).toBeTruthy();
@@ -99,7 +113,7 @@ describe("DocBlockRenderer", () => {
     }
 
     // Code (the fixture's code block carries annotations, so it renders the
-    // annotated variant with click-pairable side notes), quote, divider.
+    // annotated variant with click-pairable side notes), divider.
     // Highlighted lines are hljs token spans, so match on the <code>
     // element's textContent rather than a single text node.
     expect(
@@ -115,25 +129,25 @@ describe("DocBlockRenderer", () => {
     expect(document.querySelector('hr[data-doc-block="divider"]')).toBeTruthy();
 
     // Adapted docs-block components: the callout keeps its semantic box and
-    // content without rendering kind/type banners, and file-tree follows it.
+    // content with its printed type label, and file-tree follows it.
     const callout = document.querySelector('[data-docs-block-type="callout"]');
     expect(callout).toBeTruthy();
     expect(callout?.getAttribute("data-mdx-block")).toBe("Callout");
     expect(callout?.getAttribute("data-source-id")).toBe("callout-1");
     expect(callout?.classList.contains("not-prose")).toBe(true);
-    expect(callout?.classList.contains("my-[var(--docs-callout-margin,16px)]")).toBe(true);
+    expect(callout?.classList.contains("my-[var(--docs-callout-margin,20px)]")).toBe(true);
     expect(callout?.textContent).toContain("Heads up");
-    expect(callout?.textContent).not.toContain("Decision");
-    // The title is the callout's first text line; no type label is rendered.
+    // The type is printed, never tooltip-only: the kind label, then the title.
+    expect(callout?.querySelector("[data-callout-label]")?.textContent).toBe("Decision");
     const title = screen.getByText("Heads up");
     expect(title.getAttribute("data-callout-title")).toBe("true");
     // File-tree renders `tree`-style: rows carry the full entry path as a
-    // data attribute while showing only the basename with guide glyphs
+    // data attribute while showing only the basename, with drawn elbow guides
     // (fixture-shape-tolerant: paths may evolve with the v2 fixture).
     const fileTree = document.querySelector('[data-docs-block-type="file-tree"]');
     expect(fileTree).toBeTruthy();
     expect(document.querySelectorAll("[data-docs-file-tree-entry]").length).toBeGreaterThan(0);
-    expect(fileTree?.textContent).toContain("└── ");
+    expect(fileTree?.querySelector('[data-g="end"]')).toBeTruthy();
 
     // Props-driven structured blocks.
     expect(document.querySelector('[data-docs-block-type="structured-table"]')).toBeTruthy();
@@ -155,9 +169,13 @@ describe("DocBlockRenderer", () => {
     // Image.
     expect(document.querySelector('img[src="./assets/images/sample.png"]')).toBeTruthy();
 
-    // Video: the fixture's external YouTube url embeds the nocookie iframe.
+    // Video: the fixture's external YouTube url renders the link card (nothing
+    // third-party loads until Watch swaps in the nocookie player).
+    const videoCard = document.querySelector('[data-doc-block="video"] [data-video-link-card]');
+    expect(videoCard).toBeTruthy();
+    expect(videoCard?.getAttribute("data-video-provider")).toBe("youtube");
+    fireEvent.click(videoCard as Element);
     const videoFrame = document.querySelector('[data-doc-block="video"] iframe');
-    expect(videoFrame).toBeTruthy();
     expect(videoFrame?.getAttribute("src")).toBe(
       "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ",
     );

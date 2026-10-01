@@ -27,6 +27,9 @@ const LINE_SELECTOR = "[data-process-outline-step]";
 const ROW_SELECTOR =
   ".docs-process-outline__note-bullet, .docs-process-outline__line, .docs-process-outline__node";
 
+/** A step list: the container of a node's substeps (a root panel's body included). */
+const CHILDREN_SELECTOR = ".docs-process-outline__children";
+
 /** `"0.1.2"` -> `[0, 1, 2]`; null for anything that is not an index path. */
 export function parsePathKey(key: string | null): StepPath | null {
   if (!key) return null;
@@ -54,6 +57,9 @@ export function lineElementFromTarget(target: Element | null): HTMLElement | nul
   if (!target) return null;
   const direct = target.closest<HTMLElement>(LINE_SELECTOR);
   if (direct) return direct;
+  // A step list's own pixels (a root panel's body padding, the gaps between
+  // siblings, the indent gutter) belong to no single row: geometry decides.
+  if (target.matches(CHILDREN_SELECTOR)) return null;
   const row = target.closest<HTMLElement>(ROW_SELECTOR);
   return row?.querySelector<HTMLElement>(LINE_SELECTOR) ?? null;
 }

@@ -13,7 +13,6 @@ import {
   ImageState,
   ListItemState,
   ParagraphState,
-  QuoteState,
   VideoState,
 } from "../state";
 
@@ -31,7 +30,7 @@ const fixtureCases: Array<{ id: keyof typeof sampleFixture.blocks; schema: TSche
   { id: "li-a", schema: ListItemState },
   { id: "li-a-1", schema: ListItemState },
   { id: "li-b", schema: ListItemState },
-  { id: "quote-1", schema: QuoteState },
+  { id: "p-invariant", schema: ParagraphState },
 ];
 
 function fixtureBlock(id: keyof typeof sampleFixture.blocks): DocBlock {
@@ -93,8 +92,8 @@ describe("rich-text component agent view", () => {
       "> **Video: Docs walkthrough** — https://www.youtube.com/watch?v=dQw4w9WgXcQ — An external video (YouTube).",
     );
     expect(richTextAgentView(fixtureBlock("li-a"), context)).toBe("- First item");
-    expect(richTextAgentView(fixtureBlock("quote-1"), context)).toBe(
-      "> Stable ids are a system invariant.",
+    expect(richTextAgentView(fixtureBlock("p-invariant"), context)).toBe(
+      "Stable ids are a system invariant.",
     );
   });
 

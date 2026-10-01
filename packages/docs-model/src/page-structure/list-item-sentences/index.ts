@@ -11,7 +11,6 @@ export const listItemSentencesRule: LintRule = {
   applicability: "List items whose own text has three or more sentences",
   exclusions: [
     "Nested items, which are checked on their own",
-    "Lists inside quote blocks",
     "Inline code and reference spans",
   ],
   suggestion:

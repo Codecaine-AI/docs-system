@@ -1,0 +1,587 @@
+{
+  "schemaVersion": 1,
+  "id": "doc-8e0e9b3d9c33bc4329a137d16217afec",
+  "title": "Component Tree",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "ct-intro",
+        "ct-h-example",
+        "ct-example-lead",
+        "ct-example",
+        "ct-h-state",
+        "ct-state-lead",
+        "ct-state-shape",
+        "ct-h-actions",
+        "ct-actions",
+        "ct-h-doc",
+        "ct-doc-lead",
+        "ct-doc-1",
+        "ct-doc-2",
+        "ct-doc-3",
+        "ct-doc-4",
+        "ct-h-agent",
+        "ct-agent-lead",
+        "ct-agent-1",
+        "ct-agent-2"
+      ]
+    },
+    "ct-intro": {
+      "id": "ct-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The component-tree component owns one block type, "
+        },
+        {
+          "insert": "component-tree",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", a nested render tree that shows which component renders which and the hooks each one calls. Each node is one code row with tree guides, an aligned comment column, a diff gutter and a source chip. Use call stack for plain function calls."
+        }
+      ],
+      "children": []
+    },
+    "ct-h-example": {
+      "id": "ct-h-example",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Example"
+        }
+      ],
+      "children": []
+    },
+    "ct-example-lead": {
+      "id": "ct-example-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This tree is the workbench doc page, from "
+        },
+        {
+          "insert": "App",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "packages/docs-workbench/web/src/shell/App.tsx",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " down to the renderer or editor that draws one page. Each source chip points at the line that renders the row inside its parent."
+        }
+      ],
+      "children": []
+    },
+    "ct-example": {
+      "id": "ct-example",
+      "type": "component-tree",
+      "props": {
+        "nodes": [
+          {
+            "text": "<App>",
+            "comment": "tree, hash path, theme state",
+            "source": "packages/docs-workbench/web/src/shell/App.tsx:269",
+            "nodes": [
+              {
+                "text": "useCodeTheme()",
+                "kind": "hook",
+                "comment": "reads the active code theme",
+                "source": "packages/docs-workbench/web/src/shell/App.tsx:287"
+              },
+              {
+                "text": "<DocsClientProvider canvasEmbed={…}>",
+                "comment": "injects the embed slots",
+                "source": "packages/docs-workbench/web/src/shell/App.tsx:654",
+                "nodes": [
+                  {
+                    "text": "<Sidebar tree={tree} />",
+                    "source": "packages/docs-workbench/web/src/shell/App.tsx:690"
+                  },
+                  {
+                    "text": "<DocPage path={path}>",
+                    "comment": "one page, read or edited",
+                    "source": "packages/docs-workbench/web/src/shell/App.tsx:698",
+                    "nodes": [
+                      {
+                        "text": "useTransientHighlights()",
+                        "kind": "hook",
+                        "comment": "flashes the saved blocks",
+                        "source": "packages/docs-workbench/web/src/pages/DocPage.tsx:349"
+                      },
+                      {
+                        "text": "isStatic",
+                        "kind": "branch",
+                        "nodes": [
+                          {
+                            "text": "<DocBlockRenderer document={doc} />",
+                            "comment": "read-only export",
+                            "source": "packages/docs-workbench/web/src/pages/DocPage.tsx:1390"
+                          }
+                        ]
+                      },
+                      {
+                        "text": "mode === \"edit\"",
+                        "kind": "branch",
+                        "nodes": [
+                          {
+                            "text": "<DocEditor onApplyOps={…} />",
+                            "source": "packages/docs-workbench/web/src/pages/DocPage.tsx:1400"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "text": "<DocPeekPanel projectId=\"local\" />",
+                    "comment": "side peek for doc links",
+                    "source": "packages/docs-workbench/web/src/shell/App.tsx:721"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "children": []
+    },
+    "ct-h-state": {
+      "id": "ct-h-state",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "State Schema"
+        }
+      ],
+      "children": []
+    },
+    "ct-state-lead": {
+      "id": "ct-state-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "All state lives in one prop, defined by "
+        },
+        {
+          "insert": "ComponentTreeState",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "packages/docs-model/src/components/component-tree/state.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". The row schema is shared with call stack through "
+        },
+        {
+          "insert": "outlineRowSchema",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "shared/outline-rows.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". The type carries no delta text ("
+        },
+        {
+          "insert": "carriesText: false",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ")."
+        }
+      ],
+      "children": []
+    },
+    "ct-state-shape": {
+      "id": "ct-state-shape",
+      "type": "state-shape",
+      "props": {
+        "fields": [
+          {
+            "name": "nodes",
+            "type": "ComponentTreeRow[]",
+            "description": "Top-level nodes, drawn top to bottom.",
+            "fields": [
+              {
+                "name": "text",
+                "type": "string",
+                "description": "The component or hook call, written as code. Nonempty."
+              },
+              {
+                "name": "kind",
+                "type": "\"component\" | \"hook\" | \"branch\"",
+                "required": false,
+                "description": "Defaults to component. A branch is a condition row that may own nodes."
+              },
+              {
+                "name": "comment",
+                "type": "string",
+                "required": false,
+                "description": "Short note in the aligned comment column."
+              },
+              {
+                "name": "change",
+                "type": "\"added\" | \"modified\" | \"removed\"",
+                "required": false,
+                "description": "Diff state: gutter marker and row tint."
+              },
+              {
+                "name": "source",
+                "type": "string",
+                "required": false,
+                "description": "Where the row lives, \"path:line\"."
+              },
+              {
+                "name": "nodes",
+                "type": "ComponentTreeRow[]",
+                "required": false,
+                "description": "Children, drawn one level deeper."
+              }
+            ]
+          }
+        ],
+        "name": "ComponentTreeState",
+        "source": {
+          "path": "packages/docs-model/src/components/component-tree/state.ts",
+          "symbol": "ComponentTreeState"
+        }
+      },
+      "children": []
+    },
+    "ct-h-actions": {
+      "id": "ct-h-actions",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Typed Actions"
+        }
+      ],
+      "children": []
+    },
+    "ct-actions": {
+      "id": "ct-actions",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The component tree has no named actions. An "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " op replaces "
+        },
+        {
+          "insert": "nodes",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " whole, and the write is validated against "
+        },
+        {
+          "insert": "ComponentTreeState",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "ct-h-doc": {
+      "id": "ct-h-doc",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Doc Renderer"
+        }
+      ],
+      "children": []
+    },
+    "ct-doc-lead": {
+      "id": "ct-doc-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "OutlineRows",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " draws the tree in the wide left layout with the "
+        },
+        {
+          "insert": "component",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " flavor:"
+        }
+      ],
+      "children": []
+    },
+    "ct-doc-1": {
+      "id": "ct-doc-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each node is one row with box-drawing guides. JSX tags, props, strings and "
+        },
+        {
+          "insert": "useX(",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " hook calls get their own token colors."
+        }
+      ],
+      "children": []
+    },
+    "ct-doc-2": {
+      "id": "ct-doc-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A branch row renders its condition in muted ink."
+        }
+      ],
+      "children": []
+    },
+    "ct-doc-3": {
+      "id": "ct-doc-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Comments line up in one column, and a source shows as a chip with the file name and line. The full path is the chip's tooltip."
+        }
+      ],
+      "children": []
+    },
+    "ct-doc-4": {
+      "id": "ct-doc-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A changed node gets a "
+        },
+        {
+          "insert": "+",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "-",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " or "
+        },
+        {
+          "insert": "~",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " gutter mark and a row tint."
+        }
+      ],
+      "children": []
+    },
+    "ct-h-agent": {
+      "id": "ct-h-agent",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent Renderer"
+        }
+      ],
+      "children": []
+    },
+    "ct-agent-lead": {
+      "id": "ct-agent-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "projectOutlineRows",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " writes one "
+        },
+        {
+          "insert": "```component-tree",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " fence with one line per node and two spaces of indent per depth:"
+        }
+      ],
+      "children": []
+    },
+    "ct-agent-1": {
+      "id": "ct-agent-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A branch line leads with "
+        },
+        {
+          "insert": "? ",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". A comment trails as "
+        },
+        {
+          "insert": "  # comment",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and a source as "
+        },
+        {
+          "insert": "  @path:line",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "ct-agent-2": {
+      "id": "ct-agent-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "When any node changed, every line opens with a diff column of "
+        },
+        {
+          "insert": "+",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "-",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "~",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " or a blank. A tree with no changes carries no column."
+        }
+      ],
+      "children": []
+    }
+  }
+}

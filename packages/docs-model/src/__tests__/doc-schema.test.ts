@@ -256,6 +256,26 @@ describe("validateDocDocument — legacy type coercion", () => {
     expect(block.children).toEqual([]);
   });
 
+  it('reads the retired "quote" type as a paragraph, keeping its text and children', () => {
+    const result = validateDocDocument(
+      docWithBlock({
+        id: "legacy",
+        type: "quote",
+        props: {},
+        text: [{ insert: "Quoted ", attributes: { italic: true } }, { insert: "text." }],
+        children: [],
+      }),
+    );
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    const block = result.document.blocks.legacy;
+    expect(block.type).toBe("paragraph");
+    expect(block.props).toEqual({});
+    expect(block.text).toEqual([{ insert: "Quoted ", attributes: { italic: true } }, { insert: "text." }]);
+    expect(block.children).toEqual([]);
+    expect(serializeDocDocument(result.document)).toContain('"type": "paragraph"');
+  });
+
   it("coerces never-in-schema legacy types (e.g. \"overview\") the same way", () => {
     const result = validateDocDocument(
       docWithBlock({

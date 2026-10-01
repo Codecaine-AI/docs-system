@@ -30,37 +30,38 @@ function gutter(container: HTMLElement, n: number): HTMLElement {
 }
 
 describe("CodeLines", () => {
-  it("keeps ONE line metric: rows, leading and the filler all read the line-height token (20px default)", () => {
-    expect(CODE_LINE_HEIGHT_PX).toBe(20);
+  it("keeps ONE line metric: rows, leading and the filler all read the line-height token (21px default)", () => {
+    expect(CODE_LINE_HEIGHT_PX).toBe(21);
     const { container } = render(<CodeLines lines={LINES} />);
     const row = line(container, 1);
-    expect(row.className).toContain("h-[var(--docs-link-line-height,20px)]");
-    expect(row.className).toContain("leading-[var(--docs-link-line-height,20px)]");
+    expect(row.className).toContain("h-[var(--docs-link-line-height,21px)]");
+    expect(row.className).toContain("leading-[var(--docs-link-line-height,21px)]");
     const body = row.parentElement as HTMLElement;
     expect(body.className).toContain("font-mono");
-    expect(body.className).toContain("leading-[var(--docs-link-line-height,20px)]");
+    expect(body.className).toContain("leading-[var(--docs-link-line-height,21px)]");
     expect(gutter(container, 1).className).toContain(
-      "leading-[var(--docs-link-line-height,20px)]",
+      "leading-[var(--docs-link-line-height,21px)]",
     );
-    // No hardcoded 20px line box survives next to the token.
+    // No hardcoded line box survives next to the token.
     for (const el of [row, body, gutter(container, 1)]) {
       expect(el.className).not.toContain("h-5");
       expect(el.className).not.toContain("leading-[20px]");
+      expect(el.className).not.toContain("leading-[21px]");
     }
   });
 
   it("reads the panel typography and gutter metrics from the linking tokens", () => {
     const { container } = render(<CodeLines lines={LINES} />);
     const body = line(container, 1).parentElement as HTMLElement;
-    expect(body.className).toContain("text-[length:var(--docs-link-text-size,12px)]");
+    expect(body.className).toContain("text-[length:var(--docs-link-text-size,13px)]");
     const cell = gutter(container, 1);
-    expect(cell.className).toContain("w-[var(--docs-link-gutter-width,44px)]");
-    expect(cell.className).toContain("text-[length:var(--docs-link-gutter-text-size,11px)]");
+    expect(cell.className).toContain("w-[var(--docs-link-gutter-width,40px)]");
+    expect(cell.className).toContain("text-[length:var(--docs-link-gutter-text-size,12px)]");
     // The filler's gutter rule shares the gutter cell's width token, so the
     // hairline stays unbroken at any width.
     const filler = container.querySelector("[data-code-lines-filler]") as HTMLElement;
     const rule = filler.firstElementChild as HTMLElement;
-    expect(rule.className).toContain("w-[var(--docs-link-gutter-width,44px)]");
+    expect(rule.className).toContain("w-[var(--docs-link-gutter-width,40px)]");
   });
 
   it("continues the zebra rhythm through the filler at the line-height token's period", () => {
@@ -70,7 +71,7 @@ describe("CodeLines", () => {
     expect(odd.getAttribute("data-filler-parity")).toBe("odd");
     expect(odd.className).toContain("repeating-linear-gradient(to_bottom,transparent_0px");
     expect(odd.className).toContain("--docs-zebra");
-    expect(odd.className).toContain("calc(var(--docs-link-line-height,20px)*2)");
+    expect(odd.className).toContain("calc(var(--docs-link-line-height,21px)*2)");
     six.unmount();
 
     // 5 lines -> the first filler band is line 6 (even): it starts tinted.
@@ -78,7 +79,7 @@ describe("CodeLines", () => {
     const even = five.container.querySelector("[data-code-lines-filler]") as HTMLElement;
     expect(even.getAttribute("data-filler-parity")).toBe("even");
     expect(even.className).toContain("repeating-linear-gradient(to_bottom,var(--docs-zebra");
-    expect(even.className).toContain("calc(var(--docs-link-line-height,20px)*2)");
+    expect(even.className).toContain("calc(var(--docs-link-line-height,21px)*2)");
   });
 
   it("numbers lines locally from 1 per panel instance (R1)", () => {
@@ -108,12 +109,14 @@ describe("CodeLines", () => {
     expect(cell.className).toContain("select-none");
     expect(cell.className).toContain("border-r");
     expect(cell.className).toContain("var(--docs-code-rule,var(--border))");
+    // Numbers paint the gutter token as-is; the fallback is its light default.
+    expect(cell.className).toContain("text-[color:var(--docs-code-gutter-fg,#888784)]");
   });
 
-  it("zebra-stripes even lines only, via the --docs-zebra token (R4)", () => {
+  it("zebra-stripes even lines only, via the --docs-zebra token, transparent by default (R4)", () => {
     const { container } = render(<CodeLines lines={LINES} />);
     for (const n of [2, 4, 6]) {
-      expect(line(container, n).className).toContain("--docs-zebra");
+      expect(line(container, n).className).toContain("var(--docs-zebra,transparent)");
     }
     for (const n of [1, 3, 5]) {
       expect(line(container, n).className).not.toContain("--docs-zebra");

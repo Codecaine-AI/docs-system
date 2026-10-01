@@ -28,6 +28,11 @@ import { validateSpectreRef, type SpectreRef } from "@codecaine-ai/docs-model/sp
 import { FileTextIcon } from "lucide-react";
 import { useDocsClient, type DocsClient, type DocsTreeNode } from "../../client";
 import {
+  DOC_REFERENCE_CLASSES,
+  DOC_REFERENCE_LABEL_CLASSES,
+  SOURCE_REFERENCE_CLASSES,
+} from "../../render/block-classes";
+import {
   DOC_REFERENCE_NAVIGATE_EVENT,
   type DocReferenceNavigateDetail,
   type DocReferenceNavigateIntent,
@@ -185,6 +190,12 @@ function ReferenceChipView({ node }: ReactNodeViewProps) {
     );
   };
 
+  // Told apart by shape, not color alone: a doc reference is a sans link on
+  // a dotted underline (with the rail's file glyph), a source reference a
+  // mono link on a hairline rule with no glyph (render/block-classes.ts).
+  const isSource = attrs.ref?.kind === "source";
+  const label = attrs.label || attrs.ref?.label || attrs.ref?.path;
+
   const handleChipClick = (event: ReactMouseEvent) => {
     const wantsFullNavigation =
       event.metaKey || event.ctrlKey || attrs.ref?.kind !== "doc";
@@ -204,15 +215,23 @@ function ReferenceChipView({ node }: ReactNodeViewProps) {
         onFocus={() => setTooltipOpen(true)}
         onMouseEnter={showTooltipSoon}
         onMouseLeave={hideTooltip}
-        className="group inline-flex cursor-pointer items-baseline gap-[var(--docs-ref-icon-gap,2px)] [flex-direction:var(--docs-ref-icon-direction,row)] text-[color:var(--docs-ref-color,var(--foreground))]"
+        className={
+          isSource
+            ? SOURCE_REFERENCE_CLASSES
+            : `group inline-flex items-baseline gap-[var(--docs-ref-icon-gap,2px)] [flex-direction:var(--docs-ref-icon-direction,row)] ${DOC_REFERENCE_CLASSES}`
+        }
       >
-        <FileTextIcon
-          aria-hidden
-          className="self-center shrink-0 text-[color:var(--docs-ref-icon-color,currentColor)] [height:var(--docs-ref-icon-size,12px)] [width:var(--docs-ref-icon-size,12px)]"
-        />
-        <span className="underline-offset-2 group-hover:underline group-hover:decoration-[color:var(--docs-ref-underline-color,color-mix(in_srgb,var(--foreground)_40%,transparent))]">
-          {attrs.label || attrs.ref?.label || attrs.ref?.path}
-        </span>
+        {isSource ? (
+          label
+        ) : (
+          <>
+            <FileTextIcon
+              aria-hidden
+              className="self-center shrink-0 text-[color:var(--docs-ref-icon-color,currentColor)] [height:var(--docs-ref-icon-size,12px)] [width:var(--docs-ref-icon-size,12px)]"
+            />
+            <span className={DOC_REFERENCE_LABEL_CLASSES}>{label}</span>
+          </>
+        )}
       </span>
       {tooltipOpen && attrs.ref?.path && (
         <span
@@ -220,7 +239,7 @@ function ReferenceChipView({ node }: ReactNodeViewProps) {
           id={tooltipId}
           role="tooltip"
           style={floatingStyles}
-          className="pointer-events-none z-50 max-w-[min(32rem,calc(100vw-1rem))] break-all rounded-sm bg-foreground px-2 py-1 text-[11px] leading-tight text-background shadow-sm"
+          className="pointer-events-none z-50 max-w-[min(32rem,calc(100vw-1rem))] break-all rounded-sm bg-foreground px-2 py-1 font-mono text-[12px] leading-tight text-background shadow-sm"
         >
           {attrs.ref.path}
         </span>

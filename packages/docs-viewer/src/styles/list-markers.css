@@ -1,7 +1,10 @@
-/* Shared list markers for the Docs editor and static renderer. */
+/* Shared list markers for the Docs editor and static renderer. Markers are
+   secondary ink (--docs-list-marker-fg, muted by default, so a bullet still
+   clears 3:1); ordered numbers are mono, right-aligned in the hanging
+   gutter. */
 .docs-markdown [data-doc-list-marker] {
   font-family: var(--docs-font-numeric, inherit);
-  color: var(--docs-list-marker-fg, inherit);
+  color: var(--docs-list-marker-fg, #666562);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -40,8 +43,20 @@
  * combinator crosses the content column on both surfaces); deeper selectors
  * are more specific, so the deepest matching rule wins.
  */
+.docs-markdown [data-doc-ordered="true"] > [data-doc-list-marker] {
+  justify-content: flex-end;
+  padding-right: 8px;
+  box-sizing: border-box;
+  font-family: var(--docs-font-numeric, var(--docs-font-code, ui-monospace, SFMono-Regular, Menlo, monospace));
+  font-variant-numeric: tabular-nums;
+}
+
+/* The numeral shrinks to the code size inside a box that keeps the body's
+   line metrics, so it still centers on the item's first line. */
 .docs-markdown [data-doc-ordered="true"] > [data-doc-list-marker]::before {
   content: counter(docs-ordered-list) ".";
+  font-size: 0.8125em;
+  font-weight: 500;
 }
 
 .docs-markdown [data-doc-ordered="true"] [data-doc-ordered="true"] > [data-doc-list-marker]::before {
@@ -160,3 +175,25 @@
 .docs-markdown [data-doc-lane] > [data-doc-ordered="true"] {counter-reset:none;}
 .docs-markdown [data-doc-lane]:has(> [data-doc-ordered="true"]):first-child,
 .docs-markdown :not([data-doc-lane]:has(> [data-doc-ordered="true"])) + [data-doc-lane]:has(> [data-doc-ordered="true"]) {counter-reset:docs-ordered-list;}
+
+/*
+ * Label parent: an item that holds child ITEMS reads as a label for them —
+ * its own text in 600 ink, its children back at body weight — so authors
+ * never bold a parent by hand. Label groups sit three item gaps apart (12px
+ * at the default gap). Read surface: div[role=listitem] > content div >
+ * children div > child items. Edit surface: li > [data-doc-list-content] >
+ * the docBlockText span, then the child <li>s.
+ */
+.docs-markdown [role="listitem"]:has(> div > div > [role="listitem"]),
+.docs-markdown li:has(> [data-doc-list-content] > li) {
+  margin-top: calc(var(--docs-list-item-gap, 4px) * 3);
+  margin-bottom: calc(var(--docs-list-item-gap, 4px) * 3);
+}
+.docs-markdown [role="listitem"]:has(> div > div > [role="listitem"]) > div:not([data-doc-list-marker]),
+.docs-markdown li:has(> [data-doc-list-content] > li) > [data-doc-list-content] > [data-doc-node="docBlockText"] {
+  font-weight: 600;
+  color: var(--docs-ink, #1f1f1f);
+}
+.docs-markdown [role="listitem"]:has(> div > div > [role="listitem"]) > div:not([data-doc-list-marker]) > div {
+  font-weight: 400;
+}

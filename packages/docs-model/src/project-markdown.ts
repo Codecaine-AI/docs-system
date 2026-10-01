@@ -32,7 +32,6 @@ import type { DocBlock, DocDocument } from "./doc-schema";
  *   (`Array<{ lines, label?, note }>`), the fence is followed by one line
  *   per annotation: `> **L<lines>[ (<label>)]:** <note>`, e.g.
  *   `> **L4-9 (Validation):** Rejects orphan children.`
- * - `quote` -> `>`-prefixed blockquote line(s).
  * - `divider` -> a `---` line.
  * - `callout` -> `> **<label>[: <title>]** — body` where the label is
  *   `props.kind` when present (free-form chip, e.g. "Requirement"),

@@ -62,7 +62,7 @@ const DOC: DocDocument = {
 		},
 		"body-2": {
 			id: "body-2",
-			type: "quote",
+			type: "paragraph",
 			props: {},
 			text: [{ insert: "Detail body" }],
 			children: [],

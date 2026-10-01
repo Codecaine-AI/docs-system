@@ -6,17 +6,25 @@ import { STRUCTURAL_OPS, blockAttrs, el } from "../../render/descriptor-helpers"
 import { WIDE_LEFT_BLOCK_LAYOUT } from "../../render/block-layout";
 import { atomBlockNode } from "../../editor/core/node-helpers";
 import { ExpandableImage } from "./image-viewer";
+import { MEDIA_PANEL_CLASS } from "./media-panel";
 
 export type ImageGridItem = { src: string; heading?: string; alt?: string; caption?: string };
 export type ImageGridProps = { images: ImageGridItem[]; columns?: "auto" | number };
 export const DocImageGrid = atomBlockNode("docImageGrid");
 
-/** Ordered image comparisons. CSS handles wrapping; each image opens the full-screen viewer. */
+/**
+ * Ordered image comparisons. CSS handles wrapping; each image opens the
+ * full-screen viewer. Each item is a small media panel (image-grid.css) whose
+ * head is the item heading (no tile: one per item would only repeat), the
+ * image fills its body, and the caption sits below the panel.
+ */
 export function ImageGrid({ images, columns = "auto", resolveAssetSrc }: ImageGridProps & { resolveAssetSrc?: (src: string) => string }) {
-  return <div className="docs-image-grid" style={{ "--docs-grid-columns": columns === "auto" ? 4 : columns } as CSSProperties}>
+  return <div className="docs-image-grid not-prose" style={{ "--docs-grid-columns": columns === "auto" ? 4 : columns } as CSSProperties}>
     {images.map((image, index) => <figure className="docs-image-grid-item" key={index}>
-      {image.heading && <div className="docs-image-grid-heading">{image.heading}</div>}
-      <ExpandableImage src={resolveAssetSrc?.(image.src) ?? image.src} alt={image.alt ?? image.heading ?? image.caption ?? ""} title={image.heading ?? image.caption} loading="lazy" decoding="async" />
+      <div className={`docs-image-grid-panel ${MEDIA_PANEL_CLASS}`}>
+        {image.heading && <div className="docs-image-grid-head"><span className="docs-image-grid-heading">{image.heading}</span></div>}
+        <ExpandableImage src={resolveAssetSrc?.(image.src) ?? image.src} alt={image.alt ?? image.heading ?? image.caption ?? ""} title={image.heading ?? image.caption} loading="lazy" decoding="async" />
+      </div>
       {image.caption && <figcaption>{image.caption}</figcaption>}
     </figure>)}
   </div>;

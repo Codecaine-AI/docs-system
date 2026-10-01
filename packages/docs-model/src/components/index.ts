@@ -13,6 +13,12 @@ import { sequenceComponent } from "./sequence";
 import { stateShapeComponent } from "./state-shape";
 import { structuredTableComponent } from "./structured-table";
 import { processOutlineComponent } from "./process-outline";
+import { stackComponent } from "./stack";
+import { callStackComponent } from "./call-stack";
+import { componentTreeComponent } from "./component-tree";
+import { flowStripComponent } from "./flow-strip";
+import { pseudocodeComponent } from "./pseudocode";
+import { fileExplorerComponent } from "./file-explorer";
 import type {
   BlockStateDefinition,
   ComponentAction,
@@ -63,6 +69,15 @@ export {
   serializeProcessOutline,
 } from "./process-outline";
 export type { ProcessOutlineNode, ProcessOutlineStep } from "./process-outline";
+export { STACK_COLORS, readStack, stackComponent } from "./stack";
+export type { StackBoundary, StackColor, StackNode } from "./stack";
+export { CALL_STACK_KINDS, callStackComponent, readCallStack } from "./call-stack";
+export { COMPONENT_TREE_KINDS, componentTreeComponent, readComponentTree } from "./component-tree";
+export type { OutlineChange, OutlineRow } from "./shared/outline-rows";
+export { flowStripComponent, readFlowStrip } from "./flow-strip";
+export type { FlowStripStep } from "./flow-strip";
+export { pseudocodeComponent } from "./pseudocode";
+export { fileExplorerComponent } from "./file-explorer";
 
 export const ALL_COMPONENTS: readonly ComponentBundle[] = [
   richTextComponent,
@@ -74,6 +89,12 @@ export const ALL_COMPONENTS: readonly ComponentBundle[] = [
   canvasComponent,
   sequenceComponent,
   processOutlineComponent,
+  stackComponent,
+  callStackComponent,
+  componentTreeComponent,
+  flowStripComponent,
+  pseudocodeComponent,
+  fileExplorerComponent,
 ];
 
 export const COMPONENT_BY_TYPE: ReadonlyMap<DocBlockType, ComponentBundle> = new Map(

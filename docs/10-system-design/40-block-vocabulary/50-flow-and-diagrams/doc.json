@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 1,
+  "id": "doc-5cbab95aa2bf849218b80689f8ca5756",
+  "title": "Flow and diagrams",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-vocab-flow-opener",
+        "b-vocab-flow-table"
+      ]
+    },
+    "b-vocab-flow-opener": {
+      "id": "b-vocab-flow-opener",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Flow and diagrams blocks show how work moves and how parts connect, as outlines, strips, layer stacks, sequence diagrams, or canvases."
+        }
+      ],
+      "children": []
+    },
+    "b-vocab-flow-table": {
+      "id": "b-vocab-flow-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Block type",
+          "What it's for",
+          "Page"
+        ],
+        "rows": [
+          [
+            [
+              {
+                "insert": "process-outline",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "The expected execution path in nested phases, comparable with a trace.",
+            [
+              {
+                "insert": "Process outline",
+                "attributes": {
+                  "link": "#/10-system-design/40-block-vocabulary/50-flow-and-diagrams/10-process-outline"
+                }
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "insert": "flow-strip",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "A short linear loop or pipeline of three to six steps.",
+            [
+              {
+                "insert": "Flow strip",
+                "attributes": {
+                  "link": "#/10-system-design/40-block-vocabulary/50-flow-and-diagrams/20-flow-strip"
+                }
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "insert": "stack",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Layering and the rule enforced at each boundary.",
+            [
+              {
+                "insert": "Stack",
+                "attributes": {
+                  "link": "#/10-system-design/40-block-vocabulary/50-flow-and-diagrams/30-stack"
+                }
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "insert": "sequence",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "A bounded interaction where participant order, calls, and returns explain behavior.",
+            [
+              {
+                "insert": "Sequence",
+                "attributes": {
+                  "link": "#/10-system-design/40-block-vocabulary/50-flow-and-diagrams/40-sequence"
+                }
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "insert": "canvas",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "System connections, ownership boundaries, and dependencies.",
+            [
+              {
+                "insert": "Canvas",
+                "attributes": {
+                  "link": "#/10-system-design/40-block-vocabulary/50-flow-and-diagrams/50-canvas"
+                }
+              }
+            ]
+          ]
+        ]
+      },
+      "children": []
+    }
+  }
+}

@@ -3,6 +3,7 @@
 import { PlusIcon } from "lucide-react";
 import { useEffect, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { cn } from "../../../ui/cn";
+import { TABLE_CONTROL_FOCUS_CLASS } from "./Handles";
 
 const BAR_BASE_CLASSES =
   "absolute z-[2] flex items-center justify-center rounded-sm bg-muted/50 text-muted-foreground transition-opacity duration-200 ease-out hover:bg-muted";
@@ -115,6 +116,7 @@ export function AddButtons({
         data-table-add-column=""
         className={cn(
           BAR_BASE_CLASSES,
+          TABLE_CONTROL_FOCUS_CLASS,
           "cursor-col-resize",
           "-right-[18px] top-0 h-full w-4",
           barVisibility(lastColumnHovered),
@@ -144,6 +146,7 @@ export function AddButtons({
         data-table-add-row=""
         className={cn(
           BAR_BASE_CLASSES,
+          TABLE_CONTROL_FOCUS_CLASS,
           "cursor-row-resize",
           "-bottom-[18px] left-0 h-4 w-full",
           barVisibility(lastRowHovered),
@@ -173,6 +176,7 @@ export function AddButtons({
         data-table-add-both=""
         className={cn(
           BAR_BASE_CLASSES,
+          TABLE_CONTROL_FOCUS_CLASS,
           "cursor-nwse-resize",
           "-bottom-[18px] -right-[18px] h-4 w-4",
           barVisibility(false),

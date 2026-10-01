@@ -3,7 +3,7 @@ import type { LintRule } from '../../lint/types';
 /** A completed outline names one process and nests its actions beneath it. */
 export const processOutlineRootRule: LintRule = {
   id: 'process-outline.single-parent',
-  docsPath: '10-system-design/40-block-vocabulary/90-process-outline',
+  docsPath: '10-system-design/40-block-vocabulary/50-flow-and-diagrams/10-process-outline',
   severity: 'error',
   enforcement: ['complete'],
   applicability: 'Document-owned Process Outline blocks.',

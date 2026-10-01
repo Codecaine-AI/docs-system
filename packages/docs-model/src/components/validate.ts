@@ -12,6 +12,12 @@ import { sequenceComponent } from "./sequence";
 import { stateShapeComponent } from "./state-shape";
 import { structuredTableComponent } from "./structured-table";
 import { processOutlineComponent } from "./process-outline";
+import { stackComponent } from "./stack";
+import { callStackComponent } from "./call-stack";
+import { componentTreeComponent } from "./component-tree";
+import { flowStripComponent } from "./flow-strip";
+import { pseudocodeComponent } from "./pseudocode";
+import { fileExplorerComponent } from "./file-explorer";
 import type { ComponentBundle } from "./types";
 
 const COMPONENTS: readonly ComponentBundle[] = [
@@ -24,6 +30,12 @@ const COMPONENTS: readonly ComponentBundle[] = [
   canvasComponent,
   sequenceComponent,
   processOutlineComponent,
+  stackComponent,
+  callStackComponent,
+  componentTreeComponent,
+  flowStripComponent,
+  pseudocodeComponent,
+  fileExplorerComponent,
 ];
 
 const stateChecks = new Map(

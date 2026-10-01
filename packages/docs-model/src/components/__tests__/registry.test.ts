@@ -85,7 +85,7 @@ function syntheticAction(
 
 describe("component registry", () => {
   it("imports ../index with a healthy registry", () => {
-    expect(ALL_COMPONENTS).toHaveLength(9);
+    expect(ALL_COMPONENTS).toHaveLength(15);
     expect(collectRegistryIssues(ALL_COMPONENTS)).toEqual([]);
   });
 

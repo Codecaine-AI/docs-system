@@ -1,18 +1,20 @@
 # file-tree
 
-Generated from Codecaine Docs sources. Snapshot: `sha256:8861c4126d96a4fe05b112560004f112939f8bd23bcfa3b72fb78f29bf846861`. Refresh the installation to regenerate these files.
+Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872daf2950bc392aeeae845c9eb67ff4956ad352fb08`. Refresh the installation to regenerate these files.
 
 Use a File Tree to explain where files live and what each directory owns. Add notes or change markers when location or a migration is the subject.
 
 Example: Show the service entry point, skills directory, and generated references with a note for each.
 
-Canonical document: `10-system-design/40-block-vocabulary/40-file-tree`.
+Canonical document: `10-system-design/40-block-vocabulary/30-trees-and-paths/10-file-tree`.
 
 The file-tree component owns one block type, `file-tree`: the vocabulary's annotated path tree. A flat list of path entries in props renders on both surfaces as a `tree`-command drawing, with per-entry notes and change markers for describing repo slices and refactors.
 
 When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source; identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information.
 
 Reach for it when the nested structure is files, not steps: repo slices, refactor plans, and layout conventions. A process that flows end to end belongs to process-outline.
+
+To show the files a change touches as editor sidebar rows with a badge per changed file, use file-explorer instead.
 
 ## Example
 
@@ -37,8 +39,8 @@ A live instance: a refactor slice of this block's own source folder.
 **FileTreeState** — packages/docs-model/src/components/file-tree/state.ts#FileTreeState
 
 ```
-entries: FileTreeEntry[]  # Flat list of path entries; the rendered tree derives from path prefixes.
-  path: string  # /-separated, no leading "./"; a trailing "/" marks an explicit directory.
+entries: FileTreeEntry[]  # Flat list of path entries. The rendered tree derives from path prefixes.
+  path: string  # /-separated, with no leading "./". A trailing "/" marks an explicit directory.
   note?: string  # Short annotation rendered after the path.
   change?: "added" | "removed" | "modified" | "renamed"  # Diff marker for the entry.
   from?: string  # Previous path, used with change: "renamed".
@@ -60,7 +62,7 @@ entries: FileTreeEntry[]  # Flat list of path entries; the rendered tree derives
 }
 ```
 
-All state is one props key: `entries`, an array of path entries validated by the closed `FileTreeState` schema. The type carries no delta text (`carriesText: false`) and no title prop. Every fact lives in `entries`. The contract is State schema.
+Every fact lives in `entries`, an array of path entries validated by the closed `FileTreeState` schema. The type carries no delta text (`carriesText: false`). The contract is State schema.
 
 - Path rules
 

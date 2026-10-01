@@ -47,7 +47,6 @@ export const labelColonOpenerRule: LintRule = {
   exclusions: [
     "Labels made only of code spans",
     "Colons inside code spans, URLs and times",
-    "Quote blocks and their descendants",
   ],
   suggestion:
     "Write a complete sentence instead of a label and a colon. Put a label in a parent bullet and its detail in sub-bullets.",

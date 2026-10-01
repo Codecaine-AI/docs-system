@@ -19,14 +19,22 @@ import { validateSpectreRef } from "./spectre-ref";
  *   (requirement/decision/constraint/...) and its never-in-schema legacy
  *   blocks (overview/design/reference) with zero file rewrites — blocks
  *   canonicalize to the coerced form on next save.
+ * - RETIRED TYPE REPLACEMENTS: a retired type with a direct canonical
+ *   successor coerces to that successor instead of a callout. `quote` was
+ *   retired and reads as a `paragraph`: text and children carry over, and
+ *   its (always empty) props are dropped.
  */
+
+/** Retired block types that read as a specific canonical type. */
+export const RETIRED_BLOCK_TYPE_REPLACEMENTS: Readonly<Record<string, DocBlockType>> = {
+  quote: "paragraph",
+};
 
 export const DOC_BLOCK_TYPES = [
   // core text & structure
   "paragraph",
   "heading",
   "list-item",
-  "quote",
   "code",
   "callout",
   "divider",
@@ -43,6 +51,12 @@ export const DOC_BLOCK_TYPES = [
   "video",
   "html",
   "process-outline",
+  "stack",
+  "call-stack",
+  "component-tree",
+  "flow-strip",
+  "pseudocode",
+  "file-explorer",
 ] as const;
 
 export type DocBlockType = (typeof DOC_BLOCK_TYPES)[number];
@@ -252,6 +266,10 @@ export function validateDocDocument(value: unknown): DocValidationResult {
     let props = rawBlock.props as Record<string, unknown>;
     if (isDocBlockType(rawType)) {
       blockType = rawType;
+    } else if (Object.hasOwn(RETIRED_BLOCK_TYPE_REPLACEMENTS, rawType)) {
+      // Retired type with a direct successor (see module header).
+      blockType = RETIRED_BLOCK_TYPE_REPLACEMENTS[rawType]!;
+      props = {};
     } else {
       // Legacy type coercion (see module header): retired/unknown string types
       // become callouts; the original type name survives as props.kind unless

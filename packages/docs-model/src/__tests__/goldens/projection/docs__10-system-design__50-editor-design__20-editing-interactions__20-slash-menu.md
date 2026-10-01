@@ -6,7 +6,7 @@ A slash at the start of an inline run or after whitespace opens the menu. The un
 
 | Group | Commands |
 | --- | --- |
-| Basic | Text; Heading 1, 2, and 3; Other Headings (4–6); Bullet list; Numbered list; Code Block; Quote; Divider |
+| Basic | Text, Heading 1 to 3, Other Headings (4–6), Bullet list, Numbered list, Code Block, and Divider |
 | Blocks | Callout; Canvas; Image |
 
 - **Menu Geometry**

@@ -1,12 +1,12 @@
 # rich-text
 
-Generated from Codecaine Docs sources. Snapshot: `sha256:8861c4126d96a4fe05b112560004f112939f8bd23bcfa3b72fb78f29bf846861`. Refresh the installation to regenerate these files.
+Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872daf2950bc392aeeae845c9eb67ff4956ad352fb08`. Refresh the installation to regenerate these files.
 
 Use paragraphs for explanation, headings for hierarchy, lists for steps or parallel facts, quotes for attributed text, and callouts for a distinct note. Use images and video when the visual evidence matters. Use image-grid for ordered image comparisons: images contain src, heading?, alt?, caption?; columns is auto or 1 to 4. Rows grow with the image count. This component accepts images only, not text columns. Use html for a self-contained HTML/CSS diagram or interactive artifact; supply title and html props, inline styles and data assets. Scripts require allowScripts=true and stay in an opaque-origin sandbox with fetch and external subresources blocked. Use code for examples readers should read instead of execute. Use typed components for state, operations, tables, and diagrams.
 
 Example: Introduce the retry policy in prose, list the recovery steps, and link to the operation definition.
 
-Canonical document: `10-system-design/40-block-vocabulary/10-rich-text`.
+Canonical document: `10-system-design/40-block-vocabulary/10-text-and-media/10-rich-text`.
 
 The rich-text component owns the text-and-media block types that make up ordinary document flow. They share the delta-span text model and the markdown-shortcut input rules, which is why they live grouped here, one doc per type.
 

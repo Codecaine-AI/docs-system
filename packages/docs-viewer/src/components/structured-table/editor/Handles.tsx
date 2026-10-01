@@ -13,6 +13,14 @@ import { cn } from "../../../ui/cn";
  */
 export const HANDLE_ACCENT_BG_CLASS = "bg-[color:var(--docs-editor-accent,#2383e2)]";
 
+/**
+ * Keyboard focus ring for every table control (handles, add bars, handle
+ * menu items): 2px in the shared focus-ring role, shown only for
+ * keyboard focus.
+ */
+export const TABLE_CONTROL_FOCUS_CLASS =
+  "focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[color:var(--docs-focus-ring,#0078df)]";
+
 const HANDLE_BASE_CLASSES =
   "absolute z-[2] flex cursor-grab items-center justify-center rounded-[var(--docs-table-handle-radius,var(--radius,2px))] transition-opacity duration-200 ease-out active:cursor-grabbing";
 
@@ -71,7 +79,7 @@ export function ColumnHandle({
       aria-label="Column handle"
       data-table-column-handle=""
       style={{ left, top }}
-      className={cn(HANDLE_BASE_CLASSES, "h-4 w-7", handleSkin(active))}
+      className={cn(HANDLE_BASE_CLASSES, "h-4 w-7", handleSkin(active), TABLE_CONTROL_FOCUS_CLASS)}
       onMouseDown={onMouseDown}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
@@ -110,7 +118,7 @@ export function RowHandle({
       aria-label="Row handle"
       data-table-row-handle=""
       style={{ left, top }}
-      className={cn(HANDLE_BASE_CLASSES, "h-7 w-4", handleSkin(active))}
+      className={cn(HANDLE_BASE_CLASSES, "h-7 w-4", handleSkin(active), TABLE_CONTROL_FOCUS_CLASS)}
       onMouseDown={onMouseDown}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}

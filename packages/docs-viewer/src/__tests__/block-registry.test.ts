@@ -95,6 +95,24 @@ describe("file-tree — mdx adapter + tree rendering", () => {
     );
   }
 
+  function treeDom(props: Record<string, unknown>): HTMLElement {
+    const host = document.createElement("div");
+    host.innerHTML = renderTree(props);
+    return host;
+  }
+
+  /** One summary per row: guides, change glyph, visible name (sr-only words dropped). */
+  function rowSummaries(host: HTMLElement): string[] {
+    return Array.from(host.querySelectorAll("[role='listitem']")).map((row) => {
+      const guides = Array.from(row.querySelectorAll("[data-g]"))
+        .map((guide) => guide.getAttribute("data-g"))
+        .join(",");
+      const name = row.querySelector(".docs-tree__name")?.textContent ?? "";
+      const change = row.getAttribute("data-change");
+      return [guides || "-", change, name].filter(Boolean).join(" ");
+    });
+  }
+
   it("documents the v2 entry fields in the agentDescription", () => {
     const description = getDocBlockDescriptor("file-tree")?.agentDescription ?? "";
     expect(description).toContain("change?");
@@ -103,124 +121,104 @@ describe("file-tree — mdx adapter + tree rendering", () => {
     expect(description).toContain('trailing "/"');
   });
 
-  it("nests flat paths and renders tree-style guide glyphs", () => {
-    const html = renderTree({
+  it("nests flat paths under derived directories with joined elbow guides", () => {
+    const host = treeDom({
       entries: [
         { path: "src/runtime/registry.ts" },
         { path: "src/runtime/dispatch.ts" },
         { path: "src/index.ts" },
       ],
     });
-    expect(html).toContain('data-docs-block-type="file-tree"');
-    expect(html).toContain('data-source-id="tree-1"');
-    expect(html).toContain('class="not-prose my-4"');
-    expect(html).not.toContain("File Tree");
-    expect(html).not.toContain("3 entries");
-    // Derived directories from prefixes + guide glyphs at each depth.
-    expect(html).toContain("└── ");
-    expect(html).toContain("├── ");
-    expect(html).toContain("│   ");
-    // Rows show basenames; full paths live in the entry data attribute.
-    expect(html).toContain('data-docs-file-tree-entry="src/runtime/registry.ts"');
-    expect(html).toContain('data-docs-file-tree-entry="src/index.ts"');
-    expect(html).toContain(">registry.ts</span>");
-    // Derived dirs render with a trailing slash and no entry attribute.
-    expect(html).toContain(">runtime/</span>");
-    expect(html).not.toContain('data-docs-file-tree-entry="src/"');
+    expect(host.querySelector('[data-docs-block-type="file-tree"]')?.getAttribute("data-source-id")).toBe("tree-1");
+    expect(rowSummaries(host)).toEqual([
+      "- src/",
+      "tee runtime/",
+      "pipe,tee dispatch.ts",
+      "pipe,end registry.ts",
+      "end index.ts",
+    ]);
+    // Full paths live in the entry attribute; derived dirs carry none.
+    expect(host.querySelector('[data-docs-file-tree-entry="src/runtime/registry.ts"]')).not.toBeNull();
+    expect(host.querySelector('[data-docs-file-tree-entry="src/"]')).toBeNull();
+    // No "." root row and no box-drawing glyphs: guides are drawn, not typed.
+    expect(host.textContent).not.toContain("└");
   });
 
-  it("does not render a legacy title prop", () => {
-    const html = renderTree({ title: "Layout", entries: [{ path: "src/index.ts" }] });
-    expect(html).not.toContain("Layout");
+  it("heads the panel with the block name, never a legacy title prop", () => {
+    const host = treeDom({ title: "Layout", entries: [{ path: "src/index.ts" }] });
+    expect(host.querySelector("figcaption")?.textContent).toBe("File tree");
+    expect(host.textContent).not.toContain("Layout");
   });
 
   it("sorts directories before files, then alphabetically", () => {
-    const html = renderTree({
-      entries: [
-        { path: "zeta.ts" },
-        { path: "alpha.ts" },
-        { path: "beta/inner.ts" },
-      ],
+    const host = treeDom({
+      entries: [{ path: "zeta.ts" }, { path: "alpha.ts" }, { path: "beta/inner.ts" }],
     });
-    const beta = html.indexOf(">beta/</span>");
-    const alpha = html.indexOf(">alpha.ts</span>");
-    const zeta = html.indexOf(">zeta.ts</span>");
-    expect(beta).toBeGreaterThan(-1);
-    expect(alpha).toBeGreaterThan(beta);
-    expect(zeta).toBeGreaterThan(alpha);
+    expect(rowSummaries(host).map((row) => row.split(" ").pop())).toEqual([
+      "beta/",
+      "inner.ts",
+      "alpha.ts",
+      "zeta.ts",
+    ]);
   });
 
-  it("respects explicit trailing-/ directory entries (with metadata)", () => {
-    const html = renderTree({
+  it("puts notes in their own column, wrapped rather than truncated", () => {
+    const host = treeDom({
       entries: [
         { path: "docs/", note: "empty for now" },
         { path: "src/main.ts" },
       ],
     });
-    expect(html).toContain('data-docs-file-tree-entry="docs/"');
-    expect(html).toContain(">docs/</span>");
-    expect(html).toContain("# empty for now");
+    const docs = host.querySelector('[data-docs-file-tree-entry="docs/"]');
+    expect(docs?.querySelector(".docs-tree__name")?.textContent).toBe("docs/");
+    expect(docs?.querySelector(".docs-tree__note")?.textContent).toBe("empty for now");
+    expect(host.textContent).not.toContain("# empty for now");
+    // A row without a note lets its name run into the note column.
+    expect(host.querySelector('[data-docs-file-tree-entry="src/main.ts"] .docs-tree__path--span')).not.toBeNull();
   });
 
-  it("renders diff markers and tints per change state", () => {
-    const html = renderTree({
+  it("marks each change with a gutter glyph and its word, only on explicit entries", () => {
+    const host = treeDom({
       entries: [
         { path: "src/a.ts", change: "added" },
         { path: "src/b.ts", change: "removed" },
         { path: "src/c.ts", change: "modified" },
       ],
     });
-    expect(html).toContain('data-docs-file-tree-change="added"');
-    expect(html).toContain(">+</span>");
-    expect(html).toContain("var(--docs-file-tree-added-tint,var(--color-emerald-500))");
-    expect(html).toContain('data-docs-file-tree-change="removed"');
-    expect(html).toContain(">-</span>");
-    expect(html).toContain("var(--docs-file-tree-removed-tint,var(--color-rose-500))");
-    expect(html).toContain("line-through");
-    expect(html).toContain('data-docs-file-tree-change="modified"');
-    expect(html).toContain(">~</span>");
-    expect(html).toContain("var(--docs-file-tree-modified-tint,var(--color-amber-500))");
-    // Derived parent dirs never carry change state: the first change attr in
-    // the markup appears only after the derived `src/` directory row.
-    const srcRow = html.indexOf(">src/</span>");
-    expect(srcRow).toBeGreaterThan(-1);
-    expect(html.slice(0, srcRow)).not.toContain("data-docs-file-tree-change");
+    const marks = Array.from(host.querySelectorAll(".docs-tree__mark")).map((mark) => mark.textContent);
+    expect(marks).toEqual(["", "+added", "−removed", "~modified"]);
+    expect(host.querySelector("[data-diff]")).not.toBeNull();
+    // Derived parent dirs never carry change state.
+    expect(rowSummaries(host)[0]).toBe("- src/");
   });
 
-  it("renders renamed entries as struck from → name with the sky tint", () => {
-    const html = renderTree({
+  it("has no diff gutter when nothing changed", () => {
+    const host = treeDom({ entries: [{ path: "src/lib/doc-ops.ts" }, { path: "README.md" }] });
+    expect(host.querySelector("[data-diff]")).toBeNull();
+    expect(host.querySelector(".docs-tree__mark")).toBeNull();
+    expect(host.querySelector("[data-docs-file-tree-change]")).toBeNull();
+  });
+
+  it("shows a renamed entry's old path relative to its new folder, full path in the title", () => {
+    const host = treeDom({
       entries: [
         { path: "src/agents/planner.ts", change: "renamed", from: "src/agents/orchestrator.ts" },
+        { path: "src/flows/lib.ts", change: "renamed", from: "src/waterfall/lib.ts" },
       ],
     });
-    expect(html).toContain('data-docs-file-tree-change="renamed"');
-    expect(html).toContain("var(--docs-file-tree-renamed-tint,var(--color-sky-500))");
-    expect(html).toContain(">src/agents/orchestrator.ts</span>");
-    expect(html).toContain("line-through");
-    expect(html).toContain("→");
-    expect(html).toContain(">planner.ts</span>");
-  });
-
-  it("renders notes as muted # comments with a title attribute", () => {
-    const html = renderTree({
-      entries: [{ path: "src/registry.ts", note: "single tool registry" }],
-    });
-    expect(html).toContain("# single tool registry");
-    expect(html).toContain('title="single tool registry"');
-  });
-
-  it("keeps rendering plain v1 { path } entries (backward compat)", () => {
-    const html = renderTree({
-      entries: [{ path: "src/lib/doc-ops.ts" }, { path: "README.md" }],
-    });
-    expect(html).toContain('data-docs-file-tree-entry="src/lib/doc-ops.ts"');
-    expect(html).toContain(">doc-ops.ts</span>");
-    expect(html).toContain(">README.md</span>");
-    expect(html).not.toContain("data-docs-file-tree-change");
+    const froms = Array.from(host.querySelectorAll(".docs-tree__from"));
+    expect(froms.map((from) => from.textContent)).toEqual(["orchestrator.ts", "../waterfall/lib.ts"]);
+    expect(froms.map((from) => from.getAttribute("title"))).toEqual([
+      "src/agents/orchestrator.ts",
+      "src/waterfall/lib.ts",
+    ]);
+    expect(host.querySelector('[data-docs-file-tree-entry="src/agents/planner.ts"] .docs-tree__name')?.textContent).toBe(
+      "planner.ts",
+    );
   });
 
   it("filters malformed entries and strips malformed optional fields without crashing", () => {
-    const html = renderTree({
+    const host = treeDom({
       entries: [
         null,
         "not an object",
@@ -230,129 +228,16 @@ describe("file-tree — mdx adapter + tree rendering", () => {
         { path: "   " },
       ],
     });
-    expect(html).toContain('data-docs-file-tree-entry="ok.ts"');
-    expect(html).not.toContain("data-docs-file-tree-change");
-    expect(html).not.toContain("1 entry");
+    expect(rowSummaries(host)).toEqual(["- ok.ts"]);
+    expect(host.querySelector("[data-docs-file-tree-change]")).toBeNull();
   });
 
   it("renders the empty-tree placeholder when entries are absent or not an array", () => {
     for (const props of [{}, { entries: "nope" }, { entries: [] }]) {
       const html = renderTree(props as Record<string, unknown>);
       expect(html).toContain('data-docs-block-type="file-tree"');
-      expect(html).not.toContain("0 entries");
       expect(html).toContain("(no entries)");
     }
-  });
-
-  describe("style tokens", () => {
-    /** The class attribute of the element whose text content is exactly `text`. */
-    function classOf(html: string, text: string): string {
-      const escaped = text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      const match = html.match(new RegExp(`class="([^"]*)"[^>]*>${escaped}<`));
-      expect(match).not.toBeNull();
-      return match?.[1] ?? "";
-    }
-    /** The class attribute of the row carrying `data-docs-file-tree-entry="<path>"`. */
-    function rowClassOf(html: string, path: string): string {
-      const match = html.match(
-        new RegExp(`class="([^"]*)" data-docs-file-tree-entry="${path}"`),
-      );
-      expect(match).not.toBeNull();
-      return match?.[1] ?? "";
-    }
-
-    const html = renderTree({
-      entries: [
-        { path: "src/plain.ts", note: "a note" },
-        { path: "src/a.ts", change: "added" },
-        { path: "src/b.ts", change: "removed" },
-        { path: "src/c.ts", change: "modified" },
-        { path: "src/new.ts", change: "renamed", from: "src/old.ts" },
-      ],
-    });
-
-    it("reads the card frame, padding and type scale from the file-tree vars", () => {
-      const card = html.match(/<section[^>]*><div class="([^"]*)"/)?.[1] ?? "";
-      for (const expected of [
-        "rounded-[var(--docs-file-tree-radius,var(--radius,2px))]",
-        "border-[length:var(--docs-file-tree-border-width,1px)]",
-        "border-[color:var(--docs-file-tree-border,var(--border))]",
-        "bg-[var(--docs-file-tree-bg,var(--background))]",
-        "py-[var(--docs-file-tree-pad-y,8px)]",
-        "text-[length:var(--docs-file-tree-text-size,12px)]",
-        "leading-[var(--docs-file-tree-line-height,24px)]",
-      ]) {
-        expect(card.split(" ")).toContain(expected);
-      }
-      // The literals the vars replaced must not shadow them.
-      for (const hardcoded of ["rounded-md", "border", "bg-background", "py-2", "text-xs", "leading-6"]) {
-        expect(card.split(" ")).not.toContain(hardcoded);
-      }
-      // Horizontal padding rides every row (so a diff tint runs edge to edge).
-      expect(rowClassOf(html, "src/plain.ts").split(" ")).toContain(
-        "px-[var(--docs-file-tree-pad-x,12px)]",
-      );
-      expect(html).not.toContain("px-3");
-    });
-
-    it("reads folder and file name ink and weight from their own vars", () => {
-      const folder = classOf(html, "src/").split(" ");
-      expect(folder).toContain("[font-weight:var(--docs-file-tree-folder-weight,500)]");
-      expect(folder).toContain("text-[color:var(--docs-file-tree-folder-fg,var(--foreground))]");
-      const file = classOf(html, "plain.ts").split(" ");
-      expect(file).toContain("[font-weight:var(--docs-file-tree-file-weight,400)]");
-      expect(file).toContain("text-[color:var(--docs-file-tree-file-fg,var(--foreground))]");
-      expect(html).not.toContain("font-medium");
-      expect(html).not.toContain("text-foreground");
-    });
-
-    it("reads the note, guide and muted inks from their vars", () => {
-      const note = html.match(/class="([^"]*)" title="a note"/)?.[1].split(" ") ?? [];
-      expect(note).toContain(
-        "text-[color:var(--docs-file-tree-note-fg,var(--muted-foreground))]",
-      );
-      expect(note).toContain("text-[length:var(--docs-file-tree-note-text-size,12px)]");
-      expect(classOf(html, "└── ").split(" ")).toContain(
-        "text-[color:var(--docs-file-tree-guide-fg,color-mix(in_oklab,var(--muted-foreground)_70%,transparent))]",
-      );
-      const muted = "text-[color:var(--docs-file-tree-muted-fg,var(--muted-foreground))]";
-      // Root dot row, the struck rename source, and the empty placeholder.
-      expect(html.match(/<div class="([^"]*)" aria-hidden="true">/)?.[1].split(" ")).toContain(muted);
-      expect(classOf(html, "src/old.ts").split(" ")).toContain(muted);
-      expect(classOf(renderTree({ entries: [] }), "(no entries)").split(" ")).toContain(muted);
-      expect(html).not.toContain("text-muted-foreground");
-    });
-
-    it("reads each diff state's name, marker and row tint from that state's vars", () => {
-      const states = [
-        { state: "added", hue: "emerald", path: "src/a.ts", name: "a.ts", marker: "+" },
-        { state: "removed", hue: "rose", path: "src/b.ts", name: "b.ts", marker: "-" },
-        { state: "modified", hue: "amber", path: "src/c.ts", name: "c.ts", marker: "~" },
-        { state: "renamed", hue: "sky", path: "src/new.ts", name: "new.ts", marker: "&gt;" },
-      ];
-      for (const { state, hue, path, name, marker } of states) {
-        expect(rowClassOf(html, path).split(" ")).toContain(
-          `bg-[color-mix(in_oklab,var(--docs-file-tree-${state}-tint,var(--color-${hue}-500))_calc(var(--docs-file-tree-change-tint,10)*1%),transparent)]`,
-        );
-        const nameClasses = classOf(html, name).split(" ");
-        expect(nameClasses).toContain(
-          `text-[color:var(--docs-file-tree-${state}-fg,var(--color-${hue}-700))]`,
-        );
-        expect(nameClasses).toContain(
-          `dark:text-[color:var(--docs-file-tree-${state}-fg,var(--color-${hue}-300))]`,
-        );
-        // A diff state owns the name colour; the plain file ink steps aside.
-        expect(nameClasses.join(" ")).not.toContain("--docs-file-tree-file-fg");
-        const markerClasses = classOf(html, marker).split(" ");
-        expect(markerClasses).toContain(
-          `text-[color:var(--docs-file-tree-${state}-marker,var(--color-${hue}-600))]`,
-        );
-        expect(markerClasses).toContain(
-          `dark:text-[color:var(--docs-file-tree-${state}-marker,var(--color-${hue}-400))]`,
-        );
-      }
-      expect(classOf(html, "b.ts").split(" ")).toContain("line-through");
-    });
   });
 });
 
@@ -424,26 +309,26 @@ describe("structured-table / interaction-surface — props-driven descriptors", 
     expect(html).toContain('data-docs-block-type="interaction-surface"');
     expect(html).toContain('data-interaction-operation="file-tree.addEntry"');
     expect(html).toContain("Append a path entry");
-    expect(html).toContain("File-Tree Block Surface");
+    // The title heads the panel as written (no title-casing).
+    expect(html).toContain("File-tree block surface");
     // The signature is colorized token-by-token (data-sig-token spans) and
-    // rendered code-block-like: `name(` opening line, one indented param per
-    // line (trailing commas, `?` for required: false), `) -> returns` close.
+    // rendered code-block-like: `name(` opening line with the REAL dotted
+    // name, one indented param per line (trailing commas, `?` for
+    // required: false), `) → returns` close.
     const signatureText = html.replace(/<[^>]+>/g, "").replace(/&gt;/g, ">");
-    // Operations title themselves with the bare verb — namespace stripped.
-    expect(signatureText).toContain("addEntry(");
-    expect(signatureText).not.toContain("file-tree.addEntry(");
+    expect(signatureText).toContain("file-tree.addEntry(");
     expect(signatureText).toContain("  path: string,");
     expect(signatureText).toContain("  note?: string,");
-    expect(signatureText).toContain(") -> props patch");
+    expect(signatureText).toContain(") → props patch");
     // Zero-param operations stay on one line.
-    expect(signatureText).toContain("entries() -> FileTreeEntry[]");
+    expect(signatureText).toContain("file-tree.entries() → FileTreeEntry[]");
     expect(html).toContain('data-sig-token="name"');
-    // The signature renders through numbered CodeLines rows in a bare card
-    // (no header bar); the description sits in the notes pane.
+    // The signature renders through CodeLines rows on a code surface; the
+    // purpose sits on the operation line; the kind is a text badge.
     expect(html).toContain("data-code-line");
     expect(html).not.toContain("data-card-shell");
     expect(html).toContain('data-operation-purpose="true"');
-    expect(html).toContain(">query<");
+    expect(html).toContain('data-operation-kind-badge="query"');
     expect(html).not.toContain("Invalid Interaction Surface block");
   });
 
@@ -624,7 +509,7 @@ describe("image block type — resolveAssetSrc (TG7.3)", () => {
 });
 
 describe("video block type — descriptor", () => {
-  it("embeds a provider url as an iframe, with title/caption threaded through", () => {
+  it("renders a provider url as a link card, with title/caption threaded through", () => {
     const descriptor = getDocBlockDescriptor("video");
     expect(descriptor).not.toBeNull();
     const html = renderToStaticMarkup(
@@ -638,8 +523,11 @@ describe("video block type — descriptor", () => {
       ) as never,
     );
     expect(html).toContain('data-doc-block="video"');
-    expect(html).toContain('src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"');
-    expect(html).toContain('title="Docs walkthrough"');
+    // The player loads only when the reader asks (VideoDocsBlock.test.tsx).
+    expect(html).not.toContain("<iframe");
+    expect(html).toContain('data-video-provider="youtube"');
+    expect(html).toContain('href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"');
+    expect(html).toContain(">Docs walkthrough<");
     expect(html).toContain("An external video.");
   });
 

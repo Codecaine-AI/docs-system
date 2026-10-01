@@ -1,12 +1,13 @@
 import { afterEach, describe, expect, it } from "bun:test";
 import { cleanup, render } from "@testing-library/react";
-import { CalloutDocsBlock } from "../components/rich-text/CalloutDocsBlock";
+import { CalloutDocsBlock, calloutLabel } from "../components/rich-text/CalloutDocsBlock";
 
 /**
- * The callout's `variant` prop picks one of four layouts (styled by the
- * component's stylesheet off data-callout-variant), and no variant shows a
- * visible type label: the icon names the type for assistive tech and in its
- * hover tooltip.
+ * Every callout renders ONE note card: the retired `variant` prop is still
+ * read and stamped on data-callout-variant (so docs round-trip), but the
+ * layout no longer changes with it. The card's type is PRINTED — the kind
+ * when set, else the tone name, in sentence case — never tooltip-only; the
+ * tone glyph is decorative.
  */
 
 afterEach(cleanup);
@@ -49,20 +50,32 @@ describe("callout variants", () => {
     expect(aside.getAttribute("data-callout-variant")).toBe(expected);
   });
 
-  it("shows no type label; the icon names the tone, or the kind when set", () => {
+  it("prints the type label: the tone name, or the kind when set", () => {
     const toned = renderCallout({ tone: "risk", variant: "tab" });
-    expect(visibleText(toned)).toBe("Body text.");
+    expect(visibleText(toned)).toBe("RiskBody text.");
     const icon = toned.querySelector("[data-callout-icon]");
-    expect(icon?.getAttribute("role")).toBe("img");
-    expect(icon?.getAttribute("aria-label")).toBe("Risk");
-    expect(icon?.getAttribute("data-tip")).toBe("Risk");
+    expect(icon?.getAttribute("aria-hidden")).toBe("true");
+    expect(icon?.hasAttribute("data-tip")).toBe(false);
     expect(icon?.hasAttribute("title")).toBe(false);
     cleanup();
 
     const kinded = renderCallout({ tone: "info", kind: "Requirement", title: "Keep ids" });
-    expect(visibleText(kinded)).toBe("Keep idsBody text.");
-    expect(kinded.querySelector("[data-callout-icon]")?.getAttribute("aria-label")).toBe(
-      "Requirement",
-    );
+    expect(kinded.querySelector("[data-callout-label]")?.textContent).toBe("Requirement");
+    expect(kinded.querySelector("[data-callout-title]")?.textContent).toBe("Keep ids");
+    expect(visibleText(kinded)).toBe("RequirementKeep idsBody text.");
+  });
+});
+
+describe("calloutLabel", () => {
+  it.each([
+    [undefined, "warning", "Warning"],
+    ["", "decision", "Decision"],
+    ["gotcha", "warning", "Gotcha"],
+    ["Boundary under review", "warning", "Boundary under review"],
+    ["OPEN QUESTION", "info", "Open question"],
+    ["API change", "info", "API change"],
+    [undefined, "unknown-tone", "Info"],
+  ])("kind %p on tone %p prints %p", (kind, tone, label) => {
+    expect(calloutLabel(kind, tone)).toBe(label);
   });
 });

@@ -1,0 +1,463 @@
+{
+  "schemaVersion": 1,
+  "id": "doc-c6d58ef9cfb90443a82c9f1748699bca",
+  "title": "Flow Strip",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "fs-intro",
+        "fs-h-example",
+        "fs-example-lead",
+        "fs-example",
+        "fs-h-state",
+        "fs-state-lead",
+        "fs-state-shape",
+        "fs-h-actions",
+        "fs-actions",
+        "fs-h-doc",
+        "fs-doc-lead",
+        "fs-doc-1",
+        "fs-doc-2",
+        "fs-doc-3",
+        "fs-doc-4",
+        "fs-h-agent",
+        "fs-agent-lead",
+        "fs-agent-1",
+        "fs-agent-2",
+        "fs-agent-3"
+      ]
+    },
+    "fs-intro": {
+      "id": "fs-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The flow strip component owns one block type, "
+        },
+        {
+          "insert": "flow-strip",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", a row of numbered step cards joined by arrows. It shows a short linear loop or pipeline of three to six steps at a glance. Use process outline when steps nest or need notes, and sequence when the messages between parties matter."
+        }
+      ],
+      "children": []
+    },
+    "fs-h-example": {
+      "id": "fs-h-example",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Example"
+        }
+      ],
+      "children": []
+    },
+    "fs-example-lead": {
+      "id": "fs-example-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This strip is the edit loop that "
+        },
+        {
+          "insert": "packages/docs-mcp/src/service.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "packages/docs-mcp/src/tools.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " enforce for every page edit."
+        }
+      ],
+      "children": []
+    },
+    "fs-example": {
+      "id": "fs-example",
+      "type": "flow-strip",
+      "props": {
+        "caption": "When `docs_check` fails, fix the findings in its `style_gate` and check again.",
+        "steps": [
+          {
+            "name": "docs_discover",
+            "detail": "Lists the workspace's projects."
+          },
+          {
+            "name": "docs_begin",
+            "detail": "Pins the guidance snapshot and returns `task_id`."
+          },
+          {
+            "name": "docs_guidance",
+            "detail": "Reads topic `style` once per task. Writes are refused until then."
+          },
+          {
+            "name": "docs_apply_ops",
+            "detail": "Applies typed ops atomically against `expected_hash`."
+          },
+          {
+            "name": "docs_check",
+            "detail": "Fails on style violations this task introduced."
+          },
+          {
+            "name": "docs_end",
+            "detail": "Releases the snapshot. Edits stay saved."
+          }
+        ],
+        "title": "Docs MCP edit loop"
+      },
+      "children": []
+    },
+    "fs-h-state": {
+      "id": "fs-h-state",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "State Schema"
+        }
+      ],
+      "children": []
+    },
+    "fs-state-lead": {
+      "id": "fs-state-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "All state lives in three props, defined by "
+        },
+        {
+          "insert": "FlowStripState",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "packages/docs-model/src/components/flow-strip/state.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". The type carries no delta text ("
+        },
+        {
+          "insert": "carriesText: false",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "). Backticks in any text field mark code."
+        }
+      ],
+      "children": []
+    },
+    "fs-state-shape": {
+      "id": "fs-state-shape",
+      "type": "state-shape",
+      "props": {
+        "fields": [
+          {
+            "name": "title",
+            "type": "string",
+            "required": false,
+            "description": "Short label above the cards."
+          },
+          {
+            "name": "steps",
+            "type": "FlowStripStep[]",
+            "description": "One card per step, in order.",
+            "fields": [
+              {
+                "name": "name",
+                "type": "string",
+                "description": "Step name on the card. Must be nonempty."
+              },
+              {
+                "name": "detail",
+                "type": "string",
+                "required": false,
+                "description": "One line under the name."
+              }
+            ]
+          },
+          {
+            "name": "caption",
+            "type": "string",
+            "required": false,
+            "description": "One line under the cards."
+          }
+        ],
+        "name": "FlowStripState",
+        "source": {
+          "path": "packages/docs-model/src/components/flow-strip/state.ts",
+          "symbol": "FlowStripState"
+        }
+      },
+      "children": []
+    },
+    "fs-h-actions": {
+      "id": "fs-h-actions",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Typed Actions"
+        }
+      ],
+      "children": []
+    },
+    "fs-actions": {
+      "id": "fs-actions",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The flow strip has no named actions. An "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " op replaces "
+        },
+        {
+          "insert": "title",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "steps",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", or "
+        },
+        {
+          "insert": "caption",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " whole, and the write is validated against "
+        },
+        {
+          "insert": "FlowStripState",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "fs-h-doc": {
+      "id": "fs-h-doc",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Doc Renderer"
+        }
+      ],
+      "children": []
+    },
+    "fs-doc-lead": {
+      "id": "fs-doc-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "FlowStripBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "packages/docs-viewer/src/components/flow-strip/FlowStripBlock.tsx",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " draws the strip in the standard text lane:"
+        }
+      ],
+      "children": []
+    },
+    "fs-doc-1": {
+      "id": "fs-doc-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each step is a bordered card with a two-digit number, the name in code font, and the detail line in body font."
+        }
+      ],
+      "children": []
+    },
+    "fs-doc-2": {
+      "id": "fs-doc-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Cards sit in a grid with a 150px minimum width and wrap to a new row when the lane is narrow. An arrow joins each card to the one before it on the same row."
+        }
+      ],
+      "children": []
+    },
+    "fs-doc-3": {
+      "id": "fs-doc-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The title and the caption render in muted text above and below the cards."
+        }
+      ],
+      "children": []
+    },
+    "fs-doc-4": {
+      "id": "fs-doc-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every visual value reads a "
+        },
+        {
+          "insert": "--docs-flow-strip-*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " token with a literal fallback."
+        }
+      ],
+      "children": []
+    },
+    "fs-h-agent": {
+      "id": "fs-h-agent",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent Renderer"
+        }
+      ],
+      "children": []
+    },
+    "fs-agent-lead": {
+      "id": "fs-agent-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The projection in "
+        },
+        {
+          "insert": "packages/docs-model/src/components/flow-strip/agent-view.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is three paragraphs, each omitted when empty:"
+        }
+      ],
+      "children": []
+    },
+    "fs-agent-1": {
+      "id": "fs-agent-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The title renders in bold."
+        }
+      ],
+      "children": []
+    },
+    "fs-agent-2": {
+      "id": "fs-agent-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each step renders as one numbered line, "
+        },
+        {
+          "insert": "N. name — detail",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", with the detail omitted when absent."
+        }
+      ],
+      "children": []
+    },
+    "fs-agent-3": {
+      "id": "fs-agent-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The caption renders as plain text."
+        }
+      ],
+      "children": []
+    }
+  }
+}

@@ -16,7 +16,7 @@
         "li-a",
         "li-b",
         "code-1",
-        "quote-1",
+        "p-invariant",
         "callout-1",
         "table-1",
         "tree-1",
@@ -188,9 +188,9 @@
       ],
       "children": []
     },
-    "quote-1": {
-      "id": "quote-1",
-      "type": "quote",
+    "p-invariant": {
+      "id": "p-invariant",
+      "type": "paragraph",
       "props": {},
       "text": [
         {

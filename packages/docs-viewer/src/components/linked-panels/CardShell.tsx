@@ -6,7 +6,7 @@ import { CARD_SHELL_BAR_CLASSES, CARD_SHELL_CLASSES } from "./classes";
 
 /**
  * The shared card frame of the linked-panels family: a rounded bordered
- * card opened by an uppercase-mono header bar — label left, optional
+ * card opened by a 12px mono header bar — label left, optional
  * legend right (e.g. "structure ↔ example"). System rule R5 lives in the
  * label slot: only panels whose language varies put a language there.
  */

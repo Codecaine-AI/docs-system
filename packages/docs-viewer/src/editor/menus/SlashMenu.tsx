@@ -28,7 +28,6 @@ import {
   ListOrdered,
   Megaphone,
   Minus,
-  TextQuote,
   Type,
   type LucideIcon,
 } from "lucide-react";
@@ -207,8 +206,7 @@ function buildV1Commands(): SlashCommandItem[] {
     action("0_Basic@5", "Bullet list", List, "Create a simple bulleted list.", "list-item", { ordered: false }, ["ul", "unordered"]),
     action("0_Basic@6", "Numbered list", ListOrdered, "Create a list with numbering.", "list-item", { ordered: true }, ["ol", "ordered"]),
     action("0_Basic@7", "Code Block", Code, "Code snippet with formatting.", "code", undefined, ["```", "codeblock", "code"]),
-    action("0_Basic@8", "Quote", TextQuote, "Add a blockquote for emphasis.", "quote", undefined, [">", "blockquote"]),
-    action("0_Basic@9", "Divider", Minus, "Visually divide blocks.", "divider", undefined, ["hr", "separator", "---"]),
+    action("0_Basic@8", "Divider", Minus, "Visually divide blocks.", "divider", undefined, ["hr", "separator", "---"]),
     action("1_Blocks@0", "Callout", Megaphone, "Emphasize a block of text.", "callout", undefined, ["note", "info", "tip"]),
     action("1_Blocks@1", "Canvas", Frame, "Embed an editable canvas.", "canvas", undefined, ["diagram", "drawing"]),
     action("1_Blocks@3", "Image Grid", Code, "Compare labeled images in responsive columns.", "image-grid", { blockProps: { images: [], columns: "auto" } }, ["gallery", "images", "comparison"]),

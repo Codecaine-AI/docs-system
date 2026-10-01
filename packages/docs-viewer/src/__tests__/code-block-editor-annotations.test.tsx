@@ -16,14 +16,28 @@ import {
   lineRangeSpan,
   parseCodeAnnotations,
 } from "../components/code/annotations";
+import {
+  CODE_ANNOTATION_ROW_LIT_CLASSES,
+  CODE_GUTTER_LINE_ANNOTATED_LIT_CLASSES,
+  CODE_NOTE_LIT_CLASSES,
+} from "../components/code/classes";
 import { buildDecorations } from "../components/code/editor-highlight";
 import { DocCodeBlock } from "../components/code/editor-nodes";
 import { CodeBlockNodeView } from "../components/code/editor-node-view";
 import { HIGHLIGHT_LANGUAGES } from "../components/code/highlight";
+import { RANGE_CHIP_LIT_CLASSES } from "../components/linked-panels";
 
 afterEach(() => {
   cleanup();
 });
+
+/** True when the element carries EVERY utility of a state class constant. */
+function hasClasses(element: Element, classes: string): boolean {
+  return classes.split(" ").every((token) => element.classList.contains(token));
+}
+
+/** The resting gutter mark: the annotation accent at 65%, drawn as an ::after bar. */
+const RESTING_MARK = "after:bg-[color:color-mix(in_srgb,var(--docs-code-annotation-accent,#0b6e99)_65%,transparent)]";
 
 describe("parseCodeAnnotations", () => {
   it("accepts well-formed entries and preserves optional labels", () => {
@@ -170,10 +184,13 @@ describe("CodeBlockNodeView header band", () => {
     const header = container.querySelector("[data-code-header]");
     expect(header).toBeTruthy();
     expect(header?.getAttribute("contenteditable")).toBe("false");
+    expect(header?.querySelector("[data-code-tile]")?.getAttribute("data-code-tile")).toBe("code");
 
     const select = getByLabelText("Code block language") as HTMLSelectElement;
     expect(select.className).toContain("appearance-none");
-    expect(select.className).toContain("uppercase");
+    // Lowercase mono as authored, never the old caps.
+    expect(select.className).toContain("font-mono");
+    expect(select.className).not.toContain("uppercase");
     // Quiet look: muted text on a transparent bg, no pill tint; the
     // --docs-code-lang-fg token is the block-hover affordance color.
     expect(select.className).toContain("text-[color:var(--docs-code-header-fg,var(--muted-foreground))]");
@@ -182,6 +199,10 @@ describe("CodeBlockNodeView header band", () => {
     expect(select.className).toContain(
       "group-hover/code:text-[color:var(--docs-code-lang-fg",
     );
+    // Keyboard focus draws the shared ring.
+    expect(select.className).toContain("focus-visible:outline-[color:var(--docs-focus-ring,");
+    // The hover hook lives on the panel frame.
+    expect(select.closest("[data-code-surface]")?.classList.contains("group/code")).toBe(true);
     const options = Array.from(select.options).map((option) => option.value);
     expect(options).toEqual(["", ...HIGHLIGHT_LANGUAGES]);
     expect(select.options[0]?.textContent).toBe("auto");
@@ -271,48 +292,51 @@ describe("CodeBlockNodeView shell geometry", () => {
     const { container } = render(<CodeBlockNodeView {...props} />);
     const cls = (selector: string) => container.querySelector(selector)!.className;
 
-    // The NodeViewWrapper is the lane; the frame sits directly inside it.
-    // cn() must keep width, color and radius.
-    const frame = container.querySelector("[data-doc-lane]")!.firstElementChild!.className;
+    // The panel frame (inside the notes layout); cn() must keep width,
+    // color and radius.
+    const frame = cls("[data-code-surface]");
     expect(frame).toContain("border-[length:var(--docs-code-border-width,1px)]");
     expect(frame).toContain("border-[color:var(--docs-code-block-border,var(--border))]");
     expect(frame).toContain("rounded-[var(--docs-code-radius,var(--radius,2px))]");
-    expect(frame).toContain("text-[length:var(--docs-code-text-size,12px)]");
-    expect(frame).toContain("leading-[var(--docs-code-line-height,20px)]");
+    expect(frame).toContain("text-[length:var(--docs-code-text-size,13px)]");
+    expect(frame).toContain("leading-[var(--docs-code-line-height,21px)]");
 
     const content = cls("[data-code-content]");
-    expect(content).toContain("text-[length:var(--docs-code-text-size,12px)]");
-    expect(content).toContain("leading-[var(--docs-code-line-height,20px)]");
-    expect(content).toContain("grid-cols-[var(--docs-code-gutter-width,48px)_1fr]");
+    expect(content).toContain("text-[length:var(--docs-code-text-size,13px)]");
+    expect(content).toContain("leading-[var(--docs-code-line-height,21px)]");
+    expect(content).toContain("grid-cols-[var(--docs-code-gutter-width,40px)_1fr]");
 
     const gutterLine = cls('[data-code-gutter-line="1"]');
-    expect(gutterLine).toContain("h-[var(--docs-code-line-height,20px)]");
+    expect(gutterLine).toContain("h-[var(--docs-code-line-height,21px)]");
     expect(gutterLine).toContain("text-[length:var(--docs-code-gutter-text-size,12px)]");
-    expect(gutterLine).toContain("pr-[var(--docs-code-gutter-pad-x,8px)]");
-    // Annotated gutter line: accent color replaces the number color, size stays.
+    expect(gutterLine).toContain("pr-[var(--docs-code-gutter-pad-x,12px)]");
+    expect(gutterLine).toContain("text-[color:var(--docs-code-gutter-fg,#888784)]");
+    // Annotated gutter line at rest: the quiet mark; size and number color stay.
     const annotated = cls('[data-code-gutter-line="2"]');
     expect(annotated).toContain("text-[length:var(--docs-code-gutter-text-size,12px)]");
-    expect(annotated).toContain("text-[color:var(--docs-code-annotation-accent");
+    expect(annotated).toContain("text-[color:var(--docs-code-gutter-fg,#888784)]");
+    expect(annotated).toContain(RESTING_MARK);
 
-    expect(cls("[data-code-zebra]")).toContain("left-[var(--docs-code-gutter-width,48px)]");
-    expect(cls("[data-code-zebra]")).toContain("var(--docs-code-zebra,var(--docs-zebra,");
+    expect(cls("[data-code-zebra]")).toContain("left-[var(--docs-code-gutter-width,40px)]");
+    expect(cls("[data-code-zebra]")).toContain("var(--docs-code-zebra,var(--docs-zebra,transparent))");
     expect(cls("[data-code-annotation-row]")).toContain(
-      "left-[var(--docs-code-gutter-width,48px)]",
+      "left-[var(--docs-code-gutter-width,40px)]",
     );
     const scroll = cls("[data-code-scroll]");
-    expect(scroll).toContain("pt-[var(--docs-code-pad-top,0px)]");
-    expect(scroll).toContain("pb-[var(--docs-code-pad-bottom,8px)]");
+    expect(scroll).toContain("pt-[var(--docs-code-pad-top,12px)]");
+    expect(scroll).toContain("pb-[var(--docs-code-pad-bottom,12px)]");
     expect(cls("pre")).toContain("px-[var(--docs-code-pad-x,12px)]");
 
     // Header: the picker carries the label's size / weight / color tokens.
-    expect(cls("[data-code-header]")).toContain("h-[var(--docs-code-header-height,28px)]");
+    expect(cls("[data-code-header]")).toContain("h-[var(--docs-code-header-height,32px)]");
+    expect(cls("[data-code-header]")).toContain("bg-[color:var(--docs-code-header-bg,");
     const select = cls("select");
-    expect(select).toContain("text-[length:var(--docs-code-header-text-size,10px)]");
-    expect(select).toContain("[font-weight:var(--docs-code-header-weight,500)]");
+    expect(select).toContain("text-[length:var(--docs-code-header-text-size,12px)]");
+    expect(select).toContain("[font-weight:var(--docs-code-header-weight,400)]");
     expect(select).toContain("text-[color:var(--docs-code-header-fg,var(--muted-foreground))]");
 
     expect(cls('[data-annotation-note="0"]')).toContain(
-      "text-[length:var(--docs-code-note-text-size,12px)]",
+      "text-[length:var(--docs-code-note-text-size,14px)]",
     );
 
     for (const literal of ["h-5", "h-7", "3rem", "text-xs", "leading-[20px]", "pb-2", "rounded-md"]) {
@@ -320,7 +344,7 @@ describe("CodeBlockNodeView shell geometry", () => {
     }
   });
 
-  it("renders annotation overlay rows behind the text with 20px line geometry", () => {
+  it("renders annotation overlay rows behind the text on the line-height token's geometry", () => {
     const { props } = nodeViewProps(
       { annotations: [{ lines: "2-3", note: "The math." }] },
       { text: "a\nb\nc\nd" },
@@ -330,25 +354,27 @@ describe("CodeBlockNodeView shell geometry", () => {
     const rows = container.querySelectorAll<HTMLElement>("[data-code-annotation-row]");
     expect(rows.length).toBe(1);
     // The run rides two unitless vars (0-based start, line count); the row
-    // classes multiply them by the line-height token — 20px by default, so
-    // this run paints at top 20px / height 40px.
+    // classes multiply them by the line-height token — 21px by default, so
+    // this run paints at top 21px / height 42px.
     expect(rows[0]?.style.getPropertyValue("--docs-code-row-start")).toBe("1");
     expect(rows[0]?.style.getPropertyValue("--docs-code-row-span")).toBe("2");
     expect(rows[0]?.className).toContain(
-      "top-[calc(var(--docs-code-line-height,20px)*var(--docs-code-row-start,0))]",
+      "top-[calc(var(--docs-code-line-height,21px)*var(--docs-code-row-start,0))]",
     );
     expect(rows[0]?.className).toContain(
-      "h-[calc(var(--docs-code-line-height,20px)*var(--docs-code-row-span,1))]",
+      "h-[calc(var(--docs-code-line-height,21px)*var(--docs-code-row-span,1))]",
     );
     expect(rows[0]?.className).toContain("pointer-events-none");
     // At rest the overlay is geometry only — no tint until the pair is lit.
     expect(rows[0]?.className).not.toContain("bg-");
     expect(rows[0]?.getAttribute("contenteditable")).toBe("false");
-    // Matching gutter lines restyle; others do not. At rest that restyle is
-    // the accent bar + accent number ONLY — no bg fill.
+    // Matching gutter lines carry the quiet mark (positioned by `relative`);
+    // no tint, no accent number yet.
     const gutterLine2 = container.querySelector('[data-code-gutter-line="2"]')!;
-    expect(gutterLine2.className).toContain("border-[color:var(--docs-code-annotation-accent");
-    expect(gutterLine2.className).not.toContain("bg-");
+    expect(gutterLine2.classList.contains("relative")).toBe(true);
+    expect(gutterLine2.classList.contains(RESTING_MARK)).toBe(true);
+    expect(gutterLine2.className).not.toContain("bg-[image:");
+    expect(gutterLine2.className).not.toContain("font-semibold");
     expect(
       container.querySelector('[data-code-gutter-line="2"]')?.hasAttribute("data-annotated"),
     ).toBe(true);
@@ -358,18 +384,21 @@ describe("CodeBlockNodeView shell geometry", () => {
     expect(
       container.querySelector('[data-code-gutter-line="1"]')?.hasAttribute("data-annotated"),
     ).toBe(false);
+    expect(container.querySelector('[data-code-gutter-line="1"]')!.className).not.toContain("after:");
   });
 
   it("renders a bare single-column code block without annotations or when all entries are malformed", () => {
     for (const blockProps of [{}, { annotations: [] }, { annotations: [{ lines: 4 }] }]) {
       const { props } = nodeViewProps(blockProps);
       const { container, unmount } = render(<CodeBlockNodeView {...props} />);
-      // No notes column, no notes header, no vertical divider — just the code block.
+      // No notes layout, no notes column, no overlays — just the panel,
+      // directly inside the lane.
+      expect(container.querySelector("[data-code-layout]")).toBeNull();
       expect(container.querySelector("[data-code-notes]")).toBeNull();
       expect(container.querySelector("[data-code-notes-header]")).toBeNull();
       expect(container.querySelector("[data-code-annotation-row]")).toBeNull();
-      const frame = container.firstElementChild!;
-      expect(frame.className).not.toContain("lg:grid-cols-");
+      const frame = container.querySelector("[data-doc-lane]")!.firstElementChild!;
+      expect(frame.getAttribute("data-code-surface")).toBe("true");
       expect(frame.className).not.toContain("--docs-code-notes-width");
       // The header keeps its subtle bottom rule even on plain blocks.
       const header = container.querySelector("[data-code-header]")!;
@@ -377,6 +406,7 @@ describe("CodeBlockNodeView shell geometry", () => {
       unmount();
     }
   });
+
 });
 
 describe("CodeBlockNodeView notes aside", () => {
@@ -385,52 +415,54 @@ describe("CodeBlockNodeView notes aside", () => {
     { lines: "3", note: "The sum." },
   ];
 
-  it("renders the notes in a non-editable aside as plain uncarded buttons", () => {
+  it("renders the notes as non-editable margin prose beside the panel, outside it", () => {
     const { props } = nodeViewProps({ annotations: ANNOTATIONS });
-    const { container, getByText } = render(<CodeBlockNodeView {...props} />);
+    const { container, getByText, queryByText } = render(<CodeBlockNodeView {...props} />);
 
-    const aside = container.querySelector("[data-code-notes]");
+    const aside = container.querySelector("[data-code-notes]")!;
     expect(aside).toBeTruthy();
-    expect(aside?.getAttribute("contenteditable")).toBe("false");
+    expect(aside.tagName).toBe("ASIDE");
+    expect(aside.getAttribute("aria-label")).toBe("Code notes");
+    expect(aside.getAttribute("contenteditable")).toBe("false");
     expect(container.querySelectorAll("[data-annotation-note]").length).toBe(2);
-    // Notes are plain text at rest: no card border/background/ring on the
-    // first note; later notes carry ONLY the between-items hairline rule.
-    const note = container.querySelector('[data-annotation-note="0"]')!;
-    expect(note.className).not.toContain("border");
-    expect(note.className).not.toContain("bg-");
-    expect(note.className).not.toContain("ring");
-    const second = container.querySelector('[data-annotation-note="1"]')!;
-    expect(second.className).toContain("border-t-[length:var(--docs-code-rule-width,1px)]");
-    expect(second.className).not.toContain("bg-");
-    expect(second.className).not.toContain("ring");
-    // Aligned header cells: the notes column opens with its own header
-    // cell carrying the same bottom rule as the code header, with the NOTES
-    // label styled exactly like the language label.
-    const notesHeader = container.querySelector("[data-code-notes-header]")!;
-    const codeHeader = container.querySelector("[data-code-header]")!;
-    for (const cell of [codeHeader, notesHeader]) {
-      expect(cell.className).toContain("h-[var(--docs-code-header-height,28px)]");
-      expect(cell.className).toContain("border-b-[length:var(--docs-code-rule-width,1px)]");
-      expect(cell.className).toContain("var(--docs-code-rule,var(--border))");
-      expect(cell.className).toContain("--docs-code-rule-opacity");
+
+    // Layout: lane > size-container layout > grid > [panel, notes]; the
+    // notes sit on the page, outside the dark panel.
+    const layout = container.querySelector("[data-doc-lane]")!.firstElementChild!;
+    expect(layout.hasAttribute("data-code-layout")).toBe(true);
+    expect(layout.className).toContain("@container");
+    const grid = layout.firstElementChild!;
+    expect(grid.className).toContain(
+      "@min-[760px]:grid-cols-[minmax(0,1fr)_var(--docs-code-notes-width,280px)]",
+    );
+    const [frame, notes] = Array.from(grid.children);
+    expect(frame?.getAttribute("data-code-surface")).toBe("true");
+    expect(notes).toBe(aside);
+    expect(aside.closest("[data-code-surface]")).toBeNull();
+
+    // Plain prose buttons: no card border/background/ring and no dividers.
+    for (const i of [0, 1]) {
+      const note = container.querySelector(`[data-annotation-note="${i}"]`)!;
+      expect(note.tagName).toBe("BUTTON");
+      expect(note.className).not.toContain("border");
+      expect(note.className).not.toContain("bg-");
+      expect(note.className).not.toMatch(/(^| )ring-/);
     }
-    const select = container.querySelector("select")!;
-    const notesLabel = notesHeader.querySelector("span")!;
-    // The label classes are the select's quiet base (minus its picker affordance classes).
-    for (const token of notesLabel.className.split(" ")) {
-      expect(select.className).toContain(token);
-    }
-    // Chipless notes: the raw lines key rides in the note button's title.
-    expect(container.querySelector("[data-range-chip]")).toBeNull();
+    // No notes header, no "Notes" label.
+    expect(container.querySelector("[data-code-notes-header]")).toBeNull();
+    expect(queryByText("Notes")).toBeNull();
+
+    // Each note opens with its range chip; the authored key rides in the title.
+    const note0 = container.querySelector('[data-annotation-note="0"]')!;
+    expect(note0.firstElementChild?.getAttribute("data-range-chip")).toBe("true");
+    expect(note0.querySelector("[data-range-chip]")?.textContent).toBe("L1–2");
     expect(
-      container.querySelector('[data-annotation-note="0"]')?.getAttribute("title"),
-    ).toBe("1-2");
+      container.querySelector('[data-annotation-note="1"] [data-range-chip]')?.textContent,
+    ).toBe("L3");
+    expect(note0.getAttribute("title")).toBe("Lines 1-2");
     expect(getByText("Setup")).toBeTruthy();
     expect(getByText("Declares the inputs.")).toBeTruthy();
     expect(getByText("The sum.")).toBeTruthy();
-    // Annotated frame (inside the lane) becomes the two-column grid at lg (aside on the right).
-    const frame = container.querySelector("[data-doc-lane]")!.firstElementChild!;
-    expect(frame.className).toContain("lg:grid-cols-[minmax(0,1fr)_var(--docs-code-notes-width,320px)]");
   });
 
   it("note clicks toggle the active pair, restyle overlays + gutter, and scroll the range into view", async () => {
@@ -442,21 +474,30 @@ describe("CodeBlockNodeView notes aside", () => {
 
     const note = container.querySelector('[data-annotation-note="0"]')!;
     const row = () => container.querySelector('[data-code-annotation-row="0"]')!;
+    const gutterLine = (n: number) => container.querySelector(`[data-code-gutter-line="${n}"]`)!;
     const scroll = container.querySelector<HTMLElement>("[data-code-scroll]")!;
 
     fireEvent.click(note);
     expect(note.hasAttribute("data-active")).toBe(true);
     expect(row().hasAttribute("data-active")).toBe(true);
-    expect(row().className).toContain("ring-inset");
+    // The active pair is lit: accent tint on the overlay (no ring), accent
+    // numbers on its gutter lines only.
+    expect(hasClasses(row(), CODE_ANNOTATION_ROW_LIT_CLASSES)).toBe(true);
+    expect(row().className).not.toContain("ring");
+    expect(hasClasses(gutterLine(5), CODE_GUTTER_LINE_ANNOTATED_LIT_CLASSES)).toBe(true);
+    expect(hasClasses(gutterLine(6), CODE_GUTTER_LINE_ANNOTATED_LIT_CLASSES)).toBe(true);
+    expect(hasClasses(gutterLine(4), CODE_GUTTER_LINE_ANNOTATED_LIT_CLASSES)).toBe(false);
     await waitFor(() => {
-      // First covered line is 5: (5-1)*20 - 8 = 72.
-      expect(scroll.scrollTop).toBe(72);
+      // First covered line is 5 at the 21px default: (5-1)*21 - 8 = 76.
+      expect(scroll.scrollTop).toBe(76);
     });
 
     // Clicking the active note again clears the pair.
     fireEvent.click(note);
     expect(note.hasAttribute("data-active")).toBe(false);
     expect(row().hasAttribute("data-active")).toBe(false);
+    expect(hasClasses(row(), CODE_ANNOTATION_ROW_LIT_CLASSES)).toBe(false);
+    expect(hasClasses(gutterLine(5), CODE_GUTTER_LINE_ANNOTATED_LIT_CLASSES)).toBe(false);
   });
 
   it("hovering a note lights its overlay transiently; mouse-leave unlights unless sticky-clicked", () => {
@@ -467,33 +508,42 @@ describe("CodeBlockNodeView notes aside", () => {
     const { container } = render(<CodeBlockNodeView {...props} />);
 
     const note = container.querySelector('[data-annotation-note="0"]')!;
+    const chip = note.querySelector("[data-range-chip]")!;
     const row = () => container.querySelector('[data-code-annotation-row="0"]')!;
     const gutterLine2 = () => container.querySelector('[data-code-gutter-line="2"]')!;
 
     // Rest: no tint on the overlay or the annotated gutter line.
     expect(row().className).not.toContain("bg-");
-    expect(gutterLine2().className).not.toContain("bg-");
+    expect(hasClasses(gutterLine2(), CODE_GUTTER_LINE_ANNOTATED_LIT_CLASSES)).toBe(false);
+    expect(hasClasses(chip, RANGE_CHIP_LIT_CLASSES)).toBe(false);
 
-    // Hover lights the pair (tint appears) without sticky activation.
+    // Hover lights the pair without sticky activation: tinted overlay,
+    // accent gutter line, page-ink note with a link-color chip.
     fireEvent.mouseEnter(note);
     expect(row().hasAttribute("data-lit")).toBe(true);
     expect(row().hasAttribute("data-active")).toBe(false);
-    expect(row().className).toContain("bg-[color:color-mix(in_srgb,var(--docs-code-annotation-accent");
-    expect(gutterLine2().className).toContain("bg-[color:color-mix(in_srgb,var(--docs-code-annotation-accent");
-    expect(note.className).toContain("bg-[color:color-mix");
+    expect(hasClasses(row(), CODE_ANNOTATION_ROW_LIT_CLASSES)).toBe(true);
+    expect(hasClasses(gutterLine2(), CODE_GUTTER_LINE_ANNOTATED_LIT_CLASSES)).toBe(true);
+    expect(note.getAttribute("data-lit")).toBe("true");
+    expect(hasClasses(note, CODE_NOTE_LIT_CLASSES)).toBe(true);
+    expect(hasClasses(chip, RANGE_CHIP_LIT_CLASSES)).toBe(true);
 
     // Mouse-leave unlights when nothing is sticky.
     fireEvent.mouseLeave(note);
     expect(row().hasAttribute("data-lit")).toBe(false);
     expect(row().className).not.toContain("bg-");
+    expect(hasClasses(gutterLine2(), CODE_GUTTER_LINE_ANNOTATED_LIT_CLASSES)).toBe(false);
+    expect(note.hasAttribute("data-lit")).toBe(false);
 
     // Sticky click keeps it lit after the pointer leaves.
     fireEvent.click(note);
     fireEvent.mouseLeave(note);
     expect(row().hasAttribute("data-lit")).toBe(true);
     expect(row().hasAttribute("data-active")).toBe(true);
-    expect(row().className).toContain("bg-[color:color-mix");
+    expect(hasClasses(row(), CODE_ANNOTATION_ROW_LIT_CLASSES)).toBe(true);
+    expect(hasClasses(chip, RANGE_CHIP_LIT_CLASSES)).toBe(true);
   });
+
 });
 
 describe("CodeBlockNodeView inside a real editor", () => {

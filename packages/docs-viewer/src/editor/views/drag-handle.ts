@@ -1,7 +1,8 @@
 "use client";
 
 import { Extension } from "@tiptap/core";
-import { NodeSelection, Plugin, PluginKey } from "@tiptap/pm/state";
+import type { Node as PMNode } from "@tiptap/pm/model";
+import { NodeSelection, Plugin, PluginKey, Selection } from "@tiptap/pm/state";
 import type { EditorView } from "@tiptap/pm/view";
 import { dragSelectPluginKey } from "./drag-select-state";
 
@@ -295,6 +296,32 @@ class DragHandleView {
   }
 }
 
+/**
+ * A click INSIDE an atom block never selects it (Ford, 2026-10-01): a block
+ * goes blue only from its grip (onClick above) or a drag-select band.
+ * ProseMirror's default answers a click or triple-click on a selectable atom
+ * with a NodeSelection over the whole block, so opening an expandable block
+ * (state shape, interaction surface, call stack, …) washed it blue. Claiming
+ * the click stops that. A block selection already standing (a grip-selected
+ * block) drops to a caret beside the clicked block, so the click still reads
+ * as a deselect.
+ */
+function claimAtomBlockClick(
+  view: EditorView,
+  node: PMNode,
+  nodePos: number,
+  direct: boolean,
+): boolean {
+  if (!direct || !node.isBlock || !node.isAtom) return false;
+  const { state } = view;
+  if (state.selection instanceof NodeSelection) {
+    const $pos = state.doc.resolve(nodePos);
+    const caret = Selection.findFrom($pos, -1, true) ?? Selection.findFrom($pos, 1, true);
+    if (caret) view.dispatch(state.tr.setSelection(caret));
+  }
+  return true;
+}
+
 export const DocDragHandle = Extension.create({
   name: "docDragHandle",
 
@@ -303,6 +330,12 @@ export const DocDragHandle = Extension.create({
       new Plugin({
         key: docDragHandlePluginKey,
         view: (editorView) => new DragHandleView(editorView),
+        props: {
+          handleClickOn: (view, _pos, node, nodePos, _event, direct) =>
+            claimAtomBlockClick(view, node, nodePos, direct),
+          handleTripleClickOn: (view, _pos, node, nodePos, _event, direct) =>
+            claimAtomBlockClick(view, node, nodePos, direct),
+        },
       }),
     ];
   },

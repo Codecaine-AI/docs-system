@@ -1,0 +1,502 @@
+{
+  "schemaVersion": 1,
+  "id": "doc-617c4cf04c407e54a014c04df64326a6",
+  "title": "File Explorer",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "fx-intro",
+        "fx-h-example",
+        "fx-example-lead",
+        "fx-example",
+        "fx-h-state",
+        "fx-state-lead",
+        "fx-state-shape",
+        "fx-h-actions",
+        "fx-actions",
+        "fx-h-doc",
+        "fx-doc-lead",
+        "fx-doc-1",
+        "fx-doc-2",
+        "fx-doc-3",
+        "fx-doc-4",
+        "fx-doc-5",
+        "fx-h-agent",
+        "fx-agent"
+      ]
+    },
+    "fx-intro": {
+      "id": "fx-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The file-explorer component owns one block type, "
+        },
+        {
+          "insert": "file-explorer",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", which draws flat path entries as IDE-style sidebar rows with collapsible folders and a badge per changed file. Use it to show the files a change touches. "
+        },
+        {
+          "insert": "File Tree",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/30-trees-and-paths/10-file-tree"
+            }
+          }
+        },
+        {
+          "insert": " draws the same entry shape as a plain-text "
+        },
+        {
+          "insert": "tree",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " listing."
+        }
+      ],
+      "children": []
+    },
+    "fx-h-example": {
+      "id": "fx-h-example",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Example"
+        }
+      ],
+      "children": []
+    },
+    "fx-example-lead": {
+      "id": "fx-example-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This block lists five files in "
+        },
+        {
+          "insert": "packages/docs-model/src/components/file-tree/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Click a folder row to collapse it."
+        }
+      ],
+      "children": []
+    },
+    "fx-example": {
+      "id": "fx-example",
+      "type": "file-explorer",
+      "props": {
+        "entries": [
+          {
+            "path": "packages/docs-model/src/components/file-tree/state.ts",
+            "note": "entry schema + tolerant read"
+          },
+          {
+            "path": "packages/docs-model/src/components/file-tree/agent-view.ts",
+            "change": "modified",
+            "note": "tree drawing"
+          },
+          {
+            "path": "packages/docs-model/src/components/file-tree/actions/update-entry.ts",
+            "change": "added"
+          },
+          {
+            "path": "packages/docs-model/src/components/file-tree/lib.ts",
+            "change": "renamed",
+            "from": "packages/docs-model/src/components/file-tree/render.ts"
+          },
+          {
+            "path": "packages/docs-model/src/components/file-tree/manifest.ts"
+          }
+        ],
+        "title": "File-tree refactor slice"
+      },
+      "children": []
+    },
+    "fx-h-state": {
+      "id": "fx-h-state",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "State Schema"
+        }
+      ],
+      "children": []
+    },
+    "fx-state-lead": {
+      "id": "fx-state-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "FileExplorerState",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " reuses the file tree's entry schema and adds two optional props. The type carries no delta text ("
+        },
+        {
+          "insert": "carriesText: false",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ")."
+        }
+      ],
+      "children": []
+    },
+    "fx-state-shape": {
+      "id": "fx-state-shape",
+      "type": "state-shape",
+      "props": {
+        "fields": [
+          {
+            "name": "entries",
+            "type": "FileTreeEntry[]",
+            "description": "Flat path entries. Folders derive from path prefixes.",
+            "fields": [
+              {
+                "name": "path",
+                "type": "string",
+                "description": "/-separated, no leading \"./\". A trailing \"/\" marks a directory."
+              },
+              {
+                "name": "note",
+                "type": "string",
+                "required": false,
+                "description": "One muted line after the name."
+              },
+              {
+                "name": "change",
+                "type": "\"added\" | \"removed\" | \"modified\" | \"renamed\"",
+                "required": false,
+                "description": "Colors the name and adds an A, D, M, or R badge."
+              },
+              {
+                "name": "from",
+                "type": "string",
+                "required": false,
+                "description": "Previous path when renamed."
+              }
+            ]
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "required": false,
+            "description": "Header title. No header renders without it."
+          },
+          {
+            "name": "maxRows",
+            "type": "integer (>= 1)",
+            "required": false,
+            "description": "Rows shown before folding (default 8)."
+          }
+        ],
+        "name": "FileExplorerState",
+        "source": {
+          "path": "packages/docs-model/src/components/file-explorer/state.ts",
+          "symbol": "FileExplorerState"
+        }
+      },
+      "children": []
+    },
+    "fx-h-actions": {
+      "id": "fx-h-actions",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Typed Actions"
+        }
+      ],
+      "children": []
+    },
+    "fx-actions": {
+      "id": "fx-actions",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The file explorer has no named actions. An "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " op replaces "
+        },
+        {
+          "insert": "entries",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "title",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", or "
+        },
+        {
+          "insert": "maxRows",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " whole, and the write is validated against "
+        },
+        {
+          "insert": "FileExplorerState",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "fx-h-doc": {
+      "id": "fx-h-doc",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Doc Renderer"
+        }
+      ],
+      "children": []
+    },
+    "fx-doc-lead": {
+      "id": "fx-doc-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "FileExplorer",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "packages/docs-viewer/src/components/file-explorer/FileExplorer.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/components/file-explorer/FileExplorer.tsx"
+            }
+          }
+        },
+        {
+          "insert": " draws one row per file or folder, with folders sorted first."
+        }
+      ],
+      "children": []
+    },
+    "fx-doc-1": {
+      "id": "fx-doc-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A folder with one child folder and no note or change merges into one row, such as "
+        },
+        {
+          "insert": "packages/docs-model/src/components/file-tree",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "fx-doc-2": {
+      "id": "fx-doc-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A renamed entry shows its old name struck through, then an arrow, then the new name."
+        }
+      ],
+      "children": []
+    },
+    "fx-doc-3": {
+      "id": "fx-doc-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The header strip renders only when "
+        },
+        {
+          "insert": "title",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is set, and it shows only the title."
+        }
+      ],
+      "children": []
+    },
+    "fx-doc-4": {
+      "id": "fx-doc-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Past "
+        },
+        {
+          "insert": "maxRows",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " visible rows, the list folds behind a "
+        },
+        {
+          "insert": "Show all N rows",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " toggle."
+        }
+      ],
+      "children": []
+    },
+    "fx-doc-5": {
+      "id": "fx-doc-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Colors read the file tree's "
+        },
+        {
+          "insert": "--docs-file-tree-*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " tokens, each with a literal fallback."
+        }
+      ],
+      "children": []
+    },
+    "fx-h-agent": {
+      "id": "fx-h-agent",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent Renderer"
+        }
+      ],
+      "children": []
+    },
+    "fx-agent": {
+      "id": "fx-agent",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "fileExplorerAgentView",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " returns the same fenced "
+        },
+        {
+          "insert": "tree",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " drawing that "
+        },
+        {
+          "insert": "projectFileTree",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " produces for a file tree. When "
+        },
+        {
+          "insert": "title",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is set, the title leads the drawing in bold."
+        }
+      ],
+      "children": []
+    }
+  }
+}

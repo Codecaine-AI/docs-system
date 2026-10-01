@@ -9,6 +9,8 @@ import {
   type ReferenceType,
 } from "@floating-ui/react";
 import { useEffect, useMemo, useRef } from "react";
+import { cn } from "../../../ui/cn";
+import { TABLE_CONTROL_FOCUS_CLASS } from "./Handles";
 import type { TableData } from "./mutations";
 import {
   addColumn,
@@ -208,7 +210,10 @@ export function HandleMenu({
           type="button"
           disabled={item.disabled}
           onClick={() => onApply(item)}
-          className="flex w-full items-center rounded-sm px-2 py-1.5 text-left hover:bg-muted disabled:cursor-default disabled:opacity-40 disabled:hover:bg-transparent"
+          className={cn(
+            "flex w-full items-center rounded-sm px-2 py-1.5 text-left hover:bg-muted disabled:cursor-default disabled:opacity-40 disabled:hover:bg-transparent",
+            TABLE_CONTROL_FOCUS_CLASS,
+          )}
         >
           {item.label}
         </button>

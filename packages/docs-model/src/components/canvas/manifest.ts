@@ -10,6 +10,6 @@ export const manifest: ComponentManifest = {
   authoring: {
     "whenToUse": "Use Canvas for system connections, ownership boundaries, and dependencies. Use Sequence for individual calls and waits.",
     "example": "Map the external client, shared docs service, and project corpora, labeling the read and write connections.",
-    "docsPath": "10-system-design/40-block-vocabulary/80-canvas"
+    "docsPath": "10-system-design/40-block-vocabulary/50-flow-and-diagrams/50-canvas"
 }
 };

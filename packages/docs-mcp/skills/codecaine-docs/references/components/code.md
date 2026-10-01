@@ -1,12 +1,12 @@
 # code
 
-Generated from Codecaine Docs sources. Snapshot: `sha256:8861c4126d96a4fe05b112560004f112939f8bd23bcfa3b72fb78f29bf846861`. Refresh the installation to regenerate these files.
+Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872daf2950bc392aeeae845c9eb67ff4956ad352fb08`. Refresh the installation to regenerate these files.
 
 Use annotated source listings as evidence of the actual implementation. Put a state instance in State Shape alongside its field definition.
 
 Example: Show the real validation function and annotate the branch that rejects an invalid write.
 
-Canonical document: `10-system-design/40-block-vocabulary/20-code-block`.
+Canonical document: `10-system-design/40-block-vocabulary/20-code/10-code-block`.
 
 The code component owns a single block type, `code`: the language-tagged block for real, annotated source listings in the Block vocabulary. The source lives in the block's delta text; the language tag and structured line annotations live in `props`.
 
@@ -55,7 +55,7 @@ annotations?: CodeAnnotation[]  # Line annotations, each keyed by its exact line
 }
 ```
 
-The type declares `carriesText: true` in `packages/docs-model/src/components/code/state.ts`: the delta text is the source payload itself, not prose. The editor schema sets `marks: ""` on the node (`packages/docs-viewer/src/components/code/editor-nodes.ts`), so the spans are plain inserts with no bold, link, or reference marks inside code. Everything else is props, defined by two closed TypeBox schemas:
+The type declares `carriesText: true` in packages/docs-model/src/components/code/state.ts: the delta text is the source payload itself, not prose. The editor schema sets `marks: ""` on the node (packages/docs-viewer/src/components/code/editor-nodes.ts), so the spans are plain inserts with no bold, link, or reference marks inside code. Everything else is props, defined by two closed TypeBox schemas:
 
 ```typescript
 export const CodeAnnotationSchema = Type.Object(
@@ -71,8 +71,8 @@ export const CodeState = Type.Object(
 export const codeState: BlockStateDefinition = { schema: CodeState, carriesText: true };
 ```
 > **L1-4 (Annotation shape):** lines and note are required strings, label optional. Closed object: an unknown key is a validation refusal, not a pass-through.
-> **L6-9 (Block props):** Both props optional — a bare code block is valid. Every write revalidates the array items against the annotation shape.
-> **L11 (Text carrier):** carriesText: true — the one non-prose text carrier in the vocabulary.
+> **L6-9 (Block props):** Both props are optional, so a bare code block is valid. Every write revalidates the array items against the annotation shape.
+> **L11 (Text carrier):** carriesText: true makes this the one non-prose text carrier in the vocabulary.
 
 ### Line Ranges
 
@@ -82,7 +82,7 @@ export const codeState: BlockStateDefinition = { schema: CodeState, carriesText:
 
   - Both typed actions and the pairing engine key on it, and two annotations can never share a key. `setAnnotation` replaces in place.
 
-- `expandLineRange` in `packages/docs-viewer/src/components/code/annotations.ts` expands a key into the covered line set.
+- `expandLineRange` in packages/docs-viewer/src/components/code/annotations.ts expands a key into the covered line set.
 
   - Parts clamp to the text's line count, and unparseable parts contribute nothing, so bad input never crashes a render.
 
@@ -90,9 +90,9 @@ export const codeState: BlockStateDefinition = { schema: CodeState, carriesText:
 
 - Two tolerant readers, one per package.
 
-  - `readCodeAnnotations` (`packages/docs-model/src/components/code/state.ts`) feeds the typed actions.
+  - `readCodeAnnotations` (packages/docs-model/src/components/code/state.ts) feeds the typed actions.
 
-  - `parseCodeAnnotations` (`packages/docs-viewer/src/components/code/annotations.ts`) feeds every doc surface, so edit and read mode can never disagree about which entries are renderable.
+  - `parseCodeAnnotations` (packages/docs-viewer/src/components/code/annotations.ts) feeds every doc surface, so edit and read mode can never disagree about which entries are renderable.
 
 - Both skip entries missing a non-empty `lines` or `note` string instead of failing.
 
@@ -255,7 +255,7 @@ On the agent surface the block renders as a fenced markdown block: the fence tag
 
 ## Theme
 
-The theme file is `components/code.json` in the active theme folder. By default that folder is the Global theme at `~/.local/state/codecaine-docs/themes/global/`. A repo `themes/<id>/` folder is active only when the host serves no Global theme. Every value is one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY` in `packages/docs-workbench/web/src/theme/theme-folders.ts`. The contract element is Theming.
+The theme file is `components/code.json` in the active theme folder. By default that folder is the Global theme at `~/.local/state/codecaine-docs/themes/global/`. A repo `themes/<id>/` folder is active only when the host serves no Global theme. Every value is one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY` in packages/docs-workbench/web/src/theme/theme-folders.ts. The contract element is Theming.
 
 | Key | CSS variable | Kind | Styles |
 | --- | --- | --- | --- |
@@ -280,7 +280,7 @@ The theme file is `components/code.json` in the active theme folder. By default 
 
   - Every internal hairline, including the header rule, the code/notes column divider, and note dividers, runs through the one rule token set.
 
-- The `docs-system-classic` repo theme sets `ruleOpacity` 0.9 and `zebraOpacity` 1; every other key falls through to the fixed fallbacks in `packages/docs-viewer/src/components/code/classes.ts`.
+- The `docs-system-classic` repo theme sets `ruleOpacity` 0.9 and `zebraOpacity` 1; every other key falls through to the fixed fallbacks in packages/docs-viewer/src/components/code/classes.ts.
 
 - The annotated read surface additionally rides the shared linked-panels tokens.
 
@@ -294,7 +294,7 @@ The family uses the default adapter: no agent of its own, and nothing forwards t
 
 - An agent edit arrives as a `componentAction` op, one of the generic doc ops, alongside `insertBlock`, `updateBlock`, `deleteBlock`, `moveBlock`, `splitBlock`, and `mergeBlocks`.
 
-- The op kernel (`packages/docs-model/src/doc-ops.ts`) resolves the action from the registry, validates its params, runs `apply` against the target block, and executes the returned `{ annotations }` patch through the existing `updateBlock` path.
+- The op kernel (packages/docs-model/src/doc-ops.ts) resolves the action from the registry, validates its params, runs `apply` against the target block, and executes the returned `{ annotations }` patch through the existing `updateBlock` path.
 
   - Merge semantics stay single-sourced, and the inverse comes back as the usual `updateBlock` inverse.
 

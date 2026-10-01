@@ -1,0 +1,717 @@
+{
+  "schemaVersion": 1,
+  "id": "doc-9369ac5b19a2c01f3f7fb142deb03d86",
+  "title": "Stack",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "stack-intro",
+        "stack-h-example",
+        "stack-example-lead",
+        "stack-example",
+        "stack-h-state",
+        "stack-state-lead",
+        "stack-state-shape",
+        "stack-check-lead",
+        "stack-check-1",
+        "stack-check-2",
+        "stack-check-3",
+        "stack-h-actions",
+        "stack-actions",
+        "stack-h-doc",
+        "stack-doc-lead",
+        "stack-doc-1",
+        "stack-doc-2",
+        "stack-doc-3",
+        "stack-doc-4",
+        "stack-h-agent",
+        "stack-agent-lead",
+        "stack-agent-1",
+        "stack-agent-2",
+        "stack-agent-3",
+        "stack-h-theme",
+        "stack-theme",
+        "stack-h-adapter",
+        "stack-adapter"
+      ]
+    },
+    "stack-intro": {
+      "id": "stack-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The stack component owns one block type, "
+        },
+        {
+          "insert": "stack",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", a boundary stack that shows layering and the rule enforced at each line. Nodes nest top to bottom, a uses arrow points from a node to its next sibling, and a dashed boundary line states what may never cross. The block takes no coordinates. Use canvas when a diagram needs free placement or arbitrary edges."
+        }
+      ],
+      "children": []
+    },
+    "stack-h-example": {
+      "id": "stack-h-example",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Example"
+        }
+      ],
+      "children": []
+    },
+    "stack-example-lead": {
+      "id": "stack-example-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This stack is the package layering that "
+        },
+        {
+          "insert": "import-boundaries.test.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " enforces at the repository root. Each dashed line is one test in that file."
+        }
+      ],
+      "children": []
+    },
+    "stack-example": {
+      "id": "stack-example",
+      "type": "stack",
+      "props": {
+        "boundaries": [
+          {
+            "after": "Host apps",
+            "rule": "framework code never imports host-app code"
+          },
+          {
+            "after": "docs-viewer",
+            "rule": "docs-model stays pure: no React, no DOM libs"
+          },
+          {
+            "after": "Docs framework",
+            "rule": "docs-model imports canvas and sequence only through agent-schema"
+          }
+        ],
+        "nodes": [
+          {
+            "name": "Host apps",
+            "detail": "outside the framework",
+            "uses": true,
+            "children": [
+              {
+                "name": "Spectre",
+                "badge": "host app",
+                "detail": "@spectre/* · @/* · apps/{frontend,backend,data-backend,tailer}/"
+              }
+            ]
+          },
+          {
+            "name": "Docs framework",
+            "detail": "host-agnostic",
+            "color": "blue",
+            "uses": true,
+            "children": [
+              {
+                "name": "docs-workbench",
+                "badge": "host",
+                "color": "orange",
+                "detail": "docs serve and export · workbench shell",
+                "uses": true
+              },
+              {
+                "name": "docs-viewer",
+                "badge": "product",
+                "color": "blue",
+                "detail": "DocBlockRenderer · TipTap editor",
+                "uses": true
+              },
+              {
+                "name": "docs-model",
+                "badge": "pure",
+                "color": "green",
+                "detail": "doc.json schema · block vocabulary · Markdown projection"
+              }
+            ]
+          },
+          {
+            "name": "External",
+            "detail": "external/",
+            "color": "purple",
+            "columns": 2,
+            "children": [
+              {
+                "name": "@codecaine-ai/canvas/agent-schema",
+                "detail": "external/canvas"
+              },
+              {
+                "name": "@codecaine-ai/sequence/agent-schema",
+                "detail": "external/sequence"
+              }
+            ]
+          }
+        ]
+      },
+      "children": []
+    },
+    "stack-h-state": {
+      "id": "stack-h-state",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "State Schema"
+        }
+      ],
+      "children": []
+    },
+    "stack-state-lead": {
+      "id": "stack-state-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "All state lives in two props, defined by "
+        },
+        {
+          "insert": "StackState",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "packages/docs-model/src/components/stack/state.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". The type carries no delta text ("
+        },
+        {
+          "insert": "carriesText: false",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ")."
+        }
+      ],
+      "children": []
+    },
+    "stack-state-shape": {
+      "id": "stack-state-shape",
+      "type": "state-shape",
+      "props": {
+        "fields": [
+          {
+            "name": "nodes",
+            "type": "StackNode[]",
+            "description": "Top-level layers, drawn top to bottom.",
+            "fields": [
+              {
+                "name": "name",
+                "type": "string",
+                "description": "Unique across the whole stack. Boundaries address nodes by name."
+              },
+              {
+                "name": "detail",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "badge",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "color",
+                "type": "\"gray\" | \"blue\" | \"green\" | \"orange\" | \"yellow\" | \"red\" | \"purple\" | \"pink\"",
+                "required": false,
+                "description": "Container tint, or the badge color on a leaf. Containers default to gray."
+              },
+              {
+                "name": "uses",
+                "type": "true | string",
+                "required": false,
+                "description": "Draws an arrow to the next sibling. A string labels the arrow."
+              },
+              {
+                "name": "columns",
+                "type": "2",
+                "required": false,
+                "description": "Lays the children side by side."
+              },
+              {
+                "name": "children",
+                "type": "StackNode[]",
+                "required": false,
+                "description": "Makes the node a container."
+              }
+            ]
+          },
+          {
+            "name": "boundaries",
+            "type": "StackBoundary[]",
+            "required": false,
+            "fields": [
+              {
+                "name": "after",
+                "type": "string",
+                "description": "Name of the node the line sits beneath."
+              },
+              {
+                "name": "rule",
+                "type": "string"
+              }
+            ]
+          }
+        ],
+        "name": "StackState",
+        "source": {
+          "path": "packages/docs-model/src/components/stack/state.ts",
+          "symbol": "StackState"
+        }
+      },
+      "children": []
+    },
+    "stack-check-lead": {
+      "id": "stack-check-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Once the schema passes, "
+        },
+        {
+          "insert": "stackState.check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " enforces three invariants:"
+        }
+      ],
+      "children": []
+    },
+    "stack-check-1": {
+      "id": "stack-check-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Node names are unique across the whole tree."
+        }
+      ],
+      "children": []
+    },
+    "stack-check-2": {
+      "id": "stack-check-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every boundary names an existing node, and at most one boundary follows each node."
+        }
+      ],
+      "children": []
+    },
+    "stack-check-3": {
+      "id": "stack-check-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A "
+        },
+        {
+          "insert": "uses",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " arrow needs a next sibling, so the last sibling cannot carry one."
+        }
+      ],
+      "children": []
+    },
+    "stack-h-actions": {
+      "id": "stack-h-actions",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Typed Actions"
+        }
+      ],
+      "children": []
+    },
+    "stack-actions": {
+      "id": "stack-actions",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The stack has no named actions. An "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " op replaces "
+        },
+        {
+          "insert": "nodes",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " or "
+        },
+        {
+          "insert": "boundaries",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " whole, and the write is validated against "
+        },
+        {
+          "insert": "StackState",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and its invariants."
+        }
+      ],
+      "children": []
+    },
+    "stack-h-doc": {
+      "id": "stack-h-doc",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Doc Renderer"
+        }
+      ],
+      "children": []
+    },
+    "stack-doc-lead": {
+      "id": "stack-doc-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "StackBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "packages/docs-viewer/src/components/stack/StackDocsBlock.tsx",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " draws the tree in the standard text lane:"
+        }
+      ],
+      "children": []
+    },
+    "stack-doc-1": {
+      "id": "stack-doc-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A node with children renders as a tinted container with its name pinned in a header chip. The fill deepens one step per nesting level."
+        }
+      ],
+      "children": []
+    },
+    "stack-doc-2": {
+      "id": "stack-doc-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A leaf renders as a card with its name in code font, an optional badge, and one detail line."
+        }
+      ],
+      "children": []
+    },
+    "stack-doc-3": {
+      "id": "stack-doc-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A uses arrow is a thin stem with an arrowhead. When a boundary follows the same node, the arrow crosses the dashed line."
+        }
+      ],
+      "children": []
+    },
+    "stack-doc-4": {
+      "id": "stack-doc-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "columns: 2",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " lays a container's children in a two-column grid. Arrows and boundaries inside it span both columns."
+        }
+      ],
+      "children": []
+    },
+    "stack-h-agent": {
+      "id": "stack-h-agent",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent Renderer"
+        }
+      ],
+      "children": []
+    },
+    "stack-agent-lead": {
+      "id": "stack-agent-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The projection is one fenced outline with two spaces of indent per depth:"
+        }
+      ],
+      "children": []
+    },
+    "stack-agent-1": {
+      "id": "stack-agent-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A node line reads "
+        },
+        {
+          "insert": "name [badge] — detail",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", with the badge and detail omitted when absent."
+        }
+      ],
+      "children": []
+    },
+    "stack-agent-2": {
+      "id": "stack-agent-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A uses arrow is a "
+        },
+        {
+          "insert": "↓",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " line after the node and its children, followed by the label when one is set."
+        }
+      ],
+      "children": []
+    },
+    "stack-agent-3": {
+      "id": "stack-agent-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A boundary is a "
+        },
+        {
+          "insert": "── rule ──",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " line at the indent of the node it follows."
+        }
+      ],
+      "children": []
+    },
+    "stack-h-theme": {
+      "id": "stack-h-theme",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Theme"
+        }
+      ],
+      "children": []
+    },
+    "stack-theme": {
+      "id": "stack-theme",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every visual value reads a "
+        },
+        {
+          "insert": "--docs-stack-*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " token with a literal fallback. A node color resolves "
+        },
+        {
+          "insert": "--docs-stack-<color>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " first, then the palette's "
+        },
+        {
+          "insert": "--color-text-<color>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". The boundary line reads "
+        },
+        {
+          "insert": "--docs-stack-boundary",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", which falls back to the palette red."
+        }
+      ],
+      "children": []
+    },
+    "stack-h-adapter": {
+      "id": "stack-h-adapter",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Agent Adapter"
+        }
+      ],
+      "children": []
+    },
+    "stack-adapter": {
+      "id": "stack-adapter",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Agents create a stack with "
+        },
+        {
+          "insert": "insertBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and edit it with "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". The docs-edit session lists "
+        },
+        {
+          "insert": "stack",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " among its "
+        },
+        {
+          "insert": "set_props",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " types, so a session edits the tree through the same validated props write."
+        }
+      ],
+      "children": []
+    }
+  }
+}

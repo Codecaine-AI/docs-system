@@ -1,12 +1,12 @@
 # process-outline
 
-Generated from Codecaine Docs sources. Snapshot: `sha256:8861c4126d96a4fe05b112560004f112939f8bd23bcfa3b72fb78f29bf846861`. Refresh the installation to regenerate these files.
+Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872daf2950bc392aeeae845c9eb67ff4956ad352fb08`. Refresh the installation to regenerate these files.
 
 Use Process Outline for the expected execution path, with nested phases and actor-and-action step names that can be compared with a trace.
 
 Example: Outline discovery, guidance loading, editing, validation, and completion, with failure notes where needed.
 
-Canonical document: `10-system-design/40-block-vocabulary/90-process-outline`.
+Canonical document: `10-system-design/40-block-vocabulary/50-flow-and-diagrams/10-process-outline`.
 
 Process Outline explains an ordered process through nested steps and short supporting notes. The stored steps form a typed recursive tree; notation supplies the import and agent projection forms.
 
@@ -29,6 +29,8 @@ It is the vocabulary's third diagram type, and the three split by question:
 - file-tree
 
   - Not a diagram type, but the adjacent call: reach for it when the nested structure is files, not steps.
+
+Three sibling types answer narrower questions: call-stack for one code path frame by frame, component-tree for which component renders which, and flow-strip for a short loop at a glance.
 
 ## Example
 
@@ -152,10 +154,10 @@ The state schema stores the complete outline in typed props:
 
 ```
 steps: ProcessOutlineStep[]  # Recursive step tree, the block's entire state.
-  text: string  # Step text; backticks mark code values.
-  kind?: "step" | "note"  # "note" marks a clarification leaf; omitted reads as "step".
+  text: string  # Step text. Backticks mark code values.
+  kind?: "step" | "note"  # "note" marks a clarification leaf. Omitted reads as "step".
   trace?: boolean  # Marks a step corresponding to a real trace event. Notes cannot carry this flag.
-  steps?: ProcessOutlineStep[]  # Nested substeps; notes never carry them.
+  steps?: ProcessOutlineStep[]  # Nested substeps. Notes never carry them.
 ```
 
 ```json
@@ -181,7 +183,7 @@ steps: ProcessOutlineStep[]  # Recursive step tree, the block's entire state.
 }
 ```
 
-- `ProcessOutlineState` in packages/docs-model/src/components/process-outline/state.ts defines the closed one-prop schema; `additionalProperties: false` rejects anything else.
+- `ProcessOutlineState` in packages/docs-model/src/components/process-outline/state.ts defines a closed schema with one prop, `steps`. `additionalProperties: false` rejects anything else.
 
 - Each recursive step contains text, an optional kind, an optional trace flag, and optional child steps. An omitted kind means step.
 
@@ -191,9 +193,9 @@ steps: ProcessOutlineStep[]  # Recursive step tree, the block's entire state.
 
 - Depth derives from nesting. The document stores no layout geometry.
 
-- The type carries no delta text (`carriesText: false`).
+  - The type carries no delta text (`carriesText: false`).
 
-- The tolerant reader skips malformed entries and returns fresh objects.
+  - The tolerant reader skips malformed entries and returns fresh objects.
 
 ## Typed Actions
 
@@ -329,7 +331,7 @@ Run mode
 ```
 ```
 
-- A bare process-outline fence identifies the notation. A heading outside the block supplies its title.
+- A bare `process-outline` fence identifies the notation. A heading outside the block supplies its title.
 
 - Serialization emits bare roots, arrow steps, note markers, and trace markers with five spaces per depth. Parse notation into steps before using setSteps.
 

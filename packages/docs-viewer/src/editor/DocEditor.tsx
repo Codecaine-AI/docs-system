@@ -8,12 +8,12 @@ import StarterKit from "@tiptap/starter-kit";
 import { serializeDocDocument, type DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import { applyOps, type DocOp } from "@codecaine-ai/docs-model/doc-ops";
 import type { DocBlockRenderContext } from "../render/block-registry";
-import { INLINE_CODE_CLASSES } from "../render/block-classes";
+import { INLINE_CODE_CLASSES, LINK_CLASSES } from "../render/block-classes";
 import type { DocBlockSaveResult } from "../render/DocBlockRenderer";
 import { useDocsClient, type DraftLockInfo } from "../client";
 import { docToPM, pmToDoc, diffToOps, type PMNode } from "./core/convert";
 import { TEXT_BLOCK_NODES } from "./core/schema";
-import { DocItalic, DocStrike } from "../components/rich-text/editor-marks";
+import { DocInlineCodeKinds, DocItalic, DocStrike } from "../components/rich-text/editor-marks";
 import { ATOM_BLOCK_NODES_WITH_VIEWS, DocCodeBlockWithView } from "./views/node-views";
 import { DocDragHandle } from "./views/drag-handle";
 import { DocDragSelect } from "./views/drag-select";
@@ -289,7 +289,14 @@ export default function DocEditor({
         // paste-URL-over-selection (Notion semantics), and a URL pasted at a
         // collapsed cursor must insert as plain text — TipTap's default
         // linkOnPaste would mark it.
-        link: { openOnClick: false, autolink: false, linkOnPaste: false },
+        // External links wear the read surface's link look (solid hairline
+        // underline, link color) — render/block-classes.ts LINK_CLASSES.
+        link: {
+          openOnClick: false,
+          autolink: false,
+          linkOnPaste: false,
+          HTMLAttributes: { class: LINK_CLASSES },
+        },
         listItem: false,
         listKeymap: false,
         orderedList: false,
@@ -300,6 +307,9 @@ export default function DocEditor({
       // StarterKit config above).
       DocItalic,
       DocStrike,
+      // Typed inline code: colors each code chip by what it holds, as the
+      // read surface does (rich-text editor-marks.ts).
+      DocInlineCodeKinds,
       // The code block swaps in its React node view (language picker); its
       // live-highlight decorations ride the extension right after.
       ...TEXT_BLOCK_NODES.filter((node) => node.name !== "docCodeBlock"),

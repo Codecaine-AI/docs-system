@@ -12,7 +12,7 @@ Rule ownership follows the thing being checked.
 
   - writing/rules.ts registers rule folders with checks and tests derived from Writing Style.
 
-  - Authored prose includes descriptive metadata and document-owned prose fields. Code blocks, quote blocks, inline code, reference spans, paths, signatures, literal examples, and embedded Canvas or Sequence payloads are excluded.
+  - Authored prose includes descriptive metadata and document-owned prose fields. Code blocks, inline code, reference spans, paths, signatures, literal examples, and embedded Canvas or Sequence payloads are excluded.
 
 - **Page Structure Rules**
 

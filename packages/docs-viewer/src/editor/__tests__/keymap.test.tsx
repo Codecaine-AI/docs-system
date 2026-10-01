@@ -77,8 +77,8 @@ function paragraph(text: string | undefined, attrs: Record<string, unknown> = {}
   return { type: "docParagraph", attrs, content: [wrapper(text)] };
 }
 
-function quote(text: string | undefined, attrs: Record<string, unknown> = {}): JSONContent {
-  return { type: "docQuote", attrs, content: [wrapper(text)] };
+function callout(text: string | undefined, attrs: Record<string, unknown> = {}): JSONContent {
+  return { type: "docCallout", attrs, content: [wrapper(text)] };
 }
 
 function listItem(text: string | undefined, attrs: Record<string, unknown> = {}): JSONContent {
@@ -196,15 +196,15 @@ describe("DocKeymap Enter", () => {
     expect($from.parentOffset).toBe(0);
   });
 
-  it("at the end of a quote inserts a sibling paragraph", () => {
-    const editor = createEditor([quote("Wise words", { blockId: "q1" })]);
+  it("at the end of a callout inserts a sibling paragraph", () => {
+    const editor = createEditor([callout("Wise words", { blockId: "q1" })]);
     setCursorInWrapper(editor, 0, "Wise words".length);
 
     expect(pressKey(editor, "Enter")).toBe(true);
 
     const json = docJSON(editor);
     expect(json.content).toHaveLength(2);
-    expect(json.content![0].type).toBe("docQuote");
+    expect(json.content![0].type).toBe("docCallout");
     expect(json.content![0].content).toHaveLength(1); // wrapper only, no nested child
     expect(json.content![1].type).toBe("docParagraph");
     expect(json.content![1].attrs).toMatchObject({ blockId: null });
@@ -458,8 +458,8 @@ describe("DocKeymap Backspace", () => {
     expect(wrapperText(json.content![0])).toBe("Title");
   });
 
-  it("at the start of a quote converts it to a paragraph", () => {
-    const editor = createEditor([quote("Quoted", { blockId: "q1" })]);
+  it("at the start of a callout converts it to a paragraph", () => {
+    const editor = createEditor([callout("Noted", { blockId: "q1" })]);
     setCursorInWrapper(editor, 0, 0);
 
     expect(pressKey(editor, "Backspace")).toBe(true);
@@ -699,10 +699,9 @@ describe("DocPlaceholder", () => {
     expect(emptyP()?.getAttribute("data-placeholder")).toBeNull();
   });
 
-  it("labels empty quote/callout/list blocks when the editor is focused; non-empty blocks get nothing", () => {
+  it("labels empty callout/list blocks when the editor is focused; non-empty blocks get nothing", () => {
     const editor = createEditor([
-      quote(undefined, { blockId: "q1" }),
-      { type: "docCallout", attrs: { blockId: "co1" }, content: [wrapper()] },
+      callout(undefined, { blockId: "co1" }),
       listItem(undefined, { blockId: "li1" }),
       paragraph("Real text", { blockId: "p1" }),
       heading("Real title", { blockId: "h1", level: 1 }),
@@ -711,15 +710,16 @@ describe("DocPlaceholder", () => {
     const dom = editor.view.dom;
 
     // Unfocused editor: no block type labels (only heading hints are always-on).
-    expect(dom.querySelector("blockquote")?.getAttribute("data-placeholder")).toBeNull();
+    expect(
+      dom.querySelector('[data-doc-type="callout"]')?.getAttribute("data-placeholder"),
+    ).toBeNull();
     expect(dom.querySelector("li")?.getAttribute("data-placeholder")).toBeNull();
 
     // Focused: every empty typed block labels up, wherever the cursor is
     // (park it in the non-empty paragraph). Same isFocused test seam as the
     // paragraph-hint test above; the selection dispatch recomputes decorations.
     editor.isFocused = true;
-    setCursorInWrapper(editor, 3, 0);
-    expect(dom.querySelector("blockquote")?.getAttribute("data-placeholder")).toBe("Quote");
+    setCursorInWrapper(editor, 2, 0);
     expect(
       dom.querySelector('[data-doc-type="callout"]')?.getAttribute("data-placeholder"),
     ).toBe("Callout");

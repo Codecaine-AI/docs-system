@@ -40,7 +40,7 @@ export function sentences(text: string): string[] {
     .map((s) => s.trim())
     .filter((s) => /[\p{L}\p{N}\u0000]/u.test(s));
 }
-/** Quote, code, pseudocode, Canvas and Sequence blocks and their descendants hold literal or embedded content. */
+/** Code, pseudocode, Canvas and Sequence blocks and their descendants hold literal or embedded content. */
 export function excludedBlockIds(context: LintContext): Set<string> {
   const excluded = new Set<string>();
   function exclude(id: string) {
@@ -50,7 +50,6 @@ export function excludedBlockIds(context: LintContext): Set<string> {
   }
   for (const b of context.blocks)
     if (
-      b.type === "quote" ||
       b.type === "code" ||
       b.type === "pseudocode" ||
       b.type === "canvas" ||

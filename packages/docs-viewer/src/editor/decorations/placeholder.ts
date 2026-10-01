@@ -27,8 +27,8 @@ import { NODE_TYPE_TO_BLOCK_TYPE } from "../core/schema";
  * - docListItem: NO hint — a gray "List" next to the marker read as
  *   phantom content while typing (Ford, dogfood review 2026-07-16); an
  *   empty item is self-explanatory, the marker is already visible.
- * - docQuote / docCallout: editor focused — their block type name
- *   capitalized ("Quote", "Callout").
+ * - docCallout: editor focused — its block type name capitalized
+ *   ("Callout").
  *
  * Focus changes recompute correctly because TipTap's core FocusEvents
  * extension dispatches a meta transaction on focus/blur (keeping
@@ -57,9 +57,8 @@ function injectPlaceholderStyles(): void {
   document.head.appendChild(style);
 }
 
-/** Node type names that show their block type name when empty and the editor is focused (quote + callout). */
+/** Node type names that show their block type name when empty and the editor is focused (callout). */
 const FOCUS_LABELED_NODE_NAMES: ReadonlySet<string> = new Set([
-  "docQuote",
   "docCallout",
 ]);
 

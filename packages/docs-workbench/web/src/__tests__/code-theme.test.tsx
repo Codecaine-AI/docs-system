@@ -51,6 +51,22 @@ describe("code theme style", () => {
     expect(css).toContain("--docs-code-selection: #264F78;");
   });
 
+  it("dark panels on a dark page: the surface drops to the inset color, syntax stays the theme's", () => {
+    const css = codeThemeStyleCss(CURSOR_THEME, withPanels("dark"));
+    const darkPage = css.split(':root[data-code-panels="dark"]:is(.dark, [data-theme="dark"]) [data-code-surface][data-code-surface] {')[1] ?? "";
+    expect(darkPage).toContain("--docs-code-block-bg: var(--palette-inset);");
+    expect(darkPage).toContain("--docs-code-block-border: var(--palette-rule);");
+    expect(darkPage).not.toContain("--syntax-");
+    // An explicit rail code background still wins on the dark page.
+    const railBg = codeThemeStyleCss(
+      CURSOR_THEME,
+      withPanels("dark", { components: { code: { bg: "#123456" } } }),
+    );
+    expect(railBg).not.toContain("--docs-code-block-bg:");
+    // Panels that follow the page keep the theme's own surface.
+    expect(codeThemeStyleCss(DARK_PLUS_CODE_THEME, withPanels("page"))).not.toContain("--palette-inset");
+  });
+
   it("page panels: only on a page of the theme's own type", () => {
     expect(codeThemeStyleCss(DARK_PLUS_CODE_THEME, withPanels("page"))).toContain(
       ':root[data-code-panels="page"][data-theme="dark"] [data-code-surface][data-code-surface] {',

@@ -8,7 +8,7 @@ import { ALL_COMPONENTS } from "@codecaine-ai/docs-model";
  * primitives composed by several sibling components. Every other folder must
  * mirror a docs-model component name exactly.
  */
-const SHARED_LAYER_FOLDERS = ["linked-panels"];
+const SHARED_LAYER_FOLDERS = ["linked-panels", "outline-rows"];
 
 const componentsDir = join(import.meta.dir, "../components");
 const componentFolders = (await readdir(componentsDir, { withFileTypes: true }))

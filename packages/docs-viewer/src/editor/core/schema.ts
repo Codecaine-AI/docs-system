@@ -10,7 +10,6 @@ import {
   DocImageGrid,
   DocListItem,
   DocParagraph,
-  DocQuote,
   DocVideo,
   DocHtml,
 } from "../../components/rich-text/editor-nodes";
@@ -22,6 +21,12 @@ import { DocStateShape } from "../../components/state-shape/editor-nodes";
 import { DocCanvas } from "../../components/canvas/editor-nodes";
 import { DocSequence } from "../../components/sequence/editor-nodes";
 import { DocProcessOutline } from "../../components/process-outline/editor-nodes";
+import { DocStack } from "../../components/stack/editor-nodes";
+import { DocCallStack } from "../../components/call-stack/editor-nodes";
+import { DocComponentTree } from "../../components/component-tree/editor-nodes";
+import { DocFlowStrip } from "../../components/flow-strip/editor-nodes";
+import { DocPseudocode } from "../../components/pseudocode/editor-nodes";
+import { DocFileExplorer } from "../../components/file-explorer/editor-nodes";
 import { blockAttrs as sharedBlockAttrs } from "./node-helpers";
 
 export {
@@ -36,13 +41,18 @@ export {
   DocInteractionSurface,
   DocListItem,
   DocParagraph,
-  DocQuote,
   DocSequence,
   DocStateShape,
   DocStructuredTable,
   DocVideo,
   DocHtml,
   DocProcessOutline,
+  DocStack,
+  DocCallStack,
+  DocComponentTree,
+  DocFlowStrip,
+  DocPseudocode,
+  DocFileExplorer,
 };
 
 /**
@@ -63,7 +73,7 @@ export {
  *   attr for editing ergonomics, but anything else the block's props carried
  *   rides along in `blockProps` untouched).
  *
- * - Text-bearing block types (paragraph, heading, docListItem, codeBlock, quote,
+ * - Text-bearing block types (paragraph, heading, docListItem, codeBlock,
  *   callout) are ProseMirror "block"
  *   group nodes with `content: "docBlockText block*"`. ProseMirror's content
  *   expression parser REJECTS a top-level mix of an inline-group reference
@@ -106,7 +116,6 @@ export const TEXT_BLOCK_TYPES = [
   "heading",
   "list-item",
   "code",
-  "quote",
   "callout",
 ] as const satisfies readonly DocBlockType[];
 
@@ -124,6 +133,12 @@ export const ATOM_BLOCK_TYPES = [
   "interaction-surface",
   "state-shape",
   "process-outline",
+  "stack",
+  "call-stack",
+  "component-tree",
+  "flow-strip",
+  "pseudocode",
+  "file-explorer",
 ] as const satisfies readonly DocBlockType[];
 
 /** PM node type name -> doc-schema block type. */
@@ -132,7 +147,6 @@ export const NODE_TYPE_TO_BLOCK_TYPE: Record<string, DocBlockType> = {
   docHeading: "heading",
   docListItem: "list-item",
   docCodeBlock: "code",
-  docQuote: "quote",
   docCallout: "callout",
   docDivider: "divider",
   docImage: "image",
@@ -146,6 +160,12 @@ export const NODE_TYPE_TO_BLOCK_TYPE: Record<string, DocBlockType> = {
   docInteractionSurface: "interaction-surface",
   docStateShape: "state-shape",
   docProcessOutline: "process-outline",
+  docStack: "stack",
+  docCallStack: "call-stack",
+  docComponentTree: "component-tree",
+  docFlowStrip: "flow-strip",
+  docPseudocode: "pseudocode",
+  docFileExplorer: "file-explorer",
 };
 
 /** Inverse of NODE_TYPE_TO_BLOCK_TYPE — doc-schema block type -> PM node type name. */
@@ -190,7 +210,6 @@ export const TEXT_BLOCK_NODES = [
   DocHeading,
   DocListItem,
   DocCodeBlock,
-  DocQuote,
   DocCallout,
 ];
 
@@ -208,4 +227,10 @@ export const ATOM_BLOCK_NODES = [
   DocInteractionSurface,
   DocStateShape,
   DocProcessOutline,
+  DocStack,
+  DocCallStack,
+  DocComponentTree,
+  DocFlowStrip,
+  DocPseudocode,
+  DocFileExplorer,
 ];

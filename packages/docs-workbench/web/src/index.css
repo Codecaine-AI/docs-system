@@ -157,6 +157,28 @@
   h1, h2, h3 {
     font-family: var(--font-display);
   }
+
+  /* Shared focus ring (theme lab: visible focus on every interactive
+     control — fold toggles, chevrons, copy, enlarge, tabs). The accent at
+     >= 3:1 on page, panel and sidebar in both modes (--docs-focus-ring,
+     theme/semantic.css ROLE TOKENS). Base layer, so a component that draws
+     its own ring with utilities still wins. The editor roots are excluded:
+     a contenteditable matches :focus-visible whenever it has the caret, and
+     the caret is its focus indicator. */
+  :focus-visible:not([contenteditable="true"], .ProseMirror) {
+    outline: 2px solid var(--docs-focus-ring);
+    outline-offset: 2px;
+  }
+
+  /* Text selection: the accent at 18% (light) / 30% (dark), so selected
+     text keeps its own color and contrast. Code panes take the code
+     theme's selection color. */
+  ::selection {
+    background-color: var(--docs-selection);
+  }
+  [data-code-surface] ::selection {
+    background-color: var(--docs-code-selection, var(--docs-selection));
+  }
 }
 
 /*
@@ -237,7 +259,7 @@
    DocBlockRenderer). In edit mode ProseMirror owns the top-level children
    instead, and only the ATOM blocks and the code block get a React NodeView
    that can carry lane classes — so the text-like nodes (paragraph, heading,
-   quote, list item, …) get their lane from this one rule rather than from
+   list item, …) get their lane from this one rule rather than from
    duplicated class strings. (`docs-editor-prosemirror` is set via DocEditor's
    `editorProps.attributes.class`, so it lands ON the contenteditable root —
    these are its DIRECT children.)
@@ -379,12 +401,12 @@
 
 /* Tailwind Typography zeroes the top margin of whatever directly follows an
    h2-h4 (`.prose :where(h2 + *)`). On the edit surface the text blocks are
-   direct siblings, so a paragraph, quote or list item under a heading has
+   direct siblings, so a paragraph or list item under a heading has
    always sat flush against the heading's own bottom margin. Their spacing
    knobs are margin-top utilities that now out-order that Typography rule, so
    it is restated here to keep the edit surface rendering as it did. (The
    read surface wraps every block, so the sibling rule never matched there.) */
-.docs-editor-prosemirror :where(h2, h3, h4) + :where(p, blockquote, li) {
+.docs-editor-prosemirror :where(h2, h3, h4) + :where(p, li) {
   margin-top: 0;
 }
 
@@ -408,39 +430,8 @@
    this restates the same value, so the body keeps tracking the reading
    size. Must stay BELOW the `.docs-markdown.prose` rule: equal specificity. */
 [data-docs-block-type="callout"] [data-callout-body],
-[data-docs-block-type="callout"] [data-callout-body] :where(p, li, td, th, dd, dt, blockquote),
-[data-docs-block-type="callout"] [data-callout-icon] {
+[data-docs-block-type="callout"] [data-callout-body] :where(p, li, td, th, dd, dt, blockquote) {
   font-size: calc(var(--style-font-size, 18px) * var(--docs-callout-body-text-scale, 1));
-}
-
-/* The callout icon wrapper copies the body's text metrics (size above, the
-   reading line height inherited here) so its `1lh` height is one body line:
-   an untitled callout's icon then centers on the body's first line at any
-   reading size. */
-[data-docs-block-type="callout"] [data-callout-icon] {
-  line-height: inherit;
-}
-
-/* Quote fill, rule color and text color follow the quote tokens.
-   This rule is UNLAYERED, so it beats the Tailwind utilities on
-   QUOTE_CLASSES (docs-viewer render/block-classes.ts) — every property it
-   sets must read the same --docs-quote-* token the utility does, or that
-   style-rail knob goes dead here. The defaults live in theme/semantic.css:
-   --docs-quote-bg and --docs-quote-border default to the shared
-   --docs-viewer-callout-fill / -border palette vars (the warm fill and rule
-   a quote has always had in the workbench), --docs-quote-fg to the muted
-   text var. */
-.docs-markdown :where(blockquote) {
-  background: var(--docs-quote-bg);
-  border-color: var(--docs-quote-border);
-  color: var(--docs-quote-fg);
-}
-
-/* Quote text size: the reading-size rule above pins every blockquote, so the
-   quote's text scale (1 by default) has to be restated on top of it. Same
-   structured-table exemption as that rule, for the same reason. */
-.docs-markdown :where(blockquote):not(:where([data-docs-block-type="structured-table"] *, [data-docs-block-type="state-shape"] *, [data-docs-block-type="interaction-surface"] *)) {
-  font-size: calc(var(--style-font-size, 18px) * var(--docs-quote-text-scale, 1));
 }
 
 /* Inline code chip. This rule is UNLAYERED, so it beats the Tailwind
@@ -450,12 +441,14 @@
    a unitless em multiplier. Font size, weight and border are deliberately
    NOT set: the utilities own them for delta-span chips (an unlayered border
    here would also wipe other components' own bordered <code> elements), and
-   markdown-projected code keeps its Typography values. */
+   markdown-projected code keeps its Typography values. The color reads the
+   typed-chip kind first (--docs-chip-kind-fg, set per kind by
+   INLINE_CODE_KIND_CLASSES), then the plain chip ink. */
 .docs-markdown :where(code:not(pre code)) {
   background: var(--docs-inline-code-bg);
   border-radius: var(--docs-inline-code-radius);
   padding: calc(var(--docs-inline-code-pad-y) * 1em) calc(var(--docs-inline-code-pad-x) * 1em);
-  color: var(--docs-inline-code-fg);
+  color: var(--docs-chip-kind-fg, var(--docs-inline-code-fg));
 }
 
 /* Tailwind Typography wraps inline code in literal backtick pseudo-elements;
@@ -470,6 +463,28 @@
 
 .docs-markdown :where(a) {
   color: var(--docs-viewer-link);
+}
+
+/* Prose rhythm (theme lab, text group). The read surface wraps every
+   top-level block in a lane element carrying data-doc-block-type, so its
+   adjacency selectors step over lanes; the edit surface's blocks are direct
+   siblings (atoms sit in Tiptap's react-renderer wrapper).
+   - A heading right after a divider drops its own space above: the rule's
+     spacing already separates the sections.
+   - An h3 straight under its h2 needs less than the full section gap.
+   - A text block straight under a heading sits on the heading's space below
+     (Typography's `h2 + *` reset, restated for the read surface). */
+.docs-markdown [data-doc-block-type="divider"] + [data-doc-block-type="heading"] :is(h1, h2, h3, h4, h5, h6),
+.docs-editor-prosemirror > :is(hr, :has(> [data-doc-node="docDivider"]), :has(> * > hr)) + :is(h1, h2, h3, h4, h5, h6) {
+  margin-top: 0;
+}
+.docs-markdown [data-doc-block-type="heading"]:has(h2) + [data-doc-block-type="heading"] h3,
+.docs-editor-prosemirror > h2 + h3 {
+  margin-top: 16px;
+}
+.docs-markdown [data-doc-block-type="heading"] + [data-doc-block-type="paragraph"] > [data-block-id] > p:first-child,
+.docs-markdown [data-doc-block-type="heading"] + [data-doc-block-type="list-item"] > [role="listitem"] {
+  margin-top: 0;
 }
 
 [data-block-id] {

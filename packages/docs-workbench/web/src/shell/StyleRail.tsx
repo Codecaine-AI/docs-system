@@ -1225,26 +1225,64 @@ export function codePanelOverrideCss(settings: StyleRailSettings): string {
   return `:root[data-code-panels="dark"] [data-code-surface] {\n${declarations.join("\n")}\n}`;
 }
 
+/** The single <style> element the page color overrides live in. */
+export const PAGE_COLOR_STYLE_ELEMENT_ID = "docs-style-rail-page-colors";
+
+const NO_COLOR_PICKS: StyleRailSettings["colors"] = { background: null, sidebar: null, text: null };
+
+function pageColorRule(selector: string, settings: StyleRailSettings): string {
+  const declarations = Object.entries(styleRailVars(settings))
+    .filter(([key, value]) => value !== null && PAGE_COLOR_VARS.has(key))
+    .map(([key, value]) => `  ${key}: ${value};`);
+  return declarations.length === 0 ? "" : `${selector} {\n${declarations.join("\n")}\n}`;
+}
+
 /**
- * Writes the rail onto <html>: every var as an inline custom property, the
- * Code panels knob as `data-code-panels` (the attribute the dark-panel CSS
- * keys on), and the panel restatement into its managed <style> element.
+ * The page color overrides, as CSS TEXT scoped by light/dark mode.
+ *
+ * A color PICK is a literal light color (a cream page, near-black text).
+ * Written inline on <html> it outranked the dark theme block, so a theme
+ * with picks (the Global theme pins its page, sidebar and text) left dark
+ * mode half light. Picks therefore apply to the light page only; the dark
+ * page keeps the palette's dark neutrals. The background / sidebar TINTS are
+ * mixes over the active palette, so they apply in both modes (in dark they
+ * mix into the dark page). `:root:not(.dark):not([data-theme="dark"])` is
+ * (0,3,0) and `:root.dark` (0,2,0): both outrank semantic.css's (0,1,0)
+ * theme blocks, and neither reaches into a dark code panel, which keeps its
+ * own values.
+ */
+export function pageColorOverrideCss(settings: StyleRailSettings): string {
+  const light = pageColorRule(':root:not(.dark):not([data-theme="dark"])', settings);
+  const dark = pageColorRule(':root.dark, :root[data-theme="dark"]', { ...settings, colors: NO_COLOR_PICKS });
+  return [light, dark].filter(Boolean).join("\n");
+}
+
+function writeManagedStyle(id: string, css: string) {
+  let element = document.getElementById(id) as HTMLStyleElement | null;
+  if (!element) {
+    element = document.createElement("style");
+    element.id = id;
+    document.head.appendChild(element);
+  }
+  if (element.textContent !== css) element.textContent = css;
+}
+
+/**
+ * Writes the rail onto <html>: every var as an inline custom property except
+ * the page colors, the Code panels knob as `data-code-panels` (the attribute
+ * the dark-panel CSS keys on), the page colors into their mode-scoped
+ * managed <style> (pageColorOverrideCss), and the panel restatement into its
+ * managed <style> element.
  */
 export function applyStyleRailVars(settings: StyleRailSettings) {
   const root = document.documentElement;
   for (const [key, value] of Object.entries(styleRailVars(settings))) {
-    if (value === null) root.style.removeProperty(key);
+    if (value === null || PAGE_COLOR_VARS.has(key)) root.style.removeProperty(key);
     else root.style.setProperty(key, value);
   }
   root.setAttribute("data-code-panels", settings.typography.codePanels);
-  let element = document.getElementById(CODE_PANEL_STYLE_ELEMENT_ID) as HTMLStyleElement | null;
-  if (!element) {
-    element = document.createElement("style");
-    element.id = CODE_PANEL_STYLE_ELEMENT_ID;
-    document.head.appendChild(element);
-  }
-  const css = codePanelOverrideCss(settings);
-  if (element.textContent !== css) element.textContent = css;
+  writeManagedStyle(PAGE_COLOR_STYLE_ELEMENT_ID, pageColorOverrideCss(settings));
+  writeManagedStyle(CODE_PANEL_STYLE_ELEMENT_ID, codePanelOverrideCss(settings));
 }
 
 /** The single <style> element the lane overrides live in. */
@@ -1278,10 +1316,17 @@ const BLOCK_LAYOUT_WIDTH_VALUES: Record<BlockLayoutWidth, string> = {
  * only a known, literal block-type name can ever reach the selector — an
  * unknown key cannot inject anything, whatever the theme file says.
  */
+/**
+ * Block types that take another type's layout override when they have none of
+ * their own: a pseudocode panel sits in the same lane as the code panel.
+ */
+const BLOCK_LAYOUT_FOLLOWS: Readonly<Partial<Record<string, string>>> = { pseudocode: "code" };
+
 export function blockLayoutOverrideCss(settings: StyleRailSettings): string {
   const rules: string[] = [];
   for (const type of DOC_BLOCK_TYPES) {
-    const override = settings.blockLayout?.[type];
+    const follows = BLOCK_LAYOUT_FOLLOWS[type];
+    const override = settings.blockLayout?.[type] ?? (follows ? settings.blockLayout?.[follows] : undefined);
     if (!override) continue;
     const declarations: string[] = [];
     if (override.width !== undefined) {

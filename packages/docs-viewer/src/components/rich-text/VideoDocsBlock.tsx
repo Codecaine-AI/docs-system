@@ -1,12 +1,21 @@
 "use client";
 
-import type { ReactNode } from "react";
-import { FilmIcon } from "lucide-react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { FilmIcon, PlayIcon } from "lucide-react";
+import {
+  MEDIA_GHOST_BUTTON,
+  MEDIA_HEAD_CLASSES,
+  MEDIA_HEAD_TEXT,
+  MEDIA_PANEL_CLASS,
+  MEDIA_PANEL_FILL,
+  MediaHeadContent,
+  assetFileName,
+} from "./media-panel";
 
 export const VIDEO_LABEL = "Video";
 
 export const VIDEO_AGENT_DESCRIPTION =
-  "An embedded video, rendered from typed props: { src?: string; url?: string; title?: string; caption?: string }. `src` is a bundle-relative video asset (e.g. \"./assets/videos/demo.mp4\", played through a native <video controls> element via the host's asset resolver); `url` is an external video URL and WINS when both are set. YouTube (youtube.com/watch?v=, youtu.be/, /shorts/), Vimeo, and Loom urls embed a privacy-friendly player iframe (youtube-nocookie.com/embed, player.vimeo.com/video, loom.com/embed); any other url is never iframed and renders as a neutral link card opening in a new tab. Neither src nor url renders a missing-source placeholder.";
+  "An embedded video, rendered from typed props: { src?: string; url?: string; title?: string; caption?: string }. `src` is a bundle-relative video asset (e.g. \"./assets/videos/demo.mp4\", played through a native <video controls> element via the host's asset resolver); `url` is an external video URL and WINS when both are set. The block renders as a titled panel: `title` (default \"Video\") heads it beside the provider, host, or file name. A url renders a link card (caption, the URL, and a Watch button) that opens the video in a new tab; for YouTube (youtube.com/watch?v=, youtu.be/, /shorts/), Vimeo, and Loom urls, Watch in the interactive app swaps the card for a privacy-friendly player iframe (youtube-nocookie.com/embed, player.vimeo.com/video, loom.com/embed), so nothing third-party loads until the reader asks. Any other url is never iframed. A src video shows its caption below the panel. Neither src nor url renders a missing-source placeholder.";
 
 export type VideoEmbedProvider = "youtube" | "vimeo" | "loom";
 
@@ -92,28 +101,56 @@ export function parseVideoEmbed(rawUrl: string): VideoEmbed | null {
   return null;
 }
 
+/** Mono meta for the panel head: the provider, a host for any other url, the file name for src. */
+function videoMeta(url: string | undefined, embed: VideoEmbed | null, src: string | undefined) {
+  if (embed) return embed.provider;
+  if (url) {
+    try {
+      return new URL(url).hostname.replace(/^www\./, "");
+    } catch {
+      return undefined;
+    }
+  }
+  return src ? assetFileName(src) : undefined;
+}
+
+/** The URL as shown on the card: no scheme, no `www.` (the `title` keeps the full URL). */
+const displayUrl = (url: string) => url.replace(/^https?:\/\//i, "").replace(/^www\./i, "");
+
 /*
- * Class fragments for the figure — shared by both surfaces, since the
- * editor's atom node view renders this same component. Every value follows a
- * video token and each fallback equals its semantic.css default (the old
- * `my-4` / `rounded-md border` / `mt-1 text-xs` utilities), so an unthemed
- * host renders unchanged. The radius default tracks the global `--radius`
- * (8px stock, so 6px), as `rounded-md` did. All three media surfaces (embed
- * frame, link card, native player) share VIDEO_FRAME_CLASSES so one knob
- * moves them together. `leading-[calc(1/0.75)]` is the line height `text-xs`
- * paired with its font size; the arbitrary size utility sets the size alone.
+ * The video is one media panel (media-panel.tsx): text-family tile, title and
+ * mono provider / host / file name in the head. Class strings are shared by
+ * both surfaces, since the editor's atom node view renders this component.
+ * Every video knob keeps its LIGHT default as the literal fallback: `border` /
+ * `borderWidth` / `radius` draw the panel frame, `margin` the block, and the
+ * caption knobs set the caption line below the panel (a native player, or a
+ * provider player once it is loaded). The link card's caption reads the size
+ * knob but the body text role, like the rest of the card.
  */
-const VIDEO_FIGURE_CLASSES = "not-prose my-[var(--docs-video-margin,16px)]";
-const VIDEO_FRAME_CLASSES =
-  "rounded-[var(--docs-video-radius,var(--radius,2px))] border-[length:var(--docs-video-border-width,1px)] border-[color:var(--docs-video-border,var(--border))]";
+const VIDEO_FIGURE_CLASSES =
+  "not-prose my-[var(--docs-video-margin,24px)] max-w-[var(--style-content-width,60ch)]";
+const VIDEO_PANEL_CLASSES = `${MEDIA_PANEL_CLASS} ${MEDIA_PANEL_FILL} rounded-[var(--docs-video-radius,var(--radius,2px))] border-[length:var(--docs-video-border-width,1px)] border-[color:var(--docs-video-border,#e6e5e3)]`;
 const VIDEO_CAPTION_CLASSES =
-  "mt-[var(--docs-video-caption-gap,4px)] text-[length:var(--docs-video-caption-text-size,12px)] leading-[calc(1/0.75)] text-[color:var(--docs-video-caption-fg,var(--muted-foreground))]";
+  "mt-[var(--docs-video-caption-gap,8px)] text-[length:var(--docs-video-caption-text-size,13.5px)] leading-normal text-[color:var(--docs-video-caption-fg,#666562)] [text-wrap:pretty]";
+/* Link card: caption over the mono URL, Watch on the right. It fills the
+ * panel body, which clips overflow, so its focus ring is drawn inside. */
+const VIDEO_CARD_CLASSES =
+  "group flex items-center gap-4 p-3 text-inherit no-underline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-solid focus-visible:outline-[color:var(--docs-focus-ring,#0078df)]";
+const VIDEO_CARD_CAPTION_CLASSES =
+  "text-[length:var(--docs-video-caption-text-size,13.5px)] leading-normal text-[color:var(--docs-text,#2a2a2a)] [text-wrap:pretty]";
+const VIDEO_CARD_URL_CLASSES =
+  "truncate font-mono text-[12px] leading-[1.4] text-[color:var(--docs-link,#245a81)] underline-offset-2 group-hover:underline";
+const VIDEO_WATCH_CLASSES = `${MEDIA_GHOST_BUTTON} group-hover:bg-[var(--docs-hover,#ebebea)] group-hover:text-[color:var(--docs-ink,#1f1f1f)]`;
+const VIDEO_MISSING_CLASSES =
+  "rounded-[var(--radius,2px)] border border-dashed border-[color:var(--docs-rule,#e6e5e3)] p-3 text-[13.5px] text-[color:var(--docs-muted,#666562)]";
 
 /**
- * Video block. Minimal figure framing like the image block — no header strip,
- * just the media surface plus a muted caption line. `url` (external) wins
- * over `src` (bundle asset); known providers embed, unknown urls get a
- * neutral link card (never an iframe), a bare `src` plays through a native
+ * Video block: one media panel. `url` (external) wins over `src` (bundle
+ * asset). A url renders a link card (caption, mono URL, Watch) that opens the
+ * video in a new tab — all a static page ever needs. For a KNOWN provider the
+ * interactive app enhances the card: Watch swaps the body for the
+ * privacy-friendly player iframe, so nothing third-party loads until asked.
+ * An unknown url is never iframed. A bare `src` plays through a native
  * `<video>` element using the host-resolved `resolvedSrc` when present.
  */
 export function VideoBlock({
@@ -132,15 +169,31 @@ export function VideoBlock({
   caption?: string;
 }) {
   const embed = url ? parseVideoEmbed(url) : null;
+  const [playing, setPlaying] = useState(false);
+  const playerRef = useRef<HTMLIFrameElement>(null);
+  useEffect(() => {
+    // The card the reader activated is gone; hand focus to the player.
+    if (playing) playerRef.current?.focus();
+  }, [playing]);
 
-  let media: ReactNode;
-  if (url && embed) {
-    media = (
-      <div className={`aspect-video w-full overflow-hidden ${VIDEO_FRAME_CLASSES} bg-muted/20`}>
+  if (!url && !src) {
+    return (
+      <figure className={VIDEO_FIGURE_CLASSES} data-docs-block-type="video" data-source-id={id}>
+        <div className={VIDEO_MISSING_CLASSES}>Video block is missing a src or url.</div>
+      </figure>
+    );
+  }
+
+  let body: ReactNode;
+  let captionBelow = caption;
+  if (url && embed && playing) {
+    body = (
+      <div className="aspect-video w-full">
         <iframe
+          ref={playerRef}
           src={embed.embedUrl}
           title={title ?? `${VIDEO_LABEL}: ${url}`}
-          className="h-full w-full"
+          className="block h-full w-full border-0"
           allow="fullscreen; picture-in-picture; encrypted-media"
           allowFullScreen
           // "origin" (not "no-referrer") is deliberate: it still hides the
@@ -155,55 +208,58 @@ export function VideoBlock({
       </div>
     );
   } else if (url) {
-    media = (
+    captionBelow = undefined;
+    body = (
       <a
         href={url}
         target="_blank"
         rel="noopener noreferrer"
         data-video-link-card="true"
-        className={`flex items-center gap-3 ${VIDEO_FRAME_CLASSES} bg-muted/20 px-3 py-2 no-underline transition-colors hover:bg-muted/40`}
+        data-video-provider={embed?.provider}
+        className={VIDEO_CARD_CLASSES}
+        onMouseDown={(event) => event.stopPropagation()}
+        onClick={(event) => {
+          // Known providers load their player in place; a modified click
+          // (new tab, new window) and any other url keep the plain link.
+          if (!embed || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+          event.preventDefault();
+          event.stopPropagation();
+          setPlaying(true);
+        }}
       >
-        <FilmIcon className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-        <span className="min-w-0">
-          <span className="block truncate text-sm font-medium text-foreground">
-            {title ?? "External video"}
+        <span className="flex min-w-0 flex-1 flex-col gap-1">
+          {caption && <span className={VIDEO_CARD_CAPTION_CLASSES}>{caption}</span>}
+          <span className={VIDEO_CARD_URL_CLASSES} title={url}>
+            {displayUrl(url)}
           </span>
-          <span className="block truncate font-mono text-[11px] text-muted-foreground">
-            {url}
-          </span>
+        </span>
+        <span className={VIDEO_WATCH_CLASSES}>
+          <PlayIcon size={12} strokeWidth={2} aria-hidden />
+          Watch
         </span>
       </a>
     );
-  } else if (src) {
-    media = (
+  } else {
+    body = (
       <video
         src={resolvedSrc ?? src}
         controls
         preload="metadata"
         title={title}
-        className={`max-w-full ${VIDEO_FRAME_CLASSES}`}
+        className="block h-auto w-full"
       />
-    );
-  } else {
-    media = (
-      <div className="rounded-md border border-dashed bg-muted/30 p-3 text-xs text-muted-foreground">
-        Video block is missing a src or url.
-      </div>
     );
   }
 
   return (
-    <figure
-      className={VIDEO_FIGURE_CLASSES}
-      data-docs-block-type="video"
-      data-source-id={id}
-    >
-      {media}
-      {caption && (
-        <figcaption className={VIDEO_CAPTION_CLASSES}>
-          {caption}
-        </figcaption>
-      )}
+    <figure className={VIDEO_FIGURE_CLASSES} data-docs-block-type="video" data-source-id={id}>
+      <div className={VIDEO_PANEL_CLASSES} data-docs-media-panel="">
+        <div className={`${MEDIA_HEAD_CLASSES} ${MEDIA_HEAD_TEXT}`}>
+          <MediaHeadContent icon={FilmIcon} title={title ?? VIDEO_LABEL} meta={videoMeta(url, embed, src)} />
+        </div>
+        {body}
+      </div>
+      {captionBelow && <figcaption className={VIDEO_CAPTION_CLASSES}>{captionBelow}</figcaption>}
     </figure>
   );
 }

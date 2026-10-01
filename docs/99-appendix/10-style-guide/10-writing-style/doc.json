@@ -65,8 +65,8 @@
         "writing-b-writing-technical-writing-record-92",
         "review-b-review-worked-example-1",
         "review-b-review-the-revision-names-the-a-2",
-        "review-b-review-before-configuration-of-3",
-        "review-b-review-after-budget-mjs-reads-4",
+        "review-b-review-before-text",
+        "review-b-review-after-text",
         "review-b-review-the-filenames-in-this-ex-5",
         "review-b-review-review-checklist-6",
         "review-b-review-read-the-rendered-docume-7",
@@ -1709,29 +1709,29 @@
       "props": {},
       "text": [
         {
-          "insert": "The revision names the actor, preserves the condition, and states the result."
+          "insert": "The revision names the actor, preserves the condition, and states the result. The first paragraph below is the original, and the second is the revision."
         }
       ],
       "children": []
     },
-    "review-b-review-before-configuration-of-3": {
-      "id": "review-b-review-before-configuration-of-3",
-      "type": "quote",
+    "review-b-review-before-text": {
+      "id": "review-b-review-before-text",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "Before: Configuration of the import budget script parameters is performed via budget.json. Note that it is important to remember that running with --write should only be done when lowering the budget. If exceeded, CI fails."
+          "insert": "Configuration of the import budget script parameters is performed via budget.json. Note that it is important to remember that running with --write should only be done when lowering the budget. If exceeded, CI fails."
         }
       ],
       "children": []
     },
-    "review-b-review-after-budget-mjs-reads-4": {
-      "id": "review-b-review-after-budget-mjs-reads-4",
-      "type": "quote",
+    "review-b-review-after-text": {
+      "id": "review-b-review-after-text",
+      "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "After: budget.mjs reads budget.json and counts the imports. If the count exceeds the budget, CI fails. Run budget.mjs --write only to lower the budget."
+          "insert": "budget.mjs reads budget.json and counts the imports. If the count exceeds the budget, CI fails. Run budget.mjs --write only to lower the budget."
         }
       ],
       "children": []

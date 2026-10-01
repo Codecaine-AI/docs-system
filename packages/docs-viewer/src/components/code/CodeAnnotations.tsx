@@ -3,64 +3,75 @@
 import { useMemo } from "react";
 import { CODE_BLOCK_CLASSES } from "../../render/block-classes";
 import { cn } from "../../ui/cn";
-import { CODE_LINE_GUTTER_LIT_CLASSES, LinkGroup, useLinkTarget } from "../linked-panels";
+import { LinkGroup, useLinkTarget } from "../linked-panels";
 import { expandLineRange } from "./annotations";
 import {
   CODE_ANNOTATED_PRE_CLASSES,
-  CODE_FRAME_GRID_CLASSES,
+  CODE_FRAME_IN_LAYOUT_CLASSES,
   CODE_GUTTER_CLASSES,
   CODE_GUTTER_LINE_ANNOTATED_CLASSES,
+  CODE_GUTTER_LINE_ANNOTATED_LIT_CLASSES,
   CODE_GUTTER_LINE_CLASSES,
-  CODE_GUTTER_LINE_LIT_WASH_CLASSES,
+  CODE_GUTTER_MARK_END_CLASSES,
+  CODE_GUTTER_MARK_START_CLASSES,
   CODE_LINE_ROW_CLASSES,
+  CODE_LINE_ROW_LINKABLE_CLASSES,
+  CODE_LINE_ROW_LIT_CLASSES,
   CODE_LINE_ROW_ZEBRA_CLASSES,
   CODE_LINE_TEXT_CELL_CLASSES,
 } from "./classes";
-import { CodeBlockHeader, CodeNotesAside } from "./CodeShell";
+import { CodeBlockHeader, CodeNotesAside, CodeNotesLayout } from "./CodeShell";
 import { highlightCode, prettyPrintIfJson, resolveDisplayLanguage } from "./highlight";
 
 export type { CodeAnnotation } from "./annotations";
 
 /**
- * One code line on the annotated READ surface. Zebra stripes EVERY even line
- * (system rule R4) — annotated included — from JS so a lit extent's wash can
- * replace the stripe via cn(). Lines covered by an annotation join the
- * block's LinkGroup keyed by the owning annotation's `lines` key: hover,
- * focus, or pin paints the wash + 3px pin rail across the row, the sticky
- * gutter cell layers the wash and re-pins the rail at the gutter edge, and
- * the line number goes pin-color bold (system rule R3). At rest annotated
- * lines keep only the gutter's 2px accent bar + accent number.
+ * One code line on the annotated READ surface. Lines covered by an
+ * annotation join the block's LinkGroup keyed by the owning annotation's
+ * `lines` key: hover, focus, or pin tints the row (the sticky gutter cell
+ * layers the same tint), turns its number and gutter mark to the accent, and
+ * keyboard focus draws the focus ring. At rest annotated lines keep only the
+ * quiet gutter mark. The zebra stripe on even lines is transparent by
+ * default; a lit tint replaces it via cn().
  */
 function AnnotatedCodeLine({
   lineNumber,
   html,
   linkKey,
+  runStart,
+  runEnd,
 }: {
   lineNumber: number;
   /** hljs output (token spans over escaped text) or fully escaped plain text — see highlight.ts. */
   html: string;
   /** The owning annotation's `lines` key, or null for plain lines. */
   linkKey: string | null;
+  /** First / last line of its annotated run: the gutter mark insets there. */
+  runStart?: boolean;
+  runEnd?: boolean;
 }) {
   const link = useLinkTarget(linkKey);
+  const annotated = linkKey !== null;
   return (
     <div
       data-code-line={lineNumber}
-      data-annotated={linkKey !== null || undefined}
+      data-annotated={annotated || undefined}
       {...link.targetProps}
       className={cn(
         CODE_LINE_ROW_CLASSES,
         lineNumber % 2 === 0 && CODE_LINE_ROW_ZEBRA_CLASSES,
-        link.className,
+        annotated && CODE_LINE_ROW_LINKABLE_CLASSES,
+        link.lit && CODE_LINE_ROW_LIT_CLASSES,
       )}
     >
       <span
         className={cn(
           CODE_GUTTER_CLASSES,
           CODE_GUTTER_LINE_CLASSES,
-          linkKey !== null && CODE_GUTTER_LINE_ANNOTATED_CLASSES,
-          link.lit && CODE_LINE_GUTTER_LIT_CLASSES,
-          link.lit && CODE_GUTTER_LINE_LIT_WASH_CLASSES,
+          annotated && CODE_GUTTER_LINE_ANNOTATED_CLASSES,
+          annotated && runStart && CODE_GUTTER_MARK_START_CLASSES,
+          annotated && runEnd && CODE_GUTTER_MARK_END_CLASSES,
+          link.lit && CODE_GUTTER_LINE_ANNOTATED_LIT_CLASSES,
         )}
       >
         {lineNumber}
@@ -76,20 +87,19 @@ function AnnotatedCodeLine({
 
 /**
  * Side-annotated code block (used only when annotations exist — the plain
- * code path stays with the registry, rendering through CodeShell). Shares
- * the code frame's furniture — header row (language label + copy button;
- * this is the one surface whose bar names a language, system rule R5), line
- * height, gutter width, zebra striping — via the constants in classes.ts, but
- * keeps its own per-line grid so every annotated line stays a link target.
+ * code path stays with the registry, rendering through CodeShell). The dark
+ * panel shares the code frame's furniture — header strip, line height,
+ * gutter — via the constants in classes.ts, but keeps its own per-line grid
+ * so every annotated line stays a link target. The notes are margin prose
+ * on the page beside the panel (under it in a narrow block).
  *
  * Pairing runs on the shared LinkGroup engine (ONE group per block; key =
  * the annotation's `lines` key): hovering or focusing a note or an annotated
- * line lights the annotation's FULL extent — background wash + the 3px inset
- * pin rail spanning first-through-last covered line including the gutter
- * edge, with the covered line numbers going pin-color bold. Clicking (or
- * Enter/Space) pins the pair — the pin survives hover-out and adds the
- * 1.5px ring — and Escape clears it. Overlapping annotations resolve each
- * line to the EARLIEST covering note, matching annotationLineRuns.
+ * line lights the annotation's FULL extent — the line tint, accent numbers
+ * and marks, and the note's accent chip. Clicking (or Enter/Space) pins the
+ * pair — the pin survives hover-out — and Escape clears it. Overlapping
+ * annotations resolve each line to the EARLIEST covering note, matching
+ * annotationLineRuns.
  */
 export function AnnotatedCodeBlock({
   id,
@@ -127,8 +137,12 @@ export function AnnotatedCodeBlock({
   return (
     <section className="not-prose" data-code-annotations={id}>
       <LinkGroup>
-        <div className={cn("group/code", CODE_BLOCK_CLASSES, CODE_FRAME_GRID_CLASSES)} data-code-surface="true">
-          <div className="min-w-0">
+        <CodeNotesLayout>
+          <div
+            className={cn("group/code", CODE_BLOCK_CLASSES, CODE_FRAME_IN_LAYOUT_CLASSES)}
+            data-code-surface="true"
+            data-language={language}
+          >
             <CodeBlockHeader
               languageLabel={resolveDisplayLanguage(displayCode, language)}
               copyText={() => displayCode}
@@ -143,13 +157,15 @@ export function AnnotatedCodeBlock({
                     lineNumber={lineNumber}
                     html={line}
                     linkKey={owner === undefined ? null : annotations[owner].lines}
+                    runStart={lineOwner.get(lineNumber - 1) !== owner}
+                    runEnd={lineOwner.get(lineNumber + 1) !== owner}
                   />
                 );
               })}
             </pre>
           </div>
           <CodeNotesAside annotations={annotations} />
-        </div>
+        </CodeNotesLayout>
       </LinkGroup>
     </section>
   );

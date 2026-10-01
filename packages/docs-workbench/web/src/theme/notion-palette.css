@@ -4,14 +4,16 @@
  */
 
 :root, [data-theme="light"] {
-  --color-text-default: #37352F;
+  /* Neutrals = the lab's `app` palette (the live Global theme's page,
+     sidebar and text): warm grays, AA body text. */
+  --color-text-default: #2A2A2A;
   --color-text-navigation: #245A81;
-  /* Warm paper off-white (Notion ships pure #FFFFFF; the ~2% headroom
+  /* Warm paper off-white (Notion ships pure #FFFFFF; the ~1% headroom
      below white lets the grain overlay brighten as well as darken, so
      texture costs no average brightness). */
-  --color-bg-default: #FBFAF8;
-  /* Notion's warm off-white — sidebar/panel surfaces, deeper than page. */
-  --color-bg-sidebar: #F7F6F3;
+  --color-bg-default: #FDFDFD;
+  /* Warm off-white — sidebar surface, a step deeper than the page. */
+  --color-bg-sidebar: #F9F9F9;
   --color-pill-default: rgba(206,205,202,0.5);
 
   --color-text-gray: #9B9A97;
@@ -60,49 +62,150 @@
    rail's Code panels knob) re-declares every token at its dark value, so it
    renders dark on a light page. */
 [data-theme="dark"], .dark, [data-code-panels="dark"] [data-code-surface] {
-  --color-text-default: rgba(255,255,255,0.9);
-  --color-text-navigation: #9BC9EA;
-  --color-bg-default: #2F3437;
-  /* Notion dark's slightly-lifted sidebar, paired with the classic bg. */
-  --color-bg-sidebar: #373C3F;
-  --color-pill-default: rgba(206,205,202,0.5);
+  /* Dark = GitHub Primer dark (the lab's `primer` palette): canvas/fg
+     neutrals, fg colors as -text, the solid at 13% over the panel
+     (#151B23) as -bg, the solid at 40% as -pill. Primer has no brown, so
+     brown keeps Notion's dark values. */
+  --color-text-default: #D1D9E0;
+  --color-text-navigation: #4493F8;
+  --color-bg-default: #0D1117;
+  /* Primer canvas-inset: the sidebar sits a step below the page, as the
+     light sidebar does. */
+  --color-bg-sidebar: #010409;
+  --color-pill-default: rgba(101,108,118,0.5);
 
-  --color-text-gray: rgba(151,154,155,0.95);
-  --color-bg-gray: #454B4E;
-  --color-pill-gray: rgba(151,154,155,0.5);
+  --color-text-gray: #9198A1;
+  --color-bg-gray: #1F252E;
+  --color-pill-gray: rgba(101,108,118,0.4);
 
   --color-text-brown: #937264;
   --color-bg-brown: #434040;
   --color-pill-brown: rgba(147,114,100,0.5);
 
-  --color-text-orange: #FFA344;
-  --color-bg-orange: #594A3A;
-  --color-pill-orange: rgba(255,163,68,0.5);
+  --color-text-orange: #DD7330;
+  --color-bg-orange: #2F2624;
+  --color-pill-orange: rgba(219,109,40,0.4);
 
-  --color-text-yellow: #FFDC49;
-  --color-bg-yellow: #59563B;
-  --color-pill-yellow: rgba(255,220,73,0.5);
+  --color-text-yellow: #D29922;
+  --color-bg-yellow: #2E2B23;
+  --color-pill-yellow: rgba(210,153,34,0.4);
 
-  --color-text-green: #4DAB9A;
-  --color-bg-green: #354C4B;
-  --color-pill-green: rgba(77,171,154,0.5);
+  --color-text-green: #3FB950;
+  --color-bg-green: #1A3029;
+  --color-pill-green: rgba(63,185,80,0.4);
 
-  --color-text-blue: #529CCA;
-  --color-bg-blue: #364954;
-  --color-pill-blue: rgba(82,156,202,0.5);
-  /* Full-strength selection blue (the pill hue at alpha 1) — Notion's
-     interactive accent; bg/pill tiers are far too pale for outlines. */
-  --color-accent-blue: rgb(82,156,202);
+  --color-text-blue: #4493F8;
+  --color-bg-blue: #1B2B3F;
+  --color-pill-blue: rgba(68,147,248,0.4);
+  /* Full-strength interactive blue (focus rings, outlines). */
+  --color-accent-blue: #4493F8;
 
-  --color-text-purple: #9A6DD7;
-  --color-bg-purple: #443F57;
-  --color-pill-purple: rgba(154,109,215,0.5);
+  --color-text-purple: #AB7DF8;
+  --color-bg-purple: #29283F;
+  --color-pill-purple: rgba(171,125,248,0.4);
 
-  --color-text-pink: #E255A1;
-  --color-bg-pink: #533B4C;
-  --color-pill-pink: rgba(226,85,161,0.5);
+  --color-text-pink: #DD69A6;
+  --color-bg-pink: #2F2434;
+  --color-pill-pink: rgba(219,97,162,0.4);
 
-  --color-text-red: #FF7369;
-  --color-bg-red: #594141;
-  --color-pill-red: rgba(255,115,105,0.5);
+  --color-text-red: #F85B53;
+  --color-bg-red: #332228;
+  --color-pill-red: rgba(248,81,73,0.4);
+}
+
+
+/*
+ * ROLE PALETTE (theme lab, 2026-10-01). Raw values behind the --docs-* role
+ * tokens in semantic.css. Light = the lab's `app` palette: the app's warm
+ * neutrals and Notion hues, text hues tuned to 4.5:1 only where Notion's
+ * failed. Dark = the lab's `primer` palette: GitHub Primer dark neutrals and
+ * fg colors. Per hue: <hue> is text-safe (>= 4.5:1 on page, panel and its
+ * own -soft), -solid is a tile/fill, -soft an opaque pale tint.
+ * Verified by /tmp/docs-dev-mockups/lab/.contrast.mjs (and the foundation
+ * audit script) — re-run it after changing a value.
+ */
+:root {
+  --palette-page: #fdfdfd;
+  --palette-panel: #f8f8f7;
+  --palette-sidebar: #f9f9f9;
+  --palette-ink: #1f1f1f;
+  --palette-text: #2a2a2a;
+  --palette-muted: #666562;
+  --palette-faint: #9b9a97;
+  --palette-rule: #e6e5e3;
+  --palette-rule-soft: #efeeec;
+  --palette-chip: #ebebe9;
+  --palette-nav: #ebeced;
+  --palette-link: #245a81;
+  --palette-accent: #0078df;
+  --palette-glyph: #ffffff;
+  --palette-soft-t: 8%;
+  --palette-line-t: 45%;
+  --palette-selection-t: 18%;
+  --palette-diff-mod-t: 9%;
+
+  --palette-gray: #666562;   --palette-gray-solid: #9b9a97;   --palette-gray-soft: #ebeced;
+  --palette-blue: #0b6e99;   --palette-blue-solid: #0b6e99;   --palette-blue-soft: #ddebf1;
+  --palette-teal: #0d7164;   --palette-teal-solid: #0f7b6c;   --palette-teal-soft: #ddedea;
+  --palette-green: #26744f;  --palette-green-solid: #287c55;  --palette-green-soft: #e2efe6;
+  --palette-yellow: #805f01; --palette-yellow-solid: #dfab01; --palette-yellow-soft: #fbf3db;
+  --palette-orange: #9d530d; --palette-orange-solid: #d9730d; --palette-orange-soft: #faebdd;
+  --palette-red: #c62121;    --palette-red-solid: #e03e3e;    --palette-red-soft: #fbe4e4;
+  --palette-violet: #6940a5; --palette-violet-solid: #6940a5; --palette-violet-soft: #eae4f2;
+  --palette-pink: #ad1a72;   --palette-pink-solid: #ad1a72;   --palette-pink-soft: #f4dfeb;
+}
+
+/* Primer dark. Also the dark code-panel island, like the Notion dark block. */
+.dark, [data-theme="dark"], [data-code-panels="dark"] [data-code-surface] {
+  --palette-page: #0d1117;
+  --palette-panel: #151b23;
+  --palette-sidebar: #010409;
+  --palette-ink: #f0f6fc;
+  --palette-text: #d1d9e0;
+  --palette-muted: #9198a1;
+  --palette-faint: #656c76;
+  --palette-rule: #3d444d;
+  --palette-rule-soft: #262c36;
+  --palette-chip: #21262d;
+  --palette-nav: #212830;
+  --palette-link: #4493f8;
+  --palette-accent: #4493f8;
+  --palette-glyph: #0d1117;
+  /* Primer canvas-inset: dark code panels on the dark page sit below it. */
+  --palette-inset: #010409;
+  --palette-soft-t: 13%;
+  --palette-line-t: 50%;
+  --palette-selection-t: 30%;
+  --palette-diff-mod-t: 7%;
+
+  --palette-gray: #9198a1;   --palette-gray-solid: #656c76;
+  --palette-blue: #4493f8;   --palette-blue-solid: #4493f8;
+  --palette-teal: #39c5cf;   --palette-teal-solid: #39c5cf;
+  --palette-green: #3fb950;  --palette-green-solid: #3fb950;
+  --palette-yellow: #d29922; --palette-yellow-solid: #d29922;
+  --palette-orange: #dd7330; --palette-orange-solid: #db6d28;
+  --palette-red: #f85b53;    --palette-red-solid: #f85149;
+  --palette-violet: #ab7df8; --palette-violet-solid: #ab7df8;
+  --palette-pink: #dd69a6;   --palette-pink-solid: #db61a2;
+  /* Primer has no soft fills: the solid at 13% over the panel. */
+  --palette-gray-soft: color-mix(in srgb, #656c76 13%, #151b23);
+  --palette-blue-soft: color-mix(in srgb, #4493f8 13%, #151b23);
+  --palette-teal-soft: color-mix(in srgb, #39c5cf 13%, #151b23);
+  --palette-green-soft: color-mix(in srgb, #3fb950 13%, #151b23);
+  --palette-yellow-soft: color-mix(in srgb, #d29922 13%, #151b23);
+  --palette-orange-soft: color-mix(in srgb, #db6d28 13%, #151b23);
+  --palette-red-soft: color-mix(in srgb, #f85149 13%, #151b23);
+  --palette-violet-soft: color-mix(in srgb, #ab7df8 13%, #151b23);
+  --palette-pink-soft: color-mix(in srgb, #db61a2 13%, #151b23);
+}
+
+/* Inside a dark code panel the panel IS the page: anything in it that paints
+   the page or panel color (a sticky cell, a notes column, a diff tint's base)
+   takes the code panel's own background, whichever code theme or rail value
+   set it. So --docs-code-block-bg must never reference --docs-page,
+   --docs-panel or --background — that would be a var() cycle. (0,3,0)
+   beats the (0,2,0) island above. */
+[data-code-panels="dark"] [data-code-surface][data-code-surface] {
+  --palette-page: var(--docs-code-block-bg);
+  --palette-panel: var(--docs-code-block-bg);
 }

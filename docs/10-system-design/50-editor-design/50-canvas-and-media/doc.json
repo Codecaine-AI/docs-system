@@ -46,7 +46,7 @@
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "10-system-design/40-block-vocabulary/80-canvas"
+              "path": "10-system-design/40-block-vocabulary/50-flow-and-diagrams/50-canvas"
             }
           }
         },
@@ -58,7 +58,7 @@
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "10-system-design/40-block-vocabulary/10-rich-text/17-video"
+              "path": "10-system-design/40-block-vocabulary/10-text-and-media/10-rich-text/17-video"
             }
           }
         },
@@ -70,7 +70,7 @@
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "10-system-design/40-block-vocabulary/10-rich-text/16-image"
+              "path": "10-system-design/40-block-vocabulary/10-text-and-media/10-rich-text/16-image"
             }
           }
         },

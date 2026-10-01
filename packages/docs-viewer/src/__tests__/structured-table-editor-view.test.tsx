@@ -11,6 +11,7 @@ import {
   resolveNavigation,
 } from "../components/structured-table/editor/TableGrid";
 import type { TableData } from "../components/structured-table/editor/mutations";
+import { TABLE_TITLE_CLASSES } from "../components/structured-table/table-classes";
 
 afterEach(() => {
   cleanup();
@@ -89,21 +90,21 @@ describe("TableGrid", () => {
 
     const wrapper = container.querySelector("div");
     expect(wrapper?.className).toContain(
-      "border-[color:var(--docs-table-border,var(--border))]",
+      "border-[color:var(--docs-table-border,var(--docs-rule,#e6e5e3))]",
     );
     const header = container.querySelector("thead");
     expect(header?.className).toContain(
-      "border-b-[length:var(--docs-table-header-rule-width,2px)]",
+      "border-b-[length:var(--docs-table-header-rule-width,1px)]",
     );
-    expect(header?.className).toContain("var(--docs-table-header-rule-opacity,0.7)");
+    expect(header?.className).toContain("var(--docs-table-header-rule-opacity,1)");
 
     const headerCells = container.querySelectorAll("thead th");
     expect(headerCells.length).toBe(2);
     expect(headerCells[0]?.className).toContain(
-      "text-[length:var(--docs-table-header-text-size,calc(var(--docs-table-font-size,14px)-1px))]",
+      "text-[length:var(--docs-table-header-text-size,var(--docs-table-font-size,13.5px))]",
     );
     expect(headerCells[0]?.className).toContain(
-      "py-[length:var(--docs-table-cell-pad-y,10px)]",
+      "py-[length:var(--docs-table-cell-pad-y,4px)]",
     );
     expect(headerCells[0]?.className).toContain(
       "px-[length:var(--docs-table-cell-pad-x,12px)]",
@@ -112,7 +113,7 @@ describe("TableGrid", () => {
       "px-[length:var(--docs-table-cell-pad-x,12px)]",
     );
     expect(headerCells[0]?.className).toContain(
-      "border-r-[length:var(--docs-table-column-rule-width,var(--docs-table-row-rule-width,1px))]",
+      "border-r-[length:var(--docs-table-column-rule-width,0px)]",
     );
     expect(headerCells[1]?.className).not.toContain("border-r");
 
@@ -124,7 +125,7 @@ describe("TableGrid", () => {
     expect(bodyRows[1]?.className).not.toContain("border-b");
     const bodyCells = container.querySelectorAll("tbody td");
     expect(bodyCells[0]?.className).toContain(
-      "text-[length:var(--docs-table-font-size,14px)]",
+      "text-[length:var(--docs-table-font-size,13.5px)]",
     );
 
     const cells = gridCells(container);
@@ -396,9 +397,13 @@ describe("StructuredTableNodeView", () => {
     const section = container.querySelector('[data-docs-block-type="structured-table"]');
     expect(section?.getAttribute("data-source-id")).toBe("tbl-1");
     expect(section?.className).toBe("not-prose my-4");
-    expect(getByText("Rollout").className).toBe(
-      "mb-[var(--docs-table-title-gap,6px)] text-[length:var(--docs-table-title-text-size,14px)] leading-[calc(1.25/0.875)] [font-weight:var(--docs-table-title-weight,500)] text-[color:var(--docs-table-title-fg,var(--foreground))]",
-    );
+    // The title sits in the panel head above the overlay surface, labelling
+    // the grid's table, and the grid frame drops its top edge under it.
+    const title = getByText("Rollout");
+    expect(title.className).toBe(TABLE_TITLE_CLASSES);
+    expect(title.closest("[data-table-title-bar]")?.parentElement === section).toBe(true);
+    expect(section?.hasAttribute("data-table-titled")).toBe(true);
+    expect(container.querySelector("table")?.getAttribute("aria-labelledby")).toBe(title.id);
     expect(container.querySelector("[data-structured-table-surface]")).toBeTruthy();
     // Ragged row padded to the column count.
     expect(gridCells(container as HTMLElement).map((cell) => cell.textContent)).toEqual([

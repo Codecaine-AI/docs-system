@@ -1,258 +1,148 @@
 "use client";
 
-import { cn } from "../../ui/cn";
 import {
   DocsMdxBlock,
   type DocsMdxParsedBlock,
 } from "../base";
+import {
+  TREE_ICONS,
+  TreeGuides,
+  TreeHead,
+  TreeMark,
+  TreeStyle,
+  depthStyle,
+  elbowGuides,
+  treeVars,
+  type TreeGuide,
+} from "../outline-rows/tree-rows";
+import {
+  buildFileTree,
+  relativeFromPath,
+  sortFileTreeNodes,
+  type FileTreeEntry,
+  type FileTreeNode,
+} from "./tree-model";
 
-export type FileTreeChange = "added" | "removed" | "modified" | "renamed";
-
-export type FileTreeEntry = {
-  /** "/"-separated path, no leading "./"; a trailing "/" marks an explicit directory. */
-  path: string;
-  /** Muted `# note` comment rendered after the name. */
-  note?: string;
-  /** Diff state; tints the row and adds a +/-/~/> gutter marker. */
-  change?: FileTreeChange;
-  /** Old path, rendered muted/struck before the new name when change is "renamed". */
-  from?: string;
-};
+export type { FileTreeChange, FileTreeEntry } from "./tree-model";
 
 type FileTreeData = {
   id?: string;
   entries: FileTreeEntry[];
 };
 
-const FILE_TREE_CHANGES: readonly FileTreeChange[] = [
-  "added",
-  "removed",
-  "modified",
-  "renamed",
-];
-
-function isFileTreeChange(value: unknown): value is FileTreeChange {
-  return FILE_TREE_CHANGES.includes(value as FileTreeChange);
-}
-
-/**
- * One node of the nested tree built from the flat entry paths. Directories
- * are derived from path prefixes (or authored explicitly with a trailing
- * "/"); derived directories never carry change/note state — only explicit
- * entries do (`entryPath` marks a node an entry authored directly).
- */
-type FileTreeNode = {
-  name: string;
-  isDir: boolean;
-  /** Normalized full path ("/"-joined segments; directories keep a trailing "/"). */
-  path: string;
-  /** Set when this node was authored as an entry (not just derived as a prefix). */
-  entryPath?: string;
-  note?: string;
-  change?: FileTreeChange;
-  from?: string;
-  children: Map<string, FileTreeNode>;
-};
-
-/** Splits a raw entry path into clean segments; trailing "/" = explicit dir. */
-function normalizePath(raw: string): { segments: string[]; isDir: boolean } {
-  const trimmed = raw.trim();
-  const isDir = trimmed.endsWith("/");
-  const segments = trimmed
-    .replace(/^\.\//, "")
-    .split("/")
-    .map((segment) => segment.trim())
-    .filter(Boolean);
-  return { segments, isDir };
-}
-
-/**
- * Builds the nested tree from flat entries. Intermediate directories are
- * created on demand; an explicit entry attaches its note/change/from to its
- * own node. A node authored as a file is promoted to a directory if a later
- * entry nests beneath it.
- */
-function buildFileTree(entries: FileTreeEntry[]): {
-  roots: Map<string, FileTreeNode>;
-} {
-  const roots = new Map<string, FileTreeNode>();
-  for (const entry of entries) {
-    const { segments, isDir } = normalizePath(entry.path);
-    if (segments.length === 0) continue;
-    let level = roots;
-    let prefix = "";
-    for (const [index, segment] of segments.entries()) {
-      const last = index === segments.length - 1;
-      prefix = prefix ? `${prefix}/${segment}` : segment;
-      let node = level.get(segment);
-      if (!node) {
-        node = {
-          name: segment,
-          isDir: !last || isDir,
-          path: prefix,
-          children: new Map(),
-        };
-        level.set(segment, node);
-      }
-      if (!last) {
-        // Prefix segments are directories by construction.
-        node.isDir = true;
-      } else {
-        node.isDir = node.isDir || isDir || node.children.size > 0;
-        node.entryPath = node.isDir ? `${node.path}/` : node.path;
-        if (typeof entry.note === "string" && entry.note.trim()) node.note = entry.note.trim();
-        if (isFileTreeChange(entry.change)) node.change = entry.change;
-        if (typeof entry.from === "string" && entry.from.trim()) {
-          node.from = entry.from.trim().replace(/^\.\//, "");
-        }
-      }
-      // Keep dir paths trailing-"/"-suffixed once known to be a directory.
-      if (node.isDir && node.entryPath && !node.entryPath.endsWith("/")) {
-        node.entryPath = `${node.entryPath}/`;
-      }
-      level = node.children;
-    }
-  }
-  return { roots };
-}
-
-/**
- * Sort order at every level: directories first, then codepoint-ascending
- * name. Keep in sync with docs-model's `projectFileTree` markdown projection
- * so the read surface and the agent projection agree on ordering.
- */
-function sortFileTreeNodes(nodes: Iterable<FileTreeNode>): FileTreeNode[] {
-  return Array.from(nodes).sort((a, b) => {
-    if (a.isDir !== b.isDir) return a.isDir ? -1 : 1;
-    return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
-  });
-}
-
 type FileTreeRow = {
   node: FileTreeNode;
-  /** The `tree`-style guide prefix ("│   ", "├── ", "└── ") for this row. */
-  guide: string;
+  depth: number;
+  guides: TreeGuide[];
 };
 
 function flattenFileTree(
   nodes: Iterable<FileTreeNode>,
-  prefix: string,
+  ancestorsLast: readonly boolean[],
   out: FileTreeRow[],
 ): FileTreeRow[] {
   const sorted = sortFileTreeNodes(nodes);
   for (const [index, node] of sorted.entries()) {
     const last = index === sorted.length - 1;
-    out.push({ node, guide: `${prefix}${last ? "└── " : "├── "}` });
-    flattenFileTree(node.children.values(), `${prefix}${last ? "    " : "│   "}`, out);
+    out.push({ node, depth: ancestorsLast.length, guides: elbowGuides(ancestorsLast, last) });
+    flattenFileTree(node.children.values(), [...ancestorsLast, last], out);
   }
   return out;
 }
 
-/**
- * Every tunable value reads a `--docs-file-tree-*` token (the workbench style
- * rail's "File tree" pane; defaults in docs-workbench theme/semantic.css) with
- * a literal fallback equal to that default, so the block renders identically
- * where semantic.css is absent (static export). Class names stay complete
- * literals — Tailwind scans this source and cannot see composed strings.
- */
-const CARD_CLASS =
-  "overflow-x-auto rounded-[var(--docs-file-tree-radius,var(--radius,2px))] border-[length:var(--docs-file-tree-border-width,1px)] border-[color:var(--docs-file-tree-border,var(--border))] bg-[var(--docs-file-tree-bg,var(--background))] py-[var(--docs-file-tree-pad-y,8px)] font-mono text-[length:var(--docs-file-tree-text-size,12px)] leading-[var(--docs-file-tree-line-height,24px)]";
-/** Horizontal card padding lives on each row so a diff tint spans the card edge to edge. */
-const ROW_PAD_X_CLASS = "px-[var(--docs-file-tree-pad-x,12px)]";
-/** Root dot, empty placeholder, and the struck `from` path of a rename. */
-const MUTED_FG_CLASS = "text-[color:var(--docs-file-tree-muted-fg,var(--muted-foreground))]";
-const GUIDE_FG_CLASS =
-  "text-[color:var(--docs-file-tree-guide-fg,color-mix(in_oklab,var(--muted-foreground)_70%,transparent))]";
-const FOLDER_WEIGHT_CLASS = "[font-weight:var(--docs-file-tree-folder-weight,500)]";
-const FILE_WEIGHT_CLASS = "[font-weight:var(--docs-file-tree-file-weight,400)]";
-const FOLDER_FG_CLASS = "text-[color:var(--docs-file-tree-folder-fg,var(--foreground))]";
-const FILE_FG_CLASS = "text-[color:var(--docs-file-tree-file-fg,var(--foreground))]";
-const NOTE_CLASS =
-  "ml-2 min-w-0 max-w-[48ch] truncate text-[length:var(--docs-file-tree-note-text-size,12px)] text-[color:var(--docs-file-tree-note-fg,var(--muted-foreground))]";
+function hasChange(rows: readonly FileTreeRow[]): boolean {
+  return rows.some((row) => row.node.change !== undefined);
+}
 
 /**
- * Row tint + gutter marker + name accent per diff state. Each state is ONE
- * rail knob writing three vars (name `-fg`, gutter `-marker`, row `-tint`);
- * their defaults are three shades of one hue (and differ light/dark), so the
- * fallbacks carry `dark:` variants. The row wash is the tint colour at
- * `--docs-file-tree-change-tint` percent — a unitless number multiplied by 1%
- * at the use site, since rail colour overrides are opaque hex.
+ * The file tree's style-rail knobs (`--docs-file-tree-*`, the "File tree"
+ * pane; defaults in docs-workbench theme/semantic.css), mapped onto the shared
+ * trees row system's `--tr-*` variables. Each fallback equals the knob's
+ * light default, so the block renders identically where semantic.css is
+ * absent (static export). The file explorer reads the same knobs.
+ *
+ * Each diff state is ONE rail knob writing three vars: the name ink (`-fg`),
+ * the gutter glyph (`-marker`) and the row wash hue (`-tint`). The wash is
+ * the tint at `--docs-file-tree-change-tint` percent over the panel — a
+ * unitless number multiplied by 1% here, since a rail colour override is an
+ * opaque hex and the row has to stay a soft tint.
  */
-const CHANGE_STYLES: Record<
-  FileTreeChange,
-  { row: string; marker: string; markerChar: string; name: string }
-> = {
-  added: {
-    row: "bg-[color-mix(in_oklab,var(--docs-file-tree-added-tint,var(--color-emerald-500))_calc(var(--docs-file-tree-change-tint,10)*1%),transparent)]",
-    marker:
-      "text-[color:var(--docs-file-tree-added-marker,var(--color-emerald-600))] dark:text-[color:var(--docs-file-tree-added-marker,var(--color-emerald-400))]",
-    markerChar: "+",
-    name: "text-[color:var(--docs-file-tree-added-fg,var(--color-emerald-700))] dark:text-[color:var(--docs-file-tree-added-fg,var(--color-emerald-300))]",
-  },
-  removed: {
-    row: "bg-[color-mix(in_oklab,var(--docs-file-tree-removed-tint,var(--color-rose-500))_calc(var(--docs-file-tree-change-tint,10)*1%),transparent)]",
-    marker:
-      "text-[color:var(--docs-file-tree-removed-marker,var(--color-rose-600))] dark:text-[color:var(--docs-file-tree-removed-marker,var(--color-rose-400))]",
-    markerChar: "-",
-    name: "text-[color:var(--docs-file-tree-removed-fg,var(--color-rose-700))] line-through dark:text-[color:var(--docs-file-tree-removed-fg,var(--color-rose-300))]",
-  },
-  modified: {
-    row: "bg-[color-mix(in_oklab,var(--docs-file-tree-modified-tint,var(--color-amber-500))_calc(var(--docs-file-tree-change-tint,10)*1%),transparent)]",
-    marker:
-      "text-[color:var(--docs-file-tree-modified-marker,var(--color-amber-600))] dark:text-[color:var(--docs-file-tree-modified-marker,var(--color-amber-400))]",
-    markerChar: "~",
-    name: "text-[color:var(--docs-file-tree-modified-fg,var(--color-amber-700))] dark:text-[color:var(--docs-file-tree-modified-fg,var(--color-amber-300))]",
-  },
-  renamed: {
-    row: "bg-[color-mix(in_oklab,var(--docs-file-tree-renamed-tint,var(--color-sky-500))_calc(var(--docs-file-tree-change-tint,10)*1%),transparent)]",
-    marker:
-      "text-[color:var(--docs-file-tree-renamed-marker,var(--color-sky-600))] dark:text-[color:var(--docs-file-tree-renamed-marker,var(--color-sky-400))]",
-    markerChar: ">",
-    name: "text-[color:var(--docs-file-tree-renamed-fg,var(--color-sky-700))] dark:text-[color:var(--docs-file-tree-renamed-fg,var(--color-sky-300))]",
-  },
-};
+export const FILE_TREE_VARS = treeVars({
+  "--tr-bg": "var(--docs-file-tree-bg,var(--docs-panel,#f8f8f7))",
+  "--tr-border": "var(--docs-file-tree-border,var(--docs-rule,#e6e5e3))",
+  "--tr-border-width": "var(--docs-file-tree-border-width,1px)",
+  "--tr-radius": "var(--docs-file-tree-radius,var(--radius,2px))",
+  "--tr-pad-y": "var(--docs-file-tree-pad-y,8px)",
+  "--tr-pad-x": "var(--docs-file-tree-pad-x,12px)",
+  "--tr-text-size": "var(--docs-file-tree-text-size,13px)",
+  "--tr-row": "var(--docs-file-tree-line-height,28px)",
+  "--tr-ink": "var(--docs-file-tree-file-fg,var(--docs-ink,#1f1f1f))",
+  "--tr-folder-fg": "var(--docs-file-tree-folder-fg,var(--docs-ink,#1f1f1f))",
+  "--tr-folder-weight": "var(--docs-file-tree-folder-weight,400)",
+  "--tr-file-fg": "var(--docs-file-tree-file-fg,var(--docs-ink,#1f1f1f))",
+  "--tr-file-weight": "var(--docs-file-tree-file-weight,400)",
+  "--tr-note-fg": "var(--docs-file-tree-note-fg,var(--docs-muted,#666562))",
+  "--tr-note-size": "var(--docs-file-tree-note-text-size,13.5px)",
+  "--tr-guide": "var(--docs-file-tree-guide-fg,var(--docs-guide,color-mix(in srgb,#9b9a97 45%,#e6e5e3)))",
+  "--tr-muted": "var(--docs-file-tree-muted-fg,var(--docs-muted,#666562))",
+  "--tr-added-name": "var(--docs-file-tree-added-fg,var(--docs-diff-add,#26744f))",
+  "--tr-added-fg": "var(--docs-file-tree-added-marker,var(--docs-diff-add,#26744f))",
+  "--tr-added-bg":
+    "color-mix(in srgb,var(--docs-file-tree-added-tint,var(--docs-c-green-solid,#287c55)) calc(var(--docs-file-tree-change-tint,8) * 1%),transparent)",
+  "--tr-removed-name": "var(--docs-file-tree-removed-fg,var(--docs-diff-del,#c62121))",
+  "--tr-removed-fg": "var(--docs-file-tree-removed-marker,var(--docs-diff-del,#c62121))",
+  "--tr-removed-bg":
+    "color-mix(in srgb,var(--docs-file-tree-removed-tint,var(--docs-c-red-solid,#e03e3e)) calc(var(--docs-file-tree-change-tint,8) * 1%),transparent)",
+  "--tr-modified-name": "var(--docs-file-tree-modified-fg,var(--docs-diff-mod,#805f01))",
+  "--tr-modified-fg": "var(--docs-file-tree-modified-marker,var(--docs-diff-mod,#805f01))",
+  "--tr-modified-bg":
+    "color-mix(in srgb,var(--docs-file-tree-modified-tint,var(--docs-c-yellow-solid,#dfab01)) calc(var(--docs-file-tree-change-tint,8) * 1%),transparent)",
+  "--tr-renamed-name": "var(--docs-file-tree-renamed-fg,var(--docs-diff-mod,#805f01))",
+  "--tr-renamed-fg": "var(--docs-file-tree-renamed-marker,var(--docs-diff-mod,#805f01))",
+  "--tr-renamed-bg":
+    "color-mix(in srgb,var(--docs-file-tree-renamed-tint,var(--docs-c-yellow-solid,#dfab01)) calc(var(--docs-file-tree-change-tint,8) * 1%),transparent)",
+});
 
-function FileTreeRowView({ row }: { row: FileTreeRow }) {
-  const { node, guide } = row;
-  const change = node.change ? CHANGE_STYLES[node.change] : null;
+/** The struck old path of a rename, relative to the new name's folder (full path in the title). */
+export function RenamedFrom({ node }: { node: FileTreeNode }) {
+  if (node.change !== "renamed" || !node.from) return null;
+  return (
+    <>
+      <span className="docs-tree__from" title={node.from}>
+        {relativeFromPath(node.from, node.path)}
+      </span>
+      <span className="docs-tree__arrow" aria-hidden="true">
+        {"→"}
+      </span>
+      <span className="docs-tree__sr"> renamed to </span>
+    </>
+  );
+}
+
+function FileTreeRowView({ row, diff }: { row: FileTreeRow; diff: boolean }) {
+  const { node, depth, guides } = row;
   return (
     <div
-      className={cn("flex min-w-0 items-center", ROW_PAD_X_CLASS, change?.row)}
+      className="docs-tree__row"
+      role="listitem"
+      aria-level={depth + 1}
       data-docs-file-tree-entry={node.entryPath}
       data-docs-file-tree-change={node.change}
+      data-change={node.change}
     >
+      {diff && <TreeMark change={node.change} />}
       <span
-        className={cn("w-4 shrink-0 select-none", change?.marker)}
-        aria-hidden={change ? undefined : "true"}
+        className={node.note ? "docs-tree__path" : "docs-tree__path docs-tree__path--span"}
+        style={depthStyle(depth)}
       >
-        {change ? change.markerChar : " "}
-      </span>
-      <span className={cn("whitespace-pre", GUIDE_FG_CLASS)} aria-hidden="true">
-        {guide}
-      </span>
-      {node.change === "renamed" && node.from && (
-        <>
-          <span className={cn("whitespace-pre line-through", MUTED_FG_CLASS)}>{node.from}</span>
-          <span className={cn("whitespace-pre", MUTED_FG_CLASS)}>{" → "}</span>
-        </>
-      )}
-      <span
-        className={cn(
-          "whitespace-pre",
-          node.isDir ? FOLDER_WEIGHT_CLASS : FILE_WEIGHT_CLASS,
-          // A diff state owns the name colour outright; otherwise folder/file ink.
-          change ? change.name : node.isDir ? FOLDER_FG_CLASS : FILE_FG_CLASS,
-        )}
-      >
-        {node.name}
-        {node.isDir && "/"}
-      </span>
-      {node.note && (
-        <span className={NOTE_CLASS} title={node.note}>
-          {"# "}
-          {node.note}
+        <TreeGuides guides={guides} />
+        <RenamedFrom node={node} />
+        <span className="docs-tree__name" data-dir={node.isDir ? "" : undefined}>
+          {node.name}
+          {node.isDir && "/"}
         </span>
-      )}
+      </span>
+      {node.note && <span className="docs-tree__note">{node.note}</span>}
     </div>
   );
 }
@@ -263,12 +153,13 @@ export class FileTreeDocsBlock extends DocsMdxBlock<FileTreeData> {
   readonly targetKind = "file-tree";
   readonly label = "File Tree";
   readonly agentDescription =
-    "A `tree`-command-style file/module tree with a diff story, rendered from typed props: { entries: Array<{ path: string (\"/\"-separated, no leading \"./\"; a trailing \"/\" marks an explicit directory); note?: string; change?: \"added\"|\"removed\"|\"modified\"|\"renamed\"; from?: string (old path, for renamed) }> }. Directories are derived from path prefixes and sort before files (then alphabetical); `note` renders as a muted `# note` comment after the name; `change` tints the row and adds a +/-/~/> gutter marker; renamed entries render `from → name` with the old path struck through. Derived directories carry no change state — only explicit entries do.";
+    "A `tree`-command-style file/module tree with a diff story, rendered from typed props: { entries: Array<{ path: string (\"/\"-separated, no leading \"./\"; a trailing \"/\" marks an explicit directory); note?: string; change?: \"added\"|\"removed\"|\"modified\"|\"renamed\"; from?: string (old path, for renamed) }> }. Directories are derived from path prefixes and sort before files (then alphabetical); `note` renders in one aligned muted column after the names; `change` adds a +/−/~/> gutter glyph and a soft row tint; renamed entries render `from → name` with the old path struck through and shown relative to the new name's folder. Derived directories carry no change state — only explicit entries do.";
 
   render(block: DocsMdxParsedBlock<FileTreeData>) {
     const { data } = block;
     const { roots } = buildFileTree(data.entries);
-    const rows = flattenFileTree(roots.values(), "", []);
+    const rows = flattenFileTree(roots.values(), [], []);
+    const diff = hasChange(rows);
     return (
       <section
         className="not-prose my-4"
@@ -276,21 +167,19 @@ export class FileTreeDocsBlock extends DocsMdxBlock<FileTreeData> {
         data-docs-block-type={this.type}
         data-source-id={data.id}
       >
-        <div className={CARD_CLASS}>
-          {rows.length === 0 ? (
-            <div className={cn(ROW_PAD_X_CLASS, MUTED_FG_CLASS)}>(no entries)</div>
-          ) : (
-            <>
-              <div className={cn("flex items-center", ROW_PAD_X_CLASS, MUTED_FG_CLASS)} aria-hidden="true">
-                <span className="w-4 shrink-0 select-none"> </span>
-                <span className="whitespace-pre">.</span>
-              </div>
-              {rows.map((row) => (
-                <FileTreeRowView key={row.node.path} row={row} />
-              ))}
-            </>
-          )}
-        </div>
+        <TreeStyle />
+        {/* A code surface: paths are machine-checkable, so the tree reads as a
+            code panel (dark in both page modes under Code panels "dark"). */}
+        <figure className="docs-tree" data-tree-kind="file-tree" data-code-surface="true" style={FILE_TREE_VARS}>
+          <TreeHead icon={TREE_ICONS.folder} title="File tree" />
+          <div className="docs-tree__rows" role="list" aria-label="File tree" data-diff={diff ? "" : undefined}>
+            {rows.length === 0 ? (
+              <div className="docs-tree__empty">(no entries)</div>
+            ) : (
+              rows.map((row) => <FileTreeRowView key={row.node.path} row={row} diff={diff} />)
+            )}
+          </div>
+        </figure>
       </section>
     );
   }

@@ -19,7 +19,7 @@ import type { Node as PMNode } from "@tiptap/pm/model";
  *
  * All factories no-op (return null) unless the match starts at the very
  * beginning of a docParagraph's own text — typing "## " mid-paragraph or
- * inside a heading/list/quote/callout does nothing, matching Notion.
+ * inside a heading/list/callout does nothing, matching Notion.
  */
 
 type ParagraphContext = {
@@ -54,7 +54,7 @@ function resolveAttrs(attrs: AttrsOption, match: RegExpMatchArray): Record<strin
 }
 
 /**
- * Paragraph -> other text-block conversion (heading, list item, quote,
+ * Paragraph -> other text-block conversion (heading, list item,
  * callout): same "docBlockText block*" content shape on both sides, so a
  * setNodeMarkup retype keeps the text, any nested children, and the blockId
  * attr in place — diffToOps sees a type change on the same block.

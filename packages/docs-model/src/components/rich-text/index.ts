@@ -24,7 +24,6 @@ export {
   ImageGridItemState,
   ListItemState,
   ParagraphState,
-  QuoteState,
   RICH_TEXT_STATES,
   VideoState,
   HtmlState,

@@ -9,7 +9,8 @@ import { styleRailVars, type StyleRailSettings } from "../shell/StyleRail";
  * `[data-code-surface]`, so the central code style reaches every code pane
  * (code blocks, state-shape / interaction-surface code panes) whatever the
  * page theme is:
- *   - Code panels "dark": always, on every pane (the dark island).
+ *   - Code panels "dark": always, on every pane (the dark island); on a
+ *     dark page the panel surface drops to the inset color (below).
  *   - Code panels "page": only when the theme's type matches the page — a
  *     dark code theme on a dark page, a light one on a light page — else
  *     the page theme's own code tokens stay.
@@ -39,16 +40,40 @@ function selectorFor(theme: CodeTheme, settings: StyleRailSettings): string {
     : `:root[data-code-panels="page"]:not([data-theme="dark"]) ${PANE}`;
 }
 
+/**
+ * Code panels "dark" on the DARK page: the panel surface drops below the page
+ * (Primer canvas-inset, Primer rule — theme/notion-palette.css --palette-inset
+ * / --palette-rule), so a dark panel still reads as a distinct panel on a dark
+ * page. Syntax colors and text stay the code theme's. One attribute more than
+ * the theme rule (0,5,0), so it wins on a dark page; vars an explicit rail
+ * override sets are left out, so the rail keeps winning. theme/semantic.css
+ * carries the same values for when no code theme is loaded.
+ */
+const DARK_PAGE_PANEL_VARS: Record<string, string> = {
+  "--docs-code-block-bg": "var(--palette-inset)",
+  "--docs-code-gutter-bg": "var(--palette-inset)",
+  "--docs-code-block-border": "var(--palette-rule)",
+};
+
+function rule(selector: string, vars: Record<string, string>, railVars: Record<string, string | null>): string {
+  const declarations = Object.entries(vars)
+    .filter(([name]) => railVars[name] == null)
+    .map(([name, value]) => `  ${name}: ${value};`);
+  return declarations.length === 0 ? "" : `${selector} {\n${declarations.join("\n")}\n}`;
+}
+
 /** The managed rule's CSS text ("" when there is nothing to apply). */
 export function codeThemeStyleCss(theme: CodeTheme | null, settings: StyleRailSettings): string {
   if (!theme) return "";
-  const selector = selectorFor(theme, settings);
   const railVars = styleRailVars(settings);
-  const declarations = Object.entries(codeThemeCssVars(theme))
-    .filter(([name]) => railVars[name] == null)
-    .map(([name, value]) => `  ${name}: ${value};`);
-  if (declarations.length === 0) return "";
-  return `${selector} {\n${declarations.join("\n")}\n}`;
+  const themeRule = rule(selectorFor(theme, settings), codeThemeCssVars(theme), railVars);
+  if (!themeRule || settings.typography.codePanels !== "dark") return themeRule;
+  const darkPage = rule(
+    `:root[data-code-panels="dark"]:is(.dark, [data-theme="dark"]) ${PANE}`,
+    DARK_PAGE_PANEL_VARS,
+    railVars,
+  );
+  return darkPage ? `${themeRule}\n${darkPage}` : themeRule;
 }
 
 /** Writes (or empties) the managed code-theme <style> element. */

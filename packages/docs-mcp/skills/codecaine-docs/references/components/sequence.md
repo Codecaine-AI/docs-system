@@ -1,12 +1,12 @@
 # sequence
 
-Generated from Codecaine Docs sources. Snapshot: `sha256:8861c4126d96a4fe05b112560004f112939f8bd23bcfa3b72fb78f29bf846861`. Refresh the installation to regenerate these files.
+Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872daf2950bc392aeeae845c9eb67ff4956ad352fb08`. Refresh the installation to regenerate these files.
 
 Use Sequence for a bounded interaction where participant order, calls, returns, waits, retries, or failures explain the behavior. Verify the sequence against source or trace evidence.
 
 Example: Show a client opening a task, reading a document, applying an operation, and receiving validation findings.
 
-Canonical document: `10-system-design/40-block-vocabulary/70-sequence`.
+Canonical document: `10-system-design/40-block-vocabulary/50-flow-and-diagrams/40-sequence`.
 
 The sequence component owns one type of the Block vocabulary: `sequence`, the UML-style sequence-diagram block. The block is only a reference: `src` (or `sequenceId`) points at a `SequenceDocument` owned by the external sequence engine (`external/sequence`); participants, messages, and style never enter the doc. Sequence diagrams are this block's whole territory, and every other diagram type belongs to the canvas block.
 

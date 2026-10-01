@@ -1,6 +1,6 @@
 # Docs Authoring Guidance
 
-Generated from Codecaine Docs sources. Snapshot: `sha256:8861c4126d96a4fe05b112560004f112939f8bd23bcfa3b72fb78f29bf846861`. Refresh the installation to regenerate these files.
+Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872daf2950bc392aeeae845c9eb67ff4956ad352fb08`. Refresh the installation to regenerate these files.
 
 <docs_visual_components source="docs-model component manifests">
   Choose the visual that answers the reader's question. For a layered explanation, use Canvas for system connections, Process Outline for the expected execution trace, and Sequence for a detailed interaction. Link the views with consistent participant and phase names. Include only the views the explanation needs; do not repeat the same detail in all three.
@@ -22,7 +22,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:8861c4126d96a4fe05b1125
 
   Example: Introduce the retry policy in prose, list the recovery steps, and link to the operation definition.
 
-  Details: 10-system-design/40-block-vocabulary/10-rich-text
+  Details: 10-system-design/40-block-vocabulary/10-text-and-media/10-rich-text
 
   ### code
 
@@ -32,7 +32,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:8861c4126d96a4fe05b1125
 
   Example: Show the real validation function and annotate the branch that rejects an invalid write.
 
-  Details: 10-system-design/40-block-vocabulary/20-code-block
+  Details: 10-system-design/40-block-vocabulary/20-code/10-code-block
 
   ### file-tree
 
@@ -42,7 +42,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:8861c4126d96a4fe05b1125
 
   Example: Show the service entry point, skills directory, and generated references with a note for each.
 
-  Details: 10-system-design/40-block-vocabulary/40-file-tree
+  Details: 10-system-design/40-block-vocabulary/30-trees-and-paths/10-file-tree
 
   ### structured-table
 
@@ -52,7 +52,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:8861c4126d96a4fe05b1125
 
   Example: Compare supported clients by installation path and connection method.
 
-  Details: 10-system-design/40-block-vocabulary/30-structured-table
+  Details: 10-system-design/40-block-vocabulary/40-structured-reference/30-structured-table
 
   ### interaction-surface
 
@@ -62,7 +62,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:8861c4126d96a4fe05b1125
 
   Example: Document openDocument, applyOperations, and checkDocument with their parameters and results.
 
-  Details: 10-system-design/40-block-vocabulary/60-interaction-surface
+  Details: 10-system-design/40-block-vocabulary/40-structured-reference/20-interaction-surface
 
   ### state-shape
 
@@ -72,7 +72,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:8861c4126d96a4fe05b1125
 
   Example: Define an edit task with its project, revision, and status, then show one valid task instance.
 
-  Details: 10-system-design/40-block-vocabulary/50-state-shape
+  Details: 10-system-design/40-block-vocabulary/40-structured-reference/10-state-shape
 
   ### canvas
 
@@ -82,7 +82,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:8861c4126d96a4fe05b1125
 
   Example: Map the external client, shared docs service, and project corpora, labeling the read and write connections.
 
-  Details: 10-system-design/40-block-vocabulary/80-canvas
+  Details: 10-system-design/40-block-vocabulary/50-flow-and-diagrams/50-canvas
 
   ### sequence
 
@@ -92,7 +92,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:8861c4126d96a4fe05b1125
 
   Example: Show a client opening a task, reading a document, applying an operation, and receiving validation findings.
 
-  Details: 10-system-design/40-block-vocabulary/70-sequence
+  Details: 10-system-design/40-block-vocabulary/50-flow-and-diagrams/40-sequence
 
   ### process-outline
 
@@ -102,7 +102,67 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:8861c4126d96a4fe05b1125
 
   Example: Outline discovery, guidance loading, editing, validation, and completion, with failure notes where needed.
 
-  Details: 10-system-design/40-block-vocabulary/90-process-outline
+  Details: 10-system-design/40-block-vocabulary/50-flow-and-diagrams/10-process-outline
+
+  ### stack
+
+  Block types: stack
+
+  Use Stack to show layering and the rule enforced at each line: which layer uses which, and what may never cross. Write the layers as a tree of nodes, mark a node `uses` to draw an arrow to its next sibling, and add a boundary after a node to draw the rule beneath it. Use Canvas instead when the picture needs free placement or arbitrary edges.
+
+  Example: Show the package layering: host apps above the docs framework, docs-model nested as the pure layer, and the import rule between each layer.
+
+  Details: 10-system-design/40-block-vocabulary/50-flow-and-diagrams/30-stack
+
+  ### call-stack
+
+  Block types: call-stack
+
+  Use Call Stack to show which function calls which on one code path, with the file and line each frame lives at. Mark a condition with kind "branch" and a changed frame with change. Use Process Outline for prose steps and Component Tree for a render tree.
+
+  Example: Trace docs_apply_ops from the tool handler down to the atomic file write, marking the frames this change added.
+
+  Details: 10-system-design/40-block-vocabulary/30-trees-and-paths/30-call-stack
+
+  ### component-tree
+
+  Block types: component-tree
+
+  Use Component Tree to show which component renders which, and the hooks each one calls. Write each node as JSX or a hook call. Use Call Stack for plain function calls.
+
+  Example: Show the doc page render tree from DocPage down to the code block, marking the hook this change added.
+
+  Details: 10-system-design/40-block-vocabulary/30-trees-and-paths/40-component-tree
+
+  ### flow-strip
+
+  Block types: flow-strip
+
+  Use Flow Strip to show a short linear loop or pipeline at a glance, three to six steps. Use Process Outline when steps nest or need notes, and Sequence when the exact messages between parties matter.
+
+  Example: Show the docs MCP edit loop: begin, read, apply ops, check, end.
+
+  Details: 10-system-design/40-block-vocabulary/50-flow-and-diagrams/20-flow-strip
+
+  ### pseudocode
+
+  Block types: pseudocode
+
+  Use Pseudocode to explain an algorithm or a change in logic without the noise of real syntax. Set diff to show which lines a change adds or removes. Use Code when the reader needs the actual source.
+
+  Example: Sketch how the renderer builds header rows, marking the line this change removes.
+
+  Details: 10-system-design/40-block-vocabulary/20-code/20-pseudocode
+
+  ### file-explorer
+
+  Block types: file-explorer
+
+  Use File Explorer to show the files a change touches the way an editor sidebar shows them, with a badge per changed file. Use File Tree for a plain tree listing of a layout.
+
+  Example: Show the files the file-tree refactor added, modified and renamed, with a note on the two that matter.
+
+  Details: 10-system-design/40-block-vocabulary/30-trees-and-paths/20-file-explorer
 </docs_component_catalog>
 <docs_structure_standards source="docs-system corpus · 10-system-design/10-doc-standards">
   <doc path="10-system-design/10-doc-standards/10-structure" file="/Users/Ford/workspace/codecaine/core/docs-system/docs/10-system-design/10-doc-standards/10-structure/doc.json" title="Structure">
@@ -210,21 +270,22 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:8861c4126d96a4fe05b1125
 
   </doc>
   <doc path="10-system-design/10-doc-standards/20-numbering" file="/Users/Ford/workspace/codecaine/core/docs-system/docs/10-system-design/10-doc-standards/20-numbering/doc.json" title="Numbering">
-    Every doc and folder carries a two-digit prefix, and every listing — sidebar, terminal, render — sorts by it identically. 
+    Every doc and folder carries a two-digit prefix, and every listing sorts by it identically, whether in the sidebar, the terminal, or a render.
 
     This page states the scheme, the reserved ranges, and what running out of gap space actually means.
 
     ## Structure
 
     ```
-    00-foundation/  # 00 — early/foundational slot, used sparingly
+    00-foundation/  # 00 is the early or foundational slot, used sparingly
     10-system-design/  # top-level sections gap by ten: 10-, 20-, 30-…
     ├── 10-doc-standards/
     │   ├── 10-structure/  # children start at 10
     │   ├── 20-numbering/  # siblings continue 20-, 30-, 40-…
     │   └── 25-new-standard/  # ← a mid-gap insertion lands here; nothing renumbers (hypothetical)
     └── 40-block-vocabulary/
-        └── 10-rich-text/  # the named deviation: type pages run 10–17 dense, one family as a unit
+        └── 10-text-and-media/
+            └── 10-rich-text/  # the named deviation: type pages run 10–17 dense, one family as a unit
     20-agents/  # participating agents and their definitions
     30-implementation/  # the current code: design mapping and implementation choices
     ```
@@ -235,13 +296,13 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:8861c4126d96a4fe05b1125
 
     - Leave gaps of ten (`10-`, `20-`, `30-`) so a new doc can be inserted without renumbering anything.
 
-    - Insert mid-gap first — `25-` between `20-` and `30-` — before considering any reorganization.
+    - Insert mid-gap first, such as `25-` between `20-` and `30-`, before considering any reorganization.
 
     - When the gaps are exhausted, the number line is telling you the section has outgrown its shape: reorganize into a subfolder rather than packing consecutive numbers.
 
     | Range     | Reserved for |
     | --- | --- |
-    | 00–09 | Early or foundational content, used sparingly — 00 is a plain sort prefix, not a reserved slot; new sections start children at 10 |
+    | 00–09 | Early or foundational content, used sparingly. 00 is a plain sort prefix, not a reserved slot. New sections start children at 10. |
     | 10–89 | Main content |
     | 90–98 | Late or supplementary content |
     | 99 | Appendix and meta |
@@ -254,7 +315,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:8861c4126d96a4fe05b1125
 
       - The numbers are for people first.
 
-      - Prefixes put reading order in the filesystem itself — sidebar, terminal, and render agree without a manifest.
+      - Prefixes put reading order in the filesystem itself, so the sidebar, the terminal, and the render agree without a manifest.
 
     - **Insertion is local**
 
@@ -264,7 +325,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:8861c4126d96a4fe05b1125
 
       - Second to human reading, and just as real.
 
-      - The same explicit order tells an agent where to search and where to land a change — structure instead of hand-waving.
+      - The same explicit order tells an agent where to search and where to land a change.
 
     - **Exhaustion is a signal**
 
@@ -634,11 +695,15 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:8861c4126d96a4fe05b1125
 
     - **How-To**
 
-      - Help a competent reader finish a task. Use direct steps, relevant conditions, and decision points. Name the guide by the task.
+      - Help a competent reader finish a task. Use direct steps, relevant conditions, and decision points.
+
+      - Name the guide by the task.
 
     - **Reference**
 
-      - Supply facts for lookup. Mirror the thing described and state its options, limits, and errors. Generate facts from code where practical.
+      - Supply facts for lookup. Mirror the thing described and state its options, limits, and errors.
+
+      - Generate facts from code where practical.
 
     - **Explanation**
 
@@ -646,11 +711,17 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:8861c4126d96a4fe05b1125
 
     ## The Rule
 
-    Choose the primary purpose before authoring. Purpose guides the reader's task; the corpus layers still determine location and authority.
+    Choose the primary purpose before authoring. Purpose guides the reader's task. The corpus layers still determine location and authority.
 
     - Preserve the four layers and the templates defined in Structure.
 
-      - Foundation owns intent. Design owns behavior. Agents owns agent definitions. Implementation maps the design to current code and explains key implementation choices.
+      - Foundation owns intent.
+
+      - Design owns behavior.
+
+      - Agents owns agent definitions.
+
+      - Implementation maps the design to current code and explains key implementation choices.
 
       - Procedure belongs in an existing, declared guides tier. Do not create new root categories merely to match Diataxis.
 
@@ -680,7 +751,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:8861c4126d96a4fe05b1125
 
   </doc>
   <doc path="10-system-design/10-doc-standards/80-authoring-lints" file="/Users/Ford/workspace/codecaine/core/docs-system/docs/10-system-design/10-doc-standards/80-authoring-lints/doc.json" title="Authoring Lints">
-    Authoring lints report writing and page structure problems through one docs-model engine. The corpus defines the rules; tools display findings and enforce only the checks assigned to their stage.
+    Authoring lints report writing and page structure problems through one docs-model engine. The corpus defines the rules. Tools display findings and enforce only the checks assigned to their stage.
 
     ## Structure
 
@@ -700,13 +771,15 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:8861c4126d96a4fe05b1125
 
       - page-structure/rules.ts registers rule folders with checks and tests derived from Structure.
 
-      - The rules inspect the document's block order, heading levels, image alt text, and list nesting.
+      - The rules inspect the opening paragraph and its length, heading levels and Title Case, and image alt text. They also inspect list nesting, list length, list-item sentences, and label-colon openers.
 
     - **Other Owners**
 
       - Existing schema validators own valid block data. Component rules belong with the component whose state they inspect.
 
-      - Canvas and Sequence own their embedded formats. The docs-model lint engine does not inspect those formats or duplicate their checks. Block usage guidance stays in Block Vocabulary.
+      - Canvas and Sequence own their embedded formats. The docs-model lint engine does not inspect those formats or duplicate their checks.
+
+      - Block usage guidance stays in Block Vocabulary.
 
     ## The Rule
 
@@ -722,13 +795,31 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:8861c4126d96a4fe05b1125
 
     - **Completion Checks**
 
-      - A finding blocks completion only when it is introduced, has error severity, and its rule enforces the complete phase.
+      - In the lint engine, a finding blocks completion only when it is introduced, has error severity, and its rule enforces the complete phase.
 
-      - With a baseline, matching semantic evidence counts as existing even when block IDs change. Matching respects duplicate counts. Without a baseline, all findings count as introduced.
+      - With a baseline, matching semantic evidence counts as existing even when block IDs change. Matching respects duplicate counts.
+
+      - Without a baseline, all findings count as introduced.
 
       - Existing findings remain visible. A baseline does not waive a different finding introduced by an edit.
 
-      - Docs Writer retains the original valid document for the session after the first successful write. Later writes and docs_check compare against that original. Checking an untouched document runs an absolute audit. The baseline is session-local and does not persist across sessions.
+      - Docs Writer retains the original valid document for the session after the first successful write.
+
+        - Later writes and docs_check compare against that original. Checking an untouched document runs an absolute audit.
+
+        - The Docs Writer baseline is session-local and does not persist across sessions.
+
+    - **Docs MCP Style Gate**
+
+      - `docs_check` with `task_id` fails when the task introduced a gated warning on the page. Its `style_gate` field lists each one.
+
+      - `STYLE_RULE_POLICY` in lint-feedback.ts sets which warnings are gated. `writing.sentence-length`, `writing.filler`, and unlisted rules stay editorial.
+
+      - The docs MCP baseline is the page as it stood before the task's first successful write to it. Each task keeps one per page until `docs_end`.
+
+      - Write results list up to 5 `style_findings` that the write introduced or that sit on blocks it touched. `style_gate_open` counts the gated violations the task still has open on the page.
+
+      - Judgment Rules findings at 0.85 or higher on blocks the task changed also enter `style_gate`.
 
     - **Required Repairs**
 
@@ -738,7 +829,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:8861c4126d96a4fe05b1125
 
     - **Editorial Review**
 
-      - Warnings ask the author to inspect a passage. They do not block completion and do not prove the passage is wrong.
+      - Warnings ask the author to inspect a passage and do not prove the passage is wrong. Only the docs MCP style gate blocks completion on them.
 
       - Human judgment still governs sentence clarity, purpose, the join test, Title Case, and most style patterns. A clean lint result does not certify every writing rule.
 
@@ -756,27 +847,83 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:8861c4126d96a4fe05b1125
 
       - writing.dense-paragraph flags paragraphs over 120 prose words. This threshold is separate from the sentence-length review guidance.
 
+      - writing.semicolon flags a semicolon in authored prose. Semicolons in code spans, URLs, and HTML entities are literal and do not count.
+
+      - writing.sentence-length flags a prose sentence over 30 words and reports its word count. Review the sentence and split it only at a second thought.
+
     - **Page Structure Warnings**
 
-      - structure.opening-paragraph requires a nonempty opening paragraph after an optional initial H1. It does not count opening sentences.
+      - structure.opening-paragraph requires a nonempty opening paragraph after an optional initial H1. structure.opening-length checks its length.
+
+      - structure.opening-length flags an opening paragraph with more than four sentences. A one-sentence opener is not flagged.
 
       - H1 headings are permitted in the document body, including multiple H1 sections. The former structure.single-h1 warning is no longer active. structure.heading-order still flags skipped heading levels.
 
-      - structure.image-alt requires nonempty alt text on standalone images and every image-grid entry. Grid headings and captions also pass through the shared prose checks. These rules remain advisory, matching the existing audit policy. Promote a rule by changing its own severity and enforcement metadata after reviewing corpus impact.
+      - structure.image-alt requires nonempty alt text on standalone images and every image-grid entry. Grid headings and captions also pass through the shared prose checks.
 
-    - **Page Structure Warning**
+      - These rules are warnings in the lint engine, matching the existing audit policy. Promote a rule by changing its own severity and enforcement metadata after reviewing corpus impact.
 
-      - structure.deep-list flags list nesting deeper than three list items. Nested supporting details remain valid; review whether a branch needs its own section.
+    - **List and Heading Warnings**
 
-    - process-outline.single-parent requires one named, non-note root with at least one action child in every completed Process Outline. Empty outlines, childless roots, and multiple roots produce errors. Draft edits remain writable; new violations block completion. Nest related phases under one parent, or split independent processes into separate blocks.
+      - structure.deep-list flags list nesting deeper than three list items.
+
+        - Nested supporting details remain valid. Review whether a branch needs its own section.
+
+      - structure.list-length flags more than six consecutive sibling list items, or more than six sibling Process Outline steps. Notes do not count, and the item count is part of the evidence.
+
+      - structure.list-item-sentences flags a list item whose own text has three or more sentences. Nested items are checked separately.
+
+      - structure.heading-title-case flags heading words that break Title Case. Minor words such as "of" and "the" stay lowercase unless first or last, and code-marked spans are skipped.
+
+      - structure.label-colon-opener flags text that opens with a short label and a colon, or a short lead-in that ends in a colon. A plain label has up to three words and a bold label up to five.
+
+    - process-outline.single-parent requires one named, non-note root with at least one action child in every completed Process Outline.
+
+      - Empty outlines, childless roots, and multiple roots produce errors.
+
+      - Draft edits remain writable. New violations block completion.
+
+      - Nest related phases under one parent, or split independent processes into separate blocks.
 
     - bundle-relative-src rejects bare assets/... src values on completed canvas, sequence, image, and video blocks. Prefix bundle assets with ./, or use a docs-root-relative path or URL.
 
+    ## Judgment Rules
+
+    Judgment rules are style checks that a model answers. Jev, the TypeSafe System One model, returns a calibrated probability for each typed question about a block.
+
+    - **Rule IDs**
+
+      - `judgment.packed-bullet` asks whether a bullet without sub-bullets holds one point, unrelated points, a dense paragraph, or a bare label. Each diagnosis carries its own fix.
+
+      - `judgment.flat-hierarchy` asks whether a run of three or more flat top-level bullets is a wall of text that needs bold-label parents. It judges the run once, on its first item.
+
+      - `judgment.join-test` asks whether a paragraph and the list right after it fail to read as prose.
+
+    - **Thresholds**
+
+      - Write results report a judged finding at 0.6 for packed-bullet, 0.7 for flat-hierarchy, and 0.5 for join-test.
+
+      - `docs_check` with `task_id` blocks only at 0.85 or higher. A finding the task's baseline already had on the same block does not block.
+
+    - **Failure and the Kill Switch**
+
+      - A missing `TYPESAFE_API_KEY`, no answer within 4 seconds, or an HTTP error makes judgment unavailable. Writes then report deterministic findings only.
+
+      - `docs_check` then adds `judgment` with `available` set to false and a `reason`. It does not block on judgment.
+
+      - `CODECAINE_DOCS_JUDGMENT=off` in the environment or the shared env file turns judgment off. The engine reads the setting on every call.
+
+    - **Ownership**
+
+      - The rules live in `packages/docs-mcp/src/lint-feedback.ts`, and the engine lives in `jev-engine.ts` beside it.
+
+      - docs-model holds deterministic rules only, so its lint engine never calls a network service.
+
     ## Why
 
-    structure.title-heading detects only an opening H1 that repeats the display title. Every document save removes that duplicate before linting and persistence, preserving its children. Distinct opening H1s and later H1s remain unchanged; heading levels are never demoted by cleanup. The edit and correction share one undo patch, and the response returns the final document and revision. Ordinary edits need no repair-tool call.
+    structure.title-heading detects only an opening H1 that repeats the display title. Every document save removes that duplicate before linting and persistence, preserving its children. Distinct opening H1s and later H1s remain unchanged. Heading levels are never demoted by cleanup. The edit and correction share one undo patch, and the response returns the final document and revision. Ordinary edits need no repair-tool call.
 
-    Shared rules let CLI checks and agent tools report the same evidence and repair guidance. Completion checks require new errors to be repaired at the supported completion boundaries. Keeping warnings advisory prevents a phrase match from overruling a correct quotation, precise term, or useful explanation.
+    Shared rules let CLI checks and agent tools report the same evidence and repair guidance. Completion checks require new errors to be repaired at the supported completion boundaries. The docs MCP gates only warnings a task introduced, so an agent repairs its own violations without inheriting existing findings. Filler and sentence length stay ungated so a phrase match or word count cannot overrule a correct quotation, precise term, or useful explanation.
 
   </doc>
 </docs_structure_standards>
@@ -784,17 +931,31 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:8861c4126d96a4fe05b1125
   <doc path="99-appendix/10-style-guide/10-writing-style" file="/Users/Ford/workspace/codecaine/core/docs-system/docs/99-appendix/10-style-guide/10-writing-style/doc.json" title="Writing style">
     Write matter-of-fact prose that states what is, in the order the reader needs it. This page defines sentence clarity, punctuation, and the Unslop pattern catalog for the corpus.
 
-    - Lead with the fact. The first sentence of a doc or section states the thing itself. No setup, no "the idea here is".
+    - Lead with the fact.
 
-    - One idea per sentence, one topic per block. A plain lead sentence plus fact bullets beats a paragraph of prose.
+      - The first sentence of a doc or section states the thing itself. No setup, no "the idea here is".
 
-    - Concrete over vague: real numbers, real paths, real names. "Sixteen types", never "several".
+    - One idea per sentence, one topic per block.
 
-    - No preamble, no recap, no closing remarks. Start at the answer; stop when it is stated. Tangents move to their own home and get a link, not a sidebar.
+      - A plain lead sentence plus fact bullets beats a paragraph of prose.
 
-    - Assume no memory: a section stands alone or links to what it needs. Never `as mentioned above`.
+    - Concrete over vague.
 
-    - Present-state prose: a finished doc describes what exists now. No change-log voice ("now", "previously", "no longer") unless the doc is explicitly about migration history.
+      - Use real numbers, real paths, and real names. Write "Sixteen types", never "several".
+
+    - No preamble, no recap, no closing remarks.
+
+      - Start at the answer. Stop when it is stated.
+
+      - Tangents move to their own home and get a link, not a sidebar.
+
+    - Assume no memory.
+
+      - A section stands alone or links to what it needs. Never `as mentioned above`.
+
+    - Present-state prose.
+
+      - A finished doc describes what exists now. No change-log voice ("now", "previously", "no longer") unless the doc is explicitly about migration history.
 
     ## Write Sentences to the Reader
 
@@ -812,7 +973,9 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:8861c4126d96a4fe05b1125
 
       - Put the condition or warning before the action it guards. Put the common case before exceptions.
 
-      - Give each sentence one instruction. Review instructions over about 20 words and other sentences over about 25 words. Split at a second thought, not at an arbitrary count.
+      - Give each sentence one instruction.
+
+        - Review instructions over about 20 words and other sentences over about 25 words. Split at a second thought, not at an arbitrary count.
 
     - Use the short, everyday word.
 
@@ -824,7 +987,9 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:8861c4126d96a4fe05b1125
 
       - Omit "please", "simply", "easy", and "quickly" from procedures. Read an awkward sentence aloud and rewrite it if it stays awkward.
 
-      - Vary sentence lengths. Avoid consecutive sentences with the same opening. Give a view when the document's purpose calls for judgment.
+      - Vary sentence lengths. Avoid consecutive sentences with the same opening.
+
+      - Give a view when the document's purpose calls for judgment.
 
     ## Remove Ambiguity
 
@@ -966,17 +1131,31 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:8861c4126d96a4fe05b1125
 
     - Keep the voice human without making facts imprecise.
 
-      - Acknowledge real complexity. Use first person where ownership matters. Allow natural variation instead of forcing every sentence into the same length or template.
+      - Acknowledge real complexity.
+
+      - Use first person where ownership matters.
+
+      - Allow natural variation instead of forcing every sentence into the same length or template.
 
     ## Sources
 
     This page incorporates the existing Technical Writing and Unslop guidance. Source dates below record the prior Technical Writing attribution, not a new fetch.
 
-    - [Google Developer Style](https://developers.google.com/style) supplies the sentence and reader guidance. The source skill records a fetch on 2026-07-18. This corpus keeps Title Case headings.
+    - [Google Developer Style](https://developers.google.com/style) supplies the sentence and reader guidance.
 
-    - [ASD-STE100](https://asd-ste100.org), Issue 9, 2025, supplies transferable instruction principles. The source skill records a fetch on 2026-07-18. The full numbered rules and dictionary remain in the specification.
+      - The source skill records a fetch on 2026-07-18.
 
-    - John R. Kohl's The Global English Style Guide, SAS Press, supplies ambiguity guidance. The source skill records the Internet Archive and SAS sample chapter as sources fetched on 2026-07-18.
+      - This corpus keeps Title Case headings.
+
+    - [ASD-STE100](https://asd-ste100.org), Issue 9, 2025, supplies transferable instruction principles.
+
+      - The source skill records a fetch on 2026-07-18.
+
+      - The full numbered rules and dictionary remain in the specification.
+
+    - John R. Kohl's The Global English Style Guide, SAS Press, supplies ambiguity guidance.
+
+      - The source skill records the Internet Archive and SAS sample chapter as sources fetched on 2026-07-18.
 
     - Technical Writing records its corpus structure guidance as merged from this style guide on 2026-08-19. Unslop supplies the pattern catalog integrated into this page.
 
@@ -1036,7 +1215,13 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:8861c4126d96a4fe05b1125
 
       - Keep a section short enough to scan in one screen. Use Title Case headings, leaving minor words lowercase and preserving acronyms and code-marked spans.
 
-      - The display title and body headings are separate. H1 headings are allowed in the body. Do not begin the body with an H1 that repeats the display title. Preserve meaningful heading levels. Standards and design docs share the flow Structure, The Rule, and Why.
+      - The display title and body headings are separate.
+
+        - H1 headings are allowed in the body. Do not begin the body with an H1 that repeats the display title.
+
+      - Preserve meaningful heading levels.
+
+      - Standards and design docs share the flow Structure, The Rule, and Why.
 
     - **Give Each Page a Distinct Title and Opening**
 

@@ -20,8 +20,6 @@ export const ListItemState = Type.Object(
   { additionalProperties: false },
 );
 
-export const QuoteState = Type.Object({}, { additionalProperties: false });
-
 export const CalloutState = Type.Object(
   {
     tone: Type.Optional(
@@ -94,7 +92,6 @@ export const RICH_TEXT_STATES: Partial<Record<DocBlockType, BlockStateDefinition
   paragraph: { schema: ParagraphState, carriesText: true },
   heading: { schema: HeadingState, carriesText: true },
   "list-item": { schema: ListItemState, carriesText: true },
-  quote: { schema: QuoteState, carriesText: true },
   callout: { schema: CalloutState, carriesText: true },
   divider: { schema: DividerState, carriesText: false },
   image: { schema: ImageState, carriesText: false },

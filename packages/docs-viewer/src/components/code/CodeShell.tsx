@@ -1,52 +1,60 @@
 "use client";
 
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import { Check, Copy } from "lucide-react";
+import { Brackets, Check, CodeXml, Copy } from "lucide-react";
+import { CODE_BLOCK_CLASSES } from "../../render/block-classes";
 import { cn } from "../../ui/cn";
-import { useLinkTarget } from "../linked-panels";
+import { RangeChip, useLinkTarget } from "../linked-panels";
 import type { AnnotationLineRun, CodeAnnotation } from "./annotations";
 import {
   CODE_ANNOTATION_ROW_CLASSES,
   CODE_ANNOTATION_ROW_LIT_CLASSES,
   CODE_CONTENT_WRAPPER_CLASSES,
   CODE_COPY_BUTTON_CLASSES,
+  CODE_COPY_ICON_CLASSES,
+  CODE_FRAME_IN_LAYOUT_CLASSES,
   CODE_GUTTER_CLASSES,
   CODE_GUTTER_LINE_ANNOTATED_CLASSES,
   CODE_GUTTER_LINE_ANNOTATED_LIT_CLASSES,
   CODE_GUTTER_LINE_CLASSES,
+  CODE_GUTTER_MARK_END_CLASSES,
+  CODE_GUTTER_MARK_START_CLASSES,
   CODE_HEADER_CLASSES,
   CODE_LANG_LABEL_CLASSES,
+  CODE_LAYOUT_CLASSES,
+  CODE_LAYOUT_GRID_CLASSES,
   CODE_LINE_HEIGHT_PX,
   CODE_NOTES_ASIDE_CLASSES,
-  CODE_NOTES_HEADER_CLASSES,
-  CODE_NOTES_LIST_CLASSES,
   CODE_NOTE_CLASSES,
-  CODE_NOTE_DIVIDER_CLASSES,
+  CODE_NOTE_LABEL_CLASSES,
   CODE_NOTE_LIT_CLASSES,
   CODE_SCROLL_BODY_CLASSES,
+  CODE_TILE_CLASSES,
+  CODE_TILE_ICON_CLASSES,
   CODE_ZEBRA_LAYER_CLASSES,
 } from "./classes";
 
 /**
  * Presentational shell shared by the plain READ surface (descriptor.tsx) and
- * the EDIT surface (editor-node-view.tsx): header row (quiet language label
- * or picker slot + ghost copy button), horizontal-scroll body holding the
- * zebra layer, annotation row overlays, sticky per-line gutter, and the
- * caller's code cell — plus the optional notes aside when annotations exist.
- * The annotated READ surface (CodeAnnotations.tsx) keeps its per-line click
- * grid but reuses CodeBlockHeader/CodeNotesAside and the same class
- * constants.
+ * the EDIT surface (editor-node-view.tsx): the dark panel frame (header strip
+ * with the family tile, quiet language label or picker slot and copy
+ * button; horizontal-scroll body holding the zebra layer, annotation row
+ * overlays, sticky per-line gutter, and the caller's code cell) plus, when
+ * annotations exist, the margin notes beside it. The annotated READ surface
+ * (CodeAnnotations.tsx) keeps its per-line click grid but reuses
+ * CodeBlockHeader / CodeNotesAside and the same class constants.
  *
  * Annotation interaction model: a pair is LIT when its note is hovered
  * (transient) or sticky-clicked (activeIndex, owned by the caller). The
  * shell holds the transient hoverIndex itself; the effective lit pair is
- * hoverIndex ?? activeIndex. At rest annotated ranges show only the gutter's
- * accent bar + accent number — the tint appears when lit.
+ * hoverIndex ?? activeIndex. At rest annotated ranges show only the quiet
+ * gutter mark — the tint, accent numbers and accent chip appear when lit.
  *
- * The caller owns the frame element (rounded border + block bg via
- * CODE_BLOCK_CLASSES + group/code): the shell renders the frame's CHILDREN,
- * so the edit surface can make its NodeViewWrapper the frame. All furniture
- * is marked contentEditable={false} when `nonEditableFurniture` is set (the
+ * Layout: without notes the shell renders the bare frame. With notes it
+ * renders a size container holding the frame and the notes column, so the
+ * notes sit on the page outside the dark panel (beside it from 760px block
+ * width, under it below that). All furniture is marked
+ * contentEditable={false} when `nonEditableFurniture` is set (the
  * ProseMirror DOM observer treats unknown editable children as drift).
  */
 
@@ -65,7 +73,7 @@ function resolveLineHeightPx(element: HTMLElement): number {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : CODE_LINE_HEIGHT_PX;
 }
 
-/** Ghost copy button: clipboard write with a 1.5s "Copied" confirmation. No-op where the Clipboard API is unavailable (e.g. happy-dom). */
+/** Copy button: always visible, clipboard write with a 1.5s "Copied" confirmation. No-op where the Clipboard API is unavailable (e.g. happy-dom). */
 export function CodeCopyButton({ copyText }: { copyText: () => string }) {
   const [copied, setCopied] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -91,31 +99,47 @@ export function CodeCopyButton({ copyText }: { copyText: () => string }) {
     <button
       type="button"
       aria-label="Copy code"
+      title="Copy code"
       onClick={handleClick}
       className={CODE_COPY_BUTTON_CLASSES}
       data-code-copy
     >
       {copied ? (
-        <Check aria-hidden className="h-3.5 w-3.5" />
+        <Check aria-hidden className={CODE_COPY_ICON_CLASSES} />
       ) : (
-        <Copy aria-hidden className="h-3.5 w-3.5" />
+        <Copy aria-hidden className={CODE_COPY_ICON_CLASSES} />
       )}
       <span aria-live="polite">{copied ? "Copied" : ""}</span>
     </button>
   );
 }
 
-/** Header row: quiet language label (or the edit surface's picker slot) left, copy button right. */
+/** Which family glyph heads the panel: `</>` for code, `[ ]` for pseudocode. */
+export type CodePanelKind = "code" | "pseudocode";
+
+/** The code family tile: a small solid tile in the code family hue with the panel's glyph. */
+export function CodeFamilyTile({ kind = "code" }: { kind?: CodePanelKind }) {
+  const Glyph = kind === "pseudocode" ? Brackets : CodeXml;
+  return (
+    <span className={CODE_TILE_CLASSES} aria-hidden data-code-tile={kind}>
+      <Glyph className={CODE_TILE_ICON_CLASSES} strokeWidth={2.25} />
+    </span>
+  );
+}
+
+/** Header strip: family tile, quiet language label (or the edit surface's picker slot), copy button right. */
 export function CodeBlockHeader({
   languageLabel,
   languageSelect,
   copyText,
   nonEditable,
+  kind = "code",
 }: {
   languageLabel: string | null;
   languageSelect?: ReactNode;
   copyText: () => string;
   nonEditable?: boolean;
+  kind?: CodePanelKind;
 }) {
   return (
     <div
@@ -123,27 +147,26 @@ export function CodeBlockHeader({
       contentEditable={nonEditable ? false : undefined}
       data-code-header
     >
+      <CodeFamilyTile kind={kind} />
       {languageSelect ??
         (languageLabel ? (
           <span className={CODE_LANG_LABEL_CLASSES} data-code-lang>
             {languageLabel}
           </span>
-        ) : (
-          <span />
-        ))}
+        ) : null)}
       <CodeCopyButton copyText={copyText} />
     </div>
   );
 }
 
 /**
- * One note row: bold label (when present), the note paragraph beneath — no
- * line-number chip; the raw lines key rides in the title attribute and the
- * pairing is shown by hover/pin extents. Doubles as a link target keyed by the annotation's
- * `lines` key — inside a LinkGroup (annotated READ surface) the engine
- * drives lighting/pinning and the spread targetProps win; without one (edit
- * surface) the hook is inert and the callback props (data-active/data-lit,
- * onNoteClick/onNoteHover) drive exactly as before.
+ * One margin note: its `L3–5` range chip, the bold label (when present), then
+ * the note text, run together as one paragraph. The whole note is the control
+ * (a button). Inside a LinkGroup (annotated READ surface) it is a link target
+ * keyed by the annotation's `lines` key — hover / focus lights the pair,
+ * click or Enter pins it; without one (edit surface) the hook is inert and
+ * the callback props (data-active/data-lit, onNoteClick/onNoteHover) drive.
+ * Lit: the text steps up to the page ink and the chip takes the link color.
  */
 function CodeNoteRow({
   annotation,
@@ -161,44 +184,33 @@ function CodeNoteRow({
   onNoteHover?: (index: number | null) => void;
 }) {
   const link = useLinkTarget(annotation.lines);
+  const lit = isLit || link.lit;
   return (
     <button
       type="button"
-      title={annotation.lines}
+      title={`Lines ${annotation.lines}`}
       data-annotation-note={index}
       data-active={isActive || undefined}
-      data-lit={isLit || undefined}
+      data-lit={lit || undefined}
       onClick={onNoteClick ? () => onNoteClick(index) : undefined}
       onMouseEnter={onNoteHover ? () => onNoteHover(index) : undefined}
       onMouseLeave={onNoteHover ? () => onNoteHover(null) : undefined}
       {...link.targetProps}
-      className={cn(
-        CODE_NOTE_CLASSES,
-        index > 0 && CODE_NOTE_DIVIDER_CLASSES,
-        isLit && CODE_NOTE_LIT_CLASSES,
-        link.className,
-      )}
+      className={cn(CODE_NOTE_CLASSES, lit && CODE_NOTE_LIT_CLASSES)}
     >
-      {annotation.label && (
-        <div className="mb-0.5 flex flex-wrap items-baseline gap-1.5">
-          <span className="font-semibold text-foreground">{annotation.label}</span>
-        </div>
-      )}
-      <div className="text-muted-foreground">{annotation.note}</div>
+      <RangeChip lines={annotation.lines} lit={lit} />
+      {annotation.label && <span className={CODE_NOTE_LABEL_CLASSES}>{annotation.label} </span>}
+      <span>{annotation.note}</span>
     </button>
   );
 }
 
 /**
- * Notes aside: right column at lg, stacked below at narrow widths. Opens
- * with its own header cell — the NOTES label styled exactly like the
- * language label, same header-height token and bottom rule as the code header so the
- * rule reads as one continuous line across the block (crossed by the column
- * divider). Notes are prose rows (system rule R4): plain text at rest with a
- * hairline rule BETWEEN items, never zebra. Each opens with its L#–# range
- * chip. Pairing: inside a LinkGroup the shared engine lights/pins by the
- * annotation's lines key; otherwise hovering lights via onNoteHover and
- * clicking sticky-toggles via onNoteClick (edit surface).
+ * Margin notes: page prose beside the dark panel (stacked under it in a
+ * narrow block) — no box, no header, no fill, no dividers. Pairing: inside a
+ * LinkGroup the shared engine lights/pins by the annotation's lines key;
+ * otherwise hovering lights via onNoteHover and clicking sticky-toggles via
+ * onNoteClick (edit surface).
  */
 export function CodeNotesAside({
   annotations,
@@ -211,7 +223,7 @@ export function CodeNotesAside({
   annotations: CodeAnnotation[];
   /** Sticky-clicked pair (drives data-active). Callers inside a LinkGroup leave it null — the engine drives there. */
   activeIndex?: number | null;
-  /** Effective lit pair (hover ?? sticky) — drives the tint. Defaults to activeIndex. */
+  /** Effective lit pair (hover ?? sticky). Defaults to activeIndex. */
   litIndex?: number | null;
   onNoteClick?: (index: number) => void;
   onNoteHover?: (index: number | null) => void;
@@ -220,27 +232,35 @@ export function CodeNotesAside({
   const lit = litIndex === undefined ? activeIndex : litIndex;
   return (
     <aside
+      aria-label="Code notes"
       className={cn(CODE_NOTES_ASIDE_CLASSES, nonEditable && "select-none whitespace-normal")}
       contentEditable={nonEditable ? false : undefined}
       data-code-notes
     >
-      <div className={CODE_NOTES_HEADER_CLASSES} data-code-notes-header>
-        <span className={CODE_LANG_LABEL_CLASSES}>Notes</span>
-      </div>
-      <div className={CODE_NOTES_LIST_CLASSES}>
-        {annotations.map((annotation, index) => (
-          <CodeNoteRow
-            key={`${annotation.lines}-${annotation.label ?? annotation.note}`}
-            annotation={annotation}
-            index={index}
-            isActive={activeIndex === index}
-            isLit={lit === index}
-            onNoteClick={onNoteClick}
-            onNoteHover={onNoteHover}
-          />
-        ))}
-      </div>
+      {annotations.map((annotation, index) => (
+        <CodeNoteRow
+          key={`${annotation.lines}-${annotation.label ?? annotation.note}`}
+          annotation={annotation}
+          index={index}
+          isActive={activeIndex === index}
+          isLit={lit === index}
+          onNoteClick={onNoteClick}
+          onNoteHover={onNoteHover}
+        />
+      ))}
     </aside>
+  );
+}
+
+/**
+ * The block layout around a panel that has margin notes: a size container
+ * with the panel | notes grid. Without notes, callers render the panel bare.
+ */
+export function CodeNotesLayout({ children }: { children: ReactNode }) {
+  return (
+    <div className={CODE_LAYOUT_CLASSES} data-code-layout>
+      <div className={CODE_LAYOUT_GRID_CLASSES}>{children}</div>
+    </div>
   );
 }
 
@@ -254,6 +274,8 @@ export function CodeShell({
   activeIndex = null,
   onNoteClick,
   nonEditableFurniture,
+  frameClassName,
+  frameAttributes,
   children,
 }: {
   /** Resolved display language (highlight.ts resolveDisplayLanguage) — null hides the label. */
@@ -269,11 +291,16 @@ export function CodeShell({
   onNoteClick?: (index: number) => void;
   /** Edit surface: mark all furniture contentEditable={false} for the PM DOM observer. */
   nonEditableFurniture?: boolean;
+  /** Extra classes on the panel frame. */
+  frameClassName?: string;
+  /** Extra attributes on the panel frame (e.g. data-language). */
+  frameAttributes?: Record<string, string | undefined>;
   /** The code cell — the content wrapper grid's second column (a <pre>). */
   children: ReactNode;
 }) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const runs = annotationRuns ?? [];
+  const hasNotes = Boolean(annotations && annotations.length > 0);
   /** Transient hover pair — lights without sticking; sticky click stays with the caller. */
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
   const litIndex = hoverIndex ?? activeIndex;
@@ -298,82 +325,89 @@ export function CodeShell({
 
   const furniture = nonEditableFurniture ? { contentEditable: false as const } : {};
 
-  return (
-    <>
-      <div className="min-w-0">
-        <CodeBlockHeader
-          languageLabel={languageLabel}
-          languageSelect={languageSelect}
-          copyText={copyText}
-          nonEditable={nonEditableFurniture}
-        />
-        <div ref={scrollRef} className={CODE_SCROLL_BODY_CLASSES} data-code-scroll>
-          <div className={CODE_CONTENT_WRAPPER_CLASSES} data-code-content>
-            {/* Z-order: zebra < annotation rows < gutter (z-10) / code text (positioned, later in DOM). */}
-            <div className={CODE_ZEBRA_LAYER_CLASSES} data-code-zebra {...furniture} />
-            {runs.map((run, runIndex) => {
-              const isActive = activeIndex === run.annotationIndex;
-              const isLit = litIndex === run.annotationIndex;
+  const frame = (
+    <div
+      {...frameAttributes}
+      className={cn("group/code", CODE_BLOCK_CLASSES, hasNotes && CODE_FRAME_IN_LAYOUT_CLASSES, frameClassName)}
+      data-code-surface="true"
+    >
+      <CodeBlockHeader
+        languageLabel={languageLabel}
+        languageSelect={languageSelect}
+        copyText={copyText}
+        nonEditable={nonEditableFurniture}
+      />
+      <div ref={scrollRef} className={CODE_SCROLL_BODY_CLASSES} data-code-scroll>
+        <div className={CODE_CONTENT_WRAPPER_CLASSES} data-code-content>
+          {/* Z-order: zebra < annotation rows < gutter (z-10) / code text (positioned, later in DOM). */}
+          <div className={CODE_ZEBRA_LAYER_CLASSES} data-code-zebra {...furniture} />
+          {runs.map((run, runIndex) => {
+            const isActive = activeIndex === run.annotationIndex;
+            const isLit = litIndex === run.annotationIndex;
+            return (
+              <div
+                key={runIndex}
+                data-code-annotation-row={run.annotationIndex}
+                data-active={isActive || undefined}
+                data-lit={isLit || undefined}
+                // The run as unitless vars; CODE_ANNOTATION_ROW_CLASSES
+                // multiplies them by the line-height token, so the overlay
+                // tracks the knob with the rows and the zebra.
+                style={
+                  {
+                    "--docs-code-row-start": run.start - 1,
+                    "--docs-code-row-span": run.length,
+                  } as CSSProperties
+                }
+                className={cn(CODE_ANNOTATION_ROW_CLASSES, isLit && CODE_ANNOTATION_ROW_LIT_CLASSES)}
+                {...furniture}
+              />
+            );
+          })}
+          <div className={CODE_GUTTER_CLASSES} data-code-gutter {...furniture}>
+            {Array.from({ length: lineCount }, (_, index) => {
+              const line = index + 1;
+              const owner = lineOwner.get(line);
+              const isAnnotated = owner !== undefined;
+              const runStart = isAnnotated && lineOwner.get(line - 1) !== owner;
+              const runEnd = isAnnotated && lineOwner.get(line + 1) !== owner;
               return (
                 <div
-                  key={runIndex}
-                  data-code-annotation-row={run.annotationIndex}
-                  data-active={isActive || undefined}
-                  data-lit={isLit || undefined}
-                  // The run as unitless vars; CODE_ANNOTATION_ROW_CLASSES
-                  // multiplies them by the line-height token, so the overlay
-                  // tracks the knob with the rows and the zebra.
-                  style={
-                    {
-                      "--docs-code-row-start": run.start - 1,
-                      "--docs-code-row-span": run.length,
-                    } as CSSProperties
-                  }
+                  key={line}
+                  data-code-gutter-line={line}
+                  data-annotated={isAnnotated || undefined}
                   className={cn(
-                    CODE_ANNOTATION_ROW_CLASSES,
-                    isLit && CODE_ANNOTATION_ROW_LIT_CLASSES,
+                    "relative",
+                    CODE_GUTTER_LINE_CLASSES,
+                    isAnnotated && CODE_GUTTER_LINE_ANNOTATED_CLASSES,
+                    runStart && CODE_GUTTER_MARK_START_CLASSES,
+                    runEnd && CODE_GUTTER_MARK_END_CLASSES,
+                    isAnnotated && owner === litIndex && CODE_GUTTER_LINE_ANNOTATED_LIT_CLASSES,
                   )}
-                  {...furniture}
-                />
+                >
+                  {line}
+                </div>
               );
             })}
-            <div className={CODE_GUTTER_CLASSES} data-code-gutter {...furniture}>
-              {Array.from({ length: lineCount }, (_, index) => {
-                const line = index + 1;
-                const owner = lineOwner.get(line);
-                const isAnnotated = owner !== undefined;
-                return (
-                  <div
-                    key={line}
-                    data-code-gutter-line={line}
-                    data-annotated={isAnnotated || undefined}
-                    className={cn(
-                      CODE_GUTTER_LINE_CLASSES,
-                      isAnnotated && CODE_GUTTER_LINE_ANNOTATED_CLASSES,
-                      isAnnotated &&
-                        owner === litIndex &&
-                        CODE_GUTTER_LINE_ANNOTATED_LIT_CLASSES,
-                    )}
-                  >
-                    {line}
-                  </div>
-                );
-              })}
-            </div>
-            {children}
           </div>
+          {children}
         </div>
       </div>
-      {annotations && annotations.length > 0 && (
-        <CodeNotesAside
-          annotations={annotations}
-          activeIndex={activeIndex ?? null}
-          litIndex={litIndex}
-          onNoteClick={onNoteClick}
-          onNoteHover={setHoverIndex}
-          nonEditable={nonEditableFurniture}
-        />
-      )}
-    </>
+    </div>
+  );
+
+  if (!hasNotes || !annotations) return frame;
+  return (
+    <CodeNotesLayout>
+      {frame}
+      <CodeNotesAside
+        annotations={annotations}
+        activeIndex={activeIndex ?? null}
+        litIndex={litIndex}
+        onNoteClick={onNoteClick}
+        onNoteHover={setHoverIndex}
+        nonEditable={nonEditableFurniture}
+      />
+    </CodeNotesLayout>
   );
 }

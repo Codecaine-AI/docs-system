@@ -28,15 +28,15 @@ test("inline code and references separate prose, formatting does not", () => {
   ];
   expect(writing(p)).toEqual([]);
 });
-test("code, quoted examples and embedded payloads are excluded", () => {
-  const quote = {
-    ...paragraph("q", "Quoted — text."),
-    type: "quote" as const,
+test("code blocks, their descendants and embedded payloads are excluded", () => {
+  const codeWithChild = {
+    ...paragraph("q", "Literal — text."),
+    type: "code" as const,
     children: ["child"],
   };
   const doc = document(
     paragraph("intro", "Introduction."),
-    quote,
+    codeWithChild,
     { ...paragraph("c", "Code — literal."), type: "code" },
     {
       id: "canvas",
@@ -54,7 +54,7 @@ test("code, quoted examples and embedded payloads are excluded", () => {
       children: [],
     },
   );
-  doc.blocks.child = paragraph("child", "Quoted — child.");
+  doc.blocks.child = paragraph("child", "Literal — child.");
   expect(
     lintDocument(doc, { phase: "complete" }).findings.filter((f) =>
       f.ruleId.startsWith("writing."),

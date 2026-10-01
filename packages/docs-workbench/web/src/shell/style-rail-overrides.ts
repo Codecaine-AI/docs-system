@@ -222,7 +222,6 @@ const PANE_COMPONENT_FILE: Partial<Record<StyleRailPaneId, string>> = {
   "blocks.paragraph": "paragraph",
   "blocks.heading": "heading",
   "blocks.list-item": "list-item",
-  "blocks.quote": "quote",
   "blocks.code": "code",
   "blocks.callout": "callout",
   "blocks.divider": "divider",

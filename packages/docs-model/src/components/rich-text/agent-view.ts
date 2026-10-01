@@ -64,8 +64,6 @@ export const richTextAgentView: ComponentBundle["agentView"] = (block, ctx) => {
     }
     case "paragraph":
       return block.text && block.text.length > 0 ? deltaToMarkdownInline(block.text) : null;
-    case "quote":
-      return blockquotePrefix(deltaToMarkdownInline(block.text));
     case "divider":
       return "---";
     case "callout":

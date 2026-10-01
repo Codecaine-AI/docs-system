@@ -4,7 +4,7 @@ This local proof reuses DocBlockRenderer to render an explicitly selected public
 
 From the docs-system root, run `bun packages/docs-publish/build.ts`, then run `npm pack` in this package. The archive includes the Node publisher, browser assets, styles, and source provenance. Consumers need Node, not this checkout or Bun. The version in package.json identifies a local compatibility artifact, not a registry release.
 
-Use `publishCollection({root, posts, basePath})`. Each allowlisted post has `path`, `slug`, `description`, `date` in YYYY-MM-DD form, `tags`, and optional `draft`. Drafts are excluded before reading content. Results contain HTML posts, public search entries, and referenced asset bytes. Hosts own page shells, feeds, sitemaps, canonical origins, and UI placement.
+Use `publishCollection({root, posts, basePath})`. Each allowlisted post has `path`, `slug`, `description`, `date` in YYYY-MM-DD form, `tags`, and optional `draft`. Drafts are excluded before reading content. Results contain HTML posts, public search entries, and referenced asset bytes. Each post's `viewers` flag is true when it has a diagram or an expandable image; load `browser/viewers.js` on those pages so clicks open the full-screen viewer. Hosts own page shells, feeds, sitemaps, canonical origins, and UI placement.
 
 Search matches normalized words, prefixes and one-character spelling errors, weighted toward titles and tags. Common query filler is ignored. It does not infer concepts or synonyms. Call `search(entries, query, tag)` or load `browser/search-widget.js` on an element with `data-docs-search`, `data-index`, a search input, tag select, `[data-results]`, and `[role=status]`. No viewer must show the widget.
 

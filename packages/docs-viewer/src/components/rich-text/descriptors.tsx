@@ -6,7 +6,6 @@ import { imageGridDescriptor } from "./image-grid";
 import { imageDescriptor } from "./image";
 import { listItemDescriptor } from "./list-item";
 import { paragraphDescriptor } from "./paragraph";
-import { quoteDescriptor } from "./quote";
 import { htmlDescriptor } from "./html";
 import { videoDescriptor } from "./video";
 
@@ -20,7 +19,6 @@ export const descriptors: DocBlockDescriptor[] = [
   paragraphDescriptor,
   headingDescriptor,
   listItemDescriptor,
-  quoteDescriptor,
   dividerDescriptor,
   imageDescriptor,
   imageGridDescriptor,

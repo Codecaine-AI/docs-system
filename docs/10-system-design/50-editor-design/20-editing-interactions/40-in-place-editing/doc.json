@@ -146,7 +146,7 @@
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "10-system-design/40-block-vocabulary/20-code-block"
+              "path": "10-system-design/40-block-vocabulary/20-code/10-code-block"
             }
           }
         },
@@ -186,7 +186,7 @@
           "attributes": {
             "reference": {
               "kind": "doc",
-              "path": "10-system-design/40-block-vocabulary/30-structured-table"
+              "path": "10-system-design/40-block-vocabulary/40-structured-reference/30-structured-table"
             }
           }
         },

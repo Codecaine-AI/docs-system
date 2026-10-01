@@ -11,7 +11,7 @@ Structural keys act on the cursor's visual block context:
 | Enter | End of a non-list text block | Inserts a fresh empty paragraph sibling below. |
 | Enter | Non-empty list item | Splits into a sibling list item with the same ordered or unordered form. |
 | Enter | Empty list item | Outdents one level when nested; converts the top-level item to a paragraph. |
-| Backspace | Start of a heading, quote, callout, or list item | Outdents a nested list item one level; otherwise converts the block to a paragraph. |
+| Backspace | Start of a heading, callout, or list item | Outdents a nested list item one level; otherwise converts the block to a paragraph. |
 | Backspace | Start of a paragraph | Merges into the deepest last text block of the visually preceding sibling in one press. |
 | Tab | List item / code block | Nests the item under its previous list sibling / inserts two spaces. |
 | Shift-Tab | Text block nested inside a list item | Outdents one level; following siblings remain visually below by becoming its children. |
@@ -25,7 +25,6 @@ Typing patterns convert only at the start of a paragraph or when their closing i
 | # / ## / ### plus space | Heading levels 1 / 2 / 3. |
 | - or * plus space | Unordered list item. |
 | Number plus . plus space | Ordered list item. |
-| > plus space | Quote. |
 | --- | Divider, followed by an empty paragraph; conversion fires on the third hyphen. |
 | ``` | Code block; conversion fires on the third backtick. |
 | **text** / `text` | Bold / inline code. |

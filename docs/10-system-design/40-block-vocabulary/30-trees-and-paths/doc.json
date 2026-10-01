@@ -1,0 +1,118 @@
+{
+  "schemaVersion": 1,
+  "id": "doc-39f1f6916dadfb64d4030df096883f4d",
+  "title": "Trees and paths",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-vocab-trees-opener",
+        "b-vocab-trees-table"
+      ]
+    },
+    "b-vocab-trees-opener": {
+      "id": "b-vocab-trees-opener",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Trees and paths blocks draw a hierarchy as indented rows: files on disk, the files a change touches, one call path, or one render tree."
+        }
+      ],
+      "children": []
+    },
+    "b-vocab-trees-table": {
+      "id": "b-vocab-trees-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Block type",
+          "What it's for",
+          "Page"
+        ],
+        "rows": [
+          [
+            [
+              {
+                "insert": "file-tree",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Where files live and what each directory owns.",
+            [
+              {
+                "insert": "File tree",
+                "attributes": {
+                  "link": "#/10-system-design/40-block-vocabulary/30-trees-and-paths/10-file-tree"
+                }
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "insert": "file-explorer",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "The files a change touches, with a badge per changed file.",
+            [
+              {
+                "insert": "File explorer",
+                "attributes": {
+                  "link": "#/10-system-design/40-block-vocabulary/30-trees-and-paths/20-file-explorer"
+                }
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "insert": "call-stack",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Which function calls which on one code path, with file and line.",
+            [
+              {
+                "insert": "Call stack",
+                "attributes": {
+                  "link": "#/10-system-design/40-block-vocabulary/30-trees-and-paths/30-call-stack"
+                }
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "insert": "component-tree",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Which component renders which, and the hooks each one calls.",
+            [
+              {
+                "insert": "Component tree",
+                "attributes": {
+                  "link": "#/10-system-design/40-block-vocabulary/30-trees-and-paths/40-component-tree"
+                }
+              }
+            ]
+          ]
+        ]
+      },
+      "children": []
+    }
+  }
+}

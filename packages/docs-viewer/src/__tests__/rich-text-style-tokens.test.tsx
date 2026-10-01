@@ -13,7 +13,7 @@ import {
 
 /**
  * Style-rail token wiring for the eight rich-text blocks (paragraph, heading,
- * list-item, quote, callout, divider, image, video), asserted on the RENDERED
+ * list-item, callout, divider, image, video), asserted on the RENDERED
  * DOM of both surfaces.
  *
  * A token the rendered element never reads is a dead slider — the state-shape
@@ -41,7 +41,6 @@ const BLOCKS = [
   { id: "h3", type: "heading", props: { level: 3 }, text: text("Heading 3") },
   { id: "h4", type: "heading", props: { level: 4 }, text: text("Heading 4") },
   { id: "li", type: "list-item", props: {}, text: text("Item") },
-  { id: "quote", type: "quote", props: {}, text: text("Quote") },
   { id: "callout", type: "callout", props: { tone: "warning", title: "Careful" }, text: text("Body") },
   { id: "divider", type: "divider", props: {} },
   { id: "image", type: "image", props: { src: "a.png", alt: "A", caption: "Image caption" } },
@@ -63,7 +62,6 @@ const NODE_NAME: Record<string, string> = {
   paragraph: "docParagraph",
   heading: "docHeading",
   "list-item": "docListItem",
-  quote: "docQuote",
   callout: "docCallout",
   divider: "docDivider",
   image: "docImage",
@@ -141,79 +139,70 @@ const ELEMENTS: Array<{ label: string; read: string; edit: string; tokens: strin
     label: "paragraph",
     read: '[data-block-id="p"] > p',
     edit: 'p[data-block-id="p"]',
-    tokens: ["var(--docs-paragraph-fg,currentColor)", "var(--docs-paragraph-spacing,0.6666667)"],
+    tokens: ["var(--docs-paragraph-fg,#2a2a2a)", "var(--docs-paragraph-spacing,1)"],
   },
   {
     label: "heading h1",
     read: '[data-block-id="h1"] > h1',
     edit: 'h1[data-block-id="h1"]',
     tokens: [
-      "var(--docs-heading-fg,var(--foreground))",
+      "var(--docs-heading-fg,#1f1f1f)",
       "var(--docs-heading-weight,600)",
-      "var(--docs-heading-margin-top,24px)",
+      "var(--docs-heading-margin-top,40px)",
       "var(--docs-heading-margin-bottom,12px)",
-      "var(--docs-heading-h1-size,2)",
+      "var(--docs-heading-h1-size,1.875)",
     ],
   },
   {
     label: "heading h2",
     read: '[data-block-id="h2"] > h2',
     edit: 'h2[data-block-id="h2"]',
-    tokens: ["var(--docs-heading-weight,600)", "var(--docs-heading-h2-size,1.5)"],
+    tokens: ["var(--docs-heading-weight,600)", "var(--docs-heading-h2-size,1.25)"],
   },
   {
     label: "heading h3",
     read: '[data-block-id="h3"] > h3',
     edit: 'h3[data-block-id="h3"]',
-    tokens: ["var(--docs-heading-weight,600)", "var(--docs-heading-h3-size,1.17)"],
+    tokens: ["var(--docs-heading-weight,600)", "var(--docs-heading-h3-size,1)"],
   },
   {
     label: "heading h4",
     read: '[data-block-id="h4"] > h4',
     edit: 'h4[data-block-id="h4"]',
-    tokens: ["var(--docs-heading-weight,600)", "var(--docs-heading-margin-top,24px)"],
+    tokens: ["var(--docs-heading-weight,600)", "var(--docs-heading-margin-top,40px)"],
   },
   {
     label: "list item",
     read: '[data-block-id="li"][role="listitem"]',
     edit: 'li[data-block-id="li"]',
-    tokens: ["var(--docs-list-item-fg,currentColor)", "var(--docs-list-item-gap,4px)"],
+    tokens: ["var(--docs-list-item-fg,#2a2a2a)", "var(--docs-list-item-gap,4px)"],
   },
-  {
-    label: "quote",
-    read: '[data-block-id="quote"] > blockquote',
-    edit: 'blockquote[data-block-id="quote"]',
-    tokens: [
-      "var(--docs-quote-fg,var(--muted-foreground))",
-      "var(--docs-quote-border,color-mix(in_srgb,var(--primary)_40%,transparent))",
-      "var(--docs-quote-bg,transparent)",
-      "var(--docs-quote-border-width,2px)",
-      "var(--docs-quote-indent,12px)",
-      "var(--docs-quote-pad-y,0px)",
-      "var(--docs-quote-spacing,0.8888889)",
-      "var(--docs-quote-text-scale,1)",
-    ],
-  },
-  // The callout's variant geometry (rail/hairline widths, padding, radius,
-  // tint) lives in its inline stylesheet, keyed on data-callout-variant; the
-  // class strings carry only the knobs every variant shares.
+  // The callout's card geometry (rule and hairline widths, padding, radius)
+  // and palette live in its inline stylesheet; the class strings carry the
+  // remaining knobs.
   {
     label: "callout frame",
     read: '[data-docs-block-type="callout"]',
     edit: '[data-docs-block-type="callout"]',
-    tokens: ["var(--docs-callout-margin,16px)"],
+    tokens: ["var(--docs-callout-margin,20px)"],
   },
   {
     label: "callout icon",
     read: "[data-callout-icon] svg",
     edit: "[data-callout-icon] svg",
-    tokens: ["var(--docs-callout-icon-size,16px)"],
+    tokens: ["var(--docs-callout-icon-size,14px)"],
+  },
+  {
+    label: "callout head",
+    read: "[data-callout-head]",
+    edit: "[data-callout-head]",
+    tokens: ["var(--docs-callout-title-text-size,13.5px)"],
   },
   {
     label: "callout title",
     read: "[data-callout-title]",
     edit: "[data-callout-title]",
-    tokens: ["var(--docs-callout-title-text-size,14px)", "var(--docs-callout-title-weight,700)"],
+    tokens: ["var(--docs-callout-title-weight,500)"],
   },
   {
     label: "callout body",
@@ -226,49 +215,46 @@ const ELEMENTS: Array<{ label: string; read: string; edit: string; tokens: strin
     read: "hr",
     edit: "hr",
     tokens: [
-      "var(--docs-divider-color,var(--border))",
+      "var(--docs-divider-color,#e6e5e3)",
       "var(--docs-divider-thickness,1px)",
-      "var(--docs-divider-spacing,1.3333333)",
+      "var(--docs-divider-spacing,2)",
     ],
   },
   {
+    // The figure is the media panel: margin plus the frame knobs.
     label: "image figure",
     read: 'figure[data-block-id="image"]',
     edit: 'figure[data-block-id="image"]',
-    tokens: ["var(--docs-image-margin,16px)"],
-  },
-  {
-    label: "image frame",
-    read: 'figure[data-block-id="image"] img',
-    edit: 'figure[data-block-id="image"] img',
     tokens: [
-      "var(--docs-image-border,var(--border))",
+      "var(--docs-image-margin,24px)",
+      "var(--docs-image-border,#e6e5e3)",
       "var(--docs-image-border-width,1px)",
       "var(--docs-image-radius,var(--radius,2px))",
     ],
   },
   {
+    // The caption is the panel head's title.
     label: "image caption",
     read: 'figure[data-block-id="image"] figcaption',
     edit: 'figure[data-block-id="image"] figcaption',
     tokens: [
-      "var(--docs-image-caption-fg,var(--muted-foreground))",
-      "var(--docs-image-caption-text-size,12px)",
-      "var(--docs-image-caption-gap,4px)",
+      "var(--docs-image-caption-fg,#1f1f1f)",
+      "var(--docs-image-caption-text-size,13.5px)",
+      "var(--docs-image-caption-gap,8px)",
     ],
   },
   {
     label: "video figure",
     read: 'figure[data-docs-block-type="video"]',
     edit: 'figure[data-docs-block-type="video"]',
-    tokens: ["var(--docs-video-margin,16px)"],
+    tokens: ["var(--docs-video-margin,24px)"],
   },
   {
-    label: "video frame",
-    read: 'figure[data-docs-block-type="video"] video',
-    edit: 'figure[data-docs-block-type="video"] video',
+    label: "video panel",
+    read: 'figure[data-docs-block-type="video"] [data-docs-media-panel]',
+    edit: 'figure[data-docs-block-type="video"] [data-docs-media-panel]',
     tokens: [
-      "var(--docs-video-border,var(--border))",
+      "var(--docs-video-border,#e6e5e3)",
       "var(--docs-video-border-width,1px)",
       "var(--docs-video-radius,var(--radius,2px))",
     ],
@@ -278,9 +264,9 @@ const ELEMENTS: Array<{ label: string; read: string; edit: string; tokens: strin
     read: 'figure[data-docs-block-type="video"] figcaption',
     edit: 'figure[data-docs-block-type="video"] figcaption',
     tokens: [
-      "var(--docs-video-caption-fg,var(--muted-foreground))",
-      "var(--docs-video-caption-text-size,12px)",
-      "var(--docs-video-caption-gap,4px)",
+      "var(--docs-video-caption-fg,#666562)",
+      "var(--docs-video-caption-text-size,13.5px)",
+      "var(--docs-video-caption-gap,8px)",
     ],
   },
 ];
@@ -344,14 +330,14 @@ describe("rich-text style tokens", () => {
     const css = Array.from(renderRead().querySelectorAll("[data-docs-block-type='callout'] style"))
       .map((style) => style.textContent ?? "")
       .join("\n");
-    for (const tone of ["info", "decision", "warning", "success"]) {
+    for (const tone of ["info", "decision", "warning", "risk", "success"]) {
       for (const part of ["accent", "tint", "title-fg"]) {
         expect(css).toContain(`var(--docs-callout-${tone}-${part}, #`);
         expect(css).not.toMatch(new RegExp(`--docs-callout-${tone}-${part}:\\s`));
       }
     }
-    expect(css).toContain("--docs-callout-text: var(--docs-callout-fg, #30343b);");
-    expect(css).toContain("--docs-callout-text: var(--docs-callout-fg, #e4e7eb);");
+    expect(css).toContain("--docs-callout-text: var(--docs-callout-fg, #2a2a2a);");
+    expect(css).toContain("--docs-callout-frame: var(--docs-callout-border, #e6e5e3);");
     expect(css).not.toMatch(/--docs-callout-fg:\s/);
     expect(css).not.toMatch(/--docs-callout-border:\s/);
   });

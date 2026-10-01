@@ -47,7 +47,7 @@ type FileTreeNode = {
  * nested tree from /-separated paths, ├──/└──/│ guides, dirs-first stable
  * sort, change-marker line prefixes, `  # note` suffixes.
  */
-function projectFileTree(block: DocBlock): string {
+export function projectFileTree(block: DocBlock): string {
   const entries = fileTreeEntries(block);
 
   const root: FileTreeNode = { name: "", explicitDir: true, children: new Map() };

@@ -10,6 +10,6 @@ export const manifest: ComponentManifest = {
   authoring: {
     "whenToUse": "Use Sequence for a bounded interaction where participant order, calls, returns, waits, retries, or failures explain the behavior. Verify the sequence against source or trace evidence.",
     "example": "Show a client opening a task, reading a document, applying an operation, and receiving validation findings.",
-    "docsPath": "10-system-design/40-block-vocabulary/70-sequence"
+    "docsPath": "10-system-design/40-block-vocabulary/50-flow-and-diagrams/40-sequence"
 }
 };

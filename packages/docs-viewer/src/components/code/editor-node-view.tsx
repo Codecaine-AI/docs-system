@@ -3,16 +3,10 @@
 import { useState } from "react";
 import { NodeViewContent, NodeViewWrapper, type ReactNodeViewProps } from "@tiptap/react";
 import { ChevronDown } from "lucide-react";
-import { CODE_BLOCK_CLASSES } from "../../render/block-classes";
 import { docBlockLaneName, docBlockLayoutClasses } from "../../render/block-layout";
 import { cn } from "../../ui/cn";
 import { annotationLineRuns, parseCodeAnnotations } from "./annotations";
-import {
-  CODE_CELL_CLASSES,
-  CODE_FRAME_GRID_CLASSES,
-  CODE_LANG_LABEL_CLASSES,
-  CODE_LANG_SELECT_CLASSES,
-} from "./classes";
+import { CODE_CELL_CLASSES, CODE_LANG_LABEL_CLASSES, CODE_LANG_SELECT_CLASSES } from "./classes";
 import { CodeShell } from "./CodeShell";
 import { descriptors } from "./descriptor";
 import { HIGHLIGHT_LANGUAGES, canonicalLanguage, resolveDisplayLanguage } from "./highlight";
@@ -21,8 +15,8 @@ import { HIGHLIGHT_LANGUAGES, canonicalLanguage, resolveDisplayLanguage } from "
 const CODE_LAYOUT = descriptors.find((descriptor) => descriptor.type === "code")?.layout;
 
 /**
- * Editor node view for `docCodeBlock`: the same frame + header band + gutter
- * + zebra shell the read surface renders (CodeShell), with the editable text
+ * Editor node view for `docCodeBlock`: the same panel frame + header strip +
+ * gutter shell the read surface renders (CodeShell), with the editable text
  * as the code cell (NodeViewContent inside a <pre>). All shell furniture is
  * contentEditable={false} (PM treats unknown editable children in its DOM as
  * drift); the schema's renderHTML (editor-nodes.ts, pre>code) is untouched,
@@ -37,11 +31,11 @@ const CODE_LAYOUT = descriptors.find((descriptor) => descriptor.type === "code")
  * copies node.textContent (the raw stored text — edit mode's WYSIWYG).
  *
  * When the block carries `props.annotations` (riding the `blockProps` attr),
- * annotated line runs render as absolute overlay tints behind the text plus
- * accent gutter numbers, and the notes become a right aside (stacked below
- * at narrow widths) — same geometry as the read surface. Clicking a note
- * activates its pair (stronger tint + ring) and scrolls the range's first
- * line into view; clicking the active note again clears it. Clicks on the
+ * annotated line runs show the quiet gutter mark, and the notes become
+ * margin notes beside the panel (stacked below in a narrow block) — same
+ * geometry as the read surface. Hovering a note tints its lines; clicking it
+ * pins the pair and scrolls the range's first line into view; clicking the
+ * active note again clears it. Clicks on the
  * code side just place the PM cursor — no pairing from there.
  */
 export function CodeBlockNodeView({ node, updateAttributes, editor }: ReactNodeViewProps) {
@@ -82,8 +76,9 @@ export function CodeBlockNodeView({ node, updateAttributes, editor }: ReactNodeV
   // The wrapper is the page lane, like an atom NodeView's (block-layout.ts):
   // `data-doc-lane` + `data-doc-block-type` let the style rail's per-type
   // Width/Justification overrides reach the code block in edit mode. The
-  // frame sits one level in so a `ch` lane width resolves at the doc's body
-  // size, not the code font size, matching the read surface's lane > frame.
+  // frame (rendered by CodeShell, [data-code-surface]) sits one level in so a
+  // `ch` lane width resolves at the doc's body size, not the code font size,
+  // matching the read surface's lane > frame.
   return (
     <NodeViewWrapper
       as="div"
@@ -91,37 +86,32 @@ export function CodeBlockNodeView({ node, updateAttributes, editor }: ReactNodeV
       data-doc-block-type="code"
       className={docBlockLayoutClasses(CODE_LAYOUT)}
     >
-      <div
-        className={cn("group/code", CODE_BLOCK_CLASSES, annotations && CODE_FRAME_GRID_CLASSES)}
-        data-code-surface="true"
+      <CodeShell
+        languageLabel={resolved}
+        languageSelect={languageSelect}
+        copyText={() => node.textContent}
+        lineCount={lineCount}
+        annotations={annotations}
+        annotationRuns={runs}
+        activeIndex={activeIndex}
+        onNoteClick={(index) => setActiveIndex((current) => (current === index ? null : index))}
+        nonEditableFurniture
       >
-        <CodeShell
-          languageLabel={resolved}
-          languageSelect={languageSelect}
-          copyText={() => node.textContent}
-          lineCount={lineCount}
-          annotations={annotations}
-          annotationRuns={runs}
-          activeIndex={activeIndex}
-          onNoteClick={(index) => setActiveIndex((current) => (current === index ? null : index))}
-          nonEditableFurniture
-        >
-          <pre className={CODE_CELL_CLASSES}>
-            {/* NodeViewContent's prop typing only admits "div", but it renders
-                any tag at runtime — a <code> keeps the read surface's pre>code
-                shape. Its injected contentDOM div inherits white-space, and it
-                MUST be `pre` (not the default pre-wrap): soft wrap would break
-                the one-row-per-line geometry (gutter, zebra, overlays).
-                `hljs` gives untokenized text the same plain-text color
-                (--syntax-punctuation, styles/code.css) as the read surface. */}
-            <NodeViewContent
-              as={"code" as unknown as "div"}
-              className="hljs block"
-              style={{ whiteSpace: "pre" }}
-            />
-          </pre>
-        </CodeShell>
-      </div>
+        <pre className={CODE_CELL_CLASSES}>
+          {/* NodeViewContent's prop typing only admits "div", but it renders
+              any tag at runtime — a <code> keeps the read surface's pre>code
+              shape. Its injected contentDOM div inherits white-space, and it
+              MUST be `pre` (not the default pre-wrap): soft wrap would break
+              the one-row-per-line geometry (gutter, zebra, overlays).
+              `hljs` gives untokenized text the same plain-text color
+              (--syntax-punctuation, styles/code.css) as the read surface. */}
+          <NodeViewContent
+            as={"code" as unknown as "div"}
+            className="hljs block"
+            style={{ whiteSpace: "pre" }}
+          />
+        </pre>
+      </CodeShell>
     </NodeViewWrapper>
   );
 }
