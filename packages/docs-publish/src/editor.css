@@ -1,0 +1,170 @@
+/*
+ * Local draft editor stylesheet (browser/editor.js). Load it with docs.css.
+ * No preflight and no element rules outside `.docs-draft-editor`: theme
+ * values are inlined into utilities, and every token/base rule is scoped to
+ * the container mountDraftEditor marks. Host (unlayered) CSS wins over all of
+ * this, so the site's article styles keep control of the text.
+ */
+@layer theme, base, components, utilities;
+@import "../../docs-workbench/node_modules/tailwindcss/theme.css" layer(theme) theme(inline);
+@import "../../docs-workbench/node_modules/tailwindcss/utilities.css" layer(utilities) source(none);
+@import "../../docs-workbench/web/src/pages/sequence-embed.css";
+@source "./editor.tsx";
+@source "../../docs-workbench/web/src/pages/CanvasEmbed.tsx";
+@source "../../docs-workbench/web/src/pages/SequenceEmbed.tsx";
+@source "../../docs-viewer/src";
+@source "../../../external/canvas/packages/canvas/src";
+@source "../../../external/sequence/packages/sequence/src";
+
+/* Tailwind token bridge used by docs-viewer editor classes (workbench index.css subset). */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --radius-sm: calc(var(--radius, 8px) - 4px);
+  --radius-md: calc(var(--radius, 8px) - 2px);
+  --radius-lg: var(--radius, 8px);
+  --radius-xl: calc(var(--radius, 8px) + 4px);
+  --font-display: ui-sans-serif, system-ui, sans-serif;
+  --color-status-success: var(--status-success);
+  --color-status-success-fill: var(--status-success-fill);
+  --color-status-success-border: var(--status-success-border);
+  --color-status-info: var(--status-info);
+  --color-status-info-fill: var(--status-info-fill);
+  --color-status-info-border: var(--status-info-border);
+  --color-status-warning: var(--status-warning);
+  --color-status-warning-fill: var(--status-warning-fill);
+  --color-status-warning-border: var(--status-warning-border);
+  --color-status-danger: var(--status-danger);
+  --color-status-danger-fill: var(--status-danger-fill);
+  --color-status-danger-border: var(--status-danger-border);
+}
+
+/*
+ * Tokens follow the host palette (the site's --color-* / --site-* variables)
+ * with neutral fallbacks. Hosts may override any of them on the container.
+ */
+.docs-draft-editor {
+  --background: var(--color-bg-default, #fff);
+  --foreground: var(--color-text-default, #222);
+  --card: var(--background);
+  --card-foreground: var(--foreground);
+  --popover: var(--color-bg-default, #fff);
+  --popover-foreground: var(--color-text-default, #222);
+  --primary: var(--color-text-navigation, #2563eb);
+  --primary-foreground: var(--color-bg-default, #fff);
+  --secondary: var(--color-bg-sidebar, #f1f1ef);
+  --secondary-foreground: var(--foreground);
+  --muted: color-mix(in srgb, var(--foreground) 7%, transparent);
+  --muted-foreground: var(--site-muted, color-mix(in srgb, var(--foreground) 62%, transparent));
+  --accent: color-mix(in srgb, var(--primary) 12%, transparent);
+  --accent-foreground: var(--primary);
+  --destructive: #d44c47;
+  --border: var(--site-rule, color-mix(in srgb, var(--foreground) 16%, transparent));
+  --input: var(--border);
+  --ring: color-mix(in srgb, var(--primary) 55%, transparent);
+  --radius: 8px;
+  --status-info: #2383e2;
+  --status-info-fill: color-mix(in srgb, #2383e2 10%, transparent);
+  --status-info-border: color-mix(in srgb, #2383e2 35%, transparent);
+  --status-success: #448361;
+  --status-success-fill: color-mix(in srgb, #448361 10%, transparent);
+  --status-success-border: color-mix(in srgb, #448361 35%, transparent);
+  --status-warning: #cb912f;
+  --status-warning-fill: color-mix(in srgb, #cb912f 12%, transparent);
+  --status-warning-border: color-mix(in srgb, #cb912f 35%, transparent);
+  --status-danger: #d44c47;
+  --status-danger-fill: color-mix(in srgb, #d44c47 10%, transparent);
+  --status-danger-border: color-mix(in srgb, #d44c47 35%, transparent);
+  --docs-icon-muted: var(--muted-foreground);
+  --docs-surface-muted: var(--muted);
+  --docs-viewer-text-body: var(--foreground);
+  --color-bg-blue: color-mix(in srgb, #2383e2 14%, transparent);
+  --color-text-blue: #2383e2;
+  /* Leave room for the drag grip, which floats left of each block. */
+  position: relative;
+}
+
+@layer base {
+  /* Minimal, container-scoped control reset (Tailwind preflight subset). */
+  .docs-draft-editor :where(*, ::before, ::after) { box-sizing: border-box; border-color: var(--border); }
+  .docs-draft-editor :where(button, input, select, textarea) {
+    font: inherit; letter-spacing: inherit; color: inherit; background-color: transparent;
+    border-width: 0; border-style: solid; border-radius: 0; margin: 0; padding: 0;
+  }
+  .docs-draft-editor :where(button, [role="button"]) { cursor: pointer; }
+  .docs-draft-editor :where(button:disabled) { cursor: default; }
+  .docs-draft-editor :where(svg, img, video, canvas) { vertical-align: middle; }
+  .docs-draft-editor :where(img, video) { max-width: 100%; height: auto; }
+}
+
+/* ProseMirror basics (the prosemirror-view stylesheet TipTap normally injects). */
+.docs-draft-editor .ProseMirror { position: relative; word-wrap: break-word; white-space: pre-wrap; white-space: break-spaces; font-variant-ligatures: none; font-feature-settings: "liga" 0; outline: none; }
+.docs-draft-editor .ProseMirror pre { white-space: pre-wrap; }
+.docs-draft-editor .ProseMirror li { position: relative; }
+.docs-draft-editor .ProseMirror-hideselection *::selection { background: transparent; }
+.docs-draft-editor .ProseMirror-hideselection { caret-color: transparent; }
+.docs-draft-editor .ProseMirror [draggable][contenteditable=false] { user-select: text; }
+.docs-draft-editor .ProseMirror-gapcursor { display: none; pointer-events: none; position: absolute; }
+.docs-draft-editor .ProseMirror-gapcursor:after { content: ""; display: block; position: absolute; top: -2px; width: 20px; border-top: 1px solid currentColor; animation: docs-draft-cursor-blink 1.1s steps(2, start) infinite; }
+.docs-draft-editor .ProseMirror-focused .ProseMirror-gapcursor { display: block; }
+@keyframes docs-draft-cursor-blink { to { visibility: hidden; } }
+.docs-draft-editor code::before, .docs-draft-editor code::after { content: none; }
+
+/* Edit-surface text lane, as in the Docs app (see workbench index.css). */
+@property --style-editor-text-lane { syntax: "<length>"; inherits: true; initial-value: 100000px; }
+.docs-draft-editor .docs-editor-prosemirror { --style-editor-text-lane: var(--style-content-width, 60ch); }
+.docs-draft-editor .docs-editor-prosemirror > *:not([data-doc-lane]):not(:has([data-doc-lane])) { max-width: var(--style-editor-text-lane); }
+.docs-draft-editor .docs-editor-prosemirror :where(h2, h3, h4) + :where(p, blockquote, li) { margin-top: 0; }
+
+/* Selection, drag and drop affordances. */
+.docs-draft-editor .docs-editor-prosemirror .ProseMirror-selectednode,
+.docs-draft-editor .docs-editor-prosemirror .docs-block-multi-selected {
+  background-color: var(--docs-highlight-color, var(--color-bg-blue));
+  border-radius: var(--docs-highlight-radius, 6px);
+  box-shadow: 0 0 0 var(--docs-highlight-padding, 4px) var(--docs-highlight-color, var(--color-bg-blue));
+  outline: none;
+}
+.docs-draft-editor .docs-editor-prosemirror .ProseMirror-selectednode[data-process-outline-editing="true"],
+.docs-draft-editor .docs-editor-prosemirror .ProseMirror-selectednode:has(> [data-process-outline-editing="true"]) { background-color: transparent; box-shadow: none; }
+.docs-draft-editor .docs-editor-prosemirror.docs-block-dragging .ProseMirror-selectednode,
+.docs-draft-editor .docs-editor-prosemirror.docs-block-dragging .docs-block-multi-selected { background-color: transparent; box-shadow: none; opacity: var(--docs-drag-opacity, 0.3); }
+.docs-draft-editor .docs-drop-cursor { background-color: var(--docs-dropcursor-color, var(--color-text-blue)) !important; opacity: var(--docs-dropcursor-opacity, 0.9); border-radius: var(--docs-dropcursor-radius, 2px); }
+.docs-draft-editor .docs-drop-cursor.prosemirror-dropcursor-block { height: var(--docs-dropcursor-width, 3px) !important; }
+.docs-draft-editor .docs-drop-cursor.prosemirror-dropcursor-inline { width: var(--docs-dropcursor-width, 3px) !important; }
+.docs-draft-editor .docs-drag-handle {
+  position: absolute; z-index: 20; display: flex; align-items: center; justify-content: center;
+  width: var(--docs-grip-size, 18px); height: calc(var(--docs-grip-size, 18px) * 4 / 3);
+  border-radius: calc(var(--radius) - 4px); color: var(--docs-grip-color, var(--docs-icon-muted));
+  cursor: grab; user-select: none; opacity: 0; pointer-events: none; transition: opacity var(--docs-grip-fade, 100ms) ease;
+}
+.docs-draft-editor .docs-drag-handle-visible { opacity: 1; pointer-events: auto; }
+.docs-draft-editor .docs-drag-handle svg { width: calc(var(--docs-grip-size, 18px) * 0.55); height: auto; }
+.docs-draft-editor .docs-drag-handle:hover { background-color: var(--docs-surface-muted); color: var(--docs-viewer-text-body); }
+.docs-draft-editor .docs-drag-handle:active { cursor: grabbing; }
+/* Editor-owned overlays appended to <body> (drag ghost, rubber band). */
+.docs-drag-image { opacity: var(--docs-drag-opacity, 0.3); }
+.docs-drag-select-rect {
+  position: fixed; z-index: 40; pointer-events: none; border-radius: 2px;
+  background-color: color-mix(in srgb, var(--docs-dragselect-color, #2383e2) calc(var(--docs-dragselect-opacity, 0.12) * 100%), transparent);
+}
+.docs-draft-editor [data-docs-changed="true"] { animation: docs-draft-changed-flash 2s ease-out; border-radius: var(--docs-highlight-radius, 6px); }
+@keyframes docs-draft-changed-flash {
+  0% { background-color: var(--docs-highlight-color, var(--color-bg-blue)); box-shadow: 0 0 0 var(--docs-highlight-padding, 4px) var(--docs-highlight-color, var(--color-bg-blue)); }
+  100% { background-color: transparent; box-shadow: 0 0 0 0 transparent; }
+}
