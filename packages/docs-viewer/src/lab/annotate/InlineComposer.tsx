@@ -34,7 +34,7 @@ function ComposerTip({ label, keys, children }: { label: string; keys: string; c
 	const [show, setShow] = useState(false);
 	return <span className="relative inline-flex shrink-0" onMouseEnter={() => setShow(true)} onMouseLeave={() => setShow(false)}>
 		{children}
-		{show && <span data-docs-lab-composer-tip="" className="pointer-events-none absolute bottom-full left-1/2 z-40 mb-1.5 flex -translate-x-1/2 items-baseline gap-1.5 whitespace-nowrap rounded-[var(--radius,0.375rem)] border border-[color:var(--annotation-border,rgba(173,157,208,.3))] bg-[color:var(--annotation-surface,#1c1c20)] px-2 py-1 text-[11px] text-[color:var(--annotation-text,#e4e4e7)] shadow-lg">{label}<span className="text-[10px] tracking-[0.05em] text-[color:var(--annotation-muted,#a1a1aa)]">{keys}</span></span>}
+		{show && <span data-docs-lab-composer-tip="" className="pointer-events-none absolute bottom-full left-1/2 z-40 mb-1.5 flex -translate-x-1/2 items-baseline gap-1.5 whitespace-nowrap rounded-[var(--radius,2px)] border border-[color:var(--annotation-border,rgba(173,157,208,.3))] bg-[color:var(--annotation-surface,#1c1c20)] px-2 py-1 text-[11px] text-[color:var(--annotation-text,#e4e4e7)] shadow-lg">{label}<span className="text-[10px] tracking-[0.05em] text-[color:var(--annotation-muted,#a1a1aa)]">{keys}</span></span>}
 	</span>;
 }
 
@@ -61,7 +61,7 @@ export function InlineComposer({ onSubmit, onCancel, documentTarget = false, ini
 		const body = textareaRef.current?.value.trim() ?? "";
 		if (body) onSubmit(body, disposition);
 	};
-	return <div data-docs-lab-composer="" className="rounded-[var(--radius,0.5rem)] border border-[color:var(--annotation-border,rgba(173,157,208,.3))] bg-[color:var(--annotation-surface,#1c1c20)] px-3 py-2.5 shadow-lg" style={{ width: "min(var(--docs-composer-width, 640px), 100%)" }}>
+	return <div data-docs-lab-composer="" className="rounded-[var(--radius,2px)] border border-[color:var(--annotation-border,rgba(173,157,208,.3))] bg-[color:var(--annotation-surface,#1c1c20)] px-3 py-2.5 shadow-lg" style={{ width: "min(var(--docs-composer-width, 640px), 100%)" }}>
 		<div className="flex items-start gap-2">
 			<textarea ref={textareaRef} rows={2} defaultValue={initialValue} placeholder={documentTarget ? "Note about the whole document" : "What should change here?"} className="w-full flex-1 resize-none bg-transparent text-[13px] leading-[1.55] text-[color:var(--annotation-text,#e4e4e7)] outline-none placeholder:text-[color:var(--annotation-muted,#a1a1aa)]" onKeyDown={(event) => {
 				if (event.key !== "Enter") return;
@@ -72,7 +72,7 @@ export function InlineComposer({ onSubmit, onCancel, documentTarget = false, ini
 				// Escape bubbles to the targeting container, which clears the
 				// pinned target (and with it this composer).
 			}} />
-			<ComposerTip label="Close" keys="esc"><button type="button" aria-label="Cancel" className="grid h-6 w-6 shrink-0 place-items-center rounded-[var(--radius,0.375rem)] transition-colors" style={{ color: closeHover ? "var(--annotation-danger,#f87171)" : "var(--annotation-muted,#a1a1aa)" }} onMouseEnter={() => setCloseHover(true)} onMouseLeave={() => setCloseHover(false)} onClick={onCancel}><X aria-hidden size={14} /></button></ComposerTip>
+			<ComposerTip label="Close" keys="esc"><button type="button" aria-label="Cancel" className="grid h-6 w-6 shrink-0 place-items-center rounded-[var(--radius,2px)] transition-colors" style={{ color: closeHover ? "var(--annotation-danger,#f87171)" : "var(--annotation-muted,#a1a1aa)" }} onMouseEnter={() => setCloseHover(true)} onMouseLeave={() => setCloseHover(false)} onClick={onCancel}><X aria-hidden size={14} /></button></ComposerTip>
 		</div>
 		<div className="mt-1.5 flex items-center justify-end"><ComposerTip label={documentTarget ? "Queue · document" : "Queue"} keys="⏎"><button type="button" aria-label="Queue" data-docs-lab-composer-action={disposition} className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[color:var(--annotation-active-bg,rgba(138,122,176,.16))] text-[color:var(--annotation-accent-lit,var(--annotation-accent,#ad9dd0))] transition-colors" onClick={submit}><ArrowUp aria-hidden size={13} /></button></ComposerTip></div>
 	</div>;

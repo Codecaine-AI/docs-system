@@ -524,7 +524,7 @@ describe("structured-table furniture theme tokens", () => {
     const columnHandle = query(container, "[data-table-column-handle]")!;
     const rowHandle = query(container, "[data-table-row-handle]")!;
     for (const handle of [columnHandle, rowHandle]) {
-      expect(handle.className).toContain("rounded-[var(--docs-table-handle-radius,3px)]");
+      expect(handle.className).toContain("rounded-[var(--docs-table-handle-radius,var(--radius,2px))]");
       expect(handle.className).not.toContain("rounded-lg");
     }
     // The off-edge axis is a calc() over the themed offset var (fallback =

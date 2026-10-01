@@ -75,7 +75,7 @@ const TONE_LABEL: Record<CalloutTone, string> = {
  * page background as its fallback.
  */
 const CALLOUT_FRAME_CLASSES =
-  "not-prose my-[var(--docs-callout-margin,16px)] min-w-0 w-full overflow-hidden rounded-[var(--docs-callout-radius,0.5rem)] border-[length:var(--docs-callout-border-width,1px)] border-solid border-[color:var(--docs-callout-border,var(--docs-callout-accent))] bg-[color:var(--docs-callout-body-bg,var(--background))]";
+  "not-prose my-[var(--docs-callout-margin,16px)] min-w-0 w-full overflow-hidden rounded-[var(--docs-callout-radius,var(--radius,2px))] border-[length:var(--docs-callout-border-width,1px)] border-solid border-[color:var(--docs-callout-border,var(--docs-callout-accent))] bg-[color:var(--docs-callout-body-bg,var(--background))]";
 const CALLOUT_HEADER_CLASSES =
   "flex min-w-0 items-center gap-2.5 bg-[color:var(--docs-callout-header-bg)] px-[var(--docs-callout-pad-x,16px)] py-[var(--docs-callout-header-pad-y,12px)] text-[color:var(--docs-callout-header-fg)]";
 const CALLOUT_ICON_CLASSES =
@@ -107,7 +107,7 @@ export class CalloutDocsBlock extends DocsMdxBlock<CalloutData> {
         data-docs-block-type={this.type}
         data-callout-tone={tone}
         data-source-id={data.id}
-      ><style data-variator-tokens>{"[data-docs-block-type=\"callout\"]:not(.dark [data-docs-block-type=\"callout\"]){border-radius:var(--docs-callout-radius,4px) !important;}"}</style>
+      ><style data-variator-tokens>{"[data-docs-block-type=\"callout\"]:not(.dark [data-docs-block-type=\"callout\"]){border-radius:var(--docs-callout-radius,var(--radius,2px)) !important;}"}</style>
         <style>{`
           [data-docs-block-type="callout"] {
             --docs-callout-accent: var(--docs-callout-info-accent, #1683c7);

@@ -105,7 +105,7 @@ export function parseVideoEmbed(rawUrl: string): VideoEmbed | null {
  */
 const VIDEO_FIGURE_CLASSES = "not-prose my-[var(--docs-video-margin,16px)]";
 const VIDEO_FRAME_CLASSES =
-  "rounded-[var(--docs-video-radius,max(0px,calc(var(--radius,8px)-2px)))] border-[length:var(--docs-video-border-width,1px)] border-[color:var(--docs-video-border,var(--border))]";
+  "rounded-[var(--docs-video-radius,var(--radius,2px))] border-[length:var(--docs-video-border-width,1px)] border-[color:var(--docs-video-border,var(--border))]";
 const VIDEO_CAPTION_CLASSES =
   "mt-[var(--docs-video-caption-gap,4px)] text-[length:var(--docs-video-caption-text-size,12px)] leading-[calc(1/0.75)] text-[color:var(--docs-video-caption-fg,var(--muted-foreground))]";
 

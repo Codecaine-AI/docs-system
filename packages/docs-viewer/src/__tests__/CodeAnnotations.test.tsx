@@ -259,7 +259,7 @@ describe("AnnotatedCodeBlock", () => {
     const frame = container.querySelector("[data-code-annotations] > div")!.className;
     expect(frame).toContain("border-[length:var(--docs-code-border-width,1px)]");
     expect(frame).toContain("border-[color:var(--docs-code-block-border,var(--border))]");
-    expect(frame).toContain("rounded-[var(--docs-code-radius,6px)]");
+    expect(frame).toContain("rounded-[var(--docs-code-radius,var(--radius,2px))]");
     expect(frame).toContain("lg:grid-cols-[minmax(0,1fr)_var(--docs-code-notes-width,320px)]");
 
     // Scroll body: typography + top/bottom padding.

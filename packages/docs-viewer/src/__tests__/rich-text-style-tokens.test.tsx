@@ -202,7 +202,7 @@ const ELEMENTS: Array<{ label: string; read: string; edit: string; tokens: strin
       "var(--docs-callout-border,var(--docs-callout-accent))",
       "var(--docs-callout-body-bg,var(--background))",
       "var(--docs-callout-border-width,1px)",
-      "var(--docs-callout-radius,0.5rem)",
+      "var(--docs-callout-radius,var(--radius,2px))",
       "var(--docs-callout-margin,16px)",
     ],
   },
@@ -258,7 +258,7 @@ const ELEMENTS: Array<{ label: string; read: string; edit: string; tokens: strin
     tokens: [
       "var(--docs-image-border,var(--border))",
       "var(--docs-image-border-width,1px)",
-      "var(--docs-image-radius,max(0px,calc(var(--radius,8px)-2px)))",
+      "var(--docs-image-radius,var(--radius,2px))",
     ],
   },
   {
@@ -284,7 +284,7 @@ const ELEMENTS: Array<{ label: string; read: string; edit: string; tokens: strin
     tokens: [
       "var(--docs-video-border,var(--border))",
       "var(--docs-video-border-width,1px)",
-      "var(--docs-video-radius,max(0px,calc(var(--radius,8px)-2px)))",
+      "var(--docs-video-radius,var(--radius,2px))",
     ],
   },
   {
@@ -369,6 +369,6 @@ describe("rich-text style tokens", () => {
     expect(css).not.toMatch(/--docs-callout-fg:\s/);
     expect(css).not.toMatch(/--docs-callout-body-bg:\s/);
     // The light-mode corner rule reads the radius token before its 4px.
-    expect(css).toContain("border-radius:var(--docs-callout-radius,4px) !important");
+    expect(css).toContain("border-radius:var(--docs-callout-radius,var(--radius,2px)) !important");
   });
 });

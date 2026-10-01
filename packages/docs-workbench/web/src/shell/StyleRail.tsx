@@ -134,7 +134,7 @@ export type StyleRailSettings = {
     titlePadding: number;
     /** Space below the doc's last block in px. */
     bottomPadding: number;
-    /** --radius in px (theme default 0.5rem = 8). */
+    /** --radius in px (theme default 2px). */
     radius: number;
     /** Border alpha/contrast multiplier; 1 = theme default. */
     borderStrength: number;
@@ -319,7 +319,7 @@ export const DEFAULT_STYLE_RAIL_SETTINGS: StyleRailSettings = {
     topPadding: 24,
     titlePadding: 20,
     bottomPadding: 24,
-    radius: 8,
+    radius: 2,
     borderStrength: 1,
     backgroundTint: 0,
     sidebarTint: 0,
@@ -344,7 +344,7 @@ export const DEFAULT_STYLE_RAIL_SETTINGS: StyleRailSettings = {
     blendMode: "auto",
     softening: { background: 1, font: 0.8, icons: 0.8 },
   },
-  highlight: { color: null, radius: 6, padding: 4, dragOpacity: 0.3, dropColor: null, dropWidth: 3, dropOpacity: 0.9, dropRadius: 2 },
+  highlight: { color: null, radius: 2, padding: 4, dragOpacity: 0.3, dropColor: null, dropWidth: 3, dropOpacity: 0.9, dropRadius: 2 },
   dragSelect: { color: null, opacity: 0.12 },
   list: { discSize: 6, circleSize: 6, circleThickness: 1.5, squareSize: 5, indent: 24 },
   grip: { gap: 12, offsetY: 6, size: 18, color: null, fadeMs: 100 },

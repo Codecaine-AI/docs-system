@@ -251,6 +251,18 @@ describe("CodeBlockNodeView shell geometry", () => {
     expect(container.innerHTML).not.toContain("sky-");
   });
 
+  it("is a page lane the style rail's per-type layout overrides can target", () => {
+    const { props } = nodeViewProps({});
+    const { container } = render(<CodeBlockNodeView {...props} />);
+    const lane = container.firstElementChild!;
+    // blockLayoutOverrideCss keys its rules on this attribute pair.
+    expect(lane.getAttribute("data-doc-block-type")).toBe("code");
+    expect(lane.getAttribute("data-doc-lane")).toBe("text-left");
+    expect(lane.className).toContain("max-w-[var(--style-content-width,60ch)]");
+    // The lane wears no code typography, so its `ch` width resolves at body size.
+    expect(lane.className).not.toContain("--docs-code-text-size");
+  });
+
   it("reads the same code tokens as the read surfaces (frame, typography, gutter, padding, header)", () => {
     const { props } = nodeViewProps(
       { annotations: [{ lines: "2", note: "Note." }] },
@@ -259,11 +271,12 @@ describe("CodeBlockNodeView shell geometry", () => {
     const { container } = render(<CodeBlockNodeView {...props} />);
     const cls = (selector: string) => container.querySelector(selector)!.className;
 
-    // The NodeViewWrapper IS the frame; cn() must keep width, color and radius.
-    const frame = container.firstElementChild!.className;
+    // The NodeViewWrapper is the lane; the frame sits directly inside it.
+    // cn() must keep width, color and radius.
+    const frame = container.querySelector("[data-doc-lane]")!.firstElementChild!.className;
     expect(frame).toContain("border-[length:var(--docs-code-border-width,1px)]");
     expect(frame).toContain("border-[color:var(--docs-code-block-border,var(--border))]");
-    expect(frame).toContain("rounded-[var(--docs-code-radius,6px)]");
+    expect(frame).toContain("rounded-[var(--docs-code-radius,var(--radius,2px))]");
     expect(frame).toContain("text-[length:var(--docs-code-text-size,12px)]");
     expect(frame).toContain("leading-[var(--docs-code-line-height,20px)]");
 
@@ -415,8 +428,8 @@ describe("CodeBlockNodeView notes aside", () => {
     expect(getByText("Setup")).toBeTruthy();
     expect(getByText("Declares the inputs.")).toBeTruthy();
     expect(getByText("The sum.")).toBeTruthy();
-    // Annotated frame becomes the two-column grid at lg (aside on the right).
-    const frame = container.firstElementChild!;
+    // Annotated frame (inside the lane) becomes the two-column grid at lg (aside on the right).
+    const frame = container.querySelector("[data-doc-lane]")!.firstElementChild!;
     expect(frame.className).toContain("lg:grid-cols-[minmax(0,1fr)_var(--docs-code-notes-width,320px)]");
   });
 

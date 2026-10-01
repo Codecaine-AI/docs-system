@@ -21,7 +21,7 @@ export const DocImage = atomBlockNode("docImage");
  */
 const IMAGE_FIGURE_CLASSES = "not-prose my-[var(--docs-image-margin,16px)]";
 const IMAGE_FRAME_CLASSES =
-  "max-w-full rounded-[var(--docs-image-radius,max(0px,calc(var(--radius,8px)-2px)))] border-[length:var(--docs-image-border-width,1px)] border-[color:var(--docs-image-border,var(--border))]";
+  "max-w-full rounded-[var(--docs-image-radius,var(--radius,2px))] border-[length:var(--docs-image-border-width,1px)] border-[color:var(--docs-image-border,var(--border))]";
 const IMAGE_CAPTION_CLASSES =
   "mt-[var(--docs-image-caption-gap,4px)] text-[length:var(--docs-image-caption-text-size,12px)] leading-[calc(1/0.75)] text-[color:var(--docs-image-caption-fg,var(--muted-foreground))]";
 

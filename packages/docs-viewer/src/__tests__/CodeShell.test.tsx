@@ -144,7 +144,7 @@ describe("CodeShell (plain read surface)", () => {
 
   it("the frame reads border width, radius and code typography from their tokens", () => {
     expect(CODE_BLOCK_CLASSES).toContain("border-[length:var(--docs-code-border-width,1px)]");
-    expect(CODE_BLOCK_CLASSES).toContain("rounded-[var(--docs-code-radius,6px)]");
+    expect(CODE_BLOCK_CLASSES).toContain("rounded-[var(--docs-code-radius,var(--radius,2px))]");
     expect(CODE_BLOCK_CLASSES).toContain("text-[length:var(--docs-code-text-size,12px)]");
     expect(CODE_BLOCK_CLASSES).toContain("leading-[var(--docs-code-line-height,20px)]");
     expect(CODE_BLOCK_CLASSES).toContain("border-[color:var(--docs-code-block-border,var(--border))]");

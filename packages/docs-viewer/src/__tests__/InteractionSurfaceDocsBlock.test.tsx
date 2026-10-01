@@ -522,7 +522,7 @@ describe("InteractionSurfaceBlock style-rail tokens", () => {
       "--note-rule:var(--docs-interaction-rule-width,1px)",
       "[data-param-note]{padding:var(--note-y) var(--note-x);border-bottom:var(--note-rule) solid var(--docs-operations-rule)}",
       // Card frame.
-      "--operation-card-radius:var(--docs-interaction-radius,4px)",
+      "--operation-card-radius:var(--docs-interaction-radius,var(--radius,2px))",
       "--operation-card-border:var(--docs-interaction-border-width,1px)",
       "--operation-frame:var(--docs-interaction-border,var(--docs-shape-header-rule,",
       "border:var(--operation-card-border) solid var(--operation-frame);border-radius:var(--operation-card-radius);background:var(--docs-interaction-bg,var(--docs-shape-bg,var(--background)))",
@@ -554,10 +554,9 @@ describe("InteractionSurfaceBlock style-rail tokens", () => {
     ]) {
       expect(sheet).toContain(declaration);
     }
-    // Dark keeps its larger default radius behind the same knob.
-    expect(sheet).toContain(
-      ".dark [data-operations-card-layout]{--operation-card-radius:var(--docs-interaction-radius,12px)",
-    );
+    // No dark-only corner: both modes follow the global --radius.
+    expect(sheet).not.toContain("--docs-interaction-radius,12px");
+    expect(sheet.split("--operation-card-radius:").length - 1).toBe(1);
   });
 
   it("leaves rail vars for the rail: no block-level re-declaration, no pinned values", () => {

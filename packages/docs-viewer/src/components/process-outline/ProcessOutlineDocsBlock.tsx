@@ -71,7 +71,7 @@ const PROCESS_OUTLINE_CSS = `
 .docs-process-outline__flow {
   position:relative; padding:var(--po-pad-y) var(--po-pad-x) calc(var(--po-pad-y) + 1px);
   border-block:var(--docs-process-outline-border-width, 1px) solid var(--docs-process-outline-border,color-mix(in srgb,var(--border) 72%,transparent));
-  border-radius:calc(var(--radius) * .65);
+  border-radius:var(--radius);
   background:linear-gradient(90deg,color-mix(in srgb,var(--muted) 18%,transparent),transparent 24%);
 }
 .docs-process-outline__flow>.docs-process-outline__node+.docs-process-outline__node { margin-top:var(--po-root-gap); }
@@ -108,7 +108,7 @@ const PROCESS_OUTLINE_CSS = `
 }
 .docs-process-outline__keyword { color:var(--docs-process-outline-keyword-fg,inherit); font-weight:var(--docs-process-outline-keyword-weight, 700); }
 .docs-process-outline__code {
-  border:1px solid color-mix(in srgb,var(--po-c) 20%,transparent); border-radius:calc(var(--radius) * .45);
+  border:1px solid color-mix(in srgb,var(--po-c) 20%,transparent); border-radius:var(--radius);
   background:color-mix(in srgb,var(--po-c) calc(var(--docs-process-outline-chip-tint, 10) * 1%),var(--docs-process-outline-code-bg,transparent));
   padding:1px 4px; color:color-mix(in srgb,var(--po-c) calc(var(--docs-process-outline-chip-ink-mix, 64) * 1%),currentColor);
   box-decoration-break:clone; -webkit-box-decoration-break:clone;
@@ -139,9 +139,9 @@ const PROCESS_OUTLINE_CSS = `
 .docs-process-outline__children>.docs-process-outline__node--note::before,
 .docs-process-outline__children>.docs-process-outline__node--note>.docs-process-outline__line::before { display:none; }
 .docs-process-outline__children>.docs-process-outline__node:not(:has(~.docs-process-outline__node:not(.docs-process-outline__node--note)))::after { display:none; }
-.docs-process-outline [data-process-outline-step-editing="true"] { border-radius:3px; outline:var(--docs-process-outline-focus-ring, 1px) solid color-mix(in srgb,var(--po-c) 45%,transparent); outline-offset:2px; }
+.docs-process-outline [data-process-outline-step-editing="true"] { border-radius:var(--radius); outline:var(--docs-process-outline-focus-ring, 1px) solid color-mix(in srgb,var(--po-c) 45%,transparent); outline-offset:2px; }
 .docs-process-outline [data-process-outline-step-selected="true"] {
-  border-radius:3px; background:color-mix(in srgb,var(--po-c) calc(var(--docs-process-outline-select-tint, 15) * 1%),var(--docs-process-outline-select-bg,transparent));
+  border-radius:var(--radius); background:color-mix(in srgb,var(--po-c) calc(var(--docs-process-outline-select-tint, 15) * 1%),var(--docs-process-outline-select-bg,transparent));
   box-shadow:0 0 0 var(--docs-process-outline-select-pad, 2px) color-mix(in srgb,var(--po-c) calc(var(--docs-process-outline-select-tint, 15) * 1%),var(--docs-process-outline-select-bg,transparent));
 }
 .docs-process-outline__empty { color:var(--muted-foreground); font-size:max(12px,var(--docs-process-outline-empty-text-size, 12px)); }

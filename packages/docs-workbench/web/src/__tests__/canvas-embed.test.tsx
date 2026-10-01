@@ -134,7 +134,7 @@ describe("StandaloneCanvasEmbed loaded canvases", () => {
     const previewFrame = inlineViewerSection?.parentElement;
     expect(previewFrame?.getAttribute("data-canvas-frame")).toBe("true");
     for (const frameClass of [
-      "rounded-[var(--docs-canvas-radius,max(0px,calc(var(--radius,8px)-2px)))]",
+      "rounded-[var(--docs-canvas-radius,var(--radius,2px))]",
       "border-[length:var(--docs-canvas-border-width,1px)]",
       "border-[color:var(--docs-canvas-border,var(--border))]",
       "bg-[color:var(--docs-canvas-bg,transparent)]",

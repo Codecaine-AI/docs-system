@@ -25,13 +25,13 @@ export const TABLE_TITLE_CLASSES =
   "mb-[var(--docs-table-title-gap,6px)] text-[length:var(--docs-table-title-text-size,14px)] leading-[calc(1.25/0.875)] [font-weight:var(--docs-table-title-weight,500)] text-[color:var(--docs-table-title-fg,var(--foreground))]";
 
 export const TABLE_WRAPPER_CLASSES =
-  "overflow-auto rounded-[var(--docs-table-radius,var(--radius-md,6px))] border-[length:var(--docs-table-border-width,1px)] border-[color:var(--docs-table-border,var(--border))] bg-[color:var(--docs-table-bg,var(--background))]";
+  "overflow-auto rounded-[var(--docs-table-radius,var(--radius,2px))] border-[length:var(--docs-table-border-width,1px)] border-[color:var(--docs-table-border,var(--border))] bg-[color:var(--docs-table-bg,var(--background))]";
 
 export const TABLE_ELEMENT_CLASSES =
   "w-full border-collapse text-left leading-[var(--docs-table-line-height,1.55)]";
 
 export const TABLE_HEAD_CLASSES =
-  "border-b border-solid border-b-[length:var(--docs-table-header-rule-width,1.5px)] border-b-[color:color-mix(in_srgb,var(--docs-table-header-rule,var(--docs-table-header-fg,currentColor))_calc(var(--docs-table-header-rule-opacity,0.5)*100%),transparent)] bg-[color:var(--docs-table-header-bg,transparent)] text-[color:var(--docs-table-header-fg,currentColor)]";
+  "border-b border-solid border-b-[length:var(--docs-table-header-rule-width,2px)] border-b-[color:color-mix(in_srgb,var(--docs-table-header-rule,var(--docs-table-header-fg,currentColor))_calc(var(--docs-table-header-rule-opacity,0.7)*100%),transparent)] bg-[color:var(--docs-table-header-bg,transparent)] text-[color:var(--docs-table-header-fg,currentColor)]";
 
 /**
  * The 60px floor (AFFiNE's ColumnMinWidth) keeps freshly added — still

@@ -202,7 +202,7 @@ describe("style rail override helpers", () => {
     components: {
       code: { ruleOpacity: "0.9" },
       callout: { border: "#ff0000" },
-      surfaces: { radius: "8px" },
+      surfaces: { radius: "2px" },
     },
   };
 
@@ -253,7 +253,7 @@ describe("style rail override helpers", () => {
   it("excludes a retained non-color component entry at its registry default", () => {
     const settings: StyleRailSettings = {
       ...DEFAULT_STYLE_RAIL_SETTINGS,
-      components: { surfaces: { radius: "8px" } },
+      components: { surfaces: { radius: "2px" } },
     };
 
     expect(isLeafOverridden(settings, componentLeaf("surfaces", "radius"))).toBe(false);
@@ -1691,8 +1691,8 @@ describe("style rail component token kinds", () => {
     applyStyleRailVars({
       ...DEFAULT_STYLE_RAIL_SETTINGS,
       components: {
-        surfaces: { radius: "8px" },
-        "structured-table": { handleRadius: "3px" },
+        surfaces: { radius: "2px" },
+        "structured-table": { handleRadius: "2px" },
       },
     });
 
@@ -1719,7 +1719,7 @@ describe("style rail component token kinds", () => {
     expect(
       styleRailVars({
         ...settings,
-        components: { surfaces: { radius: "8px" } },
+        components: { surfaces: { radius: "2px" } },
       })["--radius"],
     ).toBe("12px");
 
@@ -1737,7 +1737,7 @@ describe("style rail component token kinds", () => {
       max: 16,
       step: 1,
       unit: "px",
-      defaultValue: 8,
+      defaultValue: 2,
     });
 
     const theme = readThemeDefinition(
@@ -1763,7 +1763,7 @@ describe("style rail component token kinds", () => {
       components: {
         "structured-table": {
           border: "#ABCDEF",
-          headerRuleWidth: "2px",
+          headerRuleWidth: "3px",
           headerRuleOpacity: "0.6",
           rowRuleWidth: "3.5px",
           rowRuleOpacity: "not-a-number",
@@ -1777,14 +1777,14 @@ describe("style rail component token kinds", () => {
     expect(settings.components).toEqual({
       "structured-table": {
         border: "#abcdef",
-        headerRuleWidth: "2px",
+        headerRuleWidth: "3px",
         headerRuleOpacity: "0.6",
         cellPaddingY: "12px",
       },
     });
     expect(styleRailVars(settings)).toMatchObject({
       "--docs-table-border": "#abcdef",
-      "--docs-table-header-rule-width": "2px",
+      "--docs-table-header-rule-width": "3px",
       "--docs-table-header-rule-opacity": "0.6",
       "--docs-table-cell-pad-y": "12px",
     });
@@ -1816,16 +1816,16 @@ describe("style rail component token kinds", () => {
     expect(width).toHaveProperty("min", "0");
     expect(width).toHaveProperty("max", "4");
     expect(width).toHaveProperty("step", "0.5");
-    expect(width).toHaveProperty("value", "1.5");
+    expect(width).toHaveProperty("value", "2");
     expect(opacity).toHaveProperty("min", "0");
     expect(opacity).toHaveProperty("max", "1");
     expect(opacity).toHaveProperty("step", "0.05");
 
-    fireEvent.change(width, { target: { value: "2" } });
+    fireEvent.change(width, { target: { value: "3" } });
     fireEvent.change(opacity, { target: { value: "0.6" } });
     expect(JSON.parse(screen.getByTestId("component-settings").textContent ?? "null")).toEqual({
       "structured-table": {
-        headerRuleWidth: "2px",
+        headerRuleWidth: "3px",
         headerRuleOpacity: "0.6",
       },
     });
@@ -1841,7 +1841,7 @@ describe("style rail component token kinds", () => {
     expect(radius).toHaveProperty("min", "0");
     expect(radius).toHaveProperty("max", "10");
     expect(radius).toHaveProperty("step", "0.5");
-    expect(radius).toHaveProperty("value", "3");
+    expect(radius).toHaveProperty("value", "2");
     expect(offset).toHaveProperty("min", "4");
     expect(offset).toHaveProperty("max", "20");
     expect(offset).toHaveProperty("step", "1");
@@ -1881,7 +1881,7 @@ describe("style rail structured-table tokens", () => {
   // [min, max, step, defaultValue] per token; `label` is what the rail shows.
   const TABLE_LENGTHS = {
     borderWidth: { cssVar: "--docs-table-border-width", label: "Border width", range: [0, 4, 0.5, 1] },
-    radius: { cssVar: "--docs-table-radius", label: "Corner radius", range: [0, 16, 1, 6] },
+    radius: { cssVar: "--docs-table-radius", label: "Corner radius", range: [0, 16, 1, 2] },
     headerTextSize: {
       cssVar: "--docs-table-header-text-size",
       label: "Header text size",
@@ -1890,7 +1890,7 @@ describe("style rail structured-table tokens", () => {
     headerRuleWidth: {
       cssVar: "--docs-table-header-rule-width",
       label: "Header rule width",
-      range: [0, 4, 0.5, 1.5],
+      range: [0, 4, 0.5, 2],
     },
     rowRuleWidth: { cssVar: "--docs-table-row-rule-width", label: "Row rule width", range: [0, 3, 0.5, 1] },
     columnRuleWidth: {
@@ -1908,7 +1908,7 @@ describe("style rail structured-table tokens", () => {
       range: [10, 24, 0.5, 14],
     },
     titleGap: { cssVar: "--docs-table-title-gap", label: "Title gap", range: [0, 24, 1, 6] },
-    handleRadius: { cssVar: "--docs-table-handle-radius", label: "Handle radius", range: [0, 10, 0.5, 3] },
+    handleRadius: { cssVar: "--docs-table-handle-radius", label: "Handle radius", range: [0, 10, 0.5, 2] },
     handleOffset: { cssVar: "--docs-table-handle-offset", label: "Handle offset", range: [4, 20, 1, 12] },
     selectionPadding: {
       cssVar: "--docs-table-selection-pad",
@@ -1921,7 +1921,7 @@ describe("style rail structured-table tokens", () => {
     headerRuleOpacity: {
       cssVar: "--docs-table-header-rule-opacity",
       label: "Header rule opacity",
-      range: [0, 1, 0.05, 0.5],
+      range: [0, 1, 0.05, 0.7],
     },
     rowRuleOpacity: {
       cssVar: "--docs-table-row-rule-opacity",
@@ -1952,8 +1952,8 @@ describe("style rail structured-table tokens", () => {
   // Tokens whose semantic.css default is DERIVED from another token, so the
   // declaration is an expression rather than the registry's stock number.
   const DERIVED_DEFAULTS: Record<string, string> = {
-    "--docs-table-radius": "max(0px, calc(var(--radius) - 2px))",
-    "--docs-table-handle-radius": "max(0px, calc(var(--radius) - 5px))",
+    "--docs-table-radius": "var(--radius)",
+    "--docs-table-handle-radius": "var(--radius)",
     "--docs-table-header-text-size": "calc(var(--docs-table-font-size) - 1px)",
     "--docs-table-column-rule-width": "var(--docs-table-row-rule-width)",
     "--docs-table-column-rule-opacity": "var(--docs-table-row-rule-opacity)",
@@ -2013,10 +2013,10 @@ describe("style rail structured-table tokens", () => {
       expect(occurrences(semanticCss, `  ${cssVar}: ${value};`)).toBe(2);
     }
     // The three derived defaults resolve to the registry number at stock:
-    // radius 8px - 2px, handle 8px - 5px, header 14px - 1px.
-    expect(occurrences(semanticCss, "  --radius: 0.5rem;")).toBe(2);
-    expect<number>(TABLE_LENGTHS.radius.range[3]).toBe(8 - 2);
-    expect<number>(TABLE_LENGTHS.handleRadius.range[3]).toBe(8 - 5);
+    // radius and handle follow the 2px --radius, header 14px - 1px.
+    expect(occurrences(semanticCss, "  --radius: 2px;")).toBe(2);
+    expect<number>(TABLE_LENGTHS.radius.range[3]).toBe(2);
+    expect<number>(TABLE_LENGTHS.handleRadius.range[3]).toBe(2);
     expect<number>(TABLE_LENGTHS.headerTextSize.range[3]).toBe(
       TABLE_LENGTHS.fontSize.range[3] - 1,
     );
@@ -2037,12 +2037,12 @@ describe("style rail structured-table tokens", () => {
       viewerSource("editor-node-view.tsx"),
     ].join("\n");
     const FURNITURE_FALLBACKS: Record<string, string> = {
-      "--docs-table-handle-radius": "var(--docs-table-handle-radius,3px)",
+      "--docs-table-handle-radius": "var(--docs-table-handle-radius,var(--radius,2px))",
       "--docs-table-handle-offset": "var(--docs-table-handle-offset, 12px)",
       "--docs-table-selection-pad": "var(--docs-table-selection-pad, 3px)",
     };
     const CLASS_FALLBACKS: Record<string, string> = {
-      "--docs-table-radius": "var(--docs-table-radius,var(--radius-md,6px))",
+      "--docs-table-radius": "var(--docs-table-radius,var(--radius,2px))",
       "--docs-table-header-text-size":
         "var(--docs-table-header-text-size,calc(var(--docs-table-font-size,14px)-1px))",
       "--docs-table-column-rule-width":
@@ -2414,7 +2414,7 @@ describe("style rail code block tokens", () => {
       defaultValue,
     });
     expect(code.borderWidth).toEqual(length("--docs-code-border-width", 0, 4, 0.5, 1));
-    expect(code.radius).toEqual(length("--docs-code-radius", 0, 16, 1, 6));
+    expect(code.radius).toEqual(length("--docs-code-radius", 0, 16, 1, 2));
     expect(code.textSize).toEqual(length("--docs-code-text-size", 10, 18, 0.5, 12));
     expect(code.lineHeight).toEqual(length("--docs-code-line-height", 14, 32, 1, 20));
     expect(code.padX).toEqual(length("--docs-code-pad-x", 0, 32, 1, 12));
@@ -2445,7 +2445,7 @@ describe("style rail code block tokens", () => {
     const expected: Array<[RegExp, string, string, string]> = [
       // [label, min, max, stock value]
       [/^Border width/, "0", "4", "1"],
-      [/^Corner radius/, "0", "16", "6"],
+      [/^Corner radius/, "0", "16", "2"],
       [/^Text size/, "10", "18", "12"],
       [/^Line height/, "14", "32", "20"],
       [/^Padding X/, "0", "32", "12"],
@@ -2510,7 +2510,7 @@ describe("style rail code block tokens", () => {
     });
     // A knob parked at stock writes nothing, so semantic.css answers.
     expect(
-      styleRailVars(normalizeSettings({ components: { code: { textSize: "12px", radius: "6px" } } })),
+      styleRailVars(normalizeSettings({ components: { code: { textSize: "12px", radius: "2px" } } })),
     ).toMatchObject({ "--docs-code-text-size": null, "--docs-code-radius": null });
   });
 
@@ -2548,7 +2548,7 @@ describe("style rail code block tokens", () => {
 describe("style rail file-tree tokens", () => {
   const FILE_TREE_LENGTHS = {
     borderWidth: { cssVar: "--docs-file-tree-border-width", min: 0, max: 4, step: 0.5, defaultValue: 1 },
-    radius: { cssVar: "--docs-file-tree-radius", min: 0, max: 16, step: 1, defaultValue: 6 },
+    radius: { cssVar: "--docs-file-tree-radius", min: 0, max: 16, step: 1, defaultValue: 2 },
     padY: { cssVar: "--docs-file-tree-pad-y", min: 0, max: 24, step: 1, defaultValue: 8 },
     padX: { cssVar: "--docs-file-tree-pad-x", min: 0, max: 32, step: 1, defaultValue: 12 },
     textSize: { cssVar: "--docs-file-tree-text-size", min: 10, max: 18, step: 0.5, defaultValue: 12 },
@@ -2633,16 +2633,16 @@ describe("style rail file-tree tokens", () => {
       }
     }
     for (const [key, { cssVar, defaultValue }] of Object.entries(FILE_TREE_LENGTHS)) {
-      // The corner radius follows the global --radius (8px stock, so 6px).
+      // The corner radius follows the global --radius (2px at stock).
       const declaration = key === "radius"
-        ? `  ${cssVar}: max(0px, calc(var(--radius) - 2px));`
+        ? `  ${cssVar}: var(--radius);`
         : `  ${cssVar}: ${defaultValue}px;`;
       expect(occurrences(semanticCss, declaration)).toBe(2);
     }
     for (const { cssVar, defaultValue } of Object.values(FILE_TREE_NUMBERS)) {
       expect(occurrences(semanticCss, `  ${cssVar}: ${defaultValue};`)).toBe(2);
     }
-    expect(occurrences(semanticCss, "  --radius: 0.5rem;")).toBe(2);
+    expect(occurrences(semanticCss, "  --radius: 2px;")).toBe(2);
   });
 
   it("wires every file-tree var into the component with its default as the fallback", () => {
@@ -2655,7 +2655,7 @@ describe("style rail file-tree tokens", () => {
     }
     for (const [key, { cssVar, defaultValue }] of Object.entries(FILE_TREE_LENGTHS)) {
       const fallback = key === "radius"
-        ? "max(0px,calc(var(--radius,8px)-2px))"
+        ? "var(--radius,2px)"
         : `${defaultValue}px`;
       expect(componentSource).toContain(`var(${cssVar},${fallback})`);
     }
@@ -2921,7 +2921,7 @@ describe("style rail inline-code tokens", () => {
       max: 12,
       step: 1,
       unit: "px",
-      defaultValue: 4,
+      defaultValue: 2,
     });
     // Unitless em multipliers: `number` tokens, no unit.
     expect(inline.textSize).toEqual({
@@ -2967,7 +2967,7 @@ describe("style rail inline-code tokens", () => {
     }
     const expected: Array<[RegExp, string, string, string]> = [
       [/^Border width/, "0", "3", "0"],
-      [/^Corner radius/, "0", "12", "4"],
+      [/^Corner radius/, "0", "12", "2"],
       [/^Text size/, "0.6", "1.2", "0.85"],
       [/^Padding X/, "0", "1", "0.35"],
       [/^Padding Y/, "0", "0.5", "0.1"],
@@ -3033,15 +3033,9 @@ describe("style rail code-family tokens are wired to their consumers", () => {
    * reason. `null` = deliberately undeclared (the consumer fallback answers).
    */
   const SEMANTIC_EXCEPTIONS: Record<string, [light: string, dark: string] | null> = {
-    // Radii follow the global --radius (8px stock -> 6px / 4px).
-    "--docs-code-radius": [
-      "max(0px, calc(var(--radius) - 2px))",
-      "max(0px, calc(var(--radius) - 2px))",
-    ],
-    "--docs-inline-code-radius": [
-      "max(0px, calc(var(--radius) - 4px))",
-      "max(0px, calc(var(--radius) - 4px))",
-    ],
+    // Radii follow the global --radius (2px at stock).
+    "--docs-code-radius": ["var(--radius)", "var(--radius)"],
+    "--docs-inline-code-radius": ["var(--radius)", "var(--radius)"],
     // Dark runs the wash hotter; the registry default is the light value.
     "--docs-link-wash": ["14", "18"],
     // A custom property cannot hold `inherit`; the chip inherits by default.
@@ -3050,6 +3044,9 @@ describe("style rail code-family tokens are wired to their consumers", () => {
   /** Consumer fallbacks that are not `<default><unit>`, with the literal used. */
   const FALLBACK_EXCEPTIONS: Record<string, string | null> = {
     "--docs-inline-code-weight": "inherit",
+    // Radii fall back to the global --radius, whose stock value is the default.
+    "--docs-code-radius": "var(--radius,2px)",
+    "--docs-inline-code-radius": "var(--radius,2px)",
     // Read only by semantic.css itself (it builds --docs-link-bg from it).
     "--docs-link-wash": null,
   };
@@ -3093,7 +3090,7 @@ describe("style rail code-family tokens are wired to their consumers", () => {
         // Every var(--x, <fallback>) occurrence in the viewer must carry the
         // stock literal — a single stray fallback is a second default.
         const fallbacks = [
-          ...consumerSource.matchAll(new RegExp(`var\\(${escape(cssVar)},\\s*([^()]+?)\\)`, "g")),
+          ...consumerSource.matchAll(new RegExp(`var\\(${escape(cssVar)},\\s*((?:[^()]|\\([^()]*\\))+?)\\)`, "g")),
         ].map((match) => match[1]);
         expect(`${file}.${key}: ${fallbacks.length > 0}`).toBe(`${file}.${key}: true`);
         expect(`${file}.${key}: ${[...new Set(fallbacks)].join(" | ")}`).toBe(`${file}.${key}: ${expected}`);
@@ -3135,7 +3132,7 @@ describe("style rail interaction-surface tokens", () => {
   // key -> [css var, min, max, step, default]. Lengths are px; weights are
   // unitless numbers.
   const LENGTHS: Record<string, [string, number, number, number, number]> = {
-    radius: ["--docs-interaction-radius", 0, 24, 1, 4],
+    radius: ["--docs-interaction-radius", 0, 24, 1, 2],
     borderWidth: ["--docs-interaction-border-width", 0, 4, 0.5, 1],
     ruleWidth: ["--docs-interaction-rule-width", 0, 4, 0.5, 1],
     padX: ["--docs-interaction-pad-x", 4, 32, 1, 16],
@@ -3246,11 +3243,14 @@ describe("style rail interaction-surface tokens", () => {
         expect([key, componentSource.includes(`var(${cssVar},`)]).toEqual([key, true]);
         continue;
       }
-      const fallback = `var(${cssVar},${token.defaultValue}${token.unit ?? ""})`;
+      // The corner radius falls back to the global --radius (2px at stock).
+      const fallback = key === "radius"
+        ? `var(${cssVar},var(--radius,2px))`
+        : `var(${cssVar},${token.defaultValue}${token.unit ?? ""})`;
       expect([key, componentSource.includes(fallback)]).toEqual([key, true]);
     }
-    // The corner radius is the one light/dark split: 4px light, 12px dark.
-    expect(componentSource).toContain("var(--docs-interaction-radius,12px)");
+    // No light/dark split: both modes follow the same --radius.
+    expect(componentSource).not.toContain("var(--docs-interaction-radius,12px)");
   });
 
   it("never shadows a rail var inside the component", () => {
@@ -3272,13 +3272,12 @@ describe("style rail interaction-surface tokens", () => {
         expect([key, darkBlock.includes(`  ${cssVar}: `)]).toEqual([key, true]);
         continue;
       }
-      const declaration = `  ${cssVar}: ${token.defaultValue}${token.unit ?? ""};`;
+      // The corner radius follows the global --radius (2px at stock).
+      const declaration = key === "radius"
+        ? `  ${cssVar}: var(--radius);`
+        : `  ${cssVar}: ${token.defaultValue}${token.unit ?? ""};`;
       expect([key, lightBlock.includes(declaration)]).toEqual([key, true]);
-      if (key === "radius") {
-        expect(darkBlock).toContain("  --docs-interaction-radius: 12px;");
-      } else {
-        expect([key, darkBlock.includes(declaration)]).toEqual([key, true]);
-      }
+      expect([key, darkBlock.includes(declaration)]).toEqual([key, true]);
     }
     // Shared content follows State Shape until this block is overridden.
     for (const block of [lightBlock, darkBlock]) {
@@ -3419,7 +3418,7 @@ describe("style rail interaction-surface tokens", () => {
     expect(opGap).toHaveProperty("min", "0");
     expect(opGap).toHaveProperty("max", "48");
     expect(opGap).toHaveProperty("value", "24");
-    expect(slider(/^Corner radius/)).toHaveProperty("value", "4");
+    expect(slider(/^Corner radius/)).toHaveProperty("value", "2");
     expect(slider(/^Header weight/)).toHaveProperty("value", "700");
     expect(slider(/^Note name size/)).toHaveProperty("value", "13");
   });
@@ -3480,7 +3479,7 @@ describe("style rail state-shape tokens", () => {
       ["headerPadY", "--docs-shape-header-pad-y", 0, 32, 1, 16],
       ["columnHeadPadY", "--docs-shape-column-head-pad-y", 0, 16, 1, 8],
       ["borderWidth", "--docs-shape-border-width", 0, 4, 0.5, 1],
-      ["radius", "--docs-shape-radius", 0, 16, 1, 4],
+      ["radius", "--docs-shape-radius", 0, 16, 1, 2],
       ["ruleWidth", "--docs-shape-rule-width", 0, 4, 0.5, 1],
       ["headerRuleWidth", "--docs-shape-header-rule-width", 0, 4, 0.5, 1],
       ["columnHeadRuleWidth", "--docs-shape-column-head-rule-width", 0, 4, 0.5, 2],
@@ -3537,6 +3536,8 @@ describe("style rail state-shape tokens", () => {
     for (const token of Object.values(entry)) {
       for (const cssVar of token.vars) {
         if (token.kind === "color") expect(source).toContain(`var(${cssVar},`);
+        // The corner radius falls back to the global --radius (2px at stock).
+        else if (cssVar === "--docs-shape-radius") expect(source).toContain(`var(${cssVar},var(--radius,2px))`);
         else expect(source).toContain(`var(${cssVar},${token.defaultValue}${token.unit ?? ""})`);
       }
     }
@@ -3559,6 +3560,12 @@ describe("style rail state-shape tokens", () => {
         expect(light).toContain(`  ${cssVar}: `);
         expect(dark).toContain(`  ${cssVar}: `);
         if (token.kind === "color") continue;
+        // The corner radius follows the global --radius in both blocks.
+        if (cssVar === "--docs-shape-radius") {
+          expect(light).toContain(`  ${cssVar}: var(--radius);`);
+          expect(dark).toContain(`  ${cssVar}: var(--radius);`);
+          continue;
+        }
         expect(light).toContain(`  ${cssVar}: ${token.defaultValue}${token.unit ?? ""};`);
       }
     }
@@ -4325,7 +4332,7 @@ describe("style rail sequence tokens", () => {
   };
   const SEQUENCE_LENGTHS = {
     borderWidth: { cssVar: "--docs-sequence-border-width", min: 0, max: 4, step: 0.5, defaultValue: 1 },
-    radius: { cssVar: "--docs-sequence-radius", min: 0, max: 24, step: 1, defaultValue: 8 },
+    radius: { cssVar: "--docs-sequence-radius", min: 0, max: 24, step: 1, defaultValue: 2 },
     padding: { cssVar: "--docs-sequence-padding", min: 0, max: 40, step: 1, defaultValue: 12 },
     maxHeight: { cssVar: "--docs-sequence-max-height", min: 160, max: 1200, step: 20, defaultValue: 420 },
     expandTextSize: {
@@ -4355,14 +4362,17 @@ describe("style rail sequence tokens", () => {
   it("reads every sequence token in the embed stylesheet with its default as the fallback", () => {
     // Frame lengths: the literal the stylesheet used to hardcode is now the
     // fallback, and the same value sits in semantic.css for both modes.
+    // The corner radius follows the global --radius (2px at stock) instead.
     for (const [key, { cssVar, defaultValue }] of Object.entries(SEQUENCE_LENGTHS)) {
-      expect([key, embedCss.includes(`var(${cssVar}, ${defaultValue}px)`)]).toEqual([key, true]);
-      expect([key, semanticCss.split(`${cssVar}: ${defaultValue}px;`).length - 1]).toEqual([key, 2]);
+      const fallback = key === "radius" ? "var(--radius, 2px)" : `${defaultValue}px`;
+      const declared = key === "radius" ? "var(--radius)" : `${defaultValue}px`;
+      expect([key, embedCss.includes(`var(${cssVar}, ${fallback})`)]).toEqual([key, true]);
+      expect([key, semanticCss.split(`${cssVar}: ${declared};`).length - 1]).toEqual([key, 2]);
     }
     expect(embedCss).toContain(
       "border: var(--docs-sequence-border-width, 1px) solid var(--docs-sequence-border, var(--border));",
     );
-    expect(embedCss).toContain("border-radius: var(--docs-sequence-radius, 8px);");
+    expect(embedCss).toContain("border-radius: var(--docs-sequence-radius, var(--radius, 2px));");
     expect(embedCss).toContain("background: var(--docs-sequence-bg, transparent);");
     expect(embedCss).toContain("padding: var(--docs-sequence-padding, 12px);");
     // The viewport cap survives next to the knob.
@@ -4464,7 +4474,7 @@ describe("style rail sequence tokens", () => {
     const radius = screen.getByLabelText(/Corner radius/) as HTMLInputElement;
     expect(radius).toHaveProperty("min", "0");
     expect(radius).toHaveProperty("max", "24");
-    expect(radius).toHaveProperty("value", "8");
+    expect(radius).toHaveProperty("value", "2");
     const maxHeight = screen.getByLabelText(/Max preview height/) as HTMLInputElement;
     expect(maxHeight).toHaveProperty("min", "160");
     expect(maxHeight).toHaveProperty("max", "1200");
@@ -4475,7 +4485,7 @@ describe("style rail sequence tokens", () => {
 describe("style rail canvas tokens", () => {
   const CANVAS_LENGTHS = {
     borderWidth: { cssVar: "--docs-canvas-border-width", min: 0, max: 4, step: 0.5, defaultValue: 1 },
-    radius: { cssVar: "--docs-canvas-radius", min: 0, max: 24, step: 1, defaultValue: 6 },
+    radius: { cssVar: "--docs-canvas-radius", min: 0, max: 24, step: 1, defaultValue: 2 },
     padding: { cssVar: "--docs-canvas-padding", min: 0, max: 40, step: 1, defaultValue: 0 },
   };
   const semanticCss = readFileSync(new URL("../theme/semantic.css", import.meta.url), "utf8");
@@ -4499,15 +4509,15 @@ describe("style rail canvas tokens", () => {
     expect(embedSource).toContain("border-[length:var(--docs-canvas-border-width,1px)]");
     expect(embedSource).toContain("bg-[color:var(--docs-canvas-bg,transparent)]");
     expect(embedSource).toContain("p-[var(--docs-canvas-padding,0px)]");
-    // Radius follows the global --radius (6px at stock) in the fallback and in
+    // Radius follows the global --radius (2px at stock) in the fallback and in
     // semantic.css alike, on the frame and on its focus-ring overlay.
     expect(
-      embedSource.split("rounded-[var(--docs-canvas-radius,max(0px,calc(var(--radius,8px)-2px)))]").length - 1,
+      embedSource.split("rounded-[var(--docs-canvas-radius,var(--radius,2px))]").length - 1,
     ).toBe(2);
     for (const declaration of [
       "--docs-canvas-border: var(--border);",
       "--docs-canvas-border-width: 1px;",
-      "--docs-canvas-radius: max(0px, calc(var(--radius) - 2px));",
+      "--docs-canvas-radius: var(--radius);",
       "--docs-canvas-bg: transparent;",
       "--docs-canvas-padding: 0px;",
     ]) {
@@ -4542,7 +4552,7 @@ describe("style rail canvas tokens", () => {
     const radius = screen.getByLabelText(/Corner radius/) as HTMLInputElement;
     expect(radius).toHaveProperty("min", "0");
     expect(radius).toHaveProperty("max", "24");
-    expect(radius).toHaveProperty("value", "6");
+    expect(radius).toHaveProperty("value", "2");
     const padding = screen.getByLabelText(/^Padding/) as HTMLInputElement;
     expect(padding).toHaveProperty("value", "0");
   });
@@ -4570,8 +4580,8 @@ describe("style rail rich-text block tokens", () => {
     lengths: Record<string, LengthToken>;
     numbers: Record<string, NumberToken>;
   };
-  const RADIUS_DECLARED = "max(0px, calc(var(--radius) - 2px))";
-  const RADIUS_FALLBACK = "max(0px,calc(var(--radius,8px)-2px))";
+  const RADIUS_DECLARED = "var(--radius)";
+  const RADIUS_FALLBACK = "var(--radius,2px)";
   const mediaTokens = (pane: string, prefix: string): BlockTokens => ({
     pane,
     colors: { border: `${prefix}-border`, caption: `${prefix}-caption-fg` },
@@ -4582,7 +4592,7 @@ describe("style rail rich-text block tokens", () => {
         min: 0,
         max: 24,
         step: 1,
-        defaultValue: 6,
+        defaultValue: 2,
         declared: RADIUS_DECLARED,
         fallback: RADIUS_FALLBACK,
       },
@@ -4722,15 +4732,15 @@ describe("style rail rich-text block tokens", () => {
           step: 0.5,
           defaultValue: 1,
         },
-        // Light default; the dark block keeps the global --radius corner and
-        // the component's own fallback is the unthemed `rounded-lg`.
+        // Follows the global --radius (2px at stock) in both modes.
         radius: {
           cssVar: "--docs-callout-radius",
           min: 0,
           max: 24,
           step: 1,
-          defaultValue: 4,
-          fallback: "0.5rem",
+          defaultValue: 2,
+          declared: RADIUS_DECLARED,
+          fallback: RADIUS_FALLBACK,
         },
         padX: { cssVar: "--docs-callout-pad-x", min: 0, max: 40, step: 1, defaultValue: 16 },
         headerPadY: {
@@ -4921,7 +4931,7 @@ describe("style rail rich-text block tokens", () => {
   });
 
   it("declares every var in both semantic.css blocks at the registry default", () => {
-    for (const [file, { colors, lengths, numbers }] of Object.entries(BLOCKS)) {
+    for (const { colors, lengths, numbers } of Object.values(BLOCKS)) {
       for (const cssVar of Object.values(colors)) {
         // The callout frame color is deliberately undeclared: unset, the
         // frame follows each tone's accent.
@@ -4931,13 +4941,6 @@ describe("style rail rich-text block tokens", () => {
         );
       }
       for (const { cssVar, defaultValue, declared } of Object.values(lengths)) {
-        if (file === "callout" && cssVar === "--docs-callout-radius") {
-          // One default, two modes: light is the registry default, dark keeps
-          // the global --radius corner it has always rendered.
-          expect(occurrences(semanticCss, `  ${cssVar}: ${defaultValue}px;`)).toBe(1);
-          expect(occurrences(semanticCss, `  ${cssVar}: var(--radius);`)).toBe(1);
-          continue;
-        }
         const declaration = `  ${cssVar}: ${declared ?? `${defaultValue}px`};`;
         expect(`${declaration} ×${occurrences(semanticCss, declaration)}`).toBe(
           `${declaration} ×2`,
@@ -4987,7 +4990,7 @@ describe("style rail rich-text block tokens", () => {
       }
     }
     // The light-mode callout corner rule reads the same token first.
-    expect(calloutSource).toContain("border-radius:var(--docs-callout-radius,4px) !important");
+    expect(calloutSource).toContain("border-radius:var(--docs-callout-radius,var(--radius,2px)) !important");
   });
 
   it("drops the hardcoded utilities the tokens replaced", () => {

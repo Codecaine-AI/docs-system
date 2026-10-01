@@ -10,5 +10,5 @@
 }
 .docs-image-grid .docs-image-grid-item { margin: 0; min-width: 0; }
 .docs-image-grid-heading { margin: 0 0 8px; font-weight: 600; overflow-wrap: anywhere; }
-.docs-image-grid img { display: block; width: 100%; max-width: 100%; height: auto; border-radius: 6px; }
+.docs-image-grid img { display: block; width: 100%; max-width: 100%; height: auto; border-radius: var(--docs-image-radius, var(--radius, 2px)); }
 .docs-image-grid figcaption { margin-top: 8px; font-size: 0.85em; color: var(--docs-image-caption-fg, var(--muted-foreground, #737373)); overflow-wrap: anywhere; }

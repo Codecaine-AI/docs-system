@@ -64,14 +64,14 @@ const TOKEN_CONSUMERS: Array<[string, string]> = [
   // Frame
   ["div:has(> table)", "border-[color:var(--docs-table-border,var(--border))]"],
   ["div:has(> table)", "border-[length:var(--docs-table-border-width,1px)]"],
-  ["div:has(> table)", "rounded-[var(--docs-table-radius,var(--radius-md,6px))]"],
+  ["div:has(> table)", "rounded-[var(--docs-table-radius,var(--radius,2px))]"],
   ["div:has(> table)", "bg-[color:var(--docs-table-bg,var(--background))]"],
   // Header band
   ["thead", "bg-[color:var(--docs-table-header-bg,transparent)]"],
   ["thead", "text-[color:var(--docs-table-header-fg,currentColor)]"],
-  ["thead", "border-b-[length:var(--docs-table-header-rule-width,1.5px)]"],
+  ["thead", "border-b-[length:var(--docs-table-header-rule-width,2px)]"],
   ["thead", "var(--docs-table-header-rule,var(--docs-table-header-fg,currentColor))"],
-  ["thead", "calc(var(--docs-table-header-rule-opacity,0.5)*100%)"],
+  ["thead", "calc(var(--docs-table-header-rule-opacity,0.7)*100%)"],
   [
     "thead th",
     "text-[length:var(--docs-table-header-text-size,calc(var(--docs-table-font-size,14px)-1px))]",

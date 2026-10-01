@@ -202,7 +202,7 @@ export function StandaloneCanvasEmbed({
   const inlineViewer = (
     <div
       data-canvas-frame="true"
-      className="not-prose my-4 overflow-hidden rounded-[var(--docs-canvas-radius,max(0px,calc(var(--radius,8px)-2px)))] border-[length:var(--docs-canvas-border-width,1px)] border-[color:var(--docs-canvas-border,var(--border))] bg-[color:var(--docs-canvas-bg,transparent)] p-[var(--docs-canvas-padding,0px)]"
+      className="not-prose my-4 overflow-hidden rounded-[var(--docs-canvas-radius,var(--radius,2px))] border-[length:var(--docs-canvas-border-width,1px)] border-[color:var(--docs-canvas-border,var(--border))] bg-[color:var(--docs-canvas-bg,transparent)] p-[var(--docs-canvas-padding,0px)]"
       // The bare viewer fills its parent (height: 100%), so the wrapper must
       // own the height: derive it from the board's aspect ratio.
       style={{
@@ -295,7 +295,7 @@ export function StandaloneCanvasEmbed({
               aria-label={`Open ${viewerTitle} in full-screen viewer`}
               title="Open full-screen viewer"
               onClick={event => openViewer(event.currentTarget)}
-              className="absolute inset-0 z-10 cursor-zoom-in rounded-[var(--docs-canvas-radius,max(0px,calc(var(--radius,8px)-2px)))] outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="absolute inset-0 z-10 cursor-zoom-in rounded-[var(--docs-canvas-radius,var(--radius,2px))] outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             />
           </>
         )}

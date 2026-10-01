@@ -82,7 +82,7 @@ export const DOC_TARGETING_CSS = `
   .docs-markdown [data-docs-target],
   .docs-markdown [data-mdx-block],
   .docs-markdown [data-docs-block-type] {
-    border-radius: calc(var(--radius, 8px) - 2px);
+    border-radius: var(--radius, 2px);
   }
   .docs-markdown.docs-mode-select [data-docs-target],
   .docs-markdown.docs-mode-select [data-mdx-block],
@@ -105,11 +105,11 @@ export const DOC_TARGETING_CSS = `
   .docs-target-selected {
     outline: 2px solid var(--primary);
     outline-offset: 4px;
-    border-radius: calc(var(--radius, 8px) - 2px);
+    border-radius: var(--radius, 2px);
     background: color-mix(in oklab, var(--primary) 5%, transparent);
   }
   .docs-annotation-mark {
-    border-radius: max(0px, calc(var(--radius, 8px) - 5px));
+    border-radius: var(--radius, 2px);
     cursor: pointer;
     padding: 0.05em 0.12em;
   }

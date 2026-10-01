@@ -14,7 +14,7 @@ import { cn } from "../../../ui/cn";
 export const HANDLE_ACCENT_BG_CLASS = "bg-[color:var(--docs-editor-accent,#2383e2)]";
 
 const HANDLE_BASE_CLASSES =
-  "absolute z-[2] flex cursor-grab items-center justify-center rounded-[var(--docs-table-handle-radius,3px)] transition-opacity duration-200 ease-out active:cursor-grabbing";
+  "absolute z-[2] flex cursor-grab items-center justify-center rounded-[var(--docs-table-handle-radius,var(--radius,2px))] transition-opacity duration-200 ease-out active:cursor-grabbing";
 
 function handleSkin(active: boolean): string {
   return active

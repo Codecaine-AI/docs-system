@@ -72,7 +72,7 @@
   --sidebar-accent: var(--color-bg-gray);
   --sidebar-accent-foreground: var(--color-text-default);
 
-  --radius: 0.5rem;
+  --radius: 2px;
 
   --status-info: var(--color-text-blue);
   --status-info-foreground: var(--color-text-blue);
@@ -135,10 +135,9 @@
   --docs-quote-text-scale: 1;
   --docs-code-block-bg: color-mix(in srgb, var(--muted) 30%, transparent);
   --docs-code-block-border: var(--border);
-  /* Frame metrics. The radius follows the global --radius (6px at stock),
-     like the old rounded-md utility did. */
+  /* Frame metrics. The radius follows the global --radius (2px at stock). */
   --docs-code-border-width: 1px;
-  --docs-code-radius: max(0px, calc(var(--radius) - 2px));
+  --docs-code-radius: var(--radius);
   /* Code typography + body padding. ONE line-height token drives the row
      height, the zebra period and the annotation overlays, on all three
      surfaces (plain read, annotated read, edit). Top padding is 0 so the
@@ -207,27 +206,27 @@
   --docs-callout-icon-size: 16px;
   --docs-callout-body-text-scale: 1;
   --docs-callout-margin: 16px;
-  --docs-callout-radius: 4px;
+  --docs-callout-radius: var(--radius);
   --docs-divider-color: var(--border);
   --docs-divider-thickness: 1px;
   --docs-divider-spacing: 2.8571429;
   --docs-image-border: var(--border);
   --docs-image-caption-fg: var(--docs-viewer-text-muted);
   --docs-image-border-width: 1px;
-  --docs-image-radius: max(0px, calc(var(--radius) - 2px));
+  --docs-image-radius: var(--radius);
   --docs-image-caption-text-size: 12px;
   --docs-image-caption-gap: 4px;
   --docs-image-margin: 16px;
   --docs-video-border: var(--border);
   --docs-video-caption-fg: var(--docs-viewer-text-muted);
   --docs-video-border-width: 1px;
-  --docs-video-radius: max(0px, calc(var(--radius) - 2px));
+  --docs-video-radius: var(--radius);
   --docs-video-caption-text-size: 12px;
   --docs-video-caption-gap: 4px;
   --docs-video-margin: 16px;
   /* File Tree block (docs-viewer file-tree/FileTreeDocsBlock). Every value
      here is the literal the component used to hardcode, so stock rendering is
-     unchanged. The radius follows the global --radius (6px at stock). Each
+     unchanged. The radius follows the global --radius (2px at stock). Each
      diff state is ONE rail knob writing three vars: name -fg, gutter -marker
      and row -tint — the Tailwind 700 / 600 / 500 shades of emerald / rose /
      amber / sky. The row wash is the -tint colour at --docs-file-tree-change-tint
@@ -235,7 +234,7 @@
   --docs-file-tree-bg: var(--background);
   --docs-file-tree-border: var(--border);
   --docs-file-tree-border-width: 1px;
-  --docs-file-tree-radius: max(0px, calc(var(--radius) - 2px));
+  --docs-file-tree-radius: var(--radius);
   --docs-file-tree-pad-y: 8px;
   --docs-file-tree-pad-x: 12px;
   --docs-file-tree-text-size: 12px;
@@ -265,8 +264,8 @@
   --docs-table-header-bg: transparent;
   --docs-table-header-fg: var(--docs-viewer-text-heading);
   --docs-table-header-rule: var(--docs-viewer-text-heading);
-  --docs-table-header-rule-width: 1.5px;
-  --docs-table-header-rule-opacity: 0.5;
+  --docs-table-header-rule-width: 2px;
+  --docs-table-header-rule-opacity: 0.7;
   --docs-table-row-rule: var(--docs-border-default);
   --docs-table-row-rule-width: 1px;
   --docs-table-row-rule-opacity: 1;
@@ -278,8 +277,8 @@
   --docs-table-fg: var(--docs-viewer-text-body);
   --docs-table-bg: var(--background);
   --docs-table-border-width: 1px;
-  /* Same value `rounded-md` resolved to before the table had its own radius. */
-  --docs-table-radius: max(0px, calc(var(--radius) - 2px));
+  /* The radius follows the global --radius (2px at stock). */
+  --docs-table-radius: var(--radius);
   /* The header is one pixel under the body size until it is set on its own. */
   --docs-table-header-text-size: calc(var(--docs-table-font-size) - 1px);
   --docs-table-header-weight: 500;
@@ -293,10 +292,10 @@
   --docs-table-title-text-size: 14px;
   --docs-table-title-weight: 500;
   --docs-table-title-gap: 6px;
-  /* Component corner radii derive from the global --radius token. */
-  --docs-table-handle-radius: max(0px, calc(var(--radius) - 5px));
-  --docs-highlight-radius: max(0px, calc(var(--radius) - 2px));
-  --docs-dropcursor-radius: max(0px, calc(var(--radius) - 6px));
+  /* Component corner radii follow the global --radius token exactly. */
+  --docs-table-handle-radius: var(--radius);
+  --docs-highlight-radius: var(--radius);
+  --docs-dropcursor-radius: var(--radius);
   --docs-table-handle-offset: 12px;
   --docs-table-selection-pad: 3px;
   /* Editor interaction accent (selection outlines, drop indicators, focus
@@ -308,7 +307,7 @@
      override wins for this block only. The operation card header is tinted
      per kind (Action / Query / Event). Every value here must equal the
      component's var() fallback and the registry default in theme-folders.ts;
-     the corner radius is the one light/dark split (4px / 12px). */
+     the corner radius follows the global --radius (2px at stock). */
   --docs-operation-action-header-bg: #fbf6ee;
   --docs-operation-action-header-ink: #87511e;
   --docs-operation-query-header-bg: #eef7f2;
@@ -330,7 +329,7 @@
   --docs-interaction-note-type-bg: var(--docs-shape-type-bg);
   --docs-interaction-note-fg: var(--docs-shape-desc-fg);
   --docs-interaction-child-rule: var(--docs-shape-child-rule);
-  --docs-interaction-radius: 4px;
+  --docs-interaction-radius: var(--radius);
   --docs-interaction-border-width: 1px;
   --docs-interaction-rule-width: 1px;
   --docs-interaction-pad-x: 16px;
@@ -383,7 +382,7 @@
   --docs-shape-header-pad-y: 16px;
   --docs-shape-column-head-pad-y: 8px;
   --docs-shape-border-width: 1px;
-  --docs-shape-radius: 4px;
+  --docs-shape-radius: var(--radius);
   --docs-shape-rule-width: 1px;
   --docs-shape-header-rule-width: 1px;
   --docs-shape-column-head-rule-width: 2px;
@@ -501,7 +500,7 @@
      colour and note fill tracks the actor fill until a theme sets them. */
   --docs-sequence-border: var(--border);
   --docs-sequence-border-width: 1px;
-  --docs-sequence-radius: 8px;
+  --docs-sequence-radius: var(--radius);
   --docs-sequence-bg: transparent;
   --docs-sequence-padding: 12px;
   --docs-sequence-max-height: 420px;
@@ -515,11 +514,11 @@
   --docs-sequence-note-bg: var(--docs-sequence-actor-fill);
   --docs-sequence-fragment: #5b7fbd;
   /* Canvas embed frame (docs-workbench pages/CanvasEmbed). The radius follows
-     the global --radius (6px at stock). The board paints its own opaque
+     the global --radius (2px at stock). The board paints its own opaque
      background, so -bg only shows in the -padding mat (0 by default). */
   --docs-canvas-border: var(--border);
   --docs-canvas-border-width: 1px;
-  --docs-canvas-radius: max(0px, calc(var(--radius) - 2px));
+  --docs-canvas-radius: var(--radius);
   --docs-canvas-bg: transparent;
   --docs-canvas-padding: 0px;
   /* Annotation targeting UI: the annotate/AI layer keeps its OWN violet
@@ -573,7 +572,7 @@
   --docs-inline-code-fg: var(--color-text-red);
   /* Inline code chip metrics. Text size and padding are UNITLESS em
      multipliers (the consumers multiply by 1em) so the chip scales with the
-     text around it. The radius follows the global --radius (4px at stock).
+     text around it. The radius follows the global --radius (2px at stock).
      The border is 0px wide — borderless by default.
      --docs-inline-code-weight is deliberately NOT declared: a custom
      property cannot hold `inherit` (the keyword would apply to the property
@@ -583,7 +582,7 @@
   --docs-inline-code-text-size: 0.85;
   --docs-inline-code-pad-x: 0.35;
   --docs-inline-code-pad-y: 0.1;
-  --docs-inline-code-radius: max(0px, calc(var(--radius) - 4px));
+  --docs-inline-code-radius: var(--radius);
   --docs-inline-code-border: var(--border);
   --docs-inline-code-border-width: 0px;
   --docs-viewer-link: var(--color-text-blue);
@@ -627,7 +626,7 @@
   --sidebar-accent: var(--color-bg-gray);
   --sidebar-accent-foreground: var(--color-text-default);
 
-  --radius: 0.5rem;
+  --radius: 2px;
 
   --status-info: var(--color-text-blue);
   --status-info-foreground: var(--color-text-blue);
@@ -690,10 +689,9 @@
   --docs-quote-text-scale: 1;
   --docs-code-block-bg: color-mix(in srgb, var(--muted) 30%, transparent);
   --docs-code-block-border: var(--border);
-  /* Frame metrics. The radius follows the global --radius (6px at stock),
-     like the old rounded-md utility did. */
+  /* Frame metrics. The radius follows the global --radius (2px at stock). */
   --docs-code-border-width: 1px;
-  --docs-code-radius: max(0px, calc(var(--radius) - 2px));
+  --docs-code-radius: var(--radius);
   /* Code typography + body padding. ONE line-height token drives the row
      height, the zebra period and the annotation overlays, on all three
      surfaces (plain read, annotated read, edit). Top padding is 0 so the
@@ -733,10 +731,7 @@
   /* Annotation notes aside: note text size and the notes column width. */
   --docs-code-note-text-size: 12px;
   --docs-code-notes-width: 320px;
-  /* Callout, dark palette — same contract as the light block. The corner
-     keeps the dark rendering (the global --radius) rather than the light
-     4px, so in dark the Corner radius slider rests at the light number
-     until it is moved. */
+  /* Callout, dark palette — same contract as the light block. */
   --docs-callout-fg: #e4e7eb;
   --docs-callout-info-accent: #69b9e8;
   --docs-callout-info-header-bg: #182e3b;
@@ -767,14 +762,14 @@
   --docs-image-border: var(--border);
   --docs-image-caption-fg: var(--docs-viewer-text-muted);
   --docs-image-border-width: 1px;
-  --docs-image-radius: max(0px, calc(var(--radius) - 2px));
+  --docs-image-radius: var(--radius);
   --docs-image-caption-text-size: 12px;
   --docs-image-caption-gap: 4px;
   --docs-image-margin: 16px;
   --docs-video-border: var(--border);
   --docs-video-caption-fg: var(--docs-viewer-text-muted);
   --docs-video-border-width: 1px;
-  --docs-video-radius: max(0px, calc(var(--radius) - 2px));
+  --docs-video-radius: var(--radius);
   --docs-video-caption-text-size: 12px;
   --docs-video-caption-gap: 4px;
   --docs-video-margin: 16px;
@@ -783,7 +778,7 @@
   --docs-file-tree-bg: var(--background);
   --docs-file-tree-border: var(--border);
   --docs-file-tree-border-width: 1px;
-  --docs-file-tree-radius: max(0px, calc(var(--radius) - 2px));
+  --docs-file-tree-radius: var(--radius);
   --docs-file-tree-pad-y: 8px;
   --docs-file-tree-pad-x: 12px;
   --docs-file-tree-text-size: 12px;
@@ -813,8 +808,8 @@
   --docs-table-header-bg: transparent;
   --docs-table-header-fg: var(--docs-viewer-text-heading);
   --docs-table-header-rule: var(--docs-viewer-text-heading);
-  --docs-table-header-rule-width: 1.5px;
-  --docs-table-header-rule-opacity: 0.5;
+  --docs-table-header-rule-width: 2px;
+  --docs-table-header-rule-opacity: 0.7;
   --docs-table-row-rule: var(--docs-border-default);
   --docs-table-row-rule-width: 1px;
   --docs-table-row-rule-opacity: 1;
@@ -826,8 +821,8 @@
   --docs-table-fg: var(--docs-viewer-text-body);
   --docs-table-bg: var(--background);
   --docs-table-border-width: 1px;
-  /* Same value `rounded-md` resolved to before the table had its own radius. */
-  --docs-table-radius: max(0px, calc(var(--radius) - 2px));
+  /* The radius follows the global --radius (2px at stock). */
+  --docs-table-radius: var(--radius);
   /* The header is one pixel under the body size until it is set on its own. */
   --docs-table-header-text-size: calc(var(--docs-table-font-size) - 1px);
   --docs-table-header-weight: 500;
@@ -841,10 +836,10 @@
   --docs-table-title-text-size: 14px;
   --docs-table-title-weight: 500;
   --docs-table-title-gap: 6px;
-  /* Component corner radii derive from the global --radius token. */
-  --docs-table-handle-radius: max(0px, calc(var(--radius) - 5px));
-  --docs-highlight-radius: max(0px, calc(var(--radius) - 2px));
-  --docs-dropcursor-radius: max(0px, calc(var(--radius) - 6px));
+  /* Component corner radii follow the global --radius token exactly. */
+  --docs-table-handle-radius: var(--radius);
+  --docs-highlight-radius: var(--radius);
+  --docs-dropcursor-radius: var(--radius);
   --docs-table-handle-offset: 12px;
   --docs-table-selection-pad: 3px;
   /* Editor interaction accent (selection outlines, drop indicators, focus
@@ -856,7 +851,7 @@
      override wins for this block only. The operation card header is tinted
      per kind (Action / Query / Event). Every value here must equal the
      component's var() fallback and the registry default in theme-folders.ts;
-     the corner radius is the one light/dark split (4px / 12px). */
+     the corner radius follows the global --radius (2px at stock). */
   --docs-operation-action-header-bg: #30271e;
   --docs-operation-action-header-ink: #e0b47e;
   --docs-operation-query-header-bg: #203029;
@@ -878,7 +873,7 @@
   --docs-interaction-note-type-bg: var(--docs-shape-type-bg);
   --docs-interaction-note-fg: var(--docs-shape-desc-fg);
   --docs-interaction-child-rule: var(--docs-shape-child-rule);
-  --docs-interaction-radius: 12px;
+  --docs-interaction-radius: var(--radius);
   --docs-interaction-border-width: 1px;
   --docs-interaction-rule-width: 1px;
   --docs-interaction-pad-x: 16px;
@@ -1022,7 +1017,7 @@
      light-on-white in dark mode). */
   --docs-sequence-border: var(--border);
   --docs-sequence-border-width: 1px;
-  --docs-sequence-radius: 8px;
+  --docs-sequence-radius: var(--radius);
   --docs-sequence-bg: transparent;
   --docs-sequence-padding: 12px;
   --docs-sequence-max-height: 420px;
@@ -1038,7 +1033,7 @@
   /* Canvas embed frame: same contract as the light block. */
   --docs-canvas-border: var(--border);
   --docs-canvas-border-width: 1px;
-  --docs-canvas-radius: max(0px, calc(var(--radius) - 2px));
+  --docs-canvas-radius: var(--radius);
   --docs-canvas-bg: transparent;
   --docs-canvas-padding: 0px;
   /* Annotation targeting UI: same violet identity as light mode, using the
@@ -1088,7 +1083,7 @@
   --docs-inline-code-fg: var(--color-text-red);
   /* Inline code chip metrics. Text size and padding are UNITLESS em
      multipliers (the consumers multiply by 1em) so the chip scales with the
-     text around it. The radius follows the global --radius (4px at stock).
+     text around it. The radius follows the global --radius (2px at stock).
      The border is 0px wide — borderless by default.
      --docs-inline-code-weight is deliberately NOT declared: a custom
      property cannot hold `inherit` (the keyword would apply to the property
@@ -1098,7 +1093,7 @@
   --docs-inline-code-text-size: 0.85;
   --docs-inline-code-pad-x: 0.35;
   --docs-inline-code-pad-y: 0.1;
-  --docs-inline-code-radius: max(0px, calc(var(--radius) - 4px));
+  --docs-inline-code-radius: var(--radius);
   --docs-inline-code-border: var(--border);
   --docs-inline-code-border-width: 0px;
   --docs-viewer-link: var(--color-text-blue);

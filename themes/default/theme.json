@@ -29,7 +29,7 @@
       "topPadding": 24,
       "titlePadding": 20,
       "bottomPadding": 24,
-      "radius": 8,
+      "radius": 2,
       "borderStrength": 1,
       "backgroundTint": 0,
       "sidebarTint": 0
@@ -46,7 +46,7 @@
     },
     "highlight": {
       "color": null,
-      "radius": 6,
+      "radius": 2,
       "padding": 4,
       "dragOpacity": 0.3,
       "dropColor": null,

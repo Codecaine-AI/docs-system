@@ -274,7 +274,7 @@ describe("file-tree — mdx adapter + tree rendering", () => {
     it("reads the card frame, padding and type scale from the file-tree vars", () => {
       const card = html.match(/<section[^>]*><div class="([^"]*)"/)?.[1] ?? "";
       for (const expected of [
-        "rounded-[var(--docs-file-tree-radius,max(0px,calc(var(--radius,8px)-2px)))]",
+        "rounded-[var(--docs-file-tree-radius,var(--radius,2px))]",
         "border-[length:var(--docs-file-tree-border-width,1px)]",
         "border-[color:var(--docs-file-tree-border,var(--border))]",
         "bg-[var(--docs-file-tree-bg,var(--background))]",

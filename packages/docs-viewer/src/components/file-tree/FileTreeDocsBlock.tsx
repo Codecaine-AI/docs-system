@@ -156,7 +156,7 @@ function flattenFileTree(
  * literals — Tailwind scans this source and cannot see composed strings.
  */
 const CARD_CLASS =
-  "overflow-x-auto rounded-[var(--docs-file-tree-radius,max(0px,calc(var(--radius,8px)-2px)))] border-[length:var(--docs-file-tree-border-width,1px)] border-[color:var(--docs-file-tree-border,var(--border))] bg-[var(--docs-file-tree-bg,var(--background))] py-[var(--docs-file-tree-pad-y,8px)] font-mono text-[length:var(--docs-file-tree-text-size,12px)] leading-[var(--docs-file-tree-line-height,24px)]";
+  "overflow-x-auto rounded-[var(--docs-file-tree-radius,var(--radius,2px))] border-[length:var(--docs-file-tree-border-width,1px)] border-[color:var(--docs-file-tree-border,var(--border))] bg-[var(--docs-file-tree-bg,var(--background))] py-[var(--docs-file-tree-pad-y,8px)] font-mono text-[length:var(--docs-file-tree-text-size,12px)] leading-[var(--docs-file-tree-line-height,24px)]";
 /** Horizontal card padding lives on each row so a diff tint spans the card edge to edge. */
 const ROW_PAD_X_CLASS = "px-[var(--docs-file-tree-pad-x,12px)]";
 /** Root dot, empty placeholder, and the struck `from` path of a rename. */

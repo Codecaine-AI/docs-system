@@ -260,11 +260,12 @@ describe("StateShapeBlock — bounded header", () => {
     expectAll(cls('[data-docs-block-type="state-shape"]'), [
       "border-[length:var(--docs-shape-border-width,1px)]",
       "[.dark_&]:border-[length:var(--docs-shape-border-width,2px)]",
-      "rounded-[var(--docs-shape-radius,4px)]",
-      "[.dark_&]:rounded-[var(--docs-shape-radius,var(--radius-lg,0.5rem))]",
+      "rounded-[var(--docs-shape-radius,var(--radius,2px))]",
       "border-[color:var(--docs-shape-border,",
       "bg-[color:var(--docs-shape-bg,",
     ]);
+    // One corner in both modes: the global --radius, no dark-only override.
+    expect(cls('[data-docs-block-type="state-shape"]')).not.toContain("[.dark_&]:rounded-");
     // Header: fill, rule, padding and the texture strength.
     expectAll(cls("[data-shape-header]"), [
       "bg-[color:var(--docs-shape-header-bg,",
@@ -328,7 +329,8 @@ describe("StateShapeBlock — bounded header", () => {
       .flatMap((element) => (element.getAttribute("class") ?? "").split(/\s+/))
       .filter((name) => /--docs-shape-(border-width|radius|header-rule-width|pane-rule-width|header-texture-opacity)/.test(name));
     expect(geometryTwins.filter((name) => name.startsWith("dark:"))).toEqual([]);
-    expect(geometryTwins.filter((name) => name.startsWith("[.dark_&]:"))).toHaveLength(6);
+    // Five dark twins: the corner has none, both modes follow the global --radius.
+    expect(geometryTwins.filter((name) => name.startsWith("[.dark_&]:"))).toHaveLength(5);
     // No hardcoded utility is left shadowing a knob.
     const everyClass = Array.from(document.querySelectorAll('[data-docs-block-type="state-shape"], [data-docs-block-type="state-shape"] *'))
       .flatMap((element) => (element.getAttribute("class") ?? "").split(/\s+/));

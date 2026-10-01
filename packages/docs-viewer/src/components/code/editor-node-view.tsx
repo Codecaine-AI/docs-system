@@ -4,6 +4,7 @@ import { useState } from "react";
 import { NodeViewContent, NodeViewWrapper, type ReactNodeViewProps } from "@tiptap/react";
 import { ChevronDown } from "lucide-react";
 import { CODE_BLOCK_CLASSES } from "../../render/block-classes";
+import { docBlockLaneName, docBlockLayoutClasses } from "../../render/block-layout";
 import { cn } from "../../ui/cn";
 import { annotationLineRuns, parseCodeAnnotations } from "./annotations";
 import {
@@ -13,7 +14,11 @@ import {
   CODE_LANG_SELECT_CLASSES,
 } from "./classes";
 import { CodeShell } from "./CodeShell";
+import { descriptors } from "./descriptor";
 import { HIGHLIGHT_LANGUAGES, canonicalLanguage, resolveDisplayLanguage } from "./highlight";
+
+/** The code block's page lane, declared once on its read descriptor. */
+const CODE_LAYOUT = descriptors.find((descriptor) => descriptor.type === "code")?.layout;
 
 /**
  * Editor node view for `docCodeBlock`: the same frame + header band + gutter
@@ -74,35 +79,44 @@ export function CodeBlockNodeView({ node, updateAttributes, editor }: ReactNodeV
     </span>
   );
 
+  // The wrapper is the page lane, like an atom NodeView's (block-layout.ts):
+  // `data-doc-lane` + `data-doc-block-type` let the style rail's per-type
+  // Width/Justification overrides reach the code block in edit mode. The
+  // frame sits one level in so a `ch` lane width resolves at the doc's body
+  // size, not the code font size, matching the read surface's lane > frame.
   return (
     <NodeViewWrapper
       as="div"
-      className={cn("group/code", CODE_BLOCK_CLASSES, annotations && CODE_FRAME_GRID_CLASSES)}
+      data-doc-lane={docBlockLaneName(CODE_LAYOUT)}
+      data-doc-block-type="code"
+      className={docBlockLayoutClasses(CODE_LAYOUT)}
     >
-      <CodeShell
-        languageLabel={resolved}
-        languageSelect={languageSelect}
-        copyText={() => node.textContent}
-        lineCount={lineCount}
-        annotations={annotations}
-        annotationRuns={runs}
-        activeIndex={activeIndex}
-        onNoteClick={(index) => setActiveIndex((current) => (current === index ? null : index))}
-        nonEditableFurniture
-      >
-        <pre className={CODE_CELL_CLASSES}>
-          {/* NodeViewContent's prop typing only admits "div", but it renders
-              any tag at runtime — a <code> keeps the read surface's pre>code
-              shape. Its injected contentDOM div inherits white-space, and it
-              MUST be `pre` (not the default pre-wrap): soft wrap would break
-              the one-row-per-line geometry (gutter, zebra, overlays). */}
-          <NodeViewContent
-            as={"code" as unknown as "div"}
-            className="block"
-            style={{ whiteSpace: "pre" }}
-          />
-        </pre>
-      </CodeShell>
+      <div className={cn("group/code", CODE_BLOCK_CLASSES, annotations && CODE_FRAME_GRID_CLASSES)}>
+        <CodeShell
+          languageLabel={resolved}
+          languageSelect={languageSelect}
+          copyText={() => node.textContent}
+          lineCount={lineCount}
+          annotations={annotations}
+          annotationRuns={runs}
+          activeIndex={activeIndex}
+          onNoteClick={(index) => setActiveIndex((current) => (current === index ? null : index))}
+          nonEditableFurniture
+        >
+          <pre className={CODE_CELL_CLASSES}>
+            {/* NodeViewContent's prop typing only admits "div", but it renders
+                any tag at runtime — a <code> keeps the read surface's pre>code
+                shape. Its injected contentDOM div inherits white-space, and it
+                MUST be `pre` (not the default pre-wrap): soft wrap would break
+                the one-row-per-line geometry (gutter, zebra, overlays). */}
+            <NodeViewContent
+              as={"code" as unknown as "div"}
+              className="block"
+              style={{ whiteSpace: "pre" }}
+            />
+          </pre>
+        </CodeShell>
+      </div>
     </NodeViewWrapper>
   );
 }

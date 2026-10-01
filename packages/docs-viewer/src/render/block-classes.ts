@@ -120,11 +120,11 @@ export const LIST_ITEM_CHILDREN_CLASSES = "";
  * is 0px wide by default, so the chip is borderless until a theme widens it.
  */
 export const INLINE_CODE_CLASSES =
-  "not-prose rounded-[var(--docs-inline-code-radius,4px)] border-solid border-[length:var(--docs-inline-code-border-width,0px)] border-[color:var(--docs-inline-code-border,var(--border))] bg-[var(--docs-inline-code-bg,rgba(135,131,120,0.15))] px-[calc(var(--docs-inline-code-pad-x,0.35)*1em)] py-[calc(var(--docs-inline-code-pad-y,0.1)*1em)] font-mono text-[length:calc(var(--docs-inline-code-text-size,0.85)*1em)] [font-weight:var(--docs-inline-code-weight,inherit)] text-[color:var(--docs-inline-code-fg,#eb5757)]";
+  "not-prose rounded-[var(--docs-inline-code-radius,var(--radius,2px))] border-solid border-[length:var(--docs-inline-code-border-width,0px)] border-[color:var(--docs-inline-code-border,var(--border))] bg-[var(--docs-inline-code-bg,rgba(135,131,120,0.15))] px-[calc(var(--docs-inline-code-pad-x,0.35)*1em)] py-[calc(var(--docs-inline-code-pad-y,0.1)*1em)] font-mono text-[length:calc(var(--docs-inline-code-text-size,0.85)*1em)] [font-weight:var(--docs-inline-code-weight,inherit)] text-[color:var(--docs-inline-code-fg,#eb5757)]";
 
-/** `code` — the outer FRAME element on every surface (header band + scroll body live inside it — see components/code/CodeShell.tsx; padding and scrolling moved in there too). Border color/width, radius, background and the code typography follow the per-block-type tokens; the fallbacks equal the old `rounded-md` + `border` + `bg-muted/30` + `text-xs leading-[20px]` utilities so unthemed hosts render unchanged. */
+/** `code` — the outer FRAME element on every surface (header band + scroll body live inside it — see components/code/CodeShell.tsx; padding and scrolling moved in there too). Border color/width, radius, background and the code typography follow the per-block-type tokens; the radius falls back to the global `--radius` and the other fallbacks equal the old `border` + `bg-muted/30` + `text-xs leading-[20px]` utilities so unthemed hosts render unchanged. */
 export const CODE_BLOCK_CLASSES =
-  "not-prose my-4 overflow-hidden rounded-[var(--docs-code-radius,6px)] border-[length:var(--docs-code-border-width,1px)] border-[color:var(--docs-code-block-border,var(--border))] bg-[color:var(--docs-code-block-bg,color-mix(in_srgb,var(--muted)_30%,transparent))] font-mono text-[length:var(--docs-code-text-size,12px)] leading-[var(--docs-code-line-height,20px)]";
+  "not-prose my-4 overflow-hidden rounded-[var(--docs-code-radius,var(--radius,2px))] border-[length:var(--docs-code-border-width,1px)] border-[color:var(--docs-code-block-border,var(--border))] bg-[color:var(--docs-code-block-bg,color-mix(in_srgb,var(--muted)_30%,transparent))] font-mono text-[length:var(--docs-code-text-size,12px)] leading-[var(--docs-code-line-height,20px)]";
 
 /**
  * `quote` — the `<blockquote>` element. Every value follows a quote token;

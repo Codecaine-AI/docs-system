@@ -125,7 +125,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 16,
       step: 1,
       unit: "px",
-      defaultValue: 8,
+      defaultValue: 2,
     },
   },
   // The inline `code` mark chip (docs-viewer render/block-classes.ts
@@ -147,7 +147,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       unit: "px",
       defaultValue: 0,
     },
-    // semantic.css derives the default from the global --radius (4px at stock).
+    // semantic.css points the default at the global --radius (2px at stock).
     radius: {
       vars: ["--docs-inline-code-radius"],
       kind: "length",
@@ -155,7 +155,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 12,
       step: 1,
       unit: "px",
-      defaultValue: 4,
+      defaultValue: 2,
     },
     textSize: {
       vars: ["--docs-inline-code-text-size"],
@@ -444,7 +444,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       unit: "px",
       defaultValue: 1,
     },
-    // semantic.css derives the default from the global --radius (6px at stock).
+    // semantic.css points the default at the global --radius (2px at stock).
     radius: {
       vars: ["--docs-code-radius"],
       kind: "length",
@@ -452,7 +452,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 16,
       step: 1,
       unit: "px",
-      defaultValue: 6,
+      defaultValue: 2,
     },
     textSize: {
       vars: ["--docs-code-text-size"],
@@ -620,10 +620,9 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
   // in semantic.css, and unset the frame follows each tone's accent. `fill`
   // is the body background, `fg` the body ink. Each tone carries its accent
   // (icon, frame, header texture), header fill and header ink; risk renders
-  // with the warning palette. `radius` is the LIGHT default — semantic.css's
-  // dark block keeps the global --radius corner, so in dark the slider rests
-  // at the light number until it is moved. `bodyTextScale` multiplies the
-  // rail's reading size.
+  // with the warning palette. `radius` follows the global --radius in
+  // semantic.css (2px at stock). `bodyTextScale` multiplies the rail's
+  // reading size.
   callout: {
     border: color("--docs-callout-border"),
     fill: color("--docs-callout-body-bg"),
@@ -656,7 +655,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 24,
       step: 1,
       unit: "px",
-      defaultValue: 4,
+      defaultValue: 2,
     },
     padX: {
       vars: ["--docs-callout-pad-x"],
@@ -751,7 +750,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
     },
   },
   // Image and video share one figure shape: a bordered media frame plus a
-  // caption line. `radius` follows the global --radius in semantic.css (6px
+  // caption line. `radius` follows the global --radius in semantic.css (2px
   // at stock).
   image: {
     border: color("--docs-image-border"),
@@ -772,7 +771,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 24,
       step: 1,
       unit: "px",
-      defaultValue: 6,
+      defaultValue: 2,
     },
     captionTextSize: {
       vars: ["--docs-image-caption-text-size"],
@@ -821,7 +820,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 24,
       step: 1,
       unit: "px",
-      defaultValue: 6,
+      defaultValue: 2,
     },
     captionTextSize: {
       vars: ["--docs-video-caption-text-size"],
@@ -853,7 +852,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
   },
   // File tree (docs-viewer file-tree/FileTreeDocsBlock). Every default is the
   // literal the component used to hardcode. `radius` follows the global
-  // --radius in semantic.css (6px at stock). Each diff state (added / removed
+  // --radius in semantic.css (2px at stock). Each diff state (added / removed
   // / modified / renamed) is ONE knob writing three vars — name ink, gutter
   // marker, row tint base — whose stock values are three shades of one hue.
   // `changeTint` is a UNITLESS PERCENTAGE: the component multiplies it by 1%
@@ -878,7 +877,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 16,
       step: 1,
       unit: "px",
-      defaultValue: 6,
+      defaultValue: 2,
     },
     padY: {
       vars: ["--docs-file-tree-pad-y"],
@@ -975,14 +974,13 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       defaultValue: 10,
     },
   },
-  // Every value the table renders is a token here. Four of them DERIVE their
-  // semantic.css default from another token rather than holding a literal, so
-  // existing themes keep their look: Corner radius follows the global radius
-  // (radius - 2px), Header text size follows Text size (size - 1px), and the
-  // three Column rule tokens follow their Row rule twins. For those, the
-  // registry default is what the derivation yields at stock, and a slider
-  // parked ON that default means "follow the source token" — the same
-  // contract Handle radius has always had.
+  // Every value the table renders is a token here. Some of them DERIVE their
+  // semantic.css default from another token rather than holding a literal:
+  // Corner radius and Handle radius follow the global --radius (2px at
+  // stock), Header text size follows Text size (size - 1px), and the three
+  // Column rule tokens follow their Row rule twins. For those, the registry
+  // default is what the derivation yields at stock, and a slider parked ON
+  // that default means "follow the source token".
   "structured-table": {
     border: color("--docs-table-border"),
     borderWidth: {
@@ -1001,7 +999,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 16,
       step: 1,
       unit: "px",
-      defaultValue: 6,
+      defaultValue: 2,
     },
     bg: color("--docs-table-bg"),
     headerBg: color("--docs-table-header-bg"),
@@ -1031,7 +1029,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 4,
       step: 0.5,
       unit: "px",
-      defaultValue: 1.5,
+      defaultValue: 2,
     },
     headerRuleOpacity: {
       vars: ["--docs-table-header-rule-opacity"],
@@ -1039,7 +1037,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       min: 0,
       max: 1,
       step: 0.05,
-      defaultValue: 0.5,
+      defaultValue: 0.7,
     },
     rowRule: color("--docs-table-row-rule"),
     rowRuleWidth: {
@@ -1171,7 +1169,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 10,
       step: 0.5,
       unit: "px",
-      defaultValue: 3,
+      defaultValue: 2,
     },
     handleOffset: {
       vars: ["--docs-table-handle-offset"],
@@ -1200,9 +1198,8 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
   // per kind: Action / Query / Event); "Column head" is the Field / Type /
   // Signature strip. Every length default must equal both the semantic.css
   // default and the component's literal var() fallback, so a slider starts
-  // where the unstyled block actually renders. Corner radius is the one value
-  // whose light and dark defaults differ (4px / 12px); the registry default is
-  // the light one.
+  // where the unstyled block actually renders. Corner radius follows the global
+  // --radius (2px at stock) in both modes.
   "interaction-surface": {
     actionHeaderBg: color("--docs-operation-action-header-bg"),
     actionHeaderInk: color("--docs-operation-action-header-ink"),
@@ -1234,7 +1231,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 24,
       step: 1,
       unit: "px",
-      defaultValue: 4,
+      defaultValue: 2,
     },
     borderWidth: {
       vars: ["--docs-interaction-border-width"],
@@ -1564,10 +1561,10 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       unit: "px",
       defaultValue: 8,
     },
-    // The frame, corner, header-rule, pane-divider, texture and tree-tick /
+    // The frame, header-rule, pane-divider, texture and tree-tick /
     // tree-inset defaults below are the LIGHT values. semantic.css's dark
     // block keeps the heavier dark rendering (2px frame / header rule /
-    // divider, --radius corners, 0.4 texture, 10px tick, 8px inset), so in
+    // divider, 0.4 texture, 10px tick, 8px inset), so in
     // dark the slider rests at the light number until it is moved — the
     // same one-default-two-modes trade as the process-outline strengths.
     borderWidth: {
@@ -1586,7 +1583,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 16,
       step: 1,
       unit: "px",
-      defaultValue: 4,
+      defaultValue: 2,
     },
     // Hairline under each field row.
     ruleWidth: {
@@ -2070,7 +2067,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 24,
       step: 1,
       unit: "px",
-      defaultValue: 8,
+      defaultValue: 2,
     },
     padding: {
       vars: ["--docs-sequence-padding"],
@@ -2102,7 +2099,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
     },
   },
   // Canvas embed (docs-workbench pages/CanvasEmbed): the frame around the
-  // inline board. `radius` follows the global --radius in semantic.css (6px at
+  // inline board. `radius` follows the global --radius in semantic.css (2px at
   // stock). The board paints its own opaque background (canvas package), so
   // Background shows only in the Padding mat, which is 0 by default.
   canvas: {
@@ -2124,7 +2121,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 24,
       step: 1,
       unit: "px",
-      defaultValue: 6,
+      defaultValue: 2,
     },
     padding: {
       vars: ["--docs-canvas-padding"],

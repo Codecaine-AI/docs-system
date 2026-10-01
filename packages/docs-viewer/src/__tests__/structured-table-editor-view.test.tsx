@@ -93,9 +93,9 @@ describe("TableGrid", () => {
     );
     const header = container.querySelector("thead");
     expect(header?.className).toContain(
-      "border-b-[length:var(--docs-table-header-rule-width,1.5px)]",
+      "border-b-[length:var(--docs-table-header-rule-width,2px)]",
     );
-    expect(header?.className).toContain("var(--docs-table-header-rule-opacity,0.5)");
+    expect(header?.className).toContain("var(--docs-table-header-rule-opacity,0.7)");
 
     const headerCells = container.querySelectorAll("thead th");
     expect(headerCells.length).toBe(2);

@@ -25,7 +25,7 @@
   min-width: 0;
   overflow: hidden;
   border: var(--docs-sequence-border-width, 1px) solid var(--docs-sequence-border, var(--border));
-  border-radius: var(--docs-sequence-radius, 8px);
+  border-radius: var(--docs-sequence-radius, var(--radius, 2px));
   background: var(--docs-sequence-bg, transparent);
 }
 

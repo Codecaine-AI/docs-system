@@ -14,7 +14,7 @@ export function AliasChip({
 	return (
 		<span
 			data-docs-lab-alias={alias}
-			className="rounded-[var(--radius,0.375rem)] border px-1 text-[10px] font-bold"
+			className="rounded-[var(--radius,2px)] border px-1 text-[10px] font-bold"
 			style={{
 				color: agent
 					? "var(--annotation-thread-accent,#d29922)"
@@ -71,7 +71,7 @@ export function ProposalActionBar({
 	return (
 		<div
 			data-docs-lab-proposal-bar={alias}
-			className="flex flex-col gap-1.5 rounded-[var(--radius,0.5rem)] border px-2.5 py-1"
+			className="flex flex-col gap-1.5 rounded-[var(--radius,2px)] border px-2.5 py-1"
 			style={{
 				maxWidth: 560,
 				background: "var(--docs-panel-raise,var(--background,#232323))",
@@ -83,10 +83,10 @@ export function ProposalActionBar({
 				<span className="min-w-0 flex-1 truncate text-[11px] text-[color:var(--docs-muted-foreground,var(--muted-foreground,#a1a1aa))]">
 					{summary}
 				</span>
-				<button type="button" aria-label={`Reject ${alias}`} disabled={rejectDisabledReason !== null} title={rejectDisabledReason ?? `Reject ${alias}`} className="rounded-[var(--radius,0.375rem)] border border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] bg-transparent px-2 py-0.5 text-[12px] text-[color:var(--docs-muted-foreground,var(--muted-foreground,#a1a1aa))] disabled:cursor-not-allowed disabled:opacity-40" onClick={onRejectWithFeedback ? () => setShowRejectStrip(true) : onReject}>
+				<button type="button" aria-label={`Reject ${alias}`} disabled={rejectDisabledReason !== null} title={rejectDisabledReason ?? `Reject ${alias}`} className="rounded-[var(--radius,2px)] border border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] bg-transparent px-2 py-0.5 text-[12px] text-[color:var(--docs-muted-foreground,var(--muted-foreground,#a1a1aa))] disabled:cursor-not-allowed disabled:opacity-40" onClick={onRejectWithFeedback ? () => setShowRejectStrip(true) : onReject}>
 					Reject
 				</button>
-				<button type="button" aria-label={`Accept ${alias}`} disabled={acceptDisabledReason !== null} title={acceptDisabledReason ?? `Accept ${alias}`} className="rounded-[var(--radius,0.375rem)] bg-[color:var(--annotation-accept,#3fb950)] px-3 py-0.5 text-[12px] font-semibold text-[#06210d] disabled:cursor-not-allowed disabled:opacity-40" onClick={onAccept}>
+				<button type="button" aria-label={`Accept ${alias}`} disabled={acceptDisabledReason !== null} title={acceptDisabledReason ?? `Accept ${alias}`} className="rounded-[var(--radius,2px)] bg-[color:var(--annotation-accept,#3fb950)] px-3 py-0.5 text-[12px] font-semibold text-[#06210d] disabled:cursor-not-allowed disabled:opacity-40" onClick={onAccept}>
 					Accept
 				</button>
 			</div>
@@ -97,7 +97,7 @@ export function ProposalActionBar({
 						onChange={(event) => setFeedback(event.currentTarget.value)}
 						placeholder="What should change? Feedback reruns the agent…"
 						aria-label={`Feedback for ${alias}`}
-						className="min-w-0 flex-1 rounded-[var(--radius,0.375rem)] border border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] bg-[color:var(--docs-panel-input-bg,var(--background,#141414))] px-2 py-1 text-[12px] text-[color:var(--foreground,#e4e4e7)] outline-none"
+						className="min-w-0 flex-1 rounded-[var(--radius,2px)] border border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] bg-[color:var(--docs-panel-input-bg,var(--background,#141414))] px-2 py-1 text-[12px] text-[color:var(--foreground,#e4e4e7)] outline-none"
 						onKeyDown={(event) => {
 							if (event.key === "Enter" && note) {
 								event.preventDefault();
@@ -109,8 +109,8 @@ export function ProposalActionBar({
 							event.stopPropagation();
 						}}
 					/>
-					<button data-docs-lab-reject-discard={alias} type="button" className="rounded-[var(--radius,0.375rem)] border border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] px-2 py-0.5 text-[12px] text-[color:var(--docs-muted-foreground,var(--muted-foreground,#a1a1aa))]" onClick={discard}>Discard</button>
-					<button data-docs-lab-reject-feedback={alias} type="button" disabled={!note} className="rounded-[var(--radius,0.375rem)] bg-[color:var(--annotation-accent,#58a6ff)] px-2 py-0.5 text-[12px] font-semibold text-[#0b1021] disabled:cursor-not-allowed disabled:opacity-40" onClick={requestChanges}>Request changes</button>
+					<button data-docs-lab-reject-discard={alias} type="button" className="rounded-[var(--radius,2px)] border border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] px-2 py-0.5 text-[12px] text-[color:var(--docs-muted-foreground,var(--muted-foreground,#a1a1aa))]" onClick={discard}>Discard</button>
+					<button data-docs-lab-reject-feedback={alias} type="button" disabled={!note} className="rounded-[var(--radius,2px)] bg-[color:var(--annotation-accent,#58a6ff)] px-2 py-0.5 text-[12px] font-semibold text-[#0b1021] disabled:cursor-not-allowed disabled:opacity-40" onClick={requestChanges}>Request changes</button>
 				</div>
 			) : null}
 		</div>
@@ -135,14 +135,14 @@ export function InlineThreadBar({ alias, author, message, onReply }: InlineThrea
 		if (inputRef.current) inputRef.current.value = "";
 	};
 	return (
-		<div data-docs-lab-thread-bar={alias} className="flex flex-col gap-1.5 rounded-[var(--radius,0.5rem)] border border-l-[3px] py-1.5 pl-2.5 pr-2.5" style={{ maxWidth: 560, background: "var(--docs-panel-raise,var(--background,#232323))", borderColor: "color-mix(in srgb, var(--annotation-thread-accent,#d29922) 45%, transparent)" }}>
+		<div data-docs-lab-thread-bar={alias} className="flex flex-col gap-1.5 rounded-[var(--radius,2px)] border border-l-[3px] py-1.5 pl-2.5 pr-2.5" style={{ maxWidth: 560, background: "var(--docs-panel-raise,var(--background,#232323))", borderColor: "color-mix(in srgb, var(--annotation-thread-accent,#d29922) 45%, transparent)" }}>
 			<div className="flex items-baseline gap-2">
 				<AliasChip alias={alias} author={author} />
 				<span className="min-w-0 flex-1 text-[12px] leading-snug text-[color:var(--foreground,#e4e4e7)]">{message}</span>
 			</div>
 			<div className="flex gap-1.5">
-				<input ref={inputRef} placeholder={`Reply to ${alias}…`} aria-label={`Reply to ${alias}`} className="min-w-0 flex-1 rounded-[var(--radius,0.375rem)] border border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] bg-[color:var(--docs-panel-input-bg,var(--background,#141414))] px-2 py-1 text-[12px] text-[color:var(--foreground,#e4e4e7)] outline-none" onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); send(); } event.stopPropagation(); }} />
-				<button type="button" aria-label={`Send reply to ${alias}`} className="rounded-[var(--radius,0.375rem)] border border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] px-2.5 py-0.5 text-[12px] text-[color:var(--docs-muted-foreground,var(--muted-foreground,#a1a1aa))]" onClick={send}>Reply</button>
+				<input ref={inputRef} placeholder={`Reply to ${alias}…`} aria-label={`Reply to ${alias}`} className="min-w-0 flex-1 rounded-[var(--radius,2px)] border border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] bg-[color:var(--docs-panel-input-bg,var(--background,#141414))] px-2 py-1 text-[12px] text-[color:var(--foreground,#e4e4e7)] outline-none" onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); send(); } event.stopPropagation(); }} />
+				<button type="button" aria-label={`Send reply to ${alias}`} className="rounded-[var(--radius,2px)] border border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] px-2.5 py-0.5 text-[12px] text-[color:var(--docs-muted-foreground,var(--muted-foreground,#a1a1aa))]" onClick={send}>Reply</button>
 			</div>
 		</div>
 	);

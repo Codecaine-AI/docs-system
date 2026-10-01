@@ -17,7 +17,7 @@ export function htmlEmbedDocument(html: string, allowScripts = false): string {
 }
 
 type Size = { width: number; height: number };
-const controlStyle = { border: "1px solid var(--border, #aaa)", borderRadius: 4, padding: "4px 8px", fontSize: 12, cursor: "pointer" };
+const controlStyle = { border: "1px solid var(--border, #aaa)", borderRadius: "var(--radius,2px)", padding: "4px 8px", fontSize: 12, cursor: "pointer" };
 
 export function HtmlBlock({ html, title, height = 400, allowScripts = false }: {
   html: string; title: string; height?: number; allowScripts?: boolean;

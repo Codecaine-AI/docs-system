@@ -43,6 +43,15 @@
  * docs-viewer + canvas components actually use (core shadcn palette,
  * radius scale, fonts, and the status-* family).
  */
+/*
+ * Bare `rounded` reads Tailwind's `--radius` theme key (stock 0.25rem). Point it
+ * at the runtime --radius; `reference` keeps Tailwind from emitting a
+ * self-referential `--radius: var(--radius)` into :root.
+ */
+@theme inline reference {
+  --radius: var(--radius);
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -71,11 +80,17 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent: var(--sidebar-accent);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
+  /* One corner radius app-wide: every rounded-* step resolves to the global
+     --radius (2px at stock), so components follow the Surfaces setting
+     instead of drifting by a few pixels per size. rounded-full stays a pill. */
+  --radius-xs: var(--radius);
+  --radius-sm: var(--radius);
+  --radius-md: var(--radius);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-xl: var(--radius);
+  --radius-2xl: var(--radius);
+  --radius-3xl: var(--radius);
+  --radius-4xl: var(--radius);
 
   --color-status-success: var(--status-success);
   --color-status-success-fill: var(--status-success-fill);
@@ -423,7 +438,7 @@
 
 [data-block-id] {
   transition: background 0.1s ease;
-  border-radius: max(0px, calc(var(--radius) - 5px));
+  border-radius: var(--radius);
 }
 
 /*
@@ -447,7 +462,7 @@
 
 [data-docs-changed="true"] {
   animation: docs-changed-flash 2s ease-out;
-  border-radius: var(--docs-highlight-radius, 6px);
+  border-radius: var(--docs-highlight-radius, var(--radius, 2px));
 }
 
 /*
@@ -460,7 +475,7 @@
 .docs-editor-prosemirror .ProseMirror-selectednode,
 .docs-editor-prosemirror .docs-block-multi-selected {
   background-color: var(--docs-highlight-color, var(--color-bg-blue));
-  border-radius: var(--docs-highlight-radius, 6px);
+  border-radius: var(--docs-highlight-radius, var(--radius, 2px));
   box-shadow: 0 0 0 var(--docs-highlight-padding, 4px)
     var(--docs-highlight-color, var(--color-bg-blue));
   outline: none;
@@ -524,7 +539,7 @@
       calc(var(--docs-dragselect-opacity, 0.12) * 100%),
     transparent
   );
-  border-radius: max(0px, calc(var(--radius) - 6px));
+  border-radius: var(--radius);
 }
 
 /*
@@ -549,7 +564,7 @@
 .docs-drop-cursor {
   background-color: var(--docs-dropcursor-color, var(--color-text-blue)) !important;
   opacity: var(--docs-dropcursor-opacity, 0.9);
-  border-radius: var(--docs-dropcursor-radius, 2px);
+  border-radius: var(--docs-dropcursor-radius, var(--radius, 2px));
 }
 
 .docs-drop-cursor.prosemirror-dropcursor-block {
@@ -573,7 +588,7 @@
   justify-content: center;
   width: var(--docs-grip-size, 18px);
   height: calc(var(--docs-grip-size, 18px) * 4 / 3);
-  border-radius: calc(var(--radius) - 4px);
+  border-radius: var(--radius);
   color: var(--docs-grip-color, var(--docs-icon-muted));
   cursor: grab;
   user-select: none;
