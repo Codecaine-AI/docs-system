@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronDownIcon, ChevronRightIcon, FileTextIcon, FolderIcon } from "lucide-react";
 import type { DocsTreeNode } from "@codecaine-ai/docs-viewer/client";
 import { cn } from "@codecaine-ai/docs-viewer/ui/cn";
@@ -10,6 +10,9 @@ import { cn } from "@codecaine-ai/docs-viewer/ui/cn";
  * without any server rewrite rules) that grow their own chevron when they
  * nest other docs. Legacy markdown files (kind "file") are listed but
  * inert — the standalone viewer renders doc.json bundles only.
+ *
+ * Every branch starts collapsed except the ancestors of the open doc, so a
+ * fresh load shows just the path to where you are.
  */
 
 function containsPath(node: DocsTreeNode, path: string | null): boolean {
@@ -27,7 +30,12 @@ function TreeNode({
   depth: number;
   selectedPath: string | null;
 }) {
-  const [open, setOpen] = useState(depth === 0 || containsPath(node, selectedPath));
+  const [open, setOpen] = useState(() => containsPath(node, selectedPath));
+  // Navigating to a doc inside a collapsed branch reveals it; branches the
+  // reader opened or closed by hand keep their state otherwise.
+  useEffect(() => {
+    if (containsPath(node, selectedPath)) setOpen(true);
+  }, [node, selectedPath]);
   const rowStyle = {
     paddingLeft: `${depth * 12 + 8}px`,
     paddingTop: "var(--docs-sidebar-item-py, 4px)",
