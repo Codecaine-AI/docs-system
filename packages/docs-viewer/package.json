@@ -8,6 +8,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./viewer-motion": "./src/transitions/useViewerMotion.ts",
+    "./pan-zoom": "./src/transitions/usePanZoom.ts",
     "./page-transition": "./src/transitions/PageTransition.tsx",
     "./client": "./src/client.tsx",
     "./bundle-src": "./src/render/bundle-src.ts",

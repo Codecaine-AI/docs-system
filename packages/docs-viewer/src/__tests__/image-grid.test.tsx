@@ -19,7 +19,7 @@ describe("image-only grid", () => {
     expect(checkStateProps("image-grid", { images: [] })).toEqual([]);
     for (const props of [{ images, columns: 0 }, { images, columns: 5 }, { images, columns: 2.5 }, { images: [{ text: "Not a column" }] }, { images: [{ src: "" }] }]) expect(checkStateProps("image-grid", props).length).toBeGreaterThan(0);
   });
-  it("renders headings before images, captions after, and resolves every asset without download UI", () => {
+  it("renders headings before images, captions after, and resolves every asset, and offers a viewer but no download UI", () => {
     const html = renderToStaticMarkup(createElement(ImageGrid, { images, columns: 3, resolveAssetSrc: src => `/published/${src.split('/').pop()}` }));
     expect(html.match(/<img /g)).toHaveLength(6);
     expect(html).toContain('src="/published/5.png"');
@@ -27,7 +27,8 @@ describe("image-only grid", () => {
     expect(html.indexOf('>Variant 0<')).toBeLessThan(html.indexOf('<img'));
     expect(html.indexOf('>Result 0<')).toBeGreaterThan(html.indexOf('<img'));
     expect(html).not.toContain('download');
-    expect(html).not.toContain('<button');
+    expect(html.match(/<button [^>]*data-docs-image-expand/g)).toHaveLength(6);
+    expect(html).toContain('aria-label="Open Variant 0 in full-screen viewer"');
   });
   it("preserves all grid fields through editor serialization and searchable projection", () => {
     expect(pmToDoc(docToPM(doc), doc, () => "new").blocks.grid).toEqual(doc.blocks.grid);

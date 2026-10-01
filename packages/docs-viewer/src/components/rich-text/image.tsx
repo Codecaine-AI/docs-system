@@ -1,9 +1,11 @@
 "use client";
 
+import { createElement } from "react";
 import type { DocBlockDescriptor } from "../../render/block-registry";
 import { STRUCTURAL_OPS, blockAttrs, el, stringProp } from "../../render/descriptor-helpers";
 import { WIDE_LEFT_BLOCK_LAYOUT } from "../../render/block-layout";
 import { atomBlockNode } from "../../editor/core/node-helpers";
+import { ExpandableImage } from "./image-viewer";
 
 /** `image` — read-surface descriptor + ProseMirror editor node (atom leaf; NodeView attached in editor/views/node-views.tsx). */
 
@@ -43,9 +45,10 @@ export const imageDescriptor: DocBlockDescriptor = {
       "figure",
       { key: block.id, ...blockAttrs(block), className: IMAGE_FIGURE_CLASSES },
       resolvedSrc
-        ? el("img", {
+        ? createElement(ExpandableImage, {
             src: resolvedSrc,
             alt: stringProp(block, "alt") ?? caption ?? "",
+            title: caption,
             className: IMAGE_FRAME_CLASSES,
           })
         : el(

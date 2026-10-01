@@ -12,7 +12,7 @@ import {
 
 import { getSequenceBySrc, IS_STATIC } from "../data/api";
 import "./sequence-embed.css";
-import { usePanZoom } from "./use-pan-zoom";
+import { usePanZoom } from "@codecaine-ai/docs-viewer/pan-zoom";
 
 /**
  * Read-only standalone sequence embed, wired into DocBlockRenderer through
@@ -205,7 +205,8 @@ export function StandaloneSequenceEmbed({ src, sequenceId, id, title, initialDoc
           className="docs-sequence-dialog not-prose bg-background text-foreground"
           aria-label={`${viewerTitle} sequence viewer`}
           onCancel={event => { event.preventDefault(); closeViewer(); }}
-          onClose={() => setViewerOpen(false)}
+          // A StrictMode remount closes then reopens the dialog; the queued close event must not unmount it.
+          onClose={() => { if (!dialogRef.current?.open) setViewerOpen(false); }}
         >
           <header className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b p-3">
             <div className="min-w-0 flex-1 truncate font-medium">{viewerTitle}</div>

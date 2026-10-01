@@ -1,3 +1,5 @@
+"use client";
+
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type PointerEvent, type RefObject } from "react";
 
 /** Content placement inside the viewport: `translate(x, y) scale(zoom)`, origin 0 0. */

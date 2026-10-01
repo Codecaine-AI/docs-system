@@ -6,6 +6,7 @@
 @import "../../docs-viewer/src/styles/list-markers.css";
 @import "../../docs-viewer/src/styles/code.css";
 @import "../../docs-viewer/src/styles/image-grid.css";
+@import "../../docs-viewer/src/styles/image-viewer.css";
 @source "../../docs-viewer/src";
 @source "../../../external/canvas/packages/canvas/src";
 @source "../../../external/sequence/packages/sequence/src";

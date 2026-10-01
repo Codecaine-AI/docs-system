@@ -1,0 +1,93 @@
+/* Inline image previews that open the full-screen viewer (image-viewer.tsx). */
+.docs-image-expand-trigger {
+  position: relative;
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
+}
+
+.docs-image-expand-trigger > img {
+  display: block;
+}
+
+.docs-image-grid .docs-image-expand-trigger {
+  width: 100%;
+}
+
+.docs-image-expand-hint {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border, #d4d4d4);
+  border-radius: 6px;
+  background: var(--background, #ffffff);
+  color: var(--foreground, #222222);
+  opacity: 0;
+  transition: opacity 120ms ease-out;
+}
+
+.docs-image-expand-trigger:hover .docs-image-expand-hint,
+.docs-image-expand-trigger:focus-visible .docs-image-expand-hint {
+  opacity: 1;
+}
+
+.docs-image-expand-trigger:focus-visible {
+  outline: 2px solid var(--ring, #3b82f6);
+  outline-offset: 2px;
+}
+
+.docs-image-dialog {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.docs-image-dialog[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Map-style viewport: usePanZoom positions the image with a transform. */
+.docs-image-viewport {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.docs-image-viewport[data-panning] {
+  cursor: grabbing;
+}
+
+.docs-image-viewport:focus-visible {
+  outline: 2px solid var(--ring, #3b82f6);
+  outline-offset: -2px;
+}
+
+/* Sized to the image's natural px by the component; scale comes from the transform. */
+.docs-image-expanded {
+  position: absolute;
+  top: 0;
+  left: 0;
+  max-width: none;
+  max-height: none;
+  transform-origin: 0 0;
+}

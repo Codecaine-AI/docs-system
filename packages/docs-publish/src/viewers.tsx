@@ -18,3 +18,11 @@ for (const host of document.querySelectorAll<HTMLElement>('[data-docs-diagram]')
     } finally { opening=false;preview.removeAttribute('aria-busy'); }
   });
 }
+
+// Image blocks render a static button; open the shared image viewer on click.
+for (const preview of document.querySelectorAll<HTMLElement>('[data-docs-image-expand]')) {
+  preview.addEventListener('click', async () => {
+    const {openImage} = await import('./docs-expansion');
+    openImage(preview);
+  });
+}

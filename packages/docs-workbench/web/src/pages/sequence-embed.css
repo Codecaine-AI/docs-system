@@ -77,7 +77,7 @@
   flex-direction: column;
 }
 
-/* Map-style viewport: use-pan-zoom.ts positions the diagram layer with a transform. */
+/* Map-style viewport: usePanZoom (docs-viewer/pan-zoom) positions the diagram layer with a transform. */
 .docs-sequence-viewport {
   position: relative;
   flex: 1;
