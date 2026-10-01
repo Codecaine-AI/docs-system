@@ -54,7 +54,12 @@
   --color-pill-red: rgba(255,0,26,0.2);
 }
 
-[data-theme="dark"], .dark {
+/* Dark values. The last selector is the "dark code panel" island: a
+   [data-code-surface] element (a code block, or the code pane of a state
+   shape / interaction surface) under [data-code-panels="dark"] (the style
+   rail's Code panels knob) re-declares every token at its dark value, so it
+   renders dark on a light page. */
+[data-theme="dark"], .dark, [data-code-panels="dark"] [data-code-surface] {
   --color-text-default: rgba(255,255,255,0.9);
   --color-text-navigation: #9BC9EA;
   --color-bg-default: #2F3437;

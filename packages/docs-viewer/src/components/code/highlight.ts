@@ -9,10 +9,10 @@
  *
  * Uses highlight.js CORE plus an explicitly registered, curated common set of
  * grammars — never the all-languages bundle (hundreds of grammars would bloat
- * the workbench web bundle for no benefit). Token colors come from the host
- * stylesheet's `.hljs-*` theme (packages/docs-workbench/web/src/index.css),
- * which maps token classes to the Spectre `--syntax-*` vars for light AND
- * dark themes.
+ * the workbench web bundle for no benefit). Token colors come from the
+ * `.hljs-*` theme in styles/code.css, which maps token classes onto the
+ * `--syntax-*` role vars (VS Code Dark+ / Light+ semantics) defined per
+ * theme in the workbench's theme/semantic.css.
  *
  * XSS safety: highlight.js escapes the code text itself when a grammar runs
  * (`hljs.highlight` HTML-escapes every non-token character); when no grammar
@@ -105,24 +105,164 @@ function escapeHtml(text: string): string {
 const HLJS_TAG_RE = /<span[^>]*>|<\/span>/g;
 
 /**
- * hljs classes null-like literals (`null`, python `None`, go `nil`) as plain
- * `hljs-literal` — indistinguishable in CSS from `true`/`false`. The theme
- * contract has a separate --syntax-null token, so tag them with an extra
- * `hljs-null` class the stylesheet (styles/code.css) colors from that token.
- * Two shapes: most grammars emit the literal span directly; the JSON grammar
- * nests an `hljs-keyword` span inside it. Input is hljs output (text already
- * HTML-escaped), so the match can only ever hit hljs's own spans.
+ * ROLE TAGGING. hljs's class vocabulary is coarser than the theme's
+ * --syntax-* roles (VS Code Dark+ / Light+ semantics), so three token kinds
+ * get an extra class the stylesheet (styles/code.css) colors from its own
+ * role var:
+ *  - `hljs-null` on null-like literals (`null`, python `None`, go `nil`),
+ *    otherwise indistinguishable from `true`/`false` (--syntax-null);
+ *  - `hljs-control` on control-flow / module keywords (`if`, `return`,
+ *    `import`), which hljs classes like `const` (--syntax-control);
+ *  - `hljs-type` on type-like built-ins (TS `string`, Python `int`), which
+ *    hljs classes like callables such as `setTimeout` (--syntax-type).
+ * ONE classifier (hljsRoleClass) decides all three; it is applied to hljs's
+ * HTML string (highlightToHtml: read lines + editor token ranges) and to
+ * rehype-highlight's hast (rehypeHljsRoles: markdown fenced code), so every
+ * code surface tags identically.
  */
-const HLJS_NULL_LITERAL_RE =
-  /<span class="hljs-literal">((?:<span class="hljs-keyword">)?(?:null|None|nil)(?:<\/span>)?)<\/span>/g;
+const NULL_WORDS = new Set(["null", "None", "nil"]);
 
-function markNullLiterals(html: string): string {
-  return html.replace(HLJS_NULL_LITERAL_RE, '<span class="hljs-literal hljs-null">$1</span>');
+/**
+ * Control-flow and module keywords — the words VS Code's Dark+/Light+ scope
+ * as `keyword.control` (purple) rather than plain `keyword`/`storage`
+ * (blue). Case-sensitive on purpose: every curated grammar that has these
+ * words writes them lowercase. Declaration/storage words (const, let,
+ * function, class, def, fn, new, typeof, in, of, async, ...) stay out.
+ */
+const CONTROL_KEYWORDS = new Set([
+  // shared C-family / JS / TS / Go / Rust / Python
+  "if", "else", "return", "for", "while", "do", "switch", "case", "default",
+  "break", "continue", "throw", "try", "catch", "finally", "yield", "await",
+  "import", "export", "from", "as", "with",
+  // Python
+  "elif", "except", "raise", "pass",
+  // Rust
+  "match", "loop",
+  // Go
+  "go", "defer", "goto", "fallthrough", "select",
+  // Bash
+  "then", "fi", "esac", "done", "until",
+]);
+
+/**
+ * Built-ins that name a TYPE (TS primitives, Python's constructor types).
+ * Everything else hljs calls `hljs-built_in` is a callable (`setTimeout`,
+ * `print`, `len`, `echo`, CSS `var`, SQL `COUNT`, Rust macros), which Dark+
+ * colors as a function. PascalCase built-ins (Rust's `Clone`, `Debug`
+ * traits) are types too.
+ */
+const BUILTIN_TYPES = new Set([
+  // TypeScript
+  "string", "number", "boolean", "any", "unknown", "never", "object", "symbol", "bigint", "void",
+  // Python
+  "int", "float", "complex", "str", "bool", "bytes", "bytearray", "list", "tuple", "dict", "set",
+  "frozenset", "type", "memoryview", "slice",
+]);
+
+/** SQL keywords (`FROM`, `CASE`, lowercase `from`) are all plain keywords in Dark+ — no control split. */
+function isSql(grammar: string | null): boolean {
+  return !!grammar && hljs.getLanguage(grammar) === hljs.getLanguage("sql");
 }
 
-/** Runs the grammar and applies the null tagging — the ONE place both surfaces (HTML lines + editor token ranges) get their hljs markup from. */
+/**
+ * The extra role class for an hljs token span carrying exactly `tokenClass`
+ * around `text`, or null. `grammar` is the language the block was
+ * highlighted with (any registered name or alias; null when unknown).
+ */
+function hljsRoleClass(tokenClass: string, text: string, grammar: string | null): string | null {
+  switch (tokenClass) {
+    case "hljs-literal":
+      return NULL_WORDS.has(text) ? "hljs-null" : null;
+    case "hljs-keyword":
+      return CONTROL_KEYWORDS.has(text) && !isSql(grammar) ? "hljs-control" : null;
+    case "hljs-built_in":
+      return BUILTIN_TYPES.has(text) || /^[A-Z][a-z]/.test(text) ? "hljs-type" : null;
+    default:
+      return null;
+  }
+}
+
+/**
+ * A role-candidate span in hljs HTML: flat text, or (the JSON grammar's
+ * literal shape) one nested `hljs-keyword` span. Input is hljs output —
+ * text already HTML-escaped — so the match can only ever hit hljs's own
+ * spans, never a word inside a string or comment (plain text there).
+ */
+const HLJS_ROLE_SPAN_RE =
+  /<span class="(hljs-literal|hljs-keyword|hljs-built_in)">(<span class="hljs-keyword">([^<]*)<\/span>|([^<]*))<\/span>/g;
+
+function tagRoleClasses(html: string, grammar: string): string {
+  return html.replace(
+    HLJS_ROLE_SPAN_RE,
+    (span, tokenClass: string, body: string, nested: string | undefined, flat: string | undefined) => {
+      const extra = hljsRoleClass(tokenClass, nested ?? flat ?? "", grammar);
+      return extra ? `<span class="${tokenClass} ${extra}">${body}</span>` : span;
+    },
+  );
+}
+
+/**
+ * Runs the grammar and applies the role tagging — the ONE place both
+ * surfaces (HTML lines + editor token ranges) get their hljs markup from.
+ * Tagging only rewrites the class attribute of hljs's own spans; the text
+ * is never touched, so the editor's offsets stay exact.
+ */
 function highlightToHtml(code: string, grammar: string): string {
-  return markNullLiterals(hljs.highlight(code, { language: grammar, ignoreIllegals: true }).value);
+  return tagRoleClasses(hljs.highlight(code, { language: grammar, ignoreIllegals: true }).value, grammar);
+}
+
+/** The slice of the hast shape rehypeHljsRoles reads (no @types/hast dependency). */
+type HastNode = {
+  type: string;
+  tagName?: string;
+  value?: string;
+  properties?: { className?: unknown };
+  children?: HastNode[];
+};
+
+function hastClasses(node: HastNode): string[] {
+  const className = node.properties?.className;
+  return Array.isArray(className) ? className.map(String) : [];
+}
+
+/** A span's text when it is one text node, or one `hljs-keyword` span around one (the JSON literal shape). */
+function hastSoleText(node: HastNode): string | null {
+  const only = node.children?.length === 1 ? node.children[0] : undefined;
+  if (!only) return null;
+  if (only.type === "text") return only.value ?? "";
+  const inner = hastClasses(only);
+  if (only.tagName === "span" && inner.length === 1 && inner[0] === "hljs-keyword") {
+    return hastSoleText(only);
+  }
+  return null;
+}
+
+function tagHastRoles(node: HastNode, grammar: string | null): void {
+  let language = grammar;
+  if (node.type === "element") {
+    const classes = hastClasses(node);
+    if (node.tagName === "code") {
+      const declared = classes.find((name) => name.startsWith("language-"));
+      if (declared) language = declared.slice("language-".length).toLowerCase();
+    } else if (node.tagName === "span" && classes.length === 1) {
+      const text = hastSoleText(node);
+      const extra = text === null ? null : hljsRoleClass(classes[0]!, text, language);
+      if (extra) node.properties = { ...node.properties, className: [...classes, extra] };
+    }
+  }
+  for (const child of node.children ?? []) tagHastRoles(child, language);
+}
+
+/**
+ * Rehype plugin for markdown-projected fenced code: run it AFTER
+ * rehype-highlight so its hljs spans get the same role classes as every
+ * other code surface. The language comes from the `<code>` element's
+ * `language-*` class.
+ */
+export function rehypeHljsRoles() {
+  return (tree: HastNode) => {
+    tagHastRoles(tree, null);
+  };
 }
 
 /**

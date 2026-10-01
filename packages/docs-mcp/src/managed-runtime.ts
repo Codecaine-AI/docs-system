@@ -13,7 +13,9 @@ const registry = await Bun.file(process.env.CODECAINE_DOCS_REGISTRY!).json() as 
 // supervisor passes CODECAINE_DOCS_GLOBAL_THEMES; older supervisors only pass
 // the registry, which lives in the state directory, so derive it from there.
 const globalThemesRoot = resolve(process.env.CODECAINE_DOCS_GLOBAL_THEMES || join(dirname(process.env.CODECAINE_DOCS_REGISTRY!), 'themes'));
-const service = createInteractionService({ managed: true, watchFs: true, globalThemesRoot, projectIds: new Map(registry.projects.map(p => [p.docsRoot, p.id])) });
+// The central code-theme folder sits beside it: <state dir>/code-themes.
+const codeThemesRoot = resolve(process.env.CODECAINE_DOCS_CODE_THEMES || join(dirname(process.env.CODECAINE_DOCS_REGISTRY!), 'code-themes'));
+const service = createInteractionService({ managed: true, watchFs: true, globalThemesRoot, codeThemesRoot, projectIds: new Map(registry.projects.map(p => [p.docsRoot, p.id])) });
 for (const workspace of registry.workspaces) {
   try { await service.discover(workspace); } catch (error) { console.error(`Unavailable workspace ${workspace}: ${error}`); }
 }

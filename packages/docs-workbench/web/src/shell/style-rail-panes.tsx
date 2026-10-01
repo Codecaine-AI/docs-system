@@ -2,6 +2,7 @@ import { createContext, useContext, type ReactNode } from "react";
 import { X } from "lucide-react";
 import { cn } from "@codecaine-ai/docs-viewer/ui/cn";
 import { THEME_TOKEN_REGISTRY } from "../theme/theme-folders";
+import { codeThemeOptionLabel, type CodeThemeControls } from "../theme/use-code-theme";
 import {
   BLOCK_COLUMN_SPLIT_DEFAULTS,
   BLOCK_COLUMN_SPLIT_MAX,
@@ -13,6 +14,8 @@ import {
   isBlockLayoutType,
   type BlockLayoutOverride,
   type AccentFamily,
+  type CodeFontChoice,
+  type CodePanelMode,
   type FontChoice,
   type GrainBlendMode,
   type NumberFontChoice,
@@ -79,6 +82,16 @@ const FONT_OPTIONS: Array<{ id: FontChoice; label: string }> = [
 const NUMBER_FONT_OPTIONS: Array<{ id: NumberFontChoice; label: string }> = [
   { id: "body", label: "Body font" },
   ...FONT_OPTIONS,
+];
+
+const CODE_FONT_OPTIONS: Array<{ id: CodeFontChoice; label: string }> = [
+  ...FONT_OPTIONS,
+  { id: "fira-code", label: "Fira Code" },
+];
+
+const CODE_PANEL_OPTIONS: Array<{ id: CodePanelMode; label: string }> = [
+  { id: "dark", label: "Always dark" },
+  { id: "page", label: "Follow page" },
 ];
 
 const PEEK_DIVIDER_STYLE_OPTIONS: Array<{ id: PeekDividerStyle; label: string }> = [
@@ -223,6 +236,15 @@ const TOKEN_KEY_LABELS: Record<string, string> = {
   boolean: "Booleans",
   null: "Null",
   key: "Keys",
+  punctuation: "Plain text",
+  keyword: "Keywords",
+  control: "Control keywords",
+  function: "Functions",
+  comment: "Comments",
+  regex: "Regex",
+  tag: "Tags",
+  constant: "Constants",
+  selector: "Selectors",
   muted: "Muted fill",
   icon: "Icons",
   languageFg: "Language picker hover",
@@ -497,7 +519,59 @@ export type StyleRailPaneProps = {
   activeThemeId: string;
   onSelectTheme: (id: string) => void;
   onSaveTheme?: (name: string) => void;
+  /**
+   * The central code theme picker (theme/use-code-theme.ts). Absent on a
+   * static export or a theme-locked serve — the active code theme still
+   * applies there, it just cannot be changed.
+   */
+  codeTheme?: CodeThemeControls;
 };
+
+/**
+ * Code theme rows: the machine-wide active code theme (built-ins + editor
+ * imports) and an "Import from editor" action. Not a rail setting — the
+ * choice lives centrally (`<state dir>/code-themes/active.json`), so it has
+ * no override leaf.
+ */
+function CodeThemeRows({ controls }: { controls: CodeThemeControls }) {
+  const { themes, activeId, busy, status, onSelect, onImport } = controls;
+  if (themes.length === 0) return null;
+  return (
+    <>
+      <label className="flex min-h-8 items-center justify-between gap-3 text-xs">
+        <RowLabel label="Code theme" />
+        <select
+          className="style-select"
+          disabled={busy}
+          onChange={(event) => onSelect(event.currentTarget.value)}
+          value={activeId ?? ""}
+        >
+          {themes.map((entry) => (
+            <option key={entry.id} value={entry.id}>
+              {codeThemeOptionLabel(entry)}
+            </option>
+          ))}
+        </select>
+      </label>
+      <button
+        className="style-rail-preset-button w-full border px-2 py-1.5 text-xs text-foreground hover:bg-muted hover:text-foreground disabled:opacity-50"
+        disabled={busy}
+        onClick={onImport}
+        type="button"
+      >
+        {busy ? "Importing…" : "Import from editor"}
+      </button>
+      {status && (
+        <p
+          className={cn("text-xs", status.kind === "error" ? "text-destructive" : "text-muted-foreground")}
+          role={status.kind === "error" ? "alert" : "status"}
+        >
+          {status.text}
+        </p>
+      )}
+    </>
+  );
+}
 
 export function StyleRailPane({
   selectedId,
@@ -510,6 +584,7 @@ export function StyleRailPane({
   activeThemeId,
   onSelectTheme,
   onSaveTheme,
+  codeTheme,
 }: StyleRailPaneProps) {
   const { accent, colors, typography, layout, grain } = settings;
   const pane = getStyleRailPaneItem(selectedId);
@@ -854,9 +929,17 @@ export function StyleRailPane({
               label="Code font"
               leaf={settingLeaf("typography.codeFont")}
               onChange={(value) => patchTypography({ codeFont: value })}
-              options={FONT_OPTIONS}
+              options={CODE_FONT_OPTIONS}
               value={typography.codeFont}
             />
+            <SelectRow
+              label="Code panels"
+              leaf={settingLeaf("typography.codePanels")}
+              onChange={(value) => patchTypography({ codePanels: value })}
+              options={CODE_PANEL_OPTIONS}
+              value={typography.codePanels}
+            />
+            {codeTheme && <CodeThemeRows controls={codeTheme} />}
             <SelectRow
               label="Number font"
               leaf={settingLeaf("typography.numberFont")}

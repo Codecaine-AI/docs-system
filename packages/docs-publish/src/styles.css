@@ -9,6 +9,11 @@
 @source "../../docs-viewer/src";
 @source "../../../external/canvas/packages/canvas/src";
 @source "../../../external/sequence/packages/sequence/src";
+/* `dark:` keeps its OS-preference meaning and also fires inside a dark code panel ([data-code-surface] under [data-code-panels="dark"], as in the Docs app). Published pages set no such attribute and ship no dark token layer, so panels follow the page unless the host opts in. */
+@custom-variant dark {
+ @media (prefers-color-scheme: dark) {@slot;}
+ &:where([data-code-panels="dark"] [data-code-surface], [data-code-panels="dark"] [data-code-surface] *) {@slot;}
+}
 @theme inline {
  --color-background: var(--background); --color-foreground: var(--foreground);
  --color-muted: var(--muted); --color-muted-foreground: var(--muted-foreground);

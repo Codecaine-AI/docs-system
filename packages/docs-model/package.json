@@ -19,7 +19,9 @@
     "./visual-component-guidance": "./src/visual-component-guidance.ts",
     "./authoring-guidance": "./src/authoring-guidance.ts",
     "./bundle-src": "./src/bundle-src.ts",
-    "./bundle-src-fixtures": "./src/bundle-src.fixtures.ts"
+    "./bundle-src-fixtures": "./src/bundle-src.fixtures.ts",
+    "./code-theme": "./src/code-theme/index.ts",
+    "./fixtures/cursor-dark-plus.colorThemeData.json": "./src/__fixtures__/code-theme/cursor-dark-plus.colorThemeData.json"
   },
   "dependencies": {
     "@codecaine-ai/annotations": "workspace:*",

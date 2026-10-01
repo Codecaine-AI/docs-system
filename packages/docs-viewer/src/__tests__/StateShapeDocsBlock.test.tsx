@@ -448,7 +448,9 @@ describe("StateShapeBlock — bounded header", () => {
     expect(boolean?.className).toContain("--syntax-boolean");
     const punct = exampleLine(1)?.querySelector('[data-json-token="punct"]');
     expect(punct?.textContent).toBe("{");
-    expect(punct?.className).toContain("text-muted-foreground");
+    // Dark+ / Light+ punctuation is the plain code foreground, not muted text.
+    expect(punct?.className).toContain("--syntax-punctuation");
+    expect(key?.className).toContain("--syntax-key-font-style");
   });
 
   it("lights the whole extent in both panes on hover and pins on click (R3)", () => {

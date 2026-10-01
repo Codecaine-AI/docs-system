@@ -373,7 +373,7 @@ describe("InteractionSurfaceBlock", () => {
     }
   });
 
-  it("colorizes signature tokens: cyan name, amber types and returns, muted punctuation", () => {
+  it("tags signature tokens with code syntax roles: name, params, types, returns, punctuation", () => {
     render(
       <InteractionSurfaceBlock
         id="surface-tokens"
@@ -399,14 +399,46 @@ describe("InteractionSurfaceBlock", () => {
     ]);
     const name = op?.querySelector('[data-sig-token="name"]');
     expect(name?.textContent).toBe("update");
-    expect(name?.className).toContain("--docs-operations-accent");
     const type = op?.querySelector('[data-sig-token="type"]');
-    expect(type?.className).toContain("--docs-interaction-sig-type");
+    expect(type?.querySelector('[data-sig-token="type-name"]')?.textContent).toBe("string");
     const returns = op?.querySelector('[data-sig-token="returns"]');
     expect(returns?.textContent).toBe(" -> State");
+    expect(returns?.querySelector('[data-sig-token="type-name"]')?.textContent).toBe("State");
     const optional = op?.querySelector('[data-sig-token="optional"]');
     expect(optional?.textContent).toBe("?");
-    expect(optional?.className).toContain("--docs-operations-optional");
+  });
+
+  it("splits type text into Dark+ roles: type names, string literals, keys, punctuation", () => {
+    render(
+      <InteractionSurfaceBlock
+        id="surface-roles"
+        operations={[
+          {
+            name: "decision_made",
+            params: [
+              { name: "answers", type: "Record<questionId, Decision result>", required: true },
+              { name: "source", type: '"native" | "none"', required: true },
+              { name: "onDone", type: "(result: { ok: boolean }) => void", required: false },
+            ],
+          },
+        ]}
+      />,
+    );
+    const op = opRow("decision_made")!;
+    const roles = (line: number) =>
+      Array.from(op.querySelectorAll("[data-code-line]")[line]!.querySelectorAll('[data-sig-token="type"] [data-sig-token]')).map(
+        (token) => `${token.getAttribute("data-sig-token")}:${token.textContent}`,
+      );
+    expect(roles(1)).toEqual(["type-name:Record", "punct:<", "type-name:questionId", "punct:,", "type-name:Decision", "type-name:result", "punct:>"]);
+    expect(roles(2)).toEqual(['string:"native"', "punct:|", 'string:"none"']);
+    expect(roles(3)).toEqual(["punct:(", "key:result", "punct::", "punct:{", "key:ok", "punct::", "type-name:boolean", "punct:}", "punct:)", "keyword:=>", "type-name:void"]);
+    // The block's stylesheet maps each role onto its --syntax-* token.
+    const css = document.querySelector('[data-docs-block-type="interaction-surface"] style')?.textContent ?? "";
+    expect(css).toContain('[data-op-sig] [data-sig-token="name"]{color:var(--docs-interaction-sig-name,var(--syntax-function,');
+    expect(css).toContain('[data-op-sig] :is([data-sig-token="type"],[data-sig-token="type-name"]){color:var(--docs-interaction-sig-type,var(--syntax-type,');
+    expect(css).toContain('[data-op-sig] [data-sig-token="string"]{color:var(--syntax-string,');
+    expect(css).toContain("font-style:var(--syntax-type-font-style,normal)");
+    expect(css).toMatch(/\[data-op-sig\] :is\(\[data-sig-token="punct"\],\[data-sig-token="optional"\],\[data-sig-token="returns"\]\)\{color:var\(--docs-interaction-sig-punct,var\(--syntax-punctuation,/);
   });
 
   it("preserves targeting attributes without outer framing or count banners", () => {
@@ -494,12 +526,9 @@ describe("InteractionSurfaceBlock style-rail tokens", () => {
     expect(purpose?.className).toContain("text-[length:var(--docs-interaction-desc-text-size,12px)]");
     expect(purpose?.className).toContain("leading-[var(--docs-interaction-desc-line-height,20px)]");
 
-    expect(walk.querySelector('[data-sig-token="name"]')?.className).toContain(
-      "var(--docs-interaction-sig-name,var(--docs-operations-accent))",
-    );
-    expect(walk.querySelector('[data-sig-token="punct"]')?.className).toContain(
-      "var(--docs-interaction-sig-punct,var(--muted-foreground))",
-    );
+    const sigCss = document.querySelector('[data-docs-block-type="interaction-surface"] style')?.textContent ?? "";
+    expect(sigCss).toContain("var(--docs-interaction-sig-name,var(--syntax-function,");
+    expect(sigCss).toContain("var(--docs-interaction-sig-punct,var(--syntax-punctuation,");
 
     // Plain cells (a bare return type, "No parameters") sit on the row inset.
     const count = opRow("table.count")!;

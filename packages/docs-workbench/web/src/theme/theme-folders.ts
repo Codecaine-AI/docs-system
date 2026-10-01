@@ -528,11 +528,23 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       step: 100,
       defaultValue: 500,
     },
+    // Syntax roles (VS Code Dark+ / Light+ semantics) — docs-viewer
+    // styles/code.css maps every hljs class onto one of these.
+    punctuation: color("--syntax-punctuation"),
+    keyword: color("--syntax-keyword"),
+    control: color("--syntax-control"),
+    function: color("--syntax-function"),
+    type: color("--syntax-type"),
+    key: color("--syntax-key"),
     string: color("--syntax-string"),
     number: color("--syntax-number"),
     boolean: color("--syntax-boolean"),
     null: color("--syntax-null"),
-    key: color("--syntax-key"),
+    comment: color("--syntax-comment"),
+    regex: color("--syntax-regex"),
+    tag: color("--syntax-tag"),
+    constant: color("--syntax-constant"),
+    selector: color("--syntax-selector"),
     // Hover / chevron color of the EDIT surface's language picker only — the
     // label's resting color is headerFg.
     languageFg: color("--docs-code-lang-fg"),
@@ -2249,6 +2261,9 @@ export function resolveThemeChain(
   return merged;
 }
 
+/** Selector for a compiled theme's dark values: the dark page plus dark code panels. */
+const THEME_DARK_SELECTOR = '[data-theme="dark"], [data-code-panels="dark"] [data-code-surface]';
+
 /** Compiles a RESOLVED theme into the CSS injected as the theme layer. */
 export function compileThemeCss(theme: ThemeDefinition): string {
   const light: string[] = [];
@@ -2273,7 +2288,10 @@ export function compileThemeCss(theme: ThemeDefinition): string {
   }
   const blocks: string[] = [];
   if (light.length > 0) blocks.push(`:root, [data-theme="light"] {\n${light.join("\n")}\n}`);
-  if (dark.length > 0) blocks.push(`[data-theme="dark"] {\n${dark.join("\n")}\n}`);
+  // The dark block also targets the dark code panel island (see the dark
+  // block in theme/semantic.css), so a theme's dark values reach code
+  // surfaces on a light page.
+  if (dark.length > 0) blocks.push(`${THEME_DARK_SELECTOR} {\n${dark.join("\n")}\n}`);
   return blocks.join("\n\n");
 }
 

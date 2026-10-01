@@ -99,11 +99,25 @@
   --status-neutral-fill: var(--color-bg-gray);
   --status-neutral-border: var(--color-pill-gray);
 
-  --syntax-key: var(--color-text-purple);
-  --syntax-string: var(--color-text-green);
-  --syntax-number: var(--color-text-blue);
-  --syntax-boolean: var(--color-text-orange);
-  --syntax-null: var(--color-text-red);
+  /* Syntax roles, VS Code Light+ values (styles/code.css maps every hljs
+     class onto one of these). --syntax-key is the property / object key /
+     variable color — state-shape field names and interaction-surface
+     signatures read it too. */
+  --syntax-punctuation: #000000;
+  --syntax-keyword: #0000FF;
+  --syntax-control: #AF00DB;
+  --syntax-function: #795E26;
+  --syntax-type: #267F99;
+  --syntax-key: #001080;
+  --syntax-string: #A31515;
+  --syntax-number: #098658;
+  --syntax-boolean: #0000FF;
+  --syntax-null: #0000FF;
+  --syntax-comment: #008000;
+  --syntax-regex: #811F3F;
+  --syntax-tag: #800000;
+  --syntax-constant: #0070C1;
+  --syntax-selector: #800000;
 
   --docs-viewer-callout-border: var(--color-pill-orange);
   /* Per-block-type component tokens (one file per vocabulary type in a
@@ -156,7 +170,9 @@
   --docs-code-header-weight: 500;
   --docs-code-lang-fg: var(--color-text-blue);
   --docs-code-annotation-accent: #0ea5e9;
-  --docs-code-gutter-fg: var(--muted-foreground);
+  /* Line numbers paint this color as-is. #C4C3C1 is the previous look: the
+     muted foreground (#9B9A97) at 55% over the light code panel. */
+  --docs-code-gutter-fg: #C4C3C1;
   /* Opaque on purpose (mixed over --background): the gutter is sticky above
      horizontally-scrolled code. The default matches the block bg composited
      over the page background, so no gutter band is visible at rest. */
@@ -304,7 +320,8 @@
   --docs-editor-accent: var(--color-accent-blue);
   /* Interaction Surface. Content colors default to the matching State Shape
      token, so an untouched block follows the State shape knobs and a rail
-     override wins for this block only. The operation card header is tinted
+     override wins for this block only. The signature pane is code: its
+     name / type / punctuation colors follow the --syntax-* roles. The operation card header is tinted
      per kind (Action / Query / Event). Every value here must equal the
      component's var() fallback and the registry default in theme-folders.ts;
      the corner radius follows the global --radius (2px at stock). */
@@ -321,9 +338,9 @@
   --docs-interaction-header-fg: var(--foreground);
   --docs-interaction-column-head-bg: color-mix(in srgb, var(--muted) 18%, transparent);
   --docs-interaction-column-head-fg: var(--docs-shape-muted);
-  --docs-interaction-sig-name: var(--syntax-key);
-  --docs-interaction-sig-type: var(--docs-shape-type);
-  --docs-interaction-sig-punct: var(--muted-foreground);
+  --docs-interaction-sig-name: var(--syntax-function);
+  --docs-interaction-sig-type: var(--syntax-type);
+  --docs-interaction-sig-punct: var(--syntax-punctuation);
   --docs-interaction-note-name: var(--docs-shape-name);
   --docs-interaction-note-type: var(--docs-shape-type);
   --docs-interaction-note-type-bg: var(--docs-shape-type-bg);
@@ -402,7 +419,7 @@
      here); setting --docs-link-bg outright bypasses it. The rail / ring
      widths and the CodeLines panel metrics are the literals the layer used
      to hardcode. */
-  --docs-zebra: color-mix(in srgb, var(--muted) 20%, transparent);
+  --docs-zebra: transparent; /* striping off by default; the zebra knobs turn it back on */
   --docs-link-wash: 14;
   --docs-link-bg: color-mix(in srgb, var(--docs-link-pin) calc(var(--docs-link-wash) * 1%), transparent);
   --docs-link-pin: #b48f2e;
@@ -598,7 +615,12 @@
   --docs-text-tertiary: var(--color-text-gray);
 }
 
-[data-theme="dark"], .dark {
+/* Dark values. The last selector is the "dark code panel" island: a
+   [data-code-surface] element (a code block, or the code pane of a state
+   shape / interaction surface) under [data-code-panels="dark"] (the style
+   rail's Code panels knob) re-declares every token at its dark value, so it
+   renders dark on a light page. */
+[data-theme="dark"], .dark, [data-code-panels="dark"] [data-code-surface] {
   color-scheme: dark;
 
   --background: var(--color-bg-default);
@@ -653,11 +675,22 @@
   --status-neutral-fill: var(--color-bg-gray);
   --status-neutral-border: var(--color-pill-gray);
 
-  --syntax-key: var(--color-text-purple);
-  --syntax-string: var(--color-text-green);
-  --syntax-number: var(--color-text-blue);
-  --syntax-boolean: var(--color-text-orange);
-  --syntax-null: var(--color-text-red);
+  /* Syntax roles, VS Code Dark+ values — same contract as the light block. */
+  --syntax-punctuation: #D4D4D4;
+  --syntax-keyword: #569CD6;
+  --syntax-control: #C586C0;
+  --syntax-function: #DCDCAA;
+  --syntax-type: #4EC9B0;
+  --syntax-key: #9CDCFE;
+  --syntax-string: #CE9178;
+  --syntax-number: #B5CEA8;
+  --syntax-boolean: #569CD6;
+  --syntax-null: #569CD6;
+  --syntax-comment: #6A9955;
+  --syntax-regex: #D16969;
+  --syntax-tag: #569CD6;
+  --syntax-constant: #4FC1FF;
+  --syntax-selector: #D7BA7D;
 
   --docs-viewer-callout-border: var(--color-pill-orange);
   /* Per-block-type component tokens (one file per vocabulary type in a
@@ -687,8 +720,10 @@
   --docs-quote-pad-y: 0px;
   --docs-quote-spacing: 1.3333333;
   --docs-quote-text-scale: 1;
-  --docs-code-block-bg: color-mix(in srgb, var(--muted) 30%, transparent);
-  --docs-code-block-border: var(--border);
+  /* Dark code panel = the VS Code Dark+ editor surface (#1E1E1E), so the
+     Dark+ token colors sit on the background they were designed for. */
+  --docs-code-block-bg: #1E1E1E;
+  --docs-code-block-border: #3C3C3C;
   /* Frame metrics. The radius follows the global --radius (2px at stock). */
   --docs-code-border-width: 1px;
   --docs-code-radius: var(--radius);
@@ -705,16 +740,16 @@
      share these. --docs-code-lang-fg is only the edit-surface language
      picker's hover / chevron color. */
   --docs-code-header-height: 28px;
-  --docs-code-header-fg: var(--muted-foreground);
+  --docs-code-header-fg: #CCCCCC;
   --docs-code-header-text-size: 10px;
   --docs-code-header-weight: 500;
   --docs-code-lang-fg: var(--color-text-blue);
   --docs-code-annotation-accent: #38bdf8;
-  --docs-code-gutter-fg: var(--muted-foreground);
-  /* Opaque on purpose (mixed over --background): the gutter is sticky above
-     horizontally-scrolled code. The default matches the block bg composited
-     over the page background, so no gutter band is visible at rest. */
-  --docs-code-gutter-bg: color-mix(in srgb, var(--muted) 30%, var(--background));
+  --docs-code-gutter-fg: #858585;
+  /* Opaque on purpose: the gutter is sticky above horizontally-scrolled
+     code. Equal to the (opaque) dark block bg, so no gutter band is visible
+     at rest. */
+  --docs-code-gutter-bg: #1E1E1E;
   --docs-code-gutter-width: 48px;
   --docs-code-gutter-pad-x: 8px;
   --docs-code-gutter-text-size: 12px;
@@ -848,7 +883,8 @@
   --docs-editor-accent: var(--color-accent-blue);
   /* Interaction Surface. Content colors default to the matching State Shape
      token, so an untouched block follows the State shape knobs and a rail
-     override wins for this block only. The operation card header is tinted
+     override wins for this block only. The signature pane is code: its
+     name / type / punctuation colors follow the --syntax-* roles. The operation card header is tinted
      per kind (Action / Query / Event). Every value here must equal the
      component's var() fallback and the registry default in theme-folders.ts;
      the corner radius follows the global --radius (2px at stock). */
@@ -865,9 +901,9 @@
   --docs-interaction-header-fg: var(--foreground);
   --docs-interaction-column-head-bg: color-mix(in srgb, var(--muted) 18%, transparent);
   --docs-interaction-column-head-fg: var(--docs-shape-muted);
-  --docs-interaction-sig-name: var(--syntax-key);
-  --docs-interaction-sig-type: var(--docs-shape-type);
-  --docs-interaction-sig-punct: var(--muted-foreground);
+  --docs-interaction-sig-name: var(--syntax-function);
+  --docs-interaction-sig-type: var(--syntax-type);
+  --docs-interaction-sig-punct: var(--syntax-punctuation);
   --docs-interaction-note-name: var(--docs-shape-name);
   --docs-interaction-note-type: var(--docs-shape-type);
   --docs-interaction-note-type-bg: var(--docs-shape-type-bg);
@@ -943,7 +979,7 @@
      hue adapts the approved mockup's gold (#b48f2e paper / #d4af4a ink)
      to this palette; the wash mixes off the pin so the two knobs track.
      Same contract as the light block; the wash runs a notch hotter (18). */
-  --docs-zebra: color-mix(in srgb, var(--muted) 20%, transparent);
+  --docs-zebra: transparent; /* striping off by default; the zebra knobs turn it back on */
   --docs-link-wash: 18;
   --docs-link-bg: color-mix(in srgb, var(--docs-link-pin) calc(var(--docs-link-wash) * 1%), transparent);
   --docs-link-pin: #d4af4a;

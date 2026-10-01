@@ -11,9 +11,11 @@ import {
   BLOCK_LAYOUT_CUSTOM_WIDTH_MIN,
   DEFAULT_STYLE_RAIL_SETTINGS,
   StyleRail,
+  CODE_PANEL_STYLE_ELEMENT_ID,
   applyBlockLayoutOverrideCss,
   applyStyleRailVars,
   blockLayoutOverrideCss,
+  codePanelOverrideCss,
   getStyleRailBaseline,
   loadStyleRailSettings,
   normalizeSettings,
@@ -675,7 +677,7 @@ describe("state-shape text meets WCAG AAA in both themes", () => {
   });
 
   it("clears 7:1 for every state-shape text token in the dark theme", () => {
-    const block = blockAfter('[data-theme="dark"], .dark {');
+    const block = blockAfter('[data-theme="dark"], .dark, [data-code-panels="dark"] [data-code-surface] {');
     for (const token of TEXT_TOKENS) {
       expect(contrast(tokenIn(block, token), DARK_BG)).toBeGreaterThanOrEqual(7);
     }
@@ -1024,6 +1026,69 @@ describe("style rail stock values match the consumers' inline fallbacks", () => 
     expect(blockClassesSource).toContain(
       "text-[length:var(--style-font-size,18px)] leading-[var(--style-line-height,1.45)]",
     );
+  });
+});
+
+describe("style rail code panels", () => {
+  afterEach(() => {
+    applyStyleRailVars(DEFAULT_STYLE_RAIL_SETTINGS);
+  });
+
+  const withPanels = (codePanels: "dark" | "page"): StyleRailSettings => ({
+    ...DEFAULT_STYLE_RAIL_SETTINGS,
+    typography: { ...DEFAULT_STYLE_RAIL_SETTINGS.typography, codePanels },
+  });
+
+  it("writes the Code panels knob onto <html>, dark by default", () => {
+    const root = document.documentElement;
+    applyStyleRailVars(DEFAULT_STYLE_RAIL_SETTINGS);
+    expect(root.getAttribute("data-code-panels")).toBe("dark");
+    applyStyleRailVars(withPanels("page"));
+    expect(root.getAttribute("data-code-panels")).toBe("page");
+  });
+
+  it("persists the knob through normalization and the repo baseline", () => {
+    expect(normalizeSettings({ typography: { codePanels: "page" } }).typography.codePanels).toBe("page");
+    expect(normalizeSettings({ typography: { codePanels: "sepia" } }).typography.codePanels).toBe("dark");
+    setStyleRailBaseline({ typography: { codePanels: "page" } });
+    expect(normalizeSettings({}).typography.codePanels).toBe("page");
+  });
+
+  it("restates rail overrides inside dark panels, except the page color picks", () => {
+    // A dark panel re-declares every token on itself, so an override written
+    // only on <html> would stop at the panel's edge.
+    const settings: StyleRailSettings = {
+      ...DEFAULT_STYLE_RAIL_SETTINGS,
+      colors: { ...DEFAULT_STYLE_RAIL_SETTINGS.colors, background: "#fff8e7", text: "#222222" },
+      layout: { ...DEFAULT_STYLE_RAIL_SETTINGS.layout, radius: 12 },
+      components: { code: { radius: "6px" } },
+    };
+    applyStyleRailVars(settings);
+    const css = document.getElementById(CODE_PANEL_STYLE_ELEMENT_ID)?.textContent ?? "";
+    expect(css.startsWith(':root[data-code-panels="dark"] [data-code-surface] {')).toBe(true);
+    expect(css).toContain("--radius: 12px;");
+    expect(css).toContain(`${THEME_TOKEN_REGISTRY.code.radius.vars[0]}: 6px;`);
+    expect(css).not.toContain("--background:");
+    expect(css).not.toContain("--foreground:");
+    expect(css).not.toContain("--docs-viewer-text-body:");
+
+    // Panels that follow the page have no island to restate into.
+    applyStyleRailVars({ ...settings, typography: withPanels("page").typography });
+    expect(document.getElementById(CODE_PANEL_STYLE_ELEMENT_ID)?.textContent).toBe("");
+    expect(codePanelOverrideCss(withPanels("page"))).toBe("");
+  });
+
+  it("offers Fira Code as the stock code font, matching the stylesheet default", () => {
+    // Stock emits no --docs-font-code, so index.css's :root value is what
+    // renders: the two must name the same font.
+    expect(DEFAULT_STYLE_RAIL_SETTINGS.typography.codeFont).toBe("fira-code");
+    expect(styleRailVars(DEFAULT_STYLE_RAIL_SETTINGS)["--docs-font-code"]).toBeNull();
+    const indexCss = readFileSync(new URL("../index.css", import.meta.url), "utf8");
+    expect(indexCss).toMatch(/--docs-font-code: "Fira Code", /);
+    // Moving off stock emits the chosen stack.
+    const mono = normalizeSettings({ typography: { codeFont: "mono" } });
+    expect(mono.typography.codeFont).toBe("mono");
+    expect(styleRailVars(mono)["--docs-font-code"]).toContain("ui-monospace");
   });
 });
 
@@ -1755,7 +1820,10 @@ describe("style rail component token kinds", () => {
       radius: { light: "4px", dark: "12px" },
     });
     expect(compileThemeCss(theme!)).toContain("--radius: 4px;");
-    expect(compileThemeCss(theme!)).toContain("--radius: 12px;");
+    // The dark value also reaches dark code panels on a light page.
+    expect(compileThemeCss(theme!)).toContain(
+      '[data-theme="dark"], [data-code-panels="dark"] [data-code-surface] {\n  --radius: 12px;',
+    );
   });
 
   it("normalizes and applies color, length, and number overrides", () => {
@@ -3195,7 +3263,7 @@ describe("style rail interaction-surface tokens", () => {
     return semanticCss.slice(start, semanticCss.indexOf("\n}", start));
   };
   const lightBlock = themeBlock(':root, [data-theme="light"] {');
-  const darkBlock = themeBlock('[data-theme="dark"], .dark {');
+  const darkBlock = themeBlock('[data-theme="dark"], .dark, [data-code-panels="dark"] [data-code-surface] {');
 
   it("registers every interaction-surface knob with its CSS var, range, and default", () => {
     for (const [key, cssVar] of Object.entries(COLORS)) {
@@ -3283,8 +3351,9 @@ describe("style rail interaction-surface tokens", () => {
     for (const block of [lightBlock, darkBlock]) {
       expect(block).toContain("--docs-interaction-bg: var(--docs-shape-bg);");
       expect(block).toContain("--docs-interaction-rule: var(--docs-shape-rule);");
-      expect(block).toContain("--docs-interaction-sig-name: var(--syntax-key);");
-      expect(block).toContain("--docs-interaction-sig-type: var(--docs-shape-type);");
+      expect(block).toContain("--docs-interaction-sig-name: var(--syntax-function);");
+      expect(block).toContain("--docs-interaction-sig-type: var(--syntax-type);");
+      expect(block).toContain("--docs-interaction-sig-punct: var(--syntax-punctuation);");
       expect(block).toContain("--docs-interaction-note-type: var(--docs-shape-type);");
       expect(block).toContain("--docs-interaction-note-fg: var(--docs-shape-desc-fg);");
       expect(block).toContain("--docs-interaction-child-rule: var(--docs-shape-child-rule);");
@@ -3551,7 +3620,7 @@ describe("style rail state-shape tokens", () => {
 
   it("declares every state-shape var in both semantic.css blocks, light equal to the registry default", () => {
     const css = readFileSync(new URL("../theme/semantic.css", import.meta.url), "utf8");
-    const darkStart = css.indexOf('[data-theme="dark"], .dark {');
+    const darkStart = css.indexOf('[data-theme="dark"], .dark, [data-code-panels="dark"] [data-code-surface] {');
     expect(darkStart).toBeGreaterThan(0);
     const light = css.slice(0, darkStart);
     const dark = css.slice(darkStart);

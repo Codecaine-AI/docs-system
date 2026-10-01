@@ -7,6 +7,7 @@ import { Badge } from "../../ui/badge";
 import { cn } from "../../ui/cn";
 import { CodeLines, LinkGroup, LinkTarget, type LinkedCodeLine } from "../linked-panels";
 import { DescribedName, DESCRIBED_NAME_STYLE } from "../described-name";
+import { tokenizeSigType } from "./signature-tokens";
 
 export const INTERACTION_SURFACE_LABEL = "Interaction Surface";
 export const INTERACTION_SURFACE_AGENT_DESCRIPTION =
@@ -41,15 +42,37 @@ const NOTE_NAME_CLASS = "break-all font-mono text-[length:var(--docs-interaction
 // Plain padded cells ("No parameters", a bare return type) share the row inset.
 const PLAIN_CELL_CLASS = "px-[var(--docs-interaction-pad-x,16px)] py-[var(--docs-interaction-row-pad,12px)]";
 
-const SIG_TOKEN_CLASS = {
-  name: "font-medium text-[color:var(--docs-interaction-sig-name,var(--docs-operations-accent))]",
-  punct: "text-[color:var(--docs-interaction-sig-punct,var(--muted-foreground))]",
-  optional: "text-[color:var(--docs-operations-optional)]",
-  type: "text-[color:var(--docs-interaction-sig-type,var(--docs-shape-type,#0a5779))] dark:text-[color:var(--docs-interaction-sig-type,var(--docs-shape-type,#a5d3f0))]",
-  returns: "text-[color:var(--docs-interaction-sig-type,var(--docs-shape-type,#0a5779))] dark:text-[color:var(--docs-interaction-sig-type,var(--docs-shape-type,#a5d3f0))]",
-} as const;
+// Signature pane tokens wear the code-block syntax roles (VS Code Dark+ /
+// Light+ --syntax-* tokens, re-declared on the dark code-panel island), with
+// role font-style / weight like styles/code.css. The rail's sig knobs
+// (--docs-interaction-sig-name / -type / -punct) sit in front of their role;
+// the var() chains after them equal code.css's, so hosts without the theme
+// layer still color the pane like their code blocks. Plain CSS in the block's
+// <style>, keyed on data-sig-token, so nested type tokens need no classes.
+function sigRole(role: string, color: string): string {
+  return `color:${color};font-style:var(--syntax-${role}-font-style,normal);font-weight:var(--syntax-${role}-font-weight,inherit)`;
+}
+const SIG_PUNCT_COLOR = "var(--docs-interaction-sig-punct,var(--syntax-punctuation,var(--docs-code-fg,var(--docs-text-secondary,var(--color-text-default,inherit)))))";
+const SIG_TYPE_COLOR = "var(--docs-interaction-sig-type,var(--syntax-type,var(--syntax-string,var(--color-text-green,#448361))))";
+export const SIG_TOKEN_STYLE = [
+  `[data-op-sig] [data-sig-token="name"]{${sigRole("function", "var(--docs-interaction-sig-name,var(--syntax-function,var(--syntax-string,var(--color-text-green,#448361))))")}}`,
+  `[data-op-sig] :is([data-sig-token="param"],[data-sig-token="key"]){${sigRole("key", "var(--syntax-key,var(--color-text-purple,#9065b0))")}}`,
+  `[data-op-sig] :is([data-sig-token="type"],[data-sig-token="type-name"]){${sigRole("type", SIG_TYPE_COLOR)}}`,
+  `[data-op-sig] [data-sig-token="string"]{${sigRole("string", "var(--syntax-string,var(--color-text-green,#448361))")}}`,
+  `[data-op-sig] [data-sig-token="number"]{${sigRole("number", "var(--syntax-number,var(--color-text-blue,#337ea9))")}}`,
+  `[data-op-sig] [data-sig-token="boolean"]{${sigRole("boolean", "var(--syntax-boolean,var(--color-text-orange,#d9730d))")}}`,
+  `[data-op-sig] [data-sig-token="null"]{${sigRole("null", "var(--syntax-null,var(--color-text-red,#d44c47))")}}`,
+  `[data-op-sig] [data-sig-token="keyword"]{${sigRole("keyword", "var(--syntax-keyword,var(--syntax-key,var(--color-text-purple,#9065b0)))")}}`,
+  // Dark+ prints the optional `?` and the `->` arrow as plain punctuation.
+  `[data-op-sig] :is([data-sig-token="punct"],[data-sig-token="optional"],[data-sig-token="returns"]){${sigRole("punctuation", SIG_PUNCT_COLOR)}}`,
+].join("\n");
 
-function PunctToken({ text }: { text: string }) { return <span data-sig-token="punct" className={SIG_TOKEN_CLASS.punct}>{text}</span>; }
+function PunctToken({ text }: { text: string }) { return <span data-sig-token="punct">{text}</span>; }
+
+/** Type text as role-tagged spans inside one `data-sig-token="type"` wrapper. */
+function TypeToken({ text }: { text: string }) {
+  return <span data-sig-token="type">{tokenizeSigType(text).map((token, index) => token.kind === "space" ? token.text : <span key={index} data-sig-token={token.kind}>{token.text}</span>)}</span>;
+}
 
 type ParamNote = { key: string; name: string; type?: string; required?: boolean; description?: string; start: number; end: number; children: ParamNote[] };
 function bareVerb(name: string): string { return name.slice(name.lastIndexOf(".") + 1); }
@@ -61,8 +84,8 @@ function descriptionTipId(blockId: string, noteKey: string): string {
 
 function buildOperation(operation: InteractionSurfaceOperation, displayName: string): { lines: LinkedCodeLine[]; notes: ParamNote[] } {
   const params = operation.params ?? []; const lines: LinkedCodeLine[] = []; const notes: ParamNote[] = [];
-  const nameToken = <span key="name" data-sig-token="name" className={SIG_TOKEN_CLASS.name}>{displayName}</span>;
-  const returnsToken = operation.returns ? <span key="returns" data-sig-token="returns" className={SIG_TOKEN_CLASS.returns}> {"->"} {operation.returns}</span> : null;
+  const nameToken = <span key="name" data-sig-token="name">{displayName}</span>;
+  const returnsToken = operation.returns ? <span key="returns" data-sig-token="returns"> {"->"} <TypeToken text={operation.returns} /></span> : null;
   if (params.length === 0) { lines.push({ content: [nameToken, <PunctToken key="()" text="()" />, returnsToken] }); return { lines, notes }; }
   const emitParams = (fields: Field[], depth: number, keyPrefix: string, ancestors: readonly string[], into: ParamNote[]): void => {
     const indent = "  ".repeat(depth);
@@ -70,9 +93,9 @@ function buildOperation(operation: InteractionSurfaceOperation, displayName: str
       const key = `${keyPrefix}.${param.name}`; const lineKey = [key, ...ancestors]; const start = lines.length + 1;
       const note: ParamNote = { key, name: param.name, required: param.required, ...(param.type ? { type: param.type } : {}), ...(param.description ? { description: param.description } : {}), start, end: start, children: [] }; into.push(note);
       const head: ReactNode[] = [indent, <span key={key} data-sig-token="param">{param.name}</span>];
-      if (param.required === false) head.push(<span key={`${key}?`} data-sig-token="optional" className={SIG_TOKEN_CLASS.optional}>?</span>);
+      if (param.required === false) head.push(<span key={`${key}?`} data-sig-token="optional">?</span>);
       if (param.fields) { head.push(<PunctToken key={`${key}{`} text=": {" />); lines.push({ content: head, linkKey: lineKey }); emitParams(param.fields, depth + 1, key, lineKey, note.children); lines.push({ content: [indent, <PunctToken key={`${key}}`} text="}," />], linkKey: lineKey }); }
-      else { if (param.type) head.push(<PunctToken key={`${key}:`} text=": " />, <span key={`${key}t`} data-sig-token="type" className={SIG_TOKEN_CLASS.type}>{param.type}</span>); head.push(<PunctToken key={`${key},`} text="," />); lines.push({ content: head, linkKey: lineKey }); }
+      else { if (param.type) head.push(<PunctToken key={`${key}:`} text=": " />, <TypeToken key={`${key}t`} text={param.type} />); head.push(<PunctToken key={`${key},`} text="," />); lines.push({ content: head, linkKey: lineKey }); }
       note.end = lines.length;
     }
   };
@@ -80,7 +103,7 @@ function buildOperation(operation: InteractionSurfaceOperation, displayName: str
 }
 
 function NoteType({ value }: { value?: string }) {
-  if (!value) return <span data-note-type className={cn("text-xs", FIELD_TOKEN_CLASS.muted)}>\u2014</span>;
+  if (!value) return <span data-note-type className={cn("text-xs", FIELD_TOKEN_CLASS.muted)}>{"\u2014"}</span>;
   const type=classifyTypeText(value);
   if(type.kind==='union')return <span data-note-type className={cn("flex flex-wrap items-center gap-1 font-mono text-xs",FIELD_TOKEN_CLASS.type)}>{type.parts.map((part,i)=>i%2===0?<span data-note-type-chip key={i} className={cn("rounded px-1.5 py-0.5",FIELD_TOKEN_CLASS.typeBg)}>{part}</span>:<span key={i} className="opacity-40">{part}</span>)}</span>;
   return <span data-note-type className={cn("break-words font-mono text-xs",FIELD_TOKEN_CLASS.type)}>{type.kind==='token'?<span data-note-type-chip className={cn("rounded px-1.5 py-0.5",FIELD_TOKEN_CLASS.typeBg)}>{value}</span>:value}</span>;
@@ -111,13 +134,17 @@ function headerTitleCase(value: string): string {
   });
 }
 
+// The signature pane's code lines (CodeLines) are a code surface. Under
+// [data-code-panels="dark"] the block's `.dark` var rules below also land ON
+// that pane, so the --docs-operations-* vars it reads resolve dark there while
+// the rest of the block stays on the page theme.
 export function InteractionSurfaceBlock({ id, title, operations }: { id: string; title?: string; operations: InteractionSurfaceOperation[] }) {
   const bare = operations.map((operation) => bareVerb(operation.name)); const useBare = new Set(bare).size === operations.length;
   return <section data-operations-card-layout className="not-prose my-4 min-w-0 w-full overflow-hidden" data-docs-block-type="interaction-surface" data-source-id={id}>
     <style>{`
       ${DESCRIBED_NAME_STYLE}
       [data-docs-block-type="interaction-surface"]{--docs-operations-accent:#87511e;--docs-operations-header-bg:#fbf6ee;--docs-operations-header-fg:#3f2b19;--docs-operations-rule:#d8c5ad;--docs-operations-tree:#c8a477;--docs-operations-texture:#a96e31;--docs-operations-code:#f7f7f6}
-      .dark [data-docs-block-type="interaction-surface"]{--docs-operations-accent:#e0b47e;--docs-operations-header-bg:#30271e;--docs-operations-header-fg:#f3e1ca;--docs-operations-rule:#64503a;--docs-operations-tree:#806342;--docs-operations-texture:#c08a50;--docs-operations-code:#20201f}
+      .dark [data-docs-block-type="interaction-surface"],[data-code-panels="dark"] [data-docs-block-type="interaction-surface"] [data-code-surface]{--docs-operations-accent:#e0b47e;--docs-operations-header-bg:#30271e;--docs-operations-header-fg:#f3e1ca;--docs-operations-rule:#64503a;--docs-operations-tree:#806342;--docs-operations-texture:#c08a50;--docs-operations-code:#20201f}
       [data-operations-header]::before,[data-operations-header]::after{content:"";position:absolute;inset:0;pointer-events:none;mask-image:linear-gradient(90deg,transparent 22%,rgba(0,0,0,.2) 45%,#000 76%)}
       [data-operations-header]::before{opacity:.3;background:linear-gradient(105deg,transparent 46%,color-mix(in srgb,var(--docs-operations-texture) 13%,transparent) 47%,transparent 49%),repeating-radial-gradient(ellipse at 94% 52%,transparent 0 13px,color-mix(in srgb,var(--docs-operations-texture) 48%,transparent) 14px 15px,transparent 16px 24px)}
       [data-operations-header]::after{opacity:.22;background:radial-gradient(ellipse at 79% -70%,transparent 58%,var(--docs-operations-texture) 59%,transparent 63%),radial-gradient(ellipse at 88% 160%,transparent 58%,var(--docs-operations-texture) 59%,transparent 64%)}
@@ -144,7 +171,7 @@ export function InteractionSurfaceBlock({ id, title, operations }: { id: string;
       [data-op-params] > [data-note-group]:last-child [data-described]:hover > [data-description-tip],[data-op-params] > [data-note-group]:last-child [data-described]:has(:focus-visible) > [data-description-tip]{translate:0 0}
 
       [data-docs-block-type="interaction-surface"]{--docs-operations-rule:var(--docs-interaction-rule,var(--docs-shape-rule,var(--border)));--docs-operations-tree:var(--docs-interaction-child-rule,var(--docs-shape-child-rule,color-mix(in srgb,var(--foreground) 35%,var(--border))));--docs-operations-code:var(--docs-interaction-bg,var(--docs-shape-bg,var(--background)));--docs-operations-accent:var(--syntax-key,#0e7490);--docs-operations-type:var(--docs-interaction-note-type,var(--docs-shape-type,#0a5779));--docs-operations-type-bg:var(--docs-interaction-note-type-bg,var(--docs-shape-type-bg,color-mix(in srgb,#0a5779 9%,transparent)));--docs-operations-optional:var(--docs-shape-optional-fg,#6b4708)}
-      .dark [data-docs-block-type="interaction-surface"]{--docs-operations-rule:var(--docs-interaction-rule,var(--docs-shape-rule,var(--border)));--docs-operations-tree:var(--docs-interaction-child-rule,var(--docs-shape-child-rule,color-mix(in srgb,var(--foreground) 35%,var(--border))));--docs-operations-code:var(--docs-interaction-bg,var(--docs-shape-bg,var(--background)));--docs-operations-accent:var(--syntax-key,#67e8f9);--docs-operations-type:var(--docs-interaction-note-type,var(--docs-shape-type,#a5d3f0));--docs-operations-type-bg:var(--docs-interaction-note-type-bg,var(--docs-shape-type-bg,color-mix(in srgb,#a5d3f0 14%,transparent)));--docs-operations-optional:var(--docs-shape-optional-fg,#e8c27a)}
+      .dark [data-docs-block-type="interaction-surface"],[data-code-panels="dark"] [data-docs-block-type="interaction-surface"] [data-code-surface]{--docs-operations-rule:var(--docs-interaction-rule,var(--docs-shape-rule,var(--border)));--docs-operations-tree:var(--docs-interaction-child-rule,var(--docs-shape-child-rule,color-mix(in srgb,var(--foreground) 35%,var(--border))));--docs-operations-code:var(--docs-interaction-bg,var(--docs-shape-bg,var(--background)));--docs-operations-accent:var(--syntax-key,#67e8f9);--docs-operations-type:var(--docs-interaction-note-type,var(--docs-shape-type,#a5d3f0));--docs-operations-type-bg:var(--docs-interaction-note-type-bg,var(--docs-shape-type-bg,color-mix(in srgb,#a5d3f0 14%,transparent)));--docs-operations-optional:var(--docs-shape-optional-fg,#e8c27a)}
       [data-param-note]:not([data-note-indent="0"]){background:color-mix(in srgb,var(--muted) 7%,transparent)}
       [data-note-description],[data-operation-purpose]{color:var(--docs-interaction-note-fg,var(--docs-shape-desc-fg,color-mix(in srgb,var(--foreground) 72%,transparent)))}
       [data-param-note] [data-described]>[data-description-tip]{font-size:var(--docs-interaction-desc-text-size,12px)}
@@ -160,7 +187,7 @@ export function InteractionSurfaceBlock({ id, title, operations }: { id: string;
       [data-note-name-cell]{font-size:var(--docs-interaction-note-name-text-size,13px)}
       [data-note-ledger-head],[data-signature-head],[data-return-head]{padding:var(--docs-interaction-column-head-pad-y,8px) var(--note-x);font-family:var(--font-mono,ui-monospace,monospace);font-size:var(--docs-interaction-column-head-text-size,10px);font-weight:600;line-height:1.5;letter-spacing:.1em;text-transform:uppercase;color:var(--docs-interaction-column-head-fg,var(--docs-shape-muted,var(--muted-foreground)));background:var(--docs-interaction-column-head-bg,color-mix(in srgb,var(--muted) 18%,transparent));border-bottom:var(--docs-interaction-column-head-rule-width,2px) solid var(--docs-operations-rule)}
       [data-note-type-chip]{box-decoration-break:slice;-webkit-box-decoration-break:slice}
-      [data-op-sig] [data-sig-token="param"]{color:var(--syntax-key)}
+      ${SIG_TOKEN_STYLE}
       [data-op-sig] [data-code-line]{font-family:var(--font-mono,ui-monospace,monospace)}
 
       [data-operation-output]{margin-top:20px;border-top:1px solid var(--docs-operations-rule)}

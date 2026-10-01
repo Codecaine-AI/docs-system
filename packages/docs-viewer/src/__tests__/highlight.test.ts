@@ -1,10 +1,15 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "bun:test";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import ReactMarkdown from "react-markdown";
+import rehypeHighlight from "rehype-highlight";
 import {
   canonicalLanguage,
   highlightCode,
   highlightCodeTokens,
   prettyPrintIfJson,
+  rehypeHljsRoles,
 } from "../components/code/highlight";
 
 /** Strip all tags — recovers the (still HTML-escaped) text of a line. */
@@ -129,6 +134,92 @@ describe("null literals carry hljs-null so --syntax-null reaches code blocks", (
     expect(css.slice(nullRule)).toMatch(
       /^\.hljs-null,\s*\.hljs-null \.hljs-keyword \{\s*color: var\(--syntax-null, /,
     );
+  });
+});
+
+describe("control-flow keywords carry hljs-control so --syntax-control reaches them", () => {
+  const CONTROL = '<span class="hljs-keyword hljs-control">';
+
+  it("tags if/return/import/from in ts but not const/function", () => {
+    const line = highlightCode(
+      'import { a } from "b"; function f() { const x = 1; if (x) { return x; } }',
+      "ts",
+    )[0];
+    for (const word of ["import", "from", "if", "return"]) {
+      expect(line).toContain(`${CONTROL}${word}</span>`);
+    }
+    expect(line).toContain('<span class="hljs-keyword">const</span>');
+    expect(line).toContain('<span class="hljs-keyword">function</span>');
+    expect(countMatches(line, /hljs-control/g)).toBe(4);
+  });
+
+  it("leaves the word `if` inside strings and comments untagged", () => {
+    const line = highlightCode('const s = "if return"; // if import', "ts")[0];
+    expect(line).not.toContain("hljs-control");
+    expect(stripTags(line)).toBe("const s = &quot;if return&quot;; // if import");
+  });
+
+  it("tags python's elif/raise and leaves def alone; SQL keywords stay plain", () => {
+    const py = highlightCode("def f(x):\n    if x: raise E\n    elif y: pass", "python");
+    expect(py[0]).not.toContain("hljs-control");
+    expect(py[1]).toContain(`${CONTROL}if</span>`);
+    expect(py[1]).toContain(`${CONTROL}raise</span>`);
+    expect(py[2]).toContain(`${CONTROL}elif</span>`);
+    expect(highlightCode("select a from t", "sql")[0]).not.toContain("hljs-control");
+  });
+
+  it("gives the editor's token ranges the class with exact offsets", () => {
+    const code = 'if (a < "x") return b;';
+    const tokens = highlightCodeTokens(code, "ts").filter((token) =>
+      token.className.includes("hljs-control"),
+    );
+    expect(tokens).toEqual([
+      { from: 0, to: 2, className: "hljs-keyword hljs-control" },
+      { from: 13, to: 19, className: "hljs-keyword hljs-control" },
+    ]);
+    expect(tokens.map((token) => code.slice(token.from, token.to))).toEqual(["if", "return"]);
+  });
+
+  it("splits built-ins: types get hljs-type, callables stay plain built_in", () => {
+    const line = highlightCode("const s: string = String(setTimeout(f));", "ts")[0];
+    expect(line).toContain('<span class="hljs-built_in hljs-type">string</span>');
+    expect(line).toContain('<span class="hljs-built_in">setTimeout</span>');
+    expect(highlightCode("print(int(x))", "python")[0]).toContain(
+      '<span class="hljs-built_in">print</span>(<span class="hljs-built_in hljs-type">int</span>',
+    );
+  });
+
+  it("the stylesheet colors control keywords from --syntax-control", () => {
+    const css = readFileSync(new URL("../styles/code.css", import.meta.url), "utf8");
+    expect(css).toMatch(/\.hljs-keyword\.hljs-control \{\s*color: var\(--syntax-control, /);
+  });
+});
+
+describe("rehypeHljsRoles: markdown fenced code gets the same role classes", () => {
+  const render = (markdown: string) =>
+    renderToStaticMarkup(
+      createElement(ReactMarkdown, { rehypePlugins: [rehypeHighlight, rehypeHljsRoles] }, markdown),
+    );
+
+  it("tags control keywords, built-in types and nulls, leaving strings and comments alone", () => {
+    const html = render(
+      '```ts\nimport { a } from "b";\nconst s: string = setTimeout(f) ?? null; // if\nif (s) return "if";\n```',
+    );
+    for (const word of ["import", "from", "if", "return"]) {
+      expect(html).toContain(`<span class="hljs-keyword hljs-control">${word}</span>`);
+    }
+    expect(html).toContain('<span class="hljs-keyword">const</span>');
+    expect(html).toContain('<span class="hljs-built_in hljs-type">string</span>');
+    expect(html).toContain('<span class="hljs-built_in">setTimeout</span>');
+    expect(html).toContain('<span class="hljs-literal hljs-null">null</span>');
+    expect(countMatches(html, /hljs-control/g)).toBe(4);
+  });
+
+  it("matches highlight.ts on the JSON null shape and skips SQL", () => {
+    expect(render('```json\n{"a": null, "b": true}\n```')).toContain(
+      '<span class="hljs-literal hljs-null"><span class="hljs-keyword">null</span></span>',
+    );
+    expect(render("```sql\nselect a from t\n```")).not.toContain("hljs-control");
   });
 });
 

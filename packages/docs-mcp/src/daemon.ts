@@ -17,7 +17,7 @@ export async function runDaemon(){
   await unlink(lockPath);lock=await open(lockPath,'wx',0o600);
  }
  await lock.writeFile(String(process.pid));
- const service=createInteractionService({globalThemesRoot:process.env.CODECAINE_DOCS_GLOBAL_THEMES||join(stateDirectory(),'themes')});const token=randomBytes(32).toString('hex');const fingerprint=await implementationFingerprint();
+ const service=createInteractionService({globalThemesRoot:process.env.CODECAINE_DOCS_GLOBAL_THEMES||join(stateDirectory(),'themes'),codeThemesRoot:process.env.CODECAINE_DOCS_CODE_THEMES||join(stateDirectory(),'code-themes')});const token=randomBytes(32).toString('hex');const fingerprint=await implementationFingerprint();
  const startedAt=new Date().toISOString();
  const server=Bun.serve({hostname:'127.0.0.1',port:0,idleTimeout:120,async fetch(request){
   const url=new URL(request.url);

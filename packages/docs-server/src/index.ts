@@ -67,6 +67,42 @@ export {
   type ThemeListEntry,
 } from "./themes";
 
+// Code themes — the central code style (docs-model code-theme)
+export {
+  DEFAULT_ACTIVE_CODE_THEME_ID,
+  codeThemePath,
+  codeThemesRootFor,
+  isReservedCodeThemeId,
+  readActiveCodeTheme,
+  writeActiveCodeTheme,
+  type ActiveCodeTheme,
+  importCodeTheme,
+  listCodeThemes,
+  parseCodeThemeImportSource,
+  readCodeTheme,
+  readStoredCodeTheme,
+  resolveCodeThemesRoot,
+  writeCodeTheme,
+  type CodeThemeImportSource,
+  type ImportCodeThemeOptions,
+  type ImportCodeThemeResult,
+} from "./code-themes";
+export {
+  EDITOR_LABELS,
+  editorSettingsPath,
+  editorStateDbPath,
+  editorUserDir,
+  installedEditors,
+  loadThemeFile,
+  parseJsonc,
+  readActiveEditorTheme,
+  readEditorColorThemeSetting,
+  readStateDbColorTheme,
+  type EditorEnvironment,
+  type EditorId,
+  type EditorThemeSnapshot,
+} from "./editor-themes";
+
 // Bundle + annotations primitives
 export {
   ANNOTATIONS_SIDECAR_FILENAME,

@@ -112,7 +112,10 @@ describe("CodeShell (plain read surface)", () => {
     expect(gutterLine).toContain("pr-[var(--docs-code-gutter-pad-x,8px)]");
     // ...and the number color survives next to the size (cn() must not
     // treat the two text-[...] utilities as one group).
-    expect(gutterLine).toContain("var(--docs-code-gutter-fg,var(--muted-foreground))");
+    // Line numbers paint the token as-is; the faint 55% mix is only the token-less fallback.
+    expect(gutterLine).toContain(
+      "text-[color:var(--docs-code-gutter-fg,color-mix(in_srgb,var(--muted-foreground)_55%,transparent))]",
+    );
 
     // Zebra: starts at the gutter edge, period = 2 x the line-height token.
     const zebra = cls("[data-code-zebra]");

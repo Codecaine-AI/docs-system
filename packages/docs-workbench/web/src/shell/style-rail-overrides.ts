@@ -20,6 +20,7 @@ export type StyleRailSettingLeafPath =
   | "typography.bodyFont"
   | "typography.headingFont"
   | "typography.codeFont"
+  | "typography.codePanels"
   | "typography.numberFont"
   | "typography.fontSize"
   | "typography.lineHeight"
@@ -125,6 +126,7 @@ const PANE_SETTING_LEAVES: Partial<
     "typography.bodyFont",
     "typography.headingFont",
     "typography.codeFont",
+    "typography.codePanels",
     "typography.numberFont",
     "typography.fontSize",
     "typography.lineHeight",

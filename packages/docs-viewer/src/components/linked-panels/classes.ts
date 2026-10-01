@@ -81,9 +81,9 @@ export const NUMBERED_LINE_CLASSES =
 export const CODE_LINE_ZEBRA_CLASSES =
   "bg-[color:var(--docs-zebra,color-mix(in_srgb,var(--muted)_20%,transparent))]";
 
-/** Gutter cell: right-aligned local line number behind a hairline rule; numbers are faint gutter fg. Column width and number size are the --docs-link-gutter-* tokens. */
+/** Gutter cell: right-aligned local line number behind the code block's own hairline (--docs-code-rule at --docs-code-rule-opacity, --docs-code-rule-width wide); numbers are --docs-code-gutter-fg as-is (faint 55% muted mix only as the token-less fallback). Column width and number size are the --docs-link-gutter-* tokens. */
 export const CODE_LINE_GUTTER_CLASSES =
-  "mr-3.5 w-[var(--docs-link-gutter-width,44px)] flex-none select-none border-r border-solid border-[color:var(--docs-code-rule,var(--border))] pr-3 text-right text-[length:var(--docs-link-gutter-text-size,11px)] leading-[var(--docs-link-line-height,20px)] text-[color:color-mix(in_srgb,var(--docs-code-gutter-fg,var(--muted-foreground))_55%,transparent)]";
+  "mr-3.5 w-[var(--docs-link-gutter-width,44px)] flex-none select-none border-r border-solid border-r-[length:var(--docs-code-rule-width,1px)] border-r-[color:color-mix(in_srgb,var(--docs-code-rule,var(--border))_calc(var(--docs-code-rule-opacity,0.5)*100%),transparent)] pr-3 text-right text-[length:var(--docs-link-gutter-text-size,11px)] leading-[var(--docs-link-line-height,20px)] text-[color:var(--docs-code-gutter-fg,color-mix(in_srgb,var(--muted-foreground)_55%,transparent))]";
 
 /**
  * CodeLines filler: the zebra rhythm continued past the last line down to
@@ -99,7 +99,7 @@ export const CODE_LINES_FILLER_ODD_CLASSES =
 
 /** The gutter rule continued through the CodeLines filler — MUST share the gutter cell's width token so the hairline runs unbroken to the panel's bottom edge. */
 export const CODE_LINES_FILLER_RULE_CLASSES =
-  "absolute inset-y-0 left-0 w-[var(--docs-link-gutter-width,44px)] border-r border-solid border-[color:var(--docs-code-rule,var(--border))]";
+  "absolute inset-y-0 left-0 w-[var(--docs-link-gutter-width,44px)] border-r border-solid border-r-[length:var(--docs-code-rule-width,1px)] border-r-[color:color-mix(in_srgb,var(--docs-code-rule,var(--border))_calc(var(--docs-code-rule-opacity,0.5)*100%),transparent)]";
 
 /** Gutter number of a LIT line: pin color + bold. */
 export const CODE_LINE_GUTTER_LIT_CLASSES =

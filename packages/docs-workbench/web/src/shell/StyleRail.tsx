@@ -2,6 +2,7 @@ import { projectStorage, themeStorage } from "../data/project-storage";
 import { PanelRightClose, PanelRightOpen, SlidersHorizontal } from "lucide-react";
 import { DOC_BLOCK_TYPES } from "@codecaine-ai/docs-model/doc-schema";
 import { THEME_TOKEN_REGISTRY } from "../theme/theme-folders";
+import type { CodeThemeControls } from "../theme/use-code-theme";
 import { useState } from "react";
 import { cn } from "@codecaine-ai/docs-viewer/ui/cn";
 import { StyleRailNav, isStyleRailPaneId, type StyleRailPaneId } from "./style-rail-nav";
@@ -35,6 +36,15 @@ export type AccentFamily =
   | "gray";
 
 export type FontChoice = "sans" | "serif" | "mono";
+/** Code surfaces also offer Fira Code (the VS Code / Cursor editor font). */
+export type CodeFontChoice = FontChoice | "fira-code";
+/**
+ * How code panels (code blocks, and the code panes inside state shapes and
+ * interaction surfaces) take the theme: "dark" renders them as dark panels
+ * on every page, light included; "page" follows the page's light/dark mode.
+ * The blocks around those panes always follow the page.
+ */
+export type CodePanelMode = "dark" | "page";
 /** "body" = follow the body font (no independent override). */
 export type NumberFontChoice = FontChoice | "body";
 /** Border style for the side-peek divider — --docs-peek-divider-style. */
@@ -107,7 +117,9 @@ export type StyleRailSettings = {
     bodyFont: FontChoice;
     headingFont: FontChoice;
     /** Font for code surfaces (code blocks, inline code chips) — --docs-font-code. */
-    codeFont: FontChoice;
+    codeFont: CodeFontChoice;
+    /** Code panel theming — the `data-code-panels` attribute on <html>. */
+    codePanels: CodePanelMode;
     /** Font for numeric UI (including ordered list counters) — --docs-font-numeric; "body" inherits. */
     numberFont: NumberFontChoice;
     /** Content body size in px. */
@@ -303,7 +315,8 @@ export const DEFAULT_STYLE_RAIL_SETTINGS: StyleRailSettings = {
   typography: {
     bodyFont: "sans",
     headingFont: "sans",
-    codeFont: "mono",
+    codeFont: "fira-code",
+    codePanels: "dark",
     numberFont: "body",
     fontSize: 18,
     lineHeight: 1.45,
@@ -493,6 +506,16 @@ const NUMBER_FONT_OPTIONS: Array<{ id: NumberFontChoice; label: string }> = [
   ...FONT_OPTIONS,
 ];
 
+const CODE_FONT_OPTIONS: Array<{ id: CodeFontChoice; label: string }> = [
+  ...FONT_OPTIONS,
+  { id: "fira-code", label: "Fira Code" },
+];
+
+const CODE_PANEL_OPTIONS: Array<{ id: CodePanelMode; label: string }> = [
+  { id: "dark", label: "Always dark" },
+  { id: "page", label: "Follow page" },
+];
+
 const PEEK_DIVIDER_STYLE_OPTIONS: Array<{ id: PeekDividerStyle; label: string }> = [
   { id: "solid", label: "Solid" },
   { id: "dashed", label: "Dashed" },
@@ -614,10 +637,12 @@ function normalizeBlockLayout(
   return kept;
 }
 
-const FONT_STACKS: Record<FontChoice, string> = {
+const FONT_STACKS: Record<CodeFontChoice, string> = {
   sans: "ui-sans-serif, system-ui, sans-serif",
   serif: "ui-serif, Georgia, 'Times New Roman', serif",
   mono: "ui-monospace, 'SF Mono', SFMono-Regular, Menlo, monospace",
+  // Stock code font: index.css's :root --docs-font-code carries this stack.
+  "fira-code": "\"Fira Code\", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
 };
 
 function clampNumber(value: unknown, min: number, max: number, fallback: number): number {
@@ -720,7 +745,8 @@ export function normalizeSettings(
     typography: {
       bodyFont: pickOption(typography.bodyFont, FONT_OPTIONS, d.typography.bodyFont),
       headingFont: pickOption(typography.headingFont, FONT_OPTIONS, d.typography.headingFont),
-      codeFont: pickOption(typography.codeFont, FONT_OPTIONS, d.typography.codeFont),
+      codeFont: pickOption(typography.codeFont, CODE_FONT_OPTIONS, d.typography.codeFont),
+      codePanels: pickOption(typography.codePanels, CODE_PANEL_OPTIONS, d.typography.codePanels),
       numberFont: pickOption(typography.numberFont, NUMBER_FONT_OPTIONS, d.typography.numberFont),
       fontSize: clampNumber(typography.fontSize, 12, 28, d.typography.fontSize),
       lineHeight: clampNumber(typography.lineHeight, 1.1, 2.1, d.typography.lineHeight),
@@ -1155,12 +1181,70 @@ export function styleRailVars(settings: StyleRailSettings): Record<string, strin
   return vars;
 }
 
+/**
+ * Rail vars a dark code panel does NOT take: the page color picks. They tune
+ * the page (a cream background, near-black text), so a panel rendered dark on
+ * a light page keeps its own dark values for them.
+ */
+const PAGE_COLOR_VARS: ReadonlySet<string> = new Set([
+  "--background",
+  "--card",
+  "--popover",
+  "--sidebar",
+  "--foreground",
+  "--card-foreground",
+  "--popover-foreground",
+  "--sidebar-foreground",
+  "--docs-viewer-text-body",
+  "--docs-viewer-text-heading",
+]);
+
+/** The single <style> element the dark-code-panel restatement lives in. */
+export const CODE_PANEL_STYLE_ELEMENT_ID = "docs-style-rail-code-panels";
+
+/**
+ * The rail's overrides restated for dark code panels, as CSS TEXT.
+ *
+ * A dark panel re-declares every theme token at its dark value ON the panel
+ * element (the island selector on theme/semantic.css's dark block), and a
+ * declaration on an element beats the value it would inherit from <html>.
+ * Without this rule every rail override (radius, code text size, a component
+ * token) would stop at the panel's edge. Restating them on the panel puts them
+ * back on top, and the var()/color-mix expressions (accent, border strength)
+ * resolve against the panel's dark palette. `:root[…] […]` is (0,3,0), so it
+ * outranks the (0,2,0) island blocks whatever the stylesheet order.
+ *
+ * Empty when panels follow the page: there is no island to restate into.
+ */
+export function codePanelOverrideCss(settings: StyleRailSettings): string {
+  if (settings.typography.codePanels !== "dark") return "";
+  const declarations = Object.entries(styleRailVars(settings))
+    .filter(([key, value]) => value !== null && !PAGE_COLOR_VARS.has(key))
+    .map(([key, value]) => `  ${key}: ${value};`);
+  if (declarations.length === 0) return "";
+  return `:root[data-code-panels="dark"] [data-code-surface] {\n${declarations.join("\n")}\n}`;
+}
+
+/**
+ * Writes the rail onto <html>: every var as an inline custom property, the
+ * Code panels knob as `data-code-panels` (the attribute the dark-panel CSS
+ * keys on), and the panel restatement into its managed <style> element.
+ */
 export function applyStyleRailVars(settings: StyleRailSettings) {
   const root = document.documentElement;
   for (const [key, value] of Object.entries(styleRailVars(settings))) {
     if (value === null) root.style.removeProperty(key);
     else root.style.setProperty(key, value);
   }
+  root.setAttribute("data-code-panels", settings.typography.codePanels);
+  let element = document.getElementById(CODE_PANEL_STYLE_ELEMENT_ID) as HTMLStyleElement | null;
+  if (!element) {
+    element = document.createElement("style");
+    element.id = CODE_PANEL_STYLE_ELEMENT_ID;
+    document.head.appendChild(element);
+  }
+  const css = codePanelOverrideCss(settings);
+  if (element.textContent !== css) element.textContent = css;
 }
 
 /** The single <style> element the lane overrides live in. */
@@ -1308,6 +1392,7 @@ export function StyleRail({
   onSaveTheme,
   onSaveStyleToRepo,
   saveStyleLabel = "Save style to repo",
+  codeTheme,
 }: {
   collapsed: boolean;
   onCollapsedChange: (collapsed: boolean) => void;
@@ -1330,6 +1415,8 @@ export function StyleRail({
   onSaveStyleToRepo?: () => void;
   /** Button text for onSaveStyleToRepo; the shared global theme is not a repo file. */
   saveStyleLabel?: string;
+  /** Central code theme picker (Typography pane); absent when it cannot be changed. */
+  codeTheme?: CodeThemeControls;
 }) {
   const [selectedPaneId, setSelectedPaneId] = useState<StyleRailPaneId>(() => {
     // docs-style-rail-section:* keys are retired; selection is the persisted pane UI state.
@@ -1420,6 +1507,7 @@ export function StyleRail({
             <StyleRailPane
               activeThemeId={activeThemeId}
               activeThemeName={activeThemeName}
+              codeTheme={codeTheme}
               dark={dark}
               onDarkChange={onDarkChange}
               onSaveTheme={onSaveTheme}

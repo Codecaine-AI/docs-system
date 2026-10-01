@@ -361,4 +361,52 @@ describe("DocBlockRenderer", () => {
     const nestedLane = docRoot.querySelector("[data-doc-lane] [data-doc-lane]");
     expect(nestedLane).toBeNull();
   });
+
+  it("marks every code panel as a code surface and leaves inline code chips unmarked", () => {
+    // [data-code-surface] is the hook the host's "code panels" setting keys
+    // on to render these dark on a light page; an unmarked panel would stay
+    // light, and a marked inline chip would turn into a dark box mid-sentence.
+    const doc = loadFixture();
+    const plainCode = {
+      ...doc,
+      root: "root",
+      blocks: {
+        root: { id: "root", type: "paragraph" as const, props: {}, children: ["code-plain"] },
+        "code-plain": {
+          id: "code-plain",
+          type: "code" as const,
+          props: { language: "ts" },
+          text: [{ insert: "const a = 1;" }],
+          children: [],
+        },
+      },
+    };
+    render(<DocBlockRenderer document={plainCode} />);
+    const frame = screen
+      .getByText((_content, element) => element?.tagName === "CODE" && element.textContent === "const a = 1;")
+      .closest("[data-code-surface]");
+    expect(frame?.className).toContain("group/code");
+    cleanup();
+
+    const { container } = render(<DocBlockRenderer document={doc} />);
+    const surfaceOf = (selector: string) =>
+      container.querySelector(selector)?.closest("[data-code-surface]") ?? null;
+    // Annotated code: the frame inside the annotations section.
+    expect(surfaceOf('[data-code-annotations="code-1"] pre')).toBeTruthy();
+    // State shape and interaction surface: only the code pane (the example
+    // JSON / the signature lines) is a panel; the block, its header and its
+    // field table stay on the page theme.
+    expect(surfaceOf("[data-shape-example-pane] [data-code-line]")?.hasAttribute("data-code-lines")).toBe(true);
+    expect(surfaceOf("[data-op-sig] [data-code-line]")?.hasAttribute("data-code-lines")).toBe(true);
+    for (const type of ["state-shape", "interaction-surface"]) {
+      const block = container.querySelector(`section[data-docs-block-type="${type}"]`);
+      expect(block).toBeTruthy();
+      expect(block?.closest("[data-code-surface]")).toBeNull();
+    }
+    expect(surfaceOf("[data-shape-header]")).toBeNull();
+    expect(surfaceOf("[data-shape-example-head]")).toBeNull();
+    expect(surfaceOf("[data-signature-head]")).toBeNull();
+    // Inline code in prose is not a panel.
+    expect(screen.getByText("inline code").closest("[data-code-surface]")).toBeNull();
+  });
 });

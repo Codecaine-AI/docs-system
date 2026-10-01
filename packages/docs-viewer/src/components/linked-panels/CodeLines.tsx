@@ -49,7 +49,7 @@ export function CodeLines({
   // one-line band is line lines.length+1, so its tint follows that parity.
   const nextLineEven = (lines.length + 1) % 2 === 0;
   return (
-    <div {...rest} data-code-lines="true" className={cn(CODE_LINES_PANEL_CLASSES, className)}>
+    <div {...rest} data-code-lines="true" data-code-surface="true" className={cn(CODE_LINES_PANEL_CLASSES, className)}>
       <div className={CODE_LINES_BODY_CLASSES}>
         {lines.map((line, index) => (
           <NumberedLine key={index} linkKey={line.linkKey} number={index + 1}>

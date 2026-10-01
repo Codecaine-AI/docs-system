@@ -48,6 +48,8 @@ import {
   type ThemeDefinition,
   type ThemeManifest,
 } from "../theme/theme-folders";
+import { applyCodeThemeStyle } from "../theme/code-theme-style";
+import { useCodeTheme } from "../theme/use-code-theme";
 
 /**
  * Standalone docs workbench shell: left sidebar (docs tree + theme toggle)
@@ -251,6 +253,9 @@ export function App() {
   const [styleSettings, setStyleSettings] = useState<StyleRailSettings>(() =>
     loadStyleRailSettings(),
   );
+  // The machine-wide active code theme (docs-server code-themes.ts): applied
+  // to every code pane below; null until (or unless) the API answers.
+  const { theme: codeTheme, controls: codeThemeControls } = useCodeTheme();
   const [styleRailCollapsed, setStyleRailCollapsed] = useState<boolean>(
     () => projectStorage.getItem(STYLE_RAIL_COLLAPSE_KEY) === "true",
   );
@@ -556,6 +561,12 @@ export function App() {
   }, [styleSettings, themeLocked, themeReady]);
 
   useEffect(() => {
+    // The active code theme, scoped to code panes. It reads the rail's vars
+    // so an explicit rail override of a code token keeps winning.
+    applyCodeThemeStyle(codeTheme, styleSettings);
+  }, [codeTheme, styleSettings]);
+
+  useEffect(() => {
     if (!themeReady || themeLocked !== false) return;
     projectStorage.setItem(STYLE_RAIL_COLLAPSE_KEY, String(styleRailCollapsed));
   }, [styleRailCollapsed, themeLocked, themeReady]);
@@ -677,6 +688,7 @@ export function App() {
             onSelectTheme={handleSelectTheme}
             onSaveStyleToRepo={canAuthorTheme ? handleSaveStyleToRepo : undefined}
             saveStyleLabel={globalTheme ? "Save global style" : undefined}
+            codeTheme={IS_STATIC ? undefined : codeThemeControls}
           />
         )}
       </div>

@@ -25,6 +25,13 @@ import {
   themesRootForId,
   writeRepoTheme,
 } from "./themes";
+import {
+  importCodeTheme,
+  listCodeThemes,
+  readActiveCodeTheme,
+  readCodeTheme,
+  writeActiveCodeTheme,
+} from "./code-themes";
 
 /**
  * GET /api/blocks payload — the agent edit-surface discovery document, so
@@ -89,6 +96,13 @@ function toSnakeCaseWire(value: unknown): unknown {
  *   GET  /api/themes                        -> { themes: [{ id, name, global? }] } (global first when configured)
  *   GET  /api/themes/:themeId               -> { theme: { id, manifest, components } } | 404
  *   POST /api/themes                        -> 201 { theme } | 400 (writes <root>/<id>/ folder) | 403 themeLocked
+ *   GET  /api/code-themes                   -> { codeThemes: [{ id, name, type, builtin?, source }] } (built-ins first)
+ *   GET  /api/code-themes/active            -> { id, codeTheme } (dark-plus when unset or stale)
+ *   PUT  /api/code-themes/active            -> { id, codeTheme } | 400 unknown id | 403 themeLocked | 409 no root
+ *   GET  /api/code-themes/:codeThemeId      -> { codeTheme } | 404
+ *   POST /api/code-themes/import            -> 201 { codeTheme, path, provenance, warnings } | 400 | 403 themeLocked | 409 no root
+ *                                              body { from?: "auto"|"cursor"|"vscode", id?, name? } — editor
+ *                                              sources only; file paths are CLI-only (`docs code-theme import --from <path>`)
  *   POST /api/ops                           -> doc ops or one forwarded canvas/sequence action | 400/409/423
  *   GET  /api/annotations?path=             -> { annotations, hash }
  *   POST /api/annotations                   -> 201 { annotation, annotations, hash } | 409/423
@@ -134,6 +148,12 @@ function toSnakeCaseWire(value: unknown): unknown {
  * reads/writes of that id go there — never to the repo. Absent it, the id
  * is unavailable (404 on read, 400 on write). The factory never reads the
  * environment; hosts resolve the root (themes.ts resolveGlobalThemesRoot).
+ * `options.codeThemesRoot` is the machine's central CODE theme folder
+ * (code-themes.ts resolveCodeThemesRoot, `<state dir>/code-themes/`): code
+ * themes style every code surface independent of the page theme. Absent
+ * it, only the built-ins list, the active theme is Dark+, and imports /
+ * activation answer 409. Imports and PUT active obey `themeLocked` like
+ * POST /api/themes.
  *
  * NOTE (SSE): Elysia treats an async generator handler as a stream natively;
  * yields wrapped with the `sse()` helper flip the response into SSE mode
@@ -143,10 +163,11 @@ function toSnakeCaseWire(value: unknown): unknown {
  */
 export function createDocsRoutes(
   store: DocsStore,
-  options?: { themeLocked?: boolean; themesRoot?: string; globalThemesRoot?: string },
+  options?: { themeLocked?: boolean; themesRoot?: string; globalThemesRoot?: string; codeThemesRoot?: string },
 ) {
   const themesRoot = options?.themesRoot ?? themesRootFor(store.docsRoot);
   const globalThemesRoot = options?.globalThemesRoot;
+  const codeThemesRoot = options?.codeThemesRoot;
   return new Elysia({ name: "docs-server-routes" })
     // -- dev CORS (see CORS_HEADERS above) -------------------------------------
     // onRequest runs before routing, so success, validation-error, and 404
@@ -430,6 +451,91 @@ export function createDocsRoutes(
       });
       set.status = 201;
       return { theme: await readRepoTheme(root, payload.id) };
+    })
+
+    // -- code themes: the central code style (code-themes.ts) ------------------
+    .get("/api/code-themes", async () => {
+      return { codeThemes: await listCodeThemes(codeThemesRoot) };
+    })
+    // Static segment: Elysia matches it before the :codeThemeId param, and
+    // `active` is a reserved code theme id.
+    .get("/api/code-themes/active", async () => {
+      return readActiveCodeTheme(codeThemesRoot);
+    })
+    .put("/api/code-themes/active", async ({ body, set }) => {
+      if (options?.themeLocked) {
+        set.status = 403;
+        return {
+          detail: "Theme is locked on this serve: choose the code theme in the primary docs-system app.",
+        };
+      }
+      if (!codeThemesRoot) {
+        set.status = 409;
+        return { detail: "This host has no code-themes folder configured; the active code theme is fixed." };
+      }
+      const id = (body as { id?: unknown } | null)?.id;
+      if (typeof id !== "string") {
+        set.status = 400;
+        return { detail: "Active code theme id must be a string." };
+      }
+      try {
+        return await writeActiveCodeTheme(codeThemesRoot, id);
+      } catch (error) {
+        set.status = 400;
+        return { detail: error instanceof Error ? error.message : String(error) };
+      }
+    })
+    .get("/api/code-themes/:codeThemeId", async ({ params, set }) => {
+      const codeTheme = await readCodeTheme(codeThemesRoot, params.codeThemeId);
+      if (!codeTheme) {
+        set.status = 404;
+        return { detail: `No code theme named ${JSON.stringify(params.codeThemeId)}.` };
+      }
+      return { codeTheme };
+    })
+    .post("/api/code-themes/import", async ({ body, set }) => {
+      if (options?.themeLocked) {
+        set.status = 403;
+        return {
+          detail: "Theme is locked on this serve: import code themes in the primary docs-system app.",
+        };
+      }
+      if (!codeThemesRoot) {
+        set.status = 409;
+        return { detail: "This host has no code-themes folder configured; imports are unavailable." };
+      }
+      const payload = (body ?? {}) as { from?: unknown; id?: unknown; name?: unknown };
+      const from = payload.from ?? "auto";
+      if (from !== "auto" && from !== "cursor" && from !== "vscode") {
+        set.status = 400;
+        return { detail: 'Code theme import "from" must be "auto", "cursor", or "vscode".' };
+      }
+      if (payload.id !== undefined && typeof payload.id !== "string") {
+        set.status = 400;
+        return { detail: "Code theme id must be a string." };
+      }
+      if (payload.name !== undefined && typeof payload.name !== "string") {
+        set.status = 400;
+        return { detail: "Code theme name must be a string." };
+      }
+      try {
+        const result = await importCodeTheme({
+          root: codeThemesRoot,
+          from,
+          id: payload.id as string | undefined,
+          name: payload.name as string | undefined,
+        });
+        set.status = 201;
+        return {
+          codeTheme: result.theme,
+          path: result.path,
+          provenance: result.provenance,
+          warnings: result.warnings,
+        };
+      } catch (error) {
+        set.status = 400;
+        return { detail: error instanceof Error ? error.message : String(error) };
+      }
     })
 
     // -- doc ops ---------------------------------------------------------------

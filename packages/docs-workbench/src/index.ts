@@ -8,6 +8,15 @@ export {
 } from "./server";
 export { runExport, type ExportOptions, type ExportReport } from "./export";
 export { resolveGlobalThemesRoot } from "@codecaine-ai/docs-server";
+export {
+  importCodeTheme,
+  listCodeThemes,
+  parseCodeThemeImportSource,
+  readActiveCodeTheme,
+  readCodeTheme,
+  resolveCodeThemesRoot,
+  writeActiveCodeTheme,
+} from "@codecaine-ai/docs-server";
 export { ensureSpaBuilt, spaDistDir, webDir } from "./spa";
 export {
   bundleResponse,

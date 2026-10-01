@@ -44,7 +44,13 @@ export const descriptors: DocBlockDescriptor[] = [
         { key: block.id, ...blockAttrs(block) },
         el(
           "div",
-          { className: `group/code ${CODE_BLOCK_CLASSES}`, "data-language": language },
+          // data-code-surface: the frame is a code panel, so the host's
+          // "code panels" setting can render it dark on a light page.
+          {
+            className: `group/code ${CODE_BLOCK_CLASSES}`,
+            "data-language": language,
+            "data-code-surface": "true",
+          },
           createElement(CodeShell, {
             languageLabel: resolveDisplayLanguage(displayCode, language),
             copyText: () => displayCode,

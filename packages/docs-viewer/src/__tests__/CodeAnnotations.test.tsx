@@ -277,7 +277,10 @@ describe("AnnotatedCodeBlock", () => {
     expect(gutterCell).toContain("h-[var(--docs-code-line-height,20px)]");
     expect(gutterCell).toContain("text-[length:var(--docs-code-gutter-text-size,12px)]");
     expect(gutterCell).toContain("pr-[var(--docs-code-gutter-pad-x,8px)]");
-    expect(gutterCell).toContain("var(--docs-code-gutter-fg,var(--muted-foreground))");
+    // Line numbers paint the token as-is; the faint 55% mix is only the token-less fallback.
+    expect(gutterCell).toContain(
+      "text-[color:var(--docs-code-gutter-fg,color-mix(in_srgb,var(--muted-foreground)_55%,transparent))]",
+    );
     expect(gutterCell).toContain("--docs-code-gutter-bg");
     expect(cls('[data-code-line="3"] > code')).toContain("px-[var(--docs-code-pad-x,12px)]");
 

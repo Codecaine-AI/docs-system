@@ -20,7 +20,35 @@
 @source "../../../../packages/docs-viewer/src";
 @source "../../node_modules/@codecaine-ai/canvas/src";
 
-@custom-variant dark (&:is(.dark *));
+/*
+ * `dark:` fires under a .dark page AND inside a dark code panel: a
+ * [data-code-surface] element (or its descendant) under
+ * [data-code-panels="dark"], the style rail's Code panels knob (StyleRail.tsx
+ * applyStyleRailVars writes the attribute on <html>). The panel part sits in
+ * :where() so `dark:` utilities keep the specificity `.dark *` gave them.
+ * The token half of the island is the extra selector on the dark blocks in
+ * theme/semantic.css, theme/notion-palette.css and the compiled theme layer.
+ */
+@custom-variant dark (&:is(.dark *, :where([data-code-panels="dark"] [data-code-surface], [data-code-panels="dark"] [data-code-surface] *)));
+
+/*
+ * Dark code panel base. The tokens re-declare on the panel, but inherited
+ * properties computed on an ancestor do not: the page's text color and the
+ * Typography plugin's --tw-prose-pre-* (resolved on .docs-markdown) would
+ * arrive at their light values. Restate them here so they resolve against
+ * the panel's dark tokens. The background gives a pane that is transparent
+ * over its light block (the linked code panes in state-shape and
+ * interaction-surface) its own dark fill. Base layer, so component
+ * utilities (the code block frame's own bg) still win.
+ */
+@layer base {
+  [data-code-panels="dark"] [data-code-surface] {
+    color: var(--docs-code-fg, var(--docs-viewer-text-body, var(--foreground)));
+    background-color: var(--docs-code-block-bg, var(--background));
+    --tw-prose-pre-bg: var(--docs-code-block-bg, var(--docs-surface-muted));
+    --tw-prose-pre-code: var(--docs-viewer-text-muted);
+  }
+}
 
 /*
  * Font stacks: Spectre ships proprietary display/body fonts (Bank Gothic,
@@ -35,7 +63,7 @@
   /* Canonical per-surface font tokens (style-rail "Code font" / "Number
      font" override these; --docs-font-numeric defaults to inherit at the
      use sites, so no :root entry). */
-  --docs-font-code: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
+  --docs-font-code: "Fira Code", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 /*

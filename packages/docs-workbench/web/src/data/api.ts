@@ -1,6 +1,7 @@
 import type { DocsTreeNode, DraftLockKind, AcquireDraftLockResult } from "@codecaine-ai/docs-viewer/client";
 import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import type { DocOp } from "@codecaine-ai/docs-model/doc-ops";
+import type { CodeTheme, CodeThemeListEntry } from "@codecaine-ai/docs-model/code-theme";
 import type { DocChangeSetView } from "@codecaine-ai/docs-viewer/lab";
 import type {
   AnnotationIntent,
@@ -846,6 +847,43 @@ export async function getThemes(): Promise<{ themes: ThemeListEntry[] }> {
 export async function getTheme(id: string): Promise<{ theme: ThemeWirePayload }> {
   if (IS_STATIC) return fetchJson(`data/theme.json`);
   return fetchJson(`api/themes/${encodeURIComponent(id)}`);
+}
+
+// ---------------------------------------------------------------------------
+// Code themes — the central code style (docs-server code-themes.ts)
+// ---------------------------------------------------------------------------
+
+/** Built-in + imported code themes. A static export has no catalogue. */
+export async function getCodeThemes(): Promise<{ codeThemes: CodeThemeListEntry[] }> {
+  if (IS_STATIC) return { codeThemes: [] };
+  return fetchJson(`api/code-themes`);
+}
+
+/**
+ * The machine's active code theme. Throws in a static export (and on a host
+ * without the route) — callers fail soft and keep the stylesheet's built-in
+ * code tokens.
+ */
+export async function getActiveCodeTheme(): Promise<{ id: string; codeTheme: CodeTheme }> {
+  if (IS_STATIC) throw new ApiError("No code themes in a static docs export.", 404);
+  return fetchJson(`api/code-themes/active`);
+}
+
+export async function setActiveCodeTheme(id: string): Promise<{ id: string; codeTheme: CodeTheme }> {
+  assertWritable("Choosing a code theme");
+  return fetchJson(`api/code-themes/active`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id }),
+  });
+}
+
+/** Imports the active VS Code / Cursor theme (`auto` prefers Cursor) into the central store. */
+export async function importCodeThemeFromEditor(
+  from: "auto" | "cursor" | "vscode" = "auto",
+): Promise<{ codeTheme: CodeTheme; warnings: string[] }> {
+  assertWritable("Importing a code theme");
+  return postJson(`api/code-themes/import`, { from });
 }
 
 export async function saveTheme(

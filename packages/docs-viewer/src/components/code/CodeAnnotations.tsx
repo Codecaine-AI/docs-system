@@ -127,7 +127,7 @@ export function AnnotatedCodeBlock({
   return (
     <section className="not-prose" data-code-annotations={id}>
       <LinkGroup>
-        <div className={cn("group/code", CODE_BLOCK_CLASSES, CODE_FRAME_GRID_CLASSES)}>
+        <div className={cn("group/code", CODE_BLOCK_CLASSES, CODE_FRAME_GRID_CLASSES)} data-code-surface="true">
           <div className="min-w-0">
             <CodeBlockHeader
               languageLabel={resolveDisplayLanguage(displayCode, language)}

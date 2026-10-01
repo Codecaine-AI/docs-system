@@ -52,13 +52,17 @@ export function classifyTypeText(type: string): TypeTextClassification {
   return { kind: "prose" };
 }
 
+// The example pane is a code surface: each JSON token wears its code-block
+// syntax role (VS Code Dark+ / Light+ under the theme layer), including the
+// role font-style / weight that styles/code.css reads. Punctuation is the
+// plain code foreground, as in Dark+.
 const JSON_TOKEN_CLASS = {
-  key: "text-[color:var(--syntax-key,#0e7490)] dark:text-[color:var(--syntax-key,#67e8f9)]",
-  string: "text-[color:var(--syntax-string,#15803d)] dark:text-[color:var(--syntax-string,#86efac)]",
-  number: "text-[color:var(--syntax-number,#1d4ed8)] dark:text-[color:var(--syntax-number,#93c5fd)]",
-  boolean: "text-[color:var(--syntax-boolean,#b45309)] dark:text-[color:var(--syntax-boolean,#fcd34d)]",
-  null: "text-[color:var(--syntax-null,#b91c1c)] dark:text-[color:var(--syntax-null,#fca5a5)]",
-  punct: "text-muted-foreground",
+  key: "text-[color:var(--syntax-key,#0e7490)] dark:text-[color:var(--syntax-key,#67e8f9)] [font-style:var(--syntax-key-font-style,normal)] [font-weight:var(--syntax-key-font-weight,inherit)]",
+  string: "text-[color:var(--syntax-string,#15803d)] dark:text-[color:var(--syntax-string,#86efac)] [font-style:var(--syntax-string-font-style,normal)] [font-weight:var(--syntax-string-font-weight,inherit)]",
+  number: "text-[color:var(--syntax-number,#1d4ed8)] dark:text-[color:var(--syntax-number,#93c5fd)] [font-style:var(--syntax-number-font-style,normal)] [font-weight:var(--syntax-number-font-weight,inherit)]",
+  boolean: "text-[color:var(--syntax-boolean,#b45309)] dark:text-[color:var(--syntax-boolean,#fcd34d)] [font-style:var(--syntax-boolean-font-style,normal)] [font-weight:var(--syntax-boolean-font-weight,inherit)]",
+  null: "text-[color:var(--syntax-null,#b91c1c)] dark:text-[color:var(--syntax-null,#fca5a5)] [font-style:var(--syntax-null-font-style,normal)] [font-weight:var(--syntax-null-font-weight,inherit)]",
+  punct: "text-[color:var(--syntax-punctuation,var(--docs-code-fg,var(--muted-foreground)))] [font-style:var(--syntax-punctuation-font-style,normal)] [font-weight:var(--syntax-punctuation-font-weight,inherit)]",
 } as const;
 type JsonTokenKind = keyof typeof JSON_TOKEN_CLASS;
 const JSON_LEXEME_PATTERN = /"(?:[^"\\]|\\.)*"|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?|true|false|null|[{}[\],:]/g;

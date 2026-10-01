@@ -2,7 +2,7 @@
 
 import type { DocOp } from "@codecaine-ai/docs-model/doc-ops";
 import { Fragment, useMemo, type ReactNode } from "react";
-import ReactMarkdown from "react-markdown";
+import ReactMarkdown, { type Components } from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import remarkGfm from "remark-gfm";
 import type { DocBlock, DocDocument } from "@codecaine-ai/docs-model/doc-schema";
@@ -17,6 +17,7 @@ import {
 } from "../client";
 import { renderDeltaSpans } from "./delta-spans";
 import { resolveBundleCanvasSrc, resolveBundleSequenceSrc } from "./bundle-src";
+import { rehypeHljsRoles } from "../components/code/highlight";
 
 // Re-exported beside the renderer so hosts already importing this module
 // (`@codecaine-ai/docs-viewer/doc-block-renderer` — the exports-map keys are
@@ -76,9 +77,30 @@ export type DocBlockSaveResult =
     }
   | { ok: false; stale: boolean; message: string };
 
+/**
+ * A fenced block in markdown-projected content is a code panel like the
+ * `code` block, so its <pre> carries the same `data-code-surface` marker
+ * (the host's "code panels" setting keys on it). Inline code is untouched.
+ * Module-level so ReactMarkdown sees a stable components map.
+ */
+const MARKDOWN_COMPONENTS: Components = {
+  pre: ({ node: _node, ...props }) => <pre {...props} data-code-surface="true" />,
+};
+
+/**
+ * rehype-highlight tokenizes fenced code; rehypeHljsRoles then adds the
+ * same role classes (hljs-control / hljs-type / hljs-null) the `code` block
+ * gets from highlight.ts, so fenced code colors identically.
+ */
+const MARKDOWN_REHYPE_PLUGINS = [rehypeHighlight, rehypeHljsRoles];
+
 function MarkdownContent({ content }: { content: string }) {
   return (
-    <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]}>
+    <ReactMarkdown
+      remarkPlugins={[remarkGfm]}
+      rehypePlugins={MARKDOWN_REHYPE_PLUGINS}
+      components={MARKDOWN_COMPONENTS}
+    >
       {content}
     </ReactMarkdown>
   );

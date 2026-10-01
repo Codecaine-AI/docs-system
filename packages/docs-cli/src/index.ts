@@ -261,6 +261,16 @@ function usage(): string {
     "  docs-cli migrate [repoRoot] [--drafts] [--dry-run]",
     "  docs-cli serve [--root <path>] [--themes-root <path>] [--port <port>] [--ui-port <port>] [--host <addr>] [--kernel-url <url>] [--corpus <name>] [--dev] [--rebuild] [--theme-locked]",
     "  docs-cli export [--root <path>] --out <dir> [--rebuild]",
+    "  docs-cli code-theme import [--from auto|cursor|vscode|<theme.json>] [--id <id>] [--name <name>] [--use]",
+    "  docs-cli code-theme list",
+    "  docs-cli code-theme use <id>",
+    "  docs-cli code-theme show <id> [--css]",
+    "",
+    "code-theme manages the central code style (every code surface, independent",
+    "of the page theme). import reads the ACTIVE VS Code / Cursor theme (auto",
+    "prefers Cursor) or a theme JSON file into <state dir>/code-themes/<id>.json",
+    "(override the folder with CODECAINE_DOCS_CODE_THEMES). use (or import --use)",
+    "sets the ACTIVE code theme every workbench applies (default dark-plus).",
     "",
     "migrate is NON-DESTRUCTIVE by default: it writes doc.json bundles",
     "alongside the existing .mdx sources and never modifies or deletes them.",
@@ -275,6 +285,89 @@ function flagValue(args: string[], flag: string): string | undefined {
   const index = args.indexOf(flag);
   if (index === -1 || index + 1 >= args.length) return undefined;
   return args[index + 1];
+}
+
+/**
+ * `docs-cli code-theme` — the central code style (docs-model code-theme,
+ * docs-server code-themes.ts): import the active editor theme or a theme
+ * file, list the built-in + imported themes (active marked `*`), set the
+ * active one, show one (JSON or CSS vars).
+ */
+async function codeThemeCommand(args: string[]): Promise<void> {
+  const [subcommand, ...rest] = args;
+  const {
+    importCodeTheme,
+    listCodeThemes,
+    parseCodeThemeImportSource,
+    readActiveCodeTheme,
+    readCodeTheme,
+    resolveCodeThemesRoot,
+    writeActiveCodeTheme,
+  } = await import("@codecaine-ai/docs-workbench");
+  const root = resolveCodeThemesRoot();
+
+  if (subcommand === "import") {
+    const result = await importCodeTheme({
+      root,
+      from: parseCodeThemeImportSource(flagValue(rest, "--from")),
+      id: flagValue(rest, "--id"),
+      name: flagValue(rest, "--name"),
+    });
+    const { theme } = result;
+    console.log(`Imported "${theme.name}" (${theme.type}) as ${theme.id}`);
+    console.log(`  from:     ${result.sourcePath}`);
+    if (theme.source.themeId) console.log(`  theme id: ${theme.source.themeId}`);
+    if (result.settingsTheme) console.log(`  settings: workbench.colorTheme = "${result.settingsTheme}"`);
+    console.log(`  wrote:    ${result.path}`);
+    console.log("");
+    for (const [role, color] of Object.entries(theme.roles)) {
+      const style = theme.fontStyle?.[role as keyof typeof theme.roles];
+      const via = result.provenance[role as keyof typeof theme.roles];
+      console.log(`  ${role.padEnd(12)} ${color.padEnd(10)} ${style ? `${style.padEnd(12)}` : "".padEnd(12)}${via}`);
+    }
+    for (const warning of result.warnings) console.error(`warning: ${warning}`);
+    if (rest.includes("--use")) {
+      await writeActiveCodeTheme(root, theme.id);
+      console.log(`\nActive code theme: ${theme.id}`);
+    }
+    return;
+  }
+
+  if (subcommand === "use" && rest[0] && !rest[0].startsWith("--")) {
+    const active = await writeActiveCodeTheme(root, rest[0]);
+    console.log(`Active code theme: ${active.id} ("${active.codeTheme.name}", ${active.codeTheme.type})`);
+    return;
+  }
+
+  if (subcommand === "list") {
+    const activeId = (await readActiveCodeTheme(root)).id;
+    for (const entry of await listCodeThemes(root)) {
+      const origin = entry.builtin ? "built-in" : entry.source.editor;
+      const mark = entry.id === activeId ? "*" : " ";
+      console.log(`${mark} ${entry.id.padEnd(28)} ${entry.name.padEnd(24)} ${entry.type.padEnd(6)} ${origin}`);
+    }
+    console.log(`\nImported themes live in ${root}`);
+    return;
+  }
+
+  if (subcommand === "show" && rest[0] && !rest[0].startsWith("--")) {
+    const theme = await readCodeTheme(root, rest[0]);
+    if (!theme) {
+      console.error(`No code theme named ${JSON.stringify(rest[0])}. Run \`docs-cli code-theme list\`.`);
+      process.exitCode = 1;
+      return;
+    }
+    if (rest.includes("--css")) {
+      const { codeThemeCssVars } = await import("@codecaine-ai/docs-model/code-theme");
+      for (const [name, value] of Object.entries(codeThemeCssVars(theme))) console.log(`${name}: ${value};`);
+      return;
+    }
+    console.log(JSON.stringify(theme, null, 2));
+    return;
+  }
+
+  console.error(usage());
+  process.exitCode = 1;
 }
 
 /**
@@ -406,6 +499,11 @@ async function main() {
 
     if (command === "migrate") {
       await migrateCommand(args);
+      return;
+    }
+
+    if (command === "code-theme") {
+      await codeThemeCommand(args);
       return;
     }
 

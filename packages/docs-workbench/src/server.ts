@@ -56,6 +56,12 @@ export interface DocsServeAppOptions {
    * default (docs-server resolveGlobalThemesRoot).
    */
   globalThemesRoot?: string;
+  /**
+   * The machine's central CODE theme folder (`<state dir>/code-themes/`,
+   * docs-server resolveCodeThemesRoot). Omit to serve the built-in code
+   * themes only (imports then answer 409). `runServe` resolves the default.
+   */
+  codeThemesRoot?: string;
   /** Built SPA directory to serve at `/`; omit for API-only (tests). */
   staticDir?: string | null;
   /**
@@ -115,7 +121,7 @@ export function createDocsServeApp(options: DocsServeAppOptions) {
     const proxy = createSharedDocsApiProxy(options.sharedApi);
     app.onRequest(({ request }) => {
       const pathname = new URL(request.url).pathname;
-      if (themeLocked && /^\/api\/themes(?:\/|$)/.test(pathname) && !["GET", "HEAD", "OPTIONS"].includes(request.method)) {
+      if (themeLocked && /^\/api\/(?:code-)?themes(?:\/|$)/.test(pathname) && !["GET", "HEAD", "OPTIONS"].includes(request.method)) {
         return Response.json({ detail: "Theme is locked on this serve: edit the theme in the primary docs-system app." }, { status: 403 });
       }
       if (pathname.startsWith("/api/") && pathname !== "/api/serve-config" && pathname !== "/api/lab-config" && pathname !== "/api/export-pdf") {
@@ -133,6 +139,7 @@ export function createDocsServeApp(options: DocsServeAppOptions) {
       themeLocked,
       themesRoot: options.themesRoot,
       globalThemesRoot: options.globalThemesRoot,
+      codeThemesRoot: options.codeThemesRoot,
     }));
     if (options.watchFs) {
       const watcher = watchDocsRoot(docsRoot, (event) => store.publishChange(event));

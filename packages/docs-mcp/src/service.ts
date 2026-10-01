@@ -11,8 +11,8 @@ const reply = (data: Record<string,unknown>, error=false):DocsToolResult => ({co
 const schema=(properties:Record<string,unknown>,required:string[]=[])=>({type:'object',properties,required,additionalProperties:false});
 const string={type:'string',minLength:1};
 const MUTATION_READS = new Set(['docs_tree','docs_read','docs_check','docs_annotations','docs_component_read','docs_search','docs_backlinks','docs_asset_read','docs_assets','docs_proposals','docs_changesets','docs_changeset_read']);
-/** globalThemesRoot: the shared global theme folder every project's theme API serves (reserved id `global`). */
-export function createInteractionService(options: { managed?: boolean; projectIds?: Map<string, string>; watchFs?: boolean; globalThemesRoot?: string } = {}) {
+/** globalThemesRoot: the shared global theme folder every project's theme API serves (reserved id `global`). codeThemesRoot: the central code-theme folder (`/api/code-themes`). */
+export function createInteractionService(options: { managed?: boolean; projectIds?: Map<string, string>; watchFs?: boolean; globalThemesRoot?: string; codeThemesRoot?: string } = {}) {
  const startupFingerprint=options.managed && process.env.CODECAINE_DOCS_BUILD ? Promise.resolve(process.env.CODECAINE_DOCS_BUILD) : implementationFingerprint();
  const projects=new Map<string,DocsProject>();
  const workspaces=new Map<string,Set<string>>();
@@ -81,7 +81,7 @@ export function createInteractionService(options: { managed?: boolean; projectId
  }
  async function uiRequest(projectId:string,request:Request){
   const project=projects.get(projectId);if(!project)return Response.json({error:'Unknown project. Discover it first.'},{status:404});
-  let app=routes.get(projectId);if(!app){app=createDocsRoutes(createDocsStore(project.docsRoot),{globalThemesRoot:options.globalThemesRoot});app.compile();routes.set(projectId,app);}
+  let app=routes.get(projectId);if(!app){app=createDocsRoutes(createDocsStore(project.docsRoot),{globalThemesRoot:options.globalThemesRoot,codeThemesRoot:options.codeThemesRoot});app.compile();routes.set(projectId,app);}
   const url=new URL(request.url);url.pathname=url.pathname.replace(`/projects/${projectId}`,'');
   return app.handle(new Request(url,request));
  }

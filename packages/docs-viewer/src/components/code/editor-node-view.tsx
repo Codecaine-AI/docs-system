@@ -91,7 +91,10 @@ export function CodeBlockNodeView({ node, updateAttributes, editor }: ReactNodeV
       data-doc-block-type="code"
       className={docBlockLayoutClasses(CODE_LAYOUT)}
     >
-      <div className={cn("group/code", CODE_BLOCK_CLASSES, annotations && CODE_FRAME_GRID_CLASSES)}>
+      <div
+        className={cn("group/code", CODE_BLOCK_CLASSES, annotations && CODE_FRAME_GRID_CLASSES)}
+        data-code-surface="true"
+      >
         <CodeShell
           languageLabel={resolved}
           languageSelect={languageSelect}
@@ -108,10 +111,12 @@ export function CodeBlockNodeView({ node, updateAttributes, editor }: ReactNodeV
                 any tag at runtime — a <code> keeps the read surface's pre>code
                 shape. Its injected contentDOM div inherits white-space, and it
                 MUST be `pre` (not the default pre-wrap): soft wrap would break
-                the one-row-per-line geometry (gutter, zebra, overlays). */}
+                the one-row-per-line geometry (gutter, zebra, overlays).
+                `hljs` gives untokenized text the same plain-text color
+                (--syntax-punctuation, styles/code.css) as the read surface. */}
             <NodeViewContent
               as={"code" as unknown as "div"}
-              className="block"
+              className="hljs block"
               style={{ whiteSpace: "pre" }}
             />
           </pre>

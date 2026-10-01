@@ -16,7 +16,8 @@
     "typography": {
       "bodyFont": "sans",
       "headingFont": "sans",
-      "codeFont": "mono",
+      "codeFont": "fira-code",
+      "codePanels": "dark",
       "numberFont": "body",
       "fontSize": 18,
       "lineHeight": 1.45,

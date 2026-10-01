@@ -133,13 +133,15 @@ export const CODE_GUTTER_CLASSES =
 
 /**
  * One gutter line (per-line divs so annotated lines can restyle their
- * number). Numbers are faint — the gutter fg at ~55% strength. The
+ * number). Numbers take --docs-code-gutter-fg as-is (themes set the exact
+ * line-number color, e.g. Dark+ #858585); only the token-less fallback is
+ * the faint 55% muted mix. The
  * transparent border-l-2 reserves the accent bar's width. Row height and
  * leading are the line-height token; number size and right padding are the
  * gutter's own tokens.
  */
 export const CODE_GUTTER_LINE_CLASSES =
-  "h-[var(--docs-code-line-height,20px)] border-l-2 border-transparent pr-[var(--docs-code-gutter-pad-x,8px)] text-right text-[length:var(--docs-code-gutter-text-size,12px)] leading-[var(--docs-code-line-height,20px)] text-[color:color-mix(in_srgb,var(--docs-code-gutter-fg,var(--muted-foreground))_55%,transparent)]";
+  "h-[var(--docs-code-line-height,20px)] border-l-2 border-transparent pr-[var(--docs-code-gutter-pad-x,8px)] text-right text-[length:var(--docs-code-gutter-text-size,12px)] leading-[var(--docs-code-line-height,20px)] text-[color:var(--docs-code-gutter-fg,color-mix(in_srgb,var(--muted-foreground)_55%,transparent))]";
 
 /** Gutter line covered by an annotation, AT REST: 2px accent bar + accent number — no bg fill. */
 export const CODE_GUTTER_LINE_ANNOTATED_CLASSES =

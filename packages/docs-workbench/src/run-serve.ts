@@ -2,7 +2,7 @@ import { sharedDocsApiFromEnvironment, type SharedDocsApiOptions } from "./share
 import { existsSync } from "node:fs";
 import { join, resolve } from "node:path";
 
-import { resolveGlobalThemesRoot } from "@codecaine-ai/docs-server";
+import { resolveCodeThemesRoot, resolveGlobalThemesRoot } from "@codecaine-ai/docs-server";
 
 import { startDocsServe } from "./server";
 import { ensureSpaBuilt, webDir } from "./spa";
@@ -28,6 +28,11 @@ export interface RunServeOptions {
    * Pass null to serve repo themes only.
    */
   globalThemesRoot?: string | null;
+  /**
+   * Central code-theme folder; defaults to `<state dir>/code-themes`
+   * (docs-server resolveCodeThemesRoot). Pass null for built-ins only.
+   */
+  codeThemesRoot?: string | null;
   port: number;
   /** Bind address. Defaults to loopback — the served docs tree may be private. */
   hostname?: string;
@@ -74,6 +79,8 @@ export async function runServe(options: RunServeOptions): Promise<void> {
   const hostname = options.hostname ?? "127.0.0.1";
   const globalThemesRoot =
     options.globalThemesRoot === null ? undefined : (options.globalThemesRoot ?? resolveGlobalThemesRoot());
+  const codeThemesRoot =
+    options.codeThemesRoot === null ? undefined : (options.codeThemesRoot ?? resolveCodeThemesRoot());
   const displayHost = hostname === "0.0.0.0" ? "localhost" : hostname;
 
   if (!existsSync(join(docsRoot, "."))) {
@@ -86,6 +93,7 @@ export async function runServe(options: RunServeOptions): Promise<void> {
       docsRoot,
       themesRoot: options.themesRoot,
       globalThemesRoot,
+      codeThemesRoot,
       port,
       hostname,
       staticDir: null,
@@ -127,6 +135,7 @@ export async function runServe(options: RunServeOptions): Promise<void> {
     docsRoot,
     themesRoot: options.themesRoot,
     globalThemesRoot,
+    codeThemesRoot,
     port,
     hostname,
     staticDir,

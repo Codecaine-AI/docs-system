@@ -3,73 +3,225 @@
  * follows --docs-font-code, and ordered-list CSS counters follow
  * --docs-font-numeric — both style-rail knobs. These
  * override docs-viewer's Tailwind `font-mono` fallbacks, which exist only
- * for hosts without this stylesheet.
+ * for hosts without this stylesheet. `font-mono` text on or inside a code
+ * surface (the code block gutter, the linked code panes in state-shape and
+ * interaction-surface) follows the same token; the linked-pane row selector
+ * outranks interaction-surface's own (0,2,0) row font rule.
+ *
+ * Ligatures stay ON: TipTap's injected editor CSS sets
+ * `font-variant-ligatures: none` + `"liga" 0` on the whole ProseMirror root,
+ * which would strip a ligature font's arrows and operators (Fira Code's
+ * `=>`, `!==`) from code in edit mode only.
  */
 .docs-markdown code,
 .docs-markdown pre,
 .docs-markdown kbd,
 .docs-editor-prosemirror code,
-.docs-editor-prosemirror pre {
+.docs-editor-prosemirror pre,
+[data-code-surface].font-mono,
+[data-code-surface] .font-mono,
+[data-code-lines][data-code-surface] [data-code-line] {
   font-family: var(--docs-font-code, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace);
+  font-variant-ligatures: normal;
+  font-feature-settings: normal;
 }
 
 /*
  * Syntax highlighting — theme-token colors over hljs classes, emitted by BOTH
  * rehype-highlight (markdown-projected fenced code) and docs-viewer's
- * components/code/highlight.ts (the read surface's `code` block + annotated
- * code). The --syntax-* vars are defined per theme (light/dark) in
- * theme/semantic.css, so dark mode needs no extra rules here.
+ * components/code/highlight.ts (the read surface's `code` block, annotated
+ * code, and the editor's token decorations). The --syntax-* role vars carry
+ * VS Code Dark+ / Light+ semantics and are defined per theme (light/dark) in
+ * theme/semantic.css, so dark mode needs no extra rules here. Every var()
+ * falls back to the older 5-token contract (key/string/number/boolean/null),
+ * so hosts that only define those still color every class.
+ *
+ * Imported code themes (docs-model code-theme/css-vars.ts) may also set
+ * --docs-code-fg (plain-text fallback under --syntax-punctuation),
+ * --docs-code-selection, and per-role --syntax-<role>-font-style /
+ * --syntax-<role>-font-weight. Every read has a fallback equal to the
+ * unthemed value, so nothing changes while they are unset.
+ *
+ * ORDER MATTERS. The read surface nests token spans, but the editor paints
+ * ONE decoration span carrying every class of a nested token (outer to
+ * inner, e.g. "hljs-params hljs-literal", "hljs-string hljs-subst"). At
+ * equal specificity the later rule wins, so container classes (params, tag,
+ * meta, string, comment, subst) come FIRST and leaf tokens after them;
+ * compound selectors (.hljs-keyword.hljs-control, .hljs-title.function_)
+ * outrank their single-class base by specificity.
  */
 .hljs {
   background: transparent;
-  color: var(--docs-text-secondary, var(--color-text-default, inherit));
+  color: var(--syntax-punctuation, var(--docs-code-fg, var(--docs-text-secondary, var(--color-text-default, inherit))));
+  font-style: var(--syntax-punctuation-font-style, normal);
+  font-weight: var(--syntax-punctuation-font-weight, inherit);
 }
 
-.hljs-keyword,
-.hljs-selector-tag,
-.hljs-built_in,
-.hljs-name,
+/* Selected text inside any code panel. `Highlight` is the UA default, so an
+   unset --docs-code-selection leaves selection looking native. */
+[data-code-surface]::selection,
+[data-code-surface] ::selection {
+  background-color: var(--docs-code-selection, Highlight);
+}
+
+/* ---- containers (other tokens nest inside these) ---- */
+
+/* Function parameters: the variable color; nested literals/types override. */
+.hljs-params {
+  color: var(--syntax-key, var(--color-text-purple, #9065b0));
+  font-style: var(--syntax-key-font-style, normal);
+  font-weight: var(--syntax-key-font-weight, inherit);
+}
+
+/* An xml/html tag's `<`, `>`, `/` — the name and attrs inside are colored
+   by their own rules below. */
 .hljs-tag,
-.hljs-attr,
-.hljs-property,
-.hljs-doctag,
+.hljs-operator,
+.hljs-punctuation {
+  color: var(--syntax-punctuation, var(--docs-code-fg, var(--docs-text-secondary, var(--color-text-default, inherit))));
+  font-style: var(--syntax-punctuation-font-style, normal);
+  font-weight: var(--syntax-punctuation-font-weight, inherit);
+}
+
+/* Decorators, doctypes, shebangs, `!important`, Rust attributes. */
+.hljs-meta {
+  color: var(--syntax-keyword, var(--syntax-boolean, var(--color-text-orange, #d9730d)));
+  font-style: var(--syntax-keyword-font-style, normal);
+  font-weight: var(--syntax-keyword-font-weight, inherit);
+}
+
+/* CSS selectors. Before strings: an attribute selector nests its quoted
+   value (`[data-x="1"]`) as a string. */
+.hljs-selector-tag,
 .hljs-selector-class,
 .hljs-selector-id,
 .hljs-selector-pseudo,
 .hljs-selector-attr {
-  color: var(--syntax-key, var(--color-text-purple, #9065b0));
+  color: var(--syntax-selector, var(--syntax-key, var(--color-text-purple, #9065b0)));
+  font-style: var(--syntax-selector-font-style, normal);
+  font-weight: var(--syntax-selector-font-weight, inherit);
 }
 
 .hljs-string,
-.hljs-title,
-.hljs-section,
-.hljs-attribute,
-.hljs-type,
-.hljs-regexp,
-.hljs-template-tag,
-.hljs-template-variable {
+.hljs-code,
+.hljs-link {
   color: var(--syntax-string, var(--color-text-green, #448361));
+  font-style: var(--syntax-string-font-style, normal);
+  font-weight: var(--syntax-string-font-weight, inherit);
 }
 
-.hljs-number,
-.hljs-symbol,
-.hljs-bullet,
-.hljs-variable {
+/* Interpolated code inside template strings is code again, not string. */
+.hljs-subst {
+  color: var(--syntax-punctuation, var(--docs-code-fg, var(--docs-text-secondary, var(--color-text-default, inherit))));
+  font-style: var(--syntax-punctuation-font-style, normal);
+  font-weight: var(--syntax-punctuation-font-weight, inherit);
+}
+
+.hljs-comment,
+.hljs-quote {
+  color: var(--syntax-comment, var(--docs-text-tertiary, var(--color-text-gray, gray)));
+  font-style: var(--syntax-comment-font-style, normal);
+  font-weight: var(--syntax-comment-font-weight, inherit);
+}
+
+/* ---- leaf tokens ---- */
+
+/* Declaration / storage keywords (const, function, class, def, fn, new). */
+.hljs-keyword,
+.hljs-doctag,
+.hljs-section,
+.hljs-template-tag,
+.hljs-variable.language_ {
+  color: var(--syntax-keyword, var(--syntax-key, var(--color-text-purple, #9065b0)));
+  font-style: var(--syntax-keyword-font-style, normal);
+  font-weight: var(--syntax-keyword-font-weight, inherit);
+}
+
+/* Control-flow / module keywords (if, return, import, await) — tagged by
+   highlight.ts hljsRoleClass. */
+.hljs-keyword.hljs-control {
+  color: var(--syntax-control, var(--syntax-keyword, var(--syntax-key, var(--color-text-purple, #9065b0))));
+  font-style: var(--syntax-control-font-style, normal);
+  font-weight: var(--syntax-control-font-weight, inherit);
+}
+
+/* Properties, object/JSON/YAML keys, html attributes, CSS property names,
+   variables. */
+.hljs-attr,
+.hljs-attribute,
+.hljs-property,
+.hljs-variable,
+.hljs-template-variable {
+  color: var(--syntax-key, var(--color-text-purple, #9065b0));
+  font-style: var(--syntax-key-font-style, normal);
+  font-weight: var(--syntax-key-font-weight, inherit);
+}
+
+/* UPPER_CASE constants and character entities. */
+.hljs-variable.constant_,
+.hljs-symbol {
+  color: var(--syntax-constant, var(--syntax-number, var(--color-text-blue, #337ea9)));
+  font-style: var(--syntax-constant-font-style, normal);
+  font-weight: var(--syntax-constant-font-weight, inherit);
+}
+
+/* Function / method names, declarations and calls; callable built-ins
+   (setTimeout, print, len, echo, CSS var(), Rust macros). */
+.hljs-title,
+.hljs-title.function_,
+.hljs-built_in {
+  color: var(--syntax-function, var(--syntax-string, var(--color-text-green, #448361)));
+  font-style: var(--syntax-function-font-style, normal);
+  font-weight: var(--syntax-function-font-weight, inherit);
+}
+
+/* Classes, types, and type-like built-ins (TS primitives, Python's int/str
+   — tagged hljs-type by highlight.ts hljsRoleClass). */
+.hljs-title.class_,
+.hljs-type {
+  color: var(--syntax-type, var(--syntax-string, var(--color-text-green, #448361)));
+  font-style: var(--syntax-type-font-style, normal);
+  font-weight: var(--syntax-type-font-weight, inherit);
+}
+
+.hljs-name {
+  color: var(--syntax-tag, var(--syntax-key, var(--color-text-purple, #9065b0)));
+  font-style: var(--syntax-tag-font-style, normal);
+  font-weight: var(--syntax-tag-font-weight, inherit);
+}
+
+.hljs-regexp {
+  color: var(--syntax-regex, var(--syntax-string, var(--color-text-green, #448361)));
+  font-style: var(--syntax-regex-font-style, normal);
+  font-weight: var(--syntax-regex-font-weight, inherit);
+}
+
+.hljs-number {
   color: var(--syntax-number, var(--color-text-blue, #337ea9));
+  font-style: var(--syntax-number-font-style, normal);
+  font-weight: var(--syntax-number-font-weight, inherit);
 }
 
-/* true/false/null (JSON, ts, python's True/None) read as booleans. The
-   descendant selector matters: the json grammar nests hljs-keyword INSIDE
-   hljs-literal, and the inner span would otherwise win with --syntax-key. */
+/* List bullets (YAML/markdown) read as punctuation. */
+.hljs-bullet {
+  color: var(--syntax-punctuation, var(--docs-code-fg, var(--docs-text-secondary, var(--color-text-default, inherit))));
+  font-style: var(--syntax-punctuation-font-style, normal);
+  font-weight: var(--syntax-punctuation-font-weight, inherit);
+}
+
+/* true/false/undefined (JSON, ts, python's True). The descendant selector
+   matters: the json grammar nests hljs-keyword INSIDE hljs-literal, and the
+   inner span would otherwise win with --syntax-keyword. */
 .hljs-literal,
 .hljs-literal .hljs-keyword,
-.hljs-boolean,
-.hljs-meta {
+.hljs-boolean {
   color: var(--syntax-boolean, var(--color-text-orange, #d9730d));
+  font-style: var(--syntax-boolean-font-style, normal);
+  font-weight: var(--syntax-boolean-font-weight, inherit);
 }
 
 /* null / None / nil carry an extra hljs-null class (components/code/
-   highlight.ts markNullLiterals) so the --syntax-null token reaches code
+   highlight.ts hljsRoleClass) so the --syntax-null token reaches code
    blocks too, not just the state-shape example pane. Must stay AFTER the
    literal rule above: the read surface nests the JSON keyword span inside
    the literal, the editor paints one span carrying every class, and both
@@ -77,16 +229,16 @@
 .hljs-null,
 .hljs-null .hljs-keyword {
   color: var(--syntax-null, var(--color-text-red, #d44c47));
+  font-style: var(--syntax-null-font-style, normal);
+  font-weight: var(--syntax-null-font-weight, inherit);
 }
 
-/* Interpolated code inside template strings is code again, not string. */
-.hljs-subst {
-  color: var(--docs-text-secondary, var(--color-text-default, inherit));
+.hljs-strong {
+  font-weight: 600;
 }
 
-.hljs-comment,
-.hljs-quote {
-  color: var(--docs-text-tertiary, var(--color-text-gray, gray));
+.hljs-emphasis {
+  font-style: italic;
 }
 
 .hljs-deletion {
