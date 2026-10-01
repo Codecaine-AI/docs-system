@@ -77,15 +77,32 @@
   flex-direction: column;
 }
 
+/* Map-style viewport: use-pan-zoom.ts positions the diagram layer with a transform. */
 .docs-sequence-viewport {
+  position: relative;
   flex: 1;
   min-height: 0;
-  overflow: auto;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
 }
 
+.docs-sequence-viewport[data-panning] {
+  cursor: grabbing;
+}
+
+.docs-sequence-viewport:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: -2px;
+}
+
+/* Sized to the diagram's natural px by the component; scale comes from the transform. */
 .docs-sequence-expanded {
-  padding: 1rem;
-  box-sizing: border-box;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
 }
 
 .docs-sequence-expanded > svg.sequence-diagram {

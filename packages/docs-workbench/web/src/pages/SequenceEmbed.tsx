@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useViewerMotion } from "@codecaine-ai/docs-viewer/viewer-motion";
 import { createPortal } from "react-dom";
 import { ExternalLinkIcon, Maximize2Icon, XIcon } from "lucide-react";
 import type { SequenceEmbedProps } from "@codecaine-ai/docs-viewer/client";
 import {
+  layoutSequence,
   SequenceViewer,
   validateSequenceDocument,
   type SequenceDocument,
@@ -11,6 +12,7 @@ import {
 
 import { getSequenceBySrc } from "../data/api";
 import "./sequence-embed.css";
+import { usePanZoom } from "./use-pan-zoom";
 
 /**
  * Read-only standalone sequence embed, wired into DocBlockRenderer through
@@ -44,9 +46,9 @@ export function StandaloneSequenceEmbed({ src, sequenceId, id, title, initialDoc
   const loadSeqRef = useRef(0);
   const [viewerOpen, setViewerOpen] = useState(initiallyOpen);
   useEffect(() => { if (!viewerOpen) onViewerClose?.(); }, [viewerOpen, onViewerClose]);
-  const [zoom, setZoom] = useState(1);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const previewRef = useRef<HTMLButtonElement>(null);
+  const viewportRef = useRef<HTMLDivElement>(null);
   const { captureOrigin, animateOpen, animateClose, cancel } = useViewerMotion();
   const closeViewer = useCallback(() => {
     animateClose(dialogRef.current, expansionSource ?? previewRef.current, () => setViewerOpen(false));
@@ -67,6 +69,19 @@ export function StandaloneSequenceEmbed({ src, sequenceId, id, title, initialDoc
       (expansionSource ?? previewRef.current)?.focus();
     };
   }, [viewerOpen, animateOpen, cancel, captureOrigin, expansionSource]);
+
+  const viewerDocument = useMemo(
+    () => (document ? { ...document, title: title ?? document.title } : null),
+    [document, title],
+  );
+  const diagramSize = useMemo(() => (viewerDocument ? layoutSequence(viewerDocument) : null), [viewerDocument]);
+  // After the showModal effect above, so the first fit measures an open dialog.
+  const panZoom = usePanZoom({
+    viewportRef,
+    contentWidth: diagramSize?.width ?? 0,
+    contentHeight: diagramSize?.height ?? 0,
+    enabled: viewerOpen,
+  });
 
   useEffect(() => {
     if (initialDocument && !src) return;
@@ -143,7 +158,7 @@ export function StandaloneSequenceEmbed({ src, sequenceId, id, title, initialDoc
     );
   }
 
-  if (!document) {
+  if (!viewerDocument || !diagramSize) {
     const detail = src
       ? isLoading
         ? "Loading sequence..."
@@ -160,7 +175,6 @@ export function StandaloneSequenceEmbed({ src, sequenceId, id, title, initialDoc
     );
   }
 
-  const viewerDocument = { ...document, title: title ?? document.title };
   const viewerTitle = viewerDocument.title ?? "Sequence diagram";
 
   return (
@@ -176,7 +190,7 @@ export function StandaloneSequenceEmbed({ src, sequenceId, id, title, initialDoc
           className="docs-sequence-preview-button"
           aria-label={`Open ${viewerTitle} in full-screen viewer`}
           onMouseDown={(event) => event.stopPropagation()}
-          onClick={(event) => { event.stopPropagation(); captureOrigin(previewRef.current); setZoom(1); setViewerOpen(true); }}
+          onClick={(event) => { event.stopPropagation(); captureOrigin(previewRef.current); setViewerOpen(true); }}
         >
           <SequenceViewer document={viewerDocument} />
           <span className="docs-sequence-expand"><Maximize2Icon size={14} /> View larger</span>
@@ -194,15 +208,25 @@ export function StandaloneSequenceEmbed({ src, sequenceId, id, title, initialDoc
           <header className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b p-3">
             <div className="min-w-0 flex-1 truncate font-medium">{viewerTitle}</div>
             <div className="flex items-center gap-2">
-              <button type="button" className="rounded border px-3 py-1 disabled:opacity-40" aria-label="Zoom out" disabled={zoom <= 1} onClick={() => setZoom(value => Math.max(1, value - 0.5))}>−</button>
-              <output className="w-12 text-center text-sm" aria-label="Zoom level">{Math.round(zoom * 100)}%</output>
-              <button type="button" className="rounded border px-3 py-1 disabled:opacity-40" aria-label="Zoom in" disabled={zoom >= 4} onClick={() => setZoom(value => Math.min(4, value + 0.5))}>+</button>
-              <button type="button" className="rounded border px-3 py-1" onClick={() => setZoom(1)}>Fit</button>
+              <button type="button" className="rounded border px-3 py-1 disabled:opacity-40" aria-label="Zoom out" disabled={!panZoom.canZoomOut} onClick={panZoom.zoomOut}>−</button>
+              <output className="w-12 text-center text-sm" aria-label="Zoom level">{panZoom.zoomPercent}%</output>
+              <button type="button" className="rounded border px-3 py-1 disabled:opacity-40" aria-label="Zoom in" disabled={!panZoom.canZoomIn} onClick={panZoom.zoomIn}>+</button>
+              <button type="button" className="rounded border px-3 py-1" onClick={panZoom.fit}>Fit</button>
               <button type="button" className="rounded border p-2" aria-label="Close sequence viewer" onClick={closeViewer}><XIcon size={18} /></button>
             </div>
           </header>
-          <div className="docs-sequence-viewport" tabIndex={0} aria-label="Scrollable sequence diagram">
-            <div className="docs-sequence-expanded" style={{ width: `${zoom * 100}%`, height: `${zoom * 100}%` }}>
+          <div
+            ref={viewportRef}
+            className="docs-sequence-viewport"
+            data-panning={panZoom.isPanning || undefined}
+            tabIndex={0}
+            aria-label="Sequence diagram. Drag or use arrow keys to pan; scroll or press plus and minus to zoom; 0 fits."
+            {...panZoom.viewportProps}
+          >
+            <div
+              className="docs-sequence-expanded"
+              style={{ width: diagramSize.width, height: diagramSize.height, transform: panZoom.transform }}
+            >
               <SequenceViewer document={viewerDocument} />
             </div>
           </div>

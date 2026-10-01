@@ -265,6 +265,7 @@ export function StandaloneCanvasEmbed({
                 document={viewerDocument}
                 view={view}
                 interactive
+                wheelZoom
                 bare
                 onObjectSelect={onObjectSelect}
               />
