@@ -1,0 +1,707 @@
+{
+  "schemaVersion": 1,
+  "id": "trace-store-today",
+  "title": "Trace store drawn with today's canvas objects",
+  "mode": "diagram",
+  "objects": [
+    {
+      "id": "containers",
+      "type": "section",
+      "text": "containers",
+      "icon": "table",
+      "parentId": null,
+      "geometry": {
+        "x": 0,
+        "y": 0,
+        "width": 300,
+        "height": 180
+      }
+    },
+    {
+      "id": "containers.id",
+      "type": "rectangle",
+      "text": "id · PK",
+      "color": "yellow",
+      "parentId": "containers",
+      "geometry": {
+        "x": 20,
+        "y": 60,
+        "width": 260,
+        "height": 40
+      }
+    },
+    {
+      "id": "containers.parent_container_id",
+      "type": "rectangle",
+      "text": "parent_container_id · FK",
+      "color": "blue",
+      "parentId": "containers",
+      "geometry": {
+        "x": 20,
+        "y": 120,
+        "width": 260,
+        "height": 40
+      }
+    },
+    {
+      "id": "pi_agent_sessions",
+      "type": "section",
+      "text": "pi_agent_sessions",
+      "icon": "table",
+      "parentId": null,
+      "geometry": {
+        "x": 0,
+        "y": 260,
+        "width": 300,
+        "height": 300
+      }
+    },
+    {
+      "id": "pi_agent_sessions.id",
+      "type": "rectangle",
+      "text": "id · PK",
+      "color": "yellow",
+      "parentId": "pi_agent_sessions",
+      "geometry": {
+        "x": 20,
+        "y": 320,
+        "width": 260,
+        "height": 40
+      }
+    },
+    {
+      "id": "pi_agent_sessions.parent_session_id",
+      "type": "rectangle",
+      "text": "parent_session_id · FK",
+      "color": "blue",
+      "parentId": "pi_agent_sessions",
+      "geometry": {
+        "x": 20,
+        "y": 380,
+        "width": 260,
+        "height": 40
+      }
+    },
+    {
+      "id": "pi_agent_sessions.container_id",
+      "type": "rectangle",
+      "text": "container_id · FK",
+      "color": "blue",
+      "parentId": "pi_agent_sessions",
+      "geometry": {
+        "x": 20,
+        "y": 440,
+        "width": 260,
+        "height": 40
+      }
+    },
+    {
+      "id": "pi_agent_sessions.prompt_hash",
+      "type": "rectangle",
+      "text": "prompt_hash · ref",
+      "color": "white",
+      "parentId": "pi_agent_sessions",
+      "geometry": {
+        "x": 20,
+        "y": 500,
+        "width": 260,
+        "height": 40
+      }
+    },
+    {
+      "id": "prompt_revisions",
+      "type": "section",
+      "text": "prompt_revisions",
+      "icon": "table",
+      "parentId": null,
+      "geometry": {
+        "x": -400,
+        "y": 440,
+        "width": 300,
+        "height": 120
+      }
+    },
+    {
+      "id": "prompt_revisions.hash",
+      "type": "rectangle",
+      "text": "hash · PK",
+      "color": "yellow",
+      "parentId": "prompt_revisions",
+      "geometry": {
+        "x": -380,
+        "y": 500,
+        "width": 260,
+        "height": 40
+      }
+    },
+    {
+      "id": "agent_runs",
+      "type": "section",
+      "text": "agent_runs",
+      "icon": "table",
+      "parentId": null,
+      "geometry": {
+        "x": 560,
+        "y": 0,
+        "width": 300,
+        "height": 420
+      }
+    },
+    {
+      "id": "agent_runs.id",
+      "type": "rectangle",
+      "text": "id · PK",
+      "color": "yellow",
+      "parentId": "agent_runs",
+      "geometry": {
+        "x": 580,
+        "y": 60,
+        "width": 260,
+        "height": 40
+      }
+    },
+    {
+      "id": "agent_runs.parent_run_id",
+      "type": "rectangle",
+      "text": "parent_run_id · FK",
+      "color": "blue",
+      "parentId": "agent_runs",
+      "geometry": {
+        "x": 580,
+        "y": 120,
+        "width": 260,
+        "height": 40
+      }
+    },
+    {
+      "id": "agent_runs.container_id",
+      "type": "rectangle",
+      "text": "container_id · FK",
+      "color": "blue",
+      "parentId": "agent_runs",
+      "geometry": {
+        "x": 580,
+        "y": 180,
+        "width": 260,
+        "height": 40
+      }
+    },
+    {
+      "id": "agent_runs.pi_session_id",
+      "type": "rectangle",
+      "text": "pi_session_id · FK",
+      "color": "blue",
+      "parentId": "agent_runs",
+      "geometry": {
+        "x": 580,
+        "y": 240,
+        "width": 260,
+        "height": 40
+      }
+    },
+    {
+      "id": "agent_runs.inbound_event_id",
+      "type": "rectangle",
+      "text": "inbound_event_id · ref",
+      "color": "white",
+      "parentId": "agent_runs",
+      "geometry": {
+        "x": 580,
+        "y": 300,
+        "width": 260,
+        "height": 40
+      }
+    },
+    {
+      "id": "agent_runs.outbound_event_id",
+      "type": "rectangle",
+      "text": "outbound_event_id · ref",
+      "color": "white",
+      "parentId": "agent_runs",
+      "geometry": {
+        "x": 580,
+        "y": 360,
+        "width": 260,
+        "height": 40
+      }
+    },
+    {
+      "id": "trace_events",
+      "type": "section",
+      "text": "trace_events",
+      "icon": "table",
+      "parentId": null,
+      "geometry": {
+        "x": 560,
+        "y": 500,
+        "width": 300,
+        "height": 420
+      }
+    },
+    {
+      "id": "trace_events.event_id",
+      "type": "rectangle",
+      "text": "event_id · PK",
+      "color": "yellow",
+      "parentId": "trace_events",
+      "geometry": {
+        "x": 580,
+        "y": 560,
+        "width": 260,
+        "height": 40
+      }
+    },
+    {
+      "id": "trace_events.parent_event_id",
+      "type": "rectangle",
+      "text": "parent_event_id · ref",
+      "color": "white",
+      "parentId": "trace_events",
+      "geometry": {
+        "x": 580,
+        "y": 620,
+        "width": 260,
+        "height": 40
+      }
+    },
+    {
+      "id": "trace_events.run_id",
+      "type": "rectangle",
+      "text": "run_id · ref",
+      "color": "white",
+      "parentId": "trace_events",
+      "geometry": {
+        "x": 580,
+        "y": 680,
+        "width": 260,
+        "height": 40
+      }
+    },
+    {
+      "id": "trace_events.container_id",
+      "type": "rectangle",
+      "text": "container_id · ref",
+      "color": "white",
+      "parentId": "trace_events",
+      "geometry": {
+        "x": 580,
+        "y": 740,
+        "width": 260,
+        "height": 40
+      }
+    },
+    {
+      "id": "trace_events.pi_session_id",
+      "type": "rectangle",
+      "text": "pi_session_id · ref",
+      "color": "white",
+      "parentId": "trace_events",
+      "geometry": {
+        "x": 580,
+        "y": 800,
+        "width": 260,
+        "height": 40
+      }
+    },
+    {
+      "id": "trace_events.event_data",
+      "type": "rectangle",
+      "text": "event_data · ref",
+      "color": "white",
+      "parentId": "trace_events",
+      "geometry": {
+        "x": 580,
+        "y": 860,
+        "width": 260,
+        "height": 40
+      }
+    },
+    {
+      "id": "trace_blobs",
+      "type": "section",
+      "text": "trace_blobs",
+      "icon": "table",
+      "parentId": null,
+      "geometry": {
+        "x": 1060,
+        "y": 800,
+        "width": 300,
+        "height": 120
+      }
+    },
+    {
+      "id": "trace_blobs.hash",
+      "type": "rectangle",
+      "text": "hash · PK",
+      "color": "yellow",
+      "parentId": "trace_blobs",
+      "geometry": {
+        "x": 1080,
+        "y": 860,
+        "width": 260,
+        "height": 40
+      }
+    },
+    {
+      "id": "legend",
+      "type": "sticky",
+      "text": "Today's canvas, keys only. A section is a table and a rectangle is a key column. Solid edges are declared foreign keys. Dashed edges are id links that only code checks.",
+      "parentId": null,
+      "geometry": {
+        "x": 1060,
+        "y": 0,
+        "width": 280,
+        "height": 200
+      }
+    }
+  ],
+  "connections": [
+    {
+      "id": "fk-containers-parent",
+      "from": {
+        "objectId": "containers.parent_container_id",
+        "anchor": "left"
+      },
+      "to": {
+        "objectId": "containers.id",
+        "anchor": "left",
+        "position": [
+          0,
+          0.7
+        ]
+      },
+      "style": "solid",
+      "arrow": "forward",
+      "waypoints": [
+        [
+          -20,
+          140
+        ],
+        [
+          -20,
+          88
+        ]
+      ]
+    },
+    {
+      "id": "fk-sessions-container",
+      "from": {
+        "objectId": "pi_agent_sessions.container_id",
+        "anchor": "left"
+      },
+      "to": {
+        "objectId": "containers.id",
+        "anchor": "left",
+        "position": [
+          0,
+          0.3
+        ]
+      },
+      "style": "solid",
+      "arrow": "forward",
+      "waypoints": [
+        [
+          -60,
+          460
+        ],
+        [
+          -60,
+          72
+        ]
+      ]
+    },
+    {
+      "id": "fk-sessions-parent",
+      "from": {
+        "objectId": "pi_agent_sessions.parent_session_id",
+        "anchor": "left"
+      },
+      "to": {
+        "objectId": "pi_agent_sessions.id",
+        "anchor": "left"
+      },
+      "style": "solid",
+      "arrow": "forward",
+      "waypoints": [
+        [
+          -20,
+          400
+        ],
+        [
+          -20,
+          340
+        ]
+      ]
+    },
+    {
+      "id": "ref-sessions-prompt",
+      "from": {
+        "objectId": "pi_agent_sessions.prompt_hash",
+        "anchor": "left"
+      },
+      "to": {
+        "objectId": "prompt_revisions.hash",
+        "anchor": "right"
+      },
+      "style": "dashed",
+      "arrow": "forward"
+    },
+    {
+      "id": "fk-runs-session",
+      "from": {
+        "objectId": "agent_runs.pi_session_id",
+        "anchor": "left"
+      },
+      "to": {
+        "objectId": "pi_agent_sessions.id",
+        "anchor": "right",
+        "position": [
+          1,
+          0.3
+        ]
+      },
+      "style": "solid",
+      "arrow": "forward",
+      "waypoints": [
+        [
+          340,
+          260
+        ],
+        [
+          340,
+          332
+        ]
+      ]
+    },
+    {
+      "id": "ref-events-session",
+      "from": {
+        "objectId": "trace_events.pi_session_id",
+        "anchor": "left"
+      },
+      "to": {
+        "objectId": "pi_agent_sessions.id",
+        "anchor": "right",
+        "position": [
+          1,
+          0.7
+        ]
+      },
+      "style": "dashed",
+      "arrow": "forward",
+      "waypoints": [
+        [
+          400,
+          820
+        ],
+        [
+          400,
+          348
+        ]
+      ]
+    },
+    {
+      "id": "ref-events-container",
+      "from": {
+        "objectId": "trace_events.container_id",
+        "anchor": "left"
+      },
+      "to": {
+        "objectId": "containers.id",
+        "anchor": "right",
+        "position": [
+          1,
+          0.7
+        ]
+      },
+      "style": "dashed",
+      "arrow": "forward",
+      "waypoints": [
+        [
+          460,
+          760
+        ],
+        [
+          460,
+          88
+        ]
+      ]
+    },
+    {
+      "id": "fk-runs-container",
+      "from": {
+        "objectId": "agent_runs.container_id",
+        "anchor": "left"
+      },
+      "to": {
+        "objectId": "containers.id",
+        "anchor": "right",
+        "position": [
+          1,
+          0.3
+        ]
+      },
+      "style": "solid",
+      "arrow": "forward",
+      "waypoints": [
+        [
+          520,
+          200
+        ],
+        [
+          520,
+          72
+        ]
+      ]
+    },
+    {
+      "id": "fk-runs-parent",
+      "from": {
+        "objectId": "agent_runs.parent_run_id",
+        "anchor": "right"
+      },
+      "to": {
+        "objectId": "agent_runs.id",
+        "anchor": "right",
+        "position": [
+          1,
+          0.7
+        ]
+      },
+      "style": "solid",
+      "arrow": "forward",
+      "waypoints": [
+        [
+          880,
+          140
+        ],
+        [
+          880,
+          88
+        ]
+      ]
+    },
+    {
+      "id": "ref-events-run",
+      "from": {
+        "objectId": "trace_events.run_id",
+        "anchor": "right"
+      },
+      "to": {
+        "objectId": "agent_runs.id",
+        "anchor": "right",
+        "position": [
+          1,
+          0.3
+        ]
+      },
+      "style": "dashed",
+      "arrow": "forward",
+      "waypoints": [
+        [
+          960,
+          700
+        ],
+        [
+          960,
+          72
+        ]
+      ]
+    },
+    {
+      "id": "ref-runs-inbound",
+      "from": {
+        "objectId": "agent_runs.inbound_event_id",
+        "anchor": "right"
+      },
+      "to": {
+        "objectId": "trace_events.event_id",
+        "anchor": "right",
+        "position": [
+          1,
+          0.5
+        ]
+      },
+      "style": "dashed",
+      "arrow": "forward",
+      "waypoints": [
+        [
+          920,
+          320
+        ],
+        [
+          920,
+          580
+        ]
+      ]
+    },
+    {
+      "id": "ref-runs-outbound",
+      "from": {
+        "objectId": "agent_runs.outbound_event_id",
+        "anchor": "right"
+      },
+      "to": {
+        "objectId": "trace_events.event_id",
+        "anchor": "right",
+        "position": [
+          1,
+          0.25
+        ]
+      },
+      "style": "dashed",
+      "arrow": "forward",
+      "waypoints": [
+        [
+          880,
+          380
+        ],
+        [
+          880,
+          570
+        ]
+      ]
+    },
+    {
+      "id": "ref-events-parent",
+      "from": {
+        "objectId": "trace_events.parent_event_id",
+        "anchor": "right"
+      },
+      "to": {
+        "objectId": "trace_events.event_id",
+        "anchor": "right",
+        "position": [
+          1,
+          0.75
+        ]
+      },
+      "style": "dashed",
+      "arrow": "forward",
+      "waypoints": [
+        [
+          880,
+          640
+        ],
+        [
+          880,
+          590
+        ]
+      ]
+    },
+    {
+      "id": "ref-events-blob",
+      "from": {
+        "objectId": "trace_events.event_data",
+        "anchor": "right"
+      },
+      "to": {
+        "objectId": "trace_blobs.hash",
+        "anchor": "left"
+      },
+      "style": "dashed",
+      "arrow": "forward"
+    }
+  ],
+  "annotations": []
+}

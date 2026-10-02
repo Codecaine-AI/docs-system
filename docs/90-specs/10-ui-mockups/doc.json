@@ -1,0 +1,3426 @@
+{
+  "schemaVersion": 1,
+  "id": "doc-8a648d0327d61562a84aa931212e029b",
+  "title": "UI Mockups in Docs and Plans",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "um-intro",
+        "um-status",
+        "um-problem-h",
+        "um-problem-lead",
+        "um-p-prose",
+        "um-p-html",
+        "um-p-anchor",
+        "um-p-ref",
+        "um-p-sketch-lead",
+        "um-p-sketch",
+        "um-ref-h",
+        "um-ref-lead",
+        "um-ref-board",
+        "um-ref-split",
+        "um-ref-notes",
+        "um-ref-fidelity",
+        "um-ref-comments",
+        "um-ref-excerpt-lead",
+        "um-ref-excerpt",
+        "um-reuse-h",
+        "um-reuse-lead",
+        "um-reuse-table",
+        "um-reuse-src",
+        "um-gap-style",
+        "um-gap-schema",
+        "um-gap-anchor",
+        "um-opt-h",
+        "um-opt-lead",
+        "um-opt-table",
+        "um-opt-a",
+        "um-opt-b",
+        "um-opt-c",
+        "um-rec-h",
+        "um-rec-lead",
+        "um-rec-why-1",
+        "um-rec-why-2",
+        "um-rec-why-3",
+        "um-shape-h",
+        "um-shape-lead",
+        "um-model-h",
+        "um-model-lead",
+        "um-model-shape",
+        "um-tools-h",
+        "um-tools-lead",
+        "um-tools-surface",
+        "um-payload-lead",
+        "um-payload",
+        "um-anchor-h",
+        "um-anchor-lead",
+        "um-anchor-code",
+        "um-render-h",
+        "um-render-lead",
+        "um-render-frame",
+        "um-render-theme",
+        "um-render-sketch",
+        "um-render-helpers",
+        "um-render-iso",
+        "um-lint-h",
+        "um-lint-lead",
+        "um-lint-table",
+        "um-guide-h",
+        "um-guide-lead",
+        "um-guide-catalog",
+        "um-guide-topic",
+        "um-guide-conv",
+        "um-phase-h",
+        "um-phase-lead",
+        "um-phase-table",
+        "um-phase-deferred",
+        "um-hard-h",
+        "um-hard-lead",
+        "um-hard-storage",
+        "um-hard-html",
+        "um-hard-ids",
+        "um-hard-home",
+        "um-open-h",
+        "um-open-lead",
+        "um-open-sketch",
+        "um-open-scripts",
+        "um-open-tokens",
+        "um-open-export",
+        "um-open-scope"
+      ]
+    },
+    "um-intro": {
+      "id": "um-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This spec proposes UI mockups as a component that specs, plans, and design docs can embed. An agent writes each screen as a semantic HTML fragment plus a surface preset, and the docs renderer owns the frame, theme, and sketch styling. Reviewers see the screens beside the prose and annotate individual controls. The page compares three ways to fit mockups into the block vocabulary and recommends a staged path."
+        }
+      ],
+      "children": []
+    },
+    "um-status": {
+      "id": "um-status",
+      "type": "callout",
+      "props": {
+        "kind": "Status",
+        "tone": "info"
+      },
+      "text": [
+        {
+          "insert": "Proposed and non-normative. Nothing on this page is built. Every type, tool, and lint rule named here as new is a proposal."
+        }
+      ],
+      "children": []
+    },
+    "um-problem-h": {
+      "id": "um-problem-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Problem"
+        }
+      ],
+      "children": []
+    },
+    "um-problem-lead": {
+      "id": "um-problem-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Specs and plans in this corpus describe user-facing screens only in prose. A reviewer cannot see the proposed screen, compare its states, or point at one control."
+        }
+      ],
+      "children": []
+    },
+    "um-p-prose": {
+      "id": "um-p-prose",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Prose hides layout",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "um-p-prose-1"
+      ]
+    },
+    "um-p-prose-1": {
+      "id": "um-p-prose-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A paragraph that describes a panel hides its layout decisions until implementation, when changing them costs the most."
+        }
+      ],
+      "children": []
+    },
+    "um-p-html": {
+      "id": "um-p-html",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Hand-built HTML drifts",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "um-p-html-1"
+      ]
+    },
+    "um-p-html-1": {
+      "id": "um-p-html-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "HTML block",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/10-text-and-media/10-rich-text/18-html"
+            }
+          }
+        },
+        {
+          "insert": " can hold a mockup, but the author writes every color, font, and frame. Mockups then differ from page to page and break in dark mode."
+        }
+      ],
+      "children": []
+    },
+    "um-p-anchor": {
+      "id": "um-p-anchor",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Annotations stop at the block",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "um-p-anchor-1"
+      ]
+    },
+    "um-p-anchor-1": {
+      "id": "um-p-anchor-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An "
+        },
+        {
+          "insert": "annotation",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/30-data-model/30-annotations"
+            }
+          }
+        },
+        {
+          "insert": " targets a block, a text range, or a canvas object. It cannot target one button inside a rendered screen."
+        }
+      ],
+      "children": []
+    },
+    "um-p-ref": {
+      "id": "um-p-ref",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The Agent-Native visual plan generated from the agent-kernel Model Nodes spec shows the alternative. Its top canvas holds three trace-viewer screens with designer notes, so a reviewer reads the UI before the prose."
+        }
+      ],
+      "children": []
+    },
+    "um-p-sketch-lead": {
+      "id": "um-p-sketch-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The board below shows the target reading experience for a small review panel. It is hand-built with today's "
+        },
+        {
+          "insert": "html",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " block, so its author wrote every color and font. That cost is what this spec removes."
+        }
+      ],
+      "children": []
+    },
+    "um-p-sketch": {
+      "id": "um-p-sketch",
+      "type": "html",
+      "props": {
+        "height": 360,
+        "html": "<style>:root{--ink:light-dark(#1f2328,#e6e8eb);--muted:light-dark(#6b7280,#9aa3ad);--line:light-dark(#c9ced6,#3b424c);--paper:light-dark(#f6f7f9,#16191d);--card:light-dark(#fff,#1e2227);--accent:light-dark(#4f46e5,#8b8cf8);--pin:#d9534f}body{margin:0;font:13px/1.4 ui-sans-serif,system-ui,sans-serif;color:var(--ink);background:var(--paper)}.board{padding:20px;display:flex;flex-direction:column;gap:4px}.sec{font-weight:600;font-size:15px}.sub{color:var(--muted);font-size:12px}.row{display:flex;gap:36px;align-items:flex-start;margin-top:12px;flex-wrap:wrap}.ab{display:flex;flex-direction:column;gap:8px}.lbl{font-size:11px;font-weight:600}.frame{border:1.5px solid var(--line);border-radius:10px;background:var(--card);padding:12px;display:flex;flex-direction:column;gap:8px}.card{border:1.2px solid var(--line);border-radius:8px;padding:8px}.pill{border:1.2px solid var(--line);border-radius:999px;padding:1px 8px;font-size:11px}.pill.on{background:var(--accent);border-color:var(--accent);color:#fff}.m{color:var(--muted);font-size:11px}.btn{border:1.2px solid var(--line);border-radius:6px;padding:4px 10px;font:inherit;font-size:12px;background:none;color:var(--ink)}.btn.p{background:var(--accent);border-color:var(--accent);color:#fff}.note{max-width:210px;font-size:12px;color:var(--muted)}.note b{display:block;color:var(--ink)}.dot{display:inline-block;width:16px;height:16px;border-radius:999px;background:var(--pin);color:#fff;font-size:10px;text-align:center;line-height:16px;margin-left:6px}.cmt{border-left:3px solid var(--pin);padding-left:8px}</style><div class=\"board\"><div class=\"sec\">Request panel</div><div class=\"sub\">Illustration only. Hand-built with the existing html block.</div><div class=\"row\"><div class=\"ab\"><div class=\"lbl\">Panel, 3 open requests</div><div class=\"frame\" style=\"width:270px\"><div style=\"display:flex;align-items:center;gap:8px\"><strong>Requests</strong><div style=\"flex:1\"></div><span class=\"pill on\">Open 3</span><span class=\"pill\">Resolved</span></div><div class=\"card\"><strong>Tighten this paragraph.</strong><div class=\"m\">ford, Problem section</div></div><div class=\"card\"><strong>Rename this node.</strong><div class=\"m\">ford, canvas node-auth</div></div><div class=\"card\"><strong>Show the empty state.</strong><div class=\"m\">ford, mockup req-panel</div></div><div style=\"display:flex;gap:8px\"><div style=\"flex:1\"></div><button class=\"btn\">Filter</button><button class=\"btn p\">Resolve<span class=\"dot\">1</span></button></div></div><div class=\"note\"><b>One list, two filters</b>Open requests are the agent's work queue.</div></div><div class=\"ab\"><div class=\"lbl\">Resolve popover</div><div class=\"frame\" style=\"width:210px\"><strong>Resolve request</strong><div class=\"card m\">Renamed node-auth to Session Manager.</div><div style=\"display:flex;gap:8px\"><div style=\"flex:1\"></div><button class=\"btn\">Cancel</button><button class=\"btn p\">Resolve</button></div></div><div class=\"note\"><b>Receipt first</b>The agent run summary fills the note.</div></div><div class=\"note cmt\"><b>Comment 1 on node resolve</b>Move Resolve into each card, one click per request.</div></div></div>",
+        "title": "Illustrative mockup board for a request panel"
+      },
+      "children": []
+    },
+    "um-ref-h": {
+      "id": "um-ref-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The Agent-Native Reference"
+        }
+      ],
+      "children": []
+    },
+    "um-ref-lead": {
+      "id": "um-ref-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "visual-plan",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " skill builds a plan whose top area is a pan-and-zoom canvas of HTML wireframes. Its rules live in "
+        },
+        {
+          "insert": "~/.claude/skills/visual-plan/SKILL.md",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and in "
+        },
+        {
+          "insert": "references/canvas.md",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "references/wireframe.md",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " beside it."
+        }
+      ],
+      "children": []
+    },
+    "um-ref-board": {
+      "id": "um-ref-board",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A board of artboards",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "um-ref-board-1",
+        "um-ref-board-2"
+      ]
+    },
+    "um-ref-board-1": {
+      "id": "um-ref-board-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "canvas.mdx",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " nests "
+        },
+        {
+          "insert": "<DesignBoard>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "<Section>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "<Artboard>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "<Screen surface html>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". The Model Nodes board has one section, three artboards, and four notes."
+        }
+      ],
+      "children": []
+    },
+    "um-ref-board-2": {
+      "id": "um-ref-board-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Artboards never scroll. A screen taller than its surface preset gets an explicit artboard "
+        },
+        {
+          "insert": "height",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "um-ref-split": {
+      "id": "um-ref-split",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The agent writes content and the renderer owns the look",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "um-ref-split-1",
+        "um-ref-split-2",
+        "um-ref-split-3"
+      ]
+    },
+    "um-ref-split-1": {
+      "id": "um-ref-split-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The agent writes semantic HTML with inline flex or grid layout and picks a "
+        },
+        {
+          "insert": "surface",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " preset: "
+        },
+        {
+          "insert": "browser",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "desktop",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "mobile",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "popover",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", or "
+        },
+        {
+          "insert": "panel",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "um-ref-split-2": {
+      "id": "um-ref-split-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The renderer owns the footprint, the light and dark theme, the hand-drawn font, and a rough.js sketch overlay."
+        }
+      ],
+      "children": []
+    },
+    "um-ref-split-3": {
+      "id": "um-ref-split-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Colors come from "
+        },
+        {
+          "insert": "--wf-*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " tokens and helper classes such as "
+        },
+        {
+          "insert": ".wf-card",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": ".wf-pill",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": ".wf-muted",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". The rules forbid "
+        },
+        {
+          "insert": "<style>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "<script>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", hex colors, and "
+        },
+        {
+          "insert": "font-family",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "um-ref-notes": {
+      "id": "um-ref-notes",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Designer notes sit beside frames",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "um-ref-notes-1"
+      ]
+    },
+    "um-ref-notes-1": {
+      "id": "um-ref-notes-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A note anchors with "
+        },
+        {
+          "insert": "targetId",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "placement",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and the renderer parks it in a gutter beside its artboard. Notes carry no coordinates."
+        }
+      ],
+      "children": []
+    },
+    "um-ref-fidelity": {
+      "id": "um-ref-fidelity",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Two fidelities and an optional prototype",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "um-ref-fidelity-1",
+        "um-ref-fidelity-2"
+      ]
+    },
+    "um-ref-fidelity-1": {
+      "id": "um-ref-fidelity-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "renderMode",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " defaults to "
+        },
+        {
+          "insert": "wireframe",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". The "
+        },
+        {
+          "insert": "design",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " mode drops the sketch treatment and accepts scoped "
+        },
+        {
+          "insert": "css",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " plus "
+        },
+        {
+          "insert": "data-design-id",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " targets."
+        }
+      ],
+      "children": []
+    },
+    "um-ref-fidelity-2": {
+      "id": "um-ref-fidelity-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Multi-step flows add a Prototype tab whose screens navigate through "
+        },
+        {
+          "insert": "data-goto",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " attributes."
+        }
+      ],
+      "children": []
+    },
+    "um-ref-comments": {
+      "id": "um-ref-comments",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Comments anchor to nodes",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "um-ref-comments-1"
+      ]
+    },
+    "um-ref-comments-1": {
+      "id": "um-ref-comments-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A review comment on a wireframe carries "
+        },
+        {
+          "insert": "targetNodeId",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and a "
+        },
+        {
+          "insert": "targetNodePath",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " such as "
+        },
+        {
+          "insert": "card > list > listItem \"Acme Inc\"",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Coordinates are the fallback."
+        }
+      ],
+      "children": []
+    },
+    "um-ref-excerpt-lead": {
+      "id": "um-ref-excerpt-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This excerpt from the generated Model Nodes board shows one panel artboard and its note. The HTML string is shortened."
+        }
+      ],
+      "children": []
+    },
+    "um-ref-excerpt": {
+      "id": "um-ref-excerpt",
+      "type": "code",
+      "props": {
+        "annotations": [
+          {
+            "lines": "3",
+            "label": "Board placement",
+            "note": "Board-level x and y create lanes. The surface preset sets the width."
+          },
+          {
+            "lines": "4",
+            "label": "Screen content",
+            "note": "Semantic HTML with inline layout and wf tokens. The renderer adds the frame and sketch."
+          },
+          {
+            "lines": "6-8",
+            "label": "Designer note",
+            "note": "Anchored by targetId and placement. The renderer lays it out in the gutter."
+          }
+        ],
+        "language": "mdx"
+      },
+      "text": [
+        {
+          "insert": "<DesignBoard title=\"Trace viewer: worker-job/fn_8003A1C4\">\n<Section id=\"sec-trace-ui\" title=\"Trace viewer with model nodes\">\n<Artboard id=\"ab-r4\" label=\"Decision card: R4 ContinueOrStop\" surface=\"panel\" x={1256} y={96} height={760}>\n<Screen surface=\"panel\" frame=\"hide\" html={\"<div style=\\\"display:flex;flex-direction:column;gap:10px;padding:14px\\\">...</div>\"} />\n</Artboard>\n<Annotation id=\"note-r4\" targetId=\"ab-r4\" placement=\"bottom\" title=\"Same card, choice question\">\nThree options instead of a binary. The marker is the abstainBelow floor (0.5).\n</Annotation>\n</Section>\n</DesignBoard>"
+        }
+      ],
+      "children": []
+    },
+    "um-reuse-h": {
+      "id": "um-reuse-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "What Exists Today"
+        }
+      ],
+      "children": []
+    },
+    "um-reuse-lead": {
+      "id": "um-reuse-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Most of the pieces a mockup component needs already exist in docs-system and its "
+        },
+        {
+          "insert": "external/",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "external"
+            }
+          }
+        },
+        {
+          "insert": " packages. The table maps each piece to what a mockup would reuse."
+        }
+      ],
+      "children": []
+    },
+    "um-reuse-table": {
+      "id": "um-reuse-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Piece",
+          "Defined in",
+          "Reuse for mockups"
+        ],
+        "rows": [
+          [
+            [
+              {
+                "insert": "html",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " block"
+              }
+            ],
+            [
+              {
+                "insert": "HtmlState",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "HtmlBlock",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " in "
+              },
+              {
+                "insert": "html.tsx",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Sandboxed srcdoc iframe, CSP, size bridge, Expand viewer, page color scheme"
+          ],
+          [
+            [
+              {
+                "insert": "canvas",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " block and sidecar"
+              }
+            ],
+            [
+              {
+                "insert": "CanvasState",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "canvas-sidecar.ts",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Boards in bundle assets, forwarded typed actions with two hash checks"
+          ],
+          [
+            "Canvas board model",
+            [
+              {
+                "insert": "object-types.ts",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "object-def.ts",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            [
+              {
+                "insert": "Sections, connections, and the "
+              },
+              {
+                "insert": "ObjectDef",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " render registry"
+              }
+            ]
+          ],
+          [
+            "Canvas agent tools and lints",
+            [
+              {
+                "insert": "canvas-agent",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " operations and "
+              },
+              {
+                "insert": "board/lints",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            [
+              {
+                "insert": "place_*",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " tools, "
+              },
+              {
+                "insert": "look",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "clipped-text",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " and "
+              },
+              {
+                "insert": "crowding",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " rules"
+              }
+            ]
+          ],
+          [
+            "Annotations",
+            [
+              {
+                "insert": "AnnotationTarget",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "TargetAdapter",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            [
+              {
+                "insert": "Per-bundle "
+              },
+              {
+                "insert": "annotations.json",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", one adapter per target kind"
+              }
+            ]
+          ],
+          [
+            "Component registry",
+            [
+              {
+                "insert": "ALL_COMPONENTS",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "manifest.authoring",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Generated MCP tools per action, catalog entry, guidance snapshot"
+          ]
+        ],
+        "title": "Existing pieces a mockup component reuses"
+      },
+      "children": []
+    },
+    "um-reuse-src": {
+      "id": "um-reuse-src",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The HTML renderer is "
+        },
+        {
+          "insert": "html.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/components/rich-text/html.tsx"
+            }
+          }
+        },
+        {
+          "insert": ", the canvas object registry is "
+        },
+        {
+          "insert": "object-def.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "external/canvas/packages/canvas/src/objects/object-def.ts"
+            }
+          }
+        },
+        {
+          "insert": ", and the annotation targets live in "
+        },
+        {
+          "insert": "annotations-schema.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/annotations-schema.ts"
+            }
+          }
+        },
+        {
+          "insert": ". Three pieces are missing."
+        }
+      ],
+      "children": []
+    },
+    "um-gap-style": {
+      "id": "um-gap-style",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "No renderer-owned wireframe look",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "um-gap-style-1"
+      ]
+    },
+    "um-gap-style-1": {
+      "id": "um-gap-style-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "No package ships a wireframe stylesheet or tokens, and none depends on rough.js."
+        }
+      ],
+      "children": []
+    },
+    "um-gap-schema": {
+      "id": "um-gap-schema",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "No screen schema or lint",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "um-gap-schema-1"
+      ]
+    },
+    "um-gap-schema-1": {
+      "id": "um-gap-schema-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "HtmlState",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " accepts any HTML, and "
+        },
+        {
+          "insert": "lintRules",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/lint/index.ts"
+            }
+          }
+        },
+        {
+          "insert": " has no rule for HTML content."
+        }
+      ],
+      "children": []
+    },
+    "um-gap-anchor": {
+      "id": "um-gap-anchor",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "No anchor inside a rendered screen",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "um-gap-anchor-1"
+      ]
+    },
+    "um-gap-anchor-1": {
+      "id": "um-gap-anchor-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "AnnotationTarget",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " has three kinds, "
+        },
+        {
+          "insert": "block",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "canvas-object",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "text-range",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". None addresses an element inside an iframe."
+        }
+      ],
+      "children": []
+    },
+    "um-opt-h": {
+      "id": "um-opt-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Options"
+        }
+      ],
+      "children": []
+    },
+    "um-opt-lead": {
+      "id": "um-opt-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Three integration shapes fit the block vocabulary. All three use the same screen content, an HTML fragment plus a surface preset, and differ in where the screen lives."
+        }
+      ],
+      "children": []
+    },
+    "um-opt-table": {
+      "id": "um-opt-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Criterion",
+          "A. Inline mockup block",
+          "B. Screen object on canvas",
+          "C. Page review area"
+        ],
+        "rows": [
+          [
+            "Storage",
+            [
+              {
+                "insert": "Props in "
+              },
+              {
+                "insert": "doc.json",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            [
+              {
+                "insert": "Object in a "
+              },
+              {
+                "insert": ".canvas.json",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " sidecar"
+              }
+            ],
+            "New page-level field"
+          ],
+          [
+            "Reuses",
+            [
+              {
+                "insert": "html",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " iframe renderer, generic block ops"
+              }
+            ],
+            "Sections, notes, connectors, canvas tools and lints",
+            "A or B for content"
+          ],
+          [
+            "Agent authoring",
+            [
+              {
+                "insert": "docs_insert",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " plus "
+              },
+              {
+                "insert": "mockup.patchHtml",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            [
+              {
+                "insert": "New "
+              },
+              {
+                "insert": "place_screen",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " canvas tool"
+              }
+            ],
+            "New page-level tools"
+          ],
+          [
+            "Many screens",
+            "Stacked in doc flow",
+            "Lanes, sections, and connectors",
+            "Tabs over a board"
+          ],
+          [
+            "Fidelity",
+            "Wireframe, later design",
+            "Wireframe, later design",
+            "Adds a prototype tab"
+          ],
+          [
+            "Comment anchor",
+            "Block, then node",
+            "Canvas object, then node",
+            "Same as its host"
+          ],
+          [
+            "Static export",
+            "Works today through srcdoc",
+            "Needs HTML beside the SVG export",
+            "Needs both paths"
+          ],
+          [
+            "Size of change",
+            "Smallest",
+            "Medium, crosses the canvas package",
+            "Largest"
+          ]
+        ],
+        "title": "Integration options compared"
+      },
+      "children": []
+    },
+    "um-opt-a": {
+      "id": "um-opt-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A. Inline ",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": "mockup",
+          "attributes": {
+            "bold": true,
+            "code": true
+          }
+        },
+        {
+          "insert": " block",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "um-opt-a-1",
+        "um-opt-a-2"
+      ]
+    },
+    "um-opt-a-1": {
+      "id": "um-opt-a-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A new block type stores one screen in props and renders it through the sandbox that "
+        },
+        {
+          "insert": "HtmlBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " already uses. It ships with no change outside docs-system."
+        }
+      ],
+      "children": []
+    },
+    "um-opt-a-2": {
+      "id": "um-opt-a-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Screens stack in reading order, so a page cannot lay states side by side or park notes in a gutter."
+        }
+      ],
+      "children": []
+    },
+    "um-opt-b": {
+      "id": "um-opt-b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "B. ",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": "screen",
+          "attributes": {
+            "bold": true,
+            "code": true
+          }
+        },
+        {
+          "insert": " object kind on canvas boards",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "um-opt-b-1",
+        "um-opt-b-2"
+      ]
+    },
+    "um-opt-b-1": {
+      "id": "um-opt-b-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A screen becomes one canvas object, so it sits in sections beside notes and connectors and is edited with the existing "
+        },
+        {
+          "insert": "canvas",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/50-flow-and-diagrams/50-canvas"
+            }
+          }
+        },
+        {
+          "insert": " tools. This option matches the reference board most closely."
+        }
+      ],
+      "children": []
+    },
+    "um-opt-b-2": {
+      "id": "um-opt-b-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The canvas type set is closed in "
+        },
+        {
+          "insert": "validate.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "external/canvas/packages/canvas/src/state/schema/validate.ts"
+            }
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "static-svg.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "external/canvas/packages/canvas/src/render/static-svg.ts"
+            }
+          }
+        },
+        {
+          "insert": " excludes "
+        },
+        {
+          "insert": "<foreignObject>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". A screen therefore needs a schema change and a new render path in the canvas package."
+        }
+      ],
+      "children": []
+    },
+    "um-opt-c": {
+      "id": "um-opt-c",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "C. Page review area",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "um-opt-c-1",
+        "um-opt-c-2"
+      ]
+    },
+    "um-opt-c-1": {
+      "id": "um-opt-c-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A spec or plan page gains a fixed top area with Wireframes and Prototype tabs, as in the reference. The area adds a second layout model to every page that uses it."
+        }
+      ],
+      "children": []
+    },
+    "um-opt-c-2": {
+      "id": "um-opt-c-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A canvas block placed first on the page gives the same reading order. The block already renders inline and opens a full-screen viewer."
+        }
+      ],
+      "children": []
+    },
+    "um-rec-h": {
+      "id": "um-rec-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Recommendation"
+        }
+      ],
+      "children": []
+    },
+    "um-rec-lead": {
+      "id": "um-rec-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Build one screen model and one renderer, then host it twice. Ship it first as the inline "
+        },
+        {
+          "insert": "mockup",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " block (A), add the "
+        },
+        {
+          "insert": "screen",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " object kind to canvas boards second (B), and treat the page review area (C) as a page convention."
+        }
+      ],
+      "children": []
+    },
+    "um-rec-why-1": {
+      "id": "um-rec-why-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The shared part costs the most",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "um-rec-why-1a"
+      ]
+    },
+    "um-rec-why-1a": {
+      "id": "um-rec-why-1a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The stylesheet, lint rules, and node anchors are the same in both hosts. The inline block proves them without touching the canvas package."
+        }
+      ],
+      "children": []
+    },
+    "um-rec-why-2": {
+      "id": "um-rec-why-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The board reuses canvas instead of rebuilding it",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "um-rec-why-2a"
+      ]
+    },
+    "um-rec-why-2a": {
+      "id": "um-rec-why-2a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Option B gets sections, connectors, notes, the typed edit tools, and layout lints from the canvas package. A mockup-only board would duplicate all five."
+        }
+      ],
+      "children": []
+    },
+    "um-rec-why-3": {
+      "id": "um-rec-why-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The review area needs no new surface",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "um-rec-why-3a"
+      ]
+    },
+    "um-rec-why-3a": {
+      "id": "um-rec-why-3a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A spec with UI opens with its mockup canvas, and the agent guidance states that convention. A prototype tab waits for a real need."
+        }
+      ],
+      "children": []
+    },
+    "um-shape-h": {
+      "id": "um-shape-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Proposed Shape"
+        }
+      ],
+      "children": []
+    },
+    "um-shape-lead": {
+      "id": "um-shape-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The recommendation needs one screen schema, two authoring tools, a renderer contract, lint rules, and agent guidance. Every name in this section is proposed."
+        }
+      ],
+      "children": []
+    },
+    "um-model-h": {
+      "id": "um-model-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Screen Model"
+        }
+      ],
+      "children": []
+    },
+    "um-model-lead": {
+      "id": "um-model-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "MockupScreen",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is the props of a "
+        },
+        {
+          "insert": "mockup",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " block and the payload of a "
+        },
+        {
+          "insert": "screen",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " canvas object. The example is the request panel from the board above."
+        }
+      ],
+      "children": []
+    },
+    "um-model-shape": {
+      "id": "um-model-shape",
+      "type": "state-shape",
+      "props": {
+        "description": "Proposed. One screen, shared by the mockup block and the canvas screen object.",
+        "example": "{\n  \"title\": \"Panel, 3 open requests\",\n  \"surface\": \"panel\",\n  \"html\": \"<div style=\\\"display:flex;flex-direction:column;gap:10px;padding:16px\\\"><h3>Requests</h3><div class=\\\"wf-card\\\" data-mock-id=\\\"req-1\\\">Tighten this paragraph.</div><button class=\\\"primary\\\" data-mock-id=\\\"resolve\\\">Resolve</button></div>\",\n  \"renderMode\": \"wireframe\"\n}",
+        "fields": [
+          {
+            "name": "title",
+            "type": "string",
+            "description": "Accessible frame label. On a board it is also the artboard caption."
+          },
+          {
+            "name": "surface",
+            "type": "\"browser\" | \"desktop\" | \"mobile\" | \"popover\" | \"panel\"",
+            "description": "Sets the footprint and width. The HTML never sets its own width."
+          },
+          {
+            "name": "html",
+            "type": "string",
+            "description": "Semantic HTML fragment, capped at 1,048,576 characters like HtmlState."
+          },
+          {
+            "name": "renderMode",
+            "type": "\"wireframe\" | \"design\"",
+            "required": false,
+            "description": "Omitted means wireframe, which adds the sketch font and overlay."
+          },
+          {
+            "name": "css",
+            "type": "string",
+            "required": false,
+            "description": "Scoped styles. Valid only in design mode."
+          },
+          {
+            "name": "height",
+            "type": "integer",
+            "required": false,
+            "description": "Overrides the surface height for tall content. Screens never scroll."
+          },
+          {
+            "name": "skeleton",
+            "type": "boolean",
+            "required": false,
+            "description": "Loading state. The renderer draws placeholder geometry without text or sketch."
+          }
+        ],
+        "name": "MockupScreen"
+      },
+      "children": []
+    },
+    "um-tools-h": {
+      "id": "um-tools-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Authoring Tools"
+        }
+      ],
+      "children": []
+    },
+    "um-tools-lead": {
+      "id": "um-tools-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Agents insert a block with "
+        },
+        {
+          "insert": "docs_insert",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and patch scalar props with the generic "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Two new operations cover what generic ops cannot."
+        }
+      ],
+      "children": []
+    },
+    "um-tools-surface": {
+      "id": "um-tools-surface",
+      "type": "interaction-surface",
+      "props": {
+        "operations": [
+          {
+            "name": "mockup.patchHtml",
+            "kind": "action",
+            "description": "Each find must match exactly once unless all is true. The result is linted again before it saves.",
+            "params": [
+              {
+                "name": "edits",
+                "type": "{ find, replace, all? }[]",
+                "required": true,
+                "fields": [
+                  {
+                    "name": "find",
+                    "type": "string",
+                    "description": "A unique snippet of the current HTML."
+                  },
+                  {
+                    "name": "replace",
+                    "type": "string"
+                  },
+                  {
+                    "name": "all",
+                    "type": "boolean",
+                    "required": false,
+                    "description": "Replaces every occurrence instead of requiring one."
+                  }
+                ]
+              }
+            ],
+            "returns": "MockupPatch",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "html",
+                  "type": "string",
+                  "description": "The complete replacement HTML, not only the edited span."
+                }
+              ],
+              "example": "{\n  \"html\": \"<div style=\\\"display:flex;flex-direction:column;gap:10px;padding:16px\\\"><h3>Requests</h3>...</div>\"\n}"
+            },
+            "exampleCall": "mockup.patchHtml({\n  edits: [{ find: \"Open 3\", replace: \"Open 4\" }],\n})"
+          },
+          {
+            "name": "place_screen",
+            "kind": "action",
+            "description": "A canvas tool beside place_shape. The surface preset sets the width, so the call takes a position and no size.",
+            "params": [
+              {
+                "name": "id",
+                "type": "string",
+                "required": true
+              },
+              {
+                "name": "at",
+                "type": "[x, y]",
+                "required": true,
+                "description": "Top-left corner in board units, snapped to the grid."
+              },
+              {
+                "name": "surface",
+                "type": "MockupScreen.surface",
+                "required": true
+              },
+              {
+                "name": "title",
+                "type": "string",
+                "required": true
+              },
+              {
+                "name": "html",
+                "type": "string",
+                "required": true
+              },
+              {
+                "name": "height",
+                "type": "integer",
+                "required": false
+              }
+            ],
+            "returns": "PlacedScreen",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "id",
+                  "type": "string"
+                },
+                {
+                  "name": "geometry",
+                  "type": "{ x, y, width, height }",
+                  "description": "Width comes from the surface preset."
+                }
+              ],
+              "example": "{\n  \"id\": \"ab-panel\",\n  \"geometry\": { \"x\": 96, \"y\": 96, \"width\": 360, \"height\": 640 }\n}"
+            },
+            "exampleCall": "place_screen({\n  id: \"ab-panel\",\n  at: [96, 96],\n  surface: \"panel\",\n  title: \"Panel, 3 open requests\",\n  html: \"<div style=\\\"padding:16px\\\">...</div>\",\n})"
+          }
+        ],
+        "title": "Proposed mockup operations"
+      },
+      "children": []
+    },
+    "um-payload-lead": {
+      "id": "um-payload-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This payload inserts the request panel as an inline block. It shows the "
+        },
+        {
+          "insert": "docs_insert",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " arguments without the project, path, hash, and task fields."
+        }
+      ],
+      "children": []
+    },
+    "um-payload": {
+      "id": "um-payload",
+      "type": "code",
+      "props": {
+        "annotations": [
+          {
+            "lines": "2",
+            "label": "New block type",
+            "note": "Proposed. Today the service rejects mockup as an unknown type."
+          },
+          {
+            "lines": "7",
+            "label": "Footprint",
+            "note": "The panel preset sets width. The HTML sets padding and gaps only."
+          },
+          {
+            "lines": "8",
+            "label": "Content only",
+            "note": "Inline flex layout, wf classes for color, and data-mock-id on the controls a reviewer may comment on."
+          }
+        ],
+        "language": "json"
+      },
+      "text": [
+        {
+          "insert": "{\n  \"type\": \"mockup\",\n  \"parentId\": \"root\",\n  \"index\": 12,\n  \"props\": {\n    \"title\": \"Panel, 3 open requests\",\n    \"surface\": \"panel\",\n    \"html\": \"<div style=\\\"display:flex;flex-direction:column;gap:10px;padding:16px\\\"><div style=\\\"display:flex;align-items:center;width:100%\\\"><h3>Requests</h3><div style=\\\"flex:1\\\"></div><span class=\\\"wf-pill accent\\\">Open 3</span></div><div class=\\\"wf-card\\\" data-mock-id=\\\"req-1\\\"><strong>Tighten this paragraph.</strong><br><small>ford, Problem section</small></div><button class=\\\"primary\\\" data-mock-id=\\\"resolve\\\">Resolve</button></div>\"\n  }\n}"
+        }
+      ],
+      "children": []
+    },
+    "um-anchor-h": {
+      "id": "um-anchor-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Comment Anchors"
+        }
+      ],
+      "children": []
+    },
+    "um-anchor-lead": {
+      "id": "um-anchor-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A comment on one control adds an optional "
+        },
+        {
+          "insert": "nodeId",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " to the existing "
+        },
+        {
+          "insert": "block",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "canvas-object",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " targets. The viewer maps a click inside the iframe to the nearest ancestor that carries "
+        },
+        {
+          "insert": "data-mock-id",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and a missing id leaves a whole-screen comment."
+        }
+      ],
+      "children": []
+    },
+    "um-anchor-code": {
+      "id": "um-anchor-code",
+      "type": "code",
+      "props": {
+        "annotations": [
+          {
+            "lines": "5",
+            "label": "Inline block",
+            "note": "An existing block target plus the proposed nodeId."
+          },
+          {
+            "lines": "11",
+            "label": "Board screen",
+            "note": "An existing canvas-object target. The screen is the object and nodeId names the control."
+          }
+        ],
+        "language": "json"
+      },
+      "text": [
+        {
+          "insert": "[\n  {\n    \"kind\": \"block\",\n    \"blockId\": \"um-req-panel\",\n    \"nodeId\": \"resolve\"\n  },\n  {\n    \"kind\": \"canvas-object\",\n    \"canvasSrc\": \"./assets/canvases/request-panel.canvas.json\",\n    \"objectId\": \"ab-panel\",\n    \"nodeId\": \"resolve\"\n  }\n]"
+        }
+      ],
+      "children": []
+    },
+    "um-render-h": {
+      "id": "um-render-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Renderer Responsibilities"
+        }
+      ],
+      "children": []
+    },
+    "um-render-lead": {
+      "id": "um-render-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The renderer owns everything except the screen's content and layout. One renderer serves both hosts."
+        }
+      ],
+      "children": []
+    },
+    "um-render-frame": {
+      "id": "um-render-frame",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Frame and footprint",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "um-render-frame-1",
+        "um-render-frame-2"
+      ]
+    },
+    "um-render-frame-1": {
+      "id": "um-render-frame-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The surface preset sets the width and default height, and "
+        },
+        {
+          "insert": "browser",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " adds window chrome."
+        }
+      ],
+      "children": []
+    },
+    "um-render-frame-2": {
+      "id": "um-render-frame-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Overflow is clipped and reported, never scrolled."
+        }
+      ],
+      "children": []
+    },
+    "um-render-theme": {
+      "id": "um-render-theme",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Theme tokens",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "um-render-theme-1"
+      ]
+    },
+    "um-render-theme-1": {
+      "id": "um-render-theme-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A base stylesheet maps "
+        },
+        {
+          "insert": "--wf-*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " tokens to the active docs theme. It follows the page color scheme the way "
+        },
+        {
+          "insert": "HtmlBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " does through "
+        },
+        {
+          "insert": "usePageColorScheme",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "um-render-sketch": {
+      "id": "um-render-sketch",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Sketch treatment",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "um-render-sketch-1"
+      ]
+    },
+    "um-render-sketch-1": {
+      "id": "um-render-sketch-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Wireframe mode adds a hand-drawn font and a rough.js overlay on frames and controls. Design mode removes both."
+        }
+      ],
+      "children": []
+    },
+    "um-render-helpers": {
+      "id": "um-render-helpers",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Helper classes and icons",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "um-render-helpers-1",
+        "um-render-helpers-2"
+      ]
+    },
+    "um-render-helpers-1": {
+      "id": "um-render-helpers-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": ".wf-*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " classes style cards, pills, and muted text."
+        }
+      ],
+      "children": []
+    },
+    "um-render-helpers-2": {
+      "id": "um-render-helpers-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Empty "
+        },
+        {
+          "insert": "data-icon",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " markers render as inline SVG icons."
+        }
+      ],
+      "children": []
+    },
+    "um-render-iso": {
+      "id": "um-render-iso",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Isolation and agent projection",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "um-render-iso-1"
+      ]
+    },
+    "um-render-iso-1": {
+      "id": "um-render-iso-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Screens reuse the "
+        },
+        {
+          "insert": "htmlEmbedDocument",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " sandbox and CSP with scripts off. The agent projection prints the title and surface, then the HTML in a fenced listing."
+        }
+      ],
+      "children": []
+    },
+    "um-lint-h": {
+      "id": "um-lint-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Lint Rules"
+        }
+      ],
+      "children": []
+    },
+    "um-lint-lead": {
+      "id": "um-lint-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Lint keeps the renderer's ownership real. The first seven rules run on save, and "
+        },
+        {
+          "insert": "mockup.clipped",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " runs when a viewer measures the rendered screen."
+        }
+      ],
+      "children": []
+    },
+    "um-lint-table": {
+      "id": "um-lint-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Rule",
+          "Fails when"
+        ],
+        "rows": [
+          [
+            [
+              {
+                "insert": "mockup.no-raw-document",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            [
+              {
+                "insert": "HTML contains "
+              },
+              {
+                "insert": "<html>",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "<body>",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "<style>",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "<script>",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", or an "
+              },
+              {
+                "insert": "on*",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " handler"
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "insert": "mockup.tokens-only",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            [
+              {
+                "insert": "A color is a hex, "
+              },
+              {
+                "insert": "rgb()",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", or named value instead of a "
+              },
+              {
+                "insert": "--wf-*",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " token"
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "insert": "mockup.no-font",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            [
+              {
+                "insert": "A style sets "
+              },
+              {
+                "insert": "font-family",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "insert": "mockup.no-fixed-geometry",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "The root sets a width, or an element uses absolute or fixed position"
+          ],
+          [
+            [
+              {
+                "insert": "mockup.no-scroll",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            [
+              {
+                "insert": "An element sets "
+              },
+              {
+                "insert": "overflow",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " to "
+              },
+              {
+                "insert": "auto",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " or "
+              },
+              {
+                "insert": "scroll",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "insert": "mockup.css-needs-design",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            [
+              {
+                "insert": "css",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " is set and "
+              },
+              {
+                "insert": "renderMode",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " is not "
+              },
+              {
+                "insert": "design",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "insert": "mockup.duplicate-node-id",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            [
+              {
+                "insert": "Two elements share one "
+              },
+              {
+                "insert": "data-mock-id",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "insert": "mockup.clipped",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Rendered content is taller than the screen"
+          ]
+        ],
+        "title": "Proposed mockup lint rules"
+      },
+      "children": []
+    },
+    "um-guide-h": {
+      "id": "um-guide-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Agent Guidance"
+        }
+      ],
+      "children": []
+    },
+    "um-guide-lead": {
+      "id": "um-guide-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Agents learn the component through the same channels as every other block."
+        }
+      ],
+      "children": []
+    },
+    "um-guide-catalog": {
+      "id": "um-guide-catalog",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Catalog entry and reference page",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "um-guide-catalog-1"
+      ]
+    },
+    "um-guide-catalog-1": {
+      "id": "um-guide-catalog-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "mockup",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " manifest's "
+        },
+        {
+          "insert": "authoring",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " block feeds "
+        },
+        {
+          "insert": "renderComponentCatalog",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/authoring-guidance.ts"
+            }
+          }
+        },
+        {
+          "insert": ", and a block-vocabulary page documents the contract."
+        }
+      ],
+      "children": []
+    },
+    "um-guide-topic": {
+      "id": "um-guide-topic",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A mockups guidance topic that ports the reference quality bar",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "um-guide-topic-1",
+        "um-guide-topic-2",
+        "um-guide-topic-4",
+        "um-guide-topic-5",
+        "um-guide-topic-6"
+      ]
+    },
+    "um-guide-topic-1": {
+      "id": "um-guide-topic-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Screens use real product content, never placeholder text."
+        }
+      ],
+      "children": []
+    },
+    "um-guide-topic-2": {
+      "id": "um-guide-topic-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A change to an existing screen reproduces that screen first and alters only the delta."
+        }
+      ],
+      "children": []
+    },
+    "um-guide-topic-4": {
+      "id": "um-guide-topic-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each user-visible state gets its own screen."
+        }
+      ],
+      "children": []
+    },
+    "um-guide-topic-5": {
+      "id": "um-guide-topic-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Product screens carry no architecture notes or file contracts."
+        }
+      ],
+      "children": []
+    },
+    "um-guide-topic-6": {
+      "id": "um-guide-topic-6",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Before and after screens share one surface and size."
+        }
+      ],
+      "children": []
+    },
+    "um-guide-conv": {
+      "id": "um-guide-conv",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The opening-mockup convention",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "um-guide-conv-1"
+      ]
+    },
+    "um-guide-conv-1": {
+      "id": "um-guide-conv-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A spec with UI opens with its mockups, which turns option C into written guidance instead of page chrome."
+        }
+      ],
+      "children": []
+    },
+    "um-phase-h": {
+      "id": "um-phase-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Phasing"
+        }
+      ],
+      "children": []
+    },
+    "um-phase-lead": {
+      "id": "um-phase-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Phase 1 is the smallest cut that proves the approach. It adds one block type and changes no external package."
+        }
+      ],
+      "children": []
+    },
+    "um-phase-table": {
+      "id": "um-phase-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Phase",
+          "Ships",
+          "Proves"
+        ],
+        "rows": [
+          [
+            "1",
+            [
+              {
+                "insert": "mockup",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " block in wireframe mode, base stylesheet, lint, "
+              },
+              {
+                "insert": "mockup.patchHtml",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Agents write screens that read well in both themes without hand styling"
+          ],
+          [
+            "2",
+            [
+              {
+                "insert": "nodeId",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " on annotation targets, "
+              },
+              {
+                "insert": "data-mock-id",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " targeting in the viewer"
+              }
+            ],
+            "A reviewer comments on one control and an agent resolves it"
+          ],
+          [
+            "3",
+            [
+              {
+                "insert": "screen",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " canvas object, "
+              },
+              {
+                "insert": "place_screen",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", notes beside frames"
+              }
+            ],
+            "Multi-state boards like the reference"
+          ],
+          [
+            "4",
+            [
+              {
+                "insert": "Design mode with scoped "
+              },
+              {
+                "insert": "css",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Full-fidelity screens where a spec needs them"
+          ]
+        ],
+        "title": "Mockup phases"
+      },
+      "children": []
+    },
+    "um-phase-deferred": {
+      "id": "um-phase-deferred",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Clickable prototypes, a page-level tab surface, Figma import or export, and pixel comparison against built UI stay deferred until a spec needs them."
+        }
+      ],
+      "children": []
+    },
+    "um-hard-h": {
+      "id": "um-hard-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Hard-to-Reverse Decisions"
+        }
+      ],
+      "children": []
+    },
+    "um-hard-lead": {
+      "id": "um-hard-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Four choices become expensive to change once documents and annotations depend on them. Each one is settled here before Phase 1."
+        }
+      ],
+      "children": []
+    },
+    "um-hard-storage": {
+      "id": "um-hard-storage",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Storage stays inline",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "um-hard-storage-1",
+        "um-hard-storage-2"
+      ]
+    },
+    "um-hard-storage-1": {
+      "id": "um-hard-storage-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A block keeps its screen in props, so the screen shares the doc hash, undo, and diff, as the "
+        },
+        {
+          "insert": "html",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " block does."
+        }
+      ],
+      "children": []
+    },
+    "um-hard-storage-2": {
+      "id": "um-hard-storage-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "On a board the screen is one object inside the canvas sidecar. A separate mockup sidecar would add a third authority and a third forwarding path."
+        }
+      ],
+      "children": []
+    },
+    "um-hard-html": {
+      "id": "um-hard-html",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Content is HTML, not a node tree",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "um-hard-html-1",
+        "um-hard-html-2"
+      ]
+    },
+    "um-hard-html-1": {
+      "id": "um-hard-html-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The reference still renders a legacy kit tree of components, but it authors every new screen as HTML."
+        }
+      ],
+      "children": []
+    },
+    "um-hard-html-2": {
+      "id": "um-hard-html-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "HTML uses layout skills agents already have. Lint enforces the limits that a closed node schema would otherwise enforce."
+        }
+      ],
+      "children": []
+    },
+    "um-hard-ids": {
+      "id": "um-hard-ids",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Anchors are authored ids",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "um-hard-ids-1",
+        "um-hard-ids-2"
+      ]
+    },
+    "um-hard-ids-1": {
+      "id": "um-hard-ids-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A positional path such as "
+        },
+        {
+          "insert": "card > list > listItem",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " breaks when a sibling is inserted. An authored "
+        },
+        {
+          "insert": "data-mock-id",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " survives edits the way block ids do."
+        }
+      ],
+      "children": []
+    },
+    "um-hard-ids-2": {
+      "id": "um-hard-ids-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The anchor is an optional field on existing targets, so the annotation schema grows additively and old sidecars stay valid."
+        }
+      ],
+      "children": []
+    },
+    "um-hard-home": {
+      "id": "um-hard-home",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The schema lives in the canvas package",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "um-hard-home-1"
+      ]
+    },
+    "um-hard-home-1": {
+      "id": "um-hard-home-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs-model already depends on "
+        },
+        {
+          "insert": "@codecaine-ai/canvas",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and the canvas package does not depend on docs-model. Exporting "
+        },
+        {
+          "insert": "MockupScreen",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " from the canvas package lets both hosts validate one shape."
+        }
+      ],
+      "children": []
+    },
+    "um-open-h": {
+      "id": "um-open-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Open Questions"
+        }
+      ],
+      "children": []
+    },
+    "um-open-lead": {
+      "id": "um-open-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each question carries a recommended default, so Phase 1 can start before it is answered."
+        }
+      ],
+      "children": []
+    },
+    "um-open-sketch": {
+      "id": "um-open-sketch",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Is sketch styling the default on docs pages?",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "um-open-sketch-1"
+      ]
+    },
+    "um-open-sketch-1": {
+      "id": "um-open-sketch-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Recommended default is yes, matching the reference. The sketch signals that a screen is a proposal and not a capture of shipped UI."
+        }
+      ],
+      "children": []
+    },
+    "um-open-scripts": {
+      "id": "um-open-scripts",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Do mockups ever run scripts?",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "um-open-scripts-1"
+      ]
+    },
+    "um-open-scripts-1": {
+      "id": "um-open-scripts-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Recommended default is no. "
+        },
+        {
+          "insert": "MockupScreen",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " has no "
+        },
+        {
+          "insert": "allowScripts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " until a prototype phase defines navigation."
+        }
+      ],
+      "children": []
+    },
+    "um-open-tokens": {
+      "id": "um-open-tokens",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Which package owns the stylesheet and tokens?",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "um-open-tokens-1"
+      ]
+    },
+    "um-open-tokens-1": {
+      "id": "um-open-tokens-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Recommended default is the canvas package, beside the schema. Its "
+        },
+        {
+          "insert": "--wf-*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " values derive from the docs theme and from the three canvas themes."
+        }
+      ],
+      "children": []
+    },
+    "um-open-export": {
+      "id": "um-open-export",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "How does the static board export draw a screen?",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "um-open-export-1"
+      ]
+    },
+    "um-open-export-1": {
+      "id": "um-open-export-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Recommended default is a labeled frame in the SVG, with the live iframe overlaid only by the interactive viewer. This keeps "
+        },
+        {
+          "insert": "static-svg.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " free of "
+        },
+        {
+          "insert": "<foreignObject>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "um-open-scope": {
+      "id": "um-open-scope",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Are mockups limited to the specs tier?",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "um-open-scope-1"
+      ]
+    },
+    "um-open-scope-1": {
+      "id": "um-open-scope-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Recommended default is no. System design pages can show UI states with the same block."
+        }
+      ],
+      "children": []
+    }
+  }
+}

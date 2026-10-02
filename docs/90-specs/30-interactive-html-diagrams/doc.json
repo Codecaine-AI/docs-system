@@ -1,0 +1,2831 @@
+{
+  "schemaVersion": 1,
+  "id": "doc-6440992bab495d76736e466b90008514",
+  "title": "Interactive HTML Diagrams for Real Things",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "ih-b-1",
+        "ih-c-2",
+        "ih-h-3",
+        "ih-b-4",
+        "ih-b-5",
+        "ih-b-8",
+        "ih-b-12",
+        "ih-b-15",
+        "ih-h-18",
+        "ih-b-19",
+        "ih-t-20",
+        "ih-b-21",
+        "ih-b-22",
+        "ih-b-23",
+        "ih-b-24",
+        "ih-b-25",
+        "ih-b-26",
+        "ih-b-27",
+        "ih-b-29",
+        "ih-b-31",
+        "ih-h-32",
+        "ih-b-33",
+        "ih-t-34",
+        "ih-b-35",
+        "ih-b-36",
+        "ih-b-37",
+        "ih-b-39",
+        "ih-b-40",
+        "ih-b-41",
+        "ih-b-42",
+        "ih-b-45",
+        "ih-b-48",
+        "ih-b-50",
+        "ih-h-52",
+        "ih-b-53",
+        "ih-t-54",
+        "ih-b-55",
+        "ih-b-57",
+        "ih-b-59",
+        "ih-h-61",
+        "ih-b-62",
+        "ih-t-63",
+        "ih-h-64",
+        "ih-b-65",
+        "ih-b-66",
+        "ih-b-68",
+        "ih-b-70",
+        "ih-h-72",
+        "ih-b-73",
+        "ih-h-74",
+        "ih-b-75",
+        "ih-b-76",
+        "ih-b-80",
+        "ih-b-84",
+        "ih-b-88",
+        "ih-b-90",
+        "ih-b-92",
+        "ih-h-93",
+        "ih-b-94",
+        "ih-b-95",
+        "ih-b-98",
+        "ih-b-100",
+        "ih-h-102",
+        "ih-b-103",
+        "ih-b-104",
+        "ih-b-106",
+        "ih-b-108",
+        "ih-h-110",
+        "ih-b-111",
+        "ih-t-112",
+        "ih-h-113",
+        "ih-b-114",
+        "ih-b-115",
+        "ih-b-116",
+        "ih-b-117",
+        "ih-h-118",
+        "ih-b-119",
+        "ih-t-120",
+        "ih-b-121",
+        "ih-h-122",
+        "ih-b-123",
+        "ih-b-124",
+        "ih-b-126",
+        "ih-h-128",
+        "ih-b-129",
+        "ih-b-130",
+        "ih-b-132",
+        "ih-b-134",
+        "ih-h-136",
+        "ih-b-137",
+        "ih-b-138",
+        "ih-b-140",
+        "ih-b-143"
+      ]
+    },
+    "ih-b-1": {
+      "id": "ih-b-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This spec proposes a defined role for the "
+        },
+        {
+          "insert": "html",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " block: interactive visual models of real things and of concepts a reader works with. Canvas keeps conceptual diagrams of how things relate. The work is tabled, and this page records the split, the routing rule, the authoring rules from the network-setup rack figures, and the host changes those rules need."
+        }
+      ],
+      "children": []
+    },
+    "ih-c-2": {
+      "id": "ih-c-2",
+      "type": "callout",
+      "props": {
+        "kind": "Status",
+        "tone": "info"
+      },
+      "text": [
+        {
+          "insert": "Proposed, non-normative, and tabled. Nothing on this page is built. Every rule, prop, message, and lint named here as new is a proposal."
+        }
+      ],
+      "children": []
+    },
+    "ih-h-3": {
+      "id": "ih-h-3",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Problem"
+        }
+      ],
+      "children": []
+    },
+    "ih-b-4": {
+      "id": "ih-b-4",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "html",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " block is the only block that can draw a specific physical object or run an interactive model. The corpus frames it as a fallback, and no guidance tells an agent when to use it or how to build one."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-5": {
+      "id": "ih-b-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The current guidance frames html as a fallback",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ih-b-6",
+        "ih-b-7"
+      ]
+    },
+    "ih-b-6": {
+      "id": "ih-b-6",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The HTML block page says to use it \"for a freeform diagram or an interactive explanation that does not fit a typed diagram component.\""
+        }
+      ],
+      "children": []
+    },
+    "ih-b-7": {
+      "id": "ih-b-7",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "No page separates canvas from html, so an agent picks between them by habit."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-8": {
+      "id": "ih-b-8",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Agents never receive the html guidance",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ih-b-9",
+        "ih-b-10",
+        "ih-b-11"
+      ]
+    },
+    "ih-b-9": {
+      "id": "ih-b-9",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs_guidance",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with "
+        },
+        {
+          "insert": "component: \"html\"",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " returns the rich-text family page, not the HTML block page."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-10": {
+      "id": "ih-b-10",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "visualComponentGuidance()",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "packages/docs-model/src/visual-component-guidance.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " names Canvas, Process Outline, and Sequence, and omits html."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-11": {
+      "id": "ih-b-11",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "codecaine-docs",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " skill in "
+        },
+        {
+          "insert": "packages/docs-mcp/skills/codecaine-docs/SKILL.md",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " never mentions html."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-12": {
+      "id": "ih-b-12",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Hand-built figures drift from the facts they draw",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ih-b-13",
+        "ih-b-14"
+      ]
+    },
+    "ih-b-13": {
+      "id": "ih-b-13",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The network-setup rack figures were generated at 16:23 on 2026-09-30. The NETGEAR backup saved at 18:51 the same day moved ports 1, 5, and 6 to Trusted 10, STORAGE-60, and Dev 40, and both figures still show the old VLANs."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-14": {
+      "id": "ih-b-14",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The same port map is restated in at least 5 places in 3 different states."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-15": {
+      "id": "ih-b-15",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Nothing checks an html block",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ih-b-16",
+        "ih-b-17"
+      ]
+    },
+    "ih-b-16": {
+      "id": "ih-b-16",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "No lint reads html content. An empty "
+        },
+        {
+          "insert": "title",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " passes validation."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-17": {
+      "id": "ih-b-17",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The host passes no theme into the frame, so each figure hard-codes its palette. The current rack figure carries 79 hex colors and has no dark mode."
+        }
+      ],
+      "children": []
+    },
+    "ih-h-18": {
+      "id": "ih-h-18",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The Proposed Split"
+        }
+      ],
+      "children": []
+    },
+    "ih-b-19": {
+      "id": "ih-b-19",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each visual block answers one reader question. Canvas answers \"What connects to what?\". The "
+        },
+        {
+          "insert": "html",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " block answers \"What does the real thing look like, and how does it respond?\""
+        }
+      ],
+      "children": []
+    },
+    "ih-t-20": {
+      "id": "ih-t-20",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Criterion",
+          "Canvas",
+          "HTML replica",
+          "HTML explorable"
+        ],
+        "rows": [
+          [
+            "Shows",
+            "How ideas relate",
+            "One specific real or planned thing",
+            "A concept the reader operates"
+          ],
+          [
+            "Drawn from",
+            "Boxes, sections, arrows",
+            "Real labels, counts, and scale",
+            "Inputs that drive a computed result"
+          ],
+          [
+            "Interaction",
+            "None inline, pan and zoom when expanded",
+            "Isolate, inspect, compare states",
+            "Change inputs, step through states"
+          ],
+          [
+            "Network-setup example",
+            "VLAN topology, service flows",
+            "Rack current state, rack target layout",
+            "Firewall rule outcome for a chosen device and destination"
+          ],
+          [
+            "Other example",
+            "Agent system map",
+            "Pen plotter bed and gantry",
+            "Plotter page setup with live margins"
+          ]
+        ],
+        "title": "Canvas and the two html roles"
+      },
+      "children": []
+    },
+    "ih-b-21": {
+      "id": "ih-b-21",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "An agent routes a visual with four checks, in order. The first check that matches decides the block."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-22": {
+      "id": "ih-b-22",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Send steps, exchanges, rows, or fields to the matching typed block: process-outline, sequence, structured-table, or state-shape."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-23": {
+      "id": "ih-b-23",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Use an html replica when the reader must match the picture to a physical object by port number, position, or scale."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-24": {
+      "id": "ih-b-24",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Use an html explorable when the reader must change an input and watch the result."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-25": {
+      "id": "ih-b-25",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Use canvas for any other question about how things relate."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-26": {
+      "id": "ih-b-26",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Two tie-break tests settle the cases between canvas and html."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-27": {
+      "id": "ih-b-27",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The boxes-and-arrows test",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ih-b-28"
+      ]
+    },
+    "ih-b-28": {
+      "id": "ih-b-28",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Redraw the figure as plain boxes and arrows. If the reader loses nothing, the figure belongs on canvas."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-29": {
+      "id": "ih-b-29",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The side-by-side test",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ih-b-30"
+      ]
+    },
+    "ih-b-30": {
+      "id": "ih-b-30",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "If every state fits on screen at once, show the states side by side instead of behind a toggle."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-31": {
+      "id": "ih-b-31",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Screen mockups of software UI belong to the "
+        },
+        {
+          "insert": "mockup",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " block in UI Mockups in Docs and Plans. Record and field structures belong to the ERD component in Entity Relationship Diagrams for Data Structures. This spec covers everything else that needs the "
+        },
+        {
+          "insert": "html",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " block."
+        }
+      ],
+      "children": []
+    },
+    "ih-h-32": {
+      "id": "ih-h-32",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Evidence From Existing Corpora"
+        }
+      ],
+      "children": []
+    },
+    "ih-b-33": {
+      "id": "ih-b-33",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A survey on 2026-09-30 found 56 "
+        },
+        {
+          "insert": "html",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " blocks across the workspace corpora. Physical objects account for 43 of them, and those blocks carry the most detail and interaction."
+        }
+      ],
+      "children": []
+    },
+    "ih-t-34": {
+      "id": "ih-t-34",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Corpus",
+          "Blocks",
+          "What they show",
+          "Fit with the split"
+        ],
+        "rows": [
+          [
+            [
+              {
+                "insert": "knowledge/network-setup",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "42 on 23 pages, 0 canvas",
+            "Rack, wiring stages, logical topology",
+            "Rack and stages are replicas. About 17 static topology and concept figures are canvas candidates."
+          ],
+          [
+            [
+              {
+                "insert": "apps/pen-plotter",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "1",
+            "Plotter bed with a working setup panel",
+            "Replica and explorable. Its canvas explains nested page areas."
+          ],
+          [
+            [
+              {
+                "insert": "core/agent-kernel",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "2",
+            "Trace viewer UI mockups",
+            "Mockup spec territory"
+          ],
+          [
+            "Client voice-agent docs",
+            "6",
+            "Example phone calls as chat bubbles",
+            "No typed block fits. Sequence loses the reading feel."
+          ],
+          [
+            "Others",
+            "5",
+            "Box-and-arrow flows and capability demos",
+            "Canvas, process-outline, or test content"
+          ]
+        ],
+        "title": "Html blocks by corpus"
+      },
+      "children": []
+    },
+    "ih-b-35": {
+      "id": "ih-b-35",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The rack current-state figure on "
+        },
+        {
+          "insert": "docs/99-appendix/20-rack-current-state",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is the reference replica. Four features make it work."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-36": {
+      "id": "ih-b-36",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Faithful faceplates",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ih-r-face"
+      ]
+    },
+    "ih-r-face": {
+      "id": "ih-r-face",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The figure copies the faceplates from photo IMG_2558, with every socket, port speed, and model name."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-37": {
+      "id": "ih-b-37",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Traceable cables",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ih-r-cab1",
+        "ih-r-cab2"
+      ]
+    },
+    "ih-r-cab1": {
+      "id": "ih-r-cab1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each cable carries a letter tag at both ends and keeps its real color."
+        }
+      ],
+      "children": []
+    },
+    "ih-r-cab2": {
+      "id": "ih-r-cab2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Filter chips isolate one cable and dim the rest."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-39": {
+      "id": "ih-b-39",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Stated provenance",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ih-r-prov"
+      ]
+    },
+    "ih-r-prov": {
+      "id": "ih-r-prov",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The figure states its source and date, and it draws unknown devices as dashed or highlighted cards."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-40": {
+      "id": "ih-b-40",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "True scale",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ih-r-scale"
+      ]
+    },
+    "ih-r-scale": {
+      "id": "ih-r-scale",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The target layout draws every device at 1U to scale, with solid lines for front cables and dashed lines for runs behind the rack."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-41": {
+      "id": "ih-b-41",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The rack figures also show the failure modes this spec addresses."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-42": {
+      "id": "ih-b-42",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Facts are retyped by hand",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ih-b-43",
+        "ih-b-44"
+      ]
+    },
+    "ih-b-43": {
+      "id": "ih-b-43",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "tools/build_rack_current_state.py",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "tools/build_rack_target.py",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " hard-code the port map as Python constants. A person pushes the output into "
+        },
+        {
+          "insert": "doc.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " by hand."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-44": {
+      "id": "ih-b-44",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "current-config.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "backups/netgear/*/verification.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " hold the same facts in machine-readable form, and no builder reads them."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-45": {
+      "id": "ih-b-45",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Identity is not stable across views",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ih-b-46",
+        "ih-b-47"
+      ]
+    },
+    "ih-b-46": {
+      "id": "ih-b-46",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Cables E, F, and G are NETGEAR ports 2, 5, and 6 in the current figure and the eero, Nest, and Mac mini runs in the target figure."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-47": {
+      "id": "ih-b-47",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The two figures use different geometry, so a current and target toggle cannot be added without a rebuild."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-48": {
+      "id": "ih-b-48",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Styles are duplicated",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ih-b-49"
+      ]
+    },
+    "ih-b-49": {
+      "id": "ih-b-49",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The 22 wiring-stage figures each embed the old app's 12 KB stylesheet, mostly unused. The 42 blocks total 1.42 MiB of HTML."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-50": {
+      "id": "ih-b-50",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Readers who cannot see the figure get nothing",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ih-b-51"
+      ]
+    },
+    "ih-b-51": {
+      "id": "ih-b-51",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The SVG is one image to a screen reader, and the selected cable shows only by fading the others."
+        }
+      ],
+      "children": []
+    },
+    "ih-h-52": {
+      "id": "ih-h-52",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "What Exists Today"
+        }
+      ],
+      "children": []
+    },
+    "ih-b-53": {
+      "id": "ih-b-53",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "html",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " block stores its markup inline in the page and renders it in a sandboxed iframe. The renderer is "
+        },
+        {
+          "insert": "packages/docs-viewer/src/components/rich-text/html.tsx",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and the props are "
+        },
+        {
+          "insert": "HtmlState",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "packages/docs-model/src/components/rich-text/state.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "ih-t-54": {
+      "id": "ih-t-54",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Output",
+          "Scripts",
+          "Size",
+          "Theme"
+        ],
+        "rows": [
+          [
+            "Workbench inline",
+            [
+              {
+                "insert": "Run when "
+              },
+              {
+                "insert": "allowScripts",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " is true"
+              }
+            ],
+            "Scaled to fit 600px or 70% of window height",
+            [
+              {
+                "insert": "color-scheme: light dark",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " only"
+              }
+            ]
+          ],
+          [
+            "Workbench expanded",
+            "Same frame, state kept",
+            "Fit and zoom controls",
+            "Same"
+          ],
+          [
+            "Published site",
+            [
+              {
+                "insert": "Run when "
+              },
+              {
+                "insert": "allowScripts",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " is true"
+              }
+            ],
+            [
+              {
+                "insert": "Static "
+              },
+              {
+                "insert": "height",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", native scroll"
+              }
+            ],
+            "No color scheme set"
+          ],
+          [
+            "PDF export",
+            "Never run",
+            "Fails above 970px per frame",
+            "Light only"
+          ]
+        ],
+        "title": "Html block limits by output"
+      },
+      "children": []
+    },
+    "ih-b-55": {
+      "id": "ih-b-55",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The sandbox blocks everything external",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ih-b-56"
+      ]
+    },
+    "ih-b-56": {
+      "id": "ih-b-56",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The frame has "
+        },
+        {
+          "insert": "sandbox=\"allow-scripts\"",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and a CSP that blocks fetch, external subresources, nested frames, and forms. Images and fonts load only from "
+        },
+        {
+          "insert": "data:",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " URLs."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-57": {
+      "id": "ih-b-57",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The host contract covers sizing only",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ih-b-58"
+      ]
+    },
+    "ih-b-58": {
+      "id": "ih-b-58",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The frame posts "
+        },
+        {
+          "insert": "docs-html-size",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "docs-html-escape",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and the host posts "
+        },
+        {
+          "insert": "docs-html-measure",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". No message carries theme, data, selection, or navigation."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-59": {
+      "id": "ih-b-59",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Agents edit by whole-string replacement",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ih-b-60"
+      ]
+    },
+    "ih-b-60": {
+      "id": "ih-b-60",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "No html-specific actions exist. An agent replaces the "
+        },
+        {
+          "insert": "html",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " prop through "
+        },
+        {
+          "insert": "docs_apply_ops",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", up to 1,048,576 characters per edit."
+        }
+      ],
+      "children": []
+    },
+    "ih-h-61": {
+      "id": "ih-h-61",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Options"
+        }
+      ],
+      "children": []
+    },
+    "ih-b-62": {
+      "id": "ih-b-62",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The split needs guidance in every option. The options differ in how much host support ships with it."
+        }
+      ],
+      "children": []
+    },
+    "ih-t-63": {
+      "id": "ih-t-63",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Criterion",
+          "A. Guidance only",
+          "B. Guidance and theme bridge",
+          "C. B plus a model sidecar"
+        ],
+        "rows": [
+          [
+            "Ships",
+            "Rules on the HTML block page, routing in the shared guidance",
+            "A, plus host theme variables in the frame",
+            "B, plus a JSON model file the figure and its tables both read"
+          ],
+          [
+            "Dark mode",
+            "Each author writes light and dark palettes",
+            "Components use host variables with fallbacks",
+            "Same as B"
+          ],
+          [
+            "Drift",
+            "Builder scripts plus a source hash in the block",
+            "Same as A",
+            "One model file per figure, checked by lint"
+          ],
+          [
+            "Size of change",
+            "Docs and guidance wiring, about 2 hours",
+            [
+              {
+                "insert": "A plus about half a day in "
+              },
+              {
+                "insert": "html.tsx",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "B plus 2 to 4 days across model, viewer, and tools"
+          ]
+        ],
+        "title": "Support options compared"
+      },
+      "children": []
+    },
+    "ih-h-64": {
+      "id": "ih-h-64",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Recommendation"
+        }
+      ],
+      "children": []
+    },
+    "ih-b-65": {
+      "id": "ih-b-65",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Ship A first, then B, and hold C until a second corpus needs a shared model. A stops agents from choosing the wrong block. B removes the largest hand-styling cost, and C waits for evidence beyond network-setup."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-66": {
+      "id": "ih-b-66",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Guidance is the cheapest fix with the widest reach",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ih-b-67"
+      ]
+    },
+    "ih-b-67": {
+      "id": "ih-b-67",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every new html block today is authored without rules. Wiring the HTML block page into "
+        },
+        {
+          "insert": "docs_guidance",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "visualComponentGuidance()",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "SKILL.md",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " changes every later authoring run."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-68": {
+      "id": "ih-b-68",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The theme bridge serves this spec and the mockups spec",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ih-b-69"
+      ]
+    },
+    "ih-b-69": {
+      "id": "ih-b-69",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "UI Mockups in Docs and Plans proposes renderer-owned "
+        },
+        {
+          "insert": "--wf-*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " tokens. Both specs can read one host token set, so the bridge is built once."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-70": {
+      "id": "ih-b-70",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A model sidecar is a hard-to-reverse format",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ih-b-71"
+      ]
+    },
+    "ih-b-71": {
+      "id": "ih-b-71",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A builder script plus a recorded source hash covers network-setup today. A sidecar format should wait until two corpora agree on its shape."
+        }
+      ],
+      "children": []
+    },
+    "ih-h-72": {
+      "id": "ih-h-72",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Proposed Shape"
+        }
+      ],
+      "children": []
+    },
+    "ih-b-73": {
+      "id": "ih-b-73",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The shape has four parts: authoring rules, a host contract, a data approach, and lint rules. Every name in this section is proposed."
+        }
+      ],
+      "children": []
+    },
+    "ih-h-74": {
+      "id": "ih-h-74",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Authoring Rules"
+        }
+      ],
+      "children": []
+    },
+    "ih-b-75": {
+      "id": "ih-b-75",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "These rules come from the rack figures. Each one names the failure it prevents."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-76": {
+      "id": "ih-b-76",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Model the data before drawing",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ih-b-77",
+        "ih-b-78",
+        "ih-b-79"
+      ]
+    },
+    "ih-b-77": {
+      "id": "ih-b-77",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Give every drawn item a stable id, so cable C is cable C in every view and state."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-78": {
+      "id": "ih-b-78",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Name the states the figure shows, such as "
+        },
+        {
+          "insert": "current",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "target",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", or "
+        },
+        {
+          "insert": "stage-3",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-79": {
+      "id": "ih-b-79",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Generate the figure and any table of the same facts from one source."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-80": {
+      "id": "ih-b-80",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Copy the real object",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ih-b-81",
+        "ih-b-82",
+        "ih-b-83"
+      ]
+    },
+    "ih-b-81": {
+      "id": "ih-b-81",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Use the labels, counts, model names, speeds, and colors printed on the object."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-82": {
+      "id": "ih-b-82",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Draw to scale where scale matters, and state the scale inside the figure."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-83": {
+      "id": "ih-b-83",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Show unknowns as dashed or highlighted items. Never omit them."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-84": {
+      "id": "ih-b-84",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Add interaction only where it does work",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ih-b-85",
+        "ih-b-86",
+        "ih-b-87"
+      ]
+    },
+    "ih-b-85": {
+      "id": "ih-b-85",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Limit interaction to five kinds, which are isolate, inspect, compare, step, and operate."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-86": {
+      "id": "ih-b-86",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Make the first view complete without interaction. Published pages, PDF export, and the scaled inline preview all show it."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-87": {
+      "id": "ih-b-87",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Give every pointer action a keyboard path, and mark the selection with an outline and text."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-88": {
+      "id": "ih-b-88",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Stamp provenance inside the figure",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ih-b-89"
+      ]
+    },
+    "ih-b-89": {
+      "id": "ih-b-89",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Print the source, the date, and one status from a fixed set: verified, recorded, unknown, or proposed."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-90": {
+      "id": "ih-b-90",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Verify by rendering",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ih-b-91"
+      ]
+    },
+    "ih-b-91": {
+      "id": "ih-b-91",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Check inline and expanded, light and dark, every interactive state, and scripts off. Then run "
+        },
+        {
+          "insert": "docs_check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-92": {
+      "id": "ih-b-92",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "One visual grammar applies across a corpus. In network-setup it is solid lines for front cables, dashed lines for rear runs, tags at both cable ends, and dashed cards for devices not yet located."
+        }
+      ],
+      "children": []
+    },
+    "ih-h-93": {
+      "id": "ih-h-93",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Host Contract"
+        }
+      ],
+      "children": []
+    },
+    "ih-b-94": {
+      "id": "ih-b-94",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The theme bridge adds one message and a set of CSS variables. The sandbox and CSP stay unchanged."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-95": {
+      "id": "ih-b-95",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Theme variables",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ih-b-96",
+        "ih-b-97"
+      ]
+    },
+    "ih-b-96": {
+      "id": "ih-b-96",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The host injects "
+        },
+        {
+          "insert": "--docs-fg",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "--docs-bg",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "--docs-muted",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "--docs-line",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "--docs-accent",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and status colors into the frame's base style."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-97": {
+      "id": "ih-b-97",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Components write "
+        },
+        {
+          "insert": "var(--docs-fg, #1f2937)",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", so a figure still renders outside the docs host."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-98": {
+      "id": "ih-b-98",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Theme changes",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ih-b-99"
+      ]
+    },
+    "ih-b-99": {
+      "id": "ih-b-99",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The host posts "
+        },
+        {
+          "insert": "docs-html-theme",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with the scheme and variable values when the page theme changes."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-100": {
+      "id": "ih-b-100",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "PDF and published output",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ih-b-101"
+      ]
+    },
+    "ih-b-101": {
+      "id": "ih-b-101",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "PDF export injects the light values. The published site injects the values of its built theme."
+        }
+      ],
+      "children": []
+    },
+    "ih-h-102": {
+      "id": "ih-h-102",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Data and Generation"
+        }
+      ],
+      "children": []
+    },
+    "ih-b-103": {
+      "id": "ih-b-103",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Phase 1 keeps builder scripts and adds a drift check. Each generated block records where its data came from."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-104": {
+      "id": "ih-b-104",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A source stamp on generated blocks",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ih-b-105"
+      ]
+    },
+    "ih-b-105": {
+      "id": "ih-b-105",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A builder writes a "
+        },
+        {
+          "insert": "source",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " prop with the data path, its SHA-256 hash, and the build time."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-106": {
+      "id": "ih-b-106",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A builder per figure family",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ih-b-107"
+      ]
+    },
+    "ih-b-107": {
+      "id": "ih-b-107",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "One script renders the figure and its tables from one data file. Agents edit the data and rerun the builder, never the generated HTML."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-108": {
+      "id": "ih-b-108",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Shared parts in one stylesheet",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ih-b-109"
+      ]
+    },
+    "ih-b-109": {
+      "id": "ih-b-109",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Rack units, ports, cables, legend chips, and status badges live in one stylesheet that the builder inlines once per block."
+        }
+      ],
+      "children": []
+    },
+    "ih-h-110": {
+      "id": "ih-h-110",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Lint Rules"
+        }
+      ],
+      "children": []
+    },
+    "ih-b-111": {
+      "id": "ih-b-111",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Three lints cover what the schema cannot check. Each one reports a block id and a fix."
+        }
+      ],
+      "children": []
+    },
+    "ih-t-112": {
+      "id": "ih-t-112",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Rule",
+          "Fails when",
+          "Fix"
+        ],
+        "rows": [
+          [
+            [
+              {
+                "insert": "html-title-required",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            [
+              {
+                "insert": "The "
+              },
+              {
+                "insert": "title",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " prop is empty"
+              }
+            ],
+            "Write a title that names the depicted thing"
+          ],
+          [
+            [
+              {
+                "insert": "html-source-stale",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            [
+              {
+                "insert": "The hash in "
+              },
+              {
+                "insert": "source",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " differs from the file at its path"
+              }
+            ],
+            "Rerun the builder"
+          ],
+          [
+            [
+              {
+                "insert": "html-pdf-height",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "The natural height exceeds 970px",
+            "Split the figure or add a print layout"
+          ]
+        ],
+        "title": "Proposed html lints"
+      },
+      "children": []
+    },
+    "ih-h-113": {
+      "id": "ih-h-113",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Agent Guidance"
+        }
+      ],
+      "children": []
+    },
+    "ih-b-114": {
+      "id": "ih-b-114",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The HTML block page becomes the single source of these rules. Three pointers make agents read it."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-115": {
+      "id": "ih-b-115",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Add html, with the routing rule, to "
+        },
+        {
+          "insert": "visualComponentGuidance()",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-116": {
+      "id": "ih-b-116",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Fix "
+        },
+        {
+          "insert": "docs_guidance",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " so "
+        },
+        {
+          "insert": "component: \"html\"",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " returns the HTML block page."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-117": {
+      "id": "ih-b-117",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Add one line on html replicas and explorables to "
+        },
+        {
+          "insert": "SKILL.md",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", next to the Canvas line."
+        }
+      ],
+      "children": []
+    },
+    "ih-h-118": {
+      "id": "ih-h-118",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Phasing"
+        }
+      ],
+      "children": []
+    },
+    "ih-b-119": {
+      "id": "ih-b-119",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each phase ships on its own. Phase 1 changes no runtime code."
+        }
+      ],
+      "children": []
+    },
+    "ih-t-120": {
+      "id": "ih-t-120",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Phase",
+          "Ships",
+          "Proves"
+        ],
+        "rows": [
+          [
+            "1",
+            [
+              {
+                "insert": "Rules on the HTML block page, the routing rule, guidance wiring, "
+              },
+              {
+                "insert": "html-title-required",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Agents choose canvas or html by the reader question"
+          ],
+          [
+            "2",
+            [
+              {
+                "insert": "Theme bridge and "
+              },
+              {
+                "insert": "docs-html-theme",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Figures read correctly in light and dark without per-figure palettes"
+          ],
+          [
+            "3",
+            [
+              {
+                "insert": "source",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " stamp, "
+              },
+              {
+                "insert": "html-source-stale",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", network-setup rack builders reading "
+              },
+              {
+                "insert": "verification.json",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "A config change flags the figures that draw it"
+          ],
+          [
+            "4",
+            "Model sidecar, if a second corpus needs one",
+            "Figure and tables share one copy of each fact"
+          ]
+        ],
+        "title": "Html diagram phases"
+      },
+      "children": []
+    },
+    "ih-b-121": {
+      "id": "ih-b-121",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Phase 3 unblocks the network-setup cleanup. That work rebuilds both rack figures from the current config, gives cables stable ids across current and target, and moves the static topology figures to canvas."
+        }
+      ],
+      "children": []
+    },
+    "ih-h-122": {
+      "id": "ih-h-122",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Hard-to-Reverse Decisions"
+        }
+      ],
+      "children": []
+    },
+    "ih-b-123": {
+      "id": "ih-b-123",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Two choices become expensive once many blocks depend on them."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-124": {
+      "id": "ih-b-124",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Theme variable names",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ih-b-125"
+      ]
+    },
+    "ih-b-125": {
+      "id": "ih-b-125",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Components will hard-code the "
+        },
+        {
+          "insert": "--docs-*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " names. The names should match the token set the mockups spec adopts, so one set serves both."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-126": {
+      "id": "ih-b-126",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The sandbox stays closed",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ih-b-127"
+      ]
+    },
+    "ih-b-127": {
+      "id": "ih-b-127",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Figures never fetch live data. Data reaches a figure only at build time or, in Phase 4, through a host message."
+        }
+      ],
+      "children": []
+    },
+    "ih-h-128": {
+      "id": "ih-h-128",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Open Questions"
+        }
+      ],
+      "children": []
+    },
+    "ih-b-129": {
+      "id": "ih-b-129",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each question has a recommended default, so Phase 1 can start before it is answered."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-130": {
+      "id": "ih-b-130",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Does canvas also cover general concepts?",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ih-b-131"
+      ]
+    },
+    "ih-b-131": {
+      "id": "ih-b-131",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The canvas foundation doc limits canvas to software diagramming. Recommended default is yes for concepts such as VLAN basics, which means widening canvas guidance and adding a dark board."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-132": {
+      "id": "ih-b-132",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Should the model sidecar ship before a second corpus asks?",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ih-b-133"
+      ]
+    },
+    "ih-b-133": {
+      "id": "ih-b-133",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Recommended default is no. Phase 3 hash checks cover drift at lower cost."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-134": {
+      "id": "ih-b-134",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Do explorables need a stricter script policy?",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ih-b-135"
+      ]
+    },
+    "ih-b-135": {
+      "id": "ih-b-135",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Recommended default is no. The CSP already blocks network and parent access."
+        }
+      ],
+      "children": []
+    },
+    "ih-h-136": {
+      "id": "ih-h-136",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Sources"
+        }
+      ],
+      "children": []
+    },
+    "ih-b-137": {
+      "id": "ih-b-137",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This spec summarizes a design session held 2026-09-30 to 2026-10-02. The session transcript and the evidence it used are listed below."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-138": {
+      "id": "ih-b-138",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Session transcript",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ih-b-139"
+      ]
+    },
+    "ih-b-139": {
+      "id": "ih-b-139",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "~/.claude/projects/-Users-Ford-workspace-codecaine-core-docs-system/9f4dda62-765f-4ecb-b58b-94c41f00deec.jsonl",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " holds the full conversation and the four research reports."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-140": {
+      "id": "ih-b-140",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Network-setup evidence",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ih-b-141",
+        "ih-b-142"
+      ]
+    },
+    "ih-b-141": {
+      "id": "ih-b-141",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "rack-current-state.html",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "rack-target.html",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "/Users/Ford/workspace/knowledge/network-setup",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " are the standalone builds of the two rack figures."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-142": {
+      "id": "ih-b-142",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "backups/netgear/2026-09-30-final-storage60/verification.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " holds the port VLANs that the figures no longer match."
+        }
+      ],
+      "children": []
+    },
+    "ih-b-143": {
+      "id": "ih-b-143",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Sibling specs",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ih-b-144"
+      ]
+    },
+    "ih-b-144": {
+      "id": "ih-b-144",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "UI Mockups in Docs and Plans and Entity Relationship Diagrams for Data Structures in "
+        },
+        {
+          "insert": "docs/90-specs",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " share the staged approach used here."
+        }
+      ],
+      "children": []
+    }
+  }
+}

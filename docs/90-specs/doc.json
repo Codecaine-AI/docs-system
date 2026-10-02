@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "id": "doc-ef5e72d28cf444841f7d886c73b48f61",
+  "title": "Specs",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "specs-intro",
+        "specs-child-ui-mockups",
+        "specs-child-erd-diagrams",
+        "specs-child-html-diagrams"
+      ]
+    },
+    "specs-intro": {
+      "id": "specs-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This tier holds specs for docs-system features that are proposed but not built. A spec records the motivating problem, the proposed shape, the alternatives weighed, the phasing, and the open questions. Specs are non-normative and never describe current behavior. When a feature ships, its contracts move into "
+        },
+        {
+          "insert": "10-system-design/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "30-implementation/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and the spec shrinks to a pointer at them."
+        }
+      ],
+      "children": []
+    },
+    "specs-child-ui-mockups": {
+      "id": "specs-child-ui-mockups",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "UI Mockups in Docs and Plans",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "90-specs/10-ui-mockups"
+            }
+          }
+        },
+        {
+          "insert": " proposes HTML screen mockups as a component for specs, plans, and design docs. It compares an inline doc block, a screen object on canvas boards, and a page-level review area, and recommends a staged path."
+        }
+      ],
+      "children": []
+    },
+    "specs-child-erd-diagrams": {
+      "id": "specs-child-erd-diagrams",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Entity Relationship Diagrams for Data Structures",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "90-specs/20-erd-diagrams"
+            }
+          }
+        },
+        {
+          "insert": " proposes ERDs for SQLite tables and for non-SQL structures such as doc bundles and canvas boards. It compares an inline block, an entity object on canvas boards, relations on state-shape, and a text DSL sidecar, and recommends the same staged path as the mockups spec."
+        }
+      ],
+      "children": []
+    },
+    "specs-child-html-diagrams": {
+      "id": "specs-child-html-diagrams",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Interactive HTML Diagrams for Real Things",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "90-specs/30-interactive-html-diagrams"
+            }
+          }
+        },
+        {
+          "insert": " proposes the html block as the home for interactive models of physical things and operable concepts, with canvas kept for how things relate. It records the routing rule, authoring rules from the network-setup rack figures, and a staged path from guidance to a theme bridge and drift checks. The work is tabled."
+        }
+      ],
+      "children": []
+    }
+  }
+}

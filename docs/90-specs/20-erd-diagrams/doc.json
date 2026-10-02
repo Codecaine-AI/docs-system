@@ -1,0 +1,5838 @@
+{
+  "schemaVersion": 1,
+  "id": "doc-3d2985d958f9cfdcf88d2a58897c5aa1",
+  "title": "Entity Relationship Diagrams for Data Structures",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "erd-intro",
+        "erd-status",
+        "erd-problem-h",
+        "erd-problem-lead",
+        "erd-p-tables",
+        "erd-p-diagram",
+        "erd-p-links",
+        "erd-p-drift",
+        "erd-p-board-lead",
+        "erd-p-board",
+        "erd-needs-h",
+        "erd-needs-lead",
+        "erd-needs-table",
+        "erd-needs-list-lead",
+        "erd-n-fields",
+        "erd-n-rel",
+        "erd-n-kind",
+        "erd-n-nested",
+        "erd-n-change",
+        "erd-ref-h",
+        "erd-ref-lead",
+        "erd-ref-notation-h",
+        "erd-ref-notation-lead",
+        "erd-ref-notation-table",
+        "erd-ref-cf",
+        "erd-ref-idef",
+        "erd-ref-uml",
+        "erd-ref-notation-src",
+        "erd-ref-dsl-h",
+        "erd-ref-dsl-lead",
+        "erd-ref-dsl-table",
+        "erd-ref-dsl-point",
+        "erd-ref-dsl-src",
+        "erd-ref-tools-h",
+        "erd-ref-tools-lead",
+        "erd-ref-t-detail",
+        "erd-ref-t-rows",
+        "erd-ref-t-nav",
+        "erd-ref-t-layout",
+        "erd-ref-t-drift",
+        "erd-ref-tools-src",
+        "erd-ref-agents-h",
+        "erd-ref-agents-lead",
+        "erd-ref-a-ids",
+        "erd-ref-a-drawsql",
+        "erd-ref-agents-src",
+        "erd-ref-an-h",
+        "erd-ref-an-lead",
+        "erd-ref-an-code",
+        "erd-ref-an-keep",
+        "erd-ref-an-gaps",
+        "erd-reuse-h",
+        "erd-reuse-lead",
+        "erd-reuse-table",
+        "erd-gap-lead",
+        "erd-gap-entity",
+        "erd-gap-ends",
+        "erd-gap-layout",
+        "erd-gap-sync",
+        "erd-opt-h",
+        "erd-opt-lead",
+        "erd-opt-constraints-h",
+        "erd-opt-constraints-lead",
+        "erd-c-closed",
+        "erd-c-policy",
+        "erd-c-authority",
+        "erd-c-ids",
+        "erd-opt-compare-h",
+        "erd-opt-compare-lead",
+        "erd-opt-table",
+        "erd-opt-1",
+        "erd-opt-2",
+        "erd-opt-3",
+        "erd-opt-4",
+        "erd-rec-h",
+        "erd-rec-lead",
+        "erd-rec-gen",
+        "erd-rec-stage",
+        "erd-rec-canvas",
+        "erd-rec-rule",
+        "erd-shape-h",
+        "erd-shape-lead",
+        "erd-model-h",
+        "erd-model-lead",
+        "erd-model-shape",
+        "erd-tools-h",
+        "erd-tools-lead",
+        "erd-tools-surface",
+        "erd-payload-lead",
+        "erd-payload",
+        "erd-render-h",
+        "erd-render-lead",
+        "erd-r-cards",
+        "erd-r-ends",
+        "erd-r-detail",
+        "erd-r-highlight",
+        "erd-r-agent",
+        "erd-layout-h",
+        "erd-layout-lead",
+        "erd-layout-1",
+        "erd-layout-2",
+        "erd-layout-3",
+        "erd-layout-4",
+        "erd-layout-5",
+        "erd-layout-note",
+        "erd-lint-h",
+        "erd-lint-lead",
+        "erd-lint-table",
+        "erd-gen-h",
+        "erd-gen-lead",
+        "erd-g-drizzle",
+        "erd-g-typebox",
+        "erd-g-check",
+        "erd-g-live",
+        "erd-g-ts",
+        "erd-guide-h",
+        "erd-guide-lead",
+        "erd-guide-catalog",
+        "erd-guide-visual",
+        "erd-guide-place",
+        "erd-guide-tables",
+        "erd-phase-h",
+        "erd-phase-lead",
+        "erd-phase-table",
+        "erd-phase-deferred",
+        "erd-hard-h",
+        "erd-hard-lead",
+        "erd-hard-store",
+        "erd-hard-ids",
+        "erd-hard-rel",
+        "erd-hard-kind",
+        "erd-hard-home",
+        "erd-open-h",
+        "erd-open-lead",
+        "erd-open-style",
+        "erd-open-layout",
+        "erd-open-router",
+        "erd-open-tables",
+        "erd-open-types"
+      ]
+    },
+    "erd-intro": {
+      "id": "erd-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This spec proposes entity relationship diagrams (ERDs) as a component for system design pages, specs, and plans. An ERD draws each record as a box of fields and each reference as a line between two fields, with cardinality at both ends. The component covers SQLite tables and non-SQL structures such as TypeScript types, "
+        },
+        {
+          "insert": "doc.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " bundles, and canvas board JSON. The page compares four places to plug it in and recommends the staged path that "
+        },
+        {
+          "insert": "UI Mockups in Docs and Plans",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "90-specs/10-ui-mockups"
+            }
+          }
+        },
+        {
+          "insert": " also takes."
+        }
+      ],
+      "children": []
+    },
+    "erd-status": {
+      "id": "erd-status",
+      "type": "callout",
+      "props": {
+        "kind": "Status",
+        "tone": "info"
+      },
+      "text": [
+        {
+          "insert": "Proposed and non-normative. Nothing on this page is built. Every type, tool, and lint rule named here as new is a proposal."
+        }
+      ],
+      "children": []
+    },
+    "erd-problem-h": {
+      "id": "erd-problem-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Problem"
+        }
+      ],
+      "children": []
+    },
+    "erd-problem-lead": {
+      "id": "erd-problem-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Docs in this workspace describe how data connects in prose and tables. A reader rebuilds the graph by hand, and nothing checks that a documented link still exists."
+        }
+      ],
+      "children": []
+    },
+    "erd-p-tables": {
+      "id": "erd-p-tables",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Tables flatten the graph",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-p-tables-1"
+      ]
+    },
+    "erd-p-tables-1": {
+      "id": "erd-p-tables-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The agent-kernel Observability Model page, "
+        },
+        {
+          "insert": "docs/10-system-design/20-observability-model",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", splits the trace store into a 7-row Core records table and an 11-row Linkage fields table. A reader joins the two tables to learn which record points at which."
+        }
+      ],
+      "children": []
+    },
+    "erd-p-diagram": {
+      "id": "erd-p-diagram",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Diagrams drop the fields",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-p-diagram-1"
+      ]
+    },
+    "erd-p-diagram-1": {
+      "id": "erd-p-diagram-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The same page's data-flow canvas draws all six trace-store tables as one rectangle, "
+        },
+        {
+          "insert": "trace-db",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Its text lists the table names and no fields."
+        }
+      ],
+      "children": []
+    },
+    "erd-p-links": {
+      "id": "erd-p-links",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Declared and logical links look the same",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-p-links-1"
+      ]
+    },
+    "erd-p-links-1": {
+      "id": "erd-p-links-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The trace store declares 6 foreign keys in SQLite. At least 8 more links are plain id strings, such as "
+        },
+        {
+          "insert": "trace_events.run_id",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", that only kernel doctor rules such as "
+        },
+        {
+          "insert": "event-run-resolves",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " check."
+        }
+      ],
+      "children": []
+    },
+    "erd-p-drift": {
+      "id": "erd-p-drift",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Nothing ties a field list to its schema",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-p-drift-1"
+      ]
+    },
+    "erd-p-drift-1": {
+      "id": "erd-p-drift-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Field lists in "
+        },
+        {
+          "insert": "state-shape",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " blocks and tables are typed by hand. No check compares them with the Drizzle schema in "
+        },
+        {
+          "insert": "agent-kernel/packages/db/src/schema/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " or with the live database."
+        }
+      ],
+      "children": []
+    },
+    "erd-p-board-lead": {
+      "id": "erd-p-board-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The board below draws the trace store with today's canvas objects. Each table is a section and each key column is a rectangle, so edges attach to single columns. Every box position and edge lane is set by hand, and no line end shows cardinality."
+        }
+      ],
+      "children": []
+    },
+    "erd-p-board": {
+      "id": "erd-p-board",
+      "type": "canvas",
+      "props": {
+        "src": "./assets/canvases/trace-store-today.canvas.json",
+        "title": "Trace store drawn with today's canvas objects"
+      },
+      "children": []
+    },
+    "erd-needs-h": {
+      "id": "erd-needs-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "What an ERD Must Show"
+        }
+      ],
+      "children": []
+    },
+    "erd-needs-lead": {
+      "id": "erd-needs-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Our data mixes SQLite tables with JSON files and in-memory TypeScript types. The table lists the structures a first ERD would document."
+        }
+      ],
+      "children": []
+    },
+    "erd-needs-table": {
+      "id": "erd-needs-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Structure",
+          "Defined in",
+          "What the diagram needs"
+        ],
+        "rows": [
+          [
+            "Trace store tables",
+            [
+              {
+                "insert": "agent-kernel/packages/db/src/schema/*.ts",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Keys, 6 declared foreign keys, logical id links"
+          ],
+          [
+            "Doc bundle files",
+            [
+              {
+                "insert": "DocDocument",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "DocProposal",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "DocChangeSet",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Nested fields, id references across files"
+          ],
+          [
+            "Canvas board JSON",
+            [
+              {
+                "insert": "InteractiveCanvasDocument",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " in "
+              },
+              {
+                "insert": "document.ts",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            [
+              {
+                "insert": "Embedded objects, "
+              },
+              {
+                "insert": "parentId",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " and endpoint references"
+              }
+            ]
+          ],
+          [
+            "Kernel runtime types",
+            [
+              {
+                "insert": "RunContext",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "StateSnapshot",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Shared ids, composition, unions"
+          ],
+          [
+            "Catalog manifests",
+            [
+              {
+                "insert": "KernelManifest",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "AgentManifest",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Versioned shapes, references by file path"
+          ]
+        ],
+        "title": "Data structures an ERD would document"
+      },
+      "children": []
+    },
+    "erd-needs-list-lead": {
+      "id": "erd-needs-list-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "To cover these structures, the component draws five things."
+        }
+      ],
+      "children": []
+    },
+    "erd-n-fields": {
+      "id": "erd-n-fields",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Entities with typed, keyed fields",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-n-fields-1"
+      ]
+    },
+    "erd-n-fields-1": {
+      "id": "erd-n-fields-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A field carries a name, a type, nullability, and key flags such as primary key, foreign key, or unique. The shared "
+        },
+        {
+          "insert": "Field",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " node behind "
+        },
+        {
+          "insert": "state-shape",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " has no key flags."
+        }
+      ],
+      "children": []
+    },
+    "erd-n-rel": {
+      "id": "erd-n-rel",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Field-to-field relationships with cardinality at both ends",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-n-rel-1"
+      ]
+    },
+    "erd-n-rel-1": {
+      "id": "erd-n-rel-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each end states a minimum of 0 or 1 and a maximum of 1 or many. A relationship can start and end in one entity, as "
+        },
+        {
+          "insert": "agent_runs.parent_run_id",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " does."
+        }
+      ],
+      "children": []
+    },
+    "erd-n-kind": {
+      "id": "erd-n-kind",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Declared and logical links",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-n-kind-1",
+        "erd-n-kind-2"
+      ]
+    },
+    "erd-n-kind-1": {
+      "id": "erd-n-kind-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A declared link is a database constraint. A logical link is an id string that only code checks."
+        }
+      ],
+      "children": []
+    },
+    "erd-n-kind-2": {
+      "id": "erd-n-kind-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The two kinds need different line styles, because the database enforces only declared links."
+        }
+      ],
+      "children": []
+    },
+    "erd-n-nested": {
+      "id": "erd-n-nested",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Nested, union, and enum fields",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-n-nested-1",
+        "erd-n-nested-2",
+        "erd-n-nested-3"
+      ]
+    },
+    "erd-n-nested-1": {
+      "id": "erd-n-nested-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "JSON columns and documents nest objects inside a record, such as "
+        },
+        {
+          "insert": "containers.metadata",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " or the "
+        },
+        {
+          "insert": "blocks",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " map in "
+        },
+        {
+          "insert": "doc.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Nested fields render as indented rows inside the parent box."
+        }
+      ],
+      "children": []
+    },
+    "erd-n-nested-2": {
+      "id": "erd-n-nested-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Unions and enums, such as "
+        },
+        {
+          "insert": "RUN_STATUS",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", render as a box with an "
+        },
+        {
+          "insert": "<<enum>>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " or "
+        },
+        {
+          "insert": "<<union>>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " stereotype, or inline as a field type."
+        }
+      ],
+      "children": []
+    },
+    "erd-n-nested-3": {
+      "id": "erd-n-nested-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An embedded value draws as composition, and a reference by id draws as an ordinary link."
+        }
+      ],
+      "children": []
+    },
+    "erd-n-change": {
+      "id": "erd-n-change",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Change markers for plans",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-n-change-1"
+      ]
+    },
+    "erd-n-change-1": {
+      "id": "erd-n-change-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A spec or plan marks entities, fields, and links as added, modified, removed, or renamed, with the previous value beside the change."
+        }
+      ],
+      "children": []
+    },
+    "erd-ref-h": {
+      "id": "erd-ref-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Reference Survey"
+        }
+      ],
+      "children": []
+    },
+    "erd-ref-lead": {
+      "id": "erd-ref-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Developer-facing ERD tools agree on one notation, on edges between fields, and on a few navigation patterns. This survey covers the parts that shape the proposal."
+        }
+      ],
+      "children": []
+    },
+    "erd-ref-notation-h": {
+      "id": "erd-ref-notation-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Notation"
+        }
+      ],
+      "children": []
+    },
+    "erd-ref-notation-lead": {
+      "id": "erd-ref-notation-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Notation families differ in how a line end shows cardinality. The table maps the four meanings an end can carry."
+        }
+      ],
+      "children": []
+    },
+    "erd-ref-notation-table": {
+      "id": "erd-ref-notation-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Meaning",
+          "Crow's foot",
+          "UML multiplicity",
+          "IDEF1X child end"
+        ],
+        "rows": [
+          [
+            "Exactly one",
+            [
+              {
+                "insert": "||",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            [
+              {
+                "insert": "1",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Plain line end"
+          ],
+          [
+            "Zero or one",
+            [
+              {
+                "insert": "o|",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            [
+              {
+                "insert": "0..1",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            [
+              {
+                "insert": "Dot and "
+              },
+              {
+                "insert": "Z",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ]
+          ],
+          [
+            "One or more",
+            [
+              {
+                "insert": "|{",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            [
+              {
+                "insert": "1..*",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            [
+              {
+                "insert": "Dot and "
+              },
+              {
+                "insert": "P",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ]
+          ],
+          [
+            "Zero or more",
+            [
+              {
+                "insert": "o{",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            [
+              {
+                "insert": "*",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Dot alone"
+          ]
+        ],
+        "title": "Cardinality marks by notation"
+      },
+      "children": []
+    },
+    "erd-ref-cf": {
+      "id": "erd-ref-cf",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Crow's foot is the default for developer docs",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-ref-cf-1"
+      ]
+    },
+    "erd-ref-cf-1": {
+      "id": "erd-ref-cf-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "dbdiagram, ChartDB, Liam ERD, DrawSQL, drawDB, Azimutt, Mermaid "
+        },
+        {
+          "insert": "erDiagram",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and D2 all draw it. Each end reads without a legend, and the four ends map one to one onto UML multiplicities."
+        }
+      ],
+      "children": []
+    },
+    "erd-ref-idef": {
+      "id": "erd-ref-idef",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "IDEF1X adds a line style",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-ref-idef-1"
+      ]
+    },
+    "erd-ref-idef-1": {
+      "id": "erd-ref-idef-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A solid line marks an identifying relationship, where the foreign key is part of the child's key. A dashed line marks a non-identifying one, written "
+        },
+        {
+          "insert": "--",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "..",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in Mermaid."
+        }
+      ],
+      "children": []
+    },
+    "erd-ref-uml": {
+      "id": "erd-ref-uml",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "UML and Hackolade cover non-table structures",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-ref-uml-1",
+        "erd-ref-uml-2"
+      ]
+    },
+    "erd-ref-uml-1": {
+      "id": "erd-ref-uml-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "UML adds "
+        },
+        {
+          "insert": "<<enum>>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "<<union>>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " stereotypes and a composition diamond for embedded values."
+        }
+      ],
+      "children": []
+    },
+    "erd-ref-uml-2": {
+      "id": "erd-ref-uml-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Hackolade draws nested JSON objects as indented rows inside the parent box instead of separate boxes."
+        }
+      ],
+      "children": []
+    },
+    "erd-ref-notation-src": {
+      "id": "erd-ref-notation-src",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Sources are "
+        },
+        {
+          "insert": "DBSchema's notation guide",
+          "attributes": {
+            "link": "https://dbschema.com/blog/design/choosing-an-er-notation-your-team-can-read/"
+          }
+        },
+        {
+          "insert": ", the "
+        },
+        {
+          "insert": "Mermaid ER syntax",
+          "attributes": {
+            "link": "https://mermaid.js.org/syntax/entityRelationshipDiagram.html"
+          }
+        },
+        {
+          "insert": ", the "
+        },
+        {
+          "insert": "Datanamic IDEF1X page",
+          "attributes": {
+            "link": "https://www.datanamic.com/dezign/idef1x.html"
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "Hackolade on nested objects",
+          "attributes": {
+            "link": "https://hackolade.com/help/Embeddingnestedobjectswithinpare.html"
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "erd-ref-dsl-h": {
+      "id": "erd-ref-dsl-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Text Formats"
+        }
+      ],
+      "children": []
+    },
+    "erd-ref-dsl-lead": {
+      "id": "erd-ref-dsl-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Five text formats describe ERDs. They differ most on edges between fields, nested fields, and where positions live."
+        }
+      ],
+      "children": []
+    },
+    "erd-ref-dsl-table": {
+      "id": "erd-ref-dsl-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Format",
+          "Field-level edges",
+          "Nested fields",
+          "Positions",
+          "Notable"
+        ],
+        "rows": [
+          [
+            [
+              {
+                "insert": "Mermaid "
+              },
+              {
+                "insert": "erDiagram",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "No",
+            "No",
+            "None",
+            "ELK layout by default in v12"
+          ],
+          [
+            "DBML",
+            "Yes",
+            "No",
+            "App state only",
+            [
+              {
+                "insert": "Composite keys, "
+              },
+              {
+                "insert": "TableGroup",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "DiagramView",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "insert": "D2 "
+              },
+              {
+                "insert": "sql_table",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "ELK or TALA engines only",
+            "No",
+            "Partial",
+            "Crow's foot arrowheads"
+          ],
+          [
+            "PlantUML IE",
+            "No",
+            "No",
+            "None",
+            "Recommends orthogonal lines"
+          ],
+          [
+            "Azimutt AML",
+            "Yes",
+            "Yes",
+            "App layouts",
+            "Polymorphic relations"
+          ]
+        ],
+        "title": "ERD text formats compared"
+      },
+      "children": []
+    },
+    "erd-ref-dsl-point": {
+      "id": "erd-ref-dsl-point",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Text suits generation and reading",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-ref-dsl-point-1"
+      ]
+    },
+    "erd-ref-dsl-point-1": {
+      "id": "erd-ref-dsl-point-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "No format keeps a full layout in its text. Tools that persist positions keep them in app state, as dbdiagram and Azimutt do."
+        }
+      ],
+      "children": []
+    },
+    "erd-ref-dsl-src": {
+      "id": "erd-ref-dsl-src",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Sources are the "
+        },
+        {
+          "insert": "DBML docs",
+          "attributes": {
+            "link": "https://dbml.dbdiagram.io/docs/"
+          }
+        },
+        {
+          "insert": ", the "
+        },
+        {
+          "insert": "D2 SQL tables tour",
+          "attributes": {
+            "link": "https://d2lang.com/tour/sql-tables"
+          }
+        },
+        {
+          "insert": ", the "
+        },
+        {
+          "insert": "PlantUML IE page",
+          "attributes": {
+            "link": "https://plantuml.com/ie-diagram"
+          }
+        },
+        {
+          "insert": ", and the "
+        },
+        {
+          "insert": "AML docs",
+          "attributes": {
+            "link": "https://azimutt.app/docs/aml"
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "erd-ref-tools-h": {
+      "id": "erd-ref-tools-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Tool Patterns"
+        }
+      ],
+      "children": []
+    },
+    "erd-ref-tools-lead": {
+      "id": "erd-ref-tools-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Five patterns recur across ERD tools and apply directly to docs pages."
+        }
+      ],
+      "children": []
+    },
+    "erd-ref-t-detail": {
+      "id": "erd-ref-t-detail",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Detail levels",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-ref-t-detail-1"
+      ]
+    },
+    "erd-ref-t-detail-1": {
+      "id": "erd-ref-t-detail-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "dbdiagram and Liam ERD switch between table names, keys only, and all fields. In names-only mode an edge attaches to the table header."
+        }
+      ],
+      "children": []
+    },
+    "erd-ref-t-rows": {
+      "id": "erd-ref-t-rows",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Attached rows stay visible",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-ref-t-rows-1"
+      ]
+    },
+    "erd-ref-t-rows-1": {
+      "id": "erd-ref-t-rows-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "ChartDB and Azimutt collapse long tables but keep the primary key and every row that an edge attaches to."
+        }
+      ],
+      "children": []
+    },
+    "erd-ref-t-nav": {
+      "id": "erd-ref-t-nav",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Neighbor highlight and saved views",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-ref-t-nav-1",
+        "erd-ref-t-nav-2"
+      ]
+    },
+    "erd-ref-t-nav-1": {
+      "id": "erd-ref-t-nav-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Liam dims everything except the active table, its neighbors, and their edges."
+        }
+      ],
+      "children": []
+    },
+    "erd-ref-t-nav-2": {
+      "id": "erd-ref-t-nav-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "DBML "
+        },
+        {
+          "insert": "DiagramView",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", tbls viewpoints, and SchemaSpy "
+        },
+        {
+          "insert": "-degree",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " save named subsets or N-hop neighborhoods of one schema."
+        }
+      ],
+      "children": []
+    },
+    "erd-ref-t-layout": {
+      "id": "erd-ref-t-layout",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Layered layout, then field attachment",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-ref-t-layout-1"
+      ]
+    },
+    "erd-ref-t-layout-1": {
+      "id": "erd-ref-t-layout-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Liam runs elkjs "
+        },
+        {
+          "insert": "layered",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " on table-level edges, then attaches each drawn edge to its column handles. Visual-first tools such as ChartDB persist positions in the model."
+        }
+      ],
+      "children": []
+    },
+    "erd-ref-t-drift": {
+      "id": "erd-ref-t-drift",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Generation and drift checks",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-ref-t-drift-1"
+      ]
+    },
+    "erd-ref-t-drift-1": {
+      "id": "erd-ref-t-drift-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "tbls diff",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and Atlas "
+        },
+        {
+          "insert": "schema diff",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " compare a live database with committed docs. Relations the database lacks come from an overlay file, such as the tbls "
+        },
+        {
+          "insert": "relations",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " setting."
+        }
+      ],
+      "children": []
+    },
+    "erd-ref-tools-src": {
+      "id": "erd-ref-tools-src",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Sources are "
+        },
+        {
+          "insert": "Liam ERD",
+          "attributes": {
+            "link": "https://github.com/liam-hq/liam"
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "ChartDB",
+          "attributes": {
+            "link": "https://github.com/chartdb/chartdb"
+          }
+        },
+        {
+          "insert": ", the "
+        },
+        {
+          "insert": "dbdiagram detail levels page",
+          "attributes": {
+            "link": "https://docs.dbdiagram.io/diagram-detail-levels"
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "tbls",
+          "attributes": {
+            "link": "https://github.com/k1LoW/tbls"
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "Atlas drift detection",
+          "attributes": {
+            "link": "https://atlasgo.io/guides/drift-detection"
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "erd-ref-agents-h": {
+      "id": "erd-ref-agents-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Agent Authoring"
+        }
+      ],
+      "children": []
+    },
+    "erd-ref-agents-lead": {
+      "id": "erd-ref-agents-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Published evidence on agent-authored diagrams favors typed edits over regenerated text. Most of it comes from practitioner reports, not controlled studies."
+        }
+      ],
+      "children": []
+    },
+    "erd-ref-a-ids": {
+      "id": "erd-ref-a-ids",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Stable ids and typed operations",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-ref-a-ids-1",
+        "erd-ref-a-ids-2"
+      ]
+    },
+    "erd-ref-a-ids-1": {
+      "id": "erd-ref-a-ids-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Practitioner reports describe syntax errors and unstable node ids when models write Mermaid or PlantUML directly."
+        }
+      ],
+      "children": []
+    },
+    "erd-ref-a-ids-2": {
+      "id": "erd-ref-a-ids-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Tools that edit one diagram over many turns, such as Zindex and the Straightedge MCP server, keep stable ids and apply typed operations."
+        }
+      ],
+      "children": []
+    },
+    "erd-ref-a-drawsql": {
+      "id": "erd-ref-a-drawsql",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The DrawSQL schema patch",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-ref-a-drawsql-1"
+      ]
+    },
+    "erd-ref-a-drawsql-1": {
+      "id": "erd-ref-a-drawsql-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The patch addresses tables and columns by name and renames through "
+        },
+        {
+          "insert": "old_name",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Positions are optional, and the parser returns every error in one response."
+        }
+      ],
+      "children": []
+    },
+    "erd-ref-agents-src": {
+      "id": "erd-ref-agents-src",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Sources are the "
+        },
+        {
+          "insert": "DrawSQL schema patch format",
+          "attributes": {
+            "link": "https://drawsql.app/developers/schema-patch-format"
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "Zindex",
+          "attributes": {
+            "link": "https://zindex.ai/"
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "Straightedge",
+          "attributes": {
+            "link": "https://glama.ai/mcp/servers/gmjen/straightedge"
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "a token-efficiency comparison of diagram formats",
+          "attributes": {
+            "link": "https://dev.to/akari_iku/analyzing-the-best-diagramming-tools-for-the-llm-age-based-on-token-efficiency-5891"
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "erd-ref-an-h": {
+      "id": "erd-ref-an-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "The Agent-Native Data Model Block"
+        }
+      ],
+      "children": []
+    },
+    "erd-ref-an-lead": {
+      "id": "erd-ref-an-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "@agent-native/core",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " 0.198.8 ships a "
+        },
+        {
+          "insert": "data-model",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " block, the closest existing component. This excerpt from "
+        },
+        {
+          "insert": "data-model.config.js",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " drops the length limits."
+        }
+      ],
+      "children": []
+    },
+    "erd-ref-an-code": {
+      "id": "erd-ref-an-code",
+      "type": "code",
+      "props": {
+        "annotations": [
+          {
+            "lines": "6",
+            "label": "Unchecked reference",
+            "note": "Free text such as table.column. Nothing validates it against another entity."
+          },
+          {
+            "lines": "10-11",
+            "label": "Change markers",
+            "note": "Per-field diff state and the previous value. Plans and recaps render them as badges."
+          },
+          {
+            "lines": "14-16",
+            "label": "Entity-level relation",
+            "note": "Both ends name entities, not fields, and kind carries no minimum per end."
+          }
+        ],
+        "language": "ts"
+      },
+      "text": [
+        {
+          "insert": "const changeSchema = z.enum([\"added\", \"modified\", \"removed\", \"renamed\"]);\nconst fieldSchema = z.object({\n  name: z.string(),\n  type: z.string().optional(),\n  pk: z.boolean().optional(),\n  fk: z.string().optional(),\n  nullable: z.boolean().optional(),\n  default: z.string().optional(),\n  note: z.string().optional(),\n  change: changeSchema.optional(),\n  was: z.string().optional(),\n});\nconst relationSchema = z.object({\n  from: z.string(),\n  to: z.string(),\n  kind: z.enum([\"1-1\", \"1-n\", \"n-n\"]).optional(),\n  label: z.string().optional(),\n});"
+        }
+      ],
+      "children": []
+    },
+    "erd-ref-an-keep": {
+      "id": "erd-ref-an-keep",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "What carries over",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-ref-an-keep-1"
+      ]
+    },
+    "erd-ref-an-keep-1": {
+      "id": "erd-ref-an-keep-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Key flags, nullability, defaults, notes, and the "
+        },
+        {
+          "insert": "change",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "was",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " markers carry over unchanged."
+        }
+      ],
+      "children": []
+    },
+    "erd-ref-an-gaps": {
+      "id": "erd-ref-an-gaps",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "What the block lacks",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-ref-an-gaps-1",
+        "erd-ref-an-gaps-2"
+      ]
+    },
+    "erd-ref-an-gaps-1": {
+      "id": "erd-ref-an-gaps-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Relations connect entities, not fields, and carry no minimum per end. The block has no nested fields, enum entities, composite keys, groups, or positions."
+        }
+      ],
+      "children": []
+    },
+    "erd-ref-an-gaps-2": {
+      "id": "erd-ref-an-gaps-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "In the plan generated for the agent-kernel Model Nodes spec, the block renders entity cards and a separate relations list. Judging from the page text, it does not route edges between cards."
+        }
+      ],
+      "children": []
+    },
+    "erd-reuse-h": {
+      "id": "erd-reuse-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "What Exists Today"
+        }
+      ],
+      "children": []
+    },
+    "erd-reuse-lead": {
+      "id": "erd-reuse-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "No block, canvas object, or connector in the workspace draws an entity, a field row, or a cardinality mark. The table maps each existing piece to what an ERD component would reuse."
+        }
+      ],
+      "children": []
+    },
+    "erd-reuse-table": {
+      "id": "erd-reuse-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Piece",
+          "Defined in",
+          "Reuse for ERDs"
+        ],
+        "rows": [
+          [
+            [
+              {
+                "insert": "state-shape",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " block"
+              }
+            ],
+            [
+              {
+                "insert": "StateShapeState",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "field-ledger.tsx",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Field rows, type coloring, nested-field elbows"
+          ],
+          [
+            [
+              {
+                "insert": "Shared "
+              },
+              {
+                "insert": "Field",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " node"
+              }
+            ],
+            [
+              {
+                "insert": "components/shared/field.ts",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Recursive field schema to extend with keys"
+          ],
+          [
+            "Canvas board model",
+            [
+              {
+                "insert": "object-types.ts",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "connections.ts",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            [
+              {
+                "insert": "Sections, connectors, and endpoint "
+              },
+              {
+                "insert": "position",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " on a row edge"
+              }
+            ]
+          ],
+          [
+            "Canvas router",
+            [
+              {
+                "insert": "routeConnection",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " in "
+              },
+              {
+                "insert": "routing.ts",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Orthogonal routing with an A* fallback, as a pure function"
+          ],
+          [
+            "Component registry",
+            [
+              {
+                "insert": "ALL_COMPONENTS",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", docs-mcp "
+              },
+              {
+                "insert": "tools.ts",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            [
+              {
+                "insert": "One generated "
+              },
+              {
+                "insert": "docs_<action>",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " tool per keyed action"
+              }
+            ]
+          ],
+          [
+            "Sequence text pipeline",
+            [
+              {
+                "insert": "parseSequenceProgram",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "serializeSequenceProgram",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Parser helpers and line-numbered errors for a text projection"
+          ]
+        ],
+        "title": "Existing pieces an ERD component reuses"
+      },
+      "children": []
+    },
+    "erd-gap-lead": {
+      "id": "erd-gap-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The field ledger lives in "
+        },
+        {
+          "insert": "docs-viewer/src/components/state-shape/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and the router lives in the canvas package. Four pieces are missing."
+        }
+      ],
+      "children": []
+    },
+    "erd-gap-entity": {
+      "id": "erd-gap-entity",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "No entity object",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-gap-entity-1",
+        "erd-gap-entity-3",
+        "erd-gap-entity-2"
+      ]
+    },
+    "erd-gap-entity-1": {
+      "id": "erd-gap-entity-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A canvas object has one text slot, so it cannot hold one row per field."
+        }
+      ],
+      "children": []
+    },
+    "erd-gap-entity-3": {
+      "id": "erd-gap-entity-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "label-is-prose",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " lint flags a name that packs fields onto several lines."
+        }
+      ],
+      "children": []
+    },
+    "erd-gap-entity-2": {
+      "id": "erd-gap-entity-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "crowding",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " lint requires 16 px between stacked objects, so key rows on the board above cannot touch the way table rows do."
+        }
+      ],
+      "children": []
+    },
+    "erd-gap-ends": {
+      "id": "erd-gap-ends",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "No field anchors or cardinality ends",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-gap-ends-1",
+        "erd-gap-ends-2"
+      ]
+    },
+    "erd-gap-ends-1": {
+      "id": "erd-gap-ends-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A connection endpoint names an object, a side, and an optional "
+        },
+        {
+          "insert": "position",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " that drifts when the object resizes."
+        }
+      ],
+      "children": []
+    },
+    "erd-gap-ends-2": {
+      "id": "erd-gap-ends-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A line end draws an arrowhead or nothing, from "
+        },
+        {
+          "insert": "CanvasArrowDirection",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "erd-gap-layout": {
+      "id": "erd-gap-layout",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "No layout engine",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-gap-layout-1"
+      ]
+    },
+    "erd-gap-layout-1": {
+      "id": "erd-gap-layout-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The workspace has no elkjs, dagre, or d3 dependency. Canvas offers align, space out, and fit, and the sequence layout is one-dimensional."
+        }
+      ],
+      "children": []
+    },
+    "erd-gap-sync": {
+      "id": "erd-gap-sync",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "No link between a field list and its schema",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-gap-sync-1"
+      ]
+    },
+    "erd-gap-sync-1": {
+      "id": "erd-gap-sync-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs links check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " confirms that linked paths exist but never reads "
+        },
+        {
+          "insert": "state-shape",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " "
+        },
+        {
+          "insert": "source",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " props. A field list can drift from its source without a finding."
+        }
+      ],
+      "children": []
+    },
+    "erd-opt-h": {
+      "id": "erd-opt-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Where It Could Plug In"
+        }
+      ],
+      "children": []
+    },
+    "erd-opt-lead": {
+      "id": "erd-opt-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Four integration shapes fit today's architecture. All four use one entity and relationship model and differ in where it is stored and who lays it out."
+        }
+      ],
+      "children": []
+    },
+    "erd-opt-constraints-h": {
+      "id": "erd-opt-constraints-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Constraints on Every Option"
+        }
+      ],
+      "children": []
+    },
+    "erd-opt-constraints-lead": {
+      "id": "erd-opt-constraints-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Four facts about the current system limit every option."
+        }
+      ],
+      "children": []
+    },
+    "erd-c-closed": {
+      "id": "erd-c-closed",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The block list is closed on purpose",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-c-closed-1",
+        "erd-c-closed-2"
+      ]
+    },
+    "erd-c-closed-1": {
+      "id": "erd-c-closed-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "DOC_BLOCK_TYPES",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "doc-schema.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " lists 22 types, and decision D1 in "
+        },
+        {
+          "insert": "BLOCK-ARCHITECTURE.md",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " keeps the list frozen. An unknown type is coerced to "
+        },
+        {
+          "insert": "callout",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "erd-c-closed-2": {
+      "id": "erd-c-closed-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "flow-strip",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", a row of numbered step cards, entered the list in commit "
+        },
+        {
+          "insert": "89a98b1",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " on 2026-10-01 and leaves it again in the uncommitted working tree."
+        }
+      ],
+      "children": []
+    },
+    "erd-c-policy": {
+      "id": "erd-c-policy",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Written policy sends diagrams to canvas",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-c-policy-1"
+      ]
+    },
+    "erd-c-policy-1": {
+      "id": "erd-c-policy-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "sequence/STATE.md",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " says every non-sequence diagram belongs to the canvas system."
+        }
+      ],
+      "children": []
+    },
+    "erd-c-authority": {
+      "id": "erd-c-authority",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A third sidecar authority is expensive",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-c-authority-1"
+      ]
+    },
+    "erd-c-authority-1": {
+      "id": "erd-c-authority-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "canvas",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "sequence",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " are hard-coded as the only forwarding authorities in more than 15 places, including "
+        },
+        {
+          "insert": "KNOWN_AUTHORITIES",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and the docs-mcp forward branch. "
+        },
+        {
+          "insert": "UI Mockups in Docs and Plans",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "90-specs/10-ui-mockups"
+            }
+          }
+        },
+        {
+          "insert": " refuses a third authority for the same reason."
+        }
+      ],
+      "children": []
+    },
+    "erd-c-ids": {
+      "id": "erd-c-ids",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Ids are authored and stable",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-c-ids-1"
+      ]
+    },
+    "erd-c-ids-1": {
+      "id": "erd-c-ids-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Entity ids are table or type names, and a field anchor is an "
+        },
+        {
+          "insert": "entity.field",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " path. The sequence parser regenerates ids on every parse, which would orphan annotations on an ERD."
+        }
+      ],
+      "children": []
+    },
+    "erd-opt-compare-h": {
+      "id": "erd-opt-compare-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Options Compared"
+        }
+      ],
+      "children": []
+    },
+    "erd-opt-compare-lead": {
+      "id": "erd-opt-compare-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The table ranks the options from left to right by fit. The bullets after it name the main strength and cost of each."
+        }
+      ],
+      "children": []
+    },
+    "erd-opt-table": {
+      "id": "erd-opt-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Criterion",
+          "1. Inline erd block",
+          "2. Entity object on canvas",
+          "3. Relations on state-shape",
+          "4. Text DSL sidecar"
+        ],
+        "rows": [
+          [
+            "Storage",
+            [
+              {
+                "insert": "Props in "
+              },
+              {
+                "insert": "doc.json",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            [
+              {
+                "insert": "Object in a "
+              },
+              {
+                "insert": ".canvas.json",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " sidecar"
+              }
+            ],
+            [
+              {
+                "insert": "Existing "
+              },
+              {
+                "insert": "state-shape",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " props"
+              }
+            ],
+            [
+              {
+                "insert": "New "
+              },
+              {
+                "insert": ".erd.json",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " sidecar"
+              }
+            ]
+          ],
+          [
+            "Agent authoring",
+            [
+              {
+                "insert": "Keyed "
+              },
+              {
+                "insert": "erd.*",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " actions"
+              }
+            ],
+            [
+              {
+                "insert": "New "
+              },
+              {
+                "insert": "place_entity",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " and field gestures"
+              }
+            ],
+            [
+              {
+                "insert": "state-shape",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " actions plus "
+              },
+              {
+                "insert": "references",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            [
+              {
+                "insert": "Whole-program "
+              },
+              {
+                "insert": "setProgram",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ]
+          ],
+          [
+            "Rendering",
+            "New descriptor over the field ledger",
+            [
+              {
+                "insert": "New "
+              },
+              {
+                "insert": "entity",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " object def, live and static"
+              }
+            ],
+            "Option 1 renderer over collected blocks",
+            "New engine and SVG renderer"
+          ],
+          [
+            "Layout",
+            "Automatic, with pinned positions",
+            "Manual, router only",
+            "Automatic",
+            "Automatic only"
+          ],
+          [
+            "Comment anchor",
+            "Block, then entity or field id",
+            "Canvas object, then field id",
+            "Existing block target",
+            "New target kind"
+          ],
+          [
+            "Generation from source",
+            "Writes props directly",
+            "Needs a placer for geometry",
+            "Writes fields, links stay authored",
+            "Emits a program"
+          ],
+          [
+            "Size of change",
+            "Medium, docs-system only",
+            "Medium to large, crosses canvas packages",
+            "Small schema change, new cross-block view",
+            "Largest, third authority"
+          ]
+        ],
+        "title": "Integration options compared"
+      },
+      "children": []
+    },
+    "erd-opt-1": {
+      "id": "erd-opt-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "1. Inline ",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": "erd",
+          "attributes": {
+            "bold": true,
+            "code": true
+          }
+        },
+        {
+          "insert": " block",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-opt-1-1",
+        "erd-opt-1-2",
+        "erd-opt-1-3",
+        "erd-opt-1-4"
+      ]
+    },
+    "erd-opt-1-1": {
+      "id": "erd-opt-1-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A new block type stores entities and relationships in props, so it shares the doc hash, undo, diff, and proposals."
+        }
+      ],
+      "children": []
+    },
+    "erd-opt-1-2": {
+      "id": "erd-opt-1-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The component registry generates "
+        },
+        {
+          "insert": "docs_erd_*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " tools from its keyed actions."
+        }
+      ],
+      "children": []
+    },
+    "erd-opt-1-3": {
+      "id": "erd-opt-1-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "It needs a two-dimensional layout, which the workspace lacks."
+        }
+      ],
+      "children": []
+    },
+    "erd-opt-1-4": {
+      "id": "erd-opt-1-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "It adds a type to the closed block list, as an exception to the canvas-first policy."
+        }
+      ],
+      "children": []
+    },
+    "erd-opt-2": {
+      "id": "erd-opt-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "2. ",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": "entity",
+          "attributes": {
+            "bold": true,
+            "code": true
+          }
+        },
+        {
+          "insert": " object kind on canvas boards",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-opt-2-1",
+        "erd-opt-2-2",
+        "erd-opt-2-3",
+        "erd-opt-2-4"
+      ]
+    },
+    "erd-opt-2-1": {
+      "id": "erd-opt-2-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An entity becomes one canvas object with field rows, and connectors gain field endpoints and cardinality ends."
+        }
+      ],
+      "children": []
+    },
+    "erd-opt-2-2": {
+      "id": "erd-opt-2-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Entities mix into flow boards such as the observability data flow, as the canvas-first policy intends."
+        }
+      ],
+      "children": []
+    },
+    "erd-opt-2-3": {
+      "id": "erd-opt-2-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The canvas validator whitelists fields, so the schema, both renderers, the canvas-agent tools, and the docs patch path all change."
+        }
+      ],
+      "children": []
+    },
+    "erd-opt-2-4": {
+      "id": "erd-opt-2-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Generated ERDs still need a placer, because the canvas has no layout engine."
+        }
+      ],
+      "children": []
+    },
+    "erd-opt-3": {
+      "id": "erd-opt-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "3. Relations on ",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": "state-shape",
+          "attributes": {
+            "bold": true,
+            "code": true
+          }
+        },
+        {
+          "insert": " plus a derived view",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-opt-3-1",
+        "erd-opt-3-2",
+        "erd-opt-3-3",
+        "erd-opt-3-4",
+        "erd-opt-3-5"
+      ]
+    },
+    "erd-opt-3-1": {
+      "id": "erd-opt-3-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Field",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " gains "
+        },
+        {
+          "insert": "key",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "references",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and a view collects a page's state-shape blocks into one diagram."
+        }
+      ],
+      "children": []
+    },
+    "erd-opt-3-2": {
+      "id": "erd-opt-3-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Pages that already define their types as state-shapes get an ERD without a second field list."
+        }
+      ],
+      "children": []
+    },
+    "erd-opt-3-3": {
+      "id": "erd-opt-3-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Cross-block references are new to the document model and need their own dangling-reference lint."
+        }
+      ],
+      "children": []
+    },
+    "erd-opt-3-4": {
+      "id": "erd-opt-3-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A "
+        },
+        {
+          "insert": "Field",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " change also reaches "
+        },
+        {
+          "insert": "interaction-surface",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", which shares the node."
+        }
+      ],
+      "children": []
+    },
+    "erd-opt-3-5": {
+      "id": "erd-opt-3-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The view still needs the renderer and layout from option 1."
+        }
+      ],
+      "children": []
+    },
+    "erd-opt-4": {
+      "id": "erd-opt-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "4. Text DSL in a sequence-style sidecar",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-opt-4-1",
+        "erd-opt-4-2",
+        "erd-opt-4-3",
+        "erd-opt-4-4",
+        "erd-opt-4-5"
+      ]
+    },
+    "erd-opt-4-1": {
+      "id": "erd-opt-4-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An "
+        },
+        {
+          "insert": "erd",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " package mirrors sequence, with a parser, a pure layout, and "
+        },
+        {
+          "insert": ".erd.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " sidecars rewritten whole through "
+        },
+        {
+          "insert": "setProgram",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "erd-opt-4-2": {
+      "id": "erd-opt-4-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The text is compact and familiar to models."
+        }
+      ],
+      "children": []
+    },
+    "erd-opt-4-3": {
+      "id": "erd-opt-4-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "It adds a third sidecar authority."
+        }
+      ],
+      "children": []
+    },
+    "erd-opt-4-4": {
+      "id": "erd-opt-4-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "It cannot reuse the one-dimensional sequence layout."
+        }
+      ],
+      "children": []
+    },
+    "erd-opt-4-5": {
+      "id": "erd-opt-4-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Its parser regenerates ids on every parse, which orphans annotations."
+        }
+      ],
+      "children": []
+    },
+    "erd-rec-h": {
+      "id": "erd-rec-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Recommendation"
+        }
+      ],
+      "children": []
+    },
+    "erd-rec-lead": {
+      "id": "erd-rec-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Build one entity and relationship model, then host it twice. Ship the inline "
+        },
+        {
+          "insert": "erd",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " block (option 1) first and the canvas "
+        },
+        {
+          "insert": "entity",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " object (option 2) second. The text DSL (option 4) survives only as the agent projection and generator format. Option 3 is deferred, because a generator that reads state-shape blocks gives the same single source."
+        }
+      ],
+      "children": []
+    },
+    "erd-rec-gen": {
+      "id": "erd-rec-gen",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "ERDs here are generated more often than drawn",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-rec-gen-1",
+        "erd-rec-gen-2"
+      ]
+    },
+    "erd-rec-gen-1": {
+      "id": "erd-rec-gen-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The first adopters document Drizzle tables and TypeBox schemas, whose fields a generator can read."
+        }
+      ],
+      "children": []
+    },
+    "erd-rec-gen-2": {
+      "id": "erd-rec-gen-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Props in "
+        },
+        {
+          "insert": "doc.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " let a generator write a diagram without placing geometry."
+        }
+      ],
+      "children": []
+    },
+    "erd-rec-stage": {
+      "id": "erd-rec-stage",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The same staging as UI mockups",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-rec-stage-1",
+        "erd-rec-stage-2"
+      ]
+    },
+    "erd-rec-stage-1": {
+      "id": "erd-rec-stage-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The shared model, lint rules, and field anchors cost the most to build."
+        }
+      ],
+      "children": []
+    },
+    "erd-rec-stage-2": {
+      "id": "erd-rec-stage-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The inline block proves them without touching the canvas packages, as the "
+        },
+        {
+          "insert": "mockup",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " block does for screens in "
+        },
+        {
+          "insert": "UI Mockups in Docs and Plans",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "90-specs/10-ui-mockups"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "erd-rec-canvas": {
+      "id": "erd-rec-canvas",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The canvas host serves mixed boards",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-rec-canvas-1"
+      ]
+    },
+    "erd-rec-canvas-1": {
+      "id": "erd-rec-canvas-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A board that shows tables beside the services that write them needs sections, notes, and manual placement, which canvas already owns."
+        }
+      ],
+      "children": []
+    },
+    "erd-rec-rule": {
+      "id": "erd-rec-rule",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "One rule for the closed block list",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-rec-rule-1",
+        "erd-rec-rule-2",
+        "erd-rec-rule-3"
+      ]
+    },
+    "erd-rec-rule-1": {
+      "id": "erd-rec-rule-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "This spec and the mockups spec each add one type to "
+        },
+        {
+          "insert": "DOC_BLOCK_TYPES",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "erd-rec-rule-2": {
+      "id": "erd-rec-rule-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The proposed rule for a new diagram block has two parts. A canvas object kind also hosts the block's model, and the block needs no new sidecar authority."
+        }
+      ],
+      "children": []
+    },
+    "erd-rec-rule-3": {
+      "id": "erd-rec-rule-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "flow-strip",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " would not meet the rule, because no canvas object hosts its step model."
+        }
+      ],
+      "children": []
+    },
+    "erd-shape-h": {
+      "id": "erd-shape-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Proposed Shape"
+        }
+      ],
+      "children": []
+    },
+    "erd-shape-lead": {
+      "id": "erd-shape-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The recommendation needs one data model, typed authoring tools, a renderer with detail levels, a layout method, lint rules, and a generation path. Every name in this section is proposed."
+        }
+      ],
+      "children": []
+    },
+    "erd-model-h": {
+      "id": "erd-model-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Data Model"
+        }
+      ],
+      "children": []
+    },
+    "erd-model-lead": {
+      "id": "erd-model-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "ErdModel",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is the props of an "
+        },
+        {
+          "insert": "erd",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " block. In Phase 4 its entities become canvas "
+        },
+        {
+          "insert": "entity",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " objects and its relationships become connectors. The example is a slice of the trace store."
+        }
+      ],
+      "children": []
+    },
+    "erd-model-shape": {
+      "id": "erd-model-shape",
+      "type": "state-shape",
+      "props": {
+        "description": "Proposed. One model shared by the erd block and the canvas entity object.",
+        "example": "{\n  \"title\": \"Run linkage\",\n  \"entities\": [\n    {\n      \"id\": \"pi_agent_sessions\",\n      \"source\": {\n        \"path\": \"agent-kernel/packages/db/src/schema/pi-agent-sessions.ts\",\n        \"symbol\": \"piAgentSessions\"\n      },\n      \"fields\": [\n        {\n          \"id\": \"id\",\n          \"type\": \"text\",\n          \"keys\": [\n            \"pk\"\n          ]\n        }\n      ]\n    },\n    {\n      \"id\": \"agent_runs\",\n      \"source\": {\n        \"path\": \"agent-kernel/packages/db/src/schema/agent-runs.ts\",\n        \"symbol\": \"agentRuns\"\n      },\n      \"fields\": [\n        {\n          \"id\": \"id\",\n          \"type\": \"text\",\n          \"keys\": [\n            \"pk\"\n          ]\n        },\n        {\n          \"id\": \"pi_session_id\",\n          \"type\": \"text\",\n          \"keys\": [\n            \"fk\"\n          ]\n        },\n        {\n          \"id\": \"parent_run_id\",\n          \"type\": \"text\",\n          \"keys\": [\n            \"fk\"\n          ],\n          \"nullable\": true\n        }\n      ]\n    },\n    {\n      \"id\": \"trace_events\",\n      \"source\": {\n        \"path\": \"agent-kernel/packages/db/src/schema/trace-events.ts\",\n        \"symbol\": \"traceEvents\"\n      },\n      \"fields\": [\n        {\n          \"id\": \"event_id\",\n          \"type\": \"text\",\n          \"keys\": [\n            \"pk\"\n          ]\n        },\n        {\n          \"id\": \"run_id\",\n          \"type\": \"text\",\n          \"nullable\": true\n        }\n      ]\n    }\n  ],\n  \"relationships\": [\n    {\n      \"id\": \"runs-session\",\n      \"from\": {\n        \"entity\": \"agent_runs\",\n        \"fields\": [\n          \"pi_session_id\"\n        ],\n        \"min\": 0,\n        \"max\": \"many\"\n      },\n      \"to\": {\n        \"entity\": \"pi_agent_sessions\",\n        \"fields\": [\n          \"id\"\n        ],\n        \"min\": 1,\n        \"max\": 1\n      },\n      \"kind\": \"declared\"\n    },\n    {\n      \"id\": \"runs-parent\",\n      \"from\": {\n        \"entity\": \"agent_runs\",\n        \"fields\": [\n          \"parent_run_id\"\n        ],\n        \"min\": 0,\n        \"max\": \"many\"\n      },\n      \"to\": {\n        \"entity\": \"agent_runs\",\n        \"fields\": [\n          \"id\"\n        ],\n        \"min\": 0,\n        \"max\": 1\n      },\n      \"kind\": \"declared\"\n    },\n    {\n      \"id\": \"events-run\",\n      \"from\": {\n        \"entity\": \"trace_events\",\n        \"fields\": [\n          \"run_id\"\n        ],\n        \"min\": 0,\n        \"max\": \"many\"\n      },\n      \"to\": {\n        \"entity\": \"agent_runs\",\n        \"fields\": [\n          \"id\"\n        ],\n        \"min\": 0,\n        \"max\": 1\n      },\n      \"kind\": \"logical\"\n    }\n  ]\n}",
+        "fields": [
+          {
+            "name": "title",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "detail",
+            "type": "\"names\" | \"keys\" | \"all\"",
+            "required": false,
+            "description": "Initial detail level. Omitted means all."
+          },
+          {
+            "name": "entities",
+            "type": "ErdEntity[]",
+            "fields": [
+              {
+                "name": "id",
+                "type": "string",
+                "description": "Table or type name, such as agent_runs. Unique in the model. Annotations and drift findings key on it."
+              },
+              {
+                "name": "name",
+                "type": "string",
+                "required": false,
+                "description": "Display name. Omitted means the id."
+              },
+              {
+                "name": "kind",
+                "type": "\"table\" | \"document\" | \"type\" | \"enum\" | \"union\"",
+                "required": false,
+                "description": "Omitted means table. Enum and union draw a stereotype."
+              },
+              {
+                "name": "source",
+                "type": "{ path, symbol? }",
+                "required": false,
+                "description": "Same shape as the state-shape source. Generators and the drift check read it."
+              },
+              {
+                "name": "group",
+                "type": "string",
+                "required": false,
+                "description": "Subject area, drawn as a frame around its entities."
+              },
+              {
+                "name": "note",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "change",
+                "type": "\"added\" | \"modified\" | \"removed\" | \"renamed\"",
+                "required": false
+              },
+              {
+                "name": "was",
+                "type": "string",
+                "required": false,
+                "description": "Previous id when renamed."
+              },
+              {
+                "name": "fields",
+                "type": "ErdField[]",
+                "fields": [
+                  {
+                    "name": "id",
+                    "type": "string",
+                    "description": "Unique among siblings. The anchor is entity.field, such as agent_runs.parent_run_id."
+                  },
+                  {
+                    "name": "type",
+                    "type": "string",
+                    "required": false
+                  },
+                  {
+                    "name": "keys",
+                    "type": "(\"pk\" | \"fk\" | \"unique\")[]",
+                    "required": false,
+                    "description": "A field with both pk and fk marks an identifying relationship."
+                  },
+                  {
+                    "name": "nullable",
+                    "type": "boolean",
+                    "required": false
+                  },
+                  {
+                    "name": "default",
+                    "type": "string",
+                    "required": false
+                  },
+                  {
+                    "name": "note",
+                    "type": "string",
+                    "required": false
+                  },
+                  {
+                    "name": "fields",
+                    "type": "ErdField[]",
+                    "required": false,
+                    "description": "Nested fields of a JSON column or object, drawn as indented rows."
+                  },
+                  {
+                    "name": "change",
+                    "type": "\"added\" | \"modified\" | \"removed\" | \"renamed\"",
+                    "required": false
+                  },
+                  {
+                    "name": "was",
+                    "type": "string",
+                    "required": false,
+                    "description": "Previous name or type."
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "relationships",
+            "type": "ErdRelationship[]",
+            "fields": [
+              {
+                "name": "id",
+                "type": "string"
+              },
+              {
+                "name": "from",
+                "type": "ErdEnd",
+                "description": "The referencing side.",
+                "fields": [
+                  {
+                    "name": "entity",
+                    "type": "string"
+                  },
+                  {
+                    "name": "fields",
+                    "type": "string[]",
+                    "required": false,
+                    "description": "Several fields form a composite key. Omitted attaches the line to the entity header."
+                  },
+                  {
+                    "name": "min",
+                    "type": "0 | 1",
+                    "required": false,
+                    "description": "How many rows of this end relate to one row of the other end, at least. Omitted values derive from keys and nullability."
+                  },
+                  {
+                    "name": "max",
+                    "type": "1 | \"many\"",
+                    "required": false
+                  }
+                ]
+              },
+              {
+                "name": "to",
+                "type": "ErdEnd",
+                "description": "The referenced key, with the same fields as from."
+              },
+              {
+                "name": "kind",
+                "type": "\"declared\" | \"logical\" | \"composition\"",
+                "description": "Declared draws solid and logical draws dashed. Composition adds a filled diamond at the owner."
+              },
+              {
+                "name": "label",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "change",
+                "type": "\"added\" | \"modified\" | \"removed\" | \"renamed\"",
+                "required": false
+              }
+            ]
+          },
+          {
+            "name": "layout",
+            "type": "object",
+            "required": false,
+            "fields": [
+              {
+                "name": "direction",
+                "type": "\"LR\" | \"TB\"",
+                "required": false,
+                "description": "Omitted means LR."
+              },
+              {
+                "name": "pinned",
+                "type": "Record<string, [x, y]>",
+                "required": false,
+                "description": "Entity positions an author moved. Layout keeps them fixed."
+              }
+            ]
+          }
+        ],
+        "name": "ErdModel"
+      },
+      "children": []
+    },
+    "erd-tools-h": {
+      "id": "erd-tools-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Authoring Tools"
+        }
+      ],
+      "children": []
+    },
+    "erd-tools-lead": {
+      "id": "erd-tools-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Agents insert an "
+        },
+        {
+          "insert": "erd",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " block with "
+        },
+        {
+          "insert": "docs_insert",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and edit it through keyed actions, which docs-mcp exposes as "
+        },
+        {
+          "insert": "docs_erd_*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " tools. Each add action below has matching update and remove actions."
+        }
+      ],
+      "children": []
+    },
+    "erd-tools-surface": {
+      "id": "erd-tools-surface",
+      "type": "interaction-surface",
+      "props": {
+        "operations": [
+          {
+            "name": "erd.addEntity",
+            "kind": "action",
+            "description": "Rejects an id that already exists. A rename goes through erd.updateEntity, which also rewrites every relationship end that names the old id.",
+            "params": [
+              {
+                "name": "entity",
+                "type": "ErdEntity"
+              },
+              {
+                "name": "index",
+                "type": "integer",
+                "required": false,
+                "description": "Position among entities. Omitted appends."
+              }
+            ],
+            "returns": "ErdEntitiesPatch",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "entities",
+                  "type": "ErdEntity[]",
+                  "description": "The complete replacement list, not only the added entity."
+                }
+              ]
+            },
+            "exampleCall": "erd.addEntity({\n  entity: {\n    id: \"prompt_revisions\",\n    fields: [{ id: \"hash\", type: \"text\", keys: [\"pk\"] }],\n  },\n})"
+          },
+          {
+            "name": "erd.addField",
+            "kind": "action",
+            "description": "Rejects an id that already exists among the siblings.",
+            "params": [
+              {
+                "name": "entity",
+                "type": "string"
+              },
+              {
+                "name": "field",
+                "type": "ErdField"
+              },
+              {
+                "name": "path",
+                "type": "string",
+                "required": false,
+                "description": "Dot-path of a nested parent field, as in state-shape. Omitted adds at the top level."
+              }
+            ],
+            "returns": "ErdEntitiesPatch",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "entities",
+                  "type": "ErdEntity[]",
+                  "description": "The complete replacement list."
+                }
+              ]
+            },
+            "exampleCall": "erd.addField({\n  entity: \"pi_agent_sessions\",\n  field: { id: \"prompt_hash\", type: \"text\", nullable: true },\n})"
+          },
+          {
+            "name": "erd.addRelationship",
+            "kind": "action",
+            "description": "Unknown entity or field ids fail the action. Omitted min and max derive from keys and nullability.",
+            "params": [
+              {
+                "name": "relationship",
+                "type": "ErdRelationship"
+              }
+            ],
+            "returns": "ErdRelationshipsPatch",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "relationships",
+                  "type": "ErdRelationship[]",
+                  "description": "The complete replacement list, with derived bounds written out."
+                }
+              ]
+            },
+            "exampleCall": "erd.addRelationship({\n  relationship: {\n    id: \"sessions-prompt\",\n    from: { entity: \"pi_agent_sessions\", fields: [\"prompt_hash\"] },\n    to: { entity: \"prompt_revisions\", fields: [\"hash\"] },\n    kind: \"logical\",\n  },\n})"
+          },
+          {
+            "name": "erd.patch",
+            "kind": "action",
+            "description": "Applies a batch in one revision, for generators and large edits. Any invalid entry fails the whole batch, and the error lists every invalid entry.",
+            "params": [
+              {
+                "name": "upsert",
+                "type": "{ entities?, relationships? }",
+                "required": false,
+                "description": "Merges by id. A listed entity or field is added or replaced, and unlisted ones stay, so a generator rerun keeps authored notes and logical links."
+              },
+              {
+                "name": "remove",
+                "type": "{ entities?, fields?, relationships? }",
+                "required": false,
+                "description": "Ids to delete. A removed entity takes its relationships with it."
+              }
+            ],
+            "returns": "ErdPatch",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "entities",
+                  "type": "ErdEntity[]",
+                  "required": false,
+                  "description": "Present when the batch changed entities. The list is complete."
+                },
+                {
+                  "name": "relationships",
+                  "type": "ErdRelationship[]",
+                  "required": false,
+                  "description": "Present when the batch changed relationships. The list is complete."
+                }
+              ]
+            }
+          }
+        ],
+        "title": "Proposed erd operations"
+      },
+      "children": []
+    },
+    "erd-payload-lead": {
+      "id": "erd-payload-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A generator or agent sends this "
+        },
+        {
+          "insert": "erd.patch",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " batch to add the prompt revision link to the example model. It shows the "
+        },
+        {
+          "insert": "params",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " object without the project, path, hash, and task fields."
+        }
+      ],
+      "children": []
+    },
+    "erd-payload": {
+      "id": "erd-payload",
+      "type": "code",
+      "props": {
+        "annotations": [
+          {
+            "lines": "4-13",
+            "label": "Merge by id",
+            "note": "pi_agent_sessions already exists, so only prompt_hash is added. Its other fields stay."
+          },
+          {
+            "lines": "14-29",
+            "label": "New entity",
+            "note": "prompt_revisions arrives with its source, so the drift check can compare it with the Drizzle table."
+          },
+          {
+            "lines": "34-45",
+            "label": "Derived bounds",
+            "note": "No min or max is sent. The to end gets min 0 from the nullable prompt_hash, and the from end gets max many."
+          },
+          {
+            "lines": "46",
+            "label": "Logical link",
+            "note": "prompt_hash has no SQLite constraint, so the edge draws dashed."
+          }
+        ],
+        "language": "json"
+      },
+      "text": [
+        {
+          "insert": "{\n  \"upsert\": {\n    \"entities\": [\n      {\n        \"id\": \"pi_agent_sessions\",\n        \"fields\": [\n          {\n            \"id\": \"prompt_hash\",\n            \"type\": \"text\",\n            \"nullable\": true\n          }\n        ]\n      },\n      {\n        \"id\": \"prompt_revisions\",\n        \"source\": {\n          \"path\": \"agent-kernel/packages/db/src/schema/prompt-revisions.ts\",\n          \"symbol\": \"promptRevisions\"\n        },\n        \"fields\": [\n          {\n            \"id\": \"hash\",\n            \"type\": \"text\",\n            \"keys\": [\n              \"pk\"\n            ]\n          }\n        ]\n      }\n    ],\n    \"relationships\": [\n      {\n        \"id\": \"sessions-prompt\",\n        \"from\": {\n          \"entity\": \"pi_agent_sessions\",\n          \"fields\": [\n            \"prompt_hash\"\n          ]\n        },\n        \"to\": {\n          \"entity\": \"prompt_revisions\",\n          \"fields\": [\n            \"hash\"\n          ]\n        },\n        \"kind\": \"logical\"\n      }\n    ]\n  }\n}"
+        }
+      ],
+      "children": []
+    },
+    "erd-render-h": {
+      "id": "erd-render-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Rendering and Detail Levels"
+        }
+      ],
+      "children": []
+    },
+    "erd-render-lead": {
+      "id": "erd-render-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "One renderer serves the viewer, static export, and PDF, as the sequence renderer does. The model carries no styles, so the renderer owns every color and line."
+        }
+      ],
+      "children": []
+    },
+    "erd-r-cards": {
+      "id": "erd-r-cards",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Entity cards reuse the field ledger",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-r-cards-1",
+        "erd-r-cards-2"
+      ]
+    },
+    "erd-r-cards-1": {
+      "id": "erd-r-cards-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A card header shows the entity name, an "
+        },
+        {
+          "insert": "<<enum>>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " or "
+        },
+        {
+          "insert": "<<union>>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " stereotype, and a change badge."
+        }
+      ],
+      "children": []
+    },
+    "erd-r-cards-2": {
+      "id": "erd-r-cards-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Rows come from the "
+        },
+        {
+          "insert": "state-shape",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " field ledger, so types take the same colors and nested fields indent the same way."
+        }
+      ],
+      "children": []
+    },
+    "erd-r-ends": {
+      "id": "erd-r-ends",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Line ends and line styles",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-r-ends-1",
+        "erd-r-ends-2"
+      ]
+    },
+    "erd-r-ends-1": {
+      "id": "erd-r-ends-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Crow's foot marks sit on the card border at both ends of a line."
+        }
+      ],
+      "children": []
+    },
+    "erd-r-ends-2": {
+      "id": "erd-r-ends-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Declared links draw solid and logical links draw dashed. Composition adds a filled diamond at the owner."
+        }
+      ],
+      "children": []
+    },
+    "erd-r-detail": {
+      "id": "erd-r-detail",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Three detail levels",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-r-detail-1",
+        "erd-r-detail-2",
+        "erd-r-detail-3"
+      ]
+    },
+    "erd-r-detail-1": {
+      "id": "erd-r-detail-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "all",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " shows every field."
+        }
+      ],
+      "children": []
+    },
+    "erd-r-detail-2": {
+      "id": "erd-r-detail-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "keys",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " shows keys plus every row that a line attaches to."
+        }
+      ],
+      "children": []
+    },
+    "erd-r-detail-3": {
+      "id": "erd-r-detail-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "names",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " shows headers only and attaches lines to them."
+        }
+      ],
+      "children": []
+    },
+    "erd-r-highlight": {
+      "id": "erd-r-highlight",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Neighbor highlight",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-r-highlight-1"
+      ]
+    },
+    "erd-r-highlight-1": {
+      "id": "erd-r-highlight-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Hovering or selecting an entity dims everything except that entity, its neighbors, and their lines."
+        }
+      ],
+      "children": []
+    },
+    "erd-r-agent": {
+      "id": "erd-r-agent",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Agent projection",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-r-agent-1",
+        "erd-r-agent-2"
+      ]
+    },
+    "erd-r-agent-1": {
+      "id": "erd-r-agent-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The agent view prints a DBML-like listing with one block per entity and one line per relationship."
+        }
+      ],
+      "children": []
+    },
+    "erd-r-agent-2": {
+      "id": "erd-r-agent-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Agents read the listing but edit through the typed actions."
+        }
+      ],
+      "children": []
+    },
+    "erd-layout-h": {
+      "id": "erd-layout-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Layout"
+        }
+      ],
+      "children": []
+    },
+    "erd-layout-lead": {
+      "id": "erd-layout-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Layout is the largest new piece, because the workspace has no layout engine. The proposed method follows Liam ERD in five steps."
+        }
+      ],
+      "children": []
+    },
+    "erd-layout-1": {
+      "id": "erd-layout-1",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Measure each card at the active detail level."
+        }
+      ],
+      "children": []
+    },
+    "erd-layout-2": {
+      "id": "erd-layout-2",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Run elkjs "
+        },
+        {
+          "insert": "layered",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " on entity-level edges in the "
+        },
+        {
+          "insert": "layout.direction",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " direction."
+        }
+      ],
+      "children": []
+    },
+    "erd-layout-3": {
+      "id": "erd-layout-3",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Attach each drawn line to its field rows on the facing sides."
+        }
+      ],
+      "children": []
+    },
+    "erd-layout-4": {
+      "id": "erd-layout-4",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Route the attached lines orthogonally around the cards."
+        }
+      ],
+      "children": []
+    },
+    "erd-layout-5": {
+      "id": "erd-layout-5",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Rerun with ELK's "
+        },
+        {
+          "insert": "INTERACTIVE",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " strategies after an author pins an entity, so pinned entities stay put."
+        }
+      ],
+      "children": []
+    },
+    "erd-layout-note": {
+      "id": "erd-layout-note",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Groups become ELK compound nodes, and entities without relationships park in their own column. The viewer lazy-loads elkjs, about 1.46 MB, and static export runs it at publish time."
+        }
+      ],
+      "children": []
+    },
+    "erd-lint-h": {
+      "id": "erd-lint-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Lint Rules"
+        }
+      ],
+      "children": []
+    },
+    "erd-lint-lead": {
+      "id": "erd-lint-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Lint keeps references valid and bounds consistent with keys. Every rule runs on save except "
+        },
+        {
+          "insert": "erd.source-drift",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", which runs in "
+        },
+        {
+          "insert": "docs_check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " from Phase 2."
+        }
+      ],
+      "children": []
+    },
+    "erd-lint-table": {
+      "id": "erd-lint-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Rule",
+          "Fails when"
+        ],
+        "rows": [
+          [
+            [
+              {
+                "insert": "erd.dangling-reference",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "A relationship end names a missing entity or field"
+          ],
+          [
+            [
+              {
+                "insert": "erd.duplicate-id",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Two entities, two sibling fields, or two relationships share an id"
+          ],
+          [
+            [
+              {
+                "insert": "erd.end-contradicts-keys",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "An end's bounds contradict the keys or nullability of its fields"
+          ],
+          [
+            [
+              {
+                "insert": "erd.declared-without-fk",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            [
+              {
+                "insert": "A "
+              },
+              {
+                "insert": "declared",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " relationship starts at fields without the "
+              },
+              {
+                "insert": "fk",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " flag"
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "insert": "erd.unlinked-fk",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            [
+              {
+                "insert": "A field flagged "
+              },
+              {
+                "insert": "fk",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " starts no relationship"
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "insert": "erd.source-drift",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            [
+              {
+                "insert": "Fields or declared keys differ from the "
+              },
+              {
+                "insert": "source",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " schema"
+              }
+            ]
+          ]
+        ],
+        "title": "Proposed erd lint rules"
+      },
+      "children": []
+    },
+    "erd-gen-h": {
+      "id": "erd-gen-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Generation and Drift"
+        }
+      ],
+      "children": []
+    },
+    "erd-gen-lead": {
+      "id": "erd-gen-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Generators write fields and declared keys. Authors add logical links, notes, and groups, and a rerun keeps them."
+        }
+      ],
+      "children": []
+    },
+    "erd-g-drizzle": {
+      "id": "erd-g-drizzle",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Drizzle tables",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-g-drizzle-1",
+        "erd-g-drizzle-2"
+      ]
+    },
+    "erd-g-drizzle-1": {
+      "id": "erd-g-drizzle-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "getTableConfig",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " from "
+        },
+        {
+          "insert": "drizzle-orm/sqlite-core",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " reads columns, primary keys, foreign keys, indexes, and unique constraints without a database."
+        }
+      ],
+      "children": []
+    },
+    "erd-g-drizzle-2": {
+      "id": "erd-g-drizzle-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "agent-kernel locks drizzle-orm 0.45.2, and no code calls "
+        },
+        {
+          "insert": "getTableConfig",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " today."
+        }
+      ],
+      "children": []
+    },
+    "erd-g-typebox": {
+      "id": "erd-g-typebox",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "TypeBox schemas",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-g-typebox-1"
+      ]
+    },
+    "erd-g-typebox-1": {
+      "id": "erd-g-typebox-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "jsonSchema()",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " walker in docs-mcp "
+        },
+        {
+          "insert": "tools.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "buildBlocksDiscovery()",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in docs-model already turn schemas into field trees."
+        }
+      ],
+      "children": []
+    },
+    "erd-g-check": {
+      "id": "erd-g-check",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The drift check",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-g-check-1",
+        "erd-g-check-2"
+      ]
+    },
+    "erd-g-check-1": {
+      "id": "erd-g-check-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs_check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " compares a generated block with its "
+        },
+        {
+          "insert": "source",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " schema and reports "
+        },
+        {
+          "insert": "erd.source-drift",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "erd-g-check-2": {
+      "id": "erd-g-check-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The backlinks extractor also indexes component "
+        },
+        {
+          "insert": "source",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " props, which no check reads today."
+        }
+      ],
+      "children": []
+    },
+    "erd-g-live": {
+      "id": "erd-g-live",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Live SQLite, later",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-g-live-1",
+        "erd-g-live-2"
+      ]
+    },
+    "erd-g-live-1": {
+      "id": "erd-g-live-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "pragma_table_info",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "pragma_foreign_key_list",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " read "
+        },
+        {
+          "insert": ".agent-kernel/trace.db",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " without writing."
+        }
+      ],
+      "children": []
+    },
+    "erd-g-live-2": {
+      "id": "erd-g-live-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The live database lacks the "
+        },
+        {
+          "insert": "idx_events_pi_session",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " index that "
+        },
+        {
+          "insert": "trace-events.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " declares. A later live check would report that drift."
+        }
+      ],
+      "children": []
+    },
+    "erd-g-ts": {
+      "id": "erd-g-ts",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Plain TypeScript interfaces",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-g-ts-1"
+      ]
+    },
+    "erd-g-ts-1": {
+      "id": "erd-g-ts-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "DocDocument",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "InteractiveCanvasDocument",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "StateSnapshot",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " have no runtime schema, so their entities stay hand-authored."
+        }
+      ],
+      "children": []
+    },
+    "erd-guide-h": {
+      "id": "erd-guide-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Agent Guidance"
+        }
+      ],
+      "children": []
+    },
+    "erd-guide-lead": {
+      "id": "erd-guide-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Agents learn the component through the same channels as every other block."
+        }
+      ],
+      "children": []
+    },
+    "erd-guide-catalog": {
+      "id": "erd-guide-catalog",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Catalog entry and family page",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-guide-catalog-1",
+        "erd-guide-catalog-2"
+      ]
+    },
+    "erd-guide-catalog-1": {
+      "id": "erd-guide-catalog-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "erd",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " manifest's "
+        },
+        {
+          "insert": "authoring",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " block feeds the component catalog."
+        }
+      ],
+      "children": []
+    },
+    "erd-guide-catalog-2": {
+      "id": "erd-guide-catalog-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A family page under "
+        },
+        {
+          "insert": "40-block-vocabulary/40-structured-reference",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " documents the contract."
+        }
+      ],
+      "children": []
+    },
+    "erd-guide-visual": {
+      "id": "erd-guide-visual",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Visual selection guidance",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-guide-visual-1"
+      ]
+    },
+    "erd-guide-visual-1": {
+      "id": "erd-guide-visual-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "visualComponentGuidance()",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " sends data models and entity relationships to "
+        },
+        {
+          "insert": "erd",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and keeps system connections on "
+        },
+        {
+          "insert": "canvas",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "erd-guide-place": {
+      "id": "erd-guide-place",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Placement on design pages",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-guide-place-1"
+      ]
+    },
+    "erd-guide-place-1": {
+      "id": "erd-guide-place-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "ERDs belong on "
+        },
+        {
+          "insert": "10-system-design",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " pages, because the implementation-layer standard assigns schemas and state models to design."
+        }
+      ],
+      "children": []
+    },
+    "erd-guide-tables": {
+      "id": "erd-guide-tables",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Slimmer linkage tables",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-guide-tables-1"
+      ]
+    },
+    "erd-guide-tables-1": {
+      "id": "erd-guide-tables-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A page with an ERD keeps a linkage table only for facts the diagram cannot show, such as when each field is stamped."
+        }
+      ],
+      "children": []
+    },
+    "erd-phase-h": {
+      "id": "erd-phase-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Phasing"
+        }
+      ],
+      "children": []
+    },
+    "erd-phase-lead": {
+      "id": "erd-phase-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Phase 1 is the smallest cut that proves the approach. It adds one block type and changes no external package."
+        }
+      ],
+      "children": []
+    },
+    "erd-phase-table": {
+      "id": "erd-phase-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Phase",
+          "Ships",
+          "Proves"
+        ],
+        "rows": [
+          [
+            "0",
+            "Guidance for the section-and-row board under Problem",
+            "Field-level lines work today without code"
+          ],
+          [
+            "1",
+            [
+              {
+                "insert": "erd",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " block, keyed actions, "
+              },
+              {
+                "insert": "all",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " and "
+              },
+              {
+                "insert": "keys",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " levels, elkjs layout, crow's foot SVG, save-time lint"
+              }
+            ],
+            "An agent writes the trace-store ERD for the Observability Model page through typed actions"
+          ],
+          [
+            "2",
+            [
+              {
+                "insert": "Drizzle and TypeBox generators, "
+              },
+              {
+                "insert": "source",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " indexing, "
+              },
+              {
+                "insert": "erd.source-drift",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            [
+              {
+                "insert": "A column added to "
+              },
+              {
+                "insert": "agent_runs",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " surfaces as a "
+              },
+              {
+                "insert": "docs_check",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " finding"
+              }
+            ]
+          ],
+          [
+            "3",
+            [
+              {
+                "insert": "names",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " level, neighbor highlight, change badges, "
+              },
+              {
+                "insert": "nodeId",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " field anchors"
+              }
+            ],
+            "A reviewer comments on one field, and a plan shows an added field"
+          ],
+          [
+            "4",
+            [
+              {
+                "insert": "Canvas "
+              },
+              {
+                "insert": "entity",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " object, field endpoints, cardinality ends, "
+              },
+              {
+                "insert": "place_entity",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Boards such as the observability data flow show real tables"
+          ]
+        ],
+        "title": "ERD phases"
+      },
+      "children": []
+    },
+    "erd-phase-deferred": {
+      "id": "erd-phase-deferred",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Chen notation, named views and N-hop subsets, DBML or Mermaid import, Postgres introspection, and a live-database drift check stay deferred until a page needs them."
+        }
+      ],
+      "children": []
+    },
+    "erd-hard-h": {
+      "id": "erd-hard-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Hard-to-Reverse Decisions"
+        }
+      ],
+      "children": []
+    },
+    "erd-hard-lead": {
+      "id": "erd-hard-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Five choices become expensive to change once pages and annotations depend on them. Each one is settled here before Phase 1."
+        }
+      ],
+      "children": []
+    },
+    "erd-hard-store": {
+      "id": "erd-hard-store",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The stored form is a keyed model, not DSL text",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-hard-store-1",
+        "erd-hard-store-2"
+      ]
+    },
+    "erd-hard-store-1": {
+      "id": "erd-hard-store-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Props share the doc hash, undo, and diff, and every entity and field has an address."
+        }
+      ],
+      "children": []
+    },
+    "erd-hard-store-2": {
+      "id": "erd-hard-store-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A DSL string would turn each edit into a whole-text rewrite."
+        }
+      ],
+      "children": []
+    },
+    "erd-hard-ids": {
+      "id": "erd-hard-ids",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Ids are authored names",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-hard-ids-1",
+        "erd-hard-ids-2",
+        "erd-hard-ids-3"
+      ]
+    },
+    "erd-hard-ids-1": {
+      "id": "erd-hard-ids-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Entity ids are table or type names, and field ids are column or property names."
+        }
+      ],
+      "children": []
+    },
+    "erd-hard-ids-2": {
+      "id": "erd-hard-ids-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A comment on one field uses the optional "
+        },
+        {
+          "insert": "nodeId",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " that "
+        },
+        {
+          "insert": "UI Mockups in Docs and Plans",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "90-specs/10-ui-mockups"
+            }
+          }
+        },
+        {
+          "insert": " adds to "
+        },
+        {
+          "insert": "block",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "canvas-object",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " targets, set to an "
+        },
+        {
+          "insert": "entity.field",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " id."
+        }
+      ],
+      "children": []
+    },
+    "erd-hard-ids-3": {
+      "id": "erd-hard-ids-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Change markers and drift findings key on the same ids."
+        }
+      ],
+      "children": []
+    },
+    "erd-hard-rel": {
+      "id": "erd-hard-rel",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Relationships connect fields and bound each end",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-hard-rel-1",
+        "erd-hard-rel-2"
+      ]
+    },
+    "erd-hard-rel-1": {
+      "id": "erd-hard-rel-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Entity-level relations, as in Mermaid and the Agent-Native block, cannot gain field ends later without re-authoring every line."
+        }
+      ],
+      "children": []
+    },
+    "erd-hard-rel-2": {
+      "id": "erd-hard-rel-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Per-end minimum and maximum render as either crow's foot or UML multiplicity."
+        }
+      ],
+      "children": []
+    },
+    "erd-hard-kind": {
+      "id": "erd-hard-kind",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Line style follows a stored kind",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-hard-kind-1",
+        "erd-hard-kind-2"
+      ]
+    },
+    "erd-hard-kind-1": {
+      "id": "erd-hard-kind-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "declared",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "logical",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "composition",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " kinds are stored, so a restyle never re-reads the schema."
+        }
+      ],
+      "children": []
+    },
+    "erd-hard-kind-2": {
+      "id": "erd-hard-kind-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Identifying stays a key-flag fact and never competes for the line style."
+        }
+      ],
+      "children": []
+    },
+    "erd-hard-home": {
+      "id": "erd-hard-home",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The schema lives in a leaf both hosts import",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-hard-home-1",
+        "erd-hard-home-2"
+      ]
+    },
+    "erd-hard-home-1": {
+      "id": "erd-hard-home-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "As in the mockups spec, the canvas package owns "
+        },
+        {
+          "insert": "ErdEntity",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "ErdRelationship",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "erd-hard-home-2": {
+      "id": "erd-hard-home-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs-model may import only "
+        },
+        {
+          "insert": "@codecaine-ai/canvas/agent-schema",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", so the types live in that leaf or in a new leaf added to "
+        },
+        {
+          "insert": "import-boundaries.test.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "erd-open-h": {
+      "id": "erd-open-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Open Questions"
+        }
+      ],
+      "children": []
+    },
+    "erd-open-lead": {
+      "id": "erd-open-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each question carries a recommended default, so Phase 1 can start before it is answered."
+        }
+      ],
+      "children": []
+    },
+    "erd-open-style": {
+      "id": "erd-open-style",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Does line style mean declared versus logical, or identifying versus non-identifying?",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-open-style-1"
+      ]
+    },
+    "erd-open-style-1": {
+      "id": "erd-open-style-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Recommended default is declared versus logical. On the trace-store board, 8 of 14 links are logical and none is identifying."
+        }
+      ],
+      "children": []
+    },
+    "erd-open-layout": {
+      "id": "erd-open-layout",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Which layout library?",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-open-layout-1"
+      ]
+    },
+    "erd-open-layout-1": {
+      "id": "erd-open-layout-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Recommended default is elkjs, lazy-loaded. Dagre has no ports, and the canvas router routes lines but places nothing."
+        }
+      ],
+      "children": []
+    },
+    "erd-open-router": {
+      "id": "erd-open-router",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "May docs-viewer import a canvas routing leaf?",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-open-router-1",
+        "erd-open-router-2"
+      ]
+    },
+    "erd-open-router-1": {
+      "id": "erd-open-router-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Recommended default is no for Phase 1, because docs-viewer has no canvas dependency today."
+        }
+      ],
+      "children": []
+    },
+    "erd-open-router-2": {
+      "id": "erd-open-router-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The block routes its own row-attached lines, and Phase 4 revisits sharing the canvas router."
+        }
+      ],
+      "children": []
+    },
+    "erd-open-tables": {
+      "id": "erd-open-tables",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Does an ERD replace linkage tables?",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-open-tables-1"
+      ]
+    },
+    "erd-open-tables-1": {
+      "id": "erd-open-tables-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Recommended default is no. The diagram replaces the columns that say which field points where, and a table keeps facts such as when a field is stamped."
+        }
+      ],
+      "children": []
+    },
+    "erd-open-types": {
+      "id": "erd-open-types",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Do in-memory types use the same block?",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "erd-open-types-1"
+      ]
+    },
+    "erd-open-types-1": {
+      "id": "erd-open-types-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Recommended default is yes, with "
+        },
+        {
+          "insert": "type",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " entities and "
+        },
+        {
+          "insert": "composition",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " relationships. A separate class-diagram block waits for a need the "
+        },
+        {
+          "insert": "erd",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " block cannot meet."
+        }
+      ],
+      "children": []
+    }
+  }
+}
