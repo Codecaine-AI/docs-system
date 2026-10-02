@@ -20,6 +20,10 @@
         "pseudo-state-shape",
         "pseudo-h-actions",
         "pseudo-actions",
+        "ps-act-g1",
+        "ps-act-g2",
+        "ps-act-g3",
+        "ps-act-surface",
         "pseudo-h-doc",
         "pseudo-doc-lead",
         "pseudo-doc-1",
@@ -280,28 +284,10 @@
       "props": {},
       "text": [
         {
-          "insert": "The pseudocode block has no named actions. An "
+          "insert": "Four actions edit the block text one line at a time. Each action is also an MCP tool, such as "
         },
         {
-          "insert": "updateBlock",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " op replaces the text or sets "
-        },
-        {
-          "insert": "diff",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", and the write is validated against "
-        },
-        {
-          "insert": "PseudocodeState",
+          "insert": "docs_pseudocode_insert_line",
           "attributes": {
             "code": true
           }
@@ -310,6 +296,311 @@
           "insert": "."
         }
       ],
+      "children": []
+    },
+    "ps-act-g1": {
+      "id": "ps-act-g1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Lines come from the block text",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ps-act-g1-1",
+        "ps-act-g1-2"
+      ]
+    },
+    "ps-act-g1-1": {
+      "id": "ps-act-g1-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The actions split the block text on newlines and address a line by its 0-based index."
+        }
+      ],
+      "children": []
+    },
+    "ps-act-g1-2": {
+      "id": "ps-act-g1-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "With "
+        },
+        {
+          "insert": "diff",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " on, the first character of each line is its marker, which is "
+        },
+        {
+          "insert": "+",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "-",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", or a space."
+        }
+      ],
+      "children": []
+    },
+    "ps-act-g2": {
+      "id": "ps-act-g2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each action has one job",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ps-act-g2-1",
+        "ps-act-g2-2",
+        "ps-act-g2-3"
+      ]
+    },
+    "ps-act-g2-1": {
+      "id": "ps-act-g2-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "insertLine",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "removeLine",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " add or delete one line."
+        }
+      ],
+      "children": []
+    },
+    "ps-act-g2-2": {
+      "id": "ps-act-g2-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "updateLine",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " replaces a line's text, its marker, or both, and a "
+        },
+        {
+          "insert": "null",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " marker resets to a space."
+        }
+      ],
+      "children": []
+    },
+    "ps-act-g2-3": {
+      "id": "ps-act-g2-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "setLines",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " replaces every line and can turn "
+        },
+        {
+          "insert": "diff",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " on or off in the same edit."
+        }
+      ],
+      "children": []
+    },
+    "ps-act-g3": {
+      "id": "ps-act-g3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Actions return text",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ps-act-g3-1",
+        "ps-act-g3-2"
+      ]
+    },
+    "ps-act-g3-1": {
+      "id": "ps-act-g3-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each action returns the rewritten block text, which replaces the old text as one undoable edit."
+        }
+      ],
+      "children": []
+    },
+    "ps-act-g3-2": {
+      "id": "ps-act-g3-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A marker on a block without "
+        },
+        {
+          "insert": "diff",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is an error."
+        }
+      ],
+      "children": []
+    },
+    "ps-act-surface": {
+      "id": "ps-act-surface",
+      "type": "interaction-surface",
+      "props": {
+        "operations": [
+          {
+            "name": "pseudocode.insertLine",
+            "kind": "action",
+            "description": "Insert one pseudocode line at a 0-based index. An index equal to the line count appends.",
+            "params": [
+              {
+                "name": "index",
+                "type": "integer",
+                "required": true,
+                "description": "Insert position in [0, line count]."
+              },
+              {
+                "name": "text",
+                "type": "string",
+                "required": true,
+                "description": "Line text without a diff marker or newlines. Leading spaces indent."
+              },
+              {
+                "name": "marker",
+                "type": "\"+\" | \"-\" | \" \"",
+                "required": false,
+                "description": "Diff marker for diff blocks only. Defaults to a space."
+              }
+            ],
+            "returns": "Replacement block text"
+          },
+          {
+            "name": "pseudocode.updateLine",
+            "kind": "action",
+            "description": "Replace the text, the diff marker, or both on the line at a 0-based index.",
+            "params": [
+              {
+                "name": "index",
+                "type": "integer",
+                "required": true,
+                "description": "Line index in [0, line count - 1]."
+              },
+              {
+                "name": "text",
+                "type": "string",
+                "required": false,
+                "description": "New line text without a diff marker or newlines."
+              },
+              {
+                "name": "marker",
+                "type": "\"+\" | \"-\" | \" \" | null",
+                "required": false,
+                "description": "New diff marker for diff blocks only. Null resets it to a space, an unchanged line."
+              }
+            ],
+            "returns": "Replacement block text"
+          },
+          {
+            "name": "pseudocode.removeLine",
+            "kind": "action",
+            "description": "Remove the pseudocode line at a 0-based index.",
+            "params": [
+              {
+                "name": "index",
+                "type": "integer",
+                "required": true,
+                "description": "Line index in [0, line count - 1]."
+              }
+            ],
+            "returns": "Replacement block text"
+          },
+          {
+            "name": "pseudocode.setLines",
+            "kind": "action",
+            "description": "Bulk replace: swap every pseudocode line, optionally turning the diff gutter on or off.",
+            "params": [
+              {
+                "name": "lines",
+                "type": "{ text, marker? }[]",
+                "required": true,
+                "description": "Complete replacement lines in order. An empty array clears the pseudocode."
+              },
+              {
+                "name": "diff",
+                "type": "boolean",
+                "required": false,
+                "description": "Set the diff gutter on or off in the same edit. Omit to keep it."
+              }
+            ],
+            "returns": "Replacement block text, plus the props patch { diff } when diff is passed"
+          }
+        ]
+      },
       "children": []
     },
     "pseudo-h-doc": {

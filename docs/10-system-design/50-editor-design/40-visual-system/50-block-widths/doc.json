@@ -1,0 +1,822 @@
+{
+  "schemaVersion": 1,
+  "id": "doc-fbb378798d8da8d451f06f40628792a8",
+  "title": "Block Widths and Lanes",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "bw-intro",
+        "bw-h-rule",
+        "bw-rule-lead",
+        "bw-rule-1",
+        "bw-rule-2",
+        "bw-rule-3",
+        "bw-rule-4",
+        "bw-rule-5",
+        "bw-lanes-lead",
+        "bw-lanes",
+        "bw-h-table",
+        "bw-table-lead",
+        "bw-table-1",
+        "bw-table-2",
+        "bw-table-3",
+        "bw-table-4",
+        "bw-h-howto",
+        "bw-howto-lead",
+        "bw-howto-1",
+        "bw-howto-2",
+        "bw-howto-3",
+        "bw-howto-4",
+        "bw-howto-5",
+        "bw-h-why",
+        "bw-why-lead",
+        "bw-why-1",
+        "bw-why-2",
+        "bw-why-3",
+        "bw-why-4"
+      ]
+    },
+    "bw-intro": {
+      "id": "bw-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every block sits in one of three lanes that start on the page's left rail. A block type declares its lane on its registry descriptor, and the lane caps how wide the block may grow. Inside its lane a block shrinks to its content, so a short file tree stays narrow while a dense state shape spends the room it needs."
+        }
+      ],
+      "children": []
+    },
+    "bw-h-rule": {
+      "id": "bw-h-rule",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The Rule"
+        }
+      ],
+      "children": []
+    },
+    "bw-rule-lead": {
+      "id": "bw-rule-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Five rules decide how wide a block is:"
+        }
+      ],
+      "children": []
+    },
+    "bw-rule-1": {
+      "id": "bw-rule-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each block type declares one lane",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "bw-rule-1a",
+        "bw-rule-1b"
+      ]
+    },
+    "bw-rule-1a": {
+      "id": "bw-rule-1a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "layout",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " field on the descriptor names the lane, and "
+        },
+        {
+          "insert": "docBlockLayoutClasses",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "packages/docs-viewer/src/render/block-layout.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " turns it into the lane's width cap."
+        }
+      ],
+      "children": []
+    },
+    "bw-rule-1b": {
+      "id": "bw-rule-1b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A descriptor without "
+        },
+        {
+          "insert": "layout",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " gets the text lane."
+        }
+      ],
+      "children": []
+    },
+    "bw-rule-2": {
+      "id": "bw-rule-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A lane is a maximum, never a target",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "bw-rule-2a",
+        "bw-rule-2b",
+        "bw-rule-2c"
+      ]
+    },
+    "bw-rule-2a": {
+      "id": "bw-rule-2a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The file tree, file explorer, call stack, component tree, process outline, stack, and structured table shrink to their content."
+        }
+      ],
+      "children": []
+    },
+    "bw-rule-2b": {
+      "id": "bw-rule-2b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The state shape, interaction surface, canvas, sequence, and code block fill their lane because their panes need the room."
+        }
+      ],
+      "children": []
+    },
+    "bw-rule-2c": {
+      "id": "bw-rule-2c",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The file explorer never shrinks below the widest width it has reached, so folding a folder does not make it jump."
+        }
+      ],
+      "children": []
+    },
+    "bw-rule-3": {
+      "id": "bw-rule-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Prose wraps at 60ch or less",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "bw-rule-3a"
+      ]
+    },
+    "bw-rule-3a": {
+      "id": "bw-rule-3a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Descriptions, notes, comments, tooltips, and captions keep the reading measure inside every block."
+        }
+      ],
+      "children": []
+    },
+    "bw-rule-4": {
+      "id": "bw-rule-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Mono values never break mid-word",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "bw-rule-4a",
+        "bw-rule-4b",
+        "bw-rule-4c"
+      ]
+    },
+    "bw-rule-4a": {
+      "id": "bw-rule-4a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "monoBreaks",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "packages/docs-viewer/src/components/mono-breaks.tsx",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " adds wrap points after "
+        },
+        {
+          "insert": "/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": ".",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "-",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "|",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": ",",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in paths, tokens, and types."
+        }
+      ],
+      "children": []
+    },
+    "bw-rule-4b": {
+      "id": "bw-rule-4b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every field ledger uses one 24ch name column and a 24px gap, so type columns line up across blocks."
+        }
+      ],
+      "children": []
+    },
+    "bw-rule-4c": {
+      "id": "bw-rule-4c",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A long name wraps inside its column, also at "
+        },
+        {
+          "insert": "_",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". A type always starts on the name's first line and wraps inside the type column."
+        }
+      ],
+      "children": []
+    },
+    "bw-rule-5": {
+      "id": "bw-rule-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Two-pane blocks split only when there is room",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "bw-rule-5a"
+      ]
+    },
+    "bw-rule-5a": {
+      "id": "bw-rule-5a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The state shape and the interaction surface split the list and the code 44/56 when the block is at least 560px wide. The list keeps at least 360px and the code pane at least 260px, and a narrower block stacks the two panes."
+        }
+      ],
+      "children": []
+    },
+    "bw-lanes-lead": {
+      "id": "bw-lanes-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The table lists each lane, the variable that sets its width, and the Style rail knob that tunes it. The "
+        },
+        {
+          "insert": "Code lane",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " slider runs from 60ch to 160ch."
+        }
+      ],
+      "children": []
+    },
+    "bw-lanes": {
+      "id": "bw-lanes",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Lane",
+          "Variable",
+          "Default",
+          "Style rail knob",
+          "Blocks"
+        ],
+        "rows": [
+          [
+            "text",
+            "`--style-content-width`",
+            "`60ch`",
+            "Max width",
+            "Prose, and every block type that declares no lane"
+          ],
+          [
+            "code",
+            "`--style-code-width`",
+            "`88ch`",
+            "Code lane",
+            "Code, pseudocode, file tree, and file explorer"
+          ],
+          [
+            "wide",
+            "`--style-wide-width`",
+            [
+              {
+                "insert": "1100px",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Wide lane",
+            "State shape, interaction surface, call stack, component tree, structured table, canvas, sequence, process outline, stack, image, image grid, video, and HTML"
+          ]
+        ]
+      },
+      "children": []
+    },
+    "bw-h-table": {
+      "id": "bw-h-table",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Table Columns"
+        }
+      ],
+      "children": []
+    },
+    "bw-table-lead": {
+      "id": "bw-table-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A structured table sizes each column by its content. "
+        },
+        {
+          "insert": "tableColumnFits",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "packages/docs-viewer/src/components/structured-table/column-layout.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " applies these rules:"
+        }
+      ],
+      "children": []
+    },
+    "bw-table-1": {
+      "id": "bw-table-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Columns of code values stay on one line."
+        }
+      ],
+      "children": []
+    },
+    "bw-table-2": {
+      "id": "bw-table-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A text column whose longest cell is 40 characters or less stays on one line."
+        }
+      ],
+      "children": []
+    },
+    "bw-table-3": {
+      "id": "bw-table-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The text column with the longest average text takes the remaining width and wraps at 60ch."
+        }
+      ],
+      "children": []
+    },
+    "bw-table-4": {
+      "id": "bw-table-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "If the table still overflows its lane, the first column stays pinned and the other columns scroll under it."
+        }
+      ],
+      "children": []
+    },
+    "bw-h-howto": {
+      "id": "bw-h-howto",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Bring a Block Onto the Lanes"
+        }
+      ],
+      "children": []
+    },
+    "bw-howto-lead": {
+      "id": "bw-howto-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Give these steps to an agent to place a block type on the lanes. "
+        },
+        {
+          "insert": "packages/docs-viewer/src/components/structured-table/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is the reference implementation for a block that shrinks to its content."
+        }
+      ],
+      "children": []
+    },
+    "bw-howto-1": {
+      "id": "bw-howto-1",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Set "
+        },
+        {
+          "insert": "layout",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " on the block's descriptor to "
+        },
+        {
+          "insert": "CODE_LEFT_BLOCK_LAYOUT",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " or "
+        },
+        {
+          "insert": "WIDE_LEFT_BLOCK_LAYOUT",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", or omit it for the text lane."
+        }
+      ],
+      "children": []
+    },
+    "bw-howto-2": {
+      "id": "bw-howto-2",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Give the block's panel "
+        },
+        {
+          "insert": "width: fit-content; max-width: 100%",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " unless its panes need the full lane."
+        }
+      ],
+      "children": []
+    },
+    "bw-howto-3": {
+      "id": "bw-howto-3",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Cap every prose run inside the block at 60ch, and wrap its mono values in "
+        },
+        {
+          "insert": "monoBreaks",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "bw-howto-4": {
+      "id": "bw-howto-4",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Compare light and dark at "
+        },
+        {
+          "insert": "/playground.html?doc=<catalog path>&type=<block type>&all=1",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " on the workbench dev server."
+        }
+      ],
+      "children": []
+    },
+    "bw-howto-5": {
+      "id": "bw-howto-5",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "If you add a width knob, run the style-rail test in "
+        },
+        {
+          "insert": "packages/docs-workbench/web/src/__tests__/style-rail.test.tsx",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "bw-h-why": {
+      "id": "bw-h-why",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why"
+        }
+      ],
+      "children": []
+    },
+    "bw-why-lead": {
+      "id": "bw-why-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Four reasons shape the lanes:"
+        }
+      ],
+      "children": []
+    },
+    "bw-why-1": {
+      "id": "bw-why-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The eye keeps one left rail",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "bw-why-1a"
+      ]
+    },
+    "bw-why-1a": {
+      "id": "bw-why-1a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every lane starts at the page's left edge, so you read straight down one column of block starts."
+        }
+      ],
+      "children": []
+    },
+    "bw-why-2": {
+      "id": "bw-why-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Wide blocks spend room only when content needs it",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "bw-why-2a"
+      ]
+    },
+    "bw-why-2a": {
+      "id": "bw-why-2a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A short table stays narrow, and a dense state shape grows to 1100px without widening the prose around it."
+        }
+      ],
+      "children": []
+    },
+    "bw-why-3": {
+      "id": "bw-why-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Prose keeps a readable line length",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "bw-why-3a"
+      ]
+    },
+    "bw-why-3a": {
+      "id": "bw-why-3a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A line of 60 characters or less is easier to track back to its start than a line that spans the page."
+        }
+      ],
+      "children": []
+    },
+    "bw-why-4": {
+      "id": "bw-why-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Values stay copyable",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "bw-why-4a"
+      ]
+    },
+    "bw-why-4a": {
+      "id": "bw-why-4a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A path or a type that never breaks mid-word copies and searches as one string."
+        }
+      ],
+      "children": []
+    }
+  }
+}

@@ -124,15 +124,23 @@ The executable catalog is the source for exact applicability and exclusions. The
 
   - structure.label-colon-opener flags text that opens with a short label and a colon, or a short lead-in that ends in a colon. A plain label has up to three words and a bold label up to five.
 
-- process-outline.single-parent requires one named, non-note root with at least one action child in every completed Process Outline.
+- **Component and Asset Checks**
 
-  - Empty outlines, childless roots, and multiple roots produce errors.
+  - process-outline.single-parent requires one named, non-note root with at least one action child in every completed Process Outline.
 
-  - Draft edits remain writable. New violations block completion.
+    - Empty outlines, childless roots, and multiple roots produce errors.
 
-  - Nest related phases under one parent, or split independent processes into separate blocks.
+    - Draft edits remain writable. New violations block completion.
 
-- bundle-relative-src rejects bare assets/... src values on completed canvas, sequence, image, and video blocks. Prefix bundle assets with ./, or use a docs-root-relative path or URL.
+    - Nest related phases under one parent, or split independent processes into separate blocks.
+
+  - process-outline.phase-title-case flags a Process Outline root title or phase that breaks Title Case. A phase is a first-level step with its own substeps, the line the renderer draws bold.
+
+    - It shares the heading rule's minor words and skips backtick code spans, acronyms, and code-looking identifiers. Substeps and notes stay sentence case.
+
+    - Each warning names the step field, such as `props.steps[0].steps[1].text`, and its suggestion carries the Title Case text.
+
+  - bundle-relative-src rejects bare assets/... src values on completed canvas, sequence, image, and video blocks. Prefix bundle assets with ./, or use a docs-root-relative path or URL.
 
 ## Judgment Rules
 

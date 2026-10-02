@@ -6,7 +6,7 @@ Descriptions should add non-obvious information about operations, parameters, an
 
 ## Example
 
-This example starts with one file-tree entry. Adding src/config.ts returns the complete entries props patch inside its operation card. Removing src/index.ts from the same starting state returns an empty entries list. Each example starts independently from FileTreeState.
+This example starts with one file-tree entry. Adding src/config.ts returns the complete entries props patch. Removing src/index.ts from the same starting state returns an empty entries list. Each example starts independently from FileTreeState.
 
 **FileTreeState**
 
@@ -35,6 +35,11 @@ file-tree.addEntry(path: string, note?: string, change?: "added" | "removed" | "
   path: string  # /-separated path, no leading "./"; a trailing "/" marks an explicit directory.
   note?: string  # Short annotation rendered after the path.
   change?: "added" | "removed" | "modified" | "renamed"  # Change marker rendered as a badge.
+  Example call:
+    file-tree.addEntry({
+      path: "src/config.ts",
+      change: "added",
+    })
   Returns FileTreeEntriesPatch:
     entries: FileTreeEntry[]  # The complete replacement list after the operation.
       path: string  # No leading "./"; a trailing "/" marks a directory.
@@ -55,6 +60,10 @@ file-tree.addEntry(path: string, note?: string, change?: "added" | "removed" | "
     }
 file-tree.removeEntry(path: string) -> FileTreeEntriesPatch  # Removes only the exact matching path. Returns the props patch.
   path: string  # Exact path of the entry to remove.
+  Example call:
+    file-tree.removeEntry({
+      path: "src/index.ts",
+    })
   Returns FileTreeEntriesPatch:
     entries: FileTreeEntry[]  # The complete replacement list after the operation.
       path: string  # No leading "./"; a trailing "/" marks a directory.
@@ -120,7 +129,7 @@ No text (`carriesText: false`), every fact lives in the two props above. The sch
 
 ## Typed Actions
 
-Three actions maintain the `operations` array. The surface below documents itself.
+Three actions maintain the `operations` array. The surface below documents itself, and its examples start from a surface that holds only `file-tree.addEntry`.
 
 **interaction-surface operation actions**
 
@@ -129,53 +138,95 @@ interaction-surface.addOperation(name: string, description?: string, params?: ar
   returnShape?: ReturnShape
     fields: Field[]
     example?: string
+  Example call:
+    interaction-surface.addOperation({
+      name: "file-tree.removeEntry",
+      params: [{ name: "path", type: "string" }],
+      returns: "FileTreeEntriesPatch",
+      kind: "action",
+    })
   Returns InteractionSurfacePatch:
-    operations: Operation[]  # Operation signatures, in document order.
-      name: string  # Operation signature name, e.g. "file-tree.addEntry".
-      description?: string  # Only constraints or behavior not already clear from the signature.
-      params?: Field[]  # Shared recursive Field nodes; required: false means optional.
-        name: string
-        type?: string
-        required?: boolean  # false = optional
-        description?: string
-        fields?: Field[]  # Nested params, the node recurses
-      returns?: string  # What the operation returns/yields.
-      kind?: "action" | "query" | "event"  # Omitted means action. All three kinds have an explicit badge.
-      returnShape?: ReturnShape  # Known object result; omit for void, primitive values, or an unsubscribe function.
-        fields: Field[]  # Uses the same recursive field nodes as State Shape.
-        example?: string  # JSON instance of the returned object.
+    operations: Operation[]  # The complete replacement operation list, not only the changed operation.
+      name: string
+      description?: string
+      params?: Field[]
+      returns?: string
+      kind?: "action" | "query" | "event"
+  Example:
+    {
+      "operations": [
+        {
+          "name": "file-tree.addEntry",
+          "kind": "action"
+        },
+        {
+          "name": "file-tree.removeEntry",
+          "params": [
+            {
+              "name": "path",
+              "type": "string"
+            }
+          ],
+          "returns": "FileTreeEntriesPatch",
+          "kind": "action"
+        }
+      ]
+    }
 interaction-surface.updateOperation(name: string, patch: object) -> InteractionSurfacePatch  # Renames in place; null clears description, params, returns, returnShape, or kind.
+  Example call:
+    interaction-surface.updateOperation({
+      name: "file-tree.removeEntry",
+      patch: { description: "Removes only the exact matching path." },
+    })
   Returns InteractionSurfacePatch:
-    operations: Operation[]  # Operation signatures, in document order.
-      name: string  # Operation signature name, e.g. "file-tree.addEntry".
-      description?: string  # Only constraints or behavior not already clear from the signature.
-      params?: Field[]  # Shared recursive Field nodes; required: false means optional.
-        name: string
-        type?: string
-        required?: boolean  # false = optional
-        description?: string
-        fields?: Field[]  # Nested params, the node recurses
-      returns?: string  # What the operation returns/yields.
-      kind?: "action" | "query" | "event"  # Omitted means action. All three kinds have an explicit badge.
-      returnShape?: ReturnShape  # Known object result; omit for void, primitive values, or an unsubscribe function.
-        fields: Field[]  # Uses the same recursive field nodes as State Shape.
-        example?: string  # JSON instance of the returned object.
+    operations: Operation[]  # The complete replacement operation list, not only the changed operation.
+      name: string
+      description?: string
+      params?: Field[]
+      returns?: string
+      kind?: "action" | "query" | "event"
+  Example:
+    {
+      "operations": [
+        {
+          "name": "file-tree.addEntry",
+          "kind": "action"
+        },
+        {
+          "name": "file-tree.removeEntry",
+          "description": "Removes only the exact matching path.",
+          "params": [
+            {
+              "name": "path",
+              "type": "string"
+            }
+          ],
+          "returns": "FileTreeEntriesPatch",
+          "kind": "action"
+        }
+      ]
+    }
 interaction-surface.removeOperation(name: string) -> InteractionSurfacePatch  # Remove the operation with the given name from the surface.
+  Example call:
+    interaction-surface.removeOperation({
+      name: "file-tree.removeEntry",
+    })
   Returns InteractionSurfacePatch:
-    operations: Operation[]  # Operation signatures, in document order.
-      name: string  # Operation signature name, e.g. "file-tree.addEntry".
-      description?: string  # Only constraints or behavior not already clear from the signature.
-      params?: Field[]  # Shared recursive Field nodes; required: false means optional.
-        name: string
-        type?: string
-        required?: boolean  # false = optional
-        description?: string
-        fields?: Field[]  # Nested params, the node recurses
-      returns?: string  # What the operation returns/yields.
-      kind?: "action" | "query" | "event"  # Omitted means action. All three kinds have an explicit badge.
-      returnShape?: ReturnShape  # Known object result; omit for void, primitive values, or an unsubscribe function.
-        fields: Field[]  # Uses the same recursive field nodes as State Shape.
-        example?: string  # JSON instance of the returned object.
+    operations: Operation[]  # The complete replacement operation list, not only the changed operation.
+      name: string
+      description?: string
+      params?: Field[]
+      returns?: string
+      kind?: "action" | "query" | "event"
+  Example:
+    {
+      "operations": [
+        {
+          "name": "file-tree.addEntry",
+          "kind": "action"
+        }
+      ]
+    }
 ```
 
 - Operation names are the identity keys: `addOperation` refuses a name that already exists, and `updateOperation` refuses a rename onto an existing name.
@@ -190,13 +241,21 @@ interaction-surface.removeOperation(name: string) -> InteractionSurfacePatch  # 
 
 On the doc surface, reader and editor alike, the block renders through `InteractionSurfaceBlock`, in the linked-panels family it shares with state-shape and code. The descriptor reads props strictly: any malformed operation renders the invalid-block placeholder instead of a partial card.
 
-- Each operation has a separate rounded card. The overall title uses title case above the stack. Card order follows authored operation order.
+- Operations sit as rows in one dark panel under the surface title, in authored order.
 
-- Each card header shows the operation name and an explicit Action, Query, or Event badge. Action is amber, Query is green-teal, and Event is violet. A restrained curved texture stays in the header.
+- A closed row is one line, `receiver.method(…) → ReturnType`. Hovering or focusing the operation name opens a tooltip with the Action, Query, or Event badge and the operation purpose.
 
-- Inputs use Field and Type columns on the left and the linked signature on the right. Aligned mini headers and a thin divider preserve the State Shape reading pattern.
+- An open operation shows a Parameters card and a Returns card. Each card lists fields on the left and shows code on the right, the authored `exampleCall` or the example return object.
 
-- Descriptions appear only when they add information. A described parameter name carries a dotted underline; its description opens as a tooltip after a short hover dwell or on keyboard focus, and prints inline beneath the name. The operation purpose stays inline under the operation name. Nested fields retain their tree branches. A separate output section shows the actual returned object name, recursive fields on the left, and JSON example on the right. Its header has a softer matching tint and a return cue.
+- **Descriptions appear only when they add information**
+
+  - A described parameter name carries a dotted underline, and its description opens as a tooltip on hover or keyboard focus.
+
+  - The operation purpose shows in the tooltip on the operation name.
+
+  - Nested fields hang off their parent with the file tree's elbow connectors.
+
+  - A separate output section shows the returned object name, its recursive fields on the left, and a JSON example on the right.
 
 - Linking.
 
@@ -206,9 +265,9 @@ On the doc surface, reader and editor alike, the block renders through `Interact
 
 - Descriptions
 
-  - Parameter and returned-field descriptions use the State Shape tooltip: a dotted underline on the name, a 450 ms hover dwell or keyboard focus, a `role="tooltip"` bubble labelled with the name, and inline text in print media. The rows show only names and types, so the inputs ledger scans as a table.
+  - Parameter and returned-field descriptions use the State Shape tooltip, with a dotted underline on the name, a 450 ms hover dwell or keyboard focus, a `role="tooltip"` bubble, and inline text in print media. The rows show only names and types, so the inputs ledger scans as a table.
 
-  - The operation purpose stays a paragraph under the operation name in the card header. It describes the whole operation and reads first; only per-field detail lives in tooltips.
+  - The operation purpose and kind badge share one tooltip on the operation name. Print media prints both inline under the name.
 
   - Why: the two blocks share one ledger reading pattern, so a reader learns the underline cue once and every field row stays one line tall.
 
@@ -249,7 +308,7 @@ The Theming contract element: theme file `components/interaction-surface.json` i
 | State Shape tokens | --docs-shape-* | Shared content colors, hierarchy, and separators |
 | Legacy interaction tokens | --docs-interaction-* | Retained for compatibility; shared content follows State Shape |
 
-Content uses the approved State Shape palette, typography, chips, mini headers, and separators. Only operation and return headers vary by kind. Linking still uses the shared linked-panels behavior.
+Content uses the shared field ledger and the code theme's syntax colors. Only the kind badge varies by kind. Linking uses the shared linked-panels behavior.
 
 ## Agent Adapter
 
@@ -300,6 +359,8 @@ blocks: Record<string, DocBlock>
 ```
 [query] DocsStore.docGet(path: string) -> DocGetResult
   path: string  # Bundle path relative to this store's docs root.
+  Example call:
+    DocsStore.docGet("example")
   Returns DocGetResult:
     ok: true
     doc: DocDocument
@@ -339,6 +400,10 @@ blocks: Record<string, DocBlock>
       changedIds: string[]
       patchId: string
       actor: string
+  Example call:
+    const unsubscribe = DocsStore.subscribeChanges((event) => {
+      console.log(event.path, event.changedIds);
+    });
 ```
 
 **DocsChangeEvent**
@@ -367,6 +432,6 @@ DocsChangeEvent is the callback payload, not the subscription return object. The
 
 Approved in Variator on 2026-09-15 from Tapered Tree List, revision 13c3f549-e558-4eec-b1bc-144d8a3d86ee. Apply d72f0fe6-cbdd-48a4-9b63-4dba3fb2c19a used a real Kernel agent and passed 40 exact visual comparisons. The component design/approval.json package retains the original feedback, scoped decisions, revisions, and events. Earlier all-amber headers and blue Query styling are historical, superseded choices.
 
-Description tooltips on parameter and returned-field names were approved on 2026-09-24 as a ledger decision shared with State Shape. The operation purpose paragraph staying inline in the card header is an Interaction Surface decision from the same review.
+Description tooltips on parameter and returned-field names were approved on 2026-09-24 as a ledger decision shared with State Shape. On 2026-10-02 the operation purpose and kind badge moved into a tooltip on the operation name, so neither takes space on screen.
 
-Reuse the State Shape content palette, typography, spacing, restrained texture, and thin separators. Do not turn its blue identity or field-only layout into a rule for every component. Operation cards, kind colors, inputs before outputs, and softly tinted return headers are Interaction Surface decisions. Exact green-teal and violet tones and the 48 percent return tint were implementer choices accepted with the final design.
+Reuse the State Shape field ledger, typography, and thin separators. One-line closed rows, the kind and purpose tooltip, and separate Parameters and Returns cards with list and code side by side are Interaction Surface decisions.

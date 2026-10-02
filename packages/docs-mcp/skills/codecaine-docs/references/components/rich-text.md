@@ -2,7 +2,7 @@
 
 Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872daf2950bc392aeeae845c9eb67ff4956ad352fb08`. Refresh the installation to regenerate these files.
 
-Use paragraphs for explanation, headings for hierarchy, lists for steps or parallel facts, quotes for attributed text, and callouts for a distinct note. Use images and video when the visual evidence matters. Use image-grid for ordered image comparisons: images contain src, heading?, alt?, caption?; columns is auto or 1 to 4. Rows grow with the image count. This component accepts images only, not text columns. Use html for a self-contained HTML/CSS diagram or interactive artifact; supply title and html props, inline styles and data assets. Scripts require allowScripts=true and stay in an opaque-origin sandbox with fetch and external subresources blocked. Use code for examples readers should read instead of execute. Use typed components for state, operations, tables, and diagrams.
+Use paragraphs for explanation, headings for hierarchy, lists for steps or parallel facts, and callouts for a distinct note. Use images and video when the visual evidence matters. Use image-grid for ordered image comparisons: images contain src, heading?, alt?, caption?; columns is auto or 1 to 4. Rows grow with the image count. This component accepts images only, not text columns. Use html for a self-contained HTML/CSS diagram or interactive artifact; supply title and html props, inline styles and data assets. Scripts require allowScripts=true and stay in an opaque-origin sandbox with fetch and external subresources blocked. Use code for examples readers should read instead of execute. Use typed components for state, operations, tables, and diagrams.
 
 Example: Introduce the retry policy in prose, list the recovery steps, and link to the operation definition.
 
@@ -24,17 +24,15 @@ When creating or revising a worked component example, show the relevant state sh
 
   - Bullets and numbered lists, nesting via children.
 
-- quote
-
-  - Plain unlabeled block quote.
-
 - callout
 
-  - Toned admonition with a tone icon and optional title. `props.variant` picks `eyebrow` (default), `hairline`, `rail`, or `tab`.
+  - Toned admonition with a tone icon, a printed label, and an optional title. `props.variant` accepts `eyebrow` (default), `hairline`, `rail`, or `tab`, and all four variants currently render the same rail note.
 
 - divider
 
   - Horizontal rule.
+
+The media types embed bundle assets, provider videos, and sandboxed HTML.
 
 - image
 
@@ -57,8 +55,6 @@ A paragraph carries **bold**, *italic*, ~~strike~~, and `code` marks, [an outbou
 - A list item; nesting runs through child list-item blocks.
 
   - A nested list item.
-
-> A quote sets prose off from the surrounding flow in plain delta text.
 
 > **Example** — A callout carries a tone, an optional kind and style, and rich text.
 
@@ -164,9 +160,9 @@ Whether a type carries delta text is a per-type fact, declared as `carriesText` 
 
 | carriesText | types | what text means |
 | --- | --- | --- |
-| true | paragraph, heading, list-item, quote, callout | Prose: marks, links, and reference chips all apply. |
-| true | code | Source payload: the fenced code body; spans are plain inserts. |
-| false | divider, image, image-grid, video, html, structured-table, file-tree, state-shape, interaction-surface, sequence, canvas, process-outline | No text key; all state lives in typed props. |
+| true | paragraph, heading, list-item, callout | Prose: marks, links, and reference chips all apply. |
+| true | code | Source payload: the fenced code body. Spans are plain inserts. |
+| false | divider, image, image-grid, video, html, structured-table, file-tree, state-shape, interaction-surface, sequence, canvas, process-outline | No text key. All state lives in typed props. |
 
 ## Typed Actions
 

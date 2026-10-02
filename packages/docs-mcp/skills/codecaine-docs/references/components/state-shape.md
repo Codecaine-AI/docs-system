@@ -168,8 +168,8 @@ source?: object  # Defining source location; renders as an em-dash suffix on the
   symbol?: string  # Symbol within that file; renders as a #symbol suffix.
 fields: Field[]  # The recursive field tree, in document order.
   name: string  # Field name; unique among siblings, dot-path addressing depends on it.
-  type?: string  # Type text. Union members render as separate blue monospace chips; free-text types render as plain blue text.
-  required?: boolean  # false = optional and renders an ochre optional pill; omitted or true reads as required.
+  type?: string  # Type text, drawn in the code theme's type color. String literal members take the string color, and union pipes take the punctuation color.
+  required?: boolean  # false marks the field optional and adds a ? after its name. Omitted or true reads as required.
   description?: string  # One-liner rendered as a # suffix.
   fields?: Field[]  # Child fields, rendered two spaces deeper; the node recurses.
 example?: string  # JSON text of an example instance of this shape; renders as the linked example pane.
@@ -282,21 +282,25 @@ state-shape.setExample(example: string | null) -> StateShapePatch  # Set the JSO
 
 ## Doc Renderer
 
-StateShapeBlock renders the approved bounded card with a textured title and description header, a field/type ledger, and an Example pane. The header separates both columns with one rule. The example separator ends at the content height. On desktop the field column defaults to 46% of the lane; narrow layouts stack the panes.
+StateShapeBlock renders one dark code panel with a header, a field ledger, and an Example pane. The whole panel is a code surface, so it stays dark on both the light and the dark page and takes the code theme's colors, as Code Colors From Your Editor describes. The ledger and the Example pane split 44/56 when the block is at least 560px wide. The ledger keeps at least 360px and the Example pane at least 260px, and a narrower block stacks them. Both panes have 16px of inner padding and render as follows:
 
 - Tree pane
 
-  - The header shows a bold monospace shape name; a described name carries a dotted underline and opens its description as the same tooltip. The full defining source path and symbol remain in data-shape-source for inspection.
+  - The header shows the shape name in monospace and, at the right, the source as `file#Symbol`. Hover or keyboard focus on the source opens the full `path#Symbol` in a tooltip.
 
-  - Every field row has a separator, a bold monospace name, a blue type chip, and an accessible question-mark optional marker. A described name carries a dotted underline; its description opens as a tooltip after a short hover dwell or on keyboard focus, and prints inline beneath the name. The object name in the header works the same way. Union types render one chip per member; prose types remain unchipped.
+  - Every field row shows only a name and a type. The name takes the key color with a punctuation-colored `?` when the field is optional, and the type takes the type color.
 
-  - Child branches use thin connected strokes aligned with field names. The last sibling terminates the branch at its tick; ancestor rails continue through deeper children when later siblings remain. Branch start, depth indentation, tick length, text gap, vertical offset, thickness, and color are retained in the tuned renderer.
+  - Nested fields hang off their parent with the file tree's elbow connectors, a tee for a middle child and an end for the last child.
+
+  - Every field ledger uses one 24ch name column, so type columns line up across blocks. A long name wraps inside that column, also at `_`.
 
 - Example pane
 
   - The example pretty-prints through the shared `printJsonLines` canon: line numbers, zebra stripes.
 
   - JSON token toning is deterministic, a tiny line tokenizer over the canonical print, no highlight.js.
+
+  - A long line soft-wraps with a hanging indent instead of scrolling.
 
 - Cross-linking
 
@@ -314,15 +318,9 @@ StateShapeBlock renders the approved bounded card with a textured title and desc
 
 - Descriptions
 
-  - A field name or object name with a description carries a dotted underline and a help cursor; a name without one renders plain. The ledger shows only names and types, so a shape scans as a table.
+  - A field name with a description carries a dotted underline. The description opens as a tooltip under the name after a 450 ms hover dwell, or at once on keyboard focus.
 
-  - The description opens as a tooltip beneath the name after a 450 ms hover dwell, or at once on keyboard focus. The name is focusable and points at the bubble through `aria-describedby`; the bubble has `role="tooltip"`, shows the name as a monospace label above the description, and stays under 36ch wide. The bottom two rows open upward so the card's rounded clip never cuts a bubble.
-
-  - The tooltip is CSS only: `:hover` and `:has(:focus-visible)` on the name wrapper, no script. The reader, the editor's atom view, and published static HTML behave the same. The bubble takes no pointer events, so row hover keeps lighting the linked JSON lines.
-
-  - In print media, which PDF export uses, the description renders inline beneath the name and the underline and bubble chrome drop, so an exported page carries every description.
-
-  - Why: a shape often lists many fields and a reader consults a description rarely. The dwell keeps casual pointer travel from flashing bubbles, and the underline keeps descriptions discoverable. `descFg` colours the description text in the bubble and in print alike. Interaction Surface parameter and returned-field names use the same tooltip.
+  - Print media, which PDF export uses, prints each description inline beneath its name, so an exported page carries every description.
 
 In the editor the block is a ProseMirror atom leaf (`docStateShape`) rendered read-only through the shared `AtomBlockView`, the same `StateShapeBlock` output as the reader. No slash-menu entry; instances enter through agent ops or existing content.
 
@@ -370,17 +368,16 @@ The Theming contract element: theme file `components/state-shape.json` in the ac
 | --- | --- | --- |
 | border | --docs-shape-border | Card border |
 | bg | --docs-shape-bg | Card background |
-| name | --docs-shape-name | Shape name in the header row |
-| type | --docs-shape-type | Field type text |
-| typeBg | --docs-shape-type-bg | Type chip background |
-| muted | --docs-shape-muted | Muted detail text, the source ref and empty-state note |
-| optionalFg | --docs-shape-optional-fg | Optional marker text |
+| name | --docs-shape-name | Field names, in the key color |
+| type | --docs-shape-type | Field types, in the type color |
+| muted | --docs-shape-muted | Type punctuation and union pipes |
+| optionalFg | --docs-shape-optional-fg | The optional `?` marker |
 | optionalBg | --docs-shape-optional-bg | Optional marker background |
 | rule | --docs-shape-rule | Hairlines: header underline, top-level row dividers, pane split |
 | headerBg | --docs-shape-header-bg | Header row background |
-| descFg | --docs-shape-desc-fg | Description text in the tooltip bubble and in print, header and field rows |
-| childRule | --docs-shape-child-rule | Left rule containing nested fields |
-| rowPad | --docs-shape-row-pad | Top-level row vertical padding; length slider, 4–16 px, default 9 px |
+| descFg | --docs-shape-desc-fg | Description tooltip text, and description text in print |
+| childRule | --docs-shape-child-rule | Elbow connectors of nested fields |
+| rowPad | --docs-shape-row-pad | Top-level row vertical padding, a 4–16 px length slider with a 9 px default |
 
 Example-pane and range-chip linking styles come from the shared linking theme component (`components/linking.json`), registered once for every linked panel: Zebra stripe (`zebra` → `--docs-zebra`), Link highlight (`highlight` → `--docs-link-bg`), Pin & rail (`pin` → `--docs-link-pin`).
 

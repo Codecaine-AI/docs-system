@@ -194,7 +194,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Toned admonition with a tone icon and optional title. "
+          "insert": "Toned admonition with a tone icon, a printed label, and an optional title. "
         },
         {
           "insert": "props.variant",
@@ -203,7 +203,7 @@
           }
         },
         {
-          "insert": " picks "
+          "insert": " accepts "
         },
         {
           "insert": "eyebrow",
@@ -239,7 +239,7 @@
           }
         },
         {
-          "insert": "."
+          "insert": ", and all four variants currently render the same rail note."
         }
       ],
       "children": []

@@ -35,7 +35,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Every block type defines two forms of itself: a rich component in the workbench and a deterministic, greppable markdown form on the agent surface. The vocabulary is the set of twenty-three types both renders speak. Fifteen component families own those types, and their reference pages sit in five groups."
+          "insert": "Every block type defines two forms of itself: a rich component in the workbench and a deterministic, greppable markdown form on the agent surface. The vocabulary is the set of twenty-two types both renders speak. Fourteen component families own those types, and their reference pages sit in five groups."
         }
       ],
       "children": []
@@ -45,7 +45,7 @@
       "type": "callout",
       "props": {
         "kind": "Decision",
-        "title": "Twenty-Three Registered Types",
+        "title": "Twenty-Two Registered Types",
         "tone": "decision"
       },
       "text": [
@@ -72,7 +72,7 @@
           }
         },
         {
-          "insert": ", which lists exactly twenty-three type strings. A small vocabulary keeps the render stable, the editor learnable, and the agent edit surface enumerable."
+          "insert": ", which lists exactly twenty-two type strings. A small vocabulary keeps the render stable, the editor learnable, and the agent edit surface enumerable."
         }
       ],
       "children": []
@@ -107,7 +107,7 @@
       },
       "text": [
         {
-          "insert": "The Twenty-Three Types"
+          "insert": "The Twenty-Two Types"
         }
       ],
       "children": []
@@ -231,11 +231,6 @@
             "component-tree",
             "component-tree",
             "Render tree. props.nodes holds component, hook, and branch rows with comment, change, and path:line source."
-          ],
-          [
-            "flow-strip",
-            "flow-strip",
-            "Short linear loop as a row of cards. props.steps holds { name, detail? }, plus optional props.title and props.caption."
           ]
         ]
       },
@@ -422,7 +417,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The process-outline, flow-strip, stack, sequence, and canvas families each own the one type of the same name."
+          "insert": "The process-outline, stack, sequence, and canvas families each own the one type of the same name."
         }
       ],
       "children": []

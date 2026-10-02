@@ -16,9 +16,8 @@
     {
       "id": "one-state-two-readers",
       "type": "section",
-      "label": "One state, two readers",
-      "title": "One state, two readers",
-      "tint": "gray",
+      "text": "One state, two readers",
+      "color": "gray",
       "parentId": null,
       "geometry": {
         "x": 835.9534374999998,
@@ -38,9 +37,9 @@
     {
       "id": "canonical-state",
       "type": "section",
-      "label": "Canonical document state — stable, validated, addressable",
-      "title": "Canonical document state — stable, validated, addressable",
-      "tint": "purple",
+      "text": "Canonical document state",
+      "detail": "stable, validated, addressable",
+      "color": "violet",
       "parentId": "one-state-two-readers",
       "geometry": {
         "x": 876,
@@ -60,9 +59,8 @@
     {
       "id": "human-surface",
       "type": "section",
-      "label": "Human surface",
-      "title": "Human surface",
-      "tint": "blue",
+      "text": "Human surface",
+      "color": "blue",
       "parentId": "canonical-state",
       "geometry": {
         "x": 916,
@@ -82,9 +80,8 @@
     {
       "id": "agent-surface",
       "type": "section",
-      "label": "Agent surface",
-      "title": "Agent surface",
-      "tint": "green",
+      "text": "Agent surface",
+      "color": "green",
       "parentId": "canonical-state",
       "geometry": {
         "x": 1416,
@@ -104,7 +101,8 @@
     {
       "id": "human-manipulation",
       "type": "process",
-      "label": "Direct manipulation",
+      "text": "Direct manipulation",
+      "color": "blue",
       "parentId": "human-surface",
       "geometry": {
         "x": 956,
@@ -113,15 +111,14 @@
         "height": 80
       },
       "style": {
-        "shape": "rounded-rect",
-        "fill": "#C2E5FF",
-        "stroke": "#3DADFF"
+        "shape": "rounded-rect"
       }
     },
     {
       "id": "human-detail",
       "type": "sticky",
-      "label": "Workbench\nRich blocks\nComments + themes",
+      "text": "Workbench\nRich blocks\nComments + themes",
+      "color": "yellow",
       "parentId": "human-surface",
       "geometry": {
         "x": 956,
@@ -130,15 +127,14 @@
         "height": 100
       },
       "style": {
-        "shape": "sticky",
-        "fill": "#FFECBD",
-        "stroke": "#FFC943"
+        "shape": "note"
       }
     },
     {
       "id": "agent-render",
-      "type": "document",
-      "label": "Rendered markdown + typed actions",
+      "type": "process",
+      "text": "Rendered markdown + typed actions",
+      "color": "green",
       "parentId": "agent-surface",
       "geometry": {
         "x": 1456,
@@ -147,15 +143,14 @@
         "height": 80
       },
       "style": {
-        "shape": "document",
-        "fill": "#DDF8E2",
-        "stroke": "#66D575"
+        "shape": "rounded-rect"
       }
     },
     {
       "id": "agent-detail",
       "type": "sticky",
-      "label": "CLI\nGreppable projection\nBlock-id operations",
+      "text": "CLI\nGreppable projection\nBlock-id operations",
+      "color": "green",
       "parentId": "agent-surface",
       "geometry": {
         "x": 1456,
@@ -164,15 +159,14 @@
         "height": 100
       },
       "style": {
-        "shape": "sticky",
-        "fill": "#DDF8E2",
-        "stroke": "#66D575"
+        "shape": "note"
       }
     },
     {
       "id": "shared-contract",
-      "type": "pill",
-      "label": "Both renders must read correctly",
+      "type": "rectangle",
+      "text": "Both renders must read correctly",
+      "color": "red",
       "parentId": "canonical-state",
       "geometry": {
         "x": 1226,
@@ -181,9 +175,7 @@
         "height": 56
       },
       "style": {
-        "shape": "pill",
-        "fill": "#FFC7C2",
-        "stroke": "#F24822"
+        "shape": "rounded-rect"
       }
     }
   ],

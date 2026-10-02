@@ -18,6 +18,11 @@
         "fx-state-shape",
         "fx-h-actions",
         "fx-actions",
+        "fx-act-g1",
+        "fx-act-g2",
+        "fx-act-g3",
+        "fx-act-surface",
+        "fx-act-close",
         "fx-h-doc",
         "fx-doc-lead",
         "fx-doc-1",
@@ -248,16 +253,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The file explorer has no named actions. An "
-        },
-        {
-          "insert": "updateBlock",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " op replaces "
+          "insert": "Three actions edit "
         },
         {
           "insert": "entries",
@@ -266,10 +262,95 @@
           }
         },
         {
+          "insert": ", keyed by exact path as in File Tree. Each action is also an MCP tool, such as "
+        },
+        {
+          "insert": "docs_file_explorer_add_entry",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "fx-act-g1": {
+      "id": "fx-act-g1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "addEntry",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "fx-act-g1-1",
+        "fx-act-g1-2"
+      ]
+    },
+    "fx-act-g1-1": {
+      "id": "fx-act-g1-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "It appends an entry with an optional note and change marker."
+        }
+      ],
+      "children": []
+    },
+    "fx-act-g1-2": {
+      "id": "fx-act-g1-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A path that already exists is an error."
+        }
+      ],
+      "children": []
+    },
+    "fx-act-g2": {
+      "id": "fx-act-g2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "updateEntry",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "fx-act-g2-1",
+        "fx-act-g2-2"
+      ]
+    },
+    "fx-act-g2-1": {
+      "id": "fx-act-g2-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "It patches "
+        },
+        {
+          "insert": "note",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
           "insert": ", "
         },
         {
-          "insert": "title",
+          "insert": "change",
           "attributes": {
             "code": true
           }
@@ -278,16 +359,203 @@
           "insert": ", or "
         },
         {
-          "insert": "maxRows",
+          "insert": "from",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " whole, and the write is validated against "
+          "insert": " in place, and "
+        },
+        {
+          "insert": "null",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " clears a field."
+        }
+      ],
+      "children": []
+    },
+    "fx-act-g2-2": {
+      "id": "fx-act-g2-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "newPath",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " renames the entry and keeps its position."
+        }
+      ],
+      "children": []
+    },
+    "fx-act-g3": {
+      "id": "fx-act-g3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "removeEntry",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "fx-act-g3-1"
+      ]
+    },
+    "fx-act-g3-1": {
+      "id": "fx-act-g3-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "It deletes by exact path, and a missing path is an error."
+        }
+      ],
+      "children": []
+    },
+    "fx-act-surface": {
+      "id": "fx-act-surface",
+      "type": "interaction-surface",
+      "props": {
+        "operations": [
+          {
+            "name": "file-explorer.addEntry",
+            "kind": "action",
+            "description": "Append a path entry (optional note and change marker) to the file explorer.",
+            "params": [
+              {
+                "name": "path",
+                "type": "string",
+                "required": true,
+                "description": "/-separated path, no leading \"./\". A trailing \"/\" marks an explicit directory."
+              },
+              {
+                "name": "note",
+                "type": "string",
+                "required": false,
+                "description": "Short annotation rendered after the path."
+              },
+              {
+                "name": "change",
+                "type": "\"added\" | \"removed\" | \"modified\" | \"renamed\"",
+                "required": false,
+                "description": "Change marker for the entry."
+              }
+            ],
+            "returns": "Props patch { entries }, revalidated against FileExplorerState"
+          },
+          {
+            "name": "file-explorer.updateEntry",
+            "kind": "action",
+            "description": "Patch an entry's note, change, or from, or rename it in place with newPath.",
+            "params": [
+              {
+                "name": "path",
+                "type": "string",
+                "required": true,
+                "description": "Exact path of the entry to patch."
+              },
+              {
+                "name": "note",
+                "type": "string | null",
+                "required": false,
+                "description": "New note. Pass null to clear."
+              },
+              {
+                "name": "change",
+                "type": "\"added\" | \"removed\" | \"modified\" | \"renamed\" | null",
+                "required": false,
+                "description": "New change marker. Pass null to clear."
+              },
+              {
+                "name": "from",
+                "type": "string | null",
+                "required": false,
+                "description": "Previous path for a renamed entry. Pass null to clear."
+              },
+              {
+                "name": "newPath",
+                "type": "string",
+                "required": false,
+                "description": "Rename the entry to this path, kept in place."
+              }
+            ],
+            "returns": "Props patch { entries }, revalidated against FileExplorerState"
+          },
+          {
+            "name": "file-explorer.removeEntry",
+            "kind": "action",
+            "description": "Remove the entry with the given path from the file explorer.",
+            "params": [
+              {
+                "name": "path",
+                "type": "string",
+                "required": true,
+                "description": "Exact path of the entry to remove."
+              }
+            ],
+            "returns": "Props patch { entries }, revalidated against FileExplorerState"
+          }
+        ]
+      },
+      "children": []
+    },
+    "fx-act-close": {
+      "id": "fx-act-close",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each action returns the props patch "
+        },
+        {
+          "insert": "{ entries }",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", revalidated against "
         },
         {
           "insert": "FileExplorerState",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". An "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " op still sets "
+        },
+        {
+          "insert": "title",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "maxRows",
           "attributes": {
             "code": true
           }

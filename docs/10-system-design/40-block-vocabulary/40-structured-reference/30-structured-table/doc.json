@@ -29,6 +29,7 @@
         "b-20-structured-table-actions-10",
         "b-20-structured-table-proj-h-6",
         "b-stfam-docrender-read",
+        "b-stfam-docrender-columns",
         "b-20-structured-table-editor-12",
         "b-20-structured-table-editing-heading",
         "b-20-structured-table-editing-para-1",
@@ -221,7 +222,7 @@
             "name": "title",
             "type": "string",
             "required": false,
-            "description": "Optional caption above the table. It is always a plain string, and cell marks never apply."
+            "description": "Not displayed. It names the table for screen readers through `aria-label`, and the agent markdown view prints it as a bold line. It is always a plain string."
           },
           {
             "name": "columns",
@@ -783,7 +784,66 @@
       "props": {},
       "text": [
         {
-          "insert": "One light-grid look, shared by the read surface and the editor at rest: an optional title line, a thin outer border, a header rule tinted by the header-rule tokens, light rules between rows and between columns, and a row hover wash. Row and column rules share the row-rule tokens, and every cell is padded on both sides so text never touches a rule. The class strings live in "
+          "insert": "The read surface and the editor at rest share one light-grid look. The table is a panel that shrinks to its content inside a thin outer border. A header rule tinted by the header-rule tokens sits under the header row, light rules split the body rows, and a hover wash marks the current row. Column rules are "
+        },
+        {
+          "insert": "0px",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " wide by default, so only row rules show. A theme that widens them with "
+        },
+        {
+          "insert": "--docs-table-column-rule-width",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " gets the row-rule color and opacity unless it sets its own. The block's "
+        },
+        {
+          "insert": "title",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is never drawn. It only names the table for screen readers through "
+        },
+        {
+          "insert": "aria-label",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-stfam-docrender-columns": {
+      "id": "b-stfam-docrender-columns",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every cell is padded on both sides so text never touches a rule. Columns size to their content, one prose column wraps at 60ch, and the first column stays pinned when the table scrolls, as described in "
+        },
+        {
+          "insert": "Block Widths and Lanes",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/50-block-widths"
+            }
+          }
+        },
+        {
+          "insert": ". The class strings live in "
         },
         {
           "insert": "table-classes.ts",
@@ -1328,19 +1388,37 @@
             "rowRule",
             "--docs-table-row-rule",
             "color",
-            "Row and column rule color (falls back to the UI border color)"
+            "Row rule color (falls back to the UI border color)"
           ],
           [
             "rowRuleWidth",
             "--docs-table-row-rule-width",
             "length",
-            "Row and column rule thickness (default 1px)"
+            "Row rule thickness (default 1px)"
           ],
           [
             "rowRuleOpacity",
             "--docs-table-row-rule-opacity",
             "number",
-            "Row and column rule opacity (default 1)"
+            "Row rule opacity (default 1)"
+          ],
+          [
+            "columnRule",
+            "--docs-table-column-rule",
+            "color",
+            "Column rule color (falls back to rowRule)"
+          ],
+          [
+            "columnRuleWidth",
+            "--docs-table-column-rule-width",
+            "length",
+            "Column rule thickness (default 0px, so no column rules)"
+          ],
+          [
+            "columnRuleOpacity",
+            "--docs-table-column-rule-opacity",
+            "number",
+            "Column rule opacity (falls back to rowRuleOpacity)"
           ],
           [
             "cellPaddingY",
@@ -1358,7 +1436,7 @@
             "fontSize",
             "--docs-table-font-size",
             "length",
-            "Cell text size (default 14px; headers render 1px smaller)"
+            "Cell text size (default 14px, headers render 1px smaller)"
           ],
           [
             "handleRadius",

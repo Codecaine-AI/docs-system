@@ -16,7 +16,7 @@ When creating or revising a worked component example, show the relevant state sh
 
 - callout
 
-  - Toned admonition with a tone icon and optional title. `props.variant` picks `eyebrow` (default), `hairline`, `rail`, or `tab`.
+  - Toned admonition with a tone icon, a printed label, and an optional title. `props.variant` accepts `eyebrow` (default), `hairline`, `rail`, or `tab`, and all four variants currently render the same rail note.
 
 - divider
 

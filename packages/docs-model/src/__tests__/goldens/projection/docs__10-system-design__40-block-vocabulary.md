@@ -1,12 +1,12 @@
-Every block type defines two forms of itself: a rich component in the workbench and a deterministic, greppable markdown form on the agent surface. The vocabulary is the set of twenty-three types both renders speak. Fifteen component families own those types, and their reference pages sit in five groups.
+Every block type defines two forms of itself: a rich component in the workbench and a deterministic, greppable markdown form on the agent surface. The vocabulary is the set of twenty-two types both renders speak. Fourteen component families own those types, and their reference pages sit in five groups.
 
-> **Decision: Twenty-Three Registered Types** — The source of truth is `DOC_BLOCK_TYPES` in docs-model's `doc-schema.ts`, which lists exactly twenty-three type strings. A small vocabulary keeps the render stable, the editor learnable, and the agent edit surface enumerable.
+> **Decision: Twenty-Two Registered Types** — The source of truth is `DOC_BLOCK_TYPES` in docs-model's `doc-schema.ts`, which lists exactly twenty-two type strings. A small vocabulary keeps the render stable, the editor learnable, and the agent edit surface enumerable.
 
 For documenting agentic systems, three of those types carry the whole model:
 
 A state-shape block carries the shape of state and an example instance side by side. An interaction-surface block lists the operations that change or query it. Annotated code blocks hold the source evidence.
 
-## The Twenty-Three Types
+## The Twenty-Two Types
 
 | type | family | purpose |
 | --- | --- | --- |
@@ -32,7 +32,6 @@ A state-shape block carries the shape of state and an example instance side by s
 | stack | stack | Boundary stack of nested named layers. props.nodes holds the layer tree with uses arrows, and optional props.boundaries name the rule enforced between layers. |
 | call-stack | call-stack | One code path frame by frame. props.frames holds call and branch rows with comment, change, and path:line source. |
 | component-tree | component-tree | Render tree. props.nodes holds component, hook, and branch rows with comment, change, and path:line source. |
-| flow-strip | flow-strip | Short linear loop as a row of cards. props.steps holds { name, detail? }, plus optional props.title and props.caption. |
 
 ## The Five Groups
 
@@ -56,7 +55,7 @@ The family pages sit in five groups. Each group page opens with a table of its b
 
 - Flow and diagrams
 
-  - The process-outline, flow-strip, stack, sequence, and canvas families each own the one type of the same name.
+  - The process-outline, stack, sequence, and canvas families each own the one type of the same name.
 
 ## Page Structure
 

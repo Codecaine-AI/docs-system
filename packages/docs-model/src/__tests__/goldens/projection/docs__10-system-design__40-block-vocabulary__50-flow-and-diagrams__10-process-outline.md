@@ -20,23 +20,23 @@ It is the vocabulary's third diagram type, and the three split by question:
 
   - Not a diagram type, but the adjacent call: reach for it when the nested structure is files, not steps.
 
-Three sibling types answer narrower questions: call-stack for one code path frame by frame, component-tree for which component renders which, and flow-strip for a short loop at a glance.
+Two sibling types answer narrower questions: call-stack for one code path frame by frame, and component-tree for which component renders which.
 
 ## Example
 
 This example describes the Melee harness run loop. It contains four phases, nested actions, and two supporting notes.
 
 ```process-outline
-Run mode
-     -> Get epoch-size candidates from the ranked worker system
+Run Mode
+     -> Get Epoch-size Candidates From the Ranked Worker System
           -> Exclude locked, cooled-down, or unschedulable work
           -> Keep enough ready work to feed the worker pool
-     -> Drain the epoch with workers
+     -> Drain the Epoch With Workers
           -> Spawn workers through the kernel until the epoch is drained
           -> Each worker gets its own isolated worktree
           > workers produce tentative evidence
           > the epoch boundary makes the map authoritative again
-     -> Finish the epoch
+     -> Finish the Epoch
           -> Run the full build
           -> Move every item to its authoritative lane
      -> Continue
@@ -75,7 +75,7 @@ Process-outline notation is the block's plain-text form: `serializeProcessOutlin
 
   - A `>` line is a clarification note on the step above it, not a step of its own.
 
-  - Consecutive `>` lines group into one note card, rendered as bullets.
+  - Consecutive `>` lines group into one note block, and each line renders as its own `//` aside.
 
 - Blank lines are ignored.
 
@@ -97,6 +97,8 @@ The process-outline.single-parent lint enforces this authoring structure at comp
 
   - Move explanations into notes. Keep conditions that change whether an action happens explicit in the step or its parent.
 
+  - Write the root title and each phase as a short Title Case label, and keep substeps as sentence-case actions. The `process-outline.phase-title-case` lint enforces this.
+
 - Prose lives in notes
 
   - Keep each supporting note bite-sized: one useful fact about the step. Explain a constraint, reason, or expected result without repeating the step label. Split separate facts into separate note bullets.
@@ -113,7 +115,7 @@ The process-outline.single-parent lint enforces this authoring structure at comp
 
 - Backticks are the only chip syntax
 
-  - Use backticks for code identifiers and actors such as Worker or Operator. Chips use the line's depth color and can contain multiple words.
+  - Use backticks for code identifiers and actors such as Worker or Operator. A chip's text colour follows what the code is, and one chip can hold several words.
 
   - Name an actor when it changes, not on every step.
 
@@ -254,43 +256,49 @@ process-outline.moveStep(from: number[], to: number[]) -> ProcessOutlinePatch  #
 
 ## Doc Renderer
 
-The Doc renderer contract element, `ProcessOutlineDocsBlock`:
+`ProcessOutlineDocsBlock` implements the Doc renderer contract element in five parts.
 
 - Render loop
 
-  - `readProcessOutlineSteps` derives depth-computed nodes from the step tree; the viewer never parses, and the forest draws as monospace text.
+  - `readProcessOutlineSteps` derives depth-computed nodes from the step tree, and the viewer never parses notation. Each root step draws as a panel whose head strip shows the flow tile and the root text.
 
-  - The stylesheet is shared within the document. The approved Continuous Outline fills its lane, uses a faint background and rounded top and bottom boundaries, and wraps text within narrow containers.
+  - The panel follows the page, light on the light page and dark on the dark page. It is not a code surface.
+
+  - A lone outline shrinks to its content, capped at the wide lane, and its step lines wrap at 60ch.
+
+  - Consecutive outlines share one width, the widest of the run, which `equal-width.ts` measures.
 
   - A block with no steps renders the placeholder line `empty process outline — no steps yet`.
 
-- One ink, one rail per depth
+- One neutral rail
 
-  - One trunk connects the process parent to its ordered phases. Rounded elbows and open arrowheads connect each child. The approved Continuous Outline uses 1.5px strokes and distinct branch colors by depth.
+  - A 1.5px rail drops from each parent and ends in a plain file-tree elbow before each child. The elbow is a short tick with no arrowhead.
 
-  - Indentation and line height set the branch geometry. The approved tuning revision explicitly overrides trunk, elbow, and arrowhead widths together so the line-thickness control changes the entire connection.
+  - Indentation and line height set the geometry, and each elbow meets the middle of its step's first line. The tick stops `--docs-process-outline-arrow-gap` short of the text, 4px by default.
 
-  - The approved tuning values assign six depth colors. A deeper node without an explicit override inherits its ancestor’s color. Colors identify nesting, not actors or runtime conditions.
+  - Depth reads from indent, not colour, so every depth shares one rail colour. The light rail is `color-mix(in srgb, var(--docs-ink) 45%, var(--docs-panel))`, and the dark rail is `color-mix(in srgb, var(--docs-ink) 75%, transparent)`.
 
-  - Elbows and arrowheads share the same indentation variables. Their overlap keeps the visible connections joined.
+  - The trunk continues only toward a later step, so a trailing note hangs free. The first phase hangs from the panel's head rule.
 
-  - Every geometry var reads a style-rail token with the prototype default as fallback: `--docs-process-outline-indent`, `--docs-process-outline-row-gap`, `--docs-process-outline-arrow-gap`, `--docs-process-outline-line-height`, `--docs-process-outline-arrow-size`, `--docs-process-outline-stroke`, plus `--docs-process-outline-branch-gap` for depth-one phase groups and `--docs-process-outline-root-gap` between root steps; step text size reads `--docs-process-outline-text-size`, the root line reads `--docs-process-outline-root-text-size`, and the empty placeholder reads `--docs-process-outline-empty-text-size`.
+  - Every geometry and size value reads a `--docs-process-outline-*` style-rail token, with its light default as the fallback. The suffixes are `indent`, `row-gap`, `branch-gap`, `root-gap`, `arrow-gap`, `line-height`, `stroke`, `text-size`, `root-text-size`, and `empty-text-size`.
 
-  - The current renderer shows all content. Colors identify depth, not actors, conditions, or step kinds.
+  - The six depth tokens, `cycle-1` to `cycle-6`, tint only the note accent and the selection, never a rail or an elbow.
 
 - Hierarchy by weight
 
-  - Root lines render heaviest, depth-one steps semibold, and depth three and deeper dims to a 78% mix of the ink.
+  - The root title and each phase, a first-level step with substeps, render in ink at weight 600. Nested steps render at weight 400, and phases with substeps sit 16px apart.
 
-  - `Repeat`, `While`, and `For each` at the start of a segment and `until` anywhere in it render bold as keywords, in a rust accent held deliberately outside the depth cycle so loop control reads the same at every level.
+  - `Repeat`, `While`, and `For each` at the start of a segment and `until` anywhere in it render as loop keywords at weight 500. They use the VS Code control colour, `#AF00DB` in Light+ and `#C586C0` in Dark+.
 
-  - Backticks render code chips in the line's depth color. Multi-word spans remain one chip.
+  - Backticks render typed code chips, and a multi-word span stays one chip. `chipKind` in `packages/docs-viewer/src/components/typed-chip.ts` picks the kind, and `typedChipVsCodeColorCss` colours it through `light-dark()` with Light+ and Dark+.
+
+  - Two Light+ chip colours are darkened to keep 4.5:1 contrast on the chip fill, type to `#22728A` and number to `#08794F`.
 
 - Notes
 
-  - Supporting notes appear as short bullet lines with a vertical guide. Note text, dots, and that guide have separate color controls in Variator. Every authored note remains visible.
+  - A note renders in italics behind a mono `//` marker, aligned with its sibling steps. Notes use the VS Code comment colour, `#008000` in Light+ and `#6A9955` in Dark+.
 
-  - Consecutive note siblings collapse into one card, each note a bullet in its list.
+  - Consecutive note siblings group into one block, and each note stays its own `//` line.
 
   - Notes have their own text size and line height. They remain visually subordinate to action lines and visible by default.
 
@@ -304,16 +312,16 @@ The Agent renderer contract element: the markdown projection is a `process-outli
 
 ```
 ```process-outline
-Run mode
-     -> Get epoch-size candidates from the ranked worker system
+Run Mode
+     -> Get Epoch-size Candidates From the Ranked Worker System
           -> Exclude locked, cooled-down, or unschedulable work
           -> Keep enough ready work to feed the worker pool
-     -> Drain the epoch with workers
+     -> Drain the Epoch With Workers
           -> Spawn workers through the kernel until the epoch is drained
           -> Each worker gets its own isolated worktree
           > workers produce tentative evidence
           > the epoch boundary makes the map authoritative again
-     -> Finish the epoch
+     -> Finish the Epoch
           -> Run the full build
           -> Move every item to its authoritative lane
      -> Continue
@@ -329,55 +337,52 @@ Run mode
 
 ## Theme
 
-The theme registry retains the original Process Outline variables listed below. The approved Continuous Outline also embeds its saved Variator overrides for six branch colors, 1.5px strokes, and note colors. Those overrides take precedence over inherited theme values. The component’s design approval package records the exact values and their scope.
+The `process-outline` entry in `THEME_TOKEN_REGISTRY` lists the variables below. `semantic.css` sets each one in a light block and a dark block, and the table gives both values where they differ.
 
 - Style rail
 
   - Theme controls expose text, rail, depth, loop, note, and chip colors together with spacing and size settings.
 
-  - Length controls set indentation, gaps, line heights, text sizes, note spacing, and arrow geometry. Strength controls set note accents and chip mixes.
+  - Length controls set indentation, gaps, line heights, text sizes, note spacing, and the **Elbow gap**. Strength controls set the note accent and the selection tint.
 
   - Backed by the `process-outline` entry in `THEME_TOKEN_REGISTRY` (theme-folders.ts) and the `process-outline` picker file in the Components section. Values save to `components/process-outline.json` in the active theme folder, which is the Global theme by default.
 
 - Derived deep ink
 
-  - Deep-step ink mixes the main ink at 78 percent by default.
+  - Deep-step ink defaults to the main ink.
 
-- Opaque rail
+- Rail per mode
 
-  - The fallback rail color is opaque. Transparent overlapping strokes can create darker joins.
+  - The light rail mixes ink into the panel colour, so the stroke stays opaque.
 
-  - Light `#b3b1ad`, dark `#5d6266`.
+  - The dark rail is ink at 75% opacity over the dark panel.
 
 | CSS variable | Default | Styles |
 | --- | --- | --- |
-| --docs-process-outline-ink | --docs-viewer-text-body | Text ink, title and step lines |
-| --docs-process-outline-deep-ink | 78% mix of the ink | Step text at depth three and deeper |
-| --docs-process-outline-rail | #b3b1ad light · #5d6266 dark | Fallback for the depth cycle, used wherever a cycle slot is missing |
-| --docs-process-outline-cycle-1..5 | steel blue, sage, plum, slate teal, ochre | The depth cycle, one hue per nesting level, then it repeats |
-| --docs-process-outline-keyword-fg | #a4552c light · #e2a07e dark | Loop keywords, outside the depth cycle on purpose |
-| --docs-process-outline-note-fg | the ink | Note card text |
-| --docs-process-outline-note-bg | #f2f1ed light · rgba(255,255,255,.045) dark | Note card fill, flat and muted, never depth-tinted |
-| --docs-process-outline-note-border | --border | Note card border, and what the accented left rule mixes into |
-| --docs-process-outline-code-bg | transparent | What the chip tint mixes over, set it opaque for a flat chip |
-| --docs-process-outline-indent | 46px | Horizontal inset per nesting level, also the elbow's left edge |
-| --docs-process-outline-row-gap | 12px | Vertical gap between sibling rows |
-| --docs-process-outline-branch-gap | 20px | Row gap inside a depth-one phase group, does not cascade deeper |
-| --docs-process-outline-root-gap | 30px | Separation between root steps |
-| --docs-process-outline-arrow-gap | 4px | Arrowhead tip to the first letter |
-| --docs-process-outline-line-height | 22px | Step first-line height, the elbow centers on half of it |
-| --docs-process-outline-text-size | 12.5px | Step text size |
-| --docs-process-outline-root-text-size | 13.5px | Root step text size |
-| --docs-process-outline-empty-text-size | 12px | Empty-outline placeholder text size |
-| --docs-process-outline-note-text-size | 11.5px | Note card text size |
-| --docs-process-outline-note-line-height | 17px | Note card line height, bullet dots center on half of it |
-| --docs-process-outline-note-inset | 10px | How far the note card is pulled in under its parent step |
-| --docs-process-outline-note-rule-width | 2px | Width of the note card's accented left rule |
-| --docs-process-outline-note-accent | 55 light · 60 dark | Depth-color strength in the note rule and bullet dots (unitless %) |
-| --docs-process-outline-chip-tint | 13 light · 15 dark | Depth-color strength in the chip fill (unitless %) |
-| --docs-process-outline-chip-ink-mix | 60 light · 70 dark | Depth-color strength in the chip label, mixed into the ink (unitless %) |
-| --docs-process-outline-arrow-size | 6px | Arrowhead edge length |
-| --docs-process-outline-stroke | 1.5px | Rail stroke width, trunks, elbows, arrowheads |
+| --docs-process-outline-ink | --docs-text | Step text |
+| --docs-process-outline-title-fg | --docs-ink | Root title and phase lines |
+| --docs-process-outline-deep-ink | the ink | Step text at depth three and deeper |
+| --docs-process-outline-bg, -header-bg | --docs-panel | Panel and head strip fill |
+| --docs-process-outline-border | --docs-rule | Panel frame |
+| --docs-process-outline-rail | color-mix(in srgb, var(--docs-ink) 45%, var(--docs-panel)) light · color-mix(in srgb, var(--docs-ink) 75%, transparent) dark | Rails and elbows at every depth |
+| --docs-process-outline-cycle-1..6 | --docs-cat-1, -3, -5, -4, -2, -6 | Note accent and selection tint only |
+| --docs-process-outline-keyword-fg | #AF00DB light · #C586C0 dark | Loop keywords, the VS Code control colour, at keyword-weight 500 |
+| --docs-process-outline-note-fg | #008000 light · #6A9955 dark | Note text, the VS Code comment colour |
+| --docs-process-outline-note-bullet | #008000 light · #6A9955 dark | The // note marker |
+| --docs-process-outline-code-bg | --docs-chip-bg | Chip fill |
+| --docs-process-outline-indent | 28px | Horizontal inset per nesting level |
+| --docs-process-outline-row-gap | 4px | Vertical gap between sibling rows |
+| --docs-process-outline-branch-gap | 16px | Gap between phases that have substeps |
+| --docs-process-outline-root-gap | 12px | Gap between root panels |
+| --docs-process-outline-arrow-gap | 4px | Gap between the elbow tick and the step text |
+| --docs-process-outline-line-height | 24px | Step line height, the elbow meets half of it |
+| --docs-process-outline-text-size | 13.5px | Step text size |
+| --docs-process-outline-root-text-size | 13.5px | Root title text size |
+| --docs-process-outline-branch-weight | 600 | Phase line weight |
+| --docs-process-outline-step-weight | 400 | Nested step weight |
+| --docs-process-outline-note-text-size | 13.5px | Note text size |
+| --docs-process-outline-note-line-height | 21px | Note line height |
+| --docs-process-outline-stroke | 1.5px | Rail and elbow stroke width |
 
 ## Agent Adapter
 

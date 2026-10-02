@@ -46,17 +46,57 @@ nodes: ComponentTreeRow[]  # Top-level nodes, drawn top to bottom.
 
 ## Typed Actions
 
-The component tree has no named actions. An `updateBlock` op replaces `nodes` whole, and the write is validated against `ComponentTreeState`.
+Five actions edit `nodes` in place instead of replacing the whole tree. Each action is also an MCP tool named from its key, such as `docs_component_tree_insert_row`.
+
+- **Index paths address rows**
+
+  - `path` is an integer array whose last element is the position among the addressed siblings.
+
+  - The earlier elements of `path` walk `nodes` down from the root.
+
+- **Each action has one job**
+
+  - `insertRow` and `removeRow` add or delete a row together with its nested `nodes`.
+
+  - `updateRow` patches the row's own fields, and `null` clears an optional field.
+
+  - `moveRow` resolves `to` after the row is removed from `from`.
+
+  - `setRows` replaces the whole tree.
+
+- **Every result is revalidated**
+
+  - Each action returns the props patch `{ nodes }`, and the whole state is checked against `ComponentTreeState` before it persists.
+
+```
+component-tree.insertRow(path: integer[], row: ComponentTreeRow) -> Props patch { nodes }, revalidated against ComponentTreeState  # Insert a node row (with optional nested `nodes`) at an index path: the last element is the insert position among the addressed sibling list, preceding elements walk `nodes` from the root.
+  path: integer[]  # Index path. [i] inserts at position i among the roots, [a, ..., i] at position i under the node addressed by the prefix.
+component-tree.updateRow(path: integer[], patch: object) -> Props patch { nodes }, revalidated against ComponentTreeState  # Patch the node row at an index path. Omitted fields stay. Null clears an optional field. Nested `nodes` are untouched.
+  path: integer[]  # Index path of the node, e.g. [0, 2] for the third child of the first root.
+  patch: object  # Partial row. Null clears an optional field.
+    text?: string  # Replacement row text, written as code.
+    kind?: "component" | "hook" | "branch" | null  # Row kind ("component" | "hook" | "branch"). Null clears it.
+    comment?: string | null  # Aligned comment. Null clears it.
+    change?: "added" | "modified" | "removed" | null  # Diff state ("added" | "modified" | "removed"). Null clears it.
+    source?: string | null  # Source location "path:line". Null clears it.
+component-tree.removeRow(path: integer[]) -> Props patch { nodes }, revalidated against ComponentTreeState  # Remove the node row at an index path, together with its nested `nodes`.
+  path: integer[]  # Index path of the node to remove, e.g. [0, 2].
+component-tree.moveRow(from: integer[], to: integer[]) -> Props patch { nodes }, revalidated against ComponentTreeState  # Move the node row at `from` (with its nested `nodes`) to the insert position `to`. `to` is interpreted against the tree AFTER the row is removed.
+  from: integer[]  # Index path of the node to move.
+  to: integer[]  # Insertion index path (last element = insert position), resolved after the row is detached.
+component-tree.setRows(rows: ComponentTreeRow[]) -> Props patch { nodes }, revalidated against ComponentTreeState  # Bulk replace: swap the entire node tree for the given rows.
+  rows: ComponentTreeRow[]  # Complete replacement node tree (nested via `nodes`). An empty array empties the block.
+```
 
 ## Doc Renderer
 
-`OutlineRows` in `packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx` draws the tree in the wide left layout with the `component` flavor:
+`OutlineRows` in `packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx` draws the tree in the wide left lane with the `component` flavor, in a panel that shrinks to its content:
 
-- Each node is one row with box-drawing guides. JSX tags, props, strings and `useX(` hook calls get their own token colors.
+- Each node is one row with box-drawing guides. Its tokens take the code theme's TSX colors, VS Code Dark+ by default.
 
-- A branch row renders its condition in muted ink.
+- A branch row leads with `?` in the control-flow color, and its condition is colored as code.
 
-- Comments line up in one column, and a source shows as a chip with the file name and line. The full path is the chip's tooltip.
+- Comments line up in one column, and a source shows as a muted file name and line. The full path is its tooltip.
 
 - A changed node gets a `+`, `-` or `~` gutter mark and a row tint.
 

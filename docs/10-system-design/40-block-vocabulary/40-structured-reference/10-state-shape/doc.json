@@ -490,13 +490,13 @@
                 "name": "type",
                 "type": "string",
                 "required": false,
-                "description": "Type text. Union members render as separate blue monospace chips; free-text types render as plain blue text."
+                "description": "Type text, drawn in the code theme's type color. String literal members take the string color, and union pipes take the punctuation color."
               },
               {
                 "name": "required",
                 "type": "boolean",
                 "required": false,
-                "description": "false = optional and renders an ochre optional pill; omitted or true reads as required."
+                "description": "false marks the field optional and adds a ? after its name. Omitted or true reads as required."
               },
               {
                 "name": "description",
@@ -1295,7 +1295,19 @@
       "props": {},
       "text": [
         {
-          "insert": "StateShapeBlock renders the approved bounded card with a textured title and description header, a field/type ledger, and an Example pane. The header separates both columns with one rule. The example separator ends at the content height. On desktop the field column defaults to 46% of the lane; narrow layouts stack the panes."
+          "insert": "StateShapeBlock renders one dark code panel with a header, a field ledger, and an Example pane. The whole panel is a code surface, so it stays dark on both the light and the dark page and takes the code theme's colors, as "
+        },
+        {
+          "insert": "Code Colors From Your Editor",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/40-code-colors"
+            }
+          }
+        },
+        {
+          "insert": " describes. The ledger and the Example pane split 44/56 when the block is at least 560px wide. The ledger keeps at least 360px and the Example pane at least 260px, and a narrower block stacks them. Both panes have 16px of inner padding and render as follows:"
         }
       ],
       "children": []
@@ -1312,7 +1324,8 @@
       "children": [
         "b-25-state-shape-dr-tree-1",
         "b-25-state-shape-dr-tree-2",
-        "b-25-state-shape-dr-tree-3"
+        "b-25-state-shape-dr-tree-3",
+        "b-25-state-shape-dr-tree-4"
       ]
     },
     "b-25-state-shape-dr-tree-1": {
@@ -1321,7 +1334,25 @@
       "props": {},
       "text": [
         {
-          "insert": "The header shows a bold monospace shape name; a described name carries a dotted underline and opens its description as the same tooltip. The full defining source path and symbol remain in data-shape-source for inspection."
+          "insert": "The header shows the shape name in monospace and, at the right, the source as "
+        },
+        {
+          "insert": "file#Symbol",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Hover or keyboard focus on the source opens the full "
+        },
+        {
+          "insert": "path#Symbol",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in a tooltip."
         }
       ],
       "children": []
@@ -1332,7 +1363,16 @@
       "props": {},
       "text": [
         {
-          "insert": "Every field row has a separator, a bold monospace name, a blue type chip, and an accessible question-mark optional marker. A described name carries a dotted underline; its description opens as a tooltip after a short hover dwell or on keyboard focus, and prints inline beneath the name. The object name in the header works the same way. Union types render one chip per member; prose types remain unchipped."
+          "insert": "Every field row shows only a name and a type. The name takes the key color with a punctuation-colored "
+        },
+        {
+          "insert": "?",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " when the field is optional, and the type takes the type color."
         }
       ],
       "children": []
@@ -1343,7 +1383,27 @@
       "props": {},
       "text": [
         {
-          "insert": "Child branches use thin connected strokes aligned with field names. The last sibling terminates the branch at its tick; ancestor rails continue through deeper children when later siblings remain. Branch start, depth indentation, tick length, text gap, vertical offset, thickness, and color are retained in the tuned renderer."
+          "insert": "Nested fields hang off their parent with the file tree's elbow connectors, a tee for a middle child and an end for the last child."
+        }
+      ],
+      "children": []
+    },
+    "b-25-state-shape-dr-tree-4": {
+      "id": "b-25-state-shape-dr-tree-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every field ledger uses one 24ch name column, so type columns line up across blocks. A long name wraps inside that column, also at "
+        },
+        {
+          "insert": "_",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []
@@ -1359,7 +1419,8 @@
       ],
       "children": [
         "b-25-state-shape-dr-example-1",
-        "b-25-state-shape-dr-example-2"
+        "b-25-state-shape-dr-example-2",
+        "b-25-state-shape-dr-example-3"
       ]
     },
     "b-25-state-shape-dr-example-1": {
@@ -1389,6 +1450,17 @@
       "text": [
         {
           "insert": "JSON token toning is deterministic, a tiny line tokenizer over the canonical print, no highlight.js."
+        }
+      ],
+      "children": []
+    },
+    "b-25-state-shape-dr-example-3": {
+      "id": "b-25-state-shape-dr-example-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A long line soft-wraps with a hanging indent instead of scrolling."
         }
       ],
       "children": []
@@ -1512,10 +1584,7 @@
       ],
       "children": [
         "b-25-state-shape-dr-desc-1",
-        "b-25-state-shape-dr-desc-2",
-        "b-25-state-shape-dr-desc-3",
-        "b-25-state-shape-dr-desc-4",
-        "b-25-state-shape-dr-desc-5"
+        "b-25-state-shape-dr-desc-2"
       ]
     },
     "b-25-state-shape-dr-desc-1": {
@@ -1524,7 +1593,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A field name or object name with a description carries a dotted underline and a help cursor; a name without one renders plain. The ledger shows only names and types, so a shape scans as a table."
+          "insert": "A field name with a description carries a dotted underline. The description opens as a tooltip under the name after a 450 ms hover dwell, or at once on keyboard focus."
         }
       ],
       "children": []
@@ -1535,85 +1604,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The description opens as a tooltip beneath the name after a 450 ms hover dwell, or at once on keyboard focus. The name is focusable and points at the bubble through "
-        },
-        {
-          "insert": "aria-describedby",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "; the bubble has "
-        },
-        {
-          "insert": "role=\"tooltip\"",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", shows the name as a monospace label above the description, and stays under 36ch wide. The bottom two rows open upward so the card's rounded clip never cuts a bubble."
-        }
-      ],
-      "children": []
-    },
-    "b-25-state-shape-dr-desc-3": {
-      "id": "b-25-state-shape-dr-desc-3",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "The tooltip is CSS only: "
-        },
-        {
-          "insert": ":hover",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " and "
-        },
-        {
-          "insert": ":has(:focus-visible)",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " on the name wrapper, no script. The reader, the editor's atom view, and published static HTML behave the same. The bubble takes no pointer events, so row hover keeps lighting the linked JSON lines."
-        }
-      ],
-      "children": []
-    },
-    "b-25-state-shape-dr-desc-4": {
-      "id": "b-25-state-shape-dr-desc-4",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "In print media, which PDF export uses, the description renders inline beneath the name and the underline and bubble chrome drop, so an exported page carries every description."
-        }
-      ],
-      "children": []
-    },
-    "b-25-state-shape-dr-desc-5": {
-      "id": "b-25-state-shape-dr-desc-5",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Why: a shape often lists many fields and a reader consults a description rarely. The dwell keeps casual pointer travel from flashing bubbles, and the underline keeps descriptions discoverable. "
-        },
-        {
-          "insert": "descFg",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " colours the description text in the bubble and in print alike. Interaction Surface parameter and returned-field names use the same tooltip."
+          "insert": "Print media, which PDF export uses, prints each description inline beneath its name, so an exported page carries every description."
         }
       ],
       "children": []
@@ -1993,27 +1984,22 @@
           [
             "name",
             "--docs-shape-name",
-            "Shape name in the header row"
+            "Field names, in the key color"
           ],
           [
             "type",
             "--docs-shape-type",
-            "Field type text"
-          ],
-          [
-            "typeBg",
-            "--docs-shape-type-bg",
-            "Type chip background"
+            "Field types, in the type color"
           ],
           [
             "muted",
             "--docs-shape-muted",
-            "Muted detail text, the source ref and empty-state note"
+            "Type punctuation and union pipes"
           ],
           [
             "optionalFg",
             "--docs-shape-optional-fg",
-            "Optional marker text"
+            "The optional `?` marker"
           ],
           [
             "optionalBg",
@@ -2033,17 +2019,17 @@
           [
             "descFg",
             "--docs-shape-desc-fg",
-            "Description text in the tooltip bubble and in print, header and field rows"
+            "Description tooltip text, and description text in print"
           ],
           [
             "childRule",
             "--docs-shape-child-rule",
-            "Left rule containing nested fields"
+            "Elbow connectors of nested fields"
           ],
           [
             "rowPad",
             "--docs-shape-row-pad",
-            "Top-level row vertical padding; length slider, 4–16 px, default 9 px"
+            "Top-level row vertical padding, a 4–16 px length slider with a 9 px default"
           ]
         ]
       },

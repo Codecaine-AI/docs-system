@@ -216,13 +216,13 @@
       "props": {
         "steps": [
           {
-            "text": "Apply a local runtime update",
+            "text": "Apply a Local Runtime Update",
             "steps": [
               {
                 "text": "Watch the runtime source and linked Core packages"
               },
               {
-                "text": "Bundle the changed source",
+                "text": "Bundle the Changed Source",
                 "steps": [
                   {
                     "text": "If the build fails, keep the active runtime"
@@ -230,7 +230,7 @@
                 ]
               },
               {
-                "text": "Start a replacement runtime",
+                "text": "Start a Replacement Runtime",
                 "steps": [
                   {
                     "text": "Check readiness and registered workspaces"
@@ -241,7 +241,7 @@
                 ]
               },
               {
-                "text": "Wait for the write authority to become idle",
+                "text": "Wait for the Write Authority to Become Idle",
                 "steps": [
                   {
                     "text": "Open authoring tasks and editor leases delay replacement.",
@@ -250,7 +250,7 @@
                 ]
               },
               {
-                "text": "Activate the replacement",
+                "text": "Activate the Replacement",
                 "steps": [
                   {
                     "text": "Reconnect document event streams through the same address"

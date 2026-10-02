@@ -52,7 +52,43 @@ diff?: boolean  # Reads each line's leading +, -, or space as a diff marker.
 
 ## Typed Actions
 
-The pseudocode block has no named actions. An `updateBlock` op replaces the text or sets `diff`, and the write is validated against `PseudocodeState`.
+Four actions edit the block text one line at a time. Each action is also an MCP tool, such as `docs_pseudocode_insert_line`.
+
+- **Lines come from the block text**
+
+  - The actions split the block text on newlines and address a line by its 0-based index.
+
+  - With `diff` on, the first character of each line is its marker, which is `+`, `-`, or a space.
+
+- **Each action has one job**
+
+  - `insertLine` and `removeLine` add or delete one line.
+
+  - `updateLine` replaces a line's text, its marker, or both, and a `null` marker resets to a space.
+
+  - `setLines` replaces every line and can turn `diff` on or off in the same edit.
+
+- **Actions return text**
+
+  - Each action returns the rewritten block text, which replaces the old text as one undoable edit.
+
+  - A marker on a block without `diff` is an error.
+
+```
+pseudocode.insertLine(index: integer, text: string, marker?: "+" | "-" | " ") -> Replacement block text  # Insert one pseudocode line at a 0-based index. An index equal to the line count appends.
+  index: integer  # Insert position in [0, line count].
+  text: string  # Line text without a diff marker or newlines. Leading spaces indent.
+  marker?: "+" | "-" | " "  # Diff marker for diff blocks only. Defaults to a space.
+pseudocode.updateLine(index: integer, text?: string, marker?: "+" | "-" | " " | null) -> Replacement block text  # Replace the text, the diff marker, or both on the line at a 0-based index.
+  index: integer  # Line index in [0, line count - 1].
+  text?: string  # New line text without a diff marker or newlines.
+  marker?: "+" | "-" | " " | null  # New diff marker for diff blocks only. Null resets it to a space, an unchanged line.
+pseudocode.removeLine(index: integer) -> Replacement block text  # Remove the pseudocode line at a 0-based index.
+  index: integer  # Line index in [0, line count - 1].
+pseudocode.setLines(lines: { text, marker? }[], diff?: boolean) -> Replacement block text, plus the props patch { diff } when diff is passed  # Bulk replace: swap every pseudocode line, optionally turning the diff gutter on or off.
+  lines: { text, marker? }[]  # Complete replacement lines in order. An empty array clears the pseudocode.
+  diff?: boolean  # Set the diff gutter on or off in the same edit. Omit to keep it.
+```
 
 ## Doc Renderer
 

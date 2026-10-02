@@ -27,13 +27,15 @@ export const addEntry = defineComponentAction({
 
 - **Apply is pure**
 
-  - Block in, props patch out — no I/O, no side effects.
+  - Block in, props patch out, with no I/O and no side effects.
 
   - The patch validates against the state schema before anything persists.
 
+  - A text-carrying type may also return `text`, which replaces the block's delta text in the same `updateBlock`, as the pseudocode line actions do.
+
 - **The only custom write path**
 
-  - Beyond the generic ops, a block's state changes only through its actions — there is no third path.
+  - Beyond the generic ops, a block's state changes only through its actions. There is no third path.
 
 ## Why
 
@@ -43,4 +45,4 @@ export const addEntry = defineComponentAction({
 
 - **Undo is free**
 
-  - A patch plus the prior props is an exact inverse; the mutation model turns that into undo units.
+  - A patch plus the prior props and text is an exact inverse. The mutation model turns that inverse into undo units.

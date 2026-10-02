@@ -2,7 +2,7 @@ Callout highlights short contextual information, including decisions, risks, war
 
 ## Examples
 
-The five supported tones are info, decision, risk, warning, and success. Each example shows the tone icon beside an optional title, with a plain body below. The read view prints no type label. Hovering the icon shows the type name, which is `kind` when set and the tone name otherwise.
+The five supported tones are info, decision, risk, warning, and success. Each example opens with the tone icon and the printed label, then a dot and the optional title, with the body below. The label is the kind when set and the tone name otherwise.
 
 > **INFO** — Tone only, the agent render labels this `INFO`.
 
@@ -12,29 +12,29 @@ The five supported tones are info, decision, risk, warning, and success. Each ex
 
 > **SUCCESS: Golden renders match** — Tone plus `title`, the title joins the label line in the agent render.
 
-> **Boundary under review: Vocabulary growth** — A free-form `kind` wins over the tone name in the agent render and the icon tooltip. `tone` still drives the color.
+> **Boundary under review: Vocabulary growth** — A free-form kind replaces the tone name in the printed label and in the agent render. The tone still sets the color.
 
 ## Styles
 
-Set `props.variant` to pick one of four styles per block. `eyebrow` is the default, and a missing or unknown value renders as `eyebrow`. Every style keeps the tone color and icon and changes only the frame.
+`props.variant` accepts eyebrow, hairline, rail, and tab, and a missing or unknown value reads as eyebrow. All four variants render the same rail note, so the examples below look alike. A theme can add a fill or a frame to every variant with the tint and hairline knobs.
 
-> **INFO: Eyebrow is the default** — A colored left rail and a faint tone tint frame the callout, with the icon beside the title. Pick it for most callouts.
+> **INFO: Eyebrow is the default** — The default variant renders the shared rail note: a 3px tone rail, the icon and label line, and the body.
 
-> **DECISION: Hairline separates without a fill** — The icon sits in its own column behind a thin tone-tinted line, with no background. Pick it for dense pages where a quiet divider is enough.
+> **DECISION: Hairline renders the same note** — The variant is stored and stamped as `data-callout-variant`, but it does not change the layout.
 
-> **WARNING: Rail marks the edge** — The icon sits in its own column left of a thicker, solid tone rail, with no background. Pick it over hairline when the callout needs a stronger edge but should stay unfilled.
+> **WARNING: Rail renders the same note** — The tone, not the variant, sets the color of the rail, the icon, and the label.
 
-> **SUCCESS: Tab opens with a rule** — A thin tone rule runs across the top with the icon notched into it, and a faint tint fills below. Pick it when the callout heads a short run of related content.
+> **SUCCESS: Tab renders the same note** — Set the tint and hairline knobs in the theme to add a fill or a frame to every callout.
 
 ## State Schema
 
 **CalloutState** — packages/docs-model/src/components/rich-text/state.ts#CalloutState
 
 ```
-tone?: "info" | "decision" | "risk" | "warning" | "success"  # Color/intent; the agent render's label falls back to the uppercased tone (default INFO).
-kind?: string  # Free-form type name. Wins over tone in the agent render and the icon tooltip. Coerced legacy types land their old type name here.
+tone?: "info" | "decision" | "risk" | "warning" | "success"  # Sets the color of the rail, icon, and label. Without a kind, the printed label is the tone name, and the agent render falls back to the uppercased tone (default INFO).
+kind?: string  # Free-form type name. Replaces the tone name in the printed label and the agent render. Coerced legacy types land their old type name here.
 title?: string  # Optional bold title after the label.
-variant?: "eyebrow" | "hairline" | "rail" | "tab"  # Visual style of the frame. A missing or unknown value renders as eyebrow, the default. The agent render ignores it.
+variant?: "eyebrow" | "hairline" | "rail" | "tab"  # Stored and stamped as data-callout-variant. Every variant renders the same note. A missing or unknown value reads as eyebrow, and the agent render ignores it.
 ```
 
 ```json
@@ -56,9 +56,9 @@ Carries delta text (`carriesText: true`) as the callout body.
 
 Slash menu: **Callout** (aliases: note, info, tip). No input rule, type `/callout` or convert an existing line.
 
-The normal editable view and the read/annotation view share CalloutDocsBlock, including its icon, optional title, style frame, and plain body. In the editor, ProseMirror owns the body content while the icon and title stay outside the editable text. Typing, formatting, undo, nested content, and clipboard metadata retain the existing document schema. Both views support info, decision, risk, warning, and success. Unknown tones fall back to info.
+The editable view and the read view share `CalloutDocsBlock`, including the rail, the icon, the printed label, the optional title, and the body. In the editor, ProseMirror owns the body while the head row stays outside the editable text. Typing, formatting, undo, nested content, and clipboard metadata keep the existing document schema. Both views support info, decision, risk, warning, and success, and unknown tones fall back to info.
 
-Every style is minimal. No style prints a type label or a colored header band. The tone icon carries the type, and hovering it shows the type name in a tooltip. `props.variant` selects the frame per block, as shown under Styles. Rail and line thickness come from theme tokens, so a theme restyles every callout at once. Variator retains the original, superseded directions, saved refinements, and integration evidence.
+Every callout is one rail note: a 3px left rail in the tone color, with no fill and no frame by default. The first line opens with the tone icon and the printed label in the tone color, at body size and weight 600. A `·` separator and the title in ink at the same weight follow the label. The body sits below. The icon has no tooltip, and the label is always printed.
 
 ## Agent Renderer
 
@@ -76,22 +76,22 @@ Every style is minimal. No style prints a type label or a colored header band. T
 
 ## Theme
 
-This block's theme file is `components/callout.json` in the active theme folder. By default that folder is the Global theme at `~/.local/state/codecaine-docs/themes/global/`. A repo `themes/<id>/` folder is active only when the host serves no Global theme. Every value is one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY`. The contract is Theming. In the table, `<tone>` is info, decision, warning, or success, and risk uses the warning palette.
+This block's theme file is `components/callout.json` in the active theme folder. By default that folder is the Global theme at `~/.local/state/codecaine-docs/themes/global/`. A repo `themes/<id>/` folder is active only when the host serves no Global theme. Every value is one string for both modes or a `{ light, dark }` pair, validated against `THEME_TOKEN_REGISTRY`. The contract is Theming. In the table, `<tone>` is info, decision, warning, risk, or success, and each accent defaults to its `--docs-tone-*` role. The warning tone reads `--palette-amber`.
 
 | Key | CSS variable | Styles |
 | --- | --- | --- |
-| border | --docs-callout-border | Optional override color for the rail and divider line. Unset, each tone's accent colors them. |
+| border | --docs-callout-border | Frame color, drawn only when hairlineWidth is above 0px |
 | fg | --docs-callout-fg | Body text color |
-| <tone>Accent | --docs-callout-<tone>-accent | Icon, rail, line, and rule color per tone |
-| <tone>Tint | --docs-callout-<tone>-tint | Faint tint behind eyebrow and tab callouts. Replaces <tone>HeaderBg. |
-| <tone>TitleFg | --docs-callout-<tone>-title-fg | Title text color. Replaces <tone>HeaderFg. |
-| railWidth | --docs-callout-rail-width | Eyebrow rail and rail-style thickness, 2px by default |
-| hairlineWidth | --docs-callout-hairline-width | Hairline divider and tab rule thickness, 1px by default |
+| <tone>Accent | --docs-callout-<tone>-accent | Rail, icon, and label color per tone |
+| <tone>Tint | --docs-callout-<tone>-tint | Fill behind the note, transparent by default |
+| <tone>TitleFg | --docs-callout-<tone>-title-fg | Title color, the ink by default |
+| railWidth | --docs-callout-rail-width | Left rail thickness, 3px by default |
+| hairlineWidth | --docs-callout-hairline-width | Frame thickness, 0px by default |
 | radius | --docs-callout-radius | Corner radius, following the global radius |
-| padX | --docs-callout-pad-x | Horizontal padding |
-| padY | --docs-callout-pad-y | Vertical padding of the whole eyebrow and tab frame, 12px by default |
-| titleTextSize | --docs-callout-title-text-size | Title font size |
-| titleWeight | --docs-callout-title-weight | Title font weight |
-| iconSize | --docs-callout-icon-size | Tone icon size |
+| padX | --docs-callout-pad-x | Horizontal padding, 14px by default |
+| padY | --docs-callout-pad-y | Vertical padding, 2px by default |
+| titleTextSize | --docs-callout-title-text-size | Size of the label and title line, the body size by default |
+| titleWeight | --docs-callout-title-weight | Title weight, 600 by default |
+| iconSize | --docs-callout-icon-size | Tone icon size, 16px by default |
 | bodyTextScale | --docs-callout-body-text-scale | Body size multiplier on the reading size |
-| margin | --docs-callout-margin | Space above and below the callout |
+| margin | --docs-callout-margin | Space above and below the callout, 20px by default |

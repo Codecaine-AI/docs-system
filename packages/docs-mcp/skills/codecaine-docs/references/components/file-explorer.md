@@ -48,7 +48,40 @@ maxRows?: integer (>= 1)  # Rows shown before folding (default 8).
 
 ## Typed Actions
 
-The file explorer has no named actions. An `updateBlock` op replaces `entries`, `title`, or `maxRows` whole, and the write is validated against `FileExplorerState`.
+Three actions edit `entries`, keyed by exact path as in File Tree. Each action is also an MCP tool, such as `docs_file_explorer_add_entry`.
+
+- **addEntry**
+
+  - It appends an entry with an optional note and change marker.
+
+  - A path that already exists is an error.
+
+- **updateEntry**
+
+  - It patches `note`, `change`, or `from` in place, and `null` clears a field.
+
+  - `newPath` renames the entry and keeps its position.
+
+- **removeEntry**
+
+  - It deletes by exact path, and a missing path is an error.
+
+```
+file-explorer.addEntry(path: string, note?: string, change?: "added" | "removed" | "modified" | "renamed") -> Props patch { entries }, revalidated against FileExplorerState  # Append a path entry (optional note and change marker) to the file explorer.
+  path: string  # /-separated path, no leading "./". A trailing "/" marks an explicit directory.
+  note?: string  # Short annotation rendered after the path.
+  change?: "added" | "removed" | "modified" | "renamed"  # Change marker for the entry.
+file-explorer.updateEntry(path: string, note?: string | null, change?: "added" | "removed" | "modified" | "renamed" | null, from?: string | null, newPath?: string) -> Props patch { entries }, revalidated against FileExplorerState  # Patch an entry's note, change, or from, or rename it in place with newPath.
+  path: string  # Exact path of the entry to patch.
+  note?: string | null  # New note. Pass null to clear.
+  change?: "added" | "removed" | "modified" | "renamed" | null  # New change marker. Pass null to clear.
+  from?: string | null  # Previous path for a renamed entry. Pass null to clear.
+  newPath?: string  # Rename the entry to this path, kept in place.
+file-explorer.removeEntry(path: string) -> Props patch { entries }, revalidated against FileExplorerState  # Remove the entry with the given path from the file explorer.
+  path: string  # Exact path of the entry to remove.
+```
+
+Each action returns the props patch `{ entries }`, revalidated against `FileExplorerState`. An `updateBlock` op still sets `title` and `maxRows`.
 
 ## Doc Renderer
 

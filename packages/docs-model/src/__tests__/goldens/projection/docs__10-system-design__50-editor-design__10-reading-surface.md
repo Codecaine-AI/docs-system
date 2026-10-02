@@ -7,7 +7,8 @@ The workbench's stock defaults define the document frame below. Every project re
 | Control | Stock Default | Effect |
 | --- | --- | --- |
 | `--style-content-width` | `60ch` | Maximum text-lane measure |
-| `--style-wide-width` | `1040px` | Maximum wide-lane width |
+| `--style-code-width` | `88ch` | Maximum code-lane measure |
+| `--style-wide-width` | `1100px` | Maximum wide-lane width |
 | `--style-content-margin` | `88px` | Horizontal content padding |
 | `--style-content-top` | `24px` | Top offset before the page title |
 | `--style-title-padding` | `20px` | Gap from the page title to the first block |
@@ -17,7 +18,11 @@ The workbench's stock defaults define the document frame below. Every project re
 
 - **Per-block layout lanes**
 
-  - Each top-level block claims a `text`, `wide`, or `full` lane. The default is the text lane, and every lane is left-justified on the shared content rail unless a per-block theme override explicitly centers it.
+  - Each top-level block claims a `text`, `code`, `wide`, or `full` lane, and the default is the text lane.
+
+    - Every lane is left-justified on the shared content rail unless a per-block theme override explicitly centers it.
+
+    - A lane is a maximum, so a block whose content is narrower than its lane shrinks to that content.
 
   - Secondary panes are layout siblings. Opening one pushes and reflows the document; it never covers content.
 

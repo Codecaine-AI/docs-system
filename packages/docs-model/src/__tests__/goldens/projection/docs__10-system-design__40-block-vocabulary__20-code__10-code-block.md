@@ -161,9 +161,13 @@ Three surfaces share one shell: the plain read surface, the annotated read surfa
 
 - Notes aside.
 
-  - A 320px right column at lg widths, stacked below the code when narrow.
+  - A 280px column inside the dark panel sits beside the code when the block is at least 760px wide, and under the code when narrower. Its surface mixes the code background 6% toward white, and the code/notes hairline separates it from the code.
 
-  - Notes are plain prose rows with a hairline rule between items, never zebra; each note's `lines` key rides in its title attribute.
+  - Each note shows a head row with the `L#` line chip and the bold title, then its text below in smaller muted sans, 13px by default.
+
+  - Notes stack from the top with the first aligned to line 1, and a faint hairline at half the internal code rule's opacity splits consecutive notes.
+
+  - Each note's title attribute names its lines.
 
 - Design principle: one surface, one accent, interaction reveals the rest.
 
@@ -261,14 +265,14 @@ The theme file is `components/code.json` in the active theme folder. By default 
 | gutterFg | --docs-code-gutter-fg | color | Gutter numbers and the copy button |
 | gutterBg | --docs-code-gutter-bg | color | Sticky gutter background (defaults to a mix matching the block bg) |
 | zebra | --docs-code-zebra | color | Even-line stripe color |
-| rule | --docs-code-rule | color | Internal hairlines: header rule, column divider, note dividers |
+| rule | --docs-code-rule | color | Internal hairlines: header rule, code/notes divider, and note dividers at half opacity |
 | ruleWidth | --docs-code-rule-width | length 0–4px | Hairline width (step 0.5, default 1px) |
 | ruleOpacity | --docs-code-rule-opacity | number 0–1 | Hairline opacity (step 0.05, default 0.5) |
 | zebraOpacity | --docs-code-zebra-opacity | number 0–1 | Zebra layer opacity (step 0.05, default 1) |
 
 - The three knobs are the registry's only non-color code tokens.
 
-  - Every internal hairline, including the header rule, the code/notes column divider, and note dividers, runs through the one rule token set.
+  - Every internal hairline, including the header rule and the code/notes column divider, runs through the one rule token set.
 
 - The `docs-system-classic` repo theme sets `ruleOpacity` 0.9 and `zebraOpacity` 1; every other key falls through to the fixed fallbacks in packages/docs-viewer/src/components/code/classes.ts.
 

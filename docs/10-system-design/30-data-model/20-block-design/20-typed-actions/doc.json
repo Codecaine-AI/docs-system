@@ -138,7 +138,8 @@
       ],
       "children": [
         "b-bda-pure-s1",
-        "b-bda-pure-s2"
+        "b-bda-pure-s2",
+        "b-bda-pure-s3"
       ]
     },
     "b-bda-pure-s1": {
@@ -147,7 +148,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Block in, props patch out — no I/O, no side effects."
+          "insert": "Block in, props patch out, with no I/O and no side effects."
         }
       ],
       "children": []
@@ -159,6 +160,35 @@
       "text": [
         {
           "insert": "The patch validates against the state schema before anything persists."
+        }
+      ],
+      "children": []
+    },
+    "b-bda-pure-s3": {
+      "id": "b-bda-pure-s3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A text-carrying type may also return "
+        },
+        {
+          "insert": "text",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", which replaces the block's delta text in the same "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", as the pseudocode line actions do."
         }
       ],
       "children": []
@@ -185,7 +215,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Beyond the generic ops, a block's state changes only through its actions — there is no third path."
+          "insert": "Beyond the generic ops, a block's state changes only through its actions. There is no third path."
         }
       ],
       "children": []
@@ -252,7 +282,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A patch plus the prior props is an exact inverse; the "
+          "insert": "A patch plus the prior props and text is an exact inverse. The "
         },
         {
           "insert": "mutation model",
@@ -264,7 +294,7 @@
           }
         },
         {
-          "insert": " turns that into undo units."
+          "insert": " turns that inverse into undo units."
         }
       ],
       "children": []

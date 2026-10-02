@@ -21,7 +21,7 @@ A live instance of the type, the `docs-system-classic` repo theme's five structu
 **StructuredTableState** — packages/docs-model/src/components/structured-table/state.ts#StructuredTableState
 
 ```
-title?: string  # Optional caption above the table. It is always a plain string, and cell marks never apply.
+title?: string  # Not displayed. It names the table for screen readers through `aria-label`, and the agent markdown view prints it as a bold line. It is always a plain string.
 columns: TableCell[]  # Header cells in order. A TableCell is a plain string or a span array whose closed mark set is bold/italic/strike/code/link.
 rows: TableCell[][]  # One cell array per row; actions normalize each row to the column count. An unmarked cell stores as the plain string (canonical).
 density?: "compact" | "normal" | "relaxed"  # Accepted by the schema, but the renderer ignores it. Spacing comes from the theme tokens.
@@ -117,7 +117,9 @@ structured-table.removeColumn(column?: string, columnIndex?: number) -> Structur
 
 ## Doc Renderer
 
-One light-grid look, shared by the read surface and the editor at rest: an optional title line, a thin outer border, a header rule tinted by the header-rule tokens, light rules between rows and between columns, and a row hover wash. Row and column rules share the row-rule tokens, and every cell is padded on both sides so text never touches a rule. The class strings live in `table-classes.ts` and are imported verbatim by both the read renderer (`StructuredTableDocsBlock.tsx`) and the editor grid, so the two surfaces cannot drift. Header cells keep a 60px minimum width so a new empty column stays visible. A block with missing or malformed columns renders the invalid-block placeholder. The contract is Doc renderer.
+The read surface and the editor at rest share one light-grid look. The table is a panel that shrinks to its content inside a thin outer border. A header rule tinted by the header-rule tokens sits under the header row, light rules split the body rows, and a hover wash marks the current row. Column rules are `0px` wide by default, so only row rules show. A theme that widens them with `--docs-table-column-rule-width` gets the row-rule color and opacity unless it sets its own. The block's `title` is never drawn. It only names the table for screen readers through `aria-label`.
+
+Every cell is padded on both sides so text never touches a rule. Columns size to their content, one prose column wraps at 60ch, and the first column stays pinned when the table scrolls, as described in Block Widths and Lanes. The class strings live in `table-classes.ts` and are imported verbatim by both the read renderer (`StructuredTableDocsBlock.tsx`) and the editor grid, so the two surfaces cannot drift. Header cells keep a 60px minimum width so a new empty column stays visible. A block with missing or malformed columns renders the invalid-block placeholder. The contract is Doc renderer.
 
 In the editor the block is a ProseMirror atom leaf that swaps in its own editable node view (`editor-node-view.tsx`). Cells edit in place, Notion-style, instead of through the generic static atom views. There is no slash-menu entry; structured tables enter a document through agent ops or existing content.
 
@@ -159,12 +161,15 @@ This block's theme file is `components/structured-table.json` in the active them
 | headerRule | --docs-table-header-rule | color | Header rule color (falls back to headerFg) |
 | headerRuleWidth | --docs-table-header-rule-width | length | Header rule thickness (default 1.5px) |
 | headerRuleOpacity | --docs-table-header-rule-opacity | number | Header rule opacity (default 0.5) |
-| rowRule | --docs-table-row-rule | color | Row and column rule color (falls back to the UI border color) |
-| rowRuleWidth | --docs-table-row-rule-width | length | Row and column rule thickness (default 1px) |
-| rowRuleOpacity | --docs-table-row-rule-opacity | number | Row and column rule opacity (default 1) |
+| rowRule | --docs-table-row-rule | color | Row rule color (falls back to the UI border color) |
+| rowRuleWidth | --docs-table-row-rule-width | length | Row rule thickness (default 1px) |
+| rowRuleOpacity | --docs-table-row-rule-opacity | number | Row rule opacity (default 1) |
+| columnRule | --docs-table-column-rule | color | Column rule color (falls back to rowRule) |
+| columnRuleWidth | --docs-table-column-rule-width | length | Column rule thickness (default 0px, so no column rules) |
+| columnRuleOpacity | --docs-table-column-rule-opacity | number | Column rule opacity (falls back to rowRuleOpacity) |
 | cellPaddingY | --docs-table-cell-pad-y | length | Vertical cell padding (default 10px) |
 | cellPaddingX | --docs-table-cell-pad-x | length | Horizontal cell padding on each side (default 12px) |
-| fontSize | --docs-table-font-size | length | Cell text size (default 14px; headers render 1px smaller) |
+| fontSize | --docs-table-font-size | length | Cell text size (default 14px, headers render 1px smaller) |
 | handleRadius | --docs-table-handle-radius | length | Corner radius of the column/row grab handles (default 3px) |
 | handleOffset | --docs-table-handle-offset | length | How far outside the table edge the grab handles sit (default 12px) |
 | selectionPadding | --docs-table-selection-pad | length | Outward padding of the column/row selection outline (default 3px) |

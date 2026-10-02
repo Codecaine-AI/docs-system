@@ -113,11 +113,6 @@
       "kind": "component-doc"
     },
     {
-      "path": "docs/10-system-design/40-block-vocabulary/50-flow-and-diagrams/20-flow-strip/doc.json",
-      "sha256": "13e61cf8b0ce04823a882563b5868af4d74c954b2c0d9ca5ba16d9098c52fd68",
-      "kind": "component-doc"
-    },
-    {
       "path": "docs/10-system-design/40-block-vocabulary/20-code/20-pseudocode/doc.json",
       "sha256": "a8b61f45eaa1327cd3c3f3f04b9d12a737ffdcaa5d459c6748f891cf5372a97b",
       "kind": "component-doc"
@@ -200,11 +195,6 @@
     {
       "path": "packages/docs-model/src/components/component-tree/manifest.ts",
       "sha256": "9fc7f6647a79c51b5fcbe490475da9b4fc5f354f8edb30dc804f42070ae7ac36",
-      "kind": "component-manifest"
-    },
-    {
-      "path": "packages/docs-model/src/components/flow-strip/manifest.ts",
-      "sha256": "97ec79b8c288e97b7ab9ea37b41fb7246f5c1e8af5b0b98946b64b0efee130fe",
       "kind": "component-manifest"
     },
     {

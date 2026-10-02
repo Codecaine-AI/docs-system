@@ -18,6 +18,10 @@
         "cs-state-shape",
         "cs-h-actions",
         "cs-actions",
+        "cs-act-g1",
+        "cs-act-g2",
+        "cs-act-g3",
+        "cs-act-surface",
         "cs-h-doc",
         "cs-doc-lead",
         "cs-doc-1",
@@ -332,16 +336,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The call stack has no named actions. An "
-        },
-        {
-          "insert": "updateBlock",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " op replaces "
+          "insert": "Five actions edit "
         },
         {
           "insert": "frames",
@@ -350,10 +345,10 @@
           }
         },
         {
-          "insert": " whole, and the write is validated against "
+          "insert": " in place instead of replacing the whole tree. Each action is also an MCP tool named from its key, such as "
         },
         {
-          "insert": "CallStackState",
+          "insert": "docs_call_stack_insert_row",
           "attributes": {
             "code": true
           }
@@ -362,6 +357,374 @@
           "insert": "."
         }
       ],
+      "children": []
+    },
+    "cs-act-g1": {
+      "id": "cs-act-g1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Index paths address rows",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "cs-act-g1-1",
+        "cs-act-g1-2"
+      ]
+    },
+    "cs-act-g1-1": {
+      "id": "cs-act-g1-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "path",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is an integer array whose last element is the position among the addressed siblings."
+        }
+      ],
+      "children": []
+    },
+    "cs-act-g1-2": {
+      "id": "cs-act-g1-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The earlier elements of "
+        },
+        {
+          "insert": "path",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " walk "
+        },
+        {
+          "insert": "frames",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " down from the root."
+        }
+      ],
+      "children": []
+    },
+    "cs-act-g2": {
+      "id": "cs-act-g2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each action has one job",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "cs-act-g2-1",
+        "cs-act-g2-2",
+        "cs-act-g2-3",
+        "cs-act-g2-4"
+      ]
+    },
+    "cs-act-g2-1": {
+      "id": "cs-act-g2-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "insertRow",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "removeRow",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " add or delete a row together with its nested "
+        },
+        {
+          "insert": "frames",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "cs-act-g2-2": {
+      "id": "cs-act-g2-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "updateRow",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " patches the row's own fields, and "
+        },
+        {
+          "insert": "null",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " clears an optional field."
+        }
+      ],
+      "children": []
+    },
+    "cs-act-g2-3": {
+      "id": "cs-act-g2-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "moveRow",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " resolves "
+        },
+        {
+          "insert": "to",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " after the row is removed from "
+        },
+        {
+          "insert": "from",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "cs-act-g2-4": {
+      "id": "cs-act-g2-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "setRows",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " replaces the whole tree."
+        }
+      ],
+      "children": []
+    },
+    "cs-act-g3": {
+      "id": "cs-act-g3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every result is revalidated",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "cs-act-g3-1"
+      ]
+    },
+    "cs-act-g3-1": {
+      "id": "cs-act-g3-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each action returns the props patch "
+        },
+        {
+          "insert": "{ frames }",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and the whole state is checked against "
+        },
+        {
+          "insert": "CallStackState",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " before it persists."
+        }
+      ],
+      "children": []
+    },
+    "cs-act-surface": {
+      "id": "cs-act-surface",
+      "type": "interaction-surface",
+      "props": {
+        "operations": [
+          {
+            "name": "call-stack.insertRow",
+            "description": "Insert a frame row (with optional nested `frames`) at an index path: the last element is the insert position among the addressed sibling list, preceding elements walk `frames` from the root.",
+            "params": [
+              {
+                "name": "path",
+                "type": "integer[]",
+                "required": true,
+                "description": "Index path. [i] inserts at position i among the roots, [a, ..., i] at position i under the frame addressed by the prefix."
+              },
+              {
+                "name": "row",
+                "type": "CallStackRow",
+                "required": true
+              }
+            ],
+            "returns": "Props patch { frames }, revalidated against CallStackState",
+            "kind": "action"
+          },
+          {
+            "name": "call-stack.updateRow",
+            "description": "Patch the frame row at an index path. Omitted fields stay. Null clears an optional field. Nested `frames` are untouched.",
+            "params": [
+              {
+                "name": "path",
+                "type": "integer[]",
+                "required": true,
+                "description": "Index path of the frame, e.g. [0, 2] for the third child of the first root."
+              },
+              {
+                "name": "patch",
+                "type": "object",
+                "required": true,
+                "description": "Partial row. Null clears an optional field.",
+                "fields": [
+                  {
+                    "name": "text",
+                    "type": "string",
+                    "required": false,
+                    "description": "Replacement row text, written as code."
+                  },
+                  {
+                    "name": "kind",
+                    "type": "\"call\" | \"branch\" | null",
+                    "required": false,
+                    "description": "Row kind (\"call\" | \"branch\"). Null clears it."
+                  },
+                  {
+                    "name": "comment",
+                    "type": "string | null",
+                    "required": false,
+                    "description": "Aligned comment. Null clears it."
+                  },
+                  {
+                    "name": "change",
+                    "type": "\"added\" | \"modified\" | \"removed\" | null",
+                    "required": false,
+                    "description": "Diff state (\"added\" | \"modified\" | \"removed\"). Null clears it."
+                  },
+                  {
+                    "name": "source",
+                    "type": "string | null",
+                    "required": false,
+                    "description": "Source location \"path:line\". Null clears it."
+                  }
+                ]
+              }
+            ],
+            "returns": "Props patch { frames }, revalidated against CallStackState",
+            "kind": "action"
+          },
+          {
+            "name": "call-stack.removeRow",
+            "description": "Remove the frame row at an index path, together with its nested `frames`.",
+            "params": [
+              {
+                "name": "path",
+                "type": "integer[]",
+                "required": true,
+                "description": "Index path of the frame to remove, e.g. [0, 2]."
+              }
+            ],
+            "returns": "Props patch { frames }, revalidated against CallStackState",
+            "kind": "action"
+          },
+          {
+            "name": "call-stack.moveRow",
+            "description": "Move the frame row at `from` (with its nested `frames`) to the insert position `to`. `to` is interpreted against the tree AFTER the row is removed.",
+            "params": [
+              {
+                "name": "from",
+                "type": "integer[]",
+                "required": true,
+                "description": "Index path of the frame to move."
+              },
+              {
+                "name": "to",
+                "type": "integer[]",
+                "required": true,
+                "description": "Insertion index path (last element = insert position), resolved after the row is detached."
+              }
+            ],
+            "returns": "Props patch { frames }, revalidated against CallStackState",
+            "kind": "action"
+          },
+          {
+            "name": "call-stack.setRows",
+            "description": "Bulk replace: swap the entire frame tree for the given rows.",
+            "params": [
+              {
+                "name": "rows",
+                "type": "CallStackRow[]",
+                "required": true,
+                "description": "Complete replacement frame tree (nested via `frames`). An empty array empties the block."
+              }
+            ],
+            "returns": "Props patch { frames }, revalidated against CallStackState",
+            "kind": "action"
+          }
+        ]
+      },
       "children": []
     },
     "cs-h-doc": {
@@ -398,7 +761,7 @@
           }
         },
         {
-          "insert": " draws the tree in the wide left lane, one row per frame:"
+          "insert": " draws the tree in the wide left lane, one row per frame, in a panel that shrinks to its content:"
         }
       ],
       "children": []
@@ -409,7 +772,23 @@
       "props": {},
       "text": [
         {
-          "insert": "Box-drawing guides show depth, and the call text is colored by token: calls, keywords, strings, and numbers."
+          "insert": "The panel is a code surface",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "cs-doc-1a"
+      ]
+    },
+    "cs-doc-1a": {
+      "id": "cs-doc-1a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "It stays dark on both the light and the dark page, and bright guides show depth."
         }
       ],
       "children": []
@@ -420,7 +799,74 @@
       "props": {},
       "text": [
         {
-          "insert": "A branch frame renders as a muted condition row."
+          "insert": "Colors follow the code theme, VS Code Dark+ by default",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "cs-doc-2a",
+        "cs-doc-2b",
+        "cs-doc-2c"
+      ]
+    },
+    "cs-doc-2a": {
+      "id": "cs-doc-2a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The first call in a frame is its callee, drawn bold in the function color."
+        }
+      ],
+      "children": []
+    },
+    "cs-doc-2b": {
+      "id": "cs-doc-2b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Receivers, arguments, and properties take the variable color, and literals keep their syntax colors."
+        }
+      ],
+      "children": []
+    },
+    "cs-doc-2c": {
+      "id": "cs-doc-2c",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A branch's "
+        },
+        {
+          "insert": "?",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and a "
+        },
+        {
+          "insert": "return",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " or "
+        },
+        {
+          "insert": "throw",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " keyword take the control-flow color."
         }
       ],
       "children": []
@@ -440,7 +886,7 @@
           }
         },
         {
-          "insert": " renders as a "
+          "insert": " renders as a muted "
         },
         {
           "insert": "file:line",
@@ -449,7 +895,7 @@
           }
         },
         {
-          "insert": " chip at the right edge."
+          "insert": " column at the right edge."
         }
       ],
       "children": []

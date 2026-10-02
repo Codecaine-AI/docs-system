@@ -135,6 +135,25 @@
           [
             [
               {
+                "insert": "--style-code-width",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            [
+              {
+                "insert": "88ch",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Maximum code-lane measure"
+          ],
+          [
+            [
+              {
                 "insert": "--style-wide-width",
                 "attributes": {
                   "code": true
@@ -143,7 +162,7 @@
             ],
             [
               {
-                "insert": "1040px",
+                "insert": "1100px",
                 "attributes": {
                   "code": true
                 }
@@ -279,6 +298,15 @@
           "insert": ", "
         },
         {
+          "insert": "code",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
           "insert": "wide",
           "attributes": {
             "code": true
@@ -294,7 +322,32 @@
           }
         },
         {
-          "insert": " lane. The default is the text lane, and every lane is left-justified on the shared content rail unless a per-block theme override explicitly centers it."
+          "insert": " lane, and the default is the text lane."
+        }
+      ],
+      "children": [
+        "b-rsurf-column-measure-rail",
+        "b-rsurf-column-measure-max"
+      ]
+    },
+    "b-rsurf-column-measure-rail": {
+      "id": "b-rsurf-column-measure-rail",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every lane is left-justified on the shared content rail unless a per-block theme override explicitly centers it."
+        }
+      ],
+      "children": []
+    },
+    "b-rsurf-column-measure-max": {
+      "id": "b-rsurf-column-measure-max",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A lane is a maximum, so a block whose content is narrower than its lane shrinks to that content."
         }
       ],
       "children": []

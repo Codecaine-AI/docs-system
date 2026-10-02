@@ -63,10 +63,10 @@
       "props": {
         "steps": [
           {
-            "text": "Prepare one Core product release",
+            "text": "Prepare One Core Product Release",
             "steps": [
               {
-                "text": "Select the product and next version",
+                "text": "Select the Product and Next Version",
                 "steps": [
                   {
                     "text": "Confirm compatibility changes before choosing the increment.",
@@ -75,7 +75,7 @@
                 ]
               },
               {
-                "text": "Create an isolated checkout from the intended release base",
+                "text": "Create an Isolated Checkout From the Intended Release Base",
                 "steps": [
                   {
                     "text": "Preserve unrelated local commits and working changes.",
@@ -84,7 +84,7 @@
                 ]
               },
               {
-                "text": "Update the product's owned package versions",
+                "text": "Update the Product's Owned Package Versions",
                 "steps": [
                   {
                     "text": "Synchronize existing lockfile workspace version entries"
@@ -92,7 +92,7 @@
                 ]
               },
               {
-                "text": "Run the product's relevant build and tests",
+                "text": "Run the Product's Relevant Build and Tests",
                 "steps": [
                   {
                     "text": "Record failures or skipped checks explicitly.",
@@ -128,13 +128,13 @@
       "props": {
         "steps": [
           {
-            "text": "Publish the reviewed source release",
+            "text": "Publish the Reviewed Source Release",
             "steps": [
               {
                 "text": "Confirm the tag does not already exist"
               },
               {
-                "text": "Push the reviewed release commit",
+                "text": "Push the Reviewed Release Commit",
                 "steps": [
                   {
                     "text": "Do not force-push unrelated branch history.",
@@ -146,7 +146,7 @@
                 "text": "Create the product's version tag at that commit"
               },
               {
-                "text": "Create the GitHub release",
+                "text": "Create the GitHub Release",
                 "steps": [
                   {
                     "text": "Attach the package manifest with its exact commit"
@@ -157,7 +157,7 @@
                 ]
               },
               {
-                "text": "Verify the remote tag and downloaded asset",
+                "text": "Verify the Remote Tag and Downloaded Asset",
                 "steps": [
                   {
                     "text": "Compare the tag commit and asset SHA-256 with local evidence"

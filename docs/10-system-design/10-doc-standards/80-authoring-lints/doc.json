@@ -29,8 +29,7 @@
         "b-80-authoring-lints-writing-warnings-35",
         "b-80-authoring-lints-page-structure-errors-38",
         "b-80-authoring-lints-page-structure-warning-42",
-        "process-outline-parent-lint",
-        "bundle-relative-src-lint",
+        "component-lints",
         "lint-judgment-h",
         "lint-judgment-lead",
         "lint-judgment-ids",
@@ -1157,6 +1156,24 @@
       ],
       "children": []
     },
+    "component-lints": {
+      "id": "component-lints",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Component and Asset Checks",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "process-outline-parent-lint",
+        "process-outline-title-case-lint",
+        "bundle-relative-src-lint"
+      ]
+    },
     "process-outline-parent-lint": {
       "id": "process-outline-parent-lint",
       "type": "list-item",
@@ -1201,6 +1218,51 @@
       "text": [
         {
           "insert": "Nest related phases under one parent, or split independent processes into separate blocks."
+        }
+      ],
+      "children": []
+    },
+    "process-outline-title-case-lint": {
+      "id": "process-outline-title-case-lint",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "process-outline.phase-title-case flags a Process Outline root title or phase that breaks Title Case. A phase is a first-level step with its own substeps, the line the renderer draws bold."
+        }
+      ],
+      "children": [
+        "process-outline-title-case-lint-words",
+        "process-outline-title-case-lint-fix"
+      ]
+    },
+    "process-outline-title-case-lint-words": {
+      "id": "process-outline-title-case-lint-words",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "It shares the heading rule's minor words and skips backtick code spans, acronyms, and code-looking identifiers. Substeps and notes stay sentence case."
+        }
+      ],
+      "children": []
+    },
+    "process-outline-title-case-lint-fix": {
+      "id": "process-outline-title-case-lint-fix",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each warning names the step field, such as "
+        },
+        {
+          "insert": "props.steps[0].steps[1].text",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and its suggestion carries the Title Case text."
         }
       ],
       "children": []

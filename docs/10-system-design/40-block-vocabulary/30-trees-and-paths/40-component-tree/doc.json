@@ -18,6 +18,10 @@
         "ct-state-shape",
         "ct-h-actions",
         "ct-actions",
+        "ct-act-g1",
+        "ct-act-g2",
+        "ct-act-g3",
+        "ct-act-surface",
         "ct-h-doc",
         "ct-doc-lead",
         "ct-doc-1",
@@ -308,16 +312,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The component tree has no named actions. An "
-        },
-        {
-          "insert": "updateBlock",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " op replaces "
+          "insert": "Five actions edit "
         },
         {
           "insert": "nodes",
@@ -326,10 +321,10 @@
           }
         },
         {
-          "insert": " whole, and the write is validated against "
+          "insert": " in place instead of replacing the whole tree. Each action is also an MCP tool named from its key, such as "
         },
         {
-          "insert": "ComponentTreeState",
+          "insert": "docs_component_tree_insert_row",
           "attributes": {
             "code": true
           }
@@ -338,6 +333,374 @@
           "insert": "."
         }
       ],
+      "children": []
+    },
+    "ct-act-g1": {
+      "id": "ct-act-g1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Index paths address rows",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ct-act-g1-1",
+        "ct-act-g1-2"
+      ]
+    },
+    "ct-act-g1-1": {
+      "id": "ct-act-g1-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "path",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is an integer array whose last element is the position among the addressed siblings."
+        }
+      ],
+      "children": []
+    },
+    "ct-act-g1-2": {
+      "id": "ct-act-g1-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The earlier elements of "
+        },
+        {
+          "insert": "path",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " walk "
+        },
+        {
+          "insert": "nodes",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " down from the root."
+        }
+      ],
+      "children": []
+    },
+    "ct-act-g2": {
+      "id": "ct-act-g2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each action has one job",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ct-act-g2-1",
+        "ct-act-g2-2",
+        "ct-act-g2-3",
+        "ct-act-g2-4"
+      ]
+    },
+    "ct-act-g2-1": {
+      "id": "ct-act-g2-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "insertRow",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "removeRow",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " add or delete a row together with its nested "
+        },
+        {
+          "insert": "nodes",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "ct-act-g2-2": {
+      "id": "ct-act-g2-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "updateRow",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " patches the row's own fields, and "
+        },
+        {
+          "insert": "null",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " clears an optional field."
+        }
+      ],
+      "children": []
+    },
+    "ct-act-g2-3": {
+      "id": "ct-act-g2-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "moveRow",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " resolves "
+        },
+        {
+          "insert": "to",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " after the row is removed from "
+        },
+        {
+          "insert": "from",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "ct-act-g2-4": {
+      "id": "ct-act-g2-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "setRows",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " replaces the whole tree."
+        }
+      ],
+      "children": []
+    },
+    "ct-act-g3": {
+      "id": "ct-act-g3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every result is revalidated",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ct-act-g3-1"
+      ]
+    },
+    "ct-act-g3-1": {
+      "id": "ct-act-g3-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each action returns the props patch "
+        },
+        {
+          "insert": "{ nodes }",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and the whole state is checked against "
+        },
+        {
+          "insert": "ComponentTreeState",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " before it persists."
+        }
+      ],
+      "children": []
+    },
+    "ct-act-surface": {
+      "id": "ct-act-surface",
+      "type": "interaction-surface",
+      "props": {
+        "operations": [
+          {
+            "name": "component-tree.insertRow",
+            "kind": "action",
+            "description": "Insert a node row (with optional nested `nodes`) at an index path: the last element is the insert position among the addressed sibling list, preceding elements walk `nodes` from the root.",
+            "params": [
+              {
+                "name": "path",
+                "type": "integer[]",
+                "required": true,
+                "description": "Index path. [i] inserts at position i among the roots, [a, ..., i] at position i under the node addressed by the prefix."
+              },
+              {
+                "name": "row",
+                "type": "ComponentTreeRow",
+                "required": true
+              }
+            ],
+            "returns": "Props patch { nodes }, revalidated against ComponentTreeState"
+          },
+          {
+            "name": "component-tree.updateRow",
+            "kind": "action",
+            "description": "Patch the node row at an index path. Omitted fields stay. Null clears an optional field. Nested `nodes` are untouched.",
+            "params": [
+              {
+                "name": "path",
+                "type": "integer[]",
+                "required": true,
+                "description": "Index path of the node, e.g. [0, 2] for the third child of the first root."
+              },
+              {
+                "name": "patch",
+                "type": "object",
+                "required": true,
+                "description": "Partial row. Null clears an optional field.",
+                "fields": [
+                  {
+                    "name": "text",
+                    "type": "string",
+                    "required": false,
+                    "description": "Replacement row text, written as code."
+                  },
+                  {
+                    "name": "kind",
+                    "type": "\"component\" | \"hook\" | \"branch\" | null",
+                    "required": false,
+                    "description": "Row kind (\"component\" | \"hook\" | \"branch\"). Null clears it."
+                  },
+                  {
+                    "name": "comment",
+                    "type": "string | null",
+                    "required": false,
+                    "description": "Aligned comment. Null clears it."
+                  },
+                  {
+                    "name": "change",
+                    "type": "\"added\" | \"modified\" | \"removed\" | null",
+                    "required": false,
+                    "description": "Diff state (\"added\" | \"modified\" | \"removed\"). Null clears it."
+                  },
+                  {
+                    "name": "source",
+                    "type": "string | null",
+                    "required": false,
+                    "description": "Source location \"path:line\". Null clears it."
+                  }
+                ]
+              }
+            ],
+            "returns": "Props patch { nodes }, revalidated against ComponentTreeState"
+          },
+          {
+            "name": "component-tree.removeRow",
+            "kind": "action",
+            "description": "Remove the node row at an index path, together with its nested `nodes`.",
+            "params": [
+              {
+                "name": "path",
+                "type": "integer[]",
+                "required": true,
+                "description": "Index path of the node to remove, e.g. [0, 2]."
+              }
+            ],
+            "returns": "Props patch { nodes }, revalidated against ComponentTreeState"
+          },
+          {
+            "name": "component-tree.moveRow",
+            "kind": "action",
+            "description": "Move the node row at `from` (with its nested `nodes`) to the insert position `to`. `to` is interpreted against the tree AFTER the row is removed.",
+            "params": [
+              {
+                "name": "from",
+                "type": "integer[]",
+                "required": true,
+                "description": "Index path of the node to move."
+              },
+              {
+                "name": "to",
+                "type": "integer[]",
+                "required": true,
+                "description": "Insertion index path (last element = insert position), resolved after the row is detached."
+              }
+            ],
+            "returns": "Props patch { nodes }, revalidated against ComponentTreeState"
+          },
+          {
+            "name": "component-tree.setRows",
+            "kind": "action",
+            "description": "Bulk replace: swap the entire node tree for the given rows.",
+            "params": [
+              {
+                "name": "rows",
+                "type": "ComponentTreeRow[]",
+                "required": true,
+                "description": "Complete replacement node tree (nested via `nodes`). An empty array empties the block."
+              }
+            ],
+            "returns": "Props patch { nodes }, revalidated against ComponentTreeState"
+          }
+        ]
+      },
       "children": []
     },
     "ct-h-doc": {
@@ -374,7 +737,7 @@
           }
         },
         {
-          "insert": " draws the tree in the wide left layout with the "
+          "insert": " draws the tree in the wide left lane with the "
         },
         {
           "insert": "component",
@@ -383,7 +746,7 @@
           }
         },
         {
-          "insert": " flavor:"
+          "insert": " flavor, in a panel that shrinks to its content:"
         }
       ],
       "children": []
@@ -394,16 +757,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Each node is one row with box-drawing guides. JSX tags, props, strings and "
-        },
-        {
-          "insert": "useX(",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " hook calls get their own token colors."
+          "insert": "Each node is one row with box-drawing guides. Its tokens take the code theme's TSX colors, VS Code Dark+ by default."
         }
       ],
       "children": []
@@ -414,7 +768,16 @@
       "props": {},
       "text": [
         {
-          "insert": "A branch row renders its condition in muted ink."
+          "insert": "A branch row leads with "
+        },
+        {
+          "insert": "?",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in the control-flow color, and its condition is colored as code."
         }
       ],
       "children": []
@@ -425,7 +788,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Comments line up in one column, and a source shows as a chip with the file name and line. The full path is the chip's tooltip."
+          "insert": "Comments line up in one column, and a source shows as a muted file name and line. The full path is its tooltip."
         }
       ],
       "children": []

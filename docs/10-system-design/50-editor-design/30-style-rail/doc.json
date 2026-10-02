@@ -140,7 +140,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Presets, Colors, Typography, Background, and Surfaces."
+          "insert": "Presets, Colors, Typography, Background, Surfaces, and Annotate."
         }
       ],
       "children": []
@@ -167,7 +167,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Sidebar, Editor, Side peek, and Scrollbar."
+          "insert": "Transitions, Sidebar, Editor, Side peek, and Scrollbar."
         }
       ],
       "children": []
@@ -195,7 +195,70 @@
       "props": {},
       "text": [
         {
-          "insert": "The navigation groups destinations under Rich text, Code, Structure, and Diagrams."
+          "insert": "The navigation groups 20 content-type panes under Rich text, Code, Structure, and Diagrams. With the Theme and Layout panes, the rail has 31 destinations, listed in "
+        },
+        {
+          "insert": "STYLE_RAIL_GROUPS",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/shell/style-rail-nav.tsx",
+              "symbol": "STYLE_RAIL_GROUPS"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": [
+        "b-srail-nav-blocks-rich",
+        "b-srail-nav-blocks-code",
+        "b-srail-nav-blocks-structure",
+        "b-srail-nav-blocks-diagrams"
+      ]
+    },
+    "b-srail-nav-blocks-rich": {
+      "id": "b-srail-nav-blocks-rich",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Rich text holds Paragraph, Heading, List item, Callout, Divider, Image, Video, and References."
+        }
+      ],
+      "children": []
+    },
+    "b-srail-nav-blocks-code": {
+      "id": "b-srail-nav-blocks-code",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Code holds Code, Inline code, and Linked panels."
+        }
+      ],
+      "children": []
+    },
+    "b-srail-nav-blocks-structure": {
+      "id": "b-srail-nav-blocks-structure",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Structure holds Structured table, File tree, Call stack & component tree, State shape, and Interaction surface."
+        }
+      ],
+      "children": []
+    },
+    "b-srail-nav-blocks-diagrams": {
+      "id": "b-srail-nav-blocks-diagrams",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Diagrams holds Sequence, Canvas, Process Outline, and Stack."
         }
       ],
       "children": []

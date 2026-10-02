@@ -1004,7 +1004,9 @@
       ],
       "children": [
         "b-codefam-shell-notes-a",
-        "b-codefam-shell-notes-b"
+        "b-codefam-shell-notes-b",
+        "b-codefam-shell-notes-c",
+        "b-codefam-shell-notes-d"
       ]
     },
     "b-codefam-shell-notes-a": {
@@ -1013,7 +1015,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A 320px right column at lg widths, stacked below the code when narrow."
+          "insert": "A 280px column inside the dark panel sits beside the code when the block is at least 760px wide, and under the code when narrower. Its surface mixes the code background 6% toward white, and the code/notes hairline separates it from the code."
         }
       ],
       "children": []
@@ -1024,16 +1026,38 @@
       "props": {},
       "text": [
         {
-          "insert": "Notes are plain prose rows with a hairline rule between items, never zebra; each note's "
+          "insert": "Each note shows a head row with the "
         },
         {
-          "insert": "lines",
+          "insert": "L#",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " key rides in its title attribute."
+          "insert": " line chip and the bold title, then its text below in smaller muted sans, 13px by default."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-shell-notes-c": {
+      "id": "b-codefam-shell-notes-c",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Notes stack from the top with the first aligned to line 1, and a faint hairline at half the internal code rule's opacity splits consecutive notes."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-shell-notes-d": {
+      "id": "b-codefam-shell-notes-d",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each note's title attribute names its lines."
         }
       ],
       "children": []
@@ -1866,7 +1890,7 @@
             "rule",
             "--docs-code-rule",
             "color",
-            "Internal hairlines: header rule, column divider, note dividers"
+            "Internal hairlines: header rule, code/notes divider, and note dividers at half opacity"
           ],
           [
             "ruleWidth",
@@ -1909,7 +1933,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Every internal hairline, including the header rule, the code/notes column divider, and note dividers, runs through the one rule token set."
+          "insert": "Every internal hairline, including the header rule and the code/notes column divider, runs through the one rule token set."
         }
       ],
       "children": []

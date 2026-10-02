@@ -13,15 +13,23 @@ The style rail is the right-docked authoring surface for tuning the active value
 
 - **Theme**
 
-  - Presets, Colors, Typography, Background, and Surfaces.
+  - Presets, Colors, Typography, Background, Surfaces, and Annotate.
 
 - **Layout**
 
-  - Sidebar, Editor, Side peek, and Scrollbar.
+  - Transitions, Sidebar, Editor, Side peek, and Scrollbar.
 
 - **Content types**
 
-  - The navigation groups destinations under Rich text, Code, Structure, and Diagrams.
+  - The navigation groups 20 content-type panes under Rich text, Code, Structure, and Diagrams. With the Theme and Layout panes, the rail has 31 destinations, listed in `STYLE_RAIL_GROUPS`.
+
+    - Rich text holds Paragraph, Heading, List item, Callout, Divider, Image, Video, and References.
+
+    - Code holds Code, Inline code, and Linked panels.
+
+    - Structure holds Structured table, File tree, Call stack & component tree, State shape, and Interaction surface.
+
+    - Diagrams holds Sequence, Canvas, Process Outline, and Stack.
 
   - Each destination opens one detail pane; the family labels add no navigation level.
 

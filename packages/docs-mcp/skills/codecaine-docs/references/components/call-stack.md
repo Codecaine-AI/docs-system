@@ -47,17 +47,65 @@ frames: CallStackRow[]  # Top-level frames, drawn top to bottom.
 
 ## Typed Actions
 
-The call stack has no named actions. An `updateBlock` op replaces `frames` whole, and the write is validated against `CallStackState`.
+Five actions edit `frames` in place instead of replacing the whole tree. Each action is also an MCP tool named from its key, such as `docs_call_stack_insert_row`.
+
+- **Index paths address rows**
+
+  - `path` is an integer array whose last element is the position among the addressed siblings.
+
+  - The earlier elements of `path` walk `frames` down from the root.
+
+- **Each action has one job**
+
+  - `insertRow` and `removeRow` add or delete a row together with its nested `frames`.
+
+  - `updateRow` patches the row's own fields, and `null` clears an optional field.
+
+  - `moveRow` resolves `to` after the row is removed from `from`.
+
+  - `setRows` replaces the whole tree.
+
+- **Every result is revalidated**
+
+  - Each action returns the props patch `{ frames }`, and the whole state is checked against `CallStackState` before it persists.
+
+```
+call-stack.insertRow(path: integer[], row: CallStackRow) -> Props patch { frames }, revalidated against CallStackState  # Insert a frame row (with optional nested `frames`) at an index path: the last element is the insert position among the addressed sibling list, preceding elements walk `frames` from the root.
+  path: integer[]  # Index path. [i] inserts at position i among the roots, [a, ..., i] at position i under the frame addressed by the prefix.
+call-stack.updateRow(path: integer[], patch: object) -> Props patch { frames }, revalidated against CallStackState  # Patch the frame row at an index path. Omitted fields stay. Null clears an optional field. Nested `frames` are untouched.
+  path: integer[]  # Index path of the frame, e.g. [0, 2] for the third child of the first root.
+  patch: object  # Partial row. Null clears an optional field.
+    text?: string  # Replacement row text, written as code.
+    kind?: "call" | "branch" | null  # Row kind ("call" | "branch"). Null clears it.
+    comment?: string | null  # Aligned comment. Null clears it.
+    change?: "added" | "modified" | "removed" | null  # Diff state ("added" | "modified" | "removed"). Null clears it.
+    source?: string | null  # Source location "path:line". Null clears it.
+call-stack.removeRow(path: integer[]) -> Props patch { frames }, revalidated against CallStackState  # Remove the frame row at an index path, together with its nested `frames`.
+  path: integer[]  # Index path of the frame to remove, e.g. [0, 2].
+call-stack.moveRow(from: integer[], to: integer[]) -> Props patch { frames }, revalidated against CallStackState  # Move the frame row at `from` (with its nested `frames`) to the insert position `to`. `to` is interpreted against the tree AFTER the row is removed.
+  from: integer[]  # Index path of the frame to move.
+  to: integer[]  # Insertion index path (last element = insert position), resolved after the row is detached.
+call-stack.setRows(rows: CallStackRow[]) -> Props patch { frames }, revalidated against CallStackState  # Bulk replace: swap the entire frame tree for the given rows.
+  rows: CallStackRow[]  # Complete replacement frame tree (nested via `frames`). An empty array empties the block.
+```
 
 ## Doc Renderer
 
-`OutlineRows` in `packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx` draws the tree in the wide left lane, one row per frame:
+`OutlineRows` in `packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx` draws the tree in the wide left lane, one row per frame, in a panel that shrinks to its content:
 
-- Box-drawing guides show depth, and the call text is colored by token: calls, keywords, strings, and numbers.
+- **The panel is a code surface**
 
-- A branch frame renders as a muted condition row.
+  - It stays dark on both the light and the dark page, and bright guides show depth.
 
-- Comments share one aligned column, and `source` renders as a `file:line` chip at the right edge.
+- **Colors follow the code theme, VS Code Dark+ by default**
+
+  - The first call in a frame is its callee, drawn bold in the function color.
+
+  - Receivers, arguments, and properties take the variable color, and literals keep their syntax colors.
+
+  - A branch's `?` and a `return` or `throw` keyword take the control-flow color.
+
+- Comments share one aligned column, and `source` renders as a muted `file:line` column at the right edge.
 
 - A changed frame gets a `+`, `-`, or `~` gutter mark and a row tint. Every color reads a `--docs-outline-rows-*` token with a literal fallback.
 

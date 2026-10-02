@@ -4,9 +4,9 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872
 
 ### rich-text
 
-Block types: paragraph, heading, list-item, quote, callout, divider, image, image-grid, video, html
+Block types: paragraph, heading, list-item, callout, divider, image, image-grid, video, html
 
-Use paragraphs for explanation, headings for hierarchy, lists for steps or parallel facts, quotes for attributed text, and callouts for a distinct note. Use images and video when the visual evidence matters. Use image-grid for ordered image comparisons: images contain src, heading?, alt?, caption?; columns is auto or 1 to 4. Rows grow with the image count. This component accepts images only, not text columns. Use html for a self-contained HTML/CSS diagram or interactive artifact; supply title and html props, inline styles and data assets. Scripts require allowScripts=true and stay in an opaque-origin sandbox with fetch and external subresources blocked. Use code for examples readers should read instead of execute. Use typed components for state, operations, tables, and diagrams.
+Use paragraphs for explanation, headings for hierarchy, lists for steps or parallel facts, and callouts for a distinct note. Use images and video when the visual evidence matters. Use image-grid for ordered image comparisons: images contain src, heading?, alt?, caption?; columns is auto or 1 to 4. Rows grow with the image count. This component accepts images only, not text columns. Use html for a self-contained HTML/CSS diagram or interactive artifact; supply title and html props, inline styles and data assets. Scripts require allowScripts=true and stay in an opaque-origin sandbox with fetch and external subresources blocked. Use code for examples readers should read instead of execute. Use typed components for state, operations, tables, and diagrams.
 
 Example: Introduce the retry policy in prose, list the recovery steps, and link to the operation definition.
 
@@ -46,7 +46,7 @@ Details: [structured-table](components/structured-table.md). Canonical document:
 
 Block types: interaction-surface
 
-Use Interaction Surface to describe the actions, queries, and events available on a state or system, including parameters and return values. Action changes state, Query reads state, and Event describes observation or notification. Each operation has its own kind-labeled card. Use returnShape with recursive fields and a JSON example for known object returns; keep returns for its name or a primitive type. Document callback payloads separately from subscription return values. Describe only non-obvious constraints or behavior. Pair it with State Shape. Use Sequence when the question concerns ordering between participants.
+Use Interaction Surface to describe the actions, queries, and events available on a state or system, including parameters and return values. Action changes state, Query reads state, and Event describes observation or notification. Each operation is one collapsed row. Hovering its name shows the kind and purpose, and opening it shows Parameters and Returns cards. Use returnShape with recursive fields and a JSON example for known object returns; keep returns for its name or a primitive type. Add exampleCall with the code text of one real example invocation (authored values, never invented). Document callback payloads separately from subscription return values. Describe only non-obvious constraints or behavior. Pair it with State Shape. Use Sequence when the question concerns ordering between participants.
 
 Example: Document openDocument, applyOperations, and checkDocument with their parameters and results.
 
@@ -86,7 +86,7 @@ Details: [sequence](components/sequence.md). Canonical document: `10-system-desi
 
 Block types: process-outline
 
-Use Process Outline for the expected execution path, with nested phases and actor-and-action step names that can be compared with a trace.
+Use Process Outline for the expected execution path, with nested phases and actor-and-action step names that can be compared with a trace. Phases are short Title Case labels, and so is the root title. Substeps are sentence case actions.
 
 Example: Outline discovery, guidance loading, editing, validation, and completion, with failure notes where needed.
 
@@ -121,16 +121,6 @@ Use Component Tree to show which component renders which, and the hooks each one
 Example: Show the doc page render tree from DocPage down to the code block, marking the hook this change added.
 
 Details: [component-tree](components/component-tree.md). Canonical document: `10-system-design/40-block-vocabulary/30-trees-and-paths/40-component-tree`.
-
-### flow-strip
-
-Block types: flow-strip
-
-Use Flow Strip to show a short linear loop or pipeline at a glance, three to six steps. Use Process Outline when steps nest or need notes, and Sequence when the exact messages between parties matter.
-
-Example: Show the docs MCP edit loop: begin, read, apply ops, check, end.
-
-Details: [flow-strip](components/flow-strip.md). Canonical document: `10-system-design/40-block-vocabulary/50-flow-and-diagrams/20-flow-strip`.
 
 ### pseudocode
 

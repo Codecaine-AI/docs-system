@@ -74,16 +74,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The five supported tones are info, decision, risk, warning, and success. Each example shows the tone icon beside an optional title, with a plain body below. The read view prints no type label. Hovering the icon shows the type name, which is "
-        },
-        {
-          "insert": "kind",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " when set and the tone name otherwise."
+          "insert": "The five supported tones are info, decision, risk, warning, and success. Each example opens with the tone icon and the printed label, then a dot and the optional title, with the body below. The label is the kind when set and the tone name otherwise."
         }
       ],
       "children": []
@@ -171,25 +162,7 @@
       },
       "text": [
         {
-          "insert": "A free-form "
-        },
-        {
-          "insert": "kind",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " wins over the tone name in the agent render and the icon tooltip. "
-        },
-        {
-          "insert": "tone",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " still drives the color."
+          "insert": "A free-form kind replaces the tone name in the printed label and in the agent render. The tone still sets the color."
         }
       ],
       "children": []
@@ -213,34 +186,13 @@
       "props": {},
       "text": [
         {
-          "insert": "Set "
-        },
-        {
           "insert": "props.variant",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " to pick one of four styles per block. "
-        },
-        {
-          "insert": "eyebrow",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " is the default, and a missing or unknown value renders as "
-        },
-        {
-          "insert": "eyebrow",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ". Every style keeps the tone color and icon and changes only the frame."
+          "insert": " accepts eyebrow, hairline, rail, and tab, and a missing or unknown value reads as eyebrow. All four variants render the same rail note, so the examples below look alike. A theme can add a fill or a frame to every variant with the tint and hairline knobs."
         }
       ],
       "children": []
@@ -255,7 +207,7 @@
       },
       "text": [
         {
-          "insert": "A colored left rail and a faint tone tint frame the callout, with the icon beside the title. Pick it for most callouts."
+          "insert": "The default variant renders the shared rail note: a 3px tone rail, the icon and label line, and the body."
         }
       ],
       "children": []
@@ -264,13 +216,22 @@
       "id": "callout-style-hairline",
       "type": "callout",
       "props": {
-        "title": "Hairline separates without a fill",
+        "title": "Hairline renders the same note",
         "tone": "decision",
         "variant": "hairline"
       },
       "text": [
         {
-          "insert": "The icon sits in its own column behind a thin tone-tinted line, with no background. Pick it for dense pages where a quiet divider is enough."
+          "insert": "The variant is stored and stamped as "
+        },
+        {
+          "insert": "data-callout-variant",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", but it does not change the layout."
         }
       ],
       "children": []
@@ -279,13 +240,13 @@
       "id": "callout-style-rail",
       "type": "callout",
       "props": {
-        "title": "Rail marks the edge",
+        "title": "Rail renders the same note",
         "tone": "warning",
         "variant": "rail"
       },
       "text": [
         {
-          "insert": "The icon sits in its own column left of a thicker, solid tone rail, with no background. Pick it over hairline when the callout needs a stronger edge but should stay unfilled."
+          "insert": "The tone, not the variant, sets the color of the rail, the icon, and the label."
         }
       ],
       "children": []
@@ -294,13 +255,13 @@
       "id": "callout-style-tab",
       "type": "callout",
       "props": {
-        "title": "Tab opens with a rule",
+        "title": "Tab renders the same note",
         "tone": "success",
         "variant": "tab"
       },
       "text": [
         {
-          "insert": "A thin tone rule runs across the top with the icon notched into it, and a faint tint fills below. Pick it when the callout heads a short run of related content."
+          "insert": "Set the tint and hairline knobs in the theme to add a fill or a frame to every callout."
         }
       ],
       "children": []
@@ -329,13 +290,13 @@
             "name": "tone",
             "type": "\"info\" | \"decision\" | \"risk\" | \"warning\" | \"success\"",
             "required": false,
-            "description": "Color/intent; the agent render's label falls back to the uppercased tone (default INFO)."
+            "description": "Sets the color of the rail, icon, and label. Without a kind, the printed label is the tone name, and the agent render falls back to the uppercased tone (default INFO)."
           },
           {
             "name": "kind",
             "type": "string",
             "required": false,
-            "description": "Free-form type name. Wins over tone in the agent render and the icon tooltip. Coerced legacy types land their old type name here."
+            "description": "Free-form type name. Replaces the tone name in the printed label and the agent render. Coerced legacy types land their old type name here."
           },
           {
             "name": "title",
@@ -347,7 +308,7 @@
             "name": "variant",
             "type": "\"eyebrow\" | \"hairline\" | \"rail\" | \"tab\"",
             "required": false,
-            "description": "Visual style of the frame. A missing or unknown value renders as eyebrow, the default. The agent render ignores it."
+            "description": "Stored and stamped as data-callout-variant. Every variant renders the same note. A missing or unknown value reads as eyebrow, and the agent render ignores it."
           }
         ],
         "name": "CalloutState",
@@ -481,7 +442,16 @@
       "props": {},
       "text": [
         {
-          "insert": "The normal editable view and the read/annotation view share CalloutDocsBlock, including its icon, optional title, style frame, and plain body. In the editor, ProseMirror owns the body content while the icon and title stay outside the editable text. Typing, formatting, undo, nested content, and clipboard metadata retain the existing document schema. Both views support info, decision, risk, warning, and success. Unknown tones fall back to info."
+          "insert": "The editable view and the read view share "
+        },
+        {
+          "insert": "CalloutDocsBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", including the rail, the icon, the printed label, the optional title, and the body. In the editor, ProseMirror owns the body while the head row stays outside the editable text. Typing, formatting, undo, nested content, and clipboard metadata keep the existing document schema. Both views support info, decision, risk, warning, and success, and unknown tones fall back to info."
         }
       ],
       "children": []
@@ -492,16 +462,16 @@
       "props": {},
       "text": [
         {
-          "insert": "Every style is minimal. No style prints a type label or a colored header band. The tone icon carries the type, and hovering it shows the type name in a tooltip. "
+          "insert": "Every callout is one rail note: a 3px left rail in the tone color, with no fill and no frame by default. The first line opens with the tone icon and the printed label in the tone color, at body size and weight 600. A "
         },
         {
-          "insert": "props.variant",
+          "insert": "·",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " selects the frame per block, as shown under Styles. Rail and line thickness come from theme tokens, so a theme restyles every callout at once. Variator retains the original, superseded directions, saved refinements, and integration evidence."
+          "insert": " separator and the title in ink at the same weight follow the label. The body sits below. The icon has no tooltip, and the label is always printed."
         }
       ],
       "children": []
@@ -808,7 +778,25 @@
           }
         },
         {
-          "insert": " is info, decision, warning, or success, and risk uses the warning palette."
+          "insert": " is info, decision, warning, risk, or success, and each accent defaults to its "
+        },
+        {
+          "insert": "--docs-tone-*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " role. The warning tone reads "
+        },
+        {
+          "insert": "--palette-amber",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []
@@ -826,7 +814,7 @@
           [
             "border",
             "--docs-callout-border",
-            "Optional override color for the rail and divider line. Unset, each tone's accent colors them."
+            "Frame color, drawn only when hairlineWidth is above 0px"
           ],
           [
             "fg",
@@ -836,27 +824,27 @@
           [
             "<tone>Accent",
             "--docs-callout-<tone>-accent",
-            "Icon, rail, line, and rule color per tone"
+            "Rail, icon, and label color per tone"
           ],
           [
             "<tone>Tint",
             "--docs-callout-<tone>-tint",
-            "Faint tint behind eyebrow and tab callouts. Replaces <tone>HeaderBg."
+            "Fill behind the note, transparent by default"
           ],
           [
             "<tone>TitleFg",
             "--docs-callout-<tone>-title-fg",
-            "Title text color. Replaces <tone>HeaderFg."
+            "Title color, the ink by default"
           ],
           [
             "railWidth",
             "--docs-callout-rail-width",
-            "Eyebrow rail and rail-style thickness, 2px by default"
+            "Left rail thickness, 3px by default"
           ],
           [
             "hairlineWidth",
             "--docs-callout-hairline-width",
-            "Hairline divider and tab rule thickness, 1px by default"
+            "Frame thickness, 0px by default"
           ],
           [
             "radius",
@@ -866,27 +854,27 @@
           [
             "padX",
             "--docs-callout-pad-x",
-            "Horizontal padding"
+            "Horizontal padding, 14px by default"
           ],
           [
             "padY",
             "--docs-callout-pad-y",
-            "Vertical padding of the whole eyebrow and tab frame, 12px by default"
+            "Vertical padding, 2px by default"
           ],
           [
             "titleTextSize",
             "--docs-callout-title-text-size",
-            "Title font size"
+            "Size of the label and title line, the body size by default"
           ],
           [
             "titleWeight",
             "--docs-callout-title-weight",
-            "Title font weight"
+            "Title weight, 600 by default"
           ],
           [
             "iconSize",
             "--docs-callout-icon-size",
-            "Tone icon size"
+            "Tone icon size, 16px by default"
           ],
           [
             "bodyTextScale",
@@ -896,7 +884,7 @@
           [
             "margin",
             "--docs-callout-margin",
-            "Space above and below the callout"
+            "Space above and below the callout, 20px by default"
           ]
         ]
       },

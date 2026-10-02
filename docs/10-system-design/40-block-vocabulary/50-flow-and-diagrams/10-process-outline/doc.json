@@ -241,7 +241,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Three sibling types answer narrower questions: "
+          "insert": "Two sibling types answer narrower questions: "
         },
         {
           "insert": "call-stack",
@@ -253,7 +253,7 @@
           }
         },
         {
-          "insert": " for one code path frame by frame, "
+          "insert": " for one code path frame by frame, and "
         },
         {
           "insert": "component-tree",
@@ -265,19 +265,7 @@
           }
         },
         {
-          "insert": " for which component renders which, and "
-        },
-        {
-          "insert": "flow-strip",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "10-system-design/40-block-vocabulary/50-flow-and-diagrams/20-flow-strip"
-            }
-          }
-        },
-        {
-          "insert": " for a short loop at a glance."
+          "insert": " for which component renders which."
         }
       ],
       "children": []
@@ -312,10 +300,10 @@
       "props": {
         "steps": [
           {
-            "text": "Run mode",
+            "text": "Run Mode",
             "steps": [
               {
-                "text": "Get epoch-size candidates from the ranked worker system",
+                "text": "Get Epoch-size Candidates From the Ranked Worker System",
                 "steps": [
                   {
                     "text": "Exclude locked, cooled-down, or unschedulable work"
@@ -326,7 +314,7 @@
                 ]
               },
               {
-                "text": "Drain the epoch with workers",
+                "text": "Drain the Epoch With Workers",
                 "steps": [
                   {
                     "text": "Spawn workers through the kernel until the epoch is drained"
@@ -345,7 +333,7 @@
                 ]
               },
               {
-                "text": "Finish the epoch",
+                "text": "Finish the Epoch",
                 "steps": [
                   {
                     "text": "Run the full build"
@@ -643,7 +631,16 @@
           }
         },
         {
-          "insert": " lines group into one note card, rendered as bullets."
+          "insert": " lines group into one note block, and each line renders as its own "
+        },
+        {
+          "insert": "//",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " aside."
         }
       ],
       "children": []
@@ -750,7 +747,8 @@
       ],
       "children": [
         "b-90-process-outline-wr-steps-1",
-        "b-90-process-outline-wr-steps-2"
+        "b-90-process-outline-wr-steps-2",
+        "b-90-process-outline-wr-steps-case"
       ]
     },
     "b-90-process-outline-wr-steps-1": {
@@ -771,6 +769,26 @@
       "text": [
         {
           "insert": "Move explanations into notes. Keep conditions that change whether an action happens explicit in the step or its parent."
+        }
+      ],
+      "children": []
+    },
+    "b-90-process-outline-wr-steps-case": {
+      "id": "b-90-process-outline-wr-steps-case",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Write the root title and each phase as a short Title Case label, and keep substeps as sentence-case actions. The "
+        },
+        {
+          "insert": "process-outline.phase-title-case",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " lint enforces this."
         }
       ],
       "children": []
@@ -915,7 +933,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Use backticks for code identifiers and actors such as Worker or Operator. Chips use the line's depth color and can contain multiple words."
+          "insert": "Use backticks for code identifiers and actors such as Worker or Operator. A chip's text colour follows what the code is, and one chip can hold several words."
         }
       ],
       "children": []
@@ -1624,28 +1642,13 @@
       "props": {},
       "text": [
         {
-          "insert": "The "
-        },
-        {
-          "insert": "Doc renderer",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "10-system-design/30-data-model/20-block-design/30-doc-renderer"
-            }
-          }
-        },
-        {
-          "insert": " contract element, "
-        },
-        {
           "insert": "ProcessOutlineDocsBlock",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": ":"
+          "insert": " implements the Doc renderer contract element in five parts."
         }
       ],
       "children": []
@@ -1661,7 +1664,9 @@
       ],
       "children": [
         "b-90-process-outline-dr-loop-1",
+        "b-90-process-outline-dr-loop-panel",
         "b-90-process-outline-dr-loop-2",
+        "b-90-process-outline-dr-loop-width",
         "b-90-process-outline-dr-empty-1"
       ]
     },
@@ -1677,7 +1682,18 @@
           }
         },
         {
-          "insert": " derives depth-computed nodes from the step tree; the viewer never parses, and the forest draws as monospace text."
+          "insert": " derives depth-computed nodes from the step tree, and the viewer never parses notation. Each root step draws as a panel whose head strip shows the flow tile and the root text."
+        }
+      ],
+      "children": []
+    },
+    "b-90-process-outline-dr-loop-panel": {
+      "id": "b-90-process-outline-dr-loop-panel",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The panel follows the page, light on the light page and dark on the dark page. It is not a code surface."
         }
       ],
       "children": []
@@ -1688,7 +1704,27 @@
       "props": {},
       "text": [
         {
-          "insert": "The stylesheet is shared within the document. The approved Continuous Outline fills its lane, uses a faint background and rounded top and bottom boundaries, and wraps text within narrow containers."
+          "insert": "A lone outline shrinks to its content, capped at the wide lane, and its step lines wrap at 60ch."
+        }
+      ],
+      "children": []
+    },
+    "b-90-process-outline-dr-loop-width": {
+      "id": "b-90-process-outline-dr-loop-width",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Consecutive outlines share one width, the widest of the run, which "
+        },
+        {
+          "insert": "equal-width.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " measures."
         }
       ],
       "children": []
@@ -1719,7 +1755,7 @@
       "props": {},
       "text": [
         {
-          "insert": "One ink, one rail per depth"
+          "insert": "One neutral rail"
         }
       ],
       "children": [
@@ -1737,7 +1773,7 @@
       "props": {},
       "text": [
         {
-          "insert": "One trunk connects the process parent to its ordered phases. Rounded elbows and open arrowheads connect each child. The approved Continuous Outline uses 1.5px strokes and distinct branch colors by depth."
+          "insert": "A 1.5px rail drops from each parent and ends in a plain file-tree elbow before each child. The elbow is a short tick with no arrowhead."
         }
       ],
       "children": []
@@ -1748,7 +1784,16 @@
       "props": {},
       "text": [
         {
-          "insert": "Indentation and line height set the branch geometry. The approved tuning revision explicitly overrides trunk, elbow, and arrowhead widths together so the line-thickness control changes the entire connection."
+          "insert": "Indentation and line height set the geometry, and each elbow meets the middle of its step's first line. The tick stops "
+        },
+        {
+          "insert": "--docs-process-outline-arrow-gap",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " short of the text, 4px by default."
         }
       ],
       "children": []
@@ -1759,7 +1804,25 @@
       "props": {},
       "text": [
         {
-          "insert": "The approved tuning values assign six depth colors. A deeper node without an explicit override inherits its ancestor’s color. Colors identify nesting, not actors or runtime conditions."
+          "insert": "Depth reads from indent, not colour, so every depth shares one rail colour. The light rail is "
+        },
+        {
+          "insert": "color-mix(in srgb, var(--docs-ink) 45%, var(--docs-panel))",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and the dark rail is "
+        },
+        {
+          "insert": "color-mix(in srgb, var(--docs-ink) 75%, transparent)",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []
@@ -1770,7 +1833,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Elbows and arrowheads share the same indentation variables. Their overlap keeps the visible connections joined."
+          "insert": "The trunk continues only toward a later step, so a trailing note hangs free. The first phase hangs from the panel's head rule."
         }
       ],
       "children": []
@@ -1781,10 +1844,19 @@
       "props": {},
       "text": [
         {
-          "insert": "Every geometry var reads a style-rail token with the prototype default as fallback: "
+          "insert": "Every geometry and size value reads a "
         },
         {
-          "insert": "--docs-process-outline-indent",
+          "insert": "--docs-process-outline-*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " style-rail token, with its light default as the fallback. The suffixes are "
+        },
+        {
+          "insert": "indent",
           "attributes": {
             "code": true
           }
@@ -1793,7 +1865,7 @@
           "insert": ", "
         },
         {
-          "insert": "--docs-process-outline-row-gap",
+          "insert": "row-gap",
           "attributes": {
             "code": true
           }
@@ -1802,7 +1874,7 @@
           "insert": ", "
         },
         {
-          "insert": "--docs-process-outline-arrow-gap",
+          "insert": "branch-gap",
           "attributes": {
             "code": true
           }
@@ -1811,7 +1883,7 @@
           "insert": ", "
         },
         {
-          "insert": "--docs-process-outline-line-height",
+          "insert": "root-gap",
           "attributes": {
             "code": true
           }
@@ -1820,7 +1892,7 @@
           "insert": ", "
         },
         {
-          "insert": "--docs-process-outline-arrow-size",
+          "insert": "arrow-gap",
           "attributes": {
             "code": true
           }
@@ -1829,52 +1901,43 @@
           "insert": ", "
         },
         {
-          "insert": "--docs-process-outline-stroke",
+          "insert": "line-height",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": ", plus "
+          "insert": ", "
         },
         {
-          "insert": "--docs-process-outline-branch-gap",
+          "insert": "stroke",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " for depth-one phase groups and "
+          "insert": ", "
         },
         {
-          "insert": "--docs-process-outline-root-gap",
+          "insert": "text-size",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " between root steps; step text size reads "
+          "insert": ", "
         },
         {
-          "insert": "--docs-process-outline-text-size",
+          "insert": "root-text-size",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": ", the root line reads "
+          "insert": ", and "
         },
         {
-          "insert": "--docs-process-outline-root-text-size",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", and the empty placeholder reads "
-        },
-        {
-          "insert": "--docs-process-outline-empty-text-size",
+          "insert": "empty-text-size",
           "attributes": {
             "code": true
           }
@@ -1891,7 +1954,25 @@
       "props": {},
       "text": [
         {
-          "insert": "The current renderer shows all content. Colors identify depth, not actors, conditions, or step kinds."
+          "insert": "The six depth tokens, "
+        },
+        {
+          "insert": "cycle-1",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " to "
+        },
+        {
+          "insert": "cycle-6",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", tint only the note accent and the selection, never a rail or an elbow."
         }
       ],
       "children": []
@@ -1908,7 +1989,8 @@
       "children": [
         "b-90-process-outline-dr-weight-1",
         "b-90-process-outline-dr-weight-2",
-        "b-90-process-outline-dr-weight-3"
+        "b-90-process-outline-dr-weight-3",
+        "b-90-process-outline-dr-weight-aa"
       ]
     },
     "b-90-process-outline-dr-weight-1": {
@@ -1917,7 +1999,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Root lines render heaviest, depth-one steps semibold, and depth three and deeper dims to a 78% mix of the ink."
+          "insert": "The root title and each phase, a first-level step with substeps, render in ink at weight 600. Nested steps render at weight 400, and phases with substeps sit 16px apart."
         }
       ],
       "children": []
@@ -1961,7 +2043,25 @@
           }
         },
         {
-          "insert": " anywhere in it render bold as keywords, in a rust accent held deliberately outside the depth cycle so loop control reads the same at every level."
+          "insert": " anywhere in it render as loop keywords at weight 500. They use the VS Code control colour, "
+        },
+        {
+          "insert": "#AF00DB",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in Light+ and "
+        },
+        {
+          "insert": "#C586C0",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in Dark+."
         }
       ],
       "children": []
@@ -1972,7 +2072,72 @@
       "props": {},
       "text": [
         {
-          "insert": "Backticks render code chips in the line's depth color. Multi-word spans remain one chip."
+          "insert": "Backticks render typed code chips, and a multi-word span stays one chip. "
+        },
+        {
+          "insert": "chipKind",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "packages/docs-viewer/src/components/typed-chip.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " picks the kind, and "
+        },
+        {
+          "insert": "typedChipVsCodeColorCss",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " colours it through "
+        },
+        {
+          "insert": "light-dark()",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with Light+ and Dark+."
+        }
+      ],
+      "children": []
+    },
+    "b-90-process-outline-dr-weight-aa": {
+      "id": "b-90-process-outline-dr-weight-aa",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Two Light+ chip colours are darkened to keep 4.5:1 contrast on the chip fill, type to "
+        },
+        {
+          "insert": "#22728A",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and number to "
+        },
+        {
+          "insert": "#08794F",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []
@@ -1998,7 +2163,34 @@
       "props": {},
       "text": [
         {
-          "insert": "Supporting notes appear as short bullet lines with a vertical guide. Note text, dots, and that guide have separate color controls in Variator. Every authored note remains visible."
+          "insert": "A note renders in italics behind a mono "
+        },
+        {
+          "insert": "//",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " marker, aligned with its sibling steps. Notes use the VS Code comment colour, "
+        },
+        {
+          "insert": "#008000",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in Light+ and "
+        },
+        {
+          "insert": "#6A9955",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in Dark+."
         }
       ],
       "children": []
@@ -2009,7 +2201,16 @@
       "props": {},
       "text": [
         {
-          "insert": "Consecutive note siblings collapse into one card, each note a bullet in its list."
+          "insert": "Consecutive note siblings group into one block, and each note stays its own "
+        },
+        {
+          "insert": "//",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " line."
         }
       ],
       "children": []
@@ -2109,7 +2310,7 @@
       "props": {},
       "text": [
         {
-          "insert": "```process-outline\nRun mode\n     -> Get epoch-size candidates from the ranked worker system\n          -> Exclude locked, cooled-down, or unschedulable work\n          -> Keep enough ready work to feed the worker pool\n     -> Drain the epoch with workers\n          -> Spawn workers through the kernel until the epoch is drained\n          -> Each worker gets its own isolated worktree\n          > workers produce tentative evidence\n          > the epoch boundary makes the map authoritative again\n     -> Finish the epoch\n          -> Run the full build\n          -> Move every item to its authoritative lane\n     -> Continue\n          -> Repeat until the operator stops or the run bound is reached\n```"
+          "insert": "```process-outline\nRun Mode\n     -> Get Epoch-size Candidates From the Ranked Worker System\n          -> Exclude locked, cooled-down, or unschedulable work\n          -> Keep enough ready work to feed the worker pool\n     -> Drain the Epoch With Workers\n          -> Spawn workers through the kernel until the epoch is drained\n          -> Each worker gets its own isolated worktree\n          > workers produce tentative evidence\n          > the epoch boundary makes the map authoritative again\n     -> Finish the Epoch\n          -> Run the full build\n          -> Move every item to its authoritative lane\n     -> Continue\n          -> Repeat until the operator stops or the run bound is reached\n```"
         }
       ],
       "children": []
@@ -2175,7 +2376,34 @@
       "props": {},
       "text": [
         {
-          "insert": "The theme registry retains the original Process Outline variables listed below. The approved Continuous Outline also embeds its saved Variator overrides for six branch colors, 1.5px strokes, and note colors. Those overrides take precedence over inherited theme values. The component’s design approval package records the exact values and their scope."
+          "insert": "The "
+        },
+        {
+          "insert": "process-outline",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " entry in "
+        },
+        {
+          "insert": "THEME_TOKEN_REGISTRY",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " lists the variables below. "
+        },
+        {
+          "insert": "semantic.css",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " sets each one in a light block and a dark block, and the table gives both values where they differ."
         }
       ],
       "children": []
@@ -2212,7 +2440,16 @@
       "props": {},
       "text": [
         {
-          "insert": "Length controls set indentation, gaps, line heights, text sizes, note spacing, and arrow geometry. Strength controls set note accents and chip mixes."
+          "insert": "Length controls set indentation, gaps, line heights, text sizes, note spacing, and the "
+        },
+        {
+          "insert": "Elbow gap",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": ". Strength controls set the note accent and the selection tint."
         }
       ],
       "children": []
@@ -2310,7 +2547,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Deep-step ink mixes the main ink at 78 percent by default."
+          "insert": "Deep-step ink defaults to the main ink."
         }
       ],
       "children": []
@@ -2321,7 +2558,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Opaque rail"
+          "insert": "Rail per mode"
         }
       ],
       "children": [
@@ -2335,7 +2572,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The fallback rail color is opaque. Transparent overlapping strokes can create darker joins."
+          "insert": "The light rail mixes ink into the panel colour, so the stroke stays opaque."
         }
       ],
       "children": []
@@ -2346,25 +2583,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Light "
-        },
-        {
-          "insert": "#b3b1ad",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", dark "
-        },
-        {
-          "insert": "#5d6266",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "."
+          "insert": "The dark rail is ink at 75% opacity over the dark panel."
         }
       ],
       "children": []
@@ -2381,138 +2600,123 @@
         "rows": [
           [
             "--docs-process-outline-ink",
-            "--docs-viewer-text-body",
-            "Text ink, title and step lines"
+            "--docs-text",
+            "Step text"
+          ],
+          [
+            "--docs-process-outline-title-fg",
+            "--docs-ink",
+            "Root title and phase lines"
           ],
           [
             "--docs-process-outline-deep-ink",
-            "78% mix of the ink",
+            "the ink",
             "Step text at depth three and deeper"
           ],
           [
-            "--docs-process-outline-rail",
-            "#b3b1ad light · #5d6266 dark",
-            "Fallback for the depth cycle, used wherever a cycle slot is missing"
+            "--docs-process-outline-bg, -header-bg",
+            "--docs-panel",
+            "Panel and head strip fill"
           ],
           [
-            "--docs-process-outline-cycle-1..5",
-            "steel blue, sage, plum, slate teal, ochre",
-            "The depth cycle, one hue per nesting level, then it repeats"
+            "--docs-process-outline-border",
+            "--docs-rule",
+            "Panel frame"
+          ],
+          [
+            "--docs-process-outline-rail",
+            "color-mix(in srgb, var(--docs-ink) 45%, var(--docs-panel)) light · color-mix(in srgb, var(--docs-ink) 75%, transparent) dark",
+            "Rails and elbows at every depth"
+          ],
+          [
+            "--docs-process-outline-cycle-1..6",
+            "--docs-cat-1, -3, -5, -4, -2, -6",
+            "Note accent and selection tint only"
           ],
           [
             "--docs-process-outline-keyword-fg",
-            "#a4552c light · #e2a07e dark",
-            "Loop keywords, outside the depth cycle on purpose"
+            "#AF00DB light · #C586C0 dark",
+            "Loop keywords, the VS Code control colour, at keyword-weight 500"
           ],
           [
             "--docs-process-outline-note-fg",
-            "the ink",
-            "Note card text"
+            "#008000 light · #6A9955 dark",
+            "Note text, the VS Code comment colour"
           ],
           [
-            "--docs-process-outline-note-bg",
-            "#f2f1ed light · rgba(255,255,255,.045) dark",
-            "Note card fill, flat and muted, never depth-tinted"
-          ],
-          [
-            "--docs-process-outline-note-border",
-            "--border",
-            "Note card border, and what the accented left rule mixes into"
+            "--docs-process-outline-note-bullet",
+            "#008000 light · #6A9955 dark",
+            "The // note marker"
           ],
           [
             "--docs-process-outline-code-bg",
-            "transparent",
-            "What the chip tint mixes over, set it opaque for a flat chip"
+            "--docs-chip-bg",
+            "Chip fill"
           ],
           [
             "--docs-process-outline-indent",
-            "46px",
-            "Horizontal inset per nesting level, also the elbow's left edge"
+            "28px",
+            "Horizontal inset per nesting level"
           ],
           [
             "--docs-process-outline-row-gap",
-            "12px",
+            "4px",
             "Vertical gap between sibling rows"
           ],
           [
             "--docs-process-outline-branch-gap",
-            "20px",
-            "Row gap inside a depth-one phase group, does not cascade deeper"
+            "16px",
+            "Gap between phases that have substeps"
           ],
           [
             "--docs-process-outline-root-gap",
-            "30px",
-            "Separation between root steps"
+            "12px",
+            "Gap between root panels"
           ],
           [
             "--docs-process-outline-arrow-gap",
             "4px",
-            "Arrowhead tip to the first letter"
+            "Gap between the elbow tick and the step text"
           ],
           [
             "--docs-process-outline-line-height",
-            "22px",
-            "Step first-line height, the elbow centers on half of it"
+            "24px",
+            "Step line height, the elbow meets half of it"
           ],
           [
             "--docs-process-outline-text-size",
-            "12.5px",
+            "13.5px",
             "Step text size"
           ],
           [
             "--docs-process-outline-root-text-size",
             "13.5px",
-            "Root step text size"
+            "Root title text size"
           ],
           [
-            "--docs-process-outline-empty-text-size",
-            "12px",
-            "Empty-outline placeholder text size"
+            "--docs-process-outline-branch-weight",
+            "600",
+            "Phase line weight"
+          ],
+          [
+            "--docs-process-outline-step-weight",
+            "400",
+            "Nested step weight"
           ],
           [
             "--docs-process-outline-note-text-size",
-            "11.5px",
-            "Note card text size"
+            "13.5px",
+            "Note text size"
           ],
           [
             "--docs-process-outline-note-line-height",
-            "17px",
-            "Note card line height, bullet dots center on half of it"
-          ],
-          [
-            "--docs-process-outline-note-inset",
-            "10px",
-            "How far the note card is pulled in under its parent step"
-          ],
-          [
-            "--docs-process-outline-note-rule-width",
-            "2px",
-            "Width of the note card's accented left rule"
-          ],
-          [
-            "--docs-process-outline-note-accent",
-            "55 light · 60 dark",
-            "Depth-color strength in the note rule and bullet dots (unitless %)"
-          ],
-          [
-            "--docs-process-outline-chip-tint",
-            "13 light · 15 dark",
-            "Depth-color strength in the chip fill (unitless %)"
-          ],
-          [
-            "--docs-process-outline-chip-ink-mix",
-            "60 light · 70 dark",
-            "Depth-color strength in the chip label, mixed into the ink (unitless %)"
-          ],
-          [
-            "--docs-process-outline-arrow-size",
-            "6px",
-            "Arrowhead edge length"
+            "21px",
+            "Note line height"
           ],
           [
             "--docs-process-outline-stroke",
             "1.5px",
-            "Rail stroke width, trunks, elbows, arrowheads"
+            "Rail and elbow stroke width"
           ]
         ]
       },

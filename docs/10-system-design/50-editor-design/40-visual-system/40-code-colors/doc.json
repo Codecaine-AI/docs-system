@@ -1,0 +1,807 @@
+{
+  "schemaVersion": 1,
+  "id": "doc-197f452d8d0858d06f1097a03f863f0d",
+  "title": "Code Colors From Your Editor",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "cc-intro",
+        "cc-h-rule",
+        "cc-rule-lead",
+        "cc-rule-1",
+        "cc-rule-2",
+        "cc-rule-3",
+        "cc-roles-lead",
+        "cc-roles",
+        "cc-h-chips",
+        "cc-chips-lead",
+        "cc-chips-table",
+        "cc-chips-contrast",
+        "cc-h-import",
+        "cc-import-lead",
+        "cc-import-1",
+        "cc-import-2",
+        "cc-import-notes",
+        "cc-h-component",
+        "cc-component-lead",
+        "cc-component-1",
+        "cc-component-2",
+        "cc-component-3",
+        "cc-component-4",
+        "cc-component-5",
+        "cc-h-why",
+        "cc-why-lead",
+        "cc-why-1",
+        "cc-why-2"
+      ]
+    },
+    "cc-intro": {
+      "id": "cc-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every component that shows code colors its tokens with the colors of the code editor you already use. The colors come from the central code theme, which "
+        },
+        {
+          "insert": "docs-cli code-theme import",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " reads from your active VS Code or Cursor theme. A function, a type, or a string then looks the way it does where you write it, so a diagram reads at a glance instead of through a new palette."
+        }
+      ],
+      "children": []
+    },
+    "cc-h-rule": {
+      "id": "cc-h-rule",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The Rule"
+        }
+      ],
+      "children": []
+    },
+    "cc-rule-lead": {
+      "id": "cc-rule-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Three rules decide how a component that shows code looks:"
+        }
+      ],
+      "children": []
+    },
+    "cc-rule-1": {
+      "id": "cc-rule-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every code component is a code surface",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "cc-rule-1a",
+        "cc-rule-1b"
+      ]
+    },
+    "cc-rule-1a": {
+      "id": "cc-rule-1a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Its panel carries "
+        },
+        {
+          "insert": "data-code-surface=\"true\"",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", so the panel stays dark on both the light and the dark page while the "
+        },
+        {
+          "insert": "Code panels",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " setting is dark."
+        }
+      ],
+      "children": []
+    },
+    "cc-rule-1b": {
+      "id": "cc-rule-1b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The code surfaces are the code block, pseudocode, file tree, file explorer, call stack, component tree, state shape, and interaction surface."
+        }
+      ],
+      "children": []
+    },
+    "cc-rule-2": {
+      "id": "cc-rule-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Token colors read the code theme's syntax roles",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "cc-rule-2a",
+        "cc-rule-2b"
+      ]
+    },
+    "cc-rule-2a": {
+      "id": "cc-rule-2a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Inside a code panel, each token kind maps to one "
+        },
+        {
+          "insert": "--syntax-*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " variable, never to a page color."
+        }
+      ],
+      "children": []
+    },
+    "cc-rule-2b": {
+      "id": "cc-rule-2b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "In a code panel, the literal fallback is the VS Code Dark+ value, so a static export without the workbench theme still renders Dark+."
+        }
+      ],
+      "children": []
+    },
+    "cc-rule-3": {
+      "id": "cc-rule-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Meaning colors stay role tokens",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "cc-rule-3a"
+      ]
+    },
+    "cc-rule-3a": {
+      "id": "cc-rule-3a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Diff marks, row tints, and operation kind badges use "
+        },
+        {
+          "insert": "--docs-diff-*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "--docs-kind-*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", because no editor theme defines what they mean."
+        }
+      ],
+      "children": []
+    },
+    "cc-roles-lead": {
+      "id": "cc-roles-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The table maps each syntax role to what it colors across the components."
+        }
+      ],
+      "children": []
+    },
+    "cc-roles": {
+      "id": "cc-roles",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Role",
+          "Variable",
+          "Colors",
+          "Dark+"
+        ],
+        "rows": [
+          [
+            "function",
+            "`--syntax-function`",
+            "Callees, calls, hooks, and operation names",
+            "`#DCDCAA`"
+          ],
+          [
+            "key",
+            "`--syntax-key`",
+            "Variables, arguments, properties, JSX attributes, and field names",
+            "`#9CDCFE`"
+          ],
+          [
+            "type",
+            "`--syntax-type`",
+            "Types and React components",
+            "`#4EC9B0`"
+          ],
+          [
+            "tag",
+            "`--syntax-tag`",
+            "Intrinsic JSX tags",
+            "`#569CD6`"
+          ],
+          [
+            "keyword",
+            "`--syntax-keyword`",
+            "Declaration keywords and JSX expression braces",
+            "`#569CD6`"
+          ],
+          [
+            "control",
+            "`--syntax-control`",
+            "`return`, `throw`, and the `?` of a branch row",
+            "`#C586C0`"
+          ],
+          [
+            "string",
+            "`--syntax-string`",
+            "String literals and string literal types",
+            "`#CE9178`"
+          ],
+          [
+            "number",
+            "`--syntax-number`",
+            "Numbers",
+            "`#B5CEA8`"
+          ],
+          [
+            "punctuation",
+            "`--syntax-punctuation`",
+            "Operators and punctuation, and JSX angle brackets at 60%",
+            "`#D4D4D4`"
+          ]
+        ]
+      },
+      "children": []
+    },
+    "cc-h-chips": {
+      "id": "cc-h-chips",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Inline Code Chips"
+        }
+      ],
+      "children": []
+    },
+    "cc-chips-lead": {
+      "id": "cc-chips-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Inline code chips follow the page, while code panels stay Dark+. A chip uses Light+ on the light page and Dark+ on the dark page. "
+        },
+        {
+          "insert": "chipKind",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "packages/docs-viewer/src/components/typed-chip.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/components/typed-chip.ts"
+            }
+          }
+        },
+        {
+          "insert": " sorts each chip into one kind, and the table gives the color per kind. A chip never breaks mid-token."
+        }
+      ],
+      "children": []
+    },
+    "cc-chips-table": {
+      "id": "cc-chips-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Kind",
+          "Light+",
+          "Dark+"
+        ],
+        "rows": [
+          [
+            "path and string",
+            "`#A31515`",
+            "`--syntax-string`, `#CE9178`"
+          ],
+          [
+            "type",
+            "`#22728A`",
+            "`--syntax-type`, `#4EC9B0`"
+          ],
+          [
+            "call",
+            "`#795E26`",
+            "`--syntax-function`, `#DCDCAA`"
+          ],
+          [
+            "number",
+            "`#08794F`",
+            "`--syntax-number`, `#B5CEA8`"
+          ],
+          [
+            "keyword",
+            "`#0000FF`",
+            "`--syntax-keyword`, `#569CD6`"
+          ],
+          [
+            "property",
+            "`#001080`",
+            "`--syntax-key`, `#9CDCFE`"
+          ],
+          [
+            "unclassified",
+            "`#1F1F1F`",
+            "`#D4D4D4`"
+          ]
+        ]
+      },
+      "children": []
+    },
+    "cc-chips-contrast": {
+      "id": "cc-chips-contrast",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The type and number colors are darkened from Light+ "
+        },
+        {
+          "insert": "#267F99",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "#098658",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " to keep 4.5:1 contrast on the chip fill."
+        }
+      ],
+      "children": []
+    },
+    "cc-h-import": {
+      "id": "cc-h-import",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Import Your Editor Theme"
+        }
+      ],
+      "children": []
+    },
+    "cc-import-lead": {
+      "id": "cc-import-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The import writes your editor's colors into the syntax roles, and every workbench applies the active code theme to every code surface. Run these two steps from the repository root:"
+        }
+      ],
+      "children": []
+    },
+    "cc-import-1": {
+      "id": "cc-import-1",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Run "
+        },
+        {
+          "insert": "bun run docs code-theme import --from cursor --use",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "cc-import-2": {
+      "id": "cc-import-2",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Reload the workbench."
+        }
+      ],
+      "children": []
+    },
+    "cc-import-notes": {
+      "id": "cc-import-notes",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "--from",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " flag also takes "
+        },
+        {
+          "insert": "auto",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", which prefers Cursor, "
+        },
+        {
+          "insert": "vscode",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", or a path to a theme JSON file. "
+        },
+        {
+          "insert": "importVscodeTheme",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "packages/docs-model/src/code-theme/vscode-import.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " maps the theme's TextMate scopes and semantic tokens onto the roles."
+        }
+      ],
+      "children": []
+    },
+    "cc-h-component": {
+      "id": "cc-h-component",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Bring a Component Onto the Code Theme"
+        }
+      ],
+      "children": []
+    },
+    "cc-component-lead": {
+      "id": "cc-component-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Give these steps to an agent to move a component onto the code theme. The outline-rows renderer in "
+        },
+        {
+          "insert": "packages/docs-viewer/src/components/outline-rows/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is the reference implementation. To size the component's panel, follow "
+        },
+        {
+          "insert": "Block Widths and Lanes",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/50-block-widths"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "cc-component-1": {
+      "id": "cc-component-1",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Add "
+        },
+        {
+          "insert": "data-code-surface=\"true\"",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " to the component's outer panel."
+        }
+      ],
+      "children": []
+    },
+    "cc-component-2": {
+      "id": "cc-component-2",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Split the component's code text into tokens, and give each token a role from the table."
+        }
+      ],
+      "children": []
+    },
+    "cc-component-3": {
+      "id": "cc-component-3",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Color each role through a "
+        },
+        {
+          "insert": "--docs-<component>-*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " knob that defaults to its "
+        },
+        {
+          "insert": "--syntax-*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " variable, with the Dark+ value as the literal fallback. For a component on the page rather than in a code panel, use "
+        },
+        {
+          "insert": "typedChipVsCodeColorCss",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", which picks Light+ or Dark+ through "
+        },
+        {
+          "insert": "light-dark()",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "cc-component-4": {
+      "id": "cc-component-4",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Keep each registered knob at one default in the registry, in both "
+        },
+        {
+          "insert": "semantic.css",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " theme blocks, and in the component, then run the style-rail test."
+        }
+      ],
+      "children": []
+    },
+    "cc-component-5": {
+      "id": "cc-component-5",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Compare light and dark side by side at "
+        },
+        {
+          "insert": "/playground.html?doc=<catalog path>&type=<block type>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " on the workbench dev server."
+        }
+      ],
+      "children": []
+    },
+    "cc-h-why": {
+      "id": "cc-h-why",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why"
+        }
+      ],
+      "children": []
+    },
+    "cc-why-lead": {
+      "id": "cc-why-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Two reasons favor the editor's colors over a docs palette:"
+        }
+      ],
+      "children": []
+    },
+    "cc-why-1": {
+      "id": "cc-why-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Recognition beats a new palette",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "cc-why-1a"
+      ]
+    },
+    "cc-why-1a": {
+      "id": "cc-why-1a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "You already read yellow as a call and teal as a type, so a call stack or a render tree makes sense on sight."
+        }
+      ],
+      "children": []
+    },
+    "cc-why-2": {
+      "id": "cc-why-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "One import retunes every component",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "cc-why-2a"
+      ]
+    },
+    "cc-why-2a": {
+      "id": "cc-why-2a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "After you switch editor themes, one import updates every code surface without a per-component edit."
+        }
+      ],
+      "children": []
+    }
+  }
+}
